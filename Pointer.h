@@ -108,6 +108,11 @@ public:
 		*((T*)_Pointer) = value
 	}
 
+	static void* Base()
+	{
+		return GetModuleBase();
+	}
+
 private:
 	void* _Pointer;
 };
