@@ -101,9 +101,16 @@ public:
 		return as<unsigned char>();
 	}
 
-	inline void Set(unsigned int Pointer)
+	// Templated write
+	template <class T>
+	inline void set(const T& value)
 	{
-		_Pointer = (void*)Pointer;
+		*((T*)_Pointer) = value
+	}
+
+	static void* Base()
+	{
+		return GetModuleBase();
 	}
 
 private:
