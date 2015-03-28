@@ -9,7 +9,7 @@ public:
 	Godmode();
 	~Godmode();
 
-	bool enabled;
+	bool enabled; 
 	uint8_t reset[8];
 	uint8_t god[8];
 
