@@ -29,20 +29,26 @@ unsigned int GetMainThreadId()
 
 void* GetModuleBase()
 {
-	HANDLE hSnapShot = CreateToolhelp32Snapshot(
-		TH32CS_SNAPMODULE,
-		GetCurrentProcessId());
-	if( hSnapShot == INVALID_HANDLE_VALUE )
-	{
-		return nullptr;
-	}
-	MODULEENTRY32 lpModuleEntry;
-	lpModuleEntry.dwSize = sizeof(MODULEENTRY32);
-	int bRet = Module32First(hSnapShot, &lpModuleEntry);
-	CloseHandle(hSnapShot);
-	return (bRet != 0) ? (void*)lpModuleEntry.modBaseAddr : nullptr;
-}
+	static void* Base = nullptr;
 
+	if (Base == nullptr)
+	{
+		HANDLE hSnapShot = CreateToolhelp32Snapshot(
+			TH32CS_SNAPMODULE,
+			GetCurrentProcessId());
+		if (hSnapShot == INVALID_HANDLE_VALUE)
+		{
+			return nullptr;
+		}
+		MODULEENTRY32 lpModuleEntry;
+		lpModuleEntry.dwSize = sizeof(MODULEENTRY32);
+		int bRet = Module32First(hSnapShot, &lpModuleEntry);
+		CloseHandle(hSnapShot);
+		Base = (bRet != 0) ? (void*)lpModuleEntry.modBaseAddr : nullptr;
+	}
+
+	return Base;
+}
 void* GetModuleBase(const std::string& ModuleName)
 {
 	HANDLE hSnapShot = CreateToolhelp32Snapshot(
