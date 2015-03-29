@@ -28,25 +28,25 @@ void Ammo::Tick(const std::chrono::duration<double>& Delta)
 }
 
 void Ammo::Run(const std::vector<std::string>& Args)
-{	
+{
 	const size_t OffsetWeapon = 0x75FACD;
 
 	// Nop elements (Patch)
 	const uint8_t unlimitedAmmo[8] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
 
 	// Set
-	const uint8_t ammoReset[8] = { 0x66, 0x29, 0x94, 0x31, 0x8E,0x02,0x00,0x00 };
-	
-	if (Args.size() >= 2)
+	const uint8_t ammoReset[8] = { 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 };
+
+	if( Args.size() >= 2 )
 	{
-		if (Args[1].compare("off") == 0)
+		if( Args[1].compare("off") == 0 )
 		{
 			// Disable it.
 			std::cout << "Disabling unlimited ammo" << std::endl;
 			enabled = false;
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetWeapon, ammoReset, sizeof(ammoReset));
 		}
-		else if (Args[1].compare("on") == 0)
+		else if( Args[1].compare("on") == 0 )
 		{
 			// Enable
 			std::cout << "Enabling unlimited ammo" << std::endl;

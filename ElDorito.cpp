@@ -19,7 +19,7 @@ ElDorito::ElDorito()
 	SetConsoleOutputCP(437);
 	unsigned int ConsoleWidth = 80;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
-	if(GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf))
+	if( GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf) )
 	{
 		ConsoleWidth = ConsoleBuf.dwSize.X;
 	}
@@ -67,80 +67,79 @@ ElDorito::ElDorito()
 
 ElDorito::~ElDorito()
 {
-	for(std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it)
-		if(it->second)
+	for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
+		if( it->second )
 			delete it->second;
 }
 
 void ElDorito::Tick(const std::chrono::duration<double> DeltaTime)
 {
 	PrintConsole();
-	for(std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it)
-		if(it->second)
+	for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
+		if( it->second )
 			it->second->Tick(DeltaTime);
 }
 
 void ElDorito::PrintConsole()
 {
-	if(_kbhit())
+	if( _kbhit() )
 	{
 		int Key = _getch();
-		if(std::isprint(Key))
+		if( std::isprint(Key) )
 		{
 			Command.push_back(Key);
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 			std::cout << (char)Key;
 
 			//Clear previous suggestion
-			for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+			for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 				std::cout << " ";
 
-			for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+			for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 				std::cout << "\b";
 
 			PrevSuggestion.clear();
 
 			std::vector<std::string> Suggest;
-			for(std::map<std::string, ElModule*> ::iterator it = Commands.begin(); it != Commands.end(); ++it)
-				if(!Command.compare(0, Command.length(), (it->first), 0, Command.length()))//includes command
+			for( std::map<std::string, ElModule*> ::iterator it = Commands.begin(); it != Commands.end(); ++it )
+				if( !Command.compare(0, Command.length(), (it->first), 0, Command.length()) )//includes command
 					Suggest.push_back((it->first));
 
-			if(Suggest.size() == 1)
+			if( Suggest.size() == 1 )
 			{
 				PrevSuggestion = Suggest[0];
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN);
 				std::cout << Suggest[0].substr(Command.length(), std::string::npos);
 
 				//move back to end of input char
-				for(unsigned int i = Command.length(); i < Suggest[0].length(); i++)
+				for( unsigned int i = Command.length(); i < Suggest[0].length(); i++ )
 					std::cout << "\b";
-
 			}
 			Suggest.clear();
 		}
-		else if(Key == '\b')
+		else if( Key == '\b' )
 		{
-			if(!Command.empty())
+			if( !Command.empty() )
 			{
 				Command.pop_back();
 				std::cout << "\b \b";
 			}
-			if(!PrevSuggestion.empty())
+			if( !PrevSuggestion.empty() )
 			{
 				//Clear previous suggestion
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << " ";
 
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << "\b";
 
 				PrevSuggestion.clear();
 			}
 		}
-		else if(Key == '\r')
+		else if( Key == '\r' )
 		{
 			//enter
-			if(!Command.empty())
+			if( !Command.empty() )
 			{
 				//Split up string into arguments
 				std::stringstream ss(Command);
@@ -148,10 +147,10 @@ void ElDorito::PrintConsole()
 				std::istream_iterator<std::string> end;
 				std::vector<std::string> Args(begin, end);
 				//Clear previous suggestion
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << " ";
 
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << "\b";
 
 				PrevSuggestion.clear();
@@ -166,15 +165,15 @@ void ElDorito::PrintConsole()
 
 				std::cout << "]®" << std::endl;
 				//process command and execute it
-				if(Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr)
+				if( Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr )
 					Commands[Args[0]]->Run(Args);
 
-				else if(!Args[0].compare("help"))
+				else if( !Args[0].compare("help") )
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
-					if(Args.size() == 2)
+					if( Args.size() == 2 )
 					{
-						if(Commands.count(Args[1]) == 1 && Commands[Args[1]] != nullptr)
+						if( Commands.count(Args[1]) == 1 && Commands[Args[1]] != nullptr )
 						{
 							std::cout << std::setfill('Ä');
 							std::cout.width(48);
@@ -185,7 +184,7 @@ void ElDorito::PrintConsole()
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
 							std::cout << Commands[Args[1]]->Info() << std::endl;
 						}
-						else if(!Args[1].compare("help"))
+						else if( !Args[1].compare("help") )
 						{
 							std::cout << std::setfill('Ä');
 							std::cout.width(48);
@@ -199,7 +198,7 @@ void ElDorito::PrintConsole()
 								"help [command] to get information related to a command\n"
 								<< std::endl;
 						}
-						else if(!Args[1].compare("history"))
+						else if( !Args[1].compare("history") )
 						{
 							std::cout << std::setfill('Ä');
 							std::cout.width(48);
@@ -223,25 +222,25 @@ void ElDorito::PrintConsole()
 					{
 						std::cout << std::setfill('Ä');
 						std::map<std::string, ElModule*>::iterator it;
-						for(it = Commands.begin(); it != Commands.end(); ++it)
-							if(it->second != nullptr)
+						for( it = Commands.begin(); it != Commands.end(); ++it )
+							if( it->second != nullptr )
 							{
-								std::cout.width(48);
-								SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-								std::cout << std::left
-									<< ((char)std::toupper(it->first[0]) + it->first.substr(1))
-									<< std::endl;
-								SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
-								std::cout << it->second->Info() << std::endl;
+							std::cout.width(48);
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+							std::cout << std::left
+								<< ((char)std::toupper(it->first[0]) + it->first.substr(1))
+								<< std::endl;
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
+							std::cout << it->second->Info() << std::endl;
 							}
 					}
 				}
-				else if(!Args[0].compare("history"))
+				else if( !Args[0].compare("history") )
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
 					std::cout << "Previous commands:" << std::endl;
 					std::vector<std::string>::iterator it;
-					for(it = PrevCommands.begin(); it != PrevCommands.end(); ++it)
+					for( it = PrevCommands.begin(); it != PrevCommands.end(); ++it )
 						std::cout << " -" << *it << std::endl;
 				}
 				else
@@ -257,44 +256,44 @@ void ElDorito::PrintConsole()
 				Command.clear();
 			}
 		}
-		else if(Key == '\t')
+		else if( Key == '\t' )
 		{
 			//auto complete
-			if(!Command.empty())
+			if( !Command.empty() )
 			{
 				//Clear previous suggestion
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << " ";
 
-				for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << "\b";
 
 				PrevSuggestion.clear();
 
 				//Populate possible matches
 				std::vector<std::string> Matches;
-				for(std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it)
-					if(!Command.compare(0, Command.length(), (it->first), 0, Command.length()))//includes command
+				for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
+					if( !Command.compare(0, Command.length(), (it->first), 0, Command.length()) )//includes command
 						Matches.push_back((it->first));
 
 				//Calculate common prefix if there are matches
-				if(Matches.size() > 1)
+				if( Matches.size() > 1 )
 				{
 					std::cout << std::endl;
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
-											  FOREGROUND_RED |
-											  FOREGROUND_GREEN);
+											FOREGROUND_RED |
+											FOREGROUND_GREEN);
 					//Print possible matches
-					for(std::vector<std::string>::iterator it = Matches.begin(); it != Matches.end(); it++)
+					for( std::vector<std::string>::iterator it = Matches.begin(); it != Matches.end(); it++ )
 						std::cout << " Ä" << (*it) << std::endl;
 
 					std::string Prefix = Matches[0];
-					for(std::vector<std::string>::iterator it = Matches.begin() + 1; it != Matches.end(); it++)
+					for( std::vector<std::string>::iterator it = Matches.begin() + 1; it != Matches.end(); it++ )
 					{
 						std::string Temp;
-						for(unsigned int i = 0; i < Prefix.length(); i++)
+						for( unsigned int i = 0; i < Prefix.length(); i++ )
 						{
-							if (i >= (*it).length() || Prefix[i] != (*it)[i])
+							if( i >= (*it).length() || Prefix[i] != (*it)[i] )
 								break;
 							else
 								Temp.push_back(Prefix[i]);
@@ -307,13 +306,13 @@ void ElDorito::PrintConsole()
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					std::cout << Command;
 				}
-				else if(Matches.size() == 1 && Matches[0].compare(Command) != 0)
+				else if( Matches.size() == 1 && Matches[0].compare(Command) != 0 )
 				{
 					Command = Matches[0];
-					for(unsigned int i = 0; i < Command.length(); i++)
+					for( unsigned int i = 0; i < Command.length(); i++ )
 						std::cout << "\b \b";
 
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED |  FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					std::cout << '\r' << ps1;
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					std::cout << Command;
@@ -326,7 +325,7 @@ void ElDorito::PrintConsole()
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
 				std::cout << "Available modules:" << std::endl;
 				std::map<std::string, ElModule*>::iterator it;
-				for(it = Commands.begin(); it != Commands.end(); ++it)
+				for( it = Commands.begin(); it != Commands.end(); ++it )
 					std::cout << " Ä" << it->first << std::endl;
 
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
@@ -335,28 +334,28 @@ void ElDorito::PrintConsole()
 				std::cout << Command;
 			}
 		}
-		else if(Key == 0 || Key == 0xe0)//escape character
+		else if( Key == 0 || Key == 0xe0 )//escape character
 		{
 			int Func = _getch();
-			if(Func == 0x48)
+			if( Func == 0x48 )
 			{
 				//up
-				if(!PrevCommands.empty())
+				if( !PrevCommands.empty() )
 				{
 					//Clear previous suggestion
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << " ";
 
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << "\b";
 
 					PrevSuggestion.clear();
 					//backspace
-					for(unsigned int i = 0; i < Command.length(); i++)
+					for( unsigned int i = 0; i < Command.length(); i++ )
 						std::cout << "\b \b";
 
 					//use previous command
-					if(PrevCommand != PrevCommands.begin())
+					if( PrevCommand != PrevCommands.begin() )
 						PrevCommand--;
 
 					Command = *PrevCommand;
@@ -366,35 +365,35 @@ void ElDorito::PrintConsole()
 					std::cout << Command;
 				}
 			}
-			else if(Func == 0x50)
+			else if( Func == 0x50 )
 			{
 				//down
-				if(!PrevCommands.empty())
+				if( !PrevCommands.empty() )
 				{
 					//Clear previous suggestion
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << " ";
 
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << "\b";
 
 					PrevSuggestion.clear();
 					//backspace
-					for(unsigned int i = 0; i < Command.length(); i++)
+					for( unsigned int i = 0; i < Command.length(); i++ )
 						std::cout << "\b \b";
 
 					PrevSuggestion.clear();
 					//use previous command
-					if(PrevCommand != PrevCommands.end())
+					if( PrevCommand != PrevCommands.end() )
 						PrevCommand++;
 
 					Command = *PrevCommand;
 
 					//Clear previous suggestion
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << " ";
 
-					for(unsigned int i = Command.length(); i < PrevSuggestion.length(); i++)
+					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << "\b";
 
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
@@ -403,11 +402,11 @@ void ElDorito::PrintConsole()
 					std::cout << Command;
 				}
 			}
-			else if(Func = 0x4B)
+			else if( Func = 0x4B )
 			{
 				//left
 			}
-			else if(Func == 0x4D)
+			else if( Func == 0x4D )
 			{
 				//right
 			}
@@ -431,7 +430,7 @@ std::string ElDorito::GetDirectory()
 {
 	char Path[MAX_PATH];
 	HMODULE hMod;
-	if(!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&::HandleFinder, &hMod))
+	if( !GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&::HandleFinder, &hMod) )
 	{
 		int Error = GetLastError();
 		std::cout << "Unable to resolve current directory" << std::endl;

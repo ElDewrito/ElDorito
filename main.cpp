@@ -15,20 +15,20 @@ int Thread()
 	CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
 	if(hThreadSnapshot.get() == INVALID_HANDLE_VALUE)
 	{
-		return 0;
+	return 0;
 	}
 	THREADENTRY32 tEntry;
 	tEntry.dwSize = sizeof(THREADENTRY32);
 	DWORD MainThread = 0;
 	DWORD currentPID = GetCurrentProcessId();
 	for(BOOL success = Thread32First(hThreadSnapshot.get(), &tEntry);
-		!MainThread && success && GetLastError() != ERROR_NO_MORE_FILES;
-		success = Thread32Next(hThreadSnapshot.get(), &tEntry))
+	!MainThread && success && GetLastError() != ERROR_NO_MORE_FILES;
+	success = Thread32Next(hThreadSnapshot.get(), &tEntry))
 	{
-		if(tEntry.th32OwnerProcessID == currentPID)
-		{
-			MainThread = tEntry.th32ThreadID;
-		}
+	if(tEntry.th32OwnerProcessID == currentPID)
+	{
+	MainThread = tEntry.th32ThreadID;
+	}
 	}
 
 	std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
@@ -36,16 +36,16 @@ int Thread()
 	DWORD MainThreadStatus = WAIT_TIMEOUT;
 	while(MainThreadStatus == WAIT_TIMEOUT)
 	{
-		MainThreadStatus = WaitForSingleObject(Thread, 0);
-		PrevTime = CurTime;
-		CurTime = std::chrono::high_resolution_clock::now();
-		ElDorito::Instance().Tick(CurTime - PrevTime);
+	MainThreadStatus = WaitForSingleObject(Thread, 0);
+	PrevTime = CurTime;
+	CurTime = std::chrono::high_resolution_clock::now();
+	ElDorito::Instance().Tick(CurTime - PrevTime);
 	}
 	*/
 
 	std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
 	CurTime = std::chrono::high_resolution_clock::now();
-	while(true)
+	while( true )
 	{
 		PrevTime = CurTime;
 		CurTime = std::chrono::high_resolution_clock::now();
@@ -56,7 +56,7 @@ int Thread()
 
 BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD Reason, LPVOID Misc)
 {
-	if(Reason == DLL_PROCESS_ATTACH)
+	if( Reason == DLL_PROCESS_ATTACH )
 	{
 		DisableThreadLibraryCalls(hDLL);
 		//Set up new console window
@@ -65,8 +65,8 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD Reason, LPVOID Misc)
 		SetConsoleTitleA("ElDorito");
 		CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
 		EnableMenuItem(GetSystemMenu(GetConsoleWindow(), FALSE),
-						 SC_CLOSE | SC_MINIMIZE,
-						 MF_GRAYED);
+					   SC_CLOSE | SC_MINIMIZE,
+					   MF_GRAYED);
 		DrawMenuBar(GetConsoleWindow());
 		HANDLE hStd = GetStdHandle(STD_INPUT_HANDLE); // STD in Handle
 		unsigned int hConsole = _open_osfhandle((intptr_t)hStd, _O_TEXT); // Console Handle
@@ -95,9 +95,9 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD Reason, LPVOID Misc)
 	}
 	/*else if(Reason == DLL_PROCESS_DETACH)
 		return true;
-	else if(Reason == DLL_THREAD_ATTACH)
+		else if(Reason == DLL_THREAD_ATTACH)
 		return true;
-	else if(Reason == DLL_THREAD_DETACH)
+		else if(Reason == DLL_THREAD_DETACH)
 		return true;*/
 	else
 		return true;
