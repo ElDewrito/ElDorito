@@ -34,7 +34,7 @@ void Ammo::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void Ammo::Run(const std::vector<std::string>& Args)
+bool Ammo::Run(const std::vector<std::string>& Args)
 {
 	const size_t OffsetWeapon = 0x75FACD;
 	const size_t OffsetGrenades = 0x7A3BFF;
@@ -79,6 +79,9 @@ void Ammo::Run(const std::vector<std::string>& Args)
 			Pointer(Pointer::Base()(OffsetWeapon)).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
 			Pointer(Pointer::Base()(OffsetGrenades)).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
 		}
+
+		return true;
 	}
-	return;
+
+	return false;
 }

@@ -61,12 +61,8 @@ void LoadLevel::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void LoadLevel::Run(const std::vector<std::string>& Args)
+bool LoadLevel::Run(const std::vector<std::string>& Args)
 {
-	if( Args.size() <= 1 )
-	{
-		std::cout << Info();
-	}
 	if( Args.size() >= 2 )
 	{
 		if( std::find(MapList.begin(), MapList.end(),Args[1]) != MapList.end())
@@ -89,13 +85,9 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 			// Map Reset
 			Pointer(0x23917F0).Write<uint8_t>(0x1);
 			//*((uint8_t*)(0x23917F0)) = 0x1;
-		}
-		else {
-			std::cout << "Unknown map." << std::endl;
-			std::cout << Info() << std::endl;
-		}
 
-	
+			return true;
+		}
 	}
-	return;
+	return false;
 }

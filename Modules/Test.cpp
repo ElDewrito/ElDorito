@@ -52,7 +52,7 @@ void Test::Tick(const std::chrono::duration<double>& Delta)
 	}
 }
 
-void Test::Run(const std::vector<std::string>& Args)
+bool Test::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() <= 1 )
 	{
@@ -61,5 +61,6 @@ void Test::Run(const std::vector<std::string>& Args)
 	if( Args.size() >= 2 )
 	{
 	}
-	return;
+
+	return true;
 }

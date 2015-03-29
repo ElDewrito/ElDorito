@@ -32,7 +32,7 @@ void Godmode::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void Godmode::Run(const std::vector<std::string>& Args)
+bool Godmode::Run(const std::vector<std::string>& Args)
 {
 	const size_t OffsetHealth = 0x7555DC;
 	const uint8_t god[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
@@ -52,6 +52,9 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
 		}
+
+		return true;
 	}
-	return;
+
+	return false;
 }
