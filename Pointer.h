@@ -1,6 +1,6 @@
 #pragma once
-#include <iostream>
 #include <string>
+#include <stdint.h>
 
 unsigned int GetMainThreadId();
 void* GetModuleBase();
@@ -19,7 +19,7 @@ public:
 	Pointer(void* Pointer) : _Pointer(Pointer)
 	{
 	}
-	Pointer(unsigned int Offset) : _Pointer((void*)Offset)
+	Pointer(size_t Offset) : _Pointer((void*)Offset)
 	{
 	}
 	~Pointer()
@@ -43,19 +43,16 @@ public:
 		return (T*)_Pointer;
 	}
 
-	template <typename T>
-	inline T as() const
-	{
-		if( _Pointer )
-			return *(T*)_Pointer;
-
-		return T();
-	}
-
 	//Returns the position of the pointer offset by a number of bytes(or stride value)
 	inline Pointer operator() (unsigned int Offset = 0, unsigned int Stride = 1) const
 	{
 		return Pointer((unsigned char*)_Pointer + (Offset*Stride));
+	}
+
+	inline Pointer& operator+ (ptrdiff_t offset)
+	{
+		_Pointer = (uint8_t*)_Pointer + offset;
+		return *this;
 	}
 
 	//Assignment
@@ -82,31 +79,35 @@ public:
 		return _Pointer != nullptr ? true : false;
 	}
 
-	inline unsigned int asUint() const
-	{
-		return as<unsigned int>();
-	}
-
-	inline unsigned short asUshort() const
-	{
-		return as<unsigned short>();
-	}
-
-	inline unsigned char asUchar() const
-	{
-		return as<unsigned char>();
-	}
-
 	// Templated write
 	template <class T>
-	inline void set(const T& value)
+	inline void Write(const T value)
 	{
-		*((T*)_Pointer) = value
+		*((T*)_Pointer) = value;
 	}
 
-	static void* Base()
+	inline void Write(const void* data,size_t size)
 	{
-		return GetModuleBase();
+		memcpy(_Pointer, data, size);
+	}
+
+	// Templated read
+
+	template <class T>
+	inline T& Read()
+	{
+		return *((T*)_Pointer);
+	}
+
+	inline void Read(void* Dest, size_t size)
+	{
+		memcpy(Dest, _Pointer, size);
+	}
+
+	inline static const Pointer Base() 
+	{
+		const static Pointer ModuleBase(GetModuleBase());
+		return ModuleBase;
 	}
 
 private:
