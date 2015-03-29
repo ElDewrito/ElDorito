@@ -7,7 +7,6 @@
 
 Test::Test()
 {
-
 }
 
 Test::~Test()
@@ -56,7 +55,6 @@ void Test::Run(const std::vector<std::string>& Args)
 	}
 	if( Args.size() >= 2 )
 	{
-
 	}
 	return;
 }

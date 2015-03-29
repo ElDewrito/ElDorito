@@ -5,7 +5,7 @@
 
 unsigned int GetMainThreadId()
 {
-	const std::tr1::shared_ptr<void> hThreadSnapshot(CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
+	const std::shared_ptr<void> hThreadSnapshot(CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
 	if( hThreadSnapshot.get() == INVALID_HANDLE_VALUE )
 		return 0;
 
@@ -63,4 +63,10 @@ void* GetModuleBase(const std::string& ModuleName)
 	}
 	CloseHandle(hSnapShot);
 	return nullptr;
+}
+
+void SetPageAccess(size_t Offset,size_t Size, size_t AccessFlags)
+{
+	DWORD temp;
+	VirtualProtect((void*)Offset, Size, AccessFlags, &temp);
 }

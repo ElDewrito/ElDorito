@@ -58,12 +58,12 @@ ElDorito::ElDorito()
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
 	// Enable write to all executable memory
-	size_t Offset,Total;
+	size_t Offset, Total;
 	Offset = Total = 0;
 	MEMORY_BASIC_INFORMATION MemInfo;
 
 	//printf("\nUnprotecting memory...");
-	while( VirtualQuery((uint8_t*)GetBasePointer() + Offset,&MemInfo,sizeof(MEMORY_BASIC_INFORMATION)) )
+	while( VirtualQuery((uint8_t*)GetBasePointer() + Offset, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)) )
 	{
 		Offset += MemInfo.RegionSize;
 		if( MemInfo.Protect == PAGE_EXECUTE_READ )
@@ -75,22 +75,19 @@ ElDorito::ElDorito()
 	}
 	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
-
 	// Eng patch
-	*((uint8_t*)GetModuleBase() + 0x2333FD) = 0;
+	Pointer::Base()(0x2333FD).Write<uint8_t>(0);
 
 	// no argpatch
 	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
 	//memcpy((uint8_t*)GetBasePointer() + 0x4373AD, NOP, sizeof(NOP));
 
 	//enable tag edits
-	*((uint8_t*)GetModuleBase() + 0x101A5B) = 0xEB;
-	*((uint16_t*)GetModuleBase() + 0x102874) = 0x9090;
+	Pointer::Base()(0x101A5B).Write<uint8_t>(0xEB);
+	Pointer::Base()(0x102874).Write<uint16_t>(0x9090);
 
 	// stopgame patch
-	*((uint8_t*)GetModuleBase() + 0x1056D0) = 0xC3;
-
-
+	Pointer::Base()(0x1056D0).Write<uint8_t>(0xC3);
 
 	//Command list
 	Commands["help"] = nullptr;

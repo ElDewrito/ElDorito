@@ -10,6 +10,11 @@ inline void* GetBasePointer()
 	return GetModuleBase();
 }
 
+// Some pages require changes to VirtualProtect.
+// Use this to change to flags such as:
+//		PAGE_EXECUTE_READWRITE
+void SetPageAccess(size_t Offset, size_t Size, size_t AccessFlags);
+
 class Pointer
 {
 public:
@@ -28,7 +33,7 @@ public:
 
 	//Resolves offsets the current pointer by the offset and picks up the 4 byte integer value
 	// at the new location and returns it as a new pointer object
-	inline Pointer operator [](const unsigned int Offset) const
+	inline Pointer operator [](const ptrdiff_t Offset) const
 	{
 		if( _Pointer )
 			if( (unsigned int*)((char*)_Pointer + Offset) )
@@ -44,7 +49,7 @@ public:
 	}
 
 	//Returns the position of the pointer offset by a number of bytes(or stride value)
-	inline Pointer operator() (unsigned int Offset = 0, unsigned int Stride = 1) const
+	inline Pointer operator() (ptrdiff_t Offset = 0, size_t Stride = 1) const
 	{
 		return Pointer((unsigned char*)_Pointer + (Offset*Stride));
 	}
@@ -74,25 +79,30 @@ public:
 		return (T*)_Pointer;
 	}
 
+	//implicit conversion
+	operator void*() const
+	{
+		return _Pointer;
+	}
+
 	inline operator bool() const
 	{
 		return _Pointer != nullptr ? true : false;
 	}
 
-	// Templated write
+	// Template write
 	template <class T>
 	inline void Write(const T value)
 	{
 		*((T*)_Pointer) = value;
 	}
 
-	inline void Write(const void* data,size_t size)
+	inline void Write(const void* data, size_t size)
 	{
 		memcpy(_Pointer, data, size);
 	}
 
-	// Templated read
-
+	// Template read
 	template <class T>
 	inline T& Read()
 	{
@@ -104,10 +114,15 @@ public:
 		memcpy(Dest, _Pointer, size);
 	}
 
-	inline static const Pointer Base() 
+	inline static const Pointer Base()
 	{
 		const static Pointer ModuleBase(GetModuleBase());
 		return ModuleBase;
+	}
+
+	inline static const Pointer Base(const std::string& Module)
+	{
+		return Pointer(GetModuleBase(Module));
 	}
 
 private:

@@ -68,13 +68,18 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 			// Todo: Gametype
 
 			// Game Type
-			*((uint32_t*)(0x2391800)) = 0x2;
+
+			Pointer(0x2391800).Write<uint32_t>(0x2);
+
+			//*((uint32_t*)(0x2391800)) = 0x2;
 
 			// Map Name
-			memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
+			//memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
+			Pointer(0x2391824).Write(MapName.c_str(), MapName.length() + 1);
 
 			// Map Reset
-			*((uint8_t*)(0x23917F0)) = 0x1;
+			Pointer(0x23917F0).Write<uint8_t>(0x1);
+			//*((uint8_t*)(0x23917F0)) = 0x1;
 		}
 		else {
 			std::cout << "Unknown map." << std::endl;
