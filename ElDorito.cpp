@@ -61,7 +61,8 @@ ElDorito::ElDorito()
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
 	Commands["load"] = new LoadLevel();
-	Commands["GodMode"] = new Godmode();
+	Commands["godmode"] = new Godmode();
+	Commands["ammo"] = new Ammo();
 }
 
 ElDorito::~ElDorito()
