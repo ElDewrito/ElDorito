@@ -5,9 +5,8 @@
 #include <Windows.h>
 #include <iostream>
 
-Ammo::Ammo()
+Ammo::Ammo() : enabled(false)
 {
-	enabled = false;
 }
 
 Ammo::~Ammo()
