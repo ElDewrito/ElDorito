@@ -7,6 +7,9 @@
 
 LoadLevel::LoadLevel()
 {
+	// Level load patch
+	const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	memcpy((uint8_t*)GetBasePointer() + 0x2D26DF, NOP, sizeof(NOP));
 }
 
 LoadLevel::~LoadLevel()
@@ -57,7 +60,7 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 		//			GameType
 
 		// Game Type
-		*((uint32_t*)(0x2391800)) = 0x1;
+		*((uint32_t*)(0x2391800)) = 0x2;
 
 		// Map Name
 		memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
