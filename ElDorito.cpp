@@ -57,44 +57,28 @@ ElDorito::ElDorito()
 
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
-
-	/*
-	DWORD Prev;
-	VirtualProtect((uint8_t*)(GetModuleBase()) + 0x2333FD, 1, PAGE_EXECUTE_READWRITE, &Prev);
-	*( (uint8_t*) ((uint8_t*)GetModuleBase()) + 0x2327FD) = 0;
-
-
-	printf("\nBase: %X  %X %X\n",
-		   (size_t)GetModuleBase(),
-		   (size_t)(uint8_t*)(GetModuleBase()) + 0x2333FD,
-		   *(uint8_t*)(GetModuleBase()) + 0x2333FD);
-
-	char lang[] = { 0 };
-	WriteProcessMemory(GetCurrentProcess(), (uint8_t*)(GetModuleBase()) + 0x2327FD, lang, 1, NULL);
-	*((uint8_t*)GetModuleBase() + 0x2333FD) = 0;
-
-
-	printf("Base: %X  %X %X\n",
-		   (size_t)GetModuleBase(),
-		   (uint8_t*)(GetModuleBase()) + 0x2333FD,
-		   *(uint8_t*)(GetModuleBase()) + 0x2333FD);
-	VirtualProtect((uint8_t*)(GetModuleBase()) + 0x2333FD, 1, Prev, &Prev);
-	*/
-
+	// Enable write to all executable memory
 	size_t Offset,Total;
 	Offset = Total = 0;
 	MEMORY_BASIC_INFORMATION MemInfo;
 
-	printf("\nUnprotecting memory...");
+	//printf("\nUnprotecting memory...");
 	while( VirtualQuery((uint8_t*)GetBasePointer() + Offset,&MemInfo,sizeof(MEMORY_BASIC_INFORMATION)) )
 	{
-		printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
 		Offset += MemInfo.RegionSize;
-		Total += MemInfo.RegionSize;
-		VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
+		if( MemInfo.Protect == PAGE_EXECUTE_READ )
+		{
+			//printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
+			Total += MemInfo.RegionSize;
+			VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
+		}
 	}
+	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
-	printf("\nDone! Unprotected %u bytes of memory\n", Total);
+	//*((uint8_t*)GetModuleBase() + 0x2333FD) = 0;
+
+
+
 
 	//Command list
 	Commands["help"] = nullptr;
