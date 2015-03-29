@@ -38,6 +38,9 @@ std::string LoadLevel::Info()
 			MapName = MapName.substr(0, MapName.find_last_of('.'));
 			Info += 'Ä';
 			Info += MapName + '\n';
+
+			mapList.push_back(MapName);
+			
 		}
 	} while( FindNextFile(hFind, &Finder) != 0 );
 	return Info;
@@ -79,20 +82,35 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 	}
 	if( Args.size() >= 2 )
 	{
-		std::cout << "Loading map: " + Args[1] << std::endl;
-		std::string MapName = "maps\\" + Args[1];
+		bool mapFound = false;
 
-		// Todo:	Check if map exists
-		//			GameType
+		// Check if map is in list
+		for (std::vector<std::string>::iterator map = mapList.begin(); map != mapList.end(); ++map) {
+			std::cout << map << std::endl;
+			if (map == Args[1]) {
+				mapFound = true;
+				break;
+			}
+		}
 
-		// Game Type
-		*((uint32_t*)(0x2391800)) = 0x2;
+		if (mapFound) {
+			std::cout << "Loading map: " + Args[1] << std::endl;
+			std::string MapName = "maps\\" + Args[1];
 
-		// Map Name
-		memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
+			// Game Type
+			*((uint32_t*)(0x2391800)) = 0x2;
 
-		// Map Reset
-		*((uint8_t*)(0x23917F0)) = 0x1;
+			// Map Name
+			memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
+
+			// Map Reset
+			*((uint8_t*)(0x23917F0)) = 0x1;
+		}
+		else {
+			std::cout << "Unknowm map" << std::endl;
+		}
+
+	
 	}
 	return;
 }
