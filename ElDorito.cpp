@@ -92,6 +92,7 @@ ElDorito::ElDorito()
 	//Command list
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
+	Commands["quit"] = nullptr;
 	Commands["test"] = std::make_unique<Test>();
 	Commands["load"] = std::make_unique<LoadLevel>();
 	Commands["god"] = std::make_unique<Godmode>();
@@ -247,8 +248,8 @@ void ElDorito::PrintConsole()
 					else
 					{
 						std::cout << std::setfill('Ä');
-						
-						for(auto it = Commands.begin(); it != Commands.end(); ++it )
+
+						for( auto it = Commands.begin(); it != Commands.end(); ++it )
 							if( it->second != nullptr )
 							{
 							std::cout.width(48);
@@ -268,6 +269,12 @@ void ElDorito::PrintConsole()
 					std::vector<std::string>::iterator it;
 					for( it = PrevCommands.begin(); it != PrevCommands.end(); ++it )
 						std::cout << " -" << *it << std::endl;
+				}
+				else if( !Args[0].compare("quit") )
+				{
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+					std::cout << "Exiting" << std::endl;
+					exit(0);
 				}
 				else
 				{
