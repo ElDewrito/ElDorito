@@ -41,9 +41,9 @@ void Godmode::Run(const std::vector<std::string>& Args)
 
 
 
-	if( Args.size() >= 2 )
+	if(Args.size() >= 2)
 	{
-		if( Args[1].compare("off") == 0 )
+		if(Args[1].compare("off") == 0)
 		{
 			// Disable it.
 			std::cout << "Disabling god map" << std::endl;
@@ -51,7 +51,7 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetShield, resetShield, sizeof(resetShield));
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetHealth, resetHealth, sizeof(resetHealth));
 		}
-		else if( Args[1].compare("on") == 0 )
+		else if(Args[1].compare("on") == 0)
 		{
 			// Enable
 			std::cout << "Enabling god map" << std::endl;
