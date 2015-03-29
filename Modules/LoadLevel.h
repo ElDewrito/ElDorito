@@ -14,5 +14,5 @@ public:
 
 	
 private:
-	std::vector<std::string> mapList;
+	std::vector<std::string> MapList;
 };

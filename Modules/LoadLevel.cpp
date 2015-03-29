@@ -10,6 +10,24 @@ LoadLevel::LoadLevel()
 	// Level load patch
 	const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
 	memcpy((uint8_t*)GetBasePointer() + 0x2D26DF, NOP, sizeof(NOP));
+
+	//populate map list on load
+	WIN32_FIND_DATA Finder;
+	HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
+	if( hFind == INVALID_HANDLE_VALUE )
+	{
+		std::cout << "No map files found" << std::endl;
+	}
+	do
+	{
+		if( !(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
+		{
+			std::string MapName(Finder.cFileName);
+			//remove extension
+			MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
+
+		}
+	} while( FindNextFile(hFind, &Finder) != 0 );
 }
 
 LoadLevel::~LoadLevel()
@@ -20,29 +38,13 @@ std::string LoadLevel::Info()
 {
 	std::cout << "Current map: " << (char*)(0x2391824) << std::endl;
 	std::string Info = 
-		"Usage: load (mapname)"
+		"Usage: load (mapname)\n"
 		"Available Maps\n";
-	WIN32_FIND_DATA Finder;
-	HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
-	if( hFind == INVALID_HANDLE_VALUE )
+	for( std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map )
 	{
-		std::cout << "No map files found" << std::endl;
-		return Info;
+		Info += 'Ä';
+		Info += *map + '\n';
 	}
-	do
-	{
-		if( !(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
-		{
-			std::string MapName(Finder.cFileName);
-			//remove extension
-			MapName = MapName.substr(0, MapName.find_last_of('.'));
-			Info += 'Ä';
-			Info += MapName + '\n';
-
-			mapList.push_back(MapName);
-			
-		}
-	} while( FindNextFile(hFind, &Finder) != 0 );
 	return Info;
 }
 
@@ -58,20 +60,12 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 	}
 	if( Args.size() >= 2 )
 	{
-		bool mapFound = false;
-
-		// Check if map is in list
-		for (std::vector<std::string>::iterator map = mapList.begin(); map != mapList.end(); ++map) {
-			std::cout << map << std::endl;
-			if (map == Args[1]) {
-				mapFound = true;
-				break;
-			}
-		}
-
-		if (mapFound) {
+		if( std::find(MapList.begin(), MapList.end(),Args[1]) != MapList.end())
+		{
 			std::cout << "Loading map: " + Args[1] << std::endl;
 			std::string MapName = "maps\\" + Args[1];
+
+			// Todo: Gametype
 
 			// Game Type
 			*((uint32_t*)(0x2391800)) = 0x2;
@@ -83,7 +77,8 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 			*((uint8_t*)(0x23917F0)) = 0x1;
 		}
 		else {
-			std::cout << "Unknowm map" << std::endl;
+			std::cout << "Unknown map." << std::endl;
+			std::cout << Info() << std::endl;
 		}
 
 	
