@@ -93,11 +93,15 @@ ElDorito::ElDorito()
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
 	Commands["quit"] = nullptr;
+	Commands["exit"] = nullptr;
 	Commands["load"] = std::make_unique<LoadLevel>();
 	Commands["god"] = std::make_unique<Godmode>();
 	Commands["ammo"] = std::make_unique<Ammo>();
+	Commands["hud"] = std::make_unique<Hud>();
 
-	Commands["test"] = std::make_unique<Test>();
+	//Commands["test"] = std::make_unique<Test>();
+
+	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
@@ -271,7 +275,7 @@ void ElDorito::PrintConsole()
 					for( it = PrevCommands.begin(); it != PrevCommands.end(); ++it )
 						std::cout << " -" << *it << std::endl;
 				}
-				else if( !Args[0].compare("quit") )
+				else if( !Args[0].compare("quit") || !Args[0].compare("exit") )
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
 					std::cout << "Exiting" << std::endl;
