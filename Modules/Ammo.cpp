@@ -8,6 +8,10 @@
 Ammo::Ammo()
 {
 	enabled = false;
+	// Nade patch
+	const uint8_t allGrenades[8] = { 0xC6, 0x84, 0x37, 0x20, 0x03, 0x00, 0x00, 0x63 };
+	//eldorado.exe + 1A3273 - C6 84 37 20 03 00 00 00 - mov byte ptr[edi + esi + 00000320], 00
+	memcpy(((uint8_t*)GetModuleBase()) + 0x1a3273, allGrenades, sizeof(allGrenades));
 }
 
 Ammo::~Ammo()
