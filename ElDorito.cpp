@@ -92,25 +92,18 @@ ElDorito::ElDorito()
 	//Command list
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
-	Commands["test"] = new Test();
-	Commands["load"] = new LoadLevel();
-	Commands["god"] = new Godmode();
-	Commands["ammo"] = new Ammo();
+	Commands["test"] = std::make_unique<Test>();
+	Commands["load"] = std::make_unique<LoadLevel>();
+	Commands["god"] = std::make_unique<Godmode>();
+	Commands["ammo"] = std::make_unique<Ammo>();
 }
 
-ElDorito::~ElDorito()
-{
-	for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
-		if( it->second )
-			delete it->second;
-}
-
-void ElDorito::Tick(const std::chrono::duration<double> DeltaTime)
+void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
 	PrintConsole();
-	for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
-		if( it->second )
-			it->second->Tick(DeltaTime);
+	for( auto& command : Commands )
+		if( command.second )
+			command.second->Tick(DeltaTime);
 }
 
 void ElDorito::PrintConsole()
@@ -134,7 +127,7 @@ void ElDorito::PrintConsole()
 			PrevSuggestion.clear();
 
 			std::vector<std::string> Suggest;
-			for( std::map<std::string, ElModule*> ::iterator it = Commands.begin(); it != Commands.end(); ++it )
+			for( auto it = Commands.begin(); it != Commands.end(); ++it )
 				if( !Command.compare(0, Command.length(), (it->first), 0, Command.length()) )//includes command
 					Suggest.push_back((it->first));
 
@@ -254,8 +247,8 @@ void ElDorito::PrintConsole()
 					else
 					{
 						std::cout << std::setfill('Ä');
-						std::map<std::string, ElModule*>::iterator it;
-						for( it = Commands.begin(); it != Commands.end(); ++it )
+						
+						for(auto it = Commands.begin(); it != Commands.end(); ++it )
 							if( it->second != nullptr )
 							{
 							std::cout.width(48);
@@ -305,7 +298,7 @@ void ElDorito::PrintConsole()
 
 				//Populate possible matches
 				std::vector<std::string> Matches;
-				for( std::map<std::string, ElModule*>::iterator it = Commands.begin(); it != Commands.end(); ++it )
+				for( auto it = Commands.begin(); it != Commands.end(); ++it )
 					if( !Command.compare(0, Command.length(), (it->first), 0, Command.length()) )//includes command
 						Matches.push_back((it->first));
 
@@ -357,8 +350,8 @@ void ElDorito::PrintConsole()
 				std::cout << std::endl;
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN);
 				std::cout << "Available modules:" << std::endl;
-				std::map<std::string, ElModule*>::iterator it;
-				for( it = Commands.begin(); it != Commands.end(); ++it )
+
+				for( auto it = Commands.begin(); it != Commands.end(); ++it )
 					std::cout << " Ä" << it->first << std::endl;
 
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
@@ -410,7 +403,6 @@ void ElDorito::PrintConsole()
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 						std::cout << "\b";
 
-					PrevSuggestion.clear();
 					//backspace
 					for( unsigned int i = 0; i < Command.length(); i++ )
 						std::cout << "\b \b";
@@ -435,7 +427,7 @@ void ElDorito::PrintConsole()
 					std::cout << Command;
 				}
 			}
-			else if( Func = 0x4B )
+			else if( Func == 0x4B )
 			{
 				//left
 			}
