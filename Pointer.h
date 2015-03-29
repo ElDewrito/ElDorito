@@ -30,13 +30,10 @@ public:
 	// at the new location and returns it as a new pointer object
 	inline Pointer operator [](const unsigned int Offset) const
 	{
-		if( _Pointer )
-		{
-			if( (unsigned int*)((char*)_Pointer + Offset) )
-			{
+		if(_Pointer)
+			if((unsigned int*)((char*)_Pointer + Offset))
 				return Pointer(*(unsigned int*)((char*)_Pointer + Offset));
-			}
-		}
+
 		return Pointer(nullptr);
 	}
 
@@ -49,10 +46,9 @@ public:
 	template <typename T>
 	inline T as() const
 	{
-		if( _Pointer )
-		{
+		if(_Pointer)
 			return *(T*)_Pointer;
-		}
+
 		return T();
 	}
 

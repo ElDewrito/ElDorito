@@ -37,16 +37,16 @@ void Godmode::Run(const std::vector<std::string>& Args)
 	const uint8_t reset[8] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
 	const uint8_t god[8] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
 
-	if( Args.size() >= 2 )
+	if(Args.size() >= 2)
 	{
-		if( Args[1].compare("off") == 0 )
+		if(Args[1].compare("off") == 0)
 		{
 			// Disable it.
 			std::cout << "Disabling god map" << std::endl;
 			enabled = false;
 			memcpy(((uint8_t*)GetModuleBase()) + Offset, reset, sizeof(reset));
 		}
-		else if( Args[1].compare("on") == 0 )
+		else if(Args[1].compare("on") == 0)
 		{
 			// Enable
 			std::cout << "Enabling god map" << std::endl;
