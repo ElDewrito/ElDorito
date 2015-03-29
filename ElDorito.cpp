@@ -93,10 +93,11 @@ ElDorito::ElDorito()
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
 	Commands["quit"] = nullptr;
-	Commands["test"] = std::make_unique<Test>();
 	Commands["load"] = std::make_unique<LoadLevel>();
 	Commands["god"] = std::make_unique<Godmode>();
 	Commands["ammo"] = std::make_unique<Ammo>();
+
+	Commands["test"] = std::make_unique<Test>();
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
@@ -272,9 +273,9 @@ void ElDorito::PrintConsole()
 				}
 				else if( !Args[0].compare("quit") )
 				{
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_INTENSITY);
 					std::cout << "Exiting" << std::endl;
-					exit(0);
+					std::exit(0);
 				}
 				else
 				{
@@ -471,4 +472,11 @@ std::string ElDorito::GetDirectory()
 	std::string Dir(Path);
 	Dir = Dir.substr(0, std::string(Dir).find_last_of('\\') + 1);
 	return Dir;
+}
+
+void ElDorito::SetSessionMessage(const std::string& Message)
+{
+	DWORD temp;
+	VirtualProtect(Pointer::Base()(0x120CCB8), Message.length() + 1, PAGE_EXECUTE_READWRITE, &temp);
+	Pointer::Base()(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
 }
