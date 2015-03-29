@@ -16,13 +16,18 @@ Ammo::~Ammo()
 
 std::string Ammo::Info()
 {
-	std::cout << "Unlimited ammo: " << (enabled ? "Enabled" : "Disabled") << std::endl;
-
-	std::string Info = "Usage: ammo on|off\n"
+	std::string Info = "Unlimited ammo: ";
+	Info += (enabled ? "Enabled" : "Disabled");
+	Info += "\nUsage: " + Usage() + "\n"
 		"Bottomless clip on weapon ammo and grenades\n"
 		"Respawn to have all grenade types when enabled.\n";
 
 	return Info;
+}
+
+std::string Ammo::Usage()
+{
+	return "ammo on|off";
 }
 
 void Ammo::Tick(const std::chrono::duration<double>& Delta)

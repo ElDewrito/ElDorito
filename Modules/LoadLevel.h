@@ -9,6 +9,8 @@ public:
 	~LoadLevel();
 
 	std::string Info();
+	std::string Usage();
+
 	void Tick(const std::chrono::duration<double>& Delta);
 	void Run(const std::vector<std::string>& Args);
 
