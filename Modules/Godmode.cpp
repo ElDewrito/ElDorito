@@ -17,18 +17,23 @@ Godmode::~Godmode()
 
 std::string Godmode::Info()
 {
-	std::cout << "Godmode: " << (enabled ? "Enabled" : "Disabled") << std::endl;
-
-	std::string Info = "usage: god off|on\n";
+	std::string Info = "Godmode: ";
+	Info += (enabled ? "Enabled" : "Disabled");
+	Info += "\nUsage: " + Usage();
 
 	return Info;
+}
+
+std::string Godmode::Usage()
+{
+	return "god on|off";
 }
 
 void Godmode::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void Godmode::Run(const std::vector<std::string>& Args)
+bool Godmode::Run(const std::vector<std::string>& Args)
 {
 	const size_t OffsetHealth = 0x7555DC;
 	const uint8_t god[] = { Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP };
@@ -48,6 +53,9 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
 		}
+
+		return true;
 	}
-	return;
+
+	return false;
 }
