@@ -22,7 +22,7 @@ std::string Ammo::Info()
 {
 	std::cout << "Unlimited ammo: " << (enabled ? "Enabled" : "Disabled") << std::endl;
 
-	std::string Info = "Bottomless clip on weapon ammo and grenades\n";
+	std::string Info = "Usage: ammo on|off\nBottomless clip on weapon ammo and grenades\n";
 
 	return Info;
 }

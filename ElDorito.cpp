@@ -75,10 +75,20 @@ ElDorito::ElDorito()
 	}
 	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
-	//*((uint8_t*)GetModuleBase() + 0x2333FD) = 0;
 
+	// Eng patch
+	*((uint8_t*)GetModuleBase() + 0x2333FD) = 0;
 
+	// no argpatch
+	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	//memcpy((uint8_t*)GetBasePointer() + 0x4373AD, NOP, sizeof(NOP));
 
+	//enable tag edits
+	*((uint8_t*)GetModuleBase() + 0x101A5B) = 0xEB;
+	*((uint16_t*)GetModuleBase() + 0x102874) = 0x9090;
+
+	// stopgame patch
+	*((uint8_t*)GetModuleBase() + 0x1056D0) = 0xC3;
 
 
 
@@ -86,7 +96,7 @@ ElDorito::ElDorito()
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
 	Commands["load"] = new LoadLevel();
-	Commands["godmode"] = new Godmode();
+	Commands["god"] = new Godmode();
 	Commands["ammo"] = new Ammo();
 }
 

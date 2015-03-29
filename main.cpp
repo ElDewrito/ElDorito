@@ -53,7 +53,9 @@ int Thread()
 	{
 		PrevTime = CurTime;
 		CurTime = std::chrono::high_resolution_clock::now();
-		ElDorito::Instance().Tick(CurTime - PrevTime);
+		ElDorito::Instance().Tick(
+			std::chrono::duration_cast<std::chrono::duration<double>>(CurTime - PrevTime)
+			);
 	}
 	return 0;
 }

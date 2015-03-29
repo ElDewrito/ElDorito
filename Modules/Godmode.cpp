@@ -18,7 +18,7 @@ std::string Godmode::Info()
 {
 	std::cout << "Godmode: " << (enabled ? "Enabled" : "Disabled") << std::endl;
 
-	std::string Info = "Invulnerable to damage\n";
+	std::string Info = "usage: god off|on\n";
 
 	return Info;
 }
@@ -44,7 +44,7 @@ void Godmode::Run(const std::vector<std::string>& Args)
 		if( Args[1].compare("off") == 0 )
 		{
 			// Disable it.
-			std::cout << "Disabling god map" << std::endl;
+			std::cout << "Disabling god" << std::endl;
 			enabled = false;
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetShield, resetShield, sizeof(resetShield));
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetHealth, resetHealth, sizeof(resetHealth));
@@ -52,7 +52,7 @@ void Godmode::Run(const std::vector<std::string>& Args)
 		else if( Args[1].compare("on") == 0 )
 		{
 			// Enable
-			std::cout << "Enabling god map" << std::endl;
+			std::cout << "Enabling god" << std::endl;
 			enabled = true;
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetShield, god, sizeof(god));
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetHealth, god, sizeof(god));
