@@ -1,6 +1,7 @@
 #include "Ammo.h"
 
 #include "../ElDorito.h"
+#include "../HexConstants.h"
 
 #include <Windows.h>
 #include <iostream>
@@ -35,8 +36,8 @@ void Ammo::Run(const std::vector<std::string>& Args)
 	const size_t OffsetGrenades = 0x7A3BFF;
 
 	// Nop elements (Patch)
-	const uint8_t unlimitedAmmo[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-	const uint8_t unlimitedGrenades[] = { 0x90, 0x90 };
+	const uint8_t unlimitedAmmo[] = { Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP };
+	const uint8_t unlimitedGrenades[] = { Hex::NOP, Hex::NOP };
 
 	// Set
 	const uint8_t ammoReset[] = { 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 };

@@ -1,6 +1,7 @@
 #include "LoadLevel.h"
 
 #include "../ElDorito.h"
+#include "../HexConstants.h"
 
 #include <Windows.h>
 #include <iostream>
@@ -8,7 +9,7 @@
 LoadLevel::LoadLevel()
 {
 	// Level load patch
-	const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	const uint8_t NOP[] = { Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP };
 	memcpy((uint8_t*)GetBasePointer() + 0x2D26DF, NOP, sizeof(NOP));
 
 	//populate map list on load
