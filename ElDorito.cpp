@@ -95,6 +95,7 @@ ElDorito::ElDorito()
 	//Command list
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
+	Commands["test"] = new Test();
 	Commands["load"] = new LoadLevel();
 	Commands["god"] = new Godmode();
 	Commands["ammo"] = new Ammo();
