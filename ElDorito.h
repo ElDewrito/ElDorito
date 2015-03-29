@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <stdint.h>
+#include <memory>
 
 #include "Singleton.h"
 #include "Modules/ElModule.h"
@@ -13,16 +14,16 @@ class ElDorito : public Singleton < ElDorito >
 {
 public:
 	ElDorito();
-	~ElDorito();
+	~ElDorito() = default;
 
 	std::string GetDirectory();
 
-	void Tick(const std::chrono::duration<double> DeltaTile);
+	void Tick(const std::chrono::duration<double>& DeltaTile);
 
 private:
 	//Console
 	void PrintConsole();
-	std::map<std::string, ElModule*> Commands;
+	std::map<std::string, std::unique_ptr<ElModule>> Commands;
 	std::vector<std::string> PrevCommands;
 	std::vector<std::string>::iterator PrevCommand;
 	std::string Command;

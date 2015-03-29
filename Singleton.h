@@ -9,15 +9,11 @@ public:
 		static T Inst;
 		return Inst;
 	}
+
+	Singleton(Singleton const&) = delete;
+	void operator=(Singleton const&) = delete;
 protected:
 	Singleton()
 	{
 	};
-private:
-	Singleton(Singleton const&)
-	{
-	};//Prevent copying
-	void operator=(Singleton const&)
-	{
-	}; //prevent assignment
 };
