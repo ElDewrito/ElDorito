@@ -40,9 +40,9 @@ void Ammo::Run(const std::vector<std::string>& Args)
 	const uint8_t ammoReset[8] = { 0x66, 0x29, 0x94, 0x31, 0x8E,0x02,0x00,0x00 };
 	const uint8_t grenadesReset[2] = { 0xFE, 0xC8 };
 	
-	if (Args.size() >= 2)
+	if( Args.size() >= 2 )
 	{
-		if (Args[1].compare("off") == 0)
+		if( Args[1].compare("off") == 0 )
 		{
 			// Disable it.
 			std::cout << "Disabling unlimited ammo" << std::endl;
@@ -50,7 +50,7 @@ void Ammo::Run(const std::vector<std::string>& Args)
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetWeapon, ammoReset, sizeof(ammoReset));
 			memcpy(((uint8_t*)GetModuleBase()) + OffsetGrenades, grenadesReset, sizeof(grenadesReset));
 		}
-		else if (Args[1].compare("on") == 0)
+		else if( Args[1].compare("on") == 0 )
 		{
 			// Enable
 			std::cout << "Enabling unlimited ammo" << std::endl;

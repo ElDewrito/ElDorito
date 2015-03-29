@@ -19,14 +19,14 @@ std::string LoadLevel::Info()
 	std::string Info = "Available Maps\n";
 	WIN32_FIND_DATA Finder;
 	HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
-	if(hFind == INVALID_HANDLE_VALUE)
+	if( hFind == INVALID_HANDLE_VALUE )
 	{
 		std::cout << "No map files found" << std::endl;
 		return Info;
 	}
 	do
 	{
-		if(!(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		if( !(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			std::string MapName(Finder.cFileName);
 			//remove extension
@@ -34,7 +34,7 @@ std::string LoadLevel::Info()
 			Info += 'Ä';
 			Info += MapName + '\n';
 		}
-	} while(FindNextFile(hFind, &Finder) != 0);
+	} while( FindNextFile(hFind, &Finder) != 0 );
 	return Info;
 }
 
@@ -44,7 +44,7 @@ void LoadLevel::Tick(const std::chrono::duration<double>& Delta)
 
 void LoadLevel::Run(const std::vector<std::string>& Args)
 {
-	if(Args.size() >= 2)
+	if( Args.size() >= 2 )
 	{
 		std::cout << "Loading map: " + Args[1] << std::endl;
 		std::string MapName = "maps\\" + Args[1];
