@@ -8,10 +8,6 @@
 Godmode::Godmode()
 {
 	enabled = false;
-
-	// original bytes
-	byte reset[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-	byte god[] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
 }
 
 Godmode::~Godmode()
@@ -33,9 +29,17 @@ void Godmode::Tick(const std::chrono::duration<double>& Delta)
 
 void Godmode::Run(const std::vector<std::string>& Args)
 {
-	const size_t Offset = 0x75636A;
-	const uint8_t reset[8] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-	const uint8_t god[8] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
+	const size_t OffsetShield = 0x75636A;
+	const size_t OffsetHealth = 0x7555DC;
+	
+	// Nop elements (Patch)
+	const uint8_t god[8] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
+
+	// Set
+	const uint8_t resetShield[8] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
+	const uint8_t resetHealth[8] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
+
+
 
 	if( Args.size() >= 2 )
 	{
@@ -44,14 +48,16 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			// Disable it.
 			std::cout << "Disabling god map" << std::endl;
 			enabled = false;
-			memcpy(((uint8_t*)GetModuleBase()) + Offset, reset, sizeof(reset));
+			memcpy(((uint8_t*)GetModuleBase()) + OffsetShield, resetShield, sizeof(resetShield));
+			memcpy(((uint8_t*)GetModuleBase()) + OffsetHealth, resetHealth, sizeof(resetHealth));
 		}
 		else if( Args[1].compare("on") == 0 )
 		{
 			// Enable
 			std::cout << "Enabling god map" << std::endl;
 			enabled = true;
-			memcpy(((uint8_t*)GetModuleBase()) + Offset, god, sizeof(god));
+			memcpy(((uint8_t*)GetModuleBase()) + OffsetShield, god, sizeof(god));
+			memcpy(((uint8_t*)GetModuleBase()) + OffsetHealth, god, sizeof(god));
 		}
 	}
 	return;
