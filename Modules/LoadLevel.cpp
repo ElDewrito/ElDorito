@@ -44,6 +44,10 @@ void LoadLevel::Tick(const std::chrono::duration<double>& Delta)
 
 void LoadLevel::Run(const std::vector<std::string>& Args)
 {
+	if( Args.size() <= 1 )
+	{
+		std::cout << Info();
+	}
 	if( Args.size() >= 2 )
 	{
 		std::cout << "Loading map: " + Args[1] << std::endl;

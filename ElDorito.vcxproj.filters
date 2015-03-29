@@ -66,5 +66,8 @@
   <ItemGroup>
     <None Include=".gitignore" />
     <None Include=".gitattributes" />
+    <None Include="ElDorito.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
