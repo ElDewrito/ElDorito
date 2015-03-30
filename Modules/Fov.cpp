@@ -1,10 +1,7 @@
 #include "Fov.h"
 
-#include "Fov.h"
-
 #include "../ElDorito.h"
 
-#include <Windows.h>
 #include <iostream>
 #include <cstdlib> // std::atof
 
