@@ -73,6 +73,7 @@
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
+    <ClCompile Include="Modules\Fov.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />
     <ClCompile Include="Modules\Hud.cpp" />
     <ClCompile Include="Modules\LoadLevel.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="Modules\Ammo.h" />
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
+    <ClInclude Include="Modules\Fov.h" />
     <ClInclude Include="Modules\Godmode.h" />
     <ClInclude Include="Modules\Hud.h" />
     <ClInclude Include="Modules\LoadLevel.h" />

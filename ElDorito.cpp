@@ -98,6 +98,7 @@ ElDorito::ElDorito()
 	Commands["god"] = std::make_unique<Godmode>();
 	Commands["ammo"] = std::make_unique<Ammo>();
 	Commands["hud"] = std::make_unique<Hud>();
+	Commands["fov"] = std::make_unique<Fov>();
 
 	//Commands["test"] = std::make_unique<Test>();
 
