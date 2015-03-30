@@ -10,6 +10,7 @@
 #include "Singleton.h"
 #include "Modules/ElModule.h"
 #include "Pointer.h"
+#include "Patch.h"
 
 class ElDorito : public Singleton < ElDorito >
 {

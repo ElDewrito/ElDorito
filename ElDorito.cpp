@@ -76,22 +76,30 @@ ElDorito::ElDorito()
 	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
 	// Eng patch
-	Pointer::Base(0x2333FD).Write<uint8_t>(0);
+	//Pointer::Base(0x2333FD).Write<uint8_t>(0);
+	Patch(0x2333FD, { 0 }).Apply();
 
 	// no argpatch
 	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
 	//memcpy((uint8_t*)GetBasePointer() + 0x4373AD, NOP, sizeof(NOP));
 
 	//enable tag edits
-	Pointer::Base(0x101A5B).Write<uint8_t>(0xEB);
-	Pointer::Base(0x102874).Write<uint16_t>(0x9090);
+	//Pointer::Base(0x101A5B).Write<uint8_t>(0xEB);
+	//Pointer::Base(0x102874).Write<uint16_t>(0x9090);
+
+	Patch(0x101A5B, { 0xEB }).Apply();
+	Patch::NopFill(Pointer::Base(0x102874), 2);
 
 	// stopgame patch
-	Pointer::Base(0x1056D0).Write<uint8_t>(0xC3);
+	//Pointer::Base(0x1056D0).Write<uint8_t>(0xC3);
+	Patch(0x1056D0, { 0xC3 }).Apply();
 
 	// No --account args patch
-	Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
-	Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
+	//Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
+	//Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
+
+	Patch(0x43731A, { 0x0E, 0xEB }).Apply();
+	Patch(0x4373AD, { 0x03, 0xEB }).Apply();
 
 	//Command list
 	Commands["help"] = nullptr;
@@ -105,7 +113,7 @@ ElDorito::ElDorito()
 	Commands["fov"] = std::make_unique<Fov>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
 
-	//Commands["test"] = std::make_unique<Test>();
+	Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 }

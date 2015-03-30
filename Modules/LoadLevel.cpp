@@ -8,8 +8,9 @@
 LoadLevel::LoadLevel()
 {
 	// Level load patch
-	const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
-	memcpy((uint8_t*)GetBasePointer() + 0x2D26DF, NOP, sizeof(NOP));
+	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
+	//memcpy((uint8_t*)GetBasePointer() + 0x2D26DF, NOP, sizeof(NOP));
+	Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
 	//populate map list on load
 	WIN32_FIND_DATA Finder;
@@ -39,11 +40,11 @@ std::string LoadLevel::Info()
 	Info += (char*)(0x2391824);
 	Info += "\nUsage: load (mapname)\n"
 		"Available Maps";
-	for( std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map )
+	for( auto map : MapList )
 	{
 		Info += '\n';
 		Info += 'Ä';
-		Info += *map;
+		Info += map;
 	}
 
 	return Info;

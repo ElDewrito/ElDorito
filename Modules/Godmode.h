@@ -1,7 +1,8 @@
 #pragma once
 
 #include "ElModule.h"
-#include <inttypes.h>
+
+#include "../Patch.h"
 
 class Godmode : public ElModule
 {
@@ -15,4 +16,5 @@ public:
 	bool Run(const std::vector<std::string>& Args);
 private:
 	bool enabled;
+	Patch GodPatch;
 };

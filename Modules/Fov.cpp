@@ -9,6 +9,10 @@ static const size_t FOVOffset = 0x1F01D98;
 
 Fov::Fov()
 {
+	Patch::NopFill(Pointer::Base(0x25FA79), 5);
+	Patch::NopFill(Pointer::Base(0x25FA86), 5);
+
+	/*
 	const size_t LowerBoundsOffset = 0x25FA79;
 	const size_t UpperBoundsOffset = 0x25FA86;
 
@@ -23,6 +27,7 @@ Fov::Fov()
 	// Patch FOV Bounds checking
 	Pointer::Base(LowerBoundsOffset).Write(lowerNOP, sizeof(lowerNOP));
 	Pointer::Base(UpperBoundsOffset).Write(upperNOP, sizeof(upperNOP));
+	*/
 }
 
 Fov::~Fov()

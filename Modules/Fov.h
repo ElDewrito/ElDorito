@@ -1,8 +1,8 @@
 #pragma	once
 
-#include	"ElModule.h"
+#include"ElModule.h"
 
-class	Fov : public	ElModule
+class Fov : public ElModule
 {
 public:
 	Fov();
@@ -10,7 +10,7 @@ public:
 
 	std::string	Info();
 
-	void	Tick(const	std::chrono::duration<double>&	Delta);
-	bool	Run(const	std::vector<std::string>&	Args);
+	void Tick(const	std::chrono::duration<double>& Delta);
+	bool Run(const std::vector<std::string>& Args);
 private:
 };
