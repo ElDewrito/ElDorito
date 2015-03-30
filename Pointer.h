@@ -102,6 +102,22 @@ public:
 		memcpy(_Pointer, data, size);
 	}
 
+	inline void WriteCall(void* newFunction)
+	{
+		uint8_t tempJMP[5] = { 0xE8, 0x90, 0x90, 0x90, 0x90 };
+		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
+		memcpy(&tempJMP[1], &JMPSize, 4);
+		memcpy(_Pointer, tempJMP, 5);
+	}
+
+	inline void WriteJump(void* newFunction)
+	{
+		uint8_t tempJMP[5] = { 0xE9, 0x90, 0x90, 0x90, 0x90 };
+		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
+		memcpy(&tempJMP[1], &JMPSize, 4);
+		memcpy(_Pointer, tempJMP, 5);
+	}
+
 	// Template read
 	template <class T>
 	inline T& Read()
