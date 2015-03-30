@@ -1,3 +1,4 @@
+#pragma once
 #include "ElDoritoConfig.h"
 
 #include <chrono>
