@@ -20,7 +20,7 @@ std::string Fov::Info()
 	float currentFov = Pointer(Pointer::Base()(FOVOffset)).Read<float>();
 
 	std::string Info = "Field of View: " + std::to_string(currentFov) + R"(
-Usage: fov (0.1-150.0)
+Usage: fov (number)
 Sets the field of view for the first person camera.
 This does not currently effect third-person views.
 )";
