@@ -119,6 +119,7 @@ ElDorito::ElDorito()
 	Commands["ammo"] = std::make_unique<Ammo>();
 	Commands["hud"] = std::make_unique<Hud>();
 	Commands["fov"] = std::make_unique<Fov>();
+	Commands["third"] = std::make_unique<ThirdPerson>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
 
 	Commands["test"] = std::make_unique<Test>();

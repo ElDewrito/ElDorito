@@ -7,4 +7,5 @@
 #include "Modules/GodMode.h"
 #include "Modules/Ammo.h"
 #include "Modules/Fov.h"
+#include "Modules/ThirdPerson.h"
 #include "Modules/DebugLogging.h"
