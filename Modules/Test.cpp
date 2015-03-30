@@ -19,11 +19,6 @@ std::string Test::Info()
 		"If you find this in the release build you probably shouldn't run it.\n";
 }
 
-std::string Test::Usage()
-{
-	return "test <args>";
-}
-
 void Test::Tick(const std::chrono::duration<double>& Delta)
 {
 	static size_t Ticker = 0;

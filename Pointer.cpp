@@ -65,7 +65,7 @@ void* GetModuleBase(const std::string& ModuleName)
 	return nullptr;
 }
 
-void SetPageAccess(size_t Offset,size_t Size, size_t AccessFlags)
+void SetPageAccess(size_t Offset, size_t Size, size_t AccessFlags)
 {
 	DWORD temp;
 	VirtualProtect((void*)Offset, Size, AccessFlags, &temp);

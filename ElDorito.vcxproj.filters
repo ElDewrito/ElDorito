@@ -36,7 +36,7 @@
     <ClCompile Include="Modules\Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HexConstants.cpp">
+    <ClCompile Include="Modules\Hud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,7 +71,7 @@
     <ClInclude Include="Modules\Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HexConstants.h">
+    <ClInclude Include="Modules\Hud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

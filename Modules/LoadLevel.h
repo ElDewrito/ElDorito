@@ -9,12 +9,10 @@ public:
 	~LoadLevel();
 
 	std::string Info();
-	std::string Usage();
 
 	void Tick(const std::chrono::duration<double>& Delta);
 	bool Run(const std::vector<std::string>& Args);
 
-	
 private:
 	std::vector<std::string> MapList;
 };
