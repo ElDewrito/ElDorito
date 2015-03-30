@@ -18,8 +18,9 @@ std::string Godmode::Info()
 {
 	std::cout << "Godmode: " << (enabled ? "Enabled" : "Disabled") << std::endl;
 
-	std::string Info = "usage: god off|on\n";
+	std::string Info = "Usage: god on|off\n";
 
+	Info += "Enables godmod, scripted deaths still occur(such as falling)\n";
 	return Info;
 }
 
@@ -47,6 +48,14 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
 		}
+		else
+		{
+			std::cout << "Unknown option: " << Args[1] << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << Info() << std::endl;
 	}
 	return;
 }

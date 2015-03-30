@@ -74,6 +74,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />
+    <ClCompile Include="Modules\Hud.cpp" />
     <ClCompile Include="Modules\LoadLevel.cpp" />
     <ClCompile Include="Modules\Test.cpp" />
     <ClCompile Include="Pointer.cpp" />
@@ -85,6 +86,7 @@
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
     <ClInclude Include="Modules\Godmode.h" />
+    <ClInclude Include="Modules\Hud.h" />
     <ClInclude Include="Modules\LoadLevel.h" />
     <ClInclude Include="Modules\Test.h" />
     <ClInclude Include="Pointer.h" />

@@ -16,9 +16,11 @@ Ammo::~Ammo()
 
 std::string Ammo::Info()
 {
-	std::cout << "Unlimited ammo: " << (enabled ? "Enabled" : "Disabled") << std::endl;
-
-	std::string Info = "Usage: ammo on|off\n"
+	std::string Info =
+		"Unlimited ammo: ";
+	Info += (enabled ? "Enabled" : "Disabled");
+	Info +=
+		"\nUsage: ammo on|off\n"
 		"Bottomless clip on weapon ammo and grenades\n"
 		"Respawn to have all grenade types when enabled.\n";
 
@@ -74,6 +76,14 @@ void Ammo::Run(const std::vector<std::string>& Args)
 			Pointer(Pointer::Base()(OffsetWeapon)).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
 			Pointer(Pointer::Base()(OffsetGrenades)).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
 		}
+		else
+		{
+			std::cout << "Unknown option: " << Args[1] << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << Info() << std::endl;
 	}
 	return;
 }
