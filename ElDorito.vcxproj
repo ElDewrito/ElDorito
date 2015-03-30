@@ -83,7 +83,6 @@
   <ItemGroup>
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
-    <ClInclude Include="HexConstants.h" />
     <ClInclude Include="Modules\Ammo.h" />
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
