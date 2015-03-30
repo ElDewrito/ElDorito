@@ -5,7 +5,16 @@
 #include <Windows.h>
 #include <iostream>
 
-Ammo::Ammo() : enabled(false)
+Ammo::Ammo()
+	:
+	enabled(false),
+	NadePatch(0x7A3BFF,
+	{ 0x90, 0x90 },
+	{ 0xFE, 0xC8 }),
+
+	GunPatch(0x75FACD,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 })
 {
 }
 
@@ -30,17 +39,6 @@ void Ammo::Tick(const std::chrono::duration<double>& Delta)
 
 bool Ammo::Run(const std::vector<std::string>& Args)
 {
-	const size_t OffsetWeapon = 0x75FACD;
-	const size_t OffsetGrenades = 0x7A3BFF;
-
-	// Nop elements (Patch)
-	const uint8_t unlimitedAmmo[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-	const uint8_t unlimitedGrenades[] = { 0x90, 0x90 };
-
-	// Set
-	const uint8_t ammoReset[] = { 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 };
-	const uint8_t grenadesReset[] = { 0xFE, 0xC8 };
-
 	if( Args.size() >= 2 )
 	{
 		if( Args[1].compare("off") == 0 )
@@ -49,8 +47,8 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling unlimited ammo" << std::endl;
 			enabled = false;
 
-			Pointer::Base(OffsetWeapon).Write(ammoReset, sizeof(ammoReset));
-			Pointer::Base(OffsetGrenades).Write(grenadesReset, sizeof(grenadesReset));
+			NadePatch.Reset();
+			GunPatch.Reset();
 
 			return true;
 		}
@@ -72,8 +70,8 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 				<< std::endl;
 			enabled = true;
 
-			Pointer::Base(OffsetWeapon).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
-			Pointer::Base(OffsetGrenades).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
+			NadePatch.Apply();
+			GunPatch.Apply();
 
 			return true;
 		}

@@ -3,6 +3,8 @@
 #include "ElModule.h"
 #include <inttypes.h>
 
+#include "../Patch.h"
+
 class Ammo : public ElModule
 {
 public:
@@ -15,4 +17,7 @@ public:
 	bool Run(const std::vector<std::string>& Args);
 private:
 	bool enabled;
+
+	Patch NadePatch;
+	Patch GunPatch;
 };
