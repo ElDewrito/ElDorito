@@ -39,13 +39,13 @@ std::string LoadLevel::Info()
 	Info += (char*)(0x2391824);
 	Info += "\nUsage: load (mapname)\n"
 		"Available Maps";
-	for(std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map)
+	for( std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map )
 	{
 		Info += '\n';
 		Info += 'Ä';
 		Info += *map;
 	}
-	
+
 	return Info;
 }
 

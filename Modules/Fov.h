@@ -2,15 +2,15 @@
 
 #include	"ElModule.h"
 
-class	Fov	:	public	ElModule
+class	Fov : public	ElModule
 {
 public:
-		Fov();
-		~Fov();
+	Fov();
+	~Fov();
 
-		std::string	Info();
+	std::string	Info();
 
-		void	Tick(const	std::chrono::duration<double>&	Delta);
-		bool	Run(const	std::vector<std::string>&	Args);
+	void	Tick(const	std::chrono::duration<double>&	Delta);
+	bool	Run(const	std::vector<std::string>&	Args);
 private:
 };
