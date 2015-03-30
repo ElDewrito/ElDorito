@@ -17,7 +17,7 @@ DebugLogging::~DebugLogging()
 std::string DebugLogging::Info()
 {
 	std::string Info = "Debug logging: ";
-	if (enabledFlags == 0)
+	if( enabledFlags == 0 )
 		Info += "Disabled";
 	else
 	{
@@ -65,7 +65,6 @@ int networkLogHook(char* format, ...)
 	//vsnprintf(dstBuf, 4095, format, args);
 	va_end(args);
 
-
 	dbglog("Network", "%s", dstBuf);
 
 	return 1;
@@ -75,13 +74,13 @@ void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
 	char* logData1 = (*(char**)(a3));
 	char* logData2 = (*(char**)((DWORD_PTR)a3 + 0x8));
-	if (logData1 != 0)
+	if( logData1 != 0 )
 		logData1 += 0xC;
-	if (logData2 != 0)
+	if( logData2 != 0 )
 		logData2 += 0xC;
-	if (logData1 == 0)
+	if( logData1 == 0 )
 		logData1 = "";
-	if (logData2 == 0)
+	if( logData2 == 0 )
 		logData2 = "";
 	dbglog((const char*)logData1, (char*)logData2);
 	return;
@@ -90,9 +89,9 @@ void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
 	char* logData1 = (*(char**)(a3));
-	if (logData1 != 0)
+	if( logData1 != 0 )
 		logData1 += 0xC;
-	if (logData1 == 0)
+	if( logData1 == 0 )
 		logData1 = "";
 	dbglog("UiLog", (char*)logData1);
 	return;
@@ -103,7 +102,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 	const size_t OffsetNetworkLog = 0x9858D0; // todo: investigate this func and find if theres a better place to hook
 	const size_t OffsetSSL = 0xA7FE10;
 	const size_t OffsetUI = 0xAED600;// this patches UiWidgetManager.UiLog, tags.dat also needs a patch to make root.UiLog call UiWidgetManager.UiLog
-		// unless we get DebugPanel in root to show somehow
+	// unless we get DebugPanel in root to show somehow
 
 	// Set
 	const uint8_t networkReset[] = { 0x55, 0x8B, 0xEC, 0x80, 0x3D };
@@ -114,17 +113,17 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 	bool hookSSL = false;
 	bool hookUI = false;
 
-	if (Args.size() >= 2)
+	if( Args.size() >= 2 )
 	{
-		if (Args[1].compare("off") == 0)
+		if( Args[1].compare("off") == 0 )
 		{
 			// Disable it.
 			std::cout << "Disabling hooks" << std::endl;
 			enabledFlags = 0;
 
-			Pointer(Pointer::Base()(OffsetNetworkLog)).Write(networkReset, sizeof(networkReset));
-			Pointer(Pointer::Base()(OffsetSSL)).Write(sslReset, sizeof(sslReset));
-			Pointer(Pointer::Base()(OffsetUI)).Write(uiReset, sizeof(uiReset));
+			Pointer::Base(OffsetNetworkLog).Write(networkReset, sizeof(networkReset));
+			Pointer::Base(OffsetSSL).Write(sslReset, sizeof(sslReset));
+			Pointer::Base(OffsetUI).Write(uiReset, sizeof(uiReset));
 
 			return true;
 		}
@@ -133,34 +132,34 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 			hookNetwork = Args[1].compare("network") == 0;
 			hookSSL = Args[1].compare("ssl") == 0;
 			hookUI = Args[1].compare("ui") == 0;
-			if (Args[1].compare("all") == 0 || Args[1].compare("on") == 0)
+			if( Args[1].compare("all") == 0 || Args[1].compare("on") == 0 )
 				hookNetwork = hookSSL = hookUI = true;
 
-			if (hookNetwork)
+			if( hookNetwork )
 			{
 				std::cout << "Hooking network debug output..." << std::endl;
 				enabledFlags |= 2;
 
-				Pointer(Pointer::Base()(OffsetNetworkLog)).WriteJump(&networkLogHook);
+				Pointer::Base(OffsetNetworkLog).WriteJump(&networkLogHook);
 			}
 
-			if (hookSSL)
+			if( hookSSL )
 			{
 				std::cout << "Hooking SSL debug output..." << std::endl;
 				enabledFlags |= 4;
 
-				Pointer(Pointer::Base()(OffsetSSL)).WriteJump(&sslLogHook);
+				Pointer::Base(OffsetSSL).WriteJump(&sslLogHook);
 			}
 
-			if (hookUI)
+			if( hookUI )
 			{
 				std::cout << "Hooking UI debug output..." << std::endl;
 				enabledFlags |= 8;
 
-				Pointer(Pointer::Base()(OffsetUI)).WriteJump(&uiLogHook);
+				Pointer::Base(OffsetUI).WriteJump(&uiLogHook);
 			}
 
-			if (hookNetwork || hookSSL || hookUI)
+			if( hookNetwork || hookSSL || hookUI )
 				return true;
 		}
 	}

@@ -76,18 +76,22 @@ ElDorito::ElDorito()
 	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
 	// Eng patch
-	Pointer::Base()(0x2333FD).Write<uint8_t>(0);
+	Pointer::Base(0x2333FD).Write<uint8_t>(0);
 
 	// no argpatch
 	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
 	//memcpy((uint8_t*)GetBasePointer() + 0x4373AD, NOP, sizeof(NOP));
 
 	//enable tag edits
-	Pointer::Base()(0x101A5B).Write<uint8_t>(0xEB);
-	Pointer::Base()(0x102874).Write<uint16_t>(0x9090);
+	Pointer::Base(0x101A5B).Write<uint8_t>(0xEB);
+	Pointer::Base(0x102874).Write<uint16_t>(0x9090);
 
 	// stopgame patch
-	Pointer::Base()(0x1056D0).Write<uint8_t>(0xC3);
+	Pointer::Base(0x1056D0).Write<uint8_t>(0xC3);
+
+	// No --account args patch
+	Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
+	Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
 
 	// Update window title patch
 	
@@ -498,6 +502,6 @@ std::string ElDorito::GetDirectory()
 void ElDorito::SetSessionMessage(const std::string& Message)
 {
 	DWORD temp;
-	VirtualProtect(Pointer::Base()(0x120CCB8), Message.length() + 1, PAGE_EXECUTE_READWRITE, &temp);
-	Pointer::Base()(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
+	VirtualProtect(Pointer::Base(0x120CCB8), Message.length() + 1, PAGE_EXECUTE_READWRITE, &temp);
+	Pointer::Base(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
 }
