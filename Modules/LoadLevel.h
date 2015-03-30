@@ -12,7 +12,6 @@ public:
 	void Tick(const std::chrono::duration<double>& Delta);
 	void Run(const std::vector<std::string>& Args);
 
-	
 private:
 	std::vector<std::string> MapList;
 };

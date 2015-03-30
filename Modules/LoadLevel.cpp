@@ -25,7 +25,6 @@ LoadLevel::LoadLevel()
 			std::string MapName(Finder.cFileName);
 			//remove extension
 			MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
-
 		}
 	} while( FindNextFile(hFind, &Finder) != 0 );
 }
@@ -37,7 +36,7 @@ LoadLevel::~LoadLevel()
 std::string LoadLevel::Info()
 {
 	std::cout << "Current map: " << (char*)(0x2391824) << std::endl;
-	std::string Info = 
+	std::string Info =
 		"Usage: load (mapname)\n"
 		"Available Maps\n";
 	for( std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map )
@@ -60,7 +59,7 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 	}
 	if( Args.size() >= 2 )
 	{
-		if( std::find(MapList.begin(), MapList.end(),Args[1]) != MapList.end())
+		if( std::find(MapList.begin(), MapList.end(), Args[1]) != MapList.end() )
 		{
 			std::cout << "Loading map: " + Args[1] << std::endl;
 			std::string MapName = "maps\\" + Args[1];
@@ -81,12 +80,11 @@ void LoadLevel::Run(const std::vector<std::string>& Args)
 			Pointer(0x23917F0).Write<uint8_t>(0x1);
 			//*((uint8_t*)(0x23917F0)) = 0x1;
 		}
-		else {
+		else
+		{
 			std::cout << "Unknown map." << std::endl;
 			std::cout << Info() << std::endl;
 		}
-
-	
 	}
 	return;
 }
