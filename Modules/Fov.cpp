@@ -21,8 +21,8 @@ Fov::Fov()
 	const uint8_t lowerReset[] = { 0x0F, 0x28, 0xC1 };
 
 	// Patch FOV Bounds checking
-	Pointer::Base()(LowerBoundsOffset).Write(lowerNOP, sizeof(lowerNOP));
-	Pointer::Base()(UpperBoundsOffset).Write(upperNOP, sizeof(upperNOP));
+	Pointer::Base(LowerBoundsOffset).Write(lowerNOP, sizeof(lowerNOP));
+	Pointer::Base(UpperBoundsOffset).Write(upperNOP, sizeof(upperNOP));
 }
 
 Fov::~Fov()
@@ -31,9 +31,10 @@ Fov::~Fov()
 
 std::string Fov::Info()
 {
-	float currentFov = Pointer::Base()(FOVOffset).Read<float>();
+	float currentFov = Pointer::Base(FOVOffset).Read<float>();
 
-	std::string Info = "Field of View: " + std::to_string(currentFov) + R"(
+	std::string Info = "Field of View: " + std::to_string(currentFov) +
+		R"(
 Usage: fov (number)
 Sets the field of view for the first person camera.
 This does not currently effect third-person views.
@@ -57,7 +58,7 @@ bool Fov::Run(const std::vector<std::string>& Args)
 			return false;
 
 		// Write FOV
-		Pointer(Pointer::Base()(FOVOffset)).Write<float>(fov);
+		Pointer::Base(FOVOffset).Write(fov);
 
 		return true;
 	}

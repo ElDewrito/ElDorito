@@ -92,17 +92,17 @@ public:
 
 	// Template write
 	template <class T>
-	inline void Write(const T value)
+	inline void Write(const T value) const
 	{
 		*((T*)_Pointer) = value;
 	}
 
-	inline void Write(const void* data, size_t size)
+	inline void Write(const void* data, size_t size) const
 	{
 		memcpy(_Pointer, data, size);
 	}
 
-	inline void WriteCall(void* newFunction)
+	inline void WriteCall(void* newFunction) const
 	{
 		uint8_t tempJMP[5] = { 0xE8, 0x90, 0x90, 0x90, 0x90 };
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
@@ -110,7 +110,7 @@ public:
 		memcpy(_Pointer, tempJMP, 5);
 	}
 
-	inline void WriteJump(void* newFunction)
+	inline void WriteJump(void* newFunction) const
 	{
 		uint8_t tempJMP[5] = { 0xE9, 0x90, 0x90, 0x90, 0x90 };
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
@@ -120,25 +120,25 @@ public:
 
 	// Template read
 	template <class T>
-	inline T& Read()
+	inline T& Read() const
 	{
 		return *((T*)_Pointer);
 	}
 
-	inline void Read(void* Dest, size_t size)
+	inline void Read(void* Dest, size_t size) const
 	{
 		memcpy(Dest, _Pointer, size);
 	}
 
-	inline static const Pointer Base()
+	inline static const Pointer Base(ptrdiff_t Offset = 0, size_t Stride = 1)
 	{
 		const static Pointer ModuleBase(GetModuleBase());
-		return ModuleBase;
+		return ModuleBase(Offset, Stride);
 	}
 
-	inline static const Pointer Base(const std::string& Module)
+	inline static const Pointer Base(const std::string& Module, ptrdiff_t Offset = 0, size_t Stride = 1)
 	{
-		return Pointer(GetModuleBase(Module));
+		return Pointer(GetModuleBase(Module))(Offset, Stride);
 	}
 
 private:

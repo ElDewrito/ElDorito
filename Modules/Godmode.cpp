@@ -38,14 +38,14 @@ bool Godmode::Run(const std::vector<std::string>& Args)
 		{
 			std::cout << "Disabling god" << std::endl;
 			enabled = false;
-			Pointer::Base()(OffsetHealth).Write(resetHealth, sizeof(resetHealth));
+			Pointer::Base(OffsetHealth).Write(resetHealth, sizeof(resetHealth));
 			return true;
 		}
 		else if( Args[1].compare("on") == 0 )
 		{
 			std::cout << "Enabling god" << std::endl;
 			enabled = true;
-			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
+			Pointer::Base(OffsetHealth).Write(god, sizeof(god));
 			return true;
 		}
 	}

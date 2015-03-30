@@ -121,9 +121,9 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling hooks" << std::endl;
 			enabledFlags = 0;
 
-			Pointer::Base()(OffsetNetworkLog).Write(networkReset, sizeof(networkReset));
-			Pointer::Base()(OffsetSSL).Write(sslReset, sizeof(sslReset));
-			Pointer::Base()(OffsetUI).Write(uiReset, sizeof(uiReset));
+			Pointer::Base(OffsetNetworkLog).Write(networkReset, sizeof(networkReset));
+			Pointer::Base(OffsetSSL).Write(sslReset, sizeof(sslReset));
+			Pointer::Base(OffsetUI).Write(uiReset, sizeof(uiReset));
 
 			return true;
 		}
@@ -140,7 +140,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking network debug output..." << std::endl;
 				enabledFlags |= 2;
 
-				Pointer::Base()(OffsetNetworkLog).WriteJump(&networkLogHook);
+				Pointer::Base(OffsetNetworkLog).WriteJump(&networkLogHook);
 			}
 
 			if( hookSSL )
@@ -148,7 +148,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking SSL debug output..." << std::endl;
 				enabledFlags |= 4;
 
-				Pointer::Base()(OffsetSSL).WriteJump(&sslLogHook);
+				Pointer::Base(OffsetSSL).WriteJump(&sslLogHook);
 			}
 
 			if( hookUI )
@@ -156,7 +156,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking UI debug output..." << std::endl;
 				enabledFlags |= 8;
 
-				Pointer::Base()(OffsetUI).WriteJump(&uiLogHook);
+				Pointer::Base(OffsetUI).WriteJump(&uiLogHook);
 			}
 
 			if( hookNetwork || hookSSL || hookUI )
