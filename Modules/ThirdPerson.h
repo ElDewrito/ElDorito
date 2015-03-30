@@ -25,6 +25,5 @@ private:
 	Patch ThirdPatchYY;
 	Patch ThirdPatchZZ;
 	Patch ThirdPatchXXX;
-	Patch ThirdPatchYYY;
 	Patch ThirdPatchZZZ;
 };

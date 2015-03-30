@@ -8,7 +8,7 @@
 ThirdPerson::ThirdPerson()
 	:
 	enabled(false),
-	ThirdPatchX(0xA644AC,
+	ThirdPatchX(0x6644AC,
 	{ 0x90, 0x90, 0x90, 0x90, 0x90},
 	{ 0x66, 0x0F, 0xD6, 0x47, 0x5C }),
 	
@@ -36,10 +36,6 @@ ThirdPerson::ThirdPerson()
 	{ 0x90, 0x90, 0x90, 0x90, 0x90 },
 	{ 0x66, 0x0F, 0xD6, 0x42, 0xFC }),
 
-	ThirdPatchYYY(0x5774EB,
-	{ 0x90, 0x90, 0x90, 0x90},
-	{ 0x89, 0x74, 0x88, 0x20 }),
-
 	ThirdPatchZZZ(0x193401,
 	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
 	{ 0x89, 0x9C, 0xB1, 0x84, 0x05, 0x00, 0x00 })
@@ -56,8 +52,7 @@ std::string ThirdPerson::Info()
 	std::string Info = "Third person: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: third (on|off)\n"
-		"Bottomless clip on weapon ammo and grenades\n"
-		"Respawn to have all grenade types when enabled.\n";
+		"Freezes the camera in place and player can move freely around\n";
 
 	return Info;
 }
@@ -82,6 +77,8 @@ bool ThirdPerson::Run(const std::vector<std::string>& Args)
 			ThirdPatchXX.Reset();
 			ThirdPatchYY.Reset();
 			ThirdPatchZZ.Reset();
+			ThirdPatchXXX.Reset();
+			ThirdPatchZZZ.Reset();
 
 			return true;
 		}
@@ -91,7 +88,7 @@ bool ThirdPerson::Run(const std::vector<std::string>& Args)
 			// Enable
 			std::cout
 				<< "Enabling third person\n"
-				"(Respawn/suicide to get all grenades)\n"
+				"(Remember to move the player)\n"
 				<< std::endl;
 			enabled = true;
 
@@ -101,7 +98,8 @@ bool ThirdPerson::Run(const std::vector<std::string>& Args)
 			ThirdPatchXX.Apply();
 			ThirdPatchYY.Apply();
 			ThirdPatchZZ.Apply();
-
+			ThirdPatchXXX.Apply();
+			ThirdPatchZZZ.Apply();
 			return true;
 		}
 	}
