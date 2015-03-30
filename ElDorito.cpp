@@ -19,7 +19,7 @@ ElDorito::ElDorito()
 	SetConsoleOutputCP(437);
 	unsigned int ConsoleWidth = 80;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
-	if (GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf))
+	if( GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf) )
 	{
 		ConsoleWidth = ConsoleBuf.dwSize.X;
 	}
@@ -63,10 +63,10 @@ ElDorito::ElDorito()
 	MEMORY_BASIC_INFORMATION MemInfo;
 
 	//printf("\nUnprotecting memory...");
-	while (VirtualQuery((uint8_t*)GetBasePointer() + Offset, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)))
+	while( VirtualQuery((uint8_t*)GetBasePointer() + Offset, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)) )
 	{
 		Offset += MemInfo.RegionSize;
-		if (MemInfo.Protect == PAGE_EXECUTE_READ)
+		if( MemInfo.Protect == PAGE_EXECUTE_READ )
 		{
 			//printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
 			Total += MemInfo.RegionSize;
@@ -98,16 +98,16 @@ ElDorito::ElDorito()
 	//Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
 	//Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
 
-	Patch(0x43731A, { 0x0E, 0xEB }).Apply();
-	Patch(0x4373AD, { 0x03, 0xEB }).Apply();
+	Patch(0x43731A, { 0xEB, 0x0E }).Apply();
+	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
 
 	// Update window title patch
-	
+
 	// Set new window title
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
-	Pointer(Pointer::Base()(0x159C02F)).Write(windowData, sizeof(windowData));
-	Pointer(Pointer::Base()(0x159C06F)).Write(windowData, sizeof(windowData));
-	Pointer(Pointer::Base()(0x1EAAEE0)).Write(windowData, sizeof(windowData));
+	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
+	Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
+	Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
 	//Command list
 	Commands["help"] = nullptr;
@@ -122,7 +122,7 @@ ElDorito::ElDorito()
 	Commands["third"] = std::make_unique<ThirdPerson>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
 
-	Commands["test"] = std::make_unique<Test>();
+	//Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 }
