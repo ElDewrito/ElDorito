@@ -39,9 +39,6 @@
     <ClCompile Include="Modules\Hud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HexConstants.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">

@@ -71,7 +71,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ElDorito.cpp" />
-    <ClCompile Include="HexConstants.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />

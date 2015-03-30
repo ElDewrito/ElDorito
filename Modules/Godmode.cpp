@@ -1,7 +1,6 @@
 #include "Godmode.h"
 
 #include "../ElDorito.h"
-#include "../HexConstants.h"
 
 #include <Windows.h>
 #include <iostream>
@@ -30,7 +29,7 @@ void Godmode::Tick(const std::chrono::duration<double>& Delta)
 bool Godmode::Run(const std::vector<std::string>& Args)
 {
 	const size_t OffsetHealth = 0x7555DC;
-	const uint8_t god[] = { Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP, Hex::NOP };
+	const uint8_t god[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
 	const uint8_t resetHealth[] = { 0xF3, 0x0F, 0x11, 0x97, 0x00, 0x01, 0x00, 0x00 };
 
 	if( Args.size() >= 2 )
