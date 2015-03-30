@@ -89,6 +89,10 @@ ElDorito::ElDorito()
 	// stopgame patch
 	Pointer::Base(0x1056D0).Write<uint8_t>(0xC3);
 
+	// No --account args patch
+	Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
+	Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
+
 	//Command list
 	Commands["help"] = nullptr;
 	Commands["history"] = nullptr;
