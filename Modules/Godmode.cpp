@@ -5,9 +5,8 @@
 #include <Windows.h>
 #include <iostream>
 
-Godmode::Godmode()
+Godmode::Godmode() : enabled(false)
 {
-	enabled = false;
 }
 
 Godmode::~Godmode()
