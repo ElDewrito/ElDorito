@@ -203,7 +203,7 @@ void ElDorito::PrintConsole()
 					if(!Commands[Args[0]]->Run(Args))
 					{
 						std::cout << "Invalid usage." << std::endl;
-						std::cout << "Usage: " << Commands[Args[0]]->Usage() << std::endl;
+						std::cout << Commands[Args[0]]->Info() << std::endl;
 					}
 				}
 
@@ -254,7 +254,7 @@ void ElDorito::PrintConsole()
 						else
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
-							std::cout << "Unknown Command" << Args[1] << std::endl;
+							std::cout << "Unknown Command " << Args[1] << std::endl;
 						}
 					}
 					else

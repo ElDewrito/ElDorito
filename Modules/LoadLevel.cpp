@@ -37,23 +37,16 @@ std::string LoadLevel::Info()
 {
 	std::string Info = "Current map: ";
 	Info += (char*)(0x2391824);
-	Info += "\nUsage: " + Usage();
-	
-	return Info;
-}
-
-std::string LoadLevel::Usage()
-{
-	std::string usage = "load (mapname)\n"
+	Info += "\nUsage: load (mapname)\n"
 		"Available Maps";
 	for(std::vector<std::string>::iterator map = MapList.begin(); map != MapList.end(); ++map)
 	{
-		usage += '\n';
-		usage += 'Ä';
-		usage += *map;
+		Info += '\n';
+		Info += 'Ä';
+		Info += *map;
 	}
-
-	return usage;
+	
+	return Info;
 }
 
 void LoadLevel::Tick(const std::chrono::duration<double>& Delta)

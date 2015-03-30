@@ -17,14 +17,9 @@ std::string Godmode::Info()
 {
 	std::string Info = "Godmode: ";
 	Info += (enabled ? "Enabled" : "Disabled");
-	Info += "\nUsage: " + Usage();
+	Info += "\nUsage: god (on|off)";
 	Info += "\nEnables godmod, scripted deaths still occur(such as falling)\n";
 	return Info;
-}
-
-std::string Godmode::Usage()
-{
-	return "god (on|off)";
 }
 
 void Godmode::Tick(const std::chrono::duration<double>& Delta)
@@ -44,12 +39,14 @@ bool Godmode::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling god" << std::endl;
 			enabled = false;
 			Pointer::Base()(OffsetHealth).Write(resetHealth, sizeof(resetHealth));
+			return true;
 		}
 		else if( Args[1].compare("on") == 0 )
 		{
 			std::cout << "Enabling god" << std::endl;
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
+			return true;
 		}
 	}
 

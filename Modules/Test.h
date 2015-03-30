@@ -9,7 +9,6 @@ public:
 	~Test();
 
 	std::string Info();
-	std::string Usage();
 
 	void Tick(const std::chrono::duration<double>& Delta);
 	bool Run(const std::vector<std::string>& Args);
