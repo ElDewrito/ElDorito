@@ -19,20 +19,20 @@ int Thread()
 	CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
 	if(hThreadSnapshot.get() == INVALID_HANDLE_VALUE)
 	{
-		return 0;
+	return 0;
 	}
 	THREADENTRY32 tEntry;
 	tEntry.dwSize = sizeof(THREADENTRY32);
 	DWORD MainThread = 0;
 	DWORD currentPID = GetCurrentProcessId();
 	for(BOOL success = Thread32First(hThreadSnapshot.get(), &tEntry);
-		!MainThread && success && GetLastError() != ERROR_NO_MORE_FILES;
-		success = Thread32Next(hThreadSnapshot.get(), &tEntry))
+	!MainThread && success && GetLastError() != ERROR_NO_MORE_FILES;
+	success = Thread32Next(hThreadSnapshot.get(), &tEntry))
 	{
-		if(tEntry.th32OwnerProcessID == currentPID)
-		{
-			MainThread = tEntry.th32ThreadID;
-		}
+	if(tEntry.th32OwnerProcessID == currentPID)
+	{
+	MainThread = tEntry.th32ThreadID;
+	}
 	}
 
 	std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
@@ -40,16 +40,16 @@ int Thread()
 	DWORD MainThreadStatus = WAIT_TIMEOUT;
 	while(MainThreadStatus == WAIT_TIMEOUT)
 	{
-		MainThreadStatus = WaitForSingleObject(Thread, 0);
-		PrevTime = CurTime;
-		CurTime = std::chrono::high_resolution_clock::now();
-		ElDorito::Instance().Tick(CurTime - PrevTime);
+	MainThreadStatus = WaitForSingleObject(Thread, 0);
+	PrevTime = CurTime;
+	CurTime = std::chrono::high_resolution_clock::now();
+	ElDorito::Instance().Tick(CurTime - PrevTime);
 	}
 	*/
 
 	std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
 	CurTime = std::chrono::high_resolution_clock::now();
-	while(true)
+	while( true )
 	{
 		PrevTime = CurTime;
 		CurTime = std::chrono::high_resolution_clock::now();
@@ -71,13 +71,11 @@ BOOL InitInstance(HINSTANCE hModule)
 	GetSystemDirectoryA(buffer, MAX_PATH);
 	strcat_s(buffer, MAX_PATH, "\\iphlpapi.dll");
 
-	if (!g_hOriginalDll)
+	if( !g_hOriginalDll )
 		g_hOriginalDll = ::LoadLibraryA(buffer);
 
-	if (!g_hOriginalDll)
+	if( !g_hOriginalDll )
 		ExitProcess(0); // exit the hard way
-
-
 
 	//Set up new console window
 	//Input
@@ -111,7 +109,7 @@ BOOL InitInstance(HINSTANCE hModule)
 
 BOOL ExitInstance()
 {
-	if (g_hOriginalDll)
+	if( g_hOriginalDll )
 	{
 		FreeLibrary(g_hOriginalDll);
 		g_hOriginalDll = NULL;
@@ -124,7 +122,7 @@ void* GetOrigProcAddr(char* funcName)
 {
 #pragma warning(suppress: 6387)
 	void* origFunc = GetProcAddress(g_hOriginalDll, funcName);
-	if (!origFunc)
+	if( !origFunc )
 		::ExitProcess(0); // exit to be safe
 
 	return origFunc;
@@ -140,7 +138,7 @@ DWORD GetAdaptersInfo(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen)
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD Reason, LPVOID Misc)
 {
-	switch (Reason)
+	switch( Reason )
 	{
 	case DLL_PROCESS_ATTACH: return InitInstance(hModule);
 	case DLL_PROCESS_DETACH: return ExitInstance();

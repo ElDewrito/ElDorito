@@ -1,13 +1,12 @@
 #pragma once
 
 #include "ElModule.h"
-#include <inttypes.h>
 
-class Ammo : public ElModule
+class Hud : public ElModule
 {
 public:
-	Ammo();
-	~Ammo();
+	Hud();
+	~Hud();
 
 	std::string Info();
 

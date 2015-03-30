@@ -20,6 +20,8 @@ public:
 
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
+	void SetSessionMessage(const std::string& Message);
+
 private:
 	//Console
 	void PrintConsole();
