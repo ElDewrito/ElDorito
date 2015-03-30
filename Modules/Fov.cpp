@@ -4,8 +4,12 @@
 
 #include <iostream>
 #include <cstdlib> // std::atof
+#include <algorithm> // std::min, std::max
 
 static const size_t FOVOffset = 0x1F01D98;
+
+static const float MinFOV = 0.001f;
+static const float MaxFOV = 150.f;
 
 Fov::Fov()
 {
@@ -40,7 +44,7 @@ std::string Fov::Info()
 
 	std::string Info = "Field of View: " + std::to_string(currentFov) +
 		R"(
-Usage: fov (number)
+Usage: fov (0.001-150.0)
 Sets the field of view for the first person camera.
 This does not currently effect third-person views.
 )";
@@ -59,11 +63,14 @@ bool Fov::Run(const std::vector<std::string>& Args)
 		float fov = static_cast<float>(std::atof(Args[1].c_str()));
 
 		// If atof returns 0, it (probably) failed
-		if( fov == 0.f )
+		if(fov == 0.f)
 			return false;
 
-		// Write FOV
+		fov = std::min(std::max(MinFOV, fov), MaxFOV);
+
+		// Write bounded FOV
 		Pointer::Base(FOVOffset).Write(fov);
+		std::cout << "FOV set to " << fov << "." << std::endl;
 
 		return true;
 	}
