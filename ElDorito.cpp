@@ -98,8 +98,8 @@ ElDorito::ElDorito()
 	//Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
 	//Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
 
-	Patch(0x43731A, { 0x0E, 0xEB }).Apply();
-	Patch(0x4373AD, { 0x03, 0xEB }).Apply();
+	Patch(0x43731A, { 0xEB, 0x0E }).Apply();
+	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
 
 	// Update window title patch
 
@@ -122,7 +122,7 @@ ElDorito::ElDorito()
 	Commands["third"] = std::make_unique<ThirdPerson>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
 
-	Commands["test"] = std::make_unique<Test>();
+	//Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 }
