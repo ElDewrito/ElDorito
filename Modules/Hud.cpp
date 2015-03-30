@@ -5,9 +5,8 @@
 #include <Windows.h>
 #include <iostream>
 
-Hud::Hud()
+Hud::Hud() : enabled(false)
 {
-	enabled = false;
 }
 
 Hud::~Hud()
@@ -22,7 +21,6 @@ std::string Hud::Info()
 	Info += "Usage: hud on|off\n"
 		"Turns hud on and off\n"
 		"Does not remove watermark if Hide_Watermark is set to 1 in game.cfg\n";
-
 	return Info;
 }
 
