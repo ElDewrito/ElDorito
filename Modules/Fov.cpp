@@ -21,8 +21,8 @@ Fov::Fov()
 	const uint8_t lowerReset[] = { 0x0F, 0x28, 0xC1 };
 
 	// Patch FOV Bounds checking
-	Pointer(Pointer::Base()(LowerBoundsOffset)).Write(lowerNOP, sizeof(lowerNOP));
-	Pointer(Pointer::Base()(UpperBoundsOffset)).Write(upperNOP, sizeof(upperNOP));
+	Pointer::Base()(LowerBoundsOffset).Write(lowerNOP, sizeof(lowerNOP));
+	Pointer::Base()(UpperBoundsOffset).Write(upperNOP, sizeof(upperNOP));
 }
 
 Fov::~Fov()
@@ -31,7 +31,7 @@ Fov::~Fov()
 
 std::string Fov::Info()
 {
-	float currentFov = Pointer(Pointer::Base()(FOVOffset)).Read<float>();
+	float currentFov = Pointer::Base()(FOVOffset).Read<float>();
 
 	std::string Info = "Field of View: " + std::to_string(currentFov) + R"(
 Usage: fov (number)

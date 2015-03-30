@@ -49,8 +49,8 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling unlimited ammo" << std::endl;
 			enabled = false;
 
-			Pointer(Pointer::Base()(OffsetWeapon)).Write(ammoReset, sizeof(ammoReset));
-			Pointer(Pointer::Base()(OffsetGrenades)).Write(grenadesReset, sizeof(grenadesReset));
+			Pointer::Base()(OffsetWeapon).Write(ammoReset, sizeof(ammoReset));
+			Pointer::Base()(OffsetGrenades).Write(grenadesReset, sizeof(grenadesReset));
 
 			return true;
 		}
@@ -60,7 +60,7 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 			const uint8_t allGrenades[] = { 0xC6, 0x84, 0x37, 0x20, 0x03, 0x00, 0x00, 0x63 };
 			//eldorado.exe + 1A3273 - C6 84 37 20 03 00 00 00 - mov byte ptr[edi + esi + 00000320], 00
 			//SetPageAccess(Pointer::Base() + 0x1a3273, sizeof(allGrenades), PAGE_EXECUTE_READWRITE);
-			Pointer(Pointer::Base()(0x1a3273)).Write(allGrenades, sizeof(allGrenades));
+			Pointer::Base()(0x1a3273).Write(allGrenades, sizeof(allGrenades));
 
 			//For some reason doesnt freezes up when using Write. Stick to memcpy for now. Look into later.
 			//memcpy(Pointer::Base()(0x1a3273), allGrenades, sizeof(allGrenades));
@@ -72,8 +72,8 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 				<< std::endl;
 			enabled = true;
 
-			Pointer(Pointer::Base()(OffsetWeapon)).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
-			Pointer(Pointer::Base()(OffsetGrenades)).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
+			Pointer::Base()(OffsetWeapon).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
+			Pointer::Base()(OffsetGrenades).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
 
 			return true;
 		}
