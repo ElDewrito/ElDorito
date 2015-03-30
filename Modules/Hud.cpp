@@ -18,7 +18,7 @@ std::string Hud::Info()
 	std::string Info =
 		"View Hud: ";
 	Info += (enabled ? "Enabled" : "Disabled");
-	Info += "Usage: hud on|off\n"
+	Info += "\nUsage: hud (on|off)\n"
 		"Turns hud on and off\n"
 		"Does not remove watermark if Hide_Watermark is set to 1 in game.cfg\n";
 	return Info;
@@ -28,31 +28,28 @@ void Hud::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void Hud::Run(const std::vector<std::string>& Args)
+bool Hud::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() >= 2 )
 	{
 		DWORD temp;
 		if( !Args[1].compare("off") )
 		{
+			std::cout << "Disabling hud" << std::endl;
 			enabled = false;
 			VirtualProtect(Pointer(0x016B5A5C), 4, PAGE_READWRITE, &temp);
 			Pointer(0x016B5A5C).Write<float>(3.14f);
+			return true;
 		}
 		else if( !Args[1].compare("on") )
 		{
+			std::cout << "Enabling hud" << std::endl;
 			enabled = true;
 			VirtualProtect(Pointer(0x016B5A5C), 4, PAGE_READWRITE, &temp);
 			Pointer(0x016B5A5C).Write<uint32_t>(0x3F83DDE2);
-		}
-		else
-		{
-			std::cout << "Unknown option: " << Args[1] << std::endl;
+			return true;
 		}
 	}
-	else
-	{
-		std::cout << Info() << std::endl;
-	}
-	return;
+
+	return false;
 }

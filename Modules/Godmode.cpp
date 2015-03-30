@@ -15,11 +15,10 @@ Godmode::~Godmode()
 
 std::string Godmode::Info()
 {
-	std::cout << "Godmode: " << (enabled ? "Enabled" : "Disabled") << std::endl;
-
-	std::string Info = "Usage: god on|off\n";
-
-	Info += "Enables godmod, scripted deaths still occur(such as falling)\n";
+	std::string Info = "Godmode: ";
+	Info += (enabled ? "Enabled" : "Disabled");
+	Info += "\nUsage: god (on|off)";
+	Info += "\nEnables godmod, scripted deaths still occur(such as falling)\n";
 	return Info;
 }
 
@@ -27,7 +26,7 @@ void Godmode::Tick(const std::chrono::duration<double>& Delta)
 {
 }
 
-void Godmode::Run(const std::vector<std::string>& Args)
+bool Godmode::Run(const std::vector<std::string>& Args)
 {
 	const size_t OffsetHealth = 0x7555DC;
 	const uint8_t god[] = { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
@@ -40,21 +39,16 @@ void Godmode::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling god" << std::endl;
 			enabled = false;
 			Pointer::Base()(OffsetHealth).Write(resetHealth, sizeof(resetHealth));
+			return true;
 		}
 		else if( Args[1].compare("on") == 0 )
 		{
 			std::cout << "Enabling god" << std::endl;
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
-		}
-		else
-		{
-			std::cout << "Unknown option: " << Args[1] << std::endl;
+			return true;
 		}
 	}
-	else
-	{
-		std::cout << Info() << std::endl;
-	}
-	return;
+
+	return false;
 }

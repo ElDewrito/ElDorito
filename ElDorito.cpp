@@ -197,8 +197,15 @@ void ElDorito::PrintConsole()
 
 				std::cout << "]®" << std::endl;
 				//process command and execute it
-				if( Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr )
-					Commands[Args[0]]->Run(Args);
+				if(Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr)
+				{
+					// If the command fails, print usage
+					if(!Commands[Args[0]]->Run(Args))
+					{
+						std::cout << "Invalid usage." << std::endl;
+						std::cout << Commands[Args[0]]->Info() << std::endl;
+					}
+				}
 
 				else if( !Args[0].compare("help") )
 				{
@@ -247,7 +254,7 @@ void ElDorito::PrintConsole()
 						else
 						{
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
-							std::cout << "Unknown Command" << Args[1] << std::endl;
+							std::cout << "Unknown Command " << Args[1] << std::endl;
 						}
 					}
 					else
