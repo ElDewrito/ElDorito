@@ -25,7 +25,6 @@ LoadLevel::LoadLevel()
 			std::string MapName(Finder.cFileName);
 			//remove extension
 			MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
-
 		}
 	} while( FindNextFile(hFind, &Finder) != 0 );
 }
@@ -65,7 +64,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() >= 2 )
 	{
-		if( std::find(MapList.begin(), MapList.end(),Args[1]) != MapList.end())
+		if( std::find(MapList.begin(), MapList.end(), Args[1]) != MapList.end() )
 		{
 			std::cout << "Loading map: " + Args[1] << std::endl;
 			std::string MapName = "maps\\" + Args[1];
@@ -89,5 +88,6 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			return true;
 		}
 	}
+
 	return false;
 }

@@ -5,9 +5,8 @@
 #include <Windows.h>
 #include <iostream>
 
-Ammo::Ammo()
+Ammo::Ammo() : enabled(false)
 {
-	enabled = false;
 }
 
 Ammo::~Ammo()
@@ -27,7 +26,7 @@ std::string Ammo::Info()
 
 std::string Ammo::Usage()
 {
-	return "ammo on|off";
+	return "ammo (on|off)";
 }
 
 void Ammo::Tick(const std::chrono::duration<double>& Delta)
@@ -79,8 +78,6 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 			Pointer(Pointer::Base()(OffsetWeapon)).Write(unlimitedAmmo, sizeof(unlimitedAmmo));
 			Pointer(Pointer::Base()(OffsetGrenades)).Write(unlimitedGrenades, sizeof(unlimitedGrenades));
 		}
-
-		return true;
 	}
 
 	return false;

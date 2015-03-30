@@ -2,18 +2,17 @@
 
 #include "ElModule.h"
 
-class LoadLevel : public ElModule
+class Hud : public ElModule
 {
 public:
-	LoadLevel();
-	~LoadLevel();
+	Hud();
+	~Hud();
 
 	std::string Info();
 	std::string Usage();
 
 	void Tick(const std::chrono::duration<double>& Delta);
 	bool Run(const std::vector<std::string>& Args);
-
 private:
-	std::vector<std::string> MapList;
+	bool enabled;
 };

@@ -5,9 +5,8 @@
 #include <Windows.h>
 #include <iostream>
 
-Godmode::Godmode()
+Godmode::Godmode() : enabled(false)
 {
-	enabled = false;
 }
 
 Godmode::~Godmode()
@@ -19,13 +18,13 @@ std::string Godmode::Info()
 	std::string Info = "Godmode: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: " + Usage();
-
+	Info += "\nEnables godmod, scripted deaths still occur(such as falling)\n";
 	return Info;
 }
 
 std::string Godmode::Usage()
 {
-	return "god on|off";
+	return "god (on|off)";
 }
 
 void Godmode::Tick(const std::chrono::duration<double>& Delta)
@@ -52,8 +51,6 @@ bool Godmode::Run(const std::vector<std::string>& Args)
 			enabled = true;
 			Pointer::Base()(OffsetHealth).Write(god, sizeof(god));
 		}
-
-		return true;
 	}
 
 	return false;
