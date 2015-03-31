@@ -24,7 +24,20 @@ public:
 
 	void SetSessionMessage(const std::string& Message);
 
+	static void SetMainThreadID(size_t ThreadID)
+	{
+		MainThreadID = ThreadID;
+	}
+	static size_t GetMainThreadID()
+	{
+		return MainThreadID;
+	}
+
 private:
+
+	// Thread
+	static size_t MainThreadID;
+
 	//Console
 	void PrintConsole();
 	std::map<std::string, std::unique_ptr<ElModule>> Commands;

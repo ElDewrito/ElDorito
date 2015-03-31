@@ -16,6 +16,8 @@
 
 #define ps1 "¯["
 
+size_t ElDorito::MainThreadID = 0;
+
 ElDorito::ElDorito()
 {
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -120,31 +122,31 @@ ElDorito::ElDorito()
 	Commands["debug"] = std::make_unique<DebugLogging>();
 	Commands["spawn"] = std::make_unique<Spawn>();
 
-	//Commands["test"] = std::make_unique<Test>();
+	Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
-	if (szArgList && numArgs > 1)
+	if( szArgList && numArgs > 1 )
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 
-		for (int i = 1; i < numArgs; i++)
+		for( int i = 1; i < numArgs; i++ )
 		{
 			std::wstring arg = std::wstring(szArgList[i]);
-			if (arg.find(L"-") != 0) // if it doesn't start with -
+			if( arg.find(L"-") != 0 ) // if it doesn't start with -
 				continue;
 
 			size_t pos = arg.find(L"=");
-			if (pos == std::wstring::npos || arg.length() <= pos + 1) // if it doesn't contain an =, or there's nothing after the =
+			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
 
 			std::string argname = converter.to_bytes(arg.substr(1, pos - 1));
 			std::string argvalue = converter.to_bytes(arg.substr(pos + 1));
 
-			if (Commands.count(argname) != 1 || Commands[argname] == nullptr) // command not registered
+			if( Commands.count(argname) != 1 || Commands[argname] == nullptr ) // command not registered
 				continue;
 
 			Commands[argname]->Run({ argname, argvalue });

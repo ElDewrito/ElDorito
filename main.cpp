@@ -46,7 +46,6 @@ int Thread()
 	ElDorito::Instance().Tick(CurTime - PrevTime);
 	}
 	*/
-
 	std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
 	CurTime = std::chrono::high_resolution_clock::now();
 	while( true )
@@ -102,6 +101,9 @@ BOOL InitInstance(HINSTANCE hModule)
 	*stdout = *fOut;
 	setvbuf(stdout, NULL, _IONBF, 0);
 	std::ios::sync_with_stdio();
+
+	ElDorito::SetMainThreadID(GetCurrentThreadId());
+
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);
 
 	return true;
