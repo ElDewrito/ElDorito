@@ -3,10 +3,19 @@
 #include "../ElDorito.h"
 
 #include <Windows.h>
+#include <TlHelp32.h> //GetModuleBase
+
 #include <iostream>
 
 Test::Test()
 {
+	//std::cout << "Test: " << std::hex << static_cast<size_t>(*(char*)(0x006E5207)) << std::endl;
+	//std::cout << (char*)Pointer(0x006E51E7)[0] << std::endl;
+	//SetPageAccess(0x006E5207, 1, PAGE_EXECUTE_READWRITE);
+	//Pointer(0x006E5207).Write<uint8_t>(128);
+	//const char* Honk = "YOU'VE DIDDLED ME FOR THE LAST TIME";
+	//Pointer(0x006E51E7).Write<uint32_t>((uint32_t)Honk);
+	//std::cout << (char*)Pointer(0x006E51E7)[0] << std::endl;
 }
 
 Test::~Test()
@@ -23,39 +32,21 @@ void Test::Tick(const std::chrono::duration<double>& Delta)
 {
 	static size_t Ticker = 0;
 	static double Timer = 0;
-
 	Timer += Delta.count();
-	if( Timer >= 2.0 )
+
+	//std::cout << TlsAddress << std::endl;
+	//std::cout << Pointer(TlsAddress + 0x32C).Read<uint32_t>() << std::endl;
+	if( ElDorito::GetMainTls(0x32C).Read<uint32_t>() )
 	{
-		Ticker++;
-		Timer = 0;
-		const std::string Msg[] = {
-			":^)", ";^)", ":^)",
-			"THIS IS A FAKE SCREENSHOT",
-			"THIS SCREENSHOT IS FAKE",
-			"DO NOT BELIEVE THIS IMAGE",
-			"STOP RAIDING #MODACITY",
-			"FAKE 0.4.432",
-			"FAKE IMAGE BETA: V0.0.4",
-			"THIS SCREENSHOT IS FAKE",
-			"DO NOT BELIEVE THIS IMAGE",
-			">Being a pretentious pissbaby", ">Hoarding info for twitter followers", ">Being a pizza shit", };
-		std::string TickStr = Msg[Ticker % (sizeof(Msg) / sizeof(std::string))];
-		DWORD temp;
-		VirtualProtect((uint8_t*)GetBasePointer() + 0x120CCB8, TickStr.length() + 1, PAGE_EXECUTE_READWRITE, &temp);
-		memcpy((uint8_t*)GetBasePointer() + 0x120CCB8, TickStr.c_str(), TickStr.size() + 1);
+		ElDorito::GetMainTls(0x32C)[0].Write<float>(sinf(Timer*3.14f * 2)*4.17126f);
+		//printf("%f\n", ElDorito::GetMainTls(0x32C)[0].Read<float>());
 	}
 }
 
 bool Test::Run(const std::vector<std::string>& Args)
 {
-	if( Args.size() <= 1 )
-	{
-		std::cout << Info();
-	}
-	if( Args.size() >= 2 )
-	{
-	}
+	// Gravity
+	std::cout << ElDorito::GetMainTls(0x32C)[0].Read<float>() << std::endl;
 
 	return true;
 }
