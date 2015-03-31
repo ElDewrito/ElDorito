@@ -20,4 +20,5 @@ private:
 
 	Patch NadePatch;
 	Patch GunPatch;
+	Patch EnergyPatch;
 };
