@@ -1,6 +1,8 @@
 #pragma once
 
-enum BlamGameTypes
+#include <inttypes.h>
+
+enum class BlamGameTypes
 {
 	Invalid = 0,
 	CTF,
@@ -15,7 +17,7 @@ enum BlamGameTypes
 	Infection
 };
 
-enum BlamGameModes
+enum class BlamGameModes
 {
 	Invalid = 0,
 	Campaign,
@@ -23,3 +25,28 @@ enum BlamGameModes
 	Mainmenu,
 	Shared // not sure
 };
+
+namespace GameGlobals
+{
+	namespace Physics
+	{
+		const size_t TLSOffset = 0x32C;
+		const unsigned GravityIndex = 0;
+		const float DefualtGravity = 4.17126f;
+	}
+
+	namespace Graphics
+	{
+		const size_t TLSOffset = 0x3C0;
+		const unsigned GraphicsOverrideIndex = 0;
+		const unsigned SaturationIndex = 4;
+		const unsigned ColorIndex = 8;
+	}
+
+	namespace Time
+	{
+		const size_t TLSOffset = 0x50;
+		const size_t DTInverseIndex = 8;
+		const size_t GameSpeedIndex = 16;
+	}
+}

@@ -1,27 +1,12 @@
 #include "Globals.h"
 
 #include "../ElDorito.h"
+#include "../BlamTypes.h"
 
 // STL
 #include <inttypes.h>
 #include <iostream>
 
-
-// Physics
-static const size_t PhysicsGlobalsOffset = 0x32C;
-static const unsigned GravityIndex = 0;
-static const float DefualtGravity = 4.17126f;
-
-// Graphics
-static const size_t GraphicsGlobalsOffset = 0x3C0;
-static const unsigned GraphicsOverrideIndex = 0;
-static const unsigned SaturationIndex = 4;
-static const unsigned ColorIndex = 8;
-
-// Misc.
-static const size_t TimingGlobalsOffset = 0x50;
-static const size_t DTInverseIndex = 8;
-static const size_t GameSpeedIndex = 16;
 
 Globals::Globals()
 {
@@ -54,7 +39,7 @@ void Globals::Tick(const std::chrono::duration<double>& dt)
 bool Globals::Run(const std::vector<std::string>& args)
 {
 	// Enable graphics overrides
-	ElDorito::GetMainTls(GraphicsGlobalsOffset)[GraphicsOverrideIndex].Write(1);
+	ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0](GameGlobals::Graphics::GraphicsOverrideIndex).Write<bool>(true);
 
 	if(args.size() >= 3) // Only accept "global <commmand> <args>
 	{
@@ -79,11 +64,12 @@ void Globals::setupGraphicsGlobals()
 	commands["color"] = {
 		[this](const CommandLineArgs &args) // Run
 		{
+			Pointer GraphicsPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
 			if(args.size() >= 1)
 			{
-				Pointer &rPtr = ElDorito::GetMainTls(GraphicsGlobalsOffset)[ColorIndex];
-				Pointer &gPtr = ElDorito::GetMainTls(GraphicsGlobalsOffset)[ColorIndex + 4];
-				Pointer &bPtr = ElDorito::GetMainTls(GraphicsGlobalsOffset)[ColorIndex + 8];
+				Pointer &rPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex);
+				Pointer &gPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 4);
+				Pointer &bPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 8);
 
 				if(args[0] == "reset")
 				{
@@ -94,6 +80,7 @@ void Globals::setupGraphicsGlobals()
 					bPtr.Write(1.f);
 
 					std::cout << "Color reset to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << "." << std::endl;
+					return true;
 				}
 				else if(args.size() >= 3)
 				{
@@ -129,6 +116,51 @@ void Globals::setupGraphicsGlobals()
 )";
 		}
 	};
+
+	///
+	// Saturation
+	///
+	commands["saturation"] = {
+		[this](const CommandLineArgs &args) // Run
+		{
+			Pointer GraphicsPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+			if(args.size() >= 1)
+			{
+				Pointer &saturationPtr = GraphicsPtr(GameGlobals::Graphics::SaturationIndex);
+
+				if(args[0] == "reset")
+				{
+					saturationPtr.Write(1.f);
+					std::cout << "Saturation reset to 1." << std::endl;
+					return true;
+				}
+				else
+				{
+					try
+					{
+						float newSaturation = std::stof(args[0]);
+						saturationPtr.Write(newSaturation);
+						std::cout << "Saturation reset to " << newSaturation << "." << std::endl;
+					}
+					catch(std::invalid_argument&)
+					{
+						return false;
+					}
+					return true;
+				}
+			}
+
+			return false;
+		},
+			[]() // Info
+		{
+			return  R"(
+	Usage: saturation (number|'reset')
+	Sets the saturation value of the screen to given number (0.0 - 1.0).
+	Pass "reset" to reset to the default saturation.
+)";
+		}
+	};
 }
 
 void Globals::setupPhysicsGlobals()
@@ -141,12 +173,12 @@ void Globals::setupPhysicsGlobals()
 		{
 			if(args.size() >= 1)
 			{
-				Pointer &gravityPtr = ElDorito::GetMainTls(PhysicsGlobalsOffset)[GravityIndex];
+				Pointer &gravityPtr = ElDorito::GetMainTls(GameGlobals::Physics::TLSOffset)[0](GameGlobals::Physics::GravityIndex);
 
 				if(args[0] == "reset")
 				{
-					gravityPtr.Write(DefualtGravity);
-					std::cout << "Gravity reset to " << DefualtGravity << "." << std::endl;
+					gravityPtr.Write(GameGlobals::Physics::DefualtGravity);
+					std::cout << "Gravity reset to " << GameGlobals::Physics::DefualtGravity << "." << std::endl;
 				}
 				else
 				{
