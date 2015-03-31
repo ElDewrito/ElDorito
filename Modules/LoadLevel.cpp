@@ -38,7 +38,7 @@ std::string LoadLevel::Info()
 {
 	std::string Info = "Current map: ";
 	Info += (char*)(0x2391824);
-	Info += "\nUsage: load (mapname)\n"
+	Info += "\nUsage: load (mapname) [gametype]\n"
 		"Available Maps";
 	for( auto map : MapList )
 	{
@@ -46,6 +46,7 @@ std::string LoadLevel::Info()
 		Info += 'Ä';
 		Info += map;
 	}
+	Info += "\nValid gametypes are 1 to 10";
 
 	return Info;
 }
@@ -63,9 +64,20 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			std::cout << "Loading map: " + Args[1] << std::endl;
 			std::string MapName = "maps\\" + Args[1];
 
-			// Todo: Gametype
-
 			// Game Type
+			int gameType = 2; // slayer
+
+			if (Args.size() >= 3)
+			{
+				gameType = std::atoi(Args[2].c_str());
+				if (gameType == 0 || gameType > 10) // only valid gametypes are 1 to 10
+					gameType = 2;
+			}
+			std::cout << "Gametype: " << gameType << std::endl;
+
+			Pointer(0x2391B2C).Write<uint32_t>(gameType);
+
+			// Game Mode
 
 			Pointer(0x2391800).Write<uint32_t>(0x2);
 
