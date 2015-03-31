@@ -43,10 +43,10 @@ std::string LoadLevel::Info()
 	for( auto map : MapList )
 	{
 		Info += '\n';
-		Info += 'Ä';
+		Info += 'Ã„';
 		Info += map;
 	}
-	Info += "\nValid gametypes are 1 to 10";
+	Info += "\nValid gametypes are 0 to 10";
 
 	return Info;
 }
@@ -70,7 +70,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			if (Args.size() >= 3)
 			{
 				gameType = std::atoi(Args[2].c_str());
-				if (gameType <= 0 || gameType > 10) // only valid gametypes are 1 to 10
+				if (gameType < 0 || gameType > 10) // only valid gametypes are 1 to 10
 					gameType = 2;
 			}
 			std::cout << "Gametype: " << gameType << std::endl;
