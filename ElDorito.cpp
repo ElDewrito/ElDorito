@@ -122,6 +122,7 @@ ElDorito::ElDorito()
 	Commands["third"] = std::make_unique<ThirdPerson>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
 	Commands["spawn"] = std::make_unique<Spawn>();
+	//Commands["global"] = std::make_unique<Globals>();
 
 	//Commands["test"] = std::make_unique<Test>();
 

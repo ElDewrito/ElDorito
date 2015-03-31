@@ -10,3 +10,4 @@
 #include "Modules/ThirdPerson.h"
 #include "Modules/DebugLogging.h"
 #include "Modules/Spawn.h"
+#include "Modules/Globals.h"
