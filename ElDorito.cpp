@@ -12,6 +12,7 @@
 #include <codecvt>
 #include <cvt/wstring> // wstring_convert
 
+#include "StringUtils.h"
 #include "ElModules.h"
 
 #define ps1 "¯["
@@ -232,6 +233,11 @@ void ElDorito::PrintConsole()
 				std::istream_iterator<std::string> begin(ss);
 				std::istream_iterator<std::string> end;
 				std::vector<std::string> Args(begin, end);
+
+				// tolower args
+				for(auto &i : Args)
+					i = Utils::ToLower(i);
+
 				//Clear previous suggestion
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
 					std::cout << " ";
