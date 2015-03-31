@@ -13,7 +13,15 @@ Spawn::~Spawn()
 
 std::string Spawn::Info()
 {
-	return "";
+	std::string Info = "Usage: spawn proj (hex meta)\n";
+
+	//char HexBuf[9]{};
+	//_itoa_s(Pointer(0xB5DBA6).Read<uint32_t>(), HexBuf, 16);
+	//Info += "Current Projectile meta: ";
+	//Info += HexBuf;
+
+	Info += "Causes certain activites to spawn entities using the designated hex value\n";
+	return Info;
 }
 
 void Spawn::Tick(const std::chrono::duration<double>& Delta)
@@ -24,7 +32,7 @@ bool Spawn::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() >= 3 )
 	{
-		if( Args[1].compare("gun") == 0 )
+		if( Args[1].compare("proj") == 0 )
 		{
 			uint32_t meta = std::stoi(Args[2], 0, 16);
 			//std::cout << std::hex << meta << std::endl;
