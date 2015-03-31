@@ -49,12 +49,12 @@ public:
 	}
 
 	//Returns the position of the pointer offset by a number of bytes(or stride value)
-	inline Pointer operator() (ptrdiff_t Offset = 0, size_t Stride = 1) const
+	inline Pointer operator() (size_t Offset = 0, size_t Stride = 1) const
 	{
 		return Pointer((unsigned char*)_Pointer + (Offset*Stride));
 	}
 
-	inline Pointer& operator+ (ptrdiff_t offset)
+	inline Pointer& operator+ (size_t offset)
 	{
 		_Pointer = (uint8_t*)_Pointer + offset;
 		return *this;
@@ -143,14 +143,14 @@ public:
 	}
 
 	// turns an absolute address to be relative to a module
-	inline static const Pointer Rebase(size_t Offset = 0, size_t Stride = 1)
+	inline static const Pointer Rebase(size_t Offset = 0)
 	{
-		return Base(Offset - Base(), Stride);
+		return Pointer(Offset - Base());
 	}
 
-	inline static const Pointer Rebase(const std::string& Module, size_t Offset = 0, size_t Stride = 1)
+	inline static const Pointer Rebase(const std::string& Module, size_t Offset = 0)
 	{
-		return Base(Module, Offset - Base(Module), Stride);
+		return Pointer(Offset - Base(Module));
 	}
 
 private:
