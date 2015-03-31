@@ -342,6 +342,9 @@ void ElDorito::PrintConsole()
 					std::cout << "Exiting" << std::endl;
 					std::exit(0);
 				}
+				else if (!Args[0].compare("cls") || !Args[0].compare("clear")) {
+					system("cls");
+				}
 				else
 				{
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
