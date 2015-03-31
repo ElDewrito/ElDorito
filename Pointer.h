@@ -35,8 +35,8 @@ public:
 	// at the new location and returns it as a new pointer object
 	inline Pointer operator [](const ptrdiff_t Offset) const
 	{
-		if( _Pointer )
-			if( (unsigned int*)((char*)_Pointer + Offset) )
+		if (_Pointer)
+			if ((unsigned int*)((char*)_Pointer + Offset))
 				return Pointer(*(unsigned int*)((char*)_Pointer + Offset));
 
 		return Pointer(nullptr);
@@ -130,15 +130,27 @@ public:
 		memcpy(Dest, _Pointer, size);
 	}
 
-	inline static const Pointer Base(ptrdiff_t Offset = 0, size_t Stride = 1)
+	// Turns a module-relative address into an absolute address
+	inline static const Pointer Base(size_t Offset = 0, size_t Stride = 1)
 	{
 		const static Pointer ModuleBase(GetModuleBase());
 		return ModuleBase(Offset, Stride);
 	}
 
-	inline static const Pointer Base(const std::string& Module, ptrdiff_t Offset = 0, size_t Stride = 1)
+	inline static const Pointer Base(const std::string& Module, size_t Offset = 0, size_t Stride = 1)
 	{
 		return Pointer(GetModuleBase(Module))(Offset, Stride);
+	}
+
+	// turns an absolute address to be relative to a module
+	inline static const Pointer Rebase(size_t Offset = 0, size_t Stride = 1)
+	{
+		return Base(Offset - Base(), Stride);
+	}
+
+	inline static const Pointer Rebase(const std::string& Module, size_t Offset = 0, size_t Stride = 1)
+	{
+		return Base(Module, Offset - Base(Module), Stride);
 	}
 
 private:
