@@ -594,10 +594,7 @@ const Pointer& ElDorito::GetMainTls(size_t Offset)
 		size_t TlsPtrAddress = Pointer(TlsPtrArrayAddress).Read<uint32_t>();
 
 		// Index has been consistantly 0. Keep a look out.
-		printf("%0X\n", TlsPtrAddress);
 		ThreadLocalStorage = Pointer(TlsPtrAddress)[0];
-		printf("%0X\n", ThreadLocalStorage);
-		std::cout << "Gravity ptr: " << ThreadLocalStorage(0x32C).Read<float>() << std::endl;
 	}
 	return ThreadLocalStorage(Offset);
 }
