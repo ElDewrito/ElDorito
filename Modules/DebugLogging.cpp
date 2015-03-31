@@ -6,39 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-DebugLogging::DebugLogging() : enabledFlags(0)
-{
-}
-
-DebugLogging::~DebugLogging()
-{
-}
-
-std::string DebugLogging::Info()
-{
-	std::string Info = "Debug logging: ";
-	if( enabledFlags == 0 )
-		Info += "Disabled";
-	else
-	{
-		Info += "Enabled - ";
-		Info += (enabledFlags & 2) ? "Network " : "";
-		Info += (enabledFlags & 4) ? "SSL " : "";
-		Info += (enabledFlags & 8) ? "UI " : "";
-		Info += (enabledFlags & 16) ? "Game1 " : "";
-		Info += (enabledFlags & 32) ? "Game2 " : "";
-	}
-	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
-		"Enables hooks for debug output\n"
-		"Writes debug messages to dorito.log when enabled.\n";
-
-	return Info;
-}
-
-void DebugLogging::Tick(const std::chrono::duration<double>& Delta)
-{
-}
-
 void dbglog(const char* module, char* format, ...)
 {
 	char* backupFormat = "";
@@ -121,25 +88,68 @@ void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 	return;
 }
 
+DebugLogging::DebugLogging() : enabledFlags(0),
+	NetworkLogHook(0x9858D0, false, 
+	&networkLogHook,
+	{ 0x55, 0x8B, 0xEC, 0x80, 0x3D }),
+
+	SSLHook(0xA7FE10, false,
+	&sslLogHook,
+	{ 0x55, 0x8B, 0xEC, 0x83, 0xEC }),
+
+	UIHook(0xAED600, false,
+	&uiLogHook,
+	{ 0x55, 0x8B, 0xEC, 0x8D, 0x4D }),
+
+	Game1Hook(0x106FB0, false,
+	&dbglog,
+	{ 0x55, 0x8B, 0xEC, 0x8B, 0x45 }),
+
+	DebugLogFloatHook(0x2189F0, false,
+	&debuglog_float,
+	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
+
+	DebugLogIntHook(0x218A10, false,
+	&debuglog_int,
+	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
+
+	DebugLogStringHook(0x218A30, false,
+	&debuglog_string,
+	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC })
+{
+}
+
+DebugLogging::~DebugLogging()
+{
+}
+
+std::string DebugLogging::Info()
+{
+	std::string Info = "Debug logging: ";
+	if( enabledFlags == 0 )
+		Info += "Disabled";
+	else
+	{
+		Info += "Enabled - ";
+		Info += (enabledFlags & 2) ? "Network " : "";
+		Info += (enabledFlags & 4) ? "SSL " : "";
+		Info += (enabledFlags & 8) ? "UI " : "";
+		Info += (enabledFlags & 16) ? "Game1 " : "";
+		Info += (enabledFlags & 32) ? "Game2 " : "";
+	}
+	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
+		"Enables hooks for debug output\n"
+		"Writes debug messages to dorito.log when enabled.\n";
+
+	return Info;
+}
+
+void DebugLogging::Tick(const std::chrono::duration<double>& Delta)
+{
+}
+
 bool DebugLogging::Run(const std::vector<std::string>& Args)
 {
-	const size_t OffsetNetworkLog = 0x9858D0; // todo: investigate this func and find if theres a better place to hook
-	const size_t OffsetSSL = 0xA7FE10;
-	const size_t OffsetUI = 0xAED600;// this patches UiWidgetManager.UiLog, tags.dat also needs a patch to make root.UiLog call UiWidgetManager.UiLog
-	// unless we get DebugPanel in root to show somehow
-	const size_t OffsetGame1 = 0x106FB0;
-
-	const size_t OffsetDebugLogFloat = 0x2189F0;
-	const size_t OffsetDebugLogInt = 0x218A10;
-	const size_t OffsetDebugLogString = 0x218A30;
-
-	// Set
-	const uint8_t networkReset[] = { 0x55, 0x8B, 0xEC, 0x80, 0x3D };
-	const uint8_t sslReset[] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC };
-	const uint8_t uiReset[] = { 0x55, 0x8B, 0xEC, 0x8D, 0x4D };
-	const uint8_t game1Reset[] = { 0x55, 0x8B, 0xEC, 0x8B, 0x45 };
-	const uint8_t game2Reset[] = { 0xC2, 0x08, 0x00, 0xCC, 0xCC };
-
 	bool hookNetwork = false;
 	bool hookSSL = false;
 	bool hookUI = false;
@@ -154,13 +164,13 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling hooks" << std::endl;
 			enabledFlags = 0;
 
-			Pointer::Base(OffsetNetworkLog).Write(networkReset, sizeof(networkReset));
-			Pointer::Base(OffsetSSL).Write(sslReset, sizeof(sslReset));
-			Pointer::Base(OffsetUI).Write(uiReset, sizeof(uiReset));
-			Pointer::Base(OffsetGame1).Write(game1Reset, sizeof(game1Reset));
-			Pointer::Base(OffsetDebugLogFloat).Write(game2Reset, sizeof(game2Reset));
-			Pointer::Base(OffsetDebugLogInt).Write(game2Reset, sizeof(game2Reset));
-			Pointer::Base(OffsetDebugLogString).Write(game2Reset, sizeof(game2Reset));
+			NetworkLogHook.Reset();
+			SSLHook.Reset();
+			UIHook.Reset();
+			Game1Hook.Reset();
+			DebugLogFloatHook.Reset();
+			DebugLogIntHook.Reset();
+			DebugLogStringHook.Reset();
 
 			return true;
 		}
@@ -179,7 +189,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking network debug output..." << std::endl;
 				enabledFlags |= 2;
 
-				Pointer::Base(OffsetNetworkLog).WriteJump(&networkLogHook);
+				NetworkLogHook.Apply();
 			}
 
 			if( hookSSL )
@@ -187,7 +197,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking SSL debug output..." << std::endl;
 				enabledFlags |= 4;
 
-				Pointer::Base(OffsetSSL).WriteJump(&sslLogHook);
+				SSLHook.Apply();
 			}
 
 			if( hookUI )
@@ -195,7 +205,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking UI debug output..." << std::endl;
 				enabledFlags |= 8;
 
-				Pointer::Base(OffsetUI).WriteJump(&uiLogHook);
+				UIHook.Apply();
 			}
 
 			if ( hookGame1 )
@@ -203,7 +213,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking Game1 debug output..." << std::endl;
 				enabledFlags |= 16;
 
-				Pointer::Base(OffsetGame1).WriteJump(&dbglog);
+				Game1Hook.Apply();
 			}
 
 			if ( hookGame2 )
@@ -211,9 +221,9 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking Game2 debug output..." << std::endl;
 				enabledFlags |= 32;
 
-				Pointer::Base(OffsetDebugLogFloat).WriteJump(&debuglog_float);
-				Pointer::Base(OffsetDebugLogInt).WriteJump(&debuglog_int);
-				Pointer::Base(OffsetDebugLogString).WriteJump(&debuglog_string);
+				DebugLogFloatHook.Apply();
+				DebugLogIntHook.Apply();
+				DebugLogStringHook.Apply();
 			}
 
 			if( hookNetwork || hookSSL || hookUI || hookGame1 || hookGame2 )

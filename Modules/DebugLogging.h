@@ -3,6 +3,8 @@
 #include "ElModule.h"
 #include <inttypes.h>
 
+#include "../Patch.h"
+
 class DebugLogging : public ElModule
 {
 public:
@@ -15,4 +17,12 @@ public:
 	bool Run(const std::vector<std::string>& Args);
 private:
 	int enabledFlags;
+
+	Hook NetworkLogHook;
+	Hook SSLHook;
+	Hook UIHook;
+	Hook Game1Hook;
+	Hook DebugLogFloatHook;
+	Hook DebugLogIntHook;
+	Hook DebugLogStringHook;
 };

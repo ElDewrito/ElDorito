@@ -49,3 +49,43 @@ private:
 	size_t Offset;
 	const std::vector<uint8_t> Data, Orig;
 };
+
+class Hook
+{
+public:
+	Hook()
+		:
+		Offset(0), IsCall(false)
+	{
+	}
+	Hook(size_t Offset,
+		bool isCall,
+		void* destFunc,
+		std::initializer_list<uint8_t> Reset = {})
+		:
+		Offset(Offset), IsCall(isCall), DestFunc(destFunc), Orig(Reset)
+	{
+	}
+
+	inline void Apply(Pointer offset = Pointer::Base()) const
+	{
+		if (!IsCall)
+			offset(Offset).WriteJump(DestFunc);
+		else
+			offset(Offset).WriteCall(DestFunc);
+	}
+
+	inline void Reset(Pointer offset = Pointer::Base()) const
+	{
+		if (Orig.size())
+		{
+			offset(Offset).Write(&Orig[0], Orig.size());
+		}
+	}
+
+private:
+	size_t Offset;
+	void* DestFunc;
+	const bool IsCall;
+	const std::vector<uint8_t> Orig;
+};
