@@ -14,7 +14,11 @@ Ammo::Ammo()
 
 	GunPatch(0x75FACD,
 	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-	{ 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 })
+	{ 0x66, 0x29, 0x94, 0x31, 0x8E, 0x02, 0x00, 0x00 }),
+
+	EnergyPatch(0x75BE42,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xF3, 0x0F, 0x11, 0x87, 0xA8, 0x01, 0x00, 0x00 })
 {
 }
 
@@ -27,7 +31,7 @@ std::string Ammo::Info()
 	std::string Info = "Unlimited ammo: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: ammo (on|off)\n"
-		"Bottomless clip on weapon ammo and grenades\n"
+		"Bottomless clip on weapon ammo/energy and grenades\n"
 		"Respawn to have all grenade types when enabled.\n";
 
 	return Info;
@@ -49,6 +53,7 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 
 			NadePatch.Reset();
 			GunPatch.Reset();
+			EnergyPatch.Reset();
 
 			return true;
 		}
@@ -72,6 +77,7 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 
 			NadePatch.Apply();
 			GunPatch.Apply();
+			EnergyPatch.Apply();
 
 			return true;
 		}
