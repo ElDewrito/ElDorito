@@ -70,7 +70,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			if (Args.size() >= 3)
 			{
 				gameType = std::atoi(Args[2].c_str());
-				if (gameType == 0 || gameType > 10) // only valid gametypes are 1 to 10
+				if (gameType <= 0 || gameType > 10) // only valid gametypes are 1 to 10
 					gameType = 2;
 			}
 			std::cout << "Gametype: " << gameType << std::endl;

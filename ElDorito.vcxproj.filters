@@ -104,6 +104,9 @@
     <ClInclude Include="Modules\Spawn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BlamTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

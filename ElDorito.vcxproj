@@ -146,6 +146,7 @@
     <ClCompile Include="Pointer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlamTypes.h" />
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="Modules\Ammo.h" />
