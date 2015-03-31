@@ -401,9 +401,24 @@ void ElDorito::PrintConsole()
 				std::cout << Command;
 			}
 		}
+		else if( Key == 22 )// ctrl+v
+		{
+			// Paste in clipbard
+			if( OpenClipboard(nullptr) )
+			{
+				std::string Clipboard((char*)GetClipboardData(CF_TEXT));
+				for( char character : Clipboard )
+				{
+					Command.push_back(character);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+					std::cout << (char)character;
+				}
+			}
+		}
 		else if( Key == 0 || Key == 0xe0 )//escape character
 		{
 			int Func = _getch();
+			std::cout << Key << '|' << Func << std::endl;
 			if( Func == 0x48 )
 			{
 				//up
