@@ -569,7 +569,7 @@ void ElDorito::SetSessionMessage(const std::string& Message)
 	Pointer::Base(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
 }
 
-const Pointer& ElDorito::GetMainTls(size_t Offset)
+Pointer ElDorito::GetMainTls(size_t Offset /*= 0*/)
 {
 	static Pointer ThreadLocalStorage;
 	if( !ThreadLocalStorage && GetMainThreadID() )
@@ -605,5 +605,6 @@ const Pointer& ElDorito::GetMainTls(size_t Offset)
 		// Index has been consistantly 0. Keep a look out.
 		ThreadLocalStorage = Pointer(TlsPtrAddress)[0];
 	}
+
 	return ThreadLocalStorage(Offset);
 }

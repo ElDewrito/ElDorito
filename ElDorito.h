@@ -33,7 +33,7 @@ public:
 		return MainThreadID;
 	}
 
-	static const Pointer& GetMainTls(size_t Offset = 0);
+	static Pointer GetMainTls(size_t Offset = 0);
 
 private:
 
