@@ -9,6 +9,9 @@
 #include <conio.h> // _getch()
 #include <cctype> //isprint
 
+#include <codecvt>
+#include <cvt/wstring> // wstring_convert
+
 #include "ElModules.h"
 
 #define ps1 "¯["
@@ -50,10 +53,6 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_BLUE);
 	std::cout << std::string(ConsoleWidth - 1, 'Ä') << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-
-	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	std::cout << ps1;
-	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
@@ -124,6 +123,37 @@ ElDorito::ElDorito()
 	//Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
+
+	// Parse command-line commands
+	int numArgs = 0;
+	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
+	if (szArgList && numArgs > 1)
+	{
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+
+		for (int i = 1; i < numArgs; i++)
+		{
+			std::wstring arg = std::wstring(szArgList[i]);
+			if (arg.find(L"-") != 0) // if it doesn't start with -
+				continue;
+
+			size_t pos = arg.find(L"=");
+			if (pos == std::wstring::npos || arg.length() <= pos + 1) // if it doesn't contain an =, or there's nothing after the =
+				continue;
+
+			std::string argname = converter.to_bytes(arg.substr(1, pos - 1));
+			std::string argvalue = converter.to_bytes(arg.substr(pos + 1));
+
+			if (Commands.count(argname) != 1 || Commands[argname] == nullptr) // command not registered
+				continue;
+
+			Commands[argname]->Run({ argname, argvalue });
+		}
+	}
+
+	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+	std::cout << ps1;
+	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
