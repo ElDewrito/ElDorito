@@ -122,7 +122,7 @@ ElDorito::ElDorito()
 	Commands["debug"] = std::make_unique<DebugLogging>();
 	Commands["spawn"] = std::make_unique<Spawn>();
 
-	Commands["test"] = std::make_unique<Test>();
+	//Commands["test"] = std::make_unique<Test>();
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 
