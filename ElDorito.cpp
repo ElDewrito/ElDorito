@@ -102,8 +102,6 @@ ElDorito::ElDorito()
 	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
 
 	// Update window title patch
-
-	// Set new window title
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
 	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
 	Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
@@ -121,6 +119,7 @@ ElDorito::ElDorito()
 	Commands["fov"] = std::make_unique<Fov>();
 	Commands["third"] = std::make_unique<ThirdPerson>();
 	Commands["debug"] = std::make_unique<DebugLogging>();
+	Commands["spawn"] = std::make_unique<Spawn>();
 
 	//Commands["test"] = std::make_unique<Test>();
 

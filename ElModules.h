@@ -9,3 +9,4 @@
 #include "Modules/Fov.h"
 #include "Modules/ThirdPerson.h"
 #include "Modules/DebugLogging.h"
+#include "Modules/Spawn.h"
