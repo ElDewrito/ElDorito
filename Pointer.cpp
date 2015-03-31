@@ -3,7 +3,7 @@
 #include <TlHelp32.h> //GetModuleBase
 #include <memory>
 
-unsigned int GetMainThreadId()
+size_t GetMainThreadId()
 {
 	const std::shared_ptr<void> hThreadSnapshot(CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
 	if( hThreadSnapshot.get() == INVALID_HANDLE_VALUE )
@@ -21,6 +21,33 @@ unsigned int GetMainThreadId()
 			result = tEntry.th32ThreadID;
 	}
 	return result;
+}
+
+size_t GetMainThreadId(size_t ProcessId)
+{
+	LPVOID lpTid;
+
+	_asm
+	{
+		mov eax, fs:[18h]
+			add eax, 36
+			mov[lpTid], eax
+	}
+
+	HANDLE hProcess = OpenProcess(PROCESS_VM_READ, FALSE, ProcessId);
+	if( hProcess == NULL )
+		return NULL;
+
+	DWORD dwTid;
+	if( ReadProcessMemory(hProcess, lpTid, &dwTid, sizeof(dwTid), NULL) == FALSE )
+	{
+		CloseHandle(hProcess);
+		return NULL;
+	}
+
+	CloseHandle(hProcess);
+
+	return dwTid;
 }
 
 void* GetModuleBase()

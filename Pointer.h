@@ -2,7 +2,9 @@
 #include <string>
 #include <stdint.h>
 
-unsigned int GetMainThreadId();
+size_t GetMainThreadId();
+size_t GetMainThreadId(size_t ProcessId);
+
 void* GetModuleBase();
 void* GetModuleBase(const std::string& ModuleName);
 inline void* GetBasePointer()
@@ -35,8 +37,8 @@ public:
 	// at the new location and returns it as a new pointer object
 	inline Pointer operator [](const ptrdiff_t Offset) const
 	{
-		if (_Pointer)
-			if ((unsigned int*)((char*)_Pointer + Offset))
+		if( _Pointer )
+			if( (unsigned int*)((char*)_Pointer + Offset) )
 				return Pointer(*(unsigned int*)((char*)_Pointer + Offset));
 
 		return Pointer(nullptr);
