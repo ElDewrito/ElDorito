@@ -144,6 +144,7 @@
     <ClCompile Include="Modules\ThirdPerson.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Pointer.cpp" />
+    <ClCompile Include="StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlamTypes.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="StringUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
