@@ -26,7 +26,7 @@ std::string DebugLogging::Info()
 		Info += (enabledFlags & 4) ? "SSL " : "";
 		Info += (enabledFlags & 8) ? "UI " : "";
 		Info += (enabledFlags & 16) ? "Game1 " : "";
-		Info += (enabledFlags & 32) ? "Game1 " : "";
+		Info += (enabledFlags & 32) ? "Game2 " : "";
 	}
 	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
 		"Enables hooks for debug output\n"
@@ -216,7 +216,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				Pointer::Base(OffsetDebugLogString).WriteJump(&debuglog_string);
 			}
 
-			if( hookNetwork || hookSSL || hookUI || hookGame1 )
+			if( hookNetwork || hookSSL || hookUI || hookGame1 || hookGame2 )
 				return true;
 		}
 	}
