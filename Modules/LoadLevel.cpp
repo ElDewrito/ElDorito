@@ -65,7 +65,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			std::string MapName = "maps\\" + Args[1];
 
 			// Game Type
-			int gameType = 2; // slayer
+			int gameType = 0; // No gametype
 
 			if (Args.size() >= 3)
 			{
