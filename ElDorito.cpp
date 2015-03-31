@@ -401,7 +401,7 @@ void ElDorito::PrintConsole()
 				std::cout << Command;
 			}
 		}
-		else if( Key == 22 )// ctrl+v
+		else if( Key == 22 )// Ctrl+v (paste clipboard into terminal)
 		{
 			// Paste in clipbard
 			if( OpenClipboard(nullptr) )
@@ -418,7 +418,6 @@ void ElDorito::PrintConsole()
 		else if( Key == 0 || Key == 0xe0 )//escape character
 		{
 			int Func = _getch();
-			std::cout << Key << '|' << Func << std::endl;
 			if( Func == 0x48 )
 			{
 				//up
