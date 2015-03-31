@@ -43,7 +43,7 @@ std::string LoadLevel::Info()
 	for( auto map : MapList )
 	{
 		Info += '\n';
-		Info += 'Ã„';
+		Info += 'Ã';
 		Info += map;
 	}
 	Info += "\nValid gametypes are 0 to 10";
