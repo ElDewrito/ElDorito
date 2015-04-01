@@ -6,6 +6,7 @@
 
 #include <Windows.h>
 #include <iostream>
+#include <iostream>
 
 LoadLevel::LoadLevel()
 {
@@ -42,14 +43,21 @@ std::string LoadLevel::Info()
 	Info += (char*)(0x2391824);
 	Info += "\nUsage: load (mapname) [gametype]\n"
 		"Available Maps";
-	for( auto map : MapList )
+	for( size_t i = 0; i < MapList.size(); i++ )
 	{
 		Info += '\n';
-		Info += 'Ã';
-		Info += map;
+		Info += (i == 0 ? '\xda' : i == MapList.size() - 1 ? '\xC0' : '\xc3');
+		Info += MapList[i];
 	}
-	Info += "\nValid gametypes are 0 to 10";
-	Info += "\nor one of ctf, slayer, oddball, koth, forge, vip, juggernaut, territories, assault or infection";
+
+	Info += "\nValid gametypes: \n";
+	for( size_t i = 0; i < Blam::GameTypeCount-1; i++ )
+	{
+		Info += (i == 0 ? '\xda':i==Blam::GameTypeCount-2? '\xC0':'\xc3');
+		Info += "[" + std::to_string(i) + ']';
+		Info += Blam::GameTypeNames[i];
+		Info += '\n';
+	}
 
 	return Info;
 }
@@ -68,31 +76,30 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 			std::string MapName = "maps\\" + Args[1];
 
 			// Game Type
-			int gameType = 0; // No gametype
+			Blam::GameType gameType = Blam::GameType::None; // No gametype
 
 			if (Args.size() >= 3)
 			{
-				BlamGameTypes::BlamGameTypes gameTypeEnum;
-				std::string gTypeName = Utils::ToLower(Args[2]);
-				if (gTypeName == "none") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Invalid; gameType = gameTypeEnum; }
-				else if (gTypeName == "ctf") { gameTypeEnum = BlamGameTypes::BlamGameTypes::CTF; gameType = gameTypeEnum; }
-				else if (gTypeName == "slayer") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Slayer; gameType = gameTypeEnum; }
-				else if (gTypeName == "oddball") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Oddball; gameType = gameTypeEnum; }
-				else if (gTypeName == "koth") { gameTypeEnum = BlamGameTypes::BlamGameTypes::KOTH; gameType = gameTypeEnum; }
-				else if (gTypeName == "forge") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Forge; gameType = gameTypeEnum; }
-				else if (gTypeName == "vip") { gameTypeEnum = BlamGameTypes::BlamGameTypes::VIP; gameType = gameTypeEnum; }
-				else if (gTypeName == "juggernaut") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Juggernaut; gameType = gameTypeEnum; }
-				else if (gTypeName == "territories") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Territories; gameType = gameTypeEnum; }
-				else if (gTypeName == "assault") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Assault; gameType = gameTypeEnum; }
-				else if (gTypeName == "infection") { gameTypeEnum = BlamGameTypes::BlamGameTypes::Infection; gameType = gameTypeEnum; }
-				else
+				//Look up gametype string.
+				size_t i;
+				for( i = 0; i < Blam::GameTypeCount; i++ )
 				{
-					gameType = std::atoi(Args[2].c_str());
+					// Todo: case insensiive
+					if( !Blam::GameTypeNames[i].compare(Args[2]) )
+					{
+						gameType = Blam::GameType(i);
+						break;
+					}
 				}
-				if (gameType <= 0 || gameType > 10) // only valid gametypes are 1 to 10
-					gameType = 2;
+				
+				if( i == Blam::GameTypeCount)
+				{
+					gameType = (Blam::GameType)std::atoi(Args[2].c_str());
+				}
+				if (gameType > Blam::GameTypeCount) // only valid gametypes are 1 to 10
+					gameType = Blam::GameType::Slayer;
 			}
-			std::cout << "Gametype: " << Args[2] << std::endl;
+			std::cout << "Gametype: " << Blam::GameTypeNames[gameType] << std::endl;
 
 			Pointer(0x2391B2C).Write<uint32_t>(gameType);
 
