@@ -11,6 +11,8 @@ static const size_t FOVOffset = 0x1F01D98;
 static const float MinFOV = 0.001f;
 static const float MaxFOV = 150.f;
 
+TODO("Update FOV to use proper (global) FOV");
+
 Fov::Fov()
 {
 	Patch::NopFill(Pointer::Base(0x25FA79), 5);

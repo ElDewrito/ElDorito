@@ -17,6 +17,8 @@ static const std::unordered_map<std::string, CameraType> CameraTypeStrings = {
 	//{ "authored", CameraType::Authored }
 };
 
+TODO("Add other camera modes to Camera module");
+
 static const std::unordered_map<CameraType, size_t> CameraTypeFunctions = {
 	{ CameraType::FirstPerson, 0x166ACB0 },
 	{CameraType::Following, 0x16724D4},
