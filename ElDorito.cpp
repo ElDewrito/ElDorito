@@ -12,7 +12,7 @@
 #include <codecvt>
 #include <cvt/wstring> // wstring_convert
 
-#include "StringUtils.h"
+#include "Utils/StringUtils.h"
 #include "ElModules.h"
 
 #define ps1 "¯["

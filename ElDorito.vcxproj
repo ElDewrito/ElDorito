@@ -54,12 +54,19 @@
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>ElDorito.def</ModuleDefinitionFile>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp F:\ElDorito\Deploy\gameShieldDll.dll C:\Users\DEElekgolo\Desktop\Halo</Command>
@@ -95,8 +102,13 @@
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ELDEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
+      <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -104,6 +116,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>ElDorito.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp F:\ElDorito\Deploy\gameShieldDll.dll C:\Users\DEElekgolo\Desktop\Halo</Command>
@@ -146,12 +159,18 @@
     <ClCompile Include="Modules\ThirdPerson.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Pointer.cpp" />
-    <ClCompile Include="StringUtils.cpp" />
+    <ClCompile Include="Precompile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Utils\Assert.cpp" />
+    <ClCompile Include="Utils\StringUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlamTypes.h" />
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
+    <ClInclude Include="ElMacros.h" />
     <ClInclude Include="Modules\Ammo.h" />
     <ClInclude Include="Modules\Camera.h" />
     <ClInclude Include="Modules\DebugLogging.h" />
@@ -167,8 +186,10 @@
     <ClInclude Include="Modules\ThirdPerson.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Pointer.h" />
+    <ClInclude Include="Precompile.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="StringUtils.h" />
+    <ClInclude Include="Utils\Assert.h" />
+    <ClInclude Include="Utils\StringUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />
