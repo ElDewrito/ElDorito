@@ -164,7 +164,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Utils\Assert.cpp" />
-    <ClCompile Include="Utils\StringUtils.cpp" />
+    <ClCompile Include="Utils\String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlamTypes.h" />
@@ -189,7 +189,9 @@
     <ClInclude Include="Precompile.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Utils\Assert.h" />
-    <ClInclude Include="Utils\StringUtils.h" />
+    <ClInclude Include="Utils\Macros.h" />
+    <ClInclude Include="Utils\String.h" />
+    <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

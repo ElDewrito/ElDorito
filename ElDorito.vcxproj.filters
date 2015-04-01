@@ -66,11 +66,11 @@
     <ClCompile Include="Utils\Assert.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Utils\StringUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="Precompile.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils\String.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,11 +137,17 @@
     <ClInclude Include="Utils\Assert.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\StringUtils.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Precompile.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\String.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

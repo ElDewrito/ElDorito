@@ -12,7 +12,7 @@
 #include <codecvt>
 #include <cvt/wstring> // wstring_convert
 
-#include "Utils/StringUtils.h"
+#include "Utils/Utils.h"
 #include "ElModules.h"
 
 #define ps1 "\xAF["
@@ -230,7 +230,7 @@ void ElDorito::PrintConsole()
 
 				// tolower args
 				for(auto &i : Args)
-					i = Utils::ToLower(i);
+					i = Utils::String::ToLower(i);
 
 				//Clear previous suggestion
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
