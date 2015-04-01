@@ -1,12 +1,13 @@
 #pragma once
 
 #include <inttypes.h>
+#include <string>
 
-namespace BlamGameTypes
+namespace Blam
 {
-	enum BlamGameTypes
+	enum GameType : uint32_t
 	{
-		Invalid = 0,
+		None = 0,
 		CTF,
 		Slayer,
 		Oddball,
@@ -16,19 +17,39 @@ namespace BlamGameTypes
 		Juggernaut,
 		Territories,
 		Assault,
-		Infection
+		Infection,
+		GameTypeCount
 	};
-}
-
-namespace BlamGameModes
-{
-	enum BlamGameModes
+	const std::string GameTypeNames[GameTypeCount] =
 	{
-		Invalid = 0,
+		"none",
+		"ctf",
+		"slayer",
+		"koth",
+		"forge",
+		"vip",
+		"juggernaut",
+		"territories",
+		"assault",
+		"infection"
+	};
+
+	enum GameMode : uint32_t
+	{
+		InvalidMode = 0,
 		Campaign,
 		Multiplayer,
 		Mainmenu,
-		Shared // not sure
+		Shared, // not sure
+		GameModesCount
+	};
+
+	const std::string GameModeNames[GameModesCount] =
+	{
+		"none",
+		"campaign",
+		"multiplayer",
+		"shared",
 	};
 }
 
