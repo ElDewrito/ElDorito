@@ -506,10 +506,17 @@ void ElDorito::PrintConsole()
 
 					PrevSuggestion.clear();
 					//use previous command
-					if( PrevCommand != PrevCommands.end() )
+					if (PrevCommand != PrevCommands.end() && PrevCommand != PrevCommands.end() - 1){
 						PrevCommand++;
+						Command = *PrevCommand;
+					}
+					else if (PrevCommand == PrevCommands.end() - 1){
+						Command = "";
+						PrevCommand++;
+					}
+					else Command = "";
 
-					Command = *PrevCommand;
+					
 
 					//Clear previous suggestion
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
