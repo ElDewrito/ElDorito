@@ -2,29 +2,35 @@
 
 #include <inttypes.h>
 
-enum class BlamGameTypes
+namespace BlamGameTypes
 {
-	Invalid = 0,
-	CTF,
-	Slayer,
-	Oddball,
-	KOTH,
-	Forge,
-	VIP,
-	Juggernaut,
-	Territories,
-	Assault,
-	Infection
-};
+	enum BlamGameTypes
+	{
+		Invalid = 0,
+		CTF,
+		Slayer,
+		Oddball,
+		KOTH,
+		Forge,
+		VIP,
+		Juggernaut,
+		Territories,
+		Assault,
+		Infection
+	};
+}
 
-enum class BlamGameModes
+namespace BlamGameModes
 {
-	Invalid = 0,
-	Campaign,
-	Multiplayer,
-	Mainmenu,
-	Shared // not sure
-};
+	enum BlamGameModes
+	{
+		Invalid = 0,
+		Campaign,
+		Multiplayer,
+		Mainmenu,
+		Shared // not sure
+	};
+}
 
 namespace GameGlobals
 {
