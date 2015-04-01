@@ -53,6 +53,19 @@ namespace Blam
 	};
 }
 
+enum class CameraType : uint8_t
+{
+	Following = 0,
+	Orbiting = 1,
+	Flying = 2,
+	FirstPerson = 3,
+	Dead = 4,
+	Static = 5,
+	Scripted = 6,
+
+	Authored = 7
+};
+
 namespace GameGlobals
 {
 	namespace Physics
@@ -77,9 +90,15 @@ namespace GameGlobals
 		const size_t GameSpeedIndex = 16;
 	}
 
-  namespace Cinematic
-  {
-    const size_t TLSOffset = 0x324;
-    const unsigned LetterboxIndex = 4;
-  }
+	namespace Cinematic
+	{
+		const size_t TLSOffset = 0x324;
+		const unsigned LetterboxIndex = 4;
+	}
+
+	namespace Director
+	{
+		const size_t TLSOffset = 0x60;
+		const unsigned CameraFunctionIndex = 4;
+	}
 }

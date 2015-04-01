@@ -134,6 +134,7 @@
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
+    <ClCompile Include="Modules\Camera.cpp" />
     <ClCompile Include="Modules\DebugLogging.cpp" />
     <ClCompile Include="Modules\Fov.cpp" />
     <ClCompile Include="Modules\Globals.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="Modules\Ammo.h" />
+    <ClInclude Include="Modules\Camera.h" />
     <ClInclude Include="Modules\DebugLogging.h" />
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
