@@ -11,7 +11,7 @@ public:
 	}
 
 	Singleton(Singleton const&) = delete;
-	void operator=(Singleton const&) = delete;
+	Singleton& operator=(Singleton const&) = delete;
 protected:
 	Singleton()
 	{

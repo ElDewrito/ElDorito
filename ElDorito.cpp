@@ -131,7 +131,7 @@ ElDorito::ElDorito()
 		for( int i = 1; i < numArgs; i++ )
 		{
 			std::wstring arg = std::wstring(szArgList[i]);
-			if( arg.find(L"-") != 0 ) // if it doesn't start with -
+			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
 
 			size_t pos = arg.find(L"=");
@@ -504,10 +504,10 @@ void ElDorito::PrintConsole()
 						Command = *PrevCommand;
 					}
 					else if (PrevCommand == PrevCommands.end() - 1){
-						Command = "";
+						Command.clear();
 						PrevCommand++;
 					}
-					else Command = "";
+					else Command.clear();
 
 					
 
@@ -555,7 +555,7 @@ std::string ElDorito::GetDirectory()
 	if( !GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&::HandleFinder, &hMod) )
 	{
 		int Error = GetLastError();
-		std::cout << "Unable to resolve current directory" << std::endl;
+		std::cout << "Unable to resolve current directory, error code: " << Error << std::endl;
 	}
 	GetModuleFileNameA(hMod, Path, sizeof(Path));
 	std::string Dir(Path);
