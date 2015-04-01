@@ -19,6 +19,8 @@ void dbglog(const char* module, char* format, ...)
 	va_start(ap, format);
 
 	char buff[4096];
+	memset(buff, 0, 4096);
+
 	vsprintf_s(buff, 4096, format, ap);
 	va_end(ap);
 
