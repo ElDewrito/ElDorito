@@ -7,10 +7,10 @@
 #include <iostream>
 
 static const std::unordered_map<std::string, CameraType> CameraTypeStrings = {
-	{ "thirdperson", CameraType::Following },
+	{ "third", CameraType::Following },
 	//{ "orbiting", CameraType::Orbiting },
 	//{ "flying", CameraType::Flying },
-	{ "firstperson", CameraType::FirstPerson },
+	{ "first", CameraType::FirstPerson },
 	//{ "dead", CameraType::Dead },
 	//{ "static", CameraType::Static },
 	//{ "scripted", CameraType::Scripted },
