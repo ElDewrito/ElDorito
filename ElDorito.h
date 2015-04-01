@@ -7,12 +7,12 @@
 #include <stdint.h>
 #include <memory>
 
-#include "Singleton.h"
+#include "Utils\Singleton.h"
 #include "Modules/ElModule.h"
 #include "Pointer.h"
 #include "Patch.h"
 
-class ElDorito : public Singleton < ElDorito >
+class ElDorito : public Utils::Singleton < ElDorito >
 {
 public:
 	ElDorito();

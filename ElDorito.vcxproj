@@ -187,7 +187,7 @@
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Precompile.h" />
-    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Utils\Singleton.h" />
     <ClInclude Include="Utils\Assert.h" />
     <ClInclude Include="Utils\Macros.h" />
     <ClInclude Include="Utils\String.h" />
