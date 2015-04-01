@@ -182,7 +182,7 @@ void Globals::setupGraphicsGlobals()
 				else if(args[0] == "off" || args[0] == "false")
 				{
 					saturationPtr.Write(false);
-					std::cout << "Letterboxing enabled." << std::endl;
+					std::cout << "Letterboxing disabled." << std::endl;
 					return true;
 				}
 			}
