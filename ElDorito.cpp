@@ -15,7 +15,7 @@
 #include "StringUtils.h"
 #include "ElModules.h"
 
-#define ps1 "¯["
+#define ps1 "Â¯["
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -33,12 +33,12 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << "ElDoritoÄÄÂBuild date (" << __DATE__ << " : " << __TIME__ << ")" << std::endl;
+	std::cout << "ElDoritoÃ„Ã„Ã‚Build date (" << __DATE__ << " : " << __TIME__ << ")" << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << "\t  ÃDEElekgolo (DEElekgolo@gmail.com)\n";
-	std::cout << "\t  ÃLimited (zerogimp123@gmail.com)\n";
-	std::cout << "\t  Àstoker25 (emoose)\n";
+	std::cout << "\t  ÃƒDEElekgolo (DEElekgolo@gmail.com)\n";
+	std::cout << "\t  ÃƒLimited (zerogimp123@gmail.com)\n";
+	std::cout << "\t  Ã€stoker25 (emoose)\n";
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	std::cout << "Enter \"";
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
@@ -54,7 +54,7 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	std::cout << GetDirectory() << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_BLUE);
-	std::cout << std::string(ConsoleWidth - 1, 'Ä') << std::endl;
+	std::cout << std::string(ConsoleWidth - 1, 'Ã„') << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
@@ -78,30 +78,22 @@ ElDorito::ElDorito()
 	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 
 	// Eng patch
-	//Pointer::Base(0x2333FD).Write<uint8_t>(0);
 	Patch(0x2333FD, { 0 }).Apply();
 
-	// no argpatch
-	//const uint8_t NOP[] = { 0x90, 0x90, 0x90, 0x90, 0x90 };
-	//memcpy((uint8_t*)GetBasePointer() + 0x4373AD, NOP, sizeof(NOP));
-
 	//enable tag edits
-	//Pointer::Base(0x101A5B).Write<uint8_t>(0xEB);
-	//Pointer::Base(0x102874).Write<uint16_t>(0x9090);
-
 	Patch(0x101A5B, { 0xEB }).Apply();
 	Patch::NopFill(Pointer::Base(0x102874), 2);
 
 	// stopgame patch
-	//Pointer::Base(0x1056D0).Write<uint8_t>(0xC3);
 	Patch(0x1056D0, { 0xC3 }).Apply();
 
 	// No --account args patch
-	//Pointer::Base(0x43731A).Write<uint16_t>(0x0EEB);
-	//Pointer::Base(0x4373AD).Write<uint16_t>(0x03EB);
-
 	Patch(0x43731A, { 0xEB, 0x0E }).Apply();
 	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
+	
+	// Fix gamepad option in settings (todo: find out why it doesn't detect gamepads
+	// and find a way to at least enable pressing ESC when gamepad is enabled)
+	Patch::NopFill(Pointer::Base(0x20D7F2), 2);
 
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
@@ -257,7 +249,7 @@ void ElDorito::PrintConsole()
 				std::cout << Command;
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-				std::cout << "]®" << std::endl;
+				std::cout << "]Â®" << std::endl;
 				//process command and execute it
 				if( Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr )
 				{
@@ -276,7 +268,7 @@ void ElDorito::PrintConsole()
 					{
 						if( Commands.count(Args[1]) == 1 && Commands[Args[1]] != nullptr )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('Ã„');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -287,7 +279,7 @@ void ElDorito::PrintConsole()
 						}
 						else if( !Args[1].compare("help") )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('Ã„');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -301,7 +293,7 @@ void ElDorito::PrintConsole()
 						}
 						else if( !Args[1].compare("history") )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('Ã„');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -321,7 +313,7 @@ void ElDorito::PrintConsole()
 					}
 					else
 					{
-						std::cout << std::setfill('Ä');
+						std::cout << std::setfill('Ã„');
 
 						for( auto it = Commands.begin(); it != Commands.end(); ++it )
 							if( it->second != nullptr )
@@ -395,7 +387,7 @@ void ElDorito::PrintConsole()
 											FOREGROUND_GREEN);
 					//Print possible matches
 					for( std::vector<std::string>::iterator it = Matches.begin(); it != Matches.end(); it++ )
-						std::cout << " Ä" << (*it) << std::endl;
+						std::cout << " Ã„" << (*it) << std::endl;
 
 					std::string Prefix = Matches[0];
 					for( std::vector<std::string>::iterator it = Matches.begin() + 1; it != Matches.end(); it++ )
@@ -436,7 +428,7 @@ void ElDorito::PrintConsole()
 				std::cout << "Available modules:" << std::endl;
 
 				for( auto it = Commands.begin(); it != Commands.end(); ++it )
-					std::cout << " Ä" << it->first << std::endl;
+					std::cout << " Ã„" << it->first << std::endl;
 
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 				std::cout << ps1;
