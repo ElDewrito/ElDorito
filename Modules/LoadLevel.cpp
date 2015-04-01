@@ -2,7 +2,7 @@
 
 #include "../ElDorito.h"
 #include "../BlamTypes.h"
-#include "../StringUtils.h"
+#include "../Utils/StringUtils.h"
 
 #include <Windows.h>
 #include <iostream>
