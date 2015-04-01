@@ -9,21 +9,21 @@
 class Camera : public ElModule
 {
 public:
-  Camera();
-  ~Camera();
+	Camera();
+	~Camera();
 
-  std::string Info();
+	std::string Info();
 
-  void Tick(const std::chrono::duration<double>& Delta);
-  bool Run(const std::vector<std::string>& Args);
+	void Tick(const std::chrono::duration<double>& Delta);
+	bool Run(const std::vector<std::string>& Args);
 private:
-  void setPatchesEnabled(bool areEnabled);
-  void setCameraType(CameraType type);
+	void setPatchesEnabled(bool areEnabled);
+	void setCameraType(CameraType type);
 
-  // Transition functions
-  Patch m_debug1CameraPatch;
-  Patch m_debug2CameraPatch;
-  Patch m_thirdPersonPatch;
-  Patch m_firstPersonPatch;
-  Patch m_deadPersonPatch;
+	// Transition functions
+	Patch m_debug1CameraPatch;
+	Patch m_debug2CameraPatch;
+	Patch m_thirdPersonPatch;
+	Patch m_firstPersonPatch;
+	Patch m_deadPersonPatch;
 };
