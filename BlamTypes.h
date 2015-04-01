@@ -25,6 +25,7 @@ namespace Blam
 		"none",
 		"ctf",
 		"slayer",
+		"oddball",
 		"koth",
 		"forge",
 		"vip",
