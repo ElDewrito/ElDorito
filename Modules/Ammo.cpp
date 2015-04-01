@@ -47,7 +47,6 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 	{
 		if( Args[1].compare("off") == 0 )
 		{
-			// Disable it.
 			std::cout << "Disabling unlimited ammo" << std::endl;
 			enabled = false;
 
@@ -59,16 +58,12 @@ bool Ammo::Run(const std::vector<std::string>& Args)
 		}
 		else if( Args[1].compare("on") == 0 )
 		{
-			// Nade patch
 			const uint8_t allGrenades[] = { 0xC6, 0x84, 0x37, 0x20, 0x03, 0x00, 0x00, 0x63 };
-			//eldorado.exe + 1A3273 - C6 84 37 20 03 00 00 00 - mov byte ptr[edi + esi + 00000320], 00
-			//SetPageAccess(Pointer::Base() + 0x1a3273, sizeof(allGrenades), PAGE_EXECUTE_READWRITE);
 			Pointer::Base(0x1a3273).Write(allGrenades, sizeof(allGrenades));
 
-			//For some reason doesnt freezes up when using Write. Stick to memcpy for now. Look into later.
+			//TODO: For some reason doesnt freezes up when using Write. Stick to memcpy for now. Look into later.
 			//memcpy(Pointer::Base()(0x1a3273), allGrenades, sizeof(allGrenades));
 
-			// Enable
 			std::cout
 				<< "Enabling unlimited ammo\n"
 				"(Respawn/suicide to get all grenades)\n"
