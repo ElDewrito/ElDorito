@@ -161,6 +161,72 @@ void Globals::setupGraphicsGlobals()
 )";
 		}
 	};
+
+	///
+	// Letterbox
+	///
+	commands["letterbox"] = {
+		[this](const CommandLineArgs &args) // Run
+		{
+			Pointer CinimaticPtr = ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0];
+			if(args.size() >= 1)
+			{
+				Pointer &saturationPtr = CinimaticPtr(GameGlobals::Cinematic::LetterboxIndex);
+
+				if(args[0] == "on" || args[0] == "true")
+				{
+					saturationPtr.Write(true);
+					std::cout << "Letterboxing enabled." << std::endl;
+					return true;
+				}
+				else if(args[0] == "off" || args[0] == "false")
+				{
+					saturationPtr.Write(false);
+					std::cout << "Letterboxing enabled." << std::endl;
+					return true;
+				}
+			}
+
+			return false;
+		},
+			[]() // Info
+		{
+			return  R"(
+	Usage: letterbox (on|off)
+	Enables letterboxing.
+)";
+		}
+	};
+
+	///
+	// Test
+	///
+	//commands["test"] = {
+	//	[this](const CommandLineArgs &args) // Run
+	//	{
+	//    Pointer GraphicsPtr = ElDorito::GetMainTls(0x104)[0];
+	//    if(args.size() > 1)
+	//    {
+	//      
+	//      int index = std::atoi(args[0].c_str());
+	//      
+	//    }
+	//    else
+	//    {
+	//      for(unsigned i = 0; i < 4; ++i)
+	//      {
+	//        std::cout << "Debug Value " << i << ": " << GraphicsPtr(i * 4).Read<float>() << std::endl;
+	//      }
+	//    }
+	//    return true;
+	//	},
+	//		[]() // Info
+	//	{
+	//    return  R"(
+	//Usage: you probably shouldn't use this
+	//)";
+	//	}
+	//};
 }
 
 void Globals::setupPhysicsGlobals()

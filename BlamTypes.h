@@ -49,4 +49,10 @@ namespace GameGlobals
 		const size_t DTInverseIndex = 8;
 		const size_t GameSpeedIndex = 16;
 	}
+
+  namespace Cinematic
+  {
+    const size_t TLSOffset = 0x324;
+    const unsigned LetterboxIndex = 4;
+  }
 }
