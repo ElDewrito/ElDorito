@@ -15,7 +15,7 @@
 #include "StringUtils.h"
 #include "ElModules.h"
 
-#define ps1 "¯["
+#define ps1 "\xAF["
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -33,12 +33,12 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << "ElDoritoÄÄÂBuild date (" << __DATE__ << " : " << __TIME__ << ")" << std::endl;
+	std::cout << "ElDorito""\xC4""\xC4""\xC2""Build date (" << __DATE__ << " : " << __TIME__ << ')' << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << "\t  ÃDEElekgolo (DEElekgolo@gmail.com)\n";
-	std::cout << "\t  ÃLimited (zerogimp123@gmail.com)\n";
-	std::cout << "\t  Àstoker25 (emoose)\n";
+	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
+	std::cout << "\t  \xC3""Limited (zerogimp123@gmail.com)\n";
+	std::cout << "\t  \xC0""stoker25 (emoose)\n";
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	std::cout << "Enter \"";
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
@@ -54,7 +54,7 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	std::cout << GetDirectory() << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_BLUE);
-	std::cout << std::string(ConsoleWidth - 1, 'Ä') << std::endl;
+	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
@@ -182,10 +182,10 @@ void ElDorito::PrintConsole()
 
 			//Clear previous suggestion
 			for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-				std::cout << " ";
+				std::cout << ' ';
 
 			for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-				std::cout << "\b";
+				std::cout << '\b';
 
 			PrevSuggestion.clear();
 
@@ -202,7 +202,7 @@ void ElDorito::PrintConsole()
 
 				//move back to end of input char
 				for( unsigned int i = Command.length(); i < Suggest[0].length(); i++ )
-					std::cout << "\b";
+					std::cout << '\b';
 			}
 			Suggest.clear();
 		}
@@ -217,10 +217,10 @@ void ElDorito::PrintConsole()
 			{
 				//Clear previous suggestion
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << " ";
+					std::cout << ' ';
 
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << "\b";
+					std::cout << '\b';
 
 				PrevSuggestion.clear();
 			}
@@ -242,10 +242,10 @@ void ElDorito::PrintConsole()
 
 				//Clear previous suggestion
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << " ";
+					std::cout << ' ';
 
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << "\b";
+					std::cout << '\b';
 
 				PrevSuggestion.clear();
 
@@ -257,7 +257,7 @@ void ElDorito::PrintConsole()
 				std::cout << Command;
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-				std::cout << "]®" << std::endl;
+				std::cout << "]\xAE" << std::endl;
 				//process command and execute it
 				if( Commands.count(Args[0]) == 1 && Commands[Args[0]] != nullptr )
 				{
@@ -276,7 +276,7 @@ void ElDorito::PrintConsole()
 					{
 						if( Commands.count(Args[1]) == 1 && Commands[Args[1]] != nullptr )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('\xC4');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -287,7 +287,7 @@ void ElDorito::PrintConsole()
 						}
 						else if( !Args[1].compare("help") )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('\xC4');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -301,7 +301,7 @@ void ElDorito::PrintConsole()
 						}
 						else if( !Args[1].compare("history") )
 						{
-							std::cout << std::setfill('Ä');
+							std::cout << std::setfill('\xC4');
 							std::cout.width(48);
 							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 							std::cout << std::left
@@ -321,7 +321,7 @@ void ElDorito::PrintConsole()
 					}
 					else
 					{
-						std::cout << std::setfill('Ä');
+						std::cout << std::setfill('\xC4');
 
 						for( auto it = Commands.begin(); it != Commands.end(); ++it )
 							if( it->second != nullptr )
@@ -350,7 +350,9 @@ void ElDorito::PrintConsole()
 					std::cout << "Exiting" << std::endl;
 					std::exit(0);
 				}
-				else if (!Args[0].compare("cls") || !Args[0].compare("clear")) {
+				else if (!Args[0].compare("cls") || !Args[0].compare("clear")) 
+				{
+					// Todo: look up a better way to clear the console
 					system("cls");
 				}
 				else
@@ -373,10 +375,10 @@ void ElDorito::PrintConsole()
 			{
 				//Clear previous suggestion
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << " ";
+					std::cout << ' ';
 
 				for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-					std::cout << "\b";
+					std::cout << '\b';
 
 				PrevSuggestion.clear();
 
@@ -436,7 +438,7 @@ void ElDorito::PrintConsole()
 				std::cout << "Available modules:" << std::endl;
 
 				for( auto it = Commands.begin(); it != Commands.end(); ++it )
-					std::cout << " Ä" << it->first << std::endl;
+					std::cout << " \xC4" << it->first << std::endl;
 
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 				std::cout << ps1;
@@ -468,10 +470,10 @@ void ElDorito::PrintConsole()
 				{
 					//Clear previous suggestion
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << " ";
+						std::cout << ' ';
 
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << "\b";
+						std::cout << '\b';
 
 					PrevSuggestion.clear();
 					//backspace
@@ -496,10 +498,10 @@ void ElDorito::PrintConsole()
 				{
 					//Clear previous suggestion
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << " ";
+						std::cout << ' ';
 
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << "\b";
+						std::cout << '\b';
 
 					//backspace
 					for( unsigned int i = 0; i < Command.length(); i++ )
@@ -521,10 +523,10 @@ void ElDorito::PrintConsole()
 
 					//Clear previous suggestion
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << " ";
+						std::cout << ' ';
 
 					for( unsigned int i = Command.length(); i < PrevSuggestion.length(); i++ )
-						std::cout << "\b";
+						std::cout << '\b';
 
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					std::cout << '\r' << ps1;

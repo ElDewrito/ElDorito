@@ -43,11 +43,9 @@ std::string Fov::Info()
 	float currentFov = Pointer::Base(FOVOffset).Read<float>();
 
 	std::string Info = "Field of View: " + std::to_string(currentFov) +
-		R"(
-Usage: fov (0.001-150.0)
-Sets the field of view for the first person camera.
-This does not currently effect third-person views.
-)";
+		"\nUsage: fov (0.001-150.0)\n"
+		"Sets the field of view for the first person camera.\n"
+		"This does not currently effect third-person views.\n";
 
 	return Info;
 }
@@ -70,7 +68,7 @@ bool Fov::Run(const std::vector<std::string>& Args)
 
 		// Write bounded FOV
 		Pointer::Base(FOVOffset).Write(fov);
-		std::cout << "FOV set to " << fov << "." << std::endl;
+		std::cout << "FOV set to " << fov << '.' << std::endl;
 
 		return true;
 	}

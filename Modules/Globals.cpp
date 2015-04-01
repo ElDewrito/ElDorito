@@ -25,7 +25,11 @@ std::string Globals::Info()
 	std::string info("Allows interaction with globals.  Available globals:\n");
 	for(auto &i : commands)
 	{
-		info += "  -" + i.first + ":" + i.second.Info();
+		info += "\xC4\xB4";
+		std::string Padded(i.first);
+		Padded.resize(16, ' ');
+		info += Padded;
+		info += '\xC3' + std::string(6, '\xC4') + '\n' + i.second.Info();
 	}
 
 	return info;
@@ -79,7 +83,7 @@ void Globals::setupGraphicsGlobals()
 					gPtr.Write(1.f);
 					bPtr.Write(1.f);
 
-					std::cout << "Color reset to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << "." << std::endl;
+					std::cout << "Color reset to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << '.' << std::endl;
 					return true;
 				}
 				else if(args.size() >= 3)
@@ -94,7 +98,7 @@ void Globals::setupGraphicsGlobals()
 						gPtr.Write(rgb[1]);
 						bPtr.Write(rgb[2]);
 
-						std::cout << "Color set to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << "." << std::endl;
+						std::cout << "Color set to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << '.' << std::endl;
 					}
 					catch(std::invalid_argument&)
 					{
@@ -108,12 +112,10 @@ void Globals::setupGraphicsGlobals()
 		},
 			[]() // Info
 		{
-			return  R"(
-	Usage: color (r|'reset') (g) (b)
-	Sets the color values of the screen to given
-	RGB values (0.0 - 1.0).
-	Pass "reset" to reset to the default color.
-)";
+			return "Usage: color (r|'reset') (g) (b)\n"
+				"Sets the color values of the screen to given\n"
+				"RGB values(0.0 - 1.0).\n"
+				"Pass \"reset\" to reset to the default color.\n";
 		}
 	};
 
@@ -140,7 +142,7 @@ void Globals::setupGraphicsGlobals()
 					{
 						float newSaturation = std::stof(args[0]);
 						saturationPtr.Write(newSaturation);
-						std::cout << "Saturation reset to " << newSaturation << "." << std::endl;
+						std::cout << "Saturation reset to " << newSaturation << '.' << std::endl;
 					}
 					catch(std::invalid_argument&)
 					{
@@ -154,11 +156,9 @@ void Globals::setupGraphicsGlobals()
 		},
 			[]() // Info
 		{
-			return  R"(
-	Usage: saturation (number|'reset')
-	Sets the saturation value of the screen to given number (0.0 - 1.0).
-	Pass "reset" to reset to the default saturation.
-)";
+			return  "Usage: saturation(number | 'reset')\n"
+			"Sets the saturation value of the screen to given number (0.0 - 1.0).\n"
+			"Pass \"reset\" to reset to the default saturation.\n";
 		}
 	};
 
@@ -191,10 +191,8 @@ void Globals::setupGraphicsGlobals()
 		},
 			[]() // Info
 		{
-			return  R"(
-	Usage: letterbox (on|off)
-	Enables letterboxing.
-)";
+			return  "Usage: letterbox (on|off)\n"
+				"Enables letterboxing.\n";
 		}
 	};
 
@@ -244,7 +242,7 @@ void Globals::setupPhysicsGlobals()
 				if(args[0] == "reset")
 				{
 					gravityPtr.Write(GameGlobals::Physics::DefualtGravity);
-					std::cout << "Gravity reset to " << GameGlobals::Physics::DefualtGravity << "." << std::endl;
+					std::cout << "Gravity reset to " << GameGlobals::Physics::DefualtGravity << '.' << std::endl;
 				}
 				else
 				{
@@ -253,7 +251,7 @@ void Globals::setupPhysicsGlobals()
 						float newGravity = std::stof(args[0]);
 						gravityPtr.Write(newGravity);
 
-						std::cout << "Gravity set to " << newGravity << "." << std::endl;
+						std::cout << "Gravity set to " << newGravity << '.' << std::endl;
 					}
 					catch(std::invalid_argument&)
 					{
@@ -267,11 +265,9 @@ void Globals::setupPhysicsGlobals()
 		},
 			[]() // Info
 		{
-			return  R"(
-	Usage: gravity (number|'reset')
-	Sets the gravity of the game to a given number.
-	Pass "reset" to reset to the default gravity.
-)";
+			return  "Usage: gravity (number|'reset')\n"
+				"Sets the gravity of the game to a given number.\n"
+				"Pass \"reset\" to reset to the default gravity.\n";
 		}
 	};
 }

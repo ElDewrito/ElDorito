@@ -24,7 +24,7 @@ void dbglog(const char* module, char* format, ...)
 
 	std::ofstream outfile;
 	outfile.open("dorito.log", std::ios_base::app);
-	outfile << "[" << module << "] " << buff << "\n";
+	outfile << '[' << module << "] " << buff << '\n';
 	outfile.close();
 }
 

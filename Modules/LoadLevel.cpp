@@ -54,7 +54,7 @@ std::string LoadLevel::Info()
 	for( size_t i = 0; i < Blam::GameTypeCount - 1; i++ )
 	{
 		Info += (i == 0 ? '\xda' : i == Blam::GameTypeCount - 2 ? '\xC0' : '\xc3');
-		Info += "[" + std::to_string(i) + ']';
+		Info += '[' + std::to_string(i) + ']';
 		Info += Blam::GameTypeNames[i];
 		Info += '\n';
 	}
