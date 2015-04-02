@@ -33,7 +33,7 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << Utils::Version::GetInfo("ProductName") << """\xC4""\xC4""\xC2""Version: " << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
@@ -344,8 +344,19 @@ void ElDorito::PrintConsole()
 				}
 				else if (!Args[0].compare("cls") || !Args[0].compare("clear")) 
 				{
-					// Todo: look up a better way to clear the console
-					system("cls");
+					COORD TopLeft = { 0, 0 };
+					HANDLE Console = GetStdHandle(STD_OUTPUT_HANDLE);
+					CONSOLE_SCREEN_BUFFER_INFO Screen;
+					DWORD Temp;
+					GetConsoleScreenBufferInfo(Console, &Screen);
+					FillConsoleOutputCharacterA(
+						Console, ' ', Screen.dwSize.X * Screen.dwSize.Y, TopLeft, &Temp
+						);
+					FillConsoleOutputAttribute(
+						Console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE,
+						Screen.dwSize.X * Screen.dwSize.Y, TopLeft, &Temp
+						);
+					SetConsoleCursorPosition(Console, TopLeft);
 				}
 				else
 				{
@@ -572,7 +583,7 @@ void ElDorito::SetSessionMessage(const std::string& Message)
 	Pointer::Base(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
 }
 
-Pointer ElDorito::GetMainTls(size_t Offset /*= 0*/)
+Pointer ElDorito::GetMainTls(size_t Offset)
 {
 	static Pointer ThreadLocalStorage;
 	if( !ThreadLocalStorage && GetMainThreadID() )
