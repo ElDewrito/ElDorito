@@ -107,6 +107,6 @@ namespace GameGlobals
 	{
 		const size_t TLSOffset = 0x3DC;
 		const unsigned EnableIndex = 0;
-		const unsigned IntensityIndex = 24;
+		const unsigned IntensityIndex = 16;
 	}
 }

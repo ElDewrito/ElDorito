@@ -208,10 +208,11 @@ void Globals::setupGraphicsGlobals()
 				Pointer &overridePtr = DoFPtr(GameGlobals::DepthOfField::EnableIndex);
 				Pointer &intensityPtr = DoFPtr(GameGlobals::DepthOfField::IntensityIndex);
 
+				overridePtr.Write(true);
+
 				if(args[0] == "reset")
 				{
-					overridePtr.Write(false);
-					intensityPtr.Write(0.95f);
+					intensityPtr.Write(0.f);
 
 					std::cout << "Depth of field reset and turned off." << std::endl;
 					return true;
@@ -222,7 +223,6 @@ void Globals::setupGraphicsGlobals()
 					{
 						float newDof = std::stof(args[0]);
 
-						overridePtr.Write(true);
 						intensityPtr.Write(newDof / 50.f);
 
 						std::cout << "Depth of field set to " << newDof << '.' << std::endl;
