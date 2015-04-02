@@ -214,7 +214,7 @@ void Globals::setupGraphicsGlobals()
 				{
 					intensityPtr.Write(0.f);
 
-					std::cout << "Depth of field reset and turned off." << std::endl;
+					std::cout << "Depth of field reset." << std::endl;
 					return true;
 				}
 				else
@@ -242,6 +242,54 @@ void Globals::setupGraphicsGlobals()
 			return  "Usage: dof (number|'reset')\n"
 				"Enables depth of field with a given number value.\n"
 				"Pass \"reset\" to reset and turn off depth of field.\n";
+		}
+	};
+
+	///
+	// Bloom
+	///
+	commands["bloom"] = {
+		[this](const CommandLineArgs &args) // Run
+		{
+			Pointer BloomPtr = ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0];
+			if(args.size() >= 1)
+			{
+				Pointer &overridePtr = BloomPtr(GameGlobals::Bloom::EnableIndex);
+				Pointer &intensityPtr = BloomPtr(GameGlobals::Bloom::IntensityIndex);
+			
+				if(args[0] == "reset")
+				{
+					intensityPtr.Write(0.f);
+					overridePtr.Write(size_t(0));
+			
+					std::cout << "Bloom reset and turned off." << std::endl;
+					return true;
+				}
+				else
+				{
+					try
+					{
+						float newBloom = std::stof(args[0]);
+			
+						intensityPtr.Write(newBloom);
+						overridePtr.Write(size_t(1));
+			
+						std::cout << "Bloom set to " << newBloom << '.' << std::endl;
+						return true;
+					}
+					catch(std::invalid_argument&)
+					{
+						return false;
+					}
+				}
+			}
+			return false;
+		},
+			[]() // Info
+		{
+			return  "Usage: bloom (number|'reset')\n"
+				"Enables bloom with a given number value.\n"
+				"Pass \"reset\" to reset and turn off bloom.\n";
 		}
 	};
 

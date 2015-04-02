@@ -109,4 +109,11 @@ namespace GameGlobals
 		const unsigned EnableIndex = 0;
 		const unsigned IntensityIndex = 16;
 	}
+
+	namespace Bloom
+	{
+    const size_t TLSOffset = 0x104;
+		const unsigned EnableIndex = 0;
+		const unsigned IntensityIndex = 8;
+	}
 }
