@@ -1,13 +1,5 @@
 #include "String.h"
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#define NOMINMAX
-
-#include <Windows.h>
-
 // STL
 #include <string>
 #include <algorithm>
@@ -15,7 +7,7 @@
 #include <sstream>
 #include <functional> 
 #include <cctype>
-#include <locale>
+#include <codecvt>
 
 namespace Utils
 {
@@ -30,17 +22,14 @@ namespace Utils
 
 		std::wstring WidenString(const std::string &s)
 		{
-			std::vector<wchar_t> buf(MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size() + 1, 0, 0));
-			MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size() + 1, &buf[0], buf.size());
-			return std::wstring(&buf[0]);
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+			return utf16conv.from_bytes(s);
 		}
 
 		std::string ThinString(const std::wstring &str)
 		{
-			std::string ret;
-			for( auto &i : str )
-				ret += (char)i;
-			return ret;
+			std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> utf8conv;
+			return utf8conv.to_bytes(str);
 		}
 
 		std::string ToLower(const std::string &str)
