@@ -33,7 +33,7 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << "ElDorito""\xC4""\xC4""\xC2""Build date (" << __DATE__ << " : " << __TIME__ << ')' << std::endl;
+	std::cout << Utils::Version::GetInfo("ProductName") << """\xC4""\xC4""\xC2""Version: " << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
