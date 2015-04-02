@@ -44,7 +44,7 @@ namespace Utils
 	}
 
 	template <typename T>
-	inline T GetBits(uint32_t n, int Position, int Length)
+	inline T GetBits(uint32_t n, size_t Position, size_t Length)
 	{
 		return static_cast<T>((n >> Position) & ((1u << Length) - 1));
 	}
