@@ -197,30 +197,79 @@ void Globals::setupGraphicsGlobals()
 	};
 
 	///
+	// DoF
+	///
+	commands["dof"] = {
+		[this](const CommandLineArgs &args) // Run
+		{
+			Pointer DoFPtr = ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0];
+			if(args.size() >= 1)
+			{
+				Pointer &overridePtr = DoFPtr(GameGlobals::DepthOfField::EnableIndex);
+				Pointer &intensityPtr = DoFPtr(GameGlobals::DepthOfField::IntensityIndex);
+
+				if(args[0] == "reset")
+				{
+					overridePtr.Write(false);
+					intensityPtr.Write(0.95f);
+
+					std::cout << "Depth of field reset and turned off." << std::endl;
+					return true;
+				}
+				else
+				{
+					try
+					{
+						float newDof = std::stof(args[0]);
+
+						overridePtr.Write(true);
+						intensityPtr.Write(newDof / 50.f);
+
+						std::cout << "Depth of field set to " << newDof << '.' << std::endl;
+						return true;
+					}
+					catch(std::invalid_argument&)
+					{
+						return false;
+					}
+				}
+			}
+
+			return false;
+		},
+			[]() // Info
+		{
+			return  "Usage: dof (number|'reset')\n"
+				"Enables depth of field with a given number value.\n"
+				"Pass \"reset\" to reset and turn off depth of field.\n";
+		}
+	};
+
+	///
 	// Test
 	///
 	//commands["test"] = {
 	//	[this](const CommandLineArgs &args) // Run
 	//	{
-	//    Pointer GraphicsPtr = ElDorito::GetMainTls(0x104)[0];
-	//    if(args.size() > 1)
-	//    {
-	//      
-	//      int index = std::atoi(args[0].c_str());
-	//      
-	//    }
-	//    else
-	//    {
-	//      for(unsigned i = 0; i < 4; ++i)
-	//      {
-	//        std::cout << "Debug Value " << i << ": " << GraphicsPtr(i * 4).Read<float>() << std::endl;
-	//      }
-	//    }
-	//    return true;
+	//		Pointer GraphicsPtr = ElDorito::GetMainTls(0x3DC)[0];
+	//		if(args.size() > 1)
+	//		{
+	//			
+	//			int index = std::atoi(args[0].c_str());
+	//			
+	//		}
+	//		else
+	//		{
+	//			for(unsigned i = 0; i < 4; ++i)
+	//			{
+	//				std::cout << "Debug Value " << i << ": " << GraphicsPtr(i * 4).Read<float>() << std::endl;
+	//			}
+	//		}
+	//		return true;
 	//	},
 	//		[]() // Info
 	//	{
-	//    return  R"(
+	//		return  R"(
 	//Usage: you probably shouldn't use this
 	//)";
 	//	}

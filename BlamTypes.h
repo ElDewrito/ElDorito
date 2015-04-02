@@ -102,4 +102,11 @@ namespace GameGlobals
 		const size_t TLSOffset = 0x60;
 		const unsigned CameraFunctionIndex = 4;
 	}
+
+	namespace DepthOfField
+	{
+		const size_t TLSOffset = 0x3DC;
+		const unsigned EnableIndex = 0;
+		const unsigned IntensityIndex = 24;
+	}
 }
