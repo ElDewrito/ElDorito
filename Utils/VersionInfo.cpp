@@ -46,11 +46,17 @@ namespace Utils
                 (langD & 0xff0000) >> 16, csEntry.c_str());
             }
             else
-              sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s",
-              GetUserDefaultLangID(), csEntry.c_str());
+            {
+              unsigned long lang = GetUserDefaultLangID();
+              sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s", lang, csEntry.c_str());
+            }
+              
 
             if(VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen))
-              csRet = (char*)retbuf;
+            {
+              strcpy_s(fileEntry, (const char*)retbuf);
+              csRet = fileEntry;
+            }
           }
         }
 

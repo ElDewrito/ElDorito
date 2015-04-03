@@ -33,7 +33,13 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+#ifdef _ELDEBUG
+	std::string buildType = "Debug ";
+#else
+	std::string buildType = "";
+#endif
+
+	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << buildType << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	SetConsoleTextAttribute(hStdout, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
@@ -116,7 +122,7 @@ ElDorito::ElDorito()
 
 	//Commands["test"] = std::make_unique<Test>();
 
-	SetSessionMessage("ElDorito: Build Date: " __DATE__);
+	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("FileVersion") + " | Build Date: " __DATE__);
 
 	// Parse command-line commands
 	int numArgs = 0;
