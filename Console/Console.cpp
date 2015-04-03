@@ -126,7 +126,7 @@ namespace Console
 				{
 					std::cout << ' ';
 				}
-				for( i = 0; i < Suggestion.length() + ( CurCommand.size() ? 1 : 0 ); i++ )
+				for( i = 0; i < Suggestion.length() + ( CurCommand.size() ? 0 : 1 ); i++ )
 				{
 					std::cout << '\b';
 				}
