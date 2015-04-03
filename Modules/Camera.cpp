@@ -7,73 +7,82 @@
 #include <iostream>
 
 static const std::unordered_map<std::string, CameraType> CameraTypeStrings = {
-	{ "third", CameraType::Following },
-	//{ "orbiting", CameraType::Orbiting },
-	//{ "flying", CameraType::Flying },
-	{ "first", CameraType::FirstPerson },
-	//{ "dead", CameraType::Dead },
-	//{ "static", CameraType::Static },
-	//{ "scripted", CameraType::Scripted },
-	//{ "authored", CameraType::Authored }
+		{ "third", CameraType::Following },
+		//{ "orbiting", CameraType::Orbiting },
+		//{ "flying", CameraType::Flying },
+		{ "first", CameraType::FirstPerson },
+		//{ "dead", CameraType::Dead },
+		//{ "static", CameraType::Static },
+		//{ "scripted", CameraType::Scripted },
+		//{ "authored", CameraType::Authored }
 };
 
 TODO("Add other camera modes to Camera module");
 
 static const std::unordered_map<CameraType, size_t> CameraTypeFunctions = {
-	{ CameraType::FirstPerson, 0x166ACB0 },
-	{CameraType::Following, 0x16724D4},
-	{ CameraType::Dead, 0x16725DC }
+		{ CameraType::FirstPerson, 0x166ACB0 },
+		{ CameraType::Following, 0x16724D4 },
+		{ CameraType::Dead, 0x16725DC }
 };
 
-Camera::Camera() 
+Camera::Camera()
 	: m_debug1CameraPatch(0x325A80,
-		{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-		{ 0xC7, 0x01, 0x30, 0x21, 0x67, 0x01 }),
-		m_debug2CameraPatch(0x191525,
-		{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-		{ 0xC7, 0x07, 0xE4, 0xA6, 0x65, 0x01 }),
-		m_thirdPersonPatch(0x328640,
-		{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-		{ 0xC7, 0x06, 0xD4, 0x24, 0x67, 0x01 }),
-		m_firstPersonPatch(0x25F420,
-		{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-		{ 0xC7, 0x06, 0xB0, 0xAC, 0x66, 0x01 }),
-		m_deadPersonPatch(0x329E6F,
-		{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
-		{ 0xC7, 0x06, 0xDC, 0x25, 0x67, 0x01 })
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xC7, 0x01, 0x30, 0x21, 0x67, 0x01 }),
+	m_debug2CameraPatch(0x191525,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xC7, 0x07, 0xE4, 0xA6, 0x65, 0x01 }),
+	m_thirdPersonPatch(0x328640,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xC7, 0x06, 0xD4, 0x24, 0x67, 0x01 }),
+	m_firstPersonPatch(0x25F420,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xC7, 0x06, 0xB0, 0xAC, 0x66, 0x01 }),
+	m_deadPersonPatch(0x329E6F,
+	{ 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 },
+	{ 0xC7, 0x06, 0xDC, 0x25, 0x67, 0x01 })
 {
-
 }
 
 Camera::~Camera()
 {
-
 }
 
-std::string Camera::Info()
+std::string Camera::Info() const
 {
 	std::string Info("Usage: camera (cameraMode)\nSupported Camera Modes:");
-	for(auto &i : CameraTypeStrings)
+	for( auto &i : CameraTypeStrings )
 	{
 		Info += '\n';
-		Info += 'Ã';
+		Info += '\xC3';
 		Info += i.first;
 	}
-	Info += "\nPass \"reset\" to reset the camera mode.\n";
+	Info += "\nPass \"reset\" to reset the camera mode.";
 
 	return Info;
 }
 
-void Camera::Tick(const std::chrono::duration<double>& dt)
+std::string Camera::Suggest(const std::vector<std::string>& Arguments) const
 {
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return "reset";
+		}
+	}
+	return "";
+}
 
+void Camera::Tick(const std::chrono::duration<double>& Delta)
+{
 }
 
 bool Camera::Run(const std::vector<std::string>& args)
 {
-	if(args.size())
+	if( args.size() )
 	{
-		if(args[1] == "reset")
+		if( args[1] == "reset" )
 		{
 			setPatchesEnabled(false);
 			setCameraType(CameraType::FirstPerson);
@@ -81,10 +90,10 @@ bool Camera::Run(const std::vector<std::string>& args)
 
 			return true;
 		}
-		if(args.size() >= 2)
+		if( args.size() >= 2 )
 		{
 			auto &type = CameraTypeStrings.find(args[1]);
-			if(type != CameraTypeStrings.end())
+			if( type != CameraTypeStrings.end() )
 			{
 				setCameraType(type->second);
 				setPatchesEnabled(true);
@@ -94,12 +103,12 @@ bool Camera::Run(const std::vector<std::string>& args)
 			}
 		}
 	}
-	return false; 
+	return false;
 }
 
 void Camera::setPatchesEnabled(bool areEnabled)
 {
-	if(areEnabled)
+	if( areEnabled )
 	{
 		m_debug1CameraPatch.Apply();
 		m_debug2CameraPatch.Apply();
@@ -130,10 +139,9 @@ void Camera::setCameraType(CameraType type)
 	*/
 
 	auto &fncItr = CameraTypeFunctions.find(type);
-	if(fncItr == CameraTypeFunctions.end())
+	if( fncItr == CameraTypeFunctions.end() )
 		return;
 
 	Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 	directorPtr(GameGlobals::Director::CameraFunctionIndex).Write(fncItr->second);
 }
-
