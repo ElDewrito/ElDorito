@@ -21,8 +21,14 @@ namespace Utils
         {
 
           LPVOID versionInfo = LockResource(hGlobal);
+
           if(versionInfo != NULL)
           {
+            DWORD versionSize = SizeofResource(s_versionModule, hVersion);
+            LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
+            CopyMemory(versionCopy, versionInfo, versionSize);
+            FreeResource(versionInfo);
+
             DWORD vLen, langD;
             BOOL retVal;
 
@@ -31,7 +37,7 @@ namespace Utils
             static char fileEntry[256];
 
             sprintf_s(fileEntry, "\\VarFileInfo\\Translation");
-            retVal = VerQueryValue(versionInfo, fileEntry, &retbuf, (UINT *)&vLen);
+            retVal = VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen);
             if(retVal && vLen == 4)
             {
               memcpy(&langD, retbuf, 4);
@@ -43,7 +49,7 @@ namespace Utils
               sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s",
               GetUserDefaultLangID(), csEntry.c_str());
 
-            if(VerQueryValue(versionInfo, fileEntry, &retbuf, (UINT *)&vLen))
+            if(VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen))
               csRet = (char*)retbuf;
           }
         }
