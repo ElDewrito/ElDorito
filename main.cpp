@@ -100,7 +100,8 @@ int Thread()
 		}
 	}
 	__except( TopLevelExceptionHandler(GetExceptionCode(), GetExceptionInformation()) )
-	{}
+	{
+	}
 	return 0;
 }
 
