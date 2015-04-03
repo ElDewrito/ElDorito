@@ -15,8 +15,6 @@
 #include "Utils/Utils.h"
 #include "ElModules.h"
 
-#define ps1 "\xAF["
-
 size_t ElDorito::MainThreadID = 0;
 
 ElDorito::ElDorito()
