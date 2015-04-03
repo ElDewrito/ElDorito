@@ -3,12 +3,12 @@
 #include <vector>
 #include <string>
 
-class ElModule
+#include "../Console/Console.h"
+
+class ElModule : public Console::Command
 {
 public:
-	virtual std::string Info() = 0;
 	virtual void Tick(const std::chrono::duration<double>& DeltaTime) = 0;
-	virtual bool Run(const std::vector<std::string>& Args) = 0;
 	virtual ~ElModule() = default;
 private:
 };

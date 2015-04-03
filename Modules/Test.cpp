@@ -19,13 +19,17 @@ Test::Test()
 }
 
 Test::~Test()
-{
-}
+{}
 
-std::string Test::Info()
+std::string Test::Info() const
 {
 	return "Sandbox module for testing stuff.\n"
 		"If you find this in the release build you probably shouldn't run it.\n";
+}
+
+std::string Test::Suggest(const std::vector<std::string>& Arguments) const
+{
+	return "aa";
 }
 
 void Test::Tick(const std::chrono::duration<double>& Delta)

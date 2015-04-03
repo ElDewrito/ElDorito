@@ -75,6 +75,9 @@
     <ClCompile Include="Utils\VersionInfo.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Console\Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -156,6 +159,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
