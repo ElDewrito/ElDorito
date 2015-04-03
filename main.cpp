@@ -7,6 +7,7 @@
 #include <memory>
 #include <IPTypes.h> // for proxy
 
+#include "Utils/VersionInfo.h"
 #include "ElDorito.h"
 
 HINSTANCE g_hThisInstance = 0;
@@ -70,6 +71,7 @@ BOOL InitInstance(HINSTANCE hModule)
 	setvbuf(stdout, NULL, _IONBF, 0);
 	std::ios::sync_with_stdio();
 
+	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);

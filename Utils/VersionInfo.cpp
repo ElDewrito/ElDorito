@@ -2,6 +2,8 @@
 
 #include <windows.h>
 
+static HMODULE s_versionModule = NULL;
+
 namespace Utils
 {
   namespace Version
@@ -10,13 +12,11 @@ namespace Utils
     {
       std::string csRet;
 
-      HMODULE hMod = GetModuleHandle("iphlpapi.dll");
-
-      HRSRC hVersion = FindResource(hMod,
+      HRSRC hVersion = FindResource(s_versionModule,
         MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
       if(hVersion != NULL)
       {
-        HGLOBAL hGlobal = LoadResource(hMod, hVersion);
+        HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
         if(hGlobal != NULL)
         {
 
@@ -53,6 +53,11 @@ namespace Utils
       }
 
       return csRet;
+    }
+
+    void SetModule(HMODULE module)
+    {
+      s_versionModule = module;
     }
 
   }
