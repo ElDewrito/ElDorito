@@ -60,16 +60,16 @@ namespace Blam
 		float Unknown1; // gravity maybe?
 		uint8_t Unknown2[0x2C];
 		/* 0xB60 */ uint8_t Unknown3[0xF0]; // start of variant data
-		/* 0xC50 */ uint8_t Unknown4;
+		/* 0xC50 */ uint8_t TeamGame; // default 0, 1 for eg. Team Slayer, 0 for Slayer
 		uint8_t RoundTimeLimit; // default 8
-		uint8_t NumberOfRounds; // default 1 (this might be wrong)
-		uint8_t Unknown5; // default 2
+		uint8_t Unknown5; // default 1
+		uint8_t NumberOfRounds; // default 2
 		uint8_t Unknown6; // default 0x10
 		uint8_t Unknown7; // 0
 		uint8_t Unknown8; // 0
 		uint8_t Unknown9; // default 5
 		/* 0xC58 */ uint8_t Unknown10; // default 0xA
-		uint8_t RespawnTime; // default 5 (gets doubled by russian coders who can't into game variant data)
+		uint8_t RespawnTime; // default 5 (is doubled maybe.. or when i was testing i was having time added on for suicide perhaps)
 		// also this is the actual time till player gets respawned without pressing buttons, the respawn time shown is sometimes a few seconds sooner for some reason
 
 		uint8_t Unknown11; // default 5
@@ -150,6 +150,8 @@ namespace GameGlobals
 	{
 		const size_t TLSOffset = 0x32C;
 		const unsigned GravityIndex = 0;
+		const unsigned WaterDensityIndex = 4;
+		const unsigned AirDensityIndex = 8;
 		const float DefualtGravity = 4.17126f;
 	}
 
