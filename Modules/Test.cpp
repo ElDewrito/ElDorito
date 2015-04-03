@@ -19,17 +19,18 @@ Test::Test()
 }
 
 Test::~Test()
-{}
+{
+}
 
 std::string Test::Info() const
 {
 	return "Sandbox module for testing stuff.\n"
-		"If you find this in the release build you probably shouldn't run it.\n";
+		"If you find this in the release build you probably shouldn't run it.";
 }
 
 std::string Test::Suggest(const std::vector<std::string>& Arguments) const
 {
-	return "aa";
+	return "abcdef";
 }
 
 void Test::Tick(const std::chrono::duration<double>& Delta)
@@ -42,9 +43,10 @@ void Test::Tick(const std::chrono::duration<double>& Delta)
 	//std::cout << Pointer(TlsAddress + 0x32C).Read<uint32_t>() << std::endl;
 	if( ElDorito::GetMainTls(0x32C).Read<uint32_t>() )
 	{
-		ElDorito::GetMainTls(0x32C)[0].Write<float>(sinf(Timer*3.14f * 2)*4.17126f);
+		//ElDorito::GetMainTls(0x32C)[0].Write<float>(sinf(Timer*3.14f * 2)*4.17126f);
 		//printf("%f\n", ElDorito::GetMainTls(0x32C)[0].Read<float>());
 	}
+	//std::cout << "Tick";
 }
 
 bool Test::Run(const std::vector<std::string>& Args)
