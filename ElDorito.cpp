@@ -575,9 +575,19 @@ std::string ElDorito::GetDirectory()
 
 void ElDorito::SetSessionMessage(const std::string& Message)
 {
-	DWORD temp;
-	VirtualProtect(Pointer::Base(0x120CCB8), Message.length() + 1, PAGE_EXECUTE_READWRITE, &temp);
-	Pointer::Base(0x120CCB8).Write(Message.c_str(), Message.length() + 1);
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+	static wchar_t msgBuf[256];
+
+	wmemset(msgBuf, 0, 256);
+	std::wstring msgUnicode = converter.from_bytes(Message);
+	wcscpy_s(msgBuf, 256, msgUnicode.c_str());
+
+	Pointer::Base(0x2E5338).Write<uint8_t>(0x68);
+	Pointer::Base(0x2E5339).Write(&msgBuf);
+	Pointer::Base(0x2E533D).Write<uint8_t>(0x90);
+	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
+
+	// todo: some way of undoing this
 }
 
 Pointer ElDorito::GetMainTls(size_t Offset)
