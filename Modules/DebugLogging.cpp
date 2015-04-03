@@ -9,10 +9,10 @@
 void dbglog(const char* module, char* format, ...)
 {
 	char* backupFormat = "";
-	if (!format)
+	if( !format )
 		format = backupFormat;
 
-	if (module != 0 && strcmp(module, "game_tick") == 0)
+	if( module != 0 && strcmp(module, "game_tick") == 0 )
 		return; // filter game_tick spam
 
 	va_list ap;
@@ -61,8 +61,8 @@ int networkLogHook(char* format, ...)
 
 void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
-	char* logData1 = (*(char**)(a3));
-	char* logData2 = (*(char**)((DWORD_PTR)a3 + 0x8));
+	char* logData1 = ( *(char**)( a3 ) );
+	char* logData2 = ( *(char**)( (DWORD_PTR)a3 + 0x8 ) );
 	if( logData1 != 0 )
 		logData1 += 0xC;
 	if( logData2 != 0 )
@@ -77,7 +77,7 @@ void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 
 void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
-	char* logData1 = (*(char**)(a3));
+	char* logData1 = ( *(char**)( a3 ) );
 	if( logData1 != 0 )
 		logData1 += 0xC;
 	if( logData1 == 0 )
@@ -87,33 +87,33 @@ void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 }
 
 DebugLogging::DebugLogging() : enabledFlags(0),
-	NetworkLogHook(0x9858D0, false, 
-	&networkLogHook,
-	{ 0x55, 0x8B, 0xEC, 0x80, 0x3D }),
+NetworkLogHook(0x9858D0, false,
+&networkLogHook,
+{ 0x55, 0x8B, 0xEC, 0x80, 0x3D }),
 
-	SSLHook(0xA7FE10, false,
-	&sslLogHook,
-	{ 0x55, 0x8B, 0xEC, 0x83, 0xEC }),
+SSLHook(0xA7FE10, false,
+&sslLogHook,
+{ 0x55, 0x8B, 0xEC, 0x83, 0xEC }),
 
-	UIHook(0xAED600, false,
-	&uiLogHook,
-	{ 0x55, 0x8B, 0xEC, 0x8D, 0x4D }),
+UIHook(0xAED600, false,
+&uiLogHook,
+{ 0x55, 0x8B, 0xEC, 0x8D, 0x4D }),
 
-	Game1Hook(0x106FB0, false,
-	&dbglog,
-	{ 0x55, 0x8B, 0xEC, 0x8B, 0x45 }),
+Game1Hook(0x106FB0, false,
+&dbglog,
+{ 0x55, 0x8B, 0xEC, 0x8B, 0x45 }),
 
-	DebugLogFloatHook(0x2189F0, false,
-	&debuglog_float,
-	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
+DebugLogFloatHook(0x2189F0, false,
+&debuglog_float,
+{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
 
-	DebugLogIntHook(0x218A10, false,
-	&debuglog_int,
-	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
+DebugLogIntHook(0x218A10, false,
+&debuglog_int,
+{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
 
-	DebugLogStringHook(0x218A30, false,
-	&debuglog_string,
-	{ 0xC2, 0x08, 0x00, 0xCC, 0xCC })
+DebugLogStringHook(0x218A30, false,
+&debuglog_string,
+{ 0xC2, 0x08, 0x00, 0xCC, 0xCC })
 {
 }
 
@@ -121,7 +121,7 @@ DebugLogging::~DebugLogging()
 {
 }
 
-std::string DebugLogging::Info()
+std::string DebugLogging::Info() const
 {
 	std::string Info = "Debug logging: ";
 	if( enabledFlags == 0 )
@@ -129,17 +129,29 @@ std::string DebugLogging::Info()
 	else
 	{
 		Info += "Enabled - ";
-		Info += (enabledFlags & 2) ? "Network " : "";
-		Info += (enabledFlags & 4) ? "SSL " : "";
-		Info += (enabledFlags & 8) ? "UI " : "";
-		Info += (enabledFlags & 16) ? "Game1 " : "";
-		Info += (enabledFlags & 32) ? "Game2 " : "";
+		Info += ( enabledFlags & 2 ) ? "Network " : "";
+		Info += ( enabledFlags & 4 ) ? "SSL " : "";
+		Info += ( enabledFlags & 8 ) ? "UI " : "";
+		Info += ( enabledFlags & 16 ) ? "Game1 " : "";
+		Info += ( enabledFlags & 32 ) ? "Game2 " : "";
 	}
 	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
 		"Enables hooks for debug output\n"
 		"Writes debug messages to dorito.log when enabled.\n";
 
 	return Info;
+}
+
+std::string DebugLogging::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return "network";
+		}
+	}
+	return "";
 }
 
 void DebugLogging::Tick(const std::chrono::duration<double>& Delta)
@@ -206,7 +218,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				UIHook.Apply();
 			}
 
-			if ( hookGame1 )
+			if( hookGame1 )
 			{
 				std::cout << "Hooking Game1 debug output..." << std::endl;
 				enabledFlags |= 16;
@@ -214,7 +226,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				Game1Hook.Apply();
 			}
 
-			if ( hookGame2 )
+			if( hookGame2 )
 			{
 				std::cout << "Hooking Game2 debug output..." << std::endl;
 				enabledFlags |= 32;
