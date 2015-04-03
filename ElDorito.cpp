@@ -40,10 +40,11 @@ ElDorito::ElDorito()
 	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << buildType << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
 
-
 	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
 	std::cout << "\t  \xC3""Limited (zerogimp123@gmail.com)\n";
-	std::cout << "\t  \xC0""stoker25 (emoose)\n";
+	std::cout << "\t  \xC3""stoker25 (emoose)\n";
+	std::cout << "\t  \xC0""darknavi (jake@jakeshirley.com)\n";
+
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 	std::cout << "Enter \"";
 	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
