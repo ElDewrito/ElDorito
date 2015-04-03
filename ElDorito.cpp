@@ -115,6 +115,16 @@ ElDorito::ElDorito()
 	//Commands["camera"] = std::make_unique<Camera>();
 
 	PushModule<Test>("test");
+	PushModule<Ammo>("ammo");
+	PushModule<Camera>("camera");
+	PushModule<DebugLogging>("debug");
+	PushModule<Fov>("fov");
+	PushModule<Globals>("global");
+	PushModule<Godmode>("god");
+	PushModule<Hud>("hud");
+	PushModule<LoadLevel>("load");
+	PushModule<Spawn>("spawn");
+	//PushModule<ThirdPerson>("third");
 
 	SetSessionMessage("ElDorito: Build Date: " __DATE__);
 
@@ -153,12 +163,20 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		Terminal.HandleInput(_getch());
 		Terminal.PrintLine();
 	}
+	for( auto Command : Commands )
+	{
+		if( Command.second )
+		{
+			Command.second->Tick(DeltaTime);
+		}
+	}
 }
 
 namespace
 {
 	static void HandleFinder()
-	{};
+	{
+	};
 }
 
 std::string ElDorito::GetDirectory()
