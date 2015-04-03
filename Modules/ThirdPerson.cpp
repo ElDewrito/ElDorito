@@ -24,14 +24,26 @@ ThirdPerson::~ThirdPerson()
 {
 }
 
-std::string ThirdPerson::Info()
+std::string ThirdPerson::Info() const
 {
 	std::string Info = "Third person: ";
-	Info += (enabled ? "Enabled" : "Disabled");
+	Info += ( enabled ? "Enabled" : "Disabled" );
 	Info += "\nUsage: third (on|off)\n"
 		"Freezes the camera in place and player can move freely around\n";
 
 	return Info;
+}
+
+std::string ThirdPerson::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return ( enabled ? "off" : "on" );
+		}
+	}
+	return "";
 }
 
 void ThirdPerson::Tick(const std::chrono::duration<double>& Delta)
@@ -40,9 +52,9 @@ void ThirdPerson::Tick(const std::chrono::duration<double>& Delta)
 
 bool ThirdPerson::Run(const std::vector<std::string>& Args)
 {
-	if (Args.size() >= 2)
+	if( Args.size() >= 2 )
 	{
-		if (Args[1].compare("off") == 0)
+		if( Args[1].compare("off") == 0 )
 		{
 			// Disable it.
 			std::cout << "Disabling third person" << std::endl;
@@ -59,9 +71,8 @@ bool ThirdPerson::Run(const std::vector<std::string>& Args)
 
 			return true;
 		}
-		else if (Args[1].compare("on") == 0)
+		else if( Args[1].compare("on") == 0 )
 		{
-			
 			// Enable
 			std::cout
 				<< "Enabling third person\n"
