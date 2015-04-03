@@ -103,22 +103,7 @@ ElDorito::ElDorito()
 	Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
 	Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
-	//Command list
-	//Commands["help"] = nullptr;
-	//Commands["history"] = nullptr;
-	//Commands["quit"] = nullptr;
-	//Commands["exit"] = nullptr;
-	//Commands["load"] = std::make_unique<LoadLevel>();
-	//Commands["god"] = std::make_unique<Godmode>();
-	//Commands["ammo"] = std::make_unique<Ammo>();
-	//Commands["hud"] = std::make_unique<Hud>();
-	//Commands["fov"] = std::make_unique<Fov>();
-	//Commands["third"] = std::make_unique<ThirdPerson>();
-	//Commands["debug"] = std::make_unique<DebugLogging>();
-	//Commands["spawn"] = std::make_unique<Spawn>();
-	//Commands["global"] = std::make_unique<Globals>();
-	//Commands["camera"] = std::make_unique<Camera>();
-
+	// Register Modules
 	PushModule<Test>("test");
 	PushModule<Ammo>("ammo");
 	PushModule<Camera>("camera");
