@@ -67,6 +67,8 @@ void LoadLevel::Tick(const std::chrono::duration<double>& Delta)
 
 bool LoadLevel::Run(const std::vector<std::string>& Args)
 {
+	static const size_t InfiniteGameTimeOffset = 0x2391C51;
+
 	if( Args.size() >= 2 )
 	{
 		if( std::find(MapList.begin(), MapList.end(), Args[1]) != MapList.end() )
@@ -102,11 +104,12 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 
 			Pointer(0x2391B2C).Write<uint32_t>(gameType);
 
+      // Infinite play time
+			Pointer(InfiniteGameTimeOffset).Write<uint8_t>(0);
+
 			// Game Mode
 
 			Pointer(0x2391800).Write<uint32_t>(0x2);
-
-			//*((uint32_t*)(0x2391800)) = 0x2;
 
 			// Map Name
 			//memcpy((char*)0x2391824, MapName.c_str(), MapName.length() + 1);
