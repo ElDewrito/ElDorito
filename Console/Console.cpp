@@ -146,7 +146,7 @@ namespace Console
 					{
 						// Error running command;
 						SetTextColor(Color::Error);
-						std::cout << "Error running command: " << CurCommand[0];
+						std::cout << "Error running command: " << CurCommand[0] << std::endl;
 						SetTextColor(Color::Info);
 						std::cout << Commands[CurCommand[0]]->Info();
 					}
@@ -176,6 +176,8 @@ namespace Console
 				CurArg++;
 				CurCommand.push_back("");
 				Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+				// Todo: Allow suggestions with spaces.
+				// Simulate keypress with HandleInput
 			}
 		}
 		else if( KeyCode == 22 ) // Ctrl+v
