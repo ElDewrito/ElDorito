@@ -45,7 +45,7 @@ bool Globals::Run(const std::vector<std::string>& args)
 	// Enable graphics overrides
 	ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0](GameGlobals::Graphics::GraphicsOverrideIndex).Write<bool>(true);
 
-	if(args.size() >= 1) // Only accept "global <commmand>
+	if(args.size() >= 2) // Only accept "global <commmand>
 	{
 		auto &commandItr = commands.find(args[1]);
 		if(commandItr != commands.end()) // If our command exists
