@@ -575,11 +575,10 @@ std::string ElDorito::GetDirectory()
 
 void ElDorito::SetSessionMessage(const std::string& Message)
 {
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
 	static wchar_t msgBuf[256];
-
 	wmemset(msgBuf, 0, 256);
-	std::wstring msgUnicode = converter.from_bytes(Message);
+
+	std::wstring msgUnicode = Utils::String::WidenString(Message);
 	wcscpy_s(msgBuf, 256, msgUnicode.c_str());
 
 	Pointer::Base(0x2E5338).Write<uint8_t>(0x68);

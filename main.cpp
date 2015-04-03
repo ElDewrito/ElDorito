@@ -88,22 +88,27 @@ LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExc
 
 int Thread()
 {
+#ifndef _DEBUG
 	__try
 	{
+#endif
 		std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
 		CurTime = std::chrono::high_resolution_clock::now();
 		while(true)
 		{
+			Sleep(100);
 			PrevTime = CurTime;
 			CurTime = std::chrono::high_resolution_clock::now();
 			ElDorito::Instance().Tick(
 				std::chrono::duration_cast<std::chrono::duration<double>>(CurTime - PrevTime)
 				);
 		}
+#ifndef _DEBUG
 	}
 	__except(TopLevelExceptionHandler(GetExceptionCode(), GetExceptionInformation())){
 		
 	}
+#endif
 	return 0;
 }
 
