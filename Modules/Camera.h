@@ -20,7 +20,7 @@ public:
 	// Command and usage info
 	std::string Info() const;
 
-	// Suggest auto-complete strings for arugments
+	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
 private:
