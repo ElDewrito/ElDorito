@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <memory>
 
+#include "Console\Console.h"
 #include "Utils\Singleton.h"
 #include "Modules/ElModule.h"
 #include "Pointer.h"
@@ -35,16 +36,20 @@ public:
 
 	static Pointer GetMainTls(size_t Offset = 0);
 
-private:
+	template<class T,
+	class = typename std::enable_if<std::is_base_of<ElModule, T>::value>::type>
+		void PushModule(const std::string& Name)
+	{
+		std::shared_ptr<T> Module = std::make_shared<T>();
+		Terminal.PushCommand(Name, Module);
+		Commands[Name] = Module;
+	}
 
+private:
 	// Thread
 	static size_t MainThreadID;
 
-	//Console
-	void PrintConsole();
-	std::map<std::string, std::unique_ptr<ElModule>> Commands;
-	std::vector<std::string> PrevCommands;
-	std::vector<std::string>::iterator PrevCommand;
-	std::string Command;
-	std::string PrevSuggestion;
+	// Console
+	Console::Console Terminal;
+	std::map<std::string, std::shared_ptr<ElModule>> Commands;
 };

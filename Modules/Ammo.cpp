@@ -18,15 +18,27 @@ Ammo::~Ammo()
 {
 }
 
-std::string Ammo::Info()
+std::string Ammo::Info() const
 {
 	std::string Info = "Unlimited ammo: ";
-	Info += (enabled ? "Enabled" : "Disabled");
+	Info += ( enabled ? "Enabled" : "Disabled" );
 	Info += "\nUsage: ammo (on|off)\n"
 		"Bottomless clip on weapon ammo/energy and grenades\n"
-		"Respawn to have all grenade types when enabled.\n";
+		"Respawn to have all grenade types when enabled.";
 
 	return Info;
+}
+
+std::string Ammo::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return ( enabled ? "off" : "on" );
+		}
+	}
+	return "";
 }
 
 void Ammo::Tick(const std::chrono::duration<double>& Delta)

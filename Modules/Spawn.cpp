@@ -11,7 +11,7 @@ Spawn::~Spawn()
 {
 }
 
-std::string Spawn::Info()
+std::string Spawn::Info() const
 {
 	std::string Info = "Usage: spawn proj (hex meta)\n";
 
@@ -22,6 +22,18 @@ std::string Spawn::Info()
 
 	Info += "Causes certain activites to spawn entities using the designated hex value\n";
 	return Info;
+}
+
+std::string Spawn::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return "proj";
+		}
+	}
+	return "";
 }
 
 void Spawn::Tick(const std::chrono::duration<double>& Delta)
@@ -44,7 +56,7 @@ bool Spawn::Run(const std::vector<std::string>& Args)
 
 			char proj[] = { 0xBA, 0, 0, 0, 0, 0x90 };
 
-			(*(int*)(proj + 1)) = meta;
+			( *(int*)( proj + 1 ) ) = meta;
 			Pointer(0xB5DBA5).Write(proj, sizeof(proj));
 
 			std::cout << "Projectile meta set to: " << std::hex <<

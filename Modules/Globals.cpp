@@ -7,7 +7,6 @@
 #include <inttypes.h>
 #include <iostream>
 
-
 Globals::Globals()
 {
 	setupPhysicsGlobals();
@@ -17,13 +16,12 @@ Globals::Globals()
 
 Globals::~Globals()
 {
-
 }
 
-std::string Globals::Info()
+std::string Globals::Info() const
 {
 	std::string info("Allows interaction with globals.  Available globals:\n");
-	for(auto &i : commands)
+	for( auto &i : commands )
 	{
 		info += "\xC4\xB4";
 		std::string Padded(i.first);
@@ -35,9 +33,20 @@ std::string Globals::Info()
 	return info;
 }
 
+std::string Globals::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return "color";
+		}
+	}
+	return "";
+}
+
 void Globals::Tick(const std::chrono::duration<double>& dt)
 {
-
 }
 
 bool Globals::Run(const std::vector<std::string>& args)
@@ -45,18 +54,18 @@ bool Globals::Run(const std::vector<std::string>& args)
 	// Enable graphics overrides
 	ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0](GameGlobals::Graphics::GraphicsOverrideIndex).Write<bool>(true);
 
-	if(args.size() >= 2) // Only accept "global <commmand>
+	if( args.size() >= 2 ) // Only accept "global <commmand>
 	{
 		auto &commandItr = commands.find(args[1]);
-		if(commandItr != commands.end()) // If our command exists
+		if( commandItr != commands.end() ) // If our command exists
 		{
 			CommandLineArgs commandArgs(args.begin() + 2, args.end());
 
-			// Run our command 
+			// Run our command
 			return commandItr->second.Run(commandArgs);
 		}
 	}
- 
+
 	return false;
 }
 
@@ -73,15 +82,15 @@ void Globals::setupGraphicsGlobals()
 			Pointer &gPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 4);
 			Pointer &bPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 8);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
 				std::cout << "color: " << rPtr.Read<float>() << ", " << gPtr.Read<float>() << ", " << bPtr.Read<float>() << '.' << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "reset")
+				if( args[0] == "reset" )
 				{
 					float rgb[3] = { 1.f, 1.f, 1.f };
 
@@ -92,12 +101,12 @@ void Globals::setupGraphicsGlobals()
 					std::cout << "Color reset to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << '.' << std::endl;
 					return true;
 				}
-				else if(args.size() >= 3)
+				else if( args.size() >= 3 )
 				{
 					try
 					{
 						float rgb[3];
-						for(unsigned i = 0; i < 3; ++i)
+						for( unsigned i = 0; i < 3; ++i )
 							rgb[i] = std::stof(args[i]);
 
 						rPtr.Write(rgb[0]);
@@ -106,7 +115,7 @@ void Globals::setupGraphicsGlobals()
 
 						std::cout << "Color set to " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << '.' << std::endl;
 					}
-					catch(std::invalid_argument&)
+					catch( std::invalid_argument& )
 					{
 						return false;
 					}
@@ -134,15 +143,15 @@ void Globals::setupGraphicsGlobals()
 			Pointer GraphicsPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
 			Pointer &saturationPtr = GraphicsPtr(GameGlobals::Graphics::SaturationIndex);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
 				std::cout << "saturation: " << saturationPtr.Read<float>() << '.' << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "reset")
+				if( args[0] == "reset" )
 				{
 					saturationPtr.Write(1.f);
 					std::cout << "Saturation reset to 1." << std::endl;
@@ -156,7 +165,7 @@ void Globals::setupGraphicsGlobals()
 						saturationPtr.Write(newSaturation);
 						std::cout << "Saturation reset to " << newSaturation << '.' << std::endl;
 					}
-					catch(std::invalid_argument&)
+					catch( std::invalid_argument& )
 					{
 						return false;
 					}
@@ -169,8 +178,8 @@ void Globals::setupGraphicsGlobals()
 			[]() // Info
 		{
 			return  "Usage: saturation(number | 'reset')\n"
-			"Sets the saturation value of the screen to given number (0.0 - 1.0).\n"
-			"Pass \"reset\" to reset to the default saturation.\n";
+				"Sets the saturation value of the screen to given number (0.0 - 1.0).\n"
+				"Pass \"reset\" to reset to the default saturation.\n";
 		}
 	};
 
@@ -183,21 +192,21 @@ void Globals::setupGraphicsGlobals()
 			Pointer CinimaticPtr = ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0];
 			Pointer &letterboxPtr = CinimaticPtr(GameGlobals::Cinematic::LetterboxIndex);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
-				std::cout << "letterboxing: " << (letterboxPtr.Read<bool>() ? "enabled" : "disabled") << '.' << std::endl;
+				std::cout << "letterboxing: " << ( letterboxPtr.Read<bool>() ? "enabled" : "disabled" ) << '.' << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "on" || args[0] == "true")
+				if( args[0] == "on" || args[0] == "true" )
 				{
 					letterboxPtr.Write(true);
 					std::cout << "Letterboxing enabled." << std::endl;
 					return true;
 				}
-				else if(args[0] == "off" || args[0] == "false")
+				else if( args[0] == "off" || args[0] == "false" )
 				{
 					letterboxPtr.Write(false);
 					std::cout << "Letterboxing disabled." << std::endl;
@@ -224,15 +233,15 @@ void Globals::setupGraphicsGlobals()
 			Pointer &overridePtr = DoFPtr(GameGlobals::DepthOfField::EnableIndex);
 			Pointer &intensityPtr = DoFPtr(GameGlobals::DepthOfField::IntensityIndex);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
-				std::cout << "dof: " << (intensityPtr.Read<float>() * 50.f) << " (overridden: " << (overridePtr.Read<bool>() ? "yes" : "no") << ")" << std::endl;
+				std::cout << "dof: " << ( intensityPtr.Read<float>() * 50.f ) << " (overridden: " << ( overridePtr.Read<bool>() ? "yes" : "no" ) << ")" << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "reset")
+				if( args[0] == "reset" )
 				{
 					intensityPtr.Write(0.f);
 					overridePtr.Write(false);
@@ -252,7 +261,7 @@ void Globals::setupGraphicsGlobals()
 						std::cout << "Depth of field set to " << newDof << '.' << std::endl;
 						return true;
 					}
-					catch(std::invalid_argument&)
+					catch( std::invalid_argument& )
 					{
 						return false;
 					}
@@ -279,19 +288,19 @@ void Globals::setupGraphicsGlobals()
 			Pointer &overridePtr = BloomPtr(GameGlobals::Bloom::EnableIndex);
 			Pointer &intensityPtr = BloomPtr(GameGlobals::Bloom::IntensityIndex);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
-				std::cout << "bloom: " << intensityPtr.Read<float>() << " (overridden: " << (overridePtr.Read<size_t>() == 1 ? "yes" : "no") << ")" << std::endl;
+				std::cout << "bloom: " << intensityPtr.Read<float>() << " (overridden: " << ( overridePtr.Read<size_t>() == 1 ? "yes" : "no" ) << ")" << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "reset")
+				if( args[0] == "reset" )
 				{
 					intensityPtr.Write(0.f);
 					overridePtr.Write(size_t(0));
-			
+
 					std::cout << "Bloom reset and turned off." << std::endl;
 					return true;
 				}
@@ -300,14 +309,14 @@ void Globals::setupGraphicsGlobals()
 					try
 					{
 						float newBloom = std::stof(args[0]);
-			
+
 						intensityPtr.Write(newBloom);
 						overridePtr.Write(size_t(1));
-			
+
 						std::cout << "Bloom set to " << newBloom << '.' << std::endl;
 						return true;
 					}
-					catch(std::invalid_argument&)
+					catch( std::invalid_argument& )
 					{
 						return false;
 					}
@@ -333,9 +342,7 @@ void Globals::setupGraphicsGlobals()
 			Pointer GraphicsPtr = ElDorito::GetMainTls(0xC4)[0];
 			if(args.size() > 1)
 			{
-
 				int index = std::atoi(args[0].c_str());
-
 			}
 			else
 			{
@@ -366,15 +373,15 @@ void Globals::setupPhysicsGlobals()
 		{
 			Pointer &gravityPtr = ElDorito::GetMainTls(GameGlobals::Physics::TLSOffset)[0](GameGlobals::Physics::GravityIndex);
 
-			if (args.size() <= 0)
+			if( args.size() <= 0 )
 			{
 				std::cout << "gravity: " << gravityPtr.Read<float>() << '.' << std::endl;
 				return true;
 			}
 
-			if(args.size() >= 1)
+			if( args.size() >= 1 )
 			{
-				if(args[0] == "reset")
+				if( args[0] == "reset" )
 				{
 					gravityPtr.Write(GameGlobals::Physics::DefualtGravity);
 					std::cout << "Gravity reset to " << GameGlobals::Physics::DefualtGravity << '.' << std::endl;
@@ -388,7 +395,7 @@ void Globals::setupPhysicsGlobals()
 
 						std::cout << "Gravity set to " << newGravity << '.' << std::endl;
 					}
-					catch(std::invalid_argument&)
+					catch( std::invalid_argument& )
 					{
 						return false;
 					}
@@ -409,5 +416,4 @@ void Globals::setupPhysicsGlobals()
 
 void Globals::setupMiscGlobals()
 {
-
 }

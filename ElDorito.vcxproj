@@ -146,6 +146,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlamTypes.h" />
+    <ClInclude Include="Console\Console.h" />
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
