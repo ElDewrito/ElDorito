@@ -113,6 +113,37 @@ namespace Console
 					CurCommand.pop_back();
 					!CurArg || CurArg--;
 				}
+				// Suggest
+				Suggestion.clear();
+				if( CurArg == 0 )
+				{
+					// Find closest matching command
+
+					std::vector<std::string> Suggestions;
+
+					for( auto Cmd : Commands )
+					{
+						if( !CurCommand[0].compare(0, CurCommand[0].length(), ( Cmd.first ), 0, CurCommand[0].length()) )
+						{
+							Suggestions.push_back(( Cmd.first ));
+						}
+					}
+
+					if( Suggestions.size() )
+					{
+						// Return first match
+						Suggestion = Suggestions.front();
+					}
+
+					Suggestions.clear();
+				}
+				else
+				{
+					if( Commands.count(CurCommand.front()) )
+					{
+						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+					}
+				}
 			}
 		}
 		else if( KeyCode == '\r' ) // Enter

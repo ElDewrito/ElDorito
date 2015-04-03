@@ -12,9 +12,11 @@ namespace Console
 	{
 	public:
 		Command()
-		{}
+		{
+		}
 		~Command()
-		{}
+		{
+		}
 
 		// Return true on success
 		virtual bool Run(const std::vector<std::string>& Arguments) = 0;
