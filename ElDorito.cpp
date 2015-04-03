@@ -37,7 +37,7 @@ ElDorito::ElDorito()
 	std::string buildType = "";
 #endif
 
-	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << buildType << Utils::Version::GetInfo("FileVersion") << " | Build date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << buildType << Utils::Version::GetInfo("FileVersion") << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
 
 	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
