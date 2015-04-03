@@ -23,7 +23,7 @@ Fov::~Fov()
 {
 }
 
-std::string Fov::Info()
+std::string Fov::Info() const
 {
 	float currentFov = Pointer::Base(FOVOffset).Read<float>();
 
@@ -35,6 +35,18 @@ std::string Fov::Info()
 	return Info;
 }
 
+std::string Fov::Suggest(const std::vector<std::string>& Arguments) const
+{
+	if( Arguments.size() == 2 )
+	{
+		if( Arguments[1].empty() )
+		{
+			return "90.0";
+		}
+	}
+	return "";
+}
+
 void Fov::Tick(const std::chrono::duration<double>& Delta)
 {
 }
@@ -43,10 +55,10 @@ bool Fov::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() >= 2 )
 	{
-		float fov = static_cast<float>(std::atof(Args[1].c_str()));
+		float fov = static_cast<float>( std::atof(Args[1].c_str()) );
 
 		// If atof returns 0, it (probably) failed
-		if(fov == 0.f)
+		if( fov == 0.f )
 			return false;
 
 		fov = std::min(std::max(MinFOV, fov), MaxFOV);
