@@ -104,7 +104,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 
 			Pointer(0x2391B2C).Write<uint32_t>(gameType);
 
-      // Infinite play time
+			// Infinite play time
 			Pointer(InfiniteGameTimeOffset).Write<uint8_t>(0);
 
 			// Game Mode

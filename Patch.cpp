@@ -1,6 +1,8 @@
 #include "Patch.h"
 
-Patch::Patch(size_t Offset, std::initializer_list<uint8_t> Data, std::initializer_list<uint8_t> Reset /*= {}*/) 
+#include <algorithm>
+
+Patch::Patch(size_t Offset, const InitializerListType &Data, const InitializerListType &Reset /*= {}*/)
   : Offset(Offset), 
     Data(Data), 
     Orig(Reset)
@@ -13,10 +15,21 @@ Offset(0)
 
 }
 
-Patch::Patch(size_t Offset, std::initializer_list<uint8_t> Data, Pointer base /*= Pointer::Base()*/)
+Patch::Patch(size_t Offset, const InitializerListType &Data, Pointer base /*= Pointer::Base()*/)
   : Offset(Offset),
   Data(Data)
 {
+  Orig.resize(Data.size());
+  base(Offset).Read(Orig.data(), Orig.size());
+}
+
+Patch::Patch(size_t Offset, size_t byteValue, size_t numBytes, Pointer base /*= Pointer::Base()*/)
+  : Offset(Offset)
+{
+  // Fill with NOPs
+  Data.resize(numBytes);
+  std::fill(Data.begin(), Data.end(), byteValue);
+
   Orig.resize(Data.size());
   base(Offset).Read(Orig.data(), Orig.size());
 }

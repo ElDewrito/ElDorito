@@ -12,13 +12,18 @@
 class Patch
 {
 public:
+	typedef std::initializer_list<uint8_t> InitializerListType;
+
 	Patch();
 	Patch(size_t Offset,
-			std::initializer_list<uint8_t> Data,
-			std::initializer_list<uint8_t> Reset);
+			const InitializerListType &Data,
+			const InitializerListType &Reset);
 	Patch(size_t Offset,
-		std::initializer_list<uint8_t> Data,
+		const InitializerListType &Data,
 		Pointer base = Pointer::Base());
+	
+	// Constructor fills data with a given byte
+	Patch(size_t Offset, size_t byteValue, size_t numBytes, Pointer base = Pointer::Base());
 
 	inline void Apply(Pointer offset = Pointer::Base()) const
 	{
