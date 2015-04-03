@@ -84,9 +84,6 @@ ElDorito::ElDorito()
 	Patch(0x101A5B, { 0xEB }).Apply();
 	Patch::NopFill(Pointer::Base(0x102874), 2);
 
-	// stopgame patch
-	Patch(0x1056D0, { 0xC3 }).Apply();
-
 	// No --account args patch
 	Patch(0x43731A, { 0xEB, 0x0E }).Apply();
 	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
