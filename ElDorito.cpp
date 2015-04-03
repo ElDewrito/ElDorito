@@ -145,6 +145,8 @@ ElDorito::ElDorito()
 			Commands[argname]->Run({ argname, argvalue });
 		}
 	}
+
+	Terminal.PrintLine();
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
