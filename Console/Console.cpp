@@ -190,6 +190,7 @@ namespace Console
 				{
 					HandleInput(character);
 				}
+				CloseClipboard();
 			}
 		}
 		else if( KeyCode == 0 || KeyCode == 0xE0 ) // Escape character
