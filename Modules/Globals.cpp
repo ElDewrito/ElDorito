@@ -45,7 +45,7 @@ bool Globals::Run(const std::vector<std::string>& args)
 	// Enable graphics overrides
 	ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0](GameGlobals::Graphics::GraphicsOverrideIndex).Write<bool>(true);
 
-	if(args.size() >= 3) // Only accept "global <commmand> <args>
+	if(args.size() >= 1) // Only accept "global <commmand>
 	{
 		auto &commandItr = commands.find(args[1]);
 		if(commandItr != commands.end()) // If our command exists
@@ -69,12 +69,18 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer GraphicsPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+			Pointer &rPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex);
+			Pointer &gPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 4);
+			Pointer &bPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 8);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "color: " << rPtr.Read<float>() << ", " << gPtr.Read<float>() << ", " << bPtr.Read<float>() << '.' << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &rPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex);
-				Pointer &gPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 4);
-				Pointer &bPtr = GraphicsPtr(GameGlobals::Graphics::ColorIndex + 8);
-
 				if(args[0] == "reset")
 				{
 					float rgb[3] = { 1.f, 1.f, 1.f };
@@ -126,10 +132,16 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer GraphicsPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+			Pointer &saturationPtr = GraphicsPtr(GameGlobals::Graphics::SaturationIndex);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "saturation: " << saturationPtr.Read<float>() << '.' << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &saturationPtr = GraphicsPtr(GameGlobals::Graphics::SaturationIndex);
-
 				if(args[0] == "reset")
 				{
 					saturationPtr.Write(1.f);
@@ -169,19 +181,25 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer CinimaticPtr = ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0];
+			Pointer &letterboxPtr = CinimaticPtr(GameGlobals::Cinematic::LetterboxIndex);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "letterboxing: " << (letterboxPtr.Read<bool>() ? "enabled" : "disabled") << '.' << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &saturationPtr = CinimaticPtr(GameGlobals::Cinematic::LetterboxIndex);
-
 				if(args[0] == "on" || args[0] == "true")
 				{
-					saturationPtr.Write(true);
+					letterboxPtr.Write(true);
 					std::cout << "Letterboxing enabled." << std::endl;
 					return true;
 				}
 				else if(args[0] == "off" || args[0] == "false")
 				{
-					saturationPtr.Write(false);
+					letterboxPtr.Write(false);
 					std::cout << "Letterboxing disabled." << std::endl;
 					return true;
 				}
@@ -203,16 +221,21 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer DoFPtr = ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0];
+			Pointer &overridePtr = DoFPtr(GameGlobals::DepthOfField::EnableIndex);
+			Pointer &intensityPtr = DoFPtr(GameGlobals::DepthOfField::IntensityIndex);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "dof: " << (intensityPtr.Read<float>() * 50.f) << " (overridden: " << (overridePtr.Read<bool>() ? "yes" : "no") << ")" << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &overridePtr = DoFPtr(GameGlobals::DepthOfField::EnableIndex);
-				Pointer &intensityPtr = DoFPtr(GameGlobals::DepthOfField::IntensityIndex);
-
-				overridePtr.Write(true);
-
 				if(args[0] == "reset")
 				{
 					intensityPtr.Write(0.f);
+					overridePtr.Write(false);
 
 					std::cout << "Depth of field reset." << std::endl;
 					return true;
@@ -224,6 +247,7 @@ void Globals::setupGraphicsGlobals()
 						float newDof = std::stof(args[0]);
 
 						intensityPtr.Write(newDof / 50.f);
+						overridePtr.Write(true);
 
 						std::cout << "Depth of field set to " << newDof << '.' << std::endl;
 						return true;
@@ -252,11 +276,17 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer BloomPtr = ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0];
+			Pointer &overridePtr = BloomPtr(GameGlobals::Bloom::EnableIndex);
+			Pointer &intensityPtr = BloomPtr(GameGlobals::Bloom::IntensityIndex);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "bloom: " << intensityPtr.Read<float>() << " (overridden: " << (overridePtr.Read<size_t>() == 1 ? "yes" : "no") << ")" << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &overridePtr = BloomPtr(GameGlobals::Bloom::EnableIndex);
-				Pointer &intensityPtr = BloomPtr(GameGlobals::Bloom::IntensityIndex);
-			
 				if(args[0] == "reset")
 				{
 					intensityPtr.Write(0.f);
@@ -334,10 +364,16 @@ void Globals::setupPhysicsGlobals()
 	commands["gravity"] = {
 		[this](const CommandLineArgs &args) // Run
 		{
+			Pointer &gravityPtr = ElDorito::GetMainTls(GameGlobals::Physics::TLSOffset)[0](GameGlobals::Physics::GravityIndex);
+
+			if (args.size() <= 0)
+			{
+				std::cout << "gravity: " << gravityPtr.Read<float>() << '.' << std::endl;
+				return true;
+			}
+
 			if(args.size() >= 1)
 			{
-				Pointer &gravityPtr = ElDorito::GetMainTls(GameGlobals::Physics::TLSOffset)[0](GameGlobals::Physics::GravityIndex);
-
 				if(args[0] == "reset")
 				{
 					gravityPtr.Write(GameGlobals::Physics::DefualtGravity);
