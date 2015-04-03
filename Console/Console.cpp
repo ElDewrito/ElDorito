@@ -146,7 +146,7 @@ namespace Console
 					{
 						// Error running command;
 						SetTextColor(Color::Error);
-						std::cout << "Error running command: " << CurCommand[0] << std::endl;
+						std::cout << "Invalid Usage: " << CurCommand[0] << std::endl;
 						SetTextColor(Color::Info);
 						std::cout << Commands[CurCommand[0]]->Info();
 					}
