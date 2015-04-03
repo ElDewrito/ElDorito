@@ -12,18 +12,13 @@
 class Patch
 {
 public:
-	Patch()
-		:
-		Offset(0)
-	{
-	}
+	Patch();
 	Patch(size_t Offset,
-		  std::initializer_list<uint8_t> Data,
-		  std::initializer_list<uint8_t> Reset = {})
-		  :
-		  Offset(Offset), Data(Data), Orig(Reset)
-	{
-	}
+			std::initializer_list<uint8_t> Data,
+			std::initializer_list<uint8_t> Reset);
+	Patch(size_t Offset,
+		std::initializer_list<uint8_t> Data,
+		Pointer base = Pointer::Base());
 
 	inline void Apply(Pointer offset = Pointer::Base()) const
 	{
@@ -47,7 +42,7 @@ public:
 	}
 private:
 	size_t Offset;
-	const std::vector<uint8_t> Data, Orig;
+	std::vector<uint8_t> Data, Orig;
 };
 
 class Hook
