@@ -75,7 +75,7 @@ namespace Blam
 
 		uint8_t Unknown11; // default 5
 		uint8_t Unknown12; // 0
-		uint8_t Unknown13; // default 5 
+		uint8_t Unknown13; // default 5
 		uint8_t Unknown14; // 0
 		uint8_t Unknown15; // 0
 		uint8_t Unknown16; // 0
@@ -153,7 +153,7 @@ namespace GameGlobals
 		const unsigned GravityIndex = 0;
 		const unsigned WaterDensityIndex = 4;
 		const unsigned AirDensityIndex = 8;
-		const float DefualtGravity = 4.17126f;
+		const float DefaultGravity = 4.17126f;
 	}
 
 	namespace Graphics
