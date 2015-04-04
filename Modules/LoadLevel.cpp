@@ -2,6 +2,7 @@
 
 #include "../ElDorito.h"
 #include "../BlamTypes.h"
+#include "../Utils/String.h"
 
 #include <Windows.h>
 #include <iostream>
@@ -65,11 +66,16 @@ std::string LoadLevel::Suggest(const std::vector<std::string>& Arguments) const
 {
 	if( Arguments.size() == 2 )
 	{
-		if( Arguments[1].empty() )
+		if(Arguments[1].empty())
 		{
-			if( !MapList.empty() )
+			return MapList.front();
+		}
+		else
+		{
+			for(auto &i : MapList)
 			{
-				return MapList.front();
+				if(Utils::String::ToLower(i).find(Arguments[1]) == 0) // if the map name starts with our arg
+					return i;
 			}
 		}
 	}
