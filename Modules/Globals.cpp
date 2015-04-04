@@ -2,6 +2,7 @@
 
 #include "../ElDorito.h"
 #include "../BlamTypes.h"
+#include "../Utils/String.h"
 
 // STL
 #include <inttypes.h>
@@ -39,7 +40,15 @@ std::string Globals::Suggest(const std::vector<std::string>& Arguments) const
 	{
 		if( Arguments[1].empty() )
 		{
-			return "color";
+			return commands.begin()->first;
+		}
+		else
+		{
+			for(auto &i : commands)
+			{
+				if(Utils::String::ToLower(i.first).find(Arguments[1]) == 0)
+					return i.first;
+			}
 		}
 	}
 	return "";
