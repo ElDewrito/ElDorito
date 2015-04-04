@@ -79,6 +79,22 @@ std::string LoadLevel::Suggest(const std::vector<std::string>& Arguments) const
 			}
 		}
 	}
+	else if(Arguments.size() == 3)
+	{
+		if(Arguments[2].empty())
+		{
+			return Blam::GameTypeNames[0];
+		}
+		else
+		{
+			for(auto &i : Blam::GameTypeNames)
+			{
+				if(Utils::String::ToLower(i).find(Arguments[2]) == 0) // if the type starts with our arg
+					return i;
+			}
+		}
+	}
+
 	return "";
 }
 

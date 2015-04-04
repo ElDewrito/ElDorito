@@ -20,6 +20,7 @@ namespace Blam
 		Infection,
 		GameTypeCount
 	};
+
 	const std::string GameTypeNames[GameTypeCount] =
 	{
 		"none",
