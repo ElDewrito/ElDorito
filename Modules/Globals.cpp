@@ -44,9 +44,9 @@ std::string Globals::Suggest(const std::vector<std::string>& Arguments) const
 		}
 		else
 		{
-			for(auto &i : commands)
+			for( auto &i : commands )
 			{
-				if(Utils::String::ToLower(i.first).find(Arguments[1]) == 0)
+				if( Utils::String::ToLower(i.first).find(Arguments[1]) == 0 )
 					return i.first;
 			}
 		}
@@ -392,8 +392,8 @@ void Globals::setupPhysicsGlobals()
 			{
 				if( args[0] == "reset" )
 				{
-					gravityPtr.Write(GameGlobals::Physics::DefualtGravity);
-					std::cout << "Gravity reset to " << GameGlobals::Physics::DefualtGravity << '.' << std::endl;
+					gravityPtr.Write(GameGlobals::Physics::DefaultGravity);
+					std::cout << "Gravity reset to " << GameGlobals::Physics::DefaultGravity << '.' << std::endl;
 				}
 				else
 				{
