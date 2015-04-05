@@ -128,7 +128,7 @@ BOOL InitInstance(HINSTANCE hModule)
 
 	Console::AllocateConsole("ElDorito");
 
-	Utils::Version::SetModule(hModule);
+	//Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);
