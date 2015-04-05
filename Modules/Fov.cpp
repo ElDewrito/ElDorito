@@ -8,9 +8,6 @@
 
 static const size_t FOVOffset = 0x1F01D98;
 
-static const float MinFOV = 0.001f;
-static const float MaxFOV = 150.f;
-
 TODO("Update FOV to use proper (global) FOV");
 
 Fov::Fov()
@@ -61,7 +58,7 @@ bool Fov::Run(const std::vector<std::string>& Args)
 		if( fov == 0.f )
 			return false;
 
-		fov = std::min(std::max(MinFOV, fov), MaxFOV);
+		fov = Utils::Clamp(fov, 0.001f, 150.0f);
 
 		// Write bounded FOV
 		Pointer::Base(FOVOffset).Write(fov);
