@@ -12,3 +12,4 @@
 #include "Modules/Spawn.h"
 #include "Modules/Globals.h"
 #include "Modules/Camera.h"
+#include "Modules/Information.h"

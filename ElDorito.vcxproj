@@ -114,6 +114,7 @@
     <ClCompile Include="Modules\Globals.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />
     <ClCompile Include="Modules\Hud.cpp" />
+    <ClCompile Include="Modules\Information.cpp" />
     <ClCompile Include="Modules\LoadLevel.cpp" />
     <ClCompile Include="Modules\Spawn.cpp" />
     <ClCompile Include="Modules\Test.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Modules\Globals.h" />
     <ClInclude Include="Modules\Godmode.h" />
     <ClInclude Include="Modules\Hud.h" />
+    <ClInclude Include="Modules\Information.h" />
     <ClInclude Include="Modules\LoadLevel.h" />
     <ClInclude Include="Modules\Spawn.h" />
     <ClInclude Include="Modules\Test.h" />
