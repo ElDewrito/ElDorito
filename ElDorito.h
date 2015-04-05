@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <memory>
 
-#include "Console\Console.h"
-#include "Utils\Singleton.h"
+#include "Console/Console.h"
+#include "Utils/Utils.h"
 #include "Modules/ElModule.h"
 #include "Pointer.h"
 #include "Patch.h"
