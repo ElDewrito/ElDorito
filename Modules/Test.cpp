@@ -43,7 +43,7 @@ void Test::Tick(const std::chrono::duration<double>& Delta)
 	//std::cout << Pointer(TlsAddress + 0x32C).Read<uint32_t>() << std::endl;
 	if( ElDorito::GetMainTls(0x32C).Read<uint32_t>() )
 	{
-		//ElDorito::GetMainTls(0x32C)[0].Write<float>(sinf(Timer*3.14f * 2)*4.17126f);
+		//ElDorito::GetMainTls(0x32C)[0].Write<float>(sinf(Timer*3.14f * 4)*4.17126f * 4);
 		//printf("%f\n", ElDorito::GetMainTls(0x32C)[0].Read<float>());
 	}
 	//std::cout << "Tick";
@@ -52,7 +52,11 @@ void Test::Tick(const std::chrono::duration<double>& Delta)
 bool Test::Run(const std::vector<std::string>& Args)
 {
 	// Gravity
-	std::cout << ElDorito::GetMainTls(0x32C)[0].Read<float>() << std::endl;
+	//std::cout << ElDorito::GetMainTls(0x32C)[0].Read<float>() << std::endl;
+
+	std::cout << std::hex << "TLS: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
+	std::cout << std::hex << (size_t)(void*)ElDorito::GetMainTls(0x40)[0] << std::endl;
+	std::cout << std::hex << (size_t)(void*)ElDorito::GetMainTls(0x44)[0] << std::endl;
 
 	return true;
 }

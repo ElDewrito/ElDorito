@@ -27,7 +27,7 @@ ThirdPerson::~ThirdPerson()
 std::string ThirdPerson::Info() const
 {
 	std::string Info = "Third person: ";
-	Info += ( enabled ? "Enabled" : "Disabled" );
+	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: third (on|off)\n"
 		"Freezes the camera in place and player can move freely around\n";
 
@@ -40,7 +40,7 @@ std::string ThirdPerson::Suggest(const std::vector<std::string>& Arguments) cons
 	{
 		if( Arguments[1].empty() )
 		{
-			return ( enabled ? "off" : "on" );
+			return (enabled ? "off" : "on");
 		}
 	}
 	return "";

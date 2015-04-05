@@ -5,7 +5,6 @@
 
 namespace Utils
 {
-
 	// array[5]
 	// GetArraySize(array) = 5
 	template <typename T, size_t Num>
@@ -38,9 +37,9 @@ namespace Utils
 		return (n >= high) ? high : ((n <= low) ? low : n);
 	}
 
-	bool GetBit(size_t n,size_t bit)
+	bool GetBit(size_t n, size_t bit)
 	{
-		return (n & ( 1 << bit)) ? true:false;
+		return (n & (1 << bit)) ? true : false;
 	}
 
 	template <typename T>

@@ -47,15 +47,15 @@ ElDorito::ElDorito()
 	Terminal.SetTextColor(Console::Input);
 
 	std::srand(GetTickCount());
-	for (size_t i = 0; i < sizeof(Credits)/sizeof(char*); i++)
+	for( size_t i = 0; i < sizeof(Credits) / sizeof(char*); i++ )
 	{
-		for (size_t k = 0; k < 8; k++)
+		for( size_t k = 0; k < 8; k++ )
 		{
-			Terminal.SetTextColor(std::rand()&1 ? Console::Red : Console::Green);
-			std::cout << " \x10 \x11 \x1E \x1E "[std::rand()&7];
+			Terminal.SetTextColor(std::rand() & 1 ? Console::Red : Console::Green);
+			std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
 		}
 		Terminal.SetTextColor(Console::Input);
-		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*)-1)^0];
+		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*) - 1) ^ 0];
 		std::cout << Credits[i] << std::endl;;
 	}
 
@@ -248,7 +248,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		{
 			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
 		}
-		size_t TlsPtrArrayAddress = (size_t)( (size_t)( MainThreadLdt.HighWord.Bits.BaseHi << 24 ) | ( MainThreadLdt.HighWord.Bits.BaseMid << 16 ) | MainThreadLdt.BaseLow ) + 0x2C;
+		size_t TlsPtrArrayAddress = (size_t)((size_t)(MainThreadLdt.HighWord.Bits.BaseHi << 24) | (MainThreadLdt.HighWord.Bits.BaseMid << 16) | MainThreadLdt.BaseLow) + 0x2C;
 		size_t TlsPtrAddress = Pointer(TlsPtrArrayAddress).Read<uint32_t>();
 
 		// Index has been consistantly 0. Keep a look out.

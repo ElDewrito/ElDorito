@@ -55,7 +55,7 @@ bool Fov::Run(const std::vector<std::string>& Args)
 {
 	if( Args.size() >= 2 )
 	{
-		float fov = static_cast<float>( std::atof(Args[1].c_str()) );
+		float fov = static_cast<float>(std::atof(Args[1].c_str()));
 
 		// If atof returns 0, it (probably) failed
 		if( fov == 0.f )

@@ -17,14 +17,14 @@ LoadLevel::LoadLevel()
 
 	//populate map list on load
 	WIN32_FIND_DATA Finder;
-	HANDLE hFind = FindFirstFile(( ElDorito::Instance().GetDirectory() + "\\maps\\*.map" ).c_str(), &Finder);
+	HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
 	if( hFind == INVALID_HANDLE_VALUE )
 	{
 		std::cout << "No map files found" << std::endl;
 	}
 	do
 	{
-		if( !( Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
+		if( !(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
 		{
 			std::string MapName(Finder.cFileName);
 			//remove extension
@@ -40,20 +40,20 @@ LoadLevel::~LoadLevel()
 std::string LoadLevel::Info() const
 {
 	std::string Info = "Current map: ";
-	Info += (char*)( 0x2391824 );
+	Info += (char*)(0x2391824);
 	Info += "\nUsage: load (mapname) [gametype]\n"
 		"Available Maps";
 	for( size_t i = 0; i < MapList.size(); i++ )
 	{
 		Info += '\n';
-		Info += ( i == 0 ? '\xda' : i == MapList.size() - 1 ? '\xC0' : '\xc3' );
+		Info += (i == 0 ? '\xda' : i == MapList.size() - 1 ? '\xC0' : '\xc3');
 		Info += MapList[i];
 	}
 
 	Info += "\nValid gametypes: \n";
 	for( size_t i = 0; i < Blam::GameTypeCount - 1; i++ )
 	{
-		Info += ( i == 0 ? '\xda' : i == Blam::GameTypeCount - 2 ? '\xC0' : '\xc3' );
+		Info += (i == 0 ? '\xda' : i == Blam::GameTypeCount - 2 ? '\xC0' : '\xc3');
 		Info += '[' + std::to_string(i) + ']';
 		Info += Blam::GameTypeNames[i];
 		Info += '\n';
@@ -66,30 +66,30 @@ std::string LoadLevel::Suggest(const std::vector<std::string>& Arguments) const
 {
 	if( Arguments.size() == 2 )
 	{
-		if(Arguments[1].empty())
+		if( Arguments[1].empty() )
 		{
 			return MapList.front();
 		}
 		else
 		{
-			for(auto &i : MapList)
+			for( auto &i : MapList )
 			{
-				if(Utils::String::ToLower(i).find(Arguments[1]) == 0) // if the map name starts with our arg
+				if( Utils::String::ToLower(i).find(Arguments[1]) == 0 ) // if the map name starts with our arg
 					return i;
 			}
 		}
 	}
-	else if(Arguments.size() == 3)
+	else if( Arguments.size() == 3 )
 	{
-		if(Arguments[2].empty())
+		if( Arguments[2].empty() )
 		{
 			return Blam::GameTypeNames[0];
 		}
 		else
 		{
-			for(auto &i : Blam::GameTypeNames)
+			for( auto &i : Blam::GameTypeNames )
 			{
-				if(Utils::String::ToLower(i).find(Arguments[2]) == 0) // if the type starts with our arg
+				if( Utils::String::ToLower(i).find(Arguments[2]) == 0 ) // if the type starts with our arg
 					return i;
 			}
 		}
@@ -132,7 +132,7 @@ bool LoadLevel::Run(const std::vector<std::string>& Args)
 
 				if( i == Blam::GameTypeCount )
 				{
-					gameType = ( Blam::GameType )std::atoi(Args[2].c_str());
+					gameType = (Blam::GameType)std::atoi(Args[2].c_str());
 				}
 				if( gameType > Blam::GameTypeCount ) // only valid gametypes are 1 to 10
 					gameType = Blam::GameType::Slayer;

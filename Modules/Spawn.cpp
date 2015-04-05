@@ -56,7 +56,7 @@ bool Spawn::Run(const std::vector<std::string>& Args)
 
 			char proj[] = { 0xBA, 0, 0, 0, 0, 0x90 };
 
-			( *(int*)( proj + 1 ) ) = meta;
+			(*(int*)(proj + 1)) = meta;
 			Pointer(0xB5DBA5).Write(proj, sizeof(proj));
 
 			std::cout << "Projectile meta set to: " << std::hex <<

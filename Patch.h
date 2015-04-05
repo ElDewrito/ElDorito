@@ -16,12 +16,12 @@ public:
 
 	Patch();
 	Patch(size_t Offset,
-			const InitializerListType &Data,
-			const InitializerListType &Reset);
+		const InitializerListType &Data,
+		const InitializerListType &Reset);
 	Patch(size_t Offset,
 		const InitializerListType &Data,
 		Pointer base = Pointer::Base());
-	
+
 	// Constructor fills data with a given byte
 	Patch(size_t Offset, size_t byteValue, size_t numBytes, Pointer base = Pointer::Base());
 
@@ -69,7 +69,7 @@ public:
 
 	inline void Apply(Pointer offset = Pointer::Base()) const
 	{
-		if (!IsCall)
+		if( !IsCall )
 			offset(Offset).WriteJump(DestFunc);
 		else
 			offset(Offset).WriteCall(DestFunc);
@@ -77,7 +77,7 @@ public:
 
 	inline void Reset(Pointer offset = Pointer::Base()) const
 	{
-		if (Orig.size())
+		if( Orig.size() )
 		{
 			offset(Offset).Write(&Orig[0], Orig.size());
 		}

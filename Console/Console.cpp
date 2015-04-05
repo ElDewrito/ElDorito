@@ -62,9 +62,9 @@ namespace Console
 
 				for( auto Cmd : Commands )
 				{
-					if( !CurCommand[0].compare(0, CurCommand[0].length(), ( Cmd.first ), 0, CurCommand[0].length()) )
+					if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
 					{
-						Suggestions.push_back(( Cmd.first ));
+						Suggestions.push_back((Cmd.first));
 					}
 				}
 
@@ -88,13 +88,13 @@ namespace Console
 		{
 			if( !CurCommand.empty() )
 			{
-				if (!CurCommand.back().empty())
+				if( !CurCommand.back().empty() )
 				{
 					//Go to next argument;
 					CurArg++;
 					CurCommand.push_back("");
 				}
-				if (Commands.count(CurCommand.front()))
+				if( Commands.count(CurCommand.front()) )
 				{
 					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
 				}
@@ -118,7 +118,7 @@ namespace Console
 				}
 				// Suggest
 				Suggestion.clear();
-				if( CurArg == 0 && !CurCommand.empty())
+				if( CurArg == 0 && !CurCommand.empty() )
 				{
 					// Find closest matching command
 
@@ -126,9 +126,9 @@ namespace Console
 
 					for( auto Cmd : Commands )
 					{
-						if( !CurCommand[0].compare(0, CurCommand[0].length(), ( Cmd.first ), 0, CurCommand[0].length()) )
+						if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
 						{
-							Suggestions.push_back(( Cmd.first ));
+							Suggestions.push_back((Cmd.first));
 						}
 					}
 
@@ -142,7 +142,7 @@ namespace Console
 				}
 				else
 				{
-					if (!CurCommand.empty() && Commands.count(CurCommand.front()))
+					if( !CurCommand.empty() && Commands.count(CurCommand.front()) )
 					{
 						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
 					}
@@ -160,7 +160,7 @@ namespace Console
 				{
 					std::cout << ' ';
 				}
-				for( i = 0; i < Suggestion.length() + ( CurCommand.size() ? 0 : 1 ); i++ )
+				for( i = 0; i < Suggestion.length() + (CurCommand.size() ? 0 : 1); i++ )
 				{
 					std::cout << '\b';
 				}
@@ -299,7 +299,7 @@ namespace Console
 			else
 			{
 				std::cout << CurCommand[i];
-				( i == CurCommand.size() - 1 ) || std::cout << ' ';
+				(i == CurCommand.size() - 1) || std::cout << ' ';
 			}
 		}
 		std::cout.flush();

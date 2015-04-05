@@ -61,8 +61,8 @@ int networkLogHook(char* format, ...)
 
 void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
-	char* logData1 = ( *(char**)( a3 ) );
-	char* logData2 = ( *(char**)( (DWORD_PTR)a3 + 0x8 ) );
+	char* logData1 = (*(char**)(a3));
+	char* logData2 = (*(char**)((DWORD_PTR)a3 + 0x8));
 	if( logData1 != 0 )
 		logData1 += 0xC;
 	if( logData2 != 0 )
@@ -77,7 +77,7 @@ void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5)
 
 void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 {
-	char* logData1 = ( *(char**)( a3 ) );
+	char* logData1 = (*(char**)(a3));
 	if( logData1 != 0 )
 		logData1 += 0xC;
 	if( logData1 == 0 )
@@ -129,11 +129,11 @@ std::string DebugLogging::Info() const
 	else
 	{
 		Info += "Enabled - ";
-		Info += ( enabledFlags & 2 ) ? "Network " : "";
-		Info += ( enabledFlags & 4 ) ? "SSL " : "";
-		Info += ( enabledFlags & 8 ) ? "UI " : "";
-		Info += ( enabledFlags & 16 ) ? "Game1 " : "";
-		Info += ( enabledFlags & 32 ) ? "Game2 " : "";
+		Info += (enabledFlags & 2) ? "Network " : "";
+		Info += (enabledFlags & 4) ? "SSL " : "";
+		Info += (enabledFlags & 8) ? "UI " : "";
+		Info += (enabledFlags & 16) ? "Game1 " : "";
+		Info += (enabledFlags & 32) ? "Game2 " : "";
 	}
 	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
 		"Enables hooks for debug output\n"

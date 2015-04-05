@@ -203,7 +203,7 @@ void Globals::setupGraphicsGlobals()
 
 			if( args.size() <= 0 )
 			{
-				std::cout << "letterboxing: " << ( letterboxPtr.Read<bool>() ? "enabled" : "disabled" ) << '.' << std::endl;
+				std::cout << "letterboxing: " << (letterboxPtr.Read<bool>() ? "enabled" : "disabled") << '.' << std::endl;
 				return true;
 			}
 
@@ -244,7 +244,7 @@ void Globals::setupGraphicsGlobals()
 
 			if( args.size() <= 0 )
 			{
-				std::cout << "dof: " << ( intensityPtr.Read<float>() * 50.f ) << " (overridden: " << ( overridePtr.Read<bool>() ? "yes" : "no" ) << ")" << std::endl;
+				std::cout << "dof: " << (intensityPtr.Read<float>() * 50.f) << " (overridden: " << (overridePtr.Read<bool>() ? "yes" : "no") << ")" << std::endl;
 				return true;
 			}
 
@@ -299,7 +299,7 @@ void Globals::setupGraphicsGlobals()
 
 			if( args.size() <= 0 )
 			{
-				std::cout << "bloom: " << intensityPtr.Read<float>() << " (overridden: " << ( overridePtr.Read<size_t>() == 1 ? "yes" : "no" ) << ")" << std::endl;
+				std::cout << "bloom: " << intensityPtr.Read<float>() << " (overridden: " << (overridePtr.Read<size_t>() == 1 ? "yes" : "no") << ")" << std::endl;
 				return true;
 			}
 
@@ -349,13 +349,13 @@ void Globals::setupGraphicsGlobals()
 		[this](const CommandLineArgs &args) // Run
 		{
 			Pointer GraphicsPtr = ElDorito::GetMainTls(0xC4)[0];
-			if(args.size() > 1)
+			if( args.size() > 1 )
 			{
 				int index = std::atoi(args[0].c_str());
 			}
 			else
 			{
-				for(unsigned i = 0; i < 4; ++i)
+				for( unsigned i = 0; i < 4; ++i )
 				{
 					std::cout << "Debug Value " << i << ": " << GraphicsPtr(i * 4).Read<float>() << std::endl;
 				}

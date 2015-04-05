@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <sstream>
-#include <functional> 
+#include <functional>
 #include <cctype>
 #include <codecvt>
 

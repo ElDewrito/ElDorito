@@ -19,7 +19,6 @@
 #define TODO( MESSAGE ) \
   __pragma(message(__FILE__ "(" STRINGIZE(__LINE__) ") : TODO : " MESSAGE " "))
 
-
 #define DISABLE_WARNING_START(x) \
 __pragma(warning(push)) \
 __pragma(warning(disable : x)) \
@@ -28,15 +27,15 @@ __pragma(warning(disable : x)) \
 //////////////////////////////////////////////////////////////////////////
 
 #ifdef _DEBUG
-  #define DEBUG_MODE 1
-  #define RELEASE_MODE 0
+#define DEBUG_MODE 1
+#define RELEASE_MODE 0
 #else
-  #define DEBUG_MODE 0
-  #define RELEASE_MODE 1
+#define DEBUG_MODE 0
+#define RELEASE_MODE 1
 #endif
 
 #ifdef _ELREDIST
-  #define REDIST_MODE 1
+#define REDIST_MODE 1
 #else
-  #define REDIST_MODE 0
+#define REDIST_MODE 0
 #endif

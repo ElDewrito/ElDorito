@@ -17,7 +17,7 @@ std::string Hud::Info() const
 {
 	std::string Info =
 		"View Hud: ";
-	Info += ( enabled ? "Enabled" : "Disabled" );
+	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: hud (on|off)\n"
 		"Turns hud on and off\n"
 		"Does not remove watermark if Hide_Watermark is set to 0 in game.cfg\n";
@@ -30,7 +30,7 @@ std::string Hud::Suggest(const std::vector<std::string>& Arguments) const
 	{
 		if( Arguments[1].empty() )
 		{
-			return ( enabled ? "off" : "on" );
+			return (enabled ? "off" : "on");
 		}
 	}
 	return "";

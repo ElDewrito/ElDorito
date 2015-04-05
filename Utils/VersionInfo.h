@@ -9,10 +9,10 @@
 
 namespace Utils
 {
-  namespace Version
-  {
-    void SetModule(HMODULE module);
+	namespace Version
+	{
+		void SetModule(HMODULE module);
 
-    std::string GetInfo(const std::string &csEntry);
-  }
+		std::string GetInfo(const std::string &csEntry);
+	}
 }

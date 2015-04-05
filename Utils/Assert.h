@@ -11,22 +11,21 @@ __pragma(warning(disable : 4127)) \
 } while (0) \
 __pragma(warning(pop))
 
-
 // Assert Debug Feature
 #ifdef _ELDEBUG
 
 namespace Utils {
-  enum class FailBehavior : int
-  {
-    Halt,
-    Continue,
-  };
+	enum class FailBehavior : int
+	{
+		Halt,
+		Continue,
+	};
 
-  FailBehavior ReportFailure(
-    const char* condition, 
-    const char *msg,
-    const char* file, const char *fnc, 
-    long line);
+	FailBehavior ReportFailure(
+		const char* condition,
+		const char *msg,
+		const char* file, const char *fnc,
+		long line);
 }
 
 #define Assert_Break() __debugbreak()
@@ -45,7 +44,6 @@ if (result == Assert::FailBehavior::Halt) \
 Assert_Macro_End
 //////////////////////////////////////////////////////////////////////////
 
-
 // Assert w/ no message
 //////////////////////////////////////////////////////////////////////////
 #define Utils(Condition) \
@@ -62,10 +60,8 @@ if (result == Assert::FailBehavior::Halt) \
 
 #else
 
-
 #define Assert_Msg(ignore, ignore_msg) do { (void)0; Assert_Macro_End
 #define Assert_Break() ((void)0)
 #define Utils(ignore) do { (void)0; Assert_Macro_End
 
 #endif
-

@@ -19,7 +19,7 @@ Godmode::~Godmode()
 std::string Godmode::Info() const
 {
 	std::string Info = "Godmode: ";
-	Info += ( enabled ? "Enabled" : "Disabled" );
+	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: god (on|off)";
 	Info += "\nEnables godmod, scripted deaths still occur(such as falling)\n";
 	return Info;
@@ -31,7 +31,7 @@ std::string Godmode::Suggest(const std::vector<std::string>& Arguments) const
 	{
 		if( Arguments[1].empty() )
 		{
-			return ( enabled ? "off" : "on" );
+			return (enabled ? "off" : "on");
 		}
 	}
 	return "";
