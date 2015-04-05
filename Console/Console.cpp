@@ -86,15 +86,18 @@ namespace Console
 		}
 		else if( KeyCode == ' ' ) // Space
 		{
-			if( !CurCommand.empty() && !CurCommand.back().empty() )
+			if( !CurCommand.empty() )
 			{
-				//Go to next argument;
-				CurArg++;
-				CurCommand.push_back("");
-			}
-			if( Commands.count(CurCommand.front()) )
-			{
-				Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+				if (!CurCommand.back().empty())
+				{
+					//Go to next argument;
+					CurArg++;
+					CurCommand.push_back("");
+				}
+				if (Commands.count(CurCommand.front()))
+				{
+					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+				}
 			}
 		}
 		else if( KeyCode == '\b' ) // Backspace
@@ -115,7 +118,7 @@ namespace Console
 				}
 				// Suggest
 				Suggestion.clear();
-				if( CurArg == 0 )
+				if( CurArg == 0 && !CurCommand.empty())
 				{
 					// Find closest matching command
 
@@ -139,7 +142,7 @@ namespace Console
 				}
 				else
 				{
-					if( Commands.count(CurCommand.front()) )
+					if (!CurCommand.empty() && Commands.count(CurCommand.front()))
 					{
 						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
 					}
