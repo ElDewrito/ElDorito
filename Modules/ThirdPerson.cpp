@@ -24,12 +24,12 @@ ThirdPerson::~ThirdPerson()
 {
 }
 
-std::string ThirdPerson::Info() const
+std::string ThirdPerson::Info(const std::string& Topic) const
 {
 	std::string Info = "Third person: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: third (on|off)\n"
-		"Freezes the camera in place and player can move freely around\n";
+		"Freezes the camera in place and player can move freely around";
 
 	return Info;
 }

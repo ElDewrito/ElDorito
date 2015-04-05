@@ -22,7 +22,7 @@ Test::~Test()
 {
 }
 
-std::string Test::Info() const
+std::string Test::Info(const std::string& Topic) const
 {
 	return "Sandbox module for testing stuff.\n"
 		"If you find this in the release build you probably shouldn't run it.";

@@ -48,7 +48,7 @@ Camera::~Camera()
 {
 }
 
-std::string Camera::Info() const
+std::string Camera::Info(const std::string& Topic) const
 {
 	std::string Info("Usage: camera (cameraMode)\nSupported Camera Modes:");
 	for( auto &i : CameraTypeStrings )

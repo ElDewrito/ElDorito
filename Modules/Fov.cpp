@@ -23,14 +23,14 @@ Fov::~Fov()
 {
 }
 
-std::string Fov::Info() const
+std::string Fov::Info(const std::string& Topic) const
 {
 	float currentFov = Pointer::Base(FOVOffset).Read<float>();
 
 	std::string Info = "Field of View: " + std::to_string(currentFov) +
 		"\nUsage: fov (0.001-150.0)\n"
 		"Sets the field of view for the first person camera.\n"
-		"This does not currently effect third-person views.\n";
+		"This does not currently effect third-person views.";
 
 	return Info;
 }

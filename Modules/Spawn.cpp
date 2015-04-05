@@ -11,7 +11,7 @@ Spawn::~Spawn()
 {
 }
 
-std::string Spawn::Info() const
+std::string Spawn::Info(const std::string& Topic) const
 {
 	std::string Info = "Usage: spawn proj (hex meta)\n";
 
@@ -20,7 +20,7 @@ std::string Spawn::Info() const
 	//Info += "Current Projectile meta: ";
 	//Info += HexBuf;
 
-	Info += "Causes certain activites to spawn entities using the designated hex value\n";
+	Info += "Causes certain activites to spawn entities using the designated hex value";
 	return Info;
 }
 

@@ -37,7 +37,7 @@ LoadLevel::~LoadLevel()
 {
 }
 
-std::string LoadLevel::Info() const
+std::string LoadLevel::Info(const std::string& Topic) const
 {
 	std::string Info = "Current map: ";
 	Info += (char*)(0x2391824);

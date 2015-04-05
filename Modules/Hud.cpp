@@ -13,14 +13,14 @@ Hud::~Hud()
 {
 }
 
-std::string Hud::Info() const
+std::string Hud::Info(const std::string& Topic) const
 {
 	std::string Info =
 		"View Hud: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: hud (on|off)\n"
 		"Turns hud on and off\n"
-		"Does not remove watermark if Hide_Watermark is set to 0 in game.cfg\n";
+		"Does not remove watermark if Hide_Watermark is set to 0 in game.cfg";
 	return Info;
 }
 

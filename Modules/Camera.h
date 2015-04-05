@@ -18,7 +18,7 @@ public:
 	bool Run(const std::vector<std::string>& Arguments);
 
 	// Command and usage info
-	std::string Info() const;
+	std::string Info(const std::string& Topic = "") const;
 
 	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;

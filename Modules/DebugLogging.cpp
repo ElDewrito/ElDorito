@@ -121,7 +121,7 @@ DebugLogging::~DebugLogging()
 {
 }
 
-std::string DebugLogging::Info() const
+std::string DebugLogging::Info(const std::string& Topic) const
 {
 	std::string Info = "Debug logging: ";
 	if( enabledFlags == 0 )
@@ -137,7 +137,7 @@ std::string DebugLogging::Info() const
 	}
 	Info += "\nUsage: debug (network|ssl|ui|game1|game2|all|off)\n"
 		"Enables hooks for debug output\n"
-		"Writes debug messages to dorito.log when enabled.\n";
+		"Writes debug messages to dorito.log when enabled.";
 
 	return Info;
 }

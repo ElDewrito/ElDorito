@@ -19,7 +19,7 @@ Globals::~Globals()
 {
 }
 
-std::string Globals::Info() const
+std::string Globals::Info(const std::string& Topic) const
 {
 	std::string info("Allows interaction with globals.  Available globals:\n");
 	for( auto &i : commands )

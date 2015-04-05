@@ -30,6 +30,9 @@ namespace Console
 
 		SetTextColor(Color::Info);
 		CurCommand.push_back("");
+		PushCommand("help", std::shared_ptr<Console>(this));
+		PushCommand("history", std::shared_ptr<Console>(this));
+		PushCommand("quit", std::shared_ptr<Console>(this));
 	}
 
 	Console::~Console()
@@ -160,7 +163,7 @@ namespace Console
 				{
 					std::cout << ' ';
 				}
-				for( i = 0; i < Suggestion.length() + (CurCommand.size() ? 0 : 1); i++ )
+				for( i = 0; i < Suggestion.length() + (CurCommand.size() > 1 ? 1 : 0); i++ )
 				{
 					std::cout << '\b';
 				}
@@ -193,10 +196,12 @@ namespace Console
 				}
 			}
 
-			std::cout << std::endl;
 			SetTextColor(Color::Info);
-			PrevCommands.push_back(CurCommand);
-			PrevCommand = PrevCommands.end();
+			if( !CurCommand.empty() )
+			{
+				PrevCommands.push_back(CurCommand);
+				PrevCommand = PrevCommands.end();
+			}
 			CurArg = 0;
 			CurCommand.clear();
 		}
@@ -316,6 +321,86 @@ namespace Console
 			Commands.erase(CommandName);
 		}
 	}
+
+	bool Console::Run(const std::vector<std::string>& Args)
+	{
+		if( !Args.empty() )
+		{
+			if( !Args.front().compare("help") )
+			{
+				if( Args.size() >= 2 )
+				{
+					if( Commands.count(Args[1]) )
+					{
+						if( Args.size() == 3 )
+						{
+							std::cout << Commands[Args[1]]->Info() << std::endl;
+						}
+						else
+						{
+							std::cout << Commands[Args[1]]->Info(Args.back()) << std::endl;
+						}
+					}
+					else
+					{
+						SetTextColor(Error);
+						std::cout << "Command: " << Args[1] << "not found." << std::endl;
+					}
+				}
+				else
+				{
+					// Show all command info
+					for( auto Command : Commands )
+					{
+						std::string Padded(Command.first);
+						Padded.resize(ConsoleWidth >> 1, '\xC4');
+						SetTextColor(Color::Info);
+						std::cout << Padded << std::endl;
+						SetTextColor(Color::Info^Color::Bright);
+						std::cout << Command.second->Info(Command.first) << std::endl;
+					}
+				}
+			}
+			else if( !Args.front().compare("history") )
+			{
+				SetTextColor(Color::Info);
+				for( auto Command : PrevCommands )
+				{
+					for( auto Arg : Command )
+					{
+						std::cout << Arg << ' ';
+					}
+					std::cout << std::endl;
+				}
+			}
+			else if( !Args.front().compare("quit") )
+			{
+				std::exit(0);
+			}
+		}
+		return true;
+	}
+
+	std::string Console::Info(const std::string& Topic) const
+	{
+		if( !Topic.empty() )
+		{
+			if( !Topic.compare("help") )
+			{
+				return "Prints help for all commands\n"
+					"Type help (command name) (topic) to get help on a specific command";
+			}
+			else if( !Topic.compare("history") )
+			{
+				return "Displays all previously entered commands";
+			}
+			else if( !Topic.compare("quit") )
+			{
+				return "Quits the application";
+			}
+		}
+		return "";
+	};
 
 	bool AllocateConsole(const std::string& ConsoleTitle)
 	{

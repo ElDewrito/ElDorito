@@ -18,7 +18,7 @@ Ammo::~Ammo()
 {
 }
 
-std::string Ammo::Info() const
+std::string Ammo::Info(const std::string& Topic) const
 {
 	std::string Info = "Unlimited ammo: ";
 	Info += (enabled ? "Enabled" : "Disabled");

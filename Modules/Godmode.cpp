@@ -16,12 +16,12 @@ Godmode::~Godmode()
 {
 }
 
-std::string Godmode::Info() const
+std::string Godmode::Info(const std::string& Topic) const
 {
 	std::string Info = "Godmode: ";
 	Info += (enabled ? "Enabled" : "Disabled");
 	Info += "\nUsage: god (on|off)";
-	Info += "\nEnables godmod, scripted deaths still occur(such as falling)\n";
+	Info += "\nEnables godmod, scripted deaths still occur(such as falling)";
 	return Info;
 }
 

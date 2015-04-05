@@ -22,7 +22,7 @@ namespace Console
 		virtual bool Run(const std::vector<std::string>& Arguments) = 0;
 
 		// Command and usage info
-		virtual std::string Info() const = 0;
+		virtual std::string Info(const std::string& Topic = "") const = 0;
 
 		// Suggest auto-complete strings for arugments
 		virtual std::string Suggest(const std::vector<std::string>& Arguments) const = 0;
@@ -54,7 +54,7 @@ namespace Console
 		Suggestion = Cyan
 	};
 
-	class Console
+	class Console : public Command
 	{
 	public:
 		Console();
@@ -69,6 +69,19 @@ namespace Console
 		void PopCommand(const std::string& CommandName);
 
 	private:
+
+		// Return true on success
+		bool Run(const std::vector<std::string>& Arguments);
+
+		// Command and usage info
+		std::string Info(const std::string& Topic = "") const;
+
+		// Suggest auto-complete strings for arguments
+		std::string Suggest(const std::vector<std::string>& Arguments) const
+		{
+			return ""; // todo;
+		};
+
 		std::map<std::string, std::shared_ptr<Command>> Commands;
 
 		// History
