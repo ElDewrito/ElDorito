@@ -15,6 +15,13 @@
 #include "Utils/Utils.h"
 #include "ElModules.h"
 
+const char* Credits[] = {
+	"DEElekgolo (DEElekgolo@gmail.com)",
+	"Limited (zerogimp123@gmail.com)",
+	"darknavi (jake@jakeshirley.com)",
+	"stoker25 (emoose)"
+};
+
 size_t ElDorito::MainThreadID = 0;
 
 ElDorito::ElDorito()
@@ -36,29 +43,35 @@ ElDorito::ElDorito()
 #else
 	std::string buildType = "";
 #endif
+	std::cout << "ElDorito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildType << "Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	Terminal.SetTextColor(Console::Input);
 
-	//std::cout << Utils::Version::GetInfo("ProductName") << "\xC4\xC4\xC2Version: " << buildType << Utils::Version::GetInfo("FileVersion") << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
-	std::cout << "ElDorito" << "\xC4\xC4\xC2Version: " << buildType << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
-	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
-
-	std::cout << "\t  \xC3""DEElekgolo (DEElekgolo@gmail.com)\n";
-	std::cout << "\t  \xC3""Limited (zerogimp123@gmail.com)\n";
-	std::cout << "\t  \xC3""stoker25 (emoose)\n";
-	std::cout << "\t  \xC0""darknavi (jake@jakeshirley.com)\n";
+	std::srand(GetTickCount());
+	for (size_t i = 0; i < sizeof(Credits)/sizeof(char*); i++)
+	{
+		for (size_t k = 0; k < 8; k++)
+		{
+			Terminal.SetTextColor(std::rand()&1 ? Console::Red : Console::Green);
+			std::cout << " \x10 \x11 \x1E \x1E "[std::rand()&7];
+		}
+		Terminal.SetTextColor(Console::Input);
+		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*)-1)^0];
+		std::cout << Credits[i] << std::endl;;
+	}
 
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 	std::cout << "Enter \"";
-	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
+	Terminal.SetTextColor(Console::Input);
 	std::cout << "help";
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 	std::cout << "\" or \"";
-	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
+	Terminal.SetTextColor(Console::Input);
 	std::cout << "help (command)";
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 
 	std::cout << "\" to get started!" << std::endl;
 	std::cout << "Current directory: ";
-	Terminal.SetTextColor(Console::Green | Console::Blue | Console::Bright);
+	Terminal.SetTextColor(Console::Input);
 	std::cout << GetDirectory() << std::endl;
 	Terminal.SetTextColor(Console::Red | Console::Blue);
 	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
@@ -222,6 +235,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		if( !success )
 		{
 			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
+			std::exit(1);
 		}
 		ResumeThread(MainThreadHandle);
 
