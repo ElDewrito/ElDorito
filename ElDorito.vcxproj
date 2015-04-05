@@ -91,7 +91,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo"</Command>
+      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -142,7 +142,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo"</Command>
+      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
