@@ -54,7 +54,7 @@ bool Spawn::Run(const std::vector<std::string>& Args)
 				return false;
 			}
 
-			char proj[] = { 0xBA, 0, 0, 0, 0, 0x90 };
+			uint8_t proj[] = { 0xBA, 0, 0, 0, 0, 0x90 };
 
 			(*(int*)(proj + 1)) = meta;
 			Pointer(0xB5DBA5).Write(proj, sizeof(proj));
