@@ -70,27 +70,6 @@
       <AdditionalDependencies>Version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp F:\ElDorito\Deploy\gameShieldDll.dll C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp $(LocalDebuggerCommand)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp $(TargetDir)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"cp $(TargetDir)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
       <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -120,27 +99,6 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <AdditionalDependencies>Version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp F:\ElDorito\Deploy\gameShieldDll.dll C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp $(LocalDebuggerCommand)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp $(TargetDir)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"cp $(TargetDir)\$(TargetFileName) C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cp "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copy /Y "$(TargetDir)\$(TargetFileName)" "C:\Users\DEElekgolo\Desktop\Halo"</Command>
-    </PostBuildEvent>
     <PostBuildEvent>
       <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
