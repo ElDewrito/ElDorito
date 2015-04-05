@@ -51,7 +51,10 @@ ElDorito::ElDorito()
 	{
 		for( size_t k = 0; k < 8; k++ )
 		{
-			Terminal.SetTextColor(std::rand() & 1 ? Console::Red : Console::Green);
+			Terminal.SetTextColor(
+				(std::rand() & 1 ? Console::Red : Console::Green) |
+				std::rand() & 1 * Console::Bright
+				);
 			std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
 		}
 		Terminal.SetTextColor(Console::Input);
