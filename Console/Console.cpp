@@ -30,9 +30,13 @@ namespace Console
 
 		SetTextColor(Color::Info);
 		CurCommand.push_back("");
-		PushCommand("help", std::shared_ptr<Console>(this));
-		PushCommand("history", std::shared_ptr<Console>(this));
-		PushCommand("quit", std::shared_ptr<Console>(this));
+
+		// Meta commands pushed with null deleter so console doesn't delete its self.
+		auto NullDeleter = [](Console*){};
+
+		PushCommand("help", std::shared_ptr<Console>(this, NullDeleter));
+		PushCommand("history", std::shared_ptr<Console>(this, NullDeleter));
+		PushCommand("quit", std::shared_ptr<Console>(this, NullDeleter));
 	}
 
 	Console::~Console()
