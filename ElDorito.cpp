@@ -17,7 +17,6 @@
 
 const char* Credits[] = {
 	"DEElekgolo (DEElekgolo@gmail.com)",
-	"Limited (zerogimp123@gmail.com)",
 	"darknavi (jake@jakeshirley.com)",
 	"stoker25 (emoose)"
 };
@@ -135,7 +134,7 @@ ElDorito::ElDorito()
 	PushModule<Information>("info");
 	//PushModule<ThirdPerson>("third");
 
-	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("FileVersion") + " | Build Date: " __DATE__);
+	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
 
 	// Parse command-line commands
 	int numArgs = 0;
