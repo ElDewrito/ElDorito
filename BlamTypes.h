@@ -51,7 +51,8 @@ namespace Blam
 		"none",
 		"campaign",
 		"multiplayer",
-		"shared",
+		"mainmenu",
+		"shared"
 	};
 
 	// todo: safely make this into a C++ struct without any padding/packing etc
