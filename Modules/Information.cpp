@@ -30,6 +30,9 @@ bool Information::Run(const std::vector<std::string>& Args)
 {
 	std::cout << std::hex << "ThreadLocalStorage: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
 
+	std::string ArgList((char*)Pointer(0x199C0A4)[0]);
+	std::cout << "Command line args: " << (ArgList.empty() ? "(null)" : ArgList) << std::endl;
+
 	std::string LocalSecureKey((char*)Pointer(0x50CCDB4 + 1));
 	std::cout << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
 
