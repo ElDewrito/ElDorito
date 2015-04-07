@@ -189,7 +189,7 @@ namespace Console
 						SetTextColor(Color::Error);
 						std::cout << "Invalid Usage: " << CurCommand[0] << std::endl;
 						SetTextColor(Color::Info);
-						std::cout << Commands[CurCommand[0]]->Info();
+						std::cout << Commands[CurCommand[0]]->Info() << std::endl;
 					}
 				}
 				else
