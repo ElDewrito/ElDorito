@@ -40,13 +40,21 @@ bool ShowGameUI::Run(const std::vector<std::string>& Args)
 	if (Args.size() < 2)
 		return false;
 
+	int parentDialog = 0x1000D;
+	if (Args.size() >= 3)
+		parentDialog = std::stoul(Args[2], nullptr, 16);
+
+	int openType = 0;
+	if (Args.size() >= 4)
+		openType = std::stoul(Args[3], nullptr, 16);
+
 	unsigned int stringID = std::stoul(Args[1], nullptr, 16);
 
-	typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int a2, int a3, int a4, int a5);
+	typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int a4, int parentDialogStringId);
 
 	// fill UIData with proper data
 	OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-	openui(&UIData, stringID, 0, 0, 0x1000C);
+	openui(&UIData, stringID, 0, openType, parentDialog);
 
 	// send UI notification
 	uint32_t eax = (uint32_t)&UIData;
