@@ -117,6 +117,7 @@
     <ClCompile Include="Modules\Hud.cpp" />
     <ClCompile Include="Modules\Information.cpp" />
     <ClCompile Include="Modules\LoadLevel.cpp" />
+    <ClCompile Include="Modules\ShowGameUI.cpp" />
     <ClCompile Include="Modules\Spawn.cpp" />
     <ClCompile Include="Modules\Test.cpp" />
     <ClCompile Include="Modules\ThirdPerson.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="Modules\Hud.h" />
     <ClInclude Include="Modules\Information.h" />
     <ClInclude Include="Modules\LoadLevel.h" />
+    <ClInclude Include="Modules\ShowGameUI.h" />
     <ClInclude Include="Modules\Spawn.h" />
     <ClInclude Include="Modules\Test.h" />
     <ClInclude Include="Modules\ThirdPerson.h" />
