@@ -114,6 +114,16 @@ ElDorito::ElDorito()
 	// and find a way to at least enable pressing ESC when gamepad is enabled)
 	Patch::NopFill(Pointer::Base(0x20D7F2), 2);
 
+	// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
+	Patch(0x6C34B0, { 0xB6 }).Apply();
+
+	// Fix UI elements automatically closing on mainmenu-loaded maps (todo: find real reason why they close)
+	Patch(0x6AA870, { 0xC3 }).Apply();
+
+	// Fix controller not working on UI elements when in mainmenu-loaded maps (todo: find why this patch works)
+	Patch(0x6AB33D, { 0xB8, 0x00, 0x00, 0x00, 0x00 }).Apply();
+	Patch(0x6B538F, { 0xB8, 0x00, 0x00, 0x00, 0x00 }).Apply();
+
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
 	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
