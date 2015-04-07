@@ -132,6 +132,7 @@ ElDorito::ElDorito()
 	PushModule<LoadLevel>("load");
 	PushModule<Spawn>("spawn");
 	PushModule<Information>("info");
+	PushModule<ShowGameUI>("show_ui");
 	//PushModule<ThirdPerson>("third");
 
 	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
