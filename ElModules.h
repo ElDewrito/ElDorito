@@ -14,3 +14,4 @@
 #include "Modules/Camera.h"
 #include "Modules/Information.h"
 #include "Modules/ShowGameUI.h"
+#include "Modules/Disclaimer.h"

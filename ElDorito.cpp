@@ -72,6 +72,13 @@ ElDorito::ElDorito()
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 
 	std::cout << "\" to get started!" << std::endl;
+
+	std::cout << "Please take the time to read our ";
+	Terminal.SetTextColor(Console::Input);
+	std::cout << "disclaimer";
+	Terminal.SetTextColor(Console::Green | Console::Bright);
+	std::cout << " as well." << std::endl;
+
 	std::cout << "Current directory: ";
 	Terminal.SetTextColor(Console::Input);
 	std::cout << GetDirectory() << std::endl;
@@ -143,6 +150,7 @@ ElDorito::ElDorito()
 	PushModule<Spawn>("spawn");
 	PushModule<Information>("info");
 	PushModule<ShowGameUI>("show_ui");
+	PushModule<Disclaimer>("disclaimer");
 	//PushModule<ThirdPerson>("third");
 
 	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);

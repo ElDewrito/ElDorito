@@ -111,6 +111,7 @@
     <ClCompile Include="Modules\Ammo.cpp" />
     <ClCompile Include="Modules\Camera.cpp" />
     <ClCompile Include="Modules\DebugLogging.cpp" />
+    <ClCompile Include="Modules\Disclaimer.cpp" />
     <ClCompile Include="Modules\Fov.cpp" />
     <ClCompile Include="Modules\Globals.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Modules\Ammo.h" />
     <ClInclude Include="Modules\Camera.h" />
     <ClInclude Include="Modules\DebugLogging.h" />
+    <ClInclude Include="Modules\Disclaimer.h" />
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
     <ClInclude Include="Modules\Fov.h" />
