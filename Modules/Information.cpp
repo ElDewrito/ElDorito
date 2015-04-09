@@ -53,5 +53,14 @@ bool Information::Run(const std::vector<std::string>& Args)
 	std::string FlashVersion((char*)Pointer(0x199C350));
 	std::cout << "Flash Version: " << (FlashVersion.empty() ? "(null)" : FlashVersion) << std::endl;
 
+	std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
+	std::cout << "Current Map: " << (MapName.empty() ? "(null)" : MapName) << std::endl;
+
+	std::cout << "Current Map Cache Size: " << Pointer(0x22AB018)(0x8).Read<int32_t>() << std::endl;
+
+	std::cout << "Tag Table Offset: " << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
+
+	std::cout << "Tag Bank Offset: " << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
+
 	return true;
 }
