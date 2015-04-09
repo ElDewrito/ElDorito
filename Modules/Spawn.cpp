@@ -20,7 +20,9 @@ std::string Spawn::Info(const std::string& Topic) const
 	//Info += "Current Projectile meta: ";
 	//Info += HexBuf;
 
-	Info += "Causes certain activites to spawn entities using the designated hex value";
+	Info += "Causes certain activites to spawn entities using the designated hex value\n";
+	Info += "Note that hex values should be in little endian.\n";
+	Info += "Ex. Red Assault Rifle: 81150000 -> 00001581 (spawn proj 1581)\n";
 	return Info;
 }
 
