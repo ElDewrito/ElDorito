@@ -17,7 +17,6 @@
 
 const char* Credits[] = {
 	"DEElekgolo (DEElekgolo@gmail.com)",
-	"darknavi (navi@odinseye.org)",
 	"stoker25 (emoose)"
 };
 
