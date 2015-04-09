@@ -16,7 +16,7 @@
 #include "ElModules.h"
 
 const char* Credits[] = {
-	"DEElekgolo (DEElekgolo@gmail.com)",
+	"Wunk",
 	"stoker25 (emoose)"
 };
 
