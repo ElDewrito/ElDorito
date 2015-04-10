@@ -19,5 +19,6 @@ public:
 	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
+	bool ShouldShowPauseMenu; // todo: put this somewhere better
 private:
 };

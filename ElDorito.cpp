@@ -15,12 +15,51 @@
 #include "Utils/Utils.h"
 #include "ElModules.h"
 
+#include "Hooks.h"
+
 const char* Credits[] = {
 	"Wunk",
 	"stoker25 (emoose)"
 };
 
 size_t ElDorito::MainThreadID = 0;
+
+static std::shared_ptr<ShowGameUI> showUI;
+
+// some reason moving this to hooks.cpp causes crashes when you try to change network type, wtf?
+void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
+{
+	bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
+	typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
+	UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;
+	menuUpdate(a1, menuIdToLoad);
+
+	if (shouldUpdate)
+	{
+		static uint8_t UIData[0x40];
+
+		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int a2, int a3, int a4, int a5);
+
+		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
+		void* ret = openui(&UIData, menuIdToLoad, 0xFF, 4, 0x1000D);
+
+		if (ret != 0)
+		{
+			typedef int(*ShowUIDialog)(void* a1);
+
+			ShowUIDialog showui = (ShowUIDialog)0xA93450;
+			showui(&UIData);
+		}
+	}
+}
+
+// todo: move this somewhere else
+int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
+{
+	showUI->ShouldShowPauseMenu = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
+
+	return 1;
+}
 
 ElDorito::ElDorito()
 {
@@ -123,12 +162,23 @@ ElDorito::ElDorito()
 	// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
 	Patch(0x6C34B0, { 0xB6 }).Apply();
 
-	// Fix UI elements automatically closing on mainmenu-loaded maps (todo: find real reason why they close)
-	Patch(0x6AA870, { 0xC3 }).Apply();
+	// Fix network debug strings having (null) instead of an IP address
+	Hook(0x3F6F0, false, &Network_GetIPStringFromInAddr).Apply();
 
-	// Fix controller not working on UI elements when in mainmenu-loaded maps (todo: find why this patch works)
-	Patch(0x6AB33D, { 0xB8, 0x00, 0x00, 0x00, 0x00 }).Apply();
-	Patch(0x6B538F, { 0xB8, 0x00, 0x00, 0x00, 0x00 }).Apply();
+	// Fix menu update code to include missing mainmenu code
+	Hook(0x6DFB73, true, &UI_MenuUpdateHook).Apply();
+
+	// Hacky fix to stop the game crashing when you move selection on UI
+	// (todo: find out what's really causing this)
+	Patch::NopFill(Pointer::Base(0x569D07), 3);
+
+	// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
+	Hook(0x30B6C, true, &Network_XnAddrToInAddrHook).Apply();
+	Hook(0x30F51, true, &Network_InAddrToXnAddrHook).Apply();
+
+	// Fix for leave game button to show H3 menu
+	Hook(0x3B6826, true, &UI_ShowHalo3StartMenu).Apply();
+	Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
 
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
@@ -151,6 +201,8 @@ ElDorito::ElDorito()
 	PushModule<ShowGameUI>("show_ui");
 	PushModule<Disclaimer>("disclaimer");
 	//PushModule<ThirdPerson>("third");
+
+	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
 	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
 

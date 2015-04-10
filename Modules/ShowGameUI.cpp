@@ -41,6 +41,26 @@ std::string ShowGameUI::Suggest(const std::vector<std::string>& Arguments) const
 
 void ShowGameUI::Tick(const std::chrono::duration<double>& Delta)
 {
+	static uint8_t UIData[0x40];
+	if (ShouldShowPauseMenu)
+	{
+		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int a4, int parentDialogStringId);
+
+		// fill UIData with proper data
+		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
+		openui(&UIData, 0x10084, 0, 4, 0x1000C);
+
+		// send UI notification
+		uint32_t eax = (uint32_t)&UIData;
+		uint32_t ecx = *(uint32_t*)0x5260254;
+		*(DWORD*)(ecx + 8) = eax;
+
+		eax = *(uint32_t*)0x5260254;
+		eax = *(uint32_t*)eax;
+		*(uint32_t*)0x5260254 = eax;
+
+		ShouldShowPauseMenu = false;
+	}
 }
 
 bool ShowGameUI::Run(const std::vector<std::string>& Args)

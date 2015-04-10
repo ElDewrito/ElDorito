@@ -107,6 +107,7 @@
   <ItemGroup>
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
+    <ClCompile Include="Hooks.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Ammo.cpp" />
     <ClCompile Include="Modules\Camera.cpp" />
@@ -138,6 +139,7 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
+    <ClInclude Include="Hooks.h" />
     <ClInclude Include="Modules\Ammo.h" />
     <ClInclude Include="Modules\Camera.h" />
     <ClInclude Include="Modules\DebugLogging.h" />
