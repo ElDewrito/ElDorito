@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iostream>
 
-ShowGameUI::ShowGameUI()
+ShowGameUI::ShowGameUI() : ShouldShowPauseMenu(false)
 {
 }
 
