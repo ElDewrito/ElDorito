@@ -93,9 +93,6 @@
     <ClCompile Include="Modules\NameChange.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\GameOptions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -195,9 +192,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Modules\NameChange.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\GameOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

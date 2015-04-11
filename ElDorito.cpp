@@ -169,9 +169,15 @@ ElDorito::ElDorito()
 	Hook(0x30B6C, true, &Network_XnAddrToInAddrHook).Apply();
 	Hook(0x30F51, true, &Network_InAddrToXnAddrHook).Apply();
 
-	// Fix for leave game button to show H3 menu
+	// Fix for leave game button to show H3 pause menu
 	Hook(0x3B6826, true, &UI_ShowHalo3StartMenu).Apply();
 	Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
+
+	// Sorta hacky way of getting game options screen to show when you press X on lobby
+	// Replaces the delay/cancel game start functionality, but that doesn't really seem to work anyway
+	TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching")
+	Patch(0x721B88, { 0x8B, 0xCE, 0xFF, 0x77, 0x10, 0xE8, 0x1E, 0x0A, 0x00, 0x00 }).Apply();
+	Patch::NopFill(Pointer::Base(0x721B92), 13);
 
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
@@ -195,7 +201,6 @@ ElDorito::ElDorito()
 	PushModule<Information>("info");
 	PushModule<ShowGameUI>("show_ui");
 	PushModule<NameChange>("name");
-	PushModule<GameOptions>("game_options");
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 

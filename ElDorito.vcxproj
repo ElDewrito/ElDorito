@@ -114,7 +114,6 @@
     <ClCompile Include="Modules\DebugLogging.cpp" />
     <ClCompile Include="Modules\Disclaimer.cpp" />
     <ClCompile Include="Modules\Fov.cpp" />
-    <ClCompile Include="Modules\GameOptions.cpp" />
     <ClCompile Include="Modules\Globals.cpp" />
     <ClCompile Include="Modules\Godmode.cpp" />
     <ClCompile Include="Modules\Hud.cpp" />
@@ -149,7 +148,6 @@
     <ClInclude Include="Modules\ElModule.h" />
     <ClInclude Include="ElModules.h" />
     <ClInclude Include="Modules\Fov.h" />
-    <ClInclude Include="Modules\GameOptions.h" />
     <ClInclude Include="Modules\Globals.h" />
     <ClInclude Include="Modules\Godmode.h" />
     <ClInclude Include="Modules\Hud.h" />
