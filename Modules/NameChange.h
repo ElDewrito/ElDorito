@@ -24,5 +24,5 @@ public:
 
 	wchar_t UserName[17];
 private:
-	void SetRandomUsername();
+	void GetSavedUsername();
 };
