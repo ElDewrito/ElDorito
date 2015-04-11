@@ -80,7 +80,7 @@ ElDorito::ElDorito()
 #else
 	std::string buildType = "";
 #endif
-	std::cout << "ElDorito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildType << "Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildType << "Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Input);
 
 	std::srand(GetTickCount());
@@ -180,6 +180,11 @@ ElDorito::ElDorito()
 	Hook(0x3B6826, true, &UI_ShowHalo3StartMenu).Apply();
 	Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
 
+	// Update get_name to use the name from our dll
+	Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);
+	memset((void*)this->UserName, 0, sizeof(wchar_t) * 17);
+	SetRandomUsername();
+
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
 	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
@@ -187,16 +192,16 @@ ElDorito::ElDorito()
 	Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
 	// Register Modules
-	PushModule<Test>("test");
-	PushModule<Ammo>("ammo");
+	//PushModule<Test>("test");
+	//PushModule<Ammo>("ammo");
+	//PushModule<Globals>("global");
+	//PushModule<Godmode>("god");
+	//PushModule<LoadLevel>("load");
+	//PushModule<Spawn>("spawn");
 	PushModule<Camera>("camera");
 	PushModule<DebugLogging>("debug");
 	PushModule<Fov>("fov");
-	PushModule<Globals>("global");
-	PushModule<Godmode>("god");
 	PushModule<Hud>("hud");
-	PushModule<LoadLevel>("load");
-	PushModule<Spawn>("spawn");
 	PushModule<Information>("info");
 	PushModule<ShowGameUI>("show_ui");
 	PushModule<Disclaimer>("disclaimer");
@@ -204,7 +209,7 @@ ElDorito::ElDorito()
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
-	SetSessionMessage("ElDorito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
+	SetSessionMessage("ElDewrito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
 
 	// Parse command-line commands
 	int numArgs = 0;
@@ -234,6 +239,54 @@ ElDorito::ElDorito()
 	}
 
 	Terminal.PrintLine();
+}
+
+void ElDorito::SetRandomUsername()
+{
+	wchar_t* defaultNames[39] = {
+		L"Donut",
+		L"Penguin",
+		L"Stumpy",
+		L"Whicker",
+		L"Shadow",
+		L"Howard",
+		L"Wilshire",
+		L"Darling",
+		L"Disco",
+		L"Jack",
+		L"The Bear",
+		L"Sneak",
+		L"The Big L",
+		L"Whisp",
+		L"Wheezy",
+		L"Crazy",
+		L"Goat",
+		L"Pirate",
+		L"Saucy",
+		L"Hambone",
+		L"Butcher",
+		L"Walla Walla",
+		L"Snake",
+		L"Caboose",
+		L"Sleepy",
+		L"Killer",
+		L"Stompy",
+		L"Mopey",
+		L"Dopey",
+		L"Weasel",
+		L"Ghost",
+		L"Dasher",
+		L"Grumpy",
+		L"Hollywood",
+		L"Tooth",
+		L"Noodle",
+		L"King",
+		L"Cupid",
+		L"Prancer"
+	};
+
+	srand(time(0));
+	wcscpy_s(this->UserName, 16, defaultNames[rand() % 39]);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)

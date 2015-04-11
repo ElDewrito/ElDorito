@@ -24,6 +24,7 @@ public:
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
 	void SetSessionMessage(const std::string& Message);
+	void SetRandomUsername();
 
 	static void SetMainThreadID(size_t ThreadID)
 	{
@@ -52,4 +53,6 @@ private:
 	// Console
 	Console::Console Terminal;
 	std::map<std::string, std::shared_ptr<ElModule>> Commands;
+
+	wchar_t UserName[17];
 };
