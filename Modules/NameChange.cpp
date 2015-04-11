@@ -69,7 +69,7 @@ void NameChange::GetSavedUsername()
 	std::ifstream nameFile("playername.txt");
 	std::string name;
 
-	if (nameFile.is_open())
+	if (nameFile && nameFile.is_open())
 	{
 		while (std::getline(nameFile, name))
 		{
@@ -77,7 +77,8 @@ void NameChange::GetSavedUsername()
 		}
 		nameFile.close();
 
-		return;
+		if (wcslen(this->UserName) > 0)
+			return;
 	}
 
 	wchar_t* defaultNames[40] = {

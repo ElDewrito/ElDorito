@@ -86,7 +86,7 @@ ElDorito::ElDorito()
 	std::srand(GetTickCount());
 	for( size_t i = 0; i < sizeof(Credits) / sizeof(char*); i++ )
 	{
-		for( size_t k = 0; k < 8; k++ )
+		for( size_t k = 0; k < 9; k++ )
 		{
 			Terminal.SetTextColor(
 				(std::rand() & 1 ? Console::Red : Console::Green) |
