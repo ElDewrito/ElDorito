@@ -193,6 +193,26 @@ ElDorito::ElDorito()
 	Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
 	Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
+	// Scoreboard hooks
+	Hook(0x301A47, false, GLScoreboardPlayerAllocatorHook).Apply();
+	Hook(0x2F8ED7, false, GLScoreboardPlayerConstructorHook).Apply();
+	Hook(0x310163, false, ScoreboardUpdateHook).Apply();
+
+	// Local player UID hook
+	Hook(0x18A1D6, false, SetLocalPlayerHook).Apply();
+	
+	// Set scoreboard UIDs to player datum indexes
+	Patch(0x31000F, { 0x3E, 0x8B, 0x4D, 0xC4 }).Apply(); // mov ecx, [ebp - 0x3C]
+	Patch::NopFill(Pointer::Base(0x310013), 2);          // nop out leftover data
+	Patch(0x310018, { 0x31, 0xC9 }).Apply();             // xor ecx, ecx
+	Patch::NopFill(Pointer::Base(0x31001A), 4);          // nop out leftover data
+
+	// Set podium UIDs to player datum indexes
+	Patch(0x2E323E, { 0x8B, 0x47, 0x08 }).Apply(); // mov eax, [edi + 8]
+	Patch::NopFill(Pointer::Base(0x2E3241), 4);    // nop out leftover data
+	Patch(0x2E3248, { 0x31, 0xC0 }).Apply();       // xor eax, eax
+	Patch::NopFill(Pointer::Base(0x2E324A), 5);    // nop out leftover data
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
@@ -311,7 +331,9 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		CONTEXT MainThreadContext;
 		MainThreadContext.ContextFlags = CONTEXT_FULL;
 
-		SuspendThread(MainThreadHandle);
+		if (MainThreadID != GetCurrentThreadId())
+			SuspendThread(MainThreadHandle);
+
 		BOOL success = GetThreadContext(MainThreadHandle, &MainThreadContext);
 		if( !success )
 		{

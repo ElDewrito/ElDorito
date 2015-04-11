@@ -17,3 +17,8 @@ extern char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 extern char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
 
 extern char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
+
+extern void GLScoreboardPlayerAllocatorHook();
+extern void GLScoreboardPlayerConstructorHook();
+extern void ScoreboardUpdateHook();
+extern void SetLocalPlayerHook();

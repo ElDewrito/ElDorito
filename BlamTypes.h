@@ -197,4 +197,10 @@ namespace GameGlobals
 		const unsigned EnableIndex = 0;
 		const unsigned IntensityIndex = 8;
 	}
+
+	namespace Players
+	{
+		const size_t TLSOffset = 0x40;
+		const size_t DisplayNameOffset = 0xA8;
+	}
 }
