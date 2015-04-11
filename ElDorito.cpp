@@ -108,14 +108,7 @@ ElDorito::ElDorito()
 	Terminal.SetTextColor(Console::Input);
 	std::cout << "help (command)";
 	Terminal.SetTextColor(Console::Green | Console::Bright);
-
 	std::cout << "\" to get started!" << std::endl;
-
-	std::cout << "Please take the time to read our ";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "disclaimer";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << " as well." << std::endl;
 
 	std::cout << "Current directory: ";
 	Terminal.SetTextColor(Console::Input);
@@ -193,15 +186,16 @@ ElDorito::ElDorito()
 	//PushModule<Godmode>("god");
 	//PushModule<LoadLevel>("load");
 	//PushModule<Spawn>("spawn");
+	//PushModule<Disclaimer>("disclaimer");
+	//PushModule<ThirdPerson>("third");
 	PushModule<Camera>("camera");
 	PushModule<DebugLogging>("debug");
 	PushModule<Fov>("fov");
 	PushModule<Hud>("hud");
 	PushModule<Information>("info");
 	PushModule<ShowGameUI>("show_ui");
-	PushModule<Disclaimer>("disclaimer");
 	PushModule<NameChange>("name");
-	//PushModule<ThirdPerson>("third");
+	PushModule<GameOptions>("game_options");
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
