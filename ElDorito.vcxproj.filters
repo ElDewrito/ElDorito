@@ -27,18 +27,6 @@
     <ClCompile Include="ElDorito.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\LoadLevel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Godmode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Ammo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Modules\Hud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,15 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Patch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\ThirdPerson.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Spawn.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Camera.cpp">
@@ -104,22 +83,10 @@
     <ClInclude Include="ElDorito.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\LoadLevel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Modules\ElModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ElModules.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Godmode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Ammo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Modules\Hud.h">
@@ -132,15 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Patch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\ThirdPerson.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Spawn.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BlamTypes.h">
