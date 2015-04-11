@@ -179,6 +179,14 @@ ElDorito::ElDorito()
 	Patch(0x721B88, { 0x8B, 0xCE, 0xFF, 0x77, 0x10, 0xE8, 0x1E, 0x0A, 0x00, 0x00 }).Apply();
 	Patch::NopFill(Pointer::Base(0x721B92), 13);
 
+	// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
+	// added side effect: analog stick left/right can also navigate through menus
+	DWORD temp;
+	DWORD temp2;
+	VirtualProtect(Pointer(0x169EFD8), 4, PAGE_READWRITE, &temp);
+	Pointer(0x169EFD8).Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
+	VirtualProtect(Pointer(0x169EFD8), 4, temp, &temp2);
+
 	// Update window title patch
 	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
 	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));

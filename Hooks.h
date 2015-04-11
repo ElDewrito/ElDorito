@@ -15,3 +15,5 @@ extern char* Network_GetIPStringFromInAddr(void* inaddr);
 //extern void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad);
 extern char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 extern char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
+
+extern char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);

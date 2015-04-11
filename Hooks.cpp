@@ -179,3 +179,30 @@ char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid)
 	Network_InAddrToXnAddrFunc InAddrToXnAddr = (Network_InAddrToXnAddrFunc)0x52D840;
 	return InAddrToXnAddr(ina, pxna, pxnkid);
 }
+
+std::chrono::high_resolution_clock::time_point PrevTime = std::chrono::high_resolution_clock::now();
+char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct)
+{
+	uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
+
+	auto CurTime = std::chrono::high_resolution_clock::now();
+	auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
+
+	if (btnCode == 0x12 || btnCode == 0x13)
+	{
+		if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
+			return 1;
+
+		PrevTime = CurTime;
+
+		if (btnCode == 0x12) // analog left / arrow key left
+			*(uint32_t*)(controllerStruct + 0x1C) = 0x5;
+
+		if (btnCode == 0x13) // analog right / arrow key right
+			*(uint32_t*)(controllerStruct + 0x1C) = 0x4;
+	}
+
+	typedef char(__thiscall *UI_Forge_ButtonPressHandler)(void* a1, void* controllerStruct);
+	UI_Forge_ButtonPressHandler buttonHandler = (UI_Forge_ButtonPressHandler)0xAE2180;
+	return buttonHandler(a1, controllerStruct);
+}
