@@ -213,6 +213,9 @@ ElDorito::ElDorito()
 	Patch(0x2E3248, { 0x31, 0xC0 }).Apply();       // xor eax, eax
 	Patch::NopFill(Pointer::Base(0x2E324A), 5);    // nop out leftover data
 
+	// Autoaim hook
+	Hook(0x18AA17, false, AutoAimHook).Apply();
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");

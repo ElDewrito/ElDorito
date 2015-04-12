@@ -22,3 +22,5 @@ extern void GLScoreboardPlayerAllocatorHook();
 extern void GLScoreboardPlayerConstructorHook();
 extern void ScoreboardUpdateHook();
 extern void SetLocalPlayerHook();
+
+extern void AutoAimHook();
