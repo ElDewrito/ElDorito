@@ -94,6 +94,8 @@ int Thread()
 		CurTime = std::chrono::high_resolution_clock::now();
 		while( true )
 		{
+			TODO("Make this use a tickrate instead of sleeping");
+			Sleep(16);
 			PrevTime = CurTime;
 			CurTime = std::chrono::high_resolution_clock::now();
 			ElDorito::Instance().Tick(
