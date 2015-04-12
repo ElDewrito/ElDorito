@@ -205,28 +205,19 @@ static int GetUtf16Length(const char16_t *str, int maxLength)
 	return length;
 }
 
-static PlayerNameString* GetPlayerName(int datumIndex)
+static PlayerNameString* GetPlayerName(void *playerData, int index)
 {
-	if (datumIndex == -1)
+	if (index == -1)
 		return nullptr;
 
 	// Get function pointers
-	typedef void* (*GetTableEntryFunc)(void *address, int datumIndex);
 	typedef void* (*AllocateFunc)(size_t size);
-	GetTableEntryFunc GetTableEntry = (GetTableEntryFunc)0x55B6D0;
 	AllocateFunc Allocate = (AllocateFunc)0xD874A0;
-	
-	// Get a pointer to the player's data
-	Pointer playerTable = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
-	Pointer playerStruct = Pointer(GetTableEntry(playerTable, datumIndex));
-	if (!playerStruct)
-		return nullptr; // Player doesn't exist
 
 	// Get the player's display name
-	Pointer playerName = playerStruct(GameGlobals::Players::DisplayNameOffset);
+	Pointer playerName = Pointer(playerData)(GameGlobals::Players::DisplayNameOffset);
 
 	// Allocate a string for the name if one hasn't been already
-	int index = datumIndex & 0xFFFF;
 	PlayerNameString* result = playerNames[index];
 	if (!result)
 	{
@@ -283,10 +274,11 @@ __declspec(naked) void ScoreboardUpdateHook()
 	__asm
 	{
 		// Get player name string
-		mov eax, [ebp - 0x3C] // Player index
+		movzx eax, word ptr [ebp - 0x3C] // Player index
 		push eax
+		push esi                         // Player data
 		call GetPlayerName
-		add esp, 4
+		add esp, 8
 		test eax, eax
 		jz done
 
