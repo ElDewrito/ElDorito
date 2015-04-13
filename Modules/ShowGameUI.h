@@ -19,6 +19,9 @@ public:
 	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
-	bool ShouldShowPauseMenu; // todo: put this somewhere better
+	bool DialogShow; // todo: put this somewhere better
+	unsigned int DialogStringId;
+	int DialogFlags;
+	int DialogParentStringId;
 private:
 };

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iostream>
 
-ShowGameUI::ShowGameUI() : ShouldShowPauseMenu(false)
+ShowGameUI::ShowGameUI() : DialogShow(false), DialogStringId(0), DialogFlags(0), DialogParentStringId(0)
 {
 }
 
@@ -42,13 +42,13 @@ std::string ShowGameUI::Suggest(const std::vector<std::string>& Arguments) const
 void ShowGameUI::Tick(const std::chrono::duration<double>& Delta)
 {
 	static uint8_t UIData[0x40];
-	if (ShouldShowPauseMenu)
+	if (DialogShow)
 	{
-		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int a4, int parentDialogStringId);
+		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, int parentDialogStringId);
 
 		// fill UIData with proper data
 		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-		openui(&UIData, 0x10084, 0, 4, 0x1000C);
+		openui(&UIData, DialogStringId, 0, DialogFlags, DialogParentStringId);
 
 		// send UI notification
 		uint32_t eax = (uint32_t)&UIData;
@@ -59,18 +59,16 @@ void ShowGameUI::Tick(const std::chrono::duration<double>& Delta)
 		eax = *(uint32_t*)eax;
 		*(uint32_t*)0x5260254 = eax;
 
-		ShouldShowPauseMenu = false;
+		DialogShow = false;
 	}
 }
 
 bool ShowGameUI::Run(const std::vector<std::string>& Args)
 {
-	static uint8_t UIData[0x40];
-
 	if( Args.size() < 2 )
 		return false;
 
-	int parentDialog = 0x1000D;
+	int parentDialog = 0x1000C;
 	if( Args.size() >= 3 )
 		parentDialog = std::stoul(Args[2], nullptr, 16);
 
@@ -80,20 +78,10 @@ bool ShowGameUI::Run(const std::vector<std::string>& Args)
 
 	unsigned int stringID = std::stoul(Args[1], nullptr, 16);
 
-	typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int a4, int parentDialogStringId);
-
-	// fill UIData with proper data
-	OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-	openui(&UIData, stringID, 0, openType, parentDialog);
-
-	// send UI notification
-	uint32_t eax = (uint32_t)&UIData;
-	uint32_t ecx = *(uint32_t*)0x5260254;
-	*(DWORD*)(ecx + 8) = eax;
-
-	eax = *(uint32_t*)0x5260254;
-	eax = *(uint32_t*)eax;
-	*(uint32_t*)0x5260254 = eax;
+	DialogStringId = stringID;
+	DialogFlags = openType;
+	DialogParentStringId = parentDialog;
+	DialogShow = true;
 
 	return true;
 }

@@ -56,7 +56,10 @@ void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
 // todo: move this somewhere else
 int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 {
-	showUI->ShouldShowPauseMenu = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
+	showUI->DialogFlags = 4;
+	showUI->DialogParentStringId = 0x1000C;
+	showUI->DialogStringId = 0x10084;
+	showUI->DialogShow = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
 
 	return 1;
 }
