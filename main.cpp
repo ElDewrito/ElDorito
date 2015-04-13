@@ -128,9 +128,9 @@ BOOL InitInstance(HINSTANCE hModule)
 	if( !g_hOriginalDll )
 		ExitProcess(0); // exit the hard way
 
-	Console::AllocateConsole("ElDorito");
+	Console::AllocateConsole("ElDewrito");
 
-	//Utils::Version::SetModule(hModule);
+	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);

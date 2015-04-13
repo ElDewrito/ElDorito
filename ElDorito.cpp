@@ -76,11 +76,12 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 #ifdef _ELDEBUG
-	std::string buildType = "Debug ";
+	std::string buildVersion = Utils::Version::GetVersionString() + "-debug";
 #else
-	std::string buildType = "";
+	std::string buildVersion = Utils::Version::GetVersionString();
 #endif
-	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildType << "Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+
+	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Input);
 
 	std::srand(GetTickCount());
@@ -216,6 +217,13 @@ ElDorito::ElDorito()
 	// Autoaim hook
 	Hook(0x18AA17, false, AutoAimHook).Apply();
 
+	// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
+	uint32_t verNum = Utils::Version::GetVersionInt();
+	Pointer::Base(0x101421).Write<uint32_t>(verNum);
+	Pointer::Base(0x10143A).Write<uint32_t>(verNum);
+
+	std::cout << std::hex << verNum << std::endl;
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
@@ -235,7 +243,7 @@ ElDorito::ElDorito()
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
-	SetSessionMessage("ElDewrito | Version: " + buildType + Utils::Version::GetInfo("File Version") + " | Build Date: " __DATE__);
+	SetSessionMessage("ElDewrito | Version: " + buildVersion + " | Build Date: " __DATE__);
 
 	// Parse command-line commands
 	int numArgs = 0;
