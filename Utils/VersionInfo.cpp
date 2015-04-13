@@ -62,11 +62,21 @@ namespace Utils
 
 		std::string GetVersionString()
 		{
-			char version[256];
-			memset(version, 0, 256);
-			DWORD versionInt = GetVersionInt();
-			sprintf_s(version, 256, "%d.%d.%d.%d", ((versionInt >> 24) & 0xFF), ((versionInt >> 16) & 0xFF), ((versionInt >> 8) & 0xFF), (versionInt & 0xFF));
-			return std::string(version);
+			static std::string versionStr;
+
+			if (versionStr.length() == 0)
+			{
+				char version[256];
+				memset(version, 0, 256);
+				DWORD versionInt = GetVersionInt();
+				sprintf_s(version, 256, "%d.%d.%d.%d", ((versionInt >> 24) & 0xFF), ((versionInt >> 16) & 0xFF), ((versionInt >> 8) & 0xFF), (versionInt & 0xFF));
+#ifdef _ELDEBUG
+				versionStr = std::string(version) + "-debug";
+#else
+				versionStr = std::string(version);
+#endif
+			}
+			return versionStr;
 		}
 
 		std::string GetInfo(const std::string &csEntry)

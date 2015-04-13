@@ -24,3 +24,5 @@ extern void ScoreboardUpdateHook();
 extern void SetLocalPlayerHook();
 
 extern void AutoAimHook();
+
+extern void LocalizedStringHook();

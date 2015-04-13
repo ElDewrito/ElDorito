@@ -78,12 +78,7 @@ ElDorito::ElDorito()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
-#ifdef _ELDEBUG
-	std::string buildVersion = Utils::Version::GetVersionString() + "-debug";
-#else
 	std::string buildVersion = Utils::Version::GetVersionString();
-#endif
-
 	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Input);
 
@@ -224,6 +219,9 @@ ElDorito::ElDorito()
 	uint32_t verNum = Utils::Version::GetVersionInt();
 	Pointer::Base(0x101421).Write<uint32_t>(verNum);
 	Pointer::Base(0x10143A).Write<uint32_t>(verNum);
+
+	// Localized string override hook
+	Hook(0x11E040, false, LocalizedStringHook).Apply();
 
 	// Register Modules
 	//PushModule<Test>("test");

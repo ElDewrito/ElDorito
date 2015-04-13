@@ -407,3 +407,50 @@ __declspec(naked) void AutoAimHook()
 		jmp edx
 	}
 }
+
+static bool LocalizedStringHookImpl(int tagIndex, int stringId, wchar_t *outputBuffer)
+{
+	const size_t MaxStringLength = 0x400;
+
+	switch (stringId)
+	{
+	case 0x1010A: // start_new_campaign
+		{
+			// Get the version string, convert it to uppercase UTF-16, and return it
+			std::string version = Utils::Version::GetVersionString();
+			std::transform(version.begin(), version.end(), version.begin(), toupper);
+			std::wstring unicodeVersion(version.begin(), version.end());
+			swprintf(outputBuffer, MaxStringLength, L"ELDEWRITO %s", unicodeVersion.c_str());
+			return true;
+		}
+	}
+	return false;
+}
+
+__declspec(naked) void LocalizedStringHook()
+{
+	__asm
+	{
+		// Run the hook implementation function and fallback to the original if it returned false
+		push ebp
+		mov ebp, esp
+		push [ebp + 0x10]
+		push [ebp + 0xC]
+		push [ebp + 0x8]
+		call LocalizedStringHookImpl
+		add esp, 0xC
+		test al, al
+		jz fallback
+
+		// Don't run the original function
+		mov esp, ebp
+		pop ebp
+		ret
+
+	fallback:
+		// Execute replaced code and jump back to original function
+		sub esp, 0x800
+		mov edx, 0x51E049
+		jmp edx
+	}
+}
