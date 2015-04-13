@@ -43,6 +43,11 @@ bool NameChange::Run(const std::vector<std::string>& Args)
 {
 	if (Args.size() >= 2)
 	{
+		if (Args[1].length() > 15) {
+			std::cout << "ERROR: Nickname is too long (max 15 chars)!" << std::endl;
+			return false;
+		}
+
 		std::wstring nameStr = Utils::String::WidenString(Args[1]);
 		wcscpy_s(this->UserName, 16, nameStr.c_str());
 		std::string actualName = Utils::String::ThinString(std::wstring(this->UserName));
