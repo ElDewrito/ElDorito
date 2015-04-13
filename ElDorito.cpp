@@ -222,8 +222,6 @@ ElDorito::ElDorito()
 	Pointer::Base(0x101421).Write<uint32_t>(verNum);
 	Pointer::Base(0x10143A).Write<uint32_t>(verNum);
 
-	std::cout << std::hex << verNum << std::endl;
-
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
