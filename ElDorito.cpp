@@ -231,6 +231,9 @@ ElDorito::ElDorito()
 	Pointer::Base(0x723E07).Write<uint8_t>(0);
 	Pointer::Base(0x723E1C).Write<uint8_t>(0);
 
+	// Remove preferences.dat hash check
+	Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
