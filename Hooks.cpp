@@ -46,7 +46,11 @@ void debuglog_float(char* name, float value)
 
 int networkLogHook(char* format, ...)
 {
+	TODO("find out why these network debug messages cause crashes")
 	if ((uint32_t)format == 0x1628578) // fix for crash
+		return 1;
+
+	if ((uint32_t)format == 0x1627DD8) // another crash
 		return 1;
 
 	char dstBuf[4096];
