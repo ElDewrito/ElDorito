@@ -223,6 +223,14 @@ ElDorito::ElDorito()
 	// Localized string override hook
 	Hook(0x11E040, false, LocalizedStringHook).Apply();
 
+	// Remove Xbox Live from the network menu
+	Patch::NopFill(Pointer::Base(0x723D85), 0x17);
+	Pointer::Base(0x723DA1).Write<uint8_t>(0);
+	Pointer::Base(0x723DB8).Write<uint8_t>(1);
+	Patch::NopFill(Pointer::Base(0x723DFF), 0x3);
+	Pointer::Base(0x723E07).Write<uint8_t>(0);
+	Pointer::Base(0x723E1C).Write<uint8_t>(0);
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
