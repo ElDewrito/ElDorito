@@ -66,56 +66,6 @@ int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, ui
 
 ElDorito::ElDorito()
 {
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleOutputCP(437);
-	unsigned int ConsoleWidth = 80;
-	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
-	if( GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf) )
-	{
-		ConsoleWidth = ConsoleBuf.dwSize.X;
-	}
-
-	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-
-	std::string buildVersion = Utils::Version::GetVersionString();
-	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
-	Terminal.SetTextColor(Console::Input);
-
-	std::srand(GetTickCount());
-	for( size_t i = 0; i < sizeof(Credits) / sizeof(char*); i++ )
-	{
-		for( size_t k = 0; k < 9; k++ )
-		{
-			Terminal.SetTextColor(
-				(std::rand() & 1 ? Console::Red : Console::Green) |
-				std::rand() & 1 * Console::Bright
-				);
-			std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
-		}
-		Terminal.SetTextColor(Console::Input);
-		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*) - 1) ^ 0];
-		std::cout << Credits[i] << std::endl;;
-	}
-
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "Enter \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" or \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help (command)";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" to get started!" << std::endl;
-
-	std::cout << "Current directory: ";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << GetDirectory() << std::endl;
-	Terminal.SetTextColor(Console::Red | Console::Blue);
-	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
-	Terminal.SetTextColor(Console::Info);
-
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
 	// Enable write to all executable memory
@@ -256,11 +206,11 @@ ElDorito::ElDorito()
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
-	SetSessionMessage("ElDewrito | Version: " + buildVersion + " | Build Date: " __DATE__);
-
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
+	BOOL usingLauncher = false;
+
 	if( szArgList && numArgs > 1 )
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
@@ -270,6 +220,11 @@ ElDorito::ElDorito()
 			std::wstring arg = std::wstring(szArgList[i]);
 			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
+
+#ifndef _ELDEBUG
+			if (arg.compare(L"-launcher") == 0)
+				usingLauncher = true;
+#endif
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
@@ -285,7 +240,64 @@ ElDorito::ElDorito()
 		}
 	}
 
+#ifndef _ELDEBUG
+	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
+		TerminateProcess(GetCurrentProcess(), 0);
+#endif
+
+	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleOutputCP(437);
+	unsigned int ConsoleWidth = 80;
+	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
+	if (GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf))
+	{
+		ConsoleWidth = ConsoleBuf.dwSize.X;
+	}
+
+	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+	std::string buildVersion = Utils::Version::GetVersionString();
+	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	Terminal.SetTextColor(Console::Input);
+
+	std::srand(GetTickCount());
+	for (size_t i = 0; i < sizeof(Credits) / sizeof(char*); i++)
+	{
+		for (size_t k = 0; k < 9; k++)
+		{
+			Terminal.SetTextColor(
+				(std::rand() & 1 ? Console::Red : Console::Green) |
+				std::rand() & 1 * Console::Bright
+				);
+			std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
+		}
+		Terminal.SetTextColor(Console::Input);
+		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*) - 1) ^ 0];
+		std::cout << Credits[i] << std::endl;;
+	}
+
+	Terminal.SetTextColor(Console::Green | Console::Bright);
+	std::cout << "Enter \"";
+	Terminal.SetTextColor(Console::Input);
+	std::cout << "help";
+	Terminal.SetTextColor(Console::Green | Console::Bright);
+	std::cout << "\" or \"";
+	Terminal.SetTextColor(Console::Input);
+	std::cout << "help (command)";
+	Terminal.SetTextColor(Console::Green | Console::Bright);
+	std::cout << "\" to get started!" << std::endl;
+
+	std::cout << "Current directory: ";
+	Terminal.SetTextColor(Console::Input);
+	std::cout << GetDirectory() << std::endl;
+	Terminal.SetTextColor(Console::Red | Console::Blue);
+	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
+	Terminal.SetTextColor(Console::Info);
+
 	Terminal.PrintLine();
+
+	SetSessionMessage("ElDewrito | Version: " + buildVersion + " | Build Date: " __DATE__);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
