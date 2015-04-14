@@ -234,6 +234,9 @@ ElDorito::ElDorito()
 	// Remove preferences.dat hash check
 	Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
 
+	// Patch to allow spawning AI through effects
+	Patch::NopFill(Pointer::Base(0x1033321), 2);
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
