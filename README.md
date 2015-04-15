@@ -22,7 +22,7 @@ This has happened to about 3 members of the dev team who've chosen to make thems
 
 Just noting that the only accounts I use under the name emoose are:
 * emoose on GameSurge, GitHub and GitLab
-* _emoose_ on reddit and HaloMaps.org
+* \_emoose\_ on reddit and HaloMaps.org
 * HaloF2P!Es5SKGeSeg on 4chan
 
 So far I've had people impersonating me on 4chan (always check the tripcode) and HaloMaps.org where a user registered the name emoose before I could.
