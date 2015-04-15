@@ -13,3 +13,19 @@ What is El-Dorito?
 ElDorito is a dll-hook for the russian release of Halo Online to enable features such as loading levels, disabling hud, and much more.
 Simply put the `iphlpapi.dll` file into your Halo Online directory so that it is next to `eldorado.exe` and run the game like usual!
 A console window should start up parallel to the game where you may input commands. Input the `help` command to get started.
+
+# Impersonators
+
+Lately there's been a group of people pretending to be involved with the ElDewrito development team by signing up as us on different sites, writing messages pretending to be us and acting as voices of the dev team even though they have no affiliation with us.
+
+This has happened to about 3 members of the dev team who've chosen to make themselves known publicly.
+
+Just noting that the only accounts I use under the name emoose are:
+* emoose on GameSurge, GitHub and GitLab
+* \_emoose\_ on reddit and HaloMaps.org
+* HaloF2P!Es5SKGeSeg on 4chan
+
+So far I've had people impersonating me on 4chan (always check the tripcode) and HaloMaps.org where a user registered the name emoose before I could.
+(on HaloMaps the user went as far as making false statements about the project, when I tried telling people about the impersonator I even had one person PM me, asking why I was pretending to be me...)
+
+Be warned that these people have nothing to do with the ElDewrito project and their words should be ignored.
