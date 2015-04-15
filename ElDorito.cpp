@@ -187,6 +187,10 @@ ElDorito::ElDorito()
 	// Patch to allow spawning AI through effects
 	Patch::NopFill(Pointer::Base(0x1033321), 2);
 
+	// Prevent game variant weapons from being overridden
+	Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
+	Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
+
 	// Register Modules
 	//PushModule<Test>("test");
 	//PushModule<Ammo>("ammo");
