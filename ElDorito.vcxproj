@@ -117,6 +117,7 @@
     <ClCompile Include="Modules\Information.cpp" />
     <ClCompile Include="Modules\NameChange.cpp" />
     <ClCompile Include="Modules\ShowGameUI.cpp" />
+    <ClCompile Include="Modules\Countdown.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Pointer.cpp" />
     <ClCompile Include="Precompile.cpp">
@@ -144,6 +145,7 @@
     <ClInclude Include="Modules\Information.h" />
     <ClInclude Include="Modules\NameChange.h" />
     <ClInclude Include="Modules\ShowGameUI.h" />
+    <ClInclude Include="Modules\Countdown.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Precompile.h" />
