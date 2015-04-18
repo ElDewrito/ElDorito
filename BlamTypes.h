@@ -168,8 +168,9 @@ namespace GameGlobals
 	namespace Time
 	{
 		const size_t TLSOffset = 0x50;
-		const size_t DTInverseIndex = 8;
-		const size_t GameSpeedIndex = 16;
+		const unsigned FpsIndex = 4;
+		const unsigned DTInverseIndex = 8;
+		const unsigned GameSpeedIndex = 16;
 	}
 
 	namespace Cinematic

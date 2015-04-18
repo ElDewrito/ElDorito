@@ -208,6 +208,7 @@ ElDorito::ElDorito()
 	PushModule<ShowGameUI>("show_ui");
 	PushModule<NameChange>("name");
 	PushModule<Countdown>("countdown");
+	PushModule<Fps>("fps");
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
 
