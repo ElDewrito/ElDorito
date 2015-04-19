@@ -89,7 +89,10 @@ void ElDorito::Initialize()
 
 #ifndef _ELDEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
+	{
+		MessageBox(GetConsoleWindow(), "Please run Halo Online using the ElDewrito launcher.\nIt should be named DewritoUpdater.exe.", "ElDewrito", MB_OK | MB_ICONINFORMATION);
 		TerminateProcess(GetCurrentProcess(), 0);
+	}
 #endif
 
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
