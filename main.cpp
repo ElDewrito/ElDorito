@@ -82,33 +82,6 @@ LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExc
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-int Thread()
-{
-#ifndef _DEBUG
-	__try
-	{
-#endif
-		std::chrono::high_resolution_clock::time_point PrevTime, CurTime;
-		CurTime = std::chrono::high_resolution_clock::now();
-		while( true )
-		{
-			TODO("Make this use a tickrate instead of sleeping");
-			Sleep(16);
-			PrevTime = CurTime;
-			CurTime = std::chrono::high_resolution_clock::now();
-			ElDorito::Instance().Tick(
-				std::chrono::duration_cast<std::chrono::duration<double>>(CurTime - PrevTime)
-				);
-		}
-#ifndef _DEBUG
-	}
-	__except( TopLevelExceptionHandler(GetExceptionCode(), GetExceptionInformation()) )
-	{
-	}
-#endif
-	return 0;
-}
-
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
@@ -118,10 +91,8 @@ BOOL InitInstance(HINSTANCE hModule)
 	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
-	// Apply patches before starting the thread
 	Patches::ApplyRequired();
-
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);
+	ElDorito::Instance().Initialize();
 	return true;
 }
 

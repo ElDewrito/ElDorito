@@ -26,6 +26,10 @@ std::shared_ptr<ShowGameUI> showUI;
 
 ElDorito::ElDorito()
 {
+}
+
+void ElDorito::Initialize()
+{
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
 	// Register Modules
@@ -145,6 +149,7 @@ ElDorito::ElDorito()
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
+	// TODO: It may be better to still run console input on a separate thread and use blocking input functions
 	if( _kbhit() )
 	{
 		Terminal.HandleInput(_getch());

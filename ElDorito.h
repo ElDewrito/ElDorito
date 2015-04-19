@@ -21,6 +21,7 @@ public:
 
 	std::string GetDirectory();
 
+	void Initialize();
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
 	void SetSessionMessage(const std::string& Message);

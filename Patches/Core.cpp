@@ -3,6 +3,11 @@
 #include "../ElDorito.h"
 #include "../Patch.h"
 
+namespace
+{
+	void GameTickHook(int frames, float *deltaTimeInfo);
+}
+
 namespace Patches
 {
 	namespace Core
@@ -26,6 +31,24 @@ namespace Patches
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
 			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
+
+			// Hook game ticks
+			Hook(0x105E64, true, GameTickHook).Apply();
 		}
+	}
+}
+
+namespace
+{
+	void GameTickHook(int frames, float *deltaTimeInfo)
+	{
+		// Tick ElDorito
+		float deltaTime = *deltaTimeInfo;
+		ElDorito::Instance().Tick(std::chrono::duration<double>(deltaTime));
+
+		// Tick the game
+		typedef void (*GameTickFunc)(int frames, float *deltaTimeInfo);
+		GameTickFunc GameTick = reinterpret_cast<GameTickFunc>(0x5336F0);
+		GameTick(frames, deltaTimeInfo);
 	}
 }
