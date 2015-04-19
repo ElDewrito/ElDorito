@@ -21,7 +21,7 @@ Lately there's been a group of people pretending to be involved with the ElDewri
 This has happened to about 3 members of the dev team who've chosen to make themselves known publicly.
 
 Just noting that the only accounts I use under the name emoose are:
-* emoose on GameSurge, GitHub and GitLab
+* emoose on i3d, GameSurge, GitHub and GitLab
 * \_emoose\_ on reddit and HaloMaps.org
 * HaloF2P!Es5SKGeSeg on 4chan
 
