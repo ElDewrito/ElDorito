@@ -7,9 +7,7 @@
 
 #include "Utils/VersionInfo.h"
 #include "ElDorito.h"
-
-HINSTANCE g_hThisInstance = 0;
-HMODULE g_hOriginalDll = 0;
+#include "ElPatches.h"
 
 LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
@@ -114,57 +112,28 @@ int Thread()
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
-	//Init proxy stuff
-	g_hThisInstance = hModule;
-
-	// load original DLL
-	char buffer[MAX_PATH];
-	GetSystemDirectoryA(buffer, MAX_PATH);
-	strcat_s(buffer, MAX_PATH, "\\iphlpapi.dll");
-
-	if( !g_hOriginalDll )
-		g_hOriginalDll = ::LoadLibraryA(buffer);
-
-	if( !g_hOriginalDll )
-		ExitProcess(0); // exit the hard way
 
 	Console::AllocateConsole("ElDewrito");
 
 	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);
+	// Apply patches before starting the thread
+	Patches::ApplyRequired();
 
+	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)&Thread, NULL, 0, NULL);
 	return true;
 }
 
 BOOL ExitInstance()
 {
-	if( g_hOriginalDll )
-	{
-		FreeLibrary(g_hOriginalDll);
-		g_hOriginalDll = NULL;
-	}
-
 	return true;
 }
 
-void* GetOrigProcAddr(char* funcName)
-{
-#pragma warning(suppress: 6387)
-	void* origFunc = GetProcAddress(g_hOriginalDll, funcName);
-	if( !origFunc )
-		::ExitProcess(0); // exit to be safe
-
-	return origFunc;
-}
-
+TODO("Change the GetAdaptersInfo export because we don't use an iphlpapi proxy anymore")
 DWORD GetAdaptersInfo(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen)
 {
-	typedef DWORD(WINAPI* funcType)(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen);
-	funcType origFunc = (funcType)GetOrigProcAddr("GetAdaptersInfo");
-
-	return origFunc(pAdapterInfo, pOutBufLen);
+	return 0;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD Reason, LPVOID Misc)

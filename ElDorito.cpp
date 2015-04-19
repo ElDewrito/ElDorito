@@ -15,8 +15,6 @@
 #include "Utils/Utils.h"
 #include "ElModules.h"
 
-#include "Hooks.h"
-
 const char* Credits[] = {
 	"Wunk",
 	"stoker25 (emoose)"
@@ -24,172 +22,11 @@ const char* Credits[] = {
 
 size_t ElDorito::MainThreadID = 0;
 
-static std::shared_ptr<ShowGameUI> showUI;
-
-// some reason moving this to hooks.cpp causes crashes when you try to change network type, wtf?
-void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
-{
-	bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
-	typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
-	UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;
-	menuUpdate(a1, menuIdToLoad);
-
-	if (shouldUpdate)
-	{
-		static uint8_t UIData[0x40];
-
-		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int a2, int a3, int a4, int a5);
-
-		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-		void* ret = openui(&UIData, menuIdToLoad, 0xFF, 4, 0x1000D);
-
-		if (ret != 0)
-		{
-			typedef int(*ShowUIDialog)(void* a1);
-
-			ShowUIDialog showui = (ShowUIDialog)0xA93450;
-			showui(&UIData);
-		}
-	}
-}
-
-// todo: move this somewhere else
-int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
-{
-	showUI->DialogFlags = 4;
-	showUI->DialogParentStringId = 0x1000C;
-	showUI->DialogStringId = 0x10084;
-	showUI->DialogShow = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
-
-	return 1;
-}
+std::shared_ptr<ShowGameUI> showUI;
 
 ElDorito::ElDorito()
 {
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
-
-	// Enable write to all executable memory
-	size_t Offset, Total;
-	Offset = Total = 0;
-	MEMORY_BASIC_INFORMATION MemInfo;
-
-	//printf("\nUnprotecting memory...");
-	while( VirtualQuery((uint8_t*)GetBasePointer() + Offset, &MemInfo, sizeof(MEMORY_BASIC_INFORMATION)) )
-	{
-		Offset += MemInfo.RegionSize;
-		if( MemInfo.Protect == PAGE_EXECUTE_READ )
-		{
-			//printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
-			Total += MemInfo.RegionSize;
-			VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
-		}
-	}
-	//printf("\nDone! Unprotected %u bytes of memory\n", Total);
-
-	// English patch
-	Patch(0x2333FD, { 0 }).Apply();
-
-	// Enable tag edits
-	Patch(0x101A5B, { 0xEB }).Apply();
-	Patch::NopFill(Pointer::Base(0x102874), 2);
-
-	// No --account args patch
-	Patch(0x43731A, { 0xEB, 0x0E }).Apply();
-	Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
-
-	// Fix gamepad option in settings (todo: find out why it doesn't detect gamepads
-	// and find a way to at least enable pressing ESC when gamepad is enabled)
-	Patch::NopFill(Pointer::Base(0x20D7F2), 2);
-
-	// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
-	Patch(0x6C34B0, { 0xB6 }).Apply();
-
-	// Fix network debug strings having (null) instead of an IP address
-	Hook(0x3F6F0, false, &Network_GetIPStringFromInAddr).Apply();
-
-	// Fix menu update code to include missing mainmenu code
-	Hook(0x6DFB73, true, &UI_MenuUpdateHook).Apply();
-
-	// Hacky fix to stop the game crashing when you move selection on UI
-	// (todo: find out what's really causing this)
-	Patch::NopFill(Pointer::Base(0x569D07), 3);
-
-	// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
-	Hook(0x30B6C, true, &Network_XnAddrToInAddrHook).Apply();
-	Hook(0x30F51, true, &Network_InAddrToXnAddrHook).Apply();
-
-	// Fix for leave game button to show H3 pause menu
-	Hook(0x3B6826, true, &UI_ShowHalo3StartMenu).Apply();
-	Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
-
-	// Sorta hacky way of getting game options screen to show when you press X on lobby
-	// Replaces the delay/cancel game start functionality, but that doesn't really seem to work anyway
-	TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching")
-	Patch(0x721B88, { 0x8B, 0xCE, 0xFF, 0x77, 0x10, 0xE8, 0x1E, 0x0A, 0x00, 0x00 }).Apply();
-	Patch::NopFill(Pointer::Base(0x721B92), 13);
-
-	// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
-	// added side effect: analog stick left/right can also navigate through menus
-	DWORD temp;
-	DWORD temp2;
-	VirtualProtect(Pointer(0x169EFD8), 4, PAGE_READWRITE, &temp);
-	Pointer(0x169EFD8).Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
-	VirtualProtect(Pointer(0x169EFD8), 4, temp, &temp2);
-
-	// Update window title patch
-	const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
-	Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
-	Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
-	Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
-
-	// Scoreboard hooks
-	Hook(0x301A47, false, GLScoreboardPlayerAllocatorHook).Apply();
-	Hook(0x2F8ED7, false, GLScoreboardPlayerConstructorHook).Apply();
-	Hook(0x310163, false, ScoreboardUpdateHook).Apply();
-
-	// Local player UID hook
-	Hook(0x18A1D6, false, SetLocalPlayerHook).Apply();
-	
-	// Set scoreboard UIDs to player datum indexes
-	Patch(0x31000F, { 0x3E, 0x8B, 0x4D, 0xC4 }).Apply(); // mov ecx, [ebp - 0x3C]
-	Patch::NopFill(Pointer::Base(0x310013), 2);          // nop out leftover data
-	Patch(0x310018, { 0x31, 0xC9 }).Apply();             // xor ecx, ecx
-	Patch::NopFill(Pointer::Base(0x31001A), 4);          // nop out leftover data
-
-	// Set podium UIDs to player datum indexes
-	Patch(0x2E323E, { 0x8B, 0x47, 0x08 }).Apply(); // mov eax, [edi + 8]
-	Patch::NopFill(Pointer::Base(0x2E3241), 4);    // nop out leftover data
-	Patch(0x2E3248, { 0x31, 0xC0 }).Apply();       // xor eax, eax
-	Patch::NopFill(Pointer::Base(0x2E324A), 5);    // nop out leftover data
-
-	// Autoaim hook
-	Hook(0x18AA17, false, AutoAimHook).Apply();
-
-	// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
-	uint32_t verNum = Utils::Version::GetVersionInt();
-	Pointer::Base(0x101421).Write<uint32_t>(verNum);
-	Pointer::Base(0x10143A).Write<uint32_t>(verNum);
-
-	// Localized string override hook
-	Hook(0x11E040, false, LocalizedStringHook).Apply();
-
-	// Remove Xbox Live from the network menu
-	Patch::NopFill(Pointer::Base(0x723D85), 0x17);
-	Pointer::Base(0x723DA1).Write<uint8_t>(0);
-	Pointer::Base(0x723DB8).Write<uint8_t>(1);
-	Patch::NopFill(Pointer::Base(0x723DFF), 0x3);
-	Pointer::Base(0x723E07).Write<uint8_t>(0);
-	Pointer::Base(0x723E1C).Write<uint8_t>(0);
-
-	// Remove preferences.dat hash check
-	Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
-
-	// Patch to allow spawning AI through effects
-	Patch::NopFill(Pointer::Base(0x1033321), 2);
-
-	// Prevent game variant weapons from being overridden
-	Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
-	Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
 
 	// Register Modules
 	//PushModule<Test>("test");

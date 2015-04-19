@@ -1,40 +1,13 @@
 #include "DebugLogging.h"
 
 #include "../ElDorito.h"
-#include "../Hooks.h"
+#include "../Patches/Logging.h"
 
 #include <Windows.h>
 #include <iostream>
 #include <fstream>
 
-DebugLogging::DebugLogging() : enabledFlags(0),
-NetworkLogHook(0x9858D0, false,
-&networkLogHook,
-{ 0x55, 0x8B, 0xEC, 0x80, 0x3D }),
-
-SSLHook(0xA7FE10, false,
-&sslLogHook,
-{ 0x55, 0x8B, 0xEC, 0x83, 0xEC }),
-
-UIHook(0xAED600, false,
-&uiLogHook,
-{ 0x55, 0x8B, 0xEC, 0x8D, 0x4D }),
-
-Game1Hook(0x106FB0, false,
-&dbglog,
-{ 0x55, 0x8B, 0xEC, 0x8B, 0x45 }),
-
-DebugLogFloatHook(0x2189F0, false,
-&debuglog_float,
-{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
-
-DebugLogIntHook(0x218A10, false,
-&debuglog_int,
-{ 0xC2, 0x08, 0x00, 0xCC, 0xCC }),
-
-DebugLogStringHook(0x218A30, false,
-&debuglog_string,
-{ 0xC2, 0x08, 0x00, 0xCC, 0xCC })
+DebugLogging::DebugLogging() : enabledFlags(0)
 {
 }
 
@@ -95,13 +68,11 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 			std::cout << "Disabling hooks" << std::endl;
 			enabledFlags = 0;
 
-			NetworkLogHook.Reset();
-			SSLHook.Reset();
-			UIHook.Reset();
-			Game1Hook.Reset();
-			DebugLogFloatHook.Reset();
-			DebugLogIntHook.Reset();
-			DebugLogStringHook.Reset();
+			Patches::Logging::EnableNetworkLog(false);
+			Patches::Logging::EnableSslLog(false);
+			Patches::Logging::EnableUiLog(false);
+			Patches::Logging::EnableGame1Log(false);
+			Patches::Logging::EnableGame2Log(false);
 
 			return true;
 		}
@@ -120,7 +91,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking network debug output..." << std::endl;
 				enabledFlags |= 2;
 
-				NetworkLogHook.Apply();
+				Patches::Logging::EnableNetworkLog(true);
 			}
 
 			if( hookSSL )
@@ -128,7 +99,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking SSL debug output..." << std::endl;
 				enabledFlags |= 4;
 
-				SSLHook.Apply();
+				Patches::Logging::EnableSslLog(true);
 			}
 
 			if( hookUI )
@@ -136,7 +107,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking UI debug output..." << std::endl;
 				enabledFlags |= 8;
 
-				UIHook.Apply();
+				Patches::Logging::EnableUiLog(true);
 			}
 
 			if( hookGame1 )
@@ -144,7 +115,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking Game1 debug output..." << std::endl;
 				enabledFlags |= 16;
 
-				Game1Hook.Apply();
+				Patches::Logging::EnableGame1Log(true);
 			}
 
 			if( hookGame2 )
@@ -152,9 +123,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 				std::cout << "Hooking Game2 debug output..." << std::endl;
 				enabledFlags |= 32;
 
-				DebugLogFloatHook.Apply();
-				DebugLogIntHook.Apply();
-				DebugLogStringHook.Apply();
+				Patches::Logging::EnableGame2Log(true);
 			}
 
 			if( hookNetwork || hookSSL || hookUI || hookGame1 || hookGame2 )

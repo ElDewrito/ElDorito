@@ -23,12 +23,4 @@ public:
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 private:
 	int enabledFlags;
-
-	Hook NetworkLogHook;
-	Hook SSLHook;
-	Hook UIHook;
-	Hook Game1Hook;
-	Hook DebugLogFloatHook;
-	Hook DebugLogIntHook;
-	Hook DebugLogStringHook;
 };

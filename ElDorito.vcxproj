@@ -40,10 +40,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
-    <TargetName>iphlpapi</TargetName>
+    <TargetName>mtndew</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>iphlpapi</TargetName>
+    <TargetName>mtndew</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
     <ClCompile>
@@ -107,7 +107,10 @@
   <ItemGroup>
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
-    <ClCompile Include="Hooks.cpp" />
+    <ClCompile Include="ElPatches.cpp" />
+    <ClCompile Include="Patches\Core.cpp" />
+    <ClCompile Include="Patches\Mouse.cpp" />
+    <ClCompile Include="Patches\Logging.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Modules\Camera.cpp" />
     <ClCompile Include="Modules\DebugLogging.cpp" />
@@ -119,12 +122,15 @@
     <ClCompile Include="Modules\NameChange.cpp" />
     <ClCompile Include="Modules\ShowGameUI.cpp" />
     <ClCompile Include="Modules\Countdown.cpp" />
+    <ClCompile Include="Patches\Network.cpp" />
     <ClCompile Include="Patch.cpp" />
+    <ClCompile Include="Patches\Scoreboard.cpp" />
     <ClCompile Include="Pointer.cpp" />
     <ClCompile Include="Precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Patches\Ui.cpp" />
     <ClCompile Include="Utils\Assert.cpp" />
     <ClCompile Include="Utils\String.cpp" />
     <ClCompile Include="Utils\VersionInfo.cpp" />
@@ -135,7 +141,10 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
-    <ClInclude Include="Hooks.h" />
+    <ClInclude Include="Patches\Core.h" />
+    <ClInclude Include="ElPatches.h" />
+    <ClInclude Include="Patches\Mouse.h" />
+    <ClInclude Include="Patches\Logging.h" />
     <ClInclude Include="Modules\Camera.h" />
     <ClInclude Include="Modules\DebugLogging.h" />
     <ClInclude Include="Modules\Disclaimer.h" />
@@ -148,10 +157,13 @@
     <ClInclude Include="Modules\NameChange.h" />
     <ClInclude Include="Modules\ShowGameUI.h" />
     <ClInclude Include="Modules\Countdown.h" />
+    <ClInclude Include="Patches\Network.h" />
     <ClInclude Include="Patch.h" />
+    <ClInclude Include="Patches\Scoreboard.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Precompile.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="Utils\Singleton.h" />
     <ClInclude Include="Utils\Assert.h" />
     <ClInclude Include="Utils\Macros.h" />
