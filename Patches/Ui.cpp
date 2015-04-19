@@ -87,25 +87,17 @@ namespace
 
 		if (shouldUpdate)
 		{
-			static uint8_t UIData[0x40];
-
-			typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int a2, int a3, int a4, int a5);
-
-			OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-			void* ret = openui(&UIData, menuIdToLoad, 0xFF, 4, 0x1000D);
-
-			if (ret != 0)
-			{
-				typedef int(*ShowUIDialog)(void* a1);
-
-				ShowUIDialog showui = (ShowUIDialog)0xA93450;
-				showui(&UIData);
-			}
+			showUI->DialogStringId = menuIdToLoad;
+			showUI->DialogArg1 = 0xFF;
+			showUI->DialogFlags = 4;
+			showUI->DialogParentStringId = 0x1000D;
+			showUI->DialogShow = true;
 		}
 	}
 
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
+		showUI->DialogArg1 = 0;
 		showUI->DialogFlags = 4;
 		showUI->DialogParentStringId = 0x1000C;
 		showUI->DialogStringId = 0x10084;

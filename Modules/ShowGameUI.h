@@ -21,6 +21,7 @@ public:
 
 	bool DialogShow; // todo: put this somewhere better
 	unsigned int DialogStringId;
+	int DialogArg1; // todo: figure out a better name for this
 	int DialogFlags;
 	int DialogParentStringId;
 private:

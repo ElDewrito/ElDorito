@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iostream>
 
-ShowGameUI::ShowGameUI() : DialogShow(false), DialogStringId(0), DialogFlags(0), DialogParentStringId(0)
+ShowGameUI::ShowGameUI() : DialogShow(false), DialogStringId(0), DialogFlags(0), DialogParentStringId(0), DialogArg1(0)
 {
 }
 
@@ -48,7 +48,7 @@ void ShowGameUI::Tick(const std::chrono::duration<double>& Delta)
 
 		// fill UIData with proper data
 		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-		openui(&UIData, DialogStringId, 0, DialogFlags, DialogParentStringId);
+		openui(&UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
 
 		// send UI notification
 		uint32_t eax = (uint32_t)&UIData;
@@ -78,6 +78,7 @@ bool ShowGameUI::Run(const std::vector<std::string>& Args)
 
 	unsigned int stringID = std::stoul(Args[1], nullptr, 16);
 
+	DialogArg1 = 0;
 	DialogStringId = stringID;
 	DialogFlags = openType;
 	DialogParentStringId = parentDialog;
