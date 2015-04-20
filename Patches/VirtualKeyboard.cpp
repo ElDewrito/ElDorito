@@ -40,7 +40,7 @@ namespace
 	class VirtualKeyboard
 	{
 	public:
-		VirtualKeyboard(const char *file, int line, int unk2, int unk3, int unk4, int unk5, int maxLength, int unk7, int unk8)
+		VirtualKeyboard(const char *file, int line, int arg2, int arg3, int arg4, int arg5, int maxLength, int arg7, int arg8)
 		{
 			unk4 = 0;
 			unk6 = 0;
@@ -52,7 +52,7 @@ namespace
 			memset(defaultValue, 0, sizeof(defaultValue));
 			memset(title, 0, sizeof(title));
 			memset(description, 0, sizeof(description));
-			maxLength = Utils::Clamp(maxLength, 0, 0x100);
+			this->maxLength = Utils::Clamp(maxLength, 0, 0x100);
 		}
 
 		virtual int Stub0() { return 0; }
