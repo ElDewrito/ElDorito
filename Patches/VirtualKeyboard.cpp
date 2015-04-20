@@ -56,14 +56,14 @@ namespace
 		}
 
 		virtual int Stub0() { return 0; }
-		virtual int Stub1() { return 0; }
-		virtual int Stub2() { return 0; }
-		virtual int Stub3() { return 0; }
 		virtual int Stub4() { return 0; }
-		virtual int Stub5() { return 0; }
-		virtual int Stub6() { return 0; }
-		virtual int Stub7() { return 0; }
 		virtual int Stub8() { return 0; }
+		virtual int StubC() { return 0; }
+		virtual int Stub10() { return 0; }
+		virtual int Stub14() { return 0; }
+		virtual int Stub18() { return 0; }
+		virtual void Reset() { unk6 = 0; }
+		virtual int Stub20() { return 0; }
 
 		void SetDefaultValue(wchar_t *newDefaultValue)
 		{
