@@ -117,6 +117,9 @@
     <ClCompile Include="ElPatches.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\VirtualKeyboard.cpp">
+      <Filter>Source Files\Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -220,6 +223,9 @@
     </ClInclude>
     <ClInclude Include="ElPatches.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\VirtualKeyboard.h">
+      <Filter>Header Files\Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

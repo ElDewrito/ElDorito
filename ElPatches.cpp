@@ -7,6 +7,7 @@
 #include "Patches\Network.h"
 #include "Patches\Scoreboard.h"
 #include "Patches\Ui.h"
+#include "Patches\VirtualKeyboard.h"
 
 namespace
 {
@@ -23,6 +24,7 @@ namespace Patches
 		Network::ApplyAll();
 		Scoreboard::ApplyAll();
 		Ui::ApplyAll();
+		VirtualKeyboard::ApplyAll();
 	}
 }
 
