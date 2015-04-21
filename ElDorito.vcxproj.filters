@@ -129,6 +129,12 @@
     <ClCompile Include="Blam\BitStream.cpp">
       <Filter>Source Files\Blam</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PlayerPropertiesExtension.cpp">
+      <Filter>Source Files\Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\Armor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -241,6 +247,12 @@
     </ClInclude>
     <ClInclude Include="Utils\Bits.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\PlayerPropertiesExtension.h">
+      <Filter>Header Files\Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\Armor.h">
+      <Filter>Header Files\Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 #include "Network.h"
+#include "PlayerPropertiesExtension.h"
 #include "../Patch.h"
 #include "../Utils/VersionInfo.h"
 
@@ -6,12 +7,19 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <iostream>
 
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
+
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
+	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
+	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
+	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
+	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
 }
 
 namespace Patches
@@ -31,6 +39,13 @@ namespace Patches
 			uint32_t verNum = Utils::Version::GetVersionInt();
 			Pointer::Base(0x101421).Write<uint32_t>(verNum);
 			Pointer::Base(0x10143A).Write<uint32_t>(verNum);
+
+			// Player-properties packet hooks
+			Hook(0x5DD20, false, PeerRequestPlayerDesiredPropertiesUpdateHook).Apply();
+			Hook(0xDAF4F, true, ApplyPlayerPropertiesExtended).Apply();
+			Hook(0xDFF7E, true, RegisterPlayerPropertiesPacketHook).Apply();
+			Hook(0xDFD53, true, SerializePlayerPropertiesHook).Apply();
+			Hook(0xDE178, true, DeserializePlayerPropertiesHook).Apply();
 		}
 	}
 }
@@ -126,5 +141,136 @@ namespace
 		typedef char(*Network_InAddrToXnAddrFunc)(void* ina, void * pxna, void * pxnkid);
 		Network_InAddrToXnAddrFunc InAddrToXnAddr = (Network_InAddrToXnAddrFunc)0x52D840;
 		return InAddrToXnAddr(ina, pxna, pxnkid);
+	}
+
+	// Packet size constants
+	const size_t PlayerPropertiesPacketHeaderSize = 0x18;
+	const size_t PlayerPropertiesSize = 0x30;
+	const size_t PlayerPropertiesPacketFooterSize = 0x4;
+
+	size_t GetPlayerPropertiesPacketSize()
+	{
+		static size_t size;
+		if (size == 0)
+		{
+			size_t extensionSize = Patches::Network::PlayerPropertiesExtender::Instance().GetTotalSize();
+			size = PlayerPropertiesPacketHeaderSize + PlayerPropertiesSize + extensionSize + PlayerPropertiesPacketFooterSize;
+		}
+		return size;
+	}
+
+	// Changes the size of the player-properties packet to include extension data
+	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20)
+	{
+		size_t newSize = GetPlayerPropertiesPacketSize();
+		typedef void (__thiscall *RegisterPacketPtr)(void *thisPtr, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
+		RegisterPacketPtr RegisterPacket = reinterpret_cast<RegisterPacketPtr>(0x4801B0);
+		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
+	}
+
+	// Applies player properties data including extended properties
+	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
+	{
+		// Apply the base properties
+		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *properties, uint32_t arg10);
+		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
+		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, properties, arg10);
+
+		// Apply the extended properties
+		uint8_t *sessionData = thisPtr + 0x10A8 + playerIndex * 0x1648;
+		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, sessionData, properties + PlayerPropertiesSize);
+	}
+
+	// This completely replaces c_network_session::peer_request_player_desired_properties_update
+	// Editing the existing function doesn't allow for a lot of flexibility
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC)
+	{
+		int unk0 = *reinterpret_cast<int*>(thisPtr + 0x25B870);
+		if (unk0 == 3)
+			return false;
+
+		// Get the player index
+		int unk1 = *reinterpret_cast<int*>(thisPtr + 0x1A3D40);
+		uint8_t *unk2 = thisPtr + 0x20;
+		uint8_t *unk3 = unk2 + unk1 * 0xF8 + 0x118;
+		typedef int (*GetPlayerIndexPtr)(void *arg0, int arg4);
+		GetPlayerIndexPtr GetPlayerIndex = reinterpret_cast<GetPlayerIndexPtr>(0x52E280);
+		int playerIndex = GetPlayerIndex(unk3, 0x10);
+		if (playerIndex == -1)
+			return false;
+
+		// Copy the player properties to a new array and add the extension data
+		size_t packetSize = GetPlayerPropertiesPacketSize();
+		size_t extendedSize = packetSize - PlayerPropertiesPacketHeaderSize - PlayerPropertiesPacketFooterSize;
+		auto extendedProperties = std::make_unique<uint8_t[]>(extendedSize);
+		memcpy(&extendedProperties[0], properties, PlayerPropertiesSize);
+		Patches::Network::PlayerPropertiesExtender::Instance().BuildData(playerIndex, &extendedProperties[PlayerPropertiesSize]);
+
+		if (unk0 == 6 || unk0 == 7)
+		{
+			// Apply player properties locally
+			ApplyPlayerPropertiesExtended(unk2, NULL, playerIndex, arg0, arg4, &extendedProperties[0], argC);
+		}
+		else
+		{
+			// Send player properties across the network
+			int unk5 = *reinterpret_cast<int*>(thisPtr + 0x30);
+			int unk6 = *reinterpret_cast<int*>(thisPtr + 0x1A3D4C + unk5 * 0xC);
+			if (unk6 == -1)
+				return true;
+
+			// Allocate the packet
+			auto packet = std::make_unique<uint8_t[]>(packetSize);
+			memset(&packet[0], 0, packetSize);
+
+			// Initialize it
+			int id = *reinterpret_cast<int*>(thisPtr + 0x25BBF0);
+			typedef void (*InitPacketPtr)(int id, void *packet);
+			InitPacketPtr InitPacket = reinterpret_cast<InitPacketPtr>(0x482040);
+			InitPacket(id, &packet[0]);
+
+			// Set up the header and footer
+			*reinterpret_cast<int*>(&packet[0x10]) = arg0;
+			*reinterpret_cast<uint32_t*>(&packet[0x14]) = arg4;
+			*reinterpret_cast<uint32_t*>(&packet[packetSize - PlayerPropertiesPacketFooterSize]) = argC;
+
+			// Copy the player properties structure in
+			memcpy(&packet[PlayerPropertiesPacketHeaderSize], &extendedProperties[0], extendedSize);
+
+			// Send!
+			int unk7 = *reinterpret_cast<int*>(thisPtr + 0x10);
+			void *networkObserver = *reinterpret_cast<void**>(thisPtr + 0x8);
+
+			typedef void (__thiscall *ObserverChannelSendMessagePtr)(void *thisPtr, int arg0, int arg4, int arg8, int messageType, int messageSize, void *data);
+			ObserverChannelSendMessagePtr ObserverChannelSendMessage = reinterpret_cast<ObserverChannelSendMessagePtr>(0x4474F0);
+			ObserverChannelSendMessage(networkObserver, unk7, unk6, 0, 0x1A, packetSize, &packet[0]);
+		}
+		return true;
+	}
+
+	// Serializes extended player-properties data
+	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag)
+	{
+		// Serialize base data
+		typedef void(*SerializePlayerPropertiesPtr)(Blam::BitStream *stream, uint8_t *buffer, bool flag);
+		SerializePlayerPropertiesPtr SerializePlayerProperties = reinterpret_cast<SerializePlayerPropertiesPtr>(0x4433C0);
+		SerializePlayerProperties(stream, buffer, flag);
+
+		// Serialize extended data
+		Patches::Network::PlayerPropertiesExtender::Instance().SerializeData(stream, buffer + PlayerPropertiesSize);
+	}
+
+	// Deserializes extended player-properties data
+	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag)
+	{
+		// Deserialize base data
+		typedef bool (*DeserializePlayerPropertiesPtr)(Blam::BitStream *stream, uint8_t *buffer, bool flag);
+		DeserializePlayerPropertiesPtr DeserializePlayerProperties = reinterpret_cast<DeserializePlayerPropertiesPtr>(0x4432E0);
+		bool succeeded = DeserializePlayerProperties(stream, buffer, flag);
+
+		// Deserialize extended data
+		if (succeeded)
+			Patches::Network::PlayerPropertiesExtender::Instance().DeserializeData(stream, buffer + PlayerPropertiesSize);
+		return succeeded;
 	}
 }

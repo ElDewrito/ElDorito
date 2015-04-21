@@ -8,6 +8,7 @@
 #include "Patches\Scoreboard.h"
 #include "Patches\Ui.h"
 #include "Patches\VirtualKeyboard.h"
+#include "Patches\Armor.h"
 
 namespace
 {
@@ -25,6 +26,7 @@ namespace Patches
 		Scoreboard::ApplyAll();
 		Ui::ApplyAll();
 		VirtualKeyboard::ApplyAll();
+		Armor::ApplyAll();
 	}
 }
 

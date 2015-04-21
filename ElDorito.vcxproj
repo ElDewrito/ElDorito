@@ -109,6 +109,7 @@
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
+    <ClCompile Include="Patches\Armor.cpp" />
     <ClCompile Include="Patches\Core.cpp" />
     <ClCompile Include="Patches\Mouse.cpp" />
     <ClCompile Include="Patches\Logging.cpp" />
@@ -125,6 +126,7 @@
     <ClCompile Include="Modules\Countdown.cpp" />
     <ClCompile Include="Patches\Network.cpp" />
     <ClCompile Include="Patch.cpp" />
+    <ClCompile Include="Patches\PlayerPropertiesExtension.cpp" />
     <ClCompile Include="Patches\Scoreboard.cpp" />
     <ClCompile Include="Patches\VirtualKeyboard.cpp" />
     <ClCompile Include="Pointer.cpp" />
@@ -144,6 +146,7 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
+    <ClInclude Include="Patches\Armor.h" />
     <ClInclude Include="Patches\Core.h" />
     <ClInclude Include="ElPatches.h" />
     <ClInclude Include="Patches\Mouse.h" />
@@ -162,6 +165,7 @@
     <ClInclude Include="Modules\Countdown.h" />
     <ClInclude Include="Patches\Network.h" />
     <ClInclude Include="Patch.h" />
+    <ClInclude Include="Patches\PlayerPropertiesExtension.h" />
     <ClInclude Include="Patches\Scoreboard.h" />
     <ClInclude Include="Patches\VirtualKeyboard.h" />
     <ClInclude Include="Pointer.h" />

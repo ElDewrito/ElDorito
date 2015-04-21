@@ -24,9 +24,9 @@ namespace Blam
 		}
 
 		template<class T>
-		void ReadUnsigned(T minValue, T maxValue)
+		T ReadUnsigned(T minValue, T maxValue)
 		{
-			return static_cast<T>(ReadUnsigned(Utils::Bits::CountBits(maxValue - minValue)));
+			return static_cast<T>(ReadUnsigned<T>(Utils::Bits::CountBits(maxValue - minValue)));
 		}
 
 		void WriteBool(bool b)
