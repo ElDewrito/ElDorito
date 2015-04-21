@@ -3,6 +3,8 @@
 #include <inttypes.h>
 #include <string>
 
+#include "Blam\BitStream.h"
+
 namespace Blam
 {
 	enum GameType : uint32_t

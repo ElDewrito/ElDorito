@@ -37,6 +37,12 @@
     <Filter Include="Header Files\Utils">
       <UniqueIdentifier>{c4a1e4b2-6bc4-458e-b610-f1fc26e2e33e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Blam">
+      <UniqueIdentifier>{1a74392f-f64f-4841-89d1-3dd3680799c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Blam">
+      <UniqueIdentifier>{a39fddb0-b2ab-4db8-938c-9a535028e11c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -119,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="Patches\VirtualKeyboard.cpp">
       <Filter>Source Files\Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Blam\BitStream.cpp">
+      <Filter>Source Files\Blam</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +235,12 @@
     </ClInclude>
     <ClInclude Include="Patches\VirtualKeyboard.h">
       <Filter>Header Files\Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Blam\BitStream.h">
+      <Filter>Header Files\Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Bits.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

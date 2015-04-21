@@ -105,6 +105,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Blam\BitStream.cpp" />
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlamTypes.h" />
+    <ClInclude Include="Blam\BitStream.h" />
     <ClInclude Include="Console\Console.h" />
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
@@ -166,6 +168,7 @@
     <ClInclude Include="Precompile.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
+    <ClInclude Include="Utils\Bits.h" />
     <ClInclude Include="Utils\Singleton.h" />
     <ClInclude Include="Utils\Assert.h" />
     <ClInclude Include="Utils\Macros.h" />
