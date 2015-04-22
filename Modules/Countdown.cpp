@@ -14,6 +14,12 @@ static void SetCountdownTimer(int seconds)
 	Pointer::Base(0x153708).Write<uint8_t>(seconds + 0); // player control
 	Pointer::Base(0x153738).Write<uint8_t>(seconds + 4); // camera position
 	Pointer::Base(0x1521D1).Write<uint8_t>(seconds + 4); // ui timer
+
+	// Fix team notification
+	if (seconds == 4)
+		Pointer::Base(0x1536F0).Write<uint8_t>(2);
+	else
+		Pointer::Base(0x1536F0).Write<uint8_t>(3);
 }
 
 static int GetCountdownTimer()
