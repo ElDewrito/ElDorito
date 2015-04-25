@@ -1,13 +1,12 @@
 #include "NameChange.h"
 
 #include "../ElDorito.h"
+#include "../ElPreferences.h"
 
 #include <Windows.h>
 #include <iostream>
 #include <fstream>
 #include <string>
-
-TODO("Update this to use a config ini file instead of playername.txt")
 
 NameChange::NameChange()
 {
@@ -55,13 +54,8 @@ bool NameChange::Run(const std::vector<std::string>& Args)
 		std::cout
 			<< "Set profile name to " << actualName << std::endl;
 
-		std::ofstream nameFile;
-		nameFile.open("playername.txt");
-		if (!nameFile.fail())
-		{
-			nameFile << actualName << std::endl;
-			nameFile.close();
-		}
+		ElPreferences::Instance().setPlayerName(actualName);
+		ElPreferences::Instance().save();
 
 		return true;
 	}
@@ -71,20 +65,10 @@ bool NameChange::Run(const std::vector<std::string>& Args)
 
 void NameChange::GetSavedUsername()
 {
-	std::ifstream nameFile("playername.txt");
-	std::string name;
+	wcscpy_s(this->UserName, 16, Utils::String::WidenString(ElPreferences::Instance().getPlayerName()).c_str());
 
-	if (nameFile && nameFile.is_open())
-	{
-		while (std::getline(nameFile, name))
-		{
-			wcscpy_s(this->UserName, 16, Utils::String::WidenString(name).c_str());
-		}
-		nameFile.close();
-
-		if (wcslen(this->UserName) > 0)
-			return;
-	}
+	if (wcslen(this->UserName) > 0)
+		return;
 
 	wchar_t* defaultNames[40] = {
 		L"Donut", L"Penguin", L"Stumpy", L"Whicker", L"Shadow", L"Howard", L"Wilshire",

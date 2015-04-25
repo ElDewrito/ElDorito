@@ -8,6 +8,7 @@
 #include "Utils/VersionInfo.h"
 #include "ElDorito.h"
 #include "ElPatches.h"
+#include "ElPreferences.h"
 
 LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
@@ -90,6 +91,8 @@ BOOL InitInstance(HINSTANCE hModule)
 
 	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
+
+	ElPreferences::Instance().load();
 
 	Patches::ApplyRequired();
 	ElDorito::Instance().Initialize();

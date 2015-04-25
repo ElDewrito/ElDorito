@@ -135,6 +135,9 @@
     <ClCompile Include="Patches\Armor.cpp">
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
+    <ClCompile Include="ElPreferences.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="Patches\Armor.h">
       <Filter>Header Files\Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="ElPreferences.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

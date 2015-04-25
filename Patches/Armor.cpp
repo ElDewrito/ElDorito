@@ -1,7 +1,9 @@
 #include "Armor.h"
 #include "PlayerPropertiesExtension.h"
+#include "../ElPreferences.h"
 
 #include <iostream>
+#include <unordered_map>
 
 namespace
 {
@@ -42,6 +44,177 @@ namespace
 	const uint8_t MaxAcc = 24;
 	const uint8_t MaxPelvis = 4;
 
+	std::unordered_map<std::string, uint8_t> helmetIndexes = {
+		{ "base", 0 },
+		{ "stealth", 2 },
+		{ "air_assault", 3 },
+		{ "renegade", 12 },
+		{ "nihard", 13 },
+		{ "gladiator", 16 },
+		{ "mac", 17 },
+		{ "shark", 18 },
+		{ "juggernaut", 20 },
+		{ "dutch", 23 },
+		{ "chameleon", 27 },
+		{ "halberd", 29 },
+		{ "cyclops", 30 },
+		{ "scanner", 34 },
+		{ "mercenary", 36 },
+		{ "hoplite", 41 },
+		{ "ballista", 47 },
+		{ "strider", 54 },
+		{ "demo", 56 },
+		{ "orbital", 57 },
+		{ "spectrum", 58 },
+		{ "gungnir", 63 },
+		{ "hammerhead", 67 },
+		{ "omni", 68 },
+		{ "oracle", 69 },
+		{ "silverback", 79 },
+		{ "widow_maker", 80 },
+	};
+
+	std::unordered_map<std::string, uint8_t> chestIndexes = {
+		{ "base", 0 },
+		{ "stealth", 2 },
+		{ "air_assault", 3 },
+		{ "renegade", 12 },
+		{ "nihard", 13 },
+		{ "gladiator", 16 },
+		{ "mac", 17 },
+		{ "shark", 18 },
+		{ "juggernaut", 20 },
+		{ "dutch", 23 },
+		{ "chameleon", 27 },
+		{ "halberd", 29 },
+		{ "cyclops", 30 },
+		{ "scanner", 34 },
+		{ "mercenary", 36 },
+		{ "hoplite", 41 },
+		{ "ballista", 47 },
+		{ "strider", 54 },
+		{ "demo", 56 },
+		{ "spectrum", 57 },
+		{ "gungnir", 62 },
+		{ "orbital", 63 },
+		{ "hammerhead", 67 },
+		{ "omni", 68 },
+		{ "oracle", 69 },
+		{ "silverback", 79 },
+		{ "widow_maker", 80 },
+		{ "tankmode_human", 82 },
+	};
+
+	std::unordered_map<std::string, uint8_t> shouldersIndexes = {
+		{ "base", 0 },
+		{ "stealth", 2 },
+		{ "air_assault", 3 },
+		{ "renegade", 12 },
+		{ "nihard", 13 },
+		{ "gladiator", 16 },
+		{ "mac", 17 },
+		{ "shark", 18 },
+		{ "juggernaut", 20 },
+		{ "dutch", 23 },
+		{ "chameleon", 27 },
+		{ "halberd", 29 },
+		{ "cyclops", 30 },
+		{ "scanner", 34 },
+		{ "mercenary", 36 },
+		{ "hoplite", 41 },
+		{ "ballista", 47 },
+		{ "strider", 54 },
+		{ "demo", 56 },
+		{ "spectrum", 57 },
+		{ "gungnir", 61 },
+		{ "orbital", 62 },
+		{ "hammerhead", 67 },
+		{ "omni", 68 },
+		{ "oracle", 69 },
+		{ "silverback", 79 },
+		{ "widow_maker", 80 },
+		{ "tankmode_human", 82 },
+	};
+
+	std::unordered_map<std::string, uint8_t> armsIndexes = {
+		{ "base", 0 },
+		{ "stealth", 1 },
+		{ "renegade", 6 },
+		{ "nihard", 7 },
+		{ "gladiator", 10 },
+		{ "mac", 11 },
+		{ "shark", 12 },
+		{ "juggernaut", 14 },
+		{ "dutch", 17 },
+		{ "chameleon", 21 },
+		{ "scanner", 25 },
+		{ "mercenary", 26 },
+		{ "hoplite", 29 },
+		{ "ballista", 30 },
+		{ "strider", 33 },
+		{ "demo", 34 },
+		{ "spectrum", 35 },
+		{ "gungnir", 38 },
+		{ "orbital", 39 },
+		{ "oracle", 41 },
+		{ "widow_maker", 43 },
+		{ "tankmode_human", 44 },
+		{ "air_assault", 45 },
+		{ "hammerhead", 46 },
+		{ "omni", 47 },
+		{ "silverback", 48 },
+		{ "cyclops", 49 },
+		{ "halberd", 50 },
+	};
+
+	std::unordered_map<std::string, uint8_t> legsIndexes = {
+		{ "base", 0 },
+		{ "stealth", 1 },
+		{ "renegade", 5 },
+		{ "nihard", 6 },
+		{ "gladiator", 9 },
+		{ "mac", 10 },
+		{ "shark", 11 },
+		{ "juggernaut", 13 },
+		{ "dutch", 16 },
+		{ "chameleon", 20 },
+		{ "scanner", 24 },
+		{ "mercenary", 25 },
+		{ "hoplite", 29 },
+		{ "ballista", 30 },
+		{ "strider", 33 },
+		{ "spectrum", 34 },
+		{ "oracle", 37 },
+		{ "widow_maker", 39 },
+		{ "tankmode_human", 40 },
+		{ "gungnir", 41 },
+		{ "orbital", 42 },
+		{ "demo", 43 },
+		{ "air_assault", 44 },
+		{ "hammerhead", 45 },
+		{ "omni", 46 },
+		{ "silverback", 47 },
+		{ "cyclops", 48 },
+		{ "halberd", 49 },
+		{ "hammerhead", 50 },
+		{ "omni", 51 },
+		{ "silverback", 52 },
+	};
+
+	std::unordered_map<std::string, uint8_t> accIndexes = {
+	};
+
+	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
+		{ "base", 0 },
+		{ "tankmode_human", 4 },
+	};
+
+	uint8_t getArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
+	{
+		auto it = indexes.find(name);
+		return (it != indexes.end()) ? it->second : 0;
+	}
+
 	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<CustomizationData>
 	{
 	protected:
@@ -49,19 +222,20 @@ namespace
 		{
 			memset(out, 0, sizeof(CustomizationData));
 
-			// just for testing purposes
-			out->colors.primaryColor = 0xFFFFFF;
-			out->colors.secondaryColor = 0x800000;
-			out->colors.lightsColor = 0x8080FF;
-			out->colors.visorColor = 0x0000FF;
-			out->colors.holoColor = 0x000000;
-			out->armor.helmet = 80;
-			out->armor.chest = 80;
-			out->armor.shoulders = 80;
-			out->armor.arms = 43;
-			out->armor.legs = 39;
-			out->armor.acc = 0;
-			out->armor.pelvis = 0;
+			// Load armor settings from preferences
+			ElPreferences &prefs = ElPreferences::Instance();
+			out->colors.primaryColor = prefs.getPrimaryColor();
+			out->colors.secondaryColor = prefs.getSecondaryColor();
+			out->colors.lightsColor = prefs.getLightsColor();
+			out->colors.visorColor = prefs.getVisorColor();
+			out->colors.holoColor = prefs.getHoloColor();
+			out->armor.helmet = getArmorIndex(prefs.getHelmetName(), helmetIndexes);
+			out->armor.chest = getArmorIndex(prefs.getChestName(), chestIndexes);
+			out->armor.shoulders = getArmorIndex(prefs.getShouldersName(), shouldersIndexes);
+			out->armor.arms = getArmorIndex(prefs.getArmsName(), armsIndexes);
+			out->armor.legs = getArmorIndex(prefs.getLegsName(), legsIndexes);
+			out->armor.acc = getArmorIndex(prefs.getAccesoryName(), accIndexes);
+			out->armor.pelvis = getArmorIndex(prefs.getPelvisName(), pelvisIndexes);
 		}
 
 		void ApplyData(int playerIndex, void *session, const CustomizationData &data)
