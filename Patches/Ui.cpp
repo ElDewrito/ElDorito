@@ -71,6 +71,10 @@ namespace Patches
 
 			// Localized string override hook
 			Hook(0x11E040, LocalizedStringHook).Apply();
+
+			// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
+			TODO("find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata");
+			Patch(0x705D6F, { 0x2 }).Apply();
 		}
 	}
 }
