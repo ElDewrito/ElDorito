@@ -6,6 +6,7 @@
 namespace
 {
 	void GameTickHook(int frames, float *deltaTimeInfo);
+	void FovHook();
 }
 
 namespace Patches
@@ -34,6 +35,11 @@ namespace Patches
 
 			// Hook game ticks
 			Hook(0x105E64, true, GameTickHook).Apply();
+
+			// Prevent FOV from being overridden when the game loads
+			Patch::NopFill(Pointer::Base(0x25FA79), 10);
+			Patch::NopFill(Pointer::Base(0x25FA86), 5);
+			Hook(0x10CA02, false, FovHook).Apply();
 		}
 	}
 }
@@ -50,5 +56,18 @@ namespace
 		typedef void (*GameTickFunc)(int frames, float *deltaTimeInfo);
 		GameTickFunc GameTick = reinterpret_cast<GameTickFunc>(0x5336F0);
 		GameTick(frames, deltaTimeInfo);
+	}
+
+	__declspec(naked) void FovHook()
+	{
+		__asm
+		{
+			// Override the FOV that the memmove before this sets
+			mov eax, ds:[0x189D42C]
+			mov ds:[0x2301D98], eax
+			mov ecx, [edi + 0x18]
+			push 0x50CA08
+			ret
+		}
 	}
 }

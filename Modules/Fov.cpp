@@ -7,17 +7,24 @@
 #include <cstdlib> // std::atof
 #include <algorithm> // std::min, std::max
 
-static const size_t FOVOffset = 0x1F01D98;
+namespace
+{
+	const size_t FOVOffset = 0x1F01D98;
+	const size_t InitialFOVOffset = 0x149D42C;
+
+	void SetFov(float newFov)
+	{
+		Pointer::Base(FOVOffset).Write(newFov);
+		Pointer::Base(InitialFOVOffset).Write(newFov);
+	}
+}
 
 Fov::Fov()
 {
-	Patch::NopFill(Pointer::Base(0x25FA79), 5);
-	Patch::NopFill(Pointer::Base(0x25FA86), 5);
-
 	// Load FOV from preferences
 	float fov = ElPreferences::Instance().getFieldOfView();
 	fov = Utils::Clamp(fov, 0.001f, 150.0f);
-	Pointer::Base(FOVOffset).Write(fov);
+	SetFov(fov);
 }
 
 Fov::~Fov()
@@ -67,7 +74,7 @@ bool Fov::Run(const std::vector<std::string>& Args)
 		ElPreferences::Instance().save();
 
 		// Write bounded FOV
-		Pointer::Base(FOVOffset).Write(fov);
+		SetFov(fov);
 		std::cout << "FOV set to " << fov << '.' << std::endl;
 
 		return true;
