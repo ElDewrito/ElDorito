@@ -21,7 +21,7 @@ public:
 	std::string getShouldersName() const { return shouldersName; }
 	std::string getArmsName() const { return armsName; }
 	std::string getLegsName() const { return legsName; }
-	std::string getAccesoryName() const { return accessoryName; }
+	std::string getAccessoryName() const { return accessoryName; }
 	std::string getPelvisName() const { return pelvisName; }
 
 	void setHelmetName(const std::string &name) { helmetName = name; }
@@ -29,7 +29,7 @@ public:
 	void setShouldersName(const std::string &name) { shouldersName = name; }
 	void setArmsName(const std::string &name) { armsName = name; }
 	void setLegsName(const std::string &name) { legsName = name; }
-	void setAccesoryName(const std::string &name) { accessoryName = name; }
+	void setAccessoryName(const std::string &name) { accessoryName = name; }
 	void setPelvisName(const std::string &name) { pelvisName = name; }
 
 	uint32_t getPrimaryColor() const { return primaryColor; }

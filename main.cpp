@@ -93,6 +93,7 @@ BOOL InitInstance(HINSTANCE hModule)
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	ElPreferences::Instance().load();
+	ElPreferences::Instance().save(); // Save the file to generate any missing fields
 
 	Patches::ApplyRequired();
 	ElDorito::Instance().Initialize();
