@@ -29,11 +29,11 @@ namespace Patches
 		void ApplyAll()
 		{
 			// Fix network debug strings having (null) instead of an IP address
-			Hook(0x3F6F0, false, &Network_GetIPStringFromInAddr).Apply();
+			Hook(0x3F6F0, &Network_GetIPStringFromInAddr).Apply();
 
 			// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
-			Hook(0x30B6C, true, &Network_XnAddrToInAddrHook).Apply();
-			Hook(0x30F51, true, &Network_InAddrToXnAddrHook).Apply();
+			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
+			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
@@ -41,11 +41,11 @@ namespace Patches
 			Pointer::Base(0x10143A).Write<uint32_t>(verNum);
 
 			// Player-properties packet hooks
-			Hook(0x5DD20, false, PeerRequestPlayerDesiredPropertiesUpdateHook).Apply();
-			Hook(0xDAF4F, true, ApplyPlayerPropertiesExtended).Apply();
-			Hook(0xDFF7E, true, RegisterPlayerPropertiesPacketHook).Apply();
-			Hook(0xDFD53, true, SerializePlayerPropertiesHook).Apply();
-			Hook(0xDE178, true, DeserializePlayerPropertiesHook).Apply();
+			Hook(0x5DD20, PeerRequestPlayerDesiredPropertiesUpdateHook).Apply();
+			Hook(0xDAF4F, ApplyPlayerPropertiesExtended, HookFlags::IsCall).Apply();
+			Hook(0xDFF7E, RegisterPlayerPropertiesPacketHook, HookFlags::IsCall).Apply();
+			Hook(0xDFD53, SerializePlayerPropertiesHook, HookFlags::IsCall).Apply();
+			Hook(0xDE178, DeserializePlayerPropertiesHook, HookFlags::IsCall).Apply();
 		}
 	}
 }

@@ -22,14 +22,14 @@ namespace Patches
 		void ApplyAll()
 		{
 			// Implement keyboard stubs
-			Hook(0xE1840, false, CreateKeyboard).Apply();
-			Hook(0xE19A0, false, SetKeyboardDefaultValue).Apply();
-			Hook(0xE19D0, false, SetKeyboardTitle).Apply();
-			Hook(0xE19B0, false, SetKeyboardDescription).Apply();
-			Hook(0x1A8F40, false, ShowKeyboard).Apply();
+			Hook(0xE1840, CreateKeyboard).Apply();
+			Hook(0xE19A0, SetKeyboardDefaultValue).Apply();
+			Hook(0xE19D0, SetKeyboardTitle).Apply();
+			Hook(0xE19B0, SetKeyboardDescription).Apply();
+			Hook(0x1A8F40, ShowKeyboard).Apply();
 
 			// Allow saving content without a profile (todo, move this elsewhere once we fully figure out content saving)
-			Hook(0x67DCA0, false, IsProfileAvailable).Apply();
+			Hook(0x67DCA0, IsProfileAvailable).Apply();
 		}
 	}
 }

@@ -2,6 +2,14 @@
 #include <string>
 #include <stdint.h>
 
+enum HookFlags : int
+{
+	None = 0,
+	IsCall = 1,
+	IsJmpIfEqual = 2,
+	IsJmpIfNotEqual = 4 // unimplemented
+};
+
 size_t GetMainThreadId();
 size_t GetMainThreadId(size_t ProcessId);
 
@@ -112,12 +120,21 @@ public:
 		memcpy(_Pointer, tempJMP, 5);
 	}
 
-	inline void WriteJump(void* newFunction) const
+	inline void WriteJump(void* newFunction, int jmpFlags) const
 	{
 		uint8_t tempJMP[5] = { 0xE9, 0x90, 0x90, 0x90, 0x90 };
-		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
-		memcpy(&tempJMP[1], &JMPSize, 4);
-		memcpy(_Pointer, tempJMP, 5);
+		uint8_t tempJE[6] = { 0x0F, 0x84, 0x90, 0x90, 0x90, 0x90 };
+		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - ((jmpFlags & HookFlags::IsJmpIfEqual) ? 6 : 5));
+		if (jmpFlags & HookFlags::IsJmpIfEqual)
+		{
+			memcpy(&tempJE[2], &JMPSize, 4);
+			memcpy(_Pointer, tempJE, 6);
+		}
+		else
+		{
+			memcpy(&tempJMP[1], &JMPSize, 4);
+			memcpy(_Pointer, tempJMP, 5);
+		}
 	}
 
 	// Template read

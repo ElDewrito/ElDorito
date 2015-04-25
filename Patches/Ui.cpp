@@ -13,6 +13,7 @@ namespace
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
 	char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	void LocalizedStringHook();
+	void LobbyMenuButtonHandlerHook();
 }
 
 namespace Patches
@@ -31,7 +32,7 @@ namespace Patches
 			Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
 			// Fix for leave game button to show H3 pause menu
-			Hook(0x3B6826, true, &UI_ShowHalo3StartMenu).Apply();
+			Hook(0x3B6826, &UI_ShowHalo3StartMenu, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
 
 			// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
@@ -42,7 +43,7 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x20D7F2), 2);
 
 			// Fix menu update code to include missing mainmenu code
-			Hook(0x6DFB73, true, &UI_MenuUpdateHook).Apply();
+			Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
 
 			// Hacky fix to stop the game crashing when you move selection on UI
 			// (todo: find out what's really causing this)
@@ -50,9 +51,8 @@ namespace Patches
 
 			// Sorta hacky way of getting game options screen to show when you press X on lobby
 			// Replaces the delay/cancel game start functionality, but that doesn't really seem to work anyway
-			TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching")
-				Patch(0x721B88, { 0x8B, 0xCE, 0xFF, 0x77, 0x10, 0xE8, 0x1E, 0x0A, 0x00, 0x00 }).Apply();
-			Patch::NopFill(Pointer::Base(0x721B92), 13);
+			TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching");
+			Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
 
 			// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
 			// added side effect: analog stick left/right can also navigate through menus
@@ -71,7 +71,7 @@ namespace Patches
 			Pointer::Base(0x723E1C).Write<uint8_t>(0);
 
 			// Localized string override hook
-			Hook(0x11E040, false, LocalizedStringHook).Apply();
+			Hook(0x11E040, LocalizedStringHook).Apply();
 		}
 	}
 }
@@ -177,6 +177,21 @@ namespace
 			sub esp, 0x800
 			mov edx, 0x51E049
 			jmp edx
+		}
+	}
+
+	__declspec(naked) void LobbyMenuButtonHandlerHook()
+	{
+		__asm
+		{
+			// call sub that handles showing game options
+			mov ecx, esi
+			push [edi+0x10]
+			mov eax, 0xB225B0
+			call eax
+			// jump back to original function
+			mov eax, 0xB21B9F
+			jmp eax
 		}
 	}
 }

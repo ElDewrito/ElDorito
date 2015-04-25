@@ -34,12 +34,12 @@ namespace Patches
 			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
 
 			// Hook game ticks
-			Hook(0x105E64, true, GameTickHook).Apply();
+			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
 
 			// Prevent FOV from being overridden when the game loads
 			Patch::NopFill(Pointer::Base(0x25FA79), 10);
 			Patch::NopFill(Pointer::Base(0x25FA86), 5);
-			Hook(0x10CA02, false, FovHook).Apply();
+			Hook(0x10CA02, FovHook).Apply();
 		}
 	}
 }

@@ -19,12 +19,12 @@ namespace Patches
 		void ApplyAll()
 		{
 			// Scoreboard hooks
-			Hook(0x301A47, false, GLScoreboardPlayerAllocatorHook).Apply();
-			Hook(0x2F8ED7, false, GLScoreboardPlayerConstructorHook).Apply();
-			Hook(0x310163, false, ScoreboardUpdateHook).Apply();
+			Hook(0x301A47, GLScoreboardPlayerAllocatorHook).Apply();
+			Hook(0x2F8ED7, GLScoreboardPlayerConstructorHook).Apply();
+			Hook(0x310163, ScoreboardUpdateHook).Apply();
 
 			// Local player UID hook
-			Hook(0x18A1D6, false, SetLocalPlayerHook).Apply();
+			Hook(0x18A1D6, SetLocalPlayerHook).Apply();
 
 			// Set scoreboard UIDs to player datum indexes
 			Patch(0x31000F, { 0x3E, 0x8B, 0x4D, 0xC4 }).Apply(); // mov ecx, [ebp - 0x3C]

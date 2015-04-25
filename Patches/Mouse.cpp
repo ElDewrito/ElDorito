@@ -15,7 +15,7 @@ namespace Patches
 		void ApplyAll()
 		{
 			// Aim assist hook
-			Hook(0x18AA17, false, AimAssistHook).Apply();
+			Hook(0x18AA17, AimAssistHook).Apply();
 		}
 	}
 }

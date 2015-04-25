@@ -19,13 +19,13 @@ namespace
 	void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5);
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5);
 
-	Hook NetworkLogHook(0x9858D0, false, networkLogHook, { 0x55, 0x8B, 0xEC, 0x80, 0x3D });
-	Hook SSLHook(0xA7FE10, false, sslLogHook, { 0x55, 0x8B, 0xEC, 0x83, 0xEC });
-	Hook UIHook(0xAED600, false, uiLogHook, { 0x55, 0x8B, 0xEC, 0x8D, 0x4D });
-	Hook Game1Hook(0x106FB0, false, dbglog, { 0x55, 0x8B, 0xEC, 0x8B, 0x45 });
-	Hook DebugLogFloatHook(0x2189F0, false, debuglog_float, { 0xC2, 0x08, 0x00, 0xCC, 0xCC });
-	Hook DebugLogIntHook(0x218A10, false, debuglog_int, { 0xC2, 0x08, 0x00, 0xCC, 0xCC });
-	Hook DebugLogStringHook(0x218A30, false, debuglog_string, { 0xC2, 0x08, 0x00, 0xCC, 0xCC });
+	Hook NetworkLogHook(0x9858D0, networkLogHook);
+	Hook SSLHook(0xA7FE10, sslLogHook);
+	Hook UIHook(0xAED600, uiLogHook);
+	Hook Game1Hook(0x106FB0, dbglog);
+	Hook DebugLogFloatHook(0x2189F0, debuglog_float);
+	Hook DebugLogIntHook(0x218A10, debuglog_int);
+	Hook DebugLogStringHook(0x218A30, debuglog_string);
 }
 
 namespace Patches

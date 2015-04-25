@@ -53,26 +53,15 @@ private:
 class Hook
 {
 public:
-	Hook()
-		:
-		Offset(0), IsCall(false)
-	{
-	}
-	Hook(size_t Offset,
-		bool isCall,
-		void* destFunc,
-		std::initializer_list<uint8_t> Reset = {})
-		:
-		Offset(Offset), IsCall(isCall), DestFunc(destFunc), Orig(Reset)
-	{
-	}
+	Hook();
+	Hook(size_t Offset, void* destFunc, int flags = 0, std::initializer_list<uint8_t> Reset = {});
 
 	inline void Apply(Pointer offset = Pointer::Base()) const
 	{
-		if( !IsCall )
-			offset(Offset).WriteJump(DestFunc);
-		else
+		if (Flags & HookFlags::IsCall)
 			offset(Offset).WriteCall(DestFunc);
+		else
+			offset(Offset).WriteJump(DestFunc, Flags);
 	}
 
 	inline void Reset(Pointer offset = Pointer::Base()) const
@@ -86,6 +75,6 @@ public:
 private:
 	size_t Offset;
 	void* DestFunc;
-	const bool IsCall;
-	const std::vector<uint8_t> Orig;
+	const int Flags;
+	std::vector<uint8_t> Orig;
 };
