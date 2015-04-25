@@ -12,6 +12,8 @@ namespace
 	void parsePlayerData(ElPreferences *prefs, const YAML::Node &player);
 	void parseArmorData(ElPreferences *prefs, const YAML::Node &armor);
 	void parseColorData(ElPreferences *prefs, const YAML::Node &colors);
+	void parseVideoData(ElPreferences *prefs, const YAML::Node &video);
+	void parseHostData(ElPreferences *prefs, const YAML::Node &host);
 	uint32_t parseColor(const YAML::Node &color);
 	void emitColor(YAML::Emitter &out, uint32_t color);
 }
@@ -29,7 +31,9 @@ ElPreferences::ElPreferences()
 	secondaryColor(0),
 	visorColor(0),
 	lightsColor(0),
-	holoColor(0)
+	holoColor(0),
+	countdownTimer(5),
+	fov(90.f)
 {
 }
 
@@ -40,6 +44,10 @@ bool ElPreferences::load()
 		YAML::Node prefs = YAML::LoadFile(PreferencesFileName);
 		if (prefs["player"])
 			parsePlayerData(this, prefs["player"]);
+		if (prefs["video"])
+			parseVideoData(this, prefs["video"]);
+		if (prefs["host"])
+			parseHostData(this, prefs["host"]);
 	}
 	catch (YAML::Exception &ex)
 	{
@@ -82,6 +90,12 @@ bool ElPreferences::save() const
 		out << YAML::Key << "holo" << YAML::Value;
 		emitColor(out, holoColor);
 		out << YAML::EndMap;
+		out << YAML::EndMap;
+		out << YAML::Key << "video" << YAML::Value << YAML::BeginMap;
+		out << YAML::Key << "fov" << YAML::Value << fov;
+		out << YAML::EndMap;
+		out << YAML::Key << "host" << YAML::Value << YAML::BeginMap;
+		out << YAML::Key << "countdown" << YAML::Value << countdownTimer;
 		out << YAML::EndMap;
 		out << YAML::EndMap;
 	}
@@ -134,6 +148,18 @@ namespace
 			prefs->setLightsColor(parseColor(colors["lights"]));
 		if (colors["holo"])
 			prefs->setHoloColor(parseColor(colors["holo"]));
+	}
+
+	void parseVideoData(ElPreferences *prefs, const YAML::Node &video)
+	{
+		if (video["fov"])
+			prefs->setFieldOfView(video["fov"].as<float>());
+	}
+
+	void parseHostData(ElPreferences *prefs, const YAML::Node &host)
+	{
+		if (host["countdown"])
+			prefs->setCountdownTimer(host["countdown"].as<int>());
 	}
 
 	uint32_t parseColor(const YAML::Node &color)

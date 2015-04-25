@@ -1,12 +1,12 @@
 #include "Countdown.h"
 
 #include "../ElDorito.h"
+#include "../ElPreferences.h"
 
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
 
-const int DefaultCountdownSeconds = 5;
 const int MaxCountdownSeconds = 20;
 
 static void SetCountdownTimer(int seconds)
@@ -29,7 +29,10 @@ static int GetCountdownTimer()
 
 Countdown::Countdown()
 {
-	SetCountdownTimer(DefaultCountdownSeconds);
+	// Load countdown timer from preferences
+	int countdown = ElPreferences::Instance().getCountdownTimer();
+	countdown = Utils::Clamp(countdown, 0, MaxCountdownSeconds);
+	SetCountdownTimer(countdown);
 }
 
 Countdown::~Countdown()
@@ -68,11 +71,13 @@ bool Countdown::Run(const std::vector<std::string>& Args)
 	if (Args.size() < 2)
 		return false;
 
-	// Clamp the time value
+	// Clamp the time value and update the timer
 	int newTime = std::atoi(Args[1].c_str());
 	newTime = Utils::Clamp(newTime, 0, MaxCountdownSeconds);
-
 	SetCountdownTimer(newTime);
+	ElPreferences::Instance().setCountdownTimer(newTime);
+	ElPreferences::Instance().save();
+
 	std::cout << "Countdown timer set to " << newTime << "s." << std::endl;
 	return true;
 }

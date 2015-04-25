@@ -1,6 +1,7 @@
 #include "Fov.h"
 
 #include "../ElDorito.h"
+#include "../ElPreferences.h"
 
 #include <iostream>
 #include <cstdlib> // std::atof
@@ -8,12 +9,15 @@
 
 static const size_t FOVOffset = 0x1F01D98;
 
-TODO("Update FOV to use proper (global) FOV");
-
 Fov::Fov()
 {
 	Patch::NopFill(Pointer::Base(0x25FA79), 5);
 	Patch::NopFill(Pointer::Base(0x25FA86), 5);
+
+	// Load FOV from preferences
+	float fov = ElPreferences::Instance().getFieldOfView();
+	fov = Utils::Clamp(fov, 0.001f, 150.0f);
+	Pointer::Base(FOVOffset).Write(fov);
 }
 
 Fov::~Fov()
@@ -59,6 +63,8 @@ bool Fov::Run(const std::vector<std::string>& Args)
 			return false;
 
 		fov = Utils::Clamp(fov, 0.001f, 150.0f);
+		ElPreferences::Instance().setFieldOfView(fov);
+		ElPreferences::Instance().save();
 
 		// Write bounded FOV
 		Pointer::Base(FOVOffset).Write(fov);

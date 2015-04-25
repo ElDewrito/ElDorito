@@ -44,6 +44,12 @@ public:
 	void setLightsColor(uint32_t color) { lightsColor = color; }
 	void setHoloColor(uint32_t color) { holoColor = color; }
 
+	void setFieldOfView(float newFov) { fov = newFov; }
+	float getFieldOfView() const { return fov; }
+
+	void setCountdownTimer(int newTimer) { countdownTimer = newTimer; }
+	int getCountdownTimer() const { return countdownTimer; }
+
 private:
 	std::string playerName;
 	
@@ -60,4 +66,8 @@ private:
 	uint32_t visorColor;
 	uint32_t lightsColor;
 	uint32_t holoColor;
+
+	float fov;
+
+	int countdownTimer;
 };
