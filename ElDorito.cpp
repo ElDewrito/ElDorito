@@ -23,6 +23,7 @@ const char* Credits[] = {
 size_t ElDorito::MainThreadID = 0;
 
 std::shared_ptr<ShowGameUI> showUI;
+std::shared_ptr<DebugLogging> debugLogging;
 
 ElDorito::ElDorito()
 {
@@ -55,6 +56,7 @@ void ElDorito::Initialize()
 #endif
 
 	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
+	debugLogging = std::dynamic_pointer_cast<DebugLogging>(Commands["debug"]);
 
 	// Parse command-line commands
 	int numArgs = 0;

@@ -5,6 +5,9 @@
 
 #include <cstdarg>
 #include <fstream>
+#include "../Modules/DebugLogging.h"
+
+extern std::shared_ptr<DebugLogging> debugLogging;
 
 namespace
 {
@@ -98,6 +101,18 @@ namespace
 		vsprintf_s(buff, 4096, format, ap);
 		va_end(ap);
 
+		for (auto filter : debugLogging->FiltersExclude)
+		{
+			if (strstr(buff, filter.c_str()) != NULL)
+				return; // string contains an excluded string
+		}
+
+		for (auto filter : debugLogging->FiltersInclude)
+		{
+			if (strstr(buff, filter.c_str()) == NULL)
+				return; // string doesn't contain an included string
+		}
+
 		std::ofstream outfile;
 		outfile.open("dorito.log", std::ios_base::app);
 		outfile << '[' << module << "] " << buff << '\n';
@@ -119,22 +134,31 @@ namespace
 		dbglog("Debug", "%s: %f", name, value);
 	}
 
+	bool string_replace(std::string& str, const std::string& from, const std::string& to)
+	{
+		size_t start_pos = str.find(from);
+		bool found = false;
+		while (start_pos != std::string::npos)
+		{
+			str.replace(start_pos, from.length(), to);
+			found = true;
+			start_pos = str.find(from);
+		}
+		return found;
+	}
+
 	int networkLogHook(char* format, ...)
 	{
-		TODO("find out why these network debug messages cause crashes")
-			if ((uint32_t)format == 0x1628578) // fix for crash
-				return 1;
-
-		if ((uint32_t)format == 0x1627DD8) // another crash
-			return 1;
+		// fix strings using broken printf statements
+		std::string formatStr(format);
+		string_replace(formatStr, "%LX", "%llX");
 
 		char dstBuf[4096];
 		memset(dstBuf, 0, 4096);
 
 		va_list args;
 		va_start(args, format);
-		vsnprintf_s(dstBuf, 4096, 4096, format, args);
-		//vsnprintf(dstBuf, 4095, format, args);
+		vsnprintf_s(dstBuf, 4096, 4096, formatStr.c_str(), args);
 		va_end(args);
 
 		dbglog("Network", "%s", dstBuf);
@@ -146,14 +170,16 @@ namespace
 	{
 		char* logData1 = (*(char**)(a3));
 		char* logData2 = (*(char**)((DWORD_PTR)a3 + 0x8));
-		if (logData1 != 0)
-			logData1 += 0xC;
-		if (logData2 != 0)
-			logData2 += 0xC;
 		if (logData1 == 0)
 			logData1 = "";
+		else
+			logData1 += 0xC;
+
 		if (logData2 == 0)
 			logData2 = "";
+		else
+			logData2 += 0xC;
+
 		dbglog((const char*)logData1, (char*)logData2);
 		return;
 	}
@@ -161,10 +187,11 @@ namespace
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
 	{
 		char* logData1 = (*(char**)(a3));
-		if (logData1 != 0)
-			logData1 += 0xC;
 		if (logData1 == 0)
 			logData1 = "";
+		else
+			logData1 += 0xC;
+
 		dbglog("UiLog", (char*)logData1);
 		return;
 	}

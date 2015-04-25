@@ -79,6 +79,6 @@ void NameChange::GetSavedUsername()
 		L"Tooth", L"Noodle", L"King", L"Cupid", L"Prancer", L"Pyong"
 	};
 
-	srand(time(0));
+	srand((unsigned int)time(0));
 	wcscpy_s(this->UserName, 16, defaultNames[rand() % 40]);
 }
