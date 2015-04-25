@@ -50,7 +50,6 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x569D07), 3);
 
 			// Sorta hacky way of getting game options screen to show when you press X on lobby
-			// Replaces the delay/cancel game start functionality, but that doesn't really seem to work anyway
 			TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching");
 			Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
 
