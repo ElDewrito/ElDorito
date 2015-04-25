@@ -7,6 +7,36 @@
 
 namespace Blam
 {
+	enum ButtonCodes : uint32_t
+	{
+		eButtonCodesA = 0,
+		eButtonCodesB,
+		eButtonCodesX,
+		eButtonCodesY,
+		eButtonCodesRB,
+		eButtonCodesLB,
+		eButtonCodesLT,
+		eButtonCodesRT,
+		eButtonCodesDpadUp,
+		eButtonCodesDpadDown,
+		eButtonCodesDpadLeft,
+		eButtonCodesDpadRight,
+		eButtonCodesStart,
+		eButtonCodesBack,
+		eButtonCodesLS,
+		eButtonCodesRS,
+		eButtonCodesEmulatedInput,
+		eButtonCodesUnk1,
+		eButtonCodesLeft, // analog/arrow left
+		eButtonCodesRight, // analog/arrow right
+		eButtonCodesUp, // analog/arrow up
+		eButtonCodesDown, // analog/arrow down
+		eButtonCodesLSHorizontal = 0x1A,
+		eButtonCodesLSVertical,
+		eButtonCodesRSHorizontal,
+		eButtonCodesRSVertical,
+	};
+
 	enum GameType : uint32_t
 	{
 		None = 0,

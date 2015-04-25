@@ -3,6 +3,7 @@
 #include "../ElDorito.h"
 #include "../ElMacros.h"
 #include "../Patch.h"
+#include "../BlamTypes.h"
 #include "../Modules/ShowGameUI.h"
 
 extern std::shared_ptr<ShowGameUI> showUI;
@@ -12,6 +13,7 @@ namespace
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad);
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
 	char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
+	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 }
@@ -60,6 +62,11 @@ namespace Patches
 			VirtualProtect(Pointer(0x169EFD8), 4, PAGE_READWRITE, &temp);
 			Pointer(0x169EFD8).Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
 			VirtualProtect(Pointer(0x169EFD8), 4, temp, &temp2);
+
+			// Hook pause menu vftable button handler, to let us limit the button presses
+			VirtualProtect(Pointer(0x16A0148), 4, PAGE_READWRITE, &temp);
+			Pointer(0x16A0148).Write<uint32_t>((uint32_t)&UI_ButtonPressHandlerHook);
+			VirtualProtect(Pointer(0x16A0148), 4, temp, &temp2);
 
 			// Remove Xbox Live from the network menu
 			Patch::NopFill(Pointer::Base(0x723D85), 0x17);
@@ -117,22 +124,42 @@ namespace
 		auto CurTime = std::chrono::high_resolution_clock::now();
 		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
 
-		if (btnCode == 0x12 || btnCode == 0x13)
+		if (btnCode == Blam::ButtonCodes::eButtonCodesLeft || btnCode == Blam::ButtonCodes::eButtonCodesRight)
 		{
 			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
 				return 1;
 
 			PrevTime = CurTime;
 
-			if (btnCode == 0x12) // analog left / arrow key left
-				*(uint32_t*)(controllerStruct + 0x1C) = 0x5;
+			if (btnCode == Blam::ButtonCodes::eButtonCodesLeft) // analog left / arrow key left
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::ButtonCodes::eButtonCodesLB;
 
-			if (btnCode == 0x13) // analog right / arrow key right
-				*(uint32_t*)(controllerStruct + 0x1C) = 0x4;
+			if (btnCode == Blam::ButtonCodes::eButtonCodesRight) // analog right / arrow key right
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::ButtonCodes::eButtonCodesRB;
 		}
 
 		typedef char(__thiscall *UI_Forge_ButtonPressHandler)(void* a1, void* controllerStruct);
 		UI_Forge_ButtonPressHandler buttonHandler = (UI_Forge_ButtonPressHandler)0xAE2180;
+		return buttonHandler(a1, controllerStruct);
+	}
+
+	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct)
+	{
+		uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
+
+		auto CurTime = std::chrono::high_resolution_clock::now();
+		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
+
+		if (btnCode >= Blam::ButtonCodes::eButtonCodesLeft && btnCode <= Blam::ButtonCodes::eButtonCodesDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
+		{
+			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
+				return 1;
+
+			PrevTime = CurTime;
+		}
+
+		typedef char(__thiscall *UI_ButtonPressHandler)(void* a1, void* controllerStruct);
+		UI_ButtonPressHandler buttonHandler = (UI_ButtonPressHandler)0xAB1BA0;
 		return buttonHandler(a1, controllerStruct);
 	}
 
