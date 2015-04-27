@@ -264,6 +264,9 @@
     <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.cpp">
       <Filter>Source Files\ThirdParty\yaml-cpp\src\contrib</Filter>
     </ClCompile>
+    <ClCompile Include="Modules\RawInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -565,6 +568,9 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.h">
       <Filter>Header Files\ThirdParty\yaml-cpp\src\contrib</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\RawInput.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

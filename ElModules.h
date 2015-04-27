@@ -17,3 +17,4 @@
 #include "Modules/NameChange.h"
 #include "Modules/Countdown.h"
 #include "Modules/Fps.h"
+#include "Modules/RawInput.h"

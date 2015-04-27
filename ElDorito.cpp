@@ -50,6 +50,7 @@ void ElDorito::Initialize()
 	PushModule<ShowGameUI>("show_ui");
 	PushModule<NameChange>("name");
 	PushModule<Countdown>("countdown");
+	PushModule<RawInput>("rawinput");
 #ifdef _ELDEBUG
 	// Changing the FPS lock causes severe physics issues, so only allow it in debug builds for now
 	PushModule<Fps>("fps");

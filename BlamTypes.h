@@ -243,4 +243,26 @@ namespace GameGlobals
 		const size_t HorizontalViewAngle = 0x30C;
 		const size_t VerticalViewAngle = 0x310;
 	}
+
+	namespace GameSettings
+	{
+		const size_t TLSOffset = 0x18;
+		const size_t MouseAcceleration = 0x41C88;
+		const size_t YAxisInverted = 0x41C8C;
+
+		// these don't seem to be used, keeping them here because afaik this is what they actually should be though
+		/*const size_t YAxisSensitivity = 0x43C78;
+		const size_t XAxisSensitivity = 0x43C7C;
+		const size_t VehicleYAxisSensitivity = 0x43C80;
+		const size_t VehicleXAxisSensitivity = 0x43C84;*/
+
+
+		const size_t MouseAccelerationAlt = 0x81C88;
+		const size_t YAxisInvertedAlt = 0x81C8C;
+
+		const size_t YAxisSensitivity = 0x83C78;
+		const size_t XAxisSensitivity = 0x83C7C;
+		const size_t VehicleYAxisSensitivity = 0x83C80;
+		const size_t VehicleXAxisSensitivity = 0x83C84;
+	}
 }

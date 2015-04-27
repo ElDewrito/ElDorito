@@ -73,7 +73,7 @@
       <AdditionalDependencies>Version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
+      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "C:\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -103,7 +103,7 @@
       <AdditionalDependencies>Version.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "$(UserProfile)\Desktop\Halo\$(TargetFileName)"</Command>
+      <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "C:\Halo\$(TargetFileName)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -112,6 +112,7 @@
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
     <ClCompile Include="ElPreferences.cpp" />
+    <ClCompile Include="Modules\RawInput.cpp" />
     <ClCompile Include="Patches\Armor.cpp" />
     <ClCompile Include="Patches\Core.cpp" />
     <ClCompile Include="Patches\Mouse.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
+    <ClInclude Include="Modules\RawInput.h" />
     <ClInclude Include="Patches\Armor.h" />
     <ClInclude Include="Patches\Core.h" />
     <ClInclude Include="ElPatches.h" />

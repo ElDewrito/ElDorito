@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <stdint.h>
+#include <Windows.h>
 
 enum HookFlags : int
 {
@@ -109,22 +110,34 @@ public:
 
 	inline void Write(const void* data, size_t size) const
 	{
+		DWORD temp;
+		DWORD temp2;
+		VirtualProtect(_Pointer, size, PAGE_READWRITE, &temp);
 		memcpy(_Pointer, data, size);
+		VirtualProtect(_Pointer, size, temp, &temp2);
 	}
 
 	inline void WriteCall(void* newFunction) const
 	{
+		DWORD temp;
+		DWORD temp2;
 		uint8_t tempJMP[5] = { 0xE8, 0x90, 0x90, 0x90, 0x90 };
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
+		VirtualProtect(_Pointer, 5, PAGE_READWRITE, &temp);
 		memcpy(&tempJMP[1], &JMPSize, 4);
 		memcpy(_Pointer, tempJMP, 5);
+		VirtualProtect(_Pointer, 5, temp, &temp2);
 	}
 
 	inline void WriteJump(void* newFunction, int jmpFlags) const
 	{
+		DWORD temp;
+		DWORD temp2;
 		uint8_t tempJMP[5] = { 0xE9, 0x90, 0x90, 0x90, 0x90 };
 		uint8_t tempJE[6] = { 0x0F, 0x84, 0x90, 0x90, 0x90, 0x90 };
-		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - ((jmpFlags & HookFlags::IsJmpIfEqual) ? 6 : 5));
+		uint32_t patchSize = (jmpFlags & HookFlags::IsJmpIfEqual) ? 6 : 5;
+		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - patchSize);
+		VirtualProtect(_Pointer, patchSize, PAGE_READWRITE, &temp);
 		if (jmpFlags & HookFlags::IsJmpIfEqual)
 		{
 			memcpy(&tempJE[2], &JMPSize, 4);
@@ -135,6 +148,7 @@ public:
 			memcpy(&tempJMP[1], &JMPSize, 4);
 			memcpy(_Pointer, tempJMP, 5);
 		}
+		VirtualProtect(_Pointer, patchSize, temp, &temp2);
 	}
 
 	// Template read
