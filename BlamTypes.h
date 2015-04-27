@@ -236,4 +236,11 @@ namespace GameGlobals
 		const size_t TLSOffset = 0x40;
 		const size_t DisplayNameOffset = 0xA8;
 	}
+	
+	namespace Input
+	{
+		const size_t TLSOffset = 0xC4;
+		const size_t HorizontalViewAngle = 0x30C;
+		const size_t VerticalViewAngle = 0x310;
+	}
 }
