@@ -1,0 +1,242 @@
+
+                       eXtended (XDE) disassembler engine
+                       ----------------------------------
+                                 version 1.02
+
+  History:
+
+    1.01 - 1st release
+    1.02 - lock prefix bug is fixed, thanx to www.core-dump.com.hr
+
+
+
+
+  Note: its better to read "Permutation conditions" article before.
+
+  XDE is based on the LDE/ADE engines. It allows you to find length of any x86
+  instruction, source/destination register usage for most commonly
+  used instructions, and to split/merge instruction to/from some binary
+  structure.
+
+  From program's viewpoint, CPU operates with: different types of registers,
+  memory and io-devices.
+  As such, there are introduced "object set" concept,
+  which means bitset of registers/memory/etc. being read/written by
+  each instruction.
+
+  However, some of bits forming "object set" corresponds to
+  multiple objects, for example we dont distinguish between segment/FPU/MMX/...
+  registers, so we have XSET_OTHER bit flag, which, when used, means
+  any set of them.
+
+  Also, we dont distinguish between memory addresses.
+  For example, XDE will return XSET_MEM bit flag for both "mov [eax], ebx"
+  and "push ecx" instructions.
+  This is because we're focused on the static file analysis, where register
+  values are unknown in most cases.
+  Also, like in the example shown, if eax points to the stack,
+  two memory addresses could be equal (eax==esp),
+  but we cant determine it without complex analysis
+  which is not required for our purposes.
+
+  I've rejected an idea from the "Permutation conditions" article,
+  where "destination" object set overrides "source" object set;
+  in the XDE engine there is no any relation between these sets.
+
+  There are two subroutines:
+
+int __cdecl xde_disasm(/* IN */ unsigned char *opcode,
+                       /* OUT */ struct xde_instr *diza);
+
+int __cdecl xde_asm(/* OUT */ unsigned char* opcode,
+                    /* IN */ struct xde_instr* diza);
+
+  xde_disasm() splits given instruction into the xde_instr structure.
+
+  xde_asm() performs inverse operation: merges instruction from the
+  given xde_instr structure.
+
+  Structure is the following:
+
+struct xde_instr
+{
+  unsigned char  defaddr;        /* 2 or 4, depends on 0x67 prefix          */
+  unsigned char  defdata;        /* 2 or 4, depends on 0x66 prefix          */
+  unsigned long  len;            /* total instruction length                */
+  unsigned long  flag;           /* set of C_xxx flags                      */
+  unsigned long  addrsize;       /* size of address (or 0)                  */
+  unsigned long  datasize;       /* size of data (or 0)                     */
+  unsigned char  p_lock;         /* 0 or F0                                 */
+  unsigned char  p_66;           /* 0 or 66                                 */
+  unsigned char  p_67;           /* 0 or 67                                 */
+  unsigned char  p_rep;          /* 0 or F2/F3                              */
+  unsigned char  p_seg;          /* 0 or 26/2E/36/3E/64/65                  */
+  unsigned char  opcode;         /* opcode byte (if 0x0F, opcode2 is set)   */
+  unsigned char  opcode2;        /* if opcode==0x0F, contains 2nd opcode    */
+  unsigned char  modrm;          /* modr/m byte (if C_MODRM)                */
+  unsigned char  sib;            /* sib byte (if C_SIB)                     */
+  unsigned long  src_set;        /* SRC object set (instr. will READ 'em)   */
+  unsigned long  dst_set;        /* DST object set (instr. will WRITE 'em)  */
+  union
+  {
+  unsigned char  addr_b[8];      /* address bytes, size = addrsize          */
+  unsigned short addr_w[4];
+  unsigned long  addr_d[2];
+  signed char    addr_c[8];
+  signed short   addr_s[4];
+  signed long    addr_l[2];
+  };
+  union
+  {
+  unsigned char  data_b[8];      /* data (imm) bytes, size = datasize       */
+  unsigned short data_w[4];
+  unsigned long  data_d[2];
+  signed char    data_c[8];
+  signed short   data_s[4];
+  signed long    data_l[2];
+  };
+}; /* struct xde_instr */
+
+  As you can see, mostly all fields are the same as in ADE engine,
+  except new src_set and dst_set fields.
+
+  These two bitfields describes registers used;
+  see XDE.H for possible bitfield values.
+
+  XSET_FL flag means any bit of EFLAGS register.
+  XSET_MEM flag means any memory address.
+  XSET_OTHER flag means any register except eax-edi.
+  XSET_DEV flag means io-port(s).
+
+  For example, for 'REP INSB' instruction you will get
+
+  src_set = { XSET_ECX(CX) | XSET_EDI(DI) | DX | XSET_DEV | XSET_FL }
+  dst_set = { XSET_ECX(CX) | XSET_FL | XSET_MEM }
+
+  Here is little error: for any REP prefix XSET_FL is included into dst_set,
+  maybe i'll fix it later.
+
+  Except these two fields, 'flag' field is slightly changed.
+  Now it has 5 special bits which forms command id.
+  Currently, only one id is defined, for CALL command.
+
+#define C_CMD_CALL   ( 1 << C_x_shift)
+
+  It can be extracted from the flags field using the following macro:
+
+#define XDE_CMD(fl)  ((fl) & C_x_mask)      /* extract CMD from flags       */
+
+  There can be combinations of src_set and dst_set:
+
+  example: 'add eax, ebx'
+
+  description        READ   WRITE  formula
+
+  source regs         +       ?    src_set                      {eax|ebx}
+  destination regs    ?       +    dst_set                      {eax|flags}
+  modified regs       +       +    dst_set & src_set            {eax}
+  read-only regs      +       -    src_set & ~dst_set           {ebx}
+  write-only regs     -       +    dst_set & ~src_set           {flags}
+
+
+  USAGE EXAMPLE
+  =============
+
+
+  The following example shows how XDE can be used to find
+  "free registers set" at each position of the pe exe/dll file
+  being disassembled using Mistfall engine.
+
+
+int AnalyzeRegs(/* IN/OUT */ CMistfall* M)
+{
+
+  HOOY* h;   // current element of the file, instruction or anything else
+
+  // step 1/3 -- mark all registers as "used"
+
+  ForEachInList(M->HooyList, HOOY, h)
+  {
+    h->regused = XSET_UNDEF;
+  }
+
+  // step 2/3 -- for each instruction, clear dst_set&~src_set
+
+  ForEachInList(M->HooyList, HOOY, h)
+  {
+
+    if (h->flags & FL_OPCODE)
+    if ((h->flags & FL_ERROR) == 0)
+
+    {
+      xde_instr instr;
+      xde_disasm(h->dataptr, &instr);
+
+      // update h->regused
+
+      h->regused &= ~(instr.dst_set & (~instr.src_set));
+
+      //
+      // incorrect, need to be replaced with recursive subroutine analysis.
+      // however, the following means:
+      //   "CALL'ed subroutines doesnt use FLAGS as a source_object"
+      //
+      if (XDE_CMD(instr.flag) == C_CMD_CALL)
+        h->regused &= ~XSET_FL;
+      //
+
+    }
+
+  }
+
+  // step 3/3 -- propagate zero bits within freeset, until possible;
+  // works similar to "wave" algo
+
+  for(;;)
+  {
+    int modified = 0;
+
+    ForEachInList(M->HooyList, HOOY, h)
+    {
+
+      if (h->flags & FL_OPCODE)
+      if ((h->flags & FL_ERROR) == 0)
+
+      if (h->next)
+      if (h->next->flags & FL_OPCODE)
+      if ((h->next->flags & (FL_LABEL|FL_ERROR)) == 0)
+
+      {
+        xde_instr instr;
+        xde_disasm(h->dataptr, &instr);
+
+        if (((instr.src_set|instr.dst_set) & (~h->next->regused)) == 0)
+        {
+
+          if ((h->regused & h->next->regused) != h->regused)
+            modified++;
+
+          h->regused &= h->next->regused;
+
+        }
+      }
+
+    }
+
+    if (!modified) break;
+  }
+
+  return 1;
+
+} // AnalyzeRegs
+
+  After such an analysis is performed, we know which registers are unused
+  at the each position of the file.
+  Then, corresponding code can be generated and injected into the executable.
+
+  The only difference between old mistfall possibilities is that
+  now it is not required to generate prolog/epilog push/pop pairs
+  in the code snippet(s) being injected,
+  since it is known which registers could be used.
+
+<eof>
