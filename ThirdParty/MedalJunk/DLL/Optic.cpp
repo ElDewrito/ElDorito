@@ -29,7 +29,7 @@ void load(const std::string& name) {
 	}
 
 	try {
-		std::string zipName(name + ".zip");
+		std::string zipName(std::string("mods\\medals\\") + name + ".zip");
 		std::unique_ptr<OpticPack> pack(new OpticPack(zipName));
 		std::unique_ptr<OpticEventHandler> listener(new OpticEventHandler(std::move(pack), dispatcher));
 		handler = std::move(listener);
