@@ -2,7 +2,7 @@
 
 #include "../ElDorito.h"
 #include "../BlamTypes.h"
-#include "../Patches/RawInput.h"
+#include "../ElPreferences.h"
 
 #include <iostream>
 
@@ -17,7 +17,7 @@ RawInput::~RawInput()
 std::string RawInput::Info(const std::string& Topic) const
 {
 	std::string Info = "Raw Input: ";
-	Info += (Patches::RawInput::IsEnabled() ? "Enabled" : "Disabled");
+	Info += (ElPreferences::Instance().getRawMouse() ? "Enabled" : "Disabled");
 	Info += "\nUsage: rawinput (on|off)\n"
 		"Bypasses the games mouse processing with our own RawInput implementation.";
 
@@ -30,7 +30,7 @@ std::string RawInput::Suggest(const std::vector<std::string>& Arguments) const
 	{
 		if (Arguments[1].empty())
 		{
-			return (Patches::RawInput::IsEnabled() ? "off" : "on");
+			return (ElPreferences::Instance().getRawMouse() ? "off" : "on");
 		}
 	}
 	return "";
@@ -46,13 +46,17 @@ bool RawInput::Run(const std::vector<std::string>& Args)
 	{
 		if (Args[1].compare("off") == 0)
 		{
-			Patches::RawInput::Enable(false);
+			ElPreferences::Instance().setRawMouse(false);
+			ElPreferences::Instance().save();
+
 			std::cout << "Raw input disabled.\n" << std::endl;
 			return true;
 		}
 		else if (Args[1].compare("on") == 0)
 		{
-			Patches::RawInput::Enable(true);
+			ElPreferences::Instance().setRawMouse(true);
+			ElPreferences::Instance().save();
+
 			std::cout << "Raw input enabled.\n" << std::endl;
 			return true;
 		}

@@ -3,10 +3,10 @@
 #include "../ElDorito.h"
 #include "../Patch.h"
 #include "../BlamTypes.h"
+#include "../ElPreferences.h"
 
 namespace
 {
-	bool g_enabled = false;
 	void RawInputHook();
 }
 
@@ -19,16 +19,6 @@ namespace Patches
 			// Hook the input handling routine to fix mouse acceleration
 			Hook(0x112395, RawInputHook).Apply();
 		}
-
-		void Enable(bool enabled)
-		{
-			g_enabled = enabled;
-		}
-
-		bool IsEnabled()
-		{
-			return g_enabled;
-		}
 	}
 }
 
@@ -36,12 +26,20 @@ namespace
 {
 	bool RawInputHookImpl(RAWINPUT *rwInput)
 	{
-		if (!g_enabled)
+		if (!ElPreferences::Instance().getRawMouse())
 			return false;
 		if (rwInput->header.dwType != RIM_TYPEMOUSE)
 			return true;
 
+		typedef int(__cdecl *Game_GetLocalPlayerIdxFunc)(int playerNum);
+		Game_GetLocalPlayerIdxFunc Game_GetLocalPlayerIdx = (Game_GetLocalPlayerIdxFunc)0x589C30;
+		int16_t playerIdx = (int16_t)Game_GetLocalPlayerIdx(0); // we only need the first 16 bits of this
+		if (playerIdx < 0)
+			return true;
+
 		Pointer InputPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
+		if (!InputPtr)
+			return true;
 		Pointer &horizPtr = InputPtr(GameGlobals::Input::HorizontalViewAngle);
 		Pointer &vertPtr = InputPtr(GameGlobals::Input::VerticalViewAngle);
 		float currentHoriz = horizPtr.Read<float>();
@@ -62,12 +60,12 @@ namespace
 		float yaxisSens = (float)yaxisPtr.Read<uint32_t>() / 25.f;
 		float xaxisSens = (float)xaxisPtr.Read<uint32_t>() / 25.f;
 
-		typedef int(__cdecl *Game_GetLocalPlayerIdxFunc)(int playerNum);
-		Game_GetLocalPlayerIdxFunc Game_GetLocalPlayerIdx = (Game_GetLocalPlayerIdxFunc)0x589C30;
-		uint16_t playerIdx = (uint16_t)Game_GetLocalPlayerIdx(0); // we only need the first 16 bits of this
-
 		Pointer PlayerData = ElDorito::GetMainTls(GameGlobals::PlayerAlt::TLSOffset)[0];
+		if (!PlayerData)
+			return true;
 		Pointer vehicleData = Pointer(PlayerData(GameGlobals::PlayerAlt::VehicleData + (playerIdx * GameGlobals::PlayerAlt::PlayerObjectSize)).Read<uint32_t>());
+		if (!vehicleData)
+			return true;
 		char isInVehicle = vehicleData(GameGlobals::PlayerAlt::VehicleDataIsInVehicle).Read<char>();
 
 		if (isInVehicle != 0)

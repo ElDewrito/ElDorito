@@ -14,6 +14,7 @@ namespace
 	void parseColorData(ElPreferences *prefs, const YAML::Node &colors);
 	void parseVideoData(ElPreferences *prefs, const YAML::Node &video);
 	void parseHostData(ElPreferences *prefs, const YAML::Node &host);
+	void parseInputData(ElPreferences *prefs, const YAML::Node &input);
 	uint32_t parseColor(const YAML::Node &color);
 	void emitColor(YAML::Emitter &out, uint32_t color);
 }
@@ -33,7 +34,8 @@ ElPreferences::ElPreferences()
 	lightsColor(0),
 	holoColor(0),
 	countdownTimer(5),
-	fov(90.f)
+	fov(90.f),
+	rawMouse(true)
 {
 }
 
@@ -48,6 +50,8 @@ bool ElPreferences::load()
 			parseVideoData(this, prefs["video"]);
 		if (prefs["host"])
 			parseHostData(this, prefs["host"]);
+		if (prefs["input"])
+			parseInputData(this, prefs["input"]);
 	}
 	catch (YAML::Exception &ex)
 	{
@@ -96,6 +100,9 @@ bool ElPreferences::save() const
 		out << YAML::EndMap;
 		out << YAML::Key << "host" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "countdown" << YAML::Value << countdownTimer;
+		out << YAML::EndMap;
+		out << YAML::Key << "input" << YAML::Value << YAML::BeginMap;
+		out << YAML::Key << "rawMouse" << YAML::Value << rawMouse;
 		out << YAML::EndMap;
 		out << YAML::EndMap;
 	}
@@ -160,6 +167,12 @@ namespace
 	{
 		if (host["countdown"])
 			prefs->setCountdownTimer(host["countdown"].as<int>());
+	}
+
+	void parseInputData(ElPreferences *prefs, const YAML::Node &input)
+	{
+		if (input["rawMouse"])
+			prefs->setRawMouse(input["rawMouse"].as<bool>());
 	}
 
 	uint32_t parseColor(const YAML::Node &color)

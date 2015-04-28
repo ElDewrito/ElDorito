@@ -50,6 +50,9 @@ public:
 	void setCountdownTimer(int newTimer) { countdownTimer = newTimer; }
 	int getCountdownTimer() const { return countdownTimer; }
 
+	void setRawMouse(bool raw) { rawMouse = raw; }
+	bool getRawMouse() { return rawMouse; }
+
 private:
 	std::string playerName;
 	
@@ -70,4 +73,6 @@ private:
 	float fov;
 
 	int countdownTimer;
+
+	bool rawMouse;
 };
