@@ -14,6 +14,7 @@
 
 #include "Utils/Utils.h"
 #include "ElModules.h"
+#include "ElPatches.h"
 
 const char* Credits[] = {
 	"Wunk",
@@ -171,6 +172,13 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 			Command.second->Tick(DeltaTime);
 		}
 	}
+
+	static bool appliedFirstTickPatches = false;
+	if (appliedFirstTickPatches)
+		return;
+
+	Patches::ApplyOnFirstTick();
+	appliedFirstTickPatches = true;
 }
 
 namespace

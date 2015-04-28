@@ -83,6 +83,52 @@ namespace Patches
 			TODO("find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata");
 			Patch(0x705D6F, { 0x2 }).Apply();
 		}
+
+		void ApplyMapNameFixes()
+		{
+			uint32_t levelsGlobalPtr = Pointer::Base(0x149E2E0).Read<uint32_t>();
+			if (!levelsGlobalPtr)
+				return;
+
+			TODO("map out these global arrays, content items seems to use same format");
+
+			uint32_t numLevels = Pointer(levelsGlobalPtr + 0x34).Read<uint32_t>();
+			if (numLevels != 6)
+				return;
+
+			const wchar_t* search[6] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf" };
+			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Avalanche", L"Edge", L"Reactor", L"Turf" };
+			const wchar_t* descs[6] = {
+				L"Millennia of tending has produced trees as ancient as the Forerunner structures they have grown around. 2-6 players.",
+				L"The crew of V-398 barely survived their unplanned landing in this gorge...this curious gorge. 6-16 players.",
+				L"Extreme winds scour scorched terrain, and ancient battle scars are a grim reminder that this is a precious prize. 6-16 players.",
+				L"This installation seemed to be important to someone once, now only the drones keep it from falling into disrepair. 6-16 players",
+				L"Being constructed just prior to the Invasion, it's builders had to evacuate before it was completed. 6-16 players.",
+				L"Though they dominate on open terrain, many Scarabs have fallen victim to the narrow streets of Earth's cities. 4-10 players."
+			};
+			for (uint32_t i = 0; i < numLevels; i++)
+			{
+				Pointer levelNamePtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8);
+				Pointer levelDescPtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8 + 0x40);
+
+				wchar_t levelName[0x20];
+				memset(levelName, 0, sizeof(wchar_t) * 0x20);
+				levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
+
+				for (uint32_t y = 0; y < 6; y++)
+				{
+					if (wcscmp(search[y], levelName) == 0)
+					{
+						memset(levelNamePtr, 0, sizeof(wchar_t) * 0x20);
+						wcscpy_s(levelNamePtr, 0x20, names[y]);
+
+						memset(levelDescPtr, 0, sizeof(wchar_t) * 0x80);
+						wcscpy_s(levelDescPtr, 0x80, descs[y]);
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 
