@@ -30,6 +30,11 @@ namespace Patches
 		Armor::ApplyAll();
 		RawInput::ApplyAll();
 	}
+	
+	void ApplyOnFirstTick()
+	{
+		Ui::ApplyMapNameFixes();
+	}
 }
 
 namespace
