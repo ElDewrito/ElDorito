@@ -35,16 +35,31 @@ LRESULT __stdcall ourWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 					float maxVertAngle = Pointer::Base(0x14B49E4).Read<float>();
 
 					Pointer SettingsPtr = ElDorito::GetMainTls(GameGlobals::GameSettings::TLSOffset)[0];
-					if (SettingsPtr == 0)
+					if (SettingsPtr == 0) // game itself does this the same way, not sure why it'd be 0 in TLS data though since the game is also meant to set it in TLS if its 0
 						SettingsPtr = Pointer(0x22C0128);
 
 					Pointer &invertedPtr = SettingsPtr(GameGlobals::GameSettings::YAxisInverted);
 					Pointer &yaxisPtr = SettingsPtr(GameGlobals::GameSettings::YAxisSensitivity);
 					Pointer &xaxisPtr = SettingsPtr(GameGlobals::GameSettings::XAxisSensitivity);
+					Pointer &yaxisPtrVehicle = SettingsPtr(GameGlobals::GameSettings::VehicleYAxisSensitivity);
+					Pointer &xaxisPtrVehicle = SettingsPtr(GameGlobals::GameSettings::VehicleXAxisSensitivity);
 					uint32_t isInverted = invertedPtr.Read<uint32_t>();
 					float yaxisSens = (float)yaxisPtr.Read<uint32_t>() / 25.f;
 					float xaxisSens = (float)xaxisPtr.Read<uint32_t>() / 25.f;
-					TODO("find a function/variable that tells us if player is in vehicle, so we can use the vehicle sensitivity params, also find out what mouse filter is meant to do");
+
+					typedef int(__cdecl *Game_GetLocalPlayerIdxFunc)(int playerNum);
+					Game_GetLocalPlayerIdxFunc Game_GetLocalPlayerIdx = (Game_GetLocalPlayerIdxFunc)0x589C30;
+					uint16_t playerIdx = (uint16_t)Game_GetLocalPlayerIdx(0); // we only need the first 16 bits of this
+
+					Pointer PlayerData = ElDorito::GetMainTls(GameGlobals::PlayerAlt::TLSOffset)[0];
+					Pointer vehicleData = Pointer(PlayerData(GameGlobals::PlayerAlt::VehicleData + (playerIdx * GameGlobals::PlayerAlt::PlayerObjectSize)).Read<uint32_t>());
+					char isInVehicle = vehicleData(GameGlobals::PlayerAlt::VehicleDataIsInVehicle).Read<char>();
+
+					if (isInVehicle != 0)
+					{
+						yaxisSens = (float)yaxisPtrVehicle.Read<uint32_t>() / 25.f;
+						xaxisSens = (float)xaxisPtrVehicle.Read<uint32_t>() / 25.f;
+					}
 
 					if (isInverted != 0)
 						currentVert += (float)rwInput->data.mouse.lLastY * yaxisSens / 1000.0f / weaponSensitivity;

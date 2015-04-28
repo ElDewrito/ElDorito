@@ -265,4 +265,13 @@ namespace GameGlobals
 		const size_t VehicleYAxisSensitivity = 0x83C80;
 		const size_t VehicleXAxisSensitivity = 0x83C84;
 	}
+
+	namespace PlayerAlt // todo: find out what this global is actually for
+	{
+		const size_t TLSOffset = 0xe8;
+		const size_t VehicleData = 0x8; // pointer
+		const size_t VehicleDataIsInVehicle = 0xA0;
+
+		const size_t PlayerObjectSize = 0x3C8;
+	}
 }
