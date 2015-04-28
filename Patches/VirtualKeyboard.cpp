@@ -3,6 +3,8 @@
 #include "../ElDorito.h"
 #include "../Patch.h"
 
+#include <ShlObj.h>
+
 namespace
 {
 	class VirtualKeyboard;
@@ -12,7 +14,13 @@ namespace
 	void __fastcall SetKeyboardDescription(VirtualKeyboard *keyboard, void *unused, wchar_t *newDescription);
 	bool ShowKeyboard(VirtualKeyboard *keyboard, const char *file, int line);
 
+	TODO("move these into a different cpp file, or rename this to GameData.cpp ?");
 	bool IsProfileAvailable();
+	char __stdcall PackageCreateHook(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
+	char __stdcall PackageMountHook(int a1, int a2, int a3, int a4);
+	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk);
+	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5);
+	bool __fastcall SaveFileGetNameHook(void *thisPtr, void* unused, int a2, wchar_t *Src, size_t MaxCount);
 }
 
 namespace Patches
@@ -30,12 +38,98 @@ namespace Patches
 
 			// Allow saving content without a profile (todo, move this elsewhere once we fully figure out content saving)
 			Hook(0x67DCA0, IsProfileAvailable).Apply();
+
+			// Fix storage device checks, so storage device funcs return 0 instead of 0xCACACACA
+			Patch(0x1A7A80, { 0x31, 0xc0, 0xC3 }).Apply();
+			Patch(0x34D570, { 0x31, 0xc0, 0xC3 }).Apply();
+
+			// Hook this AllocateGameGlobalMemory to use a different one (this one is outdated mb? crashes when object is added to "content items" global without this hook)
+			Hook(0x15B010, AllocateGameGlobalMemory2Hook).Apply();
+
+			// Hook GetContentMountPath to actually return a dest folder
+			Hook(0x34CC00, GetContentMountPathHook).Apply();
+
+			// Hook (not patch, important otherwise stack gets fucked) content_catalogue_create_new_XContent_item stub to return true
+			Hook(0x34CBE0, PackageCreateHook).Apply();
+
+			// Hook (not patch, like above) content package mount stub to return true
+			Hook(0x34D010, PackageMountHook).Apply();
+
+			Patch(0x12708E, { 0x8B, 0x4C, 0x24, 0x10 }).Apply(); // patch to pass the map/game variant data from [esp+0x10] to our func
+
+			Hook(0x127092, SaveFileGetNameHook, HookFlags::IsCall).Apply();
+
+			Patch(0x127097, 0x90, 2).Apply();
+
+			// test
+			// Remove Original Data
+			/*int MaxFileLength = 31;
+			for (int i = 0; i < MaxFileLength; i++)
+			{
+			Pointer::Base(0x1EB7FBC + i).Write<uint8_t>(0);
+			Pointer::Base(0x1EB7FF4 + i).Write<uint8_t>(0);
+			}*/
+
+			static char filename[] = "font_package_new.bin";
+			Patch(0x109A25, { 0x68, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
+			Pointer::Base(0x109A26).Write<uint32_t>((uint32_t)&filename);
 		}
 	}
 }
 
 namespace
 {
+	bool __fastcall SaveFileGetNameHook(void *thisPtr, void* unused, int a2, wchar_t *Src, size_t MaxCount)
+	{
+		TODO("get the filename (variant.ctf, sandbox.map, feature.film etc) somehow, and maybe put maps in mods\\maps\\, games in mods\\games\\ etc");
+		TODO("actually, moving this to Documents\\My Games\\Halo 3\\Saves\\Maps / Games / etc would be better, no need to worry about admin perms");
+		wchar_t currentDir[256];
+		memset(currentDir, 0, 256 * sizeof(wchar_t));
+		GetCurrentDirectoryW(256, currentDir);
+
+		wchar_t* variantName = (wchar_t*)((char*)thisPtr + 0x48);
+
+		swprintf_s(Src, MaxCount, L"%ls\\mods\\saves\\%ls\\", currentDir, variantName);
+
+		SHCreateDirectoryExW(NULL, Src, NULL);
+
+		swprintf_s(Src, MaxCount, L"%ls\\mods\\saves\\%ls\\data.bin", currentDir, variantName);
+		return 1;
+	}
+
+	char __stdcall PackageCreateHook(int a1, int a2, int a3, int a4, int a5, int a6, int a7)
+	{
+		return 1;
+	}
+
+	char __stdcall PackageMountHook(int a1, int a2, int a3, int a4)
+	{
+		return 1;
+	}
+
+	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk)
+	{
+		TODO("set this to my documents/my games/Dewrito?");
+		wcscpy_s(destPtr, size, L"C:\\Halo\\Output\\");
+		return destPtr;
+	}
+
+	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5)
+	{
+		typedef char*(__cdecl *AllocateGameGlobalMemory)(char *Src, int a2, int a3, char a4, void* a5);
+		AllocateGameGlobalMemory allocateGlobal = (AllocateGameGlobalMemory)0x55AFA0;
+		char* retData = allocateGlobal(Src, a2, a3, a4, a5);
+
+		*(uint16_t*)(retData + 0x2A) = 0x3;
+
+		if (Src == (char*)0x165B170) // "content items"
+		{
+			// set some byte thats needed in the contentfile related funcs
+			*(uint8_t*)(retData + 0x29) = 1;
+		}
+
+		return retData;
+	}
 	// Based off of H3 Epsilon's code
 	class VirtualKeyboard
 	{
