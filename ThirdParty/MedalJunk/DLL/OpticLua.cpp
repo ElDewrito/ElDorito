@@ -1,9 +1,7 @@
 #include "OpticLua.h"
 #include "OpticAPI.h"
 #include "Events.h"
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include "lua.hpp"
 #include <Windows.h>
 #include "EnginePointers.h"
 #include "EngineTypes.h"

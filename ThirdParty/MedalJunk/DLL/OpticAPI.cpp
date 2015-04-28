@@ -8,9 +8,7 @@
 #include "OpticEventHandler.h"
 #include "OpticHooks.h"
 #include "DebugHelper.h"
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include "lua.hpp"
 #include <sstream>
 
 #pragma warning(disable : 4800)

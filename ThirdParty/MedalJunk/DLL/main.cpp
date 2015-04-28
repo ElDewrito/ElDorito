@@ -9,26 +9,32 @@
 unsigned int __stdcall hacLaunch(void*);
 void unload();
 
+BOOL installMedalJunk()
+{
+	HANDLE initialiser = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, hacLaunch, 0, CREATE_SUSPENDED, 0));
+
+	if (initialiser == NULL) {
+		OutputDebugString("Thread failure.");
+		return FALSE;
+	}
+
+	try {
+		HookManager::install();
+	} catch(HookException& e) {
+		HookManager::uninstall();
+		MessageBox(NULL, e.what(), "Error", MB_OK | MB_ICONEXCLAMATION);
+		return FALSE;
+	}
+
+	ResumeThread(initialiser);
+	return TRUE;
+}
+
+#ifndef MEDALJUNK_STATIC
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID reserved) {
 	if(reason == DLL_PROCESS_ATTACH) {
 		DisableThreadLibraryCalls(module);
-
-		HANDLE initialiser = reinterpret_cast<HANDLE>(_beginthreadex(0, 0, hacLaunch, 0, CREATE_SUSPENDED, 0));
-		
-		if(initialiser == NULL) {
-			OutputDebugString("Thread failure.");
-			return FALSE;
-		}
-
-		try {
-			HookManager::install();
-		} catch(HookException& e) {
-			HookManager::uninstall();
-			MessageBox(NULL, e.what(), "Error", MB_OK | MB_ICONEXCLAMATION);
-			return FALSE;
-		}
-
-		ResumeThread(initialiser);
+		return installMedalJunk();
 	}
 
 	if(reason == DLL_PROCESS_DETACH) {
@@ -37,7 +43,7 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID reserved) {
     
 	return TRUE;
 }
-
+#endif
 
 void onLaunch(void* args) {
 	HANDLE initialiser = static_cast<HANDLE>(args);

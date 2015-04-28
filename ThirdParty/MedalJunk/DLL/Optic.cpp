@@ -35,7 +35,7 @@ void load(const std::string& name) {
 		handler = std::move(listener);
 		HANDLE handle = (HANDLE)_beginthreadex(NULL, NULL, handler->start, static_cast<void*>(handler.get()), NULL, NULL);
 		CloseHandle(handle);
-		std::cout << "Optic pack loaded!";
+		//std::cout << "Optic pack loaded!";
 	} catch(OpticException& e) {
 		std::cout << "OpticException: " << e.what();
 	} catch(std::exception& e) {
@@ -51,7 +51,7 @@ void unload() {
 		handler->wait();
 		handler.reset();
 		Optic::Hooks::uninstall();
-		std::cout << "Unloaded Optic pack";
+		//std::cout << "Unloaded Optic pack";
 	}
 }
 
