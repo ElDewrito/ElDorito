@@ -36,12 +36,12 @@ namespace Patches
 	void ApplyOnFirstTick()
 	{
 		Ui::ApplyMapNameFixes();
+		if (ElPreferences::Instance().getCrosshairCentered())
+			Patches::Ui::EnableCenteredCrosshairPatch(true);
 	}
 
 	void ApplyAfterTagsLoaded()
 	{
-		if (ElPreferences::Instance().getCrosshairCentered())
-			Ui::ApplyCenteredCrosshair(true);
 	}
 }
 

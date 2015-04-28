@@ -50,7 +50,7 @@ bool Crosshair::Run(const std::vector<std::string>& Args)
 			ElPreferences::Instance().setCrosshairCentered(false);
 			ElPreferences::Instance().save();
 
-			Patches::Ui::ApplyCenteredCrosshair(false);
+			Patches::Ui::EnableCenteredCrosshairPatch(false);
 
 			std::cout << "Crosshair positioning set to normal.\n" << std::endl;
 			return true;
@@ -60,7 +60,7 @@ bool Crosshair::Run(const std::vector<std::string>& Args)
 			ElPreferences::Instance().setCrosshairCentered(true);
 			ElPreferences::Instance().save();
 
-			Patches::Ui::ApplyCenteredCrosshair(true);
+			Patches::Ui::EnableCenteredCrosshairPatch(true);
 
 			std::cout << "Crosshair positioning set to centered.\n" << std::endl;
 			return true;
