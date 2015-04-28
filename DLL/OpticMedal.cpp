@@ -166,8 +166,6 @@ OpticAnimation OpticMedal::defaultSlideAnimation() {
 
 OpticAnimation OpticMedal::defaultEndSlideAnimation(double beginX, double beginY) {
 	OpticAnimation animation;
-	animation.addKeyframe(Keyframe(0, beginX), KEYFRAME_POSITION_X);
-	animation.addKeyframe(Keyframe(0, beginY), KEYFRAME_POSITION_Y);
 	return animation;
 }
 
