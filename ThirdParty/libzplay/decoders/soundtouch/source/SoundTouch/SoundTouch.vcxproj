@@ -84,7 +84,8 @@
       <OutputFile>.\Release/SoundTouch.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy                .\Release\SoundTouch.lib                ..\..\lib\</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
