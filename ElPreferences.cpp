@@ -98,7 +98,7 @@ bool ElPreferences::save() const
 		out << YAML::EndMap;
 		out << YAML::Key << "video" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "fov" << YAML::Value << fov;
-		out << YAML::Key << "crosshair_centered" << YAML::Value << crosshairCentered;
+		out << YAML::Key << "crosshairCentered" << YAML::Value << crosshairCentered;
 		out << YAML::EndMap;
 		out << YAML::Key << "host" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "countdown" << YAML::Value << countdownTimer;
@@ -165,7 +165,7 @@ namespace
 			prefs->setFieldOfView(video["fov"].as<float>());
 
 		if (video["crosshair_centered"])
-			prefs->setCrosshairCentered(video["crosshair_centered"].as<bool>());
+			prefs->setCrosshairCentered(video["crosshairCentered"].as<bool>());
 	}
 
 	void parseHostData(ElPreferences *prefs, const YAML::Node &host)
