@@ -22,6 +22,27 @@ namespace Patches
 {
 	namespace Ui
 	{
+		void ApplyCenteredCrosshair(bool enable)
+		{
+			//Pointer tagIdxPtr = Pointer(0x22AAEB8).Read<uint32_t>();
+			//uint32_t mulgIdx = tagIdxPtr(0x1BC).Read<uint32_t>();
+			//uint32_t matgIdx = Pointer::Base(0x149CCFC).Read<uint32_t>();
+			//if (matgIdx != -1)
+			//{
+			//	typedef int(__cdecl *Tags_GetTagAddressFunc)(int tagMagic, int tagIdx);
+			//	Tags_GetTagAddressFunc Tags_GetTagAddress = (Tags_GetTagAddressFunc)0x503370;
+			//	uint32_t addr = Tags_GetTagAddress(0x6D617467, matgIdx);
+
+			float value = enable ? 0.f : 0.17f;
+
+			uint32_t addr = Pointer::Base(0x1EAAEB8).Read<uint32_t>(); // addr of matg data
+			if (addr > 0)
+			{
+				Pointer(addr - 0x19C34).Write<float>(value); // write to the "Crosshair Location Y" variable inside matg
+				Pointer(addr - 0x19BC4).Write<float>(value); // seems to be a duplicate of above so we write to that too
+			}
+		}
+
 		void ApplyAll()
 		{
 			// English patch

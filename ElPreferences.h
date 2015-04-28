@@ -53,6 +53,9 @@ public:
 	void setRawMouse(bool raw) { rawMouse = raw; }
 	bool getRawMouse() { return rawMouse; }
 
+	void setCrosshairCentered(bool centered) { crosshairCentered = centered; }
+	bool getCrosshairCentered() { return crosshairCentered; }
+
 private:
 	std::string playerName;
 	
@@ -75,4 +78,5 @@ private:
 	int countdownTimer;
 
 	bool rawMouse;
+	bool crosshairCentered;
 };

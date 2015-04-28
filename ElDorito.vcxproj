@@ -112,6 +112,7 @@
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
     <ClCompile Include="ElPreferences.cpp" />
+    <ClCompile Include="Modules\Crosshair.cpp" />
     <ClCompile Include="Modules\RawInput.cpp" />
     <ClCompile Include="Patches\Armor.cpp" />
     <ClCompile Include="Patches\Core.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
+    <ClInclude Include="Modules\Crosshair.h" />
     <ClInclude Include="Modules\RawInput.h" />
     <ClInclude Include="Patches\Armor.h" />
     <ClInclude Include="Patches\Core.h" />

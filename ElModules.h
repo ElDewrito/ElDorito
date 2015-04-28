@@ -18,3 +18,4 @@
 #include "Modules/Countdown.h"
 #include "Modules/Fps.h"
 #include "Modules/RawInput.h"
+#include "Modules/Crosshair.h"

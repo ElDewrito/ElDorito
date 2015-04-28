@@ -11,6 +11,8 @@
 #include "Patches\Armor.h"
 #include "Patches\RawInput.h"
 
+#include "ElPreferences.h"
+
 namespace
 {
 	void UnprotectMemory();
@@ -34,6 +36,12 @@ namespace Patches
 	void ApplyOnFirstTick()
 	{
 		Ui::ApplyMapNameFixes();
+	}
+
+	void ApplyAfterTagsLoaded()
+	{
+		if (ElPreferences::Instance().getCrosshairCentered())
+			Ui::ApplyCenteredCrosshair(true);
 	}
 }
 

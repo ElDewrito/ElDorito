@@ -6,5 +6,6 @@ namespace Patches
 	{
 		void ApplyAll();
 		void ApplyMapNameFixes();
+		void ApplyCenteredCrosshair(bool enable);
 	}
 }
