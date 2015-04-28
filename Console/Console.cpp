@@ -180,23 +180,27 @@ namespace Console
 				{
 					CurCommand.pop_back();
 				}
-				// Run command
-				if( Commands.count(CurCommand[0]) && Commands[CurCommand[0]] )
+
+				if (!CurCommand.empty())
 				{
-					if( !Commands[CurCommand[0]]->Run(CurCommand) )
+					// Run command
+					if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
 					{
-						// Error running command;
-						SetTextColor(Color::Error);
-						std::cout << "Invalid Usage: " << CurCommand[0] << std::endl;
-						SetTextColor(Color::Info);
-						std::cout << Commands[CurCommand[0]]->Info() << std::endl;
+						if (!Commands[CurCommand[0]]->Run(CurCommand))
+						{
+							// Error running command;
+							SetTextColor(Color::Error);
+							std::cout << "Invalid Usage: " << CurCommand[0] << std::endl;
+							SetTextColor(Color::Info);
+							std::cout << Commands[CurCommand[0]]->Info() << std::endl;
+						}
 					}
-				}
-				else
-				{
-					SetTextColor(Color::Error);
-					std::cout << "Unknown Command: " << CurCommand[0];
-					SetTextColor(Color::Info);
+					else
+					{
+						SetTextColor(Color::Error);
+						std::cout << "Unknown Command: " << CurCommand[0];
+						SetTextColor(Color::Info);
+					}
 				}
 			}
 
