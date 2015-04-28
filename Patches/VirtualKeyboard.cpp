@@ -87,7 +87,10 @@ namespace
 		memset(currentDir, 0, 256 * sizeof(wchar_t));
 		GetCurrentDirectoryW(256, currentDir);
 
-		wchar_t* variantName = (wchar_t*)((char*)thisPtr + 0x48);
+		char* blfStart = (char*)thisPtr;
+		wchar_t* variantName = (wchar_t*)(blfStart + 0x8); // when saving forge maps we only get the variant name, not the blf data :s
+		if (memcmp(blfStart, "_blf", 4) == 0)
+			variantName = (wchar_t*)((char*)thisPtr + 0x48);
 
 		swprintf_s(Src, MaxCount, L"%ls\\mods\\saves\\%ls\\", currentDir, variantName);
 
