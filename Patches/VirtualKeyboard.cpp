@@ -109,8 +109,14 @@ namespace
 
 	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk)
 	{
-		TODO("set this to my documents/my games/Dewrito?");
-		wcscpy_s(destPtr, size, L"C:\\Halo\\Output\\");
+		TODO("move this to temp folder, or find a way to disable it (game uses path returned by this func to create a 0 byte sandbox.map)");
+		wchar_t currentDir[256];
+		memset(currentDir, 0, 256 * sizeof(wchar_t));
+		GetCurrentDirectoryW(256, currentDir);
+
+		swprintf_s(destPtr, size, L"%ls\\mods\\temp\\", currentDir);
+
+		SHCreateDirectoryExW(NULL, destPtr, NULL);
 		return destPtr;
 	}
 
