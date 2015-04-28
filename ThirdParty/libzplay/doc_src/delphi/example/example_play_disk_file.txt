@@ -1,0 +1,65 @@
+Summary:
+Simple example of playing disk file to sound card output.
+
+Description:
+This example will show how to play disk file <i>test.mp3</i>.
+- include libZPlay namespace
+- create ZPlay class instance
+- open disk file - <LINK libZPlayDelphi.ZPlay.OpenFile, OpenFile>
+- get song length - <LINK libZPlayDelphi.ZPlay.GetStreamInfo, GetStreamInfo>
+- start playing - <LINK libZPlayDelphi.ZPlay.StartPlayback, StartPlayback>
+- check is song is playing - <LINK libZPlayDelphi.ZPlay.GetStatus, GetStatus>
+- get current position - <LINK libZPlayDelphi.ZPlay.GetPosition, GetPosition>
+
+
+Example:
+<CODE lang="delphi">
+program Project2;
+
+{$APPTYPE CONSOLE}
+
+uses
+  SysUtils,
+  Windows,
+  libZPlay in 'libZPlay.pas';
+
+var
+  player: ZPlay;
+  status: TStreamStatus;
+  info: TStreamInfo;
+  pos: TStreamTime;
+  key: SmallInt;
+
+begin
+  { TODO -oUser -cConsole Main : Insert code here }
+  Writeln('Playing test.mp3. Press Q to quit.');
+  player := ZPlay.Create();
+  if not player.OpenFile('mysong.mp3', sfAutodetect) then
+  begin
+      writeln(player.GetError());
+      player.Free;
+      Exit;
+  end;
+
+  player.GetStreamInfo(info);
+
+  writeln('Length: ', info.Length.hms.hour, ':', info.Length.hms.minute, ':', info.Length.hms.second, ':', info.Length.hms.millisecond);
+
+  player.StartPlayback;
+
+  status.fPlay := true;
+  while status.fPlay do
+  begin
+    player.GetPosition(pos);
+    write('Pos: ', pos.hms.hour, ':', pos.hms.minute, ':', pos.hms.second, ':', pos.hms.millisecond, #13);
+    player.GetStatus(status);
+    Sleep(50);
+    key := GetAsyncKeyState(81);
+    if key <> 0 then
+    break;
+
+  end;
+  player.Free;
+end.
+</CODE>
+

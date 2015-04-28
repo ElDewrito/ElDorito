@@ -1,0 +1,74 @@
+This document describes how to build import libraries for other compilers.
+
+LIBZPLAY.DLL exports functions using _stdcall calling convention and undecoreted names, without @nn at the end of function name and
+without _ at the beginning of funtion name.
+
+======================================
+1. Building import library for MinGW
+======================================
+
+Build libzplay.dll using MSVC++ without def file and without LIB_ZPLAY_EXPORT_WITH_DEF_FILE directive, only with LIB_ZPLAY_DYNAMIC directive.
+This will export stdcall functions with decorated names, you need this for MinGW. Then use pexports on this dll and generate def
+file:
+
+pexports -o libzplay.dll > mingw.def
+
+Edit mingw.def file and remove _ from beginning of all exported functions.
+
+_CreateZPlay@0  must be CreateZPlay@0
+_zplay_StereoCut@16 must be zplay_StereoCut@16
+
+You need also correct ordinal numbers to match original libzplay.dll. This is necessarily when you make
+new version of dll with new functions added.
+
+Build original libzplay.dll.
+
+Then use dlltool to produce MinGW import library:
+
+dlltool -D libzplay.dll -l libzplay.a -d mingw.def -k
+
+This will produce MinGW import library for linking MinGW applications with libzplay.dll
+
+=====================================
+2. Building original libzplay.dll
+=====================================
+
+To build original libzplay.dll with undecorated function names we need to do export functions using def file.
+Use libzplay.dll from above, created without def file and without LIB_ZPLAY_EXPORT_WITH_DEF_FILE, and generate def file
+with pexports:
+
+pexports -o libzplay.dll > libzplay.def
+
+Edit libzplay.def file and remove all _ from beginning of function names and remove all @nn at function ends.
+
+_CreateZPlay@0 must be CreateZPlay	
+_zplay_StereoCut@16 must be zplay_StereoCut
+
+...
+
+Then build original libzplay.dll file using this libzplay.def and specifiying LIB_ZPLAY_EXPORT_WITH_DEF_FILE and LIB_ZPLAY_DYNAMIC.
+
+This will produce libzplay.dll, exporting undecorated function names.
+
+=======================================
+3. Building import library for Borland
+=======================================
+
+Use implib on original libzplay.dll to generete import library:
+
+implib libzplay.lib libzplay.dll
+
+======================================
+4. Build import library for Visual C++
+======================================
+
+Create def file with original libzplay.dll:
+
+pexports -o libzplay.dll libzplay.def
+
+Create import library:
+
+lib /machine:i386 /def:libzplay.def
+
+
+

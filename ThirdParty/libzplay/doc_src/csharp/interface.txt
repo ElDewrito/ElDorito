@@ -1,0 +1,36 @@
+Summary:
+C# Class interface for libZPlay library.
+
+Description:
+This is C# class wrapper for libzplay.dll library.
+Each method of this class is wrapper for one of <LINK CSTYLEINTERFACE, C Style functions> exported from libzplay.dll library.
+
+<INCLUDE extensions\\note_start.txt>ZPlay C# Class must have access to libzplay.dll to function properly.
+<INCLUDE extensions\\note_end.txt>
+
+All you need to do is to create instance of ZPlay class.
+Interaction with this class is implemented through <LINK !!MEMBERTYPE_Methods_libZPlayC#.ZPlay, class methods>.  
+
+* How to use C# interface *
+- add <LINK !!libZPlayCS, libZPlay.cs> to your project
+- include <b>libZplay</b> namespace
+- create instance of ZPlay class
+- use <LINK !!MEMBERTYPE_Methods_libZPlayC#.ZPlay, ZPlay methods> to play music
+
+Example:
+<code lang="c#">
+// add libZPlay.cs to your project
+// ...
+
+// include libZPlay namespace
+using libZPlay;
+
+// ...
+
+// create ZPlay class
+ZPlay player = new ZPlay();
+
+// open file and play
+player.OpenFile("myFile.mp3", TStreamFormat.sfAutodetect);
+player.StartPlayback();
+</code>

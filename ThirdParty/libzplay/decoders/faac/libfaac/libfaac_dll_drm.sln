@@ -1,0 +1,25 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libfaac_dll", "libfaac_dll_drm.vcproj", "{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug DRM|Win32 = Debug DRM|Win32
+		Debug|Win32 = Debug|Win32
+		Release DRM|Win32 = Release DRM|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Debug DRM|Win32.ActiveCfg = Debug DRM|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Debug DRM|Win32.Build.0 = Debug DRM|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Debug|Win32.Build.0 = Debug|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Release DRM|Win32.ActiveCfg = Release DRM|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Release DRM|Win32.Build.0 = Release DRM|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Release|Win32.ActiveCfg = Release|Win32
+		{AA2D0EFE-E73D-40AD-ADCE-8A2B54F34C6F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

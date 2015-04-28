@@ -1,0 +1,23 @@
+Summary:
+Choose wave-in device as audio input for ZPlay class.
+
+Description:
+User can specify wave-in device for audio input.
+If you have multiple soundcards, you can choose input soundcard.
+
+Using this feature, you can record samples from one soundcard, change these samples with
+library equalizer and output samples on second soundcard.
+
+
+
+<b>To specify input device use:</b>
+<TABLE>
+C++                                                           C                                                                  VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------   ----------------------------------------------------------------   --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayCpp::zplay_SetWaveInDevice, zplay_SetWaveInDevice>   <LINK libZPlayVB.ZPlay.SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayC#.ZPlay.SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayVC::ZPlay::SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayDelphi.ZPlay.SetWaveInDevice, SetWaveInDevice> 
+</TABLE>
+
+
+
+See Also:
+<LINK OPENWAVEIN, Open wave input>

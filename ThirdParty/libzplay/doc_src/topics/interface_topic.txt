@@ -1,0 +1,15 @@
+Basic interface for libZPlay library is <b><LINK ZPLAYINTERFACE, ZPlay C++ class interface></b>.
+
+There is also alternative interface, <b><LINK CSTYLEINTERFACE, C Style Interface></b>.
+This interface is wrapper around <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, ZPlay C++ methods>.
+
+There is also interface for <LINK ZPLAYINTERFACE_VCNET, Visual C++ .NET>, <LINK ZPLAYINTERFACE_VBNET, Visual Basic .NET>,
+<LINK ZPLAYINTERFACE_CSHARP, C# .NET> and <LINK ZPLAYINTERFACE_DELPHI, Delphi>.
+
+In order to use libZPlay library, user must create new instance of ZPlay class.
+By using ZPlay methods, user can open and play various music streams.
+
+
+<INCLUDE extensions\\note_start.txt>All interfaces of libZPlay library are enclosed into <b>libZPlay namespace</b>.
+User must use this namespace to access ZPlay class.
+<INCLUDE extensions\\note_end.txt>

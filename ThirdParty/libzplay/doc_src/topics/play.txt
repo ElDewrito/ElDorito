@@ -1,0 +1,13 @@
+Summary:
+Start playing, stop playing, pause and resume.
+
+Description:
+<b>Basic functions to control playback:</b>
+<TABLE>
+C++                                          C                                                 VB.NET                                                   C#.NET                                                   VC.NET                                                    Delphi
+-----------------------------------------    ----------------------------------------------    ------------------------------------------------------   ------------------------------------------------------   -------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::Play, Play>        <LINK libZPlayCpp::zplay_Play, zplay_Play>        <LINK libZPlayVB.ZPlay.StartPlayback, StartPlayback>     <LINK libZPlayC#.ZPlay.StartPlayback, StartPlayback>     <LINK libZPlayVC::ZPlay::StartPlayback, StartPlayback>    <LINK libZPlayDelphi.ZPlay.StartPlayback, StartPlayback> 
+<LINK libZPlayCpp::ZPlay::Stop, Stop>        <LINK libZPlayCpp::zplay_Stop, zplay_Stop>        <LINK libZPlayVB.ZPlay.StopPlayback, StopPlayback>       <LINK libZPlayC#.ZPlay.StopPlayback, StopPlayback>       <LINK libZPlayVC::ZPlay::StopPlayback, StopPlayback>      <LINK libZPlayDelphi.ZPlay.StopPlayback, StopPlayback> 
+<LINK libZPlayCpp::ZPlay::Pause, Pause>      <LINK libZPlayCpp::zplay_Pause, zplay_Pause>      <LINK libZPlayVB.ZPlay.PausePlayback, PausePlayback>     <LINK libZPlayC#.ZPlay.PausePlayback, PausePlayback>     <LINK libZPlayVC::ZPlay::PausePlayback, PausePlayback>    <LINK libZPlayDelphi.ZPlay.PausePlayback, PausePlayback> 
+<LINK libZPlayCpp::ZPlay::Resume, Resume>    <LINK libZPlayCpp::zplay_Resume, zplay_Resume>    <LINK libZPlayVB.ZPlay.ResumePlayback, ResumePlayback>   <LINK libZPlayC#.ZPlay.ResumePlayback, ResumePlayback>   <LINK libZPlayVC::ZPlay::ResumePlayback, ResumePlayback>  <LINK libZPlayDelphi.ZPlay.ResumePlayback, ResumePlayback> 
+</TABLE>

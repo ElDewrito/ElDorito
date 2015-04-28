@@ -1,0 +1,46 @@
+Summary:
+ Slide internal volume.
+
+Parameters:
+  %PAR0% - <LINK libZPlayC#.TTimeFormat, Time format> of <c>%PAR1%</c> parameter.
+           With this parameter you need to specify which member of <LINK libZPlayC#.TStreamTime, TStreamTime> is valid.
+  %PAR1% - reference to <LINK libZPlayC#.TStreamTime, TStreamTime> structure specifying starting slide position.
+  %PAR2% - Start volume for left channel. Range is from 0 to 100.
+  %PAR3% - Start volume for right channel. Range is from 0 to 100.
+  %PAR4% - <LINK libZPlayC#.TTimeFormat, Time format> of <c>%PAR5%</c> parameter.
+           With this parameter you need to specify which member of <LINK libZPlayC#.TStreamTime, TStreamTime> is valid.
+  %PAR5% - Reference to <LINK libZPlayC#.TStreamTime, TStreamTime> structure specifying ending slide position.
+  %PAR6% - End volume for left channel. Range is from 0 to 100.
+  %PAR7% - End volume for right channel. Range is from 0 to 100.
+
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will slide change <LINK PLAYER_VOLUME, player volume> from starting volume to ending volume in specified interval.
+
+<IMAGE note> Note: Accuracy of <c>pTimeStart</c> and <c>pTimeEnd</c> is not <i>up to sample</i>. Accuracy is about 50 ms.
+So, you <b>can't</b> fade volume with <i>sample</i> precision.
+
+<IMAGE note> Note: <LINK libZPlayC#.ZPlay.SetPlayerVolume, SetPlayerVolume> functions will cancel slide effect.
+
+See Also:
+<LINK PLAYER_VOLUME, Player volume control>,
+<LINK MASTER_VOLUME, Master volume control>
+
+Example:
+
+<code lang="c#">
+int left = 0;
+int right = 0;
+TStreamTime startpos = new TStreamTime();
+TStreamTime endpos = new TStreamTime();
+
+player.GetPlayerVolume(ref left, ref right);
+player.GetPosition(ref startpos);
+endpos.sec = System.Convert.ToUInt32(startpos.sec + 5);
+player.SlideVolume(TTimeFormat.tfSecond, ref startpos, left, right, TTimeFormat.tfSecond, ref endpos, 0, 0);
+</code>

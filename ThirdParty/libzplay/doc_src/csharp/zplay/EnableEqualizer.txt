@@ -1,0 +1,27 @@
+Summary:
+Enable or disable equalizer.
+
+Parameters:
+  %PAR0% - Flag for enabling or disabling equalizer. If this parameter is true, equalizer is enabled. If this parameter is false, equalizer is disabled.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+Class has by default 10 equalizer bands. See <LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+<P><IMAGE note> Note: By default, new class instance has disabled equalizer.
+To apply equalizer, user must enable this effect.
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayC#.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayC#.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayC#.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayC#.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayC#.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>
+

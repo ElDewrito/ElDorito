@@ -1,0 +1,151 @@
+Summary:
+Set and change echo effect parameters.
+
+Parameters:
+  pEchoEffect      - Pointer to array of <see cref="TEchoEffect"/> structures specifying echo effects.
+  nNumberOfEffects - Number of echo effects in <paramref name="pEchoEffect"/> array.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+To produce echo effect, original samples are combined with delayed samples.
+You need to specify delay (in milliseconds) and volume of original samples and delayed samples.
+
+To specify one echo effect, fill <see cref="TEchoEffect"/> structure with valid data.
+To specify multiple, complex echo effects, specify array of <see cref="TEchoEffect"/> structures.
+Output sound is combination of original samples and delayed samples.
+
+<IMAGE note> Note: If you specify multiple delay effects, make note about volume because all effects will combine original
+samples with delayed samples for each effect and you will have summary of all samples.
+
+For example: first effect is using 60 % volume of original(not delayed) samples and on these samples are added 20 % volume delayed samples.
+Second effect is  using 0 % volume of original samples and  20 % volume of delayed samples.
+And resulting samples from first effect are added to resulting samples from second effect.
+If you use too much percent of volume, you can get overflow of sample amplitude and sound distorsions.
+
+
+<IMAGE note> Note: There is no limit on number of echo effects.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetEchoParam, GetEchoParam>,
+<LINK libZPlayCpp::ZPlay::EnableEcho, EnableEcho>
+
+<LINK libZPlayCpp::zplay_GetEchoParam, zplay_GetEchoParam>,
+<LINK libZPlayCpp::zplay_EnableEcho, zplay_EnableEcho>
+
+Example:
+Apply simple echo, 2000 milliseconds delay, volume ration 90/20.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 2000;  // 2000 ms delay
+effect.nRightEchoVolume = 20;
+effect.nRightSrcVolume = 90;
+instance->SetEchoParam(effect, 1); // set new echo effect
+instance->EnableEcho(1); // enable echo effect
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 2000;  // 2000 ms delay
+effect.nRightEchoVolume = 20;
+effect.nRightSrcVolume = 90;
+zplay_SetEchoParam(instance, effect, 1); // set new echo effect
+zplay_EnableEcho(instance, 1); // enable echo effect
+</CODE>
+</EXAMPLE>
+
+
+<EXAMPLE>
+Multiple delays: (80% original) + (20% 2000 ms delay) + (20% 300 ms delay).
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TEchoEffect effect[2];
+// 2 second delay
+effect[0].nLeftDelay = 2000; // 2000 ms delay
+effect[0].nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect[0].nLeftSrcVolume = 80; // use 80 % volume of original samples
+effect[0].nRightDelay = 2000;
+effect[0].nRightEchoVolume = 20;
+effect[0].nRightSrcVolume = 80;
+// 300 ms delay
+effect[1].nLeftDelay = 300; // 300 ms delay
+effect[1].nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect[1].nLeftSrcVolume = 0; // don't need original samples because we already involve this in previous effect
+effect[1].nRightDelay = 300;
+effect[1].nRightEchoVolume = 20;
+effect[1].nRightSrcVolume = 0;
+instance->SetEchoParam(effect, 2); // set new echo effect
+instance->EnableEcho(1); // enable echo effect
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TEchoEffect effect[2];
+// 2 second delay
+effect[0].nLeftDelay = 2000; // 2000 ms delay
+effect[0].nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect[0].nLeftSrcVolume = 80; // use 80 % volume of original samples
+effect[0].nRightDelay = 2000;
+effect[0].nRightEchoVolume = 20;
+effect[0].nRightSrcVolume = 80;
+// 300 ms delay
+effect[1].nLeftDelay = 300; // 300 ms delay
+effect[1].nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect[1].nLeftSrcVolume = 0; // don't need original samples because we already involve this in previous effect
+effect[1].nRightDelay = 300;
+effect[1].nRightEchoVolume = 20;
+effect[1].nRightSrcVolume = 0;
+zplay_SetEchoParam(instance, effect, 2); // set new echo effect
+zplay_EnableEcho(instance, 1); // enable echo effect
+</CODE>
+</EXAMPLE>
+
+
+<EXAMPLE>
+You can specify different effects for left and right channel.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 500;  // 500 ms delay
+effect.nRightEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nRightSrcVolume = 90;  // use 90 % volume of original samples
+instance->SetEchoParam(effect, 1); // set new echo effect
+instance->EnableEcho(1); // enable echo effect
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 500;  // 500 ms delay
+effect.nRightEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nRightSrcVolume = 90;  // use 90 % volume of original samples
+zplay_SetEchoParam(instance, effect, 1); // set new echo effect
+zplay_EnableEcho(instance, 1); // enable echo effect
+</CODE>
+</EXAMPLE>

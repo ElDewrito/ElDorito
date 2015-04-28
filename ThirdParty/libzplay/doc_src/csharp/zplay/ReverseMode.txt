@@ -1,0 +1,25 @@
+Summary:
+  Enable or disable reverse mode.
+
+Parameters:
+  %PAR0% - True enables reverse mode, false disables reverse mode and restore normal mode.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+By enabling reverse mode song will play backward. Backward playing algorithm is efficient.
+There is no large memory allocation, no predecoding of whole file, no temporary disk file, ....
+This is true backward playing, backward decoding.
+
+<IMAGE note> Note: You can enable or disable reverse mode while song is playing. Just switch reverse mode on and off.
+
+This function will not stop playing. If song is playing and you enters reverse mode, song will continue playing backward to 0 position.
+Position indicator will also display real position.
+
+<IMAGE note> Note: In reverse mode, position indicator displays real position, it goes backward.
+
+<IMAGE note> Note: You can't play backward from 0 position. So, you need to seek away from song beginning and then play backward.
+
+<IMAGE caution> Warning: You can't use this function on <LINK DYNAMIC_STREAM, dynamic stream>.

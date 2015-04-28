@@ -1,0 +1,18 @@
+Summary:
+Wave out info (ANSI version).
+
+Parameters:
+ManufacturerID        - Manufacturer identifier for the device driver for the device.
+ProductID             - Product identifier for the device.
+DriverVersion         - Version number of the device driver for the device.
+Formats               - Standard formats that are supported. Can be a combination of values from <LINK libZPlayCpp::TWaveOutFormat, TWaveOutFormat>.
+Channels              - Number specifying whether the device supports mono (1) or stereo (2) output.
+Support               - Optional functionality supported by the device. Can be a combination of values from <LINK libZPlayCpp::TWaveOutFunctionality, TWaveOutFunctionality>
+ProductName           - Product name in a ANSI null-terminated string.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayCpp::ZPlay::GetWaveOutInfo, GetWaveOutInfo>
+
+<LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>,
+<LINK libZPlayCpp::zplay_GetWaveOutInfo, zplay_GetWaveOutInfo>

@@ -1,0 +1,86 @@
+Summary:
+   Set callback function.
+
+Parameters:
+  pCallbackFunc - Pointer to callback function. Set this value to NULL to disable callback mechanism.
+  nMessages     - Specify messages you need to receive with callback function. This parameter can be combination of multiple callback messages.
+  user_data     - User data. This value will be passed to <c>pCallbackFunc</c> as parameter.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+All callback messages are sent from decoding thread.
+
+There are 2 types of callback messages, blocking (sync) and not blocking (async).
+
+Blocking message will block decoding thread until callback function returns.
+Non blocking mesage will not block decoding thread.
+
+<IMAGE caution> Warning: callback function must have <b>__stdcall</b> calling convention.
+
+
+See Also:
+<LINK libZPlayCpp::TCallbackFunc, TCallbackFunc>
+
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// my callback function
+int  __stdcall  CallbackFunc(void* instance, void *user_data, TCallbackMessage message, unsigned int param1, unsigned int param2)
+{
+  ZPlay *instance = (ZPlay*) instance;
+  switch(message)
+  {
+    case MsgNextSongAsync:
+    {
+      printf("MsgNextSongAsync %u  %u", param1, param2);	
+    }
+    return 0;
+		
+    case MsgNextSong:
+    {
+      printf("MsgNextSong %u  %u", param1, param2);;
+    }
+    return 0;	
+  }
+return 0;
+}
+
+...
+
+// set callback function to receive MsgNextSongAsync and MsgNextSong message
+instance->SetCallbackFunc(CallbackFunc, (TCallbackMessage) (MsgNextSongAsync + MsgNextSong), 0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// my callback function
+int  __stdcall  CallbackFunc(void* instance, void *user_data, TCallbackMessage message, unsigned int param1, unsigned int param2)
+{
+  ZPlay *instance = (ZPlay*) instance;
+  switch(message)
+  {
+    case MsgNextSongAsync:
+    {
+      printf("MsgNextSongAsync %u  %u", param1, param2);	
+    }
+    return 0;
+		
+    case MsgNextSong:
+    {
+      printf("MsgNextSong %u  %u", param1, param2);;
+    }
+    return 0;	
+  }
+return 0;
+}
+
+...
+
+// set callback function to receive MsgNextSongAsync and MsgNextSong message
+zplay_SetCallbackFunc(instance, CallbackFunc, (TCallbackMessage) (MsgNextSongAsync + MsgNextSong), 0);
+</CODE>
+</EXAMPLE>

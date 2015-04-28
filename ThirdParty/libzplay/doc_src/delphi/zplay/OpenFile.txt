@@ -1,0 +1,24 @@
+Summary:
+  Open disk file. ANSI version.
+
+Parameters:
+  %PAR0% - String that specifies the name of the file.
+  %PAR1% - Stream format. Use <b><LINK libZPlayDelphi.TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Use this function to open disk file.
+Function will open disk file and check if this file is valid file according to specified stream format.
+If you use <b><LINK libZPlayDelphi.TStreamFormat, sfAutodetect></b> as <C>%PAR0%</C> parameter function will try to detect stream format of specified file and open file using detected stream format.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetFileFormat, GetFileFormat>,
+<LINK libZPlayDelphi.ZPlay.Close, Close>,
+<LINK libZPlayDelphi.ZPlay.AddFile, AddFile>,
+<LINK libZPlayDelphi.ZPlay.OpenStream, OpenStream>
+
+

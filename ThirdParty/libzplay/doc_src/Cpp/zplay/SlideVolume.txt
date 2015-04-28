@@ -1,0 +1,55 @@
+Summary:
+ Slide internal volume.
+
+Parameters:
+  fFormatStart      - <LINK libZPlayCpp::TTimeFormat, Time format> of <c>pTimeStart</c> parameter.
+                      With this parameter you need to specify which member of <LINK libZPlayCpp::TStreamTime, TStreamTime> is valid.
+  pTimeStart        - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime> structure specifying starting slide position.
+  nStartVolumeLeft  - Start volume for left channel. Range is from 0 to 100.
+  nStartVolumeRight - Start volume for right channel. Range is from 0 to 100.
+  fFormatEnd        - <LINK libZPlayCpp::TTimeFormat, Time format> of <c>pTimeEnd</c> parameter.
+                      With this parameter you need to specify which member of <LINK libZPlayCpp::TStreamTime, TStreamTime> is valid.
+  pTimeEnd          - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime> structure specifying ending slide position.
+  nEndVolumeLeft    - End volume for left channel. Range is from 0 to 100.
+  nEndVolumeRight   - End volume for right channel. Range is from 0 to 100.
+
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will slide change <LINK PLAYER_VOLUME, player volume> from starting volume to ending volume in specified interval.
+
+<IMAGE note> Note: Accuracy of <c>pTimeStart</c> and <c>pTimeEnd</c> is not <i>up to sample</i>. Accuracy is about 50 ms.
+So, you <b>can't</b> fade volume with <i>sample</i> precision.
+
+<IMAGE note> Note: <LINK libZPlayCpp::ZPlay::SetPlayerVolume, SetPlayerVolume> or <LINK libZPlayCpp::zplay_SetPlayerVolume, zplay_SetPlayerVolume> functions will cancel slide effect.
+
+See Also:
+<LINK PLAYER_VOLUME, Player volume control>,
+<LINK MASTER_VOLUME, Master volume control>
+
+
+<EXAMPLE>
+Slide volume from 100 to 0 in interval of 5 seconds.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamTime start;
+TStreamTime end;
+instance->GetPosition(&start);
+end.sec = start.sec + 5;
+instance->SlideVolume(tfSecond, &start, 100,100, tfSecond, &end, 0,0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamTime start;
+TStreamTime end;
+instance->GetPosition(&start);
+end.sec = start.sec + 5;
+zplay_SlideVolume(instance, tfSecond, &start, 100,100, tfSecond, &end, 0,0);
+</CODE>
+</EXAMPLE>

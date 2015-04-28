@@ -1,0 +1,42 @@
+Summary:
+Set wave-output to disk file.
+
+Description:
+Default library behavior is to play decoded samples to soundcard.
+Furthermore, you can <LINK SET_WAVEOUT, choose wave-output device>, (if you have more soundcards).
+
+
+Using <LINK CALLBACK_MECHANISM, callbak mechanism> you can intercept decoded PCM wave samples and save these samples to file or something else ...
+
+
+* But there is another option. *
+You can set wave-output to disk file.
+
+
+Furthermore, you can even <b>encode</b> PCM samples to specified format (mp3, ogg, flac, aac, wav).
+This option enables you to transcode one format to another. For example, open some mp3 file, set wave-output to
+some disk file and specify ogg encoding format. This will decode mp3 into PCM samples, then encode PCM samples to ogg stream,
+and save this ogg stream into specified file.
+
+
+
+
+<b>To specify output file use:</b>
+<TABLE>
+C++                                                           C                                                                   VB.NET                                                   C#.NET                                                   VC.NET                                                     Delphi
+-----------------------------------------------------------   -----------------------------------------------------------------   ------------------------------------------------------   ------------------------------------------------------   --------------------------------------------------------   -----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetWaveOutFile, SetWaveOutFile>     <LINK libZPlayCpp::zplay_SetWaveOutFile, zplay_SetWaveOutFile>      <LINK libZPlayVB.ZPlay.SetWaveOutFile, SetWaveOutFile>   <LINK libZPlayC#.ZPlay.SetWaveOutFile, SetWaveOutFile>   <LINK libZPlayVC::ZPlay::SetWaveOutFile, SetWaveOutFile>   <LINK libZPlayDelphi.ZPlay.SetWaveOutFile, SetWaveOutFile> 
+<LINK libZPlayCpp::ZPlay::SetWaveOutFileW, SetWaveOutFileW>   <LINK libZPlayCpp::zplay_SetWaveOutFileW, zplay_SetWaveOutFileW>                                                                                                                                                                                 <LINK libZPlayDelphi.ZPlay.SetWaveOutFileW, SetWaveOutFileW>
+</TABLE>
+
+
+Another libZPlay library feature enables you to record sounds from microphone or line-in input on your soundcard.
+You can <LINK OPENWAVEIN, open wave-in> for recording, set wave-output file and record (encode) data from microphone,
+or another soundcard input port, into specified file. 
+
+
+
+<INCLUDE extensions\\note_start.txt><b><COLOR RED>Every opening function will cancel disk output and set output to soundcard.
+Therefore, you must set wave output to disk file after each opening function.</COLOR></b>
+<INCLUDE extensions\\note_end.txt>
+

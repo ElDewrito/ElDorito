@@ -1,0 +1,18 @@
+Summary:
+  Get internal volume.
+
+Parameters:
+  %PAR0% - Reference to variable receiving left volume. Volume range is from 0 to 100.
+  %PAR1% - Reference to variable receiving right volume. Volume range is from 0 to 100.
+
+Returns:
+None.
+
+Remarks:
+Player volume is internal volume. This volume is specific for each instance of libZPlay class.
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetPlayerVolume, SetPlayerVolume>,
+<LINK libZPlayC#.ZPlay.SetMasterVolume, SetMasterVolume>,
+<LINK libZPlayC#.ZPlay.GetMasterVolume, GetMasterVolume>,
+<LINK libZPlayC#.ZPlay.SlideVolume, SlideVolume>

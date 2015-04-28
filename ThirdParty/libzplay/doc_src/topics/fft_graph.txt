@@ -1,0 +1,51 @@
+Summary:
+Draw advanced FFT graph on device context (HDC) or window (HWND).
+
+Description:
+libZPlay library implements advanced FFT graph drawing.
+With one function you can draw advanced FFT graph on device context or window handle.
+Graph is based on data in wave buffer and is fully synchronized with audio data.
+User just need to refresh drawing with custom rate (e.g. 10 times in second, or faster).
+
+There are <LINK libZPlayCpp::TFFTGraphType, 4 types of FFT graph> (line, area, bar, spectrum): 
+
+<TABLE>
+Graph type  Screenshot
+----------  --------------------
+Lines       <IMAGE fftgraph1>
+Area        <IMAGE fftgraph2>
+Bars        <IMAGE fftgraph3>
+Spectrum    <IMAGE fftgraph6>
+</TABLE>
+
+
+<P>
+There are <LINK libZPlayCpp::TFFTGraphHorizontalScale, 2 types of horizontal scale> ( linear, logarithmic):
+
+<TABLE>
+Graph type   Screenshot
+-----------  --------------------
+Linear       <IMAGE fftgraph4>
+Logarithmic  <IMAGE fftgraph5>
+</TABLE>
+
+
+
+
+User can also change area transparency, subgrid, ... You can draw graph on device context (HDC) or window control (HWND).
+
+
+* You can set custom background bitmap *
+<IMAGE fft4>
+
+
+<b>To draw and configure FFT graph use:</b>
+<TABLE>
+C++                                                                 C                                                                        VB.NET                                                           C#.NET                                                            VC.NET                                                            Delphi
+----------------------------------------------------------------    ---------------------------------------------------------------------    --------------------------------------------------------------   ---------------------------------------------------------------   ---------------------------------------------------------------   ------------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetFFTGraphParam, SetFFTGraphParam>       <LINK libZPlayCpp::zplay_SetFFTGraphParam, zplay_SetFFTGraphParam>       <LINK libZPlayVB.ZPlay.SetFFTGraphParam, SetFFTGraphParam>       <LINK libZPlayC#.ZPlay.SetFFTGraphParam, SetFFTGraphParam>        <LINK libZPlayVC::ZPlay::SetFFTGraphParam, SetFFTGraphParam>      <LINK libZPlayDelphi.ZPlay.SetFFTGraphParam, SetFFTGraphParam> 
+<LINK libZPlayCpp::ZPlay::GetFFTGraphParam, GetFFTGraphParam>       <LINK libZPlayCpp::zplay_GetFFTGraphParam, zplay_GetFFTGraphParam>       <LINK libZPlayVB.ZPlay.GetFFTGraphParam, GetFFTGraphParam>       <LINK libZPlayC#.ZPlay.GetFFTGraphParam, GetFFTGraphParam>        <LINK libZPlayVC::ZPlay::GetFFTGraphParam, GetFFTGraphParam>      <LINK libZPlayDelphi.ZPlay.GetFFTGraphParam, GetFFTGraphParam> 
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>   <LINK libZPlayCpp::zplay_DrawFFTGraphOnHWND, zplay_DrawFFTGraphOnHWND>   <LINK libZPlayVB.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>   <LINK libZPlayC#.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>    <LINK libZPlayVC::ZPlay::DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>  <LINK libZPlayDelphi.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND> 
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>     <LINK libZPlayCpp::zplay_DrawFFTGraphOnHDC, zplay_DrawFFTGraphOnHDC>     <LINK libZPlayVB.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>     <LINK libZPlayC#.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>      <LINK libZPlayVC::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>    <LINK libZPlayDelphi.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC> 
+</TABLE>
+

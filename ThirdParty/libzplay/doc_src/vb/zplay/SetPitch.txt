@@ -1,0 +1,30 @@
+Summary:
+  Change pitch without changing tempo.
+
+Parameters:
+  %PAR0% - New pitch value.
+           Normal pitch = 100, smaller values represent lower pitch, larger values represent higher pitch.
+           <p><IMAGE note> Note: This value can't be 0.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Pitch value 100 indicates normal pitch and sound is not changed at all.
+
+To lower pitch, set pitch to value smaller than 100.
+This will lower pitch without changing tempo.
+But this value can't be 0 because you can't play something by not playing at all with pitch 0 :-)
+
+To raise pitch, set pitch to value larger than 100.
+This will raise pitch without changing tempo.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayVB.ZPlay.SetRate, SetRate>,
+<LINK libZPlayVB.ZPlay.GetRate, GetRate>,
+<LINK libZPlayVB.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayVB.ZPlay.GetTempo, GetTempo>

@@ -1,0 +1,16 @@
+Summary:
+  Get tempo.
+
+Returns:
+Current tempo.
+
+Remarks:
+Normal tempo is 100. Smaller valus represent lower tempo, larger value represent higher tempo.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetTempo, SetTempo>,
+<LINK libZPlayVC::ZPlay::SetPitch, SetPitch>,
+<LINK libZPlayVC::ZPlay::GetPitch, GetPitch>,
+<LINK libZPlayVC::ZPlay::SetRate, SetRate>,
+<LINK libZPlayVC::ZPlay::GetRate, GetRate>

@@ -1,0 +1,61 @@
+Summary:
+  Add file to <LINK GAPLESS_PLAYING, gapless queue>. (ANSI version)
+
+Parameters:
+  sFileName - Pointer to a ANSI null-terminated string that specifies the name of the file.
+  nFormat   - Stream format. Use <b><LINK libZPlayCpp::TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+All streams added to gapless queue will play without gap between these streams.
+When one stream ends, next stream from queue starts playing without interruption.
+Position marker is set to 0 for each stream from queue.
+This means that when one stream ends, position is set to 0 for next stream.
+Position is not cumulated.
+
+You can clear gapless queue with <LINK libZPlayCpp::ZPlay::Close, Close> or <LINK libZPlayCpp::zplay_Close, zplay_Close> function.</para>
+
+See Also:
+
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayCpp::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayCpp::ZPlay::Close, Close>,
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::AddFileW, OpenFileW>,
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>,
+<LINK libZPlayCpp::ZPlay::GetFileFormatW, GetFileFormatW>
+
+<LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>,
+<LINK libZPlayCpp::zplay_GetFileFormat, zplay_GetFileFormat>,
+<LINK libZPlayCpp::zplay_Close, zplay_Close>,
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_AddFileW, zplay_AddFileW>,
+<LINK libZPlayCpp::zplay_OpenFileW, zplay_OpenFileW>,
+<LINK libZPlayCpp::zplay_GetFileFormatW, zplay_GetFileFormatW>
+
+<EXAMPLE>
+Play gapless 3 songs.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// add first song
+instance->AddFile("myFirstSong.mp3", sfAutodetect);
+// then add second song to gapless queue
+instance->AddFile("mySecondSong.mp3", sfAutodetect);
+// then add third song to gapless queue
+instance->AddFile("myThirdSong.ogg", sfAutodetect);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// add first song
+zplay_AddFile(instance, "myFirstSong.mp3", sfAutodetect);
+// then add second song to gapless queue
+zplay_AddFile(instance, "mySecondSong.mp3", sfAutodetect);
+// then add third song to gapless queue
+zplay_AddFile(instance, "myThirdSong.ogg", sfAutodetect);
+</CODE>
+</EXAMPLE>

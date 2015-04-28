@@ -1,0 +1,20 @@
+Summary:
+Get equalizer preamp gain.
+
+Returns:
+Preamp gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+Preamp gain affects all bands.
+
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.EnableEqualizer, EnableEqualizer>

@@ -1,0 +1,22 @@
+Summary:
+Get equalizer band gain.
+
+Parameters:
+  %PAR0% - Band index, zero based. First band has index 0, second 1, ...
+
+Returns:
+  Band gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.EnableEqualizer, EnableEqualizer>

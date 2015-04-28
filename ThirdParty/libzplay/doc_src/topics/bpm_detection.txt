@@ -1,0 +1,23 @@
+Summary:
+Detect beat-per-minute value.
+
+Description:
+libZPlay library has ability to detect BPM (beat-per-minute) value of specified stream.
+BPM detection is implemented as <i>peak detection</i> method  and <i>autocorrelation</i>method.
+
+
+<INCLUDE extensions\\note_start.txt>Detection process can take some time, so be carefull.
+<INCLUDE extensions\\note_end.txt>
+
+<INCLUDE extensions\\warning_start.txt>BPM detection isn't 100 % accurate. BPM detection can fail on some songs and returned BPM value will be 0. 
+<INCLUDE extensions\\warning_end.txt>
+
+
+<b>To detect BPM use:</b>
+<TABLE>
+C++                                                         C                                                               VB.NET                                                  C#.NET                                                VC.NET                                                   Delphi
+--------------------------------------------------------    ------------------------------------------------------------    -----------------------------------------------------   ---------------------------------------------------   ------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::DetectBPM, DetectBPM>             <LINK libZPlayCpp::zplay_DetectBPM, zplay_DetectBPM>            <LINK libZPlayVB.ZPlay.DetectBPM, DetectBPM>           <LINK libZPlayC#.ZPlay.DetectBPM, DetectBPM>           <LINK libZPlayVC::ZPlay::DetectBPM, DetectBPM>           <LINK libZPlayDelphi.ZPlay.DetectBPM, DetectBPM> 
+<LINK libZPlayCpp::ZPlay::DetectFileBPM, DetectFileBPM>     <LINK libZPlayCpp::zplay_DetectFileBPM, zplay_DetectFileBPM>    <LINK libZPlayVB.ZPlay.DetectFileBPM, DetectFileBPM>   <LINK libZPlayC#.ZPlay.DetectFileBPM, DetectFileBPM>   <LINK libZPlayVC::ZPlay::DetectFileBPM, DetectFileBPM>   <LINK libZPlayDelphi.ZPlay.DetectFileBPM, DetectFileBPM> 
+<LINK libZPlayCpp::ZPlay::DetectFileBPMW, DetectFileBPMW>   <LINK libZPlayCpp::zplay_DetectFileBPMW, zplay_DetectFileBPMW>                                                                                                                                                                         <LINK libZPlayDelphi.ZPlay.DetectFileBPMW, DetectFileBPMW> 
+</TABLE>

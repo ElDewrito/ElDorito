@@ -1,0 +1,9 @@
+Summary:
+ZPlay constructor.
+
+Description:
+Constructor will create libzplay handle. This handle will be used by all other class methods to access
+libzplay library. Handle will be closed by destructor.
+
+<INCLUDE extensions\\note_start.txt>ZPlay class must have access to libzplay.dll library. 
+<INCLUDE extensions\\note_end.txt>

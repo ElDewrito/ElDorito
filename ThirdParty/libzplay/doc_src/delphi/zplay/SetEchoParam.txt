@@ -1,0 +1,62 @@
+Summary:
+Set and change echo effect parameters.
+
+Parameters:
+  %PAR0% - Reference to array of <see cref="TEchoEffect"/> structures specifying echo effects.
+  %PAR1% - Number of echo effects in <c>%PAR0%</c> array.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+To produce echo effect, original samples are combined with delayed samples.
+You need to specify delay (in milliseconds) and volume of original samples and delayed samples.
+
+To specify one echo effect, fill <LINK libZPlayDelphi.TEchoEffect, TEchoEffect>  with valid data.
+To specify multiple, complex echo effects, specify array of <LINK libZPlayDelphi.TEchoEffect, TEchoEffects>.
+Output sound is combination of original samples and delayed samples.
+
+<IMAGE note> Note: If you specify multiple delay effects, make note about volume because all effects will combine original
+samples with delayed samples for each effect and you will have summary of all samples.
+
+For example: first effect is using 60 % volume of original(not delayed) samples and on these samples are added 20 % volume delayed samples.
+Second effect is  using 0 % volume of original samples and  20 % volume of delayed samples.
+And resulting samples from first effect are added to resulting samples from second effect.
+If you use too much percent of volume, you can get overflow of sample amplitude and sound distorsions.
+
+
+<IMAGE note> Note: There is no limit on number of echo effects.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetEchoParam, GetEchoParam>,
+<LINK libZPlayDelphi.ZPlay.EnableEcho, EnableEcho>
+
+<example>
+<code lang="delphi">
+var
+  EchoEffect: array[0 .. 1] of TEchoEffect;
+
+begin
+  EchoEffect[0].LeftDelay := 2000;
+  EchoEffect[0].LeftSrcVolume := 50;
+  EchoEffect[0].LeftEchoVolume := 30;
+  EchoEffect[0].RightDelay := 2000;
+  EchoEffect[0].RightSrcVolume := 50;
+  EchoEffect[0].RightEchoVolume := 30;
+
+  EchoEffect[1].LeftDelay := 30;
+  EchoEffect[1].LeftSrcVolume := 50;
+  EchoEffect[1].LeftEchoVolume := 30;
+  EchoEffect[1].RightDelay := 30;
+  EchoEffect[1].RightSrcVolume := 50;
+  EchoEffect[1].RightEchoVolume := 30;
+
+  player.SetEchoParam(EchoEffect, 2);
+end;
+</code>
+</example>
+

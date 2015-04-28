@@ -1,0 +1,31 @@
+Summary:
+Get current echo effects.
+
+Parameters:
+  %PAR0% - Reference to array of <see cref="TEchoEffect"/> structures receiving echo effects.
+                     <P><IMAGE caution> Caution: This array will be resized to receive all echo effects.
+
+Returns:
+Number of echo effects in %PAR0% array.
+
+Remarks:
+Function will resize %PAR0% array to receive all echo effects.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetEchoParam, SetEchoParam>,
+<LINK libZPlayC#.ZPlay.EnableEcho, EnableEcho>
+
+Example:
+<code lang="c#">
+TEchoEffect[] test = new TEchoEffect[1];
+int n = player.GetEchoParam(ref test);
+int i;
+for (i = 0; i < n; i++)
+{
+  MessageBox.Show(test[i].nLeftDelay.ToString());
+}
+</code>
+

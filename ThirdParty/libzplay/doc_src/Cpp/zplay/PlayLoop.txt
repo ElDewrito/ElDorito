@@ -1,0 +1,62 @@
+Summary:
+  Play specified segment of song, in loop if needed.
+
+Parameters:
+  fFormatStartTime - <LINK libZPlayCpp::TTimeFormat, Time format> of <c>pStartTime</c> parameter. With this parameter you need to specify which member of <LINK libZPlayCpp::TStreamTime, TStreamTime> is valid.
+  pStartTime       - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime> structure specifying loop starting position.
+  fFormatEndTime   - <LINK libZPlayCpp::TTimeFormat, Time format> of <c>pEndTime</c> parameter. With this parameter you need to specify which member of <LINK libZPlayCpp::TStreamTime, TStreamTime> is valid.
+  pEndTime         - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime> structure specifying loop ending position.
+  nNumOfCycles     - Number of loop cycles. This value can't be 0.
+                     If this value is 1, function will play portion from pStartTime to pEndTime once.
+                     If this value is 2, function will play portion from pStartTime to pEndTime twice ...
+  fContinuePlaying - If this value is 0, playing will stop when loop is done with cycles.
+                     If this value is 1, playing will continue when loop is done with cycles.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Previous playing will be stopped, function will seek to <c>pStartTime</c> and start playing.
+
+<IMAGE note> Note: Accuracy of seek position depends on interface settings. See <LINK CONFIGURE_ACCURATE_SEEK, accurate seek>.
+
+<IMAGE caution> Warning: This function will fail on <LINK DYNAMIC_STREAM, dynamic stream>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::Play, Play>,
+<LINK libZPlayCpp::ZPlay::Stop, Stop>,
+<LINK libZPlayCpp::ZPlay::Pause, Pause>,
+<LINK libZPlayCpp::ZPlay::Resume, Resume>,
+<LINK libZPlayCpp::ZPlay::Seek, Seek>
+
+<LINK libZPlayCpp::zplay_Play, zplay_Play>,
+<LINK libZPlayCpp::zplay_Stop, zplay_Stop>,
+<LINK libZPlayCpp::zplay_Pause, zplay_Pause>,
+<LINK libZPlayCpp::zplay_Resume, zplay_Resume>,
+<LINK libZPlayCpp::zplay_Seek, zplay_Seek>
+
+
+<EXAMPLE>
+Play loop from current position, loop length is 5 seconds, play 3 cycles, continue playing.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamTime pCurrentTime;
+instance->GetPosition(&pCurrentTime); // starting position is current position
+TStreamTime pEndTime;
+pEndTime.ms = pCurrentTime.ms + 5000; // ending position is 5000 ms forward
+instance->PlayLoop(tfMillisecond, &pCurrentTime, tfMillisecond, &pEndTime ,3, 1);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamTime pCurrentTime;
+zplay_GetPosition(instance, &pCurrentTime); // starting position is current position
+TStreamTime pEndTime;
+pEndTime.ms = pCurrentTime.ms + 5000; // ending position is 5000 ms forward
+zplay_PlayLoop(instance, tfMillisecond, &pCurrentTime, tfMillisecond, &pEndTime ,3, 1);
+</CODE>
+</EXAMPLE>

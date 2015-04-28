@@ -1,0 +1,21 @@
+Summary:
+Beat-per-minute detection method.
+
+Parameters:
+dmPeaks           - Detect BPM using peaks detection algorithm.
+dmAutoCorrelation - Detect BPM using autocorrelation algorithm.
+
+Remarks:
+<b>dmPeaks</b> detection method is using FFT analysis to divide frequency range into subbands.
+Each subband is analyzed to detect energy peaks and calculate beat.
+When we have beat value detected in all subbands, most accurate value is selected as songs BPM.
+This methos is faster, but less accurate.
+
+<b>dmAutoCorrelation</b> detection method is using FFT analysis to divide frequency range into subbands.
+Each subband is analyzed with autocorrelation to detect beat.
+When we have beat value detected in all subbands, most accurate value is selected as songs BPM.
+This method is slower, but more accurate.
+
+See Also:
+<LINK libZPlayC#.ZPlay.DetectBPM, DetectBPM>,
+<LINK libZPlayC#.ZPlay.DetectFileBPM, DetectFileBPM>

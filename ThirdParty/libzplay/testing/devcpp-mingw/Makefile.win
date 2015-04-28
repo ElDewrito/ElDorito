@@ -1,0 +1,30 @@
+# Project: libzplay
+# Makefile created by Dev-C++ 4.9.9.2
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = 
+OBJ  = ../../example/example1.o $(RES)
+LINKOBJ  = ../../example/example1.o $(RES)
+LIBS =  -L"D:/Dev-Cpp/lib" ../../import_libs/libzplay.a  
+INCS =  -I"D:/Dev-Cpp/include" 
+CXXINCS =  -I"D:/Dev-Cpp/lib/gcc/mingw32/3.4.2/include"  -I"D:/Dev-Cpp/include/c++/3.4.2/backward"  -I"D:/Dev-Cpp/include/c++/3.4.2/mingw32"  -I"D:/Dev-Cpp/include/c++/3.4.2"  -I"D:/Dev-Cpp/include" 
+BIN  = libzplay.exe
+CXXFLAGS = $(CXXINCS)  
+CFLAGS = $(INCS)  
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before libzplay.exe all-after
+
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o "libzplay.exe" $(LIBS)
+
+../../example/example1.o: ../../example/example1.cpp
+	$(CPP) -c ../../example/example1.cpp -o ../../example/example1.o $(CXXFLAGS)

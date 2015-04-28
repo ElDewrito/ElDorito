@@ -1,0 +1,26 @@
+Summary:
+  Detect beat-per-minute value of specified file. UNICODE version.
+
+Parameters:
+  %PAR0% - String specifying file name.
+  %PAR1% - Stream <LINK libZPlayDelphi.TStreamFormat, format identifier>. Use <b>sfAutodetect</b> if you need to autodetect stream format of specified file.
+  %PAR2% - Detection method. See valid <LINK libZPlayDelphi.TBPMDetectionMethod, detection methods>.
+
+Returns:
+BPM value. If algorithm can't detect BPM value, return value is 0.
+
+
+Remarks:
+This function will open temporary stream and detect beat-per-minute. When detection process is done, stream will be closed.
+
+<IMAGE note> Note: Detection process can take some time.
+
+<IMAGE note> Warning: This function <b>WILL NOT</b> interfere with current playing.
+
+BPM detection algorithm isn't 100 % accurate.
+Algorithm will stop when first valid BPM value is detected.
+If BPM value can't be detected, algorithm will try to search whole stream.
+If this fails, returned BPM value is 0.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.DetectBPM, DetectBPM>

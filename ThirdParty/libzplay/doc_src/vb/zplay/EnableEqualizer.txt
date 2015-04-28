@@ -1,0 +1,27 @@
+Summary:
+Enable or disable equalizer.
+
+Parameters:
+  %PAR0% - Flag for enabling or disabling equalizer. If this parameter is true, equalizer is enabled. If this parameter is false, equalizer is disabled.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+Class has by default 10 equalizer bands. See <LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+<P><IMAGE note> Note: By default, new class instance has disabled equalizer.
+To apply equalizer, user must enable this effect.
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVB.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayVB.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayVB.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVB.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>
+

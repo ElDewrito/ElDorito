@@ -1,0 +1,47 @@
+Summary:
+  Set wave in device for this interface instance.
+
+Parameters:
+  nIndex - Index of wave out device.
+           Call <LINK libZPlayCpp::ZPlay::EnumerateWaveIn, EnumerateWaveIn> or <LINK libZPlayCpp::zplay_EnumerateWaveIn, zplay_EnumerateWaveIn> to get number of wave out devices.
+           Index value is in range from 0 to num_of_devices - 1.
+           <P><IMAGE note> Note: There is special index value <LINK WaveInWaveMapper, WaveInWaveMapper>.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+User can specify wave input device for each interface instance.
+If you have multiple soundcards, with this function you can specify input soundcard.
+You can also create 2 interface instances and record 2 songs, each song on different soundcard.
+
+Default wave input is set to <LINK WaveInWaveMapper, WaveInWaveMapper> (class is using waveform-audio input device capable of recording the given format).
+
+This function has effect on next call to play function.
+If you call this function while song is playing there is no effect.
+You need to stop playing and start playing again to apply new settings.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::EnumerateWaveIn, EnumerateWaveIn>,
+<LINK libZPlayCpp::ZPlay::GetWaveInInfo, GetWaveInInfo>,
+<LINK libZPlayCpp::ZPlay::GetWaveInInfoW, GetWaveInInfoW>,
+
+<LINK libZPlayCpp::zplay_EnumerateWaveIn, zplay_EnumerateWaveIn>,
+<LINK libZPlayCpp::zplay_GetWaveInInfo, zplay_GetWaveInInfo>,
+<LINK libZPlayCpp::zplay_GetWaveInInfoW, zplay_GetWaveInInfoW>,
+
+
+<EXAMPLE>
+Set wave input to wave mapper  (default setting).
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->SetWaveInDevice(WaveInWaveMapper);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_SetWaveInDevice(instance, WaveInWaveMapper);
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,42 @@
+Summary:
+Gapless playing of multiple files.
+
+Description:
+ZPlay class supports gapless playing of disk files.
+
+All streams added to gapless queue will play without gap between these streams.
+When one stream ends, next stream from queue starts playing without interruption.
+
+
+<INCLUDE extensions\\note_start.txt>On <LINK FormatMp3, MP3 streams> real gapless playing is supported only if <LINK LAMETAG, LAME INFO tag> is found
+in stream to detect endocer delay and padding samples.
+<INCLUDE extensions\\note_end.txt>
+
+
+How gapless playing works ?
+
+
+<b>Just add file to gapless queue:</b>
+<TABLE>
+C++                                             C                                                   VB.NET                                     C#.NET                                     VC.NET                                       Delphi
+---------------------------------------------   --------------------------------------------------  ----------------------------------------   ----------------------------------------   ------------------------------------------   ----------------------------------------------
+<LINK libZPlayCpp::ZPlay::AddFile, AddFile>     <LINK libZPlayCpp::zplay_AddFile, zplay_AddFile>    <LINK libZPlayVB.ZPlay.AddFile, AddFile>   <LINK libZPlayC#.ZPlay.AddFile, AddFile>   <LINK libZPlayVC::ZPlay::AddFile, AddFile>   <LINK libZPlayDelphi.ZPlay.AddFile, AddFile> 
+<LINK libZPlayCpp::ZPlay::AddFileW, AddFileW>   <LINK libZPlayCpp::zplay_AddFileW, zplay_AddFileW>                                                                                                                                     <LINK libZPlayDelphi.ZPlay.AddFileW, AddFileW> 
+</TABLE>
+
+
+When one song ends playing, next song from gapless queue starts playing immediately.
+
+
+<IMAGE note> Note: You can add miscellaneous streams to gapless queue. First song can be mp3, second ogg, third again mp3, ...
+
+<b>To clear gapless queue use:</b>
+<TABLE>
+C++                                       C                                              VB.NET                                 C#.NET                                 VC.NET                                   Delphi
+---------------------------------------   --------------------------------------------   ------------------------------------   ------------------------------------   --------------------------------------   ----------------------------------------
+<LINK libZPlayCpp::ZPlay::Close, Close>   <LINK libZPlayCpp::zplay_Close, zplay_Close>   <LINK libZPlayVB.ZPlay.Close, Close>   <LINK libZPlayC#.ZPlay.Close, Close>   <LINK libZPlayVC::ZPlay::Close, Close>   <LINK libZPlayDelphi.ZPlay.Close, Close> 
+</TABLE>
+
+
+See Also:
+<LINK OPENFILE, Open disk file>

@@ -1,0 +1,14 @@
+Summary:
+Mix stereo sound into mono sound.
+
+Description:
+If you have stereo sound (2 channels), you can mix left and right channel by specifying mixing ratio into one mono channel.
+
+
+
+<b>To mix left and right channel use:</b>
+<TABLE>
+C++                                                    C                                                           VB.NET                                             C#.NET                                             VC.NET                                               Delphi
+---------------------------------------------------    --------------------------------------------------------    ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ----------------------------------------------------
+<LINK libZPlayCpp::ZPlay::MixChannels, MixChannels>    <LINK libZPlayCpp::zplay_MixChannels, zplay_MixChannels>    <LINK libZPlayVB.ZPlay.MixChannels, MixChannels>   <LINK libZPlayC#.ZPlay.MixChannels, MixChannels>   <LINK libZPlayVC::ZPlay::MixChannels, MixChannels>   <LINK libZPlayDelphi.ZPlay.MixChannels, MixChannels> 
+</TABLE>

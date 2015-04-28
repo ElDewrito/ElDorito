@@ -1,0 +1,20 @@
+Summary:
+Get equalizer preamp gain.
+
+Returns:
+Preamp gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+Preamp gain affects all bands.
+
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayC#.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayC#.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayC#.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayC#.ZPlay.EnableEqualizer, EnableEqualizer>

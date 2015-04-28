@@ -1,0 +1,10 @@
+Summary:
+  Get library version number.
+
+Parameters:
+
+Returns:
+Library version number.
+
+Remarks:
+Version 1.01 is identified with number 101. Number 214 specifies version 2.14 ...

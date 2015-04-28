@@ -1,0 +1,25 @@
+Summary:
+   Wave out supported formats.
+
+Parameters:
+format_invalid - Invalid wave out format.
+format_11khz_8bit_mono - >11 kHz 8 bit mono.
+format_11khz_8bit_stereo - 11 kHz 8 bit stereo.
+format_11khz_16bit_mono - 11 kHz 16 bit mono.
+format_11khz_16bit_stereo - 11 kHz 16 bit stereo.
+format_22khz_8bit_mono - 22 kHz 8 bit mono.
+format_22khz_8bit_stereo - 22 kHz 8 bit stereo.
+format_22khz_16bit_mono - 22 kHz 16 bit mono.
+format_22khz_16bit_stereo - 22 kHz 16 bit stereo.
+format_44khz_8bit_mono - 44 kHz 8 bit mono.
+format_44khz_8bit_stereo - 44 kHz 8 bit stereo.
+format_44khz_16bit_mono - 44 kHz 16 bit mono.
+format_44khz_16bit_stereo - 44 kHz 16 bit stereo.
+
+Remarks:
+These values regards to <b>Formats</b> member of <LINK libZPlayVB.TWaveOutInfo, TWaveOutInfo> structure.
+
+See Also:
+<LINK libZPlayVB.ZPlay.EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayVB.ZPlay.GetWaveOutInfo, GetWaveOutInfo>
+

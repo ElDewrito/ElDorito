@@ -1,0 +1,48 @@
+Summary:
+Attached picture from ID3/VORBIS tag. (ANSI version). Only in version 2.00 and above.
+
+Parameters:
+PicturePresent  - Indicates if image is present in info tag. If this value is 1 image is present in info tag. In this case MIMEType, PictureType,
+                  Description, PictureData and PictureDataSize are valid.
+CanDrawPicture  - Indicates if image is decoded into hBitmap field. If this value is 1, image is decoded into hBitmap and hBitmap, Width and Height
+                  members are valid. See Remarks section.
+MIMEType        - MIME type and subtype for the image (e.g. image/jpeg).  Valid if PicturePresent is 1.
+PictureType     - Picture type. Search on Goole for informations about id3v2 frames (APIC frame). Valid if PicturePresent is 1.
+Description_    - User description for attached picture. Valid if PicturePresent is 1.
+PictureData     - Pointer to raw picture data. This can be any image type. Use MIMEType to determine image type. Valid if PicturePresent is 1.
+PictureDataSize - Size, in bytes, of raw picture data. Valid if PicturePresent is 1.
+hBitmap         - HBITMAP handle of decoded picture. Available only if CanDrawPicture is returned 1. See Remarks for more info.
+Width           - Picture width in pixels. Available only if image is decoded into hBitmap and CanDrawPicture is set to 1.
+Height          - Picture height in pixels. Available only if image is decoded into hBitmap and CanDrawPicture is set to 1.
+reserved        - reserved for future use.
+
+Remarks:
+If there is valid picture attached into ID3v2 or VORBIS COMMENT tag, PicturePresent will be set to 1.
+If PicturePresent member is set to 1, use MIMEType to determine image type, use Description member to get picture description, use
+PictureData and PictureDataSize members to access raw image data.
+
+<INCLUDE extensions\\note_start.txt>PictureData member points to raw image data. Raw image data is actually file format data. For example:
+if MIME type is image/jpeg, you can save PictureData bytes directly into file with jpg extension and you will get valid jpg file.
+<INCLUDE extensions\\note_end.txt>
+
+
+User can request to decode attached image into bitmap format. libZPlay supports internal jpeg and png decoders. If CanDrawPicture is set to 1,
+hBitmap member is valid HBITMAP handle.
+Use this handle to draw picture on screen with <LINK libZPlayCpp::ZPlay::DrawBitmapToHDC, DrawBitmapToHDC> or
+<LINK libZPlayCpp::ZPlay::DrawBitmapToHWND, DrawBitmapToHWND>.
+
+If attached image format is not supported by internal image decoder, use PictureData and PictureDataSize members to acces raw image data and use your own decoder
+to decode and draw image. For example: if attached image is GIF type (not supported internally by library),
+you need to take PictureData and use your own GIF decoder to decode this image into
+bitmap format and draw on screen.
+
+
+See Also:
+<LINK libZPlayCpp::TID3InfoEx, TID3InfoEx>,
+<LINK libZPlayCpp::ZPlay::LoadID3Ex, LoadID3Ex>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3Ex, LoadFileID3Ex>
+
+
+<LINK libZPlayCpp::zplay_LoadID3Ex, zplay_LoadID3Ex>,
+<LINK libZPlayCpp::zplay_LoadFileID3Ex, zplay_LoadFileID3Ex>
+

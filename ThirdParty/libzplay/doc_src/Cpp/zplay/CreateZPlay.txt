@@ -1,0 +1,30 @@
+Summary:
+Class factory for <LINK ZPLAYINTERFACE, ZPlay C++ interface>.
+
+Returns:
+Pointer to <LINK libZPlayCpp::ZPlay, ZPlay> class instance.
+
+Remarks:
+This function creates new instance of <LINK ZPLAYINTERFACE, ZPlay> class.
+
+At the end, call member function <LINK libZPlayCpp::ZPlay::Release, Release> to delete class instance.
+
+Example:
+Create new class instance using class factory function.
+
+<code lang="c++">
+#include "libzplay.h"
+
+// use namespace for our class
+using namespace libZPlay;
+
+// create class instance using class factory function
+ZPlay *instance = CreateZPlay();
+</code>
+
+Example:
+Destroy class instance.
+
+<code lang="c++">
+instance->Release();
+</code>

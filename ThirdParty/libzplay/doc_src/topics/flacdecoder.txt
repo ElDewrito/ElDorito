@@ -1,0 +1,28 @@
+Description:
+FLAC support is provided by <b>libFLAC</b>
+
+<TABLE>
+     Decoder               FLAC
+     --------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------
+     File extension        flac, oga
+     Description           FLAC stands for Free Lossless Audio Codec, an audio format similar to MP3, but lossless. Supports native flac and ogg flac streams. See <b>Remarks</b>.
+     Supported by          <LINK FLAC, libFLAC library>
+     Web                   <EMIT &lt;a href="http://flac.sourceforge.net/";&gt;http://flac.sourceforge.net/&lt;/a&gt;>
+     Email                 <EMIT &lt;a href="mailto:jcoalson@users.sourceforge.net";&gt;jcoalson@users.sourceforge.net&lt;/a&gt;>
+     Copyright &copy;      2001,2002,2003,2004,2005,2006,2007  Josh Coalson   <LINK FLAC, more info here>.
+     Info tags             <IMAGE star_green> Supported by VORBIS COMMENT.
+     Reverse playing       <IMAGE star_green> Supported.
+     Accurate length       <IMAGE star_green> Supported.
+     Accurate seek         <IMAGE star_green> Supported.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_green> Supported.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension and detecting VORBIS COMMENT tag at stream beginning.
+     Audio autodetection   <IMAGE star_green> Supported.
+     Recording/Encoder     <IMAGE star_green> Supported by <LINK FLAC, libFLAC library>.
+     Supported channels    1 channel (mono), 2 channels (stereo)
+</TABLE>
+
+Remarks:
+
+There are 2 types of FLAC streams, native stream and ogg stream. This decoder supports both streams.

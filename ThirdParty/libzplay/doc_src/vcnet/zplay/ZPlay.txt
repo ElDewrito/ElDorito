@@ -1,0 +1,43 @@
+Summary:
+VC++.NET Class interface for libZPlay library.
+
+Description:
+This is VC++.NET class wrapper for libzplay.dll library.
+Each method of this class is wrapper for one of <LINK CSTYLEINTERFACE, C Style functions> exported from libzplay.dll library.
+
+<INCLUDE extensions\\note_start.txt>ZPlay VC++.NET Class must have access to libzplay.dll to function properly.
+<INCLUDE extensions\\note_end.txt>
+
+All you need to do is to create instance of ZPlay class.
+Interaction with this class is implemented through <LINK !!MEMBERTYPE_Methods_libZPlayVC::ZPlay, class methods>.  
+
+* How to use VC++.NET interface *
+- add <LINK !!libZPlayVC, libZPlayNET.h> to your project
+- include <b>libZplay</b> namespace
+- create instance of ZPlay class
+- use <LINK !!MEMBERTYPE_Methods_libZPlayVC::ZPlay, ZPlay methods> to play music
+
+Example:
+<code lang="c++">
+// add libZPlayNET.h to your project
+#include "libzplaynet.h"
+
+// ...
+
+// include libZPlay namespace
+using namespace libZPlay;
+
+// ...
+
+// create ZPlay class
+ZPlay ^player;
+player = gcnew ZPlay();
+
+// open file and play
+player->OpenFile("mysong.mp3", TStreamFormat::sfAutodetect));
+player->StartPlayback();
+
+// ...
+// destroy class at the end
+delete player;
+</code>

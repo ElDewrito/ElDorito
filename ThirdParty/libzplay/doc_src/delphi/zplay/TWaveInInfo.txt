@@ -1,0 +1,13 @@
+Summary:
+Wave input info.
+
+Parameters:
+ManufacturerID        - Manufacturer identifier for the device driver for the device.
+ProductID             - Product identifier for the device.
+DriverVersion         - Version number of the device driver for the device.
+Formats               - Standard formats that are supported. Can be a combination of values from <LINK libZPlayDelphi.TWaveOutFormat, TWaveOutFormat>.
+Channels              - Number specifying whether the device supports mono (1) or stereo (2) output.
+ProductName           - Product name string.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.EnumerateWaveIn, EnumerateWaveIn>

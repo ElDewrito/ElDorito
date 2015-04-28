@@ -1,0 +1,18 @@
+Summary:
+Hour-minute-second time format.
+
+Parameters:
+hour        -  Hours.
+minute      -  Minutes.
+second      -  Seconds.
+millisecond -  Milliseconds.
+
+Remarks:
+Total time represented in hour-minute-second-millisecond fractions.
+
+Seealso:
+<LINK libZPlayC#.TStreamTime, TStreamTime>,
+<LINK libZPlayC#.TTimeFormat, TTimeFormat>
+
+
+

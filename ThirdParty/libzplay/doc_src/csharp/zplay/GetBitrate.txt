@@ -1,0 +1,21 @@
+Summary:
+  Get current bitrate.
+
+Parameters:
+  %PAR0% - If this value is true, average bitrate is returned. If this value is false, real bitrate is returned.
+
+Returns:
+Bitrate in kbps (kilo bit per second).
+
+Remarks:
+On CBR (constant bitrate) streams this value is constant all the time.
+On VBR (variable bitrate) this value represents bitrate of currently decoded data frame.
+
+<IMAGE note> Note: If you need bitrate of whole file or stream, use <LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo> function
+and <LINK libZPlayC#.TStreamInfo, TStreamInfo.Bitrate>.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.GetStatus, GetStatus>,
+<LINK libZPlayC#.ZPlay.GetPosition, GetPosition>,
+<LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo>

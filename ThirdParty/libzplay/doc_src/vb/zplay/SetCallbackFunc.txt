@@ -1,0 +1,67 @@
+Summary:
+   Set callback function.
+
+Parameters:
+  %PAR0% - Address to callback function. Set this value to 0 to disable callback mechanism.
+  %PAR1% - Specify messages you need to receive with callback function. This parameter can be combination of multiple callback messages.
+  %PAR2% - User data. This value will be passed to <c>%PAR0%</c> as parameter.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+All callback messages are sent from decoding thread.
+
+There are 2 types of callback messages, blocking (sync) and not blocking (async).
+
+Blocking message will block decoding thread until callback function returns.
+Non blocking mesage will not block decoding thread.
+
+<IMAGE caution> Warning: callback function must have <b>__stdcall</b> calling convention.
+
+<IMAGE caution> Note: You must protect CallbackFunc from garbage collector.
+Use global or static variable to keep alive callback function all the time.
+If you don't protect CallbackFunc, garbage collector will destroy or move this function and you will get
+memory access error when next callback event occurrs.
+
+
+See Also:
+<LINK libZPlayVB.TCallbackFunc, TCallbackFunc>
+
+Example:
+
+<code lang="vb.net">
+// global holder for our callback function, need this to prevent garbage collector to destroy our callback function
+Private CallbackFunc As TCallbackFunc
+
+// callback function
+Public Function MyCallbackFunc(ByVal objptr As UInteger, ByVal user_data As Integer, ByVal msg As TCallbackMessage, ByVal param1 As UInteger, ByVal param2 As UInteger) As Integer
+  Select Case msg
+    Case TCallbackMessage.MsgStreamBufferDoneAsync
+      ' read more data and push into stream
+      Dim stream_data() As Byte = Nothing
+      Dim small_chunk As Integer = 100000
+      stream_data = br.ReadBytes(small_chunk)
+      If stream_data.Length > 0 Then
+        player.PushDataToStream(stream_data, CUInt(stream_data.Length))
+      Else
+        Dim tempMemNewData1() As Byte = Nothing
+        player.PushDataToStream(tempMemNewData1, 0)
+      End If
+    End Select
+
+  Return 0
+End Function
+
+// ...
+
+// global variable, prevent garbage collector to destroy this function
+CallbackFunc = AddressOf MyCallbackFunc
+
+// set callback function
+player.SetCallbackFunc(CallbackFunc, CType(TCallbackMessage.MsgStreamBufferDoneAsync, TCallbackMessage), 0)
+</code>
+
+
+

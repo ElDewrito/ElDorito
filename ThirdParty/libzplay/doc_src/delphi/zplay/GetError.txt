@@ -1,0 +1,6 @@
+Summary:
+Get description of last error. ANSI version.
+
+Returns:
+Error string.
+

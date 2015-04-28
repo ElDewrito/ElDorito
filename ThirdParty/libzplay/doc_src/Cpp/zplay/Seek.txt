@@ -1,0 +1,68 @@
+Summary:
+  Seek position.
+
+Parameters:
+  fFormat     - <LINK libZPlayCpp::TTimeFormat, Time format> of <c>pTime</c> parameter. With this parameter you need to specify which member of <LINK libZPlayCpp::TStreamTime, TStreamTime> is valid.
+  pTime       - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime> structure specifying new position.
+  nMoveMethod - <LINK libZPlayCpp::TSeekMethod, Seek method>.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE caution> Warning: This function will fail on <LINK DYNAMIC_STREAM, dynamic stream>.
+
+<IMAGE note> Note: Accuracy of seek position depends on interface settings. See <LINK CONFIGURE_ACCURATE_SEEK, accurate seek>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::Play, Play>,
+<LINK libZPlayCpp::ZPlay::Stop, Stop>,
+<LINK libZPlayCpp::ZPlay::Pause, Pause>,
+<LINK libZPlayCpp::ZPlay::Resume, Resume>,
+<LINK libZPlayCpp::ZPlay::PlayLoop, PlayLoop>
+
+<LINK libZPlayCpp::zplay_Play, zplay_Play>,
+<LINK libZPlayCpp::zplay_Stop, zplay_Stop>,
+<LINK libZPlayCpp::zplay_Pause, zplay_Pause>,
+<LINK libZPlayCpp::zplay_Resume, zplay_Resume>,
+<LINK libZPlayCpp::zplay_PlayLoop, zplay_PlayLoop>
+
+
+<EXAMPLE>
+Jump 50 seconds from beginning.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamTime pTime;
+pTime.sec = 50; // we are using sec member of TStreamTime structure so we need tfSecond time format.
+instance->Seek(tfSecond, &pTime, smFromBeginning);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamTime pTime;
+pTime.sec = 50; // we are using sec member of TStreamTime structure so we need tfSecond time format.
+zplay_Seek(instance, tfSecond, &pTime, smFromBeginning);
+</CODE>
+</EXAMPLE>
+
+<EXAMPLE>
+Jump 5 seconds forward from current position
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamTime pTime;
+pTime.sec = 5; // we are using sec member of TStreamTime structure so we need tfSecond time format.
+instance->Seek(tfSecond, &pTime, smFromCurrentForward);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamTime pTime;
+pTime.sec = 5; // we are using sec member of TStreamTime structure so we need tfSecond time format.
+zplay_Seek(instance, tfSecond, &pTime, smFromCurrentForward);
+</CODE>
+</EXAMPLE>

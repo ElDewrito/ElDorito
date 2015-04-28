@@ -1,0 +1,15 @@
+Summary:
+  Get VU data for left and right channel
+
+Parameters:
+  pnLeftChannel  - Pointer to variable receiving left channel VU level. Level range is from 0 to 100.
+  pnRightChannel - Pointer to variable receiving right channel VU level. Level range is from 0 to 100.
+
+
+Returns:
+None.
+
+Remarks:
+Use this function to get VU data for your VU meter. Range of VU level data is 0 - 100.
+
+<IMAGE note> Note: VU data are fully synchronized with audio data from wave buffer. 

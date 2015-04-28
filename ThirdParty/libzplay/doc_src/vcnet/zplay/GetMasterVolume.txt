@@ -1,0 +1,18 @@
+Summary:
+  Get output volume of wave out device driver.
+
+Parameters:
+  %PAR0% - Reference to variable receiving left volume. Volume range is from 0 to 100.
+  %PAR1% - Reference to variable receiving right volume. Volume range is from 0 to 100.
+
+Returns:
+None.
+
+Remarks:
+Master volume affects all wave output on computer.
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetMasterVolume, SetMasterVolume>,
+<LINK libZPlayVC::ZPlay::SetPlayerVolume, SetPlayerVolume>,
+<LINK libZPlayVC::ZPlay::GetPlayerVolume, GetPlayerVolume>,
+<LINK libZPlayVC::ZPlay::SlideVolume, SlideVolume>

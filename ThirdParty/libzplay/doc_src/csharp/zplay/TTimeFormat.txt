@@ -1,0 +1,17 @@
+Summary:
+Time format.
+
+Parameters:
+tfMillisecond - <b>ms</b> member of <LINK libZPlayC#.TStreamTime, TStreamTime> structure is valid.
+tfSecond      - <b>sec</b> member of <LINK libZPlayC#.TStreamTime, TStreamTime> structure is valid.
+tfHMS         - <b>hms</b> member of <LINK libZPlayC#.TStreamTime, TStreamTime> structure is valid.
+tfSamples     - <b>samples</b> member of <LINK libZPlayC#.TStreamTime, TStreamTime> structure is valid.
+
+Remarks:
+This values specifies which time format is used from <LINK libZPlayC#.TStreamTime, TStreamTime> structure.
+
+See Also:
+<LINK libZPlayC#.TStreamTime, TStreamTime>
+
+
+

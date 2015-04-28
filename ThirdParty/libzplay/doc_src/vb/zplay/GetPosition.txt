@@ -1,0 +1,25 @@
+Summary:
+  Get current position.
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayVB.TStreamTime, TStreamTime>. User must allocate memory for this parameter.
+
+Returns:
+  None.
+
+Remarks:
+This function retrieves current position in <LINK libZPlayVB.TStreamTime, TStreamTime> format.
+All members of <LINK libZPlayVB.TStreamTime, TStreamTime> structure are valid.
+If stream is not playing or stream is closed, position is 0.
+
+See Also:
+<LINK libZPlayVB.ZPlay.GetStatus, GetStatus>,
+<LINK libZPlayVB.ZPlay.GetBitrate, GetBitrate>,
+<LINK libZPlayVB.ZPlay.GetStreamInfo, GetStreamInfo>
+
+Example:
+
+<code lang="vb.net">
+Dim pos As New TStreamTime()
+player.GetPosition(pos)
+</code>

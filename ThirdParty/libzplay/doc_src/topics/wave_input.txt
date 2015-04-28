@@ -1,0 +1,5 @@
+ZPlay class can retrieve some usefull informations about wave-input devices on your computer.
+There is also possibility to choose wave-input device as input for ZPlay class.
+
+
+Read topics below: 

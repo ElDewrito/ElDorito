@@ -1,0 +1,47 @@
+Summary:
+  Detect beat-per-minute of current stream.
+
+Parameters:
+  nMethod - Detection method. See valid <LINK libZPlayCpp::TBMPDetectionMethod, detection methods>.
+
+Returns:
+BPM value. If algorithm can't detect BPM value, return value is 0.
+
+
+Remarks:
+This function will scan current stream and detect beat-per-minute.
+
+<INCLUDE extensions\\note_start.txt>Detection process can take some time.
+<INCLUDE extensions\\note_end.txt>
+
+
+<INCLUDE extensions\\warning_start.txt><b>THIS FUNCTION WILL STOP CURRENT PLAYING AND SET POSITION TO 0.</b>
+<P>If you need to detect BPM value without interference with playig stream, use <LINK libZPlayCpp::ZPlay::DetectFileBPM, DetectFileBPM> or <LINK libZPlayCpp::zplay_DetectFileBPM, zplay_DetectFileBPM> function.
+<INCLUDE extensions\\warning_end.txt>
+
+BPM detection algorithm isn't 100 % accurate.
+Algorithm will stop when first valid BPM value is detected.
+If BPM value can't be detected, algorithm will try to search whole stream.
+If this fails, returned BPM value is 0.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::DetectFileBPM, DetectFileBPM>,
+<LINK libZPlayCpp::ZPlay::DetectFileBPMW, DetectFileBPMW>
+
+<LINK libZPlayCpp::zplay_DetectFileBPM, zplay_DetectFileBPM>,
+<LINK libZPlayCpp::zplay_DetectFileBPMW, zplay_DetectFileBPMW>,
+
+
+Example:
+Detect BPM value of current stream using "peak detection" method
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// use "peak detection" method to detect BPM value
+int BPM = instance->DetectBPM(dmPeaks);
+</CODE>
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// use "peak detection" method to detect BPM value
+int BPM = zplay_DetectBPM(instance, dmPeaks);
+</CODE>

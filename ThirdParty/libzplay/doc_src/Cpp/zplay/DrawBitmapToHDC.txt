@@ -1,0 +1,43 @@
+Summary:
+Draw HBITMAP on device context. Only in version 2.00 and above.
+
+Parameters:
+  hdc     - Device context.
+  X       - Specifies the logical x-coordinate of the upper-left corner of the destination rectangle.
+  Y       - Specifies the logical y-coordinate of the upper-left corner of the destination rectangle.
+  Width   - Specifies the logical width of the destination rectangle. If this value is 0, function will use original width of specified bitmap.
+  Height  - Specifies the logical height of the destination rectangle. If this value is 0, function will use original height of specified bitmap.
+  hBitmap - Bitmap handle to draw.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+This function is using StretchBlt API to draw HBITMAP on screen. If you set Width and Height to 0, function will use width and height of
+hBitmap to determine drawing area. If you specify your own width and height, function will stretch hBitmap to specified dimensions.
+
+<EXAMPLE>
+Load ID3 info from current stream and draw picture on screen.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TID3InfoEx id3_info;
+if(instance->LoadID3Ex(&id3_info, 1))
+{
+
+  HDC myDC = CreateCompatibleDC(NULL);
+  if(id3_info.Picture.CanDrawPicture)
+      instance->DrawBitmapToHDC(myDC, 0, 0, 0, 0, id3_info.Picture.hBitmap);
+  else
+  {
+     // can't decode attached image to hBitmap, use PictureData and PictureDataSize
+     // to decode this format by your own image decoder
+  }
+ 
+  DeleteDC(myDC);
+}
+</CODE>
+</EXAMPLE>

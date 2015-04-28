@@ -1,0 +1,28 @@
+Description:
+Standard WINDOWS PCM WAVE format with valid RIFF header.
+
+<TABLE>
+     Decoder               WINDOWS PCM WAVE
+     --------------------  --------------------------------------------------------------------------------------------------------------
+     File extension        wav
+     Description           Windows PCM WAVE format with valid RIFF header, uncompressed. Supported 8 and 16 bit per sample.
+     Supported by          Native windows winmm library.
+     Web                    
+     Email                  
+     Copyright &copy;      
+     Info tags             <IMAGE star_green> Supported by RIFF chunks (INFO, DISP and LIST).
+     Reverse playing       <IMAGE star_green> Supported.
+     Accurate length       <IMAGE star_green> Supported.
+     Accurate seek         <IMAGE star_green> Supported.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_green> Supported.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension and detecting RIFF tag at stream beginning.
+     Audio autodetection   <IMAGE star_green> Supported by RIFF FMT chunk.
+     Recording/Encoder     <IMAGE star_green> Supported.
+     Supported channels    1 channel (mono), 2 channels (stereo)
+</TABLE>
+
+Remarks:
+
+Only uncompressed windows wave format is supported. Stream must have valid RIFF header.

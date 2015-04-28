@@ -1,0 +1,27 @@
+Description:
+AAC support is provided by <b>FAAD2 - Freeware Advanced Audio (AAC) Decoder including SBR decoding</b>
+
+<TABLE>
+     Decoder               AAC
+     --------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     File extension        aac
+     Description           FAAD2 is a HE, LC, MAIN and LTP profile, MPEG2 and MPEG-4 AAC decoder. FAAD2 includes code for SBR (HE AAC) decoding. Only ADTS transport format supported.
+     Supported by          <LINK FAAD2, FAAD2 - Freeware Advanced Audio (AAC) Decoder including SBR decoding>
+     Web                   <EMIT &lt;a href="http://www.audiocoding.com/";&gt;http://www.audiocoding.com/&lt;/a&gt;>
+     Email                 <EMIT &lt;a href="mailto:mbakker@nero.com";&gt;mbakker@nero.com&lt;/a&gt;>
+     Copyright &copy;      Copyright (C) 2003-2005 M. Bakker, Nero AG   <LINK GPLTXT, GNU General Public License>
+     Info tags             <IMAGE star_green> Supported by ID3v1, ID3v2.2, ID3v2.3, ID3v2.4
+     Reverse playing       <IMAGE star_green> Supported by prescanning whole stream and decoding ADTS frames backward with frame overlap.
+     Accurate length       <IMAGE star_green> Supported.
+     Accurate seek         <IMAGE star_green> Supported.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_blue> Supported, but not tested.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension.
+     Audio autodetection   <IMAGE star_green> Supported by analyzing ADTS frame header (samplerate, channel number).
+     Recording/Encoder     <IMAGE star_green> Supported by <LINK FAAC, FAAC library>.
+     Supported channels    1 channel (mono), 2 channels (stereo)
+</TABLE>
+
+Remarks:
+Only ADTS streams are supported. ADIF stream is not supported.

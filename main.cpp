@@ -10,6 +10,8 @@
 #include "ElPatches.h"
 #include "ElPreferences.h"
 
+extern BOOL installMedalJunk();
+
 LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
 	const char *error_type = "Unknown";
@@ -86,6 +88,7 @@ LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExc
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
+	installMedalJunk();
 
 	Console::AllocateConsole("ElDewrito");
 

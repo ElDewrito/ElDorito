@@ -1,0 +1,26 @@
+Summary:
+  Load extended ID3 data from current stream. Only in version 2.00 and above. (UNICODE version)
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayDelphi.TID3InfoExW, TID3InfoExW> receiving extended ID3 data.
+  %PAR1% - Set to true to decode attached picture. See Remarks section.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Check <LINK SupportedFormats, supported formats> for info tag support. Some formats can support some sort of "Info tags", but not all.
+
+libZPlay library implements "ID3 tag" interface to different info tags (VORBIS comment, RIFF Info, ...).
+So, you can retrieve ID3 informations from different streams (mp3, ogg, flac, wav) because library will convert "format specific tag" to ID3 tag info.
+
+<INCLUDE extensions\\note_start.txt>This function can retrieve attached picture from info tag. If you need to draw this picture on screen, set
+fDecodeEmbededPicture parameter to true to decode attached picture into Bitmap class. See <LINK libZPlayDelphi.TID3PictureW, TID3PictureW>.
+<INCLUDE extensions\\note_end.txt>
+
+<IMAGE note> Note: If you juste need ID3 data from file, use <LINK libZPlayDelphi.ZPlay.LoadFileID3ExW, LoadFileID3ExW>.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.LoadFileID3ExW, LoadFileID3ExW>
+

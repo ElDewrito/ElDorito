@@ -1,0 +1,36 @@
+Summary:
+  Detect beat-per-minute of current stream.
+
+Parameters:
+  %PAR0% - Detection method. See valid <LINK libZPlayVC::TBPMDetectionMethod, detection methods>.
+
+Returns:
+BPM value. If algorithm can't detect BPM value, return value is 0.
+
+
+Remarks:
+This function will scan current stream and detect beat-per-minute.
+
+<IMAGE note> Note: Detection process can take some time.
+
+<IMAGE caution> <b>Warning: THIS FUNCTION WILL STOP CURRENT PLAYING AND SET POSITION TO 0.</b>
+<P>If you need to detect BPM value without interference with playig stream, use <LINK libZPlayVC::ZPlay::DetectFileBPM, DetectFileBPM> function.
+
+BPM detection algorithm isn't 100 % accurate.
+Algorithm will stop when first valid BPM value is detected.
+If BPM value can't be detected, algorithm will try to search whole stream.
+If this fails, returned BPM value is 0.
+
+See Also:
+<LINK libZPlayVC::ZPlay::DetectFileBPM, DetectFileBPM>
+
+Example:
+
+<code lang="c++">
+if (MessageBox::Show("This can take some time! Continue ?", "Detecting BPM", MessageBoxButtons::YesNoCancel) == System::Windows::Forms::DialogResult::Yes)
+{
+  int BPM = 0;
+  BPM = player->DetectBPM(TBPMDetectionMethod::dmPeaks);
+  MessageBox::Show("BPM: " + System::Convert::ToString(BPM), "Detected BPM", MessageBoxButtons::OK);
+}
+</code>

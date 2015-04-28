@@ -1,0 +1,47 @@
+Summary:
+  Set wave out device for this interface instance.
+
+Parameters:
+  nIndex - Index of wave out device.
+           Call <LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut> or <LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>to get number of wave out devices.
+           Index value is in range from 0 to num_of_devices - 1.
+           <P><IMAGE note> Note: There is special index value <LINK WaveOutWaveMapper, WaveOutWaveMapper>.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+User can specify wave out device for each interface instance.
+If you have multiple soundcards, with this function you can specify output soundcard.
+You can also create 2 interface instances and play 2 songs, each song on different soundcard.
+
+Default wave output is set to <LINK WaveOutWaveMapper, WaveOutWaveMapper> (class is using waveform-audio output device capable of playing the given format).
+
+This function has effect on next call to play function.
+If you call this function while song is playing there is no effect.
+You need to stop playing and start playing again to apply new settings.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayCpp::ZPlay::GetWaveOutInfo, GetWaveOutInfo>,
+<LINK libZPlayCpp::ZPlay::GetWaveOutInfoW, GetWaveOutInfoW>,
+
+<LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>,
+<LINK libZPlayCpp::zplay_GetWaveOutInfo, zplay_GetWaveOutInfo>,
+<LINK libZPlayCpp::zplay_GetWaveOutInfoW, zplay_GetWaveOutInfoW>,
+
+
+<EXAMPLE>
+Set wave output to wave mapper  (default setting).
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->SetWaveOutDevice(WaveOutWaveMapper);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_SetWaveOutDevice(instance, WaveOutWaveMapper);
+</CODE>
+</EXAMPLE>

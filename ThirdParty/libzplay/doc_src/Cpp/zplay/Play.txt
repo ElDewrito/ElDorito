@@ -1,0 +1,23 @@
+Summary:
+  Start playing from current position.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will start playing from current position. THis function will create decoding thread and open wave output.
+
+<IMAGE note> Note: To change position use <LINK libZPlayCpp::ZPlay::Seek, Seek> or <LINK libZPlayCpp::zplay_Seek, zplay_Seek> function.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::Stop, Stop>,
+<LINK libZPlayCpp::ZPlay::Pause, Pause>,
+<LINK libZPlayCpp::ZPlay::Resume, Resume>,
+<LINK libZPlayCpp::ZPlay::Seek, Seek>
+
+<LINK libZPlayCpp::zplay_Stop, zplay_Stop>,
+<LINK libZPlayCpp::zplay_Pause, zplay_Pause>,
+<LINK libZPlayCpp::zplay_Resume, zplay_Resume>,
+<LINK libZPlayCpp::zplay_Seek, zplay_Seek>

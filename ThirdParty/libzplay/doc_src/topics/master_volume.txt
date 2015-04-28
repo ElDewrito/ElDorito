@@ -1,0 +1,23 @@
+Summary:
+Master volume is external volume control.
+
+Description:
+Master volume control will change wave output volume of soundcard driver. This will affect master computer volume.
+
+<IMAGE note> Note: Use <LINK PLAYER_VOLUME, player volume control> if you need to control volume of specific song.
+
+You can play 2 songs using 2 instances and control volume of each song by changind <LINK PLAYER_VOLUME, player volume>.
+
+
+
+<b>To change master volume use:</b> 
+<TABLE>
+C++                                                            C                                                                   VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------    ----------------------------------------------------------------    --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetMasterVolume, SetMasterVolume>    <LINK libZPlayCpp::zplay_SetMasterVolume, zplay_SetMasterVolume>    <LINK libZPlayVB.ZPlay.SetMasterVolume, SetMasterVolume>   <LINK libZPlayC#.ZPlay.SetMasterVolume, SetMasterVolume>   <LINK libZPlayVC::ZPlay::SetMasterVolume, SetMasterVolume>   <LINK libZPlayDelphi.ZPlay.SetMasterVolume, SetMasterVolume> 
+<LINK libZPlayCpp::ZPlay::GetMasterVolume, GetMasterVolume>    <LINK libZPlayCpp::zplay_GetMasterVolume, zplay_GetMasterVolume>    <LINK libZPlayVB.ZPlay.GetMasterVolume, GetMasterVolume>   <LINK libZPlayC#.ZPlay.GetMasterVolume, GetMasterVolume>   <LINK libZPlayVC::ZPlay::GetMasterVolume, GetMasterVolume>   <LINK libZPlayDelphi.ZPlay.GetMasterVolume, GetMasterVolume> 
+</TABLE>
+
+See Also:
+<LINK PLAYER_VOLUME, Player volume>,
+<LINK SLIDE_VOLUME1, Slide volume>

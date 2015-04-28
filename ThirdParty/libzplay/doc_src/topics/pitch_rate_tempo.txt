@@ -1,0 +1,22 @@
+Summary:
+Use pitch/rate/tempo processor.
+
+Description:
+libZPlay implements programmable pitch/rate/tempo processor. User can change pitch, rate and tempo of playing song.
+
+
+<IMAGE note> Note: By default, pitch/rate/tempo processor is disabled.
+
+
+
+<b>To change pitch/rate/tempo use:</b>
+<TABLE>
+C++                                              C                                                     VB.NET                                        C#.NET                                      VC.NET                                         Delphi
+---------------------------------------------    --------------------------------------------------    -------------------------------------------   -----------------------------------------   --------------------------------------------   ----------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetPitch, SetPitch>    <LINK libZPlayCpp::zplay_SetPitch, zplay_SetPitch>    <LINK libZPlayVB.ZPlay.SetPitch, SetPitch>   <LINK libZPlayC#.ZPlay.SetPitch, SetPitch>   <LINK libZPlayVC::ZPlay::SetPitch, SetPitch>   <LINK libZPlayDelphi.ZPlay.SetPitch, SetPitch> 
+<LINK libZPlayCpp::ZPlay::GetPitch, GetPitch>    <LINK libZPlayCpp::zplay_GetPitch, zplay_GetPitch>    <LINK libZPlayVB.ZPlay.GetPitch, GetPitch>   <LINK libZPlayC#.ZPlay.GetPitch, GetPitch>   <LINK libZPlayVC::ZPlay::GetPitch, GetPitch>   <LINK libZPlayDelphi.ZPlay.GetPitch, GetPitch> 
+<LINK libZPlayCpp::ZPlay::SetRate, SetRate>      <LINK libZPlayCpp::zplay_SetRate, zplay_SetRate>      <LINK libZPlayVB.ZPlay.SetRate, SetRate>     <LINK libZPlayC#.ZPlay.SetRate, SetRate>     <LINK libZPlayVC::ZPlay::SetRate, SetRate>     <LINK libZPlayDelphi.ZPlay.SetRate, SetRate> 
+<LINK libZPlayCpp::ZPlay::GetRate, GetRate>      <LINK libZPlayCpp::zplay_GetRate, zplay_GetRate>      <LINK libZPlayVB.ZPlay.GetRate, GetRate>     <LINK libZPlayC#.ZPlay.GetRate, GetRate>     <LINK libZPlayVC::ZPlay::GetRate, GetRate>     <LINK libZPlayDelphi.ZPlay.GetRate, GetRate> 
+<LINK libZPlayCpp::ZPlay::SetTempo, SetTempo>    <LINK libZPlayCpp::zplay_SetTempo, zplay_SetTempo>    <LINK libZPlayVB.ZPlay.SetTempo, SetTempo>   <LINK libZPlayC#.ZPlay.SetTempo, SetTempo>   <LINK libZPlayVC::ZPlay::SetTempo, SetTempo>   <LINK libZPlayDelphi.ZPlay.SetTempo, SetTempo> 
+<LINK libZPlayCpp::ZPlay::GetTempo, GetTempo>    <LINK libZPlayCpp::zplay_GetTempo, zplay_GetTempo>    <LINK libZPlayVB.ZPlay.GetTempo, GetTempo>   <LINK libZPlayC#.ZPlay.GetTempo, GetTempo>   <LINK libZPlayVC::ZPlay::GetTempo, GetTempo>   <LINK libZPlayDelphi.ZPlay.GetTempo, GetTempo> 
+</TABLE>

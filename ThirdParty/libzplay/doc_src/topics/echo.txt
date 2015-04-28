@@ -1,0 +1,19 @@
+Summary:
+Echo processor.
+
+Description:
+libZPlay implements programmable echo processor.
+User can create multiple echo effects for each channel separately to produce advanced echo and reverb effect.
+
+<INCLUDE extensions\\note_start.txt>By default, echo processor is disabled and simple 1000 ms delay is programmed.
+<INCLUDE extensions\\note_end.txt>
+
+
+<b>To apply echo effect use:</b>
+<TABLE>
+C++                                                      C                                                             VB.NET                                               C#.NET                                               VC.NET                                                 Delphi
+-----------------------------------------------------    ----------------------------------------------------------    --------------------------------------------------   --------------------------------------------------   ----------------------------------------------------   ------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetEchoParam, SetEchoParam>    <LINK libZPlayCpp::zplay_SetEchoParam, zplay_SetEchoParam>    <LINK libZPlayVB.ZPlay.SetEchoParam, SetEchoParam>   <LINK libZPlayC#.ZPlay.SetEchoParam, SetEchoParam>   <LINK libZPlayVC::ZPlay::SetEchoParam, SetEchoParam>   <LINK libZPlayDelphi.ZPlay.SetEchoParam, SetEchoParam> 
+<LINK libZPlayCpp::ZPlay::GetEchoParam, GetEchoParam>    <LINK libZPlayCpp::zplay_GetEchoParam, zplay_GetEchoParam>    <LINK libZPlayVB.ZPlay.GetEchoParam, GetEchoParam>   <LINK libZPlayC#.ZPlay.GetEchoParam, GetEchoParam>   <LINK libZPlayVC::ZPlay::GetEchoParam, GetEchoParam>   <LINK libZPlayDelphi.ZPlay.GetEchoParam, GetEchoParam> 
+<LINK libZPlayCpp::ZPlay::EnableEcho, EnableEcho>        <LINK libZPlayCpp::zplay_EnableEcho, zplay_EnableEcho>        <LINK libZPlayVB.ZPlay.EnableEcho, EnableEcho>       <LINK libZPlayC#.ZPlay.EnableEcho, EnableEcho>       <LINK libZPlayVC::ZPlay::EnableEcho, EnableEcho>       <LINK libZPlayDelphi.ZPlay.EnableEcho, EnableEcho> 
+</TABLE>

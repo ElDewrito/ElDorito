@@ -1,0 +1,53 @@
+Symbol reference.
+
+<TABLE>
+C/C++                                                          Description
+-------------------------------------------------------------  -----------
+<LINK ZPLAYINTERFACE, ZPlay C++ Class>                         Basic libZPlay interface based on ZPlay C++ class.
+<LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, ZPlay methods>  The methods of the ZPlay class.
+<LINK !!FUNCTIONS_libZPlayCpp, C Style Functions>              C Style interface functions.
+<LINK !!RECORDS_libZPlayCpp, Structs, Records, Enums>          Shared structs, records, enums in this library.
+<LINK !!TYPES_libZPlayCpp, Types>                              Shared types in this library.
+<LINK !!MACROS_libZPlayCpp, Macros>                            Macros definitions.
+<LINK !!libZPlayCPP, libZplay.h>                               libZPlay.h file.
+</TABLE>
+
+<TABLE>
+VC++.NET                                                       Description
+-------------------------------------------------------------  -----------
+<LINK ZPLAYINTERFACE_VCNET, ZPlay VC++.NET Class>              VC++.NET ZPlay class.
+<LINK !!MEMBERTYPE_Methods_libZPlayVC::ZPlay, ZPlay methods>   The methods of the ZPlay class.
+<LINK !!RECORDS_libZPlayVC, Structs, Records, Enums>           Shared structs, records, enums in this library.
+<LINK !!libZPlayVC, libZplayNET.h>                             libZPlayNET.h file.
+</TABLE>
+
+<TABLE>
+VB.NET                                                       Description
+-----------------------------------------------------------  -----------
+<LINK ZPLAYINTERFACE_VBNET, ZPlay VB.NET Class>              VB.NET ZPlay class.
+<LINK !!MEMBERTYPE_Methods_libZPlayVB.ZPlay, ZPlay methods>  The methods of the ZPlay class.
+<LINK !!RECORDS_libZPlayVB, Structs, Records, Enums>         Shared structs, records, enums in this library.
+<LINK !!TYPES_libZPlayVB, Types>                             Shared types in this library.
+<LINK !!libZPlayVB, libZplay.vb>                             libZPlay.vb file.
+</TABLE>
+
+<TABLE>
+C#.NET                                                       Description
+-----------------------------------------------------------  -----------
+<LINK ZPLAYINTERFACE_CSHARP, ZPlay C#.NET Class>             C#.NET ZPlay class.
+<LINK !!MEMBERTYPE_Methods_libZPlayC#.ZPlay, ZPlay methods>  The methods of the ZPlay class.
+<LINK !!RECORDS_libZPlayC#, Structs, Records, Enums>         Shared structs, records, enums in this library.
+<LINK !!TYPES_libZPlayC#, Types>                             Shared types in this library.
+<LINK !!libZPlayCS, libZplay.cs>                             libZPlay.cs file.
+</TABLE>
+
+<TABLE>
+Delphi                                                           Description
+---------------------------------------------------------------  -----------
+<LINK ZPLAYINTERFACE_DELPHI, ZPlay Delphi Class>                 Delphi ZPlay class.
+<LINK !!MEMBERTYPE_Methods_libZPlayDelphi.ZPlay, ZPlay methods>  The methods of the ZPlay class.
+<LINK !!RECORDS_libZPlayDelphi, Structs, Records, Enums>         Shared structs, records, enums in this library.
+<LINK !!TYPES_libZPlayDelphi, Types>                             Shared types in this library.
+<LINK !!CONSTANTS_libZPlayDelphi, Constants>                     Shared types in this library.
+<LINK !!libZPlayDelphi, libZplay.pas>                            libZPlay.pas file.
+</TABLE>

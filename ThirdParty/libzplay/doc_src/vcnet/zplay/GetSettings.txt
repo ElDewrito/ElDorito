@@ -1,0 +1,14 @@
+Summary:
+Get class instance settings.
+
+Parameters:
+  %PAR0% - <LINK libZPlayVC::TSettingID, Setting identifier>.
+
+Returns:
+Setting value.
+
+Remarks:
+Each class instance has it's own settings. You can configure each class instance separately.
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetSettings, SetSettings>

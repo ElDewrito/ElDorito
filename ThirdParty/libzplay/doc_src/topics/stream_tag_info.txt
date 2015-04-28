@@ -1,0 +1,32 @@
+Summary:
+Get ID3 info from stream.
+
+Description:
+Stream can contain tag info, like ID3 tag, VORBIS comment, ... This depends on stream format.
+Check <LINK SupportedFormats, supported formats> for info tag support.
+
+libZPlay library implements "ID3 tag" interface to different info tags (VORBIS comment, RIFF Info, ...).
+So, you can retrieve ID3 informations from different streams (mp3, ogg, flac, wav) because library will convert "format specific tag" to ID3 tag info.
+
+
+<b>Library version 2.00 and above include extended ID3 info.</b>
+
+
+<INCLUDE extensions\\note_start.txt>ID3v2 and VORBIS comment can include attached image.
+You can access this image to save picture to disk or draw picture on screen. <b>Use extended ID3 functions</b>.
+<INCLUDE extensions\\note_end.txt>
+
+<b>To get ID3 info use:</b>
+
+<TABLE>
+C++                                                          C                                                                 VB.NET                                                    C#.NET                                                    VC.NET                                                     Delphi
+---------------------------------------------------------    --------------------------------------------------------------    -------------------------------------------------------   -------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::LoadID3, LoadID3>                  <LINK libZPlayCpp::zplay_LoadID3, zplay_LoadID3>                  <LINK libZPlayVB.ZPlay.LoadID3, LoadID3>                  <LINK libZPlayC#.ZPlay.LoadID3, LoadID3>                  <LINK libZPlayVC::ZPlay::LoadID3, LoadID3>                 <LINK libZPlayDelphi.ZPlay.LoadID3, LoadID3> 
+<LINK libZPlayCpp::ZPlay::LoadID3W, LoadID3W>                <LINK libZPlayCpp::zplay_LoadID3W, zplay_LoadID3W>                                                                                                                                                                                               <LINK libZPlayDelphi.ZPlay.LoadID3W, LoadID3W> 
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>          <LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>          <LINK libZPlayVB.ZPlay.LoadFileID3, LoadFileID3>          <LINK libZPlayC#.ZPlay.LoadFileID3, LoadFileID3>          <LINK libZPlayVC::ZPlay::LoadFileID3, LoadFileID3>         <LINK libZPlayDelphi.ZPlay.LoadFileID3, LoadFileID3> 
+<LINK libZPlayCpp::ZPlay::LoadFileID3W, LoadFileID3W>        <LINK libZPlayCpp::zplay_LoadFileID3W, zplay_LoadFileID3W>                                                                                                                                                                                       <LINK libZPlayDelphi.ZPlay.LoadFileID3W, LoadFileID3W> 
+<LINK libZPlayCpp::ZPlay::LoadID3Ex, LoadID3Ex>              <LINK libZPlayCpp::zplay_LoadID3Ex, zplay_LoadID3Ex>              <LINK libZPlayVB.ZPlay.LoadID3Ex, LoadID3Ex>              <LINK libZPlayC#.ZPlay.LoadID3Ex, LoadID3Ex>              <LINK libZPlayVC::ZPlay::LoadID3Ex, LoadID3Ex>             <LINK libZPlayDelphi.ZPlay.LoadID3Ex, LoadID3Ex> 
+<LINK libZPlayCpp::ZPlay::LoadID3ExW, LoadID3ExW>            <LINK libZPlayCpp::zplay_LoadID3ExW, zplay_LoadID3ExW>                                                                                                                                                                                           <LINK libZPlayDelphi.ZPlay.LoadID3ExW, LoadID3ExW> 
+<LINK libZPlayCpp::ZPlay::LoadFileID3Ex, LoadFileID3Ex>      <LINK libZPlayCpp::zplay_LoadFileID3Ex, zplay_LoadFileID3Ex>      <LINK libZPlayVB.ZPlay.LoadFileID3Ex, LoadFileID3Ex>      <LINK libZPlayC#.ZPlay.LoadFileID3Ex, LoadFileID3Ex>      <LINK libZPlayVC::ZPlay::LoadFileID3Ex, LoadFileID3Ex>     <LINK libZPlayDelphi.ZPlay.LoadFileID3Ex, LoadFileID3Ex> 
+<LINK libZPlayCpp::ZPlay::LoadFileID3ExW, LoadFileID3ExW>    <LINK libZPlayCpp::zplay_LoadFileID3ExW, zplay_LoadFileID3ExW>                                                                                                                                                                                   <LINK libZPlayDelphi.ZPlay.LoadFileID3ExW, LoadFileID3ExW> 
+</TABLE>

@@ -1,0 +1,28 @@
+Summary:
+Get equalizer parameters, band gain and preamp gain.
+
+Parameters:
+  %PAR0% - Reference to integer variable receiving preamp gain in <b>millidecibels</b>.
+  %PAR1% - Reference to array of integers receiving gain for each band in <b>millidecibels</b> (thousandth of decibel).
+          <P><IMAGE caution> Caution: Function will resize this array to number of bands.
+
+
+Returns:
+Number of equalizer bands.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+Class has by default 10 equalizer bands. See <LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayC#.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayC#.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayC#.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayC#.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayC#.ZPlay.EnableEqualizer, EnableEqualizer>

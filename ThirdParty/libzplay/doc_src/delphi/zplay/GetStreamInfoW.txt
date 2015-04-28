@@ -1,0 +1,19 @@
+Summary:
+  Get stream informations (length, sampling rate, channel number, ...).
+
+Parameters:
+  %PAR0%- Reference to <LINK libZPlayDelphi.TStreamInfoW, TStreamInfoW>. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+Use this function to get basic informations about opened stream.
+
+<IMAGE note> Note: Only with this function you can get stream length, sampling rate, channel number ...
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetStatus, GetStatus>,
+<LINK libZPlayDelphi.ZPlay.GetPosition, GetPosition>,
+<LINK libZPlayDelphi.ZPlay.LoadID3W, LoadID3W>,
+<LINK libZPlayDelphi.ZPlay.LoadFileID3W, LoadFileID3W>

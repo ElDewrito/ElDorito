@@ -1,0 +1,15 @@
+Summary:
+Get data to draw VU meter.
+
+Description:
+libZPlay library can provide data for VU meter.
+User can retrieve data for left and right channel and then draw custom VU meter.
+
+
+
+<b>To retrieve VU data use:</b>
+<TABLE>
+C++                                                C                                                     VB.NET                                          C#.NET                                         VC.NET                                          Delphi
+-----------------------------------------------    ---------------------------------------------------   ---------------------------------------------   --------------------------------------------   ---------------------------------------------   ------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetVUData, GetVUData>    <LINK libZPlayCpp::zplay_GetVUData, zplay_GetVUData>   <LINK libZPlayVB.ZPlay.GetVUData, GetVUData>   <LINK libZPlayC#.ZPlay.GetVUData, GetVUData>  <LINK libZPlayVC::ZPlay::GetVUData, GetVUData>   <LINK libZPlayDelphi.ZPlay.GetVUData, GetVUData> 
+</TABLE>

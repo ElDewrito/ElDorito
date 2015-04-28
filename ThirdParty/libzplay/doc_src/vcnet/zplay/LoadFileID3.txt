@@ -1,0 +1,29 @@
+Summary:
+  Load ID3 data from specified file. (ANSI version)
+
+Parameters:
+  %PAR0% - String that specifies the name of the file.
+  %PAR1% - Stream format. Use <b><LINK libZPlayVC::TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+  %PAR2% - ID3 version.
+           <P><IMAGE note> Note: This value is only used for <b><LINK libZPlayVC::TStreamFormat, sfMp3></b> stream format.
+           For all other stream formats this parameter is ignored.
+  %PAR3% - Reference to <LINK libZPlayVC::TID3Info, TID3Info> receiving ID3 data.	
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Check <LINK SupportedFormats, supported formats> for info tag support. Some formats can support some sort of "Info tags", but not all.
+
+libZPlay library implements "ID3 tag" interface to different info tags (VORBIS comment, RIFF Info, ...).
+So, you can retrieve ID3 informations from different streams (mp3, ogg, flac, wav) because library will convert "format specific tag" to ID3 tag info.
+
+<IMAGE note> Note: Use this function if you just need ID3 data and you don't need to play this file.
+This function only loads ID3 data. There is no checking if this is valid file, wave output isn't open ...
+This function has no effect on currently open file or stream.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::LoadID3, LoadID3>
+

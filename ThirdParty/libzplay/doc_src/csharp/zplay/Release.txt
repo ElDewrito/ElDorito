@@ -1,0 +1,10 @@
+Summary:
+  Destroy interface instance.
+
+Remarks:
+Call this function to destroy class instance created by class factory <LINK libZPlayC#.CreateZPlay, CreateZPlay>.
+
+Playing will be stopped, all memory deallocated and interface instance will be destroyed.
+
+See Also:
+<LINK ZPLAYINTERFACE, ZPlay C++ Class interface>, <LINK libZPlayC#.CreateZPlay, CreateZPlay>

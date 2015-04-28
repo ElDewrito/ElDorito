@@ -1,0 +1,21 @@
+Summary:
+ID3 informations.
+
+Parameters:
+Title    - Title.
+Artist   - Artist.
+Album    - Album.
+Year     - Year.
+Comment  - Comment
+TrackNum - Track number.
+Genre    - Genre.
+
+Remarks:
+All members of this structure are strings.
+Class instance allocates memory for these members and class instance is responsible for this memory.
+These pointers are valid until you destroy class.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.LoadID3, LoadID3>,
+<LINK libZPlayDelphi.ZPlay.LoadFileID3, LoadFileID3>,
+

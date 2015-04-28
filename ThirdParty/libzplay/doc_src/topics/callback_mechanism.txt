@@ -1,0 +1,16 @@
+Summary:
+Callback mechanism.
+
+Description:
+Library supports callback mechanism based on callback function with callback messages. 
+
+User can through callback function receive multiple callback messages indicating various events.
+
+
+
+<b>To use callback mechanism read:</b>
+<TABLE>
+C++                                                            C                                                                   VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------    ----------------------------------------------------------------    --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc>    <LINK libZPlayCpp::zplay_SetCallbackFunc, zplay_SetCallbackFunc>    <LINK libZPlayVB.ZPlay.SetCallbackFunc, SetCallbackFunc>   <LINK libZPlayC#.ZPlay.SetCallbackFunc, SetCallbackFunc>   <LINK libZPlayVC::ZPlay::SetCallbackFunc, SetCallbackFunc>   <LINK libZPlayDelphi.ZPlay.SetCallbackFunc, SetCallbackFunc> 
+</TABLE>

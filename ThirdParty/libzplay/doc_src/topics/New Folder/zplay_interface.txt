@@ -1,0 +1,42 @@
+Summary:
+Basic libZPlay interface is ZPlay C++ Class interface.
+
+Description:
+This interface is implemented as <LINK libZPlayCpp::ZPlay, ZPlay C++ abstract class> and related <LINK !!MEMBERTYPE_Methods_ZPlay, methods>.
+
+All you need to do is to create instance of ZPlay class.
+
+<IMAGE star_red><b>Note: </b>User <b><COLOR RED>can't create</COLOR></b> instance of ZPlay class using <b>new</b> keyword:
+<code lang="c++">
+#include "libzplay.h"
+
+// use namespace for our class
+using namespace TZPlay;
+
+// create class instance using new keyword
+ZPlay *instance = new ZPlay;	// this will fail !!!
+// 'ZPlay' : cannot instantiate abstract class due to following members
+</code>
+
+<IMAGE star_green>To create class instance, user must use class factory function <LINK libZPlayCpp::CreateZPlay, CreateZPlay>:
+<code lang="c++">
+#include "libzplay.h"
+
+// use namespace for our class
+using namespace TZPlay;
+
+// create class instance using class factory function
+ZPlay *instance = CreateZPlay();
+</code> 
+
+When class instance is created, use <LINK !!MEMBERTYPE_Methods_ZPlay, ZPlay methods> to play your songs.
+
+Remarks:
+At the end, class instance must be destroyed with <LINK libZPlayCpp::ZPlay::Release, Release> method:
+<code lang="c++">
+// destroy class instance
+instance->Release();
+</code> 
+
+See Also:
+<LINK CSTYLEINTERFACE, C Style interface>

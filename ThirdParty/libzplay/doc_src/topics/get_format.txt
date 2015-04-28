@@ -1,0 +1,22 @@
+Summary:
+Determine stream format of specified file.
+
+Description:
+<b>To detect stream format use:</b>
+<TABLE>
+C++                                                         C                                                                VB.NET                                                 C#.NET                                                 VC.NET                                                   Delphi
+---------------------------------------------------------   --------------------------------------------------------------   ----------------------------------------------------   ----------------------------------------------------   ------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetFileFormat, GetFileFormat>     <LINK libZPlayCpp::zplay_GetFileFormat, zplay_GetFileFormat>     <LINK libZPlayVB.ZPlay.GetFileFormat, GetFileFormat>   <LINK libZPlayC#.ZPlay.GetFileFormat, GetFileFormat>   <LINK libZPlayVC::ZPlay::GetFileFormat, GetFileFormat>   <LINK libZPlayDelphi.ZPlay.GetFileFormat, GetFileFormat> 
+<LINK libZPlayCpp::ZPlay::GetFileFormatW, GetFileFormatW>   <LINK libZPlayCpp::zplay_GetFileFormatW, zplay_GetFileFormatW>                                                                                                                                                                          <LINK libZPlayDelphi.ZPlay.GetFileFormatW, GetFileFormatW> 
+</TABLE>
+
+
+
+This function will try to determine file format by parsing file name and using filename extension.
+If fails to determine file format using filename extension, function will try to parse file data,
+searching for some known headers in file.
+If this also fails, function will return <b>sfUnknown</b>.
+
+This function is useful if you use <LINK OPENMEMORYSTREAM, memory stream> based on disk file because you need to specify stream format when you try to open memory stream.
+
+You don't need to specify stream format if you try to <LINK OPENFILE, open disk file> because you can use <b>sfAutodetect</b> format.

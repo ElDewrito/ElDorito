@@ -1,0 +1,37 @@
+Summary:
+Callback function prototype.
+
+Parameters:
+instance  - interface instance. Use cast from void pointer to <LINK libZPlayCpp::ZPlay, ZPlay> instance or <LINK ZPLAY_HANDLE, ZPLAY_HANDLE>.
+user_data - User data specified by <LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc>.
+message   - <LINK libZPlayCpp::TCallbackMessage, Callback message>.
+param1    - First message parameter. Specifies additional message-specific information.
+param2    - Second message parameter. Specifies additional message-specific information.
+
+
+Returns:
+Return value depends on <c>message</c> parameter.
+
+See <LINK libZPlayCpp::TCallbackMessage, TCallbackMessage> for return value of each message.
+
+Remarks:
+This is prototype for callback function.
+
+Use <LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc> or <LINK libZPlayCpp::zplay_SetCallbackFunc, zplay_SetCallbackFunc> to enable callback mechanism.
+
+
+There are 2 types of messages. Sync (blocking) and async (non blocking) messages.
+
+Sync message is sent from decoding thread and thread is waiting until callback function returns,
+so thread is blocked until user process sync message.
+Return value from sync message can be used to control decoding thread.
+
+
+<IMAGE note> Note: DON'T CALL other interface function from sync message because this will block decoding thread and calling thread.
+
+Async message is sent from another thread and this message is not blocking, decoding thread continues to play.
+Return value from async message is not used.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc>,
+<LINK libZPlayCpp::zplay_SetCallbackFunc, zplay_SetCallbackFunc>

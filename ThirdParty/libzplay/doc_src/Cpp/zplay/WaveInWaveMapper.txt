@@ -1,0 +1,7 @@
+Summary:
+Specifies a waveform-audio input device capable of recording the given format.
+
+Remarks:
+This value represent a waveform-audio input device capable of recording the given format.
+This value is used by <LINK libZPlayCpp::ZPlay::SetWaveInDevice, SetWaveInDevice> and <LINK libZPlayCpp::zplay_SetWaveInDevice, zplay_SetWaveInDevice>. 
+

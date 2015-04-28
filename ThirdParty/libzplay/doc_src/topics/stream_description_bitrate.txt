@@ -1,0 +1,17 @@
+Summary:
+Description of stream type and bitrate.
+
+Description:
+libZPlay supports multiple music formats. And each of these formats has multiple versions.
+User can get string description of format and version for currently open file/stream. 
+
+User can also get file bitrate for whole file/stream.
+
+
+<b>To get stream description/bitrate use:</b>
+<TABLE>
+C++                                                          C                                                                 VB.NET                                                    C#.NET                                                    VC.NET                                                     Delphi
+---------------------------------------------------------    --------------------------------------------------------------    -------------------------------------------------------   -------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>      <LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>      <LINK libZPlayVB.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>     <LINK libZPlayDelphi.ZPlay.GetStreamInfo, GetStreamInfo> 
+<LINK libZPlayCpp::ZPlay::GetStreamInfoW, GetStreamInfoW>    <LINK libZPlayCpp::zplay_GetStreamInfoW, zplay_GetStreamInfoW>                                                                                                                                                                                   <LINK libZPlayDelphi.ZPlay.GetStreamInfoW, GetStreamInfoW> 
+</TABLE>

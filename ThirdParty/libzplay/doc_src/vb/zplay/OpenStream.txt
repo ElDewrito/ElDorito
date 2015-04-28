@@ -1,0 +1,75 @@
+Summary:
+  Open memory stream.
+
+Parameters:
+  %PAR0% - Specifies if stream is buffered stream. True specifies buffered stream. False specifies non bufferd stream.
+  %PAR1% - Specifies if stream is dynamic or static. True specifies dynamic stream. False specifies static stream.
+  %PAR2% - Reference of memory block with stream data.
+  %PAR3% - Size of memory block, in bytes.
+  %PAR4% - Stream format. This value can't be <b><LINK libZPlayVB.TStreamFormat, sfAutodetect></b>. You must specify valid stream format.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+First block of data needs to be large enough and must contain all data to identify specified stream type.
+
+For <b><LINK libZPlayVB.TStreamFormat, sfMp3></b> stream format, this block of data needs to contain at least one valid mp3 frame.
+
+For <b><LINK libZPlayVB.TStreamFormat, sfOgg></b> streamformat, this block must contain enough data to identify ogg type.
+
+For <b><LINK libZPlayVB.TStreamFormat, sfWave></b>, this block must contain valid RIFF header.
+
+If this function fails, call this function again with larger block of data or with another block of data.
+
+
+For <b>sfMp3</b> stream, 128 kbps at 44100 Hz you need at least 426 bytes without ID3v2 data at stream start.
+If input block is too small, function will fail. Then you need to send larger block. 
+
+<b>Buffered stream</b> allocates internal memory for input data and class makes copy of input data.
+User can destroy input data because there is copy of this data in internal buffer.
+Class will manage this internal memory.
+
+If stream is <b>not buffered</b>, function takes only pointer to stream data. User is responsible for this data.
+So, user must keep this data in memory until function is done with this data. See <LINK libZPlayVB.ZPlay.IsStreamDataFree, IsStreamDataFree>.
+
+If you specify <b>dynamic stream</b>, you can add new data into this stream with <LINK libZPlayVB.ZPlay.PushDataToStream, PushDataToStream> function.
+Use <LINK libZPlayVB.ZPlay.OpenStream, OpenStream> with small chunk of input data and add rest of data with <LINK libZPlayVB.ZPlay.PushDataToStream, PushDataToStream> function later.
+Use <LINK libZPlayVB.ZPlay.SetCallbackFunc, SetCallbackFunc> and callback mechanism to determine when class needs more data.
+You can't seek or use reverse mode on dynamic stream.
+If dynamic stream runs out of data, it waits for new data, playing is paused, wave output is still active and class is
+ready to continue playing when you push new data to stream with <LINK libZPlayVB.ZPlay.PushDataToStream, PushDataToStream>.
+
+If stream is <b>not dynamic</b>, you can't add new data into stream.
+Class will use only data provided by <C>sMemStream</C> parameter.
+But this type of stream has no limitation in seek and reverse mode.
+When this stream runs out of data, playing is stopped.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.OpenFile, OpenFile>,
+<LINK libZPlayVB.ZPlay.Close, Close>,
+<LINK libZPlayVB.ZPlay.AddFile, AddFile>,
+<LINK libZPlayVB.ZPlay.GetFileFormat, GetFileFormat>
+
+Example:
+Open static stream.
+
+<code lang="vb.net">
+ Dim format As TStreamFormat = player.GetFileFormat(OpenFileDialog1.FileName)
+
+Dim fInfo As New System.IO.FileInfo(OpenFileDialog1.FileName)
+Dim numBytes As Long = fInfo.Length
+Dim fStream As New System.IO.FileStream(OpenFileDialog1.FileName, System.IO.FileMode.Open, System.IO.FileAccess.Read)
+Dim br As New System.IO.BinaryReader(fStream)
+Dim stream_data() As Byte = Nothing
+
+stream_data = br.ReadBytes(CInt(Fix(numBytes)))
+If Not (player.OpenStream(True, False, stream_data, CUInt(numBytes), format)) Then
+  MessageBox.Show(player.GetError(), String.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error)
+End If
+
+br.Close()
+fStream.Close()
+</code>

@@ -1,0 +1,38 @@
+Summary:
+Get current position and bitrate.
+
+Description:
+Position is changing when song is playing. Seek function will also change position, even if song isn't playing.
+
+If you seek position and song isn't playing, retrieved position will be also changed to seek position.
+
+
+
+<b>To get current position use:</b>
+<TABLE>
+C++                                                    C                                                           VB.NET                                             C#.NET                                            VC.NET                                               Delphi
+---------------------------------------------------    --------------------------------------------------------    ------------------------------------------------   ------------------------------------------------  --------------------------------------------------   ----------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetPosition, GetPosition>    <LINK libZPlayCpp::zplay_GetPosition, zplay_GetPosition>    <LINK libZPlayVB.ZPlay.GetPosition, GetPosition>   <LINK libZPlayC#.ZPlay.GetPosition, GetPosition>  <LINK libZPlayVC::ZPlay::GetPosition, GetPosition>   <LINK libZPlayDelphi.ZPlay.GetPosition, GetPosition> 
+</TABLE>
+
+
+
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+- <LINK libZPlayCpp::ZPlay::GetPosition, GetPosition>
+
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+- <LINK libZPlayCpp::zplay_GetPosition, zplay_GetPosition>
+
+
+On streams with variable bitrate, bitrate is changing in time.
+
+
+
+<b>You can retrieve current bitrate with:</b>
+<TABLE>
+C++                                                  C                                                         VB.NET                                           C#.NET                                           VC.NET                                             Delphi
+-------------------------------------------------    ------------------------------------------------------    ----------------------------------------------   ----------------------------------------------   ------------------------------------------------   --------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetBitrate, GetBitrate>    <LINK libZPlayCpp::zplay_GetBitrate, zplay_GetBitrate>    <LINK libZPlayVB.ZPlay.GetBitrate, GetBitrate>   <LINK libZPlayC#.ZPlay.GetBitrate, GetBitrate>   <LINK libZPlayVC::ZPlay::GetBitrate, GetBitrate>   <LINK libZPlayDelphi.ZPlay.GetBitrate, GetBitrate> 
+</TABLE>

@@ -1,0 +1,29 @@
+Description:
+VORBIS OGG support is provided by <b>LIBVORBIS</b> and <b>LIBOGG</b>
+
+<TABLE>
+     Decoder               VORBIS OGG
+     --------------------  ---------------------------------------------------------------------------------------------------------------
+     File extension        ogg
+     Description           VORBIS encoding + OGG bitstream format. Use only first logical bitstream. See <b>Remarks</b>.
+     Supported by          <LINK VORBIS, LIBVORBIS library> and <LINK OGG, LIBOGG library>.
+     Web                   <EMIT &lt;a href="http://www.vorbis.com/";&gt;http://www.vorbis.com/&lt;/a&gt;>
+     Email                 <EMIT &lt;a href="mailto:feedback@vorbis.com";&gt;feedback@vorbis.com&lt;/a&gt;>
+     Copyright &copy;      2002-2004 Xiph.org Foundation   <LINK VORBISBSD, VORBIS BSD-STYLE SOURCE License>
+     Info tags             <IMAGE star_green> Supported by VORBIS COMMENT.
+     Reverse playing       <IMAGE star_green> Supported.
+     Accurate length       <IMAGE star_green> Supported.
+     Accurate seek         <IMAGE star_green> Supported.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_green> Supported.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension and detecting VORBIS COMMENT tag at stream beginning.
+     Audio autodetection   <IMAGE star_green> Supported.
+     Recording/Encoder     <IMAGE star_green> Supported by <LINK VORBIS, LIBVORBIS library> and <LINK OGG, LIBOGG library>.
+     Supported channels    1 channel (mono), 2 channels (stereo)
+</TABLE>
+
+Remarks:
+
+This decoder will only decode first logical bitstream from ogg stream. So, if ogg stream contains multiple logical
+bitstreams, only first logical bitstream will be decoded. You can't access other logical bitstreams.

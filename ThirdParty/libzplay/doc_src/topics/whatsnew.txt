@@ -1,0 +1,10 @@
+Summary:
+What's new in version 2.02
+
+
+Remarks:
+
+* Fix *
+- fixed ID3v1 algorithm
+- fixed problem with callback function
+

@@ -1,0 +1,26 @@
+Summary:
+Extended ID3 informations. Only in version 2.00 and above.
+
+Parameters:
+Title    - Title.
+Artist   - Artist.
+Album    - Album.
+Year     - Year.
+Comment  - Comment
+TrackNum - Track number.
+Genre    - Genre.
+AlbumArtist - Band/orchestra/accompaniment.
+Composer - Composer.
+OriginalArtist - Original artist.
+Copyright - Copyright/Legal information.
+URL - User defined URL link.
+Encoder - Encoded by.
+Publisher -  Publisher.
+BPM - Beat-per-minute.
+Picture - Attached image. See  <LINK libZPlayC#.TID3Picture, TID3Picture>.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.LoadID3Ex, LoadID3Ex>,
+<LINK libZPlayC#.ZPlay.LoadFileID3Ex, LoadFileID3Ex>
+

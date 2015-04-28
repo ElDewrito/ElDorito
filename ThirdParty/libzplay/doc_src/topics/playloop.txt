@@ -1,0 +1,18 @@
+Summary:
+Play specified section of song, in loop if needed.
+
+Description:
+Loop playing feature has 2 segments:
+- user can play specified section of song once
+- user can loop specified section of song
+
+<b>If you need to play specified section of song use:</b>
+<TABLE>
+C++                                              C                                                     VB.NET                                       C#.NET                                       VC.NET                                         Delphi
+---------------------------------------------    --------------------------------------------------    ------------------------------------------   ------------------------------------------   --------------------------------------------   ----------------------------------------------
+<LINK libZPlayCpp::ZPlay::PlayLoop, PlayLoop>    <LINK libZPlayCpp::zplay_PlayLoop, zplay_PlayLoop>    <LINK libZPlayVB.ZPlay.PlayLoop, PlayLoop>   <LINK libZPlayC#.ZPlay.PlayLoop, PlayLoop>   <LINK libZPlayVC::ZPlay::PlayLoop, PlayLoop>   <LINK libZPlayDelphi.ZPlay.PlayLoop, PlayLoop> 
+</TABLE>
+
+
+Remarks:
+If you need <i>sample accurate</i> precision for <LINK FormatMp3, MP3 format>, you neet to <LINK CONFIGURE_ACCURATE_SEEK, enable accurate seek>.

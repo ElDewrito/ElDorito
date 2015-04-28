@@ -1,0 +1,29 @@
+Summary:
+  Change playing rate (change pitch and tempo).
+
+Parameters:
+  %PAR0% - New rate value.
+          Normal rate = 100, smaller values represent slower rate, larger value represents faster rates.
+          <p><IMAGE note> Note: This value can't be 0.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Rate value 100 indicates normal playing rate and sound is not changed at all.
+
+To slow down playing, set rate to value smaller than 100.
+This will slow down playback and output pitch will also be changed to lower values.
+
+To speed up playing, set rate to value larger than 100.
+This will speed up playback and output pitch will also be changed to higher values.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.GetRate, GetRate>,
+<LINK libZPlayVB.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayVB.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayVB.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayVB.ZPlay.GetTempo, GetTempo>

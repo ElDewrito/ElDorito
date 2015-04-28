@@ -1,0 +1,37 @@
+Summary:
+  Cut center or sides from stereo.
+
+Parameters:
+  fEnable       - Value 1 enables stereo cut, value 0 disables stereo cut.
+  fOutputCenter - Value 1 outputs center and cuts sides. Value 0 outputs sides and cut center.
+  fBassToSides  - Value 1 enables bass to sides, value 0 disables bass to sides.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Using this function you can cut center or side from stereo sound. This algorithm is based on FFT algorithm.
+
+<IMAGE note> Note: Set <c>fBassToSides</c> to 1 to enable bass output to sides. In this case bass from stereo center will not be cut and will remain in output.
+
+If you cut sides from stereo sound, resulting sound will contain only stereo center.
+In this case you will get sound with vocal, but without music.
+
+If you cut sides from stereo sound, resulting sound will contain only stereo center.
+In this case you will get sound with vocal, but without music.
+
+
+<EXAMPLE>
+Stereo center cut.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->StereoCut(1, 0, 0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_StereoCut(instance, 1, 0, 0);
+</CODE>
+</EXAMPLE>

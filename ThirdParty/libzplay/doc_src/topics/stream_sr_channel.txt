@@ -1,0 +1,12 @@
+Summary:
+Get stream sample rate and number of channels.
+
+Description:
+<b>To get sample rate and number of channels use:</b>
+
+<TABLE>
+C++                                                          C                                                                 VB.NET                                                    C#.NET                                                    VC.NET                                                     Delphi
+---------------------------------------------------------    --------------------------------------------------------------    -------------------------------------------------------   -------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>      <LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>      <LINK libZPlayVB.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>     <LINK libZPlayDelphi.ZPlay.GetStreamInfo, GetStreamInfo> 
+<LINK libZPlayCpp::ZPlay::GetStreamInfoW, GetStreamInfoW>    <LINK libZPlayCpp::zplay_GetStreamInfoW, zplay_GetStreamInfoW>                                                                                                                                                                                   <LINK libZPlayDelphi.ZPlay.GetStreamInfoW, GetStreamInfoW> 
+</TABLE>

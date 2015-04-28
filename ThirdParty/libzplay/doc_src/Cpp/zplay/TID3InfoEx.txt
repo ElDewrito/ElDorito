@@ -1,0 +1,33 @@
+Summary:
+ID3 extended informations (ANSI version). Only in version 2.00 and above.
+
+Parameters:
+Title    - Title.
+Artist   - Artist.
+Album    - Album.
+Year     - Year.
+Comment  - Comment
+TrackNum - Track number.
+Genre    - Genre.
+AlbumArtist     - Band/orchestra/accompaniment.
+Composer	- Composer.
+OriginalArtist  - Original artist.
+Copyright	- Copyright/Legal information.
+URL		- User defined URL link frame.
+Encoder		- Encoded by.
+Publisher	- Publisher.
+BPM		- Beat-per-minute.
+Picture		- Attached image. See  <LINK libZPlayCpp::TID3Picture, TID3Picture>.
+reserved	- reserved for future use.
+
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::LoadID3, LoadID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3Ex, LoadFileID3Ex>
+
+
+<LINK libZPlayCpp::zplay_LoadID3, zplay_LoadID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3Ex, zplay_LoadFileID3Ex>

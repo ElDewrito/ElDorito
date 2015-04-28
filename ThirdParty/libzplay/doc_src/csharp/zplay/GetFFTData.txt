@@ -1,0 +1,45 @@
+Summary:
+  Get FFT data for currently playing samples.
+
+Parameters:
+  %PAR0% - Set this value to specify FFT size.  This value must be power of 2.
+  %PAR1% - Set this value to specify <LINK libZPlayC#.TFFTWindow, FFT window>.
+  %PAR2% - Reference to variable receiving number of harmonics returned from FFT analysis. NumberOfHarmonics = (nFFTPoints/2 + 1)
+  %PAR3% - Reference to integer array receiving frequency of each harmonic.
+           User must to allocate memory for this array. Use returned <c>%PAR2%</c> value to get number of harmonics.
+
+  %PAR4% - Reference to integer array receiving amplitude of each harmonic for left channel.
+           Amplitude range is from 0 to about 120 dB.
+           User needs to allocate memory for this array.
+           User must to allocate memory for this array. Use returned <c>%PAR2%</c> value to get number of harmonics.
+
+  %PAR5% - Reference to integer array receiving amplitude of each harmonic for right channel.
+           Amplitude range is from 0 to about 120 dB.
+           User must to allocate memory for this array. Use returned <c>%PAR2%</c> value to get number of harmonics.
+
+  %PAR6% - Reference to integer array receiving phase of each harmonic for left channel.
+           Phase range is from -90 to 90 degrees.
+           User must to allocate memory for this array. Use returned <c>%PAR2%</c> value to get number of harmonics.
+
+  %PAR7% - Reference to integer array receiving phase of each harmonic for right channel.
+          User must to allocate memory for this array. Use returned <c>%PAR2%</c> value to get number of harmonics.
+
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<c>%PAR0%</c> parameter specifies number of samples for FFT algorithm.
+This parameter must be power of 2. Larger value produces more harmonics and better frequency resolution.
+But this needs more processor power to calculate FFT algorithm.
+
+<IMAGE note> Note: <c>NumOfHarmnics = NumOfFFTPoints/2 + 1</c>
+
+<IMAGE note> Note: FFT data are fully synchronized with audio data from wave buffer. 
+
+See Also:
+<LINK libZPlayC#.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>,
+<LINK libZPlayC#.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>,
+<LINK libZPlayC#.ZPlay.GetVUData, GetVUData>

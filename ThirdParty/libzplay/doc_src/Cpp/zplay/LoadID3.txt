@@ -1,0 +1,63 @@
+Summary:
+  Load ID3 data from current stream. (ANSI version)
+
+Parameters:
+  nId3Version - ID3 version.
+                <P><IMAGE note> Note: This value is only used for <b><LINK libZPlayCpp::TStreamFormat, sfMp3></b> stream format.
+                For all other stream formats this parameter is ignored.
+  pId3Info    - Pointer to <LINK libZPlayCpp::TID3Info, TID3Info structure> receiving ID3 data. User must allocate memory for this structure.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Check <LINK SupportedFormats, supported formats> for info tag support. Some formats can support some sort of "Info tags", but not all.
+
+libZPlay library implements "ID3 tag" interface to different info tags (VORBIS comment, RIFF Info, ...).
+So, you can retrieve ID3 informations from different streams (mp3, ogg, flac, wav) because library will convert "format specific tag" to ID3 tag info.
+
+<IMAGE note> Note: If you juste need ID3 data from file, use <LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3> or <LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>,
+<LINK libZPlayCpp::ZPlay::LoadID3W, LoadID3W>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3W, LoadFileID3W>
+
+<LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>,
+<LINK libZPlayCpp::zplay_LoadID3W, zplay_LoadID3W>,
+<LINK libZPlayCpp::zplay_LoadFileID3W, zplay_LoadFileID3W>
+
+<EXAMPLE>
+Load ID3 info from current stream.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TId3Info id3_info;
+if(instance->LoadID3(id3Version2, &id3_info))
+{
+  printf("Title:   %s\\n", id3_info.Title);
+  printf("Artist:  %s\\n", id3_info.Artist);
+  printf("Album:   %s\\n", id3_info.Album);
+  printf("Year:    %s\\n", id3_info.Year);
+  printf("Comment: %s\\n", id3_info.Comment);
+  printf("Genre:   %s\\n", id3_info.Genre);
+  printf("Track:   %s\\n", id3_info.TrackNum);
+}
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TId3Info id3_info;
+if(zplay_LoadID3(instance, id3Version2, &id3_info))
+{
+  printf("Title:   %s\\n", id3_info.Title);
+  printf("Artist:  %s\\n", id3_info.Artist);
+  printf("Album:   %s\\n", id3_info.Album);
+  printf("Year:    %s\\n", id3_info.Year);
+  printf("Comment: %s\\n", id3_info.Comment);
+  printf("Genre:   %s\\n", id3_info.Genre);
+  printf("Track:   %s\\n", id3_info.TrackNum);
+}
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,56 @@
+Summary:
+Enable or disable echo.
+
+Parameters:
+  fEnable - Flag for enabling or disabling echo. If this parameter is 1, echo is enabled. If this parameter is 0, echo is disabled.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE note> Note: By default, new class instance has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+<IMAGE note> Note: By default, new created class has disabled echo effect. To use echo effect, user must enable echo effect.
+To change default, simple echo effect and to create new advanced effect, use <LINK libZPlayCpp::ZPlay::SetEchoParam, SetEchoParam>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetEchoParam, SetEchoParam>,
+<LINK libZPlayCpp::ZPlay::GetEchoParam, GetEchoParam>
+
+<LINK libZPlayCpp::zplay_SetEchoParam, zplay_SetEchoParam>,
+<LINK libZPlayCpp::zplay_GetEchoParam, zplay_GetEchoParam>
+
+
+Example:
+Apply simple echo, 2000 milliseconds delay, volume ration 90/20.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 2000;  // 2000 ms delay
+effect.nRightEchoVolume = 20;
+effect.nRightSrcVolume = 90;
+instance->SetEchoParam(effect, 1);
+instance->EnableEcho(1); // enable echo effect
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TEchoEffect effect;
+// combine 90 % volume of orignal samples with 20 % volume of delayed samples
+effect.nLeftDelay = 2000;  // 2000 ms delay
+effect.nLeftEchoVolume = 20; // use 20 % volume of delayed samples
+effect.nLeftSrcVolume = 90;  // use 90 % volume of original samples
+effect.nRightDelay = 2000;  // 2000 ms delay
+effect.nRightEchoVolume = 20;
+effect.nRightSrcVolume = 90;
+zplay_SetEchoParam(instance, effect, 1);
+zplay_EnableEcho(instance, 1); // enable echo effect
+</CODE>
+</EXAMPLE>

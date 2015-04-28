@@ -1,0 +1,17 @@
+Summary:
+Set interface settings.
+
+Parameters:
+  %PAR0% - <LINK libZPlayDelphi.TSettingID, Setting identifier>.
+  %PAR1% - Setting value. 
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Each calss instance has own settings. You can configure each class instance separately.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetSettings, GetSettings>

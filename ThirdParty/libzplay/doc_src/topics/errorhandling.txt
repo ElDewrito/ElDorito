@@ -1,0 +1,12 @@
+Summary:
+When interface function fails, user can retrieve error message string with error description.
+
+Description:
+
+<b>To get error message use:</b>
+<TABLE>
+C++                                               C                                                      VB.NET                                        C#.NET                                       VC.NET                                         Delphi
+-----------------------------------------------   ----------------------------------------------------   -------------------------------------------   -----------------------------------------    --------------------------------------------   -----------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetError, GetError>     <LINK libZPlayCpp::zplay_GetError, zplay_GetError>     <LINK libZPlayVB.ZPlay.GetError, GetError>    <LINK libZPlayC#.ZPlay.GetError, GetError>   <LINK libZPlayVC::ZPlay::GetError, GetError>   <LINK libZPlayDelphi.ZPlay.GetError, GetError> 
+<LINK libZPlayCpp::ZPlay::GetErrorW, GetErrorW>   <LINK libZPlayCpp::zplay_GetErrorW, zplay_GetErrorW>                                                                                                                                             <LINK libZPlayDelphi.ZPlay.GetErrorW, GetErrorW>
+</TABLE>

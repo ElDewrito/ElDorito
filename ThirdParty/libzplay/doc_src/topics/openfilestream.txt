@@ -1,0 +1,8 @@
+To play some music, user must first <LINK OPENFILE, open disk file> or <LINK OPENMEMORYSTREAM, memory stream>. 
+
+To open memory stream, user must specify stream format. See <LINK GET_FORMAT, Get file format>.
+
+
+Additional feature is <LINK GAPLESS_PLAYING, gapless playing> of multiple files and <LINK DYNAMIC_STREAM, dynamic streams>.
+
+<b>New: version 2.00 enables you to use special file name <COLOR RED>wavein://</COLOR> to open input port on your soundcard</b>

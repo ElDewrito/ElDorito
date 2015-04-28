@@ -1,0 +1,16 @@
+Summary:
+Stream time structure.
+
+Parameters:
+sec     - Total time in seconds.
+ms      - Total time in milliseconds.
+samples - Total time in samples.
+hms     - Total time in <LINK libZPlayC#.TStreamHMSTime, TStreamHMSTime> format.
+
+Remarks:
+Use <LINK libZPlayC#.TTimeFormat, TTimeFormat> to specify which member in this structure is valid.
+
+See Also:
+<LINK libZPlayC#.TTimeFormat, TTimeFormat>,
+<LINK libZPlayC#.TStreamHMSTime, TStreamHMSTime>,
+<LINK libZPlayC#.ZPlay.Seek, Seek>

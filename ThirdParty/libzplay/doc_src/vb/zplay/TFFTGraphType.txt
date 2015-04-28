@@ -1,0 +1,16 @@
+Summary:
+FFT graph type.
+
+Parameters:
+gtLinesLeftOnTop  - Lines, left channel on top.
+gtLinesRightOnTop - Lines, right channel on top.
+gtAreaLeftOnTop   - Area, left channel on top.
+gtAreaRightOnTop  - Area, right channel on top.
+gtBarsLeftOnTop   - Bars, left channel on top.
+gtBarsRightOnTop  - Bars, right channel on top.
+gtSpectrum        - Spectrum.
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayVB.ZPlay.GetFFTGraphParam, GetFFTGraphParam>
+

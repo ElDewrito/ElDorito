@@ -1,0 +1,16 @@
+Summary:
+  Get <LINK DYNAMIC_STREAM, dynamic stream> load.
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayVC::TStreamLoadInfo, TStreamLoadInfo> structure receiving informations about stream load.
+
+Returns:
+None.
+
+Remarks:
+Use this function to to check if stream is low with data, so you can push more data into stream.
+
+See Also:
+<LINK libZPlayVC::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayVC::ZPlay::PushDataToStream, PushDataToStream>,
+<LINK libZPlayVC::ZPlay::IsStreamDataFree, IsStreamDataFree>

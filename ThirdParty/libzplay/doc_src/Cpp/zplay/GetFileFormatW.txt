@@ -1,0 +1,44 @@
+Summary:
+  Determine stream format of specified file (UNICODE version).
+
+Parameters:
+  pchFileName - Points to a UNICODE null-terminated string that specifies the name of the file.
+
+Returns:
+  Stream format. If function can't determine file format return value is <LINK libZPlayCpp::TStreamFormat, sfUnknown>.
+
+Remarks:
+This function will try to determine format of file by parsing file name and using filename extension.
+If fails to determine file format using filename extension, function will try to parse file data, searching for some known headers in file.
+If this also fails, function will return <LINK libZPlayCpp::TStreamFormat, sfUnknown>.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::Close, Close>
+
+<LINK libZPlayCpp::zplay_GetFileFormat, zplay_GetFileFormat>,
+<LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>,
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_Close, zplay_Close>
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int format = instance->GetFileFormatW(L"test.mp3");
+if(nFormat == sfUnknown)
+{
+  wprintf("Can't detect stream format.");
+}
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int format = zplay_GetFileFormatW(L"test.mp3");
+if(nFormat == sfUnknown)
+{
+  wprintf("Can't detect stream format.");
+}
+</CODE>
+</EXAMPLE>

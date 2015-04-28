@@ -1,0 +1,46 @@
+Summary:
+  Set internal volume.
+
+Parameters:
+  nLeftVolume  - Specifies volume for left channel. Volume range is from 0 to 100.
+  nRightVolume - Specifies volume for right channel. Volume range is from 0 to 100.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function changes internal volume without affecting wave out device driver and computer master volume.
+You can set internal volume on each interface instance separately.
+
+<IMAGE note> Note: This function will cancel <LINK SLIDE_VOLUME, slide volume effect>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetPlayerVolume, GetPlayerVolume>,
+<LINK libZPlayCpp::ZPlay::SetMasterVolume, SetMasterVolume>,
+<LINK libZPlayCpp::ZPlay::GetMasterVolume, GetMasterVolume>,
+<LINK libZPlayCpp::ZPlay::SlideVolume, SlideVolume>
+
+<LINK libZPlayCpp::zplay_GetPlayerVolume, zplay_GetPlayerVolume>,
+<LINK libZPlayCpp::zplay_SetMasterVolume, zplay_SetMasterVolume>,
+<LINK libZPlayCpp::zplay_GetMasterVolume, zplay_GetMasterVolume>,
+<LINK libZPlayCpp::zplay_SlideVolume, zplay_SlideVolume>
+
+
+<EXAMPLE>
+Separate volume control for each song.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance1->SetPlayerVolume(100, 100); // one song is playing with 100 % volume
+instance2->SetPlayerVolume(47, 47); // another song is playing with 47 % volume
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_SetPlayerVolume(instance1, 100, 100); // one song is playing with 100 % volume
+zplay_SetPlayerVolume(instance2, 47, 47); // another song is playing with 47 % volume
+</CODE>
+</EXAMPLE>

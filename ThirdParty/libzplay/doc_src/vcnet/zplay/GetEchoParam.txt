@@ -1,0 +1,31 @@
+Summary:
+Get current echo effects.
+
+Parameters:
+  %PAR0% - Reference to array of <see cref="TEchoEffect"/> structures receiving echo effects.
+                     <P><IMAGE caution> Caution: This array will be resized to receive all echo effects.
+
+Returns:
+Number of echo effects in %PAR0% array.
+
+Remarks:
+Function will resize %PAR0% array to receive all echo effects.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetEchoParam, SetEchoParam>,
+<LINK libZPlayVC::ZPlay::EnableEcho, EnableEcho>
+
+Example:
+<code lang="c++">
+array<TEchoEffect> ^test1 = gcnew array<TEchoEffect>(1);
+int i;
+int n = player->GetEchoParam(test1);
+for(i = 0; i < n; i++)
+{
+  MessageBox::Show(test1[i].nLeftDelay.ToString ());
+}
+</code>
+

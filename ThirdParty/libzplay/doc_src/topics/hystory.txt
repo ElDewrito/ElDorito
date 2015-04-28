@@ -1,0 +1,17 @@
+Summary:
+History of libZPlay.
+
+Description:
+<TABLE>
+Version  Date           Description
+-------  ------------   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2.02     May, 2010.     <p>- fixed problem with ID3v1 algorithm<p>- fixed problem with callback function
+2.00     April, 2010.   <p>- fixed memory leaks<p>- fixed problem with ID3v2 algorithm<p>- added support for extended ID3 fields(composer, encoder, ...)<p>- added support for embeded pictures(jpeg, png, bmp) in tags(ID3v2, VORBIS COMMENT, FLAC VORBIS COMMENT)<p>- added support for wave-in<p>- added support for saving samples into disk file using selected encoder
+1.14     April, 2010.   <p>- fixed crash bug in ID3v2 tag algorithm<p>- fixed memory leak when open function fails on mp3 file<p>- fixed error in .NET interface (wrong layout of ID3 fields)
+1.12     April, 2010.   <p>- added MP3 and AAC license informations
+1.11     April, 2010.   <p>- PF (patent free) version of version 1.12. This is version 1.12 without MP3 and AAC support.
+1.04     April, 2010.   <p>- fixed reverse playing on mp3 stream. Sorry for this bug. This bug wasn't present in version 1.01 but I made some testing and debugging, and unwanted code wasn't deleted. And there is, bug in version 1.02 and 1.03. Sorry for this. Now is fixed.
+1.03     April, 2010.   <p>- fix crash bug on Windows Vista and Windows 7 for .NET interface.<p>- added AAC format (only ADTS streams supported)
+1.02     March, 2010.   <p>- fix mp3 dynamic stream management (loss of samples)<p>- fix support for FLAC OGG (added spearate sfFLACOgg format)<p>- added A/52 aka AC-3 support<p>- added Spectrum FFT graph type<p>- added FFT graph color management and background bitmap
+1.01     March, 2010.   First release.
+</TABLE>

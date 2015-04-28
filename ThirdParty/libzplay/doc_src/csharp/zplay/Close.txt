@@ -1,0 +1,15 @@
+Summary:
+  Close open stream.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function stops playing. All internal memory will be deallocated and file handles will be closed.
+This function will clear <LINK GAPLESS_PLAYING, gapless queue> and <LINK OPENMEMORYSTREAM, dynamic stream> queue.
+
+See Also:
+<LINK libZPlayC#.ZPlay.OpenFile, OpenFile>,
+<LINK libZPlayC#.ZPlay.OpenStream, OpenStream>,
+<LINK libZPlayC#.ZPlay.AddFile, AddFile>

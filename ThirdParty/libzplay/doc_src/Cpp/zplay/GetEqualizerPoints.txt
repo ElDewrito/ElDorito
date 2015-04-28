@@ -1,0 +1,84 @@
+Summary:
+Get equalizer points of frequency bands.
+
+Parameters:
+  pnFreqPoint  - Pointer to array of integers receiving frequency points for frequancy  bands.
+                 You have frequency range from 0 Hz to SampleRate/2 Hz.
+                 One point will divide range into 2 bands, 2 points will divide range into 3 bands ...
+                 If this value is NULL, function returns required size of array, required number of points.
+                 <P><IMAGE caution> Caution: User must allocate memory for this array.
+  nNumOfPoints - Size of <C>pnFreqPoint</C> array, number of allocated points.
+                 If this value is 0, function returns required size for <C>pnFreqPoint</C> array, required number of points.
+
+Returns:
+Number of frequency points.
+
+If <C>pnFreqPoint</C> is NULL or <C>nNumOfPoints</C> is 0, function returns number of frequency points.
+Use this value to allocate memory for <C>pnFreqPoint</C> array.
+
+
+Remarks:
+New instance of interface has 10 default equalizer bands.
+
+int FreqPoint[9] = {115, 240, 455, 800, 2000, 4500, 9000, 13000, 15000};
+- band0: 0 - 115 Hz
+- band1: 115 - 240 Hz
+- band2: 240 - 455 Hz
+- band3: 455 - 800 Hz
+- band4: 800 - 2000 Hz
+- band5: 2000 - 4500 Hz
+- band6: 4500 - 9000 Hz
+- band7: 9000 - 13000 Hz
+- band8: 13000 - 15000 Hz
+- band9: 15000 - Samplerate/2 Hz
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>,
+<LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>,
+<LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>
+
+
+Example:
+Get frequency points.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nNumOfPoints =  instance->GetEqualizerPoints(NULL, 0); // get number of frequancy points
+int *pPoints = new int[nNumOfPoints]; // allocate memory
+int i;
+int number_of_points = instance->GetEqualizerPoints(pPoints, nNumOfPoints);
+for(i = 0; i < number_of_points; i++)
+{
+  printf("Band %i: %i\\n", i, pPoints[i]);
+}
+delete [] pPoints;
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nNumOfPoints =  zplay_GetEqualizerPoints(instance, NULL, 0); // get number of frequancy points
+int *pPoints = new int[nNumOfPoints]; // allocate memory
+int i;
+int number_of_points = zplay_GetEqualizerPoints(instance, pPoints, nNumOfPoints);
+for(i = 0; i < number_of_points; i++)
+{
+  printf("Band %i: %i\\n", i, pPoints[i]);
+}
+delete [] pPoints;
+</CODE>
+</EXAMPLE>

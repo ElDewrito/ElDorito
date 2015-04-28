@@ -1,0 +1,2116 @@
+<CODE lang="delphi">
+ {
+ /*
+ *  libzplay - windows ( WIN32 ) multimedia library
+ *
+ *  ver: 2.00
+ *  date: 22. April, 2010.
+ *
+ *  Copyright (C) 2003-2010 Zoran Cindori
+ *
+ *  Author: Zoran Cindori
+ *  Web: http://libzplay.sourceforge.net/
+ *  Email: zcindori@inet.hr
+ *
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
+ *
+ * Supported by:
+ *
+ * ============================================================================
+ * libmad - MPEG audio decoder library
+ * Copyright (C) 2000-2004 Underbit Technologies, Inc. <support@underbit.com>
+ * http://www.underbit.com/products/mad/
+ * GNU General Public License ( GPL.TXT )
+ * ============================================================================
+ * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002 
+ * by the Xiph.Org Foundation http://www.xiph.org/
+ * BSD-STYLE SOURCE LICENSE  ( XIPH.TXT )
+ * ============================================================================
+ * LIBA52
+ * free library for decoding ATSC A/52 streams.
+ * It is released under the terms of the GPL license.
+ * ============================================================================
+ * FLAC - Free Lossless Audio Codec
+ * Copyright (C) 2001,2002,2003,2004,2005,2006,2007  Josh Coalson
+ * http://flac.sourceforge.net/
+ *
+ * This file is part the FLAC project.  FLAC is comprised of several
+ * components distributed under difference licenses.  The codec libraries
+ * are distributed under Xiph.Org's BSD-like license (see the file
+ * XIPH.TXT in this distribution).  All other programs, libraries, and
+ * plugins are distributed under the LGPL or GPL (see LGPL.TXT and
+ * GPL.TXT).  The documentation is distributed under the Gnu FDL (see
+ * FDL.TXT).  Each file in the FLAC distribution contains at the top the
+ * terms under which it may be distributed.
+ *
+ * Since this particular file is relevant to all components of FLAC,
+ * it may be distributed under the Xiph.Org license, which is the least
+ * restrictive of those mentioned above.  See the file XIPH.TXT in this
+ * distribution.
+ * ============================================================================
+ * FAAD2 - Freeware Advanced Audio (AAC) Decoder including SBR decoding
+ * Copyright (C) 2003-2005 M. Bakker, Nero AG, http://www.nero.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Any non-GPL usage of this software or parts of this software is strictly
+ * forbidden.
+ *
+ * The "appropriate copyright message" mentioned in section 2c of the GPLv2
+ * must read: "Code from FAAD2 is copyright (c) Nero AG, www.nero.com"
+ *
+ * Commercial non-GPL licensing of this software is possible.
+ * For more info contact Nero AG through Mpeg4AAClicense@nero.com.
+ *
+ * ============================================================================
+ * FAAC - Freeware Advanced Audio Coder Copyright (C) 2001 M. Bakker
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version. 
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. 
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+ *
+ * ============================================================================
+ * libmp3lame encoder
+ * LAME 3.xx LAME Ain't an MP3 Encoder http://www.mp3dev.org March 2001 
+ * 
+ * Originally developed by Mike Cheng (www.uq.net.au/~zzmcheng).
+ * Now maintained by Mark Taylor (www.mp3dev.org). 
+ *
+ * This code is distributed under the GNU LESSER PUBLIC LICENSE (LGPL, see www.gnu.org)
+ * with the following modification: 
+ * 
+ * If you determine that distribution of LAME requires a patent license,
+ * and you obtain a patent license, you may distribute LAME even though redistribution
+ * of LAME may also require a patent license. 
+ *
+ * You agree not to enforce any patent claims for any aspect of MPEG audio compression,
+ * or any other techniques contained in the LAME source code. 
+ *
+ * Copyrights (c) 1999-1007 by The LAME Project Copyrights (c) 1999,2000,2001
+ * by Mark Taylor Copyrights (c) 1999,2000,2001 by Mark Taylor Copyrights
+ * (c) 1998 by Michael Cheng Copyrights (c) 1995,1996,1997 by Michael Hipp: mpglib
+ *
+ * ============================================================================
+ * SoundTouch library Copyright (c) Olli Parviainen 2002-2009 
+ * http://www.surina.net/soundtouch
+ * GNU Lesser General Public License vesrion 2.1 (LGPL.TXT )
+ * ============================================================================
+ * Center Cut DSP Plugin for Winamp 2.x 
+ * Copyright (C) 2004  Moitah (moitah@yahoo.com)
+ * GNU General Public License ( GPL.TXT )
+ * ============================================================================
+ * Shibatch Super Equalizer ver 0.03 for winamp
+ * written by Naoki Shibata  shibatch@users.sourceforge.net
+ * http://shibatch.sourceforge.net/
+ *
+ * Shibatch Super Equalizer (except FFT part) is distributed under LGPL.
+ * See LGPL.txt for details.
+ * FFT part is a routine made by Mr.Ooura. This routine is a freeware.
+ * Contact Mr.Ooura for details of distributing licenses.
+ * http://momonga.t.u-tokyo.ac.jp/~ooura/fft.html
+ * ============================================================================
+ * The Independent JPEG Group's JPEG software
+ * JPEG decoding library
+ * Copyright (C) 1991-2010, Thomas G. Lane, Guido Vollbeding.
+ * www.ijg.org
+ * ============================================================================
+ * ZLIB DATA COMPRESSION LIBRARY
+ * (C) 1995-2010 Jean-loup Gailly and Mark Adler
+ * http://zlib.net/ 
+ * ============================================================================
+ * libpng library
+ * PNG picture decoding library
+ * Copyright (c) 2004, 2006-2007 Glenn Randers-Pehrson
+ * http://www.libpng.org/
+ * ============================================================================
+*/
+
+}
+
+
+unit libZPlay;
+
+interface
+
+uses
+  Windows, SysUtils, Classes, Graphics;
+
+
+type  TSettingID = (
+        sidWaveBufferSize = 1,
+        sidAccurateLength = 2,
+        sidAccurateSeek = 3,
+        sidSamplerate = 4,
+        sidChannelNumber = 5,
+        sidBitPerSample = 6,
+        sidBigEndian = 7
+);
+
+type  TFFTGraphSize = (FFTGraphMinWidth = 100, FFTGraphMinHeight = 60);
+
+const TWaveOutMapper<![CDATA[:]]> Integer = -1;
+const TWaveInMapper<![CDATA[:]]> Integer = -1;
+
+        
+type TStreamFormat = (sfUnknown = 0,
+                        sfMp3 = 1,
+                        sfOgg = 2,
+                        sfWav = 3,
+                        sfPCM = 4,
+                        sfFLAC = 5,
+                        sfFLACOgg = 6,
+		                    sfAC3 = 7,
+		                    sfAacADTS = 8,
+                        sfWaveIn = 9,
+		                    sfAutodetect = 1000
+);
+
+type TBPMDetectionMethod = (
+        dmPeaks = 0,
+        dmAutoCorrelation = 1
+);
+
+type TFFTGraphParamID = (
+        gpFFTPoints = 1,
+        gpGraphType = 2,
+        gpWindow = 3,
+        gpHorizontalScale = 4,
+        gpSubgrid = 5,
+        gpTransparency = 6 ,
+        gpFrequencyScaleVisible,
+	    gpDecibelScaleVisible,
+	    gpFrequencyGridVisible,
+	    gpDecibelGridVisible,
+	    gpBgBitmapVisible,
+	    gpBgBitmapHandle,
+	    gpColor1,
+	    gpColor2,
+	    gpColor3,
+	    gpColor4,
+	    gpColor5,
+	    gpColor6,
+	    gpColor7,
+	    gpColor8,
+	    gpColor9,
+	    gpColor10,
+	    gpColor11,
+	    gpColor12,
+	    gpColor13,
+	    gpColor14,
+	    gpColor15,
+	    gpColor16
+);
+
+type TFFTGraphType = (
+        gtLinesLeftOnTop = 0,
+        gtLinesRightOnTop  = 1,
+        gtAreaLeftOnTop = 2,
+        gtAreaRightOnTop = 3,
+        gtBarsLeftOnTop = 4,
+        gtBarsRightOnTop = 5 ,
+        gtSpectrum = 6
+);
+
+type TTimeFormat = (
+        tfMillisecond = 1,
+        tfSecond = 2,
+        tfHMS = 4,
+        tfSamples = 8
+);
+
+type TFFTWindow = (
+        fwRectangular = 1,
+        fwHamming = 2,
+        fwHann = 3,
+        fwCosine = 4,
+        fwLanczos = 5,
+        fwBartlett = 6,
+        fwTriangular = 7,
+        fwGauss = 8,
+        fwBartlettHann = 9,
+        fwBLackman = 10,
+        fwNuttall = 11,
+        fwBlackManHarris = 12,
+        fwBlackmanNuttall = 13,
+        fwFlatTop = 14
+);
+
+
+type TSeekMethod = (
+        smFromBeginning = 1,
+        smFromEnd = 2,
+        smFromCurrentForward = 4,
+        smFromCurrentBackward = 8
+);
+
+
+type TID3Version = (
+        id3Version1 = 1,
+        id3Version2 = 2
+);
+
+
+
+type
+  TStreamLoadInfo = record
+	  NumberOfBuffers<![CDATA[:]]> Cardinal;
+	  NumberOfBytes<![CDATA[:]]> Cardinal;
+end;
+
+
+
+type TWaveOutFormat = (
+format_invalid = 0,
+format_11khz_8bit_mono = 1,
+format_11khz_8bit_stereo = 2,
+format_11khz_16bit_mono = 4,
+format_11khz_16bit_stereo = 8,
+
+format_22khz_8bit_mono = 16,
+format_22khz_8bit_stereo = 32,
+format_22khz_16bit_mono = 64,
+format_22khz_16bit_stereo = 128,
+
+format_44khz_8bit_mono = 256,
+format_44khz_8bit_stereo = 512,
+format_44khz_16bit_mono = 1024,
+format_44khz_16bit_stereo = 2048
+);
+
+type TWaveOutFunctionality = (
+supportPitchControl = 1,
+supportPlaybackRateControl = 2,
+supportVolumeControl = 4,
+supportSeparateLeftRightVolume = 8,
+supportSync = 16,
+supportSampleAccuratePosition = 32,
+supportDirectSound = 64
+);
+
+
+type
+  TWaveOutInfo = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    Support<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> AnsiString;
+end;
+
+type
+  TWaveOutInfoW = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    Support<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> WideString;
+end;
+
+
+
+type
+  TWaveInInfo = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> AnsiString;
+end;
+
+type
+  TWaveInInfoW = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> WideString;
+end;
+
+
+type
+  TStreamHMSTime = record
+    hour<![CDATA[:]]> Cardinal;
+    minute<![CDATA[:]]> Cardinal;
+    second<![CDATA[:]]> Cardinal;
+    millisecond<![CDATA[:]]> Cardinal;
+end;
+
+type
+  TStreamTime = record
+	  sec<![CDATA[:]]> Cardinal;
+	  ms<![CDATA[:]]> Cardinal;
+    samples<![CDATA[:]]> Cardinal;
+    hms<![CDATA[:]]> TStreamHMSTime
+end;
+
+
+
+type
+  TID3Info = record
+    Title<![CDATA[:]]> AnsiString;
+    Artist<![CDATA[:]]> AnsiString;
+    Album<![CDATA[:]]> AnsiString;
+    Year<![CDATA[:]]> AnsiString;
+    Comment<![CDATA[:]]> AnsiString;
+    Track<![CDATA[:]]> AnsiString;
+    Genre<![CDATA[:]]> AnsiString;
+end;
+
+type
+  TID3InfoW = record
+    Title<![CDATA[:]]> WideString;
+    Artist<![CDATA[:]]> WideString;
+    Album<![CDATA[:]]> WideString;
+    Year<![CDATA[:]]> WideString;
+    Comment<![CDATA[:]]> WideString;
+    Track<![CDATA[:]]> WideString;
+    Genre<![CDATA[:]]> WideString;
+end;
+
+type
+  TID3Picture = record
+	PicturePresent<![CDATA[:]]> Boolean;
+	PictureType<![CDATA[:]]> Integer;
+	Description<![CDATA[:]]> AnsiString;
+  Bitmap<![CDATA[:]]> TPicture;
+end;
+
+type
+  TID3PictureW = record
+	PicturePresent<![CDATA[:]]> Boolean;
+	PictureType<![CDATA[:]]> Integer;
+	Description<![CDATA[:]]> WideString;
+  Bitmap<![CDATA[:]]> TPicture;
+end;
+
+
+type
+  TID3InfoExW = record
+	Title<![CDATA[:]]> WideString;
+	Artist<![CDATA[:]]> WideString;
+	Album<![CDATA[:]]> WideString;
+	Year<![CDATA[:]]> WideString;
+	Comment<![CDATA[:]]> WideString;
+	Track<![CDATA[:]]> WideString;
+  Genre<![CDATA[:]]> WideString;
+	AlbumArtist<![CDATA[:]]> WideString;
+	Composer<![CDATA[:]]> WideString;
+	OriginalArtist<![CDATA[:]]> WideString;
+	Copyright<![CDATA[:]]> WideString;
+	URL<![CDATA[:]]> WideString;
+	Encoder<![CDATA[:]]> WideString;
+	Publisher<![CDATA[:]]> WideString;
+	BPM<![CDATA[:]]> Cardinal;
+	Picture<![CDATA[:]]> TID3PictureW;
+end;
+
+
+type
+  TID3InfoEx = record
+	Title<![CDATA[:]]> AnsiString;
+	Artist<![CDATA[:]]> AnsiString;
+	Album<![CDATA[:]]> AnsiString;
+	Year<![CDATA[:]]> AnsiString;
+	Comment<![CDATA[:]]> AnsiString;
+	Track<![CDATA[:]]> AnsiString;
+  Genre<![CDATA[:]]> AnsiString;
+	AlbumArtist<![CDATA[:]]> AnsiString;
+	Composer<![CDATA[:]]> AnsiString;
+	OriginalArtist<![CDATA[:]]> AnsiString;
+	Copyright<![CDATA[:]]> AnsiString;
+	URL<![CDATA[:]]> AnsiString;
+	Encoder<![CDATA[:]]> AnsiString;
+	Publisher<![CDATA[:]]> AnsiString;
+	BPM<![CDATA[:]]> Cardinal;
+	Picture<![CDATA[:]]> TID3Picture;
+end;
+
+type
+  TStreamInfo = record
+	  SamplingRate<![CDATA[:]]> Cardinal;
+	  ChannelNumber<![CDATA[:]]> Cardinal;
+    VBR<![CDATA[:]]> Boolean;
+    Bitrate<![CDATA[:]]> Cardinal;
+    Length<![CDATA[:]]> TStreamTime;
+	  Description<![CDATA[:]]> AnsiString;
+end;
+
+type
+  TStreamInfoW = record
+ 	  SamplingRate<![CDATA[:]]> Cardinal;
+	  ChannelNumber<![CDATA[:]]> Cardinal;
+    VBR<![CDATA[:]]> Boolean;
+    Bitrate<![CDATA[:]]> Cardinal;
+    Length<![CDATA[:]]> TStreamTime;
+	  Description<![CDATA[:]]> WideString;
+end;
+
+// ===================================================================
+// STREAM STATUS
+type
+  TStreamStatus = record
+    fPlay<![CDATA[:]]> Boolean;
+    fPause<![CDATA[:]]> Boolean;
+    fEcho<![CDATA[:]]> Boolean;
+    fEqualizer<![CDATA[:]]> Boolean;
+    fVocalCut<![CDATA[:]]> Boolean;
+    fSideCut<![CDATA[:]]> Boolean;
+    fChannelMix<![CDATA[:]]> Boolean;
+    fSlideVolume<![CDATA[:]]> Boolean;
+    nLoop<![CDATA[:]]> Integer;
+    fReverse<![CDATA[:]]> Boolean;
+    nSongIndex<![CDATA[:]]> Integer;
+	  nSongsInQueue<![CDATA[:]]> Integer;
+end;
+
+
+// ======================================================================
+
+type
+  TEchoEffect = record
+    LeftDelay<![CDATA[:]]> Integer;
+    LeftSrcVolume<![CDATA[:]]> Integer;
+    LeftEchoVolume<![CDATA[:]]> Integer;
+    RightDelay<![CDATA[:]]> Integer;
+    RightSrcVolume<![CDATA[:]]> Integer;
+    RightEchoVolume<![CDATA[:]]> Integer;
+end;
+
+
+type TDynamicEchoEffectArray = array of TEchoEffect;
+type TDynamicIntegerArray = array of Integer;
+
+
+
+type TFFTGraphHorizontalScale = ( gsLogarithmic = 0, gsLinear = 1);
+
+type TCallbackMessage = (
+MsgStopAsync = 1,
+MsgPlayAsync = 2,
+MsgEnterLoopAsync = 4,
+MsgExitLoopAsync = 8,
+MsgEnterVolumeSlideAsync = 16,
+MsgExitVolumeSlideAsync = 32,
+MsgStreamBufferDoneAsync = 64,
+MsgStreamNeedMoreDataAsync = 128,
+MsgNextSongAsync = 256,
+MsgStop = 65536,
+MsgPlay = 131072,
+MsgEnterLoop = 262144,
+MsgExitLoop = 524288,
+MsgEnterVolumeSlide = 1048576,
+MsgExitVolumeSlide = 2097152,
+MsgStreamBufferDone = 4194304,
+MsgStreamNeedMoreData = 8388608,
+MsgNextSong = 16777216,
+MsgWaveBuffer = 33554432,
+MsgAll = -1,
+MsgAllAsync = 65535,
+MsgAllSync = -65536);
+
+
+// =======================================================================
+
+type TCallbackFunc = function(objptr<![CDATA[:]]> Pointer; user_data<![CDATA[:]]> Integer; msg<![CDATA[:]]> TCallbackMessage; param1<![CDATA[:]]> Cardinal; param2<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall;
+
+
+
+// ===========================
+ type ZPlay = class
+  private
+    { Private declarations }
+
+
+    error_msg<![CDATA[:]]> AnsiString;
+    error_msgW<![CDATA[:]]> WideString;
+    objptr<![CDATA[:]]> Pointer;
+
+    bitmap1<![CDATA[:]]> TPicture;
+    bitmap2<![CDATA[:]]> TPicture;
+
+  protected
+    { Protected declarations }
+  public
+    { Public declarations }
+
+
+
+
+    constructor Create;
+    destructor Destroy; override;
+
+    Function SetSettings(SettingID<![CDATA[:]]> TSettingID; Value<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+    Function GetSettings(SettingID<![CDATA[:]]> TSettingID; Value<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+    Function GetVersion()<![CDATA[:]]> Integer; stdcall;
+    Function EnumerateWaveOut()<![CDATA[:]]> Integer;
+    Function GetWaveOutInfo(Index<![CDATA[:]]> Cardinal; out WaveOutInfo<![CDATA[:]]> TWaveOutInfo)<![CDATA[:]]> Integer;
+    Function GetWaveOutInfoW(Index<![CDATA[:]]> Cardinal; out WaveOutInfo<![CDATA[:]]> TWaveOutInfoW)<![CDATA[:]]> Integer;
+    Function SetWaveOutDevice(Index<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer;
+
+    Function EnumerateWaveIn()<![CDATA[:]]> Integer;
+    Function GetWaveInInfo(Index<![CDATA[:]]> Cardinal; out WaveInInfo<![CDATA[:]]> TWaveInInfo)<![CDATA[:]]> Integer;
+    Function GetWaveInInfoW(Index<![CDATA[:]]> Cardinal; out WaveInInfo<![CDATA[:]]> TWaveInInfoW)<![CDATA[:]]> Integer;
+    Function SetWaveInDevice(Index<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer;
+
+    Function GetError()<![CDATA[:]]> AnsiString;
+    Function GetErrorW()<![CDATA[:]]> WideString;
+    Function GetFileFormat(const FileName<![CDATA[:]]> AnsiString)<![CDATA[:]]> TStreamFormat;
+    Function GetFileFormatW(const FileName<![CDATA[:]]> WideString)<![CDATA[:]]> TStreamFormat;
+  
+    Function SetCallbackFunc(CallbackFunc<![CDATA[:]]> TCallbackFunc; Messages<![CDATA[:]]> TCallbackMessage; UserData<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+
+    Procedure GetStreamInfo(out Info<![CDATA[:]]> TStreamInfo);
+    Procedure GetStreamInfoW(out Info<![CDATA[:]]> TStreamInfoW);
+    Function OpenFile(const FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]> Boolean; overload;
+    Function OpenFileW(const FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]> Boolean; overload;
+
+    Function SetWaveOutFile(const FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; fOutputToSoundcard<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean; overload;
+    Function SetWaveOutFileW(const FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; fOutputToSoundcard<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean; overload;
+
+    Function AddFile(const FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]> Boolean; overload;
+    Function AddFileW(const FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]> Boolean; overload;
+
+
+
+    Function OpenStream(Buffered<![CDATA[:]]> Integer;	Managed<![CDATA[:]]> Integer;  MemStream<![CDATA[:]]> Pointer; StreamSize<![CDATA[:]]> Cardinal; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]> Boolean;
+    Function PushDataToStream(const MemNewData<![CDATA[:]]> Pointer; NewDataize<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function IsStreamDataFree(const MemNewData<![CDATA[:]]> Pointer)<![CDATA[:]]> Boolean;
+    Procedure GetDynamicStreamLoad(out Load<![CDATA[:]]> TStreamLoadInfo);
+    Function Close()<![CDATA[:]]> Boolean;
+    Function LoadID3(Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3Info)<![CDATA[:]]> Boolean;
+    Function LoadID3W(Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3InfoW)<![CDATA[:]]> Boolean;
+    Function LoadID3Ex(out Info<![CDATA[:]]> TID3InfoEx; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+    Function LoadID3ExW(out Info<![CDATA[:]]> TID3InfoExW; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+
+    Function LoadFileID3(FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3Info)<![CDATA[:]]> Boolean;
+    Function LoadFileID3W(FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3InfoW)<![CDATA[:]]> Boolean;
+
+    Function LoadFileID3Ex(FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat;  out Info<![CDATA[:]]> TID3InfoEx; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+    Function LoadFileID3ExW(FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat;  out Info<![CDATA[:]]> TID3InfoExW; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+
+
+    Procedure GetStatus(out Status<![CDATA[:]]> TStreamStatus);
+    Procedure GetPosition(out Position<![CDATA[:]]> TStreamTime);
+    Function StartPlayback()<![CDATA[:]]> Boolean;
+    Function StopPlayback()<![CDATA[:]]> Boolean;
+    Function PausePlayback()<![CDATA[:]]> Boolean;
+    Function ResumePlayback()<![CDATA[:]]> Boolean;
+    Function Seek(TimeFormat<![CDATA[:]]> TTimeFormat; var Position<![CDATA[:]]> TStreamTime; MoveMethod<![CDATA[:]]> TSeekMethod)<![CDATA[:]]> Boolean;
+    Function PlayLoop(TimeFormatStart<![CDATA[:]]> TTimeFormat; var StartPosition<![CDATA[:]]> TStreamTime; TimeFormatEnd<![CDATA[:]]> TTimeFormat; var EndPosition<![CDATA[:]]> TStreamTime; NumOfCycles<![CDATA[:]]> Cardinal; ContinuePlaying<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function ReverseMode(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+    Function SlideVolume(TimeFormatStart<![CDATA[:]]> TTimeFormat;
+                          TimeStart<![CDATA[:]]> TStreamTime;
+                          StartVolumeLeft<![CDATA[:]]> Cardinal;
+                          StartVolumeRight<![CDATA[:]]> Cardinal;
+                          TimeFormatEnd<![CDATA[:]]> TTimeFormat;
+                          TimeEnd<![CDATA[:]]> TStreamTime;
+                          EndVolumeLeft<![CDATA[:]]> Cardinal;
+                          EndVolumeRight<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+
+    Function SetMasterVolume(LeftVolume<![CDATA[:]]> Cardinal; RightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function SetPlayerVolume(LeftVolume<![CDATA[:]]> Cardinal; RightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Procedure GetMasterVolume(out LeftVolume<![CDATA[:]]> Integer; out RightVolume<![CDATA[:]]> Integer);
+    Procedure GetPlayerVolume(out LeftVolume<![CDATA[:]]> Integer; out RightVolume<![CDATA[:]]> Integer);
+    Procedure GetVUData(out LeftChannel<![CDATA[:]]> Cardinal; out RightChannel<![CDATA[:]]> Cardinal);
+    Function GetBitrate(Average<![CDATA[:]]> Boolean)<![CDATA[:]]> Integer;
+    Function EnableEcho(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+    Function SetEchoParam(var EchoEffectArray<![CDATA[:]]> array of TEchoEffect; NumberOfEffects<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function GetEchoParam(out EchoEffectArray<![CDATA[:]]> TDynamicEchoEffectArray)<![CDATA[:]]> Integer;
+    Function EnableEqualizer(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+    Function SetEqualizerPoints(var FreqPointArray<![CDATA[:]]> array of Integer; NumberOfPoints<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function GetEqualizerPoints(out FreqPointArray<![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Integer;
+    Function SetEqualizerParam(PreAmpGain<![CDATA[:]]> Integer; var BandGain<![CDATA[:]]> array of Integer; NumberOfBands<![CDATA[:]]>Integer)<![CDATA[:]]> Boolean;
+    Function GetEqualizerParam(out PreAmpGain<![CDATA[:]]> Integer; out BandGain<![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Integer;
+    Function SetEqualizerPreampGain(Gain<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function GetEqualizerPreampGain()<![CDATA[:]]> Integer;
+    Function SetEqualizerBandGain(BandIndex<![CDATA[:]]> Integer; Gain<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function GetEqualizerBandGain(BandIndex<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+    Function StereoCut(Enable<![CDATA[:]]> Boolean; OutputCenter<![CDATA[:]]> Boolean; BassToSides<![CDATA[:]]> Boolean)<![CDATA[:]]>Boolean;
+    Function MixChannels(Enable<![CDATA[:]]> Boolean; LeftPercent<![CDATA[:]]> Cardinal; RightPercent<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function SetRate(Rate<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function GetRate()<![CDATA[:]]> Cardinal;
+    Function SetPitch(Pitch<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function GetPitch()<![CDATA[:]]> Cardinal;
+    Function SetTempo(Tempo<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+    Function GetTempo()<![CDATA[:]]> Cardinal;
+    Function GetFFTData(FFTPoints<![CDATA[:]]> Integer; FFTWindow<![CDATA[:]]> TFFTWindow; out HarmonicNumber<![CDATA[:]]> Integer;
+                         HarmonicFreq<![CDATA[:]]> TDynamicIntegerArray;  LeftAmplitude<![CDATA[:]]> TDynamicIntegerArray;
+                          RightAmplitude<![CDATA[:]]> TDynamicIntegerArray;
+                           LeftPhase<![CDATA[:]]> TDynamicIntegerArray;  RightPhase <![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Boolean;
+
+
+    Function DrawFFTGraphOnHDC(hdc<![CDATA[:]]> HDC; X<![CDATA[:]]> Integer; Y<![CDATA[:]]> Integer; Width<![CDATA[:]]> Integer; Height<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function DrawFFTGraphOnHWND(hwnd<![CDATA[:]]> HWND; X<![CDATA[:]]> Integer; Y<![CDATA[:]]> Integer; Width<![CDATA[:]]> Integer; Height<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function SetFFTGraphParam(ParamID<![CDATA[:]]> TFFTGraphParamID; ParamValue<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+    Function GetFFTGraphParam(ParamID<![CDATA[:]]> TFFTGraphParamID)<![CDATA[:]]> Integer;
+
+
+    Function DetectBPM(Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+    Function DetectFileBPM(const FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+    Function DetectFileBPMW(const FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+
+
+
+  published
+    { Published declarations }
+
+
+
+  end;
+
+
+implementation
+
+type PSTREAM_LOAD_INFO = ^TStreamLoadInfo;
+
+
+type
+  ID3_PICTURE = record
+	PicturePresent<![CDATA[:]]> Cardinal;
+	CanDrawPicture<![CDATA[:]]> Cardinal;
+	MIMEType<![CDATA[:]]> PAnsiChar;
+	PictureType<![CDATA[:]]> Integer;
+	Description<![CDATA[:]]> PAnsiChar;
+	PictureData<![CDATA[:]]> Pointer;
+	PictureDataSize<![CDATA[:]]> Integer;
+	hBitmap<![CDATA[:]]> HBITMAP;
+	Width<![CDATA[:]]> Cardinal;
+	Height<![CDATA[:]]> Cardinal;
+	reserved<![CDATA[:]]> array[0..128] of Char;
+end;
+
+type
+  ID3_PICTUREW = record
+	PicturePresent<![CDATA[:]]> Cardinal;
+	CanDrawPicture<![CDATA[:]]> Cardinal;
+	MIMEType<![CDATA[:]]> PWideChar;
+	PictureType<![CDATA[:]]> Integer;
+	Description<![CDATA[:]]> PWideChar;
+	PictureData<![CDATA[:]]> Pointer;
+	PictureDataSize<![CDATA[:]]> Integer;
+	hBitmap<![CDATA[:]]> HBITMAP;
+	Width<![CDATA[:]]> Cardinal;
+	Height<![CDATA[:]]> Cardinal;
+	reserved<![CDATA[:]]> array[0..128] of Char;
+end;
+
+type
+    ID3_INFO = record
+      Title<![CDATA[:]]> PAnsiChar;
+      Artist<![CDATA[:]]> PAnsiChar;
+      Album<![CDATA[:]]> PAnsiChar;
+      Year<![CDATA[:]]> PAnsiChar;
+      Comment<![CDATA[:]]> PAnsiChar;
+      TrackNum<![CDATA[:]]> PAnsiChar;
+      Genre<![CDATA[:]]> PAnsiChar;
+end;
+
+type
+    ID3_INFOW = record
+      Title<![CDATA[:]]> PWideChar;
+      Artist<![CDATA[:]]> PWideChar;
+      Album<![CDATA[:]]> PWideChar;
+      Year<![CDATA[:]]> PWideChar;
+      Comment<![CDATA[:]]> PWideChar;
+      TrackNum<![CDATA[:]]> PWideChar;
+      Genre<![CDATA[:]]> PWideChar;
+end;
+
+
+
+
+
+type
+  ID3_INFOEX = record
+	Title<![CDATA[:]]> PAnsiChar;
+	Artist<![CDATA[:]]> PAnsiChar;
+	Album<![CDATA[:]]> PAnsiChar;
+	Year<![CDATA[:]]> PAnsiChar;
+	Comment<![CDATA[:]]> PAnsiChar;
+	TrackNum<![CDATA[:]]> PAnsiChar;
+  Genre<![CDATA[:]]> PAnsiChar;
+	AlbumArtist<![CDATA[:]]> PAnsiChar;
+	Composer<![CDATA[:]]> PAnsiChar;
+	OriginalArtist<![CDATA[:]]> PAnsiChar;
+	Copyright<![CDATA[:]]> PAnsiChar;
+	URL<![CDATA[:]]> PAnsiChar;
+	Encoder<![CDATA[:]]> PAnsiChar;
+	Publisher<![CDATA[:]]> PAnsiChar;
+	BPM<![CDATA[:]]> Cardinal;
+	Picture<![CDATA[:]]> ID3_PICTURE;
+	reserved<![CDATA[:]]> array[0 .. 128] of Char;
+end;
+
+type
+  ID3_INFOEXW = record
+	Title<![CDATA[:]]> PWideChar;
+	Artist<![CDATA[:]]> PWideChar;
+	Album<![CDATA[:]]> PWideChar;
+	Year<![CDATA[:]]> PWideChar;
+	Comment<![CDATA[:]]> PWideChar;
+	TrackNum<![CDATA[:]]> PWideChar;
+  Genre<![CDATA[:]]> PWideChar;
+	AlbumArtist<![CDATA[:]]> PWideChar;
+	Composer<![CDATA[:]]> PWideChar;
+	OriginalArtist<![CDATA[:]]> PWideChar;
+	Copyright<![CDATA[:]]> PWideChar;
+	URL<![CDATA[:]]> PWideChar;
+	Encoder<![CDATA[:]]> PWideChar;
+	Publisher<![CDATA[:]]> PWideChar;
+	BPM<![CDATA[:]]> Cardinal;
+	Picture<![CDATA[:]]> ID3_PICTUREW;
+	reserved<![CDATA[:]]> array[0 .. 128] of Char;
+end;
+
+type PID3_INFOEX = ^ID3_INFOEX;
+type PID3_INFOEXW = ^ID3_INFOEXW;
+type PID3_PICTURE = ^ID3_PICTURE;
+type PID3_PICTUREW = ^ID3_PICTUREW;
+type PECHO_EFFECT = ^TEchoEffect;
+type PID3_INFO = ^ID3_INFO;
+type PID3_INFOW = ^ID3_INFOW;
+
+type PSTREAM_TIME = ^TStreamTime;
+
+
+type
+  STREAM_INFO = record
+    nSamplingRate<![CDATA[:]]> Cardinal;
+    nChannelNumber<![CDATA[:]]> Cardinal;
+    fVBR<![CDATA[:]]> Cardinal;
+    nBitrate<![CDATA[:]]> Cardinal;
+    timeLength<![CDATA[:]]> TStreamTime;
+    pchDescription<![CDATA[:]]> PAnsiChar
+end;
+
+type PSTREAM_INFO = ^STREAM_INFO;
+
+type
+  STREAM_INFOW = record
+	  nSamplingRate<![CDATA[:]]> Cardinal;
+	  nChannelNumber<![CDATA[:]]> Cardinal;
+    fVBR<![CDATA[:]]> Cardinal;
+    nBitrate<![CDATA[:]]> Cardinal;
+    timeLength<![CDATA[:]]> TStreamTime;
+	  pchDescription<![CDATA[:]]> PWideChar;
+end;
+
+type PSTREAM_INFOW = ^STREAM_INFOW;
+
+type PSTREAM_STATUS = ^TStreamStatus;
+
+
+type
+  WMP3_STREAM_STATUS = record
+    fPlay<![CDATA[:]]> Integer;
+    fPause<![CDATA[:]]> Integer;
+    fEcho<![CDATA[:]]> Integer;
+    fEqualizer<![CDATA[:]]> Integer;
+    fVocalCut<![CDATA[:]]> Integer;
+    fSideCut<![CDATA[:]]> Integer;
+    fChannelMix<![CDATA[:]]> Integer;
+    fFade<![CDATA[:]]> Integer;
+    nLoop<![CDATA[:]]> Integer;
+    fReverse<![CDATA[:]]> Integer;
+   	nSongIndex<![CDATA[:]]> Integer;
+	nSongsInQueue<![CDATA[:]]> Integer;
+end;
+
+
+
+type
+  WAVEOUT_INFO = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    Support<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> PAnsiChar;
+end;
+
+type PWAVEOUT_INFO = ^WAVEOUT_INFO;
+
+type
+  WAVEOUT_INFOW = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    Support<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> PWideChar;
+end;
+
+type PWAVEOUT_INFOW = ^WAVEOUT_INFOW;
+
+
+
+
+type
+  WAVEIN_INFO = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> PAnsiChar;
+end;
+
+type PWAVEIN_INFO = ^WAVEIN_INFO;
+
+type
+  WAVEIN_INFOW = record
+    ManufacturerID<![CDATA[:]]> Cardinal;
+    ProductID<![CDATA[:]]> Cardinal;
+    DriverVersion<![CDATA[:]]> Cardinal;
+    Formats<![CDATA[:]]> Cardinal;
+    Channels<![CDATA[:]]> Cardinal;
+    ProductName<![CDATA[:]]> PWideChar;
+end;
+
+type PWAVEIN_INFOW = ^WAVEIN_INFOW;
+
+
+Function zplay_SetSettings(objptr<![CDATA[:]]> Pointer; nSettingID<![CDATA[:]]> Integer; nValue<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetSettings(objptr<![CDATA[:]]> Pointer; nSettingID<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_CreateZPlay()<![CDATA[:]]> Pointer; stdcall; external 'libzplay.dll'
+Function zplay_DestroyZPlay(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetVersion(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_EnumerateWaveOut(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetWaveOutInfo(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal; pWaveOutInfo<![CDATA[:]]> PWAVEOUT_INFO)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetWaveOutInfoW(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal; pWaveOutInfo<![CDATA[:]]> PWAVEOUT_INFOW)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetWaveOutDevice(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_EnumerateWaveIn(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetWaveInInfo(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal; pWaveInInfo<![CDATA[:]]> PWAVEIN_INFO)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetWaveInInfoW(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal; pWaveInInfo<![CDATA[:]]> PWAVEIN_INFOW)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetWaveInDevice(objptr<![CDATA[:]]> Pointer; nIndex<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+
+Function zplay_GetFileFormat(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PAnsiChar)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetFileFormatW(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PWideChar)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetCallbackFunc(objptr<![CDATA[:]]> Pointer; pCallbackFunc<![CDATA[:]]> TCallbackFunc; nMessage<![CDATA[:]]> TCallbackMessage; user_data<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_PushDataToStream(objptr<![CDATA[:]]> Pointer; const sMemNewData<![CDATA[:]]> Pointer; nNewDataize<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_IsStreamDataFree(objptr<![CDATA[:]]> Pointer; const sMemNewData<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Procedure zplay_GetDynamicStreamLoad(objptr<![CDATA[:]]> Pointer;  pStreamLoadInfo<![CDATA[:]]> PSTREAM_LOAD_INFO); stdcall; external 'libzplay.dll'
+
+Function zplay_OpenFile(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PAnsiChar;  nFormat<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_OpenFileW(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_AddFile(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PAnsiChar;  nFormat<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_AddFileW(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_SetWaveOutFile(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PAnsiChar;  nFormat<![CDATA[:]]> Integer; fOutputToSoundcard<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetWaveOutFileW(objptr<![CDATA[:]]> Pointer; const sFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer; fOutputToSoundcard<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_OpenStream(objptr<![CDATA[:]]> Pointer; fBuffered<![CDATA[:]]> Integer;	fManaged<![CDATA[:]]> Integer; const sMemStream<![CDATA[:]]> Pointer; nStreamSize<![CDATA[:]]> Cardinal; nFormat<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_Close(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Procedure zplay_GetStreamInfo(objptr<![CDATA[:]]> Pointer; pInfo<![CDATA[:]]> PSTREAM_INFO); stdcall; external 'libzplay.dll'
+Procedure zplay_GetStreamInfoW(objptr<![CDATA[:]]> Pointer; pInfo<![CDATA[:]]> PSTREAM_INFOW); stdcall; external 'libzplay.dll'
+
+Function zplay_LoadID3(objptr<![CDATA[:]]> Pointer; nId3Version<![CDATA[:]]> Integer; pId3Info<![CDATA[:]]> PID3_INFO)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadID3W(objptr<![CDATA[:]]> Pointer; nId3Version<![CDATA[:]]> Integer; pId3Info<![CDATA[:]]> PID3_INFOW)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_LoadID3Ex(objptr<![CDATA[:]]> Pointer; pId3Info<![CDATA[:]]> PID3_INFOEX; fDecodeEmbededPicture<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadID3ExW(objptr<![CDATA[:]]> Pointer;  pId3Info<![CDATA[:]]> PID3_INFOEXW; fDecodeEmbededPicture<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_LoadFileID3(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PAnsiChar; nFormat<![CDATA[:]]> Integer; nId3Version<![CDATA[:]]> Integer; pId3Info<![CDATA[:]]> PID3_INFO)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadFileID3W(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer;  nId3Version<![CDATA[:]]> Integer; pId3Info<![CDATA[:]]> PID3_INFOW)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_LoadFileID3Ex(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PAnsiChar; nFormat<![CDATA[:]]> Integer;  pId3Info<![CDATA[:]]> PID3_INFOEX; fDecodeEmbededPicture<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_LoadFileID3ExW(objptr<![CDATA[:]]> Pointer; const pchFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer; pId3Info<![CDATA[:]]> PID3_INFOEXW; fDecodeEmbededPicture<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_Play(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_Stop(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_Pause(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_Resume(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_PlayLoop(objptr<![CDATA[:]]> Pointer; fFormatStartTime<![CDATA[:]]> Integer; pStartTime<![CDATA[:]]> PSTREAM_TIME; fFormatEndTime<![CDATA[:]]> Integer; pEndTime<![CDATA[:]]> PSTREAM_TIME; nNumOfCycles<![CDATA[:]]> Cardinal; fContinuePlaying<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_ReverseMode(objptr<![CDATA[:]]> Pointer; fEnable<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Procedure zplay_GetPosition(objptr<![CDATA[:]]> Pointer; pTime<![CDATA[:]]> PSTREAM_TIME); stdcall; external 'libzplay.dll'
+Function zplay_Seek(objptr<![CDATA[:]]> Pointer; fFormat<![CDATA[:]]> Integer; pTime<![CDATA[:]]> PSTREAM_TIME; nMoveMethod<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Procedure zplay_GetStatus(objptr<![CDATA[:]]> Pointer; pStatus<![CDATA[:]]> PSTREAM_STATUS); stdcall; external 'libzplay.dll'
+Function zplay_GetBitrate(objptr<![CDATA[:]]> Pointer; fAverage<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_GetError(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> PAnsiChar; stdcall; external 'libzplay.dll'
+Function zplay_GetErrorW(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> PWideChar; stdcall; external 'libzplay.dll'
+
+Function zplay_StereoCut(objptr<![CDATA[:]]> Pointer; fEnable<![CDATA[:]]> Integer; fOutputCenter<![CDATA[:]]> Integer; fBassToSides<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_MixChannels(objptr<![CDATA[:]]> Pointer; fEnable<![CDATA[:]]> Integer; nLeftPercent<![CDATA[:]]> Cardinal; nRightPercent<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function zplay_SetMasterVolume(objptr<![CDATA[:]]> Pointer; nLeftVolume<![CDATA[:]]> Cardinal; nRightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetPlayerVolume(objptr<![CDATA[:]]> Pointer; nLeftVolume<![CDATA[:]]> Cardinal; nRightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+procedure zplay_GetMasterVolume(objptr<![CDATA[:]]> Pointer; nLeftVolume<![CDATA[:]]> PCardinal; nRightVolume<![CDATA[:]]> PCardinal); stdcall; external 'libzplay.dll'
+procedure zplay_GetPlayerVolume(objptr<![CDATA[:]]> Pointer; nLeftVolume<![CDATA[:]]> PCardinal; nRightVolume<![CDATA[:]]> PCardinal); stdcall; external 'libzplay.dll'
+
+procedure zplay_GetVUData(objptr<![CDATA[:]]> Pointer; pnLeftChannel<![CDATA[:]]> PCardinal; pnRightChannel<![CDATA[:]]> PCardinal); stdcall; external 'libzplay.dll'
+
+
+Function zplay_GetFFTData(objptr<![CDATA[:]]> Pointer;
+                            nFFTPoints<![CDATA[:]]> Integer;
+                            nFFTWindow<![CDATA[:]]> Integer;
+                            pnHarmonicNumber<![CDATA[:]]> PInteger;
+                            pnHarmonicFreq<![CDATA[:]]> PInteger;
+                            pnLeftAmplitude<![CDATA[:]]> PInteger;
+                            pnRightAmplitude<![CDATA[:]]> PInteger;
+                            pnLeftPhase<![CDATA[:]]> PInteger;
+                            pnRightPhase<![CDATA[:]]> PInteger)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_SlideVolume(objptr<![CDATA[:]]> Pointer;
+                          fFormatStart<![CDATA[:]]> Integer;
+                          pTimeStart<![CDATA[:]]> PSTREAM_TIME;
+                          nStartVolumeLeft<![CDATA[:]]> Cardinal;
+                          nStartVolumeRight<![CDATA[:]]> Cardinal;
+                          fFormatEnd<![CDATA[:]]> Integer;
+                          pTimeEnd<![CDATA[:]]> PSTREAM_TIME;
+                          nEndVolumeLeft<![CDATA[:]]> Cardinal;
+                          nEndVolumeRight<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+// =============================
+// echo
+Function zplay_EnableEcho(objptr<![CDATA[:]]> Pointer; fEnable<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+
+Function zplay_SetEchoParam(objptr<![CDATA[:]]> Pointer;  pEchoEffect<![CDATA[:]]> PECHO_EFFECT; nNumberOfEffects<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+Function zplay_GetEchoParam(objptr<![CDATA[:]]> Pointer; pEchoEffect<![CDATA[:]]> PECHO_EFFECT; nNumberOfEffects<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+        
+// =============================
+// equalizer
+Function zplay_EnableEqualizer(objptr<![CDATA[:]]> Pointer; fEnable<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetEqualizerPoints(objptr<![CDATA[:]]> Pointer; pnFreqPoint<![CDATA[:]]> PInteger; nNumOfPoints<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetEqualizerPoints(objptr<![CDATA[:]]> Pointer; pnFreqPoint<![CDATA[:]]> PInteger; nNumOfPoints<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetEqualizerParam(objptr<![CDATA[:]]> Pointer; nPreAmpGain<![CDATA[:]]> Integer; pnBandGain<![CDATA[:]]> PInteger; nNumberOfBands<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetEqualizerParam(objptr<![CDATA[:]]> Pointer; pnPreAmpGain<![CDATA[:]]> PInteger; pnBandGain<![CDATA[:]]> Pinteger; nNumberOfBands<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+Function  zplay_SetEqualizerPreampGain(objptr<![CDATA[:]]> Pointer; nGain<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function  zplay_GetEqualizerPreampGain(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function  zplay_SetEqualizerBandGain(objptr<![CDATA[:]]> Pointer;  nBandIndex<![CDATA[:]]> Integer; nGain<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function  zplay_GetEqualizerBandGain(objptr<![CDATA[:]]> Pointer;  nBandIndex<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+
+// =============================
+
+Function zplay_SetRate(objptr<![CDATA[:]]> Pointer; nRate<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetRate(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Cardinal; stdcall; external 'libzplay.dll'
+
+Function zplay_SetPitch(objptr<![CDATA[:]]> Pointer; nPitch<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetPitch(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Cardinal; stdcall; external 'libzplay.dll'
+
+Function zplay_SetTempo(objptr<![CDATA[:]]> Pointer; nTempo<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetTempo(objptr<![CDATA[:]]> Pointer)<![CDATA[:]]> Cardinal; stdcall; external 'libzplay.dll'
+
+Function zplay_DrawFFTGraphOnHDC(objptr<![CDATA[:]]> Pointer; Handle<![CDATA[:]]> Cardinal ; nX<![CDATA[:]]> Integer; nY<![CDATA[:]]> Integer; nWidth<![CDATA[:]]> Integer; nHeight<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_DrawFFTGraphOnHWND(objptr<![CDATA[:]]> Pointer; Handle<![CDATA[:]]> Cardinal ; nX<![CDATA[:]]> Integer; nY<![CDATA[:]]> Integer; nWidth<![CDATA[:]]> Integer; nHeight<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_SetFFTGraphParam(objptr<![CDATA[:]]> Pointer; nParamID<![CDATA[:]]> Integer; nParamValue<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function zplay_GetFFTGraphParam(objptr<![CDATA[:]]> Pointer; nParamID<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+// =============================
+
+
+Function  zplay_DetectBPM(Wobjptr<![CDATA[:]]> Pointer; nMethod<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function  zplay_DetectFileBPM(objptr<![CDATA[:]]> Pointer; pchFileName<![CDATA[:]]> PAnsiChar; nFormat<![CDATA[:]]> Integer; nMethod<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+Function  zplay_DetectFileBPMW(objptr<![CDATA[:]]> Pointer; pchFileName<![CDATA[:]]> PWideChar; nFormat<![CDATA[:]]> Integer; nMethod<![CDATA[:]]> Integer)<![CDATA[:]]> Integer; stdcall; external 'libzplay.dll'
+
+
+
+
+
+Function ZPlay.DetectBPM(Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_DetectBPM(objptr, Integer(Method));
+end;
+
+Function ZPlay.DetectFileBPM(const FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_DetectFileBPM(objptr, PAnsiChar(FileName), Integer(Format), Integer(Method));
+end;
+
+Function ZPlay.DetectFileBPMW(const FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; Method<![CDATA[:]]> TBPMDetectionMethod)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_DetectFileBPMW(objptr, PWideChar(FileName), Integer(Format), Integer(Method));
+end;
+
+
+Function ZPlay.SetFFTGraphParam(ParamID<![CDATA[:]]> TFFTGraphParamID; ParamValue<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetFFTGraphParam(objptr, Integer(ParamID), ParamValue) = 1;
+end;
+
+Function ZPlay.GetFFTGraphParam(ParamID<![CDATA[:]]> TFFTGraphParamID)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_GetFFTGraphParam(objptr, Integer(ParamID));
+end;
+
+
+
+Function ZPlay.SetEqualizerPreampGain(Gain<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetEqualizerPreampGain(objptr, Gain) = 1;
+end;
+
+Function ZPlay.GetEqualizerPreampGain()<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_GetEqualizerPreampGain(objptr);
+end;
+
+Function ZPlay.SetEqualizerBandGain(BandIndex<![CDATA[:]]> Integer; Gain<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetEqualizerBandGain(objptr, BandIndex, Gain) = 1;
+end;
+
+Function ZPlay.GetEqualizerBandGain(BandIndex<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_GetEqualizerBandGain(objptr, BandIndex);
+end;
+
+
+
+
+Function ZPlay.DrawFFTGraphOnHDC(hdc<![CDATA[:]]> HDC ; X<![CDATA[:]]> Integer; Y<![CDATA[:]]> Integer; Width<![CDATA[:]]> Integer; Height<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_DrawFFTGraphOnHDC(objptr, hdc, X, Y, Width, Height) = 1;
+end;
+
+Function ZPlay.DrawFFTGraphOnHWND(hwnd<![CDATA[:]]> HWND; X<![CDATA[:]]> Integer; Y<![CDATA[:]]> Integer; Width<![CDATA[:]]> Integer; Height<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_DrawFFTGraphOnHWND(objptr, hwnd, X, Y, Width, Height) = 1;
+end;
+
+
+
+Function ZPlay.SetRate(Rate<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetRate(objptr, Rate) = 1;
+end;
+
+Function ZPlay.GetRate()<![CDATA[:]]> Cardinal;
+begin
+  Result <![CDATA[:]]>= zplay_GetRate(objptr);
+end;
+
+
+Function ZPlay.SetPitch(Pitch<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetPitch(objptr, Pitch) = 1;
+end;
+
+Function ZPlay.GetPitch()<![CDATA[:]]> Cardinal;
+begin
+  Result <![CDATA[:]]>= zplay_GetPitch(objptr);
+end;
+
+
+Function ZPlay.SetTempo(Tempo<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetTempo(objptr, Tempo) = 1;
+end;
+
+Function ZPlay.GetTempo()<![CDATA[:]]> Cardinal;
+begin
+  Result <![CDATA[:]]>= zplay_GetTempo(objptr);
+end;
+
+
+Function ZPlay.GetFFTData(FFTPoints<![CDATA[:]]> Integer; FFTWindow<![CDATA[:]]> TFFTWindow; out HarmonicNumber<![CDATA[:]]> Integer;
+                         HarmonicFreq<![CDATA[:]]> TDynamicIntegerArray;  LeftAmplitude<![CDATA[:]]> TDynamicIntegerArray;
+                          RightAmplitude<![CDATA[:]]> TDynamicIntegerArray;
+                           LeftPhase<![CDATA[:]]> TDynamicIntegerArray;  RightPhase <![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Boolean;
+
+
+
+begin
+
+Result <![CDATA[:]]>= zplay_GetFFTData(objptr, FFTPoints, Integer(FFTWindow),
+    Addr(HarmonicNumber),
+    Addr(HarmonicFreq[0]),
+    Addr(LeftAmplitude[0]),
+    Addr(RightAmplitude[0]),
+    Addr(LeftPhase[0]),
+    Addr(RightPhase[0])) = 1
+
+
+
+end;
+
+
+
+
+Function ZPlay.LoadFileID3(FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3Info)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFO;
+begin
+    if zplay_LoadFileID3(objptr, PAnsiChar(FileName), Integer(Format), Integer(Id3Version), Addr(myInfo)) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+Function ZPlay.LoadFileID3W(FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3InfoW)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOW;
+begin
+    if zplay_LoadFileID3W(objptr, PWideChar(FileName), Integer(Format), Integer(Id3Version), Addr(myInfo)) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+
+Function ZPlay.SlideVolume(TimeFormatStart<![CDATA[:]]> TTimeFormat;
+                          TimeStart<![CDATA[:]]> TStreamTime;
+                          StartVolumeLeft<![CDATA[:]]> Cardinal;
+                          StartVolumeRight<![CDATA[:]]> Cardinal;
+                          TimeFormatEnd<![CDATA[:]]> TTimeFormat;
+                          TimeEnd<![CDATA[:]]> TStreamTime;
+                          EndVolumeLeft<![CDATA[:]]> Cardinal;
+                          EndVolumeRight<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SlideVolume(objptr, Integer(TimeFormatStart), Addr(TimeStart), StartVolumeLeft, StartVolumeRight, Integer(TimeFormatEnd), Addr(TimeEnd), EndVolumeLeft, EndVolumeRight) = 1;
+end;
+
+
+
+Procedure ZPlay.GetVUData(out LeftChannel<![CDATA[:]]> Cardinal; out RightChannel<![CDATA[:]]> Cardinal);
+begin
+  zplay_GetVUData(objptr, Addr(LeftChannel), Addr(RightChannel));
+end;
+
+
+
+Function ZPlay.SetMasterVolume(LeftVolume<![CDATA[:]]> Cardinal; RightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetMasterVolume(objptr, LeftVolume, RightVolume) = 1;
+end;
+
+Function ZPlay.SetPlayerVolume(LeftVolume<![CDATA[:]]> Cardinal; RightVolume<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetPlayerVolume(objptr, LeftVolume, RightVolume) = 1;
+end;
+
+Procedure ZPlay.GetMasterVolume(out LeftVolume<![CDATA[:]]> Integer; out RightVolume<![CDATA[:]]> Integer);
+begin
+  zplay_GetMasterVolume(objptr, Addr(LeftVolume), Addr(RightVolume));
+end;
+
+Procedure ZPlay.GetPlayerVolume(out LeftVolume<![CDATA[:]]> Integer; out RightVolume<![CDATA[:]]> Integer);
+begin
+  zplay_GetPlayerVolume(objptr, Addr(LeftVolume), Addr(RightVolume));
+end;
+
+
+Function ZPlay.ReverseMode(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+begin
+  if Enable then
+    Result <![CDATA[:]]>= zplay_ReverseMode(objptr, 1) = 1
+  else
+    Result <![CDATA[:]]>= zplay_ReverseMode(objptr, 0) = 1;
+end;
+
+
+Function ZPlay.PlayLoop(TimeFormatStart<![CDATA[:]]> TTimeFormat; var StartPosition<![CDATA[:]]> TStreamTime; TimeFormatEnd<![CDATA[:]]> TTimeFormat; var EndPosition<![CDATA[:]]> TStreamTime; NumOfCycles<![CDATA[:]]> Cardinal; ContinuePlaying<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_PlayLoop(objptr, Integer(TimeFormatStart), Addr(StartPosition), Integer(TimeFormatEnd), Addr(EndPosition), NumOfCycles, ContinuePlaying) = 1;
+end;
+
+Procedure ZPlay.GetDynamicStreamLoad(out Load<![CDATA[:]]> TStreamLoadInfo);
+begin
+  zplay_GetDynamicStreamLoad(objptr, Addr(Load));
+end;
+
+
+Function ZPlay.EnumerateWaveOut()<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_EnumerateWaveOut(objptr);
+end;
+
+Function ZPlay.GetWaveOutInfo(Index<![CDATA[:]]> Cardinal; out WaveOutInfo<![CDATA[:]]> TWaveOutInfo)<![CDATA[:]]> Integer;
+var
+  Info<![CDATA[:]]> WAVEOUT_INFO;
+begin
+  if zplay_GetWaveOutInfo(objptr, Index, Addr(Info)) <> 0 then
+  begin
+    WaveOutInfo.ManufacturerID <![CDATA[:]]>= Info.ManufacturerID;
+    WaveOutInfo.ProductID <![CDATA[:]]>= Info.ProductID;
+    WaveOutInfo.DriverVersion <![CDATA[:]]>= Info.DriverVersion;
+    WaveOutInfo.Formats <![CDATA[:]]>= Info.Formats;
+    WaveOutInfo.Channels <![CDATA[:]]>= Info.Channels;
+    WaveOutInfo.Support <![CDATA[:]]>= Info.Support;
+    WaveOutInfo.ProductName <![CDATA[:]]>= Info.ProductName;
+    Result <![CDATA[:]]>= 1;
+  end
+  else
+  begin
+  WaveOutInfo.ManufacturerID <![CDATA[:]]>= 0;
+    WaveOutInfo.ProductID <![CDATA[:]]>= 0;
+    WaveOutInfo.DriverVersion <![CDATA[:]]>= 0;
+    WaveOutInfo.Formats <![CDATA[:]]>= 0;
+    WaveOutInfo.Channels <![CDATA[:]]>= 0;
+    WaveOutInfo.Support <![CDATA[:]]>= 0;
+    WaveOutInfo.ProductName <![CDATA[:]]>= '';
+    Result <![CDATA[:]]>= 0;
+  end;
+end;
+
+
+Function ZPlay.GetWaveOutInfoW(Index<![CDATA[:]]> Cardinal; out WaveOutInfo<![CDATA[:]]> TWaveOutInfoW)<![CDATA[:]]> Integer;
+var
+  Info<![CDATA[:]]> WAVEOUT_INFOW;
+begin
+  if zplay_GetWaveOutInfoW(objptr, Index, Addr(Info)) <> 0 then
+  begin
+    WaveOutInfo.ManufacturerID <![CDATA[:]]>= Info.ManufacturerID;
+    WaveOutInfo.ProductID <![CDATA[:]]>= Info.ProductID;
+    WaveOutInfo.DriverVersion <![CDATA[:]]>= Info.DriverVersion;
+    WaveOutInfo.Formats <![CDATA[:]]>= Info.Formats;
+    WaveOutInfo.Channels <![CDATA[:]]>= Info.Channels;
+    WaveOutInfo.Support <![CDATA[:]]>= Info.Support;
+    WaveOutInfo.ProductName <![CDATA[:]]>= Info.ProductName;
+    Result <![CDATA[:]]>= 1;
+  end
+  else
+  begin
+  WaveOutInfo.ManufacturerID <![CDATA[:]]>= 0;
+    WaveOutInfo.ProductID <![CDATA[:]]>= 0;
+    WaveOutInfo.DriverVersion <![CDATA[:]]>= 0;
+    WaveOutInfo.Formats <![CDATA[:]]>= 0;
+    WaveOutInfo.Channels <![CDATA[:]]>= 0;
+    WaveOutInfo.Support <![CDATA[:]]>= 0;
+    WaveOutInfo.ProductName <![CDATA[:]]>= '';
+    Result <![CDATA[:]]>= 0;
+  end;
+end;
+
+Function ZPlay.SetWaveOutDevice(Index<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_SetWaveOutDevice(objptr, Index);
+end;
+
+
+
+
+Function ZPlay.EnumerateWaveIn()<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_EnumerateWaveIn(objptr);
+end;
+
+Function ZPlay.GetWaveInInfo(Index<![CDATA[:]]> Cardinal; out WaveInInfo<![CDATA[:]]> TWaveInInfo)<![CDATA[:]]> Integer;
+var
+  Info<![CDATA[:]]> WAVEIN_INFO;
+begin
+  if zplay_GetWaveInInfo(objptr, Index, Addr(Info)) <> 0 then
+  begin
+    WaveInInfo.ManufacturerID <![CDATA[:]]>= Info.ManufacturerID;
+    WaveInInfo.ProductID <![CDATA[:]]>= Info.ProductID;
+    WaveInInfo.DriverVersion <![CDATA[:]]>= Info.DriverVersion;
+    WaveInInfo.Formats <![CDATA[:]]>= Info.Formats;
+    WaveInInfo.Channels <![CDATA[:]]>= Info.Channels;
+    WaveInInfo.ProductName <![CDATA[:]]>= Info.ProductName;
+    Result <![CDATA[:]]>= 1;
+  end
+  else
+  begin
+  WaveInInfo.ManufacturerID <![CDATA[:]]>= 0;
+    WaveInInfo.ProductID <![CDATA[:]]>= 0;
+    WaveInInfo.DriverVersion <![CDATA[:]]>= 0;
+    WaveInInfo.Formats <![CDATA[:]]>= 0;
+    WaveInInfo.Channels <![CDATA[:]]>= 0;
+    WaveInInfo.ProductName <![CDATA[:]]>= '';
+    Result <![CDATA[:]]>= 0;
+  end;
+end;
+
+
+Function ZPlay.GetWaveInInfoW(Index<![CDATA[:]]> Cardinal; out WaveInInfo<![CDATA[:]]> TWaveInInfoW)<![CDATA[:]]> Integer;
+var
+  Info<![CDATA[:]]> WAVEIN_INFOW;
+begin
+  if zplay_GetWaveInInfoW(objptr, Index, Addr(Info)) <> 0 then
+  begin
+    WaveInInfo.ManufacturerID <![CDATA[:]]>= Info.ManufacturerID;
+    WaveInInfo.ProductID <![CDATA[:]]>= Info.ProductID;
+    WaveInInfo.DriverVersion <![CDATA[:]]>= Info.DriverVersion;
+    WaveInInfo.Formats <![CDATA[:]]>= Info.Formats;
+    WaveInInfo.Channels <![CDATA[:]]>= Info.Channels;
+    WaveInInfo.ProductName <![CDATA[:]]>= Info.ProductName;
+    Result <![CDATA[:]]>= 1;
+  end
+  else
+  begin
+  WaveInInfo.ManufacturerID <![CDATA[:]]>= 0;
+    WaveInInfo.ProductID <![CDATA[:]]>= 0;
+    WaveInInfo.DriverVersion <![CDATA[:]]>= 0;
+    WaveInInfo.Formats <![CDATA[:]]>= 0;
+    WaveInInfo.Channels <![CDATA[:]]>= 0;
+    WaveInInfo.ProductName <![CDATA[:]]>= '';
+    Result <![CDATA[:]]>= 0;
+  end;
+end;
+
+Function ZPlay.SetWaveInDevice(Index<![CDATA[:]]> Cardinal)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_SetWaveInDevice(objptr, Index);
+end;
+
+
+
+
+Function ZPlay.GetVersion()<![CDATA[:]]> Integer; stdcall;
+begin
+  Result <![CDATA[:]]>= zplay_GetVersion(objptr);
+end;
+
+Function ZPlay.IsStreamDataFree(const MemNewData<![CDATA[:]]> Pointer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_IsStreamDataFree(objptr, MemNewData) = 1;
+end;
+
+Function ZPlay.MixChannels(Enable<![CDATA[:]]> Boolean; LeftPercent<![CDATA[:]]> Cardinal; RightPercent<![CDATA[:]]> Cardinal)<![CDATA[:]]> Boolean;
+begin
+  if Enable then
+        Result <![CDATA[:]]>= zplay_MixChannels(objptr, 1, LeftPercent, RightPercent) = 1
+  else
+        Result <![CDATA[:]]>= zplay_MixChannels(objptr, 0, LeftPercent, RightPercent) = 1
+end;
+
+Function ZPlay.SetEchoParam(var EchoEffectArray<![CDATA[:]]> array of TEchoEffect; NumberOfEffects<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetEchoParam(objptr, Addr(EchoEffectArray[0]), NumberOfEffects) = 1;
+end;
+
+Function ZPlay.SetEqualizerPoints(var FreqPointArray<![CDATA[:]]> array of Integer; NumberOfPoints<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetEqualizerPoints(objptr, Addr(FreqPointArray[0]), NumberOfPoints) = 1;
+end;
+
+Function ZPlay.GetEqualizerPoints(out FreqPointArray<![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Integer;
+var
+  Size<![CDATA[:]]> Integer;
+begin
+  Size <![CDATA[:]]>= zplay_GetEqualizerPoints(objptr, nil, 0);
+  if Size = 0 then
+  begin
+    Result <![CDATA[:]]>= 0;
+    Exit;
+  end;
+
+  SetLength(FreqPointArray, Size);
+  Result <![CDATA[:]]>= zplay_GetEqualizerPoints(objptr, Addr(FreqPointArray[0]), Size);
+end;
+
+Function ZPlay.GetEchoParam(out EchoEffectArray<![CDATA[:]]> TDynamicEchoEffectArray)<![CDATA[:]]> Integer;
+var
+  Size<![CDATA[:]]> Integer;
+begin
+  Size <![CDATA[:]]>= zplay_GetEchoParam(objptr, nil, 0);
+  if Size = 0 then
+  begin
+    Result <![CDATA[:]]>= 0;
+    Exit;
+  end;
+
+  SetLength(EchoEffectArray, Size);
+  Result <![CDATA[:]]>= zplay_GetEchoParam(objptr, Addr(EchoEffectArray[0]), Size);
+end;
+
+Function ZPlay.GetEqualizerParam(out PreAmpGain<![CDATA[:]]> Integer; out BandGain<![CDATA[:]]> TDynamicIntegerArray)<![CDATA[:]]> Integer;
+var
+  Size<![CDATA[:]]> Integer;
+begin
+  Size <![CDATA[:]]>= zplay_GetEqualizerParam(objptr, nil, nil, 0);
+  if Size = 0 then
+  begin
+    Result <![CDATA[:]]>= 0;
+    Exit;
+  end;
+
+  SetLength(BandGain, Size);
+  Result <![CDATA[:]]>= zplay_GetEqualizerParam(objptr, Addr(PreAmpGain), Addr(BandGain[0]), Size);
+end;
+
+Function ZPlay.SetEqualizerParam(PreAmpGain<![CDATA[:]]> Integer; var BandGain<![CDATA[:]]> array of Integer; NumberOfBands<![CDATA[:]]> Integer)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetEqualizerParam(objptr, PreAmpGain, Addr(BandGain[0]), NumberOfBands) = 1;
+end;
+
+
+
+
+Procedure ZPlay.GetStatus(out Status<![CDATA[:]]> TStreamStatus);
+var
+  StatusInternal<![CDATA[:]]> WMP3_STREAM_STATUS;
+begin
+  zplay_GetStatus(objptr, Addr(StatusInternal));
+
+    Status.fPlay <![CDATA[:]]>=  StatusInternal.fPlay = 1;
+    Status.fPause  <![CDATA[:]]>= StatusInternal.fPause = 1;
+    Status.fEcho  <![CDATA[:]]>= StatusInternal.fEcho = 1;
+    Status.fEqualizer  <![CDATA[:]]>= StatusInternal.fEqualizer = 1;
+    Status.fVocalCut  <![CDATA[:]]>= StatusInternal.fVocalCut = 1;
+    Status.fSideCut  <![CDATA[:]]>= StatusInternal.fSideCut = 1;
+    Status.fChannelMix  <![CDATA[:]]>= StatusInternal.fChannelMix = 1;
+    Status.fSlideVolume  <![CDATA[:]]>= StatusInternal.fFade = 1;
+    Status.nLoop  <![CDATA[:]]>= StatusInternal.nLoop ;
+    Status.fReverse  <![CDATA[:]]>= StatusInternal.fReverse = 1;
+    Status.nSongIndex <![CDATA[:]]>= StatusInternal.nSongIndex;
+    Status.nSongsInQueue <![CDATA[:]]>=  StatusInternal.nSongsInQueue;
+end;
+
+
+
+
+
+Function ZPlay.GetBitrate(Average<![CDATA[:]]> Boolean)<![CDATA[:]]> Integer;
+begin
+  if Average then
+    Result <![CDATA[:]]>= zplay_GetBitrate(objptr, 1)
+  else
+    Result <![CDATA[:]]>= zplay_GetBitrate(objptr, 0);
+end;
+
+
+
+Function ZPlay.EnableEcho(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+begin
+  if Enable then
+    Result <![CDATA[:]]>= zplay_EnableEcho(objptr, 1) = 1
+  else
+    Result <![CDATA[:]]>= zplay_EnableEcho(objptr, 0) = 1
+end;
+
+Function ZPlay.EnableEqualizer(Enable<![CDATA[:]]> Boolean)<![CDATA[:]]>Boolean;
+begin
+  if Enable then
+    Result <![CDATA[:]]>= zplay_EnableEqualizer(objptr, 1) = 1
+  else
+    Result <![CDATA[:]]>= zplay_EnableEqualizer(objptr, 0) = 1;
+end;
+
+
+
+
+
+Procedure ZPlay.GetPosition(out Position<![CDATA[:]]> TStreamTime);
+begin
+  zplay_GetPosition(objptr, Addr(Position));
+end;
+
+
+
+
+constructor ZPlay.Create;
+begin
+  inherited;
+
+  objptr <![CDATA[:]]>=  zplay_CreateZPlay();
+  if objptr = nil then
+    raise Exception.Create('Can''t create libZPlay interface.') at @ZPlay.Create;
+
+  if GetVersion() < 190 then
+    raise Exception.Create('Need libZPlay.dll version 1.90 and above.') at @ZPlay.Create;
+
+  bitmap1 <![CDATA[:]]>= TPicture.Create;
+  bitmap2 <![CDATA[:]]>= TPicture.Create;
+
+end;
+
+
+Function ZPlay.Seek(TimeFormat<![CDATA[:]]> TTimeFormat; var Position<![CDATA[:]]> TStreamTime; MoveMethod<![CDATA[:]]> TSeekMethod)<![CDATA[:]]> Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Seek(objptr, Integer(TimeFormat), Addr(Position), Integer(MoveMethod)) = 1;
+end;
+
+
+destructor ZPlay.Destroy;
+begin
+  if objptr <> nil then
+    zplay_DestroyZPlay(objptr);
+
+  objptr <![CDATA[:]]>= nil;
+  bitmap1.Free;
+  bitmap2.Free;
+  inherited;
+end;
+
+Function ZPlay.GetError()<![CDATA[:]]>AnsiString;
+begin
+  error_msg <![CDATA[:]]>=  zplay_GetError(objptr);
+  Result <![CDATA[:]]>= error_msg;
+end;
+
+Function ZPlay.GetErrorW()<![CDATA[:]]>WideString;
+begin
+  error_msgW <![CDATA[:]]>= zplay_GetErrorW(objptr);
+  Result <![CDATA[:]]>= error_msgW;
+end;
+
+
+
+Function ZPlay.StereoCut(Enable<![CDATA[:]]> Boolean; OutputCenter<![CDATA[:]]> Boolean; BassToSides<![CDATA[:]]> Boolean)<![CDATA[:]]>Boolean;
+var
+  oc<![CDATA[:]]> Integer;
+  bts<![CDATA[:]]> Integer;
+begin
+  oc <![CDATA[:]]>= 0;
+  bts <![CDATA[:]]>= 0;
+  if OutputCenter then oc <![CDATA[:]]>= 1;
+  if BassToSides then bts <![CDATA[:]]>= 1;
+    if Enable then
+        Result <![CDATA[:]]>= zplay_StereoCut(objptr, 1, oc, bts) = 1
+    else
+        Result <![CDATA[:]]>= zplay_StereoCut(objptr, 0, oc, bts) = 1
+end;
+
+Function ZPlay.GetFileFormat(const FileName<![CDATA[:]]> AnsiString)<![CDATA[:]]> TStreamFormat;
+begin
+  Result <![CDATA[:]]>= TStreamFormat(zplay_GetFileFormat(objptr, PAnsiChar(FileName)));
+end;
+
+
+Function ZPlay.GetFileFormatW(const FileName<![CDATA[:]]> WideString)<![CDATA[:]]>TStreamFormat;
+begin
+  Result <![CDATA[:]]>= TStreamFormat(zplay_GetFileFormatW(objptr, PWideChar(FileName)));
+end;
+
+
+Function ZPlay.SetCallbackFunc(CallbackFunc<![CDATA[:]]> TCallbackFunc; Messages<![CDATA[:]]> TCallbackMessage; UserData<![CDATA[:]]> Integer)<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_SetCallbackFunc(objptr, CallbackFunc, Messages, UserData) = 1;
+end;
+
+Function ZPlay.OpenFile(const FileName <![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]>Boolean;
+begin
+  if zplay_OpenFile(objptr, PAnsiChar(FileName), Integer(Format)) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+Function ZPlay.OpenFileW(const FileName <![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]>Boolean;
+begin
+  if zplay_OpenFileW(objptr, PWideChar(FileName), Integer(Format)) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+
+
+
+Function ZPlay.SetWaveOutFile(const FileName <![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat; fOutputToSoundcard<![CDATA[:]]> Boolean)<![CDATA[:]]>Boolean;
+var
+  s<![CDATA[:]]> Integer;
+begin
+  s <![CDATA[:]]>= 0;
+  if fOutputToSoundcard then
+    s <![CDATA[:]]>= 1;
+    
+  if zplay_SetWaveOutFile(objptr, PAnsiChar(FileName), Integer(Format), s) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+Function ZPlay.SetWaveOutFileW(const FileName <![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat; fOutputToSoundcard<![CDATA[:]]> Boolean)<![CDATA[:]]>Boolean;
+var
+  s<![CDATA[:]]> Integer;
+begin
+  s <![CDATA[:]]>= 0;
+  if fOutputToSoundcard then
+    s <![CDATA[:]]>= 1;
+    
+  if zplay_SetWaveOutFileW(objptr, PWideChar(FileName), Integer(Format),s ) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+Function ZPlay.AddFile(const FileName <![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]>Boolean;
+begin
+  if zplay_AddFile(objptr, PAnsiChar(FileName), Integer(Format)) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+Function ZPlay.AddFileW(const FileName <![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]>Boolean;
+begin
+  if zplay_AddFileW(objptr, PWideChar(FileName), Integer(Format)) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+
+
+Function ZPlay.OpenStream(Buffered<![CDATA[:]]> Integer;	Managed<![CDATA[:]]> Integer;  MemStream<![CDATA[:]]> Pointer; StreamSize<![CDATA[:]]> Cardinal; Format<![CDATA[:]]> TStreamFormat)<![CDATA[:]]>Boolean;
+begin
+  if zplay_OpenStream(objptr, Buffered,	Managed, MemStream, StreamSize, Integer(Format)) <> 0 then
+  begin
+    Result <![CDATA[:]]>= true;
+  end
+  else
+    Result <![CDATA[:]]>= false;
+end;
+
+Function ZPlay.PushDataToStream(const MemNewData<![CDATA[:]]> Pointer; NewDataize<![CDATA[:]]> Cardinal)<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_PushDataToStream(objptr, MemNewData, NewDataize) = 1;
+end;
+
+Function ZPlay.Close()<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Close(objptr) = 1;
+end;
+
+
+Function ZPlay.LoadID3(Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3Info)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFO;
+begin
+    if zplay_LoadID3(objptr, Integer(Id3Version), Addr(myInfo)) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+Function ZPlay.LoadFileID3ExW(FileName<![CDATA[:]]> WideString; Format<![CDATA[:]]> TStreamFormat;  out Info<![CDATA[:]]> TID3InfoExW; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOEXW;
+  decode_picture<![CDATA[:]]> Cardinal;
+begin
+    if fDecodeEmbededPicture then
+        decode_picture <![CDATA[:]]>= 1
+    else
+      decode_picture <![CDATA[:]]>= 0;
+
+
+    if zplay_LoadFileID3ExW(objptr , PWideChar(FileName), Integer(Format), Addr(myInfo), decode_picture) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Info.AlbumArtist <![CDATA[:]]>= myInfo.AlbumArtist;
+      Info.Composer <![CDATA[:]]>= myInfo.Composer;
+      Info.OriginalArtist <![CDATA[:]]>= myInfo.OriginalArtist;
+      Info.Copyright <![CDATA[:]]>= myInfo.Copyright;
+      Info.URL <![CDATA[:]]>= myInfo.URL;
+      Info.Encoder <![CDATA[:]]>= myInfo.Encoder;
+      Info.Publisher <![CDATA[:]]>= myInfo.Publisher;
+      Info.BPM <![CDATA[:]]>= myInfo.BPM;
+
+      Info.Picture.PicturePresent <![CDATA[:]]>= False;
+      if myInfo.Picture.CanDrawPicture = 1 then
+      begin
+        Info.Picture.Description <![CDATA[:]]>= myInfo.Picture.Description;
+        Info.Picture.PictureType <![CDATA[:]]>= myInfo.Picture.PictureType;
+        bitmap1.Bitmap.Handle <![CDATA[:]]>= myInfo.Picture.hBitmap;
+        Info.Picture.Bitmap <![CDATA[:]]>= bitmap1;
+        Info.Picture.PicturePresent <![CDATA[:]]>= True;
+      end;
+
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+Function ZPlay.LoadFileID3Ex(FileName<![CDATA[:]]> AnsiString; Format<![CDATA[:]]> TStreamFormat;  out Info<![CDATA[:]]> TID3InfoEx; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOEX;
+  decode_picture<![CDATA[:]]> Cardinal;
+begin
+    if fDecodeEmbededPicture then
+        decode_picture <![CDATA[:]]>= 1
+    else
+      decode_picture <![CDATA[:]]>= 0;
+
+
+    if zplay_LoadFileID3Ex(objptr , PAnsiChar(FileName), Integer(Format), Addr(myInfo), decode_picture) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Info.AlbumArtist <![CDATA[:]]>= myInfo.AlbumArtist;
+      Info.Composer <![CDATA[:]]>= myInfo.Composer;
+      Info.OriginalArtist <![CDATA[:]]>= myInfo.OriginalArtist;
+      Info.Copyright <![CDATA[:]]>= myInfo.Copyright;
+      Info.URL <![CDATA[:]]>= myInfo.URL;
+      Info.Encoder <![CDATA[:]]>= myInfo.Encoder;
+      Info.Publisher <![CDATA[:]]>= myInfo.Publisher;
+      Info.BPM <![CDATA[:]]>= myInfo.BPM;
+
+      Info.Picture.PicturePresent <![CDATA[:]]>= False;
+      if myInfo.Picture.CanDrawPicture = 1 then
+      begin
+        Info.Picture.Description <![CDATA[:]]>= myInfo.Picture.Description;
+        Info.Picture.PictureType <![CDATA[:]]>= myInfo.Picture.PictureType;
+        bitmap1.Bitmap.Handle <![CDATA[:]]>= myInfo.Picture.hBitmap;
+        Info.Picture.Bitmap <![CDATA[:]]>= bitmap1;
+        Info.Picture.PicturePresent <![CDATA[:]]>= True;
+      end;
+
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Info.AlbumArtist <![CDATA[:]]>=  '';
+      Info.Composer <![CDATA[:]]>=  '';
+      Info.OriginalArtist <![CDATA[:]]>=  '';
+      Info.Copyright <![CDATA[:]]>=  '';
+      Info.URL <![CDATA[:]]>=  '';
+      Info.Encoder <![CDATA[:]]>=  '';
+      Info.Publisher <![CDATA[:]]>=  '';
+      Info.BPM <![CDATA[:]]>= 0;
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+Function ZPlay.LoadID3ExW(out Info<![CDATA[:]]> TID3InfoExW; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOEXW;
+  decode_picture<![CDATA[:]]> Cardinal;
+begin
+    if fDecodeEmbededPicture then
+        decode_picture <![CDATA[:]]>= 1
+    else
+      decode_picture <![CDATA[:]]>= 0;
+
+
+    if zplay_LoadID3ExW(objptr , Addr(myInfo), decode_picture) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Info.AlbumArtist <![CDATA[:]]>= myInfo.AlbumArtist;
+      Info.Composer <![CDATA[:]]>= myInfo.Composer;
+      Info.OriginalArtist <![CDATA[:]]>= myInfo.OriginalArtist;
+      Info.Copyright <![CDATA[:]]>= myInfo.Copyright;
+      Info.URL <![CDATA[:]]>= myInfo.URL;
+      Info.Encoder <![CDATA[:]]>= myInfo.Encoder;
+      Info.Publisher <![CDATA[:]]>= myInfo.Publisher;
+      Info.BPM <![CDATA[:]]>= myInfo.BPM;
+
+      Info.Picture.PicturePresent <![CDATA[:]]>= False;
+      if myInfo.Picture.CanDrawPicture = 1 then
+      begin
+        Info.Picture.Description <![CDATA[:]]>= myInfo.Picture.Description;
+        Info.Picture.PictureType <![CDATA[:]]>= myInfo.Picture.PictureType;
+        bitmap1.Bitmap.Handle <![CDATA[:]]>= myInfo.Picture.hBitmap;
+        Info.Picture.Bitmap <![CDATA[:]]>= bitmap1;
+        Info.Picture.PicturePresent <![CDATA[:]]>= True;
+      end;
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+Function ZPlay.LoadID3Ex(out Info<![CDATA[:]]> TID3InfoEx; fDecodeEmbededPicture<![CDATA[:]]> Boolean)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOEX;
+  decode_picture<![CDATA[:]]> Cardinal;
+begin
+    if fDecodeEmbededPicture then
+        decode_picture <![CDATA[:]]>= 1
+    else
+      decode_picture <![CDATA[:]]>= 0;
+
+
+    if zplay_LoadID3Ex(objptr , Addr(myInfo), decode_picture) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Info.AlbumArtist <![CDATA[:]]>= myInfo.AlbumArtist;
+      Info.Composer <![CDATA[:]]>= myInfo.Composer;
+      Info.OriginalArtist <![CDATA[:]]>= myInfo.OriginalArtist;
+      Info.Copyright <![CDATA[:]]>= myInfo.Copyright;
+      Info.URL <![CDATA[:]]>= myInfo.URL;
+      Info.Encoder <![CDATA[:]]>= myInfo.Encoder;
+      Info.Publisher <![CDATA[:]]>= myInfo.Publisher;
+      Info.BPM <![CDATA[:]]>= myInfo.BPM;
+
+     Info.Picture.PicturePresent <![CDATA[:]]>= False;
+
+      if myInfo.Picture.CanDrawPicture = 1 then
+      begin
+        Info.Picture.Description <![CDATA[:]]>= myInfo.Picture.Description;
+        Info.Picture.PictureType <![CDATA[:]]>= myInfo.Picture.PictureType;
+        bitmap1.Bitmap.Handle <![CDATA[:]]>= myInfo.Picture.hBitmap;
+        Info.Picture.Bitmap <![CDATA[:]]>= bitmap1;
+        Info.Picture.PicturePresent <![CDATA[:]]>= True;
+      end;
+
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Info.AlbumArtist <![CDATA[:]]>=  '';
+      Info.Composer <![CDATA[:]]>=  '';
+      Info.OriginalArtist <![CDATA[:]]>=  '';
+      Info.Copyright <![CDATA[:]]>=  '';
+      Info.URL <![CDATA[:]]>=  '';
+      Info.Encoder <![CDATA[:]]>=  '';
+      Info.Publisher <![CDATA[:]]>=  '';
+      Info.BPM <![CDATA[:]]>= 0;
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+Function ZPlay.LoadID3W(Id3Version<![CDATA[:]]> TID3Version; out Info<![CDATA[:]]> TID3InfoW)<![CDATA[:]]> Boolean;
+var
+  myInfo<![CDATA[:]]> ID3_INFOW;
+begin
+    if zplay_LoadID3W(objptr, Integer(Id3Version), Addr(myInfo)) <> 0 then
+    begin
+      Info.Title <![CDATA[:]]>= myInfo.Title;
+      Info.Artist <![CDATA[:]]>= myInfo.Artist;
+      Info.Album <![CDATA[:]]>= myInfo.Album;
+      Info.Year <![CDATA[:]]>= myInfo.Year;
+      Info.Comment <![CDATA[:]]>= myInfo.Comment;
+      Info.Track <![CDATA[:]]>= myInfo.TrackNum;
+      Info.Genre <![CDATA[:]]>= myInfo.Genre;
+      Result <![CDATA[:]]>= true;
+    end
+    else
+    begin
+      Info.Title <![CDATA[:]]>= '';
+      Info.Artist <![CDATA[:]]>= '';
+      Info.Album <![CDATA[:]]>= '';
+      Info.Year <![CDATA[:]]>= '';
+      Info.Comment <![CDATA[:]]>= '';
+      Info.Track <![CDATA[:]]>= '';
+      Info.Genre <![CDATA[:]]>= '';
+      Result <![CDATA[:]]>= false;
+    end;
+end;
+
+
+
+
+Function ZPlay.StartPlayback()<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Play(objptr) = 1;
+end;
+
+Function ZPlay.StopPlayback()<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Stop(objptr) = 1;
+end;
+
+Function ZPlay.PausePlayback()<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Pause(objptr) = 1;
+end;
+
+Function ZPlay.ResumePlayback()<![CDATA[:]]>Boolean;
+begin
+  Result <![CDATA[:]]>= zplay_Resume(objptr) = 1;
+end;
+
+Procedure ZPlay.GetStreamInfo(out Info<![CDATA[:]]> TStreamInfo);
+var
+  Info1<![CDATA[:]]> STREAM_INFO;
+begin
+    zplay_GetStreamInfo(objptr, Addr(Info1));
+    Info.SamplingRate <![CDATA[:]]>= Info1.nSamplingRate;
+    Info.ChannelNumber <![CDATA[:]]>= Info1.nChannelNumber;
+    Info.VBR <![CDATA[:]]>= Info1.fVBR = 1;
+    Info.Bitrate <![CDATA[:]]>= Info1.nBitrate;
+    Info.Length <![CDATA[:]]>= Info1.timeLength;
+    Info.Description <![CDATA[:]]>= Info1.pchDescription;
+end;
+
+Procedure ZPlay.GetStreamInfoW(out Info<![CDATA[:]]> TStreamInfoW);
+var
+  Info1<![CDATA[:]]> STREAM_INFOW;
+begin
+    zplay_GetStreamInfo(objptr, Addr(Info1));
+    Info.SamplingRate <![CDATA[:]]>= Info1.nSamplingRate;
+    Info.ChannelNumber <![CDATA[:]]>= Info1.nChannelNumber;
+    Info.VBR <![CDATA[:]]>= Info1.fVBR = 1;
+    Info.Bitrate <![CDATA[:]]>= Info1.nBitrate;
+    Info.Length <![CDATA[:]]>= Info1.timeLength;
+    Info.Description <![CDATA[:]]>= Info1.pchDescription;
+end;
+
+Function ZPlay.SetSettings(SettingID<![CDATA[:]]> TSettingID; Value<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+begin
+  Result <![CDATA[:]]>= zplay_SetSettings(objptr, Integer(SettingID), Value);
+end;
+
+Function ZPlay.GetSettings(SettingID<![CDATA[:]]> TSettingID; Value<![CDATA[:]]> Integer)<![CDATA[:]]> Integer;
+begin
+   Result <![CDATA[:]]>= zplay_GetSettings(objptr, Integer(SettingID));
+end;
+
+end.
+ </CODE>

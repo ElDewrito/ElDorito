@@ -1,0 +1,36 @@
+Summary:
+Change size of playing wave buffer.
+
+Description:
+ZPlay class will always try to have enough data decoded and ready to play.
+These data are decoded into wave buffer.
+
+<b>Default value is 500 milliseconds.</b> In this case ZPlay class will always try to have enough decoded data to play next 500 ms without decoding new data.
+
+
+<IMAGE note> Note: Minimal size of wave buffer is 100 milliseconds.
+
+
+<INCLUDE extensions\\note_start.txt><b>Wave buffer size can be 0.</b>
+<p>If you set wave buffer size to 0, ZPlay class will not open wave output and there will be no playing.
+But you can use <LINK CALLBACK_MECHANISM, callback mechanism> to retrieve decoded audio data and play this data by yourself, or save this data into file.
+If you don't need to play data to soundcard, set wave buffer size to 0.
+<INCLUDE extensions\\note_end.txt>
+
+
+<INCLUDE extensions\\note_start.txt>If wave buffer is too small, there can be problem with playing if your processor can't provide enough decoded data all the time.
+If this value is too large, you will notice delay when you apply (enable, disable) sound effects (equalizer, echo, pitch ...).
+<INCLUDE extensions\\note_end.txt>
+
+If you need smaller delay and faster response of sound effects, lower wave buffer size. When you change some parameter of sound effect,
+responce will be faster if wave buffer is smaller. But there is danger of buffer underrun if wave buffer is too small and you processor is
+too busy with other jobs.
+
+
+
+<b>To change wave buffer size use <COLOR RED>sidWaveBufferSize</COLOR> with:</b>
+<TABLE>
+C++                                                     C                                                            VB.NET                                              C#.NET                                            VC.NET                                               Delphi
+-----------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetSettings, SetSettings>     <LINK libZPlayCpp::zplay_SetSettings, zplay_SetSettings>     <LINK libZPlayVB.ZPlay.SetSettings, SetSettings>   <LINK libZPlayC#.ZPlay.SetSettings, SetSettings>   <LINK libZPlayVC::ZPlay::SetSettings, SetSettings>   <LINK libZPlayDelphi.ZPlay.SetSettings, SetSettings> 
+</TABLE>

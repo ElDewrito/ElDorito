@@ -1,0 +1,16 @@
+Summary:
+  Pause	 playing.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Use <LINK libZPlayVB.ZPlay.ResumePlayback, ResumePlayback> or <LINK libZPlayVB.ZPlay.StartPlayback, StartPlayback> to resume playing.	
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.StartPlayback, StartPlayback>,
+<LINK libZPlayVB.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayVB.ZPlay.ResumePlayback, ResumePlayback>,
+<LINK libZPlayVB.ZPlay.Seek, Seek>

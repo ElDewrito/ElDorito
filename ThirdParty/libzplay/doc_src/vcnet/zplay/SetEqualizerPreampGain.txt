@@ -1,0 +1,28 @@
+Summary:
+Set equalizer preamp gain.
+
+Parameters:
+  %PAR0% - Preamp gain in <b>millidecibels</b>. Positive value boost gain, negative value lower gain.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+Preamp gain affects all bands.
+<P>Class has by default 10 equalizer bands. See <LINK libZPlayVC::ZPlay::SetEqualizerPoints, SetEqualizerPoints>.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayVC::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVC::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayVC::ZPlay::EnableEqualizer, EnableEqualizer>

@@ -1,0 +1,56 @@
+Summary:
+  Get stream informations (length, sampling rate, channel number, ...), ANSI version
+
+Parameters:
+  pInfo - Pointer to <LINK libZPlayCpp::TStreamInfo, TStreamInfo structure>. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+Use this function to get basic informations about opened stream.
+
+<IMAGE note> Note: Only with this function you can get stream length, sampling rate, channel number ...
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetStatus, GetStatus>,
+<LINK libZPlayCpp::ZPlay::GetPosition, GetPosition>,
+<LINK libZPlayCpp::ZPlay::LoadID3, LoadID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>
+
+<LINK libZPlayCpp::zplay_GetStatus, zplay_GetStatus>,
+<LINK libZPlayCpp::zplay_GetPosition, zplay_GetPosition>,
+<LINK libZPlayCpp::zplay_LoadID3, zplay_LoadID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>
+
+<EXAMPLE>
+Get stream info from current stream.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamInfo pInfo;
+instance->GetStreamInfo(&pInfo);
+printf("%s %i Hz  Channel: %u  Length: %02i:%02i:%02i:%02i",
+        pInfo.Description,
+        pInfo.SamplingRate,
+        pInfo.ChannelNumber,
+        pInfo.Length.hms.hour,
+        pInfo.Length.hms.minute,
+        pInfo.Length.hms.second,
+        pInfo.Length.hms.millisecond);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamInfo pInfo;
+zplay_GetStreamInfo(instance, &pInfo);
+printf("%s %i Hz  Channel: %u  Length: %02i:%02i:%02i:%02i",
+        pInfo.Description,
+        pInfo.SamplingRate,
+        pInfo.ChannelNumber,
+        pInfo.Length.hms.hour,
+        pInfo.Length.hms.minute,
+        pInfo.Length.hms.second,
+        pInfo.Length.hms.millisecond);
+</CODE>
+</EXAMPLE>

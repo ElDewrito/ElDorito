@@ -1,0 +1,72 @@
+Summary:
+Simple example of playing disk file to sound card output.
+
+Description:
+This example will show how to play disk file <i>test.mp3</i>.
+- include libZPlay namespace
+- create ZPlay class instance
+- open disk file - <LINK libZPlayVC::ZPlay::OpenFile, OpenFile>
+- get song length - <LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>
+- start playing - <LINK libZPlayVC::ZPlay::StartPlayback, StartPlayback>
+- check is song is playing - <LINK libZPlayVC::ZPlay::GetStatus, GetStatus>
+- get current position - <LINK libZPlayVC::ZPlay::GetPosition, GetPosition>
+
+
+Example:
+<CODE lang="c++">
+#include "stdafx.h"
+#include "libzplaynet.h"
+
+using namespace System;
+using namespace libZPlay;
+
+int main(array<System::String ^> ^args)
+{
+	Console::WriteLine("Playing test.mp3. Press Q to quit.");
+	ZPlay ^player;
+	player = gcnew ZPlay();
+   
+
+	if (player->OpenFile("test.mp3", TStreamFormat::sfAutodetect) == false)
+    {
+		Console::WriteLine(player->GetError());
+		return 0;
+    }
+	TStreamInfo info;
+	player->GetStreamInfo(info);
+	Console::WriteLine("Length: {0:G}:{1:G}:{2:G}:{3:G}", info.Length.hms.hour,
+	info.Length.hms.minute,
+	info.Length.hms.second,
+	info.Length.hms.millisecond);
+
+    player->StartPlayback();
+
+    TStreamStatus status;
+    TStreamTime time;
+    status.fPlay = true;
+    ConsoleKeyInfo cki;
+
+	while (status.fPlay)
+	{
+		player->GetPosition(time);
+		Console::Write("Pos: {0:G}:{1:G}:{2:G}:{3:G}\r", time.hms.hour,
+		time.hms.minute,
+		time.hms.second,
+		time.hms.millisecond);
+
+        player->GetStatus(status);
+		System::Threading::Thread::Sleep(50);
+		if (Console::KeyAvailable)
+		{
+			cki = Console::ReadKey(true);
+			if (cki.Key == ConsoleKey::Q)
+			player->StopPlayback();
+		}
+	}
+
+	delete player;
+    return 0;
+}
+
+</CODE>
+

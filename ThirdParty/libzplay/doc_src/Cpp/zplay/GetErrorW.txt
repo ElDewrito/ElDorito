@@ -1,0 +1,26 @@
+Summary:
+Get description of last error. (UNICODE version)
+
+Returns:
+Pointer to UNICODE null terminated string with error message.
+
+Remarks:
+Memory for error message is allocated by libZPlay interface and always is available.
+<P><IMAGE caution> Warning: Don't mess with this memory, don't free this memory, don't write into this memory.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetError, GetError>
+
+<LINK libZPlayCpp::zplay_GetError, zplay_GetError>
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+MessageBoxW(0, instance->GetErrorW(), "UNICODE error message", 0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+MessageBoxW(0, zplay_GetErrorW(instance), "UNICODE error message", 0);
+</CODE>
+</EXAMPLE>

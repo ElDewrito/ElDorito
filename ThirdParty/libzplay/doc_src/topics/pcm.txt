@@ -1,0 +1,35 @@
+Description:
+RAW PCM WAVE format. This is like <LINK FormatWav, WINDOWS PCM WAVE format> without RIFF header.
+User must specify sample rate, channel number, bit per sample, big endian or little endian.
+
+<TABLE>
+     Decoder               RAW PCM WAVE
+     --------------------  --------------------------------------------------------------------------------------------------------------------
+     File extension        .* ( all extensions )
+     Description           Raw PCM wave format, uncompressed. Supported 8 and 16 bit per sample, little endian, big endian. See <b>Remarks</b>.
+     Supported by          Native windows winmm library.
+     Web                    
+     Email                  
+     Copyright &copy;      
+     Info tags             <IMAGE star_red> Not supported. We are working with raw stream.
+     Reverse playing       <IMAGE star_green> Supported.
+     Accurate length       <IMAGE star_green> Supported.
+     Accurate seek         <IMAGE star_green> Supported.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_green> Supported.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_red> Not supported. There is nothing to detect, we are working with row stream. This can be anything. 
+     Audio autodetection   <IMAGE star_red> Not supported. See <b>Remarks</b>.
+     Recorder/Encoder      <IMAGE star_green> Supported.
+     Supported channels    1 channel (mono), 2 channels (stereo)
+</TABLE>
+
+Remarks:
+
+* Audio autodetection *
+Because RAW PCM stream has no info headers, decoder can't detect audio format.
+
+Therefore user must use
+<LINK libZPlayCpp::ZPlay::SetSettings, SetSettings> with <LINK libZPlayCpp::TSettingID, TSettingID> to specify 
+<b>sidSamplerate</b>, <b>sidChannelNumber</b>, <b>sidBitPerSample</b> and <b>sidBigEndian</b> parameters before
+stream opening.

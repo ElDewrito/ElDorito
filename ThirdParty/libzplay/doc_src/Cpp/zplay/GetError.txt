@@ -1,0 +1,26 @@
+Summary:
+Get description of last error. (ANSI version)
+
+Returns:
+Pointer to ANSI null terminated string with error message.
+
+Remarks:
+Memory for error message is allocated by libZPlay interface and always is available.
+<P><IMAGE caution> Warning: Don't mess with this memory, don't free this memory, don't write into this memory.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetErrorW, GetErrorW>
+
+<LINK libZPlayCpp::zplay_GetErrorW, zplay_GetErrorW>
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+MessageBoxA(0, instance->GetError(), "ANSI error message", 0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+MessageBoxA(0, zplay_GetError(instance), "ANSI error message", 0);
+</CODE>
+</EXAMPLE>

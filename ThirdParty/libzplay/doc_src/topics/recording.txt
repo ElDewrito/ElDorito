@@ -1,0 +1,38 @@
+Summary:
+Recording with libZPlay library.
+
+Description:
+First, you can <LINK SELECT_INPUT_DEVICE, select input device (soundcard)>.
+If you have only one soundcard you can skip this because you have no choice.
+You will use default soundcard.
+
+
+
+Then you need to <LINK OPEN_SOURCE_LINE, open source line>.
+You can choose recording line from recording mixer (Line-in, Microphone, CD Audio, ...).
+Or you can leave current settings. 
+
+<INCLUDE extensions\\note_start.txt><COLOR RED>On Windows Vista and Windows 7 you can't select source line using libZPlay library.
+Use mixer window to select source line by yourself.</COLOR>
+<INCLUDE extensions\\note_end.txt>
+
+After you open source line, <LINK SELECT_OUTPUT_FILE, select output file and encoding format>.
+If you don't select output file, recording samples will be sent to soundcard output.
+If you select output file, samples will be encoded and saved into specified disk file.
+
+<INCLUDE extensions\\note_start.txt>Each opening function will cancel output to file and set output to soundcard.
+So, if you need oputput to disk file, you must select output file after you <LINK OPEN_SOURCE_LINE, open source line>.
+<INCLUDE extensions\\note_end.txt>
+
+And now we are ready to record some samples to disk file.
+All you need to do is to <LINK RECORDING_CONTROLS, start playing (recording)>.
+
+
+Library will take samples from <LINK SELECT_INPUT_DEVICE, select input device (soundcard)> using <LINK OPEN_SOURCE_LINE, open source line>
+and encode/save these samples into <LINK SELECT_OUTPUT_FILE, select output file>.
+When you stop playing/recording, output file will be closed and you can use this new created file.
+
+
+<INCLUDE extensions\\note_start.txt>Stop function will close output file. If you start recording again using existing output file,
+you will overwrite existing file.
+<INCLUDE extensions\\note_end.txt>

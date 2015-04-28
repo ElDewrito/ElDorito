@@ -1,0 +1,20 @@
+Summary:
+Enable or disable echo.
+
+Parameters:
+  %PAR0% - Flag for enabling or disabling echo. If this parameter is true, echo is enabled. If this parameter is false, echo is disabled.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE note> Note: By default, new class instance has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+<IMAGE note> Note: By default, new created class has disabled echo effect. To use echo effect, user must enable echo effect.
+To change default, simple echo effect and to create new advanced effect, use <LINK libZPlayDelphi.ZPlay.SetEchoParam, SetEchoParam>.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetEchoParam, SetEchoParam>,
+<LINK libZPlayDelphi.ZPlay.GetEchoParam, GetEchoParam>

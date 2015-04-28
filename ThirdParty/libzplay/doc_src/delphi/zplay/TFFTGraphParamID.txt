@@ -1,0 +1,46 @@
+Summary:
+FFT graph parameter identifier.
+
+Parameters:
+gpFFTPoints       - Set or get FFT points. Must be power of 2. Can't be 0.
+gpGraphType       - Set or get graph type. See <LINK libZPlayDelphi.TFFTGraphType, valid values for graph types>.
+gpWindow          - Set or get graph window. See <LINK libZPlayDelphi.TFFTWindow, valid values for FFT window>.
+gpHorizontalScale - Set or get horizontal scale. See <LINK libZPlayDelphi.TFFTGraphHorizontalScale, valid values for horizontal scale>.
+gpSubgrid         - Enable or disable subgrid. Value 1 enables subgrid, value 0 disables subgrid.
+gpTransparency    - Set or get transparency. Valid values are in range 0 - 100.
+gpFrequencyScaleVisible - Show or hide frequency scale.
+gpDecibelScaleVisible - Show or hide decibel scale.
+gpFrequencyGridVisible - Show or hide frequency grid.
+gpDecibelGridVisible - Show or hide decibel grid.
+gpBgBitmapVisible - Show or hide background bitmap.
+gpBgBitmapHandle - Set background bitmap.
+gpColor1 - Scale background color.
+gpColor2 - Graph background color.
+gpColor3 - Frequency grid color.
+gpColor4 - Decibel grid color.
+gpColor5 - Subgrid color.
+gpColor6 - Frequency and decibel marker color.
+gpColor7 - Frequency and decibel text color.
+gpColor8 - Left channel top line.
+gpColor9 - Right channel top line.
+gpColor10 - Left channel covered line.
+gpColor11 - Right channel covered line.
+gpColor12 - Left channel top area.
+gpColor13 - Right channel top area.
+gpColor14 - Left channel covered area.
+gpColor15 - Right channel covered area.
+gpColor16 - Unused.
+
+Remarks:
+Use this value to identify parameter you need to set or get.
+
+* Colors *
+<IMAGE fft1>
+
+<IMAGE fft2>
+
+<IMAGE fft3>
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayDelphi.ZPlay.GetFFTGraphParam, GetFFTGraphParam>

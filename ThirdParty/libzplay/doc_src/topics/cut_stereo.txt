@@ -1,0 +1,15 @@
+Summary:
+  Cut center or sides from stereo.
+
+Description:
+Using this effect, user ca cut stereo center or stereo sides from stereo sound.
+This ability is realized using advanced FFT analysis.
+
+
+
+<b>To cut stereo use:</b>
+<TABLE>
+C++                                                C                                                       VB.NET                                         C#.NET                                         VC.NET                                           Delphi
+-----------------------------------------------    ----------------------------------------------------    --------------------------------------------   --------------------------------------------   ----------------------------------------------   ------------------------------------------------
+<LINK libZPlayCpp::ZPlay::StereoCut, StereoCut>    <LINK libZPlayCpp::zplay_StereoCut, zplay_StereoCut>    <LINK libZPlayVB.ZPlay.StereoCut, StereoCut>   <LINK libZPlayC#.ZPlay.StereoCut, StereoCut>   <LINK libZPlayVC::ZPlay::StereoCut, StereoCut>   <LINK libZPlayDelphi.ZPlay.StereoCut, StereoCut> 
+</TABLE>

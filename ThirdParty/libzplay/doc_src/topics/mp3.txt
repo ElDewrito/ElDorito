@@ -1,0 +1,63 @@
+Description:
+Mp3 support is provided by <b>libmad - MPEG audio decoder library</b>
+
+<TABLE>
+     Decoder               MP3
+     --------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     File extension        mp3, mp2, mp1
+     Description           MPEG-1 and the MPEG-2 extension to Lower Sampling Frequencies, as well as the so-called MPEG 2.5 format. All three audio layers (Layer I, Layer II,and Layer III a.k.a. MP3) are fully implemented. Support free format bitstream. MAD does not yet support MPEG-2 multichannel audio (although it should be backward compatible with such streams) nor does it currently support AAC.
+     Supported by          <LINK LIBMAD, libmad - MPEG audio decoder library>
+     Web                   <EMIT &lt;a href="http://www.underbit.com/products/mad/";&gt;http://www.underbit.com/products/mad/&lt;/a&gt;>
+     Email                 <EMIT &lt;a href="mailto:support@underbit.com";&gt;support@underbit.com&lt;/a&gt;>
+     Copyright &copy;      2000-2004 Underbit Technologies, Inc.   <LINK GPLTXT, GNU General Public License>
+     Info tags             <IMAGE star_green> Supported by ID3v1, ID3v2.2, ID3v2.3, ID3v2.4
+     Reverse playing       <IMAGE star_green> Supported by prescanning whole stream and decoding mp3 frames backward with frame overlap.
+     Accurate length       <IMAGE star_blue> Supported. Please read <b>Remarks</b> section.
+     Accurate seek         <IMAGE star_blue> Supported. Please read <b>Remarks</b> section.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_blue> Supported. Please read <b>Remarks</b> section.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension and detecting ID3v2 tag at stream beginning.
+     Audio autodetection   <IMAGE star_green> Supported by analyzing mp3 frame header (samplerate, channel number).
+     Supported channels    1 channel (mono), 2 channels (stereo)
+     Recording/Encoder     <IMAGE star_green> Supported by <LINK LAME, LAME encoder>.
+</TABLE>
+
+Remarks:
+* Accurate length enabled *
+<b>Note: </b>This feature is fully supported if LAME INFO tag is found to detect encoder delay and padding samples.
+
+To enable sample accurate length you need to use <LINK libZPlayCpp::ZPlay::SetSettings, SetSettings> function and enable accurate seek using <LINK libZPlayCpp::TSettingID, TSettingID> <b>sidAccurateLength</b> parameter.
+This will enable "sample" accurate length by scaning stream and counting all mp3 frames.
+If there is no LANE tag in stream, encoder delay and padding samples will not be consider and length will be inaccurate.
+
+<b>Note: </b>By default, sample accurate length is <b>NOT</b> enabled.
+
+* Accurate length disabled *
+If sample accurate length in not enabled, length is calculated from XING header, if XING header exists. If there is no XING header, length is calculated from
+stream size and size of first valid mp3 frame. On streams with constant bitrate this method is sample accurate.
+On streams with variable bitrate without XING header this method is inaccurate, very inaccurate. 
+
+
+* Accurate seek enabled *
+<b>Note: </b>This feature is fully supported if LAME INFO tag is found to detect encoder delay and padding samples.
+
+To enable sample accurate seek you need to use <LINK libZPlayCpp::ZPlay::SetSettings, SetSettings> function and enable accurate seek using <LINK libZPlayCpp::TSettingID, TSettingID> <b>sidAccurateSee</b> parameter.
+This will enable "sample" accurate seek by scaning stream and detecting all mp3 frames up to specified position.
+If there is no LANE tag in stream, encoder delay and padding samples will not be consider and seek will be inaccurate.
+
+<b>Note: </b>By default, sample accurate seek is <b>NOT</b> enabled.
+
+* Accurate seek disabled *
+If sample accurate seek in not enabled, seek position is calculated from XING header, if XING header exists. If there is no XING header, seek position is calculated from
+stream size using linear interpolation. On streams with constant bitrate this method is quite accurate, but not sample accurate.
+On streams with variable bitrate without XING header this method is inaccurate. 
+
+* Gapless playing *
+<b>Note: </b>This feature is fully supported if <LINK LAMETAG, LAME INFO tag> is found to detect encoder delay and padding samples.
+
+Gapless plaing is supported only if stream has LAME tag because we need encoder delay and padding samples to calculate correct song length and implement gapless transition from one song to another song.
+If there is no <LINK LAMETAG, LAME INFO tag>, encoder delay and padding samples will not be consider and some blank samples will be inserted between two song.
+
+Note:
+Free format bistream is supported (bitrate over 320 kbps and bitrate outside standard bitrates defined by MPEG standard).

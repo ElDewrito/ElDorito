@@ -1,0 +1,63 @@
+Summary:
+  Draw <LINK FFT_GRAPH, FFT graph> on window control using window handle.
+
+Parameters:
+  hwnd    - Window handle, identifies the window.
+  nX      - Specifies the logical x-coordinate of the upper-left corner of the destination rectangle.
+  nY      - Specifies the logical y-coordinate of the upper-left corner of the destination rectangle.
+  nWidth  - Specifies the logical width of the source and destination rectangles.
+            <P><IMAGE caution> Caution: There is minimal width value. See <LINK libZPlayCpp::TFFTGraphSize, TFFTGraphSize>.
+  nHeight - Specifies the logical height of the source and the destination rectangles.
+            <P><IMAGE caution> Caution: There is minimal height value. See <LINK libZPlayCpp::TFFTGraphSize, TFFTGraphSize>.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+Function will use window handle to get device context of specified window and then draw graph on this device context.
+Drawing data are fully synchronized with audio data from wave buffer.
+All you need is to call this function when you need to refresh displayed graph data.
+To get smooth animation effect, call this function 10 - 20 times per second.
+You can create another thread to do this job.
+<P><IMAGE note> Note: This function must perform FFT analysis on audio data and this takes some time if you set too big <LINK libZPlayCpp::TFFTGraphParamID, gpFFTPoints> value.
+If you set fast refresh interval, this can take too much proccessor time. Be careful.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayCpp::ZPlay::GetFFTGraphParam, GetFFTGraphParam>,
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>
+
+<LINK libZPlayCpp::zplay_SetFFTGraphParam, zplay_SetFFTGraphParam>,
+<LINK libZPlayCpp::zplay_GetFFTGraphParam, zplay_GetFFTGraphParam>,
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHDC, zplay_DrawFFTGraphOnHDC>
+
+
+Example:
+Draw FFT graph on specified window 20 times per second.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+while(fDrawind)
+{
+  // draw graph on window control, starting in upper left corner, size of graph is 400 x 200 pixel
+  instance->DrawFFTGraphOnHWND(myWndHandle, 0, 0, 400, 200);
+  
+  // wait 50 ms
+  Sleep(50);
+}
+</CODE>
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+while(fDrawing)
+{
+  // draw graph on window control, starting in upper left corner, size of graph is 400 x 200 pixel
+  zplay_DrawFFTGraphOnHWND(instance, myWndHandle, 0, 0, 400, 200);
+  
+  // wait 50 ms
+  Sleep(50);
+}
+</CODE>
+

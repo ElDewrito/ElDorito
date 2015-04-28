@@ -1,0 +1,30 @@
+Summary:
+  Interface setting identifier.
+
+Parameters:
+sidWaveBufferSize - Change wave buffer size in milliseconds.
+                    <p>Class will always try to have enough data decoded and ready to play.
+                    <p><IMAGE note> Note: Minimal size of wave buffer is 100 milliseconds. But this value <b>can be 0</b>.
+                    If you set wave buffer size to 0, library will not open wave output and there will be no playing.
+                    But you can use callback message to retrieve decoded audio data and play this data by yourself, or save this data into file.
+                    If you don't need to play data to soundcard, set wave buffer size to 0.
+                    <p><p>If this value is too small, there can be problem with playing if your processor can't provide enough decoded data all the time.
+                    <p>If this value is too large, you will notice delay when you apply (enable, disable) sound effects (equalizer, echo, pitch ...).
+sidAccurateLength - Sample accurate stream length.
+	            <p>Set this setting to 1 to enable "sample" accurate song length calculation.
+	            If this setting is 0, there is no guaranty that song length is <i>sample accurate</i>. 
+sidAccurateSeek   - Sample accurate seek.
+                    <p>Set this setting to 1 to enable <i>sample accurate</i> seek.
+	            <p>If this setting is 0, there is no guaranty that seek is <i>sample accurate</i>. 
+sidSamplerate     - Samplerate for <LINK FormatPCM, PCM format>.
+sidChannelNumber  - Number of channels for <LINK FormatPCM, PCM format>. Valid values are 1 or 2.
+sidBitPerSample   - Bit per sample for <LINK FormatPCM, PCM format>. Valid values are 8 or 16.
+sidBigEndian      - Big-endian or little-endian for <LINK FormatPCM, PCM format>. 1 is big-endian (Motorola), 0 is little-endian (Intel).
+
+Remarks:
+Use this value to specify which setting parameter you need to set or get.
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetSettings, SetSettings>,
+<LINK libZPlayVC::ZPlay::GetSettings, GetSettings>
+

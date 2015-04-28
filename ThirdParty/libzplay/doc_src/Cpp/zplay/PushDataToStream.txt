@@ -1,0 +1,51 @@
+Summary:
+Push new data to <LINK DYNAMIC_STREAM, dynamic stream>.
+
+Parameters:
+  sMemNewData - Points to a memory block with stream data. If this value is NULL, <i>end marker</i> is added to stream.
+  nNewDataize - Size of memory block, in bytes. If this value is 0, <i>end marker</i> is added to stream.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function only works on <LINK DYNAMIC_STREAM, dynamic stream>.
+If you try to push data into static stream, this function will fail.
+
+If stream is <b>buffered stream</b>, this function makes copy of input data into internal buffer.
+Interface instance is responsible for this internal data and user can destroy original source buffer pointed by <c>MemNewData</c>.
+
+If stream is <b>not buffered</b>, function takes only pointer to input data and user is responsible for data
+pointed by <c>MemNewData</c> pointer.
+
+If <c>MemNewData</c> is NULL or <c>nNewDataize</c> is 0, <i>end marker</i> is added to stream.
+This indicates that there will be no more data for stream.
+If you add <i>end marker</i> to stream, when stream runs out of data, playing will be stopped and stream will not wait for new data.
+If there is no <i>end marker</i> added to stream, when stream runs out of data, playing is paused and stream is waiting for new data.
+
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::IsStreamDataFree, IsStreamDataFree>,
+<LINK libZPlayCpp::ZPlay::GetDynamicStreamLoad, GetDynamicStreamLoad>
+
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_IsStreamDataFree, zplay_IsStreamDataFree>,
+<LINK libZPlayCpp::zplay_GetDynamicStreamLoad, zplay_GetDynamicStreamLoad>
+
+
+<EXAMPLE>
+Add <i>end marker</i> to dynamic stream.
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->PushDataToStream(0,0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_PushDataToStream(instance, 0,0);
+</CODE>
+</EXAMPLE>
+

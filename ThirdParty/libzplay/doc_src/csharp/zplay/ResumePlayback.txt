@@ -1,0 +1,13 @@
+Summary:
+  Resume paused playing.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.StartPlayback, StartPlayback>,
+<LINK libZPlayC#.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayC#.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayC#.ZPlay.Seek, Seek>

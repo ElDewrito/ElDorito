@@ -1,0 +1,22 @@
+Summary:
+  Cut center or sides from stereo.
+
+Parameters:
+  %PAR0% - True enables stereo cut, false disables stereo cut.
+  %PAR1% - True outputs center and cuts sides. False outputs sides and cut center.
+  %PAR2% - True enables bass to sides, false disables bass to sides.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Using this function you can cut center or side from stereo sound. This algorithm is based on FFT algorithm.
+
+<IMAGE note> Note: Set <c>%PAR2%</c> to true to enable bass output to sides. In this case bass from stereo center will not be cut and will remain in output.
+
+If you cut sides from stereo sound, resulting sound will contain only stereo center.
+In this case you will get sound with vocal, but without music.
+
+If you cut sides from stereo sound, resulting sound will contain only stereo center.
+In this case you will get sound with vocal, but without music.

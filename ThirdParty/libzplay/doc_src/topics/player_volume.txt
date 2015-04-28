@@ -1,0 +1,25 @@
+Summary:
+Player volume is internal volume control.
+
+Description:
+Player volume control will change audio samples to control sound volume.
+This control is specific for each instance of ZPlay and user can control each instance independently.
+
+<IMAGE note> Note: This control will not affect master computer volume.
+
+You can play 2 songs using 2 instances and control volume of each song by changing <i>player volume</i>.
+
+
+
+<b>To change player volume use:</b> 
+<TABLE>
+C++                                                            C                                                                   VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------    ----------------------------------------------------------------    --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetPlayerVolume, SetPlayerVolume>    <LINK libZPlayCpp::zplay_SetPlayerVolume, zplay_SetPlayerVolume>    <LINK libZPlayVB.ZPlay.SetPlayerVolume, SetPlayerVolume>   <LINK libZPlayC#.ZPlay.SetPlayerVolume, SetPlayerVolume>   <LINK libZPlayVC::ZPlay::SetPlayerVolume, SetPlayerVolume>   <LINK libZPlayDelphi.ZPlay.SetPlayerVolume, SetPlayerVolume> 
+<LINK libZPlayCpp::ZPlay::GetPlayerVolume, GetPlayerVolume>    <LINK libZPlayCpp::zplay_GetPlayerVolume, zplay_GetPlayerVolume>    <LINK libZPlayVB.ZPlay.GetPlayerVolume, GetPlayerVolume>   <LINK libZPlayC#.ZPlay.GetPlayerVolume, GetPlayerVolume>   <LINK libZPlayVC::ZPlay::GetPlayerVolume, GetPlayerVolume>   <LINK libZPlayDelphi.ZPlay.GetPlayerVolume, GetPlayerVolume> 
+</TABLE>
+
+
+See Also:
+<LINK MASTER_VOLUME, Master volume>,
+<LINK SLIDE_VOLUME1, Slide volume>

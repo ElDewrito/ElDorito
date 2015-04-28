@@ -1,0 +1,18 @@
+Summary:
+  Start playing from current position.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will start playing from current position. This function will create decoding thread and open wave output.
+
+<IMAGE note> Note: To change position use <LINK libZPlayVB.ZPlay.Seek, Seek>  function.
+
+See Also:
+<LINK libZPlayVB.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayVB.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayVB.ZPlay.ResumePlayback, ResumePlayback>,
+<LINK libZPlayVB.ZPlay.Seek, Seek>

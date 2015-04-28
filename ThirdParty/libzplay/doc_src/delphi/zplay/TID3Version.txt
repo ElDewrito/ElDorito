@@ -1,0 +1,14 @@
+Summary:
+ID3 version identifier.
+
+Parameters:
+id3Version1 - id3v1
+id3Version2 - id3v2.2, id3v2.3, id3v2.4
+
+Remarks:
+This value is only used by <LINK libZPlayDelphi.TStreamFormat, TStreamFormat::sfMp3> format.
+For other formats this value is not used.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.LoadID3, LoadID3>,
+<LINK libZPlayDelphi.ZPlay.LoadFileID3, LoadFileID3>

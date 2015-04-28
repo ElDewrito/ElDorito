@@ -1,0 +1,19 @@
+Summary:
+  Enumerate waveform-audio input devices.
+
+Returns:
+Number of waveform-audio input devices present in the system.
+A return value of zero means that no devices are present or that an error occurred.
+
+Remarks:
+Use this function to determine number of waveform-audio input devices.
+If you have multiple soundcards you can specify soundcard for audio input.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetWaveInInfo, GetWaveInInfo>,
+<LINK libZPlayCpp::ZPlay::GetWaveInInfoW, GetWaveInInfoW>,
+<LINK libZPlayCpp::ZPlay::SetWaveInDevice, SetWaveInDevice>
+
+<LINK libZPlayCpp::zplay_GetWaveInInfo, zplay_GetWaveInInfo>,
+<LINK libZPlayCpp::zplay_GetWaveInInfoW, zplay_GetWaveInInfoW>,
+<LINK libZPlayCpp::zplay_SetWaveInDevice, zplay_SetWaveInDevice>

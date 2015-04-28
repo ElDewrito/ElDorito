@@ -1,0 +1,21 @@
+Summary:
+  Slide volume.
+
+Description:
+libZPlay library has ability to slide <LINK PLAYER_VOLUME, player volume> by specifying slide interval, starting and ending volume.
+
+This effect is realized by changing <LINK PLAYER_VOLUME, player volume>.
+
+
+
+<b>To slide volume:</b>
+<TABLE>
+C++                                                    C                                                           VB.NET                                             C#.NET                                             VC.NET                                               Delphi
+---------------------------------------------------    --------------------------------------------------------    ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ----------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SlideVolume, SlideVolume>    <LINK libZPlayCpp::zplay_SlideVolume, zplay_SlideVolume>    <LINK libZPlayVB.ZPlay.SlideVolume, SlideVolume>   <LINK libZPlayC#.ZPlay.SlideVolume, SlideVolume>   <LINK libZPlayVC::ZPlay::SlideVolume, SlideVolume>   <LINK libZPlayDelphi.ZPlay.SlideVolume, SlideVolume> 
+</TABLE>
+
+
+See Also:
+<LINK PLAYER_VOLUME, Player volume>,
+<LINK MASTER_VOLUME, Master volume>

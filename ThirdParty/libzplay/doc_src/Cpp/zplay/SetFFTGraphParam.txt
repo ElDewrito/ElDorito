@@ -1,0 +1,51 @@
+Summary:
+  Set and change parameters of <LINK FFT_GRAPH, FFT graph>.
+
+Parameters:
+  nParamID - <LINK libZPlayCpp::TFFTGraphParamID, FFT graph parameter identifier>. Specify parameter you need to set or change.
+  nValue   - Parameter value. This value depends on parameter identifier.
+             Read more info about valid values for specific <LINK libZPlayCpp::TFFTGraphParamID, parameter identifier>.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+By default, FFT graph is using 512 FFT points, 257 harmonics, Blackman-Harris window, logarithmic frequency distribution, line type, 25% transparency.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetFFTGraphParam, GetFFTGraphParam>,
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>,
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>
+
+<LINK libZPlayCpp::zplay_GetFFTGraphParam, zplay_GetFFTGraphParam>,
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHWND, zplay_DrawFFTGraphOnHWND>,
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHDC, zplay_DrawFFTGraphOnHDC>
+
+
+Example:
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// set horizontal scale to logarithmic
+instance->SetFFTGraphParam(gpHorizontalScale, gsLogarithmic);
+
+// set FFT points to 256
+instance->SetFFTGraphParam(gpFFTPoints, 256);
+
+// set graph type to bars, left channel on top
+instance->SetFFTGraphParam(gpGraphType, gtBarsLeftOnTop);
+</CODE>
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// set horizontal scale to logarithmic
+zplay_SetFFTGraphParam(instance, gpHorizontalScale, gsLogarithmic);
+
+// set FFT points to 256
+zplay_SetFFTGraphParam(instance, gpFFTPoints, 256);
+
+// set graph type to bars, left channel on top
+zplay_SetFFTGraphParam(instance, gpGraphType, gtBarsLeftOnTop);
+</CODE>
+
+

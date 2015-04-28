@@ -1,0 +1,25 @@
+Summary:
+  Get current position.
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayVC::TStreamTime, TStreamTime>. User must allocate memory for this parameter.
+
+Returns:
+  None.
+
+Remarks:
+This function retrieves current position in <LINK libZPlayVC::TStreamTime, TStreamTime> format.
+All members of <LINK libZPlayVC::TStreamTime, TStreamTime> structure are valid.
+If stream is not playing or stream is closed, position is 0.
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetStatus, GetStatus>,
+<LINK libZPlayVC::ZPlay::GetBitrate, GetBitrate>,
+<LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>
+
+Example:
+
+<code lang="c++">
+TStreamTime pos;
+player->GetPosition(pos);
+</code>

@@ -1,0 +1,7 @@
+Summary:
+C/C++ interface for libZPlay library.
+
+Description:
+Basic libZPlay interface is <LINK ZPLAYINTERFACE, ZPlay C++ Class>. This is direct access to libZPlay library.
+
+There is also alternative <LINK CSTYLEINTERFACE, C Style interface>. This is C wrapper around ZPlay C++ class methods.

@@ -1,0 +1,40 @@
+Summary:
+  Get current position.
+
+Parameters:
+  pTime - Pointer to <LINK libZPlayCpp::TStreamTime, TStreamTime structure>. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+This function retrieves current position in <LINK libZPlayCpp::TStreamTime, TStreamTime> format.
+All members of <LINK libZPlayCpp::TStreamTime, TStreamTime> structure are valid.
+If stream is not playing or stream is closed, position is 0.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetStatus, GetStatus>,
+<LINK libZPlayCpp::ZPlay::GetBitrate, GetBitrate>,
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>
+
+<LINK libZPlayCpp::zplay_GetStatus, zplay_GetStatus>,
+<LINK libZPlayCpp::zplay_GetBitrate, zplay_GetBitrate>,
+<LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>
+
+<EXAMPLE>
+Get current position.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamTime pos;
+instance->GetPosition(&pos);
+printf("%02i:%02i:%02i", pos.hms.hour, pos.hms.minute, pos.hms.second);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamTime pos;
+zplay_GetPosition(instance, &pos);
+printf("%02i:%02i:%02i", pos.hms.hour, pos.hms.minute, pos.hms.second);
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,15 @@
+Summary:
+Seek song position.
+
+Description:
+<b>If you need to seek position use:</b>
+<TABLE>
+C++                                      C                                             VB.NET                               C#.NET                               VC.NET                                 Delphi
+-------------------------------------    ------------------------------------------    ----------------------------------   ----------------------------------   ------------------------------------   --------------------------------------
+<LINK libZPlayCpp::ZPlay::Seek, Seek>    <LINK libZPlayCpp::zplay_Seek, zplay_Seek>    <LINK libZPlayVB.ZPlay.Seek, Seek>   <LINK libZPlayC#.ZPlay.Seek, Seek>   <LINK libZPlayVC::ZPlay::Seek, Seek>   <LINK libZPlayDelphi.ZPlay.Seek, Seek> 
+</TABLE>
+
+
+Remarks:
+If you need "sample accurate" seek  you neet to <LINK CONFIGURE_ACCURATE_SEEK, enable accurate seek>.
+

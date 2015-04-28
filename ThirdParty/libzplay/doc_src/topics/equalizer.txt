@@ -1,0 +1,45 @@
+Summary:
+Equalizer processor.
+
+Description:
+libZPlay implements programmable equalizer processor with following features:
+- create custom frequancy bands
+- preamp gain in millidecibels
+- control each band gain in millidecibels
+
+<IMAGE note> Note: By default, equalizer processor is disabled.
+User must enable equalizer using <LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer> or <LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>.
+
+<B>New instance of ZPLay class has 10 default equalizer bands.</B>
+
+int FreqPoint[9] = {115, 240, 455, 800, 2000, 4500, 9000, 13000, 15000};
+- band0: 0 - 115 Hz
+- band1: 115 - 240 Hz
+- band2: 240 - 455 Hz
+- band3: 455 - 800 Hz
+- band4: 800 - 2000 Hz
+- band5: 2000 - 4500 Hz
+- band6: 4500 - 9000 Hz
+- band7: 9000 - 13000 Hz
+- band8: 13000 - 15000 Hz
+- band9: 15000 - Samplerate/2 Hz
+
+User can create custom bands with <b>SetEqualizerPoints</b>.
+
+To change gain of specified band use <b>SetEqualizerPreampGain</b>.
+
+
+<b>To apply equalizer, use:</b>
+<TABLE>
+C++                                                                          C                                                                                VB.NET                                                                   C#.NET                                                                   VC.NET                                                                     Delphi
+-------------------------------------------------------------------------    ------------------------------------------------------------------------------   ----------------------------------------------------------------------   ----------------------------------------------------------------------   ------------------------------------------------------------------------   --------------------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>            <LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>           <LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>           <LINK libZPlayC#.ZPlay.SetEqualizerPoints, SetEqualizerPoints>           <LINK libZPlayVC::ZPlay::SetEqualizerPoints, SetEqualizerPoints>           <LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints> 
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>            <LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>           <LINK libZPlayVB.ZPlay.GetEqualizerPoints, GetEqualizerPoints>           <LINK libZPlayC#.ZPlay.GetEqualizerPoints, GetEqualizerPoints>           <LINK libZPlayVC::ZPlay::GetEqualizerPoints, GetEqualizerPoints>           <LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints> 
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>              <LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>             <LINK libZPlayVB.ZPlay.SetEqualizerParam, SetEqualizerParam>             <LINK libZPlayC#.ZPlay.SetEqualizerParam, SetEqualizerParam>             <LINK libZPlayVC::ZPlay::SetEqualizerParam, SetEqualizerParam>             <LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam> 
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>              <LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>             <LINK libZPlayVB.ZPlay.GetEqualizerParam, GetEqualizerParam>             <LINK libZPlayC#.ZPlay.GetEqualizerParam, GetEqualizerParam>             <LINK libZPlayVC::ZPlay::GetEqualizerParam, GetEqualizerParam>             <LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam> 
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>    <LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>   <LINK libZPlayVB.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>   <LINK libZPlayC#.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>   <LINK libZPlayVC::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>   <LINK libZPlayDelphi.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain> 
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>    <LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>   <LINK libZPlayVB.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>   <LINK libZPlayC#.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>   <LINK libZPlayVC::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>   <LINK libZPlayDelphi.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain> 
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>        <LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>       <LINK libZPlayVB.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>       <LINK libZPlayC#.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>       <LINK libZPlayVC::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>       <LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain> 
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>        <LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>       <LINK libZPlayVB.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>       <LINK libZPlayC#.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>       <LINK libZPlayVC::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>       <LINK libZPlayDelphi.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain> 
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>                  <LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>                 <LINK libZPlayVB.ZPlay.EnableEqualizer, EnableEqualizer>                 <LINK libZPlayC#.ZPlay.EnableEqualizer, EnableEqualizer>                 <LINK libZPlayVC::ZPlay::EnableEqualizer, EnableEqualizer>                 <LINK libZPlayDelphi.ZPlay.EnableEqualizer, EnableEqualizer> 
+</TABLE>

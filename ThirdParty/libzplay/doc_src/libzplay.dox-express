@@ -1,0 +1,855 @@
+﻿; This is a Doc-O-Matic version 6.5.1.1382 project file.
+; This file is maintained by Doc-O-Matic, do not edit manually.
+
+[AutoTexts]
+Empty=0
+Saved=1
+Text0=This is unknown %SYMBOLNAME%.
+Text1=This is class %SYMBOLNAME%.
+Text10=This is file %SYMBOLNAME%.
+Text11=This is record %SYMBOLNAME%.
+Text12=This is %SYMBOLNAME%.
+Text13=This is nested type %SYMBOLNAME%.
+Text14=This is namespace %SYMBOLNAME%.
+Text2=This is %MEMBERNAME%, a member of class %CLASSNAME%.
+Text3=This is %MEMBERNAME%, a member of class %CLASSNAME%.
+Text4=This is %MEMBERNAME%, a member of class %CLASSNAME%.
+Text5=This is function %SYMBOLNAME%.
+Text6=This is type %SYMBOLNAME%.
+Text7=This is variable %SYMBOLNAME%.
+Text8=This is constant %SYMBOLNAME%.
+Text9=This is macro %SYMBOLNAME%.
+
+[Configurations]
+Count=3
+Current=0
+Name0=HTML
+Name1=HTML Help
+Name2=Help 2
+
+[Configurations\Help 2\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\AdditionalFiles]
+Count=4
+File0=C:\Program Files\Doc-O-Matic 6 Express\graphics\footer-bkg-whitegradient.gif
+File1=C:\Program Files\Doc-O-Matic 6 Express\graphics\header-bkg-whitegradient.gif
+File2=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_fullframegradient.gif
+File3=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_titlebkg.jpg
+
+[Configurations\Help 2\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General]
+ClearDirectoryBeforeExport=0
+HelpKind=2
+OutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\output
+TargetBOM=1
+TargetCodepage=utf-8
+
+[Configurations\Help 2\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General Build Options]
+ShowDocumentation=1
+
+[Configurations\Help 2\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\HTMLHelp]
+CompileFullTextSearchInformation=1
+CreateBinaryIndex=1
+CreateBinaryTOC=0
+CreateCHIFile=0
+CreateHelp2FullTextIndex=1
+DontIncludeFolders=0
+Help2AdditionalXMLData=
+Help2Collection=
+Help2Compiler=
+Help2CompileResult=0
+Help2Dexplore=
+Help2GenericInfoType=kbRef
+Help2ID=
+Help2Locale=kbEnglish
+Help2Namespace=
+Help2PluginNamespace=0
+Help2PluginNamespaceName=MS.VSIPCC+
+Help2RegisterType=0
+Help2UnregisterNamespace=1
+HelpCompiler=C:\Program Files\HTML Help Workshop\hhc.exe
+HTMLHelp2Filename=
+HTMLHelpDisplayFontScaleButton=0
+HTMLHelpFilename=
+SaveUserPosition=1
+SupportEnhancedDecompilation=0
+WindowPosition_Bottom=0
+WindowPosition_Left=0
+WindowPosition_Right=0
+WindowPosition_Top=0
+
+[Configurations\Help 2\Image Paths]
+Count=3
+Path0=C:\Program Files\Doc-O-Matic 6 Express\graphics
+Path1=C:\Program Files\Doc-O-Matic 6 Express\graphics\en
+Path2=graphics
+
+[Configurations\Help 2\Output Options]
+ClassHierarchyLayoutOutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\graphics
+
+[Configurations\Help 2\OutputFormat]
+ID={D3A588E0-9472-11D3-BDD1-0080C8BA053D}
+
+[Configurations\HTML Help\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\AdditionalFiles]
+Count=4
+File0=C:\Program Files\Doc-O-Matic 6 Express\graphics\footer-bkg-whitegradient.gif
+File1=C:\Program Files\Doc-O-Matic 6 Express\graphics\header-bkg-whitegradient.gif
+File2=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_fullframegradient.gif
+File3=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_titlebkg.jpg
+
+[Configurations\HTML Help\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General]
+ClearDirectoryBeforeExport=0
+HelpKind=1
+OutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\output
+TargetBOM=0
+TargetCodepage=windows-1250
+
+[Configurations\HTML Help\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General Build Options]
+ShowDocumentation=1
+
+[Configurations\HTML Help\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\HTMLHelp]
+CompileFullTextSearchInformation=1
+CreateBinaryIndex=1
+CreateBinaryTOC=0
+CreateCHIFile=0
+CreateHelp2FullTextIndex=1
+DontIncludeFolders=0
+Help2AdditionalXMLData=
+Help2Collection=
+Help2Compiler=
+Help2CompileResult=0
+Help2Dexplore=
+Help2GenericInfoType=kbRef
+Help2ID=
+Help2Locale=kbEnglish
+Help2Namespace=
+Help2PluginNamespace=0
+Help2PluginNamespaceName=MS.VSIPCC+
+Help2RegisterType=0
+Help2UnregisterNamespace=1
+HelpCompiler=C:\Program Files\HTML Help Workshop\hhc.exe
+HTMLHelp2Filename=
+HTMLHelpDisplayFontScaleButton=0
+HTMLHelpFilename=
+SaveUserPosition=1
+SupportEnhancedDecompilation=0
+WindowPosition_Bottom=0
+WindowPosition_Left=0
+WindowPosition_Right=0
+WindowPosition_Top=0
+
+[Configurations\HTML Help\Image Paths]
+Count=3
+Path0=C:\Program Files\Doc-O-Matic 6 Express\graphics
+Path1=C:\Program Files\Doc-O-Matic 6 Express\graphics\en
+Path2=graphics
+
+[Configurations\HTML Help\Output Options]
+ClassHierarchyLayoutOutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\graphics
+
+[Configurations\HTML Help\OutputFormat]
+ID={D3A588E0-9472-11D3-BDD1-0080C8BA053D}
+
+[Configurations\HTML\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\AdditionalFiles]
+Count=4
+File0=C:\Program Files\Doc-O-Matic 6 Express\graphics\footer-bkg-whitegradient.gif
+File1=C:\Program Files\Doc-O-Matic 6 Express\graphics\header-bkg-whitegradient.gif
+File2=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_fullframegradient.gif
+File3=C:\Program Files\Doc-O-Matic 6 Express\graphics\html_titlebkg.jpg
+
+[Configurations\HTML\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General]
+ClearDirectoryBeforeExport=0
+HelpKind=0
+OutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\output
+TargetBOM=0
+TargetCodepage=utf-8
+
+[Configurations\HTML\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\General Build Options]
+ShowDocumentation=1
+
+[Configurations\HTML\{D3A588E0-9472-11D3-BDD1-0080C8BA053D}\HTMLHelp]
+CompileFullTextSearchInformation=1
+CreateBinaryIndex=1
+CreateBinaryTOC=0
+CreateCHIFile=0
+CreateHelp2FullTextIndex=1
+DontIncludeFolders=0
+Help2AdditionalXMLData=
+Help2Collection=
+Help2Compiler=
+Help2CompileResult=0
+Help2Dexplore=
+Help2GenericInfoType=kbRef
+Help2ID=
+Help2Locale=kbEnglish
+Help2Namespace=
+Help2PluginNamespace=0
+Help2PluginNamespaceName=MS.VSIPCC+
+Help2RegisterType=0
+Help2UnregisterNamespace=1
+HelpCompiler=C:\Program Files\HTML Help Workshop\hhc.exe
+HTMLHelp2Filename=
+HTMLHelpDisplayFontScaleButton=0
+HTMLHelpFilename=
+SaveUserPosition=1
+SupportEnhancedDecompilation=0
+WindowPosition_Bottom=0
+WindowPosition_Left=0
+WindowPosition_Right=0
+WindowPosition_Top=0
+
+[Configurations\HTML\Image Paths]
+Count=3
+Path0=C:\Program Files\Doc-O-Matic 6 Express\graphics
+Path1=C:\Program Files\Doc-O-Matic 6 Express\graphics\en
+Path2=graphics
+
+[Configurations\HTML\Output Options]
+ClassHierarchyLayoutOutputDir=C:\Documents and Settings\Angel\My Documents\Doc-O-Matic\graphics
+
+[Configurations\HTML\OutputFormat]
+ID={D3A588E0-9472-11D3-BDD1-0080C8BA053D}
+
+[General]
+Author=Zoran Cindori
+AuthorEmail=zcindori@inet.hr
+Copyright=Copyright (c) 2010. Zoran Cindori -  All rights reserved.<p>Web: <a href="http://libzplay.sourceforge.net/">http://libzplay.sourceforge.net/</a></p><p>Email: <a href="mailto:zcindori@inet.hr">zcindori@inet.hr</a></p>
+Summary=Documentation for libZPlay library
+Title=libZPlay ver. 2.02  (Win32)
+VersionBuild=0
+VersionMajor=1
+VersionMinor=0
+VersionRelease=0
+
+[Macro Header Files]
+Count=0
+
+[Parsing]
+AssignedCommentsToFollowingSymbols=1
+CommentDistance=5
+DocUseTripleSlashOnly=1
+HeaderUnderlineCharactersCenter==
+HeaderUnderlineCharactersJustify=#
+HeaderUnderlineCharactersLeft=-
+HeaderUnderlineCharactersRight=~
+HeadlineDelimiterChars=*#-
+IgnoredTrimLineCount=1
+IgnoredTrimLine_0=__________________________________________________
+InitOptional=1
+InitSequence=@@
+ListBulletChars=*+-#
+NamespaceOption=1
+ParameterDelimiterChars=:-
+ParameterDescriptionMode=0
+ParametersAllowSpaceAsDelimiter=0
+SectionAllowSpaceAsDelimiter=0
+SectionDelimiterChars=:*-
+SupportJavaDoc=0
+SupportJavaDocBackslashTags=0
+SupportXMLDoc=1
+TabExpandCount=4
+TrailerChars=-+~/#
+WallCharacters="#$%&'*+-/=@[\]^_`{|}~
+
+[Project File Info]
+Version=605
+
+[Section\0]
+Count=3
+Description=Contains a short summary of the purpose of an object. This text usually contains one or two sentenses.
+DisplayName=Summary
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=4
+Value0=Summary
+Value1=Brief
+Value2=Short
+XMLDocTags=summary
+
+[Section\1]
+Count=2
+Description=Contains the general description of an object. This text describes the purpose of the item.
+DisplayName=Description
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Description
+Value1=Long
+XMLDocTags=value
+
+[Section\10]
+Count=3
+Description=Contains text that describes bugs or problems related to the object.
+DisplayName=Bugs
+EditorName=
+JavaDocTags=bug
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Bugs
+Value1=Known Bugs
+Value2=Current Bugs
+XMLDocTags=
+
+[Section\11]
+Count=2
+Description=Contains documentation parts which should only be available to internal team members and not to the general public.
+DisplayName=Internal
+EditorName=
+JavaDocTags=internal
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Internal
+Value1=Special Info
+XMLDocTags=
+
+[Section\12]
+Count=1
+Description=Contains text that describes which parts of the object are incomplete and need additional work.
+DisplayName=Todo
+EditorName=
+JavaDocTags=todo
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=TODO
+XMLDocTags=
+
+[Section\13]
+Count=3
+Description=Contains text that describes which exceptions can be raised by a function or method.
+DisplayName=Exceptions
+EditorName=
+JavaDocTags=exception,exceptions,throws,raises
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=12
+Value0=Exceptions
+Value1=Throws
+Value2=Raises
+XMLDocTags=exception
+
+[Section\14]
+Count=2
+Description=Contains text that describes conditions (for example pre- and postconditions) for a function call.
+DisplayName=Conditions
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Conditions
+Value1=Preconditions
+XMLDocTags=permission
+
+[Section\15]
+Count=2
+Description=Contains information who the author(s) of a topic are
+DisplayName=Author
+EditorName=
+JavaDocTags=author
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Author
+Value1=Authors
+XMLDocTags=
+
+[Section\16]
+Count=1
+Description=Contains text which describes the history of the object
+DisplayName=History
+EditorName=
+JavaDocTags=since,history
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=History
+XMLDocTags=
+
+[Section\17]
+Count=2
+Description=Contains version information of the object.
+DisplayName=Version
+EditorName=
+JavaDocTags=version
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Version
+Value1=Current Version
+XMLDocTags=
+
+[Section\18]
+Count=1
+Description=Contains the text for the glossary entry of the topic.
+DisplayName=Glossary
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=7
+Value0=Glossary
+XMLDocTags=
+
+[Section\19]
+Count=3
+Description=Contains the text for the description of the implementation source of functions.
+DisplayName=Source Description
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=9
+Value0=Source Description
+Value1=Implementation Notes
+Value2=Implementation Description
+XMLDocTags=
+
+[Section\2]
+Count=1
+Description=Used for one or more short notes on an object.
+DisplayName=Notes
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Note
+XMLDocTags=
+
+[Section\20]
+Count=4
+Description=Like a standard section with the additional possibility to give it an individual name in each topic it is used.
+DisplayName=Link List
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=10
+Value0=Link List
+Value1=Membergroups
+Value2=Member Groups
+Value3=Class Group
+XMLDocTags=
+
+[Section\21]
+Count=1
+Description=Contains the Pascal declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=Pascal
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=21
+Value0=Pascal Syntax
+XMLDocTags=
+
+[Section\22]
+Count=1
+Description=Contains the C++ declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=C++
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=22
+Value0=C++ Syntax
+XMLDocTags=
+
+[Section\23]
+Count=1
+Description=Contains the C# declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=C#
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=23
+Value0=C# Syntax
+XMLDocTags=
+
+[Section\24]
+Count=1
+Description=Contains the Visual Basic declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=Visual Basic
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=24
+Value0=Visual Basic Syntax
+XMLDocTags=
+
+[Section\25]
+Count=1
+Description=Contains the Java declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=Java
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=25
+Value0=Java Syntax
+XMLDocTags=
+
+[Section\26]
+Count=1
+Description=Contains the IDL declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=IDL
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=26
+Value0=IDL Syntax
+XMLDocTags=
+
+[Section\27]
+Count=1
+Description=Contains the JavaScript declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=JavaScript
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=27
+Value0=JavaScript Syntax
+XMLDocTags=
+
+[Section\28]
+Count=1
+Description=Contains the MATLAB declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=MATLAB
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=29
+Value0=MATLAB Syntax
+XMLDocTags=
+
+[Section\29]
+Count=1
+Description=Contains the PHP declaration syntax. It will be generated automatically if it does not exist in a topic.
+DisplayName=PHP
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=9
+Type=30
+Value0=PHP Syntax
+XMLDocTags=
+
+[Section\3]
+Count=1
+Description=Used for special remarks on a topic. Contrary to Notes, this text can be fairly long.
+DisplayName=Remarks
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=0
+Value0=Remarks
+XMLDocTags=remarks
+
+[Section\30]
+Count=0
+Description=Automatically filled section that contains a table of members of structs, records, enumerations and unions along with their descriptions.
+DisplayName=Members
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=13
+XMLDocTags=
+
+[Section\31]
+Count=0
+Description=Automatically filled section that contains navigation listings for class and namespace members and sub-topics.
+DisplayName=Navigation
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=14
+XMLDocTags=
+
+[Section\32]
+Count=0
+Description=Automatically filled section that contains the body source code for functions and files.
+DisplayName=Body Source
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=16
+XMLDocTags=
+
+[Section\33]
+Count=0
+Description=Automatically filled section that contains the local class hierarchy for a single class.
+DisplayName=Class Hierarchy
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=17
+XMLDocTags=
+
+[Section\34]
+Count=0
+Description=Automatically filled section that contains a link to the file in which a symbol is declared.
+DisplayName=File
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=18
+XMLDocTags=
+
+[Section\35]
+Count=0
+Description=Automatically filled section that contains a list of links to pages with more information about the topic that are maintained by Doc-O-Matic
+DisplayName=Links
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=19
+XMLDocTags=
+
+[Section\36]
+Count=0
+Description=Automatically filled section that contains the reports assigned to a topic.
+DisplayName=Reports
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=20
+XMLDocTags=
+
+[Section\37]
+Count=0
+Description=Automatically filled section that contains an overview for overloaded member functions.
+DisplayName=Overload List
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=28
+XMLDocTags=
+
+[Section\38]
+Count=1
+Description=Contains multiple glossary entries of the topic.
+DisplayName=Multi Item Glossary
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=12
+Value0=Multi Item Glossary
+XMLDocTags=
+
+[Section\39]
+Count=1
+Description=Contains a parameter descriptions for generic types.
+DisplayName=Type Parameters
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=1
+Value0=Type Parameters
+XMLDocTags=typeparam
+
+[Section\4]
+Count=4
+Description=Used for detailed descriptions of each parameter of a global or member function.
+DisplayName=Parameters
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=1
+Value0=Parameters
+Value1=Arguments
+Value2=Inputs
+Value3=Input
+XMLDocTags=
+
+[Section\5]
+Count=4
+Description=Used to generally describe the return value of a global or member function.
+DisplayName=Returns
+EditorName=
+JavaDocTags=return,returns
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=2
+Value0=Returns
+Value1=Return Value
+Value2=Result
+Value3=Output
+XMLDocTags=returns
+
+[Section\6]
+Count=2
+Description=Used to describe all possible return values in detail in form of a value-description list.
+DisplayName=Return Values
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=11
+Value0=Return Value List
+Value1=Return Value Details
+XMLDocTags=
+
+[Section\7]
+Count=3
+Description=Used for one or more usage examples of the object being described.
+DisplayName=Example
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=3
+Value0=Example
+Value1=Examples
+Value2=Sample
+XMLDocTags=example
+
+[Section\8]
+Count=8
+Description=All text that appears in this section is ignored.
+DisplayName=Ignore
+EditorName=
+JavaDocTags=beaninfo,component,deprecated,event,exclude,index,obsolete,seealso,serial,serialdata,serialfield,tutorial
+OutputFind=
+OutputReplace=
+SectionFlags=8
+Type=6
+Value0=Ignore Text
+Value1=$Log
+Value2=$Filename
+Value3=$Revision
+Value4=$Date
+Value5=$Author
+Value6=$History
+Value7=$Id
+XMLDocTags=
+
+[Section\9]
+Count=2
+Description=Contains a comma separated list of topic IDs which build the see also list of the topic.
+DisplayName=See Also
+EditorName=
+JavaDocTags=
+OutputFind=
+OutputReplace=
+SectionFlags=15
+Type=5
+Value0=See Also
+Value1=Seealso
+XMLDocTags=
+
+[Sections]
+Count=40
+DefID=1
+ID0=0
+ID1=1
+ID10=10
+ID11=11
+ID12=12
+ID13=13
+ID14=14
+ID15=15
+ID16=16
+ID17=17
+ID18=18
+ID19=19
+ID2=2
+ID20=20
+ID21=21
+ID22=22
+ID23=23
+ID24=24
+ID25=25
+ID26=26
+ID27=27
+ID28=28
+ID29=29
+ID3=3
+ID30=30
+ID31=31
+ID32=32
+ID33=33
+ID34=34
+ID35=35
+ID36=36
+ID37=37
+ID38=38
+ID39=39
+ID4=4
+ID5=5
+ID6=6
+ID7=7
+ID8=8
+ID9=9
+SavedValues=1
+
+[Source Files]
+Count=6
+File0=libZPlay.cs
+File1=libzplay.h
+File2=libZPlay.pas
+File3=libZPlay.vb
+File4=libZPlayNET.h
+File5=topic.h
+
+[Source Include Directories]
+Count=0
+

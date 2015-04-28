@@ -1,0 +1,19 @@
+Summary:
+Get stream length.
+
+Description:
+User can get stream length in multiple formats (hour-minute-seconds, seconds, samples ...).
+
+<INCLUDE extensions\\note_start.txt>Accuracy of stream legnth depends on stream type. All stream types, except <LINK FormatMp3, MP3 format>, are <i>sample accurate</i>.
+If you need <i>sample accurate</i> length of <LINK FormatMp3, MP3 format>, <b><LINK CONFIGURE_ACCURATE_LENGTH, enable this feature></b>.
+<INCLUDE extensions\\note_end.txt>
+
+
+
+<b>To get stream length use:</b>
+<TABLE>
+C++                                                          C                                                                 VB.NET                                                    C#.NET                                                    VC.NET                                                     Delphi
+---------------------------------------------------------    --------------------------------------------------------------    -------------------------------------------------------   -------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>      <LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>      <LINK libZPlayVB.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo>      <LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>     <LINK libZPlayDelphi.ZPlay.GetStreamInfo, GetStreamInfo> 
+<LINK libZPlayCpp::ZPlay::GetStreamInfoW, GetStreamInfoW>    <LINK libZPlayCpp::zplay_GetStreamInfoW, zplay_GetStreamInfoW>                                                                                                                                                                                   <LINK libZPlayDelphi.ZPlay.GetStreamInfoW, GetStreamInfoW> 
+</TABLE>

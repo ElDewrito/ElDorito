@@ -1,0 +1,3 @@
+Summary:
+This section describes how to get various informations about stream, like sample rate, number of channels, length of song, ID3 data, ...
+

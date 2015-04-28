@@ -1,0 +1,17 @@
+Summary:
+Stream informations ( length, sampling rate, ...).
+
+Parameters:
+SamplingRate  - Sampling rate in Hz
+ChannelNumber - Number of channels.
+VBR           - Variable bitrate indicator. If this value is 1 stream is variable bitrate.
+Bitrate       - Stream bitrate. Average bitrate if stream is VBR.
+Length        - Stream length. All members are valid.
+                <p><IMAGE caution> Warning: Read more about <LINK CONFIGURE_ACCURATE_LENGTH, accurate length>.
+Description   - Description of stream as string.
+
+Remarks:
+Use this structure to get basic informations about stream.
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetStreamInfo, GetStreamInfo>

@@ -1,0 +1,69 @@
+Summary:
+  Get FFT data for currently playing samples.
+
+Parameters:
+  nFFTPoints       - Set this value to specify FFT size.  This value must be power of 2.
+  nFFTWindow       - Set this value to specify <LINK libZPlayCpp::TFFTWindow, FFT window>.
+  pnHarmonicNumber - Pointer to variable receiving number of harmonics returned from FFT analysis. NumberOfHarmonics = (nFFTPoints/2 + 1)
+  pnHarmonicFreq   - Pointer to integer array receiving frequency of each harmonic.
+                     User must to allocate memory for this array. Use returned <c>pnHarmonicNumber</c> value to get number of harmonics.
+                     If you don't need this information, set this parameter to NULL.
+
+  pnLeftAmplitude  - Pointer to integer array receiving amplitude of each harmonic for left channel.
+                     Amplitude range is from 0 to about 120 dB.
+                     User needs to allocate memory for this array.
+                     If you don't need this information, set this parameter to NULL.
+  pnRightAmplitude - Pointer to integer array receiving amplitude of each harmonic for right channel.
+                     Amplitude range is from 0 to about 120 dB.
+                     User needs to allocate memory for this array.
+                     If you don't need this information, set this parameter to NULL.
+
+  pnLeftPhase      - Pointer to integer array receiving phase of each harmonic for left channel.
+                     Phase range is from -90 to 90 degrees.
+                     User needs to allocate memory for this array.
+                     If you don't need this information, set this parameter to NULL.
+
+  pnRightPhase     - Pointer to integer array receiving phase of each harmonic for right channel.
+                     Phase range is from -90 to 90 degrees.
+                     User needs to allocate memory for this array.
+                     If you don't need this information, set this parameter to NULL.
+
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<c>nFFTPoints</c> parameter specifies number of samples for FFT algorithm.
+This parameter must be power of 2. Larger value produces more harmonics and better frequency resolution.
+But this needs more processor power to calculate FFT algorithm.
+
+<IMAGE note> Note: <c>NumOfHarmnics = NumOfFFTPoints/2 + 1</c>
+
+<IMAGE note> Note: FFT data are fully synchronized with audio data from wave buffer. 
+
+See Also:
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>,
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>,
+<LINK libZPlayCpp::ZPlay::GetVUData, GetVUData>
+
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHDC, zplay_DrawFFTGraphOnHDC>,
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHWND, zplay_DrawFFTGraphOnHWND>,
+<LINK libZPlayCpp::zplay_GetVUData, zplay_GetVUData>
+
+<EXAMPLE>
+Get amplitude values for left channel using 512 FFT points and triangular window.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nLeftAmplitude[257]; // we are using 512 FFT points: number of harmonics is 512/2 + 1 = 257
+instance->GetFFTValues(512, fwTriangular, 0, 0,nLeftAmplitude, 0, 0, 0);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nLeftAmplitude[257]; // we are using 512 FFT points: number of harmonics is 512/2 + 1 = 257
+zplay_GetFFTValues(instance, 512, fwTriangular, 0, 0,nLeftAmplitude, 0, 0, 0);
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,32 @@
+This document describes how to build import libraries for other compilers.
+
+LIBZPLAY.DLL exports functions using _stdcall calling convention and undecoreted names, without @nn at the end of function name and
+without _ at the beginning of funtion name.
+
+======================================
+1. Building import library for MinGW
+======================================
+
+Use dlltool to produce MinGW import library:
+
+dlltool -D libzplay.dll -l libzplay.a -d mingw.def -k
+
+This will produce MinGW import library for linking MinGW applications with libzplay.dll
+
+
+=======================================
+2. Building import library for Borland
+=======================================
+
+Use implib on libzplay.dll to generete import library:
+
+implib libzplay.lib libzplay.dll
+
+======================================
+3. Build import library for Visual C++
+======================================
+
+lib /machine:i386 /def:libzplay.def
+
+This will create libzplay.lib and you can link your project with this library.
+

@@ -1,0 +1,23 @@
+Summary:
+Choose wave-out device as audio output for ZPlay class.
+
+Description:
+User can specify wave-out device for audio output.
+If you have multiple soundcards, you can choose output soundcard.
+
+Using this feature, you can play 2 songs, each song on different soundcard.
+Create 2 instance of ZPlay class and set different wave-out device for each instance.
+
+
+
+<b>To specify output device use:</b>
+<TABLE>
+C++                                                             C                                                                    VB.NET                                                       C#.NET                                                       VC.NET                                                         Delphi
+-------------------------------------------------------------   ------------------------------------------------------------------   ----------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------   --------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetWaveOutDevice, SetWaveOutDevice>   <LINK libZPlayCpp::zplay_SetWaveOutDevice, zplay_SetWaveOutDevice>   <LINK libZPlayVB.ZPlay.SetWaveOutDevice, SetWaveOutDevice>   <LINK libZPlayC#.ZPlay.SetWaveOutDevice, SetWaveOutDevice>   <LINK libZPlayVC::ZPlay::SetWaveOutDevice, SetWaveOutDevice>   <LINK libZPlayDelphi.ZPlay.SetWaveOutDevice, SetWaveOutDevice> 
+</TABLE>
+
+
+See Also:
+<LINK SET_WAVEOUTFILE, Set wave out file>,
+<LINK GET_WAVEOUT_INFO, Get wave out  info>

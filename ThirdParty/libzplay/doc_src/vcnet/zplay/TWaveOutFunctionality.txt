@@ -1,0 +1,18 @@
+Summary:
+Wave out optional functionality supported by the device.
+
+Parameters:
+supportPitchControl            - Pitch control supported.
+supportPlaybackRateControl     - Playback rate control supported.
+supportVolumeControl           - Volume control supported.
+supportSeparateLeftRightVolume - Separate volume control supported.
+supportSync                    - Sync supported.
+supportSampleAccuratePosition  - Sample accurate position supported.
+supportDirectSound             - DirectX supported.
+
+Remarks:
+These values regards to <b>Support</b> member of <LINK libZPlayVC::TWaveOutInfo, TWaveOutInfo> structure.
+
+See Also:
+<LINK libZPlayVC::ZPlay::EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayVC::ZPlay::GetWaveOutInfo, GetWaveOutInfo>

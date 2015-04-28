@@ -1,0 +1,18 @@
+Summary:
+  Mix stereo channels into mono channel.
+
+Parameters:
+  fEnable       - Value 1 enables mixing, value 0 disables mixing.
+  nLeftPercent  - Percent of left channel in resulting sound. Range is from 0 to 100.
+  nRightPercent - Percent of right channel in resulting sound. Range is from 0 to 100.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will mix left and right channel and produce 2 channels with the same data.
+
+<IMAGE note> Note: libZPlay library will always outputs stereo data. Even if input stream is mono, class will output 2 channels with
+the same data. On stereo streams, mixing function will mix left and right channel and output will be 2 identical channels.

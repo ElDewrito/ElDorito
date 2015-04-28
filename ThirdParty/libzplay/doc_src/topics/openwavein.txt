@@ -1,0 +1,156 @@
+Summary:
+Open wave-in.
+
+Description:
+libZPlay library can retrieve data from specified wave-in mixer line and play these data to wave-out.
+User can specify mixer line for recording and library will translate these recorded samples through all
+specified effects(equalizer, echo, pitch change, ...) to wave output. In real time.
+You can also use <LINK CALLBACK_MECHANISM, callback mechanism> to get these samples and save them to disk file.
+
+
+<b><COLOR RED>New: </COLOR>To save/encode recorded samples to disk file just <LINK SET_WAVEOUTFILE, set wave-out file>.
+
+
+To open wave-in use special stream format <b>sfWaveIn</b> or use special file name.
+
+* Special file name format: *
+To use wave-in as input source specify following file name:
+
+<b>wavein://</b>
+
+
+
+There are 3 additional, <b>optional</b> parameters you can use with <b>wavein://</b> to specify additional features:
+
+<b>src=</b><i>mixer_line_id</i><b>;</b>
+
+<b>name=(</b><i>mixer_line_name</i><b>);</b>
+
+<b>volume=</b><i>volume_percent</i><b>;</b>
+
+
+
+Add these optional parameters to special file name after <b>wavein://</b> without space.
+Order of these parameters is not prescribed. You don't need to specify all parameters.
+
+<INCLUDE extensions\\warning_start.txt><b><COLOR red>These parameters are NOT working on Windows Vista and Windows 7.</COLOR></b>
+
+You need to select recording mixer line in mixer window.
+<INCLUDE extensions\\warning_end.txt>
+
+<INCLUDE extensions\\note_start.txt>Unspecified parameters will stay unchanged.
+If you don't specify <b>src</b> or <b>name</b> parameter, recording will go from currently selected recording line.
+If <b>volume</b> parameters is not specified, you will use currently selected volume from recording mixer.
+
+Example1:
+
+<b>wavein://</b> - use current recording line with current volume.
+<INCLUDE extensions\\note_end.txt>
+
+* src parameter *
+Use <b>src</b> parameter to specify <i>mixer_line_id</i>, input line from recording mixer.
+There are standard values for this parameter and these values should be the same for all computers and hardware.
+
+<TABLE>
+mixer_line_id       Description
+---------------     -------------------------------------------------------------------------------------------------------------------------------------------
+line                Audio line is a line-level source (for example, line-level input from an external stereo) that can be used as an optional recording source.
+line-in             The same as <i>line</i>.
+microphone          Audio line is a microphone recording source.
+mic                 The same as <i>microphone</i>.
+analog              Audio line is an analog source (for example, analog output from a video-cassette tape).
+aux                 Audio line is a source originating from the auxiliary audio line.
+cd                  Audio line is a source originating from the output of an internal audio CD.
+digital             Audio line is a digital source (for example, digital output from a DAT or audio CD).
+pcspeaker           Audio line is a source originating from personal computer speaker.
+synthesizer         Audio line is a source originating from the output of an internal synthesizer.
+midi                The same as <i>synthesizer</i>.
+waveout             Audio line is a source originating from the waveform-audio output digital-to-analog converter (DAC).
+</TABLE>
+
+
+<i>Examples:</i>
+
+<b>wavein://src=line;</b> - open wavein and try to select line-in recording source from recording mixer
+
+<b>wavein://src=microphone;</b> - open wavein and try to select microphone recording source from recording mixer.
+
+
+<INCLUDE extensions\\warning_start.txt>There is no guaranty that <b>src=line;</b> will select line-in as recording source.
+All this depends on audio and mixer drivers on your computer. Library will try to select, in this case, line-in mixer recording source.
+But there can be problem if your mixer driver has different identification for actual line-in recording source. For example, <i>analog</i> identification
+can be identification type for real line-in source, ... Library will try to use recording mixer source based on specified <i>mixer_line_id</i>.
+If this don't work, you can specify <b>name</b> parameter.
+<INCLUDE extensions\\warning_end.txt>
+
+* name parameter *
+Use <b>name</b> parameter to specify <i>mixer_line_name</i>, input line from recording mixer.
+This parameter specifies description of recording mixer line. Description is text you can see on each line in mixer window.
+Mixer line description is specific for each audio and mixer driver.
+For example, <i>cd</i> input line can be described as "CD", "CD Player", "Compact Disk", ...  
+
+This parameter has larger priority than <b>src</b> parameter. If you specify <b>name</b> and <b>src</b> parameters,
+<b>name</b> will be used and <b>src</b> will be ignored.
+
+
+<i>Examples:</i>
+
+<b>wavein://name=(Line In);</b> - open wavein and try to select recording source with description "Line In".
+
+<b>wavein://name=(CD Audio);</b> - open wavein and try to select recording source with description "CD Audio".
+
+<b>wavein://src=microphone;name=(Line In);</b> - microphone will be ignored. "Line In" will be selected.
+
+
+<INCLUDE extensions\\note_start.txt>Line description is not standard identifier for mixer line. This depends on mixer driver.
+On some computer you can have line with "CD Player" description, and on the other computer this line will have "CD Audio" description.
+
+If you need standardized approach, use <b>src</b> parameter to specify mixer line. 
+<INCLUDE extensions\\note_end.txt>
+
+* volume parameter *
+With this parameter you can set volume of specified recording line. Volume range is 0 - 100.
+Of course, you also need to specify <b>src</b> or <b>name</b> parameter.
+
+<i>Examples:</i>
+
+<b>wavein://src=microphone;volume=100;</b> - open wavein and try to select microphone. Set volume to maximum.
+
+
+
+<b>To open wave-in use following functions and specify <COLOR RED>wavein://</COLOR> file name:</b>
+<TABLE>
+C++                                               C                                                   VB.NET                                       C#.NET                                       VC.NET                                         Delphi
+-----------------------------------------------   -------------------------------------------------   ------------------------------------------   ------------------------------------------   --------------------------------------------   ------------------------------------------------
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>     <LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>  <LINK libZPlayVB.ZPlay.OpenFile, OpenFile>   <LINK libZPlayC#.ZPlay.OpenFile, OpenFile>   <LINK libZPlayVC::ZPlay::OpenFile, OpenFile>   <LINK libZPlayDelphi.ZPlay.OpenFile, OpenFile> 
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>                                                                                                                                                                                                <LINK libZPlayDelphi.ZPlay.OpenFileW, OpenFileW> 
+</TABLE>
+
+
+Remarks:
+At the end you need to close previous stream to free allocated resources.
+
+<TABLE>
+C++                                       C                                              VB.NET                                 C#.NET                                 VC.NET                                   Delphi
+---------------------------------------   --------------------------------------------   ------------------------------------   ------------------------------------   --------------------------------------   ----------------------------------------
+<LINK libZPlayCpp::ZPlay::Close, Close>   <LINK libZPlayCpp::zplay_Close, zplay_Close>   <LINK libZPlayVB.ZPlay.Close, Close>   <LINK libZPlayC#.ZPlay.Close, Close>   <LINK libZPlayVC::ZPlay::Close, Close>   <LINK libZPlayDelphi.ZPlay.Close, Close> 
+</TABLE>
+
+
+
+See Also:
+<LINK SET_WAVEIN, Select wave input device (multiple soundcards)>
+
+<EXAMPLE>
+Open wavein microphone line, set volume to 50 %
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<code lang="c++">
+instance->OpenFile("wavein://src=microphone;volume=50;", sfAutodetect);
+</code>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<code lang="c++">
+zplay_OpenFile(instance, "wavein://src=microphone;volume=50;", sfAutodetect);
+</code>
+</EXAMPLE>

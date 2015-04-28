@@ -1,0 +1,57 @@
+Summary:
+  Open disk file (ANSI version).
+
+Parameters:
+  sFileName - Points to a ANSI null-terminated string that specifies the name of the file. Special case: <LINK OPENWAVEIN, Open wave input>.
+  nFormat   - Stream format. Use <b><LINK libZPlayCpp::TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Use this function to open disk file.
+Function will open disk file and check if this file is valid file according to specified stream format.
+If you use <b><LINK libZPlayCpp::TStreamFormat, sfAutodetect></b> as <C>nFormat</C> parameter function will try to detect stream format of specified file and open file using detected stream format.
+
+
+<INCLUDE extensions\\note_start.txt>With this function you can also open wave input as recoring source. <LINK OPENWAVEIN, Read more here>.
+<INCLUDE extensions\\note_end.txt>
+
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayCpp::ZPlay::Close, Close>,
+<LINK libZPlayCpp::ZPlay::AddFile, AddFile>,
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>,
+<LINK libZPlayCpp::ZPlay::GetFileFormatW, GetFileFormatW>
+
+<LINK libZPlayCpp::zplay_GetFileFormat, zplay_GetFileFormat>,
+<LINK libZPlayCpp::zplay_Close, zplay_Close>,
+<LINK libZPlayCpp::zplay_AddFile, zplay_AddFile>,
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_OpenFileW, zplay_OpenFileW>,
+<LINK libZPlayCpp::zplay_GetFileFormatW, zplay_GetFileFormatW>
+
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+if(instance->OpenFile("mySong.mp3", sfAutodetect) == 0)
+{
+  MessageBox(0, instance->GetError(),"Error",0);
+  return 0;
+}
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+if(zplay_OpenFile(instance, "mySong.mp3", sfAutodetect) == 0)
+{
+  MessageBox(0, zplay_GetError(instance),"Error",0);
+  return 0;
+}
+</CODE>
+</EXAMPLE>

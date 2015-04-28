@@ -1,0 +1,18 @@
+Summary:
+  Start playing from current position.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will start playing from current position. This function will create decoding thread and open wave output.
+
+<IMAGE note> Note: To change position use <LINK libZPlayC#.ZPlay.Seek, Seek>  function.
+
+See Also:
+<LINK libZPlayC#.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayC#.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayC#.ZPlay.ResumePlayback, ResumePlayback>,
+<LINK libZPlayC#.ZPlay.Seek, Seek>

@@ -1,0 +1,17 @@
+Summary:
+TID3 picture. Only in version 2.00 and above. (UNICODE version)
+
+Parameters:
+PicturePresent - Indicates if image is present in info tag and Bitmap is valid. If this value is false, Bitmap is not valid.
+PictureType    - Picture type. Search on Goole for informations about id3v2 frames (APIC frame). Valid if PicturePresent is true.
+Description_   - User description for attached picture. Valid if PicturePresent is true.
+Bitmap         - TPicture class containing image. Valid if PicturePresent is true.
+
+
+Remarks:
+If there is valid picture attached into ID3v2 or VORBIS COMMENT tag, PicturePresent will be set to true and Bitmap will contain image from ID3 tag.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.LoadID3ExW, LoadID3ExW>,
+<LINK libZPlayDelphi.ZPlay.LoadFileID3ExW, LoadFileID3ExW>
+

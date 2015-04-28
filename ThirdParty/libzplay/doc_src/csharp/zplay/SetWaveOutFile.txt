@@ -1,0 +1,44 @@
+Summary:
+  Set wave output to disk file.
+
+Parameters:
+  %PAR0% - Points to string that specifies the name of the file.
+  %PAR1% - Specify encoding format. Library will encode PCM samples into this format using internal encoder.
+  %PAR2% - Specify if you need to send PCM samples to soundcard output. If this value is true,
+                       library will play samples to soundcard output.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+By default, library will output decoded or recorded samples to soundcard.
+But you can intercept these PCM samples, encode samples to specified format and save encoded stream into disk file.
+
+
+Library decodes streams(mp3, ogg, ...) into raw PCM samples and sends these samples to soundcard.
+You can use <LINK CALLBACK_MECHANISM, callback mechanism> to intercept these samples.
+
+<b>SetWaveOutFile</b> function is using the same approach. It intercepts raw PCM samples.
+Then sends these raw samples to specified encoder. Encoder produces output stream.
+And at the end, encoded stream is saved to specified disk file. 
+
+
+<INCLUDE extensions\\note_start.txt><b><COLOR RED>Every opening function will cancel disk output and set output to soundcard.
+Therefore, you must set wave output to disk file after each opening function.</COLOR></b>
+<INCLUDE extensions\\note_end.txt>
+
+
+* Supported encoders *
+<table>
+     Format                    File extension   Description                                                  
+     ------------------------  --------------   --------------------------------------------------------------------------------  
+     <LINK FormatMp3, MP3>     mp3              MPEG-1, MPEG-2, MPEG 2.5 - Layer III. 128 kbps, JOINT STEREO, CBR. <b>Not supported in PF version.</b>        	
+     <LINK FormatVorbis, OGG>  ogg              VORBIS OGG, quality 4.0 (128 kbps) - STEREO.                                                  
+     <LINK FormatFLAC, FLAC>   flac, oga        Native FLAC and OGG flac, compression level 5, stereo. 
+     <LINK FormatAAC, AAC>     aac              AAC ADTS stream. MPEG2, LOW, 34 kbps, quality 100, stereo. <b>Not supported in PF version.</b>                                    
+     <LINK FormatWav, WAVE>    wav              PCM WAVE with RIFF header, uncompressed, 16 bit per sample, stereo.
+     <LINK FormatPCM, PCM>     any file         Raw PCM audio format, uncomressed, 16 bit per sample, stereo, little-endian.
+</table>
+
+

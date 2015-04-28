@@ -1,0 +1,77 @@
+Summary:
+  Open memory stream.
+
+Parameters:
+  fBuffered   - Specifies if stream is buffered stream. Value <b>1</b> specifies buffered stream. Value <b>0</b> specifies non bufferd stream.
+  fDynamic    - Specifies if stream is dynamic or static. Value <b>1</b> specifies dynamic stream. Value <b>0</b> specifies static stream.
+  sMemStream  - Points to a memory block with stream data.
+  nStreamSize - Size of memory block, in bytes.
+  nFormat     - Stream format. This value can't be <b><LINK libZPlayCpp::TStreamFormat, sfAutodetect></b>. You must specify valid stream format.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+First block of data needs to be large enough and must contain all data to identify specified stream type.
+
+For <b><LINK libZPlayCpp::TStreamFormat, sfMp3></b> stream format, this block of data needs to contain at least one valid mp3 frame.
+
+For <b><LINK libZPlayCpp::TStreamFormat, sfOgg></b> streamformat, this block must contain enough data to identify ogg type.
+
+For <b><LINK libZPlayCpp::TStreamFormat, sfWave></b>, this block must contain valid RIFF header.
+
+If this function fails, call this function again with larger block of data or with another block of data.
+
+
+For <b>sfMp3</b> stream, 128 kbps at 44100 Hz you need at least 426 bytes without ID3v2 data at stream start.
+If input block is too small, function will fail. Then you need to send larger block. 
+
+<b>Buffered stream</b> allocates internal memory for input data and class makes copy of input data.
+User can destroy input data because there is copy of this data in internal buffer.
+Class will manage this internal memory.
+
+If stream is <b>not buffered</b>, function takes only pointer to stream data. User is responsible for this data.
+So, user must keep this data in memory until function is done with this data. See <LINK libZPlayCpp::ZPlay::IsStreamDataFree, IsStreamDataFree>.
+
+If you specify <b>dynamic stream</b>, you can add new data into this stream with <LINK libZPlayCpp::ZPlay::PushDataToStream, PushDataToStream> function.
+Use <LINK libZPlayCpp::ZPlay::OpenStream, OpenStream> with small chunk of input data and add rest of data with <LINK libZPlayCpp::ZPlay::PushDataToStream, PushDataToStream> function later.
+Use <LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc> and callback mechanism to determine when class needs more data.
+You can't seek or use reverse mode on dynamic stream.
+If dynamic stream runs out of data, it waits for new data, playing is paused, wave output is still active and class is
+ready to continue playing when you push new data to stream with <LINK libZPlayCpp::ZPlay::PushDataToStream, PushDataToStream>.
+
+If stream is <b>not dynamic</b>, you can't add new data into stream.
+Class will use only data provided by <C>sMemStream</C> parameter.
+But this type of stream has no limitation in seek and reverse mode.
+When this stream runs out of data, playing is stopped.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayCpp::ZPlay::Close, Close>,
+<LINK libZPlayCpp::ZPlay::AddFile, AddFile>,
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>,
+<LINK libZPlayCpp::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayCpp::ZPlay::GetFileFormatW, GetFileFormatW>
+
+<LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>,
+<LINK libZPlayCpp::zplay_Close, zplay_Close>,
+<LINK libZPlayCpp::zplay_AddFile, zplay_AddFile>,
+<LINK libZPlayCpp::zplay_OpenFileW, zplay_OpenFileW>,
+<LINK libZPlayCpp::zplay_GetFileFormat, zplay_GetFileFormat>,
+<LINK libZPlayCpp::zplay_GetFileFormatW, zplay_GetFileFormatW>
+
+<EXAMPLE>
+Open memory stream of 10000 bytes as dynamic, buffered, mp3 stream.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->OpenStream(1, 1, memory_ptr, 10000, sfMp3);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_OpenStream(instance, 1, 1, memory_ptr, 10000, sfMp3);
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,22 @@
+Summary:
+Get equalizer band gain.
+
+Parameters:
+  %PAR0% - Band index, zero based. First band has index 0, second 1, ...
+
+Returns:
+  Band gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVC::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayVC::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayVC::ZPlay::EnableEqualizer, EnableEqualizer>

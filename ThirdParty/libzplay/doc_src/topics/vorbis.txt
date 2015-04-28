@@ -1,0 +1,158 @@
+Summary:
+libVorbis
+
+Description:
+
+<b>THIS FILE IS PART OF THE OggVorbis SOFTWARE CODEC SOURCE CODE.
+USE, DISTRIBUTION AND REPRODUCTION OF THIS LIBRARY SOURCE IS
+GOVERNED BY A BSD-STYLE SOURCE LICENSE INCLUDED WITH THIS SOURCE
+IN 'COPYING'. PLEASE READ THESE TERMS BEFORE DISTRIBUTING.</b>
+
+THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2007 by the Xiph.org Foundation,
+<EMIT &lt;a href="http://www.xiph.org/";&gt;http://www.xiph.org/&lt;/a&gt;>
+
+
+
+Vorbis is a general purpose audio and music encoding format
+contemporary to MPEG-4's AAC and TwinVQ, the next generation beyond
+MPEG audio layer 3. Unlike the MPEG sponsored formats (and other
+proprietary formats such as RealAudio G2 and Windows' flavor of the
+month), the Vorbis CODEC specification belongs to the public domain.
+All the technical details are published and documented, and any
+software entity may make full use of the format without license 
+fee, royalty or patent concerns.
+
+This package contains:
+- libvorbis, a BSD-style license software implementation of
+  the Vorbis specification by the Xiph.Org Foundation 
+  (http://www.xiph.org/) 
+- libvorbisfile, a BSD-style license convenience library
+  built on Vorbis designed to simplify common uses
+- libvorbisenc, a BSD-style license library that provides a simple,
+  programmatic encoding setup interface 
+- example code making use of libogg, libvorbis, libvorbisfile and
+  libvorbisenc
+
+* WHAT'S HERE: *
+
+This source distribution includes libvorbis and an example
+encoder/player to demonstrate use of libvorbis as well as
+documentation on the Ogg Vorbis audio coding format.
+
+You'll need libogg (distributed separately) to compile this library.
+A more comprehensive set of utilities is available in the vorbis-tools
+package.
+
+Directory:
+
+./lib  		The source for the libraries, a BSD-license implementation
+		of the public domain Ogg Vorbis audio encoding format.
+
+./include       Library API headers
+
+./debian        Rules/spec files for building Debian .deb packages
+
+./doc           Vorbis documentation
+
+./examples	Example code illustrating programmatic use of libvorbis, 
+		libvorbisfile and libvorbisenc
+
+./mac 		Codewarrior project files and build tweaks for MacOS.
+
+./macosx 	Project files for MacOS X.
+
+./win32		Win32 projects files and build automation
+
+./vq 		Internal utilities for training/building new LSP/residue 
+		and auxiliary codebooks.
+
+* CONTACT: *
+
+The Ogg homepage is located at <EMIT &lt;a href="http://www.xiph.org/ogg/";&gt;http://www.xiph.org/ogg/&lt;/a&gt;> .
+
+Vorbis's homepage is located at <EMIT &lt;a href="http://www.xiph.org/vorbis/";&gt;http://www.xiph.org/vorbis/&lt;/a&gt;> .
+
+Up to date technical documents, contact information, source code and
+pre-built utilities may be found there.
+
+The user website for Ogg Vorbis software and audio is <EMIT &lt;a href="http://vorbis.com/";&gt;http://vorbis.com/&lt;/a&gt;> .
+
+* BUILDING FROM TRUNK: *
+
+Development source is under subversion revision control at 
+<EMIT &lt;a href="http://svn.xiph.org/trunk/vorbis/";&gt;http://svn.xiph.org/trunk/vorbis/&lt;/a&gt;> .
+
+You will also need the 
+newest versions of autoconf, automake, and libtool in order
+to compile vorbis from development source. A configure script
+is provided for you in the source tarball distributions.
+
+  [update or checkout latest source]
+  ./autogen.sh
+  make 
+
+and as root if desired:
+
+  make install
+
+This will install the vorbis libraries (static and shared) into
+/usr/local/lib, includes into /usr/local/include and API manpages
+(once we write some) into /usr/local/man.
+
+* BUILDING FROM TARBALL DISTRIBUTIONS: *
+
+  ./configure
+  make
+
+and optionally (as root):
+  make install
+
+* BUILDING RPMS: *
+
+after normal configuring:
+
+  make dist
+<pre>rpm -ta libvorbis-<version>.tar.gz</pre>
+
+* BUILDING ON MACOS 9: *
+
+Vorbis on MacOS 9 is built using Metroworks CodeWarrior.  To build it, 
+first verify that the Ogg libraries are already built following the
+instructions in the Ogg module README.  Open vorbis/mac/libvorbis.mcp,
+switch to the "Targets" pane, select everything, and make the project.
+Do the same thing to build libvorbisenc.mcp, and libvorbisfile.mcp (in
+that order).  In vorbis/mac/Output you will now have both debug and final
+versions of Vorbis shared libraries to link your projects against.
+
+To build a project using Ogg Vorbis, add access paths to your
+CodeWarrior project for the ogg/include, ogg/mac/Output,
+vorbis/include, and vorbis/mac/Output folders.  Be sure that
+"interpret DOS and Unix paths" is turned on in your project; it can
+be found in the "access paths" pane in your project settings.  Now
+simply add the shared libraries you need to your project (OggLib and
+VorbisLib at least) and #include "ogg/ogg.h" and "vorbis/codec.h"
+wherever you need to access Ogg and Vorbis functionality.
+
+* COPYRIGHT *
+
+Copyright (c) 2002-2004 Xiph.org Foundation
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+- Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+- Neither the name of the Xiph.org Foundation nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION
+OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

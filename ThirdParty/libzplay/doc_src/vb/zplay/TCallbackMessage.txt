@@ -1,0 +1,104 @@
+Summary:
+Callback messages.
+
+Parameters:
+MsgStopAsync               - Send this message after song stops playing. Wave device is closed and decoding thread is ending.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+                             
+MsgPlayAsync               - Send this message when decoding thread starts and playing is about to start. Wave device is not open yet, but decoding thread is created.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgEnterLoopAsync          - Send this message when decoding thread enters loop processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgExitLoopAsync           - Send this message when decoding thread exits loop processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgEnterVolumeSlideAsync   - Send this message when decoding thread enters volume slide processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgExitVolumeSlideAsync    - Send this message when decoding thread exits volume slide processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgStreamBufferDoneAsync   - Send this message when one buffer is done and removed from  dynamic stream.
+                             <p><p><c>param1</c>: number of buffers remaining in dynamic stream
+                             <p><c>param2</c>: number of bytes remaining in dynamic stream
+                             <p><c>return</c>: not used
+MsgStreamNeedMoreDataAsync - Send this message when dynamic stream needs more data.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgNextSongAsync            - Send this message when decoding thread starts playing next song from gapless queue.
+                             <p><p><c>param1</c>: index of playing song
+                             <p><c>param2</c>: number of songs remaining in gapless queue
+                             <p><c>return</c>: not used
+MsgStop                     - Send this message after song stops playing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgPlay                     - Send this message when decoding thread starts and playing is about to start.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>:  <b>0</b> continue playing, <b>1</b> break decoding thread and don't play anything
+MsgEnterLoop                - Send this message when decoding thread enters loop processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgExitLoop                 - Send this message when decoding thread exits loop processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgEnterVolumeSlide         - Send this message when decoding thread enters volume slide processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: <b>0</b> continue volume slide processing, <b>1</b> don't even start volume slide processing
+MsgExitVolumeSlide          - Send this message when decoding thread exits fade processing.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: not used
+MsgStreamBufferDone         - Send this message when one buffer is done and removed from  dynamic stream.
+                             <p><p><c>param1</c>: number of buffers remaining in dynamic stream
+                             <p><c>param2</c>: number of bytes remaining in dynamic stream
+                             <p><c>return</c>: not used
+MsgStreamNeedMoreData      - Send this message when dynamic stream needs more data.
+                             <p><p><c>param1</c>: not used, always is 0
+                             <p><c>param2</c>: not used, always is 0
+                             <p><c>return</c>: <b>0</b> wait for new data, <b>1</b> stop playing, <b>2</b> don't wait, try again
+MsgNextSong                - Send this message when decoding thread starts playing next song from gapless queue.
+                             <p><p><c>param1</c>: index of playing song
+                             <p><c>param2</c>: number of songs remaining in gapless queue
+                             <p><c>return</c>: not used
+MsgWaveBuffer              - Send this message when decoding thread is ready to send data to soundcard.
+                             <p><p><c>param1</c>: pointer to memory  PCM data buffer
+                             <p><c>param2</c>: number of bytes in PCM data buffer
+                             <p><c>return</c>: <b>0</b> send data to soundcard, <b>1</b> skip sending data to soundcard, <b>2</b> stop playing
+                             <p><p><IMAGE note> Note: PCM data buffer <b>always contains 16 bit per sample, 2 channel PCM data</b>.
+                             <p>Even if input data is 1 channel (mono), output data are <b>always 16 bit per sample, 2 channel</b>.
+
+
+
+Remarks:
+There are 2 types of messages. Sync (blocking) and async (non blocking) messages.
+
+Sync message is sent from decoding thread and thread is waiting until callback function returns,
+so thread is blocked until user process sync message.
+Return value from sync message can be used to control decoding thread.
+
+<IMAGE note> Note: </b>DON'T CALL other interface functions from sync message because this will block decoding thread and calling thread.
+
+
+Async message is sent from another thread and this message is not blocking, decoding thread continues to play.
+Return value from async message is not used.
+
+See Also:
+<LINK libZPlayVB.TCallbackFunc, TCallbackFunc>,
+<LINK libZPlayVB.ZPlay.SetCallbackFunc, SetCallbackFunc>
+
+

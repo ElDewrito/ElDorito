@@ -1,0 +1,16 @@
+Summary:
+  Get tempo.
+
+Returns:
+Current tempo.
+
+Remarks:
+Normal tempo is 100. Smaller valus represent lower tempo, larger value represent higher tempo.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayC#.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayC#.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayC#.ZPlay.SetRate, SetRate>,
+<LINK libZPlayC#.ZPlay.GetRate, GetRate>

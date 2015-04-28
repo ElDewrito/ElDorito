@@ -1,0 +1,386 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "SoundTouch"="..\decoders\soundtouch\source\SoundTouch\SoundTouch.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "example_static"=".\example_static\example_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libzplay_static
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "jpeglib"="..\DECODERS\jpeglib\jpeglib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libFLAC_static"="..\decoders\libFLAC\libFLAC_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "liba52"="..\decoders\a52dec\vc++\liba52.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libfaac"="..\DECODERS\FAAC\LIBFAAC\libfaac.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libfaad"="..\decoders\FAAD\LIBFAAD\libfaad.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libmad"="..\decoders\libmad\msvc++\libmad.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libmp3lame"="..\decoders\lame\libmp3lame\libmp3lame_vc6.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libpng"="..\DECODERS\LPNG\libpng\libpng.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name zlib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libzplay_dynamic"=".\libzplay_dynamic\libzplay_dynamic.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libFLAC_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libmad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ogg_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name SoundTouch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbis_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisfile_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liba52
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libfaad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name jpeglib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libmp3lame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisenc_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libfaac
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libzplay_pf_dynamic"=".\libzplay_pf_dynamic\libzplay_pf_dynamic.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name liba52
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libfaad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libFLAC_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ogg_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name SoundTouch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbis_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisfile_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name jpeglib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisenc_static
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libzplay_pf_static"=".\libzplay_pf_static\libzplay_pf_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name liba52
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libFLAC_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ogg_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name SoundTouch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbis_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisfile_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name jpeglib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisenc_static
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libzplay_static"=".\libzplay_static\libzplay_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libFLAC_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libmad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ogg_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name SoundTouch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbis_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisfile_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name liba52
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libfaad
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name jpeglib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name vorbisenc_static
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libmp3lame
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libfaac
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ogg_static"="..\decoders\libogg\win32\ogg_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vorbis_static"="..\decoders\libvorbis\win32\vorbis_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vorbisenc_static"="..\decoders\libvorbis\win32\vorbisenc_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vorbisfile_static"="..\decoders\libvorbis\win32\vorbisfile_static.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "zlib"="..\DECODERS\ZLIB\zlib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

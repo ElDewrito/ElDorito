@@ -1,0 +1,35 @@
+Summary:
+  Close open stream.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function stops playing. All internal memory will be deallocated and file handles will be closed.
+This function will clear <LINK GAPLESS_PLAYING, gapless queue> and <LINK OPENMEMORYSTREAM, dynamic stream> queue.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>,
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::AddFile, AddFile>
+
+<LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>,
+<LINK libZPlayCpp::zplay_OpenFileW, zplay_OpenFileW>,
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_AddFile, zplay_AddFile> 
+
+<EXAMPLE>
+Close stream.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+instance->Close();
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+zplay_close(instance);
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,76 @@
+Summary:
+Get equalizer parameters, band gain and preamp gain.
+
+Parameters:
+  nPreAmpGain    - Pointer to integer variable receiving preamp gain in <b>millidecibels</b>.
+                 - If this value is NULL function returns number of equalizer bands.
+  pnBandGain     - Pointer to array of integers receiving gain for each band in <b>millidecibels</b> (thousandth of decibel).
+                   If this value is 0 function returns number of equalizer bands.
+                   <P><IMAGE caution> Caution: User must allocate memory for this array. 
+  nNumberOfBands - Number of frequency bands. If this value is 0, function returns number of equalizer bands.
+
+Returns:
+Number of equalizer bands.
+
+If <C>nPreAmpGain</C> is NULL or <C>pnBandGain</C> is NULL or <C>nNumberOfBands</C> is 0, function returns number of equalizer bands.
+Use this function to allocate mmeory for <C>nPreAmpGain</C> array.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+Class has by default 10 equalizer bands. See <LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>.
+If you create custom bands, use correct number of bands as <C>nNumberOfBands</C> parameter.
+And don't forget to specify <C>pnBandGain</C> array with correct size.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>
+<LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>
+
+<EXAMPLE>
+Get equalizer parameters.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<code lang="c++">
+int nNumOfBands = instance->GetEqualizerParam(NULL, NULL, 0); // get number of equalizer bands
+int *pGain = new int[nNumOfBands]; // allocate memory
+int nPreamp;
+int i;
+int number_of_bands = instance->GetEqualizerParam(&nPreamp, pGain, nNumOfBands); // retrieve gains
+for(i = 0; i < number_of_bands; i++)
+{
+  printf("Band %i: %i\\n", i, pGain[i]);
+}
+delete [] pGain;
+</code>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<code lang="c++">
+int nNumOfBands = zplay_GetEqualizerParam(instance, NULL, NULL, 0); // get number of equalizer bands
+int *pGain = new int[nNumOfBands]; // allocate memory
+int nPreamp;
+int i;
+int number_of_bands = zplay_GetEqualizerParam(instance, &nPreamp, pGain, nNumOfBands);  // retrieve gains	
+for(i = 0; i < number_of_bands; i++)
+{
+  printf("Band %i: %i\\n", i, pGain[i]);
+}
+delete [] pGain;
+</code>
+</EXAMPLE>

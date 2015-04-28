@@ -1,0 +1,16 @@
+Summary:
+  Get rate.
+
+Returns:
+Current rate.
+
+Remarks:
+Normal rate is 100. Smaller valus represent lower rate, larger value represent higher rate.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetRate, SetRate>,
+<LINK libZPlayVB.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayVB.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayVB.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayVB.ZPlay.GetTempo, GetTempo>

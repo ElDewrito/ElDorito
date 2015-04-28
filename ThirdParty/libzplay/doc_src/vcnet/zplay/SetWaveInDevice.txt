@@ -1,0 +1,25 @@
+Summary:
+  Set wave out input for this class instance.
+
+Parameters:
+  %PAR0% - Index of wave input device.
+           Call <LINK libZPlayVC::ZPlay::EnumerateWaveIn, EnumerateWaveIn> to get number of wave in devices.
+           Index value is in range from 0 to num_of_devices - 1.
+           <P><IMAGE note> Note: There is special index value <LINK libZPlayVC::TWaveInMapper, TWaveInMapper>.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+User can specify wave input device for each interface instance.
+If you have multiple soundcards, with this function you can specify input soundcard.
+You can also create 2 interface instances and record 2 songs, each song on different soundcard.
+
+Default wave input is set to <LINK libZPlayVC::TWaveInMapper, TWaveInMapper> (class is using waveform-audio input device
+capable of recording the given format).
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::EnumerateWaveIn, EnumerateWaveIn>,
+<LINK libZPlayVC::ZPlay::GetWaveInInfo, GetWaveInInfo>

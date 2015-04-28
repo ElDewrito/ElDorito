@@ -1,0 +1,35 @@
+Summary:
+  Change playing rate (change pitch and tempo).
+
+Parameters:
+  nRate - New rate value.
+          Normal rate = 100, smaller values represent slower rate, larger value represents faster rates.
+           <p><IMAGE note> Note: This value can't be 0.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Rate value 100 indicates normal playing rate and sound is not changed at all.
+
+To slow down playing, set rate to value smaller than 100.
+This will slow down playback and output pitch will also be changed to lower values.
+
+To speed up playing, set rate to value larger than 100.
+This will speed up playback and output pitch will also be changed to higher values.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetRate, GetRate>,
+<LINK libZPlayCpp::ZPlay::SetPitch, SetPitch>,
+<LINK libZPlayCpp::ZPlay::GetPitch, GetPitch>,
+<LINK libZPlayCpp::ZPlay::SetTempo, SetTempo>,
+<LINK libZPlayCpp::ZPlay::GetTempo, GetTempo>
+
+<LINK libZPlayCpp::zplay_GetRate, zplay_GetRate>,
+<LINK libZPlayCpp::zplay_SetPitch, zplay_SetPitch>,
+<LINK libZPlayCpp::zplay_GetPitch, zplay_GetPitch>,
+<LINK libZPlayCpp::zplay_SetTempo, zplay_SetTempo>,
+<LINK libZPlayCpp::zplay_GetTempo, zplay_GetTempo>

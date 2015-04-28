@@ -1,0 +1,19 @@
+Summary:
+ID3 version identifier.
+
+Parameters:
+id3Version1 - id3v1
+id3Version2 - id3v2.2, id3v2.3, id3v2.4
+
+Remarks:
+This value is only used by <LINK libZPlayCpp::TStreamFormat, TStreamFormat::sfMp3> format.
+For other formats this value is not used.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::LoadID3, LoadID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3W, LoadFileID3W>
+
+<LINK libZPlayCpp::zplay_LoadID3, zplay_LoadID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3W, zplay_LoadFileID3W>

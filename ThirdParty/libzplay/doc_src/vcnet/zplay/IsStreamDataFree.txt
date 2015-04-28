@@ -1,0 +1,21 @@
+Summary:
+  Check if stream data is free.
+
+Parameters:
+  %PAR0% - Reference to memory block.
+           This must be one of values added with <LINK libZPlayVC::ZPlay::PushDataToStream, PushDataToStream>.
+
+Return Value List:
+  1: <c>%PAR0%</c> isn't in stream anymore, you can destroy this data.
+  0: <c>%PAR0%</c> is still in stream, don't destroy this data yet.
+
+Remarks:
+When you push memory block to <b>non buffered</b> stream with <LINK libZPlayVC::ZPlay::PushDataToStream, PushDataToStream> you need to keep this data into memory
+because class is using this data.
+With this function you can check is specified buffer (pointer) is in stream queue.
+If specified buffer is free, you can destroy this data, free memory ...
+
+See Also:
+<LINK libZPlayVC::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayVC::ZPlay::PushDataToStream, PushDataToStream>,
+<LINK libZPlayVC::ZPlay::GetDynamicStreamLoad, GetDynamicStreamLoad>

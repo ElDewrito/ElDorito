@@ -1,0 +1,23 @@
+Summary:
+Set interface settings.
+
+Parameters:
+  nSettingID - <LINK libZPlayCpp::TSettingID, Setting identifier>.
+  nValue     - Setting value. 
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Each interface instance has own settings. You can configure each interface instance separately.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetSettings, GetSettings>
+
+<LINK libZPlayCpp::zplay_GetSettings, zplay_GetSettings>
+
+<EXAMPLE>
+<LINK CONFIGURE_WAVEBUFFER, Change wave buffer size>
+</EXAMPLE>

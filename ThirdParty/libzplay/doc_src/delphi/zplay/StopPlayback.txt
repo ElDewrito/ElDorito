@@ -1,0 +1,16 @@
+Summary:
+  Stop playing.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will close wave output and terminate decoding thread.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.StartPlayback, StartPlayback>,
+<LINK libZPlayDelphi.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayDelphi.ZPlay.ResumePlayback, ResumePlayback>,
+<LINK libZPlayDelphi.ZPlay.Seek, Seek>

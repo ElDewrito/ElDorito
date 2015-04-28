@@ -1,0 +1,31 @@
+Summary:
+  Using of dynamic stream.
+
+Description:
+When you open some disk file, you are using static stream.
+This means that whole file is accessible, you have whole song in one place.
+The same situation is when you open some memory stream containing whole song.
+
+But, what if you don't have all data. If you are using some internet streaming. Dynamic stream is solution.
+
+ZPlay class supports dynamic streams. User can add new data into this stream while song is playing.
+
+First, open <LINK OPENMEMORYSTREAM, memory stream> as dynamic stream using some initial music data and start playing.
+When you have more data, add this new data to stream.
+Stream will continue to play using this new added data. If stream runs out of data, it waits until user sends new data.
+
+User can use <LINK CALLBACK_MECHANISM, callback mechanism> with callback messages
+<b>MsgStreamBufferDone</b> and <b>MsgStreamNeedMoreData</b> to determine if stream is low with data.
+Or use additional functions to get stream status.
+
+
+<b>Use this:</b>
+<TABLE>
+C++                                                                     C                                                                            VB.NET                                                               C#.NET                                                               VC.NET                                                                Delphi
+--------------------------------------------------------------------    -------------------------------------------------------------------------    ------------------------------------------------------------------   ------------------------------------------------------------------   -------------------------------------------------------------------   -----------------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>                       <LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>                       <LINK libZPlayVB.ZPlay.OpenStream, OpenStream>                       <LINK libZPlayC#.ZPlay.OpenStream, OpenStream>                       <LINK libZPlayVC::ZPlay::OpenStream, OpenStream>                      <LINK libZPlayDelphi.ZPlay.OpenStream, OpenStream> 
+<LINK libZPlayCpp::ZPlay::PushDataToStream, PushDataToStream>           <LINK libZPlayCpp::zplay_PushDataToStream, zplay_PushDataToStream>           <LINK libZPlayVB.ZPlay.PushDataToStream, PushDataToStream>           <LINK libZPlayC#.ZPlay.PushDataToStream, PushDataToStream>           <LINK libZPlayVC::ZPlay::PushDataToStream, PushDataToStream>          <LINK libZPlayDelphi.ZPlay.PushDataToStream, PushDataToStream> 
+<LINK libZPlayCpp::ZPlay::IsStreamDataFree, IsStreamDataFree>           <LINK libZPlayCpp::zplay_IsStreamDataFree, zplay_IsStreamDataFree>           <LINK libZPlayVB.ZPlay.IsStreamDataFree, IsStreamDataFree>           <LINK libZPlayC#.ZPlay.IsStreamDataFree, IsStreamDataFree>           <LINK libZPlayVC::ZPlay::IsStreamDataFree, IsStreamDataFree>          <LINK libZPlayDelphi.ZPlay.IsStreamDataFree, IsStreamDataFree> 
+<LINK libZPlayCpp::ZPlay::GetDynamicStreamLoad, GetDynamicStreamLoad>   <LINK libZPlayCpp::zplay_GetDynamicStreamLoad, zplay_GetDynamicStreamLoad>   <LINK libZPlayVB.ZPlay.GetDynamicStreamLoad, GetDynamicStreamLoad>   <LINK libZPlayC#.ZPlay.GetDynamicStreamLoad, GetDynamicStreamLoad>   <LINK libZPlayVC::ZPlay::GetDynamicStreamLoad, GetDynamicStreamLoad>  <LINK libZPlayDelphi.ZPlay.GetDynamicStreamLoad, GetDynamicStreamLoad> 
+<LINK libZPlayCpp::ZPlay::SetCallbackFunc, SetCallbackFunc>             <LINK libZPlayCpp::zplay_SetCallbackFunc, zplay_SetCallbackFunc>             <LINK libZPlayVB.ZPlay.SetCallbackFunc, SetCallbackFunc>             <LINK libZPlayC#.ZPlay.SetCallbackFunc, SetCallbackFunc>             <LINK libZPlayVC::ZPlay::SetCallbackFunc, SetCallbackFunc>            <LINK libZPlayDelphi.ZPlay.SetCallbackFunc, SetCallbackFunc>
+</TABLE>

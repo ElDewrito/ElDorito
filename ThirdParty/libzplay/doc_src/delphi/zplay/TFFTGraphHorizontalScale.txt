@@ -1,0 +1,20 @@
+Summary:
+FFT graph horizontal frequency scale.
+
+Parameters:
+gsLogarithmic - Logarithmic frequency distribution.
+gsLinear      - Linear frequency distribution.
+
+
+Remarks:
+Frequency distribution on graph X - axis can be linear or logarithmic.
+
+Logarithimc distribution shows more of lower frequencies and less of high frequencies.
+
+Linear distribution shows all frequencies equally. 
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>,
+<LINK libZPlayDelphi.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>,
+<LINK libZPlayDelphi.ZPlay.SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayDelphi.ZPlay.GetFFTGraphParam, GetFFTGraphParamhOnHDC>

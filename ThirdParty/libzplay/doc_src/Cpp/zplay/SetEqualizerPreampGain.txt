@@ -1,0 +1,53 @@
+Summary:
+Set equalizer preamp gain.
+
+Parameters:
+  nGain - Preamp gain in <b>millidecibels</b>. Positive value boost gain, negative value lower gain.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+Preamp gain affects all bands.
+<P>Class has by default 10 equalizer bands. See <LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>,
+<LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>,
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>	
+
+<EXAMPLE>
+Raise preamp gain for 2 decibels.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<code lang="c++">
+// raise preamp gain for 2 decibels
+instance->SetEqualizerPreampGain(2000);
+</code>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<code lang="c++">
+// raise preamp gain for 2 decibels
+zplay_SetEqualizerPreampGain(instance, 2000);
+</code>
+</EXAMPLE>

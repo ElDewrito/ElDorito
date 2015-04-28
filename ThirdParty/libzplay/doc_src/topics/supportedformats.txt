@@ -1,0 +1,17 @@
+Summary:
+LibZPlay supports multiple audio formats. All decoders and encoders for these formats are included into libZPlay library.
+You don't need additional library.
+
+<table>
+     Format                    Play                Record/Encode       File extension   Description                                                  
+     ------------------------  ------------------  ------------------  --------------   --------------------------------------------------------------------------------  
+     <LINK FormatMp3, MP3>     <IMAGE star_green>  <IMAGE star_green>  mp3, mp2, mp1    MPEG-1, MPEG-2, MPEG 2.5 - Layer I, II, III. <b>Not supported in PF version.</b>        	
+     <LINK FormatVorbis, OGG>  <IMAGE star_green>  <IMAGE star_green>  ogg              VORBIS OGG                                                   
+     <LINK FormatFLAC, FLAC>   <IMAGE star_green>  <IMAGE star_green>  flac, oga        Native FLAC and OGG flac 
+     <LINK FormatAC3, AC-3>    <IMAGE star_green>  <IMAGE star_red>    ac3              AC-3 aka ATSC A/52 streams  
+     <LINK FormatAAC, AAC>     <IMAGE star_green>  <IMAGE star_green>  aac              AAC ADTS stream. <b>Not supported in PF version.</b>                                    
+     <LINK FormatWav, WAVE>    <IMAGE star_green>  <IMAGE star_green>  wav              PCM WAVE with RIFF header, uncompressed, 8, 16 bit per sample
+     <LINK FormatPCM, PCM>     <IMAGE star_green>  <IMAGE star_green>  any file         Raw PCM audio format, uncomressed, 8 16 bit per sample
+</table>
+
+For more informations about specific format read topics below.

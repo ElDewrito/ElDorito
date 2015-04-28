@@ -1,0 +1,32 @@
+Summary:
+  Detect beat-per-minute of current stream.
+
+Parameters:
+  %PAR0% - Detection method. See valid <LINK libZPlayDelphi.TBPMDetectionMethod, detection methods>.
+
+Returns:
+BPM value. If algorithm can't detect BPM value, return value is 0.
+
+
+Remarks:
+This function will scan current stream and detect beat-per-minute.
+
+<IMAGE note> Note: Detection process can take some time.
+
+<IMAGE caution> <b>Warning: THIS FUNCTION WILL STOP CURRENT PLAYING AND SET POSITION TO 0.</b>
+<P>If you need to detect BPM value without interference with playig stream, use <LINK libZPlayDelphi.ZPlay.DetectFileBPM, DetectFileBPM> function.
+
+BPM detection algorithm isn't 100 % accurate.
+Algorithm will stop when first valid BPM value is detected.
+If BPM value can't be detected, algorithm will try to search whole stream.
+If this fails, returned BPM value is 0.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.DetectFileBPM, DetectFileBPM>
+
+Example:
+
+<code lang="delphi">
+if MessageBox(Form1.Handle, 'This can take some time, please wait ! Continue ?', 'Beat per minute detection', MB_YESNOCANCEL) = ID_YES then
+    MessageBox(Form1.Handle, PAnsiChar(IntToStr(player.DetectBPM(libZPlay.dmPeaks))), 'Beat per minute', MB_OK);
+</code>

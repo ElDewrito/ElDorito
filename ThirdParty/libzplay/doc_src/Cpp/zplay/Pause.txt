@@ -1,0 +1,22 @@
+Summary:
+  Pause	 playing.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Use <LINK libZPlayCpp::ZPlay::Resume, Resume>, <LINK libZPlayCpp::ZPlay::Resume, Resume>, <LINK libZPlayCpp::ZPlay::Play, Play> or <LINK libZPlayCpp::zplay_Play, zplay_Play> to resume playing.	
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::Play, Play>,
+<LINK libZPlayCpp::ZPlay::Stop, Stop>,
+<LINK libZPlayCpp::ZPlay::Resume, Resume>,
+<LINK libZPlayCpp::ZPlay::Seek, Seek>
+
+<LINK libZPlayCpp::zplay_Play, zplay_Play>,
+<LINK libZPlayCpp::zplay_Stop, zplay_Stop>,
+<LINK libZPlayCpp::zplay_Resume, zplay_Resume>,
+<LINK libZPlayCpp::zplay_Seek, zplay_Seek>
+

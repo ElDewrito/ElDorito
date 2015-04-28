@@ -1,0 +1,45 @@
+Summary:
+Get equalizer band gain.
+
+Parameters:
+  nBandIndex - Band index, zero based. First band has index 0, second 1, ...
+
+Returns:
+  Band gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>,
+<LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>,
+<LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>	
+
+<EXAMPLE>
+Get gain of first band.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<code lang="c++">
+int nGain = instance->GetEqualizerBandGain(0);
+</code>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<code lang="c++">
+int nGain = zplay_GetEqualizerBandGain(instance, 0);
+</code>
+</EXAMPLE>

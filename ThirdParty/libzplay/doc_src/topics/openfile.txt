@@ -1,0 +1,36 @@
+Summary:
+Open disk file.
+
+Description:
+To play some music, you need to open some music file. You can specify format of this file (mp3, ogg, flac, ... ) or set autodetection method.
+If autodetection method is set, library will try to detect file format by parsing file name and detecting some known headers in file.
+
+When file format is detected, or specified by user, decoder will examine file structure to determine if this is valid music file.
+If file is valid, you can start playing. If file isn't valid, opening will fail and error message will be set.
+
+<INCLUDE extensions\\note_start.txt>There is special format of file name. Read <LINK OPENWAVEIN, here>.
+<INCLUDE extensions\\note_end.txt>
+
+
+
+<b>To open disk file use:</b>
+<TABLE>
+C++                                               C                                                      VB.NET                                       C#.NET                                       VC.NET                                         Delphi
+-----------------------------------------------   ----------------------------------------------------   ------------------------------------------   ------------------------------------------   --------------------------------------------   ------------------------------------------------
+<LINK libZPlayCpp::ZPlay::OpenFile, OpenFile>     <LINK libZPlayCpp::zplay_OpenFile, zplay_OpenFile>     <LINK libZPlayVB.ZPlay.OpenFile, OpenFile>   <LINK libZPlayC#.ZPlay.OpenFile, OpenFile>   <LINK libZPlayVC::ZPlay::OpenFile, OpenFile>   <LINK libZPlayDelphi.ZPlay.OpenFile, OpenFile> 
+<LINK libZPlayCpp::ZPlay::OpenFileW, OpenFileW>   <LINK libZPlayCpp::zplay_OpenFileW, zplay_OpenFileW>                                                                                                                                            <LINK libZPlayDelphi.ZPlay.OpenFileW, OpenFileW> 
+</TABLE>
+
+
+Remarks:
+At the end you need to close previous file to free allocated resources.
+
+<TABLE>
+C++                                       C                                              VB.NET                                 C#.NET                                 VC.NET                                   Delphi
+---------------------------------------   --------------------------------------------   ------------------------------------   ------------------------------------   --------------------------------------   ----------------------------------------
+<LINK libZPlayCpp::ZPlay::Close, Close>   <LINK libZPlayCpp::zplay_Close, zplay_Close>   <LINK libZPlayVB.ZPlay.Close, Close>   <LINK libZPlayC#.ZPlay.Close, Close>   <LINK libZPlayVC::ZPlay::Close, Close>   <LINK libZPlayDelphi.ZPlay.Close, Close> 
+</TABLE>
+
+
+See Also:
+<LINK GAPLESS_PLAYING, Gapless playing>

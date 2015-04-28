@@ -1,0 +1,16 @@
+Summary:
+  Get pitch.
+
+Returns:
+Current pitch.
+
+Remarks:
+Normal pitch is 100. Smaller valus represent lower pitch, larger value represent higher pitch.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayDelphi.ZPlay.SetRate, SetRate>,
+<LINK libZPlayDelphi.ZPlay.GetRate, GetRate>,
+<LINK libZPlayDelphi.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayDelphi.ZPlay.GetTempo, GetTempo>

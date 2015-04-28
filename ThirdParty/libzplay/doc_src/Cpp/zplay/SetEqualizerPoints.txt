@@ -1,0 +1,85 @@
+Summary:
+Set equalizer points to create new frequency bands.
+
+Parameters:
+  pnFreqPoint  - Array of integers specifying frequency points to divide whole frequency range into bands.
+                 You have frequency range from 0 Hz to SampleRate/2 Hz.
+                 You need to specify frequency points to divide this range into bands.
+                 One point will divide range into 2 bands, 2 points will divide range into 3 bands ...
+                 If this value is NULL, class will restore default bands.
+  nNumOfPoints - Number of points in <C>pnFreqPoint</C> array.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+New instance of interface has 10 default equalizer bands.
+
+int FreqPoint[9] = {115, 240, 455, 800, 2000, 4500, 9000, 13000, 15000};
+- band0: 0 - 115 Hz
+- band1: 115 - 240 Hz
+- band2: 240 - 455 Hz
+- band3: 455 - 800 Hz
+- band4: 800 - 2000 Hz
+- band5: 2000 - 4500 Hz
+- band6: 4500 - 9000 Hz
+- band7: 9000 - 13000 Hz
+- band8: 13000 - 15000 Hz
+- band9: 15000 - Samplerate/2 Hz
+
+<IMAGE note> Note: There is no limit on number of bands.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerParam, zplay_SetEqualizerParam>,
+<LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>,
+<LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>
+
+
+Example:
+Create 8 custom bands.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// band0: 0 - 100 Hz
+// band1: 100 - 400 Hz
+// band2: 400 - 1000 Hz
+// band3: 1000 - 3000 Hz
+// band4: 3000 - 5000 Hz
+// band5: 5000 - 10000 Hz
+// band6: 10000 - 15000 Hz
+// band7: 15000 - sr/2 Hz
+
+int eq_points[7] = {100, 400, 1000, 3000, 5000, 10000, 15000};
+instance->SetEqualizerPoints(eq_points, 7);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// band0: 0 - 100 Hz
+// band1: 100 - 400 Hz
+// band2: 400 - 1000 Hz
+// band3: 1000 - 3000 Hz
+// band4: 3000 - 5000 Hz
+// band5: 5000 - 10000 Hz
+// band6: 10000 - 15000 Hz
+// band7: 15000 - sr/2 Hz
+
+int eq_points[7] = {100, 400, 1000, 3000, 5000, 10000, 15000};
+zplay_SetEqualizerPoints(instance, eq_points, 7);
+</CODE>
+</EXAMPLE>

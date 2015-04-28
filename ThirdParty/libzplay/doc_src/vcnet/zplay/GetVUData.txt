@@ -1,0 +1,23 @@
+Summary:
+  Get VU data for left and right channel
+
+Parameters:
+  %PAR0% - Reference to variable receiving left channel VU level. Level range is from 0 to 100.
+  %PAR1% - Reference to variable receiving right channel VU level. Level range is from 0 to 100.
+
+
+Returns:
+None.
+
+Remarks:
+Use this function to get VU data for your VU meter. Range of VU level data is 0 - 100.
+
+<IMAGE note> Note: VU data are fully synchronized with audio data from wave buffer. 
+
+Example:
+
+<code lang="c++">
+int left = 0;
+int right = 0;
+player->GetVUData(left, right);
+</code>

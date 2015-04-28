@@ -1,0 +1,53 @@
+Summary:
+C Style interface for libZPlay library.
+
+Description:
+This interface is wrapper around <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, ZPlay methods>.
+
+Each method is implemented as single C style function using <b>__stdcall</b> calling convention.
+ 
+
+All you need to do is to create instance of ZPlay class, but using C style function.
+Class instance will be created internally, and user will use this instance as some sort of handle.
+With this handle, user can access ZPlay methods using wrapper functions.
+
+* How to use C Style interface *
+- include <LINK !!libZPlayCPP, libZPlay.h> into your project
+- include <b>libZplay</b> namespace
+- create instance/handle of ZPlay class using <LINK libZPlayCpp::zplay_CreateZPlay, zplay_CreateZPlay()> function.
+- use <LINK !!FUNCTIONS_libZPlayCpp, C Style Interface functions> to play music
+- link your project with dll interface library
+
+<INCLUDE extensions\\note_start.txt>You must link your project with dll interface library to access exported functions from libzplay.dll.
+* Visual C++ - link with libzplay.lib
+* Borland C++ - link with libzplay_borland.lib
+* GNU C++ , MinGW - link with libzplay.a
+<INCLUDE extensions\\note_end.txt>
+
+
+<IMAGE star_green>To create new class instance use <LINK libZPlayCpp::zplay_CreateZPlay, zplay_CreateZPlay()> function:
+<code lang="c++">
+#include "libzplay.h"
+
+// use namespace for interface
+using namespace libZPlay;
+
+// create class instance using C Style class factory function
+ZPLAY_HANDLE instance = zplay_CreateZPlay();
+</code> 
+
+<INCLUDE extensions\\note_start.txt>There is no difference between class instance created by <LINK libZPlayCpp::CreateZPlay, CreateZPlay()> function and <LINK libZPlayCpp::zplay_CreateZPlay, zplay_CreateZPlay()> function.
+<INCLUDE extensions\\note_end.txt>
+
+When ZPLAY_HANDLE (class instance) is created, use <LINK !!FUNCTIONS_libZPlayCpp, C Style Interface functions> to play your songs.
+
+
+Remarks:
+At the end, ZPLAY_HANDLE (class instance) must be destroyed with <LINK libZPlayCpp::zplay_DestroyZPlay , zplay_DestroyZPlay > function:
+<code lang="c++">
+// destroy class instance, in this case C Style interface
+zplay_DestroyZPlay(instance);
+</code> 
+
+See Also:
+<LINK ZPLAYINTERFACE, ZPlay C++ Class interface>

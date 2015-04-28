@@ -1,0 +1,16 @@
+Summary:
+  Get pitch.
+
+Returns:
+Current pitch.
+
+Remarks:
+Normal pitch is 100. Smaller valus represent lower pitch, larger value represent higher pitch.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayVB.ZPlay.SetRate, SetRate>,
+<LINK libZPlayVB.ZPlay.GetRate, GetRate>,
+<LINK libZPlayVB.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayVB.ZPlay.GetTempo, GetTempo>

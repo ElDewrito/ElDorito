@@ -1,0 +1,19 @@
+Summary:
+  Get parameters of <LINK FFT_GRAPH, FFT graph>.
+
+Parameters:
+  %PAR0% - <LINK libZPlayVB.TFFTGraphParamID, FFT graph parameter identifier>. Specify parameter you need to set or change.
+
+Returns:
+  Value of specified parameter. This value depends on parameter identifier.
+  Read more info about valid values for specific <LINK libZPlayVB.TFFTGraphParamID, parameter identifier>.
+
+
+
+Remarks:
+By default, FFT graph is using 512 FFT points, 257 harmonics, Blackman-Harris window, logarithmic frequency distribution, line type, 25% transparency.
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayVB.ZPlay.DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>,
+<LINK libZPlayVB.ZPlay.DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>

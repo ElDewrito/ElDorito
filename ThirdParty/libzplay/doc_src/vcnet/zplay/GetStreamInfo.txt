@@ -1,0 +1,26 @@
+Summary:
+  Get stream informations (length, sampling rate, channel number, ...).
+
+Parameters:
+  %PAR0%- Reference to <LINK libZPlayVC::TStreamInfo, TStreamInfo>. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+Use this function to get basic informations about opened stream.
+
+<IMAGE note> Note: Only with this function you can get stream length, sampling rate, channel number ...
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetStatus, GetStatus>,
+<LINK libZPlayVC::ZPlay::GetPosition, GetPosition>,
+<LINK libZPlayVC::ZPlay::LoadID3, LoadID3>,
+<LINK libZPlayVC::ZPlay::LoadFileID3, LoadFileID3>
+
+Example:
+
+<code lang="c++">
+TStreamInfo StreamInfo;
+player->GetStreamInfo(StreamInfo);
+</code>

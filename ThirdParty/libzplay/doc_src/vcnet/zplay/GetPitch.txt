@@ -1,0 +1,16 @@
+Summary:
+  Get pitch.
+
+Returns:
+Current pitch.
+
+Remarks:
+Normal pitch is 100. Smaller valus represent lower pitch, larger value represent higher pitch.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetPitch, SetPitch>,
+<LINK libZPlayVC::ZPlay::SetRate, SetRate>,
+<LINK libZPlayVC::ZPlay::GetRate, GetRate>,
+<LINK libZPlayVC::ZPlay::SetTempo, SetTempo>,
+<LINK libZPlayVC::ZPlay::GetTempo, GetTempo>

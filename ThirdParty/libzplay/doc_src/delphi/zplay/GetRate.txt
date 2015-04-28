@@ -1,0 +1,16 @@
+Summary:
+  Get rate.
+
+Returns:
+Current rate.
+
+Remarks:
+Normal rate is 100. Smaller valus represent lower rate, larger value represent higher rate.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetRate, SetRate>,
+<LINK libZPlayDelphi.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayDelphi.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayDelphi.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayDelphi.ZPlay.GetTempo, GetTempo>

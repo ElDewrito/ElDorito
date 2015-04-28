@@ -1,0 +1,22 @@
+Summary:
+  Change tempo without changing pitch.
+
+Parameters:
+  %PAR0% - New tempo value.
+           Normal value is 100. Smaller values represent slower tempo, larger values represent faster tempo.
+           <p><IMAGE note> Note: This value can't be 0.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Changing tempo will not change pitch. Playback will be faster or slower, but pitch will remain stable.
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetTempo, GetTempo>,
+<LINK libZPlayVC::ZPlay::SetPitch, SetPitch>,
+<LINK libZPlayVC::ZPlay::GetPitch, GetPitch>,
+<LINK libZPlayVC::ZPlay::SetRate, SetRate>,
+<LINK libZPlayVC::ZPlay::GetRate, GetRate>

@@ -1,0 +1,14 @@
+Summary:
+  Enumerate waveform-audio input devices.
+
+Returns:
+Number of waveform-audio input devices present in the system.
+A return value of zero means that no devices are present or that an error occurred.
+
+Remarks:
+Use this function to determine number of waveform-audio input devices.
+If you have multiple soundcards you can specify soundcard you wish to use with your interface instance.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetWaveInInfo, GetWaveInInfo>,
+<LINK libZPlayDelphi.ZPlay.SetWaveInDevice, SetWaveInDevice>

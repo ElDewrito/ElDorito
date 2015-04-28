@@ -1,0 +1,16 @@
+Summary:
+Stream time structure.
+
+Parameters:
+sec     - Total time in seconds.
+ms      - Total time in milliseconds.
+samples - Total time in samples.
+hms     - Total time in <LINK libZPlayVB.TStreamHMSTime, TStreamHMSTime> format.
+
+Remarks:
+Use <LINK libZPlayVB.TTimeFormat, TTimeFormat> to specify which member in this structure is valid.
+
+See Also:
+<LINK libZPlayVB.TTimeFormat, TTimeFormat>,
+<LINK libZPlayVB.TStreamHMSTime, TStreamHMSTime>,
+<LINK libZPlayVB.ZPlay.Seek, Seek>

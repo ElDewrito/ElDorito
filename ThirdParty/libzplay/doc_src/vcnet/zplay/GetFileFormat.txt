@@ -1,0 +1,17 @@
+Summary:
+  Determine stream format of specified file.
+
+Parameters:
+  %PAR0% - String that specifies the name of the file.
+
+Returns:
+  Stream format. If function can't determine file format return value is <LINK libZPlayVC::TStreamFormat, sfUnknown>.
+
+Remarks:
+This function will try to determine format of file by parsing file name and using filename extension.
+If fails to determine file format using filename extension, function will try to parse file data, searching for some known headers in file.
+If this also fails, function will return <LINK libZPlayVC::TStreamFormat, sfUnknown>.
+
+See Also:
+<LINK libZPlayVC::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayVC::ZPlay::Close, Close>

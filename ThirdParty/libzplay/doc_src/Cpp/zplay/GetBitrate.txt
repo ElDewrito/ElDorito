@@ -1,0 +1,42 @@
+Summary:
+  Get current bitrate.
+
+Parameters:
+  fAverage - If this value is 1, average bitrate is returned. If this value is 0, real bitrate is returned.
+
+Returns:
+Bitrate in kbps (kilo bit per second).
+
+Remarks:
+On CBR (constant bitrate) streams this value is constant all the time.
+On VBR (variable bitrate) this value represents bitrate of currently decoded data frame.
+
+<IMAGE note> Note: If you need bitrate of whole file or stream, use <LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo> function
+and <LINK libZPlayCpp::TStreamInfo, TStreamInfo.Bitrate>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetStatus, GetStatus>,
+<LINK libZPlayCpp::ZPlay::GetPosition, GetPosition>,
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>
+
+<LINK libZPlayCpp::zplay_GetStatus, zplay_GetStatus>,
+<LINK libZPlayCpp::zplay_GetPosition, zplay_GetPosition>,
+<LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>
+
+
+<EXAMPLE>
+Get current real bitrate.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nCurrentBitrate = instance->GetBitrate(0);
+printf("Bitrate: %i kbps", nCurrentBitrate);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nCurrentBitrate = zplay_GetBitrate(instance, rereal0);
+printf("Bitrate: %i kbps", nCurrentBitrate);
+</CODE>
+</EXAMPLE>

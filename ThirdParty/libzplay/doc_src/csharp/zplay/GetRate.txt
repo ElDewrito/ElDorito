@@ -1,0 +1,16 @@
+Summary:
+  Get rate.
+
+Returns:
+Current rate.
+
+Remarks:
+Normal rate is 100. Smaller valus represent lower rate, larger value represent higher rate.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.SetRate, SetRate>,
+<LINK libZPlayC#.ZPlay.SetPitch, SetPitch>,
+<LINK libZPlayC#.ZPlay.GetPitch, GetPitch>,
+<LINK libZPlayC#.ZPlay.SetTempo, SetTempo>,
+<LINK libZPlayC#.ZPlay.GetTempo, GetTempo>

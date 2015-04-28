@@ -1,0 +1,23 @@
+User can configure each <LINK libZPlayCpp::ZPlay, ZPlay> instance independently.
+It is possible to create 2 instance and configure each instance differently.
+
+<INCLUDE extensions\\note_start.txt>There is default value for each setting.
+<INCLUDE extensions\\note_end.txt>
+
+<b>To change ZPlay settings use:</b>
+<TABLE>
+C++                                                     C                                                            VB.NET                                              C#.NET                                            VC.NET                                               Delphi
+-----------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetSettings, SetSettings>     <LINK libZPlayCpp::zplay_SetSettings, zplay_SetSettings>     <LINK libZPlayVB.ZPlay.SetSettings, SetSettings>   <LINK libZPlayC#.ZPlay.SetSettings, SetSettings>   <LINK libZPlayVC::ZPlay::SetSettings, SetSettings>   <LINK libZPlayDelphi.ZPlay.SetSettings, SetSettings> 
+</TABLE>
+
+<b>To getge ZPlay settings use:</b>
+<TABLE>
+C++                                                     C                                                            VB.NET                                              C#.NET                                            VC.NET                                               Delphi
+-----------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetSettings, GetSettings>     <LINK libZPlayCpp::zplay_GetSettings, zplay_GetSettings>     <LINK libZPlayVB.ZPlay.GetSettings, GetSettings>   <LINK libZPlayC#.ZPlay.GetSettings, GetSettings>   <LINK libZPlayVC::ZPlay::GetSettings, GetSettings>   <LINK libZPlayDelphi.ZPlay.GetSettings, GetSettings> 
+</TABLE>
+
+
+
+To change specific setting read topics below:

@@ -1,0 +1,45 @@
+Description:
+AC-3 support is provided by <b>liba52 - free library for decoding ATSC A/52 streams</b>
+
+<TABLE>
+     Decoder               AC3
+     --------------------  ----------------------------------------------------------------------------------------------------------------------------------
+     File extension        ac3
+     Description           Free library for decoding ATSC A/52 streams (AC-3).
+     Supported by          <LINK AC3, liba52 - free library for decoding ATSC A/52 streams>
+     Web                   <EMIT &lt;a href="http://liba52.sourceforge.net/";&gt;http://liba52.sourceforge.net/&lt;/a&gt;>
+     Email                 <EMIT &lt;a href="mailto:aholtzma@ess.engr.uvic.ca";&gt;aholtzma@ess.engr.uvic.ca&lt;/a&gt;>
+     Copyright &copy;      <LINK GPLTXT, GNU General Public License>
+     Info tags             <IMAGE star_red> Not supported.
+     Reverse playing       <IMAGE star_green> Supported by prescanning whole stream and decoding frames backward with frame overlap.
+     Accurate length       <IMAGE star_blue> Supported. Please read <b>Remarks</b> section.
+     Accurate seek         <IMAGE star_blue> Supported. Please read <b>Remarks</b> section.
+     BPM detection         <IMAGE star_green> Supported.
+     Gapless playing       <IMAGE star_green> Supported.
+     Dynamic streams       <IMAGE star_green> Supported.
+     Format autodetection  <IMAGE star_green> Supported by analyzing file extension.
+     Audio autodetection   <IMAGE star_green> Supported by analyzing frame header (samplerate, channel number).
+     Recording/Encoder     <IMAGE star_red> Not supported.
+     Supported channels    A52_CHANNEL, A52_CHANNEL1, A52_CHANNEL2, A52_MONO, A52_STEREO, A52_DOLBY, A52_3F, A52_2F1R, A52_3F1R, A52_2F2R, A52_3F2R, A52_LFE
+</TABLE>
+
+Remarks:
+* Accurate length enabled *
+
+To enable sample accurate length you need to use <LINK libZPlayCpp::ZPlay::SetSettings, SetSettings> function and enable accurate seek using <LINK libZPlayCpp::TSettingID, TSettingID> <b>sidAccurateLength</b> parameter.
+This will enable "sample" accurate length by scaning stream and counting all  frames.
+
+<b>Note: </b>By default, sample accurate length is <b>NOT</b> enabled.
+
+* Accurate length disabled *
+If sample accurate length in not enabled,  length is calculated from stream size and bitrate value. 
+
+* Accurate seek enabled *
+
+To enable sample accurate seek you need to use <LINK libZPlayCpp::ZPlay::SetSettings, SetSettings> function and enable accurate seek using <LINK libZPlayCpp::TSettingID, TSettingID> <b>sidAccurateSee</b> parameter.
+This will enable "sample" accurate seek by scaning stream and detecting all  frames up to specified position.
+
+<b>Note: </b>By default, sample accurate seek is <b>NOT</b> enabled.
+
+* Accurate seek disabled *
+If sample accurate seek in not enabled, seek position is calculated from stream size using linear interpolation.

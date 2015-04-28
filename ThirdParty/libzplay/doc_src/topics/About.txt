@@ -1,0 +1,221 @@
+<b>libZPlay (Win32)</b>
+
+<b>Version 2.02</b>
+
+<b>06. May 2010.</b>
+
+
+<b>This is multimedia library for playing mp3, mp2, mp1, ogg, flac, ac3, aac, oga, wav and pcm files and streams.</b>
+
+
+<b>New: version 2.00 can also record sound from soundcard and encode into disk file with mp3, ogg, flac, aac or wav encoder</b>.
+Read <LINK RECORDING, recording> and <LINK SET_WAVEOUTFILE, encoding> for more information.
+
+
+<align left>
+This library integrate all decoders and encoders for supported formats. You don't need additional libraries.
+Library is using native WINAPI functions. There is no need for MFC or .NET support. Just pure WINAPI.
+So, this library must work on all Windows systems.
+
+Library will play music directly to soundcard. Simple and easy. No need for additional programming.
+You can play music using only 3 lines of code (create class, open file and start playing).
+
+You can also record music from your soundcard (microphone, line-in, CD, ...) and save into disk file using supported encoders.
+
+
+<b>Simple, simple, simple ...</b> 3 lines of code to play or record music in your application.
+
+
+<INCLUDE extensions\\note_start.txt>libZPlay library is combination of multiple decoding/encoding libraries.
+Read <LINK LicenseTopic, here for more informations>.
+<INCLUDE extensions\\note_end.txt>
+
+
+
+<EMIT &lt;table cellspacing="0" width=100% class="Table0"&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element65" valign="top"&gt;>
+<EMIT &lt;div class="Element66" style="text-align: left;"&gt;>LICENSE NOTE:<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element67" valign="top"&gt;>
+<EMIT &lt;div class="Element68" style="text-align: left;"&gt;>libZPlay is released in 2 versions:
+- full version: supports all specified formats, including MP3 and AAC. MP3 and AAC formats are closed formats and protected by patents.
+- PF (patent free) version: MP3 and AAC are <b>NOT supported.</b> You can use this version without any restrictions. 
+Version identification:
+- even version number of binary file libzplay.dll identifies full version (like: 1.12 )
+- odd version number of binary file libzplay.dll identifies PF (patent free) version (like: 1.11 )
+Check version of dll file. If version is even, file is full version library. If version is odd, file is PF (patent free) version library.
+The same rule applies to version number retrieved from library interface.
+
+<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;/table&gt;>
+
+<EMIT &lt;table cellspacing="0" width=100% class="Table0"&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element65" valign="top"&gt;>
+<EMIT &lt;div class="Element66" style="text-align: left;"&gt;>MP3 and AAC LICENSE:<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element67" valign="top"&gt;>
+<EMIT &lt;div class="Element68" style="text-align: left;"&gt;>For information regarding patent licensing for AAC, please see Via Licensing's website:
+<EMIT &lt;a href="http://www.vialicensing.com/"&gt;http://www.vialicensing.com/&lt;/a&gt;>
+
+For information regarding patent licensing for MP3, please see Mp3Licensing's website:
+<EMIT &lt;a href="http://mp3licensing.com/"&gt;http://mp3licensing.com/&lt;/a&gt;>
+<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;/table&gt;>
+
+
+<b>Supported formats:</b>
+<table>
+     Format                    Play                Record/Encode       File extension   Description                                                  
+     ------------------------  ------------------  ------------------  --------------   --------------------------------------------------------------------------------  
+     <LINK FormatMp3, MP3>     <IMAGE star_green>  <IMAGE star_green>  mp3, mp2, mp1    MPEG-1, MPEG-2, MPEG 2.5 - Layer I, II, III. <b>Not supported in PF version.</b>        	
+     <LINK FormatVorbis, OGG>  <IMAGE star_green>  <IMAGE star_green>  ogg              VORBIS OGG                                                   
+     <LINK FormatFLAC, FLAC>   <IMAGE star_green>  <IMAGE star_green>  flac, oga        Native FLAC and OGG flac 
+     <LINK FormatAC3, AC-3>    <IMAGE star_green>  <IMAGE star_red>    ac3              AC-3 aka ATSC A/52 streams  
+     <LINK FormatAAC, AAC>     <IMAGE star_green>  <IMAGE star_green>  aac              AAC ADTS stream. <b>Not supported in PF version.</b>                                    
+     <LINK FormatWav, WAVE>    <IMAGE star_green>  <IMAGE star_green>  wav              PCM WAVE with RIFF header, uncompressed, 8, 16 bit per sample
+     <LINK FormatPCM, PCM>     <IMAGE star_green>  <IMAGE star_green>  any file         Raw PCM audio format, uncomressed, 8 16 bit per sample
+</table>
+
+
+<b>Supported languages:</b>
+- <LINK INTERFACE_TOPIC_C_CPP, Standard C/C++> (native, direct access to libZPlay library)
+- <LINK ZPLAYINTERFACE_VCNET, Visual C++ .NET> (VC.NET wrapper class for libZPlay library)
+- <LINK ZPLAYINTERFACE_VBNET, Visual Basic .NET> (VB.NET wrapper class for libZPlay library)
+- <LINK ZPLAYINTERFACE_CSHARP, C# .NET> (C#.NET wrapper class for libZPlay library)
+- <LINK ZPLAYINTERFACE_DELPHI, Delphi> (Delphi wrapper class for libZPlay library)
+- and any other language capable to use exported __stdcall functions from dll library
+
+
+<INCLUDE extensions\\note_start.txt>libZPlay library is written in C++ and <LINK INTERFACE_TOPIC_C_CPP, C++ interface> is native interface for this library.
+But there are wrapper classes for <LINK ZPLAYINTERFACE_VCNET, Visual C++ .NET>, <LINK ZPLAYINTERFACE_VBNET, Visual Basic .NET>,
+<LINK ZPLAYINTERFACE_CSHARP, C# .NET> and <LINK ZPLAYINTERFACE_DELPHI, Delphi>.
+<INCLUDE extensions\\note_end.txt>
+
+
+<b>Features:</b>
+- supports playing <LINK FormatMp3, mp3>, <LINK FormatVorbis, ogg>, <LINK FormatAAC, AAC>, <LINK FormatAC3, AC-3>, <LINK FormatFLAC, flac>, <LINK FormatWav, wav>, <LINK FormatPCM, pcm>
+- supports <LINK SET_WAVEOUTFILE, recording> <LINK FormatMp3, mp3>, <LINK FormatVorbis, ogg>, <LINK FormatAAC, AAC>, <LINK FormatFLAC, flac>, <LINK FormatWav, wav>, <LINK FormatPCM, pcm>
+- UNICODE support for functions using strings ( filename, error messages, ID3 info, ... )
+- <LINK STREAM_TAG_INFO, read info tags> from file ( ID3v1, ID3v2, VORBIS comment, wave RIFF list, FLAC VORBIS comment )
+- support for attached image in ID3v2 and VORBIS comment. 
+- <LINK REVERSE_MODE, REVERSE PLAYING> (you can play song backward in real time, "real" backward playing without predecoding in PCM)
+- <LINK EQUALIZER, built in equaliter>, user can specify own subbands, add subbands, ...
+- <LINK ECHO_EFFECT, built in echo and reverb> sound processor
+- <LINK PITCH_RATE_TEMPO, pitch/rate/tempo change>
+- <LINK CUT_STEREO, stereo cut effect>
+- <LINK BPM_DETECTION, detect beat-per-minute> using 2 methods ( peak detection and autocorrelation)
+- <LINK PLAY_LOOP, loop playing> (you can play just one portion of file, repeat this portion ... )
+- <LINK MIX_CHANNELS, channel mixer> (you can mix left and right chanel, convert stereo to mono ... )
+- <LINK SLIDE_VOLUME, volume slide> control (fade-in and fade-out)
+- <LINK PLAYER_VOLUME, internal volume control> (without affecting wave out device volume)
+- <LINK VU_DATA, pulling VU meter data> (you can simply create  VU meter)
+- <LINK FFT_DATA, pulling FFT data> (you can simply build FFT spectrum analyzer)
+- <LINK FFT_GRAPH, built in FFT spectrum graph>, library will draw complete spectrum graph on your window
+- <LINK CALLBACK_MECHANISM, callback mechanism> (class will inform you about events like  play, stop, fade, ...)
+- access to decoded PCM data throug callback message
+- play data from <LINK OPENFILE, disk files>, UNICODE SUPPORT
+- play data from <LINK OPENMEMORYSTREAM, allocated memory>
+- play <LINK DYNAMIC_STREAM, dynamic streams> (push small memory chunks into stream while song is playing, for download streams)
+- <LINK SET_WAVEOUT, selecting wave output> (for multiple waveout devices)
+- easy play, pause, seek ...
+- Class interface for <LINK ZPLAYINTERFACE_VCNET, Visual C++ .NET>, <LINK ZPLAYINTERFACE_VBNET, Visual Basic .NET>, <LINK ZPLAYINTERFACE_CSHARP, C# .NET> and <LINK ZPLAYINTERFACE_DELPHI, Delphi>.
+
+  With this library you can easy play mp3, ogg, flac, ac3, aac, wave files with VB.NET, C#, Delphi, C/C++ and any other language capable
+  to call exported functions from Dynamic Link Libraries ( Dll ) with __stdcall calling convention.
+
+
+
+<INCLUDE extensions\\warning_start.txt>Documentation for VB.NET, Delphi and C# was generated from C++ documentation. Function declarations
+are tested and there is all OK. But comments, examples and parametes explanations can contain C++ syntax code
+or some other strange expressions because I didn't read all this. I just adapted function declarations.
+<INCLUDE extensions\\warning_end.txt>
+
+
+
+<b>This library is tested on:</b>
+- Visual C++ 6.0 Standard Edition 
+- C++BUILDER COMMAND LINE TOOLS 5.5 
+- MinGW compiler 
+- Dev-C++ 
+- Microsoft Visual Basic 2008 Express Edition 
+- Microsoft Visual C# 2008 Express Edition 
+- Microsoft Visual C++ 2008 Express Edition 
+- Delphi 7.0 
+
+<EMIT &lt;a name="disclaimer"&gt;&lt;/a&gt;>
+<EMIT &lt;table cellspacing="0" width=100% class="Table0"&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element65" valign="top"&gt;>
+<EMIT &lt;div class="Element66" style="text-align: left;"&gt;>DISCLAIMER:<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element67" valign="top"&gt;>
+<EMIT &lt;div class="Element68" style="text-align: left;"&gt;>This library is distributed as freeware.
+This software is provided "as is", without any guarantee made as to its suitability or fitness for any particular use.
+It may contain bugs, so use of this tool is at your own risk.
+Author takes no responsibility for any damage that may unintentionally be caused through its use.
+
+<b>Please note that the use of this software may require the payment of patent royalties for <LINK FormatMp3, MP3> and <LINK FormatAAC, AAC> format.
+You need to consider this issue before you start building derivative works.
+We are not warranting or indemnifying you in any way for patent royalities!
+YOU ARE SOLELY RESPONSIBLE FOR YOUR OWN ACTIONS!</b>
+
+For information regarding patent licensing for AAC, please see Via Licensing's website:
+<EMIT &lt;a href="http://www.vialicensing.com/"&gt;http://www.vialicensing.com/&lt;/a&gt;>
+
+For information regarding patent licensing for MP3, please see Mp3Licensing's website:
+<EMIT &lt;a href="http://mp3licensing.com/"&gt;http://mp3licensing.com/&lt;/a&gt;>
+
+
+<b>If you don't need MP3 and AAC support use PF (patent free) version of libZPlay library.</b>
+<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;/table&gt;>
+
+
+<EMIT &lt;table cellspacing="0" width=100% class="Table0"&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element65" valign="top"&gt;>
+<EMIT &lt;div class="Element66" style="text-align: left;"&gt;>LICENSE:<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element67" valign="top"&gt;>
+<EMIT &lt;div class="Element68" style="text-align: left;"&gt;>libZPlay is released under GNU GPL license. Read <LINK LicenseTopic, more...>
+<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;/table&gt;>
+
+
+<EMIT &lt;table cellspacing="0" width=100% class="Table0"&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element65" valign="top"&gt;>
+<EMIT &lt;div class="Element66" style="text-align: left;"&gt;>AUTHOR:<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;tr&gt;>
+<EMIT &lt;td class="Element67" valign="top"&gt;>
+<EMIT &lt;div class="Element68" style="text-align: left;"&gt;>Zoran Cindori
+
+Web: <EMIT &lt;a href="http://libzplay.sourceforge.net/"&gt;http://libzplay.sourceforge.net/&lt;/a&gt;>
+
+Email: <EMIT &lt;a href="mailto:zcindori@inet.hr";&gt;zcindori@inet.hr&lt;/a&gt;>
+<EMIT &lt;/div&gt;>
+<EMIT &lt;/td&gt;>
+<EMIT &lt;/tr&gt;>
+<EMIT &lt;/table&gt;>
+
+</align>

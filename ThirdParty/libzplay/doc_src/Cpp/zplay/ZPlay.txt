@@ -1,0 +1,64 @@
+Summary:
+Basic libZPlay interface based on ZPlay C++ class.
+
+Description:
+This interface is implemented as <LINK libZPlayCpp::ZPlay, ZPlay C++ abstract class> and related <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, methods>.
+
+All you need to do is to create instance of ZPlay class.
+Interaction with this class is implemented through <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, class methods>. 
+
+<INCLUDE extensions\\note_start.txt>ZPlay class is enclosed into <b>libZPlay</b> namespace.
+Include this namespace into your project to access ZPlay C++ class interface.
+<INCLUDE extensions\\note_end.txt>
+
+* How to use C++ interface *
+- include <LINK !!libZPlayCPP, libZPlay.h> into your project
+- include <b>libZplay</b> namespace
+- create instance of ZPlay class
+- use <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, ZPlay methods> to play music
+- link your project with dll interface library
+
+<INCLUDE extensions\\note_start.txt>You must link your project with dll interface library to access exported functions from libzplay.dll.
+* Visual C++ - link with libzplay.lib
+* Borland C++ - link with libzplay_borland.lib
+* GNU C++ , MinGW - link with libzplay.a
+<INCLUDE extensions\\note_end.txt>
+
+
+<IMAGE star_green>To create class instance, user must use class factory function <LINK libZPlayCpp::CreateZPlay, CreateZPlay()>.
+<code lang="c++">
+#include "libzplay.h"
+
+// use libZPlay namespace
+using namespace libZPlay;
+
+// create class instance using class factory function
+ZPlay *instance = CreateZPlay();
+</code> 
+
+
+<IMAGE star_red><b>Note: </b>User <b><COLOR RED>can't create</COLOR></b> instance of ZPlay class using <b>new</b> keyword:
+<code lang="c++">
+#include "libzplay.h"
+
+// use namespace for our class
+using namespace libZPlay;
+
+// create class instance using new keyword
+ZPlay *instance = new ZPlay;	// this will fail !!!
+// 'ZPlay' : cannot instantiate abstract class due to following members
+</code>
+
+
+
+When class instance is created, use <LINK !!MEMBERTYPE_Methods_libZPlayCpp::ZPlay, ZPlay methods> to play your songs.
+
+Remarks:
+At the end, class instance must be destroyed with <LINK libZPlayCpp::ZPlay::Release, Release> method:
+<code lang="c++">
+// destroy class instance
+instance->Release();
+</code> 
+
+See Also:
+<LINK CSTYLEINTERFACE, C Style interface>

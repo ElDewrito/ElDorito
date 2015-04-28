@@ -1,0 +1,27 @@
+Summary:
+<i>Sample accurate</i> detection of song length.
+
+Description:
+Accuracy of song lentgh detection depends on <LINK SupportedFormats, stream format>.
+
+If you need sample accurate song length detection, user must enable this setting.
+
+<b>This setting is disabled by default. Any new created interface will have this setting disabled.</b>
+
+If this setting is disabled, song length isn't <i>sample accurate</i>, it's pretty accurate, but not <i>sample accurate</i>.
+By enabling this setting, you will get <i>sample accurate</i> song length.
+
+<INCLUDE extensions\\note_start.txt>To acquire sample accurate length on <LINK FormatMp3, MP3 stream>, decoder must scan whole stream and count all mp3 frames.
+And <LINK LAMETAG, LAME INFO tag> must be present to detect encoder delay and padding samples.
+IF LAME INFO tag isn't present, you can't get sample accurate length of mp3 stream.
+See <LINK FormatMp3, MP3 decoder details>.
+<INCLUDE extensions\\note_end.txt>
+
+
+
+<b>To enable or disable sample accurate length use <COLOR RED>sidAccurateLength</COLOR> with:</b>
+<TABLE>
+C++                                                     C                                                            VB.NET                                              C#.NET                                            VC.NET                                               Delphi
+-----------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------   ------------------------------------------------   --------------------------------------------------   ------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetSettings, SetSettings>     <LINK libZPlayCpp::zplay_SetSettings, zplay_SetSettings>     <LINK libZPlayVB.ZPlay.SetSettings, SetSettings>   <LINK libZPlayC#.ZPlay.SetSettings, SetSettings>   <LINK libZPlayVC::ZPlay::SetSettings, SetSettings>   <LINK libZPlayDelphi.ZPlay.SetSettings, SetSettings> 
+</TABLE>

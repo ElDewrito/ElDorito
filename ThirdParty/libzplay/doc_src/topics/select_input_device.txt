@@ -1,0 +1,27 @@
+Summary:
+Select input device for recording.
+
+Description:
+If you have multiple soundcards, you can choose input soundcard for recording.
+
+First you need to enumerate all input devices to detect number of input devices.
+Then you can retrieve informations for each device.
+
+<TABLE>
+C++                                                           C                                                                  VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------   ----------------------------------------------------------------   --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayCpp::zplay_EnumerateWaveIn, zplay_EnumerateWaveIn>   <LINK libZPlayVB.ZPlay.EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayC#.ZPlay.EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayVC::ZPlay::EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayDelphi.ZPlay.EnumerateWaveIn, EnumerateWaveIn> 
+<LINK libZPlayCpp::ZPlay::GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayCpp::zplay_GetWaveInInfo, zplay_GetWaveInInfo>       <LINK libZPlayVB.ZPlay.GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayC#.ZPlay.GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayVC::ZPlay::GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayDelphi.ZPlay.GetWaveInInfo, GetWaveInInfo> 
+<LINK libZPlayCpp::ZPlay::GetWaveInInfoW, GetWaveInInfoW>     <LINK libZPlayCpp::zplay_GetWaveInInfoW, zplay_GetWaveInInfoW>                                                                                                                                                                                        <LINK libZPlayDelphi.ZPlay.GetWaveInInfoW, GetWaveInInfoW> 
+</TABLE>
+
+
+
+
+When you choose you input device, select this device as input device for recording.
+
+<TABLE>
+C++                                                           C                                                                  VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------   ----------------------------------------------------------------   --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayCpp::zplay_SetWaveInDevice, zplay_SetWaveInDevice>   <LINK libZPlayVB.ZPlay.SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayC#.ZPlay.SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayVC::ZPlay::SetWaveInDevice, SetWaveInDevice>   <LINK libZPlayDelphi.ZPlay.SetWaveInDevice, SetWaveInDevice> 
+</TABLE>

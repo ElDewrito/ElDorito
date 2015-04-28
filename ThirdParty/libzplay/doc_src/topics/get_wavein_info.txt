@@ -1,0 +1,22 @@
+Summary:
+  Get info about wave-in devices.
+
+Description:
+There can be multiple waveform-audio input devices present in the system.
+ZPlay class has ability to detect all wave in devices and to retrieve informations about each device.
+
+
+
+
+<b>To detect all wave input devices use:</b>
+<TABLE>
+C++                                                           C                                                                  VB.NET                                                     C#.NET                                                     VC.NET                                                       Delphi
+-----------------------------------------------------------   ----------------------------------------------------------------   --------------------------------------------------------   --------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayCpp::zplay_EnumerateWaveIn, zplay_EnumerateWaveIn>   <LINK libZPlayVB.ZPlay.EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayC#.ZPlay.EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayVC::ZPlay::EnumerateWaveIn, EnumerateWaveIn>   <LINK libZPlayDelphi.ZPlay.EnumerateWaveIn, EnumerateWaveIn> 
+<LINK libZPlayCpp::ZPlay::GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayCpp::zplay_GetWaveInInfo, zplay_GetWaveInInfo>       <LINK libZPlayVB.ZPlay.GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayC#.ZPlay.GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayVC::ZPlay::GetWaveInInfo, GetWaveInInfo>       <LINK libZPlayDelphi.ZPlay.GetWaveInInfo, GetWaveInInfo> 
+<LINK libZPlayCpp::ZPlay::GetWaveInInfoW, GetWaveInInfoW>     <LINK libZPlayCpp::zplay_GetWaveInInfoW, zplay_GetWaveInInfoW>                                                                                                                                                                                        <LINK libZPlayDelphi.ZPlay.GetWaveInInfoW, GetWaveInInfoW> 
+</TABLE>
+
+
+See Also:
+<LINK SET_WAVEIN, Set wave ¸in device>

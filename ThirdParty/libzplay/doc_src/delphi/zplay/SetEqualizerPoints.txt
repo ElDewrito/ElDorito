@@ -1,0 +1,40 @@
+Summary:
+Set equalizer points to create new frequency bands.
+
+Parameters:
+  %PAR0% - Array of integers specifying frequency points to divide whole frequency range into bands.
+           You have frequency range from 0 Hz to SampleRate/2 Hz.
+           You need to specify frequency points to divide this range into bands.
+           One point will divide range into 2 bands, 2 points will divide range into 3 bands ...
+  %PAR1% - Number of points in <C>%PAR0%</C> array.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+New instance of interface has 10 default equalizer bands.
+
+int FreqPoint[9] = {115, 240, 455, 800, 2000, 4500, 9000, 13000, 15000};
+- band0: 0 - 115 Hz
+- band1: 115 - 240 Hz
+- band2: 240 - 455 Hz
+- band3: 455 - 800 Hz
+- band4: 800 - 2000 Hz
+- band5: 2000 - 4500 Hz
+- band6: 4500 - 9000 Hz
+- band7: 9000 - 13000 Hz
+- band8: 13000 - 15000 Hz
+- band9: 15000 - Samplerate/2 Hz
+
+<IMAGE note> Note: There is no limit on number of bands.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.EnableEqualizer, EnableEqualizer>

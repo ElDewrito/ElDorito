@@ -1,0 +1,20 @@
+Summary:
+Get current status of stream (playing, paused, stopped, ...)
+
+Description:
+There are many useful indicators specifying various stream states:
+- play
+- pause
+- echo
+- equalizer
+- ...
+
+If you need to detect if your song is playing or paused, get current status and check playing state.
+
+
+<b>To get stream status use:</b>
+<TABLE>
+C++                                                C                                                      VB.NET                                         C#.NET                                         VC.NET                                                     Delphi
+-----------------------------------------------    ---------------------------------------------------    --------------------------------------------   --------------------------------------------   --------------------------------------------------------   ------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetStatus, GetStatus>    <LINK libZPlayCpp::zplay_GetStatus, zplay_GetStatus>   <LINK libZPlayVB.ZPlay.GetStatus, GetStatus>   <LINK libZPlayC#.ZPlay.GetStatus, GetStatus>   <LINK libZPlayVC::ZPlay::GetStatus, GetStatus>             <LINK libZPlayDelphi.ZPlay.GetStatus, GetStatus> 
+</TABLE>

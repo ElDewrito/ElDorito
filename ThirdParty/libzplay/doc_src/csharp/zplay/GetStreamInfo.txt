@@ -1,0 +1,26 @@
+Summary:
+  Get stream informations (length, sampling rate, channel number, ...).
+
+Parameters:
+  %PAR0%- Reference to <LINK libZPlayC#.TStreamInfo, TStreamInfo>. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+Use this function to get basic informations about opened stream.
+
+<IMAGE note> Note: Only with this function you can get stream length, sampling rate, channel number ...
+
+See Also:
+<LINK libZPlayC#.ZPlay.GetStatus, GetStatus>,
+<LINK libZPlayC#.ZPlay.GetPosition, GetPosition>,
+<LINK libZPlayC#.ZPlay.LoadID3, LoadID3>,
+<LINK libZPlayC#.ZPlay.LoadFileID3, LoadFileID3>
+
+Example:
+
+<code lang="c#">
+TStreamInfo Info = new TStreamInfo();
+player.GetStreamInfo(ref Info);
+</code>

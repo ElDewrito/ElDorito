@@ -1,0 +1,19 @@
+Summary:
+Get current echo effects.
+
+Parameters:
+  %PAR0% - Reference to array of <see cref="TEchoEffect"/> structures receiving echo effects.
+                     <P><IMAGE caution> Caution: This array will be resized to receive all echo effects.
+
+Returns:
+Number of echo effects in %PAR0% array.
+
+Remarks:
+Function will resize %PAR0% array to receive all echo effects.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetEchoParam, SetEchoParam>,
+<LINK libZPlayDelphi.ZPlay.EnableEcho, EnableEcho>

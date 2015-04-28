@@ -1,0 +1,46 @@
+Summary:
+  Get current status of stream (playing, paused, echo status, eqaulizer status, ....)
+
+Parameters:
+  pStatus - Pointer to <LINK libZPlayCpp::TStreamStatus, TStreamStatus structure> receiving status informations. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+ Use this function to detect status of various stream states.
+This is only way to detect if stream is playing or not, if stream is paused or not, ...
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetPosition, GetPosition>,
+<LINK libZPlayCpp::ZPlay::GetBitrate, GetBitrate>,
+<LINK libZPlayCpp::ZPlay::GetStreamInfo, GetStreamInfo>
+
+<LINK libZPlayCpp::zplay_GetPosition, zplay_GetPosition>,
+<LINK libZPlayCpp::zplay_GetBitrate, zplay_GetBitrate>,
+<LINK libZPlayCpp::zplay_GetStreamInfo, zplay_GetStreamInfo>
+
+
+<EXAMPLE>
+Detect if stream is playing.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamStatus status;
+instance->GetStatus(&status);
+if(status.fPlay)
+  printf("Playing");
+else
+  printf("Stop");
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamStatus status;
+zplay_GetStatus(instance, &status);
+if(status.fPlay)
+  printf("Playing");
+else
+  printf("Stop");
+</CODE>
+</EXAMPLE>

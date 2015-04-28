@@ -1,0 +1,25 @@
+Summary:
+ID3 informations (UNICODE version).
+
+Parameters:
+Title    - Title.
+Artist   - Artist.
+Album    - Album.
+Year     - Year.
+Comment  - Comment
+TrackNum - Track number.
+Genre    - Genre.
+
+Remarks:
+All members of this structure are pointers to UNICODE null terminated string.
+Interface instance allocates memory for these members and interface instance is responsible for this memory.
+These pointers are valid until you destroy class.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::LoadID3, LoadID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3, LoadFileID3>,
+<LINK libZPlayCpp::ZPlay::LoadFileID3W, LoadFileID3W>
+
+<LINK libZPlayCpp::zplay_LoadID3, zplay_LoadID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3, zplay_LoadFileID3>,
+<LINK libZPlayCpp::zplay_LoadFileID3W, zplay_LoadFileID3W>

@@ -1,0 +1,23 @@
+Summary:
+  Set external volume.
+
+Parameters:
+  %PAR0% - Specifies volume for left channel. Volume range is from 0 to 100.
+  %PAR1% - Specifies volume for right channel. Volume range is from 0 to 100.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function will change wave out device driver volume affecting all volume on computer.
+
+<IMAGE note> Note: Use <LINK PLAYER_VOLUME, player volume control> if you need to control volume of specific song.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetMasterVolume, GetMasterVolume>,
+<LINK libZPlayDelphi.ZPlay.SetPlayerVolume, SetPlayerVolume>,
+<LINK libZPlayDelphi.ZPlay.GetPlayerVolume, GetPlayerVolume>,
+<LINK libZPlayDelphi.ZPlay.SlideVolume, SlideVolume>

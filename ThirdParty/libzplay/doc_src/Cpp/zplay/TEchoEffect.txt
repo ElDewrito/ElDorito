@@ -1,0 +1,29 @@
+Summary:
+  Echo effect structure.
+
+Parameters:
+nLeftDelay	 - Delay of left channel in milliseconds.
+nLeftSrcVolume   - Percent of original volume in output for left channel.
+nLeftEchoVolume  - Percent of echo volume in output for left channel.
+nRightDelay      - Delay of right channel in milliseconds.
+nRightSrcVolume  - Percent of original volume in output for right channe.
+nRightEchoVolume - Percent of echo volume in output for right channel.
+
+Remarks:
+This structure specifies one echo effect. Hot it works:
+
+You can combine original samples with delayed samples.
+Original samples are reduced to <b>nLeftSrcVolume</b>.
+Delayed samples are reduced to <b>nLeftEchoVolume</b>.
+And these samples are combined to output.
+
+<IMAGE note> Note: Be careful with volume percents.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::EnableEcho, EnableEcho>,
+<LINK libZPlayCpp::ZPlay::SetEchoParam, SetEchoParam>,
+<LINK libZPlayCpp::ZPlay::GetEchoParam, GetEchoParam>
+
+<LINK libZPlayCpp::zplay_EnableEcho, zplay_EnableEcho>,
+<LINK libZPlayCpp::zplay_SetEchoParam, zplay_SetEchoParam>,
+<LINK libZPlayCpp::zplay_GetEchoParam, zplay_GetEchoParam>

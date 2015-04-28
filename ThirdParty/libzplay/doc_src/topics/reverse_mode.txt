@@ -1,0 +1,18 @@
+Summary:
+Reverse playing. Play song backward.
+
+Description:
+libZPlay library has one very special feature. This is <b>reverse playing</b>.
+
+Library can perforn <b>real reverse</b> playing.
+There is no predecoding of whole stream into memory, no large cache, no additional memory allocation, no temporary disk files ...
+This is true reverse playing.
+
+
+
+<b>To enable or disable reverse playing use:</b>
+<TABLE>
+C++                                                    C                                                          VB.NET                                             C#.NET                                            VC.NET                                               Delphi
+---------------------------------------------------    --------------------------------------------------------   ------------------------------------------------   -----------------------------------------------   --------------------------------------------------   ----------------------------------------------------
+<LINK libZPlayCpp::ZPlay::ReverseMode, ReverseMode>    <LINK libZPlayCpp::zplay_ReverseMode, zplay_ReverseMode>   <LINK libZPlayVB.ZPlay.ReverseMode, ReverseMode>   <LINK libZPlayC#.ZPlay.ReverseMode, ReverseMode>  <LINK libZPlayVC::ZPlay::ReverseMode, ReverseMode>   <LINK libZPlayDelphi.ZPlay.ReverseMode, ReverseMode> 
+</TABLE>

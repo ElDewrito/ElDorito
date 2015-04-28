@@ -1,0 +1,20 @@
+Summary:
+Get equalizer preamp gain.
+
+Returns:
+Preamp gain in <b>millidecibels</b>. Negative value lower volume, positive value boost volume, 0 is neutral.
+
+Remarks:
+Preamp gain affects all bands.
+
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayVC::ZPlay::SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVC::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVC::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayVC::ZPlay::EnableEqualizer, EnableEqualizer>

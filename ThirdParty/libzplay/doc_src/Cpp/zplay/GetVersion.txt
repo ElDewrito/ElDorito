@@ -1,0 +1,28 @@
+Summary:
+  Get library version number.
+
+Parameters:
+
+Returns:
+Library version number.
+
+Remarks:
+Version 1.01 is identified with number 101. Number 214 specifies version 2.14 ...
+
+<EXAMPLE>
+Check if we have version 1.01
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nVersion = instance->GetVersion();
+if(nVersion == 101)
+  printf("We have version 1.01");
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nVersion = zplay_GetVersion(instance);
+if(nVersion == 101)
+  printf("We have version 1.01");
+</CODE>
+</EXAMPLE>

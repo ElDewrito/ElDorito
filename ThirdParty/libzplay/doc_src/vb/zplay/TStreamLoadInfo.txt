@@ -1,0 +1,12 @@
+Summary:
+<LINK DYNAMIC_STREAM, Dynamic stream> load informations.
+
+Parameters:
+NumberOfBuffers - Number of buffers in stream queue.
+NumberOfBytes   - Number of bytes in stream queue.
+
+Remarks:
+This is used only by <LINK DYNAMIC_STREAM, dynamic streams>. On static streams all members are 0.
+
+See Also:
+<LINK libZPlayVB.ZPlay.GetDynamicStreamLoad, GetDynamicStreamLoad>

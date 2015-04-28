@@ -1,0 +1,16 @@
+Summary:
+  Get rate.
+
+Returns:
+Current rate.
+
+Remarks:
+Normal rate is 100. Smaller valus represent lower rate, larger value represent higher rate.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetRate, SetRate>,
+<LINK libZPlayVC::ZPlay::SetPitch, SetPitch>,
+<LINK libZPlayVC::ZPlay::GetPitch, GetPitch>,
+<LINK libZPlayVC::ZPlay::SetTempo, SetTempo>,
+<LINK libZPlayVC::ZPlay::GetTempo, GetTempo>

@@ -1,0 +1,32 @@
+Summary:
+Push new data to <LINK DYNAMIC_STREAM, dynamic stream>.
+
+Parameters:
+  %PAR0% - Reference to a memory block with stream data.
+  %PAR1% - Size of memory block, in bytes. If this value is 0, <i>end marker</i> is added to stream.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function only works on <LINK DYNAMIC_STREAM, dynamic stream>.
+If you try to push data into static stream, this function will fail.
+
+If stream is <b>buffered stream</b>, this function makes copy of input data into internal buffer.
+Interface instance is responsible for this internal data and user can destroy original source buffer pointed by <c>%PAR0%</c>.
+
+If stream is <b>not buffered</b>, function takes only pointer to input data and user is responsible for data
+pointed by <c>%PAR0%</c> pointer.
+
+If <c>%PAR0%</c> is 0, <i>end marker</i> is added to stream.
+This indicates that there will be no more data for stream.
+If you add <i>end marker</i> to stream, when stream runs out of data, playing will be stopped and stream will not wait for new data.
+If there is no <i>end marker</i> added to stream, when stream runs out of data, playing is paused and stream is waiting for new data.
+
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.OpenStream, OpenStream>,
+<LINK libZPlayDelphi.ZPlay.IsStreamDataFree, IsStreamDataFree>,
+<LINK libZPlayDelphi.ZPlay.GetDynamicStreamLoad, GetDynamicStreamLoad>

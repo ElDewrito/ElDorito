@@ -1,0 +1,49 @@
+Summary:
+Get equalizer points of frequency bands.
+
+Parameters:
+  %PAR0% - Reference to array of integers receiving frequency points for frequancy  bands.
+                 You have frequency range from 0 Hz to SampleRate/2 Hz.
+                 One point will divide range into 2 bands, 2 points will divide range into 3 bands ...
+                 <P><IMAGE caution> Caution: Function will resize this array to number of frequancy points.
+
+Returns:
+Number of frequency points.
+
+Remarks:
+New instance of interface has 10 default equalizer bands.
+
+int FreqPoint[9] = {115, 240, 455, 800, 2000, 4500, 9000, 13000, 15000};
+- band0: 0 - 115 Hz
+- band1: 115 - 240 Hz
+- band2: 240 - 455 Hz
+- band3: 455 - 800 Hz
+- band4: 800 - 2000 Hz
+- band5: 2000 - 4500 Hz
+- band6: 4500 - 9000 Hz
+- band7: 9000 - 13000 Hz
+- band8: 13000 - 15000 Hz
+- band9: 15000 - Samplerate/2 Hz
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVB.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayVB.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVB.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayVB.ZPlay.EnableEqualizer, EnableEqualizer>
+
+
+Example:
+<code lang="vb.net">
+Dim testeq(1) As Integer
+Dim i As Integer
+Dim num As Integer = player.GetEqualizerPoints(testeq)
+For i = 0 To num - 1
+  MsgBox(CStr(testeq(i)))
+Next
+</code>
+

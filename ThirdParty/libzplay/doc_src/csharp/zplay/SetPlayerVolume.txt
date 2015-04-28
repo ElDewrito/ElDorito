@@ -1,0 +1,24 @@
+Summary:
+  Set internal volume.
+
+Parameters:
+  %PAR0% - Specifies volume for left channel. Volume range is from 0 to 100.
+  %PAR1% - Specifies volume for right channel. Volume range is from 0 to 100.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+This function changes internal volume without affecting wave out device driver and computer master volume.
+You can set internal volume on each interface instance separately.
+
+<IMAGE note> Note: This function will cancel <LINK SLIDE_VOLUME, slide volume effect>.
+
+
+See Also:
+<LINK libZPlayC#.ZPlay.GetPlayerVolume, GetPlayerVolume>,
+<LINK libZPlayC#.ZPlay.SetMasterVolume, SetMasterVolume>,
+<LINK libZPlayC#.ZPlay.GetMasterVolume, GetMasterVolume>,
+<LINK libZPlayC#.ZPlay.SlideVolume, SlideVolume>

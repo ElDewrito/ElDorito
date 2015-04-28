@@ -1,0 +1,27 @@
+Summary:
+Enable or disable equalizer.
+
+Parameters:
+  %PAR0% - Flag for enabling or disabling equalizer. If this parameter is true, equalizer is enabled. If this parameter is false, equalizer is disabled.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+Class has by default 10 equalizer bands. See <LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+<P><IMAGE note> Note: By default, new class instance has disabled equalizer.
+To apply equalizer, user must enable this effect.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>
+

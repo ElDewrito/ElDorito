@@ -1,0 +1,26 @@
+Summary:
+  Seek position.
+
+Parameters:
+  %PAR0% - <LINK libZPlayDelphi.TTimeFormat, Time format> of <c>%PAR1%</c> parameter. With this parameter you need to specify which member of <LINK libZPlayDelphi.TStreamTime, TStreamTime> is valid.
+  %PAR1% - Reference to <LINK libZPlayDelphi.TStreamTime, TStreamTime> specifying new position.
+  %PAR2% - <LINK libZPlayDelphi.TSeekMethod, Seek method>.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE caution> Warning: This function will fail on <LINK DYNAMIC_STREAM, dynamic stream>.
+
+<IMAGE note> Note: Accuracy of seek position depends on interface settings. See <LINK CONFIGURE_ACCURATE_SEEK, accurate seek>.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.StartPlayback, StartPlayback>,
+<LINK libZPlayDelphi.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayDelphi.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayDelphi.ZPlay.ResumePlayback, ResumePlayback>,
+<LINK libZPlayDelphi.ZPlay.PlayLoop, PlayLoop>
+

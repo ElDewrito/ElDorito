@@ -1,0 +1,83 @@
+Summary:
+   Set callback function.
+
+Parameters:
+  %PAR0% - Address to callback function. Set this value to 0 to disable callback mechanism.
+  %PAR1% - Specify messages you need to receive with callback function. This parameter can be combination of multiple callback messages.
+  %PAR2% - User data. This value will be passed to <c>%PAR0%</c> as parameter.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+All callback messages are sent from decoding thread.
+
+There are 2 types of callback messages, blocking (sync) and not blocking (async).
+
+Blocking message will block decoding thread until callback function returns.
+Non blocking mesage will not block decoding thread.
+
+<IMAGE caution> Warning: callback function must have <b>__stdcall</b> calling convention.
+
+<IMAGE caution> Note: You must protect CallbackFunc from garbage collector.
+Use global or static variable to keep alive callback function all the time.
+If you don't protect CallbackFunc, garbage collector will destroy or move this function and you will get
+memory access error when next callback event occurrs.
+
+
+See Also:
+<LINK libZPlayDelphi.TCallbackFunc, TCallbackFunc>
+
+Example:
+
+<code lang="delphi">
+
+
+// callback function
+
+Function player_callback(objptr: Pointer; user_data: Integer; msg: TCallbackMessage; param1: Cardinal; param2: Cardinal):Integer;stdcall;
+var
+  ReadBytes: Integer;
+begin
+  Result := 0;
+   case msg of
+      libZPlay.MsgStreamNeedMoreDataAsync:
+      begin
+      // managed stream, read more data
+        if FileHandle = 0 then
+        begin
+          player.PushDataToStream(nil, 0);
+          Exit;
+        end;
+
+        if Buffer = nil then
+        begin
+          player.PushDataToStream(nil, 0);
+          Exit;
+        end;
+        // read next data from file
+        ReadBytes := FileRead(FileHandle, Buffer^, ChunkSize);
+        if ReadBytes = 0 then
+        begin
+          player.PushDataToStream(nil, 0);
+          Exit;
+        end;
+        // push new data to stream
+        player.PushDataToStream(Buffer, ReadBytes);
+      end;
+   end;
+
+   Result := 0;
+end;
+
+// ...
+
+if player.SetCallbackFunc(Addr(player_callback), TCallbackMessage(libZPlay.MsgStreamNeedMoreDataAsync) , 0) = false then
+begin
+  MessageBox(0, PAnsiChar(player.GetError()), 'Fatal error' ,0);
+end;
+</code>
+
+
+

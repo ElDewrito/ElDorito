@@ -1,0 +1,80 @@
+Summary:
+Set equalizer parameters, band gain and preamp gain.
+
+Parameters:
+  nPreAmpGain    - Preamp gain in <b>millidecibels</b> (thousandth of decibel). Value 0 specifies no change.
+                   Positive values boost volume, negative value drops volume. This value has effect on all bands.
+  pnBandGain     - Array of integers specifying gain for each band in <b>millidecibels</b> (thousandth of decibel).
+                   Positive values boost volume, negative value drops volume. 
+  nNumberOfBands - Number of frequency bands.
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+Class has by default 10 equalizer bands. See <LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>.
+If you create custom bands, use correct number of bands as <C>nNumberOfBands</C> parameter.
+And don't forget to specify <C>pnBandGain</C> array with correct size.
+
+If you create 20 equalizer bands, then you need to send pointer to 20 values as <C>pnBandGain</C> parameter.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayCpp::ZPlay::SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayCpp::ZPlay::EnableEqualizer, EnableEqualizer>
+
+<LINK libZPlayCpp::zplay_GetEqualizerParam, zplay_GetEqualizerParam>,
+<LINK libZPlayCpp::zplay_SetEqualizerPoints, zplay_SetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_GetEqualizerPoints, zplay_GetEqualizerPoints>,
+<LINK libZPlayCpp::zplay_SetEqualizerPreampGain, zplay_SetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerPreampGain, zplay_GetEqualizerPreampGain>,
+<LINK libZPlayCpp::zplay_SetEqualizerBandGain, zplay_SetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_GetEqualizerBandGain, zplay_GetEqualizerBandGain>,
+<LINK libZPlayCpp::zplay_EnableEqualizer, zplay_EnableEqualizer>
+
+<EXAMPLE>
+Cut bas and boost high tones. Don't change preamp gain.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<code lang="c++">
+int eq_values[10];
+eq_values[0] = -12000;
+eq_values[1] = -12000;  // cut bas 12 db
+eq_values[2] = 0;
+eq_values[3] = 0;  // unchanged
+eq_values[4] = 0;
+eq_values[5] = 0;
+eq_values[6] = 0;
+eq_values[7] = 12000; // boost high tones 12 db
+eq_values[8] = 12500;
+eq_values[9] = 0;
+instance->SetEqualizerParam(0, eq_values, 10);
+instance->EnableEqualizer(1); // enable equalizer
+</code>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<code lang="c++">
+int eq_values[10];
+eq_values[0] = -12000;
+eq_values[1] = -12000;  // cut bas 12 db
+eq_values[2] = 0;
+eq_values[3] = 0;  // unchanged
+eq_values[4] = 0;
+eq_values[5] = 0;
+eq_values[6] = 0;
+eq_values[7] = 12000; // boost high tones 12 db
+eq_values[8] = 12500;
+eq_values[9] = 0;
+zplay_SetEqualizerParam(instance, 0, eq_values, 10);
+zplay_EnableEqualizer(instance, 1); // enable equalizer
+</code>
+</EXAMPLE>

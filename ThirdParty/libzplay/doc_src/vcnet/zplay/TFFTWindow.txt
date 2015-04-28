@@ -1,0 +1,24 @@
+Summary:
+FFT window.
+
+Parameters:
+fwRectangular - Rectangular window.
+fwHamming - Hamming window.
+fwHann - Hann window.
+fwCosine - Cosine window.
+fwLanczos - Lanczos window.
+fwBartlett - Bartlett window.
+fwTriangular - Triangular window.
+fwGauss - Gauss window.
+fwBartlettHann - Bartlett-Hann window.
+fwBlackman - Blackman window.
+fwNuttall - Nuttall window.
+fwBlackmanHarris - Blackmann-Harris window.
+fwBlackmanNuttall - Blacmkan-Nuttal window.
+fwFlatTop - Flat-top window.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::SetFFTGraphParam, SetFFTGraphParam>,
+<LINK libZPlayVC::ZPlay::GetFFTGraphParam, GetFFTGraphParam>,
+<LINK libZPlayVC::ZPlay::GetFFTData, GetFFTData>

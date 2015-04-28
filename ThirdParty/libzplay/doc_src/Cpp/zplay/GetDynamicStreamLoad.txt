@@ -1,0 +1,39 @@
+Summary:
+  Get <LINK DYNAMIC_STREAM, dynamic stream> load.
+
+Parameters:
+  pStreamLoadInfo - Pointer to <LINK libZPlayCpp::TStreamLoadInfo, TStreamLoadInfo> structure receiving informations about stream load. User must allocate memory for this structure.
+
+Returns:
+None.
+
+Remarks:
+Use this function to to check if stream is low with data, so you can push more data into stream.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayCpp::ZPlay::PushDataToStream, PushDataToStream>,
+<LINK libZPlayCpp::ZPlay::IsStreamDataFree, IsStreamDataFree>
+
+
+<LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>,
+<LINK libZPlayCpp::zplay_PushDataToStream, zplay_PushDataToStream>,
+<LINK libZPlayCpp::zplay_IsStreamDataFree, zplay_IsStreamDataFree>
+
+
+
+<EXAMPLE>
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TStreamLoadInfo sload;
+if(instance->GetManagedStreamLoad(&sload))
+  printf("Buffers: %u, bytes: %u\\n", sload.NumberOfBuffers, sload.NumberOfBytes);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+TStreamLoadInfo sload;
+if(zplay_GetManagedStreamLoad(instance, &sload))
+  printf("Buffers: %u, bytes: %u\\n", sload.NumberOfBuffers, sload.NumberOfBytes);
+</CODE>
+</EXAMPLE>

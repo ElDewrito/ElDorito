@@ -1,0 +1,17 @@
+Summary:
+Stream time structure.
+
+Parameters:
+sec     - Total time in seconds.
+ms      - Total time in milliseconds.
+samples - Total time in samples.
+hms     - Total time in <LINK libZPlayCpp::TStreamHMSTime, TStreamHMSTime> format.
+
+Remarks:
+Use <LINK libZPlayCpp::TTimeFormat, TTimeFormat> to specify which member in this structure is valid.
+
+See Also:
+<LINK libZPlayCpp::TTimeFormat, TTimeFormat>,
+<LINK libZPlayCpp::TStreamHMSTime, TStreamHMSTime>,
+<LINK libZPlayCpp::ZPlay::Seek, Seek>,
+<LINK libZPlayCpp::zplay_Seek, zplay_Seek>

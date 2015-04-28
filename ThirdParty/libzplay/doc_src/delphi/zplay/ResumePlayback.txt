@@ -1,0 +1,13 @@
+Summary:
+  Resume paused playing.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.StartPlayback, StartPlayback>,
+<LINK libZPlayDelphi.ZPlay.StopPlayback, StopPlayback>,
+<LINK libZPlayDelphi.ZPlay.PausePlayback, PausePlayback>,
+<LINK libZPlayDelphi.ZPlay.Seek, Seek>

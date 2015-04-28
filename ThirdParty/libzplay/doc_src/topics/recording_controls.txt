@@ -1,0 +1,13 @@
+Summary:
+Recording controls.
+
+Description:
+Recording controls are the same controls as playing controls.
+When you open source line <b>wavein://</b> all you need to do is start playing.
+You can also use pause and stop control. Read <LINK PLAY_STOP, more...>
+
+
+<INCLUDE extensions\\note_start.txt>Stop control will close output file.
+Next call to play will create new file for recording. If you specify existing file as output file,
+library will overwrite existing file.
+<INCLUDE extensions\\note_end.txt>

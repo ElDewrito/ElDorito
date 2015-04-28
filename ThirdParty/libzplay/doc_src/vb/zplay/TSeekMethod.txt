@@ -1,0 +1,13 @@
+Summary:
+Seek method.
+
+Parameters:
+smFromBeginning       - Seek forward from the beginning of song.
+smFromEnd             - Seek backward from the end of song.
+smFromCurrentForward  - Seek forward from current position.
+smFromCurrentBackward - Seek backward from current position.
+
+See Also:
+<LINK libZPlayVB.ZPlay.Seek, Seek>
+
+

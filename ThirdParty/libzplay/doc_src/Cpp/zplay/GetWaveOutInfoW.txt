@@ -1,0 +1,51 @@
+Summary:
+  Retrieves the capabilities of a specified waveform-audio output device (UNICODE version).
+
+Parameters:
+  nIndex       - Index of wave out device.
+                 Call <LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut> or <LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>to get number of wave out devices.
+  pWaveOutInfo - Pointer to <LINK libZPlayCpp::TWaveOutInfoW, TWaveOutInfoW structure>. User must allocate memory for this structure.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayCpp::ZPlay::SetWaveOutDevice, SetWaveOutDevice>
+
+<LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>,
+<LINK libZPlayCpp::zplay_SetWaveOutDevice, zplay_SetWaveOutDevice>
+
+
+<EXAMPLE>
+Enumerate all wave out devices and display info for each device.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int num = instance->EnumerateWaveOut();
+printf("Number of wave out devices: %i\\n", num);
+unsigned int i;
+TWaveOutInfoW waveOutInfo;
+for(i = 0; i < num; i++)
+{
+  if(instance->GetWaveOutInfoW(i, &waveOutInfo))
+    wprintf(L"ManufacturerID: %i, ProductName:%s\\n", waveOutInfo.ManufacturerID, waveOutInfo.ProductName);
+}
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int num = zplay_EnumerateWaveOut(instance);
+printf("Number of wave out devices: %i\\n", num);
+unsigned int i;
+TWaveOutInfoW waveOutInfo;
+for(i = 0; i < num; i++)
+{
+  if(zplay_GetWaveOutInfoW(instance, i, &waveOutInfo))
+    wprintf(L"ManufacturerID: %i, ProductName:%s\\n", waveOutInfo.ManufacturerID, waveOutInfo.ProductName);
+}
+</CODE>
+</EXAMPLE>

@@ -1,0 +1,24 @@
+Summary:
+  Get current status of stream (playing, paused, echo status, eqaulizer status, ....)
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayC#.TStreamStatus, TStreamStatus> receiving status informations. User must allocate memory for this structure.
+
+Returns:
+  None.
+
+Remarks:
+Use this function to detect status of various stream states.
+This is only way to detect if stream is playing or not, if stream is paused or not, ...
+
+See Also:
+<LINK libZPlayC#.ZPlay.GetPosition, GetPosition>,
+<LINK libZPlayC#.ZPlay.GetBitrate, GetBitrate>,
+<LINK libZPlayC#.ZPlay.GetStreamInfo, GetStreamInfo>
+
+Example:
+
+<code lang="c#">
+TStreamStatus Status = new TStreamStatus();
+player.GetStatus(ref Status);
+</code>

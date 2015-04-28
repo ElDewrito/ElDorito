@@ -1,0 +1,33 @@
+Summary:
+Set equalizer parameters, band gain and preamp gain.
+
+Parameters:
+  %PAR0% - Preamp gain in <b>millidecibels</b> (thousandth of decibel). Value 0 specifies no change.
+           Positive values boost volume, negative value drops volume. This value has effect on all bands.
+  %PAR1% - Array of integers specifying gain for each band in <b>millidecibels</b> (thousandth of decibel).
+           Positive values boost volume, negative value drops volume. 
+  %PAR2% - Number of frequency bands.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+Class has by default 10 equalizer bands. See <LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+If you create custom bands, use correct number of bands as <C>nNumberOfBands</C> parameter.
+And don't forget to specify <C>pnBandGain</C> array with correct size.
+
+If you create 20 equalizer bands, then you need to send pointer to 20 values as <C>pnBandGain</C> parameter.
+
+
+See Also:
+<LINK libZPlayVB.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayVB.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayVB.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayVB.ZPlay.SetEqualizerPreampGain, SetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayVB.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayVB.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayVB.ZPlay.EnableEqualizer, EnableEqualizer>

@@ -1,0 +1,27 @@
+Summary:
+  Add file to <LINK GAPLESS_PLAYING, gapless queue>.
+
+Parameters:
+  %PAR0% - String that specifies the name of the file.
+  %PAR1% - Stream format. Use <b><LINK libZPlayVC::TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+
+All streams added to gapless queue will play without gap between these streams.
+When one stream ends, next stream from queue starts playing without interruption.
+Position marker is set to 0 for each stream from queue.
+This means that when one stream ends, position is set to 0 for next stream.
+Position is not cumulated.
+
+You can clear gapless queue with <LINK libZPlayVC::ZPlay::Close, Close>.
+
+See Also:
+
+<LINK libZPlayVC::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayVC::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayVC::ZPlay::Close, Close>,
+<LINK libZPlayVC::ZPlay::OpenStream, OpenStream>

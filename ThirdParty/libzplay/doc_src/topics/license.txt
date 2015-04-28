@@ -1,0 +1,68 @@
+Summary:
+License for libZPlay.
+
+Description:
+libZPlay is released under <LINK GPLTXT, GNU GPL license>.
+
+<c>
+Copyright (C) 2010.  Zoran Cindori
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+</c>
+
+<INCLUDE extensions\\note_start.txt><b>libZPlay library is combination of multiple decoding/encoding libraries.</b>
+<INCLUDE extensions\\note_end.txt>
+
+<table>
+     Library     Description                           Web                                                                                                             Email                                                                                                   Copyright &copy;
+     ----------  -----------------------------------   -------------------------------------------------------------------------------------------------------------   -----------------------------------------------------------------------------------------------------   -------------------------------------------------------------------------------------
+     LIBMAD      MPEG1, MPEG2, MPEG2.5                 <EMIT &lt;a href="http://www.underbit.com/products/mad/"&gt;http://www.underbit.com/products/mad/&lt;/a&gt;>   <EMIT &lt;a href="mailto:support@underbit.com"&gt;support@underbit.com&lt;/a&gt;>                        2000-2004 Underbit Technologies, Inc.   <LINK GPLTXT, GNU General Public License>
+     libVORBIS   VORBIS decoder                        <EMIT &lt;a href="http://www.xiph.org/vorbis/"&gt;http://www.xiph.org/vorbis/&lt;/a&gt;>                       <EMIT &lt;a href="mailto:feedback@vorbis.com"&gt;feedback@vorbis.com&lt;/a&gt;>                          2002-2004 Xiph.org Foundation   <LINK VORBISBSD, VORBIS BSD-STYLE SOURCE License>
+     libOGG      OGG bitstream                         <EMIT &lt;a href="http://www.xiph.org/ogg/"&gt;http://www.xiph.org/ogg/&lt;/a&gt;>                             <EMIT &lt;a href="mailto:feedback@vorbis.com"&gt;feedback@vorbis.com&lt;/a&gt;>                          2002-2004 Xiph.org Foundation   <LINK VORBISBSD, VORBIS BSD-STYLE SOURCE License>
+     libFLAC     Native FLAC and OGG flac              <EMIT &lt;a href="http://flac.sourceforge.net/"&gt;http://flac.sourceforge.net/&lt;/a&gt;>                     <EMIT &lt;a href="mailto:jcoalson@users.sourceforge.net"&gt;jcoalson@users.sourceforge.net&lt;/a&gt;>    2001,2002,2003,2004,2005,2006,2007  Josh Coalson   <LINK FLAC, more info here>.                                                                                                                                                                                                                                                                                                                                                                                                                      
+     FAAD2       Freeware AAC Decoder                  <EMIT &lt;a href="http://www.audiocoding.com/";&gt;http://www.audiocoding.com/&lt;/a&gt;>                      <EMIT &lt;a href="mailto:mbakker@nero.com";&gt;mbakker@nero.com&lt;/a&gt;>                               Copyright (C) 2003-2005 M. Bakker, Nero AG, <LINK GPLTXT, GNU General Public License> 
+     liba52      AC3 decoder                           <EMIT &lt;a href="http://liba52.sourceforge.net/";&gt;http://liba52.sourceforge.net/&lt;/a&gt;>                <EMIT &lt;a href="mailto:aholtzma@ess.engr.uvic.ca";&gt;aholtzma@ess.engr.uvic.ca&lt;/a&gt;>             <LINK GPLTXT, GNU General Public License>
+     SoundTouch  Pitch, rate, tempo change             <EMIT &lt;a href="http://www.surina.net/soundtouch/"&gt;http://www.surina.net/soundtouch/&lt;/a&gt;>           <EMIT &lt;a href="mailto:oparviai@iki.fi"&gt;oparviai@iki.fi&lt;/a&gt;>                                  Olli Parviainen 2002-2009, <LINK LGPLTXT, GNU Lesser General Public License>
+     Center Cut  DSP Plugin for Winamp 2.x                                                                                                                            <EMIT &lt;a href="mailto:moitah@yahoo.com"&gt;moitah@yahoo.com&lt;/a&gt;>                                2004  Moitah, <LINK GPLTXT, GNU General Public License>
+     Shibatch    Super Equalizer ver 0.03 for winamp   <EMIT &lt;a href="http://shibatch.sourceforge.net/"&gt;http://shibatch.sourceforge.net/&lt;/a&gt;>             <EMIT &lt;a href="mailto:shibatch@users.sourceforge.net"&gt;shibatch@users.sourceforge.net/&lt;/a&gt;>   <LINK LGPLTXT, GNU Lesser General Public License>
+     libpng      PNG image decoding library            <EMIT &lt;a href="http://www.libpng.org/"&gt;http://www.libpng.org/&lt;/a&gt;>                                 <EMIT &lt;a href="mailto:glennrp@users.sourceforge.net"&gt;glennrp@users.sourceforge.net&lt;/a&gt;>      <LINK LIBPNGLICENSE, libpng license>
+     IJGlib      JPEG image decoding library           <EMIT &lt;a href="http://www.ijg.org"&gt;http://www.ijg.org&lt;/a&gt;>                                         <EMIT &lt;a href="mailto:jpeg-info@uc.ag"&gt;jpeg-info@uc.ag&lt;/a&gt;>                                  <LINK IJGLIBLICENSE, IJG license>
+     ZLIB        ZLIB DATA COMPRESSION LIBRARY         <EMIT &lt;a href="http://zlib.net/"&gt;http://zlib.net/&lt;/a&gt;>                                             <EMIT &lt;a href="mailto:jzlib@gzip.org"&gt;zlib@gzip.org&lt;/a&gt;>                                     <LINK ZLIBLICENSE, ZLIB license>
+     FAAC        Freeware Advanced Audio Coder         <EMIT &lt;a href="http://www.audiocoding.com"&gt;http://www.audiocoding.com&lt;/a&gt;>                                                                                                                                  Copyright (C) 2001 M. Bakker <LINK LGPLTXT, GNU Lesser General Public License>
+     LAME        LAME Ain't an MP3 Encoder             <EMIT &lt;a href="http://www.mp3dev.org"&gt;http://www.mp3dev.org&lt;/a&gt;>                                                                                                                                            Mike Cheng, Mark Taylor <LINK LGPLTXT, GNU Lesser General Public License>
+</table>
+
+
+<INCLUDE extensions\\note_start.txt>libZPlay library is using other libraries.
+This library is distributed as freeware.
+This software is provided "as is", without any guarantee made as to its suitability or fitness for any particular use.
+It may contain bugs, so use of this tool is at your own risk.
+Author takes no responsibility for any damage that may unintentionally be caused through its use.
+
+<b>Please note that the use of this software may require the payment of patent royalties for <LINK FormatMp3, MP3> and <LINK FormatAAC, AAC> format.
+You need to consider this issue before you start building derivative works.
+We are not warranting or indemnifying you in any way for patent royalities!
+YOU ARE SOLELY RESPONSIBLE FOR YOUR OWN ACTIONS!</b>
+
+For information regarding patent licensing for AAC, please see Via Licensing's website:
+<EMIT &lt;a href="http://www.vialicensing.com/"&gt;http://www.vialicensing.com/&lt;/a&gt;>
+
+For information regarding patent licensing for MP3, please see Mp3Licensing's website:
+<EMIT &lt;a href="http://mp3licensing.com/"&gt;http://mp3licensing.com/&lt;/a&gt;>
+
+
+<b>If you don't need MP3 and AAC support use PF (patent free) version of libZPlay library.</b>
+
+<INCLUDE extensions\\note_end.txt>

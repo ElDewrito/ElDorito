@@ -1,0 +1,67 @@
+Summary:
+Get current echo effects.
+
+Parameters:
+  pEchoEffect      - Pointer to array of <see cref="TEchoEffect"/> structures receiving echo effects.
+                     <P><IMAGE caution> Caution: User must alloacte memory for this array.
+                     <P>If this value is NULL function returns number of echo effects.
+  nNumberOfEffects - Size of <C>pEchoEffect</C> array. If this value is 0 function returns number of echo effects.
+
+Returns:
+Number of echo effects.
+
+Remarks:
+Call this function with <C>pEchoEffect</C> set to NULL, or <C>nNumberOfEffects</C> set to 0, to get number of echo effects.
+Allocate memory for <C>pEchoEffect</C> parameter and then call this function again using this allocated memory.
+
+<IMAGE note> Note: By default, new created interface has programmed one simple echo effect, 1000 ms delay, 70 % original volume + 30 % echo volume.
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetEchoParam, SetEchoParam>,
+<LINK libZPlayCpp::ZPlay::EnableEcho, EnableEcho>
+
+<LINK libZPlayCpp::zplay_SetEchoParam, zplay_SetEchoParam>,
+<LINK libZPlayCpp::zplay_EnableEcho, zplay_EnableEcho>
+
+Example:
+Get echo effects.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nNumberOfEffects = instance->GetEchoParam(NULL, 0); // get number of effects
+if(nNumberOfEffects)
+{
+  TEchoEffect *effects = new TEchoEffect[nNumberOfEffects]; // allocate memory
+  nNumberOfEffects = instance->GetEchoParam(effects, nNumberOfEffects); // get echo effects
+  for(int i = 0; i < nNumberOfEffects; i++)
+  {
+    printf("Effect: %i  Delay: %i  OriginalVol: %i   EchoVol %i\\n",
+            i,
+            effects[i].nLeftDelay, 
+            effects[i].nLeftSrcVolume,
+            effects[i].nLeftEchoVolume);
+  }
+  delete [] effects;
+}
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nNumberOfEffects = zplay_GetEchoParam(instance, NULL, 0); // get number of effects
+if(nNumberOfEffects)
+{
+  TEchoEffect *effects = new TEchoEffect[nNumberOfEffects]; // allocate memory
+  nNumberOfEffects = zplay_GetEchoParam(instance, effects, nNumberOfEffects); // get echo effects
+  for(int i = 0; i < nNumberOfEffects; i++)
+  {
+    printf("Effect: %i  Delay: %i  OriginalVol: %i   EchoVol %i\\n",
+            i,
+            effects[i].nLeftDelay, 
+            effects[i].nLeftSrcVolume,
+            effects[i].nLeftEchoVolume);
+  }
+  delete [] effects;
+}
+</CODE>
+</EXAMPLE>

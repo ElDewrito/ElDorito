@@ -1,0 +1,6 @@
+Summary:
+Get description of last error.
+
+Returns:
+Error string.
+

@@ -1,0 +1,18 @@
+Summary:
+Minimal FFT graph size.
+
+Parameters:
+FFTGraphMinWidth  - Minimal FFT graph width.
+FFTGraphMinHeight - Minimal FFT graph height.
+
+
+Remarks:
+FFT graph has minimal size.
+If you try to draw FFT graph with size smaller than minimal size, drawing function will fail.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHDC, DrawFFTGraphOnHDC>,
+<LINK libZPlayCpp::ZPlay::DrawFFTGraphOnHWND, DrawFFTGraphOnHWND>
+
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHDC, zplay_DrawFFTGraphOnHDC>,
+<LINK libZPlayCpp::zplay_DrawFFTGraphOnHWND, zplay_DrawFFTGraphOnHWND>

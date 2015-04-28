@@ -1,0 +1,69 @@
+Summary:
+  Load ID3 extended data from specified file. (UNICODE version) Only in version 2.00 and above.
+
+Parameters:
+  pchFileName           - Points to a UNICODE null-terminated string that specifies file name.
+  nFormat               - Stream format. Use <b><LINK libZPlayCpp::TStreamFormat, sfAutodetect></b> if you need to autodetect stream format of specified file.
+  pId3Info              - Pointer to <LINK libZPlayCpp::TID3InfoExW, TID3InfoExW structure> receiving ID3 data. User must allocate memory for this structure.
+  fDecodeEmbededPicture - Set to 1 to decode attached jpeg, png picture to HBITMAP. See Remarks section.
+
+
+Return Value List:
+  1: All OK.
+  0: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Check <LINK SupportedFormats, supported formats> for info tag support. Some formats can support some sort of "Info tags", but not all.
+
+libZPlay library implements "ID3 tag" interface to different info tags (VORBIS comment, RIFF Info, ...).
+So, you can retrieve ID3 informations from different streams (mp3, ogg, flac, wav) because library will convert "format specific tag" to ID3 tag info.
+
+<INCLUDE extensions\\note_start.txt>This function can retrieve attached picture from info tag. If you need to draw this picture on screen, set
+fDecodeEmbededPicture parameter to 1 to decode attached picture into HBITMAP. Library can decode jpeg and png image.
+To draw picture on screen use <LINK libZPlayCpp::ZPlay::DrawBitmapToHDC, DrawBitmapToHDC> or
+<LINK libZPlayCpp::ZPlay::DrawBitmapToHWND, DrawBitmapToHWND> with hBitmap member from <LINK libZPlayCpp::TID3Picture, TID3Picture>.
+If attached image format is not supported by internal image decoder, use PictureData and PictureDataSize members from
+<LINK libZPlayCpp::TID3Picture, TID3Picture> and decode these data with your own image decoder. <b>Use MIMEType to determine format of attached image
+(image/gif, image/tiff, ...).</b>
+<INCLUDE extensions\\note_end.txt>
+
+<INCLUDE extensions\\note_start.txt>Use this function if you just need ID3 data and you don't need to play this file.
+This function only loads ID3 data. There is no checking if this is valid file, wave output isn't open ...
+This function has no effect on currently open file or stream.
+<INCLUDE extensions\\note_end.txt>
+
+
+See Also:
+<LINK libZPlayCpp::ZPlay::LoadID3W, LoadID3W>,
+<LINK libZPlayCpp::ZPlay::LoadID3ExW, LoadID3ExW>
+
+
+<LINK libZPlayCpp::zplay_LoadID3W, zplay_LoadID3W>,
+<LINK libZPlayCpp::zplay_LoadID3ExW, zplay_LoadID3ExW>
+
+<EXAMPLE>
+Load ID3 info from specified file and draw picture on screen.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+TID3InfoExW id3_info;
+if(instance->LoadFileID3ExW(L"mySong.ogg", sfAutodetect, &id3_info, 1))
+{
+  wprintf(L"Title:   %s\\n", id3_info.Title);
+  wprintf(L"Artist:  %s\\n", id3_info.Artist);
+  wprintf(L"Album:   %s\\n", id3_info.Album);
+  wprintf(L"Year:    %s\\n", id3_info.Year);
+  wprintf(L"Comment: %s\\n", id3_info.Comment);
+  wprintf(L"Genre:   %s\\n", id3_info.Genre);
+  wprintf(L"Track:   %s\\n", id3_info.TrackNum);
+
+  if(id3_info.Picture.CanDrawPicture)
+      instance->DrawBitmapToHWND(NULL, 0, 0, 0, 0, id3_info.Picture.hBitmap);
+  else
+  {
+     // can't decode attached image to hBitmap, use PictureData and PictureDataSize
+     // to decode this format by your own image decoder
+  }
+}
+</CODE>
+</EXAMPLE>

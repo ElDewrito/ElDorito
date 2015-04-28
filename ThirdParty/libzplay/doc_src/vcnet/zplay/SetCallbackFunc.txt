@@ -1,0 +1,78 @@
+Summary:
+   Set callback function.
+
+Parameters:
+  %PAR0% - Address to callback function. Set this value to 0 to disable callback mechanism.
+  %PAR1% - Specify messages you need to receive with callback function. This parameter can be combination of multiple callback messages.
+  %PAR2% - User data. This value will be passed to <c>%PAR0%</c> as parameter.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+All callback messages are sent from decoding thread.
+
+There are 2 types of callback messages, blocking (sync) and not blocking (async).
+
+Blocking message will block decoding thread until callback function returns.
+Non blocking mesage will not block decoding thread.
+
+<IMAGE caution> Warning: callback function must have <b>__stdcall</b> calling convention.
+
+<IMAGE caution> Note: You must protect CallbackFunc from garbage collector.
+Use global or static variable to keep alive callback function all the time.
+If you don't protect CallbackFunc, garbage collector will destroy or move this function and you will get
+memory access error when next callback event occurrs.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::TCallbackFunc, TCallbackFunc>
+
+Example:
+
+<code lang="c++">
+// global holder for our callback function, need this to prevent garbage collector to destroy our callback function
+ZPlay::TCallbackFunc ^CallbackFunc;
+
+// callback function
+int MyCallbackFunc(System::UInt32 objptr, int user_data, TCallbackMessage msg, System::UInt32 param1, System::UInt32 param2)
+{
+  switch (msg)
+  {
+				
+    case TCallbackMessage::MsgStreamBufferDoneAsync:
+    {
+
+      // read more data and push into stream
+      array<System::Byte> ^stream_data = nullptr;
+      int small_chunk = 100000;
+      stream_data = br->ReadBytes(small_chunk);
+      if (stream_data->Length > 0)
+      {
+         player->PushDataToStream(stream_data, System::Convert::ToUInt32(stream_data->Length));
+      }
+      else
+      {
+         array<System::Byte> ^tempMemNewData1 = nullptr;
+         player->PushDataToStream(tempMemNewData1, 0);
+      }
+    }
+    break;
+  }
+
+  return 0;
+}
+
+// ...
+
+// global variable, prevent garbage collector to destroy this function
+CallbackFunc = gcnew ZPlay::TCallbackFunc(this, &Form1::MyCallbackFunc);
+
+// set callback function
+player->SetCallbackFunc(CallbackFunc, safe_cast<TCallbackMessage>(TCallbackMessage::MsgStreamBufferDoneAsync), 0);
+
+</code>
+
+
+

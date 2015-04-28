@@ -1,0 +1,20 @@
+Summary:
+Stream status informations.
+
+Parameters:
+fPlay         - If song is playing this value is nonzero. See <LINK libZPlayVC::ZPlay::StartPlayback, Play>.
+fPause        - If song is paused this value is nonzero. See <LINK libZPlayVC::ZPlay::PausePlayback, PausePlayback>.
+fEcho         - If echo is enabled this value is nonzero. See <LINK libZPlayVC::ZPlay::EnableEcho, EnableEcho>.
+fEqualizer    - If equalizer is enabled this value is nonzero. See <LINK libZPlayVC::ZPlay::EnableEqualizer, EnableEqualizer>.	
+fVocalCut     - If vocal cut is enabled this value is nonzero. See <LINK libZPlayVC::ZPlay::StereoCut, StereoCut>.
+fSideCut      - If side cut is enabled this value is nonzero. See <LINK libZPlayVC::ZPlay::StereoCut, StereoCut>.
+fChannelMix   - If channel mixing is enabled this value is nonzero. See <LINK libZPlayVC::ZPlay::MixChannels, MixChannels>.
+fSlideVolume  - If song is in "fade" interval this value is nonzero. See <LINK libZPlayVC::ZPlay::SlideVolume, SlideVolume>.
+nLoop         - Number of loop cycles to play. See <LINK libZPlayVC::ZPlay::PlayLoop, PlayLoop>.
+fReverse      - If song is in reverse mode this value is nonzero. See <LINK libZPlayVC::ZPlay::ReverseMode, ReverseMode>.
+nSongIndex    - Index of playing song, increasing for gapless plaing. See <LINK libZPlayVC::ZPlay::AddFile, AddFile>.
+nSongsInQueue - Number of songs in gapless queue. See  See <LINK libZPlayVC::ZPlay::AddFile, AddFile>.
+
+See Also:
+<LINK libZPlayVC::ZPlay::GetStatus, GetStatus>
+

@@ -1,0 +1,31 @@
+Summary:
+Open memory stream.
+
+Description:
+If you have some music data in memory, or as application resource, you can play this data by opening memory stream.
+
+There is also possibility to use internal buffer so user can destroy original music data, or garbage collector can move this data.
+
+Another feature is <LINK DYNAMIC_STREAM, dynamic stream>. You can add new data to dynamic stream, useful for internet streams.
+
+
+
+
+<b>To open memory stream use:</b>
+<TABLE>
+C++                                                 C                                                        VB.NET                                           C#.NET                                           VC.NET                                             Delphi
+-------------------------------------------------   ------------------------------------------------------   ----------------------------------------------   ----------------------------------------------   ------------------------------------------------   --------------------------------------------------
+<LINK libZPlayCpp::ZPlay::OpenStream, OpenStream>   <LINK libZPlayCpp::zplay_OpenStream, zplay_OpenStream>   <LINK libZPlayVB.ZPlay.OpenStream, OpenStream>   <LINK libZPlayC#.ZPlay.OpenStream, OpenStream>   <LINK libZPlayVC::ZPlay::OpenStream, OpenStream>   <LINK libZPlayDelphi.ZPlay.OpenStream, OpenStream> 
+</TABLE>
+
+
+
+
+Remarks:
+At the end you need to close previous stream to free allocated resources.
+
+<TABLE>
+C++                                       C                                              VB.NET                                 C#.NET                                 VC.NET                                   Delphi
+---------------------------------------   --------------------------------------------   ------------------------------------   ------------------------------------   --------------------------------------   ----------------------------------------
+<LINK libZPlayCpp::ZPlay::Close, Close>   <LINK libZPlayCpp::zplay_Close, zplay_Close>   <LINK libZPlayVB.ZPlay.Close, Close>   <LINK libZPlayC#.ZPlay.Close, Close>   <LINK libZPlayVC::ZPlay::Close, Close>   <LINK libZPlayDelphi.ZPlay.Close, Close> 
+</TABLE>

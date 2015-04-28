@@ -1,0 +1,24 @@
+Summary:
+  Get internal volume.
+
+Parameters:
+  pnLeftVolume  - Pointer to variable receiving left volume. Volume range is from 0 to 100.
+  pnRightVolume - Pointer to variable receiving right volume. Volume range is from 0 to 100.
+
+Returns:
+None.
+
+Remarks:
+Player volume is internal volume. This volume is specific for each instance of libZPlay interface.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::SetPlayerVolume, SetPlayerVolume>,
+<LINK libZPlayCpp::ZPlay::SetMasterVolume, SetMasterVolume>,
+<LINK libZPlayCpp::ZPlay::GetMasterVolume, GetMasterVolume>,
+<LINK libZPlayCpp::ZPlay::SlideVolume, SlideVolume>
+
+<LINK libZPlayCpp::zplay_SetPlayerVolume, zplay_SetPlayerVolume>,
+<LINK libZPlayCpp::zplay_SetMasterVolume, zplay_SetMasterVolume>,
+<LINK libZPlayCpp::zplay_GetMasterVolume, zplay_GetMasterVolume>,
+<LINK libZPlayCpp::zplay_SlideVolume, zplay_SlideVolume>
+

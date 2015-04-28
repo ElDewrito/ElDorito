@@ -1,0 +1,7 @@
+Summary:
+ZPlay destructor.
+
+Description:
+Destructor will destroy libzplay handle.
+<INCLUDE extensions\\note_start.txt>ZPlay class must have access to libzplay.dll library. 
+<INCLUDE extensions\\note_end.txt>

@@ -1,0 +1,16 @@
+Summary:
+Stream time structure.
+
+Parameters:
+sec     - Total time in seconds.
+ms      - Total time in milliseconds.
+samples - Total time in samples.
+hms     - Total time in <LINK libZPlayDelphi.TStreamHMSTime, TStreamHMSTime> format.
+
+Remarks:
+Use <LINK libZPlayDelphi.TTimeFormat, TTimeFormat> to specify which member in this structure is valid.
+
+See Also:
+<LINK libZPlayDelphi.TTimeFormat, TTimeFormat>,
+<LINK libZPlayDelphi.TStreamHMSTime, TStreamHMSTime>,
+<LINK libZPlayDelphi.ZPlay.Seek, Seek>

@@ -1,0 +1,15 @@
+Summary:
+  Get FFT data.
+
+Description:
+libZPlay library can provide data from FFT analysis.
+User can change some parameters of FFT analysis and retreive amplitude and phase for each harmonic.
+This data can be used to draw FFT graph.
+
+
+<b>To get FFT data use: </b>
+<TABLE>
+C++                                                 C                                                        VB.NET                                           C#.NET                                           VC.NET                                             Delphi
+-------------------------------------------------   ------------------------------------------------------   ----------------------------------------------   ----------------------------------------------   ------------------------------------------------   --------------------------------------------------
+<LINK libZPlayCpp::ZPlay::GetFFTData, GetFFTData>   <LINK libZPlayCpp::zplay_GetFFTData, zplay_GetFFTData>   <LINK libZPlayVB.ZPlay.GetFFTData, GetFFTData>   <LINK libZPlayC#.ZPlay.GetFFTData, GetFFTData>   <LINK libZPlayVC::ZPlay::GetFFTData, GetFFTData>   <LINK libZPlayDelphi.ZPlay.GetFFTData, GetFFTData> 
+</TABLE>

@@ -1,0 +1,29 @@
+Summary:
+  Get current position.
+
+Parameters:
+  %PAR0% - Reference to <LINK libZPlayDelphi.TStreamTime, TStreamTime>. User must allocate memory for this parameter.
+
+Returns:
+  None.
+
+Remarks:
+This function retrieves current position in <LINK libZPlayDelphi.TStreamTime, TStreamTime> format.
+All members of <LINK libZPlayDelphi.TStreamTime, TStreamTime> structure are valid.
+If stream is not playing or stream is closed, position is 0.
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetStatus, GetStatus>,
+<LINK libZPlayDelphi.ZPlay.GetBitrate, GetBitrate>,
+<LINK libZPlayDelphi.ZPlay.GetStreamInfo, GetStreamInfo>
+
+Example:
+
+<code lang="delphi">
+var
+  Position: TStreamTime;
+
+begin
+  player.GetPosition(Position);
+end;
+</code>

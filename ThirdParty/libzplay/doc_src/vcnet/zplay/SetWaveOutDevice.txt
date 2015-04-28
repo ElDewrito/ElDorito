@@ -1,0 +1,27 @@
+Summary:
+  Set wave out device for this class instance.
+
+Parameters:
+  %PAR0% - Index of wave out device.
+           Call <LINK libZPlayVC::ZPlay::EnumerateWaveOut, EnumerateWaveOut> to get number of wave out devices.
+           Index value is in range from 0 to num_of_devices - 1.
+           <P><IMAGE note> Note: There is special index value <LINK libZPlayVC::TWaveOutMapper, TWaveOutMapper>.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+User can specify wave out device for each interface instance.
+If you have multiple soundcards, with this function you can specify output soundcard.
+You can also create 2 interface instances and play 2 songs, each song on different soundcard.
+
+Default wave output is set to <LINK libZPlayVC::TWaveOutMapper, TWaveOutMapper> (class is using waveform-audio output device capable of playing the given format).
+
+This function has effect on next call to play function.
+If you call this function while song is playing there is no effect.
+You need to stop playing and start playing again to apply new settings.
+
+See Also:
+<LINK libZPlayVC::ZPlay::EnumerateWaveOut, EnumerateWaveOut>,
+<LINK libZPlayVC::ZPlay::GetWaveOutInfo, GetWaveOutInfo>

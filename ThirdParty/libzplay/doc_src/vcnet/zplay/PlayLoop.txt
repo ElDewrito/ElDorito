@@ -1,0 +1,34 @@
+Summary:
+  Play specified segment of song, in loop if needed.
+
+Parameters:
+  %PAR0% - <LINK libZPlayVC::TTimeFormat, Time format> of <c>%PAR1%</c> parameter. With this parameter you need to specify which member of <LINK libZPlayVC::TStreamTime, TStreamTime> is valid.
+  %PAR1% - Reference to <LINK libZPlayVC::TStreamTime, TStreamTime> structure specifying loop starting position.
+  %PAR2% - <LINK libZPlayVC::TTimeFormat, Time format> of <c>%PAR3%</c> parameter. With this parameter you need to specify which member of <LINK libZPlayVC::TStreamTime, TStreamTime> is valid.
+  %PAR3% - Reference to <LINK libZPlayVC::TStreamTime, TStreamTime> structure specifying loop ending position.
+  %PAR4% - Number of loop cycles. This value can't be 0.
+           If this value is 1, function will play portion from pStartTime to pEndTime once.
+           If this value is 2, function will play portion from pStartTime to pEndTime twice ...
+  %PAR5% - If this value is false, playing will stop when loop is done with cycles.
+           If this value is true, playing will continue when loop is done with cycles.
+
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+Remarks:
+Previous playing will be stopped, function will seek to <c>pStartTime</c> and start playing.
+
+<IMAGE note> Note: Accuracy of seek position depends on interface settings. See <LINK CONFIGURE_ACCURATE_SEEK, accurate seek>.
+
+<IMAGE caution> Warning: This function will fail on <LINK DYNAMIC_STREAM, dynamic stream>.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::StartPlayback, StartPlayback>,
+<LINK libZPlayVC::ZPlay::StopPlayback, StopPlayback>,
+<LINK libZPlayVC::ZPlay::PausePlayback, PausePlayback>,
+<LINK libZPlayVC::ZPlay::ResumePlayback, ResumePlayback>,
+<LINK libZPlayVC::ZPlay::Seek, Seek>
+

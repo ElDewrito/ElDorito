@@ -1,0 +1,26 @@
+Summary:
+Stream format identifier.
+
+Parameters:
+  sfUnknown    - Unknown format, can't play this stream.
+  sfMp3        - <LINK FormatMp3, Mp3 format>.
+  sfOgg        - <LINK FormatVorbis, VORBIS OGG format>.
+  sfWav        - <LINK FormatWav, Wave format>.
+  sfPCM        - <LINK FormatPCM, PCM format>.
+  sfFLAC       - <LINK FormatFLAC, FLAC format>.
+  sfFLACOgg    - <LINK FormatFLAC, FLAC Ogg format>.
+  sfAC3        - <LINK FormatAC3, AC-3 format>.
+  sfAacADTS    - <LINK FormatAAC, AAC format>.
+  sfAutodetect - Autodetect stream format. Use this value to indicate that function needs to detect stream format.
+
+Remarks:
+<IMAGE note> Note: If you don't know stream format, use <b>sfAutodetect</b> value to try to detect stream format.
+
+See Also:
+<LINK libZPlayVC::ZPlay::AddFile, AddFile>,
+<LINK libZPlayVC::ZPlay::OpenFile, OpenFile>,
+<LINK libZPlayVC::ZPlay::OpenStream, OpenStream>,
+<LINK libZPlayVC::ZPlay::GetFileFormat, GetFileFormat>,
+<LINK libZPlayVC::ZPlay::DetectFileBPM, DetectFileBPM>,
+<LINK libZPlayVC::ZPlay::LoadFileID3, LoadFileID3>
+

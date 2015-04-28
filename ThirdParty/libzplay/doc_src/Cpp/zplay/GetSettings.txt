@@ -1,0 +1,30 @@
+Summary:
+Get interface settings.
+
+Parameters:
+  nSettingID - <LINK libZPlayCpp::TSettingID, Setting identifier>.
+
+Returns:
+Setting value.
+
+Remarks:
+Each interface instance has own settings. You can configure each interface instance separately.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::GetSettings, GetSettings>
+
+<LINK libZPlayCpp::zplay_GetSettings, zplay_GetSettings>
+
+<EXAMPLE>
+Get wave buffer size.
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+int nWaveBufferSize = instance->GetSettings(sidWaveBufferSize);
+</CODE>
+
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+int nWaveBufferSize = zplay_GetSettings(instance, sidWaveBufferSize);
+</CODE>
+</EXAMPLE>

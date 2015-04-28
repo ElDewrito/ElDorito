@@ -1,0 +1,45 @@
+Summary:
+  Detect beat-per-minute value of specified file. (ANSI version)
+
+Parameters:
+  pchFileName - Pointer to ANSI null terminated string specifying file name.
+  nFormat     - Stream <LINK libZPlayCpp::TStreamFormat, format identifier>. Use <b>sfAutodetect</b> if you need to autodetect stream format of specified file.
+  nMethod     - Detection method. See valid <LINK libZPlayCpp::TBMPDetectionMethod, detection methods>.
+
+Returns:
+BPM value. If algorithm can't detect BPM value, return value is 0.
+
+
+Remarks:
+This function will open temporary stream and detect beat-per-minute. When detection process is done, stream will be closed.
+
+<IMAGE note> Note: Detection process can take some time.
+
+<IMAGE note> Warning: This function <b>WILL NOT</b> interfere with current playing.
+
+BPM detection algorithm isn't 100 % accurate.
+Algorithm will stop when first valid BPM value is detected.
+If BPM value can't be detected, algorithm will try to search whole stream.
+If this fails, returned BPM value is 0.
+
+See Also:
+<LINK libZPlayCpp::ZPlay::DetectBPM, DetectBPM>,
+<LINK libZPlayCpp::ZPlay::DetectFileBPMW, DetectFileBPMW>
+
+<LINK libZPlayCpp::zplay_DetectBPM, zplay_DetectBPM>,
+<LINK libZPlayCpp::zplay_DetectFileBPMW, zplay_DetectFileBPMW>,
+
+
+Example:
+Detect BPM value of specified file using "peak detection" method
+
+<b><LINK ZPLAYINTERFACE, ZPlay C++ Class interface></b>
+<CODE lang="c++">
+// use "peak detection" method to detect BPM value
+int BPM = instance->DetectFileBPM("mysong.mp3", sfAutodetect, dmPeaks);
+</CODE>
+<b><LINK CSTYLEINTERFACE, C Style interface></b>
+<CODE lang="c++">
+// use "peak detection" method to detect BPM value
+int BPM = zplay_DetectBPM("mysong.mp3", sfAutodetect, instance, dmPeaks);
+</CODE>

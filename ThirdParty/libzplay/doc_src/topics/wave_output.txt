@@ -1,0 +1,5 @@
+ZPlay class can retrieve some usefull informations about wave-out devices on your computer.
+There is also possibility to choose wave-out device as output for ZPlay class.
+
+
+Read topics below: 

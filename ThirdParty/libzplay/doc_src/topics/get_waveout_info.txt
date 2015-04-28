@@ -1,0 +1,22 @@
+Summary:
+  Get info about wave-out devices.
+
+Description:
+There can be multiple waveform-audio output devices present in the system.
+ZPlay class has ability to detect all wave out devices and to retrieve informations about each device.
+
+
+<b>To detect all wave out devices use:</b>
+<TABLE>
+C++                                                             C                                                                    VB.NET                                                       C#.NET                                                       VC.NET                                                         Delphi
+-------------------------------------------------------------   ------------------------------------------------------------------   ----------------------------------------------------------   ----------------------------------------------------------   ------------------------------------------------------------   --------------------------------------------------------------
+<LINK libZPlayCpp::ZPlay::EnumerateWaveOut, EnumerateWaveOut>   <LINK libZPlayCpp::zplay_EnumerateWaveOut, zplay_EnumerateWaveOut>   <LINK libZPlayVB.ZPlay.EnumerateWaveOut, EnumerateWaveOut>   <LINK libZPlayC#.ZPlay.EnumerateWaveOut, EnumerateWaveOut>   <LINK libZPlayVC::ZPlay::EnumerateWaveOut, EnumerateWaveOut>   <LINK libZPlayDelphi.ZPlay.EnumerateWaveOut, EnumerateWaveOut> 
+<LINK libZPlayCpp::ZPlay::GetWaveOutInfo, GetWaveOutInfo>       <LINK libZPlayCpp::zplay_GetWaveOutInfo, zplay_GetWaveOutInfo>       <LINK libZPlayVB.ZPlay.GetWaveOutInfo, GetWaveOutInfo>       <LINK libZPlayC#.ZPlay.GetWaveOutInfo, GetWaveOutInfo>       <LINK libZPlayVC::ZPlay::GetWaveOutInfo, GetWaveOutInfo>       <LINK libZPlayDelphi.ZPlay.GetWaveOutInfo, GetWaveOutInfo> 
+<LINK libZPlayCpp::ZPlay::GetWaveOutInfoW, GetWaveOutInfoW>     <LINK libZPlayCpp::zplay_GetWaveOutInfoW, zplay_GetWaveOutInfoW>                                                                                                                                                                                              <LINK libZPlayDelphi.ZPlay.GetWaveOutInfoW, GetWaveOutInfoW> 
+</TABLE>
+
+
+
+See Also:
+<LINK SET_WAVEOUT, Set wave out device>,
+<LINK SET_WAVEOUTFILE, Set wave out file>

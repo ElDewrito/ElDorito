@@ -1,0 +1,13 @@
+Summary:
+  Resume paused playing.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+See Also:
+<LINK libZPlayVC::ZPlay::StartPlayback, StartPlayback>,
+<LINK libZPlayVC::ZPlay::StopPlayback, StopPlayback>,
+<LINK libZPlayVC::ZPlay::PausePlayback, PausePlayback>,
+<LINK libZPlayVC::ZPlay::Seek, Seek>

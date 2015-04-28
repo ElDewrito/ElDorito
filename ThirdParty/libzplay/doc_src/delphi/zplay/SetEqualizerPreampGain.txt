@@ -1,0 +1,28 @@
+Summary:
+Set equalizer preamp gain.
+
+Parameters:
+  %PAR0% - Preamp gain in <b>millidecibels</b>. Positive value boost gain, negative value lower gain.
+
+Return Value List:
+  True: All OK.
+  False: Error. To get error message read <LINK GET_ERROR_MESSAGE, here>.
+
+
+Remarks:
+<IMAGE note> <b>Note: Band gain is expressed in <COLOR red>millidecibels</COLOR>.</b>
+
+
+Preamp gain affects all bands.
+<P>Class has by default 10 equalizer bands. See <LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>.
+
+
+See Also:
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPreampGain, GetEqualizerPreampGain>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerPoints, SetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerPoints, GetEqualizerPoints>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerParam, SetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerParam, GetEqualizerParam>,
+<LINK libZPlayDelphi.ZPlay.SetEqualizerBandGain, SetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.GetEqualizerBandGain, GetEqualizerBandGain>,
+<LINK libZPlayDelphi.ZPlay.EnableEqualizer, EnableEqualizer>
