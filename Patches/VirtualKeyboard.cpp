@@ -60,19 +60,6 @@ namespace Patches
 			Hook(0x127092, SaveFileGetNameHook, HookFlags::IsCall).Apply();
 
 			Patch(0x127097, 0x90, 2).Apply();
-
-			// test
-			// Remove Original Data
-			/*int MaxFileLength = 31;
-			for (int i = 0; i < MaxFileLength; i++)
-			{
-			Pointer::Base(0x1EB7FBC + i).Write<uint8_t>(0);
-			Pointer::Base(0x1EB7FF4 + i).Write<uint8_t>(0);
-			}*/
-
-			static char filename[] = "font_package_new.bin";
-			Patch(0x109A25, { 0x68, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
-			Pointer::Base(0x109A26).Write<uint32_t>((uint32_t)&filename);
 		}
 	}
 }
