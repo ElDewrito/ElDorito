@@ -31,12 +31,6 @@ namespace
 		if (rwInput->header.dwType != RIM_TYPEMOUSE)
 			return true;
 
-		typedef int(__cdecl *Game_GetLocalPlayerIdxFunc)(int playerNum);
-		Game_GetLocalPlayerIdxFunc Game_GetLocalPlayerIdx = (Game_GetLocalPlayerIdxFunc)0x589C30;
-		int16_t playerIdx = (int16_t)Game_GetLocalPlayerIdx(0); // we only need the first 16 bits of this
-		if (playerIdx < 0)
-			return true;
-
 		Pointer InputPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
 		if (!InputPtr)
 			return true;
@@ -63,10 +57,10 @@ namespace
 		Pointer PlayerData = ElDorito::GetMainTls(GameGlobals::PlayerAlt::TLSOffset)[0];
 		if (!PlayerData)
 			return true;
-		Pointer vehicleData = Pointer(PlayerData(GameGlobals::PlayerAlt::VehicleData + (playerIdx * GameGlobals::PlayerAlt::PlayerObjectSize)).Read<uint32_t>());
-		if (!vehicleData)
-			return true;
-		char isInVehicle = vehicleData(GameGlobals::PlayerAlt::VehicleDataIsInVehicle).Read<char>();
+		Pointer vehicleData = Pointer(PlayerData(GameGlobals::PlayerAlt::VehicleData).Read<uint32_t>()); // Note: this has data for each local player, but since there's no splitscreen support yet, player index is always 0
+		char isInVehicle = 0;
+		if (vehicleData)
+			isInVehicle = vehicleData(GameGlobals::PlayerAlt::VehicleDataIsInVehicle).Read<char>();
 
 		if (isInVehicle != 0)
 		{
