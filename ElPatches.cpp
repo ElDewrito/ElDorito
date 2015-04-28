@@ -9,6 +9,7 @@
 #include "Patches\Ui.h"
 #include "Patches\VirtualKeyboard.h"
 #include "Patches\Armor.h"
+#include "Patches\RawInput.h"
 
 namespace
 {
@@ -27,6 +28,7 @@ namespace Patches
 		Ui::ApplyAll();
 		VirtualKeyboard::ApplyAll();
 		Armor::ApplyAll();
+		RawInput::ApplyAll();
 	}
 }
 

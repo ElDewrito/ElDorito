@@ -2,8 +2,6 @@
 #include "ElModule.h"
 #include <inttypes.h>
 
-#include "../Patch.h"
-
 class RawInput : public ElModule
 {
 public:
@@ -20,10 +18,4 @@ public:
 
 	// Suggest auto-complete strings for arugments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
-private:
-	bool enabled;
-	bool hookedWndProc;
-
-	Patch DisableInputPatch1;
-	Patch DisableInputPatch2;
 };

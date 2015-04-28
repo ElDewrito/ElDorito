@@ -265,7 +265,10 @@
       <Filter>Source Files\ThirdParty\yaml-cpp\src\contrib</Filter>
     </ClCompile>
     <ClCompile Include="Modules\RawInput.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\RawInputPatch.cpp">
+      <Filter>Source Files\Patches</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -569,8 +572,11 @@
     <ClInclude Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.h">
       <Filter>Header Files\ThirdParty\yaml-cpp\src\contrib</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\RawInput.h">
+      <Filter>Header Files\Patches</Filter>
+    </ClInclude>
     <ClInclude Include="Modules\RawInput.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
