@@ -1,11 +1,13 @@
 #include "Core.h"
 
 #include "../ElDorito.h"
+#include "../ElPatches.h"
 #include "../Patch.h"
 
 namespace
 {
 	void GameTickHook(int frames, float *deltaTimeInfo);
+	void TagsLoadedHook();
 	void FovHook();
 }
 
@@ -40,6 +42,9 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x25FA79), 10);
 			Patch::NopFill(Pointer::Base(0x25FA86), 5);
 			Hook(0x10CA02, FovHook).Apply();
+
+			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
+			Hook(0x1030EA, TagsLoadedHook).Apply();
 		}
 	}
 }
@@ -67,6 +72,17 @@ namespace
 			mov ds:[0x2301D98], eax
 			mov ecx, [edi + 0x18]
 			push 0x50CA08
+			ret
+		}
+	}
+
+	__declspec(naked) void TagsLoadedHook()
+	{
+		__asm
+		{
+			call Patches::ApplyAfterTagsLoaded
+			push 0x6D617467
+			push 0x5030EF
 			ret
 		}
 	}

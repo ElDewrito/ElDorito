@@ -1,48 +1,51 @@
 #include "Armor.h"
 #include "PlayerPropertiesExtension.h"
 #include "../ElPreferences.h"
+#include "../Patch.h"
 
 #include <iostream>
 #include <unordered_map>
 
 namespace
 {
-	struct ColorData
+	struct ColorIndexes
 	{
-		// All colors are RGB
-		uint32_t primaryColor;
-		uint32_t secondaryColor;
-		uint32_t visorColor;
-		uint32_t lightsColor;
-		uint32_t holoColor;
+		enum
+		{
+			Primary = 0,
+			Secondary,
+			Visor,
+			Lights,
+			Holo,
+
+			Count
+		};
 	};
 
-	struct ArmorData
+	struct ArmorIndexes
 	{
-		// These are indexes into the armor tag blocks in mulg
-		uint8_t helmet;
-		uint8_t chest;
-		uint8_t shoulders;
-		uint8_t arms;
-		uint8_t legs;
-		uint8_t acc;
-		uint8_t pelvis;
-		uint8_t unused;
+		enum
+		{
+			Helmet = 0,
+			Chest,
+			Shoulders,
+			Arms,
+			Legs,
+			Acc,
+			Pelvis,
+
+			Count
+		};
 	};
+
+	// Used during bitstream operations to automatically calculate the size of each armor component
+	const uint8_t MaxArmorIndexes[] = { 81, 82, 82, 50, 52, 24, 4 };
 
 	struct CustomizationData
 	{
-		ColorData colors;
-		ArmorData armor;
+		uint32_t colors[ColorIndexes::Count];
+		uint8_t armor[ArmorIndexes::Count];
 	};
-
-	const uint8_t MaxHelmet = 81;
-	const uint8_t MaxChest = 82;
-	const uint8_t MaxShoulders = 82;
-	const uint8_t MaxArms = 50;
-	const uint8_t MaxLegs = 52;
-	const uint8_t MaxAcc = 24;
-	const uint8_t MaxPelvis = 4;
 
 	// TODO: These are defined at the bottom of the file...should probably move them elsewhere
 	extern std::unordered_map<std::string, uint8_t> helmetIndexes;
@@ -53,10 +56,31 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
 
-	uint8_t getArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
+	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
 		auto it = indexes.find(name);
 		return (it != indexes.end()) ? it->second : 0;
+	}
+
+	void BuildCustomizationData(CustomizationData *out)
+	{
+		memset(out, 0, sizeof(CustomizationData));
+
+		// Load armor settings from preferences
+		ElPreferences &prefs = ElPreferences::Instance();
+		out->colors[ColorIndexes::Primary] = prefs.getPrimaryColor();
+		out->colors[ColorIndexes::Secondary] = prefs.getSecondaryColor();
+		out->colors[ColorIndexes::Lights] = prefs.getLightsColor();
+		out->colors[ColorIndexes::Visor] = prefs.getVisorColor();
+		out->colors[ColorIndexes::Holo] = prefs.getHoloColor();
+
+		out->armor[ArmorIndexes::Helmet] = GetArmorIndex(prefs.getHelmetName(), helmetIndexes);
+		out->armor[ArmorIndexes::Chest] = GetArmorIndex(prefs.getChestName(), chestIndexes);
+		out->armor[ArmorIndexes::Shoulders] = GetArmorIndex(prefs.getShouldersName(), shouldersIndexes);
+		out->armor[ArmorIndexes::Arms] = GetArmorIndex(prefs.getArmsName(), armsIndexes);
+		out->armor[ArmorIndexes::Legs] = GetArmorIndex(prefs.getLegsName(), legsIndexes);
+		out->armor[ArmorIndexes::Acc] = GetArmorIndex(prefs.getAccessoryName(), accIndexes);
+		out->armor[ArmorIndexes::Pelvis] = GetArmorIndex(prefs.getPelvisName(), pelvisIndexes);
 	}
 
 	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<CustomizationData>
@@ -64,22 +88,7 @@ namespace
 	protected:
 		void BuildData(int playerIndex, CustomizationData *out)
 		{
-			memset(out, 0, sizeof(CustomizationData));
-
-			// Load armor settings from preferences
-			ElPreferences &prefs = ElPreferences::Instance();
-			out->colors.primaryColor = prefs.getPrimaryColor();
-			out->colors.secondaryColor = prefs.getSecondaryColor();
-			out->colors.lightsColor = prefs.getLightsColor();
-			out->colors.visorColor = prefs.getVisorColor();
-			out->colors.holoColor = prefs.getHoloColor();
-			out->armor.helmet = getArmorIndex(prefs.getHelmetName(), helmetIndexes);
-			out->armor.chest = getArmorIndex(prefs.getChestName(), chestIndexes);
-			out->armor.shoulders = getArmorIndex(prefs.getShouldersName(), shouldersIndexes);
-			out->armor.arms = getArmorIndex(prefs.getArmsName(), armsIndexes);
-			out->armor.legs = getArmorIndex(prefs.getLegsName(), legsIndexes);
-			out->armor.acc = getArmorIndex(prefs.getAccessoryName(), accIndexes);
-			out->armor.pelvis = getArmorIndex(prefs.getPelvisName(), pelvisIndexes);
+			BuildCustomizationData(out);
 		}
 
 		void ApplyData(int playerIndex, void *session, const CustomizationData &data)
@@ -100,20 +109,12 @@ namespace
 		void Serialize(Blam::BitStream *stream, const CustomizationData &data)
 		{
 			// Colors
-			stream->WriteUnsigned<uint32_t>(data.colors.primaryColor, 24);
-			stream->WriteUnsigned<uint32_t>(data.colors.secondaryColor, 24);
-			stream->WriteUnsigned<uint32_t>(data.colors.visorColor, 24);
-			stream->WriteUnsigned<uint32_t>(data.colors.lightsColor, 24);
-			stream->WriteUnsigned<uint32_t>(data.colors.holoColor, 24);
-
+			for (int i = 0; i < ColorIndexes::Count; i++)
+				stream->WriteUnsigned<uint32_t>(data.colors[i], 24);
+			
 			// Armor
-			stream->WriteUnsigned<uint8_t>(data.armor.helmet, 0, MaxHelmet);
-			stream->WriteUnsigned<uint8_t>(data.armor.chest, 0, MaxChest);
-			stream->WriteUnsigned<uint8_t>(data.armor.shoulders, 0, MaxShoulders);
-			stream->WriteUnsigned<uint8_t>(data.armor.arms, 0, MaxArms);
-			stream->WriteUnsigned<uint8_t>(data.armor.legs, 0, MaxLegs);
-			stream->WriteUnsigned<uint8_t>(data.armor.acc, 0, MaxAcc);
-			stream->WriteUnsigned<uint8_t>(data.armor.pelvis, 0, MaxPelvis);
+			for (int i = 0; i < ArmorIndexes::Count; i++)
+				stream->WriteUnsigned<uint8_t>(data.armor[i], 0, MaxArmorIndexes[i]);
 		}
 
 		void Deserialize(Blam::BitStream *stream, CustomizationData *out)
@@ -121,22 +122,17 @@ namespace
 			memset(out, 0, sizeof(CustomizationData));
 
 			// Colors
-			out->colors.primaryColor = stream->ReadUnsigned<uint32_t>(24);
-			out->colors.secondaryColor = stream->ReadUnsigned<uint32_t>(24);
-			out->colors.visorColor = stream->ReadUnsigned<uint32_t>(24);
-			out->colors.lightsColor = stream->ReadUnsigned<uint32_t>(24);
-			out->colors.holoColor = stream->ReadUnsigned<uint32_t>(24);
+			for (int i = 0; i < ColorIndexes::Count; i++)
+				out->colors[i] = stream->ReadUnsigned<uint32_t>(24);
 
 			// Armor
-			out->armor.helmet = stream->ReadUnsigned<uint8_t>(0, MaxHelmet);
-			out->armor.chest = stream->ReadUnsigned<uint8_t>(0, MaxChest);
-			out->armor.shoulders = stream->ReadUnsigned<uint8_t>(0, MaxShoulders);
-			out->armor.arms = stream->ReadUnsigned<uint8_t>(0, MaxArms);
-			out->armor.legs = stream->ReadUnsigned<uint8_t>(0, MaxLegs);
-			out->armor.acc = stream->ReadUnsigned<uint8_t>(0, MaxAcc);
-			out->armor.pelvis = stream->ReadUnsigned<uint8_t>(0, MaxPelvis);
+			for (int i = 0; i < ArmorIndexes::Count; i++)
+				out->armor[i] = stream->ReadUnsigned<uint8_t>(0, MaxArmorIndexes[i]);
 		}
 	};
+
+	bool updateUiPlayerArmor = false; // Set to true to update the Spartan on the main menu
+	void UiPlayerModelArmorHook();
 }
 
 namespace Patches
@@ -146,7 +142,86 @@ namespace Patches
 		void ApplyAll()
 		{
 			Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<ArmorExtension>());
+
+			// Fix the player model on the main menu
+			Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
 		}
+
+		void RefreshUiPlayer()
+		{
+			updateUiPlayerArmor = true;
+		}
+	}
+}
+
+namespace
+{
+	__declspec(naked) void PoseWithWeapon(uint32_t unit, uint32_t weaponTag)
+	{
+		// This is a pretty big hack, basically I don't know where the function pulls the weapon index from
+		// so this lets us skip over the beginning of the function and set the weapon tag to whatever we want
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			sub esp, 0x18C
+			push esi
+			push edi
+			sub esp, 0x8
+			mov esi, unit
+			mov edi, weaponTag
+			push 0x7B77DA
+			ret
+		}
+	}
+
+	void UiPlayerModelArmorHook()
+	{
+		// This function runs every tick, so only update if necessary
+		if (!updateUiPlayerArmor)
+			return;
+
+		// Try to get the UI player biped
+		uint32_t uiPlayerBiped = Pointer::Base(0x4BE67A0).Read<uint32_t>();
+		if (uiPlayerBiped == 0xFFFFFFFF)
+			return;
+
+		// Generate customization data
+		CustomizationData customization;
+		BuildCustomizationData(&customization);
+
+		// Apply armor to the biped
+		typedef void (*ApplyArmorPtr)(CustomizationData *customization, uint32_t objectDatum);
+		ApplyArmorPtr ApplyArmor = reinterpret_cast<ApplyArmorPtr>(0x5A4430);
+		ApplyArmor(&customization, uiPlayerBiped);
+
+		// Apply each color
+		for (int i = 0; i < ColorIndexes::Count; i++)
+		{
+			// Convert the color data from RGB to float3
+			float colorData[3];
+			typedef void (*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
+			RgbToFloatColorPtr RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
+			RgbToFloatColor(customization.colors[i], colorData);
+
+			// Apply the color
+			typedef void (*ApplyArmorColorPtr)(uint32_t objectDatum, int colorIndex, float *colorData);
+			ApplyArmorColorPtr ApplyArmorColor = reinterpret_cast<ApplyArmorColorPtr>(0xB328F0);
+			ApplyArmorColor(uiPlayerBiped, i, colorData);
+		}
+
+		// Need to call this or else colors don't actually show up
+		typedef void (*UpdateArmorColorsPtr)(uint32_t objectDatum);
+		UpdateArmorColorsPtr UpdateArmorColors = reinterpret_cast<UpdateArmorColorsPtr>(0x5A2FA0);
+		UpdateArmorColors(uiPlayerBiped);
+
+		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
+		PoseWithWeapon(uiPlayerBiped, 0x151E);
+
+		updateUiPlayerArmor = false;
+
+		// Note: the call that this hook replaces is for setting up armor based on the server data,
+		// so it's not necessary to call here
 	}
 }
 

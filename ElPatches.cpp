@@ -42,6 +42,7 @@ namespace Patches
 
 	void ApplyAfterTagsLoaded()
 	{
+		Armor::RefreshUiPlayer();
 	}
 }
 
