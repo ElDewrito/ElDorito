@@ -1,6 +1,7 @@
 #include "OpticAnimation.h"
 #include "DebugHelper.h"
 #include  <sstream>
+#include <iostream>
 
 namespace Optic {
 
@@ -103,7 +104,6 @@ void OpticAnimation::updateState(AnimationState& state, double time) {
 	state.blue = calculateState(blue, time, state.blue);
 }
 
-
 double OpticAnimation::lerp(double y1, double y2, double t) {
 	return y1 + ((y2 - y1) / 100.0) * t;
 }
@@ -116,7 +116,7 @@ float OpticAnimation::calculateState(Keyframes& frames, double time, float previ
 	if(frames.empty()) {
 		return previous;
 	}
-
+	 
 	std::pair<Keyframe, Points>* start = &frames.front();
 
 	/* The < 2? checks here are to handle the case where only a single keyframe was used
@@ -142,7 +142,11 @@ float OpticAnimation::calculateState(Keyframes& frames, double time, float previ
 	double remainder = fmod(ideal, mod < 1.0? 1.0 : mod);
 	int first = static_cast<int>(floor(ideal));
 	
-	double progressY = lerp(start->second[first], start->second[first + 1], remainder);
+	double progressY = 1.0;
+	
+	if(start->second.size() > first + 2) {
+		progressY = lerp(start->second[first], start->second[first + 1], remainder);
+	}
 
 	//Map the current state (0 - 1) to the keyframe range (any two min/max between 0 and 1)
 	float final = static_cast<float>(start->first.second + progressY * (finishKey.second - start->first.second));
