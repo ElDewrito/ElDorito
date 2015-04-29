@@ -108,12 +108,13 @@ namespace Patches
 
 			const wchar_t* search[6] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf" };
 			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Avalanche", L"Edge", L"Reactor", L"Turf" };
+			TODO("Get names/descs using string ids? Seems the unic tags have descs for most of the maps");
 			const wchar_t* descs[6] = {
 				L"Millennia of tending has produced trees as ancient as the Forerunner structures they have grown around. 2-6 players.",
 				L"The crew of V-398 barely survived their unplanned landing in this gorge...this curious gorge. 6-16 players.",
 				L"Extreme winds scour scorched terrain, and ancient battle scars are a grim reminder that this is a precious prize. 6-16 players.",
-				L"This installation seemed to be important to someone once, now only the drones keep it from falling into disrepair. 6-16 players",
-				L"Being constructed just prior to the Invasion, it's builders had to evacuate before it was completed. 6-16 players.",
+				L"The remote frontier world of Partition has provided this ancient databank with the safety of seclusion. 6-16 players.",
+				L"Being constructed just prior to the Invasion, its builders had to evacuate before it was completed. 6-16 players.",
 				L"Though they dominate on open terrain, many Scarabs have fallen victim to the narrow streets of Earth's cities. 4-10 players."
 			};
 			for (uint32_t i = 0; i < numLevels; i++)
