@@ -107,7 +107,7 @@ namespace Patches
 				return;
 
 			const wchar_t* search[6] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf" };
-			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Avalanche", L"Edge", L"Reactor", L"Turf" };
+			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Avalanche", L"Edge", L"Reactor", L"Icebox" };
 			TODO("Get names/descs using string ids? Seems the unic tags have descs for most of the maps");
 			const wchar_t* descs[6] = {
 				L"Millennia of tending has produced trees as ancient as the Forerunner structures they have grown around. 2-6 players.",
