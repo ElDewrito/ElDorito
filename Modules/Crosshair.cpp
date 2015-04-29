@@ -31,7 +31,7 @@ std::string Crosshair::Suggest(const std::vector<std::string>& Arguments) const
 	{
 		if (Arguments[1].empty())
 		{
-			return (ElPreferences::Instance().getRawMouse() ? "normal" : "center");
+			return (ElPreferences::Instance().getCrosshairCentered() ? "normal" : "center");
 		}
 	}
 	return "";
