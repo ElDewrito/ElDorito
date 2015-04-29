@@ -120,8 +120,9 @@ namespace
 
 		if (Src == (char*)0x165B170) // "content items"
 		{
-			// set some byte thats needed in the contentfile related funcs
+			// set some bytes thats needed in the contentfile related funcs
 			*(uint8_t*)(retData + 0x29) = 1;
+			*(uint32_t*)(retData + 0x40) = 1;
 		}
 
 		return retData;

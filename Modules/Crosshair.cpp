@@ -18,7 +18,7 @@ Crosshair::~Crosshair()
 std::string Crosshair::Info(const std::string& Topic) const
 {
 	std::string Info = "Crosshair mode: ";
-	Info += (ElPreferences::Instance().getRawMouse() ? "Centered" : "Normal");
+	Info += (ElPreferences::Instance().getCrosshairCentered() ? "Centered" : "Normal");
 	Info += "\nUsage: crosshair (center|normal)\n"
 		"Allows the player to change the crosshair position.";
 
