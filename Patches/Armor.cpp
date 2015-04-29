@@ -133,6 +133,7 @@ namespace
 
 	bool updateUiPlayerArmor = false; // Set to true to update the Spartan on the main menu
 	void UiPlayerModelArmorHook();
+	void ScoreboardPlayerModelArmorHook();
 }
 
 namespace Patches
@@ -145,6 +146,14 @@ namespace Patches
 
 			// Fix the player model on the main menu
 			Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
+
+			// Fix rendering the scoreboard player model
+			// (todo: figure out why your biped doesn't show on the postgame screen...there's probably something missing here)
+			Patch::NopFill(Pointer::Base(0x435DAB), 0x50);
+			Hook(0x4360D9, ScoreboardPlayerModelArmorHook, HookFlags::IsCall).Apply();
+			Patch::NopFill(Pointer::Base(0x4360DE), 0x1A9);
+			Pointer::Base(0x43628A).Write<uint8_t>(0x1C);
+			Patch::NopFill(Pointer::Base(0x43628B), 0x3);
 		}
 
 		void RefreshUiPlayer()
@@ -175,6 +184,41 @@ namespace
 		}
 	}
 
+	void CustomizeBiped(uint32_t bipedObject)
+	{
+		// Generate customization data
+		CustomizationData customization;
+		BuildCustomizationData(&customization);
+
+		// Apply armor to the biped
+		typedef void(*ApplyArmorPtr)(CustomizationData *customization, uint32_t objectDatum);
+		ApplyArmorPtr ApplyArmor = reinterpret_cast<ApplyArmorPtr>(0x5A4430);
+		ApplyArmor(&customization, bipedObject);
+
+		// Apply each color
+		for (int i = 0; i < ColorIndexes::Count; i++)
+		{
+			// Convert the color data from RGB to float3
+			float colorData[3];
+			typedef void(*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
+			RgbToFloatColorPtr RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
+			RgbToFloatColor(customization.colors[i], colorData);
+
+			// Apply the color
+			typedef void(*ApplyArmorColorPtr)(uint32_t objectDatum, int colorIndex, float *colorData);
+			ApplyArmorColorPtr ApplyArmorColor = reinterpret_cast<ApplyArmorColorPtr>(0xB328F0);
+			ApplyArmorColor(bipedObject, i, colorData);
+		}
+
+		// Need to call this or else colors don't actually show up
+		typedef void(*UpdateArmorColorsPtr)(uint32_t objectDatum);
+		UpdateArmorColorsPtr UpdateArmorColors = reinterpret_cast<UpdateArmorColorsPtr>(0x5A2FA0);
+		UpdateArmorColors(bipedObject);
+
+		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
+		PoseWithWeapon(bipedObject, 0x151E);
+	}
+
 	void UiPlayerModelArmorHook()
 	{
 		// This function runs every tick, so only update if necessary
@@ -186,42 +230,18 @@ namespace
 		if (uiPlayerBiped == 0xFFFFFFFF)
 			return;
 
-		// Generate customization data
-		CustomizationData customization;
-		BuildCustomizationData(&customization);
-
-		// Apply armor to the biped
-		typedef void (*ApplyArmorPtr)(CustomizationData *customization, uint32_t objectDatum);
-		ApplyArmorPtr ApplyArmor = reinterpret_cast<ApplyArmorPtr>(0x5A4430);
-		ApplyArmor(&customization, uiPlayerBiped);
-
-		// Apply each color
-		for (int i = 0; i < ColorIndexes::Count; i++)
-		{
-			// Convert the color data from RGB to float3
-			float colorData[3];
-			typedef void (*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
-			RgbToFloatColorPtr RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
-			RgbToFloatColor(customization.colors[i], colorData);
-
-			// Apply the color
-			typedef void (*ApplyArmorColorPtr)(uint32_t objectDatum, int colorIndex, float *colorData);
-			ApplyArmorColorPtr ApplyArmorColor = reinterpret_cast<ApplyArmorColorPtr>(0xB328F0);
-			ApplyArmorColor(uiPlayerBiped, i, colorData);
-		}
-
-		// Need to call this or else colors don't actually show up
-		typedef void (*UpdateArmorColorsPtr)(uint32_t objectDatum);
-		UpdateArmorColorsPtr UpdateArmorColors = reinterpret_cast<UpdateArmorColorsPtr>(0x5A2FA0);
-		UpdateArmorColors(uiPlayerBiped);
-
-		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		PoseWithWeapon(uiPlayerBiped, 0x151E);
-
+		CustomizeBiped(uiPlayerBiped);
 		updateUiPlayerArmor = false;
 
 		// Note: the call that this hook replaces is for setting up armor based on the server data,
 		// so it's not necessary to call here
+	}
+
+	void ScoreboardPlayerModelArmorHook()
+	{
+		uint32_t scoreboardBiped = Pointer::Base(0x4C4C698).Read<uint32_t>();
+		if (scoreboardBiped != 0xFFFFFFFF)
+			CustomizeBiped(scoreboardBiped);
 	}
 }
 
