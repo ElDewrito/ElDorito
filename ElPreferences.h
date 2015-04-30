@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <string>
+#include <Windows.h>
 
 class ElPreferences : public Utils::Singleton<ElPreferences>
 {
@@ -11,7 +12,8 @@ public:
 	ElPreferences();
 
 	bool load();
-	bool save() const;
+	bool save();
+	bool changed();
 
 	std::string getPlayerName() const { return playerName; }
 	void setPlayerName(const std::string &name) { playerName = name; }
@@ -79,4 +81,6 @@ private:
 
 	bool rawMouse;
 	bool crosshairCentered;
+
+	FILETIME lastChanged;
 };

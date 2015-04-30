@@ -205,3 +205,7 @@ bool DebugLogging::Run(const std::vector<std::string>& Args)
 
 	return false;
 }
+
+void DebugLogging::PreferencesChanged()
+{
+}

@@ -64,3 +64,7 @@ bool RawInput::Run(const std::vector<std::string>& Args)
 
 	return false;
 }
+
+void RawInput::PreferencesChanged()
+{
+}

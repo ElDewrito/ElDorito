@@ -22,6 +22,9 @@ public:
 	// Suggest auto-complete strings for arugments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
+	// Called when the preferences file is edited externally
+	void PreferencesChanged();
+
 	wchar_t UserName[17];
 private:
 	void GetSavedUsername();

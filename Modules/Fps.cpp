@@ -87,3 +87,7 @@ bool Fps::Run(const std::vector<std::string>& Args)
 	std::cout << "FPS limit set to " << newLimit << "." << std::endl;
 	return true;
 }
+
+void Fps::PreferencesChanged()
+{
+}

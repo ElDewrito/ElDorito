@@ -44,6 +44,11 @@ namespace Patches
 	{
 		Armor::RefreshUiPlayer();
 	}
+
+	void PreferencesUpdated()
+	{
+		Armor::RefreshUiPlayer();
+	}
 }
 
 namespace

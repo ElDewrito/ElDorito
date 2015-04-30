@@ -69,3 +69,8 @@ bool Crosshair::Run(const std::vector<std::string>& Args)
 
 	return false;
 }
+
+void Crosshair::PreferencesChanged()
+{
+	Patches::Ui::EnableCenteredCrosshairPatch(ElPreferences::Instance().getCrosshairCentered());
+}

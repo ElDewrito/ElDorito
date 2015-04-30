@@ -82,3 +82,8 @@ void NameChange::GetSavedUsername()
 	srand((unsigned int)time(0));
 	wcscpy_s(this->UserName, 16, defaultNames[rand() % 40]);
 }
+
+void NameChange::PreferencesChanged()
+{
+	// TODO: Anything we should do here?
+}

@@ -106,6 +106,10 @@ bool Camera::Run(const std::vector<std::string>& args)
 	return false;
 }
 
+void Camera::PreferencesChanged()
+{
+}
+
 void Camera::setPatchesEnabled(bool areEnabled)
 {
 	if( areEnabled )

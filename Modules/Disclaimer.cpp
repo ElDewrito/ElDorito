@@ -63,3 +63,7 @@ bool Disclaimer::Run(const std::vector<std::string>& Args)
 
 	return true;
 }
+
+void Disclaimer::PreferencesChanged()
+{
+}

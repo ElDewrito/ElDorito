@@ -271,7 +271,7 @@
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
     <ClCompile Include="Modules\Crosshair.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -582,7 +582,7 @@
       <Filter>Header Files\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Modules\Crosshair.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

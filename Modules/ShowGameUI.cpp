@@ -86,3 +86,7 @@ bool ShowGameUI::Run(const std::vector<std::string>& Args)
 
 	return true;
 }
+
+void ShowGameUI::PreferencesChanged()
+{
+}

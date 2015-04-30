@@ -17,14 +17,18 @@ namespace
 		Pointer::Base(FOVOffset).Write(newFov);
 		Pointer::Base(InitialFOVOffset).Write(newFov);
 	}
+
+	void LoadFovFromPreferences()
+	{
+		float fov = ElPreferences::Instance().getFieldOfView();
+		fov = Utils::Clamp(fov, 0.001f, 150.0f);
+		SetFov(fov);
+	}
 }
 
 Fov::Fov()
 {
-	// Load FOV from preferences
-	float fov = ElPreferences::Instance().getFieldOfView();
-	fov = Utils::Clamp(fov, 0.001f, 150.0f);
-	SetFov(fov);
+	LoadFovFromPreferences();
 }
 
 Fov::~Fov()
@@ -81,4 +85,9 @@ bool Fov::Run(const std::vector<std::string>& Args)
 	}
 
 	return false;
+}
+
+void Fov::PreferencesChanged()
+{
+	LoadFovFromPreferences();
 }

@@ -27,12 +27,16 @@ static int GetCountdownTimer()
 	return Pointer::Base(0x153708).Read<uint8_t>();
 }
 
-Countdown::Countdown()
+static void LoadCountdownFromPreferences()
 {
-	// Load countdown timer from preferences
 	int countdown = ElPreferences::Instance().getCountdownTimer();
 	countdown = Utils::Clamp(countdown, 0, MaxCountdownSeconds);
 	SetCountdownTimer(countdown);
+}
+
+Countdown::Countdown()
+{
+	LoadCountdownFromPreferences();
 }
 
 Countdown::~Countdown()
@@ -80,4 +84,9 @@ bool Countdown::Run(const std::vector<std::string>& Args)
 
 	std::cout << "Countdown timer set to " << newTime << "s." << std::endl;
 	return true;
+}
+
+void Countdown::PreferencesChanged()
+{
+	LoadCountdownFromPreferences();
 }

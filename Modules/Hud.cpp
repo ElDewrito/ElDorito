@@ -65,3 +65,7 @@ bool Hud::Run(const std::vector<std::string>& Args)
 
 	return false;
 }
+
+void Hud::PreferencesChanged()
+{
+}

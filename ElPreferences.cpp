@@ -38,6 +38,7 @@ ElPreferences::ElPreferences()
 	rawMouse(true),
 	crosshairCentered(false)
 {
+	memset(&lastChanged, 0, sizeof(lastChanged));
 }
 
 bool ElPreferences::load()
@@ -54,6 +55,10 @@ bool ElPreferences::load()
 		if (prefs["input"])
 			parseInputData(this, prefs["input"]);
 	}
+	catch (YAML::BadFile&)
+	{
+		return false;
+	}
 	catch (YAML::Exception &ex)
 	{
 		std::cout << "Unable to load " << PreferencesFileName << ": " << ex.mark.line << "," << ex.mark.column << " " << ex.msg << std::endl;
@@ -62,7 +67,7 @@ bool ElPreferences::load()
 	return true;
 }
 
-bool ElPreferences::save() const
+bool ElPreferences::save()
 {
 	std::ofstream outFile(PreferencesFileName, std::ios::trunc);
 	if (outFile.fail())
@@ -112,6 +117,26 @@ bool ElPreferences::save() const
 	{
 		return false;
 	}
+	memset(&lastChanged, 0, sizeof(lastChanged)); // Don't trigger a change event for this
+	return true;
+}
+
+bool ElPreferences::changed()
+{
+	// Just poll the file for changes...the official file notification APIs are too much of a hassle
+	// I timed this out and it only takes about 20us on my machine, so this is probably fine
+	// -shockfire
+	WIN32_FILE_ATTRIBUTE_DATA attribs;
+	if (!GetFileAttributesEx(PreferencesFileName, GetFileExInfoStandard, &attribs))
+		return false;
+	if (lastChanged.dwLowDateTime == 0 && lastChanged.dwHighDateTime == 0)
+	{
+		lastChanged = attribs.ftLastWriteTime;
+		return false;
+	}
+	if (CompareFileTime(&attribs.ftLastWriteTime, &lastChanged) <= 0)
+		return false;
+	lastChanged = attribs.ftLastWriteTime;
 	return true;
 }
 

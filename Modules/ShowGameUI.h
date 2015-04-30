@@ -19,6 +19,9 @@ public:
 	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
+	// Called when the preferences file is edited externally
+	void PreferencesChanged();
+
 	bool DialogShow; // todo: put this somewhere better
 	unsigned int DialogStringId;
 	int DialogArg1; // todo: figure out a better name for this

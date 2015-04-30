@@ -64,3 +64,7 @@ bool Information::Run(const std::vector<std::string>& Args)
 
 	return true;
 }
+
+void Information::PreferencesChanged()
+{
+}

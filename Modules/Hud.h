@@ -18,6 +18,9 @@ public:
 
 	// Suggest auto-complete strings for arguments
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
+
+	// Called when the preferences file is edited externally
+	void PreferencesChanged();
 private:
 	bool enabled;
 };

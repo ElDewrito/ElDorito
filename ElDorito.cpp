@@ -15,6 +15,7 @@
 #include "Utils/Utils.h"
 #include "ElModules.h"
 #include "ElPatches.h"
+#include "ElPreferences.h"
 
 const char* Credits[] = {
 	"Wunk",
@@ -173,6 +174,21 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 			Command.second->Tick(DeltaTime);
 		}
 	}
+
+	// Only check for preferences changes every 1/8th of a second
+	static std::chrono::duration<double> prefsRefreshTime;
+	if (prefsRefreshTime >= std::chrono::duration<double>(0.125))
+	{
+		if (ElPreferences::Instance().changed() && ElPreferences::Instance().load())
+		{
+			// Signal that preferences were updated externally
+			Patches::PreferencesUpdated();
+			for (auto Command : Commands)
+				Command.second->PreferencesChanged();
+		}
+		prefsRefreshTime = prefsRefreshTime.zero();
+	}
+	prefsRefreshTime += DeltaTime;
 
 	static bool appliedFirstTickPatches = false;
 	if (appliedFirstTickPatches)

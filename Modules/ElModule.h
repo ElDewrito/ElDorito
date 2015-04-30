@@ -9,6 +9,7 @@ class ElModule : public Console::Command
 {
 public:
 	virtual void Tick(const std::chrono::duration<double>& DeltaTime) = 0;
+	virtual void PreferencesChanged() = 0;
 	virtual ~ElModule() = default;
 private:
 };
