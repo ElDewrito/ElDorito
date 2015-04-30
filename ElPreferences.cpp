@@ -189,7 +189,7 @@ namespace
 		if (video["fov"])
 			prefs->setFieldOfView(video["fov"].as<float>());
 
-		if (video["crosshair_centered"])
+		if (video["crosshairCentered"])
 			prefs->setCrosshairCentered(video["crosshairCentered"].as<bool>());
 	}
 
