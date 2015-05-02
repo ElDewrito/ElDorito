@@ -105,7 +105,11 @@ public:
 	template <class T>
 	inline void Write(const T value) const
 	{
+		DWORD temp;
+		DWORD temp2;
+		VirtualProtect(_Pointer, sizeof(T), PAGE_READWRITE, &temp);
 		*((T*)_Pointer) = value;
+		VirtualProtect(_Pointer, sizeof(T), temp, &temp2);
 	}
 
 	inline void Write(const void* data, size_t size) const

@@ -11,7 +11,13 @@
 NameChange::NameChange()
 {
 	memset(this->UserName, 0, sizeof(wchar_t) * 17);
+
+	// patch Game_GetPlayerName to get the name from our field
 	Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);
+
+	// patch BLF save func to get the name from our field
+	Pointer::Base(0x124E6A).Write<uint32_t>((uint32_t)&this->UserName);
+
 	GetSavedUsername();
 }
 

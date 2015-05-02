@@ -10,6 +10,7 @@
 #include "Patches\VirtualKeyboard.h"
 #include "Patches\Armor.h"
 #include "Patches\RawInput.h"
+#include "Patches\ContentItems.h"
 
 #include "ElPreferences.h"
 
@@ -31,6 +32,7 @@ namespace Patches
 		VirtualKeyboard::ApplyAll();
 		Armor::ApplyAll();
 		RawInput::ApplyAll();
+		ContentItems::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()
