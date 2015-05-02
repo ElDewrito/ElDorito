@@ -87,6 +87,41 @@ namespace Blam
 		"shared"
 	};
 
+	typedef struct _BLAM_CONTENT_HEADER
+	{
+		uint64_t ID; // not sure about this
+		wchar_t Name[0x10];
+		char Description[0x80];
+		char Author[0x10];
+		uint32_t Type;
+		uint32_t Unknown1; // 0
+		uint32_t Unknown2; // 1
+		uint32_t Unknown3; // 0
+		uint32_t Size; // 0xE1F0 for maps, 0x3BC for variants
+		uint32_t Unknown4; // 0
+		uint32_t UnknownUnique1; // changes for each item
+		uint32_t Unknown5; // 0
+		uint32_t Unknown6; // 0
+		uint32_t Unknown7; // -1
+		uint32_t Unknown8; // 0x140 for maps, -1 for variants, 
+		uint64_t Unknown9; // 0 for maps, 4 for variants
+		uint32_t Unknown10; // -1;
+		uint32_t Unknown11; // 0;
+		uint32_t Unknown12; // 0;
+		uint32_t Unknown13; // 0;
+	} BLAM_CONTENT_HEADER, *PBLAM_CONTENT_HEADER;
+
+	// struct of entries in the content items global
+	typedef struct _BLAM_CONTENT_ITEM
+	{
+		uint32_t Index;
+		uint32_t ItemFlags;
+		uint32_t ItemType;
+		uint32_t BaseOffset;
+		BLAM_CONTENT_HEADER ContentHeader;
+		wchar_t FilePath[0x99];
+	} BLAM_CONTENT_ITEM, *PBLAM_CONTENT_ITEM;
+
 	// todo: safely make this into a C++ struct without any padding/packing etc
 	typedef struct _BLAM_GAME_VARIANT
 	{

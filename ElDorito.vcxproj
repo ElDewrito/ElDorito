@@ -41,11 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
     <TargetName>mtndew</TargetName>
-    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mtndew</TargetName>
-    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
     <ClCompile>
