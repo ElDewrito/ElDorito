@@ -89,6 +89,9 @@ bool DirectConnect::Run(const std::vector<std::string>& Args)
 		Pointer::Base(0x1E40BB4).Write(rawXnkid, 0x10);
 		Pointer::Base(0x1E40BD4).Write(rawXnaddr, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
+
+		std::cout << "Attempting connection to " << address << "...\n" << std::endl;
+		return true;
 	}
 
 	return false;
