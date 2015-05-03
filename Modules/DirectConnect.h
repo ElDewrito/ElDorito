@@ -23,4 +23,7 @@ public:
 	std::string Suggest(const std::vector<std::string>& Arguments) const;
 
 	void PreferencesChanged();
+
+private:
+	BYTE syslinkData[0x176];
 };
