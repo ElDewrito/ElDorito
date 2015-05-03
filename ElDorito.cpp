@@ -237,6 +237,32 @@ void ElDorito::SetSessionMessage(const std::string& Message)
 	// todo: some way of undoing this
 }
 
+void ElDorito::ParseCommand(std::string command)
+{
+	std::stringstream test(command);
+	std::string segment;
+	std::vector<std::string> seglist;
+	std::string commandName = command;
+	bool gotCommandName = false;
+	TODO("make ParseCommand support quoted text etc");
+	TODO("make commands return text into a buffer that we can send over rcon");
+	while (std::getline(test, segment, ' '))
+	{
+		if (!gotCommandName)
+		{
+			commandName = segment;
+			gotCommandName = true;
+		}
+		Utils::String::RemoveCharsFromString(segment, "\r\n");
+		seglist.push_back(segment);
+	}
+
+	if (Commands.count(commandName) != 1 || Commands[commandName] == nullptr) // command not registered
+		return;
+
+	Commands[commandName]->Run(seglist);
+}
+
 Pointer ElDorito::GetMainTls(size_t Offset)
 {
 	static Pointer ThreadLocalStorage;

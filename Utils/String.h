@@ -7,6 +7,8 @@ namespace Utils
 {
 	namespace String
 	{
+		void RemoveCharsFromString(std::string &str, char* charsToRemove);
+
 		void HexStringToBytes(const std::string &in, void *const data, size_t length);
 		void BytesToHexString(void *const data, const size_t dataLength, std::string &dest);
 

@@ -14,6 +14,12 @@ namespace Utils
 {
 	namespace String
 	{
+		void RemoveCharsFromString(std::string &str, char* charsToRemove)
+		{
+			for (unsigned int i = 0; i < strlen(charsToRemove); ++i)
+				str.erase(remove(str.begin(), str.end(), charsToRemove[i]), str.end());
+		}
+
 		void HexStringToBytes(const std::string &in, void *const data, size_t length)
 		{
 			unsigned char   *byteData = reinterpret_cast<unsigned char*>(data);

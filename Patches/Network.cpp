@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include "../ElDorito.h"
+
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
@@ -26,6 +28,61 @@ namespace Patches
 {
 	namespace Network
 	{
+		char motd[100];
+		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+		{
+			if (msg != WM_RCON)
+			{
+				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
+				return Game_WndProc(hWnd, msg, wParam, lParam);
+			}
+
+			if (WSAGETSELECTERROR(lParam))
+			{
+				closesocket((SOCKET)wParam);
+				return 0;
+			}
+
+			SOCKET clientSocket;
+			int inDataLength;
+			char inDataBuffer[1024];
+			bool isValidAscii = true;
+
+			switch (WSAGETSELECTEVENT(lParam))
+			{
+			case FD_ACCEPT:
+				// accept the connection and send our motd
+				clientSocket = accept(wParam, NULL, NULL);
+				WSAAsyncSelect(clientSocket, hWnd, WM_RCON, FD_READ | FD_WRITE | FD_CLOSE);
+				send(clientSocket, motd, strlen(motd), 0);
+				break;
+			case FD_READ:
+				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
+				inDataLength = recv((SOCKET)wParam, (char*)inDataBuffer, sizeof(inDataBuffer) / sizeof(inDataBuffer[0]), 0);
+
+				// check if text is proper ascii, because sometimes it's not
+				for (int i = 0; i < inDataLength; i++)
+				{
+					char buf = inDataBuffer[i];
+					if ((buf < 0x20 || buf > 0x7F) && buf != 0xD && buf != 0xA)
+					{
+						isValidAscii = false;
+						break;
+					}
+				}
+
+				if (isValidAscii)
+					ElDorito::Instance().ParseCommand(std::string(inDataBuffer));
+
+				break;
+			case FD_CLOSE:
+				closesocket((SOCKET)wParam);
+				break;
+			}
+			return 0;
+		}
+
 		void ApplyAll()
 		{
 			// Fix network debug strings having (null) instead of an IP address
@@ -46,6 +103,29 @@ namespace Patches
 			Hook(0xDFF7E, RegisterPlayerPropertiesPacketHook, HookFlags::IsCall).Apply();
 			Hook(0xDFD53, SerializePlayerPropertiesHook, HookFlags::IsCall).Apply();
 			Hook(0xDE178, DeserializePlayerPropertiesHook, HookFlags::IsCall).Apply();
+
+			// Set the games wndproc to our one, so we can receive async network messages
+			Pointer::Base(0x2EB63).Write<uint32_t>((uint32_t)&networkWndProc);
+		}
+
+		bool StartRemoteConsole()
+		{
+			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
+			if (hwnd == 0)
+				return false;
+
+			sprintf_s(motd, 100, "ElDewrito %s Remote Console\r\n", Utils::Version::GetVersionString().c_str());
+
+			SOCKET rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			SOCKADDR_IN bindAddr;
+			bindAddr.sin_family = AF_INET;
+			bindAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+			bindAddr.sin_port = htons(2448);
+
+			// open our listener socket
+			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
+			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
+			listen(rconSocket, 5);
 		}
 	}
 }

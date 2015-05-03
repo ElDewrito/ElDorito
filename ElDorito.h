@@ -25,6 +25,7 @@ public:
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
 	void SetSessionMessage(const std::string& Message);
+	void ParseCommand(std::string command);
 
 	static void SetMainThreadID(size_t ThreadID)
 	{

@@ -38,6 +38,7 @@ namespace Patches
 	void ApplyOnFirstTick()
 	{
 		Ui::ApplyMapNameFixes();
+		Network::StartRemoteConsole();
 		if (ElPreferences::Instance().getCrosshairCentered())
 			Patches::Ui::EnableCenteredCrosshairPatch(true);
 	}
