@@ -72,7 +72,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>ElDorito.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <AdditionalDependencies>Version.lib;d3d9.lib;d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;d3d9.lib;d3dx9.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "C:\Halo\$(TargetFileName)"</Command>
@@ -102,7 +102,7 @@
       <ModuleDefinitionFile>ElDorito.def</ModuleDefinitionFile>
       <SubSystem>Windows</SubSystem>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalDependencies>Version.lib;d3d9.lib;d3dx9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Version.lib;d3d9.lib;d3dx9.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>Copy /Y "$(TargetDir)$(TargetFileName)" "C:\Halo\$(TargetFileName)"</Command>
