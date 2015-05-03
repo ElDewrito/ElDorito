@@ -54,6 +54,7 @@ void ElDorito::Initialize()
 	PushModule<Countdown>("countdown");
 	PushModule<RawInput>("rawinput");
 	PushModule<Crosshair>("crosshair");
+	PushModule<DirectConnect>("connect");
 #ifdef _ELDEBUG
 	// Changing the FPS lock causes severe physics issues, so only allow it in debug builds for now
 	PushModule<Fps>("fps");

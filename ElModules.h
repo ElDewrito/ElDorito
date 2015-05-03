@@ -19,3 +19,4 @@
 #include "Modules/Fps.h"
 #include "Modules/RawInput.h"
 #include "Modules/Crosshair.h"
+#include "Modules/DirectConnect.h"

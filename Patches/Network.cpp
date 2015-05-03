@@ -115,7 +115,7 @@ namespace
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid)
 	{
 		uint32_t maxMachines = *(uint32_t*)(0x228E6D8);
-		uint8_t* syslinkDataPtr = (uint8_t*)*(uint32_t*)(0x228E6D8 + 0x4);
+		uint8_t* syslinkDataPtr = (uint8_t*)*(uint32_t*)(0x228E6DC);
 
 		for (uint32_t i = 0; i < maxMachines; i++)
 		{

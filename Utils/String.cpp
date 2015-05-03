@@ -8,11 +8,44 @@
 #include <functional>
 #include <cctype>
 #include <codecvt>
+#include <iomanip>
 
 namespace Utils
 {
 	namespace String
 	{
+		void HexStringToBytes(const std::string &in, void *const data, size_t length)
+		{
+			unsigned char   *byteData = reinterpret_cast<unsigned char*>(data);
+
+			std::stringstream hexStringStream; hexStringStream >> std::hex;
+			for (size_t strIndex = 0, dataIndex = 0; strIndex < (length * 2); ++dataIndex)
+			{
+				// Read out and convert the string two characters at a time
+				const char tmpStr[3] = { in[strIndex++], in[strIndex++], 0 };
+
+				// Reset and fill the string stream
+				hexStringStream.clear();
+				hexStringStream.str(tmpStr);
+
+				// Do the conversion
+				int tmpValue = 0;
+				hexStringStream >> tmpValue;
+				byteData[dataIndex] = static_cast<unsigned char>(tmpValue);
+			}
+		}
+
+		void BytesToHexString(void *const data, const size_t dataLength, std::string &dest)
+		{
+			unsigned char       *byteData = reinterpret_cast<unsigned char*>(data);
+			std::stringstream   hexStringStream;
+
+			hexStringStream << std::hex << std::setfill('0');
+			for (size_t index = 0; index < dataLength; ++index)
+				hexStringStream << std::setw(2) << static_cast<int>(byteData[index]);
+			dest = hexStringStream.str();
+		}
+
 		void ReplaceCharacters(std::string& str, char find, char replaceWith)
 		{
 			for( unsigned i = 0; i < str.length(); ++i )
