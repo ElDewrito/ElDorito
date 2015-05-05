@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "../ElDorito.h"
+#include "../ElPreferences.h"
 
 namespace
 {

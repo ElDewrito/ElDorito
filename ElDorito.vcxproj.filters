@@ -279,6 +279,9 @@
     <ClCompile Include="Modules\DirectConnect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\PlayerUid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -598,6 +601,9 @@
     </ClInclude>
     <ClInclude Include="Modules\DirectConnect.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\PlayerUid.h">
+      <Filter>Header Files\Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

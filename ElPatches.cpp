@@ -11,6 +11,7 @@
 #include "Patches\Armor.h"
 #include "Patches\RawInput.h"
 #include "Patches\ContentItems.h"
+#include "Patches\PlayerUid.h"
 
 #include "ElPreferences.h"
 
@@ -33,6 +34,7 @@ namespace Patches
 		Armor::ApplyAll();
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();
+		PlayerUid::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()

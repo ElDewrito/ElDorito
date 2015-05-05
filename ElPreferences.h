@@ -18,6 +18,9 @@ public:
 	std::string getPlayerName() const { return playerName; }
 	void setPlayerName(const std::string &name) { playerName = name; }
 
+	uint64_t getPlayerUid() const { return playerUid; }
+	void setPlayerUid(uint64_t uid) { playerUid = uid; }
+
 	std::string getHelmetName() const { return helmetName; }
 	std::string getChestName() const { return chestName; }
 	std::string getShouldersName() const { return shouldersName; }
@@ -60,6 +63,7 @@ public:
 
 private:
 	std::string playerName;
+	uint64_t playerUid;
 	
 	std::string helmetName;
 	std::string chestName;

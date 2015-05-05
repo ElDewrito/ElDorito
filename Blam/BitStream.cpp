@@ -11,9 +11,17 @@ namespace Blam
 
 	uint64_t BitStream::ReadBits(int bits)
 	{
-		typedef uint64_t (__thiscall* ReadBitsPtr)(BitStream *thisPtr, int bits);
-		ReadBitsPtr ReadBits = reinterpret_cast<ReadBitsPtr>(0x5589A0);
-		return ReadBits(this, bits);
+		if (bits <= 32)
+		{
+			typedef uint32_t(__thiscall* ReadBits32Ptr)(BitStream *thisPtr, int bits);
+			ReadBits32Ptr ReadBits32 = reinterpret_cast<ReadBits32Ptr>(0x5589A0);
+			return ReadBits32(this, bits);
+		}
+		
+		// To read more than 32 bits at a time, this function has to be called instead
+		typedef uint64_t(__thiscall* ReadBits64Ptr)(BitStream *thisPtr, int bits);
+		ReadBits64Ptr ReadBits64 = reinterpret_cast<ReadBits64Ptr>(0x559160);
+		return ReadBits64(this, bits);
 	}
 
 	void BitStream::WriteBits(uint64_t val, int bits)

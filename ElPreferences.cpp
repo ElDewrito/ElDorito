@@ -17,6 +17,8 @@ namespace
 	void parseInputData(ElPreferences *prefs, const YAML::Node &input);
 	uint32_t parseColor(const YAML::Node &color);
 	void emitColor(YAML::Emitter &out, uint32_t color);
+	uint64_t parseUid(const std::string &uid);
+	std::string uidToString(uint64_t uid);
 }
 
 ElPreferences::ElPreferences()
@@ -36,7 +38,8 @@ ElPreferences::ElPreferences()
 	countdownTimer(5),
 	fov(90.f),
 	rawMouse(true),
-	crosshairCentered(false)
+	crosshairCentered(false),
+	playerUid(0)
 {
 	memset(&lastChanged, 0, sizeof(lastChanged));
 }
@@ -79,6 +82,7 @@ bool ElPreferences::save()
 		out << YAML::BeginMap;
 		out << YAML::Key << "player" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "name" << YAML::Value << playerName;
+		out << YAML::Key << "uid" << YAML::Value << uidToString(playerUid);
 		out << YAML::Key << "armor" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "helmet" << YAML::Value << helmetName;
 		out << YAML::Key << "chest" << YAML::Value << chestName;
@@ -146,6 +150,8 @@ namespace
 	{
 		if (player["name"])
 			prefs->setPlayerName(player["name"].as<std::string>());
+		if (player["uid"])
+			prefs->setPlayerUid(parseUid(player["uid"].as<std::string>()));
 		if (player["armor"])
 			parseArmorData(prefs, player["armor"]);
 		if (player["colors"])
@@ -224,5 +230,33 @@ namespace
 		out << YAML::Key << "g" << YAML::Value << static_cast<int>((color >> 8) & 0xFF);
 		out << YAML::Key << "b" << YAML::Value << static_cast<int>(color & 0xFF);
 		out << YAML::EndMap;
+	}
+
+	uint64_t parseUid(const std::string &uid)
+	{
+		// UIDs are just a string of hex digits
+		uint64_t result = 0;
+		for (size_t i = 0; i < uid.length(); i++)
+		{
+			result <<= 4;
+			char ch = tolower(uid[i]);
+			if (ch >= '0' && ch <= '9')
+				result |= ch - '0';
+			else if (ch >= 'a' && ch <= 'z')
+				result |= ch - 'a' + 0xA;
+		}
+		return result;
+	}
+
+	std::string uidToString(uint64_t uid)
+	{
+		const char *hexChars = "0123456789abcdef";
+		std::string result;
+		for (int i = 0; i < 16; i++)
+		{
+			result += hexChars[uid >> 60];
+			uid <<= 4;
+		}
+		return result;
 	}
 }
