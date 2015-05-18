@@ -127,6 +127,8 @@ namespace Patches
 			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
 			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
 			listen(rconSocket, 5);
+
+			return true;
 		}
 	}
 }
