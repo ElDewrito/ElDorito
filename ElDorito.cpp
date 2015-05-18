@@ -17,11 +17,6 @@
 #include "ElPatches.h"
 #include "ElPreferences.h"
 
-const char* Credits[] = {
-	"Wunk",
-	"stoker25 (emoose)"
-};
-
 size_t ElDorito::MainThreadID = 0;
 
 std::shared_ptr<ShowGameUI> showUI;
@@ -122,20 +117,18 @@ void ElDorito::Initialize()
 	Terminal.SetTextColor(Console::Input);
 
 	std::srand(GetTickCount());
-	for (size_t i = 0; i < sizeof(Credits) / sizeof(char*); i++)
+
+	for (size_t k = 0; k < 9; k++)
 	{
-		for (size_t k = 0; k < 9; k++)
-		{
-			Terminal.SetTextColor(
-				(std::rand() & 1 ? Console::Red : Console::Green) |
-				std::rand() & 1 * Console::Bright
-				);
-			std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
-		}
-		Terminal.SetTextColor(Console::Input);
-		std::cout << "  " << "\xC3\xC0"[(i == sizeof(Credits) / sizeof(char*) - 1) ^ 0];
-		std::cout << Credits[i] << std::endl;;
+		Terminal.SetTextColor(
+			(std::rand() & 1 ? Console::Red : Console::Green) |
+			std::rand() & 1 * Console::Bright
+			);
+		std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
 	}
+	Terminal.SetTextColor(Console::Input);
+	std::cout << "  " << "\xC0";
+	std::cout << " By #ElDorito@GameSurge" << std::endl;
 
 	Terminal.SetTextColor(Console::Green | Console::Bright);
 	std::cout << "Enter \"";
