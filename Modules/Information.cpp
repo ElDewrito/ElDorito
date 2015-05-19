@@ -36,6 +36,14 @@ bool Information::Run(const std::vector<std::string>& Args)
 	std::string LocalSecureKey((char*)Pointer(0x50CCDB4 + 1));
 	std::cout << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
 
+	std::string Xnkid;
+	Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
+	std::cout << "XNKID: " << Xnkid << std::endl;
+
+	std::string Xnaddr;
+	Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
+	std::cout << "XNAddr: " << Xnaddr << std::endl;
+
 	std::string Build((char*)Pointer(0x199C0F0));
 	std::cout << "Build: " << (Build.empty() ? "(null)" : Build) << std::endl;
 
