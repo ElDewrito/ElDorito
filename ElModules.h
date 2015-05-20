@@ -20,3 +20,4 @@
 #include "Modules/RawInput.h"
 #include "Modules/Crosshair.h"
 #include "Modules/DirectConnect.h"
+#include "Modules/ServerPassword.h"

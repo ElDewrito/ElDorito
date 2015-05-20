@@ -50,6 +50,8 @@ void ElDorito::Initialize()
 	PushModule<RawInput>("rawinput");
 	PushModule<Crosshair>("crosshair");
 	PushModule<DirectConnect>("connect");
+	PushModule<ServerPassword>("password");
+
 #ifdef _ELDEBUG
 	// Changing the FPS lock causes severe physics issues, so only allow it in debug builds for now
 	PushModule<Fps>("fps");

@@ -117,6 +117,7 @@
     <ClCompile Include="Modules\Crosshair.cpp" />
     <ClCompile Include="Modules\DirectConnect.cpp" />
     <ClCompile Include="Modules\RawInput.cpp" />
+    <ClCompile Include="Modules\ServerPassword.cpp" />
     <ClCompile Include="Patches\Armor.cpp" />
     <ClCompile Include="Patches\ContentItems.cpp" />
     <ClCompile Include="Patches\Core.cpp" />
@@ -146,6 +147,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Patches\Ui.cpp" />
+    <ClCompile Include="ThirdParty\SHA256.cpp" />
     <ClCompile Include="ThirdParty\yaml-cpp\src\binary.cpp" />
     <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilder.cpp" />
     <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.cpp" />
@@ -189,6 +191,7 @@
     <ClInclude Include="Modules\Crosshair.h" />
     <ClInclude Include="Modules\DirectConnect.h" />
     <ClInclude Include="Modules\RawInput.h" />
+    <ClInclude Include="Modules\ServerPassword.h" />
     <ClInclude Include="Patches\Armor.h" />
     <ClInclude Include="Patches\ContentItems.h" />
     <ClInclude Include="Patches\Core.h" />
@@ -220,6 +223,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="ThirdParty\dirent.h" />
+    <ClInclude Include="ThirdParty\SHA256.h" />
     <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\anchor.h" />
     <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\binary.h" />
     <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />

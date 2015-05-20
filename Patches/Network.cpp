@@ -12,11 +12,15 @@
 #include "../ElDorito.h"
 #include "../ElPreferences.h"
 
+BYTE passwordHash[0x20];
+bool usingPassword = false;
+
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
+	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -93,6 +97,8 @@ namespace Patches
 			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
 			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
+			Hook(0x30F60, Network_transport_secure_key_createHook).Apply();
+
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
 			Pointer::Base(0x101421).Write<uint32_t>(verNum);
@@ -152,7 +158,21 @@ namespace
 
 		return ipAddrStr;
 	}
-#pragma endregion
+
+	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo)
+	{
+		// set the xnet info to 0x11111..., since setting to to all zeroes doesn't let people connect to it
+		memset(xnetInfo, 0x11, 0x20);
+		memset((void*)0x199FAB2, 0x11, 0x10); // XNADDR
+
+		if (!usingPassword)
+			return 1;
+
+		memcpy(xnetInfo, passwordHash, 0x20);
+		memcpy((void*)0x199FAB2, passwordHash + 0x10, 0x10);
+
+		return 1;
+	}
 
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr)
 	{

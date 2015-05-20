@@ -4,6 +4,7 @@
 
 #include "DirectConnect.h"
 #include "../ElDorito.h"
+#include "../ThirdParty/SHA256.h"
 #include <iostream>
 
 DirectConnect::DirectConnect()
@@ -17,8 +18,8 @@ DirectConnect::~DirectConnect()
 std::string DirectConnect::Info(const std::string& Topic) const
 {
 	std::string Info = "Direct connect: Initiates a direct connection to a remote server";
-	Info += "\nUsage: connect (ip[:port]) (xnkid) (xnaddr)\n"
-		"Begins a connection to the remote server, xnkid and xnaddr must match up with the servers values.";
+	Info += "\nUsage: connect (ip[:port]) [password]\n"
+		"Begins a connection to the remote server, if server uses a password then password field must be set.";
 
 	return Info;
 }
@@ -37,21 +38,15 @@ bool DirectConnect::Run(const std::vector<std::string>& Args)
 	if (Args.size() >= 2)
 	{
 		std::string address = Args[1];
-		std::string xnkid = "11223344556677889900112233445566";
-		std::string xnaddr = "11223344556677889900112233445566";
+		std::string password = "";
 
 		if (Args.size() >= 3)
-			xnkid = Args[2];
+			password = Args[2];
 
-		if (Args.size() >= 4)
-			xnaddr = Args[3];
-
-		BYTE rawXnkid[0x10];
-		BYTE rawXnaddr[0x10];
+		BYTE passwordHash[0x20];
 		uint32_t rawIpaddr = 0;
 		uint16_t rawPort = 11774;
-		memset(rawXnkid, 0, 0x10);
-		memset(rawXnaddr, 0, 0x10);
+		memset(passwordHash, 0x11, 0x20);
 
 		size_t portOffset = address.find(':');
 		std::string host = address;
@@ -95,15 +90,20 @@ bool DirectConnect::Run(const std::vector<std::string>& Args)
 			std::cout << "Unable to lookup " << address << ": No records found.\n" << std::endl;
 			return true;
 		}
-		Utils::String::HexStringToBytes(xnkid, rawXnkid, 0x10);
-		Utils::String::HexStringToBytes(xnaddr, rawXnaddr, 0x10);
+
+		if (password.length() > 0)
+		{
+			SHA256_CTX ctx;
+			sha256_init(&ctx);
+			sha256_update(&ctx, (unsigned char*)password.c_str(), password.length());
+			sha256_final(&ctx, passwordHash);
+		}
 
 		// set up our syslink data struct
 		memset(syslinkData, 0, 0x176);
 		*(uint32_t*)syslinkData = 1;
 
-		memcpy(syslinkData + 0x9E, rawXnkid, 0x10);
-		memcpy(syslinkData + 0xAE, rawXnaddr, 0x10);
+		memcpy(syslinkData + 0x9E, passwordHash, 0x20);
 
 		*(uint32_t*)(syslinkData + 0x170) = rawIpaddr;
 		*(uint16_t*)(syslinkData + 0x174) = rawPort;
@@ -115,8 +115,8 @@ bool DirectConnect::Run(const std::vector<std::string>& Args)
 		// tell the game to start joining
 		Pointer::Base(0x1E40BA8).Write<int64_t>(-1);
 		Pointer::Base(0x1E40BB0).Write<uint32_t>(1);
-		Pointer::Base(0x1E40BB4).Write(rawXnkid, 0x10);
-		Pointer::Base(0x1E40BD4).Write(rawXnaddr, 0x10);
+		Pointer::Base(0x1E40BB4).Write(passwordHash, 0x10);
+		Pointer::Base(0x1E40BD4).Write(passwordHash + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
 
 		std::cout << "Attempting connection to " << address << "...\n" << std::endl;
