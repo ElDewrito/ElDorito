@@ -36,6 +36,8 @@ ElPreferences::ElPreferences()
 	lightsColor(0),
 	holoColor(0),
 	countdownTimer(5),
+	serverPassword(""),
+	serverLanMode(false),
 	fov(90.f),
 	rawMouse(true),
 	crosshairCentered(false),
@@ -111,6 +113,8 @@ bool ElPreferences::save()
 		out << YAML::EndMap;
 		out << YAML::Key << "host" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "countdown" << YAML::Value << countdownTimer;
+		out << YAML::Key << "password" << YAML::Value << serverPassword;
+		//out << YAML::Key << "lanMode" << YAML::Value << serverLanMode;
 		out << YAML::EndMap;
 		out << YAML::Key << "input" << YAML::Value << YAML::BeginMap;
 		out << YAML::Key << "rawMouse" << YAML::Value << rawMouse;
@@ -203,6 +207,12 @@ namespace
 	{
 		if (host["countdown"])
 			prefs->setCountdownTimer(host["countdown"].as<int>());
+
+		if (host["password"])
+			prefs->setServerPassword(host["password"].as<std::string>());
+
+		//if (host["lanMode"])
+		//	prefs->setServerLanMode(host["lanMode"].as<bool>());
 	}
 
 	void parseInputData(ElPreferences *prefs, const YAML::Node &input)

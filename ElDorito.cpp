@@ -64,6 +64,7 @@ void ElDorito::Initialize()
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	BOOL usingLauncher = false;
+	BOOL lanMode = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -79,6 +80,8 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-launcher") == 0)
 				usingLauncher = true;
 #endif
+			if (arg.compare(L"-lan") == 0)
+				lanMode = true;
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
@@ -93,6 +96,16 @@ void ElDorito::Initialize()
 			Commands[argname]->Run({ argname, argvalue });
 		}
 	}
+#ifndef _DEBUG
+	// on release builds negate the lanMode setting, so by default the game would have lan mode enabled
+	// using -lan would disable lan mode for hosting servers and testing
+	// remove this once we have server browsers etc!
+	lanMode = !lanMode
+#endif
+
+	// this will override the users LAN setting in the prefs file
+	// which is ideal really since we only want lan to be enabled if it was specified in the launch params
+	ElPreferences::Instance().setServerLanMode(lanMode); 
 
 #ifndef _ELDEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed

@@ -24,6 +24,5 @@ public:
 
 	void PreferencesChanged();
 
-private:
-	std::string currentPassword;
+	void SetPassword(const std::string &password, bool printInfo = false);
 };

@@ -97,7 +97,9 @@ namespace Patches
 			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
 			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
-			Hook(0x30F60, Network_transport_secure_key_createHook).Apply();
+			// Hook both calls to Network_transport_secure_key_create so we can use our own XNADDR/XNKID
+			Hook(0x81488, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
+			Hook(0x8182E, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
 
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
@@ -161,6 +163,14 @@ namespace
 
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo)
 	{
+		if (ElPreferences::Instance().getServerLanMode())
+		{
+			// lan mode is enabled, call the original function
+			typedef char(__cdecl *Network_transport_secure_key_createFunc)(void* xnetInfo);
+			Network_transport_secure_key_createFunc Network_transport_secure_key_create = reinterpret_cast<Network_transport_secure_key_createFunc>(0x430F60);
+			return Network_transport_secure_key_create(xnetInfo);
+		}
+
 		// set the xnet info to 0x11111..., since setting to to all zeroes doesn't let people connect to it
 		memset(xnetInfo, 0x11, 0x20);
 		memset((void*)0x199FAB2, 0x11, 0x10); // XNADDR

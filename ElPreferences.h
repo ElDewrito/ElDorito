@@ -55,6 +55,12 @@ public:
 	void setCountdownTimer(int newTimer) { countdownTimer = newTimer; }
 	int getCountdownTimer() const { return countdownTimer; }
 
+	void setServerPassword(const std::string &password) { serverPassword = password; }
+	std::string getServerPassword() const { return serverPassword; }
+
+	void setServerLanMode(bool enable) { serverLanMode = enable; }
+	bool getServerLanMode() { return serverLanMode; }
+
 	void setRawMouse(bool raw) { rawMouse = raw; }
 	bool getRawMouse() { return rawMouse; }
 
@@ -82,6 +88,8 @@ private:
 	float fov;
 
 	int countdownTimer;
+	std::string serverPassword;
+	bool serverLanMode;
 
 	bool rawMouse;
 	bool crosshairCentered;
