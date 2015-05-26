@@ -54,6 +54,18 @@ namespace Patches
 	{
 		Armor::RefreshUiPlayer();
 	}
+
+	void Tick()
+	{
+		Patches::Ui::Tick();
+
+		static bool appliedFirstTickPatches = false;
+		if (appliedFirstTickPatches)
+			return;
+
+		ApplyOnFirstTick();
+		appliedFirstTickPatches = true;
+	}
 }
 
 namespace

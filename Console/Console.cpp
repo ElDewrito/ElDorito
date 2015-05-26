@@ -10,6 +10,8 @@
 
 #include <algorithm>
 
+#include "../CommandMap.h"
+
 #define ps1beg "\xAF["
 #define ps1end "]\xAE"
 
@@ -33,15 +35,11 @@ namespace Console
 
 		// Meta commands pushed with null deleter so console doesn't delete its self.
 		auto NullDeleter = [](Console*){};
-
-		PushCommand("help", std::shared_ptr<Console>(this, NullDeleter));
-		PushCommand("history", std::shared_ptr<Console>(this, NullDeleter));
-		PushCommand("quit", std::shared_ptr<Console>(this, NullDeleter));
 	}
 
 	Console::~Console()
 	{
-		Commands.clear();
+		//Commands.clear();
 	}
 
 	void Console::SetTextColor(uint8_t Color)
@@ -67,11 +65,15 @@ namespace Console
 
 				std::vector<std::string> Suggestions;
 
-				for( auto Cmd : Commands )
+				for (auto Cmd : Modules::CommandMap::Instance().Commands)
 				{
-					if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
+					if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.Name, 0, CurCommand[0].length()))
 					{
-						Suggestions.push_back((Cmd.first));
+						Suggestions.push_back(Cmd.Name);
+					}
+					else if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.ShortName, 0, CurCommand[0].length()))
+					{
+						Suggestions.push_back(Cmd.ShortName);
 					}
 				}
 
@@ -85,10 +87,10 @@ namespace Console
 			}
 			else
 			{
-				if( Commands.count(CurCommand.front()) )
+				/*if( Commands.count(CurCommand.front()) )
 				{
 					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				}
+				}*/
 			}
 		}
 		else if( KeyCode == ' ' ) // Space
@@ -101,10 +103,10 @@ namespace Console
 					CurArg++;
 					CurCommand.push_back("");
 				}
-				if( Commands.count(CurCommand.front()) )
+				/*if( Commands.count(CurCommand.front()) )
 				{
 					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				}
+				}*/
 			}
 		}
 		else if( KeyCode == '\b' ) // Backspace
@@ -131,11 +133,15 @@ namespace Console
 
 					std::vector<std::string> Suggestions;
 
-					for( auto Cmd : Commands )
+					for (auto Cmd : Modules::CommandMap::Instance().Commands)
 					{
-						if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
+						if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.Name, 0, CurCommand[0].length()))
 						{
-							Suggestions.push_back((Cmd.first));
+							Suggestions.push_back(Cmd.Name);
+						}
+						else if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.ShortName, 0, CurCommand[0].length()))
+						{
+							Suggestions.push_back(Cmd.ShortName);
 						}
 					}
 
@@ -149,10 +155,10 @@ namespace Console
 				}
 				else
 				{
-					if( !CurCommand.empty() && Commands.count(CurCommand.front()) )
+					/*if( !CurCommand.empty() && Commands.count(CurCommand.front()) )
 					{
 						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-					}
+					}*/
 				}
 			}
 		}
@@ -183,8 +189,9 @@ namespace Console
 
 				if (!CurCommand.empty())
 				{
+					std::cout << Modules::CommandMap::Instance().ExecuteCommand(CurCommand) << "." << std::endl;
 					// Run command
-					if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
+					/*if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
 					{
 						if (!Commands[CurCommand[0]]->Run(CurCommand))
 						{
@@ -200,7 +207,7 @@ namespace Console
 						SetTextColor(Color::Error);
 						std::cout << "Unknown Command: " << CurCommand[0];
 						SetTextColor(Color::Info);
-					}
+					}*/
 				}
 			}
 
@@ -216,7 +223,7 @@ namespace Console
 		else if( KeyCode == '\t' ) // Tab
 		{
 			// Get suggestion
-			if( !Suggestion.empty() && !CurCommand.empty() )
+			/*if( !Suggestion.empty() && !CurCommand.empty() )
 			{
 				CurCommand.back() = Suggestion;
 				Suggestion.clear();
@@ -225,7 +232,7 @@ namespace Console
 				Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
 				// Todo: Allow suggestions with spaces.
 				// Simulate keypress with HandleInput
-			}
+			}*/
 		}
 		else if( KeyCode == 22 ) // Ctrl+v
 		{
@@ -317,98 +324,6 @@ namespace Console
 		}
 		std::cout.flush();
 	}
-
-	void Console::PushCommand(const std::string& CommandName, std::shared_ptr<Command> Command)
-	{
-		Commands[CommandName] = Command;
-	}
-	void Console::PopCommand(const std::string& CommandName)
-	{
-		if( Commands.count(CommandName) )
-		{
-			Commands.erase(CommandName);
-		}
-	}
-
-	bool Console::Run(const std::vector<std::string>& Args)
-	{
-		if( !Args.empty() )
-		{
-			if( !Args.front().compare("help") )
-			{
-				if( Args.size() >= 2 )
-				{
-					if( Commands.count(Args[1]) )
-					{
-						if( Args.size() == 3 )
-						{
-							std::cout << Commands[Args[1]]->Info() << std::endl;
-						}
-						else
-						{
-							std::cout << Commands[Args[1]]->Info(Args.back()) << std::endl;
-						}
-					}
-					else
-					{
-						SetTextColor(Error);
-						std::cout << "Command: " << Args[1] << "not found." << std::endl;
-					}
-				}
-				else
-				{
-					// Show all command info
-					for( auto Command : Commands )
-					{
-						std::string Padded(Command.first);
-						Padded.resize(ConsoleWidth >> 1, '\xC4');
-						SetTextColor(Color::Info);
-						std::cout << Padded << std::endl;
-						SetTextColor(Color::Info^Color::Bright);
-						std::cout << Command.second->Info(Command.first) << std::endl;
-					}
-				}
-			}
-			else if( !Args.front().compare("history") )
-			{
-				SetTextColor(Color::Info);
-				for( auto Command : PrevCommands )
-				{
-					for( auto Arg : Command )
-					{
-						std::cout << Arg << ' ';
-					}
-					std::cout << std::endl;
-				}
-			}
-			else if( !Args.front().compare("quit") )
-			{
-				std::exit(0);
-			}
-		}
-		return true;
-	}
-
-	std::string Console::Info(const std::string& Topic) const
-	{
-		if( !Topic.empty() )
-		{
-			if( !Topic.compare("help") )
-			{
-				return "Prints help for all commands\n"
-					"Type help (command name) (topic) to get help on a specific command";
-			}
-			else if( !Topic.compare("history") )
-			{
-				return "Displays all previously entered commands";
-			}
-			else if( !Topic.compare("quit") )
-			{
-				return "Quits the application";
-			}
-		}
-		return "";
-	};
 
 	bool AllocateConsole(const std::string& ConsoleTitle)
 	{

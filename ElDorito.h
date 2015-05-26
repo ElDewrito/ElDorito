@@ -9,7 +9,7 @@
 
 #include "Console/Console.h"
 #include "Utils/Utils.h"
-#include "Modules/ElModule.h"
+#include "ElModules.h"
 #include "Pointer.h"
 #include "Patch.h"
 
@@ -25,7 +25,6 @@ public:
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
 	void SetSessionMessage(const std::string& Message);
-	void ParseCommand(std::string command);
 
 	static void SetMainThreadID(size_t ThreadID)
 	{
@@ -38,20 +37,10 @@ public:
 
 	static Pointer GetMainTls(size_t Offset = 0);
 
-	template<class T,
-	class = typename std::enable_if<std::is_base_of<ElModule, T>::value>::type>
-		void PushModule(const std::string& Name)
-	{
-		std::shared_ptr<T> Module = std::make_shared<T>();
-		Terminal.PushCommand(Name, Module);
-		Commands[Name] = Module;
-	}
-
 private:
 	// Thread
 	static size_t MainThreadID;
 
 	// Console
 	Console::Console Terminal;
-	std::map<std::string, std::shared_ptr<ElModule>> Commands;
 };

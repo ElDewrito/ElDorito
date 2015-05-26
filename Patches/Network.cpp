@@ -77,8 +77,9 @@ namespace Patches
 					}
 				}
 
+				TODO("return the value from executecommand");
 				if (isValidAscii)
-					ElDorito::Instance().ParseCommand(std::string(inDataBuffer));
+					Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
 
 				break;
 			case FD_CLOSE:

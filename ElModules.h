@@ -1,23 +1,24 @@
 #pragma once
 
-//#include "Modules/Test.h"
-//#include "Modules/LoadLevel.h"
-//#include "Modules/GodMode.h"
-//#include "Modules/Ammo.h"
-//#include "Modules/ThirdPerson.h"
-//#include "Modules/Spawn.h"
-//#include "Modules/Globals.h"
-//#include "Modules/Disclaimer.h"
-#include "Modules/Hud.h"
-#include "Modules/Fov.h"
-#include "Modules/DebugLogging.h"
-#include "Modules/Camera.h"
-#include "Modules/Information.h"
-#include "Modules/ShowGameUI.h"
-#include "Modules/NameChange.h"
-#include "Modules/Countdown.h"
-#include "Modules/Fps.h"
-#include "Modules/RawInput.h"
-#include "Modules/Crosshair.h"
-#include "Modules/DirectConnect.h"
-#include "Modules/ServerPassword.h"
+#include "Modules/ModuleBase.h"
+#include "Modules/ModuleGame.h"
+#include "Modules/ModulePlayer.h"
+#include "Modules/ModuleServer.h"
+#include "Modules/ModuleCamera.h"
+#include "Modules/ModuleInput.h"
+
+namespace
+{
+	std::string CommandHelp(const std::vector<std::string>& Arguments);
+}
+
+namespace Modules
+{
+	class ElModules : public Utils::Singleton<ElModules>, public ModuleBase
+	{
+	public:
+		ElModules();
+
+	private:
+	};
+}

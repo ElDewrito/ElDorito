@@ -6,4 +6,6 @@ namespace Patches
 	void ApplyOnFirstTick();
 	void ApplyAfterTagsLoaded();
 	void PreferencesUpdated();
+
+	void Tick();
 }

@@ -102,41 +102,11 @@
     <ClCompile Include="Console\Console.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\Camera.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\DebugLogging.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Disclaimer.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Fov.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Hud.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Information.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\NameChange.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\ShowGameUI.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\Logging.cpp">
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
     <ClCompile Include="Patches\Network.cpp">
       <Filter>Source Files\Patches</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Fps.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\Countdown.cpp">
-      <Filter>Source Files\Modules</Filter>
     </ClCompile>
     <ClCompile Include="Utils\Assert.cpp">
       <Filter>Source Files\Utils</Filter>
@@ -264,29 +234,41 @@
     <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.cpp">
       <Filter>Source Files\ThirdParty\yaml-cpp\src\contrib</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\RawInput.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\RawInputPatch.cpp">
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\Crosshair.cpp">
+    <ClCompile Include="Modules\ModuleBase.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Patches\ContentItems.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Modules\DirectConnect.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="ThirdParty\SHA256.cpp">
+      <Filter>Source Files\ThirdParty</Filter>
     </ClCompile>
     <ClCompile Include="Patches\PlayerUid.cpp">
+      <Filter>Source Files\Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Patches\ContentItems.cpp">
+      <Filter>Source Files\Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\ModuleCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\SHA256.cpp">
+    <ClCompile Include="Modules\ModuleGame.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\ModuleInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Modules\ServerPassword.cpp">
+    <ClCompile Include="Modules\ModulePlayer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Modules\ModuleServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ElModules.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandMap.cpp">
+      <Filter>Source Files\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -297,9 +279,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ElDorito.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ElModules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Patch.h">
@@ -320,14 +299,8 @@
     <ClInclude Include="Utils\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Macros.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\String.h">
       <Filter>Header Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Singleton.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\VersionInfo.h">
       <Filter>Header Files\Utils</Filter>
@@ -337,33 +310,6 @@
     </ClInclude>
     <ClInclude Include="Console\Console.h">
       <Filter>Header Files\Console</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Camera.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\DebugLogging.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Disclaimer.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\ElModule.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Fov.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Hud.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Information.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\NameChange.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\ShowGameUI.h">
-      <Filter>Header Files\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Patches\Logging.h">
       <Filter>Header Files\Patches</Filter>
@@ -376,12 +322,6 @@
     </ClInclude>
     <ClInclude Include="Patches\Core.h">
       <Filter>Header Files\Patches</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Fps.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Countdown.h">
-      <Filter>Header Files\Modules</Filter>
     </ClInclude>
     <ClInclude Include="Patches\Scoreboard.h">
       <Filter>Header Files\Patches</Filter>
@@ -593,29 +533,47 @@
     <ClInclude Include="Patches\RawInput.h">
       <Filter>Header Files\Patches</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\RawInput.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\Crosshair.h">
-      <Filter>Header Files\Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="ThirdParty\dirent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Patches\ContentItems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Modules\DirectConnect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Patches\PlayerUid.h">
       <Filter>Header Files\Patches</Filter>
     </ClInclude>
+    <ClInclude Include="Patches\ContentItems.h">
+      <Filter>Header Files\Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\dirent.h">
+      <Filter>Header Files\ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModuleBase.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Singleton.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Macros.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
     <ClInclude Include="ThirdParty\SHA256.h">
+      <Filter>Header Files\ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModuleCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Modules\ServerPassword.h">
+    <ClInclude Include="Modules\ModuleGame.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModuleInput.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModulePlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Modules\ModuleServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ElModules.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandMap.h">
+      <Filter>Header Files\Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

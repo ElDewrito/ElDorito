@@ -4,9 +4,9 @@
 #include "../ElMacros.h"
 #include "../Patch.h"
 #include "../BlamTypes.h"
-#include "../Modules/ShowGameUI.h"
+//#include "../Modules/ShowGameUI.h"
 
-extern std::shared_ptr<ShowGameUI> showUI;
+//extern std::shared_ptr<ShowGameUI> showUI;
 
 namespace
 {
@@ -24,6 +24,36 @@ namespace Patches
 {
 	namespace Ui
 	{
+		bool DialogShow; // todo: put this somewhere better
+		unsigned int DialogStringId;
+		int DialogArg1; // todo: figure out a better name for this
+		int DialogFlags;
+		unsigned int DialogParentStringId;
+		uint8_t UIData[0x40];
+
+		void Tick()
+		{
+			if (DialogShow)
+			{
+				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+
+				// fill UIData with proper data
+				OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
+				openui(&UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
+
+				// send UI notification
+				uint32_t eax = (uint32_t)&UIData;
+				uint32_t ecx = *(uint32_t*)0x5260254;
+				*(DWORD*)(ecx + 8) = eax;
+
+				eax = *(uint32_t*)0x5260254;
+				eax = *(uint32_t*)eax;
+				*(uint32_t*)0x5260254 = eax;
+
+				DialogShow = false;
+			}
+		}
+
 		void EnableCenteredCrosshairPatch(bool enable)
 		{
 			if (enable)
@@ -154,21 +184,21 @@ namespace
 
 		if (shouldUpdate)
 		{
-			showUI->DialogStringId = menuIdToLoad;
-			showUI->DialogArg1 = 0xFF;
-			showUI->DialogFlags = 4;
-			showUI->DialogParentStringId = 0x1000D;
-			showUI->DialogShow = true;
+			Patches::Ui::DialogStringId = menuIdToLoad;
+			Patches::Ui::DialogArg1 = 0xFF;
+			Patches::Ui::DialogFlags = 4;
+			Patches::Ui::DialogParentStringId = 0x1000D;
+			Patches::Ui::DialogShow = true;
 		}
 	}
 
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
-		showUI->DialogArg1 = 0;
-		showUI->DialogFlags = 4;
-		showUI->DialogParentStringId = 0x1000C;
-		showUI->DialogStringId = 0x10084;
-		showUI->DialogShow = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
+		Patches::Ui::DialogStringId = 0x10084;
+		Patches::Ui::DialogArg1 = 0;
+		Patches::Ui::DialogFlags = 4;
+		Patches::Ui::DialogParentStringId = 0x1000C;
+		Patches::Ui::DialogShow = true;
 
 		return 1;
 	}

@@ -13,14 +13,10 @@
 #include <cvt/wstring> // wstring_convert
 
 #include "Utils/Utils.h"
-#include "ElModules.h"
 #include "ElPatches.h"
 #include "ElPreferences.h"
 
 size_t ElDorito::MainThreadID = 0;
-
-std::shared_ptr<ShowGameUI> showUI;
-std::shared_ptr<DebugLogging> debugLogging;
 
 ElDorito::ElDorito()
 {
@@ -30,41 +26,14 @@ void ElDorito::Initialize()
 {
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
-	// Register Modules
-	//PushModule<Test>("test");
-	//PushModule<Ammo>("ammo");
-	//PushModule<Globals>("global");
-	//PushModule<Godmode>("god");
-	//PushModule<LoadLevel>("load");
-	//PushModule<Spawn>("spawn");
-	//PushModule<Disclaimer>("disclaimer");
-	//PushModule<ThirdPerson>("third");
-	PushModule<Camera>("camera");
-	PushModule<DebugLogging>("debug");
-	PushModule<Fov>("fov");
-	PushModule<Hud>("hud");
-	PushModule<Information>("info");
-	PushModule<ShowGameUI>("show_ui");
-	PushModule<NameChange>("name");
-	PushModule<Countdown>("countdown");
-	PushModule<RawInput>("rawinput");
-	PushModule<Crosshair>("crosshair");
-	PushModule<DirectConnect>("connect");
-	PushModule<ServerPassword>("password");
-
-#ifdef _ELDEBUG
-	// Changing the FPS lock causes severe physics issues, so only allow it in debug builds for now
-	PushModule<Fps>("fps");
-#endif
-
-	showUI = std::dynamic_pointer_cast<ShowGameUI>(Commands["show_ui"]);
-	debugLogging = std::dynamic_pointer_cast<DebugLogging>(Commands["debug"]);
+	// init our command modules
+	Modules::ElModules::Instance();
 
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
-	BOOL usingLauncher = false;
-	BOOL lanMode = false;
+	bool usingLauncher = false;
+	bool lanMode = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -90,10 +59,7 @@ void ElDorito::Initialize()
 			std::string argname = converter.to_bytes(arg.substr(1, pos - 1));
 			std::string argvalue = converter.to_bytes(arg.substr(pos + 1));
 
-			if( Commands.count(argname) != 1 || Commands[argname] == nullptr ) // command not registered
-				continue;
-
-			Commands[argname]->Run({ argname, argvalue });
+			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"");
 		}
 	}
 #ifndef _DEBUG
@@ -176,35 +142,8 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		Terminal.HandleInput(_getch());
 		Terminal.PrintLine();
 	}
-	for( auto Command : Commands )
-	{
-		if( Command.second )
-		{
-			Command.second->Tick(DeltaTime);
-		}
-	}
 
-	// Only check for preferences changes every 1/8th of a second
-	static std::chrono::duration<double> prefsRefreshTime;
-	if (prefsRefreshTime >= std::chrono::duration<double>(0.125))
-	{
-		if (ElPreferences::Instance().changed() && ElPreferences::Instance().load())
-		{
-			// Signal that preferences were updated externally
-			Patches::PreferencesUpdated();
-			for (auto Command : Commands)
-				Command.second->PreferencesChanged();
-		}
-		prefsRefreshTime = prefsRefreshTime.zero();
-	}
-	prefsRefreshTime += DeltaTime;
-
-	static bool appliedFirstTickPatches = false;
-	if (appliedFirstTickPatches)
-		return;
-
-	Patches::ApplyOnFirstTick();
-	appliedFirstTickPatches = true;
+	Patches::Tick();
 }
 
 namespace
@@ -243,32 +182,6 @@ void ElDorito::SetSessionMessage(const std::string& Message)
 	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
 
 	// todo: some way of undoing this
-}
-
-void ElDorito::ParseCommand(std::string command)
-{
-	std::stringstream test(command);
-	std::string segment;
-	std::vector<std::string> seglist;
-	std::string commandName = command;
-	bool gotCommandName = false;
-	TODO("make ParseCommand support quoted text etc");
-	TODO("make commands return text into a buffer that we can send over rcon");
-	while (std::getline(test, segment, ' '))
-	{
-		if (!gotCommandName)
-		{
-			commandName = segment;
-			gotCommandName = true;
-		}
-		Utils::String::RemoveCharsFromString(segment, "\r\n");
-		seglist.push_back(segment);
-	}
-
-	if (Commands.count(commandName) != 1 || Commands[commandName] == nullptr) // command not registered
-		return;
-
-	Commands[commandName]->Run(seglist);
 }
 
 Pointer ElDorito::GetMainTls(size_t Offset)
