@@ -86,17 +86,17 @@ namespace
 		if (Arguments.size() >= 2)
 			password = Arguments[1];
 
-		BYTE passwordHash[0x20];
 		uint32_t rawIpaddr = 0;
 		uint16_t rawPort = 11774;
+		BYTE passwordHash[0x20];
 		memset(passwordHash, 0x11, 0x20);
 
 		size_t portOffset = address.find(':');
-		std::string host = address;
+		auto host = address;
 		if (portOffset != std::string::npos && portOffset + 1 < address.size())
 		{
-			std::string port = address.substr(portOffset + 1);
-			rawPort = (uint16_t)atoi(port.c_str());
+			auto port = address.substr(portOffset + 1);
+			rawPort = (uint16_t)std::stoi(port);
 			host = address.substr(0, portOffset);
 		}
 
