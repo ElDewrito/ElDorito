@@ -59,6 +59,20 @@ namespace Utils
 					str[i] = replaceWith;
 		}
 
+		bool ReplaceString(std::string &str, const std::string &replace, const std::string &with)
+		{
+			size_t start_pos = str.find(replace);
+			bool found = false;
+			while (start_pos != std::string::npos)
+			{
+				str.replace(start_pos, replace.length(), with);
+				start_pos += with.length();
+				found = true;
+				start_pos = str.find(replace, start_pos);
+			}
+			return found;
+		}
+
 		std::wstring WidenString(const std::string &s)
 		{
 			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;

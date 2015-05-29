@@ -7,7 +7,7 @@ namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
-		AddVariableString("Name", "name", "Changes the players ingame name", "Jasper", VariablePlayerNameUpdate);
+		VarPlayerName = AddVariableString("Name", "name", "Changes the players ingame name", "Jasper", VariablePlayerNameUpdate);
 
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
@@ -37,9 +37,7 @@ namespace
 {
 	std::string VariablePlayerNameUpdate(const std::vector<std::string>& Arguments)
 	{
-		std::string name;
-		if (!Modules::ModuleGame::Instance().GetVariableString("Name", name))
-			return "";
+		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
 
 		std::wstring nameStr = Utils::String::WidenString(name);
 		wcscpy_s(Modules::ModulePlayer::Instance().UserName, 16, nameStr.c_str());

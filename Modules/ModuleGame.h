@@ -26,12 +26,11 @@ namespace Modules
 	class ModuleGame : public Utils::Singleton<ModuleGame>, public ModuleBase
 	{
 	public:
-		ModuleGame();
-
 		int DebugFlags;
 		std::vector<std::string> MapList;
 		std::vector<std::string> FiltersExclude;
 		std::vector<std::string> FiltersInclude;
-	private:
+
+		ModuleGame();
 	};
 }

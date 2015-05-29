@@ -12,9 +12,9 @@ namespace Modules
 	class ModulePlayer : public Utils::Singleton<ModulePlayer>, public ModuleBase
 	{
 	public:
-		ModulePlayer();
-
+		Command* VarPlayerName;
 		wchar_t UserName[17];
-	private:
+
+		ModulePlayer();
 	};
 }

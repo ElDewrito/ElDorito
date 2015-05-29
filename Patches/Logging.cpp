@@ -132,24 +132,11 @@ namespace
 		dbglog("Debug", "%s: %f", name, value);
 	}
 
-	bool string_replace(std::string& str, const std::string& from, const std::string& to)
-	{
-		size_t start_pos = str.find(from);
-		bool found = false;
-		while (start_pos != std::string::npos)
-		{
-			str.replace(start_pos, from.length(), to);
-			found = true;
-			start_pos = str.find(from);
-		}
-		return found;
-	}
-
 	int networkLogHook(char* format, ...)
 	{
 		// fix strings using broken printf statements
 		std::string formatStr(format);
-		string_replace(formatStr, "%LX", "%llX");
+		Utils::String::ReplaceString(formatStr, "%LX", "%llX");
 
 		char dstBuf[4096];
 		memset(dstBuf, 0, 4096);

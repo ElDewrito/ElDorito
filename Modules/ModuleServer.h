@@ -14,9 +14,10 @@ namespace Modules
 	class ModuleServer : public Utils::Singleton<ModuleServer>, public ModuleBase
 	{
 	public:
-		ModuleServer();
-
+		Command* VarServerPassword;
+		Command* VarServerCountdown;
 		BYTE SyslinkData[0x176];
-	private:
+
+		ModuleServer();
 	};
 }

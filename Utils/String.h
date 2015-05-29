@@ -15,7 +15,7 @@ namespace Utils
 		std::string ToLower(const std::string &str);
 
 		void ReplaceCharacters(std::string& str, char replace, char with);
-		void ReplaceString(std::string &str, const std::string &replace, const std::string &with);
+		bool ReplaceString(std::string &str, const std::string &replace, const std::string &with);
 
 		std::wstring WidenString(const std::string &str);
 		std::string ThinString(const std::wstring &str);

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Windows.h>
-
 #include <vector>
+#include <deque>
+
 #include "Utils/Singleton.h"
 
 
@@ -73,6 +74,6 @@ namespace Modules
 
 		std::string GenerateHelpText();
 
-		std::vector<Command> Commands;
+		std::deque<Command> Commands;
 	};
 }

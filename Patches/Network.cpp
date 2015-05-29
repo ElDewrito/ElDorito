@@ -77,9 +77,16 @@ namespace Patches
 					}
 				}
 
-				TODO("return the value from executecommand");
 				if (isValidAscii)
-					Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
+				{
+					auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
+					if (ret.length() > 0)
+					{
+						Utils::String::ReplaceString(ret, "\n", "\r\n");
+						ret = ret + "\r\n";
+						send((SOCKET)wParam, ret.c_str(), ret.length(), 0);
+					}
+				}
 
 				break;
 			case FD_CLOSE:

@@ -15,8 +15,11 @@ namespace Modules
 	class ModuleCamera : public Utils::Singleton<ModuleCamera>, public ModuleBase
 	{
 	public:
-		ModuleCamera();
+		Command* VarCameraCrosshair;
+		Command* VarCameraFov;
+		Command* VarCameraHideHud;
+		Command* VarCameraMode;
 
-	private:
+		ModuleCamera();
 	};
 }

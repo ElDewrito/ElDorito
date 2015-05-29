@@ -12,8 +12,8 @@ namespace Modules
 	class ModuleInput : public Utils::Singleton<ModuleInput>, public ModuleBase
 	{
 	public:
-		ModuleInput();
+		Command* VarInputRawInput;
 
-	private:
+		ModuleInput();
 	};
 }

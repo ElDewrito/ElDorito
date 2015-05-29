@@ -8,19 +8,19 @@ namespace Modules
 {
 	ModuleCamera::ModuleCamera() : ModuleBase("Camera")
 	{
-		auto cmd = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", 0, VariableCameraCrosshairUpdate);
-		cmd->ValueIntMin = 0;
-		cmd->ValueIntMax = 1;
+		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", 0, VariableCameraCrosshairUpdate);
+		VarCameraCrosshair->ValueIntMin = 0;
+		VarCameraCrosshair->ValueIntMax = 1;
 
-		cmd = AddVariableFloat("FOV", "fov", "The cameras field of view", 0, VariableCameraFovUpdate);
-		cmd->ValueFloatMin = 55.f;
-		cmd->ValueFloatMax = 155.f;
+		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", 0, VariableCameraFovUpdate);
+		VarCameraFov->ValueFloatMin = 55.f;
+		VarCameraFov->ValueFloatMax = 155.f;
 
-		cmd = AddVariableInt("HideHUD", "hud", "Toggles the HUD", 0, VariableCameraHideHudUpdate);
-		cmd->ValueIntMin = 0;
-		cmd->ValueIntMax = 1;
+		VarCameraHideHud = AddVariableInt("HideHUD", "hud", "Toggles the HUD", 0, VariableCameraHideHudUpdate);
+		VarCameraHideHud->ValueIntMin = 0;
+		VarCameraHideHud->ValueIntMax = 1;
 
-		//cmd = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
+		//this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
 	}
 }
 
@@ -28,9 +28,7 @@ namespace
 {
 	std::string VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments)
 	{
-		unsigned long value;
-		if (!Modules::ModuleCamera::Instance().GetVariableInt("Crosshair", value))
-			return "";
+		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
 
 		std::string status = "disabled.";
 		bool statusBool = value != 0;
@@ -47,9 +45,7 @@ namespace
 
 	std::string VariableCameraFovUpdate(const std::vector<std::string>& Arguments)
 	{
-		float value;
-		if (!Modules::ModuleCamera::Instance().GetVariableFloat("FOV", value))
-			return "";
+		float value = Modules::ModuleCamera::Instance().VarCameraFov->ValueFloat;
 
 		Pointer::Base(0x1F01D98).Write(value);
 		Pointer::Base(0x149D42C).Write(value);
@@ -62,9 +58,7 @@ namespace
 
 	std::string VariableCameraHideHudUpdate(const std::vector<std::string>& Arguments)
 	{
-		unsigned long value;
-		if (!Modules::ModuleCamera::Instance().GetVariableInt("HideHud", value))
-			return "";
+		unsigned long value = Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt;
 
 		std::string status = "shown.";
 		bool statusBool = value != 0;

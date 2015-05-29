@@ -15,11 +15,11 @@ namespace Modules
 {
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
-		AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
+		VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
 		
-		auto cmd = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
-		cmd->ValueIntMin = 0;
-		cmd->ValueIntMax = 20;
+		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
+		VarServerCountdown->ValueIntMin = 0;
+		VarServerCountdown->ValueIntMax = 20;
 
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
 	}
@@ -29,9 +29,7 @@ namespace
 {
 	std::string VariableServerPasswordUpdate(const std::vector<std::string>& Arguments)
 	{
-		std::string password;
-		if (!Modules::ModuleServer::Instance().GetVariableString("Password", password))
-			return "";
+		std::string password = Modules::ModuleServer::Instance().VarServerPassword->ValueString;
 
 		usingPassword = password.length() > 0;
 
@@ -58,9 +56,7 @@ namespace
 
 	std::string VariableServerCountdownUpdate(const std::vector<std::string>& Arguments)
 	{
-		unsigned long seconds;
-		if (!Modules::ModuleServer::Instance().GetVariableInt("Countdown", seconds))
-			return "";
+		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
 
 		Pointer::Base(0x153708).Write<uint8_t>((uint8_t)seconds + 0); // player control
 		Pointer::Base(0x153738).Write<uint8_t>((uint8_t)seconds + 4); // camera position

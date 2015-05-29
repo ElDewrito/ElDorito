@@ -7,9 +7,9 @@ namespace Modules
 {
 	ModuleInput::ModuleInput() : ModuleBase("Input")
 	{
-		auto cmd = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", 1, VariableInputRawInputUpdate);
-		cmd->ValueIntMin = 0;
-		cmd->ValueIntMax = 1;
+		VarInputRawInput = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", 1, VariableInputRawInputUpdate);
+		VarInputRawInput->ValueIntMin = 0;
+		VarInputRawInput->ValueIntMax = 1;
 	}
 }
 
@@ -17,9 +17,7 @@ namespace
 {
 	std::string VariableInputRawInputUpdate(const std::vector<std::string>& Arguments)
 	{
-		unsigned long value;
-		if (!Modules::ModuleInput::Instance().GetVariableInt("RawInput", value))
-			return "";
+		unsigned long value = Modules::ModuleInput::Instance().VarInputRawInput->ValueInt;
 
 		std::string status = "disabled.";
 		bool statusBool = value != 0;
