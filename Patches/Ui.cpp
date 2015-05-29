@@ -4,9 +4,6 @@
 #include "../ElMacros.h"
 #include "../Patch.h"
 #include "../BlamTypes.h"
-//#include "../Modules/ShowGameUI.h"
-
-//extern std::shared_ptr<ShowGameUI> showUI;
 
 namespace
 {

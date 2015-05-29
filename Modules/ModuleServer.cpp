@@ -15,13 +15,13 @@ namespace Modules
 {
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
-		AddVariableString("Password", "password", "Sets the server password, must be set before starting a server", "", VariableServerPasswordUpdate);
+		AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
 		
-		auto cmd = AddVariableInt("Countdown", "countdown", "Sets the number of seconds on the timer at the start of the game", 20, VariableServerCountdownUpdate);
+		auto cmd = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
 		cmd->ValueIntMin = 0;
 		cmd->ValueIntMax = 20;
 
-		AddCommand("Connect", "connect", "Begin establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password The password for the server, if any is set" });
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
 	}
 }
 

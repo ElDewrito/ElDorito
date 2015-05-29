@@ -75,10 +75,10 @@ namespace Blam
 		Multiplayer,
 		Mainmenu,
 		Shared, // not sure
-		GameModesCount
+		GameModeCount
 	};
 
-	const std::string GameModeNames[GameModesCount] =
+	const std::string GameModeNames[GameModeCount] =
 	{
 		"none",
 		"campaign",

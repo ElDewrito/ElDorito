@@ -5,9 +5,7 @@
 
 #include <cstdarg>
 #include <fstream>
-//#include "../Modules/DebugLogging.h"
-
-//extern std::shared_ptr<DebugLogging> debugLogging;
+#include "../Modules/ModuleGame.h"
 
 namespace
 {
@@ -101,17 +99,17 @@ namespace
 		vsprintf_s(buff, 4096, format, ap);
 		va_end(ap);
 
-		/*for (auto filter : debugLogging->FiltersExclude)
+		for (auto filter : Modules::ModuleGame::Instance().FiltersExclude)
 		{
 			if (strstr(buff, filter.c_str()) != NULL)
 				return; // string contains an excluded string
 		}
 
-		for (auto filter : debugLogging->FiltersInclude)
+		for (auto filter : Modules::ModuleGame::Instance().FiltersInclude)
 		{
 			if (strstr(buff, filter.c_str()) == NULL)
 				return; // string doesn't contain an included string
-		}*/
+		}
 
 		std::ofstream outfile;
 		outfile.open("dorito.log", std::ios_base::app);

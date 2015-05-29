@@ -12,7 +12,7 @@ namespace Modules
 		cmd->ValueIntMin = 0;
 		cmd->ValueIntMax = 1;
 
-		cmd = AddVariableFloat("FOV", "fov", "Sets the field of view", 0, VariableCameraFovUpdate);
+		cmd = AddVariableFloat("FOV", "fov", "The cameras field of view", 0, VariableCameraFovUpdate);
 		cmd->ValueFloatMin = 55.f;
 		cmd->ValueFloatMax = 155.f;
 
@@ -20,7 +20,7 @@ namespace Modules
 		cmd->ValueIntMin = 0;
 		cmd->ValueIntMax = 1;
 
-		cmd = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
+		//cmd = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
 	}
 }
 

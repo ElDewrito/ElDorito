@@ -189,7 +189,7 @@ namespace Console
 
 				if (!CurCommand.empty())
 				{
-					std::cout << Modules::CommandMap::Instance().ExecuteCommand(CurCommand) << "." << std::endl;
+					std::cout << Modules::CommandMap::Instance().ExecuteCommand(CurCommand) << std::endl;
 					// Run command
 					/*if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
 					{

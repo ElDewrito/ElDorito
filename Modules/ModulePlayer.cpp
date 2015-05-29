@@ -7,7 +7,7 @@ namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
-		AddVariableString("Name", "name", "Lets you change your ingame player name", "Jasper", VariablePlayerNameUpdate);
+		AddVariableString("Name", "name", "Changes the players ingame name", "Jasper", VariablePlayerNameUpdate);
 
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
@@ -17,19 +17,19 @@ namespace Modules
 		// patch BLF save func to get the name from our field
 		Pointer::Base(0x124E6A).Write<uint32_t>((uint32_t)&this->UserName);
 
-		char* defaultNames[40] = {
+		char* defaultNames[41] = {
 			"Donut", "Penguin", "Stumpy", "Whicker", "Shadow", "Howard", "Wilshire",
 			"Darling", "Disco", "Jack", "The Bear", "Sneak", "The Big ", "Whisp",
 			"Wheezy", "Crazy", "Goat", "Pirate", "Saucy", "Hambone", "Butcher",
 			"Walla Walla", "Snake", "Caboose", "Sleepy", "Killer", "Stompy",
 			"Mopey", "Dopey", "Wease", "Ghost", "Dasher", "Grumpy", "Hollywood",
-			"Tooth", "Noodle", "King", "Cupid", "Prancer", "Pyong"
+			"Tooth", "Noodle", "King", "Cupid", "Prancer", "Pyong", "Jasper"
 		};
 
 		TODO("Make a SetVariableString function for this instead");
 
 		srand((unsigned int)time(0));
-		Modules::CommandMap::Instance().ExecuteCommand("Player.Name " + std::string(defaultNames[rand() % 40]));
+		Modules::CommandMap::Instance().ExecuteCommand("Player.Name " + std::string(defaultNames[rand() % 41]));
 	}
 }
 
