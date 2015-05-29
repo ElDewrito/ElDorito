@@ -17,9 +17,7 @@
 
 namespace Console
 {
-	Console::Console()
-		:
-		CurArg(0)
+	Console::Console() : CurArg(0)
 	{
 		ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleOutputCP(437);
@@ -32,9 +30,6 @@ namespace Console
 
 		SetTextColor(Color::Info);
 		CurCommand.push_back("");
-
-		// Meta commands pushed with null deleter so console doesn't delete its self.
-		auto NullDeleter = [](Console*){};
 	}
 
 	Console::~Console()
@@ -67,14 +62,10 @@ namespace Console
 
 				for (auto Cmd : Modules::CommandMap::Instance().Commands)
 				{
-					if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.Name, 0, CurCommand[0].length()))
-					{
+					if (!_stricmp(CurCommand[0].c_str(), Cmd.Name.substr(0, CurCommand[0].length()).c_str()))
 						Suggestions.push_back(Cmd.Name);
-					}
-					else if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.ShortName, 0, CurCommand[0].length()))
-					{
+					else if (!_stricmp(CurCommand[0].c_str(), Cmd.ShortName.substr(0, CurCommand[0].length()).c_str()))
 						Suggestions.push_back(Cmd.ShortName);
-					}
 				}
 
 				if( Suggestions.size() )
@@ -87,10 +78,19 @@ namespace Console
 			}
 			else
 			{
-				/*if( Commands.count(CurCommand.front()) )
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
 				{
-					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				}*/
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
+				}
 			}
 		}
 		else if( KeyCode == ' ' ) // Space
@@ -103,10 +103,20 @@ namespace Console
 					CurArg++;
 					CurCommand.push_back("");
 				}
-				/*if( Commands.count(CurCommand.front()) )
+
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
 				{
-					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				}*/
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
+				}
 			}
 		}
 		else if( KeyCode == '\b' ) // Backspace
@@ -135,14 +145,10 @@ namespace Console
 
 					for (auto Cmd : Modules::CommandMap::Instance().Commands)
 					{
-						if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.Name, 0, CurCommand[0].length()))
-						{
+						if (!_stricmp(CurCommand[0].c_str(), Cmd.Name.substr(0, CurCommand[0].length()).c_str()))
 							Suggestions.push_back(Cmd.Name);
-						}
-						else if (!CurCommand[0].compare(0, CurCommand[0].length(), Cmd.ShortName, 0, CurCommand[0].length()))
-						{
+						else if (!_stricmp(CurCommand[0].c_str(), Cmd.ShortName.substr(0, CurCommand[0].length()).c_str()))
 							Suggestions.push_back(Cmd.ShortName);
-						}
 					}
 
 					if( Suggestions.size() )
@@ -155,10 +161,22 @@ namespace Console
 				}
 				else
 				{
-					/*if( !CurCommand.empty() && Commands.count(CurCommand.front()) )
+					if (!CurCommand.empty())
 					{
-						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-					}*/
+						auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+						if (cmd)
+						{
+							if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+								Suggestion.clear();
+							else
+							{
+								if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+									Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+								else
+									Suggestion.clear();
+							}
+						}
+					}
 				}
 			}
 		}
@@ -223,16 +241,29 @@ namespace Console
 		else if( KeyCode == '\t' ) // Tab
 		{
 			// Get suggestion
-			/*if( !Suggestion.empty() && !CurCommand.empty() )
+			if( !Suggestion.empty() && !CurCommand.empty() )
 			{
 				CurCommand.back() = Suggestion;
 				Suggestion.clear();
 				CurArg++;
 				CurCommand.push_back("");
-				Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				// Todo: Allow suggestions with spaces.
-				// Simulate keypress with HandleInput
-			}*/
+
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
+				{
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
+				}
+
+				// Todo: Simulate keypress with HandleInput
+			}
 		}
 		else if( KeyCode == 22 ) // Ctrl+v
 		{
