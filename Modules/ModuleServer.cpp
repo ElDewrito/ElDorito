@@ -21,6 +21,10 @@ namespace Modules
 		VarServerCountdown->ValueIntMin = 0;
 		VarServerCountdown->ValueIntMax = 20;
 
+		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", 16, VariableServerMaxPlayersUpdate);
+		VarServerMaxPlayers->ValueIntMin = 1;
+		VarServerMaxPlayers->ValueIntMax = 16;
+
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
 	}
 }
@@ -69,6 +73,17 @@ namespace
 			Pointer::Base(0x1536F0).Write<uint8_t>(3);
 
 		return "Set match countdown to " + std::to_string(seconds) + " seconds.";
+	}
+
+	std::string VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments)
+	{
+		typedef char(__cdecl *NetworkSquadSessionSetMaximumPlayerCountFunc)(int count);
+		auto network_squad_session_set_maximum_player_count = (NetworkSquadSessionSetMaximumPlayerCountFunc)0x439BA0;
+		char ret = network_squad_session_set_maximum_player_count(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+		if (ret == 0) TODO("Make command/variable funcs return a boolean, so that variable value can be reverted if function fails")
+			return "Failed to update max player count, are you hosting a lobby?";
+
+		return "Updated max player count to " + std::to_string(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
 	}
 
 	std::string CommandServerConnect(const std::vector<std::string>& Arguments)
