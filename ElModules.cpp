@@ -1,4 +1,6 @@
 #include "ElModules.h"
+#include <sstream>
+#include <iostream>
 #include <fstream>
 namespace
 {
@@ -30,6 +32,24 @@ namespace
 		returnInfo = "Unable to open file " + Arguments[0] + " for reading.";
 		return false;
 	}
+
+	bool CommandWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::string prefsName = "dewrito_prefs.cfg";
+		if (Arguments.size() > 0)
+			prefsName = Arguments[0];
+
+		std::ofstream outFile(prefsName, std::ios::trunc);
+		if (outFile.fail())
+		{
+			returnInfo = "Failed to write config to " + prefsName + "!";
+			return false;
+		}
+		outFile << Modules::CommandMap::Instance().SaveVariables();
+
+		returnInfo = "Wrote config to " + prefsName;
+		return true;
+	}
 }
 
 namespace Modules
@@ -44,5 +64,6 @@ namespace Modules
 
 		AddCommand("Help", "help", "Displays this help text", CommandHelp);
 		AddCommand("Execute", "exec", "Executes a list of commands", CommandExecute, { "filename(string) The list of commands to execute" });
+		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", CommandWriteConfig, { "filename(string) Optional, the filename to write the config to" });
 	}
 }

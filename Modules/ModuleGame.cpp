@@ -1,7 +1,5 @@
 #include "ModuleGame.h"
 #include <sstream>
-#include <iostream>
-#include <fstream>
 #include "../ElDorito.h"
 #include "../Patches/Ui.h"
 #include "../Patches/Logging.h"
@@ -338,22 +336,6 @@ namespace
 		return true;
 	}
 
-	bool CommandGameWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		std::string prefsName = "dewrito_prefs.cfg";
-		if (Arguments.size() > 0)
-			prefsName = Arguments[0];
-
-		std::ofstream outFile(prefsName, std::ios::trunc);
-		if (outFile.fail())
-		{
-			returnInfo = "Failed to write config to " + prefsName + "!";
-			return false;
-		}
-		outFile << Modules::CommandMap::Instance().SaveVariables();
-		return true;
-	}
-
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -383,8 +365,6 @@ namespace Modules
 		AddCommand("Map", "map", "Loads a map", CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
-
-		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", CommandGameWriteConfig, { "filename(string) Optional, the filename to write the config to" });
 
 		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", "halo3");
 		// Level load patch
