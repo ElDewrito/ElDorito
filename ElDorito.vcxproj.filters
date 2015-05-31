@@ -144,9 +144,6 @@
     <ClCompile Include="Patches\Armor.cpp">
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
-    <ClCompile Include="ElPreferences.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ThirdParty\yaml-cpp\src\scanner.cpp">
       <Filter>Source Files\ThirdParty\yaml-cpp\src</Filter>
     </ClCompile>
@@ -346,9 +343,6 @@
     </ClInclude>
     <ClInclude Include="Patches\Armor.h">
       <Filter>Header Files\Patches</Filter>
-    </ClInclude>
-    <ClInclude Include="ElPreferences.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emitterdef.h">
       <Filter>Header Files\ThirdParty\yaml-cpp\include\yaml-cpp</Filter>

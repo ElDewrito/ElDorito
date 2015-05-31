@@ -28,6 +28,7 @@ namespace Modules
 	{
 		eCommandTypeCommand,
 		eCommandTypeVariableInt,
+		eCommandTypeVariableInt64,
 		eCommandTypeVariableFloat,
 		eCommandTypeVariableString
 	};
@@ -43,15 +44,19 @@ namespace Modules
 		CommandUpdateFunc UpdateEvent;
 
 		unsigned long ValueInt;
+		unsigned long long ValueInt64;
 		float ValueFloat;
 		std::string ValueString;
 
 		unsigned long DefaultValueInt;
+		unsigned long long DefaultValueInt64;
 		float DefaultValueFloat;
 		std::string DefaultValueString;
 
 		unsigned long ValueIntMin;
 		unsigned long ValueIntMax;
+		unsigned long long ValueInt64Min;
+		unsigned long long ValueInt64Max;
 		float ValueFloatMin;
 		float ValueFloatMax;
 
@@ -69,12 +74,16 @@ namespace Modules
 	class CommandMap : public Utils::Singleton<CommandMap>
 	{
 	public:
+		std::deque<Command> Commands;
+
 		Command* AddCommand(Command command);
 		Command* FindCommand(const std::string& name);
 		std::string ExecuteCommand(std::vector<std::string> command);
+		bool ExecuteCommandWithStatus(std::string command);
 		std::string ExecuteCommand(std::string command);
 
 		bool GetVariableInt(const std::string& name, unsigned long& value);
+		bool GetVariableInt64(const std::string& name, unsigned long long& value);
 		bool GetVariableFloat(const std::string& name, float& value);
 		bool GetVariableString(const std::string& name, std::string& value);
 
@@ -83,6 +92,7 @@ namespace Modules
 
 		std::string GenerateHelpText();
 
-		std::deque<Command> Commands;
+		std::string SaveVariables();
+		std::string LoadVariables(std::string& variables);
 	};
 }

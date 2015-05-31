@@ -48,6 +48,26 @@ namespace Modules
 		return CommandMap::Instance().AddCommand(command);
 	}
 
+	Command* ModuleBase::AddVariableInt64(const std::string& name, const std::string& shortName, const std::string& description, unsigned long long defaultValue, CommandUpdateFunc updateEvent)
+	{
+		Command command;
+		command.Name = moduleName + "." + name;
+		command.ModuleName = moduleName;
+		command.ShortName = shortName;
+		command.Description = description;
+
+		if (moduleName.length() <= 0)
+			command.Name = name;
+
+		command.Type = eCommandTypeVariableInt64;
+		command.DefaultValueInt64 = defaultValue;
+		command.ValueInt64 = defaultValue;
+		command.ValueString = std::to_string(defaultValue); // set the ValueString too so we can print the value out easier
+		command.UpdateEvent = updateEvent;
+
+		return CommandMap::Instance().AddCommand(command);
+	}
+
 	Command* ModuleBase::AddVariableFloat(const std::string& name, const std::string& shortName, const std::string& description, float defaultValue, CommandUpdateFunc updateEvent)
 	{
 		Command command;

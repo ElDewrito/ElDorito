@@ -13,7 +13,7 @@
 #include "Patches\ContentItems.h"
 #include "Patches\PlayerUid.h"
 
-#include "ElPreferences.h"
+#include "Modules\ModuleCamera.h"
 
 namespace
 {
@@ -41,7 +41,7 @@ namespace Patches
 	{
 		Ui::ApplyMapNameFixes();
 		Network::StartRemoteConsole();
-		if (ElPreferences::Instance().getCrosshairCentered())
+		if (Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt)
 			Patches::Ui::EnableCenteredCrosshairPatch(true);
 	}
 

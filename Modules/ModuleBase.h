@@ -16,6 +16,7 @@ namespace Modules
 	protected:
 		Command* AddCommand(const std::string& name, const std::string& shortName, const std::string& description, CommandUpdateFunc updateEvent, std::initializer_list<std::string> arguments = {});
 		Command* AddVariableInt(const std::string& name, const std::string& shortName, const std::string& description, unsigned long defaultValue = 0, CommandUpdateFunc updateEvent = 0);
+		Command* AddVariableInt64(const std::string& name, const std::string& shortName, const std::string& description, unsigned long long defaultValue = 0, CommandUpdateFunc updateEvent = 0);
 		Command* AddVariableFloat(const std::string& name, const std::string& shortName, const std::string& description, float defaultValue = 0, CommandUpdateFunc updateEvent = 0);
 		Command* AddVariableString(const std::string& name, const std::string& shortName, const std::string& description, std::string defaultValue = "", CommandUpdateFunc updateEvent = 0);
 

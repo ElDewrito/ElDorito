@@ -2,6 +2,7 @@
 #include "PlayerPropertiesExtension.h"
 #include "../Patch.h"
 #include "../Utils/VersionInfo.h"
+#include "../Modules/ModuleServer.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -10,7 +11,6 @@
 #include <iostream>
 
 #include "../ElDorito.h"
-#include "../ElPreferences.h"
 
 BYTE passwordHash[0x20];
 bool usingPassword = false;
@@ -171,7 +171,7 @@ namespace
 
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo)
 	{
-		if (ElPreferences::Instance().getServerLanMode())
+		if (Modules::ModuleServer::Instance().VarServerLanMode->ValueInt)
 		{
 			// lan mode is enabled, call the original function
 			typedef char(__cdecl *Network_transport_secure_key_createFunc)(void* xnetInfo);

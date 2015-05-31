@@ -113,7 +113,6 @@
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
-    <ClCompile Include="ElPreferences.cpp" />
     <ClCompile Include="Modules\ModuleCamera.cpp" />
     <ClCompile Include="CommandMap.cpp" />
     <ClCompile Include="Modules\ModuleGame.cpp" />
@@ -205,7 +204,6 @@
     <ClInclude Include="Patches\VirtualKeyboard.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Precompile.h" />
-    <ClInclude Include="ElPreferences.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="ThirdParty\dirent.h" />

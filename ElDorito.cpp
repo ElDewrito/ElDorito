@@ -1,6 +1,7 @@
 #include "ElDorito.h"
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <vector>
@@ -14,7 +15,6 @@
 
 #include "Utils/Utils.h"
 #include "ElPatches.h"
-#include "ElPreferences.h"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -28,6 +28,19 @@ void ElDorito::Initialize()
 
 	// init our command modules
 	Modules::ElModules::Instance();
+
+	// load variables/commands from cfg file
+	std::ifstream in("dewrito_prefs.cfg", std::ios::in | std::ios::binary);
+	if (in)
+	{
+		std::string contents;
+		in.seekg(0, std::ios::end);
+		contents.resize(in.tellg());
+		in.seekg(0, std::ios::beg);
+		in.read(&contents[0], contents.size());
+		in.close();
+		Modules::CommandMap::Instance().LoadVariables(contents);
+	}
 
 	// Parse command-line commands
 	int numArgs = 0;
@@ -71,7 +84,7 @@ void ElDorito::Initialize()
 
 	// this will override the users LAN setting in the prefs file
 	// which is ideal really since we only want lan to be enabled if it was specified in the launch params
-	ElPreferences::Instance().setServerLanMode(lanMode); 
+	Modules::CommandMap::Instance().SetVariable("Server.LanMode", std::string(lanMode ? "1" : "0"), std::string());
 
 #ifndef _ELDEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed

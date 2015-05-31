@@ -1,7 +1,6 @@
 #include "ModuleInput.h"
 #include <sstream>
 #include "../ElDorito.h"
-#include "../ElPreferences.h"
 
 namespace Modules
 {
@@ -23,9 +22,6 @@ namespace
 		bool statusBool = value != 0;
 		if (statusBool)
 			status = "enabled.";
-
-		ElPreferences::Instance().setRawMouse(statusBool);
-		ElPreferences::Instance().save();
 
 		returnInfo = "Raw input " + status;
 		return true;

@@ -1,7 +1,7 @@
 #include "PlayerUid.h"
 
 #include "../ElDorito.h"
-#include "../ElPreferences.h"
+#include "../Modules/ModulePlayer.h"
 #include "../Patch.h"
 #include "PlayerPropertiesExtension.h"
 
@@ -85,13 +85,13 @@ namespace
 			return; // UID is already set
 
 		// Try to pull the UID from preferences
-		uint64_t uid = ElPreferences::Instance().getPlayerUid();
+		auto& playerVars = Modules::ModulePlayer::Instance();
+		uint64_t uid = playerVars.VarUserID->ValueInt64;
 		if (uid == 0)
 		{
 			// Generate a new UID and save it
 			uid = GenerateUid();
-			ElPreferences::Instance().setPlayerUid(uid);
-			ElPreferences::Instance().save();
+			Modules::CommandMap::Instance().SetVariable(playerVars.VarUserID, std::to_string(uid), std::string());
 		}
 		UidPtr.Write<uint64_t>(uid);
 		UidValidPtr.Write(true);

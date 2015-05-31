@@ -21,6 +21,9 @@ namespace Modules
 			case eCommandTypeVariableInt:
 				ss << "int";
 				break;
+			case eCommandTypeVariableInt64:
+				ss << "int64";
+				break;
 			case eCommandTypeVariableFloat:
 				ss << "float";
 				break;
@@ -87,6 +90,51 @@ namespace Modules
 		return ExecuteCommand(commandStr);
 	}
 
+	bool CommandMap::ExecuteCommandWithStatus(std::string command)
+	{
+		int numArgs = 0;
+		auto args = CommandLineToArgvA((PCHAR)command.c_str(), &numArgs);
+
+		if (numArgs <= 0)
+			return false;
+
+		auto cmd = FindCommand(args[0]);
+		if (!cmd)
+			return false;
+
+		std::vector<std::string> argsVect;
+		if (numArgs > 1)
+		for (int i = 1; i < numArgs; i++)
+			argsVect.push_back(args[i]);
+
+		if (cmd->Type == eCommandTypeCommand)
+		{
+			cmd->UpdateEvent(argsVect, std::string()); // if it's a command call it and return
+			return true;
+		}
+
+		std::string previousValue;
+		auto updateRet = SetVariable(cmd, (numArgs > 1 ? argsVect[0] : ""), previousValue);
+
+		if (updateRet != eVariableSetReturnValueSuccess)
+			return false;
+
+		if (numArgs <= 1)
+			return true;
+
+		if (!cmd->UpdateEvent)
+			return true; // no update event, so we'll just return with what we set the value to
+
+		auto ret = cmd->UpdateEvent(argsVect, std::string());
+
+		if (ret) // error, revert the variable
+			return true;
+
+		// error, revert the variable
+		this->SetVariable(cmd, previousValue, std::string());
+		return false;
+	}
+
 	std::string CommandMap::ExecuteCommand(std::string command)
 	{
 		int numArgs = 0;
@@ -123,6 +171,8 @@ namespace Modules
 		case eVariableSetReturnValueOutOfRange:
 			if (cmd->Type == eCommandTypeVariableInt)
 				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueIntMin) + ".." + std::to_string(cmd->ValueIntMax) + "]";
+			if (cmd->Type == eCommandTypeVariableInt64)
+				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueInt64Min) + ".." + std::to_string(cmd->ValueInt64Max) + "]";
 			if (cmd->Type == eCommandTypeVariableFloat)
 				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueFloatMin) + ".." + std::to_string(cmd->ValueFloatMax) + "]";
 
@@ -156,6 +206,17 @@ namespace Modules
 		value = command->ValueInt;
 		return true;
 	}
+
+	bool CommandMap::GetVariableInt64(const std::string& name, unsigned long long& value)
+	{
+		auto command = FindCommand(name);
+		if (!command || command->Type != eCommandTypeVariableInt64)
+			return false;
+
+		value = command->ValueInt64;
+		return true;
+	}
+
 	bool CommandMap::GetVariableFloat(const std::string& name, float& value)
 	{
 		auto command = FindCommand(name);
@@ -207,6 +268,18 @@ namespace Modules
 					command->ValueString = std::to_string(command->ValueInt); // set the ValueString too so we can print the value out easier
 				}
 				break;
+			case eCommandTypeVariableInt64:
+				previousValue = std::to_string(command->ValueInt);
+				if (value.length() > 0)
+				{
+					auto newValue = std::stoull(value, 0, 0);
+					if ((command->ValueInt64Min || command->ValueInt64Max) && (newValue < command->ValueInt64Min || newValue > command->ValueInt64Max))
+						return eVariableSetReturnValueOutOfRange;
+
+					command->ValueInt64 = newValue;
+					command->ValueString = std::to_string(command->ValueInt64); // set the ValueString too so we can print the value out easier
+				}
+				break;
 			case eCommandTypeVariableFloat:
 				previousValue = std::to_string(command->ValueFloat);
 				if (value.length() > 0)
@@ -254,6 +327,36 @@ namespace Modules
 
 		ss << hasParent.str();
 
+		return ss.str();
+	}
+
+	std::string CommandMap::SaveVariables()
+	{
+		std::stringstream ss;
+		for (auto cmd : Commands)
+		{
+			if (cmd.Type == eCommandTypeCommand)
+				continue;
+
+			ss << cmd.Name << " \"" << cmd.ValueString << "\"" << std::endl;
+		}
+		return ss.str();
+	}
+
+	std::string CommandMap::LoadVariables(std::string& variables)
+	{
+		std::istringstream stream(variables);
+		std::stringstream ss;
+		std::string line;
+		int lineIdx = 0;
+		while (std::getline(stream, line))
+		{
+			if (!this->ExecuteCommandWithStatus(line))
+			{
+				ss << "Error at line " << lineIdx << std::endl;
+			}
+			lineIdx++;
+		}
 		return ss.str();
 	}
 }

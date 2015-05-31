@@ -19,6 +19,7 @@ namespace
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo);
 	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo);
 	bool CommandGameShowUI(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules

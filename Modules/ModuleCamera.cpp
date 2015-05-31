@@ -1,7 +1,6 @@
 #include "ModuleCamera.h"
 #include <sstream>
 #include "../ElDorito.h"
-#include "../ElPreferences.h"
 #include "../Patches/Ui.h"
 
 namespace Modules
@@ -12,7 +11,7 @@ namespace Modules
 		VarCameraCrosshair->ValueIntMin = 0;
 		VarCameraCrosshair->ValueIntMax = 1;
 
-		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", 0, VariableCameraFovUpdate);
+		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", 90.f, VariableCameraFovUpdate);
 		VarCameraFov->ValueFloatMin = 55.f;
 		VarCameraFov->ValueFloatMax = 155.f;
 
@@ -35,9 +34,6 @@ namespace
 		if (statusBool)
 			status = "enabled.";
 
-		ElPreferences::Instance().setCrosshairCentered(statusBool);
-		ElPreferences::Instance().save();
-
 		Patches::Ui::EnableCenteredCrosshairPatch(statusBool);
 
 		returnInfo = "Centered crosshair " + status;
@@ -50,9 +46,6 @@ namespace
 
 		Pointer::Base(0x1F01D98).Write(value);
 		Pointer::Base(0x149D42C).Write(value);
-
-		ElPreferences::Instance().setFieldOfView(value);
-		ElPreferences::Instance().save();
 
 		return true;
 	}
