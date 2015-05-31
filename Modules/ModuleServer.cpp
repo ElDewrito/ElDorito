@@ -10,28 +10,6 @@
 extern BYTE passwordHash[0x20];
 extern bool usingPassword;
 
-namespace Modules
-{
-	ModuleServer::ModuleServer() : ModuleBase("Server")
-	{
-		VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
-		
-		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
-		VarServerCountdown->ValueIntMin = 0;
-		VarServerCountdown->ValueIntMax = 20;
-
-		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", 16, VariableServerMaxPlayersUpdate);
-		VarServerMaxPlayers->ValueIntMin = 1;
-		VarServerMaxPlayers->ValueIntMax = 16;
-
-		VarServerLanMode = AddVariableInt("LanMode", "lanmode", "Enables clients to detect this game over a network", 0);
-		VarServerLanMode->ValueIntMin = 0;
-		VarServerLanMode->ValueIntMax = 1;
-
-		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
-	}
-}
-
 namespace
 {
 	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -182,5 +160,27 @@ namespace
 
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
+	}
+}
+
+namespace Modules
+{
+	ModuleServer::ModuleServer() : ModuleBase("Server")
+	{
+		VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
+
+		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
+		VarServerCountdown->ValueIntMin = 0;
+		VarServerCountdown->ValueIntMax = 20;
+
+		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", 16, VariableServerMaxPlayersUpdate);
+		VarServerMaxPlayers->ValueIntMin = 1;
+		VarServerMaxPlayers->ValueIntMax = 16;
+
+		VarServerLanMode = AddVariableInt("LanMode", "lanmode", "Enables clients to detect this game over a network", 0);
+		VarServerLanMode->ValueIntMin = 0;
+		VarServerLanMode->ValueIntMax = 1;
+
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
 	}
 }

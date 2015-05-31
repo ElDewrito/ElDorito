@@ -3,26 +3,6 @@
 #include "../ElDorito.h"
 #include "../Patches/Ui.h"
 
-namespace Modules
-{
-	ModuleCamera::ModuleCamera() : ModuleBase("Camera")
-	{
-		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", 0, VariableCameraCrosshairUpdate);
-		VarCameraCrosshair->ValueIntMin = 0;
-		VarCameraCrosshair->ValueIntMax = 1;
-
-		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", 90.f, VariableCameraFovUpdate);
-		VarCameraFov->ValueFloatMin = 55.f;
-		VarCameraFov->ValueFloatMax = 155.f;
-
-		VarCameraHideHud = AddVariableInt("HideHUD", "hud", "Toggles the HUD", 0, VariableCameraHideHudUpdate);
-		VarCameraHideHud->ValueIntMin = 0;
-		VarCameraHideHud->ValueIntMax = 1;
-
-		//this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
-	}
-}
-
 namespace
 {
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -77,5 +57,25 @@ namespace
 	bool VariableCameraModeUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		return false;
+	}
+}
+
+namespace Modules
+{
+	ModuleCamera::ModuleCamera() : ModuleBase("Camera")
+	{
+		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", 0, VariableCameraCrosshairUpdate);
+		VarCameraCrosshair->ValueIntMin = 0;
+		VarCameraCrosshair->ValueIntMax = 1;
+
+		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", 90.f, VariableCameraFovUpdate);
+		VarCameraFov->ValueFloatMin = 55.f;
+		VarCameraFov->ValueFloatMax = 155.f;
+
+		VarCameraHideHud = AddVariableInt("HideHUD", "hud", "Toggles the HUD", 0, VariableCameraHideHudUpdate);
+		VarCameraHideHud->ValueIntMin = 0;
+		VarCameraHideHud->ValueIntMax = 1;
+
+		//this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Controls the camera mode", "default", VariableCameraModeUpdate);
 	}
 }

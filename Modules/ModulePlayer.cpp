@@ -1,24 +1,50 @@
 #include "ModulePlayer.h"
 #include <sstream>
 #include "../ElDorito.h"
+#include "../Patches/Armor.h"
+
+namespace
+{
+	bool VariablePlayerArmorUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::Armor::RefreshUiPlayer();
+		return true;
+	}
+
+	bool VariablePlayerNameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
+
+		std::wstring nameStr = Utils::String::WidenString(name);
+		wcscpy_s(Modules::ModulePlayer::Instance().UserName, 16, nameStr.c_str());
+		std::string actualName = Utils::String::ThinString(Modules::ModulePlayer::Instance().UserName);
+
+		return true;
+	}
+
+	bool VariablePlayerUserIDUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		return true;
+	}
+}
 
 namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
-		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", "", VariablePlayerArmorAccessoryUpdate);
-		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", "", VariablePlayerArmorArmsUpdate);
-		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", "", VariablePlayerArmorChestUpdate);
-		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", "", VariablePlayerArmorHelmetUpdate);
-		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", "", VariablePlayerArmorLegsUpdate);
-		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", "", VariablePlayerArmorPelvisUpdate);
-		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", "", VariablePlayerArmorShouldersUpdate);
+		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", "", VariablePlayerArmorUpdate);
+		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", "", VariablePlayerArmorUpdate);
+		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", "", VariablePlayerArmorUpdate);
+		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", "", VariablePlayerArmorUpdate);
+		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", "", VariablePlayerArmorUpdate);
+		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", "", VariablePlayerArmorUpdate);
+		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", "", VariablePlayerArmorUpdate);
 
-		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", "#000000", VariablePlayerColorsPrimaryUpdate);
-		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", "#000000", VariablePlayerColorsSecondaryUpdate);
-		VarColorsVisor = AddVariableString("Colors.Visor", "colors_visor", "The visor colors hex value", "#000000", VariablePlayerColorsVisorUpdate);
-		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", "#000000", VariablePlayerColorsLightsUpdate);
-		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", "#000000", VariablePlayerColorsHoloUpdate);
+		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", "#000000", VariablePlayerArmorUpdate);
+		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", "#000000", VariablePlayerArmorUpdate);
+		VarColorsVisor = AddVariableString("Colors.Visor", "colors_visor", "The visor colors hex value", "#000000", VariablePlayerArmorUpdate);
+		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", "#000000", VariablePlayerArmorUpdate);
+		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", "#000000", VariablePlayerArmorUpdate);
 
 		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", "Jasper", VariablePlayerNameUpdate);
 		VarUserID = AddVariableInt64("UserID", "userid", "The players unique user ID", 0xbeefcafe, VariablePlayerUserIDUpdate);
@@ -42,84 +68,5 @@ namespace Modules
 
 		srand((unsigned int)time(0));
 		Modules::CommandMap::Instance().SetVariable(VarPlayerName, std::string(defaultNames[rand() % 41]), std::string());
-	}
-}
-
-namespace
-{
-	bool VariablePlayerArmorAccessoryUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorArmsUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorChestUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorHelmetUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorLegsUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorPelvisUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerArmorShouldersUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerColorsPrimaryUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerColorsSecondaryUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerColorsVisorUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerColorsLightsUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerColorsHoloUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
-	}
-
-	bool VariablePlayerNameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
-
-		std::wstring nameStr = Utils::String::WidenString(name);
-		wcscpy_s(Modules::ModulePlayer::Instance().UserName, 16, nameStr.c_str());
-		std::string actualName = Utils::String::ThinString(Modules::ModulePlayer::Instance().UserName);
-
-		return true;
-	}
-
-	bool VariablePlayerUserIDUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		return true;
 	}
 }

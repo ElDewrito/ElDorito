@@ -83,22 +83,9 @@ LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExc
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void initMedals()
-{
-	extern BOOL installMedalJunk();
-
-	// This is kind of a hack, but only install the medal system for now if halo3.zip can be opened for reading
-	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
-	if (!halo3Zip.is_open())
-		return;
-	halo3Zip.close();
-	installMedalJunk();
-}
-
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
-	initMedals();
 
 	Console::AllocateConsole("ElDewrito");
 

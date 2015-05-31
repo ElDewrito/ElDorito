@@ -1,6 +1,7 @@
 #include "Direct3D.h"
 #include "Optic.h"
 #include <d3dx9.h>
+std::string zipName = "halo3";
 
 namespace D3DHook {
 
@@ -15,7 +16,7 @@ void delayed() {
 		return;
 	}
 
-	Optic::load("halo3");
+	Optic::load(zipName);
 	done = true;
 }
 HRESULT __stdcall endScene(LPDIRECT3DDEVICE9 device) {

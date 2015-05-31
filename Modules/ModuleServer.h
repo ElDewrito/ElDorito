@@ -2,15 +2,6 @@
 
 #include "ModuleBase.h"
 
-namespace
-{
-	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
-
-	bool CommandServerConnect(const std::vector<std::string>& Arguments, std::string& returnInfo);
-}
-
 namespace Modules
 {
 	class ModuleServer : public Utils::Singleton<ModuleServer>, public ModuleBase

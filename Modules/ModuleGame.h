@@ -11,22 +11,13 @@ enum DebugLoggingModes
 	Game2 = 16,
 };
 
-namespace
-{
-	bool CommandGameLogMode(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameLogFilter(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameInfo(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameShowUI(const std::vector<std::string>& Arguments, std::string& returnInfo);
-	bool CommandGameWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo);
-}
-
 namespace Modules
 {
 	class ModuleGame : public Utils::Singleton<ModuleGame>, public ModuleBase
 	{
 	public:
+		Command* VarMedalsZip;
+
 		int DebugFlags;
 		std::vector<std::string> MapList;
 		std::vector<std::string> FiltersExclude;

@@ -2,16 +2,6 @@
 #include <sstream>
 #include "../ElDorito.h"
 
-namespace Modules
-{
-	ModuleInput::ModuleInput() : ModuleBase("Input")
-	{
-		VarInputRawInput = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", 1, VariableInputRawInputUpdate);
-		VarInputRawInput->ValueIntMin = 0;
-		VarInputRawInput->ValueIntMax = 1;
-	}
-}
-
 namespace
 {
 	bool VariableInputRawInputUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -25,5 +15,15 @@ namespace
 
 		returnInfo = "Raw input " + status;
 		return true;
+	}
+}
+
+namespace Modules
+{
+	ModuleInput::ModuleInput() : ModuleBase("Input")
+	{
+		VarInputRawInput = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", 1, VariableInputRawInputUpdate);
+		VarInputRawInput->ValueIntMin = 0;
+		VarInputRawInput->ValueIntMax = 1;
 	}
 }

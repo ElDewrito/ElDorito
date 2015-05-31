@@ -343,9 +343,9 @@ namespace Modules
 		return ss.str();
 	}
 
-	std::string CommandMap::LoadVariables(std::string& variables)
+	std::string CommandMap::ExecuteCommands(std::string& commands)
 	{
-		std::istringstream stream(variables);
+		std::istringstream stream(commands);
 		std::stringstream ss;
 		std::string line;
 		int lineIdx = 0;
@@ -363,16 +363,6 @@ namespace Modules
 
 namespace
 {
-	unsigned long stou(std::string const & str, size_t * idx, int base)
-	{
-		unsigned long result = std::stoul(str, idx, base);
-		if (result > UINT_MAX)
-		{
-			throw std::out_of_range("stou");
-		}
-		return result;
-	}
-
 	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc)
 	{
 		PCHAR* argv;

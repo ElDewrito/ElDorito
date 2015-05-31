@@ -50,11 +50,6 @@ namespace Patches
 		Armor::RefreshUiPlayer();
 	}
 
-	void PreferencesUpdated()
-	{
-		Armor::RefreshUiPlayer();
-	}
-
 	void Tick()
 	{
 		Patches::Ui::Tick();

@@ -18,7 +18,6 @@ typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std
 
 namespace
 {
-	unsigned long stou(std::string const & str, size_t * idx = 0, int base = 10);
 	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
 }
 
@@ -79,8 +78,9 @@ namespace Modules
 		Command* AddCommand(Command command);
 		Command* FindCommand(const std::string& name);
 		std::string ExecuteCommand(std::vector<std::string> command);
-		bool ExecuteCommandWithStatus(std::string command);
 		std::string ExecuteCommand(std::string command);
+		std::string ExecuteCommands(std::string& commands);
+		bool ExecuteCommandWithStatus(std::string command);
 
 		bool GetVariableInt(const std::string& name, unsigned long& value);
 		bool GetVariableInt64(const std::string& name, unsigned long long& value);
@@ -93,6 +93,5 @@ namespace Modules
 		std::string GenerateHelpText();
 
 		std::string SaveVariables();
-		std::string LoadVariables(std::string& variables);
 	};
 }

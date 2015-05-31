@@ -30,17 +30,7 @@ void ElDorito::Initialize()
 	Modules::ElModules::Instance();
 
 	// load variables/commands from cfg file
-	std::ifstream in("dewrito_prefs.cfg", std::ios::in | std::ios::binary);
-	if (in)
-	{
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
-		in.close();
-		Modules::CommandMap::Instance().LoadVariables(contents);
-	}
+	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
 
 	// Parse command-line commands
 	int numArgs = 0;
@@ -85,6 +75,19 @@ void ElDorito::Initialize()
 	// this will override the users LAN setting in the prefs file
 	// which is ideal really since we only want lan to be enabled if it was specified in the launch params
 	Modules::CommandMap::Instance().SetVariable("Server.LanMode", std::string(lanMode ? "1" : "0"), std::string());
+
+	extern std::string zipName;
+	extern BOOL installMedalJunk();
+
+	zipName = Modules::ModuleGame::Instance().VarMedalsZip->ValueString;
+
+	// This is kind of a hack, but only install the medal system for now if halo3.zip can be opened for reading
+	std::ifstream halo3Zip("mods\\medals\\" + zipName + ".zip");
+	if (halo3Zip.is_open())
+	{
+		halo3Zip.close();
+		installMedalJunk();
+	}
 
 #ifndef _ELDEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed

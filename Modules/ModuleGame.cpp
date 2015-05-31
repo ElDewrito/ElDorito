@@ -7,56 +7,6 @@
 #include "../Patches/Logging.h"
 #include "../BlamTypes.h"
 
-namespace Modules
-{
-	ModuleGame::ModuleGame() : ModuleBase("Game")
-	{
-		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", CommandGameLogMode, { "network|ssl|ui|game1|game2|all|off The log mode to enable" });
-		
-		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
-
-		AddCommand("Info", "info", "Displays information about the game", CommandGameInfo);
-
-		AddCommand("Exit", "exit", "Ends the game process", CommandGameExit);
-
-		AddCommand("Map", "map", "Loads a map", CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
-
-		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
-
-		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", CommandGameWriteConfig, { "filename(string) Optional, the filename to write the config to" });
-
-		// Level load patch
-		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
-
-		//populate map list on load
-		WIN32_FIND_DATA Finder;
-		HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
-		if (hFind != INVALID_HANDLE_VALUE)
-		{
-			do
-			{
-				if (!(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					std::string MapName(Finder.cFileName);
-					//remove extension
-					MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
-				}
-			} while (FindNextFile(hFind, &Finder) != 0);
-		}
-
-		/*EXAMPLES: adds a variable "Game.Name", default value ElDewrito, calls VariableGameNameUpdate when value is updated
-		AddVariableString("Name", "gamename", "Title of the game", "ElDewrito", VariableGameNameUpdate);
-
-		// adds a variable "Game.Year", default value 2015, clamped to [1994..3030]
-		auto cmd = AddVariableInt("Year", "gameyear", "The current year", 2015);
-		cmd->ValueIntMin = 1994;
-		cmd->ValueIntMax = 3030;
-
-		// adds a variable "Game.Money", default value 1.86
-		AddVariableFloat("Money", "gamemoney", "Your mothers hourly rate", 1.86f);*/
-	}
-}
-
 namespace
 {
 	bool CommandGameLogMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -416,4 +366,55 @@ namespace
 
 		return std::string("Our name is ") + name;
 	}*/
+}
+
+namespace Modules
+{
+	ModuleGame::ModuleGame() : ModuleBase("Game")
+	{
+		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", CommandGameLogMode, { "network|ssl|ui|game1|game2|all|off The log mode to enable" });
+
+		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
+
+		AddCommand("Info", "info", "Displays information about the game", CommandGameInfo);
+
+		AddCommand("Exit", "exit", "Ends the game process", CommandGameExit);
+
+		AddCommand("Map", "map", "Loads a map", CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
+
+		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
+
+		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", CommandGameWriteConfig, { "filename(string) Optional, the filename to write the config to" });
+
+		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", "halo3");
+		// Level load patch
+		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
+
+		//populate map list on load
+		WIN32_FIND_DATA Finder;
+		HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
+		if (hFind != INVALID_HANDLE_VALUE)
+		{
+			do
+			{
+				if (!(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					std::string MapName(Finder.cFileName);
+					//remove extension
+					MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
+				}
+			} while (FindNextFile(hFind, &Finder) != 0);
+		}
+
+		/*EXAMPLES: adds a variable "Game.Name", default value ElDewrito, calls VariableGameNameUpdate when value is updated
+		AddVariableString("Name", "gamename", "Title of the game", "ElDewrito", VariableGameNameUpdate);
+
+		// adds a variable "Game.Year", default value 2015, clamped to [1994..3030]
+		auto cmd = AddVariableInt("Year", "gameyear", "The current year", 2015);
+		cmd->ValueIntMin = 1994;
+		cmd->ValueIntMax = 3030;
+
+		// adds a variable "Game.Money", default value 1.86
+		AddVariableFloat("Money", "gamemoney", "Your mothers hourly rate", 1.86f);*/
+	}
 }
