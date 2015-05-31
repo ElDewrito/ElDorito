@@ -7,6 +7,14 @@ namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
+		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", "", VariablePlayerArmorAccessory);
+		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", "", VariablePlayerArmorArms);
+		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", "", VariablePlayerArmorChest);
+		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", "", VariablePlayerArmorHelmet);
+		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", "", VariablePlayerArmorLegs);
+		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", "", VariablePlayerArmorPelvis);
+		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", "", VariablePlayerArmorShoulders);
+
 		VarPlayerName = AddVariableString("Name", "name", "Changes the players ingame name", "Jasper", VariablePlayerNameUpdate);
 
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
@@ -29,13 +37,55 @@ namespace Modules
 		TODO("Make a SetVariableString function for this instead");
 
 		srand((unsigned int)time(0));
-		Modules::CommandMap::Instance().ExecuteCommand("Player.Name " + std::string(defaultNames[rand() % 41]));
+		Modules::CommandMap::Instance().SetVariable(VarPlayerName, std::string(defaultNames[rand() % 41]), std::string());
 	}
 }
 
 namespace
 {
-	std::string VariablePlayerNameUpdate(const std::vector<std::string>& Arguments)
+	bool VariablePlayerArmorAccessory(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setAccessoryName(Modules::ModulePlayer::Instance().VarArmorAccessory->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorArms(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setArmsName(Modules::ModulePlayer::Instance().VarArmorArms->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorChest(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setChestName(Modules::ModulePlayer::Instance().VarArmorChest->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorHelmet(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setHelmetName(Modules::ModulePlayer::Instance().VarArmorHelmet->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorLegs(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setLegsName(Modules::ModulePlayer::Instance().VarArmorLegs->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorPelvis(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setPelvisName(Modules::ModulePlayer::Instance().VarArmorPelvis->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerArmorShoulders(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		ElPreferences::Instance().setShouldersName(Modules::ModulePlayer::Instance().VarArmorShoulders->ValueString);
+		return true;
+	}
+
+	bool VariablePlayerNameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
 
@@ -46,6 +96,6 @@ namespace
 		ElPreferences::Instance().setPlayerName(actualName);
 		ElPreferences::Instance().save();
 
-		return "Player name set to " + actualName + ".";
+		return true;
 	}
 }

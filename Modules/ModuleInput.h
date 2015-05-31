@@ -4,7 +4,7 @@
 
 namespace
 {
-	std::string VariableInputRawInputUpdate(const std::vector<std::string>& Arguments);
+	bool VariableInputRawInputUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules

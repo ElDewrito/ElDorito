@@ -4,10 +4,10 @@
 
 namespace
 {
-	std::string VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments);
-	std::string VariableCameraFovUpdate(const std::vector<std::string>& Arguments);
-	std::string VariableCameraHideHudUpdate(const std::vector<std::string>& Arguments);
-	std::string VariableCameraModeUpdate(const std::vector<std::string>& Arguments);
+	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool VariableCameraFovUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool VariableCameraHideHudUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool VariableCameraModeUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules

@@ -9,7 +9,7 @@
 
 namespace
 {
-	std::string CommandHelp(const std::vector<std::string>& Arguments);
+	bool CommandHelp(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules

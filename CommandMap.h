@@ -6,9 +6,15 @@
 
 #include "Utils/Singleton.h"
 
+enum VariableSetReturnValue
+{
+	eVariableSetReturnValueSuccess,
+	eVariableSetReturnValueError,
+	eVariableSetReturnValueOutOfRange,
+	eVariableSetReturnValueInvalidArgument,
+};
 
-typedef std::string(*CommandUpdateFunc)(const std::vector<std::string>& Arguments);
-
+typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
 
 namespace
 {
@@ -71,6 +77,9 @@ namespace Modules
 		bool GetVariableInt(const std::string& name, unsigned long& value);
 		bool GetVariableFloat(const std::string& name, float& value);
 		bool GetVariableString(const std::string& name, std::string& value);
+
+		VariableSetReturnValue SetVariable(const std::string& name, std::string& value, std::string& previousValue);
+		VariableSetReturnValue SetVariable(Command* command, std::string& value, std::string& previousValue);
 
 		std::string GenerateHelpText();
 

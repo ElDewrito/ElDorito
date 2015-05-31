@@ -97,7 +97,7 @@ namespace Modules
 
 		auto cmd = FindCommand(args[0]);
 		if (!cmd)
-			return "Command not found";
+			return "Command/Variable not found";
 
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
@@ -105,60 +105,46 @@ namespace Modules
 			argsVect.push_back(args[i]);
 
 		if (cmd->Type == eCommandTypeCommand)
-			return cmd->UpdateEvent(argsVect); // if it's a command call it and return
-
-		std::string currentValue;
-
-		try {
-			switch (cmd->Type)
-			{
-			case eCommandTypeVariableString:
-				currentValue = cmd->ValueString;
-				if (numArgs > 1)
-					cmd->ValueString = argsVect[0];
-				break;
-			case eCommandTypeVariableInt:
-				currentValue = std::to_string(cmd->ValueInt);
-				if (numArgs > 1)
-				{
-					auto newValue = std::stoul(argsVect[0], 0, 0);
-					if ((cmd->ValueIntMin || cmd->ValueIntMax) && (newValue < cmd->ValueIntMin || newValue > cmd->ValueIntMax))
-						return "Value " + std::to_string(newValue) + " out of range [" + std::to_string(cmd->ValueIntMin) + ".." + std::to_string(cmd->ValueIntMax) + "]";
-
-					cmd->ValueInt = newValue;
-					cmd->ValueString = std::to_string(cmd->ValueInt); // set the ValueString too so we can print the value out easier
-				}
-				break;
-			case eCommandTypeVariableFloat:
-				currentValue = std::to_string(cmd->ValueFloat);
-				if (numArgs > 1)
-				{
-					auto newValue = std::stof(argsVect[0], 0);
-					if ((cmd->ValueFloatMin || cmd->ValueFloatMax) && (newValue < cmd->ValueFloatMin || newValue > cmd->ValueFloatMax))
-						return "Value " + std::to_string(newValue) + " out of range [" + std::to_string(cmd->ValueFloatMin) + ".." + std::to_string(cmd->ValueFloatMax) + "]";
-
-					cmd->ValueFloat = newValue;
-					cmd->ValueString = std::to_string(cmd->ValueFloat); // set the ValueString too so we can print the value out easier
-				}
-				break;
-			}
-		}
-		catch (std::invalid_argument)
 		{
-			return "Invalid value given";
+			std::string retInfo;
+			cmd->UpdateEvent(argsVect, retInfo); // if it's a command call it and return
+			return retInfo;
 		}
-		catch (std::out_of_range)
+
+		std::string previousValue;
+		auto updateRet = SetVariable(cmd, (numArgs > 1 ? argsVect[0] : ""), previousValue);
+
+		switch (updateRet)
 		{
-			return "Invalid value given";
+		case eVariableSetReturnValueError:
+			return "Command/Variable not found";
+		case eVariableSetReturnValueInvalidArgument:
+			return "Invalid value";
+		case eVariableSetReturnValueOutOfRange:
+			if (cmd->Type == eCommandTypeVariableInt)
+				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueIntMin) + ".." + std::to_string(cmd->ValueIntMax) + "]";
+			if (cmd->Type == eCommandTypeVariableFloat)
+				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueFloatMin) + ".." + std::to_string(cmd->ValueFloatMax) + "]";
+
+			return "Value " + argsVect[0] + " out of range [this shouldn't be happening!]";
 		}
 
 		if (numArgs <= 1)
-			return currentValue;
+			return previousValue;
 
 		if (!cmd->UpdateEvent)
-			return currentValue + " -> " + cmd->ValueString; // no update event, so we'll just return with what we set the value to
+			return previousValue + " -> " + cmd->ValueString; // no update event, so we'll just return with what we set the value to
 
-		return cmd->UpdateEvent(argsVect);
+		std::string retVal;
+		auto ret = cmd->UpdateEvent(argsVect, retVal);
+
+		if (!ret) // error, revert the variable
+			this->SetVariable(cmd, previousValue, std::string());
+
+		if (retVal.length() <= 0)
+			return previousValue + " -> " + cmd->ValueString;
+
+		return retVal;
 	}
 
 	bool CommandMap::GetVariableInt(const std::string& name, unsigned long& value)
@@ -188,6 +174,63 @@ namespace Modules
 
 		value = command->ValueString;
 		return true;
+	}
+
+	VariableSetReturnValue CommandMap::SetVariable(const std::string& name, std::string& value, std::string& previousValue)
+	{
+		auto command = FindCommand(name);
+		if (!command)
+			return eVariableSetReturnValueError;
+
+		return SetVariable(command, value, previousValue);
+	}
+
+	VariableSetReturnValue CommandMap::SetVariable(Command* command, std::string& value, std::string& previousValue)
+	{
+		try {
+			switch (command->Type)
+			{
+			case eCommandTypeVariableString:
+				previousValue = command->ValueString;
+				if (value.length() > 0)
+					command->ValueString = value;
+				break;
+			case eCommandTypeVariableInt:
+				previousValue = std::to_string(command->ValueInt);
+				if (value.length() > 0)
+				{
+					auto newValue = std::stoul(value, 0, 0);
+					if ((command->ValueIntMin || command->ValueIntMax) && (newValue < command->ValueIntMin || newValue > command->ValueIntMax))
+						return eVariableSetReturnValueOutOfRange;
+
+					command->ValueInt = newValue;
+					command->ValueString = std::to_string(command->ValueInt); // set the ValueString too so we can print the value out easier
+				}
+				break;
+			case eCommandTypeVariableFloat:
+				previousValue = std::to_string(command->ValueFloat);
+				if (value.length() > 0)
+				{
+					auto newValue = std::stof(value, 0);
+					if ((command->ValueFloatMin || command->ValueFloatMax) && (newValue < command->ValueFloatMin || newValue > command->ValueFloatMax))
+						return eVariableSetReturnValueOutOfRange;
+
+					command->ValueFloat = newValue;
+					command->ValueString = std::to_string(command->ValueFloat); // set the ValueString too so we can print the value out easier
+				}
+				break;
+			}
+		}
+		catch (std::invalid_argument)
+		{
+			return eVariableSetReturnValueInvalidArgument;
+		}
+		catch (std::out_of_range)
+		{
+			return eVariableSetReturnValueInvalidArgument;
+		}
+
+		return eVariableSetReturnValueSuccess;
 	}
 
 	bool compare_commands(const Command& lhs, const Command& rhs) {

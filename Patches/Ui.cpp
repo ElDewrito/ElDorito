@@ -149,8 +149,8 @@ namespace Patches
 				Pointer levelNamePtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8);
 				Pointer levelDescPtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8 + 0x40);
 
-				wchar_t levelName[0x20];
-				memset(levelName, 0, sizeof(wchar_t) * 0x20);
+				wchar_t levelName[0x21];
+				memset(levelName, 0, sizeof(wchar_t) * 0x21);
 				levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
 
 				for (uint32_t y = 0; y < 6; y++)

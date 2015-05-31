@@ -26,7 +26,7 @@ namespace Modules
 
 namespace
 {
-	std::string VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments)
+	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
 
@@ -40,10 +40,11 @@ namespace
 
 		Patches::Ui::EnableCenteredCrosshairPatch(statusBool);
 
-		return "Centered crosshair " + status;
+		returnInfo = "Centered crosshair " + status;
+		return true;
 	}
 
-	std::string VariableCameraFovUpdate(const std::vector<std::string>& Arguments)
+	bool VariableCameraFovUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		float value = Modules::ModuleCamera::Instance().VarCameraFov->ValueFloat;
 
@@ -53,10 +54,10 @@ namespace
 		ElPreferences::Instance().setFieldOfView(value);
 		ElPreferences::Instance().save();
 
-		return "FOV set to " + std::to_string(value) + ".";
+		return true;
 	}
 
-	std::string VariableCameraHideHudUpdate(const std::vector<std::string>& Arguments)
+	bool VariableCameraHideHudUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt;
 
@@ -76,11 +77,12 @@ namespace
 
 		VirtualProtect(Pointer(0x016B5A5C), 4, temp, NULL);
 
-		return "HUD " + status;
+		returnInfo = "HUD " + status;
+		return true;
 	}
 
-	std::string VariableCameraModeUpdate(const std::vector<std::string>& Arguments)
+	bool VariableCameraModeUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		return "";
+		return false;
 	}
 }

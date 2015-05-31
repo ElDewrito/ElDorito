@@ -4,11 +4,11 @@
 
 namespace
 {
-	std::string VariableServerPasswordUpdate(const std::vector<std::string>& Arguments);
-	std::string VariableServerCountdownUpdate(const std::vector<std::string>& Arguments);
-	std::string VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments);
+	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo);
 
-	std::string CommandServerConnect(const std::vector<std::string>& Arguments);
+	bool CommandServerConnect(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules

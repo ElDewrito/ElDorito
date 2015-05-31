@@ -15,7 +15,7 @@ namespace Modules
 
 namespace
 {
-	std::string VariableInputRawInputUpdate(const std::vector<std::string>& Arguments)
+	bool VariableInputRawInputUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleInput::Instance().VarInputRawInput->ValueInt;
 
@@ -27,6 +27,7 @@ namespace
 		ElPreferences::Instance().setRawMouse(statusBool);
 		ElPreferences::Instance().save();
 
-		return "Raw input " + status;
+		returnInfo = "Raw input " + status;
+		return true;
 	}
 }

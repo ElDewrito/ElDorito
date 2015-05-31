@@ -16,8 +16,9 @@ namespace Modules
 
 namespace
 {
-	std::string CommandHelp(const std::vector<std::string>& Arguments)
+	bool CommandHelp(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		return Modules::CommandMap::Instance().GenerateHelpText();
+		returnInfo = Modules::CommandMap::Instance().GenerateHelpText();
+		return true;
 	}
 }

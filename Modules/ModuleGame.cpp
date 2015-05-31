@@ -55,7 +55,7 @@ namespace Modules
 
 namespace
 {
-	std::string CommandGameLogMode(const std::vector<std::string>& Arguments)
+	bool CommandGameLogMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto newFlags = Modules::ModuleGame::Instance().DebugFlags;
 
@@ -87,35 +87,30 @@ namespace
 					if (hookNetwork)
 					{
 						newFlags |= DebugLoggingModes::Network;
-
 						Patches::Logging::EnableNetworkLog(true);
 					}
 
 					if (hookSSL)
 					{
 						newFlags |= DebugLoggingModes::SSL;
-
 						Patches::Logging::EnableSslLog(true);
 					}
 
 					if (hookUI)
 					{
 						newFlags |= DebugLoggingModes::UI;
-
 						Patches::Logging::EnableUiLog(true);
 					}
 
 					if (hookGame1)
 					{
 						newFlags |= DebugLoggingModes::Game1;
-
 						Patches::Logging::EnableGame1Log(true);
 					}
 
 					if (hookGame2)
 					{
 						newFlags |= DebugLoggingModes::Game2;
-
 						Patches::Logging::EnableGame2Log(true);
 					}
 				}
@@ -146,10 +141,11 @@ namespace
 		{
 			ss << std::endl << "Usage: Game.DebugMode <network | ssl | ui | game1 | game2 | all | off>";
 		}
-		return ss.str();
+		returnInfo = ss.str();
+		return true;
 	}
 
-	std::string CommandGameLogFilter(const std::vector<std::string>& Arguments)
+	bool CommandGameLogFilter(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
 		if (Arguments.size() != 3)
@@ -190,10 +186,11 @@ namespace
 		for (auto filter : Modules::ModuleGame::Instance().FiltersExclude)
 			ss << std::endl << filter;
 
-		return ss.str();
+		returnInfo = ss.str();
+		return true;
 	}
 
-	std::string CommandGameInfo(const std::vector<std::string>& Arguments)
+	bool CommandGameInfo(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
 		ss << std::hex << "ThreadLocalStorage: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
@@ -238,16 +235,17 @@ namespace
 
 		ss << "Tag Bank Offset: " << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
 
-		return ss.str();
+		returnInfo = ss.str();
+		return true;
 	}
 
-	std::string CommandGameExit(const std::vector<std::string>& Arguments)
+	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::exit(0);
-		return "";
+		return true;
 	}
 
-	std::string CommandGameLoadMap(const std::vector<std::string>& Arguments)
+	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
 		if (Arguments.size() <= 0)
@@ -259,11 +257,12 @@ namespace
 			for (auto map : Modules::ModuleGame::Instance().MapList)
 				ss << std::endl << "\t" << map;
 
-			ss << "Valid gametypes:";
+			ss << std::endl << std::endl << "Valid gametypes:";
 			for (size_t i = 0; i < Blam::GameTypeCount - 1; i++)
 				ss << std::endl << "\t" << "[" << i << "] " << Blam::GameTypeNames[i];
 
-			return ss.str();
+			returnInfo = ss.str();
+			return false;
 		}
 
 		auto mapName = Arguments[0];
@@ -274,8 +273,8 @@ namespace
 
 		if (std::find(Modules::ModuleGame::Instance().MapList.begin(), Modules::ModuleGame::Instance().MapList.end(), mapName) == Modules::ModuleGame::Instance().MapList.end())
 		{
-			ss << "Unable to find map " << mapName;
-			return ss.str();
+			returnInfo = "Unable to find map " + mapName;
+			return false;
 		}
 
 		mapName = "maps\\" + mapName;
@@ -338,13 +337,17 @@ namespace
 		// Map Reset
 		Pointer(0x23917F0).Write<uint8_t>(0x1);
 
-		return ss.str();
+		returnInfo = ss.str();
+		return true;
 	}
 
-	std::string CommandGameShowUI(const std::vector<std::string>& Arguments)
+	bool CommandGameShowUI(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() <= 0)
-			return "You must specify at least a dialog ID!";
+		{
+			returnInfo = "You must specify at least a dialog ID!";
+			return false;
+		}
 
 		unsigned int dialogStringId = 0;
 		int dialogArg1 = 0; // todo: figure out a better name for this
@@ -362,11 +365,13 @@ namespace
 		}
 		catch (std::invalid_argument)
 		{
-			return "Invalid argument given.";
+			returnInfo = "Invalid argument given.";
+			return false;
 		}
 		catch (std::out_of_range)
 		{
-			return "Invalid argument given.";
+			returnInfo = "Invalid argument given.";
+			return false;
 		}
 
 		Patches::Ui::DialogStringId = dialogStringId;
@@ -375,7 +380,8 @@ namespace
 		Patches::Ui::DialogParentStringId = dialogParentStringId;
 		Patches::Ui::DialogShow = true;
 
-		return "Sent Show_UI notification to game.";
+		returnInfo = "Sent Show_UI notification to game.";
+		return true;
 	}
 
 	//EXAMPLE:

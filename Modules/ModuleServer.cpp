@@ -31,34 +31,32 @@ namespace Modules
 
 namespace
 {
-	std::string VariableServerPasswordUpdate(const std::vector<std::string>& Arguments)
+	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::string password = Modules::ModuleServer::Instance().VarServerPassword->ValueString;
 
 		usingPassword = password.length() > 0;
 
-		std::string returnVal = "";
 		if (usingPassword)
 		{
 			SHA256_CTX ctx;
 			sha256_init(&ctx);
 			sha256_update(&ctx, (unsigned char*)password.c_str(), password.length());
 			sha256_final(&ctx, passwordHash);
-
-			returnVal = "Server password set to " + password + ".";
 		}
 		else
 		{
-			returnVal = "Server password unset.";
+			returnInfo = "Server password unset.";
+			return true;
 		}
 
 		ElPreferences::Instance().setServerPassword(password);
 		ElPreferences::Instance().save();
 
-		return returnVal;
+		return true;
 	}
 
-	std::string VariableServerCountdownUpdate(const std::vector<std::string>& Arguments)
+	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
 
@@ -72,24 +70,30 @@ namespace
 		else
 			Pointer::Base(0x1536F0).Write<uint8_t>(3);
 
-		return "Set match countdown to " + std::to_string(seconds) + " seconds.";
+		return true;
 	}
 
-	std::string VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments)
+	bool VariableServerMaxPlayersUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		typedef char(__cdecl *NetworkSquadSessionSetMaximumPlayerCountFunc)(int count);
 		auto network_squad_session_set_maximum_player_count = (NetworkSquadSessionSetMaximumPlayerCountFunc)0x439BA0;
 		char ret = network_squad_session_set_maximum_player_count(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
-		if (ret == 0) TODO("Make command/variable funcs return a boolean, so that variable value can be reverted if function fails")
-			return "Failed to update max player count, are you hosting a lobby?";
+		if (ret == 0)
+		{
+			returnInfo = "Failed to update max player count, are you hosting a lobby?";
+			return false;
+		}
 
-		return "Updated max player count to " + std::to_string(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+		return true;
 	}
 
-	std::string CommandServerConnect(const std::vector<std::string>& Arguments)
+	bool CommandServerConnect(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() <= 0)
-			return "Invalid arguments.";
+		{
+			returnInfo = "Invalid arguments.";
+			return false;
+		}
 
 		std::string address = Arguments[0];
 		std::string password = "";
@@ -128,7 +132,8 @@ namespace
 			}
 			else
 				ret += "Unknown error.";
-			return ret;
+			returnInfo = ret;
+			return false;
 		}
 
 		struct addrinfo *ptr = NULL;
@@ -142,7 +147,10 @@ namespace
 		}
 
 		if (!rawIpaddr)
-			return "Unable to lookup " + address + ": No records found.";
+		{
+			returnInfo = "Unable to lookup " + address + ": No records found.";;
+			return false;
+		}
 
 		if (password.length() > 0)
 		{
@@ -172,6 +180,7 @@ namespace
 		Pointer::Base(0x1E40BD4).Write(passwordHash + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
 
-		return "Attempting connection to " + address + "...";
+		returnInfo = "Attempting connection to " + address + "...";
+		return true;
 	}
 }

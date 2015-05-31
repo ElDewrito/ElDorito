@@ -13,12 +13,12 @@ enum DebugLoggingModes
 
 namespace
 {
-	std::string CommandGameLogMode(const std::vector<std::string>& Arguments);
-	std::string CommandGameLogFilter(const std::vector<std::string>& Arguments);
-	std::string CommandGameInfo(const std::vector<std::string>& Arguments);
-	std::string CommandGameExit(const std::vector<std::string>& Arguments);
-	std::string CommandGameLoadMap(const std::vector<std::string>& Arguments);
-	std::string CommandGameShowUI(const std::vector<std::string>& Arguments);
+	bool CommandGameLogMode(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameLogFilter(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameInfo(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo);
+	bool CommandGameShowUI(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
 
 namespace Modules
