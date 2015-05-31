@@ -31,6 +31,7 @@ void ElDorito::Initialize()
 
 	// load variables/commands from cfg file
 	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
+	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg");
 
 	// Parse command-line commands
 	int numArgs = 0;
