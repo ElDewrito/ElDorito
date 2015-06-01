@@ -161,14 +161,14 @@ namespace
 		Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
 		Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
 
-		ss << std::hex << "ThreadLocalStorage: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
+		ss << std::hex << "ThreadLocalStorage: 0x" << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
 
 		ss << "Command line args: " << (ArgList.empty() ? "(null)" : ArgList) << std::endl;
 		ss << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
 		ss << "XNKID: " << Xnkid << std::endl;
 		ss << "XNAddr: " << Xnaddr << std::endl;
-		ss << "Server Port: " << Modules::ModuleServer::Instance().VarServerPort->ValueInt << std::endl;
-		ss << "Server Endpoint Port: " << Pointer(0x1860454).Read<uint32_t>() << std::endl;
+		ss << "Server Port: " << std::dec << Modules::ModuleServer::Instance().VarServerPort->ValueInt << std::endl;
+		ss << "Server Endpoint Port: " << std::dec << Pointer(0x1860454).Read<uint32_t>() << std::endl;
 		ss << "Build: " << (Build.empty() ? "(null)" : Build) << std::endl;
 		ss << "SystemID: " << (SystemID.empty() ? "(null)" : SystemID) << std::endl;
 		ss << "SessionID: " << (SessionID.empty() ? "(null)" : SessionID) << std::endl;
@@ -177,11 +177,11 @@ namespace
 
 		ss << "Flash Version: " << (FlashVersion.empty() ? "(null)" : FlashVersion) << std::endl;
 		ss << "Current Map: " << (MapName.empty() ? "(null)" : MapName) << std::endl;
-		ss << "Current Map Cache Size: " << Pointer(0x22AB018)(0x8).Read<int32_t>() << std::endl;
+		ss << "Current Map Cache Size: " << std::dec << Pointer(0x22AB018)(0x8).Read<int32_t>() << std::endl;
 		ss << "Loaded Game Variant: " << (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) << std::endl;
-		ss << "Loaded Game Type: " << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
-		ss << "Tag Table Offset: " << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
-		ss << "Tag Bank Offset: " << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
+		ss << "Loaded Game Type: 0x" << std::hex << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
+		ss << "Tag Table Offset: 0x" << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
+		ss << "Tag Bank Offset: 0x" << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
 
 		returnInfo = ss.str();
 		return true;

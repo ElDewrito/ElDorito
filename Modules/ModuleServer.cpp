@@ -52,14 +52,14 @@ namespace
 
 		std::string address = Arguments[0];
 		uint32_t rawIpaddr = 0;
-		uint16_t rawPort = 11774;
+		int httpPort = 11775;
 
 		size_t portOffset = address.find(':');
 		auto host = address;
 		if (portOffset != std::string::npos && portOffset + 1 < address.size())
 		{
 			auto port = address.substr(portOffset + 1);
-			rawPort = (uint16_t)std::stoi(port);
+			httpPort = (uint16_t)std::stoi(port);
 			host = address.substr(0, portOffset);
 		}
 
@@ -101,8 +101,8 @@ namespace
 		}
 
 		// query the server
-		HttpRequest req(L"ElDewrito/0.5", L"", L"");
-		if (!req.SendRequest(Utils::String::WidenString(host), 11770, L"GET", NULL, 0))
+		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", NULL, 0))
 		{
 			returnInfo = "Failed to query server.";
 			return false;
@@ -136,11 +136,13 @@ namespace
 		if (!json.HasMember("xnkid") || !json["xnkid"].IsString() ||
 			!json.HasMember("xnaddr") || !json["xnaddr"].IsString() ||
 			!json.HasMember("gameVersion") || !json["gameVersion"].IsString() ||
-			!json.HasMember("eldewritoVersion") || !json["eldewritoVersion"].IsString())
+			!json.HasMember("eldewritoVersion") || !json["eldewritoVersion"].IsString() ||
+			!json.HasMember("port") || !json["port"].IsNumber())
 		{
 			returnInfo = "Server query JSON response is missing data.";
 			return false;
 		}
+
 		std::string gameVer = json["gameVersion"].GetString();
 		std::string edVer = json["eldewritoVersion"].GetString();
 
@@ -165,6 +167,7 @@ namespace
 			returnInfo = "Server query XNet info is invalid.";
 			return false;
 		}
+		uint16_t gamePort = (uint16_t)json["port"].GetInt();
 
 		BYTE xnetInfo[0x20];
 		Utils::String::HexStringToBytes(xnkid, xnetInfo, 0x10);
@@ -177,7 +180,7 @@ namespace
 		memcpy(Modules::ModuleServer::Instance().SyslinkData + 0x9E, xnetInfo, 0x20);
 
 		*(uint32_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x170) = rawIpaddr;
-		*(uint16_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x174) = rawPort;
+		*(uint16_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x174) = gamePort;
 
 		// set syslink stuff to point at our syslink data
 		Pointer::Base(0x1E8E6D8).Write<uint32_t>(1);

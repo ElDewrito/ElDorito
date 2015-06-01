@@ -31,7 +31,6 @@ namespace Patches
 {
 	namespace Network
 	{
-		char motd[100];
 		SOCKET rconSocket;
 		SOCKET infoSocket;
 		bool rconSocketOpen = false;
@@ -64,7 +63,10 @@ namespace Patches
 				clientSocket = accept(wParam, NULL, NULL);
 				WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
 				if (msg == WM_RCON)
-					send(clientSocket, motd, strlen(motd), 0);
+				{
+					std::string motd = "ElDewrito " + Utils::Version::GetVersionString() + " Remote Console\r\n";
+					send(clientSocket, motd.c_str(), motd.length(), 0);
+				}
 				break;
 			case FD_READ:
 				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
@@ -116,7 +118,7 @@ namespace Patches
 						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
 						replyData += "}";
 
-						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nServer: ElDewrito/0.5\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent - Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
 						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 					}
 				}
@@ -165,8 +167,6 @@ namespace Patches
 			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
 			if (hwnd == 0)
 				return false;
-
-			sprintf_s(motd, 100, "ElDewrito %s Remote Console\r\n", Utils::Version::GetVersionString().c_str());
 
 			rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			SOCKADDR_IN bindAddr;
