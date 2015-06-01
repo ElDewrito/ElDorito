@@ -47,7 +47,7 @@ namespace Modules
 		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", "#000000", VariablePlayerArmorUpdate);
 
 		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", "Jasper", VariablePlayerNameUpdate);
-		VarUserID = AddVariableInt64("UserID", "userid", "The players unique user ID", 0xbeefcafe, VariablePlayerUserIDUpdate);
+		VarUserID = AddVariableInt64("UserID", "userid", "The players unique user ID", 0, VariablePlayerUserIDUpdate);
 
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 

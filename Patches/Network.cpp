@@ -102,8 +102,7 @@ namespace Patches
 						std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
 						replyData += "\"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
 
-						int* gameType = (int*)Pointer(0x023DAF18);
-						replyData += "\"variantType\": \"" + std::to_string(*gameType) + "\",\r\n";
+						replyData += "\"variantType\": \"" + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + "\",\r\n";
 
 						std::string Xnkid;
 						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);

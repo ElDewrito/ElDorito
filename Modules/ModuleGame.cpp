@@ -183,6 +183,11 @@ namespace
 
 		ss << "Current Map Cache Size: " << Pointer(0x22AB018)(0x8).Read<int32_t>() << std::endl;
 
+		std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
+		ss << "Loaded Game Variant: " << (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) << std::endl;
+
+		ss << "Loaded Game Type: " << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
+
 		ss << "Tag Table Offset: " << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
 
 		ss << "Tag Bank Offset: " << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
@@ -367,6 +372,11 @@ namespace Modules
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
 
 		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", "halo3");
+
+		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", 0);
+		VarLanguageID->ValueIntMin = 0;
+		VarLanguageID->ValueIntMax = 11;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

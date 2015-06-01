@@ -73,6 +73,10 @@ void ElDorito::Initialize()
 	lanMode = !lanMode
 #endif
 
+
+	// Language patch
+	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
+
 	// this will override the users LAN setting in the prefs file
 	// which is ideal really since we only want lan to be enabled if it was specified in the launch params
 	Modules::CommandMap::Instance().SetVariable("Server.LanMode", std::string(lanMode ? "1" : "0"), std::string());
