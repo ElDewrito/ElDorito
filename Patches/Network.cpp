@@ -36,7 +36,7 @@ namespace Patches
 		char motd[100];
 		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
-			if (msg != WM_RCON)
+			if (msg != WM_RCON && msg != WM_INFOSERVER)
 			{
 				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
@@ -59,8 +59,9 @@ namespace Patches
 			case FD_ACCEPT:
 				// accept the connection and send our motd
 				clientSocket = accept(wParam, NULL, NULL);
-				WSAAsyncSelect(clientSocket, hWnd, WM_RCON, FD_READ | FD_WRITE | FD_CLOSE);
-				send(clientSocket, motd, strlen(motd), 0);
+				WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
+				if (msg == WM_RCON)
+					send(clientSocket, motd, strlen(motd), 0);
 				break;
 			case FD_READ:
 				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
@@ -79,12 +80,45 @@ namespace Patches
 
 				if (isValidAscii)
 				{
-					auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
-					if (ret.length() > 0)
+					if (msg == WM_RCON)
 					{
-						Utils::String::ReplaceString(ret, "\n", "\r\n");
-						ret = ret + "\r\n";
-						send((SOCKET)wParam, ret.c_str(), ret.length(), 0);
+						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
+						if (ret.length() > 0)
+						{
+							Utils::String::ReplaceString(ret, "\n", "\r\n");
+							ret = ret + "\r\n";
+							send((SOCKET)wParam, ret.c_str(), ret.length(), 0);
+						}
+					}
+					else if (msg == WM_INFOSERVER)
+					{
+						std::string replyData = "{\r\n";
+						replyData += "\"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
+						replyData += "\"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
+
+						std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
+						replyData += "\"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
+
+						std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
+						replyData += "\"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
+
+						int* gameType = (int*)Pointer(0x023DAF18);
+						replyData += "\"variantType\": \"" + std::to_string(*gameType) + "\",\r\n";
+
+						std::string Xnkid;
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
+
+						std::string Xnaddr;
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
+						replyData += "\"xnkid\": \"" + Xnkid + "\",\r\n";
+						replyData += "\"xnaddr\": \"" + Xnaddr + "\",\r\n";
+						std::string GameVersion((char*)Pointer(0x199C0F0));
+						replyData += "\"gameVersion\": \"" + GameVersion + "\",\r\n";
+						replyData += "\"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\",\r\n";
+						replyData += "}";
+
+						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nServer: ElDewrito/0.5\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 					}
 				}
 
@@ -142,6 +176,26 @@ namespace Patches
 			// open our listener socket
 			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
 			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
+			listen(rconSocket, 5);
+
+			return true;
+		}
+
+		bool StartInfoServer()
+		{
+			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
+			if (hwnd == 0)
+				return false;
+
+			SOCKET rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			SOCKADDR_IN bindAddr;
+			bindAddr.sin_family = AF_INET;
+			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+			bindAddr.sin_port = htons(2449);
+
+			// open our listener socket
+			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
+			WSAAsyncSelect(rconSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
 			listen(rconSocket, 5);
 
 			return true;

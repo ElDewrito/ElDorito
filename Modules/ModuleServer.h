@@ -7,6 +7,7 @@ namespace Modules
 	class ModuleServer : public Utils::Singleton<ModuleServer>, public ModuleBase
 	{
 	public:
+		Command* VarServerName;
 		Command* VarServerPassword;
 		Command* VarServerCountdown;
 		Command* VarServerMaxPlayers;
