@@ -145,51 +145,41 @@ namespace
 	bool CommandGameInfo(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
-		ss << std::hex << "ThreadLocalStorage: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
-
 		std::string ArgList((char*)Pointer(0x199C0A4)[0]);
-		ss << "Command line args: " << (ArgList.empty() ? "(null)" : ArgList) << std::endl;
-
 		std::string LocalSecureKey((char*)Pointer(0x50CCDB4 + 1));
-		ss << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
-
 		std::string Xnkid;
-		Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
-		ss << "XNKID: " << Xnkid << std::endl;
-
 		std::string Xnaddr;
-		Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
-		ss << "XNAddr: " << Xnaddr << std::endl;
-
 		std::string Build((char*)Pointer(0x199C0F0));
-		ss << "Build: " << (Build.empty() ? "(null)" : Build) << std::endl;
-
 		std::string SystemID((char*)Pointer(0x199C130));
-		ss << "SystemID: " << (SystemID.empty() ? "(null)" : SystemID) << std::endl;
-
 		std::string SessionID((char*)Pointer(0x199C1D0));
-		ss << "SessionID: " << (SessionID.empty() ? "(null)" : SessionID) << std::endl;
-
 		std::string DevKitName((char*)Pointer(0x160C8C8));
 		std::string DevKitVersion((char*)Pointer(0x199C350));
+		std::string FlashVersion((char*)Pointer(0x199C350));
+		std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
+		std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
+
+		Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
+		Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
+
+		ss << std::hex << "ThreadLocalStorage: " << std::hex << (size_t)(void*)ElDorito::GetMainTls() << std::endl;
+
+		ss << "Command line args: " << (ArgList.empty() ? "(null)" : ArgList) << std::endl;
+		ss << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
+		ss << "XNKID: " << Xnkid << std::endl;
+		ss << "XNAddr: " << Xnaddr << std::endl;
+		ss << "Server Port: " << Pointer(0x1860454).Read<uint32_t>() << std::endl;
+		ss << "Build: " << (Build.empty() ? "(null)" : Build) << std::endl;
+		ss << "SystemID: " << (SystemID.empty() ? "(null)" : SystemID) << std::endl;
+		ss << "SessionID: " << (SessionID.empty() ? "(null)" : SessionID) << std::endl;
 		ss << "SDK Info: " << (DevKitName.empty() ? "(null)" : DevKitName) << '|';
 		ss << (DevKitVersion.empty() ? "(null)" : DevKitVersion) << std::endl;
 
-		std::string FlashVersion((char*)Pointer(0x199C350));
 		ss << "Flash Version: " << (FlashVersion.empty() ? "(null)" : FlashVersion) << std::endl;
-
-		std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
 		ss << "Current Map: " << (MapName.empty() ? "(null)" : MapName) << std::endl;
-
 		ss << "Current Map Cache Size: " << Pointer(0x22AB018)(0x8).Read<int32_t>() << std::endl;
-
-		std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
 		ss << "Loaded Game Variant: " << (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) << std::endl;
-
 		ss << "Loaded Game Type: " << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
-
 		ss << "Tag Table Offset: " << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
-
 		ss << "Tag Bank Offset: " << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
 
 		returnInfo = ss.str();

@@ -41,7 +41,6 @@ namespace Patches
 	{
 		Ui::ApplyMapNameFixes();
 		Network::StartRemoteConsole();
-		Network::StartInfoServer();
 		if (Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt)
 			Patches::Ui::EnableCenteredCrosshairPatch(true);
 	}

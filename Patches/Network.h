@@ -12,5 +12,6 @@ namespace Patches
 		bool StartRemoteConsole();
 
 		bool StartInfoServer();
+		bool StopInfoServer();
 	}
 }

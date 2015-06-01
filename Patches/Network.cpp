@@ -12,15 +12,13 @@
 
 #include "../ElDorito.h"
 
-BYTE passwordHash[0x20];
-bool usingPassword = false;
-
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo);
+	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -34,6 +32,11 @@ namespace Patches
 	namespace Network
 	{
 		char motd[100];
+		SOCKET rconSocket;
+		SOCKET infoSocket;
+		bool rconSocketOpen = false;
+		bool infoSocketOpen = false;
+
 		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			if (msg != WM_RCON && msg != WM_INFOSERVER)
@@ -102,6 +105,7 @@ namespace Patches
 
 						std::string replyData = "{\r\n";
 						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
+						replyData += "  \"port\": \"" + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + "\",\r\n";
 						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
 						replyData += "  \"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
 						replyData += "  \"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
@@ -134,6 +138,9 @@ namespace Patches
 			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
 			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
+			// Hook call to Network_managed_session_create_session_internal so we can detect when an online game is started
+			Hook(0x82AAC, &Network_managed_session_create_session_internalHook, HookFlags::IsCall).Apply();
+
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
 			Pointer::Base(0x101421).Write<uint32_t>(verNum);
@@ -152,13 +159,16 @@ namespace Patches
 
 		bool StartRemoteConsole()
 		{
+			if (rconSocketOpen)
+				return true;
+
 			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
 			if (hwnd == 0)
 				return false;
 
 			sprintf_s(motd, 100, "ElDewrito %s Remote Console\r\n", Utils::Version::GetVersionString().c_str());
 
-			SOCKET rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			SOCKADDR_IN bindAddr;
 			bindAddr.sin_family = AF_INET;
 			bindAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -168,26 +178,53 @@ namespace Patches
 			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
 			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
 			listen(rconSocket, 5);
+			rconSocketOpen = true;
 
 			return true;
 		}
 
 		bool StartInfoServer()
 		{
+			if (infoSocketOpen)
+				return true;
+
 			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
 			if (hwnd == 0)
 				return false;
 
-			SOCKET rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			infoSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			SOCKADDR_IN bindAddr;
 			bindAddr.sin_family = AF_INET;
 			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-			bindAddr.sin_port = htons(11770);
+
+			unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
+			bindAddr.sin_port = htons((u_short)port);
 
 			// open our listener socket
-			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
-			WSAAsyncSelect(rconSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
-			listen(rconSocket, 5);
+			while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
+			{
+				port++;
+				bindAddr.sin_port = htons((u_short)port);
+				if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
+					return false; // tried 10 ports, lets give up
+			}
+			Modules::CommandMap::Instance().SetVariable(Modules::ModuleServer::Instance().VarServerPort, std::to_string(port), std::string());
+			WSAAsyncSelect(infoSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
+			listen(infoSocket, 5);
+			infoSocketOpen = true;
+
+			return true;
+		}
+
+		bool StopInfoServer()
+		{
+			if (!infoSocketOpen)
+				return true;
+
+			closesocket(infoSocket);
+			int istrue = 1;
+			setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
+			infoSocketOpen = false;
 
 			return true;
 		}
@@ -196,6 +233,25 @@ namespace Patches
 
 namespace
 {
+	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2)
+	{
+		DWORD isOnline = *(DWORD*)a2;
+		if (isOnline == 1)
+		{
+			Patches::Network::StartInfoServer();
+			TODO("give output if StartInfoServer fails");
+		}
+		else
+		{
+			Patches::Network::StopInfoServer();
+		}
+
+
+		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
+		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
+		return Network_managed_session_create_session_internal(a1, a2);
+	}
+
 	char* Network_GetIPStringFromInAddr(void* inaddr)
 	{
 		static char ipAddrStr[64];

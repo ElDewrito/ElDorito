@@ -9,33 +9,8 @@
 #include "../ThirdParty/HttpRequest.h"
 #include "../ThirdParty/rapidjson/document.h"
 
-extern BYTE passwordHash[0x20];
-extern bool usingPassword;
-
 namespace
 {
-	/*bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		std::string password = Modules::ModuleServer::Instance().VarServerPassword->ValueString;
-
-		usingPassword = password.length() > 0;
-
-		if (usingPassword)
-		{
-			SHA256_CTX ctx;
-			sha256_init(&ctx);
-			sha256_update(&ctx, (unsigned char*)password.c_str(), password.length());
-			sha256_final(&ctx, passwordHash);
-		}
-		else
-		{
-			returnInfo = "Server password unset.";
-			return true;
-		}
-
-		return true;
-	}*/
-
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
@@ -235,6 +210,10 @@ namespace Modules
 		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", 16, VariableServerMaxPlayersUpdate);
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
+
+		VarServerPort = AddVariableInt("Port", "server_port", "The port number the HTTP server runs on, game uses different one", 11775);
+		VarServerPort->ValueIntMin = 1;
+		VarServerPort->ValueIntMax = 0xFFFF;
 
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to" });
 	}

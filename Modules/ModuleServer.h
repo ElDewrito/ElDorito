@@ -11,6 +11,7 @@ namespace Modules
 		//Command* VarServerPassword;
 		Command* VarServerCountdown;
 		Command* VarServerMaxPlayers;
+		Command* VarServerPort;
 		BYTE SyslinkData[0x176];
 
 		ModuleServer();
