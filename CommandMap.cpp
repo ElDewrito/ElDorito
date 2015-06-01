@@ -179,6 +179,10 @@ namespace Modules
 			return "Value " + argsVect[0] + " out of range [this shouldn't be happening!]";
 		}
 
+		// special case for blanking strings
+		if (cmd->Type == eCommandTypeVariableString && numArgs > 1 && argsVect[0].empty())
+			cmd->ValueString = "";
+
 		if (numArgs <= 1)
 			return previousValue;
 

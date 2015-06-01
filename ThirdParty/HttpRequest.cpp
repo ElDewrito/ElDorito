@@ -7,7 +7,7 @@ _userAgent(userAgent)
 {
 }
 
-BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const std::wstring &method, void *body, DWORD bodySize)
+BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize)
 {
 	DWORD dwSize;
 	DWORD dwDownloaded;
@@ -20,21 +20,42 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 	responseHeader.resize(0);
 	responseBody.resize(0);
 
-	hSession = WinHttpOpen(_userAgent.c_str(), WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-	if (hSession)
-		hConnect = WinHttpConnect(hSession, url.c_str(), port, 0);
-	else
-		return false;// printf("session handle failed\n");
+	DWORD dwAccessType = WINHTTP_ACCESS_TYPE_DEFAULT_PROXY;
+	LPCWSTR pszProxyW = WINHTTP_NO_PROXY_NAME;
+	LPCWSTR pszProxyBypassW = WINHTTP_NO_PROXY_BYPASS;
+	WINHTTP_CURRENT_USER_IE_PROXY_CONFIG iecfg;
+	if (WinHttpGetIEProxyConfigForCurrentUser(&iecfg))
+	{
+		if (iecfg.fAutoDetect)
+			dwAccessType = WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY;
+		else
+		{
+			dwAccessType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
+			pszProxyW = iecfg.lpszProxy;
+			pszProxyBypassW = iecfg.lpszProxyBypass;
+		}
+	}
 
-	if (hConnect)
-		hRequest = WinHttpOpenRequest(hConnect, method.c_str(), NULL, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
-	else
-		return false;// printf("connect handle failed\n");
+	hSession = WinHttpOpen(_userAgent.c_str(), dwAccessType, pszProxyW, pszProxyBypassW, 0);
+	if (!hSession)
+		return false;
 
-	if (hRequest)
-		bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, body, bodySize, 0, 0);
-	else
-		return false;// printf("request handle failed\n");
+	hConnect = WinHttpConnect(hSession, url.c_str(), port, 0);
+	if (!hConnect)
+		return false;
+
+	hRequest = WinHttpOpenRequest(hConnect, method.c_str(), NULL, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+
+	if (!username.empty() || !password.empty())
+	{
+		if (!WinHttpSetCredentials(hRequest, WINHTTP_AUTH_TARGET_SERVER, WINHTTP_AUTH_SCHEME_BASIC, username.c_str(), password.c_str(), 0))
+			return false;
+	}
+
+	if (!hRequest)
+		return false;
+
+	bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, body, bodySize, 0, 0);
 
 	if (bResults)
 		bResults = WinHttpReceiveResponse(hRequest, NULL);

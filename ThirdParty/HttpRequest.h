@@ -13,7 +13,7 @@ private:
 	//std::wstring _proxyPort;
 public:
 	HttpRequest(const std::wstring &userAgent, const std::wstring &proxyIp, const std::wstring &proxyPort);
-	BOOL SendRequest(const std::wstring &url, INTERNET_PORT port, const std::wstring &method, void *body, DWORD bodySize);
+	BOOL SendRequest(const std::wstring &url, INTERNET_PORT port, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize);
 	std::wstring responseHeader;
 	std::vector<BYTE> responseBody;
 };

@@ -107,18 +107,33 @@ namespace Patches
 
 						std::string replyData = "{\r\n";
 						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
-						replyData += "  \"port\": \"" + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + "\",\r\n";
+						replyData += "  \"port\": " + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + ",\r\n";
 						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
 						replyData += "  \"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
 						replyData += "  \"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
-						replyData += "  \"variantType\": \"" + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + "\",\r\n";
-						replyData += "  \"xnkid\": \"" + Xnkid + "\",\r\n";
-						replyData += "  \"xnaddr\": \"" + Xnaddr + "\",\r\n";
+						replyData += "  \"variantType\": " + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + ",\r\n";
+
+						bool authenticated = true;
+						if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+						{
+							std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+							authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+							authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
+						}
+
+						if (authenticated)
+						{
+							replyData += "  \"xnkid\": \"" + Xnkid + "\",\r\n";
+							replyData += "  \"xnaddr\": \"" + Xnaddr + "\",\r\n";
+						}
+						else
+							replyData += "  \"passworded\": \"true\",\r\n";
+
 						replyData += "  \"gameVersion\": \"" + GameVersion + "\",\r\n";
 						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
 						replyData += "}";
 
-						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent - Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
 						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 					}
 				}
@@ -198,12 +213,16 @@ namespace Patches
 			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 			unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
+			if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
+				port++;
 			bindAddr.sin_port = htons((u_short)port);
 
 			// open our listener socket
 			while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
 			{
 				port++;
+				if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
+					port++;
 				bindAddr.sin_port = htons((u_short)port);
 				if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
 					return false; // tried 10 ports, lets give up

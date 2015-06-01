@@ -51,6 +51,10 @@ namespace
 		}
 
 		std::string address = Arguments[0];
+		std::string password = "";
+		if (Arguments.size() > 1)
+			password = Arguments[1];
+
 		uint32_t rawIpaddr = 0;
 		int httpPort = 11775;
 
@@ -102,7 +106,16 @@ namespace
 
 		// query the server
 		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", NULL, 0))
+
+		std::wstring usernameStr = L"";
+		std::wstring passwordStr = L"";
+		if (!password.empty())
+		{
+			usernameStr = L"dorito";
+			passwordStr = Utils::String::WidenString(password);
+		}
+
+		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", usernameStr, passwordStr, NULL, 0))
 		{
 			returnInfo = "Failed to query server.";
 			return false;
@@ -133,13 +146,18 @@ namespace
 		}
 
 		// make sure the json has all the members we need
-		if (!json.HasMember("xnkid") || !json["xnkid"].IsString() ||
-			!json.HasMember("xnaddr") || !json["xnaddr"].IsString() ||
-			!json.HasMember("gameVersion") || !json["gameVersion"].IsString() ||
+		if (!json.HasMember("gameVersion") || !json["gameVersion"].IsString() ||
 			!json.HasMember("eldewritoVersion") || !json["eldewritoVersion"].IsString() ||
 			!json.HasMember("port") || !json["port"].IsNumber())
 		{
 			returnInfo = "Server query JSON response is missing data.";
+			return false;
+		}
+
+		if (!json.HasMember("xnkid") || !json["xnkid"].IsString() ||
+			!json.HasMember("xnaddr") || !json["xnaddr"].IsString())
+		{
+			returnInfo = "Incorrect password specified.";
 			return false;
 		}
 
@@ -204,7 +222,7 @@ namespace Modules
 	{
 		VarServerName = AddVariableString("Name", "server_name", "The name of the server", "HaloOnline Server");
 
-		//VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
+		VarServerPassword = AddVariableString("Password", "password", "The server password", "");
 
 		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
 		VarServerCountdown->ValueIntMin = 0;

@@ -7,6 +7,9 @@ namespace Utils
 {
 	namespace String
 	{
+		std::string Base64Encode(unsigned char const* bytes_to_encode, unsigned int in_len);
+		std::string Base64Decode(std::string const& encoded_string);
+
 		void RemoveCharsFromString(std::string &str, char* charsToRemove);
 
 		void HexStringToBytes(const std::string &in, void *const data, size_t length);
