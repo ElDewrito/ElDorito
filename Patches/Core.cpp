@@ -20,6 +20,7 @@ namespace Patches
 			// Enable tag edits
 			Patch(0x101A5B, { 0xEB }).Apply();
 			Patch::NopFill(Pointer::Base(0x102874), 2);
+			Patch::NopFill(Pointer::Base(0x1030AA), 2);
 
 			// No --account args patch
 			Patch(0x43731A, { 0xEB, 0x0E }).Apply();
