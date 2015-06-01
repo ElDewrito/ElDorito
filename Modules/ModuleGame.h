@@ -18,6 +18,7 @@ namespace Modules
 	public:
 		Command* VarMedalsZip;
 		Command* VarLanguageID;
+		Command* VarSkipLauncher;
 
 		int DebugFlags;
 		std::vector<std::string> MapList;

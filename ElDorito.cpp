@@ -36,7 +36,7 @@ void ElDorito::Initialize()
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
-	bool usingLauncher = false;
+	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
 
 	if( szArgList && numArgs > 1 )
 	{
