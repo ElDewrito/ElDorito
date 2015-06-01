@@ -117,10 +117,6 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 		} while (true);
 	}
 
-	// Report any errors.
-	if (!bResults)
-		printf("Error %d has occurred.\n", GetLastError());
-
 	// Close any open handles.
 	if (hRequest) WinHttpCloseHandle(hRequest);
 	if (hConnect) WinHttpCloseHandle(hConnect);

@@ -117,7 +117,7 @@ namespace
 
 		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", usernameStr, passwordStr, NULL, 0))
 		{
-			returnInfo = "Failed to query server.";
+			returnInfo = "Unable to connect to server.";
 			return false;
 		}
 
@@ -236,6 +236,6 @@ namespace Modules
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
 
-		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to" });
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 	}
 }

@@ -36,6 +36,21 @@ namespace Patches
 		bool rconSocketOpen = false;
 		bool infoSocketOpen = false;
 
+		int GetNumPlayers()
+		{
+			void* v2;
+
+			typedef char(__cdecl *sub_454F20Func)(void** a1);
+			sub_454F20Func sub_454F20 = (sub_454F20Func)0x454F20;
+			if (!sub_454F20(&v2))
+				return 0;
+
+			typedef char*(__thiscall *sub_45C250Func)(void* thisPtr);
+			sub_45C250Func sub_45C250 = (sub_45C250Func)0x45C250;
+
+			return *(DWORD*)(sub_45C250(v2) + 0x10A0);
+		}
+
 		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			if (msg != WM_RCON && msg != WM_INFOSERVER)
@@ -97,21 +112,43 @@ namespace Patches
 					}
 					else if (msg == WM_INFOSERVER)
 					{
-						std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
-						std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
-						std::string Xnkid;
-						std::string Xnaddr;
-						std::string GameVersion((char*)Pointer(0x199C0F0));
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
+						std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+						std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+						std::string xnkid;
+						std::string xnaddr;
+						std::string gameVersion((char*)Pointer(0x199C0F0));
+						std::string status = "InGame";
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+						Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+						uint32_t gameMode = gameModePtr.Read<uint32_t>();
+						int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+						if (gameMode == 3)
+						{
+							if (mapName == "mainmenu")
+								status = "InLobby";
+							else
+								status = "Loading";
+
+							// on mainmenu so we'll have to read other data
+							mapName = std::string((char*)Pointer(0x19A5E49));
+							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantType = Pointer(0x179250).Read<uint32_t>();
+						}
 
 						std::string replyData = "{\r\n";
 						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
 						replyData += "  \"port\": " + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + ",\r\n";
 						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
-						replyData += "  \"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
-						replyData += "  \"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
-						replyData += "  \"variantType\": " + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + ",\r\n";
+						replyData += "  \"map\": \"" + mapName + "\",\r\n";
+						replyData += "  \"variant\": \"" + Utils::String::ThinString(variantName) + "\",\r\n";
+						replyData += "  \"variantType\": \"" + Blam::GameTypeNames[variantType] + "\",\r\n";
+						replyData += "  \"status\": \"" + status + "\",\r\n";
+
+						replyData += "  \"numPlayers\": " + std::to_string(GetNumPlayers()) + ",\r\n";
+						TODO("find how to get actual max players from the game, since our variable might be wrong");
+						replyData += "  \"maxPlayers\": " + Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueString + ",\r\n";
 
 						bool authenticated = true;
 						if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
@@ -123,13 +160,62 @@ namespace Patches
 
 						if (authenticated)
 						{
-							replyData += "  \"xnkid\": \"" + Xnkid + "\",\r\n";
-							replyData += "  \"xnaddr\": \"" + Xnaddr + "\",\r\n";
+							replyData += "  \"xnkid\": \"" + xnkid + "\",\r\n";
+							replyData += "  \"xnaddr\": \"" + xnaddr + "\",\r\n";
+
+							uint32_t playerScoresBase = 0x23F1724;
+							//uint32_t playerInfoBase = 0x2162DD0;
+							uint32_t playerInfoBase = 0x2162E08;
+							uint32_t menuPlayerInfoBase = 0x1863B58;
+							uint32_t playerStatusBase = 0x2161808;
+							replyData += "  \"players\": [\r\n";
+							std::vector<std::string> players;
+							for (int i = 0; i < 16; i++)
+							{
+								uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
+								uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
+								uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
+								uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
+
+								wchar_t* name = Pointer(playerInfoBase + (5696 * i));
+								std::string nameStr = Utils::String::ThinString(name);
+
+								wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
+								std::string menuNameStr = Utils::String::ThinString(menuName);
+
+								uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
+								uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
+								uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
+
+								uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
+
+								if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
+									continue;
+
+								std::string playerData = "    {\r\n";
+								playerData += "      \"name\": \"" + menuNameStr + "\",\r\n";
+								playerData += "      \"score\": " + std::to_string(score) + ",\r\n";
+								playerData += "      \"kills\": " + std::to_string(kills) + ",\r\n";
+								playerData += "      \"assists\": " + std::to_string(assists) + ",\r\n";
+								playerData += "      \"deaths\": " + std::to_string(deaths) + ",\r\n";
+								playerData += "      \"team\": " + std::to_string(team) + ",\r\n";
+								if (alive == 1)
+									playerData += "      \"isAlive\": \"true\"\r\n";
+								else
+									playerData += "      \"isAlive\": \"false\"\r\n";
+								playerData += "    }";
+								players.push_back(playerData);
+							}
+							for (unsigned int i = 0; i < players.size(); i++)
+								replyData += players[i] + (i + 1 != players.size() ? "," : "") + "\r\n";
+
+							replyData += "  ],\r\n";
 						}
 						else
 							replyData += "  \"passworded\": \"true\",\r\n";
 
-						replyData += "  \"gameVersion\": \"" + GameVersion + "\",\r\n";
+
+						replyData += "  \"gameVersion\": \"" + gameVersion + "\",\r\n";
 						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
 						replyData += "}";
 
