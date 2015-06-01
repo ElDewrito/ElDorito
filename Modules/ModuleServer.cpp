@@ -6,13 +6,15 @@
 #include <sstream>
 #include "../ElDorito.h"
 #include "../ThirdParty/SHA256.h"
+#include "../ThirdParty/HttpRequest.h"
+#include "../ThirdParty/rapidjson/document.h"
 
 extern BYTE passwordHash[0x20];
 extern bool usingPassword;
 
 namespace
 {
-	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	/*bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::string password = Modules::ModuleServer::Instance().VarServerPassword->ValueString;
 
@@ -32,7 +34,7 @@ namespace
 		}
 
 		return true;
-	}
+	}*/
 
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
@@ -74,15 +76,8 @@ namespace
 		}
 
 		std::string address = Arguments[0];
-		std::string password = "";
-
-		if (Arguments.size() >= 2)
-			password = Arguments[1];
-
 		uint32_t rawIpaddr = 0;
 		uint16_t rawPort = 11774;
-		BYTE passwordHash[0x20];
-		memset(passwordHash, 0x11, 0x20);
 
 		size_t portOffset = address.find(':');
 		auto host = address;
@@ -130,19 +125,81 @@ namespace
 			return false;
 		}
 
-		if (password.length() > 0)
+		// query the server
+		HttpRequest req(L"ElDewrito/0.5", L"", L"");
+		if (!req.SendRequest(Utils::String::WidenString(host), 11770, L"GET", NULL, 0))
 		{
-			SHA256_CTX ctx;
-			sha256_init(&ctx);
-			sha256_update(&ctx, (unsigned char*)password.c_str(), password.length());
-			sha256_final(&ctx, passwordHash);
+			returnInfo = "Failed to query server.";
+			return false;
 		}
+
+		// make sure the server replied with 200 OK
+		std::wstring expected = L"HTTP/1.1 200 OK";
+		if (req.responseHeader.length() < expected.length())
+		{
+			returnInfo = "Invalid server query response.";
+			return false;
+		}
+
+		auto respHdr = req.responseHeader.substr(0, expected.length());
+		if (respHdr.compare(expected))
+		{
+			returnInfo = "Invalid server query header response.";
+			return false;
+		}
+
+		// parse the json response
+		std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+		rapidjson::Document json;
+		if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+		{
+			returnInfo = "Invalid server query JSON response.";
+			return false;
+		}
+
+		// make sure the json has all the members we need
+		if (!json.HasMember("xnkid") || !json["xnkid"].IsString() ||
+			!json.HasMember("xnaddr") || !json["xnaddr"].IsString() ||
+			!json.HasMember("gameVersion") || !json["gameVersion"].IsString() ||
+			!json.HasMember("eldewritoVersion") || !json["eldewritoVersion"].IsString())
+		{
+			returnInfo = "Server query JSON response is missing data.";
+			return false;
+		}
+		std::string gameVer = json["gameVersion"].GetString();
+		std::string edVer = json["eldewritoVersion"].GetString();
+
+		std::string ourGameVer((char*)Pointer(0x199C0F0));
+		std::string ourEdVer = Utils::Version::GetVersionString();
+		if (ourGameVer.compare(gameVer))
+		{
+			returnInfo = "Server is running a different game version.";
+			return false;
+		}
+
+		if (ourEdVer.compare(edVer))
+		{
+			returnInfo = "Server is running a different ElDewrito version.";
+			return false;
+		}
+
+		std::string xnkid = json["xnkid"].GetString();
+		std::string xnaddr = json["xnaddr"].GetString();
+		if (xnkid.length() != (0x10 * 2) || xnaddr.length() != (0x10 * 2))
+		{
+			returnInfo = "Server query XNet info is invalid.";
+			return false;
+		}
+
+		BYTE xnetInfo[0x20];
+		Utils::String::HexStringToBytes(xnkid, xnetInfo, 0x10);
+		Utils::String::HexStringToBytes(xnaddr, xnetInfo + 0x10, 0x10);
 
 		// set up our syslink data struct
 		memset(Modules::ModuleServer::Instance().SyslinkData, 0, 0x176);
 		*(uint32_t*)Modules::ModuleServer::Instance().SyslinkData = 1;
 
-		memcpy(Modules::ModuleServer::Instance().SyslinkData + 0x9E, passwordHash, 0x20);
+		memcpy(Modules::ModuleServer::Instance().SyslinkData + 0x9E, xnetInfo, 0x20);
 
 		*(uint32_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x170) = rawIpaddr;
 		*(uint16_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x174) = rawPort;
@@ -154,8 +211,8 @@ namespace
 		// tell the game to start joining
 		Pointer::Base(0x1E40BA8).Write<int64_t>(-1);
 		Pointer::Base(0x1E40BB0).Write<uint32_t>(1);
-		Pointer::Base(0x1E40BB4).Write(passwordHash, 0x10);
-		Pointer::Base(0x1E40BD4).Write(passwordHash + 0x10, 0x10);
+		Pointer::Base(0x1E40BB4).Write(xnetInfo, 0x10);
+		Pointer::Base(0x1E40BD4).Write(xnetInfo + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
 
 		returnInfo = "Attempting connection to " + address + "...";
@@ -169,7 +226,7 @@ namespace Modules
 	{
 		VarServerName = AddVariableString("Name", "server_name", "The name of the server", "HaloOnline Server");
 
-		VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
+		//VarServerPassword = AddVariableString("Password", "password", "The server password, must be set before starting a game", "", VariableServerPasswordUpdate);
 
 		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
 		VarServerCountdown->ValueIntMin = 0;
@@ -179,10 +236,6 @@ namespace Modules
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
 
-		VarServerLanMode = AddVariableInt("LanMode", "lanmode", "Enables clients to detect this game over a network", 0);
-		VarServerLanMode->ValueIntMin = 0;
-		VarServerLanMode->ValueIntMax = 1;
-
-		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server, if any is set" });
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to" });
 	}
 }

@@ -92,28 +92,24 @@ namespace Patches
 					}
 					else if (msg == WM_INFOSERVER)
 					{
-						std::string replyData = "{\r\n";
-						replyData += "\"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
-						replyData += "\"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
-
 						std::string MapName((char*)Pointer(0x22AB018)(0x1A4));
-						replyData += "\"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
-
 						std::wstring VariantName((wchar_t*)Pointer(0x23DAF4C));
-						replyData += "\"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
-
-						replyData += "\"variantType\": \"" + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + "\",\r\n";
-
 						std::string Xnkid;
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
-
 						std::string Xnaddr;
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
-						replyData += "\"xnkid\": \"" + Xnkid + "\",\r\n";
-						replyData += "\"xnaddr\": \"" + Xnaddr + "\",\r\n";
 						std::string GameVersion((char*)Pointer(0x199C0F0));
-						replyData += "\"gameVersion\": \"" + GameVersion + "\",\r\n";
-						replyData += "\"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\",\r\n";
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, Xnkid);
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, Xnaddr);
+
+						std::string replyData = "{\r\n";
+						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
+						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
+						replyData += "  \"map\": \"" + (MapName.empty() ? "(null)" : MapName) + "\",\r\n";
+						replyData += "  \"variant\": \"" + (VariantName.empty() ? "(null)" : Utils::String::ThinString(VariantName)) + "\",\r\n";
+						replyData += "  \"variantType\": \"" + std::to_string(Pointer(0x023DAF18).Read<int32_t>()) + "\",\r\n";
+						replyData += "  \"xnkid\": \"" + Xnkid + "\",\r\n";
+						replyData += "  \"xnaddr\": \"" + Xnaddr + "\",\r\n";
+						replyData += "  \"gameVersion\": \"" + GameVersion + "\",\r\n";
+						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
 						replyData += "}";
 
 						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nServer: ElDewrito/0.5\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
@@ -137,10 +133,6 @@ namespace Patches
 			// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
 			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
 			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
-
-			// Hook both calls to Network_transport_secure_key_create so we can use our own XNADDR/XNKID
-			Hook(0x81488, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
-			Hook(0x8182E, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
 
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
@@ -190,7 +182,7 @@ namespace Patches
 			SOCKADDR_IN bindAddr;
 			bindAddr.sin_family = AF_INET;
 			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-			bindAddr.sin_port = htons(2449);
+			bindAddr.sin_port = htons(11770);
 
 			// open our listener socket
 			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
@@ -220,29 +212,6 @@ namespace
 		sprintf_s(ipAddrStr, 64, "%hd.%hd.%hd.%hd:%hd (%hd)", ip0, ip1, ip2, ip3, port, type);
 
 		return ipAddrStr;
-	}
-
-	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo)
-	{
-		if (Modules::ModuleServer::Instance().VarServerLanMode->ValueInt)
-		{
-			// lan mode is enabled, call the original function
-			typedef char(__cdecl *Network_transport_secure_key_createFunc)(void* xnetInfo);
-			Network_transport_secure_key_createFunc Network_transport_secure_key_create = reinterpret_cast<Network_transport_secure_key_createFunc>(0x430F60);
-			return Network_transport_secure_key_create(xnetInfo);
-		}
-
-		// set the xnet info to 0x11111..., since setting to to all zeroes doesn't let people connect to it
-		memset(xnetInfo, 0x11, 0x20);
-		memset((void*)0x199FAB2, 0x11, 0x10); // XNADDR
-
-		if (!usingPassword)
-			return 1;
-
-		memcpy(xnetInfo, passwordHash, 0x20);
-		memcpy((void*)0x199FAB2, passwordHash + 0x10, 0x10);
-
-		return 1;
 	}
 
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr)

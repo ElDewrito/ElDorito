@@ -31,13 +31,12 @@ void ElDorito::Initialize()
 
 	// load variables/commands from cfg file
 	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
-	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg");
+	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = false;
-	bool lanMode = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -53,8 +52,6 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-launcher") == 0)
 				usingLauncher = true;
 #endif
-			if (arg.compare(L"-lan") == 0)
-				lanMode = true;
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
@@ -66,20 +63,10 @@ void ElDorito::Initialize()
 			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"");
 		}
 	}
-#ifndef _DEBUG
-	// on release builds negate the lanMode setting, so by default the game would have lan mode enabled
-	// using -lan would disable lan mode for hosting servers and testing
-	// remove this once we have server browsers etc!
-	lanMode = !lanMode
-#endif
 
 
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
-
-	// this will override the users LAN setting in the prefs file
-	// which is ideal really since we only want lan to be enabled if it was specified in the launch params
-	Modules::CommandMap::Instance().SetVariable("Server.LanMode", std::string(lanMode ? "1" : "0"), std::string());
 
 	extern std::string zipName;
 	extern BOOL installMedalJunk();

@@ -140,6 +140,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Patches\Ui.cpp" />
+    <ClCompile Include="ThirdParty\HttpRequest.cpp" />
     <ClCompile Include="ThirdParty\SHA256.cpp" />
     <ClCompile Include="Utils\Assert.cpp" />
     <ClCompile Include="Utils\String.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="ThirdParty\dirent.h" />
+    <ClInclude Include="ThirdParty\HttpRequest.h" />
     <ClInclude Include="ThirdParty\SHA256.h" />
     <ClInclude Include="Utils\Bits.h" />
     <ClInclude Include="Utils\Singleton.h" />
