@@ -167,7 +167,8 @@ namespace
 		ss << "Local Secure Key: " << (LocalSecureKey.empty() ? "(null)" : LocalSecureKey) << std::endl;
 		ss << "XNKID: " << Xnkid << std::endl;
 		ss << "XNAddr: " << Xnaddr << std::endl;
-		ss << "Server Port: " << Pointer(0x1860454).Read<uint32_t>() << std::endl;
+		ss << "Server Port: " << Modules::ModuleServer::Instance().VarServerPort->ValueInt << std::endl;
+		ss << "Server Endpoint Port: " << Pointer(0x1860454).Read<uint32_t>() << std::endl;
 		ss << "Build: " << (Build.empty() ? "(null)" : Build) << std::endl;
 		ss << "SystemID: " << (SystemID.empty() ? "(null)" : SystemID) << std::endl;
 		ss << "SessionID: " << (SessionID.empty() ? "(null)" : SessionID) << std::endl;
