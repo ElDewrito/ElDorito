@@ -103,8 +103,6 @@ namespace Patches
 			TODO("map out these global arrays, content items seems to use same format");
 
 			uint32_t numLevels = Pointer(levelsGlobalPtr + 0x34).Read<uint32_t>();
-			if (numLevels != 6)
-				return;
 
 			const wchar_t* search[6] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf" };
 			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Diamondback", L"Edge", L"Reactor", L"Icebox" };
@@ -126,7 +124,7 @@ namespace Patches
 				memset(levelName, 0, sizeof(wchar_t) * 0x20);
 				levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
 
-				for (uint32_t y = 0; y < 6; y++)
+				for (uint32_t y = 0; y < sizeof(search) / sizeof(*search); y++)
 				{
 					if (wcscmp(search[y], levelName) == 0)
 					{
