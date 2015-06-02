@@ -113,6 +113,7 @@ namespace Patches
 					else if (msg == WM_INFOSERVER)
 					{
 						std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+						std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
 						std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
 						std::string xnkid;
 						std::string xnaddr;
@@ -141,7 +142,8 @@ namespace Patches
 						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
 						replyData += "  \"port\": " + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + ",\r\n";
 						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
-						replyData += "  \"map\": \"" + mapName + "\",\r\n";
+						replyData += "  \"map\": \"" + Utils::String::ThinString(mapVariantName) + "\",\r\n";
+						replyData += "  \"mapFile\": \"" + mapName + "\",\r\n";
 						replyData += "  \"variant\": \"" + Utils::String::ThinString(variantName) + "\",\r\n";
 						replyData += "  \"variantType\": \"" + Blam::GameTypeNames[variantType] + "\",\r\n";
 						replyData += "  \"status\": \"" + status + "\",\r\n";
