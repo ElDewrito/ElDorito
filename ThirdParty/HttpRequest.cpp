@@ -54,6 +54,13 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 			pszProxyBypassW = iecfg.lpszProxyBypass;
 		}
 	}
+	if (pszProxyW == 0 || wcslen(pszProxyW) <= 0)
+	{
+		// no proxy server set
+		dwAccessType = WINHTTP_ACCESS_TYPE_DEFAULT_PROXY;
+		pszProxyW = WINHTTP_NO_PROXY_NAME;
+		pszProxyBypassW = WINHTTP_NO_PROXY_BYPASS;
+	}
 
 	hSession = WinHttpOpen(_userAgent.c_str(), dwAccessType, pszProxyW, pszProxyBypassW, 0);
 	if (!hSession)
