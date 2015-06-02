@@ -117,7 +117,7 @@ namespace
 
 		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", usernameStr, passwordStr, NULL, 0))
 		{
-			returnInfo = "Unable to connect to server.";
+			returnInfo = "Unable to connect to server. (error: " + std::to_string(req.lastError) + ")";
 			return false;
 		}
 
