@@ -32,50 +32,29 @@ namespace Patches
 	{
 		void EnableNetworkLog(bool enable)
 		{
-			if (enable)
-				NetworkLogHook.Apply();
-			else
-				NetworkLogHook.Reset();
+			NetworkLogHook.Apply(!enable);
 		}
 
 		void EnableSslLog(bool enable)
 		{
-			if (enable)
-				SSLHook.Apply();
-			else
-				SSLHook.Reset();
+			SSLHook.Apply(!enable);
 		}
 
 		void EnableUiLog(bool enable)
 		{
-			if (enable)
-				UIHook.Apply();
-			else
-				UIHook.Reset();
+			UIHook.Apply(!enable);
 		}
 
 		void EnableGame1Log(bool enable)
 		{
-			if (enable)
-				Game1Hook.Apply();
-			else
-				Game1Hook.Reset();
+			Game1Hook.Apply(!enable);
 		}
 
 		void EnableGame2Log(bool enable)
 		{
-			if (enable)
-			{
-				DebugLogFloatHook.Apply();
-				DebugLogIntHook.Apply();
-				DebugLogStringHook.Apply();
-			}
-			else
-			{
-				DebugLogFloatHook.Reset();
-				DebugLogIntHook.Reset();
-				DebugLogStringHook.Reset();
-			}
+			DebugLogFloatHook.Apply(!enable);
+			DebugLogIntHook.Apply(!enable);
+			DebugLogStringHook.Apply(!enable);
 		}
 	}
 }

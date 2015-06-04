@@ -22,7 +22,7 @@ namespace Modules
 {
 	ModuleInput::ModuleInput() : ModuleBase("Input")
 	{
-		VarInputRawInput = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", 1, VariableInputRawInputUpdate);
+		VarInputRawInput = AddVariableInt("RawInput", "rawinput", "Enables raw mouse input with no acceleration applied", eCommandFlagsArchived, 1, VariableInputRawInputUpdate);
 		VarInputRawInput->ValueIntMin = 0;
 		VarInputRawInput->ValueIntMax = 1;
 	}

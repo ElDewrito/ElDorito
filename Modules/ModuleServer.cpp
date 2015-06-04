@@ -220,22 +220,22 @@ namespace Modules
 {
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
-		VarServerName = AddVariableString("Name", "server_name", "The name of the server", "HaloOnline Server");
+		VarServerName = AddVariableString("Name", "server_name", "The name of the server", eCommandFlagsArchived, "HaloOnline Server");
 
-		VarServerPassword = AddVariableString("Password", "password", "The server password", "");
+		VarServerPassword = AddVariableString("Password", "password", "The server password", eCommandFlagsArchived, "");
 
-		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", 20, VariableServerCountdownUpdate);
+		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", eCommandFlagsArchived, 5, VariableServerCountdownUpdate);
 		VarServerCountdown->ValueIntMin = 0;
 		VarServerCountdown->ValueIntMax = 20;
 
-		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", 16, VariableServerMaxPlayersUpdate);
+		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", eCommandFlagsArchived, 16, VariableServerMaxPlayersUpdate);
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
 
-		VarServerPort = AddVariableInt("Port", "server_port", "The port number the HTTP server runs on, game uses different one", 11775);
+		VarServerPort = AddVariableInt("Port", "server_port", "The port number the HTTP server runs on, game uses different one", eCommandFlagsArchived, 11775);
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
 
-		AddCommand("Connect", "connect", "Begins establishing a connection to a server", CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsNone, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 	}
 }

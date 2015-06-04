@@ -14,6 +14,15 @@ enum VariableSetReturnValue
 	eVariableSetReturnValueInvalidArgument,
 };
 
+enum CommandFlags
+{
+	eCommandFlagsNone,
+	eCommandFlagsCheat             = 1 << 0, // only allow this command on cheat-enabled servers, whenever they get implemented
+	eCommandFlagsReplicated        = 1 << 1, // value of this variable should be output into the server info JSON, clients should update their variable to match the one in JSON
+	eCommandFlagsArchived          = 1 << 2, // value of this variable should be written when using WriteConfig
+	eCommandFlagsDontUpdateInitial = 1 << 3, // don't call the update event when the variable is first being initialized
+};
+
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
 
 namespace
@@ -38,6 +47,7 @@ namespace Modules
 		std::string ShortName; // because some people can't be bothered to type in module names
 		std::string Description;
 
+		CommandFlags Flags;
 		CommandType Type;
 
 		CommandUpdateFunc UpdateEvent;
@@ -76,6 +86,7 @@ namespace Modules
 		std::deque<Command> Commands;
 
 		Command* AddCommand(Command command);
+		void FinishAddCommands();
 		Command* FindCommand(const std::string& name);
 		std::string ExecuteCommand(std::vector<std::string> command);
 		std::string ExecuteCommand(std::string command);

@@ -62,8 +62,10 @@ namespace Modules
 		ModuleCamera::Instance();
 		ModuleInput::Instance();
 
-		AddCommand("Help", "help", "Displays this help text", CommandHelp);
-		AddCommand("Execute", "exec", "Executes a list of commands", CommandExecute, { "filename(string) The list of commands to execute" });
-		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", CommandWriteConfig, { "filename(string) Optional, the filename to write the config to" });
+		AddCommand("Help", "help", "Displays this help text", eCommandFlagsNone, CommandHelp);
+		AddCommand("Execute", "exec", "Executes a list of commands", eCommandFlagsNone, CommandExecute, { "filename(string) The list of commands to execute" });
+		AddCommand("WriteConfig", "config_write", "Writes the ElDewrito config file", eCommandFlagsNone, CommandWriteConfig, { "filename(string) Optional, the filename to write the config to" });
+
+		CommandMap::Instance().FinishAddCommands(); // call this so that the default values can be applied to the game
 	}
 }

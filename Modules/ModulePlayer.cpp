@@ -32,22 +32,22 @@ namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
-		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", "", VariablePlayerArmorUpdate);
-		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", "", VariablePlayerArmorUpdate);
-		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", "", VariablePlayerArmorUpdate);
-		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", "", VariablePlayerArmorUpdate);
-		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", "", VariablePlayerArmorUpdate);
-		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", "", VariablePlayerArmorUpdate);
-		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", "", VariablePlayerArmorUpdate);
+		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
 
-		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", "#000000", VariablePlayerArmorUpdate);
-		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", "#000000", VariablePlayerArmorUpdate);
-		VarColorsVisor = AddVariableString("Colors.Visor", "colors_visor", "The visor colors hex value", "#000000", VariablePlayerArmorUpdate);
-		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", "#000000", VariablePlayerArmorUpdate);
-		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", "#000000", VariablePlayerArmorUpdate);
+		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
+		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
+		VarColorsVisor = AddVariableString("Colors.Visor", "colors_visor", "The visor colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
+		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
+		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
 
-		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", "Jasper", VariablePlayerNameUpdate);
-		VarUserID = AddVariableInt64("UserID", "userid", "The players unique user ID", 0, VariablePlayerUserIDUpdate);
+		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", eCommandFlagsArchived, "Jasper", VariablePlayerNameUpdate);
+		VarUserID = AddVariableInt64("UserID", "userid", "The players unique user ID", eCommandFlagsArchived, 0, VariablePlayerUserIDUpdate);
 
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 

@@ -81,6 +81,16 @@ namespace Modules
 		return &this->Commands.back();
 	}
 
+	void CommandMap::FinishAddCommands()
+	{
+		for (auto command : Commands)
+		{
+			if (command.Type != eCommandTypeCommand && (command.Flags & eCommandFlagsDontUpdateInitial) != eCommandFlagsDontUpdateInitial)
+				if (command.UpdateEvent)
+					command.UpdateEvent(std::vector<std::string>(), std::string());
+		}
+	}
+
 	std::string CommandMap::ExecuteCommand(std::vector<std::string> command)
 	{
 		std::string commandStr = "";
@@ -339,7 +349,7 @@ namespace Modules
 		std::stringstream ss;
 		for (auto cmd : Commands)
 		{
-			if (cmd.Type == eCommandTypeCommand)
+			if (cmd.Type == eCommandTypeCommand || (cmd.Flags & eCommandFlagsArchived) != eCommandFlagsArchived)
 				continue;
 
 			ss << cmd.Name << " \"" << cmd.ValueString << "\"" << std::endl;

@@ -53,10 +53,7 @@ namespace Patches
 
 		void EnableCenteredCrosshairPatch(bool enable)
 		{
-			if (enable)
-				CenteredCrosshairPatch.Apply();
-			else
-				CenteredCrosshairPatch.Reset();
+			CenteredCrosshairPatch.Apply(!enable);
 		}
 
 		void ApplyAll()

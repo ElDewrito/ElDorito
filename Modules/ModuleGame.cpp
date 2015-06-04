@@ -350,25 +350,25 @@ namespace Modules
 {
 	ModuleGame::ModuleGame() : ModuleBase("Game")
 	{
-		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", CommandGameLogMode, { "network|ssl|ui|game1|game2|all|off The log mode to enable" });
+		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", eCommandFlagsNone, CommandGameLogMode, { "network|ssl|ui|game1|game2|all|off The log mode to enable" });
 
-		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
+		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", eCommandFlagsNone, CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
 
-		AddCommand("Info", "info", "Displays information about the game", CommandGameInfo);
+		AddCommand("Info", "info", "Displays information about the game", eCommandFlagsNone, CommandGameInfo);
 
-		AddCommand("Exit", "exit", "Ends the game process", CommandGameExit);
+		AddCommand("Exit", "exit", "Ends the game process", eCommandFlagsNone, CommandGameExit);
 
-		AddCommand("Map", "map", "Loads a map", CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
+		AddCommand("Map", "map", "Loads a map", eCommandFlagsNone, CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
-		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
+		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
 
-		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", "halo3");
+		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", eCommandFlagsArchived, "halo3");
 
-		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", 0);
+		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
 		VarLanguageID->ValueIntMax = 11;
 
-		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", 0);
+		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", eCommandFlagsArchived, 0);
 		VarSkipLauncher->ValueIntMin = 0;
 		VarSkipLauncher->ValueIntMax = 0;
 

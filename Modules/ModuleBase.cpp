@@ -8,7 +8,7 @@ namespace Modules
 		this->moduleName = moduleName;
 	}
 
-	Command* ModuleBase::AddCommand(const std::string& name, const std::string& shortName, const std::string& description, CommandUpdateFunc updateEvent, std::initializer_list<std::string> arguments)
+	Command* ModuleBase::AddCommand(const std::string& name, const std::string& shortName, const std::string& description, CommandFlags flags, CommandUpdateFunc updateEvent, std::initializer_list<std::string> arguments)
 	{
 		Command command;
 		command.Name = moduleName + "." + name;
@@ -22,13 +22,14 @@ namespace Modules
 		if (moduleName.length() <= 0)
 			command.Name = name;
 
+		command.Flags = flags;
 		command.Type = eCommandTypeCommand;
 		command.UpdateEvent = updateEvent;
 
 		return CommandMap::Instance().AddCommand(command);
 	}
 
-	Command* ModuleBase::AddVariableInt(const std::string& name, const std::string& shortName, const std::string& description, unsigned long defaultValue, CommandUpdateFunc updateEvent)
+	Command* ModuleBase::AddVariableInt(const std::string& name, const std::string& shortName, const std::string& description, CommandFlags flags, unsigned long defaultValue, CommandUpdateFunc updateEvent)
 	{
 		Command command;
 		command.Name = moduleName + "." + name;
@@ -39,6 +40,7 @@ namespace Modules
 		if (moduleName.length() <= 0)
 			command.Name = name;
 
+		command.Flags = flags;
 		command.Type = eCommandTypeVariableInt;
 		command.DefaultValueInt = defaultValue;
 		command.ValueInt = defaultValue;
@@ -48,7 +50,7 @@ namespace Modules
 		return CommandMap::Instance().AddCommand(command);
 	}
 
-	Command* ModuleBase::AddVariableInt64(const std::string& name, const std::string& shortName, const std::string& description, unsigned long long defaultValue, CommandUpdateFunc updateEvent)
+	Command* ModuleBase::AddVariableInt64(const std::string& name, const std::string& shortName, const std::string& description, CommandFlags flags, unsigned long long defaultValue, CommandUpdateFunc updateEvent)
 	{
 		Command command;
 		command.Name = moduleName + "." + name;
@@ -59,6 +61,7 @@ namespace Modules
 		if (moduleName.length() <= 0)
 			command.Name = name;
 
+		command.Flags = flags;
 		command.Type = eCommandTypeVariableInt64;
 		command.DefaultValueInt64 = defaultValue;
 		command.ValueInt64 = defaultValue;
@@ -68,7 +71,7 @@ namespace Modules
 		return CommandMap::Instance().AddCommand(command);
 	}
 
-	Command* ModuleBase::AddVariableFloat(const std::string& name, const std::string& shortName, const std::string& description, float defaultValue, CommandUpdateFunc updateEvent)
+	Command* ModuleBase::AddVariableFloat(const std::string& name, const std::string& shortName, const std::string& description, CommandFlags flags, float defaultValue, CommandUpdateFunc updateEvent)
 	{
 		Command command;
 		command.Name = moduleName + "." + name;
@@ -79,6 +82,7 @@ namespace Modules
 		if (moduleName.length() <= 0)
 			command.Name = name;
 
+		command.Flags = flags;
 		command.Type = eCommandTypeVariableFloat;
 		command.DefaultValueFloat = defaultValue;
 		command.ValueFloat = defaultValue;
@@ -88,7 +92,7 @@ namespace Modules
 		return CommandMap::Instance().AddCommand(command);
 	}
 
-	Command* ModuleBase::AddVariableString(const std::string& name, const std::string& shortName, const std::string& description, std::string defaultValue, CommandUpdateFunc updateEvent)
+	Command* ModuleBase::AddVariableString(const std::string& name, const std::string& shortName, const std::string& description, CommandFlags flags, std::string defaultValue, CommandUpdateFunc updateEvent)
 	{
 		Command command;
 		command.Name = moduleName + "." + name;
@@ -99,6 +103,7 @@ namespace Modules
 		if (moduleName.length() <= 0)
 			command.Name = name;
 
+		command.Flags = flags;
 		command.Type = eCommandTypeVariableString;
 		command.DefaultValueString = defaultValue;
 		command.ValueString = defaultValue;

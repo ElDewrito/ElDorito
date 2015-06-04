@@ -25,20 +25,19 @@ public:
 	// Constructor fills data with a given byte
 	Patch(size_t Offset, size_t byteValue, size_t numBytes, Pointer base = Pointer::Base());
 
-	inline void Apply(Pointer offset = Pointer::Base()) const
+	inline void Apply(bool revert = false, Pointer offset = Pointer::Base()) const
 	{
+		if (revert)
+			return Reset(offset);
+
 		if( Data.size() )
-		{
 			offset(Offset).Write(&Data[0], Data.size());
-		}
 	}
 
 	inline void Reset(Pointer offset = Pointer::Base()) const
 	{
 		if( Orig.size() )
-		{
 			offset(Offset).Write(&Orig[0], Orig.size());
-		}
 	}
 
 	static inline void NopFill(Pointer offset, size_t length)
@@ -56,8 +55,11 @@ public:
 	Hook();
 	Hook(size_t Offset, void* destFunc, int flags = 0, std::initializer_list<uint8_t> Reset = {});
 
-	inline void Apply(Pointer offset = Pointer::Base()) const
+	inline void Apply(bool revert = false, Pointer offset = Pointer::Base()) const
 	{
+		if (revert)
+			return Reset(offset);
+
 		if (Flags & HookFlags::IsCall)
 			offset(Offset).WriteCall(DestFunc);
 		else
@@ -67,9 +69,7 @@ public:
 	inline void Reset(Pointer offset = Pointer::Base()) const
 	{
 		if( Orig.size() )
-		{
 			offset(Offset).Write(&Orig[0], Orig.size());
-		}
 	}
 
 private:
