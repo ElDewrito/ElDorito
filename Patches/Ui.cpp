@@ -75,9 +75,6 @@ namespace Patches
 			// and find a way to at least enable pressing ESC when gamepad is enabled)
 			Patch::NopFill(Pointer::Base(0x20D7F2), 2);
 
-			// Fix menu update code to include missing mainmenu code
-			Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
-
 			// Hacky fix to stop the game crashing when you move selection on UI
 			// (todo: find out what's really causing this)
 			Patch::NopFill(Pointer::Base(0x569D07), 3);
@@ -166,23 +163,6 @@ namespace Patches
 
 namespace
 {
-	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
-	{
-		bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
-		typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
-		UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;
-		menuUpdate(a1, menuIdToLoad);
-
-		if (shouldUpdate)
-		{
-			Patches::Ui::DialogStringId = menuIdToLoad;
-			Patches::Ui::DialogArg1 = 0xFF;
-			Patches::Ui::DialogFlags = 4;
-			Patches::Ui::DialogParentStringId = 0x1000D;
-			Patches::Ui::DialogShow = true;
-		}
-	}
-
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
 		Patches::Ui::DialogStringId = 0x10084;

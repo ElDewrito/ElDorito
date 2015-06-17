@@ -18,6 +18,35 @@
 
 size_t ElDorito::MainThreadID = 0;
 
+BYTE UIData[0x40];
+
+void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
+{
+	bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
+	typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
+	UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;
+	menuUpdate(a1, menuIdToLoad);
+
+	if (shouldUpdate)
+	{
+		typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+
+		// fill UIData with proper data
+		OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
+		memset(UIData, 0, 0x40);
+		openui(&UIData, menuIdToLoad, 0xFF, 4, 0x1000D);
+
+		// send UI notification
+		uint32_t eax = (uint32_t)&UIData;
+		uint32_t ecx = *(uint32_t*)0x5260254;
+		*(DWORD*)(ecx + 8) = eax;
+
+		eax = *(uint32_t*)0x5260254;
+		eax = *(uint32_t*)eax;
+		*(uint32_t*)0x5260254 = eax;
+	}
+}
+
 ElDorito::ElDorito()
 {
 }
@@ -67,6 +96,9 @@ void ElDorito::Initialize()
 
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
+
+	// Fix menu update code to include missing mainmenu code
+	Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
 
 	extern std::string zipName;
 	extern BOOL installMedalJunk();
