@@ -48,7 +48,7 @@ void ElDorito::Initialize()
 			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
 
-#ifndef _ELDEBUG
+#ifndef _DEBUG
 			if (arg.compare(L"-launcher") == 0)
 				usingLauncher = true;
 #endif
@@ -68,7 +68,7 @@ void ElDorito::Initialize()
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
-#ifndef _ELDEBUG
+#ifndef _DEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
 	{
 		MessageBox(GetConsoleWindow(), "Please run Halo Online using the ElDewrito launcher.\nIt should be named DewritoUpdater.exe.", "ElDewrito", MB_OK | MB_ICONINFORMATION);
