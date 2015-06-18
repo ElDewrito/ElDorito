@@ -105,7 +105,9 @@ set(SOURCE_FILES
     Pointer.h
     Precompile.cpp
     Precompile.h
-    resource.h)
+    resource.h
+    ElDorito.rc
+    ElDorito.def)
 
 include_directories($ENV{DXSDK_DIR}/Include)
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
@@ -116,3 +118,5 @@ target_link_libraries(ElDorito d3d9)
 target_link_libraries(ElDorito d3dx9)
 target_link_libraries(ElDorito Version)
 target_link_libraries(ElDorito ws2_32)
+
+set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")
