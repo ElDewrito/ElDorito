@@ -362,8 +362,6 @@ namespace Modules
 
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
 
-		VarMedalsZip = AddVariableString("MedalsZip", "medals_zip", "The name of the medals zip file inside mods\\medals\\ (no extension)", eCommandFlagsArchived, "halo3");
-
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
 		VarLanguageID->ValueIntMax = 11;

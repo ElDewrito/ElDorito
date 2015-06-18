@@ -16,7 +16,6 @@ namespace Modules
 	class ModuleGame : public Utils::Singleton<ModuleGame>, public ModuleBase
 	{
 	public:
-		Command* VarMedalsZip;
 		Command* VarLanguageID;
 		Command* VarSkipLauncher;
 
