@@ -110,7 +110,7 @@ set(SOURCE_FILES
 include_directories($ENV{DXSDK_DIR}/Include)
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 
-add_library(ElDorito SHARED ${SOURCE_FILES})
+add_library(ElDorito MODULE ${SOURCE_FILES})
 
 target_link_libraries(ElDorito d3d9)
 target_link_libraries(ElDorito d3dx9)
