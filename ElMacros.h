@@ -10,15 +10,6 @@
 #define _CONCATIFY(x,y) x##y
 #define CONCAT(x,y) _CONCATIFY(x,y)
 
-#define NOTE( MESSAGE ) \
-  __pragma(message(__FILE__ "(" STRINGIZE(__LINE__) ") : Note : " MESSAGE " "))
-
-#define WARN( MESSAGE ) \
-  __pragma(message(__FILE__ "(" STRINGIZE(__LINE__) ") : Warning : " MESSAGE " "))
-
-#define TODO( MESSAGE ) \
-  __pragma(message(__FILE__ "(" STRINGIZE(__LINE__) ") : TODO : " MESSAGE " "))
-
 #define DISABLE_WARNING_START(x) \
 __pragma(warning(push)) \
 __pragma(warning(disable : x)) \

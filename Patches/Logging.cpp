@@ -61,7 +61,7 @@ namespace Patches
 
 namespace
 {
-	TODO("Move dbglog into a header that the whole project can use")
+	// TODO: Move dbglog into a header that the whole project can use
 	void dbglog(const char* module, char* format, ...)
 	{
 		char* backupFormat = "";

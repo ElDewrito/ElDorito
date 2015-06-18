@@ -40,7 +40,7 @@ namespace
 		if (statusBool)
 			status = "hidden.";
 
-		TODO("Fix this to use a Patch and maybe save it to preferences")
+		// TODO: Fix this to use a Patch and maybe save it to preferences
 		DWORD temp;
 		VirtualProtect(Pointer(0x016B5A5C), 4, PAGE_READWRITE, &temp);
 

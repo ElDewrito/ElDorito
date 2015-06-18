@@ -149,7 +149,7 @@ namespace Patches
 						replyData += "  \"status\": \"" + status + "\",\r\n";
 
 						replyData += "  \"numPlayers\": " + std::to_string(GetNumPlayers()) + ",\r\n";
-						TODO("find how to get actual max players from the game, since our variable might be wrong");
+						// TODO: find how to get actual max players from the game, since our variable might be wrong
 						replyData += "  \"maxPlayers\": " + Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueString + ",\r\n";
 
 						bool authenticated = true;
@@ -346,7 +346,7 @@ namespace
 		if (isOnline == 1)
 		{
 			Patches::Network::StartInfoServer();
-			TODO("give output if StartInfoServer fails");
+			// TODO: give output if StartInfoServer fails
 		}
 		else
 		{

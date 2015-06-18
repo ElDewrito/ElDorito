@@ -195,7 +195,7 @@ namespace
 		if (enumerated)
 			return 1;
 
-		TODO("change this to use unicode instead of ASCII");
+		// TODO: change this to use unicode instead of ASCII
 
 		char currentDir[256];
 		memset(currentDir, 0, 256);
@@ -266,7 +266,7 @@ namespace
 
 	bool __fastcall SaveFileGetNameHook(uint8_t *blfStart, void* unused, int a2, wchar_t *Src, size_t MaxCount)
 	{
-		TODO("moving this to Documents\\My Games\\Halo 3\\Saves\\Maps / Games / etc might be better, no need to worry about admin perms");
+		// TODO: moving this to Documents\\My Games\\Halo 3\\Saves\\Maps / Games / etc might be better, no need to worry about admin perms
 
 		wchar_t* variantName = (wchar_t*)(blfStart + 0x48); // when saving forge maps we only get the variant name, not the blf data :s
 		int variantType = *(uint32_t*)(blfStart + 0xF8);
@@ -288,7 +288,7 @@ namespace
 
 	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk)
 	{
-		TODO("move this to temp folder, or find a way to disable it (game uses path returned by this func to create a 0 byte sandbox.map)");
+		// TODO: move this to temp folder, or find a way to disable it (game uses path returned by this func to create a 0 byte sandbox.map)
 		wchar_t currentDir[256];
 		memset(currentDir, 0, 256 * sizeof(wchar_t));
 		GetCurrentDirectoryW(256, currentDir);

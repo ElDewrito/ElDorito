@@ -103,7 +103,7 @@ BOOL ExitInstance()
 	return true;
 }
 
-TODO("Change the GetAdaptersInfo export because we don't use an iphlpapi proxy anymore")
+// TODO: Change the GetAdaptersInfo export because we don't use an iphlpapi proxy anymore
 DWORD GetAdaptersInfo(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen)
 {
 	return 0;
