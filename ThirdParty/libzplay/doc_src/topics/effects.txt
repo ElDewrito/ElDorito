@@ -1,2 +1,0 @@
-Summary:
-libZPlay implements multiple audio effects.

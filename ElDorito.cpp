@@ -100,19 +100,6 @@ void ElDorito::Initialize()
 	// Fix menu update code to include missing mainmenu code
 	Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
 
-	extern std::string zipName;
-	extern BOOL installMedalJunk();
-
-	zipName = Modules::ModuleGame::Instance().VarMedalsZip->ValueString;
-
-	// This is kind of a hack, but only install the medal system for now if halo3.zip can be opened for reading
-	std::ifstream halo3Zip("mods\\medals\\" + zipName + ".zip");
-	if (halo3Zip.is_open())
-	{
-		halo3Zip.close();
-		installMedalJunk();
-	}
-
 #ifndef _ELDEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
 	{

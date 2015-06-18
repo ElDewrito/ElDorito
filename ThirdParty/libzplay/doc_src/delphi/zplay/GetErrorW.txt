@@ -1,6 +1,0 @@
-Summary:
-Get description of last error. UNICODE version.
-
-Returns:
-Error string.
-
