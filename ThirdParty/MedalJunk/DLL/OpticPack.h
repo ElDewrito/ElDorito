@@ -6,7 +6,6 @@
 #include <memory>
 #include <map>
 #include <cstdint>
-#include <boost/serialization/strong_typedef.hpp>
 
 namespace Optic {
 
