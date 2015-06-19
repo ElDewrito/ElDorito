@@ -70,7 +70,7 @@ namespace Utils
 				memset(version, 0, 256);
 				DWORD versionInt = GetVersionInt();
 				sprintf_s(version, 256, "%d.%d.%d.%d", ((versionInt >> 24) & 0xFF), ((versionInt >> 16) & 0xFF), ((versionInt >> 8) & 0xFF), (versionInt & 0xFF));
-#ifdef _ELDEBUG
+#ifdef _DEBUG
 				versionStr = std::string(version) + "-debug";
 #else
 				versionStr = std::string(version);

@@ -41,12 +41,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
     <TargetName>mtndew</TargetName>
-    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mtndew</TargetName>
-    <IncludePath>$(ProjectDir)ThirdParty\yaml-cpp\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">
@@ -87,7 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_ELDEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
@@ -113,27 +113,20 @@
     <ClCompile Include="Console\Console.cpp" />
     <ClCompile Include="ElDorito.cpp" />
     <ClCompile Include="ElPatches.cpp" />
-    <ClCompile Include="ElPreferences.cpp" />
-    <ClCompile Include="Modules\Crosshair.cpp" />
-    <ClCompile Include="Modules\DirectConnect.cpp" />
-    <ClCompile Include="Modules\RawInput.cpp" />
-    <ClCompile Include="Modules\ServerPassword.cpp" />
+    <ClCompile Include="Modules\ModuleCamera.cpp" />
+    <ClCompile Include="CommandMap.cpp" />
+    <ClCompile Include="Modules\ModuleGame.cpp" />
+    <ClCompile Include="Modules\ModuleInput.cpp" />
+    <ClCompile Include="Modules\ModuleBase.cpp" />
+    <ClCompile Include="ElModules.cpp" />
+    <ClCompile Include="Modules\ModulePlayer.cpp" />
+    <ClCompile Include="Modules\ModuleServer.cpp" />
     <ClCompile Include="Patches\Armor.cpp" />
     <ClCompile Include="Patches\ContentItems.cpp" />
     <ClCompile Include="Patches\Core.cpp" />
     <ClCompile Include="Patches\Mouse.cpp" />
     <ClCompile Include="Patches\Logging.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Modules\Camera.cpp" />
-    <ClCompile Include="Modules\DebugLogging.cpp" />
-    <ClCompile Include="Modules\Disclaimer.cpp" />
-    <ClCompile Include="Modules\Fov.cpp" />
-    <ClCompile Include="Modules\Fps.cpp" />
-    <ClCompile Include="Modules\Hud.cpp" />
-    <ClCompile Include="Modules\Information.cpp" />
-    <ClCompile Include="Modules\NameChange.cpp" />
-    <ClCompile Include="Modules\ShowGameUI.cpp" />
-    <ClCompile Include="Modules\Countdown.cpp" />
     <ClCompile Include="Patches\Network.cpp" />
     <ClCompile Include="Patch.cpp" />
     <ClCompile Include="Patches\PlayerPropertiesExtension.cpp" />
@@ -147,36 +140,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Patches\Ui.cpp" />
+    <ClCompile Include="ThirdParty\HttpRequest.cpp" />
     <ClCompile Include="ThirdParty\SHA256.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\binary.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilder.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\convert.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\directives.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\emit.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\emitfromevents.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\emitter.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\emitterstate.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\emitterutils.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\exp.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\memory.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\node.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\nodebuilder.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\nodeevents.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\node_data.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\null.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\ostream_wrapper.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\parse.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\parser.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\regex_yaml.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\scanner.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\scanscalar.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\scantag.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\scantoken.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\simplekey.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\singledocparser.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\stream.cpp" />
-    <ClCompile Include="ThirdParty\yaml-cpp\src\tag.cpp" />
     <ClCompile Include="Utils\Assert.cpp" />
     <ClCompile Include="Utils\String.cpp" />
     <ClCompile Include="Utils\VersionInfo.cpp" />
@@ -188,28 +153,20 @@
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
     <ClInclude Include="ElMacros.h" />
-    <ClInclude Include="Modules\Crosshair.h" />
-    <ClInclude Include="Modules\DirectConnect.h" />
-    <ClInclude Include="Modules\RawInput.h" />
-    <ClInclude Include="Modules\ServerPassword.h" />
+    <ClInclude Include="Modules\ModuleCamera.h" />
+    <ClInclude Include="CommandMap.h" />
+    <ClInclude Include="Modules\ModuleGame.h" />
+    <ClInclude Include="Modules\ModuleInput.h" />
+    <ClInclude Include="Modules\ModuleBase.h" />
+    <ClInclude Include="ElModules.h" />
+    <ClInclude Include="Modules\ModulePlayer.h" />
+    <ClInclude Include="Modules\ModuleServer.h" />
     <ClInclude Include="Patches\Armor.h" />
     <ClInclude Include="Patches\ContentItems.h" />
     <ClInclude Include="Patches\Core.h" />
     <ClInclude Include="ElPatches.h" />
     <ClInclude Include="Patches\Mouse.h" />
     <ClInclude Include="Patches\Logging.h" />
-    <ClInclude Include="Modules\Camera.h" />
-    <ClInclude Include="Modules\DebugLogging.h" />
-    <ClInclude Include="Modules\Disclaimer.h" />
-    <ClInclude Include="Modules\ElModule.h" />
-    <ClInclude Include="ElModules.h" />
-    <ClInclude Include="Modules\Fov.h" />
-    <ClInclude Include="Modules\Fps.h" />
-    <ClInclude Include="Modules\Hud.h" />
-    <ClInclude Include="Modules\Information.h" />
-    <ClInclude Include="Modules\NameChange.h" />
-    <ClInclude Include="Modules\ShowGameUI.h" />
-    <ClInclude Include="Modules\Countdown.h" />
     <ClInclude Include="Patches\Network.h" />
     <ClInclude Include="Patch.h" />
     <ClInclude Include="Patches\PlayerPropertiesExtension.h" />
@@ -219,71 +176,11 @@
     <ClInclude Include="Patches\VirtualKeyboard.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="Precompile.h" />
-    <ClInclude Include="ElPreferences.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="ThirdParty\dirent.h" />
+    <ClInclude Include="ThirdParty\HttpRequest.h" />
     <ClInclude Include="ThirdParty\SHA256.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\anchor.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\binary.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\contrib\anchordict.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\contrib\graphbuilder.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\dll.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emitfromevents.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emitter.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emitterdef.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emittermanip.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\emitterstyle.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\eventhandler.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\exceptions.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\mark.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\convert.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\bool_type.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\impl.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\iterator.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\iterator_fwd.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\memory.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\node.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\node_data.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\node_iterator.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\detail\node_ref.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\emit.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\impl.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\iterator.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\node.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\parse.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\ptr.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\node\type.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\noncopyable.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\null.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\ostream_wrapper.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\parser.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\stlemitter.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\traits.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\include\yaml-cpp\yaml.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\collectionstack.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\contrib\graphbuilderadapter.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\directives.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\emitterstate.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\emitterutils.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\exp.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\indentation.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\nodebuilder.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\nodeevents.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\ptr_stack.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\ptr_vector.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\regeximpl.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\regex_yaml.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\scanner.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\scanscalar.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\scantag.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\setting.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\singledocparser.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\stream.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\streamcharsource.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\stringsource.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\tag.h" />
-    <ClInclude Include="ThirdParty\yaml-cpp\src\token.h" />
     <ClInclude Include="Utils\Bits.h" />
     <ClInclude Include="Utils\Singleton.h" />
     <ClInclude Include="Utils\Assert.h" />
@@ -299,11 +196,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ElDorito.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="ThirdParty\MedalJunk\DLL\DLL.vcxproj">
-      <Project>{bd8cba76-b8e1-4c51-9ae8-3832c4ba5c54}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

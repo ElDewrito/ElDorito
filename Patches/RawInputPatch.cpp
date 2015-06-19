@@ -3,7 +3,7 @@
 #include "../ElDorito.h"
 #include "../Patch.h"
 #include "../BlamTypes.h"
-#include "../ElPreferences.h"
+#include "../Modules/ModuleInput.h"
 
 namespace
 {
@@ -26,7 +26,7 @@ namespace
 {
 	bool RawInputHookImpl(RAWINPUT *rwInput)
 	{
-		if (!ElPreferences::Instance().getRawMouse())
+		if (!Modules::ModuleInput::Instance().VarInputRawInput->ValueInt)
 			return false;
 		if (rwInput->header.dwType != RIM_TYPEMOUSE)
 			return true;

@@ -75,10 +75,10 @@ namespace Blam
 		Multiplayer,
 		Mainmenu,
 		Shared, // not sure
-		GameModesCount
+		GameModeCount
 	};
 
-	const std::string GameModeNames[GameModesCount] =
+	const std::string GameModeNames[GameModeCount] =
 	{
 		"none",
 		"campaign",
@@ -277,6 +277,12 @@ namespace GameGlobals
 		const size_t TLSOffset = 0xC4;
 		const size_t HorizontalViewAngle = 0x30C;
 		const size_t VerticalViewAngle = 0x310;
+	}
+
+	namespace GameInfo
+	{
+		const size_t TLSOffset = 0x3C;
+		const size_t GameMode = 0x10;
 	}
 
 	namespace GameSettings

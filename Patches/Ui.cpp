@@ -4,9 +4,6 @@
 #include "../ElMacros.h"
 #include "../Patch.h"
 #include "../BlamTypes.h"
-#include "../Modules/ShowGameUI.h"
-
-extern std::shared_ptr<ShowGameUI> showUI;
 
 namespace
 {
@@ -24,19 +21,43 @@ namespace Patches
 {
 	namespace Ui
 	{
+		bool DialogShow; // todo: put this somewhere better
+		unsigned int DialogStringId;
+		int DialogArg1; // todo: figure out a better name for this
+		int DialogFlags;
+		unsigned int DialogParentStringId;
+		uint8_t UIData[0x40];
+
+		void Tick()
+		{
+			if (DialogShow)
+			{
+				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+
+				// fill UIData with proper data
+				OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
+				openui(&UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
+
+				// send UI notification
+				uint32_t eax = (uint32_t)&UIData;
+				uint32_t ecx = *(uint32_t*)0x5260254;
+				*(DWORD*)(ecx + 8) = eax;
+
+				eax = *(uint32_t*)0x5260254;
+				eax = *(uint32_t*)eax;
+				*(uint32_t*)0x5260254 = eax;
+
+				DialogShow = false;
+			}
+		}
+
 		void EnableCenteredCrosshairPatch(bool enable)
 		{
-			if (enable)
-				CenteredCrosshairPatch.Apply();
-			else
-				CenteredCrosshairPatch.Reset();
+			CenteredCrosshairPatch.Apply(!enable);
 		}
 
 		void ApplyAll()
 		{
-			// English patch
-			Patch(0x2333FD, { 0 }).Apply();
-
 			// Update window title patch
 			const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
 			Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
@@ -62,7 +83,7 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x569D07), 3);
 
 			// Sorta hacky way of getting game options screen to show when you press X on lobby
-			TODO("find real way of showing the [X] Edit Game Options text, that might enable it to work without patching");
+			// TODO: find real way of showing the [X] Edit Game Options text, that might enable it to work without patching
 			Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
 
 			// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
@@ -90,7 +111,7 @@ namespace Patches
 			Hook(0x11E040, LocalizedStringHook).Apply();
 
 			// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
-			TODO("find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata");
+			// TODO: find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata
 			Patch(0x705D6F, { 0x2 }).Apply();
 		}
 
@@ -100,13 +121,13 @@ namespace Patches
 			if (!levelsGlobalPtr)
 				return;
 
-			TODO("map out these global arrays, content items seems to use same format");
+			// TODO: map out these global arrays, content items seems to use same format
 
 			uint32_t numLevels = Pointer(levelsGlobalPtr + 0x34).Read<uint32_t>();
 
 			const wchar_t* search[6] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf" };
 			const wchar_t* names[6] = { L"Guardian", L"Valhalla", L"Diamondback", L"Edge", L"Reactor", L"Icebox" };
-			TODO("Get names/descs using string ids? Seems the unic tags have descs for most of the maps");
+			// TODO: Get names/descs using string ids? Seems the unic tags have descs for most of the maps
 			const wchar_t* descs[6] = {
 				L"Millennia of tending has produced trees as ancient as the Forerunner structures they have grown around. 2-6 players.",
 				L"The crew of V-398 barely survived their unplanned landing in this gorge...this curious gorge. 6-16 players.",
@@ -120,8 +141,8 @@ namespace Patches
 				Pointer levelNamePtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8);
 				Pointer levelDescPtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8 + 0x40);
 
-				wchar_t levelName[0x20];
-				memset(levelName, 0, sizeof(wchar_t) * 0x20);
+				wchar_t levelName[0x21];
+				memset(levelName, 0, sizeof(wchar_t) * 0x21);
 				levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
 
 				for (uint32_t y = 0; y < sizeof(search) / sizeof(*search); y++)
@@ -152,21 +173,21 @@ namespace
 
 		if (shouldUpdate)
 		{
-			showUI->DialogStringId = menuIdToLoad;
-			showUI->DialogArg1 = 0xFF;
-			showUI->DialogFlags = 4;
-			showUI->DialogParentStringId = 0x1000D;
-			showUI->DialogShow = true;
+			Patches::Ui::DialogStringId = menuIdToLoad;
+			Patches::Ui::DialogArg1 = 0xFF;
+			Patches::Ui::DialogFlags = 4;
+			Patches::Ui::DialogParentStringId = 0x1000D;
+			Patches::Ui::DialogShow = true;
 		}
 	}
 
 	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
-		showUI->DialogArg1 = 0;
-		showUI->DialogFlags = 4;
-		showUI->DialogParentStringId = 0x1000C;
-		showUI->DialogStringId = 0x10084;
-		showUI->DialogShow = true; // can't call the showUI func in the same tick/thread as scaleform ui stuff
+		Patches::Ui::DialogStringId = 0x10084;
+		Patches::Ui::DialogArg1 = 0;
+		Patches::Ui::DialogFlags = 4;
+		Patches::Ui::DialogParentStringId = 0x1000C;
+		Patches::Ui::DialogShow = true;
 
 		return 1;
 	}

@@ -2,6 +2,7 @@
 #include "PlayerPropertiesExtension.h"
 #include "../Patch.h"
 #include "../Utils/VersionInfo.h"
+#include "../Modules/ModuleServer.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -10,10 +11,6 @@
 #include <iostream>
 
 #include "../ElDorito.h"
-#include "../ElPreferences.h"
-
-BYTE passwordHash[0x20];
-bool usingPassword = false;
 
 namespace
 {
@@ -21,6 +18,7 @@ namespace
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr);
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo);
+	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -33,10 +31,29 @@ namespace Patches
 {
 	namespace Network
 	{
-		char motd[100];
+		SOCKET rconSocket;
+		SOCKET infoSocket;
+		bool rconSocketOpen = false;
+		bool infoSocketOpen = false;
+
+		int GetNumPlayers()
+		{
+			void* v2;
+
+			typedef char(__cdecl *sub_454F20Func)(void** a1);
+			sub_454F20Func sub_454F20 = (sub_454F20Func)0x454F20;
+			if (!sub_454F20(&v2))
+				return 0;
+
+			typedef char*(__thiscall *sub_45C250Func)(void* thisPtr);
+			sub_45C250Func sub_45C250 = (sub_45C250Func)0x45C250;
+
+			return *(DWORD*)(sub_45C250(v2) + 0x10A0);
+		}
+
 		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
-			if (msg != WM_RCON)
+			if (msg != WM_RCON && msg != WM_INFOSERVER)
 			{
 				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
@@ -59,8 +76,12 @@ namespace Patches
 			case FD_ACCEPT:
 				// accept the connection and send our motd
 				clientSocket = accept(wParam, NULL, NULL);
-				WSAAsyncSelect(clientSocket, hWnd, WM_RCON, FD_READ | FD_WRITE | FD_CLOSE);
-				send(clientSocket, motd, strlen(motd), 0);
+				WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
+				if (msg == WM_RCON)
+				{
+					std::string motd = "ElDewrito " + Utils::Version::GetVersionString() + " Remote Console\r\n";
+					send(clientSocket, motd.c_str(), motd.length(), 0);
+				}
 				break;
 			case FD_READ:
 				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
@@ -78,7 +99,132 @@ namespace Patches
 				}
 
 				if (isValidAscii)
-					ElDorito::Instance().ParseCommand(std::string(inDataBuffer));
+				{
+					if (msg == WM_RCON)
+					{
+						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
+						if (ret.length() > 0)
+						{
+							Utils::String::ReplaceString(ret, "\n", "\r\n");
+							ret = ret + "\r\n";
+							send((SOCKET)wParam, ret.c_str(), ret.length(), 0);
+						}
+					}
+					else if (msg == WM_INFOSERVER)
+					{
+						std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+						std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
+						std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+						std::string xnkid;
+						std::string xnaddr;
+						std::string gameVersion((char*)Pointer(0x199C0F0));
+						std::string status = "InGame";
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+						Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+						uint32_t gameMode = gameModePtr.Read<uint32_t>();
+						int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+						if (gameMode == 3)
+						{
+							if (mapName == "mainmenu")
+								status = "InLobby";
+							else
+								status = "Loading";
+
+							// on mainmenu so we'll have to read other data
+							mapName = std::string((char*)Pointer(0x19A5E49));
+							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantType = Pointer(0x179250).Read<uint32_t>();
+						}
+
+						std::string replyData = "{\r\n";
+						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
+						replyData += "  \"port\": " + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + ",\r\n";
+						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
+						replyData += "  \"map\": \"" + Utils::String::ThinString(mapVariantName) + "\",\r\n";
+						replyData += "  \"mapFile\": \"" + mapName + "\",\r\n";
+						replyData += "  \"variant\": \"" + Utils::String::ThinString(variantName) + "\",\r\n";
+						replyData += "  \"variantType\": \"" + Blam::GameTypeNames[variantType] + "\",\r\n";
+						replyData += "  \"status\": \"" + status + "\",\r\n";
+
+						replyData += "  \"numPlayers\": " + std::to_string(GetNumPlayers()) + ",\r\n";
+						// TODO: find how to get actual max players from the game, since our variable might be wrong
+						replyData += "  \"maxPlayers\": " + Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueString + ",\r\n";
+
+						bool authenticated = true;
+						if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+						{
+							std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+							authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+							authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
+						}
+
+						if (authenticated)
+						{
+							replyData += "  \"xnkid\": \"" + xnkid + "\",\r\n";
+							replyData += "  \"xnaddr\": \"" + xnaddr + "\",\r\n";
+
+							uint32_t playerScoresBase = 0x23F1724;
+							//uint32_t playerInfoBase = 0x2162DD0;
+							uint32_t playerInfoBase = 0x2162E08;
+							uint32_t menuPlayerInfoBase = 0x1863B58;
+							uint32_t playerStatusBase = 0x2161808;
+							replyData += "  \"players\": [\r\n";
+							std::vector<std::string> players;
+							for (int i = 0; i < 16; i++)
+							{
+								uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
+								uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
+								uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
+								uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
+
+								wchar_t* name = Pointer(playerInfoBase + (5696 * i));
+								std::string nameStr = Utils::String::ThinString(name);
+
+								wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
+								std::string menuNameStr = Utils::String::ThinString(menuName);
+
+								uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
+								uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
+								uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
+
+								uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
+
+								if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
+									continue;
+
+								std::string playerData = "    {\r\n";
+								playerData += "      \"name\": \"" + menuNameStr + "\",\r\n";
+								playerData += "      \"score\": " + std::to_string(score) + ",\r\n";
+								playerData += "      \"kills\": " + std::to_string(kills) + ",\r\n";
+								playerData += "      \"assists\": " + std::to_string(assists) + ",\r\n";
+								playerData += "      \"deaths\": " + std::to_string(deaths) + ",\r\n";
+								playerData += "      \"team\": " + std::to_string(team) + ",\r\n";
+								if (alive == 1)
+									playerData += "      \"isAlive\": \"true\"\r\n";
+								else
+									playerData += "      \"isAlive\": \"false\"\r\n";
+								playerData += "    }";
+								players.push_back(playerData);
+							}
+							for (unsigned int i = 0; i < players.size(); i++)
+								replyData += players[i] + (i + 1 != players.size() ? "," : "") + "\r\n";
+
+							replyData += "  ],\r\n";
+						}
+						else
+							replyData += "  \"passworded\": \"true\",\r\n";
+
+
+						replyData += "  \"gameVersion\": \"" + gameVersion + "\",\r\n";
+						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
+						replyData += "}";
+
+						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
+					}
+				}
 
 				break;
 			case FD_CLOSE:
@@ -97,9 +243,8 @@ namespace Patches
 			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
 			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
-			// Hook both calls to Network_transport_secure_key_create so we can use our own XNADDR/XNKID
-			Hook(0x81488, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
-			Hook(0x8182E, Network_transport_secure_key_createHook, HookFlags::IsCall).Apply();
+			// Hook call to Network_managed_session_create_session_internal so we can detect when an online game is started
+			Hook(0x82AAC, &Network_managed_session_create_session_internalHook, HookFlags::IsCall).Apply();
 
 			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
 			uint32_t verNum = Utils::Version::GetVersionInt();
@@ -119,13 +264,14 @@ namespace Patches
 
 		bool StartRemoteConsole()
 		{
+			if (rconSocketOpen)
+				return true;
+
 			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
 			if (hwnd == 0)
 				return false;
 
-			sprintf_s(motd, 100, "ElDewrito %s Remote Console\r\n", Utils::Version::GetVersionString().c_str());
-
-			SOCKET rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			SOCKADDR_IN bindAddr;
 			bindAddr.sin_family = AF_INET;
 			bindAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -135,6 +281,57 @@ namespace Patches
 			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
 			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
 			listen(rconSocket, 5);
+			rconSocketOpen = true;
+
+			return true;
+		}
+
+		bool StartInfoServer()
+		{
+			if (infoSocketOpen)
+				return true;
+
+			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
+			if (hwnd == 0)
+				return false;
+
+			infoSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			SOCKADDR_IN bindAddr;
+			bindAddr.sin_family = AF_INET;
+			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+			unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
+			if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
+				port++;
+			bindAddr.sin_port = htons((u_short)port);
+
+			// open our listener socket
+			while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
+			{
+				port++;
+				if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
+					port++;
+				bindAddr.sin_port = htons((u_short)port);
+				if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
+					return false; // tried 10 ports, lets give up
+			}
+			Modules::CommandMap::Instance().SetVariable(Modules::ModuleServer::Instance().VarServerPort, std::to_string(port), std::string());
+			WSAAsyncSelect(infoSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
+			listen(infoSocket, 5);
+			infoSocketOpen = true;
+
+			return true;
+		}
+
+		bool StopInfoServer()
+		{
+			if (!infoSocketOpen)
+				return true;
+
+			closesocket(infoSocket);
+			int istrue = 1;
+			setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
+			infoSocketOpen = false;
 
 			return true;
 		}
@@ -143,6 +340,25 @@ namespace Patches
 
 namespace
 {
+	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2)
+	{
+		DWORD isOnline = *(DWORD*)a2;
+		if (isOnline == 1)
+		{
+			Patches::Network::StartInfoServer();
+			// TODO: give output if StartInfoServer fails
+		}
+		else
+		{
+			Patches::Network::StopInfoServer();
+		}
+
+
+		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
+		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
+		return Network_managed_session_create_session_internal(a1, a2);
+	}
+
 	char* Network_GetIPStringFromInAddr(void* inaddr)
 	{
 		static char ipAddrStr[64];
@@ -159,29 +375,6 @@ namespace
 		sprintf_s(ipAddrStr, 64, "%hd.%hd.%hd.%hd:%hd (%hd)", ip0, ip1, ip2, ip3, port, type);
 
 		return ipAddrStr;
-	}
-
-	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo)
-	{
-		if (ElPreferences::Instance().getServerLanMode())
-		{
-			// lan mode is enabled, call the original function
-			typedef char(__cdecl *Network_transport_secure_key_createFunc)(void* xnetInfo);
-			Network_transport_secure_key_createFunc Network_transport_secure_key_create = reinterpret_cast<Network_transport_secure_key_createFunc>(0x430F60);
-			return Network_transport_secure_key_create(xnetInfo);
-		}
-
-		// set the xnet info to 0x11111..., since setting to to all zeroes doesn't let people connect to it
-		memset(xnetInfo, 0x11, 0x20);
-		memset((void*)0x199FAB2, 0x11, 0x10); // XNADDR
-
-		if (!usingPassword)
-			return 1;
-
-		memcpy(xnetInfo, passwordHash, 0x20);
-		memcpy((void*)0x199FAB2, passwordHash + 0x10, 0x10);
-
-		return 1;
 	}
 
 	char Network_XnAddrToInAddrHook(void* pxna, void* pxnkid, void* in_addr)

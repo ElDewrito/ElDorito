@@ -1,7 +1,7 @@
 #include "Armor.h"
 #include "PlayerPropertiesExtension.h"
-#include "../ElPreferences.h"
 #include "../Patch.h"
+#include "../Modules/ModulePlayer.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -67,20 +67,29 @@ namespace
 		memset(out, 0, sizeof(CustomizationData));
 
 		// Load armor settings from preferences
-		ElPreferences &prefs = ElPreferences::Instance();
-		out->colors[ColorIndexes::Primary] = prefs.getPrimaryColor();
-		out->colors[ColorIndexes::Secondary] = prefs.getSecondaryColor();
-		out->colors[ColorIndexes::Lights] = prefs.getLightsColor();
-		out->colors[ColorIndexes::Visor] = prefs.getVisorColor();
-		out->colors[ColorIndexes::Holo] = prefs.getHoloColor();
+		auto& playerVars = Modules::ModulePlayer::Instance();
 
-		out->armor[ArmorIndexes::Helmet] = GetArmorIndex(prefs.getHelmetName(), helmetIndexes);
-		out->armor[ArmorIndexes::Chest] = GetArmorIndex(prefs.getChestName(), chestIndexes);
-		out->armor[ArmorIndexes::Shoulders] = GetArmorIndex(prefs.getShouldersName(), shouldersIndexes);
-		out->armor[ArmorIndexes::Arms] = GetArmorIndex(prefs.getArmsName(), armsIndexes);
-		out->armor[ArmorIndexes::Legs] = GetArmorIndex(prefs.getLegsName(), legsIndexes);
-		out->armor[ArmorIndexes::Acc] = GetArmorIndex(prefs.getAccessoryName(), accIndexes);
-		out->armor[ArmorIndexes::Pelvis] = GetArmorIndex(prefs.getPelvisName(), pelvisIndexes);
+		memset(out->colors, 0, 5 * sizeof(uint32_t));
+
+		uint32_t temp = 0;
+		if (playerVars.VarColorsPrimary->ValueString.length() > 0 && playerVars.VarColorsPrimary->ValueString.substr(0, 1) == "#")
+			out->colors[ColorIndexes::Primary] = std::stoi(playerVars.VarColorsPrimary->ValueString.substr(1), 0, 16);
+		if (playerVars.VarColorsSecondary->ValueString.length() > 0 && playerVars.VarColorsSecondary->ValueString.substr(0, 1) == "#")
+			out->colors[ColorIndexes::Secondary] = std::stoi(playerVars.VarColorsSecondary->ValueString.substr(1), 0, 16);
+		if (playerVars.VarColorsLights->ValueString.length() > 0 && playerVars.VarColorsLights->ValueString.substr(0, 1) == "#")
+			out->colors[ColorIndexes::Lights] = std::stoi(playerVars.VarColorsLights->ValueString.substr(1), 0, 16);
+		if (playerVars.VarColorsVisor->ValueString.length() > 0 && playerVars.VarColorsVisor->ValueString.substr(0, 1) == "#")
+			out->colors[ColorIndexes::Visor] = std::stoi(playerVars.VarColorsVisor->ValueString.substr(1), 0, 16);
+		if (playerVars.VarColorsHolo->ValueString.length() > 0 && playerVars.VarColorsHolo->ValueString.substr(0, 1) == "#")
+			out->colors[ColorIndexes::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
+
+		out->armor[ArmorIndexes::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndexes);
+		out->armor[ArmorIndexes::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndexes);
+		out->armor[ArmorIndexes::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndexes);
+		out->armor[ArmorIndexes::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndexes);
+		out->armor[ArmorIndexes::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndexes);
+		out->armor[ArmorIndexes::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndexes);
+		out->armor[ArmorIndexes::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndexes);
 	}
 
 	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<CustomizationData>

@@ -1,7 +1,0 @@
-Summary:
-Specifies a waveform-audio output device capable of playing the given format.
-
-Remarks:
-This value represent a waveform-audio output device capable of playing the given format.
-This value is used by <LINK libZPlayVB.ZPlay.SetWaveOutDevice, SetWaveOutDevice>. 
-

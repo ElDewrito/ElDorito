@@ -5,9 +5,7 @@
 
 #include <cstdarg>
 #include <fstream>
-#include "../Modules/DebugLogging.h"
-
-extern std::shared_ptr<DebugLogging> debugLogging;
+#include "../Modules/ModuleGame.h"
 
 namespace
 {
@@ -34,57 +32,36 @@ namespace Patches
 	{
 		void EnableNetworkLog(bool enable)
 		{
-			if (enable)
-				NetworkLogHook.Apply();
-			else
-				NetworkLogHook.Reset();
+			NetworkLogHook.Apply(!enable);
 		}
 
 		void EnableSslLog(bool enable)
 		{
-			if (enable)
-				SSLHook.Apply();
-			else
-				SSLHook.Reset();
+			SSLHook.Apply(!enable);
 		}
 
 		void EnableUiLog(bool enable)
 		{
-			if (enable)
-				UIHook.Apply();
-			else
-				UIHook.Reset();
+			UIHook.Apply(!enable);
 		}
 
 		void EnableGame1Log(bool enable)
 		{
-			if (enable)
-				Game1Hook.Apply();
-			else
-				Game1Hook.Reset();
+			Game1Hook.Apply(!enable);
 		}
 
 		void EnableGame2Log(bool enable)
 		{
-			if (enable)
-			{
-				DebugLogFloatHook.Apply();
-				DebugLogIntHook.Apply();
-				DebugLogStringHook.Apply();
-			}
-			else
-			{
-				DebugLogFloatHook.Reset();
-				DebugLogIntHook.Reset();
-				DebugLogStringHook.Reset();
-			}
+			DebugLogFloatHook.Apply(!enable);
+			DebugLogIntHook.Apply(!enable);
+			DebugLogStringHook.Apply(!enable);
 		}
 	}
 }
 
 namespace
 {
-	TODO("Move dbglog into a header that the whole project can use")
+	// TODO: Move dbglog into a header that the whole project can use
 	void dbglog(const char* module, char* format, ...)
 	{
 		char* backupFormat = "";
@@ -101,13 +78,13 @@ namespace
 		vsprintf_s(buff, 4096, format, ap);
 		va_end(ap);
 
-		for (auto filter : debugLogging->FiltersExclude)
+		for (auto filter : Modules::ModuleGame::Instance().FiltersExclude)
 		{
 			if (strstr(buff, filter.c_str()) != NULL)
 				return; // string contains an excluded string
 		}
 
-		for (auto filter : debugLogging->FiltersInclude)
+		for (auto filter : Modules::ModuleGame::Instance().FiltersInclude)
 		{
 			if (strstr(buff, filter.c_str()) == NULL)
 				return; // string doesn't contain an included string
@@ -134,24 +111,11 @@ namespace
 		dbglog("Debug", "%s: %f", name, value);
 	}
 
-	bool string_replace(std::string& str, const std::string& from, const std::string& to)
-	{
-		size_t start_pos = str.find(from);
-		bool found = false;
-		while (start_pos != std::string::npos)
-		{
-			str.replace(start_pos, from.length(), to);
-			found = true;
-			start_pos = str.find(from);
-		}
-		return found;
-	}
-
 	int networkLogHook(char* format, ...)
 	{
 		// fix strings using broken printf statements
 		std::string formatStr(format);
-		string_replace(formatStr, "%LX", "%llX");
+		Utils::String::ReplaceString(formatStr, "%LX", "%llX");
 
 		char dstBuf[4096];
 		memset(dstBuf, 0, 4096);

@@ -1,5 +1,5 @@
 #include "Assert.h"
-#ifdef _ELDEBUG
+#ifdef _DEBUG
 
 #include <windows.h>
 #include <string>

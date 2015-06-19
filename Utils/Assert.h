@@ -1,5 +1,4 @@
 #pragma once
-#define _ELDEBUG 1
 
 // Used to remove warnings for unused variables
 #define Unused(x) ((void)(x))
@@ -12,7 +11,7 @@ __pragma(warning(disable : 4127)) \
 __pragma(warning(pop))
 
 // Assert Debug Feature
-#ifdef _ELDEBUG
+#ifdef _DEBUG
 
 namespace Utils {
 	enum class FailBehavior : int

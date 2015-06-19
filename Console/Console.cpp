@@ -10,14 +10,14 @@
 
 #include <algorithm>
 
+#include "../CommandMap.h"
+
 #define ps1beg "\xAF["
 #define ps1end "]\xAE"
 
 namespace Console
 {
-	Console::Console()
-		:
-		CurArg(0)
+	Console::Console() : CurArg(0)
 	{
 		ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleOutputCP(437);
@@ -30,18 +30,11 @@ namespace Console
 
 		SetTextColor(Color::Info);
 		CurCommand.push_back("");
-
-		// Meta commands pushed with null deleter so console doesn't delete its self.
-		auto NullDeleter = [](Console*){};
-
-		PushCommand("help", std::shared_ptr<Console>(this, NullDeleter));
-		PushCommand("history", std::shared_ptr<Console>(this, NullDeleter));
-		PushCommand("quit", std::shared_ptr<Console>(this, NullDeleter));
 	}
 
 	Console::~Console()
 	{
-		Commands.clear();
+		//Commands.clear();
 	}
 
 	void Console::SetTextColor(uint8_t Color)
@@ -67,12 +60,12 @@ namespace Console
 
 				std::vector<std::string> Suggestions;
 
-				for( auto Cmd : Commands )
+				for (auto Cmd : Modules::CommandMap::Instance().Commands)
 				{
-					if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
-					{
-						Suggestions.push_back((Cmd.first));
-					}
+					if (!_stricmp(CurCommand[0].c_str(), Cmd.Name.substr(0, CurCommand[0].length()).c_str()))
+						Suggestions.push_back(Cmd.Name);
+					else if (!_stricmp(CurCommand[0].c_str(), Cmd.ShortName.substr(0, CurCommand[0].length()).c_str()))
+						Suggestions.push_back(Cmd.ShortName);
 				}
 
 				if( Suggestions.size() )
@@ -85,9 +78,18 @@ namespace Console
 			}
 			else
 			{
-				if( Commands.count(CurCommand.front()) )
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
 				{
-					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
 				}
 			}
 		}
@@ -101,9 +103,19 @@ namespace Console
 					CurArg++;
 					CurCommand.push_back("");
 				}
-				if( Commands.count(CurCommand.front()) )
+
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
 				{
-					Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
 				}
 			}
 		}
@@ -131,12 +143,12 @@ namespace Console
 
 					std::vector<std::string> Suggestions;
 
-					for( auto Cmd : Commands )
+					for (auto Cmd : Modules::CommandMap::Instance().Commands)
 					{
-						if( !CurCommand[0].compare(0, CurCommand[0].length(), (Cmd.first), 0, CurCommand[0].length()) )
-						{
-							Suggestions.push_back((Cmd.first));
-						}
+						if (!_stricmp(CurCommand[0].c_str(), Cmd.Name.substr(0, CurCommand[0].length()).c_str()))
+							Suggestions.push_back(Cmd.Name);
+						else if (!_stricmp(CurCommand[0].c_str(), Cmd.ShortName.substr(0, CurCommand[0].length()).c_str()))
+							Suggestions.push_back(Cmd.ShortName);
 					}
 
 					if( Suggestions.size() )
@@ -149,9 +161,21 @@ namespace Console
 				}
 				else
 				{
-					if( !CurCommand.empty() && Commands.count(CurCommand.front()) )
+					if (!CurCommand.empty())
 					{
-						Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
+						auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+						if (cmd)
+						{
+							if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+								Suggestion.clear();
+							else
+							{
+								if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+									Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+								else
+									Suggestion.clear();
+							}
+						}
 					}
 				}
 			}
@@ -183,8 +207,9 @@ namespace Console
 
 				if (!CurCommand.empty())
 				{
+					std::cout << Modules::CommandMap::Instance().ExecuteCommand(CurCommand) << std::endl;
 					// Run command
-					if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
+					/*if (Commands.count(CurCommand[0]) && Commands[CurCommand[0]])
 					{
 						if (!Commands[CurCommand[0]]->Run(CurCommand))
 						{
@@ -200,7 +225,7 @@ namespace Console
 						SetTextColor(Color::Error);
 						std::cout << "Unknown Command: " << CurCommand[0];
 						SetTextColor(Color::Info);
-					}
+					}*/
 				}
 			}
 
@@ -222,9 +247,22 @@ namespace Console
 				Suggestion.clear();
 				CurArg++;
 				CurCommand.push_back("");
-				Suggestion = Commands[CurCommand.front()]->Suggest(CurCommand);
-				// Todo: Allow suggestions with spaces.
-				// Simulate keypress with HandleInput
+
+				auto cmd = Modules::CommandMap::Instance().FindCommand(CurCommand.front());
+				if (cmd)
+				{
+					if (cmd->Type == Modules::CommandType::eCommandTypeCommand)
+						Suggestion.clear();
+					else
+					{
+						if (CurCommand.back().length() <= 0 || !CurCommand.back().compare(0, CurCommand.back().length(), cmd->ValueString, 0, CurCommand.back().length()))
+							Suggestion = cmd->ValueString; // this gets set even if it's an int/float variable, so no worries
+						else
+							Suggestion.clear();
+					}
+				}
+
+				// Todo: Simulate keypress with HandleInput
 			}
 		}
 		else if( KeyCode == 22 ) // Ctrl+v
@@ -317,98 +355,6 @@ namespace Console
 		}
 		std::cout.flush();
 	}
-
-	void Console::PushCommand(const std::string& CommandName, std::shared_ptr<Command> Command)
-	{
-		Commands[CommandName] = Command;
-	}
-	void Console::PopCommand(const std::string& CommandName)
-	{
-		if( Commands.count(CommandName) )
-		{
-			Commands.erase(CommandName);
-		}
-	}
-
-	bool Console::Run(const std::vector<std::string>& Args)
-	{
-		if( !Args.empty() )
-		{
-			if( !Args.front().compare("help") )
-			{
-				if( Args.size() >= 2 )
-				{
-					if( Commands.count(Args[1]) )
-					{
-						if( Args.size() == 3 )
-						{
-							std::cout << Commands[Args[1]]->Info() << std::endl;
-						}
-						else
-						{
-							std::cout << Commands[Args[1]]->Info(Args.back()) << std::endl;
-						}
-					}
-					else
-					{
-						SetTextColor(Error);
-						std::cout << "Command: " << Args[1] << "not found." << std::endl;
-					}
-				}
-				else
-				{
-					// Show all command info
-					for( auto Command : Commands )
-					{
-						std::string Padded(Command.first);
-						Padded.resize(ConsoleWidth >> 1, '\xC4');
-						SetTextColor(Color::Info);
-						std::cout << Padded << std::endl;
-						SetTextColor(Color::Info^Color::Bright);
-						std::cout << Command.second->Info(Command.first) << std::endl;
-					}
-				}
-			}
-			else if( !Args.front().compare("history") )
-			{
-				SetTextColor(Color::Info);
-				for( auto Command : PrevCommands )
-				{
-					for( auto Arg : Command )
-					{
-						std::cout << Arg << ' ';
-					}
-					std::cout << std::endl;
-				}
-			}
-			else if( !Args.front().compare("quit") )
-			{
-				std::exit(0);
-			}
-		}
-		return true;
-	}
-
-	std::string Console::Info(const std::string& Topic) const
-	{
-		if( !Topic.empty() )
-		{
-			if( !Topic.compare("help") )
-			{
-				return "Prints help for all commands\n"
-					"Type help (command name) (topic) to get help on a specific command";
-			}
-			else if( !Topic.compare("history") )
-			{
-				return "Displays all previously entered commands";
-			}
-			else if( !Topic.compare("quit") )
-			{
-				return "Quits the application";
-			}
-		}
-		return "";
-	};
 
 	bool AllocateConsole(const std::string& ConsoleTitle)
 	{

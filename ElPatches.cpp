@@ -13,7 +13,7 @@
 #include "Patches\ContentItems.h"
 #include "Patches\PlayerUid.h"
 
-#include "ElPreferences.h"
+#include "Modules\ModuleCamera.h"
 
 namespace
 {
@@ -41,7 +41,7 @@ namespace Patches
 	{
 		Ui::ApplyMapNameFixes();
 		Network::StartRemoteConsole();
-		if (ElPreferences::Instance().getCrosshairCentered())
+		if (Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt)
 			Patches::Ui::EnableCenteredCrosshairPatch(true);
 	}
 
@@ -50,9 +50,16 @@ namespace Patches
 		Armor::RefreshUiPlayer();
 	}
 
-	void PreferencesUpdated()
+	void Tick()
 	{
-		Armor::RefreshUiPlayer();
+		Patches::Ui::Tick();
+
+		static bool appliedFirstTickPatches = false;
+		if (appliedFirstTickPatches)
+			return;
+
+		ApplyOnFirstTick();
+		appliedFirstTickPatches = true;
 	}
 }
 
