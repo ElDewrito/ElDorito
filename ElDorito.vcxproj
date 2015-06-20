@@ -64,7 +64,8 @@
       </PrecompiledHeaderFile>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
-      <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
@@ -95,7 +96,8 @@
       </PrecompiledHeaderFile>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
-      <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
