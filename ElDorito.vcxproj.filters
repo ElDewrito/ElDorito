@@ -96,9 +96,6 @@
     <ClCompile Include="Patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Precompile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Console\Console.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
@@ -200,14 +197,8 @@
     <ClInclude Include="BlamTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ElMacros.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\Assert.h">
       <Filter>Header Files\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Precompile.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Utils.h">
       <Filter>Header Files</Filter>

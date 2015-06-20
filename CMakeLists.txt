@@ -93,7 +93,6 @@ set(SOURCE_FILES
     ElDorito.cpp
     ElDorito.h
     ElDoritoConfig.h
-    ElMacros.h
     ElModules.cpp
     ElModules.h
     ElPatches.cpp
@@ -103,8 +102,6 @@ set(SOURCE_FILES
     Patch.h
     Pointer.cpp
     Pointer.h
-    Precompile.cpp
-    Precompile.h
     resource.h
     ElDorito.rc
     ElDorito.def)

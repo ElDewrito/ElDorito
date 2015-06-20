@@ -59,8 +59,9 @@
       <CompileAsManaged>false</CompileAsManaged>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
       <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
@@ -89,8 +90,9 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>Precompile.h</PrecompiledHeaderFile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
       <ForcedIncludeFiles>Precompile.h</ForcedIncludeFiles>
@@ -135,10 +137,6 @@
     <ClCompile Include="Patches\Scoreboard.cpp" />
     <ClCompile Include="Patches\VirtualKeyboard.cpp" />
     <ClCompile Include="Pointer.cpp" />
-    <ClCompile Include="Precompile.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Deploy|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Patches\Ui.cpp" />
     <ClCompile Include="ThirdParty\HttpRequest.cpp" />
     <ClCompile Include="ThirdParty\SHA256.cpp" />
@@ -152,7 +150,6 @@
     <ClInclude Include="Console\Console.h" />
     <ClInclude Include="ElDorito.h" />
     <ClInclude Include="ElDoritoConfig.h" />
-    <ClInclude Include="ElMacros.h" />
     <ClInclude Include="Modules\ModuleCamera.h" />
     <ClInclude Include="CommandMap.h" />
     <ClInclude Include="Modules\ModuleGame.h" />
@@ -175,7 +172,6 @@
     <ClInclude Include="Patches\Scoreboard.h" />
     <ClInclude Include="Patches\VirtualKeyboard.h" />
     <ClInclude Include="Pointer.h" />
-    <ClInclude Include="Precompile.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />
     <ClInclude Include="ThirdParty\dirent.h" />
