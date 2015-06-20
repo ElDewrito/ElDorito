@@ -107,7 +107,11 @@ public:
 	{
 		DWORD temp;
 		DWORD temp2;
-		VirtualProtect(_Pointer, sizeof(T), PAGE_READWRITE, &temp);
+		if (!VirtualProtect(_Pointer, sizeof(T), PAGE_READWRITE, &temp))
+		{
+			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			return;
+		}
 		*((T*)_Pointer) = value;
 		VirtualProtect(_Pointer, sizeof(T), temp, &temp2);
 	}
@@ -116,7 +120,11 @@ public:
 	{
 		DWORD temp;
 		DWORD temp2;
-		VirtualProtect(_Pointer, size, PAGE_READWRITE, &temp);
+		if (!VirtualProtect(_Pointer, size, PAGE_READWRITE, &temp))
+		{
+			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			return;
+		}
 		memcpy(_Pointer, data, size);
 		VirtualProtect(_Pointer, size, temp, &temp2);
 	}
@@ -127,7 +135,11 @@ public:
 		DWORD temp2;
 		uint8_t tempJMP[5] = { 0xE8, 0x90, 0x90, 0x90, 0x90 };
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
-		VirtualProtect(_Pointer, 5, PAGE_READWRITE, &temp);
+		if (!VirtualProtect(_Pointer, 5, PAGE_READWRITE, &temp))
+		{
+			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			return;
+		}
 		memcpy(&tempJMP[1], &JMPSize, 4);
 		memcpy(_Pointer, tempJMP, 5);
 		VirtualProtect(_Pointer, 5, temp, &temp2);
@@ -141,7 +153,11 @@ public:
 		uint8_t tempJE[6] = { 0x0F, 0x84, 0x90, 0x90, 0x90, 0x90 };
 		uint32_t patchSize = (jmpFlags & HookFlags::IsJmpIfEqual) ? 6 : 5;
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - patchSize);
-		VirtualProtect(_Pointer, patchSize, PAGE_READWRITE, &temp);
+		if(!VirtualProtect(_Pointer, patchSize, PAGE_READWRITE, &temp))
+		{
+			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			return;
+		}
 		if (jmpFlags & HookFlags::IsJmpIfEqual)
 		{
 			memcpy(&tempJE[2], &JMPSize, 4);

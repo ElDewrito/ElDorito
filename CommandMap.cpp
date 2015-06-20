@@ -396,6 +396,9 @@ namespace
 		argv = (PCHAR*)GlobalAlloc(GMEM_FIXED,
 			i + (len + 2)*sizeof(CHAR));
 
+		if (!argv)
+			return 0;
+
 		_argv = (PCHAR)(((PUCHAR)argv) + i);
 
 		argc = 0;

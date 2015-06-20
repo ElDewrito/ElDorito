@@ -10,52 +10,51 @@ namespace Utils
 	{
 		DWORD GetVersionInt()
 		{
-			DWORD retVer;
+			DWORD retVer = 0;
 
 			HRSRC hVersion = FindResource(s_versionModule,
 				MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-			if (hVersion != NULL)
+			if (!hVersion)
+				return retVer;
+
+			HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
+			if (!hGlobal)
+				return retVer;
+
+			LPVOID versionInfo = LockResource(hGlobal);
+			if (!versionInfo)
+				return retVer;
+
+			DWORD versionSize = SizeofResource(s_versionModule, hVersion);
+			LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
+			if (!versionCopy)
+				return retVer;
+
+			CopyMemory(versionCopy, versionInfo, versionSize);
+			FreeResource(versionInfo);
+
+			DWORD vLen;
+			BOOL retVal;
+
+			LPVOID retbuf = NULL;
+
+			retVal = VerQueryValue(versionCopy, "\\", &retbuf, (UINT *)&vLen);
+			if (retVal && vLen == sizeof(VS_FIXEDFILEINFO))
 			{
-				HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
-				if (hGlobal != NULL)
-				{
-					LPVOID versionInfo = LockResource(hGlobal);
+				VS_FIXEDFILEINFO* ffInfo = (VS_FIXEDFILEINFO*)retbuf;
+				DWORD majorVer = HIWORD(ffInfo->dwFileVersionMS);
+				DWORD minorVer = LOWORD(ffInfo->dwFileVersionMS);
+				DWORD buildNum = HIWORD(ffInfo->dwFileVersionLS);
+				DWORD buildQfe = LOWORD(ffInfo->dwFileVersionLS);
 
-					if (versionInfo != NULL)
-					{
-						DWORD versionSize = SizeofResource(s_versionModule, hVersion);
-						LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
-						CopyMemory(versionCopy, versionInfo, versionSize);
-						FreeResource(versionInfo);
-
-						DWORD vLen;
-						BOOL retVal;
-
-						LPVOID retbuf = NULL;
-
-						retVal = VerQueryValue(versionCopy, "\\", &retbuf, (UINT *)&vLen);
-						if (retVal && vLen == sizeof(VS_FIXEDFILEINFO))
-						{
-							VS_FIXEDFILEINFO* ffInfo = (VS_FIXEDFILEINFO*)retbuf;
-							DWORD majorVer = HIWORD(ffInfo->dwFileVersionMS);
-							DWORD minorVer = LOWORD(ffInfo->dwFileVersionMS);
-							DWORD buildNum = HIWORD(ffInfo->dwFileVersionLS);
-							DWORD buildQfe = LOWORD(ffInfo->dwFileVersionLS);
-
-							retVer =
-								((majorVer & 0xFF) << 24) |
-								((minorVer & 0xFF) << 16) |
-								((buildNum & 0xFF) << 8) |
-								(buildQfe & 0xFF);
-						}
-
-						LocalFree(versionCopy);
-					}
-				}
-
-				UnlockResource(hGlobal);
-				FreeResource(hGlobal);
+				retVer =
+					((majorVer & 0xFF) << 24) |
+					((minorVer & 0xFF) << 16) |
+					((buildNum & 0xFF) << 8) |
+					(buildQfe & 0xFF);
 			}
+
+			LocalFree(versionCopy);
 
 			return retVer;
 		}
@@ -85,54 +84,53 @@ namespace Utils
 
 			HRSRC hVersion = FindResource(s_versionModule,
 				MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-			if( hVersion != NULL )
+			if (!hVersion)
+				return csRet;
+
+			HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
+			if (!hGlobal)
+				return csRet;
+
+			LPVOID versionInfo = LockResource(hGlobal);
+			if (!versionInfo)
+				return csRet;
+
+			DWORD versionSize = SizeofResource(s_versionModule, hVersion);
+			LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
+			if (!versionCopy)
+				return csRet;
+
+			CopyMemory(versionCopy, versionInfo, versionSize);
+			FreeResource(versionInfo);
+
+			DWORD vLen, langD;
+			BOOL retVal;
+
+			LPVOID retbuf = NULL;
+
+			static char fileEntry[256];
+
+			retVal = VerQueryValue(versionCopy, "\\VarFileInfo\\Translation", &retbuf, (UINT *)&vLen);
+			if (retVal && vLen == 4)
 			{
-				HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
-				if( hGlobal != NULL )
-				{
-					LPVOID versionInfo = LockResource(hGlobal);
-
-					if( versionInfo != NULL )
-					{
-						DWORD versionSize = SizeofResource(s_versionModule, hVersion);
-						LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
-						CopyMemory(versionCopy, versionInfo, versionSize);
-						FreeResource(versionInfo);
-
-						DWORD vLen, langD;
-						BOOL retVal;
-
-						LPVOID retbuf = NULL;
-
-						static char fileEntry[256];
-
-						retVal = VerQueryValue(versionCopy, "\\VarFileInfo\\Translation", &retbuf, (UINT *)&vLen);
-						if( retVal && vLen == 4 )
-						{
-							memcpy(&langD, retbuf, 4);
-							sprintf_s(fileEntry, "\\StringFileInfo\\%02X%02X%02X%02X\\%s",
-								(langD & 0xff00) >> 8, langD & 0xff, (langD & 0xff000000) >> 24,
-								(langD & 0xff0000) >> 16, csEntry.c_str());
-						}
-						else
-						{
-							unsigned long lang = GetUserDefaultLangID();
-							sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s", lang, csEntry.c_str());
-						}
-
-						if( VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen) )
-						{
-							strcpy_s(fileEntry, (const char*)retbuf);
-							csRet = fileEntry;
-						}
-
-						LocalFree(versionCopy);
-					}
-				}
-
-				UnlockResource(hGlobal);
-				FreeResource(hGlobal);
+				memcpy(&langD, retbuf, 4);
+				sprintf_s(fileEntry, "\\StringFileInfo\\%02X%02X%02X%02X\\%s",
+					(langD & 0xff00) >> 8, langD & 0xff, (langD & 0xff000000) >> 24,
+					(langD & 0xff0000) >> 16, csEntry.c_str());
 			}
+			else
+			{
+				unsigned long lang = GetUserDefaultLangID();
+				sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s", lang, csEntry.c_str());
+			}
+
+			if (VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen))
+			{
+				strcpy_s(fileEntry, (const char*)retbuf);
+				csRet = fileEntry;
+			}
+
+			LocalFree(versionCopy);
 
 			return csRet;
 		}

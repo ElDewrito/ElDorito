@@ -103,10 +103,15 @@ BOOL ExitInstance()
 	return true;
 }
 
-// TODO: Change the GetAdaptersInfo export because we don't use an iphlpapi proxy anymore
+// TODO: remove this export, removing it needs us to use a new mtndew-enabled eldorado.exe though
 DWORD GetAdaptersInfo(PIP_ADAPTER_INFO pAdapterInfo, PULONG pOutBufLen)
 {
 	return 0;
+}
+
+int GetEDVersion()
+{
+	return Utils::Version::GetVersionInt();
 }
 
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD Reason, LPVOID Misc)

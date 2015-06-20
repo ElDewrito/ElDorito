@@ -40,16 +40,7 @@ namespace
 		if (statusBool)
 			status = "hidden.";
 
-		// TODO: Fix this to use a Patch and maybe save it to preferences
-		DWORD temp;
-		VirtualProtect(Pointer(0x016B5A5C), 4, PAGE_READWRITE, &temp);
-
-		if (statusBool)
-			Pointer(0x016B5A5C).Write<float>(3.14f);
-		else
-			Pointer(0x016B5A5C).Write<uint32_t>(0x3F83DDE2);
-
-		VirtualProtect(Pointer(0x016B5A5C), 4, temp, NULL);
+		Modules::ModuleCamera::Instance().HideHudPatch.Apply(!statusBool);
 
 		returnInfo = "HUD " + status;
 		return true;
@@ -111,7 +102,8 @@ namespace Modules
 		Debug2CameraPatch(0x191525, 0x90, 6),
 		ThirdPersonPatch(0x328640, 0x90, 6),
 		FirstPersonPatch(0x25F420, 0x90, 6),
-		DeadPersonPatch(0x329E6F, 0x90, 6)
+		DeadPersonPatch(0x329E6F, 0x90, 6),
+		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }) // 3.14f in hex form
 	{
 		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
 		VarCameraCrosshair->ValueIntMin = 0;

@@ -89,7 +89,7 @@ void ElDorito::Initialize()
 	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 
 	std::string buildVersion = Utils::Version::GetVersionString();
-	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " @ " << __TIME__ << std::endl;
+	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " " << __TIME__ << std::endl;
 	Terminal.SetTextColor(Console::Input);
 
 	std::srand(GetTickCount());

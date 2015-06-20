@@ -22,6 +22,8 @@ namespace Modules
 		Patch FirstPersonPatch;
 		Patch DeadPersonPatch;
 
+		Patch HideHudPatch;
+
 		ModuleCamera();
 
 		//std::unordered_map<std::string, CameraType> CameraTypeStrings;

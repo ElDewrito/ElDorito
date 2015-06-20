@@ -381,7 +381,7 @@ namespace Console
 		*stdout = *fOut;
 		setvbuf(stdout, NULL, _IONBF, 0);
 
-		CONSOLE_SCREEN_BUFFER_INFOEX ConsoleInfo;
+		CONSOLE_SCREEN_BUFFER_INFOEX ConsoleInfo = {};
 
 		GetConsoleScreenBufferInfoEx(hStd, &ConsoleInfo);
 		ConsoleInfo.dwSize.Y = 25;

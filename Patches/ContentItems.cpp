@@ -88,7 +88,7 @@ namespace
 		uint8_t fileData[0xF0];
 
 		FILE* file;
-		if (_wfopen_s(&file, itemPath, L"rb") != 0)
+		if (_wfopen_s(&file, itemPath, L"rb") != 0 || !file)
 			return false;
 
 		fseek(file, 0, SEEK_END);

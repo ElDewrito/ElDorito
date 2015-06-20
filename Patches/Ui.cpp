@@ -90,14 +90,25 @@ namespace Patches
 			// added side effect: analog stick left/right can also navigate through menus
 			DWORD temp;
 			DWORD temp2;
-			VirtualProtect(Pointer(0x169EFD8), 4, PAGE_READWRITE, &temp);
-			Pointer(0x169EFD8).Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
-			VirtualProtect(Pointer(0x169EFD8), 4, temp, &temp2);
+			auto writeAddr = Pointer(0x169EFD8);
+			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+				printf("Failed to set protection on memory address 0x%p!", (void*)writeAddr);
+			else
+			{
+				writeAddr.Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
+				VirtualProtect(writeAddr, 4, temp, &temp2);
+			}
 
 			// Hook pause menu vftable button handler, to let us limit the button presses
-			VirtualProtect(Pointer(0x16A0148), 4, PAGE_READWRITE, &temp);
-			Pointer(0x16A0148).Write<uint32_t>((uint32_t)&UI_ButtonPressHandlerHook);
-			VirtualProtect(Pointer(0x16A0148), 4, temp, &temp2);
+			// TODO: fix this, since it doesn't seem to work, even though it should
+			writeAddr = Pointer(0x16A0148);
+			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+				printf("Failed to set protection on memory address 0x%p!", (void*)writeAddr);
+			else
+			{
+				writeAddr.Write<uint32_t>((uint32_t)&UI_ButtonPressHandlerHook);
+				VirtualProtect(writeAddr, 4, temp, &temp2);
+			}
 
 			// Remove Xbox Live from the network menu
 			Patch::NopFill(Pointer::Base(0x723D85), 0x17);
@@ -141,8 +152,7 @@ namespace Patches
 				Pointer levelNamePtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8);
 				Pointer levelDescPtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8 + 0x40);
 
-				wchar_t levelName[0x21];
-				memset(levelName, 0, sizeof(wchar_t) * 0x21);
+				wchar_t levelName[0x21] = { 0 };
 				levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
 
 				for (uint32_t y = 0; y < sizeof(search) / sizeof(*search); y++)
