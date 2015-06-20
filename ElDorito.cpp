@@ -1,3 +1,4 @@
+#include "Console/GameConsole.h"
 #include "ElDorito.h"
 
 #include <iostream>
@@ -76,68 +77,12 @@ void ElDorito::Initialize()
 	}
 #endif
 
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleOutputCP(437);
-	unsigned int ConsoleWidth = 80;
-	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
-	if (GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf))
-	{
-		ConsoleWidth = ConsoleBuf.dwSize.X;
-	}
-
-	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-
-	std::string buildVersion = Utils::Version::GetVersionString();
-	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " " << __TIME__ << std::endl;
-	Terminal.SetTextColor(Console::Input);
-
-	std::srand(GetTickCount());
-
-	for (size_t k = 0; k < 9; k++)
-	{
-		Terminal.SetTextColor(
-			(std::rand() & 1 ? Console::Red : Console::Green) |
-			std::rand() & 1 * Console::Bright
-			);
-		std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
-	}
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "  " << "\xC0";
-	std::cout << " By #ElDorito@GameSurge" << std::endl;
-
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "Enter \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" or \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help (command)";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" to get started!" << std::endl;
-
-	std::cout << "Current directory: ";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << GetDirectory() << std::endl;
-	Terminal.SetTextColor(Console::Red | Console::Blue);
-	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
-	Terminal.SetTextColor(Console::Info);
-
-	Terminal.PrintLine();
-
-	SetSessionMessage("ElDewrito | Version: " + buildVersion + " | Build Date: " __DATE__);
+	GameConsole::getInstance().pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+	GameConsole::getInstance().pushLineFromGameToUI("Enter /help or /help <command> to get started!");
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
-	// TODO: It may be better to still run console input on a separate thread and use blocking input functions
-	if( _kbhit() )
-	{
-		Terminal.HandleInput(_getch());
-		Terminal.PrintLine();
-	}
-
 	Patches::Tick();
 }
 

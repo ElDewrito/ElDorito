@@ -7,7 +7,6 @@
 #include "Patches\Network.h"
 #include "Patches\Scoreboard.h"
 #include "Patches\Ui.h"
-#include "Patches\VirtualKeyboard.h"
 #include "Patches\Armor.h"
 #include "Patches\RawInput.h"
 #include "Patches\ContentItems.h"
@@ -30,7 +29,6 @@ namespace Patches
 		Network::ApplyAll();
 		Scoreboard::ApplyAll();
 		Ui::ApplyAll();
-		VirtualKeyboard::ApplyAll();
 		Armor::ApplyAll();
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();

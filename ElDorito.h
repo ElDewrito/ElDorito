@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <memory>
 
-#include "Console/Console.h"
 #include "Utils/Utils.h"
 #include "ElModules.h"
 #include "Pointer.h"
@@ -40,7 +39,4 @@ public:
 private:
 	// Thread
 	static size_t MainThreadID;
-
-	// Console
-	Console::Console Terminal;
 };

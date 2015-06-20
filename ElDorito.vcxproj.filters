@@ -96,9 +96,6 @@
     <ClCompile Include="Patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Console\Console.cpp">
-      <Filter>Source Files\Console</Filter>
-    </ClCompile>
     <ClCompile Include="Patches\Logging.cpp">
       <Filter>Source Files\Patches</Filter>
     </ClCompile>
@@ -128,9 +125,6 @@
     </ClCompile>
     <ClCompile Include="ElPatches.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Patches\VirtualKeyboard.cpp">
-      <Filter>Source Files\Patches</Filter>
     </ClCompile>
     <ClCompile Include="Blam\BitStream.cpp">
       <Filter>Source Files\Blam</Filter>
@@ -180,6 +174,18 @@
     <ClCompile Include="ThirdParty\HttpRequest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Console\DirectXHook.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Console\GameConsole.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Console\IRCBackend.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
+    <ClCompile Include="Console\KeyboardHook.cpp">
+      <Filter>Source Files\Console</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -212,9 +218,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Console\Console.h">
-      <Filter>Header Files\Console</Filter>
-    </ClInclude>
     <ClInclude Include="Patches\Logging.h">
       <Filter>Header Files\Patches</Filter>
     </ClInclude>
@@ -235,9 +238,6 @@
     </ClInclude>
     <ClInclude Include="ElPatches.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Patches\VirtualKeyboard.h">
-      <Filter>Header Files\Patches</Filter>
     </ClInclude>
     <ClInclude Include="Blam\BitStream.h">
       <Filter>Header Files\Blam</Filter>
@@ -298,6 +298,18 @@
     </ClInclude>
     <ClInclude Include="ThirdParty\HttpRequest.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\DirectXHook.h">
+      <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\GameConsole.h">
+      <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\IRCBackend.h">
+      <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Console\KeyboardHook.h">
+      <Filter>Header Files\Console</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
