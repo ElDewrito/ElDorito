@@ -7,7 +7,7 @@ _userAgent(userAgent)
 {
 }
 
-BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize)
+BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize)
 {
 	DWORD dwSize;
 	DWORD dwDownloaded;
@@ -20,6 +20,27 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 	responseHeader.resize(0);
 	responseBody.resize(0);
 
+	URL_COMPONENTSW urlComp = {};
+	urlComp.dwStructSize = sizeof(urlComp);
+
+	// Set required component lengths to non-zero so that they are cracked.
+	urlComp.dwSchemeLength = static_cast<DWORD>(-1);
+	urlComp.dwHostNameLength = static_cast<DWORD>(-1);
+	urlComp.dwUrlPathLength = static_cast<DWORD>(-1);
+
+	if (!WinHttpCrackUrl(uri.c_str(), uri.length(), 0, &urlComp))
+		return FALSE;
+
+	std::wstring scheme;
+	std::wstring hostname;
+	std::wstring path;
+	scheme.resize(urlComp.dwSchemeLength);
+	hostname.resize(urlComp.dwHostNameLength);
+	path.resize(urlComp.dwUrlPathLength);
+	memcpy((void*)scheme.data(), urlComp.lpszScheme, urlComp.dwSchemeLength * sizeof(wchar_t));
+	memcpy((void*)hostname.data(), urlComp.lpszHostName, urlComp.dwHostNameLength * sizeof(wchar_t));
+	memcpy((void*)path.data(), urlComp.lpszUrlPath, urlComp.dwUrlPathLength * sizeof(wchar_t));
+	
 	DWORD dwAccessType = WINHTTP_ACCESS_TYPE_DEFAULT_PROXY;
 	LPCWSTR pszProxyW = WINHTTP_NO_PROXY_NAME;
 	LPCWSTR pszProxyBypassW = WINHTTP_NO_PROXY_BYPASS;
@@ -38,7 +59,7 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 			proxy.dwFlags = WINHTTP_AUTOPROXY_AUTO_DETECT;
 			proxy.dwAutoDetectFlags = WINHTTP_AUTO_DETECT_TYPE_DHCP | WINHTTP_AUTO_DETECT_TYPE_DNS_A;
 			proxy.fAutoLogonIfChallenged = true;
-			std::wstring fullUrl = L"http://" + url + L":" + std::to_wstring(port);
+			std::wstring fullUrl = scheme + L"://" + hostname + L":" + std::to_wstring(urlComp.nPort);
 			WINHTTP_PROXY_INFO info;
 			if (WinHttpGetProxyForUrl(hSession, fullUrl.c_str(), &proxy, &info))
 			{
@@ -69,14 +90,14 @@ BOOL HttpRequest::SendRequest(const std::wstring &url, INTERNET_PORT port, const
 		return false;
 	}
 
-	hConnect = WinHttpConnect(hSession, url.c_str(), port, 0);
+	hConnect = WinHttpConnect(hSession, hostname.c_str(), urlComp.nPort, 0);
 	if (!hConnect)
 	{
 		lastError = 80003;
 		return false;
 	}
 
-	hRequest = WinHttpOpenRequest(hConnect, method.c_str(), NULL, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+	hRequest = WinHttpOpenRequest(hConnect, method.c_str(), path.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
 
 	if (!username.empty() || !password.empty())
 	{

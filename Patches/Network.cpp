@@ -35,6 +35,8 @@ namespace Patches
 		SOCKET infoSocket;
 		bool rconSocketOpen = false;
 		bool infoSocketOpen = false;
+		time_t lastAnnounce = 0;
+		const time_t serverContactTimeLimit = 30 + (2 * 60);
 
 		int GetNumPlayers()
 		{
@@ -53,6 +55,18 @@ namespace Patches
 
 		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
+			// TODO: move this somewhere better, it seems fine here though, always announces every "serverContactTimeLimit" seconds even when window isn't focused
+			if (infoSocketOpen && Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt)
+			{
+				time_t curTime;
+				time(&curTime);
+				if (curTime - lastAnnounce > serverContactTimeLimit) // re-announce every "serverContactTimeLimit" seconds
+				{
+					lastAnnounce = curTime;
+					Modules::CommandMap::Instance().ExecuteCommand("Server.Announce");
+				}
+			}
+
 			if (msg != WM_RCON && msg != WM_INFOSERVER)
 			{
 				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -332,6 +346,9 @@ namespace Patches
 			int istrue = 1;
 			setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
 			infoSocketOpen = false;
+			lastAnnounce = 0;
+
+			Modules::CommandMap::Instance().ExecuteCommand("Server.Unannounce");
 
 			return true;
 		}

@@ -12,6 +12,7 @@ namespace Modules
 		Command* VarServerCountdown;
 		Command* VarServerMaxPlayers;
 		Command* VarServerPort;
+		Command* VarServerShouldAnnounce;
 		BYTE SyslinkData[0x176];
 
 		ModuleServer();

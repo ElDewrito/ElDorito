@@ -4,6 +4,8 @@
 
 #include "ModuleServer.h"
 #include <sstream>
+#include <iostream>
+#include <fstream>
 #include "../ElDorito.h"
 #include "../ThirdParty/SHA256.h"
 #include "../ThirdParty/HttpRequest.h"
@@ -39,6 +41,174 @@ namespace
 			return false;
 		}
 
+		return true;
+	}
+
+	// retrieves master server announce endpoints from dewrito.json
+	void GetAnnounceEndpoints(std::vector<std::string>& destVect)
+	{
+		std::string prefix("http://");
+
+		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
+		if (in && in.is_open())
+		{
+			std::string contents;
+			in.seekg(0, std::ios::end);
+			contents.resize((unsigned int)in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&contents[0], contents.size());
+			in.close();
+
+			rapidjson::Document json;
+			if (!json.Parse<0>(contents.c_str()).HasParseError() && json.IsObject())
+			{
+				if (json.HasMember("masterServers"))
+				{
+					auto& mastersArray = json["masterServers"];
+					for (auto it = mastersArray.Begin(); it != mastersArray.End(); it++)
+					{
+						destVect.push_back((*it)["announce"].GetString());
+					}
+				}
+			}
+		}
+	}
+
+	DWORD WINAPI CommandServerAnnounce_Main(LPVOID lpParam)
+	{
+		//std::stringstream ss;
+		std::vector<std::string> announceEndpoints;
+
+		GetAnnounceEndpoints(announceEndpoints);
+
+		for (auto server : announceEndpoints)
+		{
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+			//ss << "Announcing to " << server << "..." << std::endl;
+
+			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", NULL, 0))
+			{
+				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				continue;
+			}
+
+			/* TODO: return below to the user somehow, maybe using a log file
+			// make sure the server replied with 200 OK
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+				ss << "Invalid master server announce response." << std::endl << std::endl;
+				continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+				ss << "Invalid master server announce response." << std::endl << std::endl;
+				continue;
+			}
+
+			// parse the json response
+			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+			rapidjson::Document json;
+			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+			{
+				ss << "Invalid master server JSON response." << std::endl << std::endl;
+				continue;
+			}
+
+			if (!json.HasMember("result"))
+			{
+				ss << "Master server JSON response is missing data." << std::endl << std::endl;
+				continue;
+			}
+
+			auto& result = json["result"];
+			if (result["code"].GetInt() != 0)
+			{
+				ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+				continue;
+			}
+
+			ss << "Announce OK" << std::endl << std::endl;*/
+		}
+
+		return true;
+	}
+
+	DWORD WINAPI CommandServerUnannounce_Main(LPVOID lpParam)
+	{
+		//std::stringstream ss;
+		std::vector<std::string> announceEndpoints;
+
+		GetAnnounceEndpoints(announceEndpoints);
+
+		for (auto server : announceEndpoints)
+		{
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+			//ss << "Unannouncing to " << server << "..." << std::endl;
+
+			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", NULL, 0))
+			{
+				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				continue;
+			}
+
+			/* TODO: return below to the user somehow, maybe using a log file
+			// make sure the server replied with 200 OK
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+			ss << "Invalid master server unannounce response." << std::endl << std::endl;
+			continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+			ss << "Invalid master server unannounce response." << std::endl << std::endl;
+			continue;
+			}
+
+			// parse the json response
+			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+			rapidjson::Document json;
+			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+			{
+			ss << "Invalid master server JSON response." << std::endl << std::endl;
+			continue;
+			}
+
+			if (!json.HasMember("result"))
+			{
+			ss << "Master server JSON response is missing data." << std::endl << std::endl;
+			continue;
+			}
+
+			auto& result = json["result"];
+			if (result["code"].GetInt() != 0)
+			{
+			ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+			continue;
+			}
+
+			ss << "Unannounce OK" << std::endl << std::endl;*/
+		}
+
+		return true;
+	}
+
+	bool CommandServerAnnounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto thread = CreateThread(NULL, 0, CommandServerAnnounce_Main, (LPVOID)&Arguments, 0, NULL);
+		returnInfo = "Announcing to master servers...";
+		return true;
+	}
+
+	bool CommandServerUnannounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto thread = CreateThread(NULL, 0, CommandServerUnannounce_Main, (LPVOID)&Arguments, 0, NULL);
+		returnInfo = "Unannouncing to master servers...";
 		return true;
 	}
 
@@ -115,7 +285,7 @@ namespace
 			passwordStr = Utils::String::WidenString(password);
 		}
 
-		if (!req.SendRequest(Utils::String::WidenString(host), httpPort, L"GET", usernameStr, passwordStr, NULL, 0))
+		if (!req.SendRequest(Utils::String::WidenString("http://" + host + ":" + std::to_string(httpPort) + "/"), L"GET", usernameStr, passwordStr, NULL, 0))
 		{
 			returnInfo = "Unable to connect to server. (error: " + std::to_string(req.lastError) + "/" + std::to_string(GetLastError()) + ")";
 			return false;
@@ -236,6 +406,12 @@ namespace Modules
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
 
+		VarServerShouldAnnounce = AddVariableInt("ShouldAnnounce", "should_announce", "Controls whether the server will be announced to the master servers", eCommandFlagsArchived, 1);
+		VarServerShouldAnnounce->ValueIntMin = 0;
+		VarServerShouldAnnounce->ValueIntMax = 1;
+
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsNone, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
+		AddCommand("Announce", "announce", "Announces this server to the master servers", eCommandFlagsNone, CommandServerAnnounce);
+		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsNone, CommandServerUnannounce);
 	}
 }
