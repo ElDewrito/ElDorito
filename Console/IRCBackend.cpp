@@ -1,8 +1,9 @@
 #include "IRCBackend.h"
+#include <algorithm>
 
 IRCBackend::IRCBackend(GameConsole* gameConsoleInstance) : gameConsoleInstance(gameConsoleInstance), server("irc.snoonet.org"), channel("#haloonline")
 {
-	boost::algorithm::to_lower(channel);
+	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
 
 	if (initIRCChat())
 	{
@@ -159,7 +160,7 @@ bool IRCBackend::receivedPING()
 
 bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace)
 {
-	boost::algorithm::to_lower(bufferSplitBySpace.at(2));
+	std::transform(bufferSplitBySpace.at(2).begin(), bufferSplitBySpace.at(2).end(), bufferSplitBySpace.at(2).begin(), ::tolower);
 	return strncmp(bufferSplitBySpace.at(2).c_str(), channel.c_str(), channel.length()) == 0;
 }
 

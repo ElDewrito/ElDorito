@@ -23,8 +23,6 @@ public:
 	void Initialize();
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
-	void SetSessionMessage(const std::string& Message);
-
 	static void SetMainThreadID(size_t ThreadID)
 	{
 		MainThreadID = ThreadID;
@@ -37,6 +35,10 @@ public:
 	static Pointer GetMainTls(size_t Offset = 0);
 
 private:
-	// Thread
-	static size_t MainThreadID;
+	static size_t MainThreadID; // Thread
+	bool d3d9Loaded = false;
+	bool consoleLoaded = false;
+	DWORD d3d9InitTime = 0;
+
+	void SetSessionMessage(const std::string& Message);
 };

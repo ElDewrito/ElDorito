@@ -4,7 +4,6 @@
 #include "KeyboardHook.h"
 #include "IRCBackend.h"
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
 
 class GameConsole
 {

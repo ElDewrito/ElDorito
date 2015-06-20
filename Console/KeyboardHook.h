@@ -12,12 +12,9 @@ class GameConsole;
 class KeyboardHook
 {
 private:
-	GameConsole* gameConsoleInstance{0};
-	static KeyboardHook* thisInstance;
-	HHOOK ourHookedFunctionPtr;
-
+	static HHOOK ourHookedFunctionPtr;
 	static LRESULT __stdcall hookCallback(int nCode, WPARAM wParam, LPARAM lParam);
-	void setHook();
+
 public:
-	KeyboardHook(GameConsole* gameConsoleInstance);
+	static void setHook();
 };

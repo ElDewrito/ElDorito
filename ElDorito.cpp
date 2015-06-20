@@ -76,14 +76,26 @@ void ElDorito::Initialize()
 		TerminateProcess(GetCurrentProcess(), 0);
 	}
 #endif
-
-	GameConsole::getInstance().pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
-	GameConsole::getInstance().pushLineFromGameToUI("Enter /help or /help <command> to get started!");
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
 	Patches::Tick();
+
+	if (!d3d9Loaded && GetModuleHandle("d3d9.dll"))
+	{
+		d3d9InitTime = GetTickCount();
+		d3d9Loaded = true;
+	}
+
+	if (!consoleLoaded && d3d9Loaded)
+	{
+		if (GetTickCount() - d3d9InitTime > 10000)
+		{
+			consoleLoaded = true;
+			GameConsole::getInstance(); // initialize console
+		}
+	}
 }
 
 namespace

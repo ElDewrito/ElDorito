@@ -1,4 +1,5 @@
 #include "GameConsole.h"
+#include "../Utils/VersionInfo.h"
 
 // TODO: why does pressing shift or caps lock break keyboard input?
 // TODO: why is all input in capital letters?
@@ -17,14 +18,12 @@ GameConsole::GameConsole()
 	}
 
 	initPlayerName();
-	DirectXHook directXHook(this);
-	KeyboardHook hookKeyboard(this);
-	IRCBackend ircBackEnd(this);
+	DirectXHook::hookDirectX();
+	KeyboardHook::setHook();
+	// IRCBackend ircBackEnd(this); // TODO: this needs to be a in a separate thread
 
-	while (true)
-	{
-		Sleep(60000); // TODO: remove; the reason I have this is because I don't want the items to be deleted from the stack because we have static hooks that access these instances
-	}
+	pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+	pushLineFromGameToUI("Enter /help or /help <command> to get started!");
 }
 
 bool GameConsole::isConsoleShown() {
@@ -113,7 +112,7 @@ std::string GameConsole::getInputLine()
 
 void GameConsole::pushLineFromKeyboardToGame(std::string line)
 {
-	if (boost::algorithm::starts_with(line, "/"))
+	if (line.find("/") == 0)
 	{
 		pushLineFromGameToUI(line);
 		// TODO: sendToElDewrito();

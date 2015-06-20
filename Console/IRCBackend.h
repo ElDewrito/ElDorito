@@ -3,7 +3,6 @@
 #include <ws2tcpip.h>
 #include <sstream>
 #include <vector>
-#include <boost/algorithm/string.hpp>
 
 #pragma comment(lib,"ws2_32.lib")
 

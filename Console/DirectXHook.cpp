@@ -1,26 +1,22 @@
 #include "DirectXHook.h"
 
-DirectXHook* DirectXHook::thisInstance = nullptr;
+uint32_t* DirectXHook::horizontalRes = 0;
+uint32_t* DirectXHook::verticalRes = 0;
 
-DirectXHook::DirectXHook(GameConsole* gameConsoleInstance) : gameConsoleInstance(gameConsoleInstance)
-{
-	thisInstance = this;
-	if (!hookDirectX())
-	{
-		OutputDebugString("DirectX Hook for console failed.");
-	}
-}
+LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
+LPD3DXFONT DirectXHook::dxFont = 0;
+HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
-	thisInstance->pDevice = device;
-	thisInstance->drawChatInterface();
-	return (*thisInstance->origEndScenePtr)(device);
+	DirectXHook::pDevice = device;
+	DirectXHook::drawChatInterface();
+	return (*DirectXHook::origEndScenePtr)(device);
 }
 
 void DirectXHook::drawChatInterface() // TODO: get rid of fixed offsets so that it scales better on higher/lower resolutions
 {
-	if (gameConsoleInstance->getMsSinceLastConsoleOpen() > 10000 && !gameConsoleInstance->isConsoleShown())
+	if (GameConsole::getInstance().getMsSinceLastConsoleOpen() > 10000 && !GameConsole::getInstance().isConsoleShown())
 	{
 		return;
 	}
@@ -36,23 +32,23 @@ void DirectXHook::drawChatInterface() // TODO: get rid of fixed offsets so that 
 		return;
 	}
 
-	for (int i = 0; i < gameConsoleInstance->getNumOfLines(); i++)
+	for (int i = 0; i < GameConsole::getInstance().getNumOfLines(); i++)
 	{
-		drawText(x + 5, y, COLOR_WHITE, (char*)gameConsoleInstance->at(i).c_str());
+		drawText(x + 5, y, COLOR_WHITE, (char*)GameConsole::getInstance().at(i).c_str());
 		y += fontHeight + 2;
 	}
 
-	if (gameConsoleInstance->isConsoleShown())
+	if (GameConsole::getInstance().isConsoleShown())
 	{
 		y += 5;
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + 5, y + 2, COLOR_WHITE, (char*)gameConsoleInstance->getInputLine().c_str());
+		drawText(x + 5, y + 2, COLOR_WHITE, (char*)GameConsole::getInstance().getInputLine().c_str());
 	}
 }
 
 uint32_t* DirectXHook::getDirectXVTableMethod1()
 {
-	return (uint32_t*)(((uint8_t*)GetModuleHandle("d3d9.dll")) + 0x869C); // or try d3d9.dll+0x8958 if that fails
+	return (uint32_t*)(((uint8_t*)GetModuleHandle("d3d9.dll")) + 0x4E08);
 }
 
 uint32_t* DirectXHook::getDirectXVTableMethod2()
@@ -81,8 +77,11 @@ uint32_t* DirectXHook::getDirectXVTableMethod3()
 	return *((uint32_t**)ppReturnedDeviceInterface); // returns an array of pointers
 }
 
-bool DirectXHook::hookDirectX()
+void DirectXHook::hookDirectX()
 {
+	horizontalRes = (uint32_t*)0x19106C0;
+	verticalRes = (uint32_t*)0x19106C4;
+
 	uint32_t* directXVTable = getDirectXVTableMethod3();
 	origEndScenePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9)) directXVTable[42];
 
@@ -91,7 +90,10 @@ bool DirectXHook::hookDirectX()
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach((PVOID*)&origEndScenePtr, &DirectXHook::hookedEndScene); // redirect origEndScenePtr to newEndScene
 
-	return DetourTransactionCommit() == NO_ERROR;
+	if (DetourTransactionCommit() != NO_ERROR)
+	{
+		OutputDebugString("DirectX Hook for console failed.");
+	}
 }
 
 void DirectXHook::drawText(int x, int y, DWORD color, char* text)
