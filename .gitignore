@@ -198,6 +198,7 @@ FakesAssemblies/
 /preferences.dat
 
 !detours.lib
+!detours.pdb
 !syelog.lib
 !libeay32MD.lib
 !libeay32MDd.lib
