@@ -1,3 +1,4 @@
+#include "Console/GameConsole.h"
 #include "ElDorito.h"
 
 #include <iostream>
@@ -68,6 +69,8 @@ void ElDorito::Initialize()
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
+	setWatermarkText("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
+
 #ifndef _DEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
 	{
@@ -75,70 +78,32 @@ void ElDorito::Initialize()
 		TerminateProcess(GetCurrentProcess(), 0);
 	}
 #endif
-
-	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleOutputCP(437);
-	unsigned int ConsoleWidth = 80;
-	CONSOLE_SCREEN_BUFFER_INFO ConsoleBuf;
-	if (GetConsoleScreenBufferInfo(hStdout, &ConsoleBuf))
-	{
-		ConsoleWidth = ConsoleBuf.dwSize.X;
-	}
-
-	SetConsoleTextAttribute(hStdout, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-	SetConsoleTextAttribute(hStdout, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-
-	std::string buildVersion = Utils::Version::GetVersionString();
-	std::cout << "ElDewrito" << "\xC3\xC4\xC2\xC4\xC4\xC4\xC4\xC4\xC4\xB4 " << buildVersion << " | Build Date: " << __DATE__ << " " << __TIME__ << std::endl;
-	Terminal.SetTextColor(Console::Input);
-
-	std::srand(GetTickCount());
-
-	for (size_t k = 0; k < 9; k++)
-	{
-		Terminal.SetTextColor(
-			(std::rand() & 1 ? Console::Red : Console::Green) |
-			std::rand() & 1 * Console::Bright
-			);
-		std::cout << " \x10 \x11 \x1E \x1E "[std::rand() & 7];
-	}
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "  " << "\xC0";
-	std::cout << " By #ElDorito@GameSurge" << std::endl;
-
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "Enter \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" or \"";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << "help (command)";
-	Terminal.SetTextColor(Console::Green | Console::Bright);
-	std::cout << "\" to get started!" << std::endl;
-
-	std::cout << "Current directory: ";
-	Terminal.SetTextColor(Console::Input);
-	std::cout << GetDirectory() << std::endl;
-	Terminal.SetTextColor(Console::Red | Console::Blue);
-	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
-	Terminal.SetTextColor(Console::Info);
-
-	Terminal.PrintLine();
-
-	SetSessionMessage("ElDewrito | Version: " + buildVersion + " | Build Date: " __DATE__);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
-	// TODO: It may be better to still run console input on a separate thread and use blocking input functions
-	if( _kbhit() )
+	Patches::Tick();
+
+	if (!d3d9Loaded && GetModuleHandle("d3d9.dll"))
 	{
-		Terminal.HandleInput(_getch());
-		Terminal.PrintLine();
+		d3d9InitTime = GetTickCount();
+		d3d9Loaded = true;
 	}
 
-	Patches::Tick();
+	if (!consoleLoaded && d3d9Loaded)
+	{
+		if (GetTickCount() - d3d9InitTime > 10000)
+		{
+			consoleLoaded = true;
+			GameConsole::getInstance(); // initialize console
+		}
+	}
+
+	if (!windowTitleSet && *((HWND*)0x199C014))
+	{
+		windowTitleSet = true;
+		setWindowTitle("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
+	}
 }
 
 namespace
@@ -155,7 +120,7 @@ std::string ElDorito::GetDirectory()
 	if( !GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&::HandleFinder, &hMod) )
 	{
 		int Error = GetLastError();
-		std::cout << "Unable to resolve current directory, error code: " << Error << std::endl;
+		OutputDebugString(std::string("Unable to resolve current directory, error code: ").append(std::to_string(Error)).c_str());
 	}
 	GetModuleFileNameA(hMod, Path, sizeof(Path));
 	std::string Dir(Path);
@@ -163,7 +128,13 @@ std::string ElDorito::GetDirectory()
 	return Dir;
 }
 
-void ElDorito::SetSessionMessage(const std::string& Message)
+void ElDorito::setWindowTitle(const std::string& Message)
+{
+	SetWindowText(*((HWND*) 0x199C014), Message.c_str());
+}
+
+// This is for the watermark in the bottom right corner (hidden by default)
+void ElDorito::setWatermarkText(const std::string& Message)
 {
 	static wchar_t msgBuf[256];
 	wmemset(msgBuf, 0, 256);
@@ -175,8 +146,6 @@ void ElDorito::SetSessionMessage(const std::string& Message)
 	Pointer::Base(0x2E5339).Write(&msgBuf);
 	Pointer::Base(0x2E533D).Write<uint8_t>(0x90);
 	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
-
-	// todo: some way of undoing this
 }
 
 Pointer ElDorito::GetMainTls(size_t Offset)
@@ -198,7 +167,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		BOOL success = GetThreadContext(MainThreadHandle, &MainThreadContext);
 		if( !success )
 		{
-			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
+			OutputDebugString(std::string("Error getting thread context: ").append(std::to_string(GetLastError())).c_str());
 			std::exit(1);
 		}
 		ResumeThread(MainThreadHandle);
@@ -210,7 +179,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		success = GetThreadSelectorEntry(MainThreadHandle, MainThreadContext.SegFs, &MainThreadLdt);
 		if( !success )
 		{
-			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
+			OutputDebugString(std::string("Error getting thread context: ").append(std::to_string(GetLastError())).c_str());
 		}
 		size_t TlsPtrArrayAddress = (size_t)((size_t)(MainThreadLdt.HighWord.Bits.BaseHi << 24) | (MainThreadLdt.HighWord.Bits.BaseMid << 16) | MainThreadLdt.BaseLow) + 0x2C;
 		size_t TlsPtrAddress = Pointer(TlsPtrArrayAddress).Read<uint32_t>();

@@ -6,8 +6,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_FILES
     Blam/BitStream.cpp
     Blam/BitStream.h
-    Console/Console.cpp
-    Console/Console.h
+    Console/DirectXHook.cpp
+    Console/DirectXHook.h
+    Console/GameConsole.cpp
+    Console/GameConsole.h
+    Console/IRCBackend.cpp
+    Console/IRCBackend.h
+    Console/KeyboardHook.cpp
+    Console/KeyboardHook.h
     Modules/ModuleBase.cpp
     Modules/ModuleBase.h
     Modules/ModuleCamera.cpp
@@ -107,7 +113,9 @@ set(SOURCE_FILES
     ElDorito.def)
 
 include_directories($ENV{DXSDK_DIR}/Include)
+include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/include)
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
+link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/lib.X86)
 
 add_library(ElDorito MODULE ${SOURCE_FILES})
 
@@ -115,5 +123,6 @@ target_link_libraries(ElDorito d3d9)
 target_link_libraries(ElDorito d3dx9)
 target_link_libraries(ElDorito Version)
 target_link_libraries(ElDorito ws2_32)
+target_link_libraries(ElDorito detours)
 
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

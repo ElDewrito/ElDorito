@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <memory>
 
-#include "Console/Console.h"
 #include "Utils/Utils.h"
 #include "ElModules.h"
 #include "Pointer.h"
@@ -24,8 +23,6 @@ public:
 	void Initialize();
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 
-	void SetSessionMessage(const std::string& Message);
-
 	static void SetMainThreadID(size_t ThreadID)
 	{
 		MainThreadID = ThreadID;
@@ -38,9 +35,12 @@ public:
 	static Pointer GetMainTls(size_t Offset = 0);
 
 private:
-	// Thread
-	static size_t MainThreadID;
+	static size_t MainThreadID; // Thread
+	bool d3d9Loaded = false;
+	bool consoleLoaded = false;
+	bool windowTitleSet = false;
+	DWORD d3d9InitTime = 0;
 
-	// Console
-	Console::Console Terminal;
+	void setWindowTitle(const std::string& Message);
+	void setWatermarkText(const std::string& Message);
 };

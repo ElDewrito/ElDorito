@@ -116,6 +116,9 @@ namespace
 
 	bool ShowKeyboard(VirtualKeyboard *keyboard, const char *file, int line)
 	{
+		/*
+		TODO: This function is currently broken because it uses wide chars when GameConsole and the rest of this program uses chars.
+
 		// This is kinda shitty, but just prompt the user for input by using the console
 		// Might be better to actually show a dialog or something
 		SetForegroundWindow(GetConsoleWindow());
@@ -131,7 +134,7 @@ namespace
 		// it's some sort of state value and 4 seems to mean "done"
 		// because it makes the Forge code copy the text somewhere
 		keyboard->unk6 = 4;
-
+		*/
 		return true;
 	}
 }

@@ -1,3 +1,4 @@
+#include "Console/GameConsole.h"
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
@@ -10,7 +11,7 @@
 #include "ElDorito.h"
 #include "ElPatches.h"
 
-LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
+/*LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
 	const char *error_type = "Unknown";
 	switch( code )
@@ -81,13 +82,11 @@ LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExc
 	std::cout << "Exception: 0x" << std::uppercase << std::hex << pExceptionInfo->ExceptionRecord->ExceptionCode << std::nouppercase << " - " << error_type << std::endl;
 
 	return EXCEPTION_CONTINUE_SEARCH;
-}
+}*/
 
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
-
-	Console::AllocateConsole("ElDewrito");
 
 	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
