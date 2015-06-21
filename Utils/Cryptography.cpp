@@ -2,11 +2,13 @@
 
 // STL
 #include <string>
+#include <sstream>
 
 // people will hate me for this, but PHP/node/etc RSA funcs all use openssl, so we'll use it as well to make it easier on us
 #include <openssl\rsa.h>
 #include <openssl\bn.h>
 #include <openssl\pem.h>
+#include <openssl\sha.h>
 
 namespace Utils
 {
@@ -28,6 +30,54 @@ namespace Utils
 			(void)BIO_flush((BIO*)cb->arg);
 
 			return 1;
+		}
+
+		std::string ReformatKey(bool isPrivateKey, std::string key)
+		{
+			size_t pos = 0;
+			std::string returnKey;
+			while (pos < key.length())
+			{
+				int toCopy = key.length() - pos;
+				if (toCopy > 64)
+					toCopy = 64;
+				returnKey += key.substr(pos, toCopy);
+				returnKey += "\n";
+				pos += toCopy;
+			}
+			std::string keyType = (isPrivateKey ? "RSA PRIVATE KEY" : "PUBLIC KEY"); // public keys don't have RSA in the name some reason
+
+			std::stringstream ss;
+			ss << "----- BEGIN " << keyType << " -----\n" << returnKey << "----- END " << keyType << " -----\n";
+			return ss.str();
+		}
+
+		bool CreateRSASignature(std::string privateKey, void* data, size_t dataSize, std::string& signature)
+		{
+			// privateKey has to be reformatted with -----RSA PRIVATE KEY----- header/footer and newlines after every 64 chars
+			// before calling this function
+
+			BIO* privKeyBuff = BIO_new_mem_buf((void*)privateKey.c_str(), privateKey.length());
+			RSA* rsa = PEM_read_bio_RSAPrivateKey(privKeyBuff, 0, 0, 0);
+
+			unsigned char hash[SHA_DIGEST_LENGTH];
+			SHA_CTX sha;
+			SHA_Init(&sha);
+			SHA_Update(&sha, data, dataSize);
+			SHA_Final(hash, &sha);
+
+			void* sigret = malloc(RSA_size(rsa));
+			unsigned int siglen = 0;
+			int retVal = RSA_sign(NID_sha1, (unsigned char*)hash, SHA_DIGEST_LENGTH, (unsigned char*)sigret, &siglen, rsa);
+
+			RSA_free(rsa);
+			BIO_free_all(privKeyBuff);
+
+			if (retVal != 1)
+				return false;
+
+			signature = Utils::String::Base64Encode((unsigned char*)sigret, siglen);
+			return true;
 		}
 
 		bool GenerateRSAKeyPair(int numBits, std::string& privKey, std::string& pubKey)

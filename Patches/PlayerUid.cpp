@@ -60,6 +60,12 @@ namespace Patches
 			EnsureValidUid();
 			return UidPtr.Read<uint64_t>();
 		}
+
+		std::string GetFormattedPrivKey()
+		{
+			EnsureValidUid();
+			return Utils::Cryptography::ReformatKey(true, Modules::ModulePlayer::Instance().VarPlayerPrivKey->ValueString);
+		}
 	}
 }
 
