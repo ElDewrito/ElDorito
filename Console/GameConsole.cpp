@@ -1,6 +1,7 @@
 #include "GameConsole.h"
 #include "../Utils/VersionInfo.h"
 #include "../CommandMap.h"
+#include <sstream>
 
 // TODO: why does pressing shift or caps lock break keyboard input?
 // TODO: why is all input in capital letters?
@@ -122,7 +123,7 @@ void GameConsole::pushLineFromKeyboardToGame(std::string line)
 	{
 		pushLineFromGameToUI(line);
 		line.erase(0, 1);
-		Modules::CommandMap::Instance().ExecuteCommand(line);
+		pushLineFromGameToUIMultipleLines(Modules::CommandMap::Instance().ExecuteCommand(line));
 	}
 	else
 	{
@@ -144,20 +145,24 @@ void GameConsole::initPlayerName()
 
 void GameConsole::pushLineFromGameToUI(std::string line)
 {
-	if (queue.size() < (size_t)numOfLines)
+	for (int i = 0; i < numOfLines - 1; i++)
 	{
-		queue.push_back(line);
+		queue.at(i) = queue.at(i + 1);
 	}
-	else
-	{
-		for (int i = 0; i < numOfLines - 1; i++)
-		{
-			queue.at(i) = queue.at(i + 1);
-		}
-		queue.at(numOfLines - 1) = line;
-	}
+	queue.at(numOfLines - 1) = line;
 
 	peekConsole();
+}
+
+void GameConsole::pushLineFromGameToUIMultipleLines(std::string multipleLines)
+{
+	std::vector<std::string> linesVector;
+	split(multipleLines, '\n', linesVector);
+
+	for (std::string line : linesVector)
+	{
+		pushLineFromGameToUI(line);
+	}
 }
 
 std::string GameConsole::getPlayerName()
@@ -173,4 +178,14 @@ int GameConsole::getNumOfLines()
 std::string GameConsole::at(int i)
 {
 	return queue.at(i);
+}
+
+std::vector<std::string>& GameConsole::split(const std::string &s, char delim, std::vector<std::string> &elems)
+{
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+	return elems;
 }

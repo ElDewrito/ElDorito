@@ -26,6 +26,7 @@ private:
 	void enableGameKeyboardInput();
 	void disableGameKeyboardInput();
 	static void startIRCBackend();
+	std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 public:
 	std::string sendThisLineToIRCServer = "";
@@ -41,6 +42,7 @@ public:
 	void virtualKeyCallBack(USHORT vKey);
 	std::string getInputLine();
 	void pushLineFromGameToUI(std::string line);
+	void pushLineFromGameToUIMultipleLines(std::string multipleLines);
 	std::string getPlayerName();
 
 	static GameConsole& getInstance()
