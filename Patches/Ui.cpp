@@ -25,13 +25,20 @@ namespace Patches
 		int DialogArg1; // todo: figure out a better name for this
 		int DialogFlags;
 		unsigned int DialogParentStringId;
-		uint8_t UIData[0x40];
+		void* UIData = 0;
 
 		void Tick()
 		{
 			if (DialogShow)
 			{
 				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+
+				if (!UIData) // the game can also free this mem at any time afaik, but it also looks like it resets this to 0, so we can just alloc it again
+				{
+					typedef void*(__cdecl * UIAlloc)(int size);
+					UIAlloc uialloc = (UIAlloc)0xAB4ED0;
+					UIData = uialloc(0x4C);
+				}
 
 				// fill UIData with proper data
 				OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
