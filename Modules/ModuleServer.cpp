@@ -10,6 +10,7 @@
 #include "../ThirdParty/SHA256.h"
 #include "../ThirdParty/HttpRequest.h"
 #include "../ThirdParty/rapidjson/document.h"
+#include "../Patches/Network.h"
 
 namespace
 {
@@ -74,7 +75,7 @@ namespace
 		}
 	}
 
-	DWORD WINAPI CommandServerAnnounce_Main(LPVOID lpParam)
+	DWORD WINAPI CommandServerAnnounce_Thread(LPVOID lpParam)
 	{
 		//std::stringstream ss;
 		std::vector<std::string> announceEndpoints;
@@ -136,7 +137,7 @@ namespace
 		return true;
 	}
 
-	DWORD WINAPI CommandServerUnannounce_Main(LPVOID lpParam)
+	DWORD WINAPI CommandServerUnannounce_Thread(LPVOID lpParam)
 	{
 		//std::stringstream ss;
 		std::vector<std::string> announceEndpoints;
@@ -200,15 +201,29 @@ namespace
 
 	bool CommandServerAnnounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto thread = CreateThread(NULL, 0, CommandServerAnnounce_Main, (LPVOID)&Arguments, 0, NULL);
+		if (!Patches::Network::IsInfoSocketOpen())
+			return false;
+
+		auto thread = CreateThread(NULL, 0, CommandServerAnnounce_Thread, (LPVOID)&Arguments, 0, NULL);
 		returnInfo = "Announcing to master servers...";
 		return true;
 	}
 
 	bool CommandServerUnannounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto thread = CreateThread(NULL, 0, CommandServerUnannounce_Main, (LPVOID)&Arguments, 0, NULL);
+		if (!Patches::Network::IsInfoSocketOpen())
+			return false;
+
+		auto thread = CreateThread(NULL, 0, CommandServerUnannounce_Thread, (LPVOID)&Arguments, 0, NULL);
 		returnInfo = "Unannouncing to master servers...";
+		return true;
+	}
+
+	bool VariableServerShouldAnnounceUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (!Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt) // if we're setting Server.ShouldAnnounce to false unannounce ourselves too
+			CommandServerUnannounce(Arguments, std::string());
+
 		return true;
 	}
 
@@ -406,7 +421,7 @@ namespace Modules
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
 
-		VarServerShouldAnnounce = AddVariableInt("ShouldAnnounce", "should_announce", "Controls whether the server will be announced to the master servers", eCommandFlagsArchived, 1);
+		VarServerShouldAnnounce = AddVariableInt("ShouldAnnounce", "should_announce", "Controls whether the server will be announced to the master servers", eCommandFlagsArchived, 1, VariableServerShouldAnnounceUpdate);
 		VarServerShouldAnnounce->ValueIntMin = 0;
 		VarServerShouldAnnounce->ValueIntMax = 1;
 

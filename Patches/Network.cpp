@@ -38,6 +38,8 @@ namespace Patches
 		time_t lastAnnounce = 0;
 		const time_t serverContactTimeLimit = 30 + (2 * 60);
 
+		bool IsInfoSocketOpen() { return infoSocketOpen; }
+
 		int GetNumPlayers()
 		{
 			void* v2;
@@ -345,10 +347,11 @@ namespace Patches
 			closesocket(infoSocket);
 			int istrue = 1;
 			setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
-			infoSocketOpen = false;
-			lastAnnounce = 0;
 
 			Modules::CommandMap::Instance().ExecuteCommand("Server.Unannounce");
+
+			infoSocketOpen = false;
+			lastAnnounce = 0;
 
 			return true;
 		}

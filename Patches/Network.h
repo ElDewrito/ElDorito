@@ -13,5 +13,7 @@ namespace Patches
 
 		bool StartInfoServer();
 		bool StopInfoServer();
+
+		bool IsInfoSocketOpen();
 	}
 }
