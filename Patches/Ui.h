@@ -16,5 +16,6 @@ namespace Patches
 		extern int DialogArg1; // todo: figure out a better name for this
 		extern int DialogFlags;
 		extern unsigned int DialogParentStringId;
+		extern void* UIData;
 	}
 }

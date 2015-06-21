@@ -7,7 +7,7 @@
 namespace
 {
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad);
-	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
+	int UI_ShowHalo3PauseMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
 	char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	void LocalizedStringHook();
@@ -31,27 +31,22 @@ namespace Patches
 		{
 			if (DialogShow)
 			{
-				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
-
 				if (!UIData) // the game can also free this mem at any time afaik, but it also looks like it resets this to 0, so we can just alloc it again
 				{
 					typedef void*(__cdecl * UIAlloc)(int size);
-					UIAlloc uialloc = (UIAlloc)0xAB4ED0;
-					UIData = uialloc(0x4C);
+					UIAlloc uiAlloc = (UIAlloc)0xAB4ED0;
+					UIData = uiAlloc(0x40);
 				}
 
 				// fill UIData with proper data
+				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
 				OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
 				openui(&UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
 
 				// send UI notification
-				uint32_t eax = (uint32_t)&UIData;
-				uint32_t ecx = *(uint32_t*)0x5260254;
-				*(DWORD*)(ecx + 8) = eax;
-
-				eax = *(uint32_t*)0x5260254;
-				eax = *(uint32_t*)eax;
-				*(uint32_t*)0x5260254 = eax;
+				typedef int(*SendUINotification)(void* UIDataStruct);
+				SendUINotification sendUINotification = (SendUINotification)0xA93450;
+				sendUINotification(&UIData);
 
 				DialogShow = false;
 			}
@@ -71,7 +66,7 @@ namespace Patches
 			Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
 
 			// Fix for leave game button to show H3 pause menu
-			Hook(0x3B6826, &UI_ShowHalo3StartMenu, HookFlags::IsCall).Apply();
+			Hook(0x3B6826, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
 
 			// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
@@ -205,8 +200,11 @@ namespace
 		}
 	}
 
-	int UI_ShowHalo3StartMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
+	int UI_ShowHalo3PauseMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
+		Patches::Ui::UIData = 0; // hacky fix for h3 pause menu, i think each different DialogParentStringId should have it's own UIData ptr in a std::map or something
+								 // so that the games ptr to the UIData ptr is always the same for that dialog parent id
+
 		Patches::Ui::DialogStringId = 0x10084;
 		Patches::Ui::DialogArg1 = 0;
 		Patches::Ui::DialogFlags = 4;
