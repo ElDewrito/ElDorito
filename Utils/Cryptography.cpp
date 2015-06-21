@@ -48,7 +48,7 @@ namespace Utils
 			std::string keyType = (isPrivateKey ? "RSA PRIVATE KEY" : "PUBLIC KEY"); // public keys don't have RSA in the name some reason
 
 			std::stringstream ss;
-			ss << "----- BEGIN " << keyType << " -----\n" << returnKey << "----- END " << keyType << " -----\n";
+			ss << "-----BEGIN " << keyType << "-----\n" << returnKey << "-----END " << keyType << "-----\n";
 			return ss.str();
 		}
 
@@ -58,7 +58,12 @@ namespace Utils
 			// before calling this function
 
 			BIO* privKeyBuff = BIO_new_mem_buf((void*)privateKey.c_str(), privateKey.length());
+			if (!privKeyBuff)
+				return false;
+
 			RSA* rsa = PEM_read_bio_RSAPrivateKey(privKeyBuff, 0, 0, 0);
+			if (!rsa)
+				return false;
 
 			unsigned char hash[SHA_DIGEST_LENGTH];
 			SHA_CTX sha;
@@ -78,6 +83,38 @@ namespace Utils
 
 			signature = Utils::String::Base64Encode((unsigned char*)sigret, siglen);
 			return true;
+		}
+
+		bool VerifyRSASignature(std::string pubKey, std::string signature, void* data, size_t dataSize)
+		{
+			BIO* pubKeyBuff = BIO_new_mem_buf((void*)pubKey.c_str(), pubKey.length());
+			if (!pubKeyBuff)
+				return false;
+
+			RSA* rsa = PEM_read_bio_RSA_PUBKEY(pubKeyBuff, 0, 0, 0);
+			if (!rsa)
+				return false;
+
+			unsigned char hash[SHA_DIGEST_LENGTH];
+			SHA_CTX sha;
+			SHA_Init(&sha);
+			SHA_Update(&sha, data, dataSize);
+			SHA_Final(hash, &sha);
+
+			size_t length = 0;
+			if (Utils::String::Base64DecodeBinary((char*)signature.c_str(), NULL, &length) != 1 || length == 0)
+				return false;
+
+			unsigned char* sigBuf = (unsigned char*)malloc(length);
+			if (Utils::String::Base64DecodeBinary((char*)signature.c_str(), sigBuf, &length) != 0)
+				return false;
+
+			int retVal = RSA_verify(NID_sha1, (unsigned char*)hash, SHA_DIGEST_LENGTH, sigBuf, length, rsa);
+			free(sigBuf);
+			RSA_free(rsa);
+			BIO_free_all(pubKeyBuff);
+
+			return retVal == 1;
 		}
 
 		bool GenerateRSAKeyPair(int numBits, std::string& privKey, std::string& pubKey)

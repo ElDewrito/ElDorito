@@ -9,6 +9,7 @@ namespace Utils
 	{
 		std::string Base64Encode(unsigned char const* bytes_to_encode, unsigned int in_len);
 		std::string Base64Decode(std::string const& encoded_string);
+		int Base64DecodeBinary(char* b64message, unsigned char* buffer, size_t* length);
 
 		void RemoveCharsFromString(std::string &str, char* charsToRemove);
 
