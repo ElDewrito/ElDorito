@@ -140,6 +140,7 @@
     <ClCompile Include="Patches\PlayerUid.cpp" />
     <ClCompile Include="Patches\RawInputPatch.cpp" />
     <ClCompile Include="Patches\Scoreboard.cpp" />
+    <ClCompile Include="Patches\VirtualKeyboard.cpp" />
     <ClCompile Include="Pointer.cpp" />
     <ClCompile Include="Patches\Ui.cpp" />
     <ClCompile Include="ThirdParty\HttpRequest.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Patches\PlayerUid.h" />
     <ClInclude Include="Patches\RawInput.h" />
     <ClInclude Include="Patches\Scoreboard.h" />
+    <ClInclude Include="Patches\VirtualKeyboard.h" />
     <ClInclude Include="Pointer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Patches\Ui.h" />

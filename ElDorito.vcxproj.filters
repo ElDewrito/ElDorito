@@ -186,6 +186,9 @@
     <ClCompile Include="Console\KeyboardHook.cpp">
       <Filter>Source Files\Console</Filter>
     </ClCompile>
+    <ClCompile Include="Patches\VirtualKeyboard.cpp">
+      <Filter>Source Files\Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pointer.h">
@@ -310,6 +313,9 @@
     </ClInclude>
     <ClInclude Include="Console\KeyboardHook.h">
       <Filter>Header Files\Console</Filter>
+    </ClInclude>
+    <ClInclude Include="Patches\VirtualKeyboard.h">
+      <Filter>Header Files\Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
