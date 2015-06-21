@@ -42,4 +42,5 @@ private:
 	DWORD d3d9InitTime = 0;
 
 	void setWindowTitle(const std::string& Message);
+	void setWatermarkText(const std::string& Message);
 };

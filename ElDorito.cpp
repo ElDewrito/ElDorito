@@ -69,6 +69,8 @@ void ElDorito::Initialize()
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
+	setWatermarkText("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
+
 #ifndef _DEBUG
 	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
 	{
@@ -129,6 +131,21 @@ std::string ElDorito::GetDirectory()
 void ElDorito::setWindowTitle(const std::string& Message)
 {
 	SetWindowText(*((HWND*) 0x199C014), Message.c_str());
+}
+
+// This is for the watermark in the bottom right corner (hidden by default)
+void ElDorito::setWatermarkText(const std::string& Message)
+{
+	static wchar_t msgBuf[256];
+	wmemset(msgBuf, 0, 256);
+
+	std::wstring msgUnicode = Utils::String::WidenString(Message);
+	wcscpy_s(msgBuf, 256, msgUnicode.c_str());
+
+	Pointer::Base(0x2E5338).Write<uint8_t>(0x68);
+	Pointer::Base(0x2E5339).Write(&msgBuf);
+	Pointer::Base(0x2E533D).Write<uint8_t>(0x90);
+	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
 }
 
 Pointer ElDorito::GetMainTls(size_t Offset)
