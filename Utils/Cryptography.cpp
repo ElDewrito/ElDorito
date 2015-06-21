@@ -65,15 +65,15 @@ namespace Utils
 			if (!rsa)
 				return false;
 
-			unsigned char hash[SHA_DIGEST_LENGTH];
-			SHA_CTX sha;
-			SHA_Init(&sha);
-			SHA_Update(&sha, data, dataSize);
-			SHA_Final(hash, &sha);
+			unsigned char hash[SHA256_DIGEST_LENGTH];
+			SHA256_CTX sha;
+			SHA256_Init(&sha);
+			SHA256_Update(&sha, data, dataSize);
+			SHA256_Final(hash, &sha);
 
 			void* sigret = malloc(RSA_size(rsa));
 			unsigned int siglen = 0;
-			int retVal = RSA_sign(NID_sha1, (unsigned char*)hash, SHA_DIGEST_LENGTH, (unsigned char*)sigret, &siglen, rsa);
+			int retVal = RSA_sign(NID_sha256, (unsigned char*)hash, SHA256_DIGEST_LENGTH, (unsigned char*)sigret, &siglen, rsa);
 
 			RSA_free(rsa);
 			BIO_free_all(privKeyBuff);
@@ -95,11 +95,11 @@ namespace Utils
 			if (!rsa)
 				return false;
 
-			unsigned char hash[SHA_DIGEST_LENGTH];
-			SHA_CTX sha;
-			SHA_Init(&sha);
-			SHA_Update(&sha, data, dataSize);
-			SHA_Final(hash, &sha);
+			unsigned char hash[SHA256_DIGEST_LENGTH];
+			SHA256_CTX sha;
+			SHA256_Init(&sha);
+			SHA256_Update(&sha, data, dataSize);
+			SHA256_Final(hash, &sha);
 
 			size_t length = 0;
 			if (Utils::String::Base64DecodeBinary((char*)signature.c_str(), NULL, &length) != 1 || length == 0)
@@ -109,7 +109,7 @@ namespace Utils
 			if (Utils::String::Base64DecodeBinary((char*)signature.c_str(), sigBuf, &length) != 0)
 				return false;
 
-			int retVal = RSA_verify(NID_sha1, (unsigned char*)hash, SHA_DIGEST_LENGTH, sigBuf, length, rsa);
+			int retVal = RSA_verify(NID_sha256, (unsigned char*)hash, SHA256_DIGEST_LENGTH, sigBuf, length, rsa);
 			free(sigBuf);
 			RSA_free(rsa);
 			BIO_free_all(pubKeyBuff);

@@ -125,10 +125,14 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 		return false;
 	}
 	LPCWSTR addtHdrs = WINHTTP_NO_ADDITIONAL_HEADERS;
+	DWORD length = 0;
 	if (headers.length() > 0)
+	{
 		addtHdrs = headers.c_str();
+		length = (DWORD)-1;
+	}
 
-	bResults = WinHttpSendRequest(hRequest, addtHdrs, headers.length(), body, bodySize, 0, 0);
+	bResults = WinHttpSendRequest(hRequest, addtHdrs, length, body, bodySize, bodySize, 0);
 
 	if (bResults)
 		bResults = WinHttpReceiveResponse(hRequest, NULL);

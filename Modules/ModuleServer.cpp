@@ -88,13 +88,20 @@ namespace
 
 		for (auto server : announceEndpoints)
 		{
-			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-			//ss << "Announcing to " << server << "..." << std::endl;
-
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
+			try
 			{
-				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
-				continue;
+				HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+				//ss << "Announcing to " << server << "..." << std::endl;
+
+				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
+				{
+					//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					continue;
+				}
+			}
+			catch(...) // TODO: find out what exception is being caused
+			{
+
 			}
 
 			/* TODO: return below to the user somehow, maybe using a log file
@@ -269,7 +276,9 @@ namespace
 
 			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
 			{
-				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				std::stringstream ss;
+				ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				std::string str = ss.str();
 				continue;
 			}
 
