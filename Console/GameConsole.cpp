@@ -63,15 +63,15 @@ void GameConsole::showConsole()
 
 void GameConsole::enableGameKeyboardInput()
 {
-	uint8_t byteArrayBuffer[] = { 0x83, 0xEC, 0x14, 0x80, 0x3D };
-	writeToMemory((uint8_t*) 0x512693, byteArrayBuffer, 5);
+	uint8_t byteArrayBuffer[] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x14 }; // restore to original code
+	writeToMemory((uint8_t*)0x512690, byteArrayBuffer, 6);
 }
 
 void GameConsole::disableGameKeyboardInput()
 {
 	// TODO: this only works 99.99% of the time
-	uint8_t byteArrayBuffer[] = { 0xE9, 0x05, 0x03, 0x00, 0x00 }; // jmp 51299D
-	writeToMemory((uint8_t*)0x512693, byteArrayBuffer, 5);
+	uint8_t byteArrayBuffer[] = { 0xE9, 0x0B, 0x03, 0x00, 0x00, 0x90 }; // jmp 5129A0
+	writeToMemory((uint8_t*)0x512690, byteArrayBuffer, 6);
 }
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
