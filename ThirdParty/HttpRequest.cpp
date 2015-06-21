@@ -8,7 +8,7 @@ _userAgent(userAgent)
 {
 }
 
-BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize)
+BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &method, const std::wstring &username, const std::wstring &password, const std::wstring &headers, void *body, DWORD bodySize)
 {
 	DWORD dwSize;
 	DWORD dwDownloaded;
@@ -38,9 +38,20 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 	scheme.resize(urlComp.dwSchemeLength);
 	hostname.resize(urlComp.dwHostNameLength);
 	path.resize(urlComp.dwUrlPathLength);
-	memcpy((void*)scheme.data(), urlComp.lpszScheme, urlComp.dwSchemeLength * sizeof(wchar_t));
-	memcpy((void*)hostname.data(), urlComp.lpszHostName, urlComp.dwHostNameLength * sizeof(wchar_t));
-	memcpy((void*)path.data(), urlComp.lpszUrlPath, urlComp.dwUrlPathLength * sizeof(wchar_t));
+	if (!urlComp.lpszScheme)
+		scheme = L"http";
+	else
+		memcpy((void*)scheme.data(), urlComp.lpszScheme, urlComp.dwSchemeLength * sizeof(wchar_t));
+
+	if (!urlComp.lpszHostName)
+		hostname = L"localhost";
+	else
+		memcpy((void*)hostname.data(), urlComp.lpszHostName, urlComp.dwHostNameLength * sizeof(wchar_t));
+
+	if (!urlComp.lpszUrlPath)
+		path = L"/";
+	else
+		memcpy((void*)path.data(), urlComp.lpszUrlPath, urlComp.dwUrlPathLength * sizeof(wchar_t));
 	
 	DWORD dwAccessType = WINHTTP_ACCESS_TYPE_DEFAULT_PROXY;
 	LPCWSTR pszProxyW = WINHTTP_NO_PROXY_NAME;
@@ -114,8 +125,15 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 		lastError = 80005;
 		return false;
 	}
+	LPCWSTR addtHdrs = WINHTTP_NO_ADDITIONAL_HEADERS;
+	DWORD length = 0;
+	if (headers.length() > 0)
+	{
+		addtHdrs = headers.c_str();
+		length = (DWORD)-1;
+	}
 
-	bResults = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, body, bodySize, 0, 0);
+	bResults = WinHttpSendRequest(hRequest, addtHdrs, length, body, bodySize, bodySize, 0);
 
 	if (bResults)
 		bResults = WinHttpReceiveResponse(hRequest, NULL);

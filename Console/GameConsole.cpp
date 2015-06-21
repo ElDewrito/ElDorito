@@ -2,6 +2,7 @@
 #include "../Utils/VersionInfo.h"
 #include "../CommandMap.h"
 #include <sstream>
+#include "../Patches/PlayerUid.h"
 
 // TODO: why does pressing shift or caps lock break keyboard input?
 // TODO: why is all input in capital letters?
@@ -31,6 +32,7 @@ GameConsole::GameConsole()
 
 	pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	pushLineFromGameToUI("Enter /help or /help <command> to get started!");
+	Patches::PlayerUid::Get();
 }
 
 bool GameConsole::isConsoleShown() {

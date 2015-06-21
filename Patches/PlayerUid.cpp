@@ -1,9 +1,13 @@
 #include "PlayerUid.h"
 
+#include "../Console/GameConsole.h"
 #include "../ElDorito.h"
 #include "../Modules/ModulePlayer.h"
 #include "../Patch.h"
 #include "PlayerPropertiesExtension.h"
+#include "../Utils/Cryptography.h"
+
+#include <openssl/sha.h>
 
 namespace
 {
@@ -57,28 +61,17 @@ namespace Patches
 			EnsureValidUid();
 			return UidPtr.Read<uint64_t>();
 		}
+
+		std::string GetFormattedPrivKey()
+		{
+			EnsureValidUid();
+			return Utils::Cryptography::ReformatKey(true, Modules::ModulePlayer::Instance().VarPlayerPrivKey->ValueString);
+		}
 	}
 }
 
 namespace
 {
-	uint64_t GenerateUid()
-	{
-		// Use CryptGenRandom to generate a random UID
-		// TODO: Should we panic if this fails?
-		HCRYPTPROV provider;
-		if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-			return 0;
-		uint64_t result = 0;
-		while (result == 0)
-		{
-			if (!CryptGenRandom(provider, sizeof(result), reinterpret_cast<BYTE*>(&result)))
-				break;
-		}
-		CryptReleaseContext(provider, 0);
-		return result;
-	}
-
 	void EnsureValidUid()
 	{
 		if (UidValidPtr.Read<bool>())
@@ -86,13 +79,39 @@ namespace
 
 		// Try to pull the UID from preferences
 		auto& playerVars = Modules::ModulePlayer::Instance();
-		uint64_t uid = playerVars.VarUserID->ValueInt64;
-		if (uid == 0)
+		std::string pubKey = playerVars.VarPlayerPubKey->ValueString;
+		uint64_t uid;
+		if (pubKey.length() <= 0)
 		{
-			// Generate a new UID and save it
-			uid = GenerateUid();
-			Modules::CommandMap::Instance().SetVariable(playerVars.VarUserID, std::to_string(uid), std::string());
+			GameConsole::getInstance().pushLineFromGameToUI("Generating player keypair, this may take a moment...");
+			std::string privKey;
+			Utils::Cryptography::GenerateRSAKeyPair(4096, privKey, pubKey);
+
+			// strip headers/footers from PEM keys so they can be stored in cfg / transmitted over JSON easier
+			// TODO: find if we can just store the private key and generate the pub key from it when its needed
+			Utils::String::ReplaceString(privKey, "\n", "");
+			Utils::String::ReplaceString(privKey, "-----BEGIN RSA PRIVATE KEY-----", "");
+			Utils::String::ReplaceString(privKey, "-----END RSA PRIVATE KEY-----", "");
+			Utils::String::ReplaceString(pubKey, "\n", "");
+			Utils::String::ReplaceString(pubKey, "-----BEGIN PUBLIC KEY-----", "");
+			Utils::String::ReplaceString(pubKey, "-----END PUBLIC KEY-----", "");
+
+			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPrivKey, privKey, std::string());
+			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPubKey, pubKey, std::string());
+
+			GameConsole::getInstance().pushLineFromGameToUI("Done!");
+
+			// save the keypair
+			Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
 		}
+
+		unsigned char hash[SHA256_DIGEST_LENGTH];
+		SHA256_CTX sha256;
+		SHA256_Init(&sha256);
+		SHA256_Update(&sha256, pubKey.c_str(), pubKey.length());
+		SHA256_Final(hash, &sha256);
+		memcpy(&uid, hash, sizeof(uint64_t)); // use first 8 bytes of SHA256(pubKey) as UID
+
 		UidPtr.Write<uint64_t>(uid);
 		UidValidPtr.Write(true);
 	}

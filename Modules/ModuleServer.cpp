@@ -11,6 +11,12 @@
 #include "../ThirdParty/HttpRequest.h"
 #include "../ThirdParty/rapidjson/document.h"
 #include "../Patches/Network.h"
+#include "../Patches/PlayerUid.h"
+
+#include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+
+#include "../Utils/Cryptography.h"
 
 namespace
 {
@@ -45,11 +51,9 @@ namespace
 		return true;
 	}
 
-	// retrieves master server announce endpoints from dewrito.json
-	void GetAnnounceEndpoints(std::vector<std::string>& destVect)
+	// retrieves master server endpoints from dewrito.json
+	void GetEndpoints(std::vector<std::string>& destVect, std::string endpointType)
 	{
-		std::string prefix("http://");
-
 		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
 		{
@@ -68,7 +72,7 @@ namespace
 					auto& mastersArray = json["masterServers"];
 					for (auto it = mastersArray.Begin(); it != mastersArray.End(); it++)
 					{
-						destVect.push_back((*it)["announce"].GetString());
+						destVect.push_back((*it)[endpointType.c_str()].GetString());
 					}
 				}
 			}
@@ -80,17 +84,24 @@ namespace
 		//std::stringstream ss;
 		std::vector<std::string> announceEndpoints;
 
-		GetAnnounceEndpoints(announceEndpoints);
+		GetEndpoints(announceEndpoints, "announce");
 
 		for (auto server : announceEndpoints)
 		{
-			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-			//ss << "Announcing to " << server << "..." << std::endl;
-
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", NULL, 0))
+			try
 			{
-				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
-				continue;
+				HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+				//ss << "Announcing to " << server << "..." << std::endl;
+
+				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
+				{
+					//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					continue;
+				}
+			}
+			catch(...) // TODO: find out what exception is being caused
+			{
+
 			}
 
 			/* TODO: return below to the user somehow, maybe using a log file
@@ -142,14 +153,14 @@ namespace
 		//std::stringstream ss;
 		std::vector<std::string> announceEndpoints;
 
-		GetAnnounceEndpoints(announceEndpoints);
+		GetEndpoints(announceEndpoints, "announce");
 
 		for (auto server : announceEndpoints)
 		{
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
 			//ss << "Unannouncing to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", NULL, 0))
+			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", L"", NULL, 0))
 			{
 				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
 				continue;
@@ -199,6 +210,122 @@ namespace
 		return true;
 	}
 
+	DWORD WINAPI CommandServerAnnounceStats_Thread(LPVOID lpParam)
+	{
+		//std::stringstream ss;
+		std::vector<std::string> statsEndpoints;
+
+		GetEndpoints(statsEndpoints, "stats");
+
+		int32_t gameId = 0x1337BEEF;
+		int32_t score = 0;
+		int32_t kills = 0;
+		int32_t assists = 0;
+		int32_t deaths = 0;
+		int32_t team = 0;
+		// build our stats announcement
+		rapidjson::StringBuffer statsBuff;
+		rapidjson::Writer<rapidjson::StringBuffer> statsWriter(statsBuff);
+		statsWriter.StartObject();
+		statsWriter.Key("gameId");
+		statsWriter.Int(gameId);
+		statsWriter.Key("score");
+		statsWriter.Int(score);
+		statsWriter.Key("kills");
+		statsWriter.Int(kills);
+		statsWriter.Key("assists");
+		statsWriter.Int(assists);
+		statsWriter.Key("deaths");
+		statsWriter.Int(deaths);
+		statsWriter.Key("team");
+		statsWriter.Int(team);
+		statsWriter.Key("medals");
+		statsWriter.StartArray();
+		statsWriter.String("doublekill");
+		statsWriter.String("triplekill");
+		statsWriter.String("overkill");
+		statsWriter.String("unfreakingbelieveable");
+		statsWriter.EndArray();
+		statsWriter.EndObject();
+
+		std::string statsObject = statsBuff.GetString();
+		// todo: look into using JSON Web Tokens (JWT) that use JSON Web Signature (JWS), instead of using our own signature stuff
+		std::string statsSignature;
+		if (!Utils::Cryptography::CreateRSASignature(Patches::PlayerUid::GetFormattedPrivKey(), (void*)statsObject.c_str(), statsObject.length(), statsSignature))
+			return 0; // TODO: give some output if signature creation failed
+
+		rapidjson::StringBuffer s;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+		writer.StartObject();
+		writer.Key("statsVersion");
+		writer.Int(1);
+		writer.Key("stats");
+		writer.String(statsObject.c_str()); // write stats object as a string instead of object so that the string matches up exactly with what we signed (also because there's no easy way to append a writer..)
+		writer.Key("publicKey");
+		writer.String(Modules::ModulePlayer::Instance().VarPlayerPubKey->ValueString.c_str());
+		writer.Key("signature");
+		writer.String(statsSignature.c_str());
+		writer.EndObject();
+
+		std::string sendObject = s.GetString();
+
+		for (auto server : statsEndpoints)
+		{
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+			//ss << "Sending game stats to " << server << "..." << std::endl;
+
+			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+			{
+				std::stringstream ss;
+				ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				std::string str = ss.str();
+				continue;
+			}
+
+			/* TODO: return below to the user somehow, maybe using a log file
+			// make sure the server replied with 200 OK
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+				ss << "Invalid master server stats response." << std::endl << std::endl;
+				continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+				ss << "Invalid master server stats response." << std::endl << std::endl;
+				continue;
+			}
+
+			// parse the json response
+			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+			rapidjson::Document json;
+			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+			{
+				ss << "Invalid master server JSON response." << std::endl << std::endl;
+				continue;
+			}
+
+			if (!json.HasMember("result"))
+			{
+				ss << "Master server JSON response is missing data." << std::endl << std::endl;
+				continue;
+			}
+
+			auto& result = json["result"];
+			if (result["code"].GetInt() != 0)
+			{
+				ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+				continue;
+			}
+
+			ss << "Stats update OK" << std::endl << std::endl;*/
+		}
+
+		return true;
+	}
+
 	bool CommandServerAnnounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (!Patches::Network::IsInfoSocketOpen())
@@ -216,6 +343,16 @@ namespace
 
 		auto thread = CreateThread(NULL, 0, CommandServerUnannounce_Thread, (LPVOID)&Arguments, 0, NULL);
 		returnInfo = "Unannouncing to master servers...";
+		return true;
+	}
+
+	bool CommandServerAnnounceStats(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		//if (!IsEndGame())
+		//	return false;
+
+		auto thread = CreateThread(NULL, 0, CommandServerAnnounceStats_Thread, (LPVOID)&Arguments, 0, NULL);
+		returnInfo = "Announcing stats to master servers...";
 		return true;
 	}
 
@@ -300,7 +437,7 @@ namespace
 			passwordStr = Utils::String::WidenString(password);
 		}
 
-		if (!req.SendRequest(Utils::String::WidenString("http://" + host + ":" + std::to_string(httpPort) + "/"), L"GET", usernameStr, passwordStr, NULL, 0))
+		if (!req.SendRequest(Utils::String::WidenString("http://" + host + ":" + std::to_string(httpPort) + "/"), L"GET", usernameStr, passwordStr, L"", NULL, 0))
 		{
 			returnInfo = "Unable to connect to server. (error: " + std::to_string(req.lastError) + "/" + std::to_string(GetLastError()) + ")";
 			return false;
@@ -428,5 +565,7 @@ namespace Modules
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsNone, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 		AddCommand("Announce", "announce", "Announces this server to the master servers", eCommandFlagsNone, CommandServerAnnounce);
 		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsNone, CommandServerUnannounce);
+
+		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 	}
 }

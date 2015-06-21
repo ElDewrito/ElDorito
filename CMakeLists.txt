@@ -86,6 +86,8 @@ set(SOURCE_FILES
     Utils/Assert.cpp
     Utils/Assert.h
     Utils/Bits.h
+    Utils/Cryptography.cpp
+    Utils/Cryptography.h
     Utils/Macros.h
     Utils/Singleton.h
     Utils/String.cpp
@@ -114,8 +116,10 @@ set(SOURCE_FILES
 
 include_directories($ENV{DXSDK_DIR}/Include)
 include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/include)
+include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/openssl-1.0.2c/include)
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/lib.X86)
+link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/openssl-1.0.2c/lib)
 
 add_library(ElDorito MODULE ${SOURCE_FILES})
 
@@ -124,5 +128,6 @@ target_link_libraries(ElDorito d3dx9)
 target_link_libraries(ElDorito Version)
 target_link_libraries(ElDorito ws2_32)
 target_link_libraries(ElDorito detours)
+target_link_libraries(ElDorito libeay32MT)
 
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

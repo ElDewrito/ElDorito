@@ -38,31 +38,31 @@ namespace
 
 					if (hookNetwork)
 					{
-						newFlags |= DebugLoggingModes::Network;
+						newFlags |= DebugLoggingModes::eDebugLoggingModeNetwork;
 						Patches::Logging::EnableNetworkLog(true);
 					}
 
 					if (hookSSL)
 					{
-						newFlags |= DebugLoggingModes::SSL;
+						newFlags |= DebugLoggingModes::eDebugLoggingModeSSL;
 						Patches::Logging::EnableSslLog(true);
 					}
 
 					if (hookUI)
 					{
-						newFlags |= DebugLoggingModes::UI;
+						newFlags |= DebugLoggingModes::eDebugLoggingModeUI;
 						Patches::Logging::EnableUiLog(true);
 					}
 
 					if (hookGame1)
 					{
-						newFlags |= DebugLoggingModes::Game1;
+						newFlags |= DebugLoggingModes::eDebugLoggingModeGame1;
 						Patches::Logging::EnableGame1Log(true);
 					}
 
 					if (hookGame2)
 					{
-						newFlags |= DebugLoggingModes::Game2;
+						newFlags |= DebugLoggingModes::eDebugLoggingModeGame2;
 						Patches::Logging::EnableGame2Log(true);
 					}
 				}
@@ -78,15 +78,15 @@ namespace
 		else
 		{
 			ss << "enabled: ";
-			if (newFlags & DebugLoggingModes::Network)
+			if (newFlags & DebugLoggingModes::eDebugLoggingModeNetwork)
 				ss << "Network ";
-			if (newFlags & DebugLoggingModes::SSL)
+			if (newFlags & DebugLoggingModes::eDebugLoggingModeSSL)
 				ss << "SSL ";
-			if (newFlags & DebugLoggingModes::UI)
+			if (newFlags & DebugLoggingModes::eDebugLoggingModeUI)
 				ss << "UI ";
-			if (newFlags & DebugLoggingModes::Game1)
+			if (newFlags & DebugLoggingModes::eDebugLoggingModeGame1)
 				ss << "Game1 ";
-			if (newFlags & DebugLoggingModes::Game2)
+			if (newFlags & DebugLoggingModes::eDebugLoggingModeGame2)
 				ss << "Game2 ";
 		}
 		if (Arguments.size() <= 0)
