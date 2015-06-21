@@ -1,4 +1,5 @@
 #include "HttpRequest.h"
+#include <sstream>
 
 HttpRequest::HttpRequest(const std::wstring &userAgent, const std::wstring &proxyIp, const std::wstring &proxyPort) :
 _userAgent(userAgent)
@@ -145,7 +146,9 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 			bResults = WinHttpQueryDataAvailable(hRequest, &dwSize);
 			if (!bResults)
 			{
-				printf("Error %u in WinHttpQueryDataAvailable.\n", GetLastError());
+				std::stringstream ss;
+				ss << "Error " << GetLastError() << "in WinHttpQueryDataAvailable.";
+				OutputDebugString(ss.str().c_str());
 				break;
 			}
 
@@ -162,7 +165,9 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 				bResults = WinHttpReadData(hRequest, &responseBody[dwOffset], dwSize, &dwDownloaded);
 				if (!bResults)
 				{
-					printf("Error %u in WinHttpReadData.\n", GetLastError());
+					std::stringstream ss;
+					ss << "Error " << GetLastError() << " in WinHttpReadData.";
+					OutputDebugString(ss.str().c_str());
 					dwDownloaded = 0;
 				}
 

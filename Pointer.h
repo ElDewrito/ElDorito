@@ -2,6 +2,7 @@
 #include <string>
 #include <stdint.h>
 #include <Windows.h>
+#include <sstream>
 
 enum HookFlags : int
 {
@@ -109,7 +110,9 @@ public:
 		DWORD temp2;
 		if (!VirtualProtect(_Pointer, sizeof(T), PAGE_READWRITE, &temp))
 		{
-			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << _Pointer;
+			OutputDebugString(ss.str().c_str());
 			return;
 		}
 		*((T*)_Pointer) = value;
@@ -122,7 +125,9 @@ public:
 		DWORD temp2;
 		if (!VirtualProtect(_Pointer, size, PAGE_READWRITE, &temp))
 		{
-			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << _Pointer;
+			OutputDebugString(ss.str().c_str());
 			return;
 		}
 		memcpy(_Pointer, data, size);
@@ -137,7 +142,9 @@ public:
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - 5);
 		if (!VirtualProtect(_Pointer, 5, PAGE_READWRITE, &temp))
 		{
-			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << _Pointer;
+			OutputDebugString(ss.str().c_str());
 			return;
 		}
 		memcpy(&tempJMP[1], &JMPSize, 4);
@@ -155,7 +162,9 @@ public:
 		uint32_t JMPSize = ((uint32_t)newFunction - (uint32_t)_Pointer - patchSize);
 		if(!VirtualProtect(_Pointer, patchSize, PAGE_READWRITE, &temp))
 		{
-			printf("Failed to set protection on memory address 0x%p!", _Pointer);
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << _Pointer;
+			OutputDebugString(ss.str().c_str());
 			return;
 		}
 		if (jmpFlags & HookFlags::IsJmpIfEqual)

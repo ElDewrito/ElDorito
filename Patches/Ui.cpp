@@ -91,7 +91,11 @@ namespace Patches
 			DWORD temp2;
 			auto writeAddr = Pointer(0x169EFD8);
 			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
-				printf("Failed to set protection on memory address 0x%p!", (void*)writeAddr);
+			{
+				std::stringstream ss;
+				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+				OutputDebugString(ss.str().c_str());
+			}
 			else
 			{
 				writeAddr.Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
@@ -102,7 +106,11 @@ namespace Patches
 			// TODO: fix this, since it doesn't seem to work, even though it should
 			writeAddr = Pointer(0x16A0148);
 			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
-				printf("Failed to set protection on memory address 0x%p!", (void*)writeAddr);
+			{
+				std::stringstream ss;
+				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+				OutputDebugString(ss.str().c_str());
+			}
 			else
 			{
 				writeAddr.Write<uint32_t>((uint32_t)&UI_ButtonPressHandlerHook);
