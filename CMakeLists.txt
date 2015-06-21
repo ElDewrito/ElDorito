@@ -80,6 +80,8 @@ set(SOURCE_FILES
     Utils/Assert.cpp
     Utils/Assert.h
     Utils/Bits.h
+    Utils/Cryptography.cpp
+    Utils/Cryptography.h
     Utils/Macros.h
     Utils/Singleton.h
     Utils/String.cpp
