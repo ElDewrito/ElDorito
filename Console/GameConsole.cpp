@@ -11,6 +11,11 @@ void writeToMemory(uint8_t* const destination, const uint8_t bytesToPatch[], con
 	VirtualProtect(destination, numOfBytes, origProtect, 0);
 }
 
+void GameConsole::startIRCBackend()
+{
+	GameConsole::getInstance().ircBackend = std::make_unique<IRCBackend>();
+}
+
 GameConsole::GameConsole()
 {
 	for (int i = 0; i < numOfLines; i++) {
@@ -20,7 +25,7 @@ GameConsole::GameConsole()
 	initPlayerName();
 	DirectXHook::hookDirectX();
 	KeyboardHook::setHook();
-	// IRCBackend ircBackEnd(this); // TODO: this needs to be a in a separate thread
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 
 	pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	pushLineFromGameToUI("Enter /help or /help <command> to get started!");

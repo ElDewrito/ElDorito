@@ -1,9 +1,10 @@
 #pragma once
 #include <winsock2.h>
+#include <vector>
+#include <memory>
 #include "DirectXHook.h"
 #include "KeyboardHook.h"
 #include "IRCBackend.h"
-#include <vector>
 
 class GameConsole
 {
@@ -18,11 +19,13 @@ private:
 	int numOfLines = 8;
 	std::string inputLine = "";
 	std::string playerName = "";
+	std::unique_ptr<IRCBackend> ircBackend = nullptr;
 
 	void pushLineFromKeyboardToGame(std::string line);
 	void initPlayerName();
 	void enableGameKeyboardInput();
 	void disableGameKeyboardInput();
+	static void startIRCBackend();
 
 public:
 	std::string sendThisLineToIRCServer = "";

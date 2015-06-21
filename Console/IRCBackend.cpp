@@ -1,7 +1,9 @@
 #include "IRCBackend.h"
+#include "GameConsole.h"
 #include <algorithm>
+#include <sstream>
 
-IRCBackend::IRCBackend(GameConsole* gameConsoleInstance) : gameConsoleInstance(gameConsoleInstance), server("irc.snoonet.org"), channel("#haloonline")
+IRCBackend::IRCBackend() : server("irc.snoonet.org"), channel("#haloonline")
 {
 	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
 
@@ -11,7 +13,7 @@ IRCBackend::IRCBackend(GameConsole* gameConsoleInstance) : gameConsoleInstance(g
 	}
 	else
 	{
-		gameConsoleInstance->pushLineFromGameToUI("Error: failed to connect to IRC.");
+		GameConsole::getInstance().pushLineFromGameToUI("Error: failed to connect to IRC.");
 	}
 	closesocket(winSocket);
 	WSACleanup();
@@ -35,7 +37,7 @@ bool IRCBackend::initIRCChat()
 	free(wd);
 	if (ret)
 	{
-		gameConsoleInstance->pushLineFromGameToUI("Error loading Windows Socket API");
+		GameConsole::getInstance().pushLineFromGameToUI("Error loading Windows Socket API");
 		return false;
 	}
 	struct addrinfo hints, *ai;
@@ -45,19 +47,19 @@ bool IRCBackend::initIRCChat()
 	hints.ai_protocol = IPPROTO_TCP;
 	if (ret = getaddrinfo(server.c_str(), "6667", &hints, &ai))
 	{
-		gameConsoleInstance->pushLineFromGameToUI(gai_strerror(ret));
+		GameConsole::getInstance().pushLineFromGameToUI(gai_strerror(ret));
 		return false;
 	}
 	winSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (ret = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
 	{
-		gameConsoleInstance->pushLineFromGameToUI(gai_strerror(ret));
+		GameConsole::getInstance().pushLineFromGameToUI(gai_strerror(ret));
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :null\r\n", gameConsoleInstance->getPlayerName().c_str());
+	sprintf_s(buffer, "USER %s 0 * :null\r\n", GameConsole::getInstance().getPlayerName().c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	sprintf_s(buffer, "NICK %s\r\n", gameConsoleInstance->getPlayerName().c_str());
+	sprintf_s(buffer, "NICK %s\r\n", GameConsole::getInstance().getPlayerName().c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 
 	u_long iMode = 1;
@@ -78,7 +80,7 @@ void IRCBackend::ircChatLoop()
 		{
 			std::string errorString("Winsock error code: ");
 			errorString.append(std::to_string(nError));
-			gameConsoleInstance->pushLineFromGameToUI(errorString);
+			GameConsole::getInstance().pushLineFromGameToUI(errorString);
 			break;
 		}
 
@@ -87,7 +89,7 @@ void IRCBackend::ircChatLoop()
 			buffer[inDataLength] = '\0';
 		}
 
-		if (inChannel && !gameConsoleInstance->sendThisLineToIRCServer.empty())
+		if (inChannel && !GameConsole::getInstance().sendThisLineToIRCServer.empty())
 		{
 			sendMessageToIRCServer();
 		}
@@ -130,17 +132,17 @@ void IRCBackend::ircChatLoop()
 
 void IRCBackend::sendMessageToIRCServer()
 {
-	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), gameConsoleInstance->sendThisLineToIRCServer.c_str());
+	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), GameConsole::getInstance().sendThisLineToIRCServer.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	gameConsoleInstance->sendThisLineToIRCServer.clear();
+	GameConsole::getInstance().sendThisLineToIRCServer.clear();
 }
 
 void IRCBackend::joinIRCChannel()
 {
-	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", gameConsoleInstance->getPlayerName().c_str(), channel.c_str());
+	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", GameConsole::getInstance().getPlayerName().c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	inChannel = true;
-	gameConsoleInstance->pushLineFromGameToUI("Connected to global chat!");
+	GameConsole::getInstance().pushLineFromGameToUI("Connected to global chat!");
 }
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
@@ -170,5 +172,5 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
-	gameConsoleInstance->pushLineFromGameToUI(message);
+	GameConsole::getInstance().pushLineFromGameToUI(message);
 }

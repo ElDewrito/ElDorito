@@ -1,14 +1,9 @@
 #pragma once
-#include "GameConsole.h"
-#include <ws2tcpip.h>
-#include <sstream>
 #include <vector>
-
-#pragma comment(lib,"ws2_32.lib")
+#include <ws2tcpip.h>
 
 class IRCBackend {
 private:
-	GameConsole* gameConsoleInstance;
 	std::string server = "";
 	std::string channel = "";
 	bool inChannel = false;
@@ -28,5 +23,5 @@ private:
 	void sendMessageToIRCServer();
 
 public:
-	IRCBackend(GameConsole* gameConsoleInstance);
+	IRCBackend();
 };
