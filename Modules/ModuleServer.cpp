@@ -258,6 +258,7 @@ namespace
 		writer.String(Modules::ModulePlayer::Instance().VarPlayerPubKey->ValueString.c_str());
 		writer.Key("signature");
 		writer.String(statsSignature.c_str());
+		writer.EndObject();
 
 		std::string sendObject = s.GetString();
 

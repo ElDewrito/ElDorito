@@ -258,6 +258,7 @@ namespace Patches
 						writer.String(gameVersion.c_str());
 						writer.Key("eldewritoVersion");
 						writer.String(Utils::Version::GetVersionString().c_str());
+						writer.EndObject();
 
 						std::string replyData = s.GetString();
 						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
