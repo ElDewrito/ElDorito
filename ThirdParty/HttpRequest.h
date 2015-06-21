@@ -15,7 +15,7 @@ public:
 	int lastError;
 
 	HttpRequest(const std::wstring &userAgent, const std::wstring &proxyIp, const std::wstring &proxyPort);
-	BOOL SendRequest(const std::wstring &uri, const std::wstring &method, const std::wstring &username, const std::wstring &password, void *body, DWORD bodySize);
+	BOOL SendRequest(const std::wstring &uri, const std::wstring &method, const std::wstring &username, const std::wstring &password, const std::wstring &headers, void *body, DWORD bodySize);
 	std::wstring responseHeader;
 	std::vector<BYTE> responseBody;
 };

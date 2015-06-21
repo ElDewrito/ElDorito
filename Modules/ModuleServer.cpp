@@ -91,7 +91,7 @@ namespace
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
 			//ss << "Announcing to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", NULL, 0))
+			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
 			{
 				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
 				continue;
@@ -153,7 +153,7 @@ namespace
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
 			//ss << "Unannouncing to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", NULL, 0))
+			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", L"", NULL, 0))
 			{
 				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
 				continue;
@@ -266,7 +266,7 @@ namespace
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
 			//ss << "Sending game stats to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", (void*)sendObject.c_str(), sendObject.length()))
+			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
 			{
 				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
 				continue;
@@ -427,7 +427,7 @@ namespace
 			passwordStr = Utils::String::WidenString(password);
 		}
 
-		if (!req.SendRequest(Utils::String::WidenString("http://" + host + ":" + std::to_string(httpPort) + "/"), L"GET", usernameStr, passwordStr, NULL, 0))
+		if (!req.SendRequest(Utils::String::WidenString("http://" + host + ":" + std::to_string(httpPort) + "/"), L"GET", usernameStr, passwordStr, L"", NULL, 0))
 		{
 			returnInfo = "Unable to connect to server. (error: " + std::to_string(req.lastError) + "/" + std::to_string(GetLastError()) + ")";
 			return false;
@@ -555,5 +555,7 @@ namespace Modules
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsNone, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 		AddCommand("Announce", "announce", "Announces this server to the master servers", eCommandFlagsNone, CommandServerAnnounce);
 		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsNone, CommandServerUnannounce);
+
+		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 	}
 }
