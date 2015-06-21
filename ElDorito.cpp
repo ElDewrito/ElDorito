@@ -96,6 +96,12 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 			GameConsole::getInstance(); // initialize console
 		}
 	}
+
+	if (!windowTitleSet && *((HWND*)0x199C014))
+	{
+		windowTitleSet = true;
+		setWindowTitle("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
+	}
 }
 
 namespace
@@ -120,20 +126,9 @@ std::string ElDorito::GetDirectory()
 	return Dir;
 }
 
-void ElDorito::SetSessionMessage(const std::string& Message)
+void ElDorito::setWindowTitle(const std::string& Message)
 {
-	static wchar_t msgBuf[256];
-	wmemset(msgBuf, 0, 256);
-
-	std::wstring msgUnicode = Utils::String::WidenString(Message);
-	wcscpy_s(msgBuf, 256, msgUnicode.c_str());
-
-	Pointer::Base(0x2E5338).Write<uint8_t>(0x68);
-	Pointer::Base(0x2E5339).Write(&msgBuf);
-	Pointer::Base(0x2E533D).Write<uint8_t>(0x90);
-	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
-
-	// todo: some way of undoing this
+	SetWindowText(*((HWND*) 0x199C014), Message.c_str());
 }
 
 Pointer ElDorito::GetMainTls(size_t Offset)
