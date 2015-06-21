@@ -107,7 +107,25 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	default:
-		inputLine += MapVirtualKey(vKey, MAPVK_VK_TO_CHAR);
+		WORD buf;
+		BYTE keysDown[256] = {};
+
+		if (GetAsyncKeyState(VK_SHIFT))
+		{
+			keysDown[16] = 0x80; // SHIFT down
+		}
+
+		int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
+
+		if (retVal == 1)
+		{
+			inputLine += buf & 0x00ff;
+		}
+		else if (retVal == 2)
+		{
+			inputLine += buf >> 8;
+			inputLine += buf & 0x00ff;
+		}
 		break;
 	}
 }
