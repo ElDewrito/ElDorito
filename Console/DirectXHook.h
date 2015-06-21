@@ -23,6 +23,7 @@ private:
 	
 	static uint32_t* horizontalRes;
 	static uint32_t* verticalRes;
+	static int currentFontHeight;
 
 	static LPDIRECT3DDEVICE9 pDevice;
 	static LPD3DXFONT dxFont;

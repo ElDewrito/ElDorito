@@ -2,6 +2,7 @@
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
+int DirectXHook::currentFontHeight = 0;
 
 LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
 LPD3DXFONT DirectXHook::dxFont = 0;
@@ -14,7 +15,7 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	return (*DirectXHook::origEndScenePtr)(device);
 }
 
-void DirectXHook::drawChatInterface() // TODO: get rid of fixed offsets so that it scales better on higher/lower resolutions
+void DirectXHook::drawChatInterface()
 {
 	if (GameConsole::getInstance().getMsSinceLastConsoleOpen() > 10000 && !GameConsole::getInstance().isConsoleShown())
 	{
@@ -23,26 +24,35 @@ void DirectXHook::drawChatInterface() // TODO: get rid of fixed offsets so that 
 
 	int x = (int)(0.05 * *horizontalRes);
 	int y = (int)(0.55 * *verticalRes);
+	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
-	int inputTextBoxHeight = (int)(0.02 * *verticalRes);
-	int fontHeight = (int)(0.0185 * *verticalRes);
+	int inputTextBoxHeight = fontHeight + (int) (0.76923076923076923076923076923077 * fontHeight);
+	int horizontalSpacingBeforeTyping = (int) (0.012 * inputTextBoxWidth);
+	int verticalSpacingBetweenEachLine = (int)(0.15384615384615384615384615384615 * fontHeight);
+	int verticalSpacingBetweenLinesAndInputBox = (int)(0.38461538461538461538461538461538 * fontHeight);
 
-	if (!dxFont) {
+	if (!dxFont || fontHeight != currentFontHeight) {
+		if (dxFont)
+		{
+			dxFont->Release();
+		}
+
 		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &dxFont);
+		currentFontHeight = fontHeight;
 		return;
 	}
 
 	for (int i = 0; i < GameConsole::getInstance().getNumOfLines(); i++)
 	{
-		drawText(x + 5, y, COLOR_WHITE, (char*)GameConsole::getInstance().at(i).c_str());
-		y += fontHeight + 2;
+		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)GameConsole::getInstance().at(i).c_str());
+		y += fontHeight + verticalSpacingBetweenEachLine;
 	}
 
 	if (GameConsole::getInstance().isConsoleShown())
 	{
-		y += 5;
+		y += verticalSpacingBetweenLinesAndInputBox;
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + 5, y + 2, COLOR_WHITE, (char*)GameConsole::getInstance().getInputLine().c_str());
+		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)GameConsole::getInstance().getInputLine().c_str());
 	}
 }
 
@@ -79,8 +89,8 @@ uint32_t* DirectXHook::getDirectXVTableMethod3()
 
 void DirectXHook::hookDirectX()
 {
-	horizontalRes = (uint32_t*)0x19106C0;
-	verticalRes = (uint32_t*)0x19106C4;
+	horizontalRes = (uint32_t*)0x2301D08;
+	verticalRes = (uint32_t*)0x2301D0C;
 
 	uint32_t* directXVTable = getDirectXVTableMethod3();
 	origEndScenePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9)) directXVTable[42];
