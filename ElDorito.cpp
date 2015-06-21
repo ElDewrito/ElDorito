@@ -118,7 +118,7 @@ std::string ElDorito::GetDirectory()
 	if( !GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&::HandleFinder, &hMod) )
 	{
 		int Error = GetLastError();
-		std::cout << "Unable to resolve current directory, error code: " << Error << std::endl;
+		OutputDebugString(std::string("Unable to resolve current directory, error code: ").append(std::to_string(Error)).c_str());
 	}
 	GetModuleFileNameA(hMod, Path, sizeof(Path));
 	std::string Dir(Path);
@@ -150,7 +150,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		BOOL success = GetThreadContext(MainThreadHandle, &MainThreadContext);
 		if( !success )
 		{
-			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
+			OutputDebugString(std::string("Error getting thread context: ").append(std::to_string(GetLastError())).c_str());
 			std::exit(1);
 		}
 		ResumeThread(MainThreadHandle);
@@ -162,7 +162,7 @@ Pointer ElDorito::GetMainTls(size_t Offset)
 		success = GetThreadSelectorEntry(MainThreadHandle, MainThreadContext.SegFs, &MainThreadLdt);
 		if( !success )
 		{
-			std::cout << "Error getting thread context: " << GetLastError() << std::endl;
+			OutputDebugString(std::string("Error getting thread context: ").append(std::to_string(GetLastError())).c_str());
 		}
 		size_t TlsPtrArrayAddress = (size_t)((size_t)(MainThreadLdt.HighWord.Bits.BaseHi << 24) | (MainThreadLdt.HighWord.Bits.BaseMid << 16) | MainThreadLdt.BaseLow) + 0x2C;
 		size_t TlsPtrAddress = Pointer(TlsPtrArrayAddress).Read<uint32_t>();
