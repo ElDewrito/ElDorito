@@ -21,6 +21,7 @@ enum CommandFlags
 	eCommandFlagsReplicated        = 1 << 1, // value of this variable should be output into the server info JSON, clients should update their variable to match the one in JSON
 	eCommandFlagsArchived          = 1 << 2, // value of this variable should be written when using WriteConfig
 	eCommandFlagsDontUpdateInitial = 1 << 3, // don't call the update event when the variable is first being initialized
+	eCommandFlagsHidden            = 1 << 4, // hide this command/var from the help listing
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);

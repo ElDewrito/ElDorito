@@ -4,11 +4,11 @@
 
 enum DebugLoggingModes
 {
-	Network = 1,
-	SSL = 2,
-	UI = 4,
-	Game1 = 8,
-	Game2 = 16,
+	eDebugLoggingModeNetwork = 1,
+	eDebugLoggingModeSSL = 2,
+	eDebugLoggingModeUI = 4,
+	eDebugLoggingModeGame1 = 8,
+	eDebugLoggingModeGame2 = 16,
 };
 
 namespace Modules

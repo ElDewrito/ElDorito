@@ -331,6 +331,9 @@ namespace Modules
 		std::stringstream hasParent;
 		for (auto cmd : Commands)
 		{
+			if (cmd.Flags & eCommandFlagsHidden)
+				continue;
+
 			auto helpText = cmd.GenerateHelpText();
 
 			if (cmd.ModuleName.length() > 0)

@@ -22,7 +22,8 @@ namespace Modules
 		Command* VarColorsHolo;
 
 		Command* VarPlayerName;
-		Command* VarUserID;
+		Command* VarPlayerPrivKey;
+		Command* VarPlayerPubKey;
 
 		wchar_t UserName[17];
 

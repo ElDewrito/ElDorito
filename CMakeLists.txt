@@ -106,8 +106,8 @@ set(SOURCE_FILES
     ElDorito.rc
     ElDorito.def)
 
-include_directories($ENV{DXSDK_DIR}/Include)
-link_directories($ENV{DXSDK_DIR}/Lib/x86)
+include_directories($ENV{DXSDK_DIR}/Include ThirdParty/openssl-1.0.2c/include)
+link_directories($ENV{DXSDK_DIR}/Lib/x86 ThirdParty/openssl-1.0.2c/lib)
 
 add_library(ElDorito MODULE ${SOURCE_FILES})
 
@@ -115,5 +115,6 @@ target_link_libraries(ElDorito d3d9)
 target_link_libraries(ElDorito d3dx9)
 target_link_libraries(ElDorito Version)
 target_link_libraries(ElDorito ws2_32)
+target_link_libraries(ElDorito libeay32MD)
 
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

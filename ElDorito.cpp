@@ -15,6 +15,7 @@
 
 #include "Utils/Utils.h"
 #include "ElPatches.h"
+#include "Patches/PlayerUid.h"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -120,9 +121,13 @@ void ElDorito::Initialize()
 	std::cout << "Current directory: ";
 	Terminal.SetTextColor(Console::Input);
 	std::cout << GetDirectory() << std::endl;
+
 	Terminal.SetTextColor(Console::Red | Console::Blue);
 	std::cout << std::string(ConsoleWidth - 1, '\xC4') << std::endl;
 	Terminal.SetTextColor(Console::Info);
+
+	// call this so the keypair can be generated if it doesn't exist, before the game starts up
+	Patches::PlayerUid::Get();
 
 	Terminal.PrintLine();
 
