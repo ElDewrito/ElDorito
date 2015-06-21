@@ -1,5 +1,6 @@
 #include "GameConsole.h"
 #include "../Utils/VersionInfo.h"
+#include "../CommandMap.h"
 
 // TODO: why does pressing shift or caps lock break keyboard input?
 // TODO: why is all input in capital letters?
@@ -120,7 +121,8 @@ void GameConsole::pushLineFromKeyboardToGame(std::string line)
 	if (line.find("/") == 0)
 	{
 		pushLineFromGameToUI(line);
-		// TODO: sendToElDewrito();
+		line.erase(0, 1);
+		Modules::CommandMap::Instance().ExecuteCommand(line);
 	}
 	else
 	{
