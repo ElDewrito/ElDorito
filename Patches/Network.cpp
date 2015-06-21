@@ -12,6 +12,10 @@
 
 #include "../ElDorito.h"
 
+#include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+#include <iostream>
+
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
@@ -144,29 +148,42 @@ namespace Patches
 						if (gameMode == 3)
 						{
 							if (mapName == "mainmenu")
+							{
 								status = "InLobby";
-							else
+								// on mainmenu so we'll have to read other data
+								mapName = std::string((char*)Pointer(0x19A5E49));
+								variantName = std::wstring((wchar_t*)Pointer(0x179254));
+								variantType = Pointer(0x179250).Read<uint32_t>();
+							}
+							else // TODO: find how to get the variant name/type while it's on the loading screen
 								status = "Loading";
-
-							// on mainmenu so we'll have to read other data
-							mapName = std::string((char*)Pointer(0x19A5E49));
-							variantName = std::wstring((wchar_t*)Pointer(0x179254));
-							variantType = Pointer(0x179250).Read<uint32_t>();
 						}
 
-						std::string replyData = "{\r\n";
-						replyData += "  \"name\": \"" + Modules::ModuleServer::Instance().VarServerName->ValueString + "\",\r\n";
-						replyData += "  \"port\": " + std::to_string(Pointer(0x1860454).Read<uint32_t>()) + ",\r\n";
-						replyData += "  \"hostPlayer\": \"" + Modules::ModulePlayer::Instance().VarPlayerName->ValueString + "\",\r\n";
-						replyData += "  \"map\": \"" + Utils::String::ThinString(mapVariantName) + "\",\r\n";
-						replyData += "  \"mapFile\": \"" + mapName + "\",\r\n";
-						replyData += "  \"variant\": \"" + Utils::String::ThinString(variantName) + "\",\r\n";
-						replyData += "  \"variantType\": \"" + Blam::GameTypeNames[variantType] + "\",\r\n";
-						replyData += "  \"status\": \"" + status + "\",\r\n";
+						rapidjson::StringBuffer s;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+						writer.StartObject();
+						writer.Key("name");
+						writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+						writer.Key("port");
+						writer.Int(Pointer(0x1860454).Read<uint32_t>());
+						writer.Key("hostPlayer");
+						writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+						writer.Key("map");
+						writer.String(Utils::String::ThinString(mapVariantName).c_str());
+						writer.Key("mapFile");
+						writer.String(mapName.c_str());
+						writer.Key("variant");
+						writer.String(Utils::String::ThinString(variantName).c_str());
+						writer.Key("variantType");
+						writer.String(Blam::GameTypeNames[variantType].c_str());
+						writer.Key("status");
+						writer.String(status.c_str());
+						writer.Key("numPlayers");
+						writer.Int(GetNumPlayers());
 
-						replyData += "  \"numPlayers\": " + std::to_string(GetNumPlayers()) + ",\r\n";
 						// TODO: find how to get actual max players from the game, since our variable might be wrong
-						replyData += "  \"maxPlayers\": " + Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueString + ",\r\n";
+						writer.Key("maxPlayers");
+						writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
 
 						bool authenticated = true;
 						if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
@@ -176,18 +193,20 @@ namespace Patches
 							authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
 						}
 
-						if (authenticated)
+						if(authenticated)
 						{
-							replyData += "  \"xnkid\": \"" + xnkid + "\",\r\n";
-							replyData += "  \"xnaddr\": \"" + xnaddr + "\",\r\n";
+							writer.Key("xnkid");
+							writer.String(xnkid.c_str());
+							writer.Key("xnaddr");
+							writer.String(xnaddr.c_str());
+							writer.Key("players");
 
+							writer.StartArray();
 							uint32_t playerScoresBase = 0x23F1724;
 							//uint32_t playerInfoBase = 0x2162DD0;
 							uint32_t playerInfoBase = 0x2162E08;
 							uint32_t menuPlayerInfoBase = 0x1863B58;
 							uint32_t playerStatusBase = 0x2161808;
-							replyData += "  \"players\": [\r\n";
-							std::vector<std::string> players;
 							for (int i = 0; i < 16; i++)
 							{
 								uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
@@ -210,33 +229,37 @@ namespace Patches
 								if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
 									continue;
 
-								std::string playerData = "    {\r\n";
-								playerData += "      \"name\": \"" + menuNameStr + "\",\r\n";
-								playerData += "      \"score\": " + std::to_string(score) + ",\r\n";
-								playerData += "      \"kills\": " + std::to_string(kills) + ",\r\n";
-								playerData += "      \"assists\": " + std::to_string(assists) + ",\r\n";
-								playerData += "      \"deaths\": " + std::to_string(deaths) + ",\r\n";
-								playerData += "      \"team\": " + std::to_string(team) + ",\r\n";
-								if (alive == 1)
-									playerData += "      \"isAlive\": \"true\"\r\n";
-								else
-									playerData += "      \"isAlive\": \"false\"\r\n";
-								playerData += "    }";
-								players.push_back(playerData);
+								writer.StartObject();
+								writer.Key("name");
+								writer.String(menuNameStr.c_str());
+								writer.Key("score");
+								writer.Int(score);
+								writer.Key("kills");
+								writer.Int(kills);
+								writer.Key("assists");
+								writer.Int(assists);
+								writer.Key("deaths");
+								writer.Int(deaths);
+								writer.Key("team");
+								writer.Int(team);
+								writer.Key("isAlive");
+								writer.Bool(alive == 1);
+								writer.EndObject();
 							}
-							for (unsigned int i = 0; i < players.size(); i++)
-								replyData += players[i] + (i + 1 != players.size() ? "," : "") + "\r\n";
-
-							replyData += "  ],\r\n";
+							writer.EndArray();
 						}
 						else
-							replyData += "  \"passworded\": \"true\",\r\n";
+						{
+							writer.Key("passworded");
+							writer.Bool(true);
+						}
 
+						writer.Key("gameVersion");
+						writer.String(gameVersion.c_str());
+						writer.Key("eldewritoVersion");
+						writer.String(Utils::Version::GetVersionString().c_str());
 
-						replyData += "  \"gameVersion\": \"" + gameVersion + "\",\r\n";
-						replyData += "  \"eldewritoVersion\": \"" + Utils::Version::GetVersionString() + "\"\r\n";
-						replyData += "}";
-
+						std::string replyData = s.GetString();
 						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
 						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 					}
