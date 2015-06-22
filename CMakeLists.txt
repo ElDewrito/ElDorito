@@ -3,6 +3,9 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE
    ${CMAKE_CURRENT_SOURCE_DIR}/c_flag_overrides.cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX
    ${CMAKE_CURRENT_SOURCE_DIR}/cxx_flag_overrides.cmake)
+
+set(HALO_ROOT "C:/Halo/" CACHE PATH "Root of the Halo install")
+
 project(ElDorito)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -126,6 +129,13 @@ link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/openssl-1.0.2c/lib)
 
 add_library(ElDorito MODULE ${SOURCE_FILES})
+
+if(IS_DIRECTORY ${HALO_ROOT})
+  add_custom_command(TARGET ElDorito POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy $<TARGET_FILE:ElDorito>
+                              ${HALO_ROOT}/$<TARGET_FILE_NAME:ElDorito>)
+endif(IS_DIRECTORY ${HALO_ROOT})
 
 target_link_libraries(ElDorito d3d9)
 target_link_libraries(ElDorito d3dx9)
