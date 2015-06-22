@@ -15,10 +15,8 @@ private:
 	bool capsLockToggled = false;
 	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
-	std::vector<std::string> queue = std::vector < std::string > {}; // index 0 is oldest command; the higher the index, the more recent the command
-	int numOfLines = 8;
-	std::string inputLine = "";
-	std::string playerName = "";
+	std::vector<std::string> queue = std::vector <std::string> {}; // index 0 is newest command; the higher the index, the older the command
+	int numOfLinesBuffer = 100;
 	std::unique_ptr<IRCBackend> ircBackend = nullptr;
 
 	void pushLineFromKeyboardToGame(std::string line);
@@ -31,17 +29,18 @@ private:
 
 public:
 	GameConsole();
+	std::string playerName = "";
 	std::string sendThisLineToIRCServer = "";
+	std::string inputLine = "";
+	int numOfLinesToShow = 12;
+	int queueStartIndexForUI = 0;
 
 	bool isConsoleShown();
 	int getMsSinceLastConsoleOpen();
 	void peekConsole();
-	int getNumOfLines();
 	std::string at(int i);
 	void virtualKeyCallBack(USHORT vKey);
-	std::string getInputLine();
 	void pushLineFromGameToUI(std::string line);
 	void pushLineFromGameToUIMultipleLines(std::string multipleLines);
-	std::string getPlayerName();
 	void GameConsole::checkForReturnKey();
 };

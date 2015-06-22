@@ -10,7 +10,7 @@ void GameConsole::startIRCBackend()
 
 GameConsole::GameConsole()
 {
-	for (int i = 0; i < numOfLines; i++) {
+	for (int i = 0; i < numOfLinesBuffer; i++) {
 		queue.push_back("");
 	}
 
@@ -115,6 +115,20 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		capsLockToggled = !capsLockToggled;
 		break;
 
+	case VK_PRIOR:
+		if (queueStartIndexForUI < numOfLinesBuffer - numOfLinesToShow)
+		{
+			queueStartIndexForUI++;
+		}
+		break;
+
+	case VK_NEXT:
+		if (queueStartIndexForUI > 0)
+		{
+			queueStartIndexForUI--;
+		}
+		break;
+
 	default:
 		WORD buf;
 		BYTE keysDown[256] = {};
@@ -142,11 +156,6 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 	}
-}
-
-std::string GameConsole::getInputLine()
-{
-	return inputLine;
 }
 
 void GameConsole::pushLineFromKeyboardToGame(std::string line)
@@ -177,11 +186,11 @@ void GameConsole::initPlayerName()
 
 void GameConsole::pushLineFromGameToUI(std::string line)
 {
-	for (int i = 0; i < numOfLines - 1; i++)
+	for (int i = numOfLinesBuffer - 1; i > 0; i--)
 	{
-		queue.at(i) = queue.at(i + 1);
+		queue.at(i) = queue.at(i - 1);
 	}
-	queue.at(numOfLines - 1) = line;
+	queue.at(0) = line;
 
 	peekConsole();
 }
@@ -195,16 +204,6 @@ void GameConsole::pushLineFromGameToUIMultipleLines(std::string multipleLines)
 	{
 		pushLineFromGameToUI(line);
 	}
-}
-
-std::string GameConsole::getPlayerName()
-{
-	return playerName;
-}
-
-int GameConsole::getNumOfLines()
-{
-	return numOfLines;
 }
 
 std::string GameConsole::at(int i)

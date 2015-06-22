@@ -14,7 +14,7 @@ LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wP
 		{
 			rwInput = (RAWINPUT*)lpb;
 
-			if (rwInput->header.dwType == RIM_TYPEKEYBOARD && rwInput->data.keyboard.Flags == RI_KEY_MAKE)
+			if (rwInput->header.dwType == RIM_TYPEKEYBOARD && (rwInput->data.keyboard.Flags == RI_KEY_MAKE || rwInput->data.keyboard.Flags == RI_KEY_E0))
 			{
 				GameConsole::Instance().virtualKeyCallBack(rwInput->data.keyboard.VKey);
 			}

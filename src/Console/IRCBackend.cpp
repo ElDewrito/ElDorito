@@ -59,9 +59,9 @@ bool IRCBackend::initIRCChat()
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :null\r\n", console.getPlayerName().c_str());
+	sprintf_s(buffer, "USER %s 0 * :null\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	sprintf_s(buffer, "NICK %s\r\n", console.getPlayerName().c_str());
+	sprintf_s(buffer, "NICK %s\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 
 	u_long iMode = 1;
@@ -145,7 +145,7 @@ void IRCBackend::sendMessageToIRCServer()
 void IRCBackend::joinIRCChannel()
 {
 	auto& console = GameConsole::Instance();
-	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.getPlayerName().c_str(), channel.c_str());
+	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	inChannel = true;
 	console.pushLineFromGameToUI("Connected to global chat!");

@@ -24,13 +24,13 @@ void DirectXHook::drawChatInterface()
 	}
 
 	int x = (int)(0.05 * *horizontalRes);
-	int y = (int)(0.55 * *verticalRes);
+	int y = (int)(0.65 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
-	int inputTextBoxHeight = fontHeight + (int) (0.76923076923076923076923076923077 * fontHeight);
+	int inputTextBoxHeight = fontHeight + (int) (0.769 * fontHeight);
 	int horizontalSpacingBeforeTyping = (int) (0.012 * inputTextBoxWidth);
-	int verticalSpacingBetweenEachLine = (int)(0.15384615384615384615384615384615 * fontHeight);
-	int verticalSpacingBetweenLinesAndInputBox = (int)(0.38461538461538461538461538461538 * fontHeight);
+	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
+	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 
 	if (!dxFont || fontHeight != currentFontHeight) {
 		if (dxFont)
@@ -43,17 +43,18 @@ void DirectXHook::drawChatInterface()
 		return;
 	}
 
-	for (int i = 0; i < console.getNumOfLines(); i++)
-	{
-		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)console.at(i).c_str());
-		y += fontHeight + verticalSpacingBetweenEachLine;
-	}
-
 	if (console.isConsoleShown())
 	{
-		y += verticalSpacingBetweenLinesAndInputBox;
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.getInputLine().c_str());
+		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
+	}
+
+	y -= verticalSpacingBetweenLinesAndInputBox;
+
+	for (int i = console.queueStartIndexForUI; i < console.numOfLinesToShow + console.queueStartIndexForUI; i++)
+	{
+		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)console.at(i).c_str());
+		y -= fontHeight + verticalSpacingBetweenEachLine;
 	}
 }
 
