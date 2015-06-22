@@ -12,6 +12,7 @@ class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
 	bool boolShowConsole = false;
+	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
 	std::vector<std::string> queue = std::vector < std::string > {}; // index 0 is oldest command; the higher the index, the more recent the command
 	int numOfLines = 8;
@@ -22,6 +23,9 @@ private:
 	void pushLineFromKeyboardToGame(std::string line);
 	void initPlayerName();
 	static void startIRCBackend();
+	int getMsSinceLastReturnPressed();
+	void hideConsole();
+	void showConsole();
 	std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 public:
@@ -29,11 +33,8 @@ public:
 	std::string sendThisLineToIRCServer = "";
 
 	bool isConsoleShown();
-	int getMsSinceLastReturnPressed();
 	int getMsSinceLastConsoleOpen();
 	void peekConsole();
-	void hideConsole();
-	void showConsole();
 	int getNumOfLines();
 	std::string at(int i);
 	void virtualKeyCallBack(USHORT vKey);
@@ -41,6 +42,5 @@ public:
 	void pushLineFromGameToUI(std::string line);
 	void pushLineFromGameToUIMultipleLines(std::string multipleLines);
 	std::string getPlayerName();
-
-	Patch DisableKeyboardInputPatch;
+	void GameConsole::checkForReturnKey();
 };

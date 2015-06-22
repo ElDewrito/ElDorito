@@ -1,28 +1,30 @@
 #include "KeyboardHook.h"
 
-HHOOK KeyboardHook::ourHookedFunctionPtr;
+WNDPROC KeyboardHook::realProc = 0;
 
-LRESULT __stdcall KeyboardHook::hookCallback(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (nCode > 0)
+	if (GameConsole::Instance().isConsoleShown() && message == WM_INPUT)
 	{
-		return CallNextHookEx(ourHookedFunctionPtr, nCode, wParam, lParam);
-	}
-	else if (nCode == HC_ACTION)
-	{
-		if (HK_IS_PRESSED)
+		UINT uiSize = 40; // sizeof(RAWINPUT)
+		static unsigned char lpb[40];
+		RAWINPUT* rwInput;
+
+		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &uiSize, sizeof(RAWINPUTHEADER)) != -1)
 		{
-			GameConsole::Instance().virtualKeyCallBack(wParam);
+			rwInput = (RAWINPUT*)lpb;
+
+			if (rwInput->header.dwType == RIM_TYPEKEYBOARD && rwInput->data.keyboard.Flags == RI_KEY_MAKE)
+			{
+				GameConsole::Instance().virtualKeyCallBack(rwInput->data.keyboard.VKey);
+			}
 		}
 	}
 
-	return CallNextHookEx(ourHookedFunctionPtr, nCode, wParam, lParam);
+	return CallWindowProc(realProc, hWnd, message, wParam, lParam);
 }
 
 void KeyboardHook::setHook()
 {
-	if (!(ourHookedFunctionPtr = SetWindowsHookEx(WH_KEYBOARD, KeyboardHook::hookCallback, GetModuleHandle(0), GetWindowThreadProcessId(*((HWND*)0x199C014), 0))))
-	{
-		OutputDebugString("Failed to install keyboard hook!");
-	}
+	realProc = (WNDPROC)SetWindowLongPtr(*((HWND*) 0x199C014), GWL_WNDPROC, (LONG_PTR)KeyboardHook::hookedWndProc);
 }

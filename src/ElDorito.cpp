@@ -101,6 +101,11 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		}
 	}
 
+	if (consoleLoaded)
+	{
+		GameConsole::Instance().checkForReturnKey();
+	}
+
 	if (!windowTitleSet && *((HWND*)0x199C014))
 	{
 		windowTitleSet = true;

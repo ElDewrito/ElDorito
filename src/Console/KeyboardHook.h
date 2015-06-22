@@ -12,8 +12,8 @@ class GameConsole;
 class KeyboardHook
 {
 private:
-	static HHOOK ourHookedFunctionPtr;
-	static LRESULT __stdcall hookCallback(int nCode, WPARAM wParam, LPARAM lParam);
+	static WNDPROC realProc;
+	static LRESULT __stdcall hookedWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 public:
 	static void setHook();

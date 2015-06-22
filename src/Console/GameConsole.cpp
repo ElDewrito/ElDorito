@@ -8,8 +8,7 @@ void GameConsole::startIRCBackend()
 	GameConsole::Instance().ircBackend = std::make_unique<IRCBackend>();
 }
 
-GameConsole::GameConsole() : 
-	DisableKeyboardInputPatch(0x112690, { 0xE9, 0x0B, 0x03, 0x00, 0x00, 0x90 })
+GameConsole::GameConsole()
 {
 	for (int i = 0; i < numOfLines; i++) {
 		queue.push_back("");
@@ -28,6 +27,11 @@ bool GameConsole::isConsoleShown() {
 	return boolShowConsole;
 }
 
+int GameConsole::getMsSinceLastReturnPressed()
+{
+	return GetTickCount() - lastTimeConsoleShown;
+}
+
 int GameConsole::getMsSinceLastConsoleOpen()
 {
 	return GetTickCount() - lastTimeConsoleShown;
@@ -43,13 +47,34 @@ void GameConsole::hideConsole()
 	lastTimeConsoleShown = GetTickCount();
 	boolShowConsole = false;
 	inputLine.clear();
-	DisableKeyboardInputPatch.Apply(true);
+	
+	// Enables game keyboard input and disables our keyboard hook
+
+	RAWINPUTDEVICE Rid;
+	Rid.usUsagePage = 0x01;
+	Rid.usUsage = 0x06;
+	Rid.dwFlags = RIDEV_REMOVE;
+	Rid.hwndTarget = 0;
+
+	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
+		pushLineFromGameToUI("Unregistering keyboard failed");
+	}
 }
 
 void GameConsole::showConsole()
 {
 	boolShowConsole = true;
-	DisableKeyboardInputPatch.Apply(false);
+	
+	// Disables game keyboard input and enables our keyboard hook
+	RAWINPUTDEVICE Rid;
+	Rid.usUsagePage = 0x01;
+	Rid.usUsage = 0x06;
+	Rid.dwFlags = RIDEV_NOLEGACY; // adds HID keyboard and also ignores legacy keyboard messages
+	Rid.hwndTarget = 0;
+
+	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
+		pushLineFromGameToUI("Registering keyboard failed");
+	}
 }
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
@@ -71,6 +96,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			pushLineFromKeyboardToGame(inputLine);
 		}
 		hideConsole();
+		lastTimeReturnPressed = GetTickCount();
 		break;
 
 	case VK_ESCAPE:
@@ -190,4 +216,12 @@ std::vector<std::string>& GameConsole::split(const std::string &s, char delim, s
 		elems.push_back(item);
 	}
 	return elems;
+}
+
+void GameConsole::checkForReturnKey()
+{
+	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 100) {
+		showConsole();
+		lastTimeReturnPressed = GetTickCount();
+	}
 }
