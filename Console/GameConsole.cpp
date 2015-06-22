@@ -3,9 +3,6 @@
 #include "../CommandMap.h"
 #include <sstream>
 
-// TODO: why does pressing shift or caps lock break keyboard input?
-// TODO: why is all input in capital letters?
-
 void GameConsole::startIRCBackend()
 {
 	GameConsole::Instance().ircBackend = std::make_unique<IRCBackend>();
@@ -93,7 +90,13 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 		if (GetAsyncKeyState(VK_SHIFT))
 		{
-			keysDown[16] = 0x80; // SHIFT down
+			keysDown[VK_SHIFT] = 0x80; // SHIFT down
+		}
+
+		if (GetAsyncKeyState(VK_CAPITAL))
+		{
+			keysDown[VK_SHIFT] = 0x80; // SHIFT down
+			// keysDown[VK_CAPITAL] = 0x80; // Caps lock enabled
 		}
 
 		int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
