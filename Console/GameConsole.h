@@ -5,14 +5,12 @@
 #include "DirectXHook.h"
 #include "KeyboardHook.h"
 #include "IRCBackend.h"
+#include "../Patch.h"
+#include "../Utils/Utils.h"
 
-class GameConsole
+class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
-	GameConsole();
-	GameConsole(GameConsole const&); // Do not implement
-	void operator=(GameConsole const&); // Do not implement
-
 	bool boolShowConsole = false;
 	int lastTimeConsoleShown = 0;
 	std::vector<std::string> queue = std::vector < std::string > {}; // index 0 is oldest command; the higher the index, the more recent the command
@@ -23,12 +21,11 @@ private:
 
 	void pushLineFromKeyboardToGame(std::string line);
 	void initPlayerName();
-	void enableGameKeyboardInput();
-	void disableGameKeyboardInput();
 	static void startIRCBackend();
 	std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 public:
+	GameConsole();
 	std::string sendThisLineToIRCServer = "";
 
 	bool isConsoleShown();
@@ -45,9 +42,5 @@ public:
 	void pushLineFromGameToUIMultipleLines(std::string multipleLines);
 	std::string getPlayerName();
 
-	static GameConsole& getInstance()
-	{
-		static GameConsole instance;
-		return instance;
-	}
+	Patch DisableKeyboardInputPatch;
 };

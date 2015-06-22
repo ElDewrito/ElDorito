@@ -83,8 +83,9 @@ namespace
 		uint64_t uid;
 		if (pubKey.length() <= 0)
 		{
+			auto& console = GameConsole::Instance();
 			// TODO: run this code before the game, and pop up a message box "Generating keypair..." before the game starts, so players know what's going on
-			GameConsole::getInstance().pushLineFromGameToUI("Generating player keypair, this may take a moment...");
+			console.pushLineFromGameToUI("Generating player keypair, this may take a moment...");
 			std::string privKey;
 			Utils::Cryptography::GenerateRSAKeyPair(4096, privKey, pubKey);
 
@@ -100,7 +101,7 @@ namespace
 			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPrivKey, privKey, std::string());
 			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPubKey, pubKey, std::string());
 
-			GameConsole::getInstance().pushLineFromGameToUI("Done!");
+			console.pushLineFromGameToUI("Done!");
 
 			// save the keypair
 			Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");

@@ -13,7 +13,7 @@ IRCBackend::IRCBackend() : server("irc.snoonet.org"), channel("#haloonline")
 	}
 	else
 	{
-		GameConsole::getInstance().pushLineFromGameToUI("Error: failed to connect to IRC.");
+		GameConsole::Instance().pushLineFromGameToUI("Error: failed to connect to IRC.");
 	}
 	closesocket(winSocket);
 	WSACleanup();
@@ -35,9 +35,11 @@ bool IRCBackend::initIRCChat()
 	struct WSAData* wd = (struct WSAData*)malloc(sizeof(struct WSAData));
 	ret = WSAStartup(MAKEWORD(2, 0), wd);
 	free(wd);
+
+	auto& console = GameConsole::Instance();
 	if (ret)
 	{
-		GameConsole::getInstance().pushLineFromGameToUI("Error loading Windows Socket API");
+		console.pushLineFromGameToUI("Error loading Windows Socket API");
 		return false;
 	}
 	struct addrinfo hints, *ai;
@@ -47,19 +49,19 @@ bool IRCBackend::initIRCChat()
 	hints.ai_protocol = IPPROTO_TCP;
 	if (ret = getaddrinfo(server.c_str(), "6667", &hints, &ai))
 	{
-		GameConsole::getInstance().pushLineFromGameToUI(gai_strerror(ret));
+		console.pushLineFromGameToUI(gai_strerror(ret));
 		return false;
 	}
 	winSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (ret = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
 	{
-		GameConsole::getInstance().pushLineFromGameToUI(gai_strerror(ret));
+		console.pushLineFromGameToUI(gai_strerror(ret));
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :null\r\n", GameConsole::getInstance().getPlayerName().c_str());
+	sprintf_s(buffer, "USER %s 0 * :null\r\n", console.getPlayerName().c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	sprintf_s(buffer, "NICK %s\r\n", GameConsole::getInstance().getPlayerName().c_str());
+	sprintf_s(buffer, "NICK %s\r\n", console.getPlayerName().c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 
 	u_long iMode = 1;
@@ -69,6 +71,8 @@ bool IRCBackend::initIRCChat()
 
 void IRCBackend::ircChatLoop()
 {
+	auto& console = GameConsole::Instance();
+
 	while (true) {
 		int inDataLength = recv(winSocket, buffer, 512, 0);
 		
@@ -80,7 +84,7 @@ void IRCBackend::ircChatLoop()
 		{
 			std::string errorString("Winsock error code: ");
 			errorString.append(std::to_string(nError));
-			GameConsole::getInstance().pushLineFromGameToUI(errorString);
+			console.pushLineFromGameToUI(errorString);
 			break;
 		}
 
@@ -89,7 +93,7 @@ void IRCBackend::ircChatLoop()
 			buffer[inDataLength] = '\0';
 		}
 
-		if (inChannel && !GameConsole::getInstance().sendThisLineToIRCServer.empty())
+		if (inChannel && !console.sendThisLineToIRCServer.empty())
 		{
 			sendMessageToIRCServer();
 		}
@@ -132,17 +136,19 @@ void IRCBackend::ircChatLoop()
 
 void IRCBackend::sendMessageToIRCServer()
 {
-	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), GameConsole::getInstance().sendThisLineToIRCServer.c_str());
+	auto& console = GameConsole::Instance();
+	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), console.sendThisLineToIRCServer.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	GameConsole::getInstance().sendThisLineToIRCServer.clear();
+	console.sendThisLineToIRCServer.clear();
 }
 
 void IRCBackend::joinIRCChannel()
 {
-	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", GameConsole::getInstance().getPlayerName().c_str(), channel.c_str());
+	auto& console = GameConsole::Instance();
+	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.getPlayerName().c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	inChannel = true;
-	GameConsole::getInstance().pushLineFromGameToUI("Connected to global chat!");
+	console.pushLineFromGameToUI("Connected to global chat!");
 }
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
@@ -172,5 +178,5 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
-	GameConsole::getInstance().pushLineFromGameToUI(message);
+	GameConsole::Instance().pushLineFromGameToUI(message);
 }

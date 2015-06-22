@@ -6,19 +6,13 @@
 // TODO: why does pressing shift or caps lock break keyboard input?
 // TODO: why is all input in capital letters?
 
-void writeToMemory(uint8_t* const destination, const uint8_t bytesToPatch[], const size_t numOfBytes) { // TODO: use eldewrito method instead of this
-	DWORD origProtect;
-	VirtualProtect(destination, numOfBytes, PAGE_EXECUTE_READWRITE, &origProtect);
-	memcpy(destination, bytesToPatch, numOfBytes);
-	VirtualProtect(destination, numOfBytes, origProtect, 0);
-}
-
 void GameConsole::startIRCBackend()
 {
-	GameConsole::getInstance().ircBackend = std::make_unique<IRCBackend>();
+	GameConsole::Instance().ircBackend = std::make_unique<IRCBackend>();
 }
 
-GameConsole::GameConsole()
+GameConsole::GameConsole() : 
+	DisableKeyboardInputPatch(0x112690, { 0xE9, 0x0B, 0x03, 0x00, 0x00, 0x90 })
 {
 	for (int i = 0; i < numOfLines; i++) {
 		queue.push_back("");
@@ -52,26 +46,13 @@ void GameConsole::hideConsole()
 	lastTimeConsoleShown = GetTickCount();
 	boolShowConsole = false;
 	inputLine.clear();
-	enableGameKeyboardInput();
+	DisableKeyboardInputPatch.Apply(true);
 }
 
 void GameConsole::showConsole()
 {
 	boolShowConsole = true;
-	disableGameKeyboardInput();
-}
-
-void GameConsole::enableGameKeyboardInput()
-{
-	uint8_t byteArrayBuffer[] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x14 }; // restore to original code
-	writeToMemory((uint8_t*)0x512690, byteArrayBuffer, 6);
-}
-
-void GameConsole::disableGameKeyboardInput()
-{
-	// TODO: this only works 99.99% of the time
-	uint8_t byteArrayBuffer[] = { 0xE9, 0x0B, 0x03, 0x00, 0x00, 0x90 }; // jmp 5129A0
-	writeToMemory((uint8_t*)0x512690, byteArrayBuffer, 6);
+	DisableKeyboardInputPatch.Apply(false);
 }
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)

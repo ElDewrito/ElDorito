@@ -17,7 +17,8 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 
 void DirectXHook::drawChatInterface()
 {
-	if (GameConsole::getInstance().getMsSinceLastConsoleOpen() > 10000 && !GameConsole::getInstance().isConsoleShown())
+	auto& console = GameConsole::Instance();
+	if (console.getMsSinceLastConsoleOpen() > 10000 && !console.isConsoleShown())
 	{
 		return;
 	}
@@ -42,17 +43,17 @@ void DirectXHook::drawChatInterface()
 		return;
 	}
 
-	for (int i = 0; i < GameConsole::getInstance().getNumOfLines(); i++)
+	for (int i = 0; i < console.getNumOfLines(); i++)
 	{
-		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)GameConsole::getInstance().at(i).c_str());
+		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)console.at(i).c_str());
 		y += fontHeight + verticalSpacingBetweenEachLine;
 	}
 
-	if (GameConsole::getInstance().isConsoleShown())
+	if (console.isConsoleShown())
 	{
 		y += verticalSpacingBetweenLinesAndInputBox;
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)GameConsole::getInstance().getInputLine().c_str());
+		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.getInputLine().c_str());
 	}
 }
 

@@ -12,7 +12,7 @@ LRESULT __stdcall KeyboardHook::hookCallback(int nCode, WPARAM wParam, LPARAM lP
 	{
 		if (HK_IS_PRESSED)
 		{
-			GameConsole::getInstance().virtualKeyCallBack(wParam);
+			GameConsole::Instance().virtualKeyCallBack(wParam);
 		}
 	}
 
