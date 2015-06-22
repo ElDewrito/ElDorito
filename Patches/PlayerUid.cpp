@@ -83,6 +83,7 @@ namespace
 		uint64_t uid;
 		if (pubKey.length() <= 0)
 		{
+			// TODO: run this code before the game, and pop up a message box "Generating keypair..." before the game starts, so players know what's going on
 			GameConsole::getInstance().pushLineFromGameToUI("Generating player keypair, this may take a moment...");
 			std::string privKey;
 			Utils::Cryptography::GenerateRSAKeyPair(4096, privKey, pubKey);

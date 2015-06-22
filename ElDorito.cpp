@@ -16,6 +16,7 @@
 
 #include "Utils/Utils.h"
 #include "ElPatches.h"
+#include "Patches/PlayerUid.h"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -96,6 +97,7 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		{
 			consoleLoaded = true;
 			GameConsole::getInstance(); // initialize console
+			Patches::PlayerUid::Get();
 		}
 	}
 
