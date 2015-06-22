@@ -17,21 +17,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Find all source files
 file(GLOB_RECURSE SOURCE_FILES
-    "*.h"
-    "*.cpp"
-    "ElDorito.rc"
-    "ElDorito.def"
+    "src/*.h"
+    "src/*.cpp"
+    "src/ElDorito.rc"
+    "src/ElDorito.def"
 )
 
 # Include directories
 include_directories($ENV{DXSDK_DIR}/Include)
-include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/include)
-include_directories(${CMAKE_SOURCE_DIR}/ThirdParty/openssl-1.0.2c/include)
+include_directories(${CMAKE_SOURCE_DIR}/libs/detours/include)
+include_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include)
 
 # Library directories
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
-link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/detours/lib.X86)
-link_directories(${CMAKE_SOURCE_DIR}/ThirdParty/openssl-1.0.2c/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
+link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 
 # Generate DLL from source files
 add_library(ElDorito MODULE ${SOURCE_FILES})
