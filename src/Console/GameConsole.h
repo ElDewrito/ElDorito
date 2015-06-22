@@ -12,6 +12,7 @@ class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
 	bool boolShowConsole = false;
+	bool capsLockToggled = false;
 	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
 	std::vector<std::string> queue = std::vector < std::string > {}; // index 0 is oldest command; the higher the index, the more recent the command

@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <d3dx9core.h>
 
-class GameConsole;
-
 class DirectXHook {
 private:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);

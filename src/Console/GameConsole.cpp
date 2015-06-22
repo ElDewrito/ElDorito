@@ -64,7 +64,8 @@ void GameConsole::hideConsole()
 void GameConsole::showConsole()
 {
 	boolShowConsole = true;
-	
+	capsLockToggled = GetKeyState(VK_CAPITAL) & 1;
+
 	// Disables game keyboard input and enables our keyboard hook
 	RAWINPUTDEVICE Rid;
 	Rid.usUsagePage = 0x01;
@@ -110,19 +111,22 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 
+	case VK_CAPITAL:
+		capsLockToggled = !capsLockToggled;
+		break;
+
 	default:
 		WORD buf;
 		BYTE keysDown[256] = {};
 
-		if (GetAsyncKeyState(VK_SHIFT))
+		if (GetAsyncKeyState(VK_SHIFT) & 0x8000) // 0x8000 = 0b1000000000000000
 		{
-			keysDown[VK_SHIFT] = 0x80; // SHIFT down
+			keysDown[VK_SHIFT] = 0x80; // sets highest-order bit to 1: 0b10000000
 		}
 
-		if (GetAsyncKeyState(VK_CAPITAL))
+		if (capsLockToggled)
 		{
-			keysDown[VK_SHIFT] = 0x80; // SHIFT down
-			// keysDown[VK_CAPITAL] = 0x80; // Caps lock enabled
+			keysDown[VK_CAPITAL] = 0x1; // sets lowest-order bit to 1: 0b00000001
 		}
 
 		int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
