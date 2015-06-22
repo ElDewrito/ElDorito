@@ -3,10 +3,7 @@
 #include "../CommandMap.h"
 #include <sstream>
 
-// TODO: why does pressing shift or caps lock break keyboard input?
-// TODO: why is all input in capital letters?
-
-void writeToMemory(uint8_t* const destination, const uint8_t bytesToPatch[], const size_t numOfBytes) { // TODO: use eldewrito method instead of this
+void writeToMemory(uint8_t* const destination, const uint8_t bytesToPatch[], const size_t numOfBytes) {
 	DWORD origProtect;
 	VirtualProtect(destination, numOfBytes, PAGE_EXECUTE_READWRITE, &origProtect);
 	memcpy(destination, bytesToPatch, numOfBytes);
@@ -112,7 +109,13 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 		if (GetAsyncKeyState(VK_SHIFT))
 		{
-			keysDown[16] = 0x80; // SHIFT down
+			keysDown[VK_SHIFT] = 0x80; // SHIFT down
+		}
+
+		if (GetAsyncKeyState(VK_CAPITAL))
+		{
+			keysDown[VK_SHIFT] = 0x80; // SHIFT down
+			// keysDown[VK_CAPITAL] = 0x80; // Caps lock enabled
 		}
 
 		int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
