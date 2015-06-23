@@ -1,31 +1,29 @@
-# ElDorito
+# ElDewrito
+![Dorite](https://media.tumblr.com/443e39ef17d62ccbc6e0f7a74c8fa431/tumblr_inline_neor2pzD3j1qb9x1g.gif)
 
-What is El-Dorito?
-	El-Dorito is (so far) nothing more than a memory-manipulator (much like a trainer) that enables playing with settings in the game such as game speed, color settings, and more.
-	There has been some speculation that we have been working to remove “micro-transactions” from this game. We have no intention of doing that nor are we able to simulate any sort of  master “private server” for the game. El-Dorito is free and the source code is available for download as well.
-	Let it be known that we believe few, if any of these news articles have faithfully represented what we are actually doing (we do not have the resources to correct every journalist). Statements seen in the articles have been misconstrued by certain sites to say we are in favor of piracy. As noted above, we do not advocate accessing a game you pay access for.
-	Due to the nature of the group (as of April 8, 2015) - no single member’s motives or opinions can possibly represent the everyone involved in this effort. This statement has been cumulatively written and reviewed by members of the group and it is the only authoritative statement which represents who we are, what our goals are, and what we have been doing to date (April 8, 2015). Please be wary of who you get your information from.
+## What is ElDewrito?
+ElDewrito is a fan mod for Halo Online that re-enables removed Halo 3 content, as there is no telling if Halo 3 will ever be brought to PC.
 
+Halo Online is the closest thing we have, and fortunately it still contains a lot of Halo 3 content inside it. ElDewrito aims to unlock and expand on this content.
 
+Note that this is the source code repo for it, not the mod itself. You'll need a copy of Halo Online and the ElDewrito Launcher to install ED.
 
-![Dorite](http://media.tumblr.com/443e39ef17d62ccbc6e0f7a74c8fa431/tumblr_inline_neor2pzD3j1qb9x1g.gif)
+Pull requests are welcomed from anyone who wants to contribute to us.  
+Although it's recommended that you come talk to us on IRC first before starting work on anything major, so that we can discuss it and come up with the best way to help you implement it.
 
-ElDorito is a dll-hook for the russian release of Halo Online to enable features such as loading levels, disabling hud, and much more.
-Simply put the `iphlpapi.dll` file into your Halo Online directory so that it is next to `eldorado.exe` and run the game like usual!
-A console window should start up parallel to the game where you may input commands. Input the `help` command to get started.
+## Building
+To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMake installed.
 
-# Impersonators
+Once they're installed just run the generate_vs2013_sln_files.bat, then open up build/ElDorito.sln and you should be able to build the dll fine.
 
-Lately there's been a group of people pretending to be involved with the ElDewrito development team by signing up as us on different sites, writing messages pretending to be us and acting as voices of the dev team even though they have no affiliation with us.
+## Donations
+We don't accept donations, donate money to your favorite charity instead.
 
-This has happened to about 3 members of the dev team who've chosen to make themselves known publicly.
+We do it for free, because the possibility of Halo 3 on PC fills us with glee.
 
-Just noting that the only accounts I use under the name emoose are:
-* emoose on i3d, GameSurge, GitHub and GitLab
-* \_emoose\_ on reddit and HaloMaps.org
-* HaloF2P!Es5SKGeSeg on 4chan
+Although if you have a spare server running [ElDewrito-MasterServer](https://github.com/ElDewrito/ElDewrito-MasterServer) on it would be welcomed, get in touch with us on IRC and we can help you set this up.
 
-So far I've had people impersonating me on 4chan (always check the tripcode) and HaloMaps.org where a user registered the name emoose before I could.
-(on HaloMaps the user went as far as making false statements about the project, when I tried telling people about the impersonator I even had one person PM me, asking why I was pretending to be me...)
+## Help/Support/Contact
+We have an [IRC channel on Snoonet](https://irc.lc/snoonet/eldorito/) where most of the devs are, just /join #ElDorito
 
-Be warned that these people have nothing to do with the ElDewrito project and their words should be ignored.
+If you have issues you can get in touch with us on there, or make a bug report in our issue tracker and we'll look over it.
