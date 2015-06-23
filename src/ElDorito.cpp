@@ -93,7 +93,7 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 
 	if (!consoleLoaded && d3d9Loaded)
 	{
-		if (GetTickCount() - d3d9InitTime > 10000)
+		if (GetTickCount() - d3d9InitTime > 1000)
 		{
 			consoleLoaded = true;
 			GameConsole::Instance(); // initialize console
