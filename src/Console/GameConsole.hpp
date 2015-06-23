@@ -31,7 +31,11 @@ public:
 	ConsoleQueue consoleQueue = ConsoleQueue();
 	GlobalChatQueue globalChatQueue = GlobalChatQueue();
 	GameChatQueue gameChatQueue = GameChatQueue();
+#ifdef _DEBUG
 	Queue* selectedQueue = &consoleQueue;
+#else
+	Queue* selectedQueue = &globalChatQueue;
+#endif
 	std::string playerName = "";
 
 	GameConsole();

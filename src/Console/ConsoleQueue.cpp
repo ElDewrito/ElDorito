@@ -3,7 +3,13 @@
 #include <sstream>
 #include "DirectXHook.hpp"
 
-ConsoleQueue::ConsoleQueue() : Queue(DirectXHook::COLOR_GREEN)
+ConsoleQueue::ConsoleQueue() : Queue(
+#ifdef _DEBUG
+	DirectXHook::COLOR_GREEN
+#else
+	DirectXHook::COLOR_YELLOW
+#endif
+	)
 {
 }
 

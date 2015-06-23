@@ -2,7 +2,13 @@
 #include "GameConsole.hpp"
 #include "DirectXHook.hpp"
 
-GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
+GlobalChatQueue::GlobalChatQueue() : Queue(
+#ifdef _DEBUG
+	DirectXHook::COLOR_YELLOW
+#else
+	DirectXHook::COLOR_GREEN
+#endif
+	)
 {
 
 }
