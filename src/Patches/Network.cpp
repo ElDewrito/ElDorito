@@ -14,6 +14,7 @@
 
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../Console/IRCBackend.hpp"
 #include <iostream>
 
 namespace
@@ -387,20 +388,26 @@ namespace
 	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2)
 	{
 		DWORD isOnline = *(DWORD*)a2;
+
+		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
+		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
+		auto retval = Network_managed_session_create_session_internal(a1, a2);
+
 		if (isOnline == 1)
 		{
-			Patches::Network::StartInfoServer();
 			// TODO: give output if StartInfoServer fails
+			Patches::Network::StartInfoServer();
+
+			// join IRC channel
+			std::string xnkid;
+			Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+			IRCBackend::Instance().joinIRCChannel("#eldoritogame-" + xnkid, false);
 		}
 		else
 		{
 			Patches::Network::StopInfoServer();
 		}
-
-
-		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
-		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
-		return Network_managed_session_create_session_internal(a1, a2);
+		return retval;
 	}
 
 	char* Network_GetIPStringFromInAddr(void* inaddr)

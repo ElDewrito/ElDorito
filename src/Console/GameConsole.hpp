@@ -18,7 +18,6 @@ private:
 	bool capsLockToggled = false;
 	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
-	std::unique_ptr<IRCBackend> ircBackend = nullptr;
 
 	static void startIRCBackend();
 	int getMsSinceLastReturnPressed();

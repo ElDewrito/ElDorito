@@ -9,7 +9,7 @@
 
 void GameConsole::startIRCBackend()
 {
-	GameConsole::Instance().ircBackend = std::make_unique<IRCBackend>();
+	IRCBackend::Instance();
 }
 
 GameConsole::GameConsole()

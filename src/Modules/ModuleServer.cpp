@@ -7,11 +7,12 @@
 #include <iostream>
 #include <fstream>
 #include "../ElDorito.hpp"
-#include "../ThirdParty/HttpRequest.hpp"
-#include "../ThirdParty/rapidjson/document.h"
 #include "../Patches/Network.hpp"
 #include "../Patches/PlayerUid.hpp"
+#include "../Console/IRCBackend.hpp"
 
+#include "../ThirdParty/HttpRequest.hpp"
+#include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 
@@ -365,6 +366,7 @@ namespace
 
 	bool CommandServerConnect(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		// TODO: move this into a thread so that non-responding hosts don't lag the game
 		if (Arguments.size() <= 0)
 		{
 			returnInfo = "Invalid arguments.";
@@ -531,6 +533,9 @@ namespace
 		Pointer::Base(0x1E40BB4).Write(xnetInfo, 0x10);
 		Pointer::Base(0x1E40BD4).Write(xnetInfo + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
+
+		// join our IRC channel
+		IRCBackend::Instance().joinIRCChannel("#eldoritogame-" + xnkid, false);
 
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;

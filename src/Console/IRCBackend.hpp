@@ -2,8 +2,10 @@
 #include "Queue.hpp"
 #include <string>
 #include <vector>
+#include "../Utils/Singleton.hpp"
 
-class IRCBackend {
+class IRCBackend : public Utils::Singleton<IRCBackend>
+{
 private:
 	std::string server = "irc.snoonet.org";
 	std::string globalChatChannel = "";
