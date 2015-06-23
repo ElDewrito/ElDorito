@@ -1,11 +1,11 @@
 #pragma once
+#include <string>
 #include <vector>
-#include <ws2tcpip.h>
 
 class IRCBackend {
 private:
-	std::string server = "";
-	std::string channel = "";
+	std::string server = "irc.snoonet.org";
+	std::string channel = "#haloonline";
 	bool inChannel = false;
 	char buffer[512];
 	SOCKET winSocket;

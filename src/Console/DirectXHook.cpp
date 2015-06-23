@@ -1,4 +1,5 @@
 #include "DirectXHook.h"
+#include <detours.h>
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
@@ -15,6 +16,19 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	return (*DirectXHook::origEndScenePtr)(device);
 }
 
+int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
+{
+	RECT rcRect = { 0, 0, 0, 0 };
+	if (pFont)
+	{
+		// calculate required rect
+		pFont->DrawText(NULL, szText, strlen(szText), &rcRect, DT_CALCRECT, D3DCOLOR_XRGB(0, 0, 0));
+	}
+
+	// return width
+	return rcRect.right - rcRect.left;
+}
+
 void DirectXHook::drawChatInterface()
 {
 	auto& console = GameConsole::Instance();
@@ -28,7 +42,7 @@ void DirectXHook::drawChatInterface()
 	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
 	int inputTextBoxHeight = fontHeight + (int) (0.769 * fontHeight);
-	int horizontalSpacingBeforeTyping = (int) (0.012 * inputTextBoxWidth);
+	int horizontalSpacing = (int) (0.012 * inputTextBoxWidth);
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 
@@ -45,15 +59,34 @@ void DirectXHook::drawChatInterface()
 
 	if (console.isConsoleShown())
 	{
-		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacingBeforeTyping, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
+		int tempX = x;
+
+		drawBox(tempX, y, getTextWidth("Console [F1]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.consoleQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.consoleQueue.color, "Console [F1]");
+		tempX += getTextWidth("Console [F1]", dxFont) + 2 * horizontalSpacing;
+
+		drawBox(tempX, y, getTextWidth("Global Chat [F2]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.globalChatQueue.color, "Global Chat [F2]");
+		tempX += getTextWidth("Global Chat [F2]", dxFont) + 2 * horizontalSpacing;
+
+		drawBox(tempX, y, getTextWidth("Game Chat [F3]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.gameChatQueue.color, "Game Chat [F3]");
+		tempX += getTextWidth("Game Chat [F3]", dxFont) + 2 * horizontalSpacing;
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;
 
-	for (int i = console.queueStartIndexForUI; i < console.numOfLinesToShow + console.queueStartIndexForUI; i++)
+	if (console.isConsoleShown())
 	{
-		drawText(x + horizontalSpacingBeforeTyping, y, COLOR_WHITE, (char*)console.at(i).c_str());
+		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
+	}
+
+	y -= verticalSpacingBetweenLinesAndInputBox;
+
+	for (int i = console.selectedQueue->startIndexForUI; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForUI; i++)
+	{
+		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str());
 		y -= fontHeight + verticalSpacingBetweenEachLine;
 	}
 }

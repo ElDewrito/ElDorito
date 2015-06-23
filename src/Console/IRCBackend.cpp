@@ -1,20 +1,37 @@
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include "IRCBackend.h"
 #include "GameConsole.h"
 #include <algorithm>
 #include <sstream>
 
-IRCBackend::IRCBackend() : server("irc.snoonet.org"), channel("#haloonline")
+IRCBackend::IRCBackend()
 {
 	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
 
-	if (initIRCChat())
+	int i = 0;
+
+	for (; i < 3 && !initIRCChat(); i++)
 	{
-		ircChatLoop(); 
+		if (i >= 2)
+		{
+			GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: failed to connect to IRC.");
+		}
+		else
+		{
+			GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: failed to connect to IRC. Retrying in 5 seconds.");
+			Sleep(5000);
+		}
 	}
-	else
+
+	if (i >= 3)
 	{
-		GameConsole::Instance().pushLineFromGameToUI("Error: failed to connect to IRC.");
+		closesocket(winSocket);
+		WSACleanup();
+		return;
 	}
+
+	ircChatLoop();
 	closesocket(winSocket);
 	WSACleanup();
 }
@@ -39,7 +56,7 @@ bool IRCBackend::initIRCChat()
 	auto& console = GameConsole::Instance();
 	if (ret)
 	{
-		console.pushLineFromGameToUI("Error loading Windows Socket API");
+		console.globalChatQueue.pushLineFromGameToUI("Error loading Windows Socket API");
 		return false;
 	}
 	struct addrinfo hints, *ai;
@@ -49,13 +66,13 @@ bool IRCBackend::initIRCChat()
 	hints.ai_protocol = IPPROTO_TCP;
 	if (ret = getaddrinfo(server.c_str(), "6667", &hints, &ai))
 	{
-		console.pushLineFromGameToUI(gai_strerror(ret));
+		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(ret)));
 		return false;
 	}
 	winSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (ret = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
 	{
-		console.pushLineFromGameToUI(gai_strerror(ret));
+		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(ret)));
 		return false;
 	}
 	freeaddrinfo(ai);
@@ -84,7 +101,7 @@ void IRCBackend::ircChatLoop()
 		{
 			std::string errorString("Winsock error code: ");
 			errorString.append(std::to_string(nError));
-			console.pushLineFromGameToUI(errorString);
+			console.globalChatQueue.pushLineFromGameToUI(errorString);
 			break;
 		}
 
@@ -93,7 +110,7 @@ void IRCBackend::ircChatLoop()
 			buffer[inDataLength] = '\0';
 		}
 
-		if (inChannel && !console.sendThisLineToIRCServer.empty())
+		if (inChannel && !console.globalChatQueue.sendThisLineToIRCServer.empty())
 		{
 			sendMessageToIRCServer();
 		}
@@ -137,9 +154,9 @@ void IRCBackend::ircChatLoop()
 void IRCBackend::sendMessageToIRCServer()
 {
 	auto& console = GameConsole::Instance();
-	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), console.sendThisLineToIRCServer.c_str());
+	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), console.globalChatQueue.sendThisLineToIRCServer.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	console.sendThisLineToIRCServer.clear();
+	console.globalChatQueue.sendThisLineToIRCServer.clear();
 }
 
 void IRCBackend::joinIRCChannel()
@@ -148,7 +165,7 @@ void IRCBackend::joinIRCChannel()
 	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	inChannel = true;
-	console.pushLineFromGameToUI("Connected to global chat!");
+	console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 }
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
@@ -178,5 +195,5 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
-	GameConsole::Instance().pushLineFromGameToUI(message);
+	GameConsole::Instance().globalChatQueue.pushLineFromGameToUI(message);
 }

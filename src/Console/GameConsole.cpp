@@ -1,7 +1,7 @@
 #include "GameConsole.h"
 #include "../Utils/VersionInfo.h"
-#include "../CommandMap.h"
-#include <sstream>
+#include "DirectXHook.h"
+#include "KeyboardHook.h"
 
 void GameConsole::startIRCBackend()
 {
@@ -10,17 +10,14 @@ void GameConsole::startIRCBackend()
 
 GameConsole::GameConsole()
 {
-	for (int i = 0; i < numOfLinesBuffer; i++) {
-		queue.push_back("");
-	}
-
 	initPlayerName();
 	DirectXHook::hookDirectX();
 	KeyboardHook::setHook();
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 
-	pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
-	pushLineFromGameToUI("Enter /help or /help <command> to get started!");
+	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+	consoleQueue.pushLineFromGameToUI("Enter help or help <command> to get started!");
+	consoleQueue.pushLineFromGameToUI("Press page-up or page-down while chat is open to scroll.");
 }
 
 bool GameConsole::isConsoleShown() {
@@ -57,7 +54,7 @@ void GameConsole::hideConsole()
 	Rid.hwndTarget = 0;
 
 	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
-		pushLineFromGameToUI("Unregistering keyboard failed");
+		consoleQueue.pushLineFromGameToUI("Unregistering keyboard failed");
 	}
 }
 
@@ -74,7 +71,7 @@ void GameConsole::showConsole()
 	Rid.hwndTarget = 0;
 
 	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
-		pushLineFromGameToUI("Registering keyboard failed");
+		consoleQueue.pushLineFromGameToUI("Registering keyboard failed");
 	}
 }
 
@@ -94,7 +91,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	case VK_RETURN:
 		if (!inputLine.empty())
 		{
-			pushLineFromKeyboardToGame(inputLine);
+			selectedQueue->pushLineFromKeyboardToGame(inputLine);
 		}
 		hideConsole();
 		lastTimeReturnPressed = GetTickCount();
@@ -111,21 +108,45 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 
+	case VK_F1:
+		selectedQueue = &consoleQueue;
+		selectedQueue->startIndexForUI = 0;
+		consoleQueue.color = DirectXHook::COLOR_GREEN;
+		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
+		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+		break;
+
+	case VK_F2:
+		selectedQueue = &globalChatQueue;
+		selectedQueue->startIndexForUI = 0;
+		consoleQueue.color = DirectXHook::COLOR_YELLOW;
+		globalChatQueue.color = DirectXHook::COLOR_GREEN;
+		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+		break;
+
+	case VK_F3:
+		selectedQueue = &gameChatQueue;
+		selectedQueue->startIndexForUI = 0;
+		consoleQueue.color = DirectXHook::COLOR_YELLOW;
+		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
+		gameChatQueue.color = DirectXHook::COLOR_GREEN;
+		break;
+
 	case VK_CAPITAL:
 		capsLockToggled = !capsLockToggled;
 		break;
 
 	case VK_PRIOR:
-		if (queueStartIndexForUI < numOfLinesBuffer - numOfLinesToShow)
+		if (selectedQueue->startIndexForUI < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
-			queueStartIndexForUI++;
+			selectedQueue->startIndexForUI++;
 		}
 		break;
 
 	case VK_NEXT:
-		if (queueStartIndexForUI > 0)
+		if (selectedQueue->startIndexForUI > 0)
 		{
-			queueStartIndexForUI--;
+			selectedQueue->startIndexForUI--;
 		}
 		break;
 
@@ -158,21 +179,11 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	}
 }
 
-void GameConsole::pushLineFromKeyboardToGame(std::string line)
+void GameConsole::checkForReturnKey()
 {
-	if (line.find("/") == 0)
-	{
-		pushLineFromGameToUI(line);
-		line.erase(0, 1);
-		pushLineFromGameToUIMultipleLines(Modules::CommandMap::Instance().ExecuteCommand(line));
-	}
-	else
-	{
-		std::string preparedLineForIRC = playerName;
-		preparedLineForIRC += ": ";
-		preparedLineForIRC += line;
-		sendThisLineToIRCServer = preparedLineForIRC;
-		pushLineFromGameToUI(preparedLineForIRC);
+	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 100) {
+		showConsole();
+		lastTimeReturnPressed = GetTickCount();
 	}
 }
 
@@ -181,50 +192,5 @@ void GameConsole::initPlayerName()
 	wchar_t* inGameName = (wchar_t*)0x19A03E8; // unicode
 	std::wstring toWstr(inGameName);
 	std::string toStr(toWstr.begin(), toWstr.end());
-	playerName = toStr;
-}
-
-void GameConsole::pushLineFromGameToUI(std::string line)
-{
-	for (int i = numOfLinesBuffer - 1; i > 0; i--)
-	{
-		queue.at(i) = queue.at(i - 1);
-	}
-	queue.at(0) = line;
-
-	peekConsole();
-}
-
-void GameConsole::pushLineFromGameToUIMultipleLines(std::string multipleLines)
-{
-	std::vector<std::string> linesVector;
-	split(multipleLines, '\n', linesVector);
-
-	for (std::string line : linesVector)
-	{
-		pushLineFromGameToUI(line);
-	}
-}
-
-std::string GameConsole::at(int i)
-{
-	return queue.at(i);
-}
-
-std::vector<std::string>& GameConsole::split(const std::string &s, char delim, std::vector<std::string> &elems)
-{
-	std::stringstream ss(s);
-	std::string item;
-	while (std::getline(ss, item, delim)) {
-		elems.push_back(item);
-	}
-	return elems;
-}
-
-void GameConsole::checkForReturnKey()
-{
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 100) {
-		showConsole();
-		lastTimeReturnPressed = GetTickCount();
-	}
+	GameConsole::Instance().playerName = toStr;
 }
