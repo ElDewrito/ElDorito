@@ -83,6 +83,12 @@ void ElDorito::Initialize()
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
+	if (!GameHasTicked)
+	{
+		GameHasTicked = true;
+		Modules::CommandMap::Instance().ExecuteQueue();
+	}
+
 	Patches::Tick();
 
 	if (!d3d9Loaded && GetModuleHandle("d3d9.dll"))

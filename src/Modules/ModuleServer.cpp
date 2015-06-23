@@ -549,7 +549,7 @@ namespace Modules
 		VarServerCountdown->ValueIntMin = 0;
 		VarServerCountdown->ValueIntMax = 20;
 
-		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", eCommandFlagsArchived, 16, VariableServerMaxPlayersUpdate);
+		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsWaitForGameTick), 16, VariableServerMaxPlayersUpdate);
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
 
@@ -561,7 +561,7 @@ namespace Modules
 		VarServerShouldAnnounce->ValueIntMin = 0;
 		VarServerShouldAnnounce->ValueIntMax = 1;
 
-		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsNone, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
+		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsWaitForGameTick, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 		AddCommand("Announce", "announce", "Announces this server to the master servers", eCommandFlagsNone, CommandServerAnnounce);
 		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsNone, CommandServerUnannounce);
 

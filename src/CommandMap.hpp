@@ -22,6 +22,7 @@ enum CommandFlags
 	eCommandFlagsArchived          = 1 << 2, // value of this variable should be written when using WriteConfig
 	eCommandFlagsDontUpdateInitial = 1 << 3, // don't call the update event when the variable is first being initialized
 	eCommandFlagsHidden            = 1 << 4, // hide this command/var from the help listing
+	eCommandFlagsWaitForGameTick   = 1 << 5, // if run at startup queue the command until the first game tick
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
@@ -94,6 +95,8 @@ namespace Modules
 		std::string ExecuteCommands(std::string& commands);
 		bool ExecuteCommandWithStatus(std::string command);
 
+		std::string ExecuteQueue();
+
 		bool GetVariableInt(const std::string& name, unsigned long& value);
 		bool GetVariableInt64(const std::string& name, unsigned long long& value);
 		bool GetVariableFloat(const std::string& name, float& value);
@@ -105,5 +108,7 @@ namespace Modules
 		std::string GenerateHelpText();
 
 		std::string SaveVariables();
+	private:
+		std::vector<std::string> queuedCommands;
 	};
 }

@@ -14,6 +14,8 @@
 class ElDorito : public Utils::Singleton < ElDorito >
 {
 public:
+	bool GameHasTicked = false;
+
 	ElDorito();
 	~ElDorito() = default;
 

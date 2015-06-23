@@ -1,6 +1,7 @@
 #include "CommandMap.hpp"
 #include <algorithm>
 #include <sstream>
+#include "ElDorito.hpp"
 
 namespace Modules
 {
@@ -156,6 +157,12 @@ namespace Modules
 		auto cmd = FindCommand(args[0]);
 		if (!cmd)
 			return "Command/Variable not found";
+
+		if ((cmd->Flags & eCommandFlagsWaitForGameTick) && !ElDorito::Instance().GameHasTicked)
+		{
+			queuedCommands.push_back(command);
+			return "Command queued until game ticks";
+		}
 
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
@@ -374,6 +381,17 @@ namespace Modules
 			}
 			lineIdx++;
 		}
+		return ss.str();
+	}
+
+	std::string CommandMap::ExecuteQueue()
+	{
+		std::stringstream ss;
+		for (auto cmd : queuedCommands)
+		{
+			ss << ExecuteCommand(cmd) << std::endl;
+		}
+		queuedCommands.clear();
 		return ss.str();
 	}
 }
