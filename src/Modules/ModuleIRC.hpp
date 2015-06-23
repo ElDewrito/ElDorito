@@ -9,6 +9,7 @@ namespace Modules
 	public:
 		Command* VarIRCServer;
 		Command* VarIRCServerPort;
+		Command* VarIRCGlobalChannel;
 
 		ModuleIRC();
 	};
