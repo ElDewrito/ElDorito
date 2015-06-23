@@ -27,13 +27,11 @@ IRCBackend::IRCBackend()
 	if (i >= 3)
 	{
 		closesocket(winSocket);
-		WSACleanup();
 		return;
 	}
 
 	ircChatLoop();
 	closesocket(winSocket);
-	WSACleanup();
 }
 
 std::vector<std::string> &IRCBackend::split(const std::string &s, char delim, std::vector<std::string> &elems)
@@ -48,31 +46,23 @@ std::vector<std::string> &IRCBackend::split(const std::string &s, char delim, st
 
 bool IRCBackend::initIRCChat()
 {
-	int ret;
-	struct WSAData* wd = (struct WSAData*)malloc(sizeof(struct WSAData));
-	ret = WSAStartup(MAKEWORD(2, 0), wd);
-	free(wd);
-
+	int retVal;
 	auto& console = GameConsole::Instance();
-	if (ret)
-	{
-		console.globalChatQueue.pushLineFromGameToUI("Error loading Windows Socket API");
-		return false;
-	}
+	
 	struct addrinfo hints, *ai;
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
-	if (ret = getaddrinfo(server.c_str(), "6667", &hints, &ai))
+	if (retVal = getaddrinfo(server.c_str(), "6667", &hints, &ai))
 	{
-		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(ret)));
+		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(retVal)));
 		return false;
 	}
 	winSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-	if (ret = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
+	if (retVal = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
 	{
-		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(ret)));
+		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(retVal)));
 		return false;
 	}
 	freeaddrinfo(ai);
