@@ -1,5 +1,5 @@
 # ElDewrito
-![Dorite](http://media.tumblr.com/443e39ef17d62ccbc6e0f7a74c8fa431/tumblr_inline_neor2pzD3j1qb9x1g.gif)
+![Dorite](https://media.tumblr.com/443e39ef17d62ccbc6e0f7a74c8fa431/tumblr_inline_neor2pzD3j1qb9x1g.gif)
 
 ## What is ElDewrito?
 ElDewrito is a fan mod for Halo Online that re-enables removed Halo 3 content, as there is no telling if Halo 3 will ever be brought to PC.
@@ -20,3 +20,10 @@ Once they're installed just run the generate_vs2013_sln_files.bat, then open up 
 We don't accept donations, donate money to your favorite charity instead.
 
 We do it for free, because the possibility of Halo 3 on PC fills us with glee.
+
+Although if you have a spare server running [ElDewrito-MasterServer](https://github.com/ElDewrito/ElDewrito-MasterServer) on it would be welcomed, get in touch with us on IRC and we can help you set this up.
+
+## Help/Support/Contact
+We have an [IRC channel on Snoonet](https://irc.lc/snoonet/eldorito/) where most of the devs are, just /join #ElDorito
+
+If you have issues you can get in touch with us on there, or make a bug report in our issue tracker and we'll look over it.
