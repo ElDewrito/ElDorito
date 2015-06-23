@@ -125,7 +125,11 @@ void IRCBackend::ircChatLoop()
 
 			if (receivedWelcomeMessage(bufferSplitBySpace))
 			{
+#ifdef _DEBUG
+				joinIRCChannel("#haloonline-dev", true);
+#else
 				joinIRCChannel("#haloonline", true);
+#endif
 				console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 			}
 			else if (receivedMessageFromIRCServer(bufferSplitBySpace))
@@ -143,7 +147,11 @@ void IRCBackend::ircChatLoop()
 
 		if (globalChatChannel.empty() && lastTimeReceivedPacket != 0 && GetTickCount() - lastTimeReceivedPacket > 5000)
 		{
+#ifdef _DEBUG
+			joinIRCChannel("#haloonline-dev", true);
+#else
 			joinIRCChannel("#haloonline", true);
+#endif
 			console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 		}
 
