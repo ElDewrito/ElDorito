@@ -169,8 +169,8 @@ void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 	}
 	else
 	{
+		sprintf_s(buffer, "MODE %s +B\r\nPART %s\r\n", console.playerName.c_str(), gameChatChannel.c_str());
 		gameChatChannel = channel;
-		sprintf_s(buffer, "MODE %s +B\r\nPART %s\r\n", console.playerName.c_str(), channel.c_str());
 	}
 
 	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
