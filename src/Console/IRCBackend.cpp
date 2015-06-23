@@ -198,7 +198,7 @@ bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace
 void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace)
 {
 	if (bufferSplitBySpace.size() <= 3)
-		return false;
+		return;
 	std::string buffer(buffer);
 	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
 	message.erase(0, 1); // remove first character
