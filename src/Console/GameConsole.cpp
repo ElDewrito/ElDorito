@@ -2,6 +2,10 @@
 #include "../Utils/VersionInfo.hpp"
 #include "DirectXHook.hpp"
 #include "KeyboardHook.hpp"
+#include "../Modules/ModulePlayer.hpp"
+#include "../Patches/PlayerUid.hpp"
+#include "../Pointer.hpp"
+#include <openssl/sha.h>
 
 void GameConsole::startIRCBackend()
 {
@@ -10,14 +14,16 @@ void GameConsole::startIRCBackend()
 
 GameConsole::GameConsole()
 {
-	initPlayerName();
 	DirectXHook::hookDirectX();
 	KeyboardHook::setHook();
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 
 	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	consoleQueue.pushLineFromGameToUI("Enter help or help <command> to get started!");
 	consoleQueue.pushLineFromGameToUI("Press page-up or page-down while chat is open to scroll.");
+
+	Patches::PlayerUid::Get(); // ensure a UID is generated
+	initPlayerName();
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 }
 
 bool GameConsole::isConsoleShown() {
@@ -189,8 +195,21 @@ void GameConsole::checkForReturnKey()
 
 void GameConsole::initPlayerName()
 {
-	wchar_t* inGameName = (wchar_t*)0x19A03E8; // unicode
-	std::wstring toWstr(inGameName);
-	std::string toStr(toWstr.begin(), toWstr.end());
-	GameConsole::Instance().playerName = toStr;
+	auto& player = Modules::ModulePlayer::Instance();
+
+	uint64_t uid = Pointer::Base(0x15AB730).Read<uint64_t>(); // read our generated UID from 
+
+	std::string playerName;
+	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), playerName);
+	playerName += "|" + player.VarPlayerName->ValueString;
+
+	size_t maxLen = 27; // TODO: get max name len from server
+	maxLen -= 3; // dew prefix
+
+	if (playerName.length() > maxLen)
+		playerName = playerName.substr(playerName.length() - maxLen, maxLen);
+
+	playerName = "dew" + playerName;
+
+	GameConsole::Instance().playerName = playerName;
 }

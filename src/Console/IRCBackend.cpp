@@ -66,7 +66,7 @@ bool IRCBackend::initIRCChat()
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :null\r\n", console.playerName.c_str());
+	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	sprintf_s(buffer, "NICK %s\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);

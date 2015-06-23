@@ -102,7 +102,6 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		{
 			consoleLoaded = true;
 			GameConsole::Instance(); // initialize console
-			Patches::PlayerUid::Get();
 		}
 	}
 
