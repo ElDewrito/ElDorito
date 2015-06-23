@@ -84,7 +84,7 @@ void IRCBackend::ircChatLoop()
 		int inDataLength = recv(winSocket, buffer, 512, 0);
 		
 		// Use below line to debug IRC backend
-		// OutputDebugString(buf);
+		// OutputDebugString(buffer);
 
 		int nError = WSAGetLastError();
 		if (nError != WSAEWOULDBLOCK && nError != 0)
@@ -227,5 +227,7 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	std::string message = buf.substr(buf.find(bufferSplitBySpace.at(3)), buf.length());
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
+	
+	message.substr(message.find_first_of("|"), std::string::npos);
 	queue->pushLineFromGameToUI(message);
 }
