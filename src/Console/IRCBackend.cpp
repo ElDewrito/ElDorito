@@ -7,7 +7,7 @@
 
 IRCBackend::IRCBackend()
 {
-	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
+	std::transform(globalChatChannel.begin(), globalChatChannel.end(), globalChatChannel.begin(), ::tolower);
 
 	int i = 0;
 
@@ -100,9 +100,14 @@ void IRCBackend::ircChatLoop()
 			buffer[inDataLength] = '\0';
 		}
 
-		if (inChannel && !console.globalChatQueue.sendThisLineToIRCServer.empty())
+		if (!globalChatChannel.empty() && !console.globalChatQueue.sendThisLineToIRCServer.empty())
 		{
-			sendMessageToIRCServer();
+			sendMessageToIRCServer(globalChatChannel, &console.globalChatQueue);
+		}
+
+		if (!gameChatChannel.empty() && !console.gameChatQueue.sendThisLineToIRCServer.empty())
+		{
+			sendMessageToIRCServer(gameChatChannel, &console.gameChatQueue);
 		}
 
 		if (inDataLength > 0) // received packet from IRC server
@@ -120,42 +125,56 @@ void IRCBackend::ircChatLoop()
 
 			if (receivedWelcomeMessage(bufferSplitBySpace))
 			{
-				joinIRCChannel();
-
+				joinIRCChannel("#haloonline", true);
+				console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 			}
 			else if (receivedMessageFromIRCServer(bufferSplitBySpace))
 			{
-				if (messageIsInChannel(bufferSplitBySpace))
+				if (messageIsInChannel(bufferSplitBySpace, globalChatChannel))
 				{
-					extractMessageAndSendToUI(bufferSplitBySpace);
+					extractMessageAndSendToUI(bufferSplitBySpace, &console.globalChatQueue);
+				}
+				else if (messageIsInChannel(bufferSplitBySpace, gameChatChannel))
+				{
+					extractMessageAndSendToUI(bufferSplitBySpace, &console.gameChatQueue);
 				}
 			}
 		}
 
-		if (!inChannel && lastTimeReceivedPacket != 0 && GetTickCount() - lastTimeReceivedPacket > 5000)
+		if (globalChatChannel.empty() && lastTimeReceivedPacket != 0 && GetTickCount() - lastTimeReceivedPacket > 5000)
 		{
-			joinIRCChannel();
+			joinIRCChannel("#haloonline", true);
+			console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 		}
 
 		Sleep(100);
 	}
 }
 
-void IRCBackend::sendMessageToIRCServer()
+void IRCBackend::sendMessageToIRCServer(std::string channel, Queue* queue)
 {
 	auto& console = GameConsole::Instance();
-	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), console.globalChatQueue.sendThisLineToIRCServer.c_str());
+	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), queue->sendThisLineToIRCServer.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	console.globalChatQueue.sendThisLineToIRCServer.clear();
 }
 
-void IRCBackend::joinIRCChannel()
+void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 {
 	auto& console = GameConsole::Instance();
+	
+	if (globalChat)
+	{
+		globalChatChannel = channel;
+	}
+	else
+	{
+		gameChatChannel = channel;
+		sprintf_s(buffer, "MODE %s +B\r\nPART %s\r\n", console.playerName.c_str(), channel.c_str());
+	}
+
 	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	inChannel = true;
-	console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 }
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
@@ -177,7 +196,7 @@ bool IRCBackend::receivedPING()
 	return strncmp(buffer, "PING ", 5) == 0;
 }
 
-bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace)
+bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace, std::string channel)
 {
 	if (bufferSplitBySpace.size() <= 2)
 		return false;
@@ -185,13 +204,13 @@ bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace
 	return strncmp(bufferSplitBySpace.at(2).c_str(), channel.c_str(), channel.length()) == 0;
 }
 
-void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace)
+void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace, Queue* queue)
 {
 	if (bufferSplitBySpace.size() <= 3)
 		return;
-	std::string buffer(buffer);
-	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
+	std::string buf(buffer);
+	std::string message = buf.substr(buf.find(bufferSplitBySpace.at(3)), buf.length());
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
-	GameConsole::Instance().globalChatQueue.pushLineFromGameToUI(message);
+	queue->pushLineFromGameToUI(message);
 }
