@@ -78,7 +78,7 @@ void DirectXHook::drawChatInterface()
 
 	if (console.isConsoleShown())
 	{
-		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_SEE);
+		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
 		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
 	}
 
