@@ -187,7 +187,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 void GameConsole::checkForReturnKey()
 {
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 100) {
+	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 500) {
 		showConsole();
 		lastTimeReturnPressed = GetTickCount();
 	}
