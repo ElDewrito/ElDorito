@@ -229,6 +229,7 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	message.resize(message.size() - 2); // remove last 2 characters "\n"
 	
 	std::string preparedLineForUI = bufferSplitBySpace.at(0).substr(bufferSplitBySpace.at(0).find_first_of("|") + 1, std::string::npos);
+	preparedLineForUI = preparedLineForUI.substr(0, preparedLineForUI.find_first_of("!"));
 	preparedLineForUI += ": " + message;
 	queue->pushLineFromGameToUI(preparedLineForUI);
 }
