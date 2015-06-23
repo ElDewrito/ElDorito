@@ -44,6 +44,8 @@ set(SOURCE_FILES
     src/Modules/ModuleGame.hpp
     src/Modules/ModuleInput.cpp
     src/Modules/ModuleInput.hpp
+    src/Modules/ModuleIRC.cpp
+    src/Modules/ModuleIRC.hpp
     src/Modules/ModulePlayer.cpp
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp

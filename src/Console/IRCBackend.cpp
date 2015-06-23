@@ -4,6 +4,7 @@
 #include "GameConsole.hpp"
 #include <algorithm>
 #include <sstream>
+#include "../Modules/ModuleIRC.hpp"
 
 IRCBackend::IRCBackend()
 {
@@ -54,7 +55,9 @@ bool IRCBackend::initIRCChat()
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
-	if (retVal = getaddrinfo(server.c_str(), "6667", &hints, &ai))
+
+	auto& ircvars = Modules::ModuleIRC::Instance();
+	if (retVal = getaddrinfo(ircvars.VarIRCServer->ValueString.c_str(), ircvars.VarIRCServerPort->ValueString.c_str(), &hints, &ai))
 	{
 		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(retVal)));
 		return false;
