@@ -228,6 +228,6 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	message.erase(0, 1); // remove first character
 	message.resize(message.size() - 2); // remove last 2 characters
 	
-	message.substr(message.find_first_of("|"), std::string::npos);
+	message = message.substr(message.find_first_of("|") + 1, std::string::npos);
 	queue->pushLineFromGameToUI(message);
 }
