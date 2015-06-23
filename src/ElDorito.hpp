@@ -1,5 +1,4 @@
 #pragma once
-#include "ElDoritoConfig.h"
 
 #include <chrono>
 #include <map>
@@ -7,10 +6,10 @@
 #include <stdint.h>
 #include <memory>
 
-#include "Utils/Utils.h"
-#include "ElModules.h"
-#include "Pointer.h"
-#include "Patch.h"
+#include "Utils/Utils.hpp"
+#include "ElModules.hpp"
+#include "Pointer.hpp"
+#include "Patch.hpp"
 
 class ElDorito : public Utils::Singleton < ElDorito >
 {

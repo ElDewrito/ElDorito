@@ -1,7 +1,7 @@
-#include "Mouse.h"
+#include "Mouse.hpp"
 
-#include "../ElDorito.h"
-#include "../Patch.h"
+#include "../ElDorito.hpp"
+#include "../Patch.hpp"
 
 namespace
 {

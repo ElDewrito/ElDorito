@@ -1,6 +1,6 @@
-#include "GlobalChatQueue.h"
-#include "GameConsole.h"
-#include "DirectXHook.h"
+#include "GlobalChatQueue.hpp"
+#include "GameConsole.hpp"
+#include "DirectXHook.hpp"
 
 GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 {

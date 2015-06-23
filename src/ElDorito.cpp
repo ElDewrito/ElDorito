@@ -1,5 +1,5 @@
-#include "Console/GameConsole.h"
-#include "ElDorito.h"
+#include "Console/GameConsole.hpp"
+#include "ElDorito.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -14,9 +14,9 @@
 #include <codecvt>
 #include <cvt/wstring> // wstring_convert
 
-#include "Utils/Utils.h"
-#include "ElPatches.h"
-#include "Patches/PlayerUid.h"
+#include "Utils/Utils.hpp"
+#include "ElPatches.hpp"
+#include "Patches/PlayerUid.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 

@@ -1,8 +1,8 @@
-#include "Network.h"
-#include "PlayerPropertiesExtension.h"
-#include "../Patch.h"
-#include "../Utils/VersionInfo.h"
-#include "../Modules/ModuleServer.h"
+#include "Network.hpp"
+#include "PlayerPropertiesExtension.hpp"
+#include "../Patch.hpp"
+#include "../Utils/VersionInfo.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "../ElDorito.h"
+#include "../ElDorito.hpp"
 
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"

@@ -1,19 +1,19 @@
-#include "ElPatches.h"
+#include "ElPatches.hpp"
 
-#include "ElDorito.h"
-#include "Patches\Core.h"
-#include "Patches\Logging.h"
-#include "Patches\Mouse.h"
-#include "Patches\Network.h"
-#include "Patches\Scoreboard.h"
-#include "Patches\Ui.h"
-#include "Patches\VirtualKeyboard.h"
-#include "Patches\Armor.h"
-#include "Patches\RawInput.h"
-#include "Patches\ContentItems.h"
-#include "Patches\PlayerUid.h"
+#include "ElDorito.hpp"
+#include "Patches\Core.hpp"
+#include "Patches\Logging.hpp"
+#include "Patches\Mouse.hpp"
+#include "Patches\Network.hpp"
+#include "Patches\Scoreboard.hpp"
+#include "Patches\Ui.hpp"
+#include "Patches\VirtualKeyboard.hpp"
+#include "Patches\Armor.hpp"
+#include "Patches\RawInput.hpp"
+#include "Patches\ContentItems.hpp"
+#include "Patches\PlayerUid.hpp"
 
-#include "Modules\ModuleCamera.h"
+#include "Modules\ModuleCamera.hpp"
 
 namespace
 {

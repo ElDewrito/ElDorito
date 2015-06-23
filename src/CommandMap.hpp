@@ -4,7 +4,7 @@
 #include <vector>
 #include <deque>
 
-#include "Utils/Singleton.h"
+#include "Utils/Singleton.hpp"
 
 enum VariableSetReturnValue
 {

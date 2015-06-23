@@ -1,4 +1,4 @@
-#include "VersionInfo.h"
+#include "VersionInfo.hpp"
 
 #include <windows.h>
 

@@ -1,7 +1,7 @@
-#include "ModulePlayer.h"
+#include "ModulePlayer.hpp"
 #include <sstream>
-#include "../ElDorito.h"
-#include "../Patches/Armor.h"
+#include "../ElDorito.hpp"
+#include "../Patches/Armor.hpp"
 
 namespace
 {

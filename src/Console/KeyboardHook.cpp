@@ -1,4 +1,4 @@
-#include "KeyboardHook.h"
+#include "KeyboardHook.hpp"
 
 WNDPROC KeyboardHook::realProc = 0;
 

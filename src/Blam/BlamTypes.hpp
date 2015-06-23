@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include <string>
 
-#include "Blam\BitStream.h"
+#include "BitStream.hpp"
 
 namespace Blam
 {

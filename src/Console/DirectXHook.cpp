@@ -1,4 +1,4 @@
-#include "DirectXHook.h"
+#include "DirectXHook.hpp"
 #include <detours.h>
 
 uint32_t* DirectXHook::horizontalRes = 0;

@@ -1,10 +1,10 @@
-#include "Logging.h"
-#include "../Patch.h"
-#include "../ElDorito.h"
+#include "Logging.hpp"
+#include "../Patch.hpp"
+#include "../ElDorito.hpp"
 
 #include <cstdarg>
 #include <fstream>
-#include "../Modules/ModuleGame.h"
+#include "../Modules/ModuleGame.hpp"
 
 namespace
 {

@@ -1,5 +1,5 @@
-#include "GameChatQueue.h"
-#include "DirectXHook.h"
+#include "GameChatQueue.hpp"
+#include "DirectXHook.hpp"
 
 GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 {

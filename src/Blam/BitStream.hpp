@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Utils/Bits.h"
+#include "../Utils/Bits.hpp"
 
 #include <cstdint>
 

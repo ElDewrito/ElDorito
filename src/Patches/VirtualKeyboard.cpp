@@ -1,7 +1,7 @@
-#include "VirtualKeyboard.h"
+#include "VirtualKeyboard.hpp"
 
-#include "../ElDorito.h"
-#include "../Patch.h"
+#include "../ElDorito.hpp"
+#include "../Patch.hpp"
 
 #include <ShlObj.h>
 

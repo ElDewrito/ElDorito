@@ -1,8 +1,7 @@
-#include "ModuleCamera.h"
+#include "ModuleCamera.hpp"
 #include <sstream>
-#include "../ElDorito.h"
-#include "../BlamTypes.h"
-#include "../Patches/Ui.h"
+#include "../ElDorito.hpp"
+#include "../Patches/Ui.hpp"
 
 namespace
 {

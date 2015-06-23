@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Pointer.h"
+#include "Pointer.hpp"
 
 #include <initializer_list>
 #include <array>

@@ -2,21 +2,20 @@
 #include <WS2tcpip.h>
 #include <Windows.h>
 
-#include "ModuleServer.h"
+#include "ModuleServer.hpp"
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include "../ElDorito.h"
-#include "../ThirdParty/SHA256.h"
-#include "../ThirdParty/HttpRequest.h"
+#include "../ElDorito.hpp"
+#include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
-#include "../Patches/Network.h"
-#include "../Patches/PlayerUid.h"
+#include "../Patches/Network.hpp"
+#include "../Patches/PlayerUid.hpp"
 
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 
-#include "../Utils/Cryptography.h"
+#include "../Utils/Cryptography.hpp"
 
 namespace
 {

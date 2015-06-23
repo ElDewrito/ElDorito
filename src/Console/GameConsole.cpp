@@ -1,7 +1,7 @@
-#include "GameConsole.h"
-#include "../Utils/VersionInfo.h"
-#include "DirectXHook.h"
-#include "KeyboardHook.h"
+#include "GameConsole.hpp"
+#include "../Utils/VersionInfo.hpp"
+#include "DirectXHook.hpp"
+#include "KeyboardHook.hpp"
 
 void GameConsole::startIRCBackend()
 {

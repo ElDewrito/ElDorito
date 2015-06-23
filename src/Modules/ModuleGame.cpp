@@ -1,9 +1,9 @@
-#include "ModuleGame.h"
+#include "ModuleGame.hpp"
 #include <sstream>
-#include "../ElDorito.h"
-#include "../Patches/Ui.h"
-#include "../Patches/Logging.h"
-#include "../BlamTypes.h"
+#include "../ElDorito.hpp"
+#include "../Patches/Ui.hpp"
+#include "../Patches/Logging.hpp"
+#include "../Blam/BlamTypes.hpp"
 
 namespace
 {

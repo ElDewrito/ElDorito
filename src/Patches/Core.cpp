@@ -1,8 +1,8 @@
-#include "Core.h"
+#include "Core.hpp"
 
-#include "../ElDorito.h"
-#include "../ElPatches.h"
-#include "../Patch.h"
+#include "../ElDorito.hpp"
+#include "../ElPatches.hpp"
+#include "../Patch.hpp"
 
 namespace
 {

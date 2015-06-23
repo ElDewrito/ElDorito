@@ -1,5 +1,5 @@
 #pragma once
-#include "GameConsole.h"
+#include "GameConsole.hpp"
 #include <windows.h>
 #include <detours.h>
 

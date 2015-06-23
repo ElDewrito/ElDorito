@@ -1,7 +1,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include "IRCBackend.h"
-#include "GameConsole.h"
+#include "IRCBackend.hpp"
+#include "GameConsole.hpp"
 #include <algorithm>
 #include <sstream>
 

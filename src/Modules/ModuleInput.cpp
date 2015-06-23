@@ -1,6 +1,6 @@
-#include "ModuleInput.h"
+#include "ModuleInput.hpp"
 #include <sstream>
-#include "../ElDorito.h"
+#include "../ElDorito.hpp"
 
 namespace
 {

@@ -1,9 +1,9 @@
-#include "RawInput.h"
+#include "RawInput.hpp"
 
-#include "../ElDorito.h"
-#include "../Patch.h"
-#include "../BlamTypes.h"
-#include "../Modules/ModuleInput.h"
+#include "../ElDorito.hpp"
+#include "../Patch.hpp"
+#include "../Blam/BlamTypes.hpp"
+#include "../Modules/ModuleInput.hpp"
 
 namespace
 {

@@ -18,119 +18,88 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # Add all source files
 set(SOURCE_FILES
     src/Blam/BitStream.cpp
-    src/Blam/BitStream.h
+    src/Blam/BitStream.hpp
+    src/Blam/BlamTypes.hpp
     src/Console/ConsoleQueue.cpp
-    src/Console/ConsoleQueue.h
+    src/Console/ConsoleQueue.hpp
     src/Console/DirectXHook.cpp
-    src/Console/DirectXHook.h
+    src/Console/DirectXHook.hpp
     src/Console/GameChatQueue.cpp
-    src/Console/GameChatQueue.h
+    src/Console/GameChatQueue.hpp
     src/Console/GameConsole.cpp
-    src/Console/GameConsole.h
+    src/Console/GameConsole.hpp
     src/Console/GlobalChatQueue.cpp
-    src/Console/GlobalChatQueue.h
+    src/Console/GlobalChatQueue.hpp
     src/Console/IRCBackend.cpp
-    src/Console/IRCBackend.h
+    src/Console/IRCBackend.hpp
     src/Console/KeyboardHook.cpp
-    src/Console/KeyboardHook.h
+    src/Console/KeyboardHook.hpp
     src/Console/Queue.cpp
-    src/Console/Queue.h
+    src/Console/Queue.hpp
     src/Modules/ModuleBase.cpp
-    src/Modules/ModuleBase.h
+    src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
-    src/Modules/ModuleCamera.h
+    src/Modules/ModuleCamera.hpp
     src/Modules/ModuleGame.cpp
-    src/Modules/ModuleGame.h
+    src/Modules/ModuleGame.hpp
     src/Modules/ModuleInput.cpp
-    src/Modules/ModuleInput.h
+    src/Modules/ModuleInput.hpp
     src/Modules/ModulePlayer.cpp
-    src/Modules/ModulePlayer.h
+    src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
-    src/Modules/ModuleServer.h
+    src/Modules/ModuleServer.hpp
     src/Patches/Armor.cpp
-    src/Patches/Armor.h
+    src/Patches/Armor.hpp
     src/Patches/ContentItems.cpp
-    src/Patches/ContentItems.h
+    src/Patches/ContentItems.hpp
     src/Patches/Core.cpp
-    src/Patches/Core.h
+    src/Patches/Core.hpp
     src/Patches/Logging.cpp
-    src/Patches/Logging.h
+    src/Patches/Logging.hpp
     src/Patches/Mouse.cpp
-    src/Patches/Mouse.h
+    src/Patches/Mouse.hpp
     src/Patches/Network.cpp
-    src/Patches/Network.h
+    src/Patches/Network.hpp
     src/Patches/PlayerPropertiesExtension.cpp
-    src/Patches/PlayerPropertiesExtension.h
+    src/Patches/PlayerPropertiesExtension.hpp
     src/Patches/PlayerUid.cpp
-    src/Patches/PlayerUid.h
-    src/Patches/RawInput.h
+    src/Patches/PlayerUid.hpp
+    src/Patches/RawInput.hpp
     src/Patches/RawInputPatch.cpp
     src/Patches/Scoreboard.cpp
-    src/Patches/Scoreboard.h
+    src/Patches/Scoreboard.hpp
     src/Patches/Ui.cpp
-    src/Patches/Ui.h
+    src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
-    src/Patches/VirtualKeyboard.h
-    src/ThirdParty/rapidjson/error/en.h
-    src/ThirdParty/rapidjson/error/error.h
-    src/ThirdParty/rapidjson/internal/biginteger.h
-    src/ThirdParty/rapidjson/internal/diyfp.h
-    src/ThirdParty/rapidjson/internal/dtoa.h
-    src/ThirdParty/rapidjson/internal/ieee754.h
-    src/ThirdParty/rapidjson/internal/itoa.h
-    src/ThirdParty/rapidjson/internal/meta.h
-    src/ThirdParty/rapidjson/internal/pow10.h
-    src/ThirdParty/rapidjson/internal/stack.h
-    src/ThirdParty/rapidjson/internal/strfunc.h
-    src/ThirdParty/rapidjson/internal/strtod.h
-    src/ThirdParty/rapidjson/msinttypes/inttypes.h
-    src/ThirdParty/rapidjson/msinttypes/stdint.h
-    src/ThirdParty/rapidjson/allocators.h
-    src/ThirdParty/rapidjson/document.h
-    src/ThirdParty/rapidjson/encodedstream.h
-    src/ThirdParty/rapidjson/encodings.h
-    src/ThirdParty/rapidjson/filereadstream.h
-    src/ThirdParty/rapidjson/filewritestream.h
-    src/ThirdParty/rapidjson/memorybuffer.h
-    src/ThirdParty/rapidjson/memorystream.h
-    src/ThirdParty/rapidjson/pointer.h
-    src/ThirdParty/rapidjson/prettywriter.h
-    src/ThirdParty/rapidjson/rapidjson.h
-    src/ThirdParty/rapidjson/reader.h
-    src/ThirdParty/rapidjson/stringbuffer.h
-    src/ThirdParty/rapidjson/writer.h
+    src/Patches/VirtualKeyboard.hpp
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
-    src/ThirdParty/HttpRequest.h
-    src/ThirdParty/SHA256.cpp
-    src/ThirdParty/SHA256.h
+    src/ThirdParty/HttpRequest.hpp
     src/Utils/Assert.cpp
-    src/Utils/Assert.h
-    src/Utils/Bits.h
+    src/Utils/Assert.hpp
+    src/Utils/Bits.hpp
     src/Utils/Cryptography.cpp
-    src/Utils/Cryptography.h
-    src/Utils/Macros.h
-    src/Utils/Singleton.h
+    src/Utils/Cryptography.hpp
+    src/Utils/Macros.hpp
+    src/Utils/Singleton.hpp
     src/Utils/String.cpp
-    src/Utils/String.h
-    src/Utils/Utils.h
+    src/Utils/String.hpp
+    src/Utils/Utils.hpp
     src/Utils/VersionInfo.cpp
-    src/Utils/VersionInfo.h
-    src/BlamTypes.h
+    src/Utils/VersionInfo.hpp
     src/CommandMap.cpp
-    src/CommandMap.h
+    src/CommandMap.hpp
     src/ElDorito.cpp
-    src/ElDorito.h
-    src/ElDoritoConfig.h
+    src/ElDorito.hpp
     src/ElModules.cpp
-    src/ElModules.h
+    src/ElModules.hpp
     src/ElPatches.cpp
-    src/ElPatches.h
+    src/ElPatches.hpp
     src/main.cpp
     src/Patch.cpp
-    src/Patch.h
+    src/Patch.hpp
     src/Pointer.cpp
-    src/Pointer.h
+    src/Pointer.hpp
     src/resource.h
     src/ElDorito.rc
     src/ElDorito.def)

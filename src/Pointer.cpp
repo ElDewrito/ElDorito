@@ -1,4 +1,4 @@
-#include "Pointer.h"
+#include "Pointer.hpp"
 #include <Windows.h>
 #include <TlHelp32.h> //GetModuleBase
 #include <memory>

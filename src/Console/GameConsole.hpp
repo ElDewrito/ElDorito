@@ -1,10 +1,10 @@
 #pragma once
 #include <memory>
-#include "../Utils/Utils.h"
-#include "ConsoleQueue.h"
-#include "GlobalChatQueue.h"
-#include "GameChatQueue.h"
-#include "IRCBackend.h"
+#include "../Utils/Utils.hpp"
+#include "ConsoleQueue.hpp"
+#include "GlobalChatQueue.hpp"
+#include "GameChatQueue.hpp"
+#include "IRCBackend.hpp"
 
 class Queue;
 class ConsoleQueue;

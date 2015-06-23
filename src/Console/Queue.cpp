@@ -1,5 +1,5 @@
-#include "Queue.h"
-#include "GameConsole.h"
+#include "Queue.hpp"
+#include "GameConsole.hpp"
 
 Queue::Queue(D3DCOLOR color) : color(color)
 {

@@ -1,4 +1,4 @@
-#include "PlayerPropertiesExtension.h"
+#include "PlayerPropertiesExtension.hpp"
 
 namespace Patches
 {

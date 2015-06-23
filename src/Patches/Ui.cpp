@@ -1,8 +1,8 @@
-#include "Ui.h"
+#include "Ui.hpp"
 
-#include "../ElDorito.h"
-#include "../Patch.h"
-#include "../BlamTypes.h"
+#include "../ElDorito.hpp"
+#include "../Patch.hpp"
+#include "../Blam/BlamTypes.hpp"
 
 namespace
 {

@@ -1,7 +1,7 @@
-#include "Armor.h"
-#include "PlayerPropertiesExtension.h"
-#include "../Patch.h"
-#include "../Modules/ModulePlayer.h"
+#include "Armor.hpp"
+#include "PlayerPropertiesExtension.hpp"
+#include "../Patch.hpp"
+#include "../Modules/ModulePlayer.hpp"
 
 #include <iostream>
 #include <unordered_map>

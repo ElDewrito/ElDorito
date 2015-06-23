@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Queue.h"
+#include "Queue.hpp"
 
 class Queue;
 

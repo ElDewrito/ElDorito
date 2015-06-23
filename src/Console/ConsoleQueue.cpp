@@ -1,7 +1,7 @@
-#include "ConsoleQueue.h"
-#include "../CommandMap.h"
+#include "ConsoleQueue.hpp"
+#include "../CommandMap.hpp"
 #include <sstream>
-#include "DirectXHook.h"
+#include "DirectXHook.hpp"
 
 ConsoleQueue::ConsoleQueue() : Queue(DirectXHook::COLOR_GREEN)
 {

@@ -1,11 +1,11 @@
-#include "PlayerUid.h"
+#include "PlayerUid.hpp"
 
-#include "../Console/GameConsole.h"
-#include "../ElDorito.h"
-#include "../Modules/ModulePlayer.h"
-#include "../Patch.h"
-#include "PlayerPropertiesExtension.h"
-#include "../Utils/Cryptography.h"
+#include "../Console/GameConsole.hpp"
+#include "../ElDorito.hpp"
+#include "../Modules/ModulePlayer.hpp"
+#include "../Patch.hpp"
+#include "PlayerPropertiesExtension.hpp"
+#include "../Utils/Cryptography.hpp"
 
 #include <openssl/sha.h>
 

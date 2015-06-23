@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ModuleBase.h"
+#include "ModuleBase.hpp"
 
 namespace Modules
 {

@@ -1,7 +1,7 @@
-#include "ContentItems.h"
+#include "ContentItems.hpp"
 
-#include "../ElDorito.h"
-#include "../Patch.h"
+#include "../ElDorito.hpp"
+#include "../Patch.hpp"
 
 #include "../ThirdParty/dirent.h"
 

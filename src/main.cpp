@@ -1,4 +1,4 @@
-#include "Console/GameConsole.h"
+#include "Console/GameConsole.hpp"
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
@@ -7,9 +7,9 @@
 #include <IPTypes.h> // for proxy
 #include <fstream>
 
-#include "Utils/VersionInfo.h"
-#include "ElDorito.h"
-#include "ElPatches.h"
+#include "Utils/VersionInfo.hpp"
+#include "ElDorito.hpp"
+#include "ElPatches.hpp"
 
 /*LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
