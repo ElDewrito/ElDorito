@@ -12,6 +12,7 @@ namespace
 	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
+	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 
 	Patch CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 });
 }
@@ -59,12 +60,6 @@ namespace Patches
 
 		void ApplyAll()
 		{
-			// Update window title patch
-			const uint8_t windowData[] = { 0x3A, 0x20, 0x45, 0x6C, 0x20, 0x44, 0x6F, 0x72, 0x69, 0x74, 0x6F, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x00, 0x00 };
-			Pointer::Base(0x159C02F).Write(windowData, sizeof(windowData));
-			Pointer::Base(0x159C06F).Write(windowData, sizeof(windowData));
-			Pointer::Base(0x1EAAEE0).Write(windowData, sizeof(windowData));
-
 			// Fix for leave game button to show H3 pause menu
 			Hook(0x3B6826, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
@@ -133,6 +128,9 @@ namespace Patches
 			// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
 			// TODO: find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata
 			Patch(0x705D6F, { 0x2 }).Apply();
+
+			// Hook window title sprintf to replace the dest buf with our string
+			Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -278,6 +276,12 @@ namespace
 		}
 		}
 		return false;
+	}
+
+	void WindowTitleSprintfHook(char* destBuf, char* format, char* version)
+	{
+		std::string windowTitle = "ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__;
+		strcpy(destBuf, windowTitle.c_str());
 	}
 
 	__declspec(naked) void LocalizedStringHook()

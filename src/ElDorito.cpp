@@ -66,7 +66,6 @@ void ElDorito::Initialize()
 		}
 	}
 
-
 	// Language patch
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
@@ -111,12 +110,6 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 	{
 		GameConsole::Instance().checkForReturnKey();
 	}
-
-	if (!windowTitleSet && *((HWND*)0x199C014))
-	{
-		windowTitleSet = true;
-		setWindowTitle("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
-	}
 }
 
 namespace
@@ -139,11 +132,6 @@ std::string ElDorito::GetDirectory()
 	std::string Dir(Path);
 	Dir = Dir.substr(0, std::string(Dir).find_last_of('\\') + 1);
 	return Dir;
-}
-
-void ElDorito::setWindowTitle(const std::string& Message)
-{
-	SetWindowText(*((HWND*) 0x199C014), Message.c_str());
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

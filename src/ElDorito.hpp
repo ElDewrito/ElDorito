@@ -39,9 +39,7 @@ private:
 	static size_t MainThreadID; // Thread
 	bool d3d9Loaded = false;
 	bool consoleLoaded = false;
-	bool windowTitleSet = false;
 	DWORD d3d9InitTime = 0;
 
-	void setWindowTitle(const std::string& Message);
 	void setWatermarkText(const std::string& Message);
 };
