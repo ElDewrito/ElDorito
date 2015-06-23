@@ -9,9 +9,11 @@ GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 
 void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	std::string preparedLineForIRC = GameConsole::Instance().playerName;
-	preparedLineForIRC += ": ";
-	preparedLineForIRC += line;
-	sendThisLineToIRCServer = preparedLineForIRC;
-	pushLineFromGameToUI(preparedLineForIRC);
+	sendThisLineToIRCServer = line;
+
+	std::string preparedLineForUI = GameConsole::Instance().playerName;
+	preparedLineForUI = preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
+	preparedLineForUI += ": ";
+	preparedLineForUI += line;
+	pushLineFromGameToUI(preparedLineForUI);
 }

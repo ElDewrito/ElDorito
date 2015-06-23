@@ -66,7 +66,7 @@ bool IRCBackend::initIRCChat()
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :null\r\n", console.playerName.c_str());
+	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	sprintf_s(buffer, "NICK %s\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
@@ -84,7 +84,7 @@ void IRCBackend::ircChatLoop()
 		int inDataLength = recv(winSocket, buffer, 512, 0);
 		
 		// Use below line to debug IRC backend
-		// OutputDebugString(buf);
+		// OutputDebugString(buffer);
 
 		int nError = WSAGetLastError();
 		if (nError != WSAEWOULDBLOCK && nError != 0)
@@ -225,7 +225,11 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 		return;
 	std::string buf(buffer);
 	std::string message = buf.substr(buf.find(bufferSplitBySpace.at(3)), buf.length());
-	message.erase(0, 1); // remove first character
-	message.resize(message.size() - 2); // remove last 2 characters
-	queue->pushLineFromGameToUI(message);
+	message.erase(0, 1); // remove first character ":"
+	message.resize(message.size() - 2); // remove last 2 characters "\n"
+	
+	std::string preparedLineForUI = bufferSplitBySpace.at(0).substr(bufferSplitBySpace.at(0).find_first_of("|") + 1, std::string::npos);
+	preparedLineForUI = preparedLineForUI.substr(0, preparedLineForUI.find_first_of("!"));
+	preparedLineForUI += ": " + message;
+	queue->pushLineFromGameToUI(preparedLineForUI);
 }
