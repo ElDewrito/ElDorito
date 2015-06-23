@@ -169,12 +169,19 @@ void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 	}
 	else
 	{
-		sprintf_s(buffer, "MODE %s +B\r\nPART %s\r\n", console.playerName.c_str(), gameChatChannel.c_str());
+		leaveIRCChannel(gameChatChannel);
 		gameChatChannel = channel;
 	}
 
 	sprintf_s(buffer, "MODE %s +B\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
+}
+
+void IRCBackend::leaveIRCChannel(std::string channel)
+{
+	sprintf_s(buffer, "MODE %s +B\r\nPART %s\r\n", GameConsole::Instance().playerName.c_str(), channel.c_str());
+	send(winSocket, buffer, strlen(buffer), 0);
+	gameChatChannel = "";
 }
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)

@@ -20,9 +20,10 @@ private:
 	bool receivedPING();
 	bool receivedMessageFromIRCServer(std::vector<std::string> &bufferSplitBySpace);
 	bool receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace);
-	void joinIRCChannel(std::string channel, bool globalChat);
 	void sendMessageToIRCServer(std::string channel, Queue* queue);
 
 public:
 	IRCBackend();
+	void joinIRCChannel(std::string channel, bool globalChat);
+	void leaveIRCChannel(std::string channel);
 };
