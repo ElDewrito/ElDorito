@@ -170,11 +170,15 @@ void IRCBackend::joinIRCChannel()
 
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
 {
+	if (bufferSplitBySpace.size() <= 1)
+		return false;
 	return strncmp(bufferSplitBySpace.at(1).c_str(), "001", 3) == 0;
 }
 
 bool IRCBackend::receivedMessageFromIRCServer(std::vector<std::string> &bufferSplitBySpace)
 {
+	if (bufferSplitBySpace.size() <= 1)
+		return false;
 	return strncmp(bufferSplitBySpace.at(1).c_str(), "PRIVMSG", 7) == 0;
 }
 
@@ -185,12 +189,16 @@ bool IRCBackend::receivedPING()
 
 bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace)
 {
+	if (bufferSplitBySpace.size() <= 2)
+		return false;
 	std::transform(bufferSplitBySpace.at(2).begin(), bufferSplitBySpace.at(2).end(), bufferSplitBySpace.at(2).begin(), ::tolower);
 	return strncmp(bufferSplitBySpace.at(2).c_str(), channel.c_str(), channel.length()) == 0;
 }
 
 void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace)
 {
+	if (bufferSplitBySpace.size() <= 3)
+		return false;
 	std::string buffer(buffer);
 	std::string message = buffer.substr(buffer.find(bufferSplitBySpace.at(3)), buffer.length());
 	message.erase(0, 1); // remove first character
