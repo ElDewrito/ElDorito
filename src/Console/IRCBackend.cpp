@@ -165,7 +165,7 @@ void IRCBackend::sendMessageToIRCServer(std::string channel, Queue* queue)
 	auto& console = GameConsole::Instance();
 	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), queue->sendThisLineToIRCServer.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	console.globalChatQueue.sendThisLineToIRCServer.clear();
+	queue->sendThisLineToIRCServer.clear();
 }
 
 void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
