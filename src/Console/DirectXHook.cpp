@@ -37,12 +37,12 @@ void DirectXHook::drawChatInterface()
 		return;
 	}
 
-	int x = (int)(0.05 * *horizontalRes);
-	int y = (int)(0.65 * *verticalRes);
+	int x = (int)(0.70 * *horizontalRes);
+	int y = (int)(0.60 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
-	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
-	int inputTextBoxHeight = fontHeight + (int) (0.769 * fontHeight);
-	int horizontalSpacing = (int) (0.012 * inputTextBoxWidth);
+	int inputTextBoxWidth = (int)(0.25 * *horizontalRes);
+	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int horizontalSpacing = (int)(0.012 * inputTextBoxWidth);
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 
@@ -52,7 +52,7 @@ void DirectXHook::drawChatInterface()
 			dxFont->Release();
 		}
 
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &dxFont);
+		D3DXCreateFont(pDevice, fontHeight, 0, 650, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &dxFont);
 		currentFontHeight = fontHeight;
 		return;
 	}
@@ -78,7 +78,7 @@ void DirectXHook::drawChatInterface()
 
 	if (console.isConsoleShown())
 	{
-		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_SEE);
 		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
 	}
 
