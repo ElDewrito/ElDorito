@@ -49,8 +49,8 @@ namespace Modules
 		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", eCommandFlagsArchived, "Jasper", VariablePlayerNameUpdate);
 		// hack to add a small notice before Player.PrivKey in the cfg file
 		AddVariableString("PrivKeyNote", "priv_key_note", "", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "The PrivKey below is used to keep your stats safe. Treat it like a password and don't share it with anyone!");
-		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", eCommandFlagsArchived, "");
-		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", eCommandFlagsArchived, "");
+		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
+		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
 		// patch Game_GetPlayerName to get the name from our field

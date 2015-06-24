@@ -281,7 +281,7 @@ namespace
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version)
 	{
 		std::string windowTitle = "ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__;
-		strcpy(destBuf, windowTitle.c_str());
+		strcpy_s(destBuf, 0x40, windowTitle.c_str());
 	}
 
 	__declspec(naked) void LocalizedStringHook()

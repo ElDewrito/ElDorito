@@ -6,7 +6,14 @@ namespace
 {
 	bool CommandHelp(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		returnInfo = Modules::CommandMap::Instance().GenerateHelpText();
+		auto& commandMap = Modules::CommandMap::Instance();
+		if (Arguments.size() > 0)
+		{
+			auto* cmd = commandMap.FindCommand(Arguments[0]);
+			returnInfo = cmd->GenerateHelpText();
+			return true;
+		}
+		returnInfo = commandMap.GenerateHelpText();
 		return true;
 	}
 

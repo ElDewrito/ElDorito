@@ -338,18 +338,22 @@ namespace Modules
 	{
 		std::sort(Commands.begin(), Commands.end(), compare_commands);
 		std::stringstream ss;
-		std::stringstream hasParent;
+		std::stringstream hasParent; // store commands with a parent module seperately, so they can be added to the main stringstream after the non-parent commands
 		for (auto cmd : Commands)
 		{
 			if (cmd.Flags & eCommandFlagsHidden)
 				continue;
 
-			auto helpText = cmd.GenerateHelpText();
+			std::string helpText = cmd.Name;
+			if (cmd.Type != eCommandTypeCommand && !(cmd.Flags & eCommandFlagsOmitValueInList))
+				helpText += " " + cmd.ValueString;
+
+			helpText += " - " + cmd.Description;
 
 			if (cmd.ModuleName.length() > 0)
-				hasParent << cmd.GenerateHelpText();
+				hasParent << helpText << std::endl;
 			else
-				ss << cmd.GenerateHelpText();
+				ss << helpText << std::endl;
 		}
 
 		ss << hasParent.str();

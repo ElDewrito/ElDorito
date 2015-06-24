@@ -24,6 +24,7 @@ enum CommandFlags
 	eCommandFlagsHidden            = 1 << 4, // hide this command/var from the help listing
 	eCommandFlagsWaitForGameTick   = 1 << 5, // if run at startup queue the command until the first game tick
 	eCommandFlagsHostOnly          = 1 << 6, // only execute the command if the user is host
+	eCommandFlagsOmitValueInList   = 1 << 7, // omit the variables value in help listing
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);

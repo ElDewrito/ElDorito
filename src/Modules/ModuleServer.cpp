@@ -95,7 +95,7 @@ namespace
 			{
 				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
 				{
-					ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					ss << "Unable to connect to master server " << server << " (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
 					continue;
 				}
 			}
