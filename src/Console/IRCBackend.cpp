@@ -96,7 +96,7 @@ void IRCBackend::ircChatLoop()
 	int inDataLength;
 
 	while ((inDataLength = recv(winSocket, buffer, 512, 0)) > 0) { // received a packet from IRC server
-		OutputDebugString(buffer); // use this line to debug IRC backend
+		// OutputDebugString(buffer); // use this line to debug IRC backend
 
 		buffer[inDataLength] = '\0'; // recv function doesn't put a null-terminator character
 
