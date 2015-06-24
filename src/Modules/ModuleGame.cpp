@@ -370,6 +370,8 @@ namespace Modules
 		VarSkipLauncher->ValueIntMin = 0;
 		VarSkipLauncher->ValueIntMax = 0;
 
+		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

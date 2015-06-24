@@ -82,6 +82,8 @@ set(SOURCE_FILES
     src/Utils/Bits.hpp
     src/Utils/Cryptography.cpp
     src/Utils/Cryptography.hpp
+    src/Utils/DebugLog.cpp
+    src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
     src/Utils/Singleton.hpp
     src/Utils/String.cpp

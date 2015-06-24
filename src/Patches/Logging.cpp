@@ -60,7 +60,6 @@ namespace Patches
 
 namespace
 {
-	// TODO: Move dbglog into a header that the whole project can use
 	void dbglog(const char* module, char* format, ...)
 	{
 		char* backupFormat = "";
@@ -77,37 +76,22 @@ namespace
 		vsprintf_s(buff, 4096, format, ap);
 		va_end(ap);
 
-		for (auto filter : Modules::ModuleGame::Instance().FiltersExclude)
-		{
-			if (strstr(buff, filter.c_str()) != NULL)
-				return; // string contains an excluded string
-		}
-
-		for (auto filter : Modules::ModuleGame::Instance().FiltersInclude)
-		{
-			if (strstr(buff, filter.c_str()) == NULL)
-				return; // string doesn't contain an included string
-		}
-
-		std::ofstream outfile;
-		outfile.open("dorito.log", std::ios_base::app);
-		outfile << '[' << module << "] " << buff << '\n';
-		outfile.close();
+		Utils::DebugLog::Instance().Log(module, "%s", buff);
 	}
 
 	void debuglog_string(char* name, char* value)
 	{
-		dbglog("Debug", "%s: %s", name, value);
+		Utils::DebugLog::Instance().Log("Debug", "%s: %s", name, value);
 	}
 
 	void debuglog_int(char* name, int value)
 	{
-		dbglog("Debug", "%s: %d", name, value);
+		Utils::DebugLog::Instance().Log("Debug", "%s: %d", name, value);
 	}
 
 	void debuglog_float(char* name, float value)
 	{
-		dbglog("Debug", "%s: %f", name, value);
+		Utils::DebugLog::Instance().Log("Debug", "%s: %f", name, value);
 	}
 
 	int networkLogHook(char* format, ...)
@@ -124,7 +108,7 @@ namespace
 		vsnprintf_s(dstBuf, 4096, 4096, formatStr.c_str(), args);
 		va_end(args);
 
-		dbglog("Network", "%s", dstBuf);
+		Utils::DebugLog::Instance().Log("Network", "%s", dstBuf);
 
 		return 1;
 	}
@@ -143,7 +127,7 @@ namespace
 		else
 			logData2 += 0xC;
 
-		dbglog((const char*)logData1, (char*)logData2);
+		Utils::DebugLog::Instance().Log((const char*)logData1, (char*)logData2);
 		return;
 	}
 
@@ -155,7 +139,7 @@ namespace
 		else
 			logData1 += 0xC;
 
-		dbglog("UiLog", (char*)logData1);
+		Utils::DebugLog::Instance().Log("UiLog", (char*)logData1);
 		return;
 	}
 }

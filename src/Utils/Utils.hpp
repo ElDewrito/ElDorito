@@ -5,3 +5,5 @@
 #include "VersionInfo.hpp"
 #include "Singleton.hpp"
 #include "Bits.hpp"
+#include "Cryptography.hpp"
+#include "DebugLog.hpp"
