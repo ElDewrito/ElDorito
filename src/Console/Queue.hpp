@@ -16,3 +16,26 @@ public:
 	void pushLineFromGameToUI(std::string line);
 	virtual void pushLineFromKeyboardToGame(std::string line) = 0;
 };
+
+class GlobalChatQueue : public Queue
+{
+public:
+	GlobalChatQueue();
+	virtual void pushLineFromKeyboardToGame(std::string line);
+};
+
+class GameChatQueue : public Queue
+{
+public:
+	GameChatQueue();
+	virtual void pushLineFromKeyboardToGame(std::string line);
+};
+
+class ConsoleQueue : public Queue
+{
+public:
+	ConsoleQueue();
+	std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
+	void pushLineFromGameToUIMultipleLines(std::string multipleLines);
+	virtual void pushLineFromKeyboardToGame(std::string line);
+};

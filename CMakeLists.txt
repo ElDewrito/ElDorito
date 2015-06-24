@@ -20,22 +20,16 @@ set(SOURCE_FILES
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
     src/Blam/BlamTypes.hpp
-    src/Console/ConsoleQueue.cpp
-    src/Console/ConsoleQueue.hpp
     src/DirectXHook.cpp
     src/DirectXHook.hpp
-    src/Console/GameChatQueue.cpp
-    src/Console/GameChatQueue.hpp
     src/Console/GameConsole.cpp
     src/Console/GameConsole.hpp
-    src/Console/GlobalChatQueue.cpp
-    src/Console/GlobalChatQueue.hpp
     src/Console/IRCBackend.cpp
     src/Console/IRCBackend.hpp
     src/Console/KeyboardHook.cpp
     src/Console/KeyboardHook.hpp
-    src/Console/Queue.cpp
     src/Console/Queue.hpp
+    src/Console/Queue.cpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp

@@ -1,9 +1,7 @@
 #pragma once
 #include <memory>
 #include "../Utils/Utils.hpp"
-#include "ConsoleQueue.hpp"
-#include "GlobalChatQueue.hpp"
-#include "GameChatQueue.hpp"
+#include "Queue.hpp"
 #include "IRCBackend.hpp"
 
 class Queue;
