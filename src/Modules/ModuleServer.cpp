@@ -10,6 +10,7 @@
 #include "../Patches/Network.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include "../Console/IRCBackend.hpp"
+#include "../Utils/DebugLog.hpp"
 
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
@@ -81,76 +82,7 @@ namespace
 
 	DWORD WINAPI CommandServerAnnounce_Thread(LPVOID lpParam)
 	{
-		//std::stringstream ss;
-		std::vector<std::string> announceEndpoints;
-
-		GetEndpoints(announceEndpoints, "announce");
-
-		for (auto server : announceEndpoints)
-		{
-			try
-			{
-				HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-				//ss << "Announcing to " << server << "..." << std::endl;
-
-				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
-				{
-					//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
-					continue;
-				}
-			}
-			catch(...) // TODO: find out what exception is being caused
-			{
-
-			}
-
-			/* TODO: return below to the user somehow, maybe using a log file
-			// make sure the server replied with 200 OK
-			std::wstring expected = L"HTTP/1.1 200 OK";
-			if (req.responseHeader.length() < expected.length())
-			{
-				ss << "Invalid master server announce response." << std::endl << std::endl;
-				continue;
-			}
-
-			auto respHdr = req.responseHeader.substr(0, expected.length());
-			if (respHdr.compare(expected))
-			{
-				ss << "Invalid master server announce response." << std::endl << std::endl;
-				continue;
-			}
-
-			// parse the json response
-			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
-			rapidjson::Document json;
-			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
-			{
-				ss << "Invalid master server JSON response." << std::endl << std::endl;
-				continue;
-			}
-
-			if (!json.HasMember("result"))
-			{
-				ss << "Master server JSON response is missing data." << std::endl << std::endl;
-				continue;
-			}
-
-			auto& result = json["result"];
-			if (result["code"].GetInt() != 0)
-			{
-				ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
-				continue;
-			}
-
-			ss << "Announce OK" << std::endl << std::endl;*/
-		}
-
-		return true;
-	}
-
-	DWORD WINAPI CommandServerUnannounce_Thread(LPVOID lpParam)
-	{
-		//std::stringstream ss;
+		std::stringstream ss;
 		std::vector<std::string> announceEndpoints;
 
 		GetEndpoints(announceEndpoints, "announce");
@@ -158,28 +90,34 @@ namespace
 		for (auto server : announceEndpoints)
 		{
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-			//ss << "Unannouncing to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", L"", NULL, 0))
+			try
 			{
-				//ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString), L"GET", L"", L"", L"", NULL, 0))
+				{
+					ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					continue;
+				}
+			}
+			catch(...) // TODO: find out what exception is being caused
+			{
+				ss << "Exception during master server announce request to " << server << std::endl << std::endl;
 				continue;
 			}
 
-			/* TODO: return below to the user somehow, maybe using a log file
 			// make sure the server replied with 200 OK
 			std::wstring expected = L"HTTP/1.1 200 OK";
 			if (req.responseHeader.length() < expected.length())
 			{
-			ss << "Invalid master server unannounce response." << std::endl << std::endl;
-			continue;
+				ss << "Invalid master server announce response from " << server << std::endl << std::endl;
+				continue;
 			}
 
 			auto respHdr = req.responseHeader.substr(0, expected.length());
 			if (respHdr.compare(expected))
 			{
-			ss << "Invalid master server unannounce response." << std::endl << std::endl;
-			continue;
+				ss << "Invalid master server announce response from " << server << std::endl << std::endl;
+				continue;
 			}
 
 			// parse the json response
@@ -187,33 +125,106 @@ namespace
 			rapidjson::Document json;
 			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
 			{
-			ss << "Invalid master server JSON response." << std::endl << std::endl;
-			continue;
+				ss << "Invalid master server JSON response from " << server << std::endl << std::endl;
+				continue;
 			}
 
 			if (!json.HasMember("result"))
 			{
-			ss << "Master server JSON response is missing data." << std::endl << std::endl;
-			continue;
+				ss << "Master server JSON response from " << server << " is missing data." << std::endl << std::endl;
+				continue;
 			}
 
 			auto& result = json["result"];
 			if (result["code"].GetInt() != 0)
 			{
-			ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
-			continue;
+				ss << "Master server " << server << " returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+				continue;
+			}
+		}
+
+		std::string errors = ss.str();
+		if (errors.length() > 0)
+			Utils::DebugLog::Instance().Log("Unannounce", ss.str());
+
+		return true;
+	}
+
+	DWORD WINAPI CommandServerUnannounce_Thread(LPVOID lpParam)
+	{
+		std::stringstream ss;
+		std::vector<std::string> announceEndpoints;
+
+		GetEndpoints(announceEndpoints, "announce");
+
+		for (auto server : announceEndpoints)
+		{
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+
+			try
+			{
+				if (!req.SendRequest(Utils::String::WidenString(server + "?port=" + Modules::ModuleServer::Instance().VarServerPort->ValueString + "&shutdown=true"), L"GET", L"", L"", L"", NULL, 0))
+				{
+					ss << "Unable to connect to master server " << server << " (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					continue;
+				}
+			}
+			catch (...)
+			{
+				ss << "Exception during master server unannounce request to " << server << std::endl << std::endl;
+				continue;
 			}
 
-			ss << "Unannounce OK" << std::endl << std::endl;*/
+			// make sure the server replied with 200 OK
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+				ss << "Invalid master server unannounce response from " << server << std::endl << std::endl;
+				continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+				ss << "Invalid master server unannounce response from " << server << std::endl << std::endl;
+				continue;
+			}
+
+			// parse the json response
+			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+			rapidjson::Document json;
+			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+			{
+				ss << "Invalid master server JSON response from " << server << std::endl << std::endl;
+				continue;
+			}
+
+			if (!json.HasMember("result"))
+			{
+				ss << "Master server JSON response from " << server << " is missing data." << std::endl << std::endl;
+				continue;
+			}
+
+			auto& result = json["result"];
+			if (result["code"].GetInt() != 0)
+			{
+				ss << "Master server " << server << " returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+				continue;
+			}
 		}
+
+		std::string errors = ss.str();
+		if (errors.length() > 0)
+			Utils::DebugLog::Instance().Log("Unannounce", ss.str());
 
 		return true;
 	}
 
 	DWORD WINAPI CommandServerAnnounceStats_Thread(LPVOID lpParam)
 	{
-		//std::stringstream ss;
+		std::stringstream ss;
 		std::vector<std::string> statsEndpoints;
+		auto& debugLog = Utils::DebugLog::Instance();
 
 		GetEndpoints(statsEndpoints, "stats");
 
@@ -252,7 +263,11 @@ namespace
 		// todo: look into using JSON Web Tokens (JWT) that use JSON Web Signature (JWS), instead of using our own signature stuff
 		std::string statsSignature;
 		if (!Utils::Cryptography::CreateRSASignature(Patches::PlayerUid::GetFormattedPrivKey(), (void*)statsObject.c_str(), statsObject.length(), statsSignature))
-			return 0; // TODO: give some output if signature creation failed
+		{
+			ss << "Failed to create stats RSA signature!";
+			debugLog.Log("AnnounceStats", ss.str());
+			return 0;
+		}
 
 		rapidjson::StringBuffer s;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(s);
@@ -272,29 +287,33 @@ namespace
 		for (auto server : statsEndpoints)
 		{
 			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-			//ss << "Sending game stats to " << server << "..." << std::endl;
 
-			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+			try
 			{
-				std::stringstream ss;
-				ss << "Unable to connect to master server. (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
-				std::string str = ss.str();
+				if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+				{
+					ss << "Unable to connect to master server " << server << " (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
+					continue;
+				}
+			}
+			catch (...)
+			{
+				ss << "Exception during master server stats announce request to " << server << std::endl << std::endl;
 				continue;
 			}
 
-			/* TODO: return below to the user somehow, maybe using a log file
 			// make sure the server replied with 200 OK
 			std::wstring expected = L"HTTP/1.1 200 OK";
 			if (req.responseHeader.length() < expected.length())
 			{
-				ss << "Invalid master server stats response." << std::endl << std::endl;
+				ss << "Invalid master server stats response from " << server << std::endl << std::endl;
 				continue;
 			}
 
 			auto respHdr = req.responseHeader.substr(0, expected.length());
 			if (respHdr.compare(expected))
 			{
-				ss << "Invalid master server stats response." << std::endl << std::endl;
+				ss << "Invalid master server stats response from " << server << std::endl << std::endl;
 				continue;
 			}
 
@@ -303,25 +322,27 @@ namespace
 			rapidjson::Document json;
 			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
 			{
-				ss << "Invalid master server JSON response." << std::endl << std::endl;
+				ss << "Invalid master server JSON response from " << server << std::endl << std::endl;
 				continue;
 			}
 
 			if (!json.HasMember("result"))
 			{
-				ss << "Master server JSON response is missing data." << std::endl << std::endl;
+				ss << "Master server JSON response from " << server << " is missing data." << std::endl << std::endl;
 				continue;
 			}
 
 			auto& result = json["result"];
 			if (result["code"].GetInt() != 0)
 			{
-				ss << "Master server returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
+				ss << "Master server " << server << " returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
 				continue;
 			}
-
-			ss << "Stats update OK" << std::endl << std::endl;*/
 		}
+
+		std::string errors = ss.str();
+		if (errors.length() > 0)
+			debugLog.Log("AnnounceStats", ss.str());
 
 		return true;
 	}
@@ -540,6 +561,17 @@ namespace
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
 	}
+
+	bool CommandServerKickPlayer(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() <= 0)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		std::string playerName = Arguments[0];
+	}
 }
 
 namespace Modules
@@ -571,5 +603,7 @@ namespace Modules
 		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsNone, CommandServerUnannounce);
 
 		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
+
+		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
 	}
 }
