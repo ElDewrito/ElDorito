@@ -8,24 +8,24 @@ class IRCBackend : public Utils::Singleton<IRCBackend>
 {
 private:
 	std::string server = "irc.snoonet.org";
-	std::string globalChatChannel = "";
-	std::string gameChatChannel = "";
-	char buffer[512];
+	char buffer[513];
 	SOCKET winSocket;
-	DWORD lastTimeReceivedPacket = 0;
 
-	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
+	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems, bool keepDelimiter);
 	bool initIRCChat();
 	void ircChatLoop();
 	void extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace, Queue* queue);
 	bool messageIsInChannel(std::vector<std::string> &bufferSplitBySpace, std::string channel);
-	bool receivedPING();
+	bool receivedPING(std::string line);
 	bool receivedMessageFromIRCServer(std::vector<std::string> &bufferSplitBySpace);
 	bool receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace);
-	void sendMessageToIRCServer(std::string channel, Queue* queue);
 
 public:
+	std::string globalChatChannel = "";
+	std::string gameChatChannel = "";
+
 	IRCBackend();
 	void joinIRCChannel(std::string channel, bool globalChat);
 	void leaveIRCChannel(std::string channel);
+	void sendMessageToChannel(std::string channel, Queue* queue, std::string line);
 };

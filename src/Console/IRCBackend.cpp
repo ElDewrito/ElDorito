@@ -8,15 +8,13 @@
 
 IRCBackend::IRCBackend()
 {
-	std::transform(globalChatChannel.begin(), globalChatChannel.end(), globalChatChannel.begin(), ::tolower);
-
-	int i = 0;
-
-	for (; i < 3 && !initIRCChat(); i++)
+	for (int i = 0; !initIRCChat(); i++)
 	{
 		if (i >= 2)
 		{
 			GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: failed to connect to IRC.");
+			closesocket(winSocket);
+			return;
 		}
 		else
 		{
@@ -25,22 +23,37 @@ IRCBackend::IRCBackend()
 		}
 	}
 
-	if (i >= 3)
+	for (int i = 0; ; i++)
 	{
-		closesocket(winSocket);
-		return;
-	}
+		ircChatLoop();
 
-	ircChatLoop();
+		if (i >= 2)
+		{
+			GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: failed to loop in IRC.");
+			break;
+		}
+		else
+		{
+			GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: failed to loop in IRC. Retrying in 5 seconds.");
+			Sleep(5000);
+		}
+	}
 	closesocket(winSocket);
 }
 
-std::vector<std::string> &IRCBackend::split(const std::string &s, char delim, std::vector<std::string> &elems)
+std::vector<std::string> &IRCBackend::split(const std::string &s, char delim, std::vector<std::string> &elems, bool keepDelimiter)
 {
 	std::stringstream ss(s);
 	std::string item;
 	while (std::getline(ss, item, delim)) {
-		elems.push_back(item);
+		if (keepDelimiter)
+		{
+			elems.push_back(item + delim);
+		}
+		else
+		{
+			elems.push_back(item);
+		}
 	}
 	return elems;
 }
@@ -69,11 +82,10 @@ bool IRCBackend::initIRCChat()
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\nNICK %s\r\n", console.playerName.c_str(), console.playerName.c_str());
+	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\n", console.playerName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-
-	u_long iMode = 1;
-	ioctlsocket(winSocket, FIONBIO, &iMode); // sets the socket to non-blocking mode
+	sprintf_s(buffer, "NICK %s\r\n", console.playerName.c_str());
+	send(winSocket, buffer, strlen(buffer), 0);
 	return true;
 }
 
@@ -81,48 +93,27 @@ void IRCBackend::ircChatLoop()
 {
 	auto& console = GameConsole::Instance();
 
-	while (true) {
-		int inDataLength = recv(winSocket, buffer, 512, 0);
-		
-		// Use below line to debug IRC backend
-		// OutputDebugString(buffer);
+	int inDataLength;
 
-		int nError = WSAGetLastError();
-		if (nError != WSAEWOULDBLOCK && nError != 0)
+	while ((inDataLength = recv(winSocket, buffer, 512, 0)) > 0) { // received a packet from IRC server
+		OutputDebugString(buffer); // use this line to debug IRC backend
+
+		buffer[inDataLength] = '\0'; // recv function doesn't put a null-terminator character
+
+		std::vector<std::string> bufferSplitByNewLines;
+		split(buffer, '\n', bufferSplitByNewLines, true);
+
+		for (size_t i = 0; i < bufferSplitByNewLines.size(); i++)
 		{
-			std::string errorString("Winsock error code: ");
-			errorString.append(std::to_string(nError));
-			console.globalChatQueue.pushLineFromGameToUI(errorString);
-			break;
-		}
-
-		if (inDataLength != -1 && inDataLength < 512)
-		{
-			buffer[inDataLength] = '\0';
-		}
-
-		if (!globalChatChannel.empty() && !console.globalChatQueue.sendThisLineToIRCServer.empty())
-		{
-			sendMessageToIRCServer(globalChatChannel, &console.globalChatQueue);
-		}
-
-		if (!gameChatChannel.empty() && !console.gameChatQueue.sendThisLineToIRCServer.empty())
-		{
-			sendMessageToIRCServer(gameChatChannel, &console.gameChatQueue);
-		}
-
-		if (inDataLength > 0) // received packet from IRC server
-		{
-			lastTimeReceivedPacket = GetTickCount();
-
-			if (receivedPING())
+			if (receivedPING(bufferSplitByNewLines.at(i)))
 			{
-				buffer[1] = 'O';
-				send(winSocket, buffer, strlen(buffer), 0);
+				std::string sendBuffer = bufferSplitByNewLines.at(i);
+				sendBuffer[1] = 'O'; // modify PING to PONG
+				send(winSocket, sendBuffer.c_str(), strlen(sendBuffer.c_str()), 0);
 			}
 
 			std::vector<std::string> bufferSplitBySpace;
-			split(buffer, ' ', bufferSplitBySpace);
+			split(bufferSplitByNewLines.at(i), ' ', bufferSplitBySpace, false);
 
 			if (receivedWelcomeMessage(bufferSplitBySpace))
 			{
@@ -132,36 +123,30 @@ void IRCBackend::ircChatLoop()
 			else if (receivedMessageFromIRCServer(bufferSplitBySpace))
 			{
 				if (messageIsInChannel(bufferSplitBySpace, globalChatChannel))
-				{
 					extractMessageAndSendToUI(bufferSplitBySpace, &console.globalChatQueue);
-				}
 				else if (messageIsInChannel(bufferSplitBySpace, gameChatChannel))
-				{
 					extractMessageAndSendToUI(bufferSplitBySpace, &console.gameChatQueue);
-				}
 			}
 		}
-
-		if (globalChatChannel.empty() && lastTimeReceivedPacket != 0 && GetTickCount() - lastTimeReceivedPacket > 5000)
-		{
-			joinIRCChannel(Modules::ModuleIRC::Instance().VarIRCGlobalChannel->ValueString, true);
-			console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
-		}
-
-		Sleep(100);
 	}
+
+	int nError = WSAGetLastError();
+	std::string errorString("Winsock error code: ");
+	errorString.append(std::to_string(nError));
+	console.globalChatQueue.pushLineFromGameToUI(errorString);
 }
 
-void IRCBackend::sendMessageToIRCServer(std::string channel, Queue* queue)
+void IRCBackend::sendMessageToChannel(std::string channel, Queue* queue, std::string line)
 {
 	auto& console = GameConsole::Instance();
-	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), queue->sendThisLineToIRCServer.c_str());
+	sprintf_s(buffer, "PRIVMSG %s :%s\r\n", channel.c_str(), line.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	queue->sendThisLineToIRCServer.clear();
+	line.clear();
 }
 
 void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 {
+	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
 	auto& console = GameConsole::Instance();
 	
 	if (globalChat)
@@ -199,9 +184,9 @@ bool IRCBackend::receivedMessageFromIRCServer(std::vector<std::string> &bufferSp
 	return strncmp(bufferSplitBySpace.at(1).c_str(), "PRIVMSG", 7) == 0;
 }
 
-bool IRCBackend::receivedPING()
+bool IRCBackend::receivedPING(std::string line)
 {
-	return strncmp(buffer, "PING ", 5) == 0;
+	return strncmp(line.c_str(), "PING ", 5) == 0;
 }
 
 bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace, std::string channel)
