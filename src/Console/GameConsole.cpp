@@ -187,7 +187,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 void GameConsole::checkForReturnKey()
 {
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 500) {
+	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 500 && *((uint16_t*)0x244D24A) != 16256) { // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 		showConsole();
 		lastTimeReturnPressed = GetTickCount();
 	}
