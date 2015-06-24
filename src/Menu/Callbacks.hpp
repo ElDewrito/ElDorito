@@ -1,5 +1,5 @@
 #pragma once
-#include "Settings.h"
+#include "Settings.hpp"
 #include <Awesomium/WebCore.h>
 
 class Callbacks

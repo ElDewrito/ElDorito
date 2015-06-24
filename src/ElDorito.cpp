@@ -1,6 +1,6 @@
 #include "ElDorito.hpp"
 #include "Console/GameConsole.hpp"
-#include "Menu/Menu.h"
+#include "Menu/Menu.hpp"
 #include "DirectXHook.hpp"
 
 #include <iostream>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "js_delegate.h"
+#include "js_delegate.hpp"
 #include <Awesomium/WebCore.h>
 #include <map>
 

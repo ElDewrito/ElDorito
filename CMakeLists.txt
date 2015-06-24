@@ -31,13 +31,13 @@ set(SOURCE_FILES
     src/Console/Queue.hpp
     src/Console/Queue.cpp
     src/Menu/Callbacks.cpp
-    src/Menu/Callbacks.h
+    src/Menu/Callbacks.hpp
     src/Menu/Menu.cpp
-    src/Menu/Menu.h
-    src/Menu/js_delegate.h
+    src/Menu/Menu.hpp
+    src/Menu/js_delegate.hpp
     src/Menu/MethodDispatcher.cpp
-    src/Menu/MethodDispatcher.h
-    src/Menu/Settings.h
+    src/Menu/MethodDispatcher.hpp
+    src/Menu/Settings.hpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp

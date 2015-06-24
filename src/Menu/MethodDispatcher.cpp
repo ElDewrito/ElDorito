@@ -1,4 +1,4 @@
-#include "MethodDispatcher.h"
+#include "MethodDispatcher.hpp"
 
 MethodDispatcher::MethodDispatcher() {
 }

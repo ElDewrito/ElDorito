@@ -1,4 +1,4 @@
-#include "Callbacks.h"
+#include "Callbacks.hpp"
 
 // TODO: Does mouse filter even do anything? Should I add a callback for it?
 // TODO: add callbacks for keyboard bindings

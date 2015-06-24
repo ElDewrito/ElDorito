@@ -1,6 +1,6 @@
 #pragma once
-#include "Callbacks.h"
-#include "MethodDispatcher.h"
+#include "Callbacks.hpp"
+#include "MethodDispatcher.hpp"
 #include <windows.h>
 #include <detours.h>
 #include <d3dx9.h>
