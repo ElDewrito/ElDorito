@@ -164,6 +164,9 @@ namespace Modules
 			return "Command queued until game ticks";
 		}
 
+		if ((cmd->Flags & eCommandFlagsHostOnly) && !ElDorito::Instance().IsHostPlayer())
+			return "Only a player hosting a game can use this command";
+
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
 		for (int i = 1; i < numArgs; i++)

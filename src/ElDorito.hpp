@@ -16,14 +16,6 @@ class ElDorito : public Utils::Singleton < ElDorito >
 public:
 	bool GameHasTicked = false;
 
-	ElDorito();
-	~ElDorito() = default;
-
-	std::string GetDirectory();
-
-	void Initialize();
-	void Tick(const std::chrono::duration<double>& DeltaTile);
-
 	static void SetMainThreadID(size_t ThreadID)
 	{
 		MainThreadID = ThreadID;
@@ -34,6 +26,15 @@ public:
 	}
 
 	static Pointer GetMainTls(size_t Offset = 0);
+
+	ElDorito();
+	~ElDorito() = default;
+
+	std::string GetDirectory();
+
+	void Initialize();
+	void Tick(const std::chrono::duration<double>& DeltaTile);
+	bool IsHostPlayer();
 
 private:
 	static size_t MainThreadID; // Thread

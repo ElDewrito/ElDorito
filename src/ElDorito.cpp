@@ -17,6 +17,7 @@
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
 #include "Patches/PlayerUid.hpp"
+#include "Patches/Network.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -131,6 +132,11 @@ std::string ElDorito::GetDirectory()
 	std::string Dir(Path);
 	Dir = Dir.substr(0, std::string(Dir).find_last_of('\\') + 1);
 	return Dir;
+}
+
+bool ElDorito::IsHostPlayer()
+{
+	return Patches::Network::IsInfoSocketOpen(); // TODO: find a way of using an ingame variable instead
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)
