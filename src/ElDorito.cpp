@@ -1,5 +1,6 @@
-#include "Console/GameConsole.hpp"
 #include "ElDorito.hpp"
+#include "Console/GameConsole.hpp"
+#include "DirectXHook.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -102,6 +103,7 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		if (GetTickCount() - d3d9InitTime > 1000)
 		{
 			consoleLoaded = true;
+			DirectXHook::hookDirectX();
 			GameConsole::Instance(); // initialize console
 		}
 	}

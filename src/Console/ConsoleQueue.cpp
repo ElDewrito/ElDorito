@@ -1,7 +1,7 @@
+#include <sstream>
 #include "ConsoleQueue.hpp"
 #include "../CommandMap.hpp"
-#include <sstream>
-#include "DirectXHook.hpp"
+#include "../DirectXHook.hpp"
 
 ConsoleQueue::ConsoleQueue() : Queue(
 #ifdef _DEBUG

@@ -1,5 +1,4 @@
 #pragma once
-#include "GameConsole.hpp"
 #include <stdint.h>
 #include <d3dx9core.h>
 

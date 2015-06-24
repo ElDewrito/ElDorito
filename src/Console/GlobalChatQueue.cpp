@@ -1,6 +1,6 @@
 #include "GlobalChatQueue.hpp"
 #include "GameConsole.hpp"
-#include "DirectXHook.hpp"
+#include "../DirectXHook.hpp"
 
 GlobalChatQueue::GlobalChatQueue() : Queue(
 #ifdef _DEBUG

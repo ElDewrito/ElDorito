@@ -1,4 +1,5 @@
 #include "DirectXHook.hpp"
+#include "Console/GameConsole.hpp"
 #include <detours.h>
 
 uint32_t* DirectXHook::horizontalRes = 0;

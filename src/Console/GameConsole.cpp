@@ -1,6 +1,6 @@
 #include "GameConsole.hpp"
 #include "../Utils/VersionInfo.hpp"
-#include "DirectXHook.hpp"
+#include "../DirectXHook.hpp"
 #include "KeyboardHook.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Patches/PlayerUid.hpp"
@@ -14,7 +14,6 @@ void GameConsole::startIRCBackend()
 
 GameConsole::GameConsole()
 {
-	DirectXHook::hookDirectX();
 	KeyboardHook::setHook();
 
 	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);

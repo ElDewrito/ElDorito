@@ -22,8 +22,8 @@ set(SOURCE_FILES
     src/Blam/BlamTypes.hpp
     src/Console/ConsoleQueue.cpp
     src/Console/ConsoleQueue.hpp
-    src/Console/DirectXHook.cpp
-    src/Console/DirectXHook.hpp
+    src/DirectXHook.cpp
+    src/DirectXHook.hpp
     src/Console/GameChatQueue.cpp
     src/Console/GameChatQueue.hpp
     src/Console/GameConsole.cpp
