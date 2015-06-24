@@ -14,11 +14,6 @@ class DirectXHook {
 private:
 	HWND hWnd = *((HWND*)0x199C014);
 
-	LPDIRECT3DDEVICE9 pDevice{ 0 };
-	HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9){ 0 };
-	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
-	static DirectXHook* thisInstance;
-
 	IDirect3DVertexBuffer9* quadVertexBuffer = nullptr;
 	IDirect3DTexture9* texture = nullptr;
 	D3DLOCKED_RECT lockRect;
@@ -34,10 +29,6 @@ private:
 	POINT newCursorLocation;
 	DWORD lastLeftClick = GetTickCount();
 
-	uint32_t* getDirectXVTableMethod1();
-	uint32_t* getDirectXVTableMethod2();
-	uint32_t* getDirectXVTableMethod3();
-	bool hookDirectX();
 	void initDirectX();
 	void handleMouseInput();
 	void initAwesomium();

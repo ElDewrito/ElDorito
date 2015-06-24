@@ -32,8 +32,8 @@ set(SOURCE_FILES
     src/Console/Queue.cpp
     src/Menu/Callbacks.cpp
     src/Menu/Callbacks.h
-    src/Menu/DirectXHook.cpp
-    src/Menu/DirectXHook.h
+    src/Menu/Menu.cpp
+    src/Menu/Menu.h
     src/Menu/js_delegate.h
     src/Menu/MethodDispatcher.cpp
     src/Menu/MethodDispatcher.h
