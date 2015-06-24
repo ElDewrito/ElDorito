@@ -8,9 +8,12 @@
 #include <Awesomium/STLHelpers.h>
 #include <Awesomium/JSValue.h>
 #include <shlwapi.h>
+#include "../Utils/Singleton.hpp"
+
 #pragma comment(lib, "Shlwapi.lib")
 
-class DirectXHook {
+class Menu : public Utils::Singleton<Menu>
+{
 private:
 	HWND hWnd = *((HWND*)0x199C014);
 
@@ -29,13 +32,15 @@ private:
 	POINT newCursorLocation;
 	DWORD lastLeftClick = GetTickCount();
 
-	void initDirectX();
+	static void startAwesomiumLoop();
 	void handleMouseInput();
 	void initAwesomium();
 	void bindCallbacks();
 public:
-	DirectXHook();
-	~DirectXHook();
+	Menu();
+	~Menu();
+
+	void drawMenu(LPDIRECT3DDEVICE9 device);
 };
 
 struct Vertex

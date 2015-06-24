@@ -8,6 +8,8 @@
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <teamspeak/clientlib.h>
+#include "Menu/Menu.h"
+
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
 int DirectXHook::currentFontHeight = 0;
@@ -20,6 +22,7 @@ HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
+
 	DirectXHook::drawVoipMembers();
 	if ((GetAsyncKeyState(VK_F12) & 0x8000) != 0)
 	{
@@ -29,7 +32,8 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	{
 		DirectXHook::drawChatInterface();
 	}
-
+	Menu::Instance().drawMenu(device);
+	DirectXHook::drawChatInterface();
 
 	return (*DirectXHook::origEndScenePtr)(device);
 }

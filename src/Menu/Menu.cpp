@@ -1,32 +1,39 @@
 #include "Menu.h"
 
-DirectXHook::DirectXHook()
+void Menu::startAwesomiumLoop()
 {
-	GetCursorPos(&oldCursorLocation);
-	ScreenToClient(hWnd, &oldCursorLocation);
-
-	initAwesomium();
+	auto& menuInstance = Menu::Instance();
+	
+	menuInstance.initAwesomium();
 
 	while (true)
 	{
-		if (!thisInstance->menuEnabled)
+		if (!menuInstance.menuEnabled)
 		{
 			Sleep(1000);
 			continue;
 		}
 
-		while (thisInstance->webView->IsLoading())
+		while (menuInstance.webView->IsLoading())
 		{
-			thisInstance->webCore->Update();
+			menuInstance.webCore->Update();
 		}
 
-		awesomiumReady = true;
-		thisInstance->handleMouseInput();
-		thisInstance->webCore->Update();
+		menuInstance.awesomiumReady = true;
+		menuInstance.handleMouseInput();
+		menuInstance.webCore->Update();
 	}
 }
 
-DirectXHook::~DirectXHook()
+Menu::Menu()
+{
+	GetCursorPos(&oldCursorLocation);
+	ScreenToClient(hWnd, &oldCursorLocation);
+
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startAwesomiumLoop, 0, 0, 0);
+}
+
+Menu::~Menu()
 {
 	menuEnabled = false;
 	webView->Destroy();
@@ -34,34 +41,44 @@ DirectXHook::~DirectXHook()
 	Awesomium::WebCore::Shutdown();
 }
 
-HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
+void Menu::drawMenu(LPDIRECT3DDEVICE9 device)
 {
-	thisInstance->pDevice = device;
-
-	if (!thisInstance->menuEnabled || !thisInstance->awesomiumReady)
+	if (!menuEnabled || !awesomiumReady)
 	{
-		return (*thisInstance->origEndScenePtr)(device);
+		return;
 	}
 
-	if (!thisInstance->texture)
+	if (!texture)
 	{
-		thisInstance->initDirectX();
+		device->CreateVertexBuffer(6 * sizeof(Vertex), D3DUSAGE_WRITEONLY, Vertex::FVF, D3DPOOL_DEFAULT, &quadVertexBuffer, 0);
+		Vertex* v;
+		quadVertexBuffer->Lock(0, 0, (void**)&v, 0);
+
+		v[0] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
+		v[1] = { -1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f };
+		v[2] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
+		v[3] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
+		v[4] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
+		v[5] = { 1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
+		quadVertexBuffer->Unlock();
+
+		D3DXCreateTexture(device, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &texture);
+
+		device->SetTexture(0, texture);
 	}
 
-	thisInstance->pDevice->SetTexture(0, thisInstance->texture); // This needs to be called every EndScene call for some reason
+	device->SetTexture(0, texture); // This needs to be called every EndScene call for some reason
 
-	thisInstance->texture->LockRect(0, &thisInstance->lockRect, 0, 0);
-	memcpy(thisInstance->lockRect.pBits, ((Awesomium::BitmapSurface*) thisInstance->webView->surface())->buffer(), 4 * Callbacks::settings->HORIZONTAL_RESOLUTION * Callbacks::settings->VERTICAL_RESOLUTION);
-	thisInstance->texture->UnlockRect(0);
+	texture->LockRect(0, &lockRect, 0, 0);
+	memcpy(lockRect.pBits, ((Awesomium::BitmapSurface*) webView->surface())->buffer(), 4 * Callbacks::settings->HORIZONTAL_RESOLUTION * Callbacks::settings->VERTICAL_RESOLUTION);
+	texture->UnlockRect(0);
 
-	thisInstance->pDevice->SetStreamSource(0, thisInstance->quadVertexBuffer, 0, sizeof(Vertex));
-	thisInstance->pDevice->SetFVF(Vertex::FVF);
-	thisInstance->pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 4);
-
-	return (*thisInstance->origEndScenePtr)(device);
+	device->SetStreamSource(0, quadVertexBuffer, 0, sizeof(Vertex));
+	device->SetFVF(Vertex::FVF);
+	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 4);
 }
 
-void DirectXHook::handleMouseInput()
+void Menu::handleMouseInput()
 {
 	GetCursorPos(&newCursorLocation);
 	ScreenToClient(hWnd, &newCursorLocation);
@@ -78,26 +95,7 @@ void DirectXHook::handleMouseInput()
 	}
 }
 
-void DirectXHook::initDirectX()
-{
-	pDevice->CreateVertexBuffer(6 * sizeof(Vertex), D3DUSAGE_WRITEONLY, Vertex::FVF, D3DPOOL_DEFAULT, &quadVertexBuffer, 0);
-	Vertex* v;
-	quadVertexBuffer->Lock(0, 0, (void**)&v, 0);
-
-	v[0] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
-	v[1] = { -1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f };
-	v[2] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
-	v[3] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
-	v[4] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
-	v[5] = { 1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
-	quadVertexBuffer->Unlock();
-
-	D3DXCreateTexture(pDevice, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &texture);
-
-	pDevice->SetTexture(0, texture);
-}
-
-void DirectXHook::initAwesomium()
+void Menu::initAwesomium()
 {
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
@@ -110,7 +108,7 @@ void DirectXHook::initAwesomium()
 	bindCallbacks();
 }
 
-void DirectXHook::bindCallbacks()
+void Menu::bindCallbacks()
 {
 	Awesomium::JSValue result = webView->CreateGlobalJavascriptObject(Awesomium::WSLit("callbacks"));
 
