@@ -13,6 +13,8 @@ namespace
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
+
+	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
 
 namespace Patches
