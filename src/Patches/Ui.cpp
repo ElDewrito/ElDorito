@@ -13,8 +13,6 @@ namespace
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
-
-	Patch CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 });
 }
 
 namespace Patches
@@ -51,11 +49,6 @@ namespace Patches
 
 				DialogShow = false;
 			}
-		}
-
-		void EnableCenteredCrosshairPatch(bool enable)
-		{
-			CenteredCrosshairPatch.Apply(!enable);
 		}
 
 		void ApplyAll()

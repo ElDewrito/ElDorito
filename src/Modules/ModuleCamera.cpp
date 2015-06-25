@@ -14,7 +14,7 @@ namespace
 		if (statusBool)
 			status = "enabled.";
 
-		Patches::Ui::EnableCenteredCrosshairPatch(statusBool);
+		Modules::ModuleCamera::Instance().CenteredCrosshairPatch.Apply(!statusBool);
 
 		returnInfo = "Centered crosshair " + status;
 		return true;
@@ -102,7 +102,8 @@ namespace Modules
 		ThirdPersonPatch(0x328640, 0x90, 6),
 		FirstPersonPatch(0x25F420, 0x90, 6),
 		DeadPersonPatch(0x329E6F, 0x90, 6),
-		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }) // 3.14f in hex form
+		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }), // 3.14f in hex form
+		CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 })
 	{
 		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
 		VarCameraCrosshair->ValueIntMin = 0;

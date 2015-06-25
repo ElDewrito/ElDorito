@@ -23,6 +23,7 @@ namespace Modules
 		Patch DeadPersonPatch;
 
 		Patch HideHudPatch;
+		Patch CenteredCrosshairPatch;
 
 		ModuleCamera();
 

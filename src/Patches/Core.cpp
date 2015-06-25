@@ -46,6 +46,14 @@ namespace Patches
 
 			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
 			Hook(0x1030EA, TagsLoadedHook).Apply();
+
+			// Remove exception handlers
+			Patch::NopFill(Pointer::Base(0x2EA2B), 6);
+			Patch::NopFill(Pointer::Base(0x2EC10), 6);
+			//Patch::NopFill(Pointer::Base(0x7FC411), 6);
+			Patch(0x7FC40B, { 0xC3 }).Apply();
+			Patch(0x7FC42E, { 0xC3 }).Apply();
+			Patch::NopFill(Pointer::Base(0x106057), 5);
 		}
 	}
 }

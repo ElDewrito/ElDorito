@@ -175,8 +175,11 @@ namespace Patches
 						writer.String(mapName.c_str());
 						writer.Key("variant");
 						writer.String(Utils::String::ThinString(variantName).c_str());
-						writer.Key("variantType");
-						writer.String(Blam::GameTypeNames[variantType].c_str());
+						if (variantType >= 0 && variantType < Blam::GameTypeCount)
+						{
+							writer.Key("variantType");
+							writer.String(Blam::GameTypeNames[variantType].c_str());
+						}
 						writer.Key("status");
 						writer.String(status.c_str());
 						writer.Key("numPlayers");
@@ -388,10 +391,14 @@ namespace
 	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2)
 	{
 		DWORD isOnline = *(DWORD*)a2;
+		bool isHost = (*(uint16_t *)(a2 + 284) & 1);
 
 		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
 		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
 		auto retval = Network_managed_session_create_session_internal(a1, a2);
+
+		if (!isHost)
+			return retval;
 
 		if (isOnline == 1)
 		{
