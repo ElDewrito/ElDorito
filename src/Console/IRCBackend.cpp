@@ -170,6 +170,15 @@ void IRCBackend::leaveIRCChannel(std::string channel)
 	gameChatChannel = "";
 }
 
+void IRCBackend::KickUser(std::string userNick)
+{
+	if (gameChatChannel.length() <= 0)
+		return;
+
+	sprintf_s(buffer, "KICK %s %s\r\n", gameChatChannel.c_str(), userNick.c_str());
+	send(winSocket, buffer, strlen(buffer), 0);
+}
+
 bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitBySpace)
 {
 	if (bufferSplitBySpace.size() <= 1)

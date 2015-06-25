@@ -194,21 +194,21 @@ void GameConsole::checkForReturnKey()
 
 void GameConsole::initPlayerName()
 {
-	auto& player = Modules::ModulePlayer::Instance();
+	playerName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
+}
 
-	uint64_t uid = Pointer::Base(0x15AB730).Read<uint64_t>(); // read our generated UID from 
-
-	std::string playerName;
-	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), playerName);
-	playerName += "|" + player.VarPlayerName->ValueString;
+std::string GameConsole::GenerateIRCNick(std::string name, uint64_t uid)
+{
+	std::string ircNick;
+	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), ircNick);
+	ircNick += "|" + name;
 
 	size_t maxLen = 27; // TODO: get max name len from server
 	maxLen -= 3; // dew prefix
 
-	if (playerName.length() > maxLen)
-		playerName = playerName.substr(playerName.length() - maxLen, maxLen);
+	if (ircNick.length() > maxLen)
+		ircNick = ircNick.substr(ircNick.length() - maxLen, maxLen);
 
-	playerName = "dew" + playerName;
-
-	GameConsole::Instance().playerName = playerName;
+	ircNick = "dew" + ircNick;
+	return ircNick;
 }

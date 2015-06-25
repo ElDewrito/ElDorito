@@ -14,6 +14,7 @@
 
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../Console/GameConsole.hpp"
 #include "../Console/IRCBackend.hpp"
 #include <iostream>
 
@@ -24,6 +25,7 @@ namespace
 	char Network_InAddrToXnAddrHook(void* ina, void * pxna, void * pxnkid);
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo);
 	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2);
+	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, void* playerAddr, int reason);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -304,6 +306,9 @@ namespace Patches
 
 			// Set the games wndproc to our one, so we can receive async network messages
 			Pointer::Base(0x2EB63).Write<uint32_t>((uint32_t)&networkWndProc);
+
+			// Hook leader_request_boot_machine so we can do some extra things if the boot succeeded
+			Hook(0x37E17, Network_leader_request_boot_machineHook, HookFlags::IsCall).Apply();
 		}
 
 		bool StartRemoteConsole()
@@ -400,6 +405,7 @@ namespace
 		if (!isHost)
 			return retval;
 
+		auto& irc = IRCBackend::Instance();
 		if (isOnline == 1)
 		{
 			// TODO: give output if StartInfoServer fails
@@ -408,11 +414,13 @@ namespace
 			// join IRC channel
 			std::string xnkid;
 			Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-			IRCBackend::Instance().joinIRCChannel("#eldoritogame-" + xnkid, false);
+			irc.joinIRCChannel("#eldoritogame-" + xnkid, false);
 		}
 		else
 		{
 			Patches::Network::StopInfoServer();
+			if (!irc.gameChatChannel.empty())
+				irc.leaveIRCChannel(irc.gameChatChannel);
 		}
 		return retval;
 	}
@@ -543,6 +551,32 @@ namespace
 		// Apply the extended properties
 		uint8_t *sessionData = thisPtr + 0x10A8 + playerIndex * 0x1648;
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, sessionData, properties + PlayerPropertiesSize);
+	}
+
+	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, void* playerAddr, int reason)
+	{
+		uint32_t base = 0x1A4DC98;
+		uint32_t playerOffset = (uint32_t)playerAddr - base;
+		uint32_t playerIndex = playerOffset / 0xF8; // 0xF8 = size of player entry in this struct
+
+		uint32_t uidBase = 0x1A4ED18;
+		uint32_t uidOffset = uidBase + (0x1648 * playerIndex) + 0x50;
+		uint64_t uid = Pointer(uidOffset).Read<uint64_t>();
+
+		wchar_t playerName[0x10];
+		memcpy(playerName, (char*)uidOffset + 0x8, 0x10 * sizeof(wchar_t));
+
+		typedef bool(__thiscall *Network_leader_request_boot_machineFunc)(void *thisPtr, void* playerAddr, int reason);
+		const Network_leader_request_boot_machineFunc Network_leader_request_boot_machine = reinterpret_cast<Network_leader_request_boot_machineFunc>(0x45D4A0);
+		bool retVal = Network_leader_request_boot_machine(thisPtr, playerAddr, reason);
+		if (retVal)
+		{
+			// boot was successful, remove them from our chat now
+			std::string ircNick = GameConsole::Instance().GenerateIRCNick(Utils::String::ThinString(playerName), uid);
+			IRCBackend::Instance().KickUser(ircNick);
+		}
+
+		return retVal;
 	}
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update

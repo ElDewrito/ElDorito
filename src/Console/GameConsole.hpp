@@ -40,5 +40,7 @@ public:
 	int getMsSinceLastConsoleOpen();
 	void peekConsole();
 	void virtualKeyCallBack(USHORT vKey);
-	void GameConsole::checkForReturnKey();
+	void checkForReturnKey();
+
+	std::string GenerateIRCNick(std::string name, uint64_t uid);
 };

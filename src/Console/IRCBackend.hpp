@@ -28,4 +28,5 @@ public:
 	void joinIRCChannel(std::string channel, bool globalChat);
 	void leaveIRCChannel(std::string channel);
 	void sendMessageToChannel(std::string channel, Queue* queue, std::string line);
+	void KickUser(std::string userNick);
 };

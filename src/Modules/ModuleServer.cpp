@@ -570,7 +570,30 @@ namespace
 			return false;
 		}
 
-		std::string playerName = Arguments[0];
+		std::string kickPlayerName = Arguments[0];
+
+		uint32_t uidBase = 0x1A4ED18;
+		wchar_t playerName[0x10];
+
+		for (int i = 0; i < 16; i++)
+		{
+			uint32_t nameOffset = uidBase + (0x1648 * i) + 0x58;
+			memcpy(playerName, (char*)nameOffset, 0x10 * sizeof(wchar_t));
+			if (!Utils::String::ThinString(playerName).compare(kickPlayerName))
+			{
+				//char __cdecl Network_squad_session_boot_player(int a1, int a2)
+				typedef bool(__cdecl *Network_squad_session_boot_playerFunc)(int playerIdx, int reason);
+				const Network_squad_session_boot_playerFunc Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerFunc>(0x437D60);
+				bool retVal = Network_squad_session_boot_player(i, 4);
+				if (retVal)
+				{
+					returnInfo = "Issued kick request for player " + kickPlayerName;
+					return true;
+				}
+			}
+		}
+		returnInfo = "Player " + kickPlayerName + " not found in game?";
+		return false;
 	}
 }
 
