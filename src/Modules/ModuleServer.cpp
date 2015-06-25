@@ -573,15 +573,21 @@ namespace
 		std::string kickPlayerName = Arguments[0];
 
 		uint32_t uidBase = 0x1A4ED18;
-		wchar_t playerName[0x10];
 
+		uint64_t uid = 0;
+		wchar_t playerName[0x10];
 		for (int i = 0; i < 16; i++)
 		{
-			uint32_t nameOffset = uidBase + (0x1648 * i) + 0x58;
-			memcpy(playerName, (char*)nameOffset, 0x10 * sizeof(wchar_t));
-			if (!Utils::String::ThinString(playerName).compare(kickPlayerName))
+			uint32_t uidOffset = uidBase + (0x1648 * i) + 0x50;
+
+			uid = Pointer(uidOffset).Read<uint64_t>();
+			std::stringstream uidStream;
+			uidStream << std::hex << uid;
+			auto uidString = uidStream.str();
+
+			memcpy(playerName, (char*)(uidOffset + 8), 0x10 * sizeof(wchar_t));
+			if (!Utils::String::ThinString(playerName).compare(kickPlayerName) || !uidString.compare(kickPlayerName))
 			{
-				//char __cdecl Network_squad_session_boot_player(int a1, int a2)
 				typedef bool(__cdecl *Network_squad_session_boot_playerFunc)(int playerIdx, int reason);
 				const Network_squad_session_boot_playerFunc Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerFunc>(0x437D60);
 				bool retVal = Network_squad_session_boot_player(i, 4);
@@ -594,6 +600,35 @@ namespace
 		}
 		returnInfo = "Player " + kickPlayerName + " not found in game?";
 		return false;
+	}
+
+	bool CommandServerListPlayers(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::stringstream ss;
+
+		// TODO: check if player is in a lobby
+		// TODO: find an addr where we can find this data in clients memory, so people could use it to find peoples UIDs and report them etc
+
+		uint32_t uidBase = 0x1A4ED18;
+
+		uint64_t uid = 0;
+		wchar_t playerName[0x10];
+		for (int i = 0; i < 16; i++)
+		{
+			uint32_t uidOffset = uidBase + (0x1648 * i) + 0x50;
+
+			uid = Pointer(uidOffset).Read<uint64_t>();
+			memcpy(playerName, (char*)(uidOffset + 8), 0x10 * sizeof(wchar_t));
+
+			std::string name = Utils::String::ThinString(playerName);
+			if (uid == 0 && name.empty())
+				continue; // todo: proper way of checking if this index is populated
+
+			ss << std::dec << i << ": " << name << " (uid: " << std::hex << uid << ")" << std::endl;
+		}
+
+		returnInfo = ss.str();
+		return true;
 	}
 }
 
@@ -628,5 +663,6 @@ namespace Modules
 		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 
 		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
+		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
 	}
 }
