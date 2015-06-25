@@ -607,7 +607,8 @@ namespace
 		std::stringstream ss;
 
 		// TODO: check if player is in a lobby
-		// TODO: find an addr where we can find this data in clients memory, so people could use it to find peoples UIDs and report them etc
+		// TODO: find an addr where we can find this data in clients memory
+		// so people could use it to find peoples UIDs and report them for cheating etc
 
 		uint32_t uidBase = 0x1A4ED18;
 
@@ -662,7 +663,7 @@ namespace Modules
 
 		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 
-		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
-		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
+		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername/UID The name or UID of the player to kick" });
+		AddCommand("ListPlayers", "list", "Lists players in the game (currently host only)", eCommandFlagsHostOnly, CommandServerListPlayers);
 	}
 }
