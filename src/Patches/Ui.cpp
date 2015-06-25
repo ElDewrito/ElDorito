@@ -176,6 +176,13 @@ namespace
 {
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
 	{
+		auto& dorito = ElDorito::Instance();
+		if (!dorito.GameHasMenuShown && menuIdToLoad == 0x10083)
+		{
+			dorito.GameHasMenuShown = true;
+			dorito.OnMainMenuShown();
+		}
+
 		bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
 		typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
 		UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;

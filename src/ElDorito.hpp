@@ -14,7 +14,7 @@
 class ElDorito : public Utils::Singleton < ElDorito >
 {
 public:
-	bool GameHasTicked = false;
+	bool GameHasMenuShown = false;
 
 	static void SetMainThreadID(size_t ThreadID)
 	{
@@ -34,13 +34,12 @@ public:
 
 	void Initialize();
 	void Tick(const std::chrono::duration<double>& DeltaTile);
+	void OnMainMenuShown();
 	bool IsHostPlayer();
 
 private:
 	static size_t MainThreadID; // Thread
-	bool d3d9Loaded = false;
 	bool consoleLoaded = false;
-	DWORD d3d9InitTime = 0;
 
 	void setWatermarkText(const std::string& Message);
 };

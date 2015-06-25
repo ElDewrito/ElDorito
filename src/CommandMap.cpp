@@ -158,10 +158,10 @@ namespace Modules
 		if (!cmd)
 			return "Command/Variable not found";
 
-		if ((cmd->Flags & eCommandFlagsWaitForGameTick) && !ElDorito::Instance().GameHasTicked)
+		if ((cmd->Flags & eCommandFlagsRunOnMainMenu) && !ElDorito::Instance().GameHasMenuShown)
 		{
 			queuedCommands.push_back(command);
-			return "Command queued until game ticks";
+			return "Command queued until mainmenu shows";
 		}
 
 		if ((cmd->Flags & eCommandFlagsHostOnly) && !ElDorito::Instance().IsHostPlayer())

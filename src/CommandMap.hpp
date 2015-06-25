@@ -22,7 +22,7 @@ enum CommandFlags
 	eCommandFlagsArchived          = 1 << 2, // value of this variable should be written when using WriteConfig
 	eCommandFlagsDontUpdateInitial = 1 << 3, // don't call the update event when the variable is first being initialized
 	eCommandFlagsHidden            = 1 << 4, // hide this command/var from the help listing
-	eCommandFlagsWaitForGameTick   = 1 << 5, // if run at startup queue the command until the first game tick
+	eCommandFlagsRunOnMainMenu     = 1 << 5, // if run at startup queue the command until the main menu is shown
 	eCommandFlagsHostOnly          = 1 << 6, // only execute the command if the user is host
 	eCommandFlagsOmitValueInList   = 1 << 7, // omit the variables value in help listing
 };
