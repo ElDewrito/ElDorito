@@ -14,6 +14,8 @@ platform: x86
 configuration: Release
 
 install:
+  - cmd: cinst cmake -version 3.2.3 -y
+  - cmd: cmake --version
   # by default, all script lines are interpreted as batch
 
 build:
