@@ -155,6 +155,35 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 
+	case 'V':
+		if (GetAsyncKeyState(VK_CONTROL)) // CTRL+V pasting
+		{
+			if (OpenClipboard(nullptr))
+			{
+				HANDLE hData = GetClipboardData(CF_TEXT);
+				if (hData)
+				{
+					char* textPointer = static_cast<char*>(GlobalLock(hData));
+					std::string text(textPointer);
+					inputLine += text;
+					GlobalUnlock(hData);
+				}
+				CloseClipboard();
+			}
+		}
+		else
+		{
+			if (GetAsyncKeyState(VK_SHIFT))
+			{
+				inputLine += !capsLockToggled ? 'V' : 'v';
+			}
+			else
+			{
+				inputLine += !capsLockToggled ? 'v' : 'V';
+			}
+		}
+		break;
+
 	default:
 		WORD buf;
 		BYTE keysDown[256] = {};
