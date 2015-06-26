@@ -228,12 +228,26 @@ namespace
 
 		GetEndpoints(statsEndpoints, "stats");
 
+		//typedef int(__cdecl *Game_GetLocalPlayerDatumIdxFunc)(int localPlayerIdx);
+		//Game_GetLocalPlayerDatumIdxFunc Game_GetLocalPlayerDatumIdx = reinterpret_cast<Game_GetLocalPlayerDatumIdxFunc>(0x589C30);
+		//uint16_t playerIdx = (uint16_t)(Game_GetLocalPlayerDatumIdx(0) & 0xFFFF);
+		// above wont work since we're on a different thread without the proper TLS data :(
+
+		auto& localPlayers = ElDorito::GetMainTls(GameGlobals::LocalPlayers::TLSOffset)[0];
+		uint16_t playerIdx = (uint16_t)(localPlayers(GameGlobals::LocalPlayers::Player0DatumIdx).Read<uint32_t>() & 0xFFFF);
+
+		auto& playersGlobal = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
+		int32_t team = playersGlobal(0x54 + GameGlobals::Players::TeamOffset + (playerIdx * GameGlobals::Players::PlayerEntryLength)).Read<int32_t>();
+
+		int16_t score = playersGlobal(0x54 + GameGlobals::Players::ScoreBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
+		int16_t kills = playersGlobal(0x54 + GameGlobals::Players::KillsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
+		int16_t deaths = playersGlobal(0x54 + GameGlobals::Players::DeathsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
+		// unsure about assists
+		int16_t assists = playersGlobal(0x54 + GameGlobals::Players::AssistsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
+
+		// TODO: get an ID for this match
 		int32_t gameId = 0x1337BEEF;
-		int32_t score = 0;
-		int32_t kills = 0;
-		int32_t assists = 0;
-		int32_t deaths = 0;
-		int32_t team = 0;
+
 		// build our stats announcement
 		rapidjson::StringBuffer statsBuff;
 		rapidjson::Writer<rapidjson::StringBuffer> statsWriter(statsBuff);
@@ -252,10 +266,13 @@ namespace
 		statsWriter.Int(team);
 		statsWriter.Key("medals");
 		statsWriter.StartArray();
-		statsWriter.String("doublekill");
+
+		// TODO: log each medal earned during the game and output them here
+		/*statsWriter.String("doublekill");
 		statsWriter.String("triplekill");
 		statsWriter.String("overkill");
-		statsWriter.String("unfreakingbelieveable");
+		statsWriter.String("unfreakingbelieveable");*/
+
 		statsWriter.EndArray();
 		statsWriter.EndObject();
 
