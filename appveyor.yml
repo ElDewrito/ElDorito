@@ -29,6 +29,8 @@ before_build:
 
 # scripts to run after build
 after_build:
+  - cd C:\projects\eldorito
+  - copy dewrito.json C:\projects\eldorito\build\Release\
   - cd C:\projects\eldorito\build\Release\
   - 7z a c:\projects\eldorito\eldorito.zip * -tzip
   - cd c:\projects\eldorito
