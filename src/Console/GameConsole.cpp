@@ -80,6 +80,8 @@ void GameConsole::showConsole()
 	}
 }
 
+int currentBacklogIndex = -1;
+
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
 	if (!isConsoleShown())
@@ -96,6 +98,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	case VK_RETURN:
 		if (!inputLine.empty())
 		{
+			consoleQueue.unchangingBacklog.push_back(inputLine);
 			selectedQueue->pushLineFromKeyboardToGame(inputLine);
 		}
 		hideConsole();
@@ -110,6 +113,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		if (!inputLine.empty())
 		{
 			inputLine.pop_back();
+			currentBacklogIndex = -1;
 		}
 		break;
 
@@ -152,6 +156,37 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		if (selectedQueue->startIndexForUI > 0)
 		{
 			selectedQueue->startIndexForUI--;
+		}
+		break;
+
+	case VK_UP:
+		if (dynamic_cast<ConsoleQueue*>(selectedQueue))
+		{
+			currentBacklogIndex++;
+			if (currentBacklogIndex > (int)consoleQueue.unchangingBacklog.size() - 1)
+			{
+				currentBacklogIndex--;
+			}
+			if (currentBacklogIndex >= 0)
+			{
+				inputLine = consoleQueue.unchangingBacklog.at(consoleQueue.unchangingBacklog.size() - currentBacklogIndex - 1);
+			}
+		}
+		break;
+
+	case VK_DOWN:
+		if (dynamic_cast<ConsoleQueue*>(selectedQueue))
+		{
+			currentBacklogIndex--;
+			if (currentBacklogIndex < 0)
+			{
+				currentBacklogIndex = -1;
+				inputLine = "";
+			}
+			else
+			{
+				inputLine = consoleQueue.unchangingBacklog.at(consoleQueue.unchangingBacklog.size() - currentBacklogIndex - 1);
+			}
 		}
 		break;
 

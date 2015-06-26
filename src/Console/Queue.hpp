@@ -34,6 +34,8 @@ public:
 class ConsoleQueue : public Queue
 {
 public:
+	std::vector<std::string> unchangingBacklog = std::vector <std::string> {};
+
 	ConsoleQueue();
 	std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems);
 	void pushLineFromGameToUIMultipleLines(std::string multipleLines);

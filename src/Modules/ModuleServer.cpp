@@ -145,7 +145,7 @@ namespace
 
 		std::string errors = ss.str();
 		if (errors.length() > 0)
-			Utils::DebugLog::Instance().Log("Unannounce", ss.str());
+			Utils::DebugLog::Instance().Log("Announce", ss.str());
 
 		return true;
 	}

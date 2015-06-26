@@ -102,6 +102,8 @@ BOOL HttpRequest::SendRequest(const std::wstring &uri, const std::wstring &metho
 		return false;
 	}
 
+	WinHttpSetTimeouts(hSession, 5 * 1000, 5 * 1000, 5 * 1000, 5 * 1000);
+
 	hConnect = WinHttpConnect(hSession, hostname.c_str(), urlComp.nPort, 0);
 	if (!hConnect)
 	{
