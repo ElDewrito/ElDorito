@@ -336,10 +336,12 @@ namespace Modules
 
 	std::string CommandMap::GenerateHelpText()
 	{
-		std::sort(Commands.begin(), Commands.end(), compare_commands);
+		std::deque<Command> tempCommands(Commands);
+
+		std::sort(tempCommands.begin(), tempCommands.end(), compare_commands);
 		std::stringstream ss;
 		std::stringstream hasParent; // store commands with a parent module seperately, so they can be added to the main stringstream after the non-parent commands
-		for (auto cmd : Commands)
+		for (auto cmd : tempCommands)
 		{
 			if (cmd.Flags & eCommandFlagsHidden)
 				continue;
