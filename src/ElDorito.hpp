@@ -40,6 +40,7 @@ public:
 private:
 	static size_t MainThreadID; // Thread
 	bool consoleLoaded = false;
+	bool executeCommandQueue = false;
 
 	void setWatermarkText(const std::string& Message);
 };

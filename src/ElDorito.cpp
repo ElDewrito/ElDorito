@@ -86,6 +86,12 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
 	Patches::Tick();
 
+	if (executeCommandQueue)
+	{
+		Modules::CommandMap::Instance().ExecuteQueue();
+		executeCommandQueue = false;
+	}
+
 	if (consoleLoaded)
 	{
 		GameConsole::Instance().checkForReturnKey();
@@ -116,8 +122,7 @@ std::string ElDorito::GetDirectory()
 
 void ElDorito::OnMainMenuShown()
 {
-	Modules::CommandMap::Instance().ExecuteQueue();
-
+	executeCommandQueue = true;
 	consoleLoaded = true;
 	DirectXHook::hookDirectX();
 	GameConsole::Instance();
