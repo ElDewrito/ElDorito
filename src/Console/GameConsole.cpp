@@ -6,6 +6,7 @@
 #include "../Patches/PlayerUid.hpp"
 #include "../Pointer.hpp"
 #include <openssl/sha.h>
+#include <algorithm>
 
 void GameConsole::startIRCBackend()
 {
@@ -49,7 +50,7 @@ void GameConsole::hideConsole()
 	lastTimeConsoleShown = GetTickCount();
 	boolShowConsole = false;
 	inputLine.clear();
-	
+
 	// Enables game keyboard input and disables our keyboard hook
 
 	RAWINPUTDEVICE Rid;
@@ -81,6 +82,10 @@ void GameConsole::showConsole()
 }
 
 int currentBacklogIndex = -1;
+bool tabHitLast = false;
+int try_count = 0;
+std::string command_before_completion = "";
+std::vector<std::string> current_command_list = std::vector < std::string > {};
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
@@ -98,7 +103,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	case VK_RETURN:
 		if (!inputLine.empty())
 		{
-			consoleQueue.unchangingBacklog.push_back(inputLine);
+			selectedQueue->unchangingBacklog.push_back(inputLine);
 			selectedQueue->pushLineFromKeyboardToGame(inputLine);
 		}
 		hideConsole();
@@ -123,6 +128,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		consoleQueue.color = DirectXHook::COLOR_GREEN;
 		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
 		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+		currentBacklogIndex = -1;
 		break;
 
 	case VK_F2:
@@ -131,6 +137,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		consoleQueue.color = DirectXHook::COLOR_YELLOW;
 		globalChatQueue.color = DirectXHook::COLOR_GREEN;
 		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+		currentBacklogIndex = -1;
 		break;
 
 	case VK_F3:
@@ -139,6 +146,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		consoleQueue.color = DirectXHook::COLOR_YELLOW;
 		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
 		gameChatQueue.color = DirectXHook::COLOR_GREEN;
+		currentBacklogIndex = -1;
 		break;
 
 	case VK_CAPITAL:
@@ -160,36 +168,63 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	case VK_UP:
-		if (dynamic_cast<ConsoleQueue*>(selectedQueue))
+		currentBacklogIndex++;
+		if (currentBacklogIndex > (int)selectedQueue->unchangingBacklog.size() - 1)
 		{
-			currentBacklogIndex++;
-			if (currentBacklogIndex > (int)consoleQueue.unchangingBacklog.size() - 1)
-			{
-				currentBacklogIndex--;
-			}
-			if (currentBacklogIndex >= 0)
-			{
-				inputLine = consoleQueue.unchangingBacklog.at(consoleQueue.unchangingBacklog.size() - currentBacklogIndex - 1);
-			}
+			currentBacklogIndex--;
+		}
+		if (currentBacklogIndex >= 0)
+		{
+			inputLine = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
 		}
 		break;
 
 	case VK_DOWN:
-		if (dynamic_cast<ConsoleQueue*>(selectedQueue))
+		currentBacklogIndex--;
+		if (currentBacklogIndex < 0)
 		{
-			currentBacklogIndex--;
-			if (currentBacklogIndex < 0)
-			{
-				currentBacklogIndex = -1;
-				inputLine = "";
-			}
-			else
-			{
-				inputLine = consoleQueue.unchangingBacklog.at(consoleQueue.unchangingBacklog.size() - currentBacklogIndex - 1);
-			}
+			currentBacklogIndex = -1;
+			inputLine = "";
+		}
+		else
+		{
+			inputLine = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
 		}
 		break;
 
+	case VK_TAB:
+		if (dynamic_cast<ConsoleQueue*>(selectedQueue) && inputLine.find_first_of(" ") == std::string::npos && inputLine.length() > 0)
+		{
+			if (tabHitLast)
+			{
+				inputLine = current_command_list.at((++try_count) % current_command_list.size());
+			}
+			else
+			{
+				try_count = 0;
+				current_command_list.clear();
+				command_before_completion = inputLine;
+
+				auto currentLine = inputLine;
+				std::transform(currentLine.begin(), currentLine.end(), currentLine.begin(), ::tolower);
+
+				for (auto cmd : Modules::CommandMap::Instance().Commands)
+				{
+					auto commandName = cmd.Name;
+					std::transform(commandName.begin(), commandName.end(), commandName.begin(), ::tolower);
+
+					if (commandName.compare(0, currentLine.length(), currentLine) == 0)
+					{
+						current_command_list.push_back(commandName);
+					}
+				}
+				if (current_command_list.size() > 0)
+				{
+					inputLine = current_command_list.at((++try_count) % current_command_list.size());
+				}
+			}
+		}
+		break;
 	case 'V':
 		if (GetAsyncKeyState(VK_CONTROL)) // CTRL+V pasting
 		{
@@ -246,6 +281,8 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 	}
+
+	tabHitLast = vKey == VK_TAB;
 }
 
 void GameConsole::checkForReturnKey()
