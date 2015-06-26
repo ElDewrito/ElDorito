@@ -1,0 +1,40 @@
+version: 0.4.6.{build}
+
+# Operating system (build VM template)
+os: Windows Server 2012 R2
+
+# scripts that are called at very beginning, before repo cloning
+init:
+  - git config --global core.autocrlf input
+
+# clone directory
+clone_folder: c:\projects\eldorito
+
+platform: x86
+configuration: Release
+
+install:
+  # by default, all script lines are interpreted as batch
+
+build:
+  project: build\ElDorito.vcxproj      # path to Visual Studio solution or project
+
+# scripts to run before build
+before_build:
+  - echo Running generate_vs2013_sln_files.bat...
+  - cd c:\projects\eldorito
+  - generate_vs2013_sln_files.bat
+
+# scripts to run after build
+after_build:
+  - cd C:\projects\eldorito\build\Release\
+  - 7z a c:\projects\eldorito\eldorito.zip * -tzip
+  - cd c:\projects\eldorito
+
+artifacts:
+  - path: eldorito.zip
+    name: eldorito.zip
+
+#deploy_script:
+#  - cd c:\projects\sqlite
+#  - curl -T sqlite.zip --user %ACCOUNT% https://webdav.yandex.ru/libs/sqlite.zip
