@@ -120,6 +120,13 @@ void IRCBackend::ircChatLoop()
 				joinIRCChannel(Modules::ModuleIRC::Instance().VarIRCGlobalChannel->ValueString, true);
 				console.globalChatQueue.pushLineFromGameToUI("Connected to global chat!");
 			}
+			else if (receivedChannelTopic(bufferSplitBySpace))
+			{
+				if (messageIsInChannel(bufferSplitBySpace, globalChatChannel, 3))
+				{
+					extractMessageAndSendToUI(bufferSplitBySpace, &console.globalChatQueue, 4, true);
+				}
+			}
 			else if (receivedMessageFromIRCServer(bufferSplitBySpace))
 			{
 				if (messageIsInChannel(bufferSplitBySpace, globalChatChannel))
@@ -147,7 +154,6 @@ void IRCBackend::sendMessageToChannel(std::string channel, Queue* queue, std::st
 void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 {
 	std::transform(channel.begin(), channel.end(), channel.begin(), ::tolower);
-	auto& console = GameConsole::Instance();
 	
 	if (globalChat)
 	{
@@ -155,11 +161,12 @@ void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 	}
 	else
 	{
-		leaveIRCChannel(gameChatChannel);
+		if (!gameChatChannel.empty())
+			leaveIRCChannel(gameChatChannel);
 		gameChatChannel = channel;
 	}
 
-	sprintf_s(buffer, "MODE %s +BIc\r\nJOIN %s\r\n", console.playerName.c_str(), channel.c_str());
+	sprintf_s(buffer, "MODE %s +BIc\r\nJOIN %s\r\n", GameConsole::Instance().playerName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 }
 
@@ -186,6 +193,13 @@ bool IRCBackend::receivedWelcomeMessage(std::vector<std::string> &bufferSplitByS
 	return strncmp(bufferSplitBySpace.at(1).c_str(), "001", 3) == 0;
 }
 
+bool IRCBackend::receivedChannelTopic(std::vector<std::string> &bufferSplitBySpace)
+{
+	if (bufferSplitBySpace.size() <= 1)
+		return false;
+	return strncmp(bufferSplitBySpace.at(1).c_str(), "332", 3) == 0;
+}
+
 bool IRCBackend::receivedMessageFromIRCServer(std::vector<std::string> &bufferSplitBySpace)
 {
 	if (bufferSplitBySpace.size() <= 1)
@@ -198,25 +212,30 @@ bool IRCBackend::receivedPING(std::string line)
 	return strncmp(line.c_str(), "PING ", 5) == 0;
 }
 
-bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace, std::string channel)
+bool IRCBackend::messageIsInChannel(std::vector<std::string> &bufferSplitBySpace, std::string channel, size_t channelPos)
 {
-	if (bufferSplitBySpace.size() <= 2)
+	if (bufferSplitBySpace.size() <= channelPos)
 		return false;
-	std::transform(bufferSplitBySpace.at(2).begin(), bufferSplitBySpace.at(2).end(), bufferSplitBySpace.at(2).begin(), ::tolower);
-	return strncmp(bufferSplitBySpace.at(2).c_str(), channel.c_str(), channel.length()) == 0;
+	std::transform(bufferSplitBySpace.at(channelPos).begin(), bufferSplitBySpace.at(channelPos).end(), bufferSplitBySpace.at(channelPos).begin(), ::tolower);
+	return strncmp(bufferSplitBySpace.at(channelPos).c_str(), channel.c_str(), channel.length()) == 0;
 }
 
-void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace, Queue* queue)
+void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplitBySpace, Queue* queue, size_t msgPos, bool topic)
 {
-	if (bufferSplitBySpace.size() <= 3)
+	if (bufferSplitBySpace.size() <= msgPos)
 		return;
 	std::string buf(buffer);
-	std::string message = buf.substr(buf.find(bufferSplitBySpace.at(3)), buf.length());
+	std::string message = buf.substr(buf.find(bufferSplitBySpace.at(msgPos)), buf.length());
 	message.erase(0, 1); // remove first character ":"
 	message.resize(message.size() - 2); // remove last 2 characters "\n"
-	
+	if (message.find("\r\n") != std::string::npos)
+		message = message.substr(0, message.find("\r\n"));
+
 	std::string preparedLineForUI = bufferSplitBySpace.at(0).substr(bufferSplitBySpace.at(0).find_first_of("|") + 1, std::string::npos);
 	preparedLineForUI = preparedLineForUI.substr(0, preparedLineForUI.find_first_of("!"));
 	preparedLineForUI += ": " + message;
+	if (topic)
+		preparedLineForUI = "Channel topic: " + message;
+
 	queue->pushLineFromGameToUI(preparedLineForUI);
 }
