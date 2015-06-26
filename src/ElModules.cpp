@@ -9,7 +9,26 @@ namespace
 		auto& commandMap = Modules::CommandMap::Instance();
 		if (Arguments.size() > 0)
 		{
-			auto* cmd = commandMap.FindCommand(Arguments[0]);
+			auto cmdName = Arguments[0];
+			auto* cmd = commandMap.FindCommand(cmdName);
+			if (!cmd)
+			{
+				// try searching for it as a module
+				bool isModule = false;
+				for (auto it = commandMap.Commands.begin(); it < commandMap.Commands.end(); it++)
+					if (it->ModuleName.length() > 0 && !_stricmp(it->ModuleName.c_str(), cmdName.c_str()))
+					{
+						isModule = true;
+						break;
+					}
+
+				if (isModule)
+					returnInfo = commandMap.GenerateHelpText(cmdName);
+				else
+					returnInfo = "Command/Variable not found";
+
+				return isModule;
+			}
 			returnInfo = cmd->GenerateHelpText();
 			return true;
 		}

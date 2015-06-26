@@ -334,7 +334,7 @@ namespace Modules
 		return lhs.Name < rhs.Name;
 	}
 
-	std::string CommandMap::GenerateHelpText()
+	std::string CommandMap::GenerateHelpText(std::string moduleFilter)
 	{
 		std::deque<Command> tempCommands(Commands);
 
@@ -344,6 +344,9 @@ namespace Modules
 		for (auto cmd : tempCommands)
 		{
 			if (cmd.Flags & eCommandFlagsHidden)
+				continue;
+
+			if (!moduleFilter.empty() && (cmd.ModuleName.empty() || _stricmp(cmd.ModuleName.c_str(), moduleFilter.c_str())))
 				continue;
 
 			std::string helpText = cmd.Name;

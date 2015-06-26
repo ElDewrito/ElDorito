@@ -107,7 +107,7 @@ namespace Modules
 		VariableSetReturnValue SetVariable(const std::string& name, std::string& value, std::string& previousValue);
 		VariableSetReturnValue SetVariable(Command* command, std::string& value, std::string& previousValue);
 
-		std::string GenerateHelpText();
+		std::string GenerateHelpText(std::string moduleFilter = "");
 
 		std::string SaveVariables();
 	private:
