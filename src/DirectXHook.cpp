@@ -106,7 +106,6 @@ void DirectXHook::drawChatInterface()
 			int width = 0;
 			if (currentInput.length() > 0) {
 				currentChar = currentInput[console.currentInput.currentPointerIndex];
-				console.consoleQueue.pushLineFromGameToUI("cPI: " + std::to_string(console.currentInput.currentPointerIndex) + "; c: '" + currentChar + "'");
 				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), dxFont) - 3;
 			}
 			else
