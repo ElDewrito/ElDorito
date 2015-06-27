@@ -53,7 +53,7 @@ void DirectXHook::drawChatInterface()
 			dxFont->Release();
 		}
 
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &dxFont);
+		D3DXCreateFont(pDevice, fontHeight, 0, 600, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial", &dxFont);
 		currentFontHeight = fontHeight;
 		return;
 	}
