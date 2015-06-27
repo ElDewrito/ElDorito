@@ -6,10 +6,10 @@ class TextInput
 public:
 
 	std::string currentInput;
-	int currentPointerIndex = 0;
+	size_t currentPointerIndex = 0;
 
-	TextInput();
-	~TextInput();
+	TextInput() { }
+	~TextInput() { }
 
 	void type(char c)
 	{
@@ -26,7 +26,7 @@ public:
 
 	void del()
 	{
-		if (currentPointerIndex > 0 && currentPointerIndex < currentInput.size()) {
+		if (currentPointerIndex < currentInput.size()) {
 			currentInput.erase(currentPointerIndex, 1);
 		}
 	}

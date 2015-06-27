@@ -23,7 +23,8 @@ private:
 	static void drawBox(int x, int y, int width, int height, D3DCOLOR BorderColor, D3DCOLOR FillColor);
 	static void drawChatInterface();
 	static int getTextWidth(const char *szText, LPD3DXFONT pFont);
-
+	static int getCharacterWidth(const char* szText, LPD3DXFONT pFont);
+	static int getSpaceCharacterWidth(LPD3DXFONT pFont);
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);
 	static CONST D3DCOLOR COLOR_GREEN = D3DCOLOR_ARGB(255, 127, 255, 000);

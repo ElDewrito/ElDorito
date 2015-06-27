@@ -22,12 +22,23 @@ int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
 	RECT rcRect = { 0, 0, 0, 0 };
 	if (pFont)
 	{
-		// calculate required rect
 		pFont->DrawText(NULL, szText, strlen(szText), &rcRect, DT_CALCRECT, D3DCOLOR_XRGB(0, 0, 0));
 	}
+	int width = rcRect.right - rcRect.left;
+	std::string text(szText);
+	std::reverse(text.begin(), text.end());
 
-	// return width
-	return rcRect.right - rcRect.left;
+	text = text.substr(0, text.find_first_not_of(' ') != std::string::npos ? text.find_first_not_of(' ') : 0);
+	for(char c : text)
+	{
+		width += getSpaceCharacterWidth(pFont);
+	}
+	return width;
+}
+
+int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
+{
+	return getTextWidth("i i", dxFont) - ((getTextWidth("i", dxFont))* 2);
 }
 
 void DirectXHook::drawChatInterface()
@@ -93,8 +104,9 @@ void DirectXHook::drawChatInterface()
 			std::string currentInput = console.currentInput.currentInput;
 			char currentChar;
 			int width = 0;
-			if (currentInput.length() > 0 && console.currentInput.currentPointerIndex) {
+			if (currentInput.length() > 0) {
 				currentChar = currentInput[console.currentInput.currentPointerIndex];
+				console.consoleQueue.pushLineFromGameToUI("cPI: " + std::to_string(console.currentInput.currentPointerIndex) + "; c: '" + currentChar + "'");
 				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), dxFont) - 3;
 			}
 			else
