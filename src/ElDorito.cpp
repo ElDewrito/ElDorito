@@ -94,7 +94,11 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 
 	if (consoleLoaded)
 	{
-		GameConsole::Instance().checkForReturnKey();
+		HWND hWnd = *((HWND*)0x199C014);
+		if (hWnd == GetForegroundWindow())
+		{
+			GameConsole::Instance().checkForReturnKey();
+		}
 	}
 }
 
