@@ -24,7 +24,8 @@
         "game.cfg": "EF9771599CA2E6C4A33BA2D2828508D67E919058"
     },
     
-	"updateServiceUrl": "http://167.114.156.21:81/honline/update.json",
+    "updateServiceUrl": "http://167.114.156.21:81/honline/update.json",
+    "updateChannelsUrl": "http://167.114.156.21:81/honline/channels.json",
     
     "masterServers": [
         {
