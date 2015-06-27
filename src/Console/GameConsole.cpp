@@ -89,14 +89,6 @@ std::vector<std::string> current_command_list = std::vector < std::string > {};
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
-	HWND hWnd = *((HWND*)0x199C014);
-	if (hWnd != nullptr)
-	{
-		if (GetForegroundWindow() != hWnd)
-		{
-			return;
-		}
-	}
 	if (!isConsoleShown())
 	{
 		if (vKey == VK_RETURN)
