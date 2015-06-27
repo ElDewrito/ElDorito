@@ -14,8 +14,8 @@ namespace Modules
 
 		VarIRCGlobalChannel = AddVariableString("GlobalChannel", "irc_globalchan", "The IRC channel for global chat", eCommandFlagsArchived, "#haloonline");
 #ifdef _DEBUG
-		VarIRCGlobalChannel->DefaultValueString = "#haloonline-dev";
-		VarIRCGlobalChannel->ValueString = "#haloonline-dev";
+		VarIRCGlobalChannel->DefaultValueString = "#haloonline-debug";
+		VarIRCGlobalChannel->ValueString = "#haloonline-debug";
 #endif
 	}
 }
