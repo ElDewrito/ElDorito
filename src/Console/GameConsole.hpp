@@ -5,7 +5,7 @@
 #include "IRCBackend.hpp"
 #include "TextInput.h"
 
-class Queue;
+class Queue;	
 class ConsoleQueue;
 class GlobalChatQueue;
 class GameChatQueue;

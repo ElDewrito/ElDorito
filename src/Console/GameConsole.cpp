@@ -229,9 +229,9 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 					{
 						currentCommandList.push_back(commandName);
 					}
-					consoleQueue.pushLineFromGameToUI(std::to_string(currentCommandList.size()) + " commands found starting with \"" + currentLine + ".\"");
-					consoleQueue.pushLineFromGameToUI("Press tab to go through them.");
 				}
+				consoleQueue.pushLineFromGameToUI(std::to_string(currentCommandList.size()) + " commands found starting with \"" + currentLine + ".\"");
+				consoleQueue.pushLineFromGameToUI("Press tab to go through them.");
 			}
 		}
 		break;
