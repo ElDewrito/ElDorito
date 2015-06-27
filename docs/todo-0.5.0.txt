@@ -1,5 +1,5 @@
 ElDewrito:
-- implement stats submissions (find endgame hook + find unique gameID/matchID field)
+- implement stats submissions (find endgame hook (done, need to fix it up a bit though) + find unique gameID/matchID field)
 - fix info server showing blank variant name
 - fix info server still running after host joins a different game
 - fix users still being in the game IRC channel after they've left
