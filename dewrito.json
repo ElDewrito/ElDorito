@@ -30,7 +30,7 @@
         {
             "list": "http://192.99.124.162/list",
             "announce": "http://192.99.124.162/announce",
-            "stats": "http://192.99.124.162/stats",
+            "stats": "http://192.99.124.162/stats"
         },
         {
             "list": "http://eldewrito-masterserver-personality.c9.io/list",

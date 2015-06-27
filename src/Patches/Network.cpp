@@ -32,6 +32,8 @@ namespace
 	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
 	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
 	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
+
+	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
 }
 
 namespace Patches
@@ -309,6 +311,22 @@ namespace Patches
 
 			// Hook leader_request_boot_machine so we can do some extra things if the boot succeeded
 			Hook(0x37E17, Network_leader_request_boot_machineHook, HookFlags::IsCall).Apply();
+
+			// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
+			DWORD temp;
+			DWORD temp2;
+			auto writeAddr = Pointer(0x16183A0);
+			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+			{
+				std::stringstream ss;
+				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+				OutputDebugString(ss.str().c_str());
+			}
+			else
+			{
+				writeAddr.Write<uint32_t>((uint32_t)&Network_state_end_game_write_stats_enterHook);
+				VirtualProtect(writeAddr, 4, temp, &temp2);
+			}
 		}
 
 		bool StartRemoteConsole()
@@ -670,5 +688,20 @@ namespace
 		if (succeeded)
 			Patches::Network::PlayerPropertiesExtender::Instance().DeserializeData(stream, buffer + PlayerPropertiesSize);
 		return succeeded;
+	}
+
+	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
+	{
+		// TODO: check if the user is hosting/joined a game (ie. make sure the game isn't just an offline game)
+		// TODO: make sure the game has had 2 or more players during gameplay
+		// TODO: get a game/match ID
+		// TODO: make sure we haven't announced stats already for this game ID
+		// TODO: make Server.AnnounceStats only callable in code, not via the console (once we've finished debugging it etc
+
+		Modules::CommandMap::Instance().ExecuteCommand("Server.AnnounceStats");
+
+		typedef char(__thiscall *Network_state_end_game_write_stats_enterFunc)(void* thisPtr, int a2, int a3, int a4);
+		Network_state_end_game_write_stats_enterFunc Network_state_end_game_write_stats_enter = reinterpret_cast<Network_state_end_game_write_stats_enterFunc>(0x492B50);
+		return Network_state_end_game_write_stats_enter(thisPtr, a2, a3, a4);
 	}
 }
