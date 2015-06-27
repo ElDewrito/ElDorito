@@ -33,7 +33,7 @@ int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
 void DirectXHook::drawChatInterface()
 {
 	auto& console = GameConsole::Instance();
-	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.isConsoleShown()) || *((uint16_t*) 0x244D24A) == 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.isConsoleShown()) || *((uint16_t*)0x244D24A) == 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 	{
 		return;
 	}
@@ -42,8 +42,8 @@ void DirectXHook::drawChatInterface()
 	int y = (int)(0.65 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
-	int inputTextBoxHeight = fontHeight + (int) (0.769 * fontHeight);
-	int horizontalSpacing = (int) (0.012 * inputTextBoxWidth);
+	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int horizontalSpacing = (int)(0.012 * inputTextBoxWidth);
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 
@@ -80,7 +80,29 @@ void DirectXHook::drawChatInterface()
 	if (console.isConsoleShown())
 	{
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.inputLine.c_str());
+		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str());
+
+		//Line showing where the user currently is in the input field.
+		if (console.getMsSinceLastConsoleBlink() > 300)
+		{
+			console.consoleBlinking = !console.consoleBlinking;
+			console.lastTimeConsoleBlink = GetTickCount();
+		}
+		if (!console.consoleBlinking)
+		{
+			std::string currentInput = console.currentInput.currentInput;
+			char currentChar;
+			int width = 0;
+			if (currentInput.length() > 0 && console.currentInput.currentPointerIndex) {
+				currentChar = currentInput[console.currentInput.currentPointerIndex];
+				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), dxFont) - 3;
+			}
+			else
+			{
+				width = -3;
+			}
+			drawText(x + horizontalSpacing + width, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, "|");
+		}
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;

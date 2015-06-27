@@ -40,6 +40,11 @@ int GameConsole::getMsSinceLastConsoleOpen()
 	return GetTickCount() - lastTimeConsoleShown;
 }
 
+int GameConsole::getMsSinceLastConsoleBlink()
+{
+	return GetTickCount() - lastTimeConsoleBlink;
+}
+
 void GameConsole::peekConsole()
 {
 	lastTimeConsoleShown = GetTickCount();
@@ -49,7 +54,7 @@ void GameConsole::hideConsole()
 {
 	lastTimeConsoleShown = GetTickCount();
 	boolShowConsole = false;
-	inputLine.clear();
+	currentInput.set("");
 
 	// Enables game keyboard input and disables our keyboard hook
 
@@ -81,11 +86,6 @@ void GameConsole::showConsole()
 	}
 }
 
-int currentBacklogIndex = -1;
-bool tabHitLast = false;
-int try_count = 0;
-std::string command_before_completion = "";
-std::vector<std::string> current_command_list = std::vector < std::string > {};
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
@@ -101,10 +101,10 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	switch (vKey)
 	{
 	case VK_RETURN:
-		if (!inputLine.empty())
+		if (!currentInput.currentInput.empty())
 		{
-			selectedQueue->unchangingBacklog.push_back(inputLine);
-			selectedQueue->pushLineFromKeyboardToGame(inputLine);
+			selectedQueue->unchangingBacklog.push_back(currentInput.currentInput);
+			selectedQueue->pushLineFromKeyboardToGame(currentInput.currentInput);
 		}
 		hideConsole();
 		lastTimeReturnPressed = GetTickCount();
@@ -115,13 +115,17 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	case VK_BACK:
-		if (!inputLine.empty())
+		if (!currentInput.currentInput.empty())
 		{
-			inputLine.pop_back();
-			currentBacklogIndex = -1;
+			currentInput.backspace();
 		}
 		break;
-
+	case VK_DELETE:
+		if (!currentInput.currentInput.empty())
+		{
+			currentInput.del();
+		}
+		break;
 	case VK_F1:
 		selectedQueue = &consoleQueue;
 		selectedQueue->startIndexForUI = 0;
@@ -175,7 +179,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		if (currentBacklogIndex >= 0)
 		{
-			inputLine = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
+			currentInput.currentInput = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
 		}
 		break;
 
@@ -184,31 +188,36 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		if (currentBacklogIndex < 0)
 		{
 			currentBacklogIndex = -1;
-			inputLine = "";
+			currentInput.currentInput = "";
 		}
 		else
 		{
-			inputLine = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
+			currentInput.currentInput = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
 		}
 		break;
-
+	case VK_LEFT:
+		currentInput.left();
+		break;
+	case VK_RIGHT:
+		currentInput.right();
+		break;
 	case VK_TAB:
-		if (dynamic_cast<ConsoleQueue*>(selectedQueue) && inputLine.find_first_of(" ") == std::string::npos && inputLine.length() > 0)
+		if (dynamic_cast<ConsoleQueue*>(selectedQueue) && currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
 			if (tabHitLast)
 			{
-				if (current_command_list.size() > 0)
+				if (currentCommandList.size() > 0)
 				{
-					inputLine = current_command_list.at((++try_count) % current_command_list.size());
+					currentInput.currentInput = currentCommandList.at((++tryCount) % currentCommandList.size());
 				}
 			}
 			else
 			{
-				try_count = 0;
-				current_command_list.clear();
-				command_before_completion = inputLine;
+				tryCount = 0;
+				currentCommandList.clear();
+				commandPriorComplete = currentInput.currentInput;
 
-				auto currentLine = inputLine;
+				auto currentLine = currentInput.currentInput;
 				std::transform(currentLine.begin(), currentLine.end(), currentLine.begin(), ::tolower);
 
 				for (auto cmd : Modules::CommandMap::Instance().Commands)
@@ -218,8 +227,10 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 					if (commandName.compare(0, currentLine.length(), currentLine) == 0)
 					{
-						current_command_list.push_back(commandName);
+						currentCommandList.push_back(commandName);
 					}
+					consoleQueue.pushLineFromGameToUI(std::to_string(currentCommandList.size()) + " commands found starting with \"" + currentLine + ".\"");
+					consoleQueue.pushLineFromGameToUI("Press tab to go through them.");
 				}
 			}
 		}
@@ -234,7 +245,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 				{
 					char* textPointer = static_cast<char*>(GlobalLock(hData));
 					std::string text(textPointer);
-					inputLine += text;
+					currentInput.set(currentInput.currentInput + text);
 					GlobalUnlock(hData);
 				}
 				CloseClipboard();
@@ -242,13 +253,16 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		else
 		{
+
 			if (GetAsyncKeyState(VK_SHIFT))
 			{
-				inputLine += !capsLockToggled ? 'V' : 'v';
+				char vChar = !capsLockToggled ? 'V' : 'v';
+				currentInput.type(vChar);
 			}
 			else
 			{
-				inputLine += !capsLockToggled ? 'v' : 'V';
+				char vChar = !capsLockToggled ? 'v' : 'V';
+				currentInput.type(vChar);
 			}
 		}
 		break;
@@ -271,12 +285,12 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 		if (retVal == 1)
 		{
-			inputLine += buf & 0x00ff;
+			currentInput.type(buf & 0x00ff);
 		}
 		else if (retVal == 2)
 		{
-			inputLine += buf >> 8;
-			inputLine += buf & 0x00ff;
+			currentInput.type(buf >> 8);
+			currentInput.type(buf & 0x00ff);
 		}
 		break;
 	}
