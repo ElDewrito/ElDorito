@@ -125,7 +125,7 @@ namespace Patches
 				{
 					if (msg == WM_RCON)
 					{
-						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer);
+						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer, true);
 						if (ret.length() > 0)
 						{
 							Utils::String::ReplaceString(ret, "\n", "\r\n");

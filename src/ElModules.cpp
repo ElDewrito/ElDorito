@@ -52,7 +52,7 @@ namespace
 			in.seekg(0, std::ios::beg);
 			in.read(&contents[0], contents.size());
 			in.close();
-			returnInfo = Modules::CommandMap::Instance().ExecuteCommands(contents);
+			returnInfo = Modules::CommandMap::Instance().ExecuteCommands(contents, true);
 			return true;
 		}
 		returnInfo = "Unable to open file " + Arguments[0] + " for reading.";

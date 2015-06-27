@@ -25,6 +25,7 @@ enum CommandFlags
 	eCommandFlagsRunOnMainMenu     = 1 << 5, // if run at startup queue the command until the main menu is shown
 	eCommandFlagsHostOnly          = 1 << 6, // only execute the command if the user is host
 	eCommandFlagsOmitValueInList   = 1 << 7, // omit the variables value in help listing
+	eCommandFlagsInternal          = 1 << 8  // disallow the user from using this command, only internal ExecuteCommand calls can use it
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
@@ -92,11 +93,11 @@ namespace Modules
 		Command* AddCommand(Command command);
 		void FinishAddCommands();
 		Command* FindCommand(const std::string& name);
-		std::string ExecuteCommand(std::vector<std::string> command);
-		std::string ExecuteCommand(std::string command);
-		std::string ExecuteCommands(std::string& commands);
-		bool ExecuteCommandWithStatus(std::string command);
 
+		std::string ExecuteCommand(std::vector<std::string> command, bool isUserInput = false);
+		std::string ExecuteCommand(std::string command, bool isUserInput = false);
+		std::string ExecuteCommands(std::string& commands, bool isUserInput = false);
+		bool ExecuteCommandWithStatus(std::string command, bool isUserInput = false);
 		std::string ExecuteQueue();
 
 		bool GetVariableInt(const std::string& name, unsigned long& value);

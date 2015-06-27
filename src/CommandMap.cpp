@@ -92,16 +92,16 @@ namespace Modules
 		}
 	}
 
-	std::string CommandMap::ExecuteCommand(std::vector<std::string> command)
+	std::string CommandMap::ExecuteCommand(std::vector<std::string> command, bool isUserInput)
 	{
 		std::string commandStr = "";
 		for (auto cmd : command)
 			commandStr += "\"" + cmd + "\" ";
 
-		return ExecuteCommand(commandStr);
+		return ExecuteCommand(commandStr, isUserInput);
 	}
 
-	bool CommandMap::ExecuteCommandWithStatus(std::string command)
+	bool CommandMap::ExecuteCommandWithStatus(std::string command, bool isUserInput)
 	{
 		int numArgs = 0;
 		auto args = CommandLineToArgvA((PCHAR)command.c_str(), &numArgs);
@@ -110,7 +110,7 @@ namespace Modules
 			return false;
 
 		auto cmd = FindCommand(args[0]);
-		if (!cmd)
+		if (!cmd || (isUserInput && cmd->Flags & eCommandFlagsInternal))
 			return false;
 
 		std::vector<std::string> argsVect;
@@ -146,7 +146,7 @@ namespace Modules
 		return false;
 	}
 
-	std::string CommandMap::ExecuteCommand(std::string command)
+	std::string CommandMap::ExecuteCommand(std::string command, bool isUserInput)
 	{
 		int numArgs = 0;
 		auto args = CommandLineToArgvA((PCHAR)command.c_str(), &numArgs);
@@ -155,7 +155,7 @@ namespace Modules
 			return "Invalid input";
 
 		auto cmd = FindCommand(args[0]);
-		if (!cmd)
+		if (!cmd || (isUserInput && cmd->Flags & eCommandFlagsInternal))
 			return "Command/Variable not found";
 
 		if ((cmd->Flags & eCommandFlagsRunOnMainMenu) && !ElDorito::Instance().GameHasMenuShown)
@@ -379,7 +379,7 @@ namespace Modules
 		return ss.str();
 	}
 
-	std::string CommandMap::ExecuteCommands(std::string& commands)
+	std::string CommandMap::ExecuteCommands(std::string& commands, bool isUserInput)
 	{
 		std::istringstream stream(commands);
 		std::stringstream ss;
@@ -387,7 +387,7 @@ namespace Modules
 		int lineIdx = 0;
 		while (std::getline(stream, line))
 		{
-			if (!this->ExecuteCommandWithStatus(line))
+			if (!this->ExecuteCommandWithStatus(line, isUserInput))
 			{
 				ss << "Error at line " << lineIdx << std::endl;
 			}
@@ -401,7 +401,7 @@ namespace Modules
 		std::stringstream ss;
 		for (auto cmd : queuedCommands)
 		{
-			ss << ExecuteCommand(cmd) << std::endl;
+			ss << ExecuteCommand(cmd, true) << std::endl;
 		}
 		queuedCommands.clear();
 		return ss.str();

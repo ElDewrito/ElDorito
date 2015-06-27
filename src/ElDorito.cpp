@@ -64,7 +64,7 @@ void ElDorito::Initialize()
 			std::string argname = converter.to_bytes(arg.substr(1, pos - 1));
 			std::string argvalue = converter.to_bytes(arg.substr(pos + 1));
 
-			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"");
+			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"", true);
 		}
 	}
 
