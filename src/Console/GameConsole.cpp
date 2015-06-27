@@ -197,7 +197,10 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		{
 			if (tabHitLast)
 			{
-				inputLine = current_command_list.at((++try_count) % current_command_list.size());
+				if (current_command_list.size() > 0)
+				{
+					inputLine = current_command_list.at((++try_count) % current_command_list.size());
+				}
 			}
 			else
 			{
@@ -217,10 +220,6 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 					{
 						current_command_list.push_back(commandName);
 					}
-				}
-				if (current_command_list.size() > 0)
-				{
-					inputLine = current_command_list.at((++try_count) % current_command_list.size());
 				}
 			}
 		}
