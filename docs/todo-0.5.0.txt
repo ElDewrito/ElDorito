@@ -4,6 +4,10 @@ ElDewrito:
 - fix info server still running after host joins a different game
 - fix users still being in the game IRC channel after they've left
 - add a way for (server host/OP of game IRC channel) to kick everyone from the channel when server closes down
+- fix chat UI showing game chat msgs on global chat tab
+- also fix chat UI showing the full string (PRIVMSG !dew1234 #haloonline : Hi there!) for some messages
+- and TEST TEST TEST the chat UI
+- (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
 
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
