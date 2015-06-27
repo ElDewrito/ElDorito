@@ -343,7 +343,7 @@ namespace Modules
 		std::stringstream hasParent; // store commands with a parent module seperately, so they can be added to the main stringstream after the non-parent commands
 		for (auto cmd : tempCommands)
 		{
-			if (cmd.Flags & eCommandFlagsHidden)
+			if (cmd.Flags & eCommandFlagsHidden || cmd.Flags & eCommandFlagsInternal)
 				continue;
 
 			if (!moduleFilter.empty() && (cmd.ModuleName.empty() || _stricmp(cmd.ModuleName.c_str(), moduleFilter.c_str())))
@@ -371,7 +371,7 @@ namespace Modules
 		std::stringstream ss;
 		for (auto cmd : Commands)
 		{
-			if (cmd.Type == eCommandTypeCommand || (cmd.Flags & eCommandFlagsArchived) != eCommandFlagsArchived)
+			if (cmd.Type == eCommandTypeCommand || !(cmd.Flags & eCommandFlagsArchived) || (cmd.Flags & eCommandFlagsInternal))
 				continue;
 
 			ss << cmd.Name << " \"" << cmd.ValueString << "\"" << std::endl;
