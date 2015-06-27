@@ -208,7 +208,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			{
 				if (currentCommandList.size() > 0)
 				{
-					currentInput.currentInput = currentCommandList.at((++tryCount) % currentCommandList.size());
+					currentInput.set(currentCommandList.at((++tryCount) % currentCommandList.size()));
 				}
 			}
 			else
