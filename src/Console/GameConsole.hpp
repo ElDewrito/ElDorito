@@ -13,13 +13,13 @@ class GameChatQueue;
 class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
-	bool boolShowConsole = false;
 	bool capsLockToggled = false;
 	int lastTimeConsoleShown = 0;
 	static void startIRCBackend();
 	void hideConsole();
-	void showConsole();
+	void displayChat(bool console);
 	void initPlayerName();
+	void handleDefaultKeyInput(USHORT vKey);
 
 public:
 	ConsoleQueue consoleQueue = ConsoleQueue();
@@ -32,12 +32,14 @@ public:
 	std::string commandPriorComplete = "";
 	std::vector<std::string> currentCommandList = std::vector < std::string > {};
 	Queue* selectedQueue = &globalChatQueue;
+	Queue* lastChatQueue = &globalChatQueue;
 	std::string playerName = "";
 	int lastTimeConsoleBlink = 0;
 	bool consoleBlinking = false;
+	bool showChat = false;
+	bool showConsole = false;
 
 	GameConsole();
-	bool isConsoleShown();
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
 	void peekConsole();

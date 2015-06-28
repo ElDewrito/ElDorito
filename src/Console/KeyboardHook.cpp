@@ -5,7 +5,8 @@ HHOOK KeyboardHook::ourHookedFunctionPtr = 0;
 
 LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	if (GameConsole::Instance().isConsoleShown() && message == WM_INPUT)
+	auto& console = GameConsole::Instance();
+	if ((console.showChat || console.showConsole) && message == WM_INPUT)
 	{
 		UINT uiSize = 40; // sizeof(RAWINPUT)
 		static unsigned char lpb[40];
@@ -17,11 +18,11 @@ LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wP
 
 			if (rwInput->header.dwType == RIM_TYPEKEYBOARD && (rwInput->data.keyboard.Flags == RI_KEY_MAKE || rwInput->data.keyboard.Flags == RI_KEY_E0))
 			{
-				GameConsole::Instance().virtualKeyCallBack(rwInput->data.keyboard.VKey);
+				console.virtualKeyCallBack(rwInput->data.keyboard.VKey);
 			}
 			else if (rwInput->header.dwType == RIM_TYPEMOUSE)
 			{
-				GameConsole::Instance().mouseCallBack(rwInput->data.mouse);
+				console.mouseCallBack(rwInput->data.mouse);
 			}
 		}
 	}

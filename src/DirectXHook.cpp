@@ -44,7 +44,7 @@ int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
 void DirectXHook::drawChatInterface()
 {
 	auto& console = GameConsole::Instance();
-	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.isConsoleShown()) || *((uint16_t*)0x244D24A) == 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.showChat && !console.showConsole) || *((uint16_t*)0x244D24A) == 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 	{
 		return;
 	}
@@ -69,31 +69,28 @@ void DirectXHook::drawChatInterface()
 		return;
 	}
 
-	if (console.isConsoleShown())
+	if (console.showChat)
 	{
 		int tempX = x;
 
-		drawBox(tempX, y, getTextWidth("Console [F1]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.consoleQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.consoleQueue.color, "Console [F1]");
-		tempX += getTextWidth("Console [F1]", dxFont) + 2 * horizontalSpacing;
+		drawBox(tempX, y, getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.globalChatQueue.color, "Global Chat");
+		tempX += getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing;
 
-		drawBox(tempX, y, getTextWidth("Global Chat [F2]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.globalChatQueue.color, "Global Chat [F2]");
-		tempX += getTextWidth("Global Chat [F2]", dxFont) + 2 * horizontalSpacing;
-
-		drawBox(tempX, y, getTextWidth("Game Chat [F3]", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.gameChatQueue.color, "Game Chat [F3]");
-		tempX += getTextWidth("Game Chat [F3]", dxFont) + 2 * horizontalSpacing;
+		drawBox(tempX, y, getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.gameChatQueue.color, "Game Chat");
+		tempX += getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing;
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;
 
-	if (console.isConsoleShown())
+	if (console.showChat || console.showConsole)
 	{
+		// Display current input
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
 		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str());
 
-		//Line showing where the user currently is in the input field.
+		// START: Line showing where the user currently is in the input field.
 		if (console.getMsSinceLastConsoleBlink() > 300)
 		{
 			console.consoleBlinking = !console.consoleBlinking;
@@ -114,10 +111,12 @@ void DirectXHook::drawChatInterface()
 			}
 			drawText(x + horizontalSpacing + width, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, "|");
 		}
+		// END: Line showing where the user currently is in the input field.
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;
 
+	// Draw text from chat or console
 	for (int i = console.selectedQueue->startIndexForScrolling; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForScrolling; i++)
 	{
 		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str());

@@ -26,10 +26,6 @@ GameConsole::GameConsole()
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 }
 
-bool GameConsole::isConsoleShown() {
-	return boolShowConsole;
-}
-
 int GameConsole::getMsSinceLastConsoleOpen()
 {
 	return GetTickCount() - lastTimeConsoleShown;
@@ -48,7 +44,8 @@ void GameConsole::peekConsole()
 void GameConsole::hideConsole()
 {
 	lastTimeConsoleShown = GetTickCount();
-	boolShowConsole = false;
+	showChat = false;
+	showConsole = false;
 	currentInput.set("");
 
 	// Enables game keyboard input and disables our keyboard hook
@@ -63,11 +60,25 @@ void GameConsole::hideConsole()
 	}
 }
 
-void GameConsole::showConsole()
+void GameConsole::displayChat(bool console)
 {
 	selectedQueue->startIndexForScrolling = 0;
-	boolShowConsole = true;
 	capsLockToggled = GetKeyState(VK_CAPITAL) & 1;
+
+	if (console)
+	{
+		if (selectedQueue != &consoleQueue)
+		{
+			lastChatQueue = selectedQueue;
+		}
+		selectedQueue = &consoleQueue;
+		showConsole = true;
+	}
+	else
+	{
+		selectedQueue = lastChatQueue;
+		showChat = true;
+	}
 
 	// Disables game keyboard input and enables our keyboard hook
 	RAWINPUTDEVICE Rid;
@@ -83,11 +94,19 @@ void GameConsole::showConsole()
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
-	if (!isConsoleShown())
+	if (!showChat && !showConsole)
 	{
-		if (vKey == VK_RETURN && *((uint16_t*)0x244D24A) != 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+		if (*((uint16_t*)0x244D24A) != 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 		{
-			showConsole();
+			if (vKey == VK_RETURN)
+			{
+				displayChat(false);
+			}
+
+			if (vKey == VK_OEM_3) // ` key
+			{
+				displayChat(true);
+			}
 		}
 		return;
 	}
@@ -121,45 +140,18 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		break;
 
-	case VK_F1:
-		selectedQueue = &consoleQueue;
-		selectedQueue->startIndexForScrolling = 0;
-		consoleQueue.color = DirectXHook::COLOR_GREEN;
-		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
-		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
-		currentBacklogIndex = -1;
-		break;
-
-	case VK_F2:
-		selectedQueue = &globalChatQueue;
-		selectedQueue->startIndexForScrolling = 0;
-		consoleQueue.color = DirectXHook::COLOR_YELLOW;
-		globalChatQueue.color = DirectXHook::COLOR_GREEN;
-		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
-		currentBacklogIndex = -1;
-		break;
-
-	case VK_F3:
-		selectedQueue = &gameChatQueue;
-		selectedQueue->startIndexForScrolling = 0;
-		consoleQueue.color = DirectXHook::COLOR_YELLOW;
-		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
-		gameChatQueue.color = DirectXHook::COLOR_GREEN;
-		currentBacklogIndex = -1;
-		break;
-
 	case VK_CAPITAL:
 		capsLockToggled = !capsLockToggled;
 		break;
 
-	case VK_PRIOR:
+	case VK_PRIOR: // PAGE UP
 		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
 			selectedQueue->startIndexForScrolling++;
 		}
 		break;
 
-	case VK_NEXT:
+	case VK_NEXT: // PAGE DOWN
 		if (selectedQueue->startIndexForScrolling > 0)
 		{
 			selectedQueue->startIndexForScrolling--;
@@ -200,7 +192,31 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	case VK_TAB:
-		if (dynamic_cast<ConsoleQueue*>(selectedQueue) && currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
+		if (showChat)
+		{
+			if (selectedQueue == &globalChatQueue)
+			{
+				selectedQueue = &gameChatQueue;
+				lastChatQueue = selectedQueue;
+				selectedQueue->startIndexForScrolling = 0;
+				globalChatQueue.color = DirectXHook::COLOR_YELLOW;
+				gameChatQueue.color = DirectXHook::COLOR_GREEN;
+				currentBacklogIndex = -1;
+				break;
+			}
+			else if (selectedQueue == &gameChatQueue)
+			{
+				selectedQueue = &globalChatQueue;
+				lastChatQueue = selectedQueue;
+				selectedQueue->startIndexForScrolling = 0;
+				globalChatQueue.color = DirectXHook::COLOR_GREEN;
+				gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+				currentBacklogIndex = -1;
+				break;
+			}
+		}
+		
+		if (currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
 			if (tabHitLast)
 			{
@@ -252,45 +268,12 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		}
 		else
 		{
-
-			if (GetAsyncKeyState(VK_SHIFT))
-			{
-				char vChar = !capsLockToggled ? 'V' : 'v';
-				currentInput.type(vChar);
-			}
-			else
-			{
-				char vChar = !capsLockToggled ? 'v' : 'V';
-				currentInput.type(vChar);
-			}
+			handleDefaultKeyInput(vKey);
 		}
 		break;
 
 	default:
-		WORD buf;
-		BYTE keysDown[256] = {};
-
-		if (GetAsyncKeyState(VK_SHIFT) & 0x8000) // 0x8000 = 0b1000000000000000
-		{
-			keysDown[VK_SHIFT] = 0x80; // sets highest-order bit to 1: 0b10000000
-		}
-
-		if (capsLockToggled)
-		{
-			keysDown[VK_CAPITAL] = 0x1; // sets lowest-order bit to 1: 0b00000001
-		}
-
-		int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
-
-		if (retVal == 1)
-		{
-			currentInput.type(buf & 0x00ff);
-		}
-		else if (retVal == 2)
-		{
-			currentInput.type(buf >> 8);
-			currentInput.type(buf & 0x00ff);
-		}
+		handleDefaultKeyInput(vKey);
 		break;
 	}
 
@@ -337,4 +320,32 @@ std::string GameConsole::GenerateIRCNick(std::string name, uint64_t uid)
 
 	ircNick = "dew" + ircNick;
 	return ircNick;
+}
+
+void GameConsole::handleDefaultKeyInput(USHORT vKey)
+{
+	WORD buf;
+	BYTE keysDown[256] = {};
+
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) // 0x8000 = 0b1000000000000000
+	{
+		keysDown[VK_SHIFT] = 0x80; // sets highest-order bit to 1: 0b10000000
+	}
+
+	if (capsLockToggled)
+	{
+		keysDown[VK_CAPITAL] = 0x1; // sets lowest-order bit to 1: 0b00000001
+	}
+
+	int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
+
+	if (retVal == 1)
+	{
+		currentInput.type(buf & 0x00ff);
+	}
+	else if (retVal == 2)
+	{
+		currentInput.type(buf >> 8);
+		currentInput.type(buf & 0x00ff);
+	}
 }

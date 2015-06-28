@@ -65,7 +65,7 @@ void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 	pushLineFromGameToUI(preparedLineForUI);
 }
 
-ConsoleQueue::ConsoleQueue() : Queue(DirectXHook::COLOR_YELLOW)
+ConsoleQueue::ConsoleQueue() : Queue(0)
 {
 }
 
