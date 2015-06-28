@@ -13,7 +13,6 @@ DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
 - implement passworded server support to URI protocol (sample server browser does it like "dorito:127.0.0.1/password here", this isn't in skeetlauncher yet)
 - allow the user to choose the update channel they want to use (channels.json on the update server will list the channel names and urls)
-- remove dodger
 
 Master server:
 - store stats data on at least one master, stats display site doesn't have to be ready yet.. but we MUST save peoples stats on at least one master
