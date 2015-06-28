@@ -18,7 +18,6 @@ private:
 	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
 	static void startIRCBackend();
-	int getMsSinceLastReturnPressed();
 	void hideConsole();
 	void showConsole();
 	void initPlayerName();
@@ -33,11 +32,7 @@ public:
 	int tryCount = 0;
 	std::string commandPriorComplete = "";
 	std::vector<std::string> currentCommandList = std::vector < std::string > {};
-#ifdef _DEBUG
-	Queue* selectedQueue = &consoleQueue;
-#else
 	Queue* selectedQueue = &globalChatQueue;
-#endif
 	std::string playerName = "";
 	int lastTimeConsoleBlink = 0;
 	bool consoleBlinking = false;
@@ -48,6 +43,7 @@ public:
 	int getMsSinceLastConsoleBlink();
 	void peekConsole();
 	void virtualKeyCallBack(USHORT vKey);
+	void mouseCallBack(RAWMOUSE mouseInfo);
 	void doTextInput(int characterIndex, char character);
 	void checkForReturnKey();
 

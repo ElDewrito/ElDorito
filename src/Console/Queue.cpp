@@ -24,13 +24,7 @@ void Queue::pushLineFromGameToUI(std::string line)
 	GameConsole::Instance().peekConsole();
 }
 
-GlobalChatQueue::GlobalChatQueue() : Queue(
-#ifdef _DEBUG
-	DirectXHook::COLOR_YELLOW
-#else
-	DirectXHook::COLOR_GREEN
-#endif
-	)
+GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_GREEN)
 {
 }
 
@@ -71,13 +65,7 @@ void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 	pushLineFromGameToUI(preparedLineForUI);
 }
 
-ConsoleQueue::ConsoleQueue() : Queue(
-#ifdef _DEBUG
-	DirectXHook::COLOR_GREEN
-#else
-	DirectXHook::COLOR_YELLOW
-#endif
-	)
+ConsoleQueue::ConsoleQueue() : Queue(DirectXHook::COLOR_YELLOW)
 {
 }
 

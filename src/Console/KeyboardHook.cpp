@@ -18,6 +18,10 @@ LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wP
 			{
 				GameConsole::Instance().virtualKeyCallBack(rwInput->data.keyboard.VKey);
 			}
+			else if (rwInput->header.dwType == RIM_TYPEMOUSE)
+			{
+				GameConsole::Instance().mouseCallBack(rwInput->data.mouse);
+			}
 		}
 	}
 

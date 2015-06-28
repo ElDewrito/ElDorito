@@ -118,7 +118,7 @@ void DirectXHook::drawChatInterface()
 
 	y -= verticalSpacingBetweenLinesAndInputBox;
 
-	for (int i = console.selectedQueue->startIndexForUI; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForUI; i++)
+	for (int i = console.selectedQueue->startIndexForScrolling; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForScrolling; i++)
 	{
 		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str());
 		y -= fontHeight + verticalSpacingBetweenEachLine;

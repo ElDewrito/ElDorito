@@ -30,11 +30,6 @@ bool GameConsole::isConsoleShown() {
 	return boolShowConsole;
 }
 
-int GameConsole::getMsSinceLastReturnPressed()
-{
-	return GetTickCount() - lastTimeConsoleShown;
-}
-
 int GameConsole::getMsSinceLastConsoleOpen()
 {
 	return GetTickCount() - lastTimeConsoleShown;
@@ -57,7 +52,6 @@ void GameConsole::hideConsole()
 	currentInput.set("");
 
 	// Enables game keyboard input and disables our keyboard hook
-
 	RAWINPUTDEVICE Rid;
 	Rid.usUsagePage = 0x01;
 	Rid.usUsage = 0x06;
@@ -71,6 +65,7 @@ void GameConsole::hideConsole()
 
 void GameConsole::showConsole()
 {
+	selectedQueue->startIndexForScrolling = 0;
 	boolShowConsole = true;
 	capsLockToggled = GetKeyState(VK_CAPITAL) & 1;
 
@@ -85,7 +80,6 @@ void GameConsole::showConsole()
 		consoleQueue.pushLineFromGameToUI("Registering keyboard failed");
 	}
 }
-
 
 void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
@@ -130,7 +124,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 	case VK_F1:
 		selectedQueue = &consoleQueue;
-		selectedQueue->startIndexForUI = 0;
+		selectedQueue->startIndexForScrolling = 0;
 		consoleQueue.color = DirectXHook::COLOR_GREEN;
 		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
 		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
@@ -139,7 +133,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 	case VK_F2:
 		selectedQueue = &globalChatQueue;
-		selectedQueue->startIndexForUI = 0;
+		selectedQueue->startIndexForScrolling = 0;
 		consoleQueue.color = DirectXHook::COLOR_YELLOW;
 		globalChatQueue.color = DirectXHook::COLOR_GREEN;
 		gameChatQueue.color = DirectXHook::COLOR_YELLOW;
@@ -148,7 +142,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 
 	case VK_F3:
 		selectedQueue = &gameChatQueue;
-		selectedQueue->startIndexForUI = 0;
+		selectedQueue->startIndexForScrolling = 0;
 		consoleQueue.color = DirectXHook::COLOR_YELLOW;
 		globalChatQueue.color = DirectXHook::COLOR_YELLOW;
 		gameChatQueue.color = DirectXHook::COLOR_GREEN;
@@ -160,16 +154,16 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	case VK_PRIOR:
-		if (selectedQueue->startIndexForUI < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
+		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
-			selectedQueue->startIndexForUI++;
+			selectedQueue->startIndexForScrolling++;
 		}
 		break;
 
 	case VK_NEXT:
-		if (selectedQueue->startIndexForUI > 0)
+		if (selectedQueue->startIndexForScrolling > 0)
 		{
-			selectedQueue->startIndexForUI--;
+			selectedQueue->startIndexForScrolling--;
 		}
 		break;
 
@@ -304,9 +298,30 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 	tabHitLast = vKey == VK_TAB;
 }
 
+void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
+{
+	if (mouseInfo.usButtonFlags == RI_MOUSE_WHEEL)
+	{
+		if ((short) mouseInfo.usButtonData > 0)
+		{
+			if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
+			{
+				selectedQueue->startIndexForScrolling++;
+			}
+		}
+		else
+		{
+			if (selectedQueue->startIndexForScrolling > 0)
+			{
+				selectedQueue->startIndexForScrolling--;
+			}
+		}
+	}
+}
+
 void GameConsole::checkForReturnKey()
 {
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastReturnPressed() > 500 && *((uint16_t*)0x244D24A) != 16256) { // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastConsoleOpen() > 500 && *((uint16_t*)0x244D24A) != 16256) { // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 		showConsole();
 		lastTimeReturnPressed = GetTickCount();
 	}
