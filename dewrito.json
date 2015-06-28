@@ -54,6 +54,11 @@
             "stats": "http://argo.alligo.co/stats"
         },
         {
+            "list": "http://80.240.130.4:8117/list",
+            "announce": "http://80.240.130.4:8117/announce",
+            "stats": "http://80.240.130.4:8117/stats"
+        },
+        {
             "list": "http://192.168.40.130/list",
             "announce": "http://192.168.40.130/announce",
             "stats": "http://192.168.40.130/stats"
