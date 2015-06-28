@@ -8,12 +8,14 @@
 #ifdef _WINDOWS
 #define _CRT_SECURE_NO_WARNINGS
 #include <Windows.h>
+
 #else
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #endif
 #include <stdio.h>
+
 #include "../Console/GameConsole.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
@@ -21,7 +23,12 @@
 #include <teamspeak/serverlib.h>
 
 
-
+#ifdef _WIN32
+#define snprintf sprintf_s
+#define SLEEP(x) Sleep(x)
+#else
+#define SLEEP(x) usleep(x*1000)
+#endif
 
 /*
 * Callback when client has connected.
@@ -348,7 +355,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	}
 
 	while (true){
-		
+		SLEEP(200);
 	}
 
 	/* Stop virtual server */

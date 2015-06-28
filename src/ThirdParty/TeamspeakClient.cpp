@@ -1217,29 +1217,23 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	static char ipAddrStr[64];
 
 	if (&ElDorito::IsHostPlayer){
-		if (strcmp(ipAddrStr, "0.0.0.0")){
-			sprintf(ipAddrStr, "localhost");
-		}
+		sprintf(ipAddrStr, "localhost");
 	}
 	else
 	{
 		uint32_t playerInfoBase = 0x2162E08;
+		//uint32_t ipAddr = Pointer(playerInfoBase + (5696 * 0) - 88).Read<uint32_t>();
 		uint32_t ipAddr = *(uint32_t*)(Modules::ModuleServer::Instance().SyslinkData + 0x170);
 
 		struct in_addr ip_addr;
 		ip_addr.s_addr = ipAddr;
-
-
 		sprintf(ipAddrStr, "%d.%d.%d.%d",
 			(ipAddr >> 24) & 0xFF,
 			(ipAddr >> 16) & 0xFF,
 			(ipAddr >> 8) & 0xFF,
 			(ipAddr)& 0xFF);
-
-		if (strcmp(ipAddrStr, "0.0.0.0")){
-			sprintf(ipAddrStr, "localhost");
-		}
 	}
+
 	console.consoleQueue.pushLineFromGameToUI("Attemtping connection to VoIP server (" + std::string(ipAddrStr) + ")");
 
 	if ((error = ts3client_startConnection(scHandlerID, identity, std::string(ipAddrStr).c_str(), 9987, console.playerName.c_str(), NULL, "", "secret")) != ERROR_ok) {
@@ -1289,6 +1283,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 
 	while (!abort) {
+		SLEEP(200);
 		//Loop
 	}
     /* Simple commandline interface */
