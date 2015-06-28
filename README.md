@@ -1,5 +1,6 @@
 # ElDewrito
-![Dorite](https://media.tumblr.com/443e39ef17d62ccbc6e0f7a74c8fa431/tumblr_inline_neor2pzD3j1qb9x1g.gif)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master&retina=true)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## What is ElDewrito?
 ElDewrito is a fan mod for Halo Online that re-enables removed Halo 3 content, as there is no telling if Halo 3 will ever be brought to PC.
@@ -15,8 +16,6 @@ Although it's recommended that you come talk to us on IRC first before starting 
 To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMake installed.
 
 Once they're installed just run the generate_vs2013_sln_files.bat, then open up build/ElDorito.sln and you should be able to build the dll fine.
-
-[![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master&retina=true)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## Donations
 We don't accept donations, donate money to your favorite charity instead.
