@@ -91,15 +91,6 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 		Modules::CommandMap::Instance().ExecuteQueue();
 		executeCommandQueue = false;
 	}
-
-	if (consoleLoaded)
-	{
-		HWND hWnd = *((HWND*)0x199C014);
-		if (hWnd == GetForegroundWindow())
-		{
-			GameConsole::Instance().checkForReturnKey();
-		}
-	}
 }
 
 namespace
@@ -127,7 +118,6 @@ std::string ElDorito::GetDirectory()
 void ElDorito::OnMainMenuShown()
 {
 	executeCommandQueue = true;
-	consoleLoaded = true;
 	DirectXHook::hookDirectX();
 	GameConsole::Instance();
 }

@@ -101,7 +101,6 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			selectedQueue->pushLineFromKeyboardToGame(currentInput.currentInput);
 		}
 		hideConsole();
-		lastTimeReturnPressed = GetTickCount();
 		break;
 
 	case VK_ESCAPE:
@@ -316,14 +315,6 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 				selectedQueue->startIndexForScrolling--;
 			}
 		}
-	}
-}
-
-void GameConsole::checkForReturnKey()
-{
-	if ((GetAsyncKeyState(VK_RETURN) & 0x8000) && getMsSinceLastConsoleOpen() > 500 && *((uint16_t*)0x244D24A) != 16256) { // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
-		showConsole();
-		lastTimeReturnPressed = GetTickCount();
 	}
 }
 

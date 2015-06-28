@@ -15,7 +15,6 @@ class GameConsole : public Utils::Singleton<GameConsole>
 private:
 	bool boolShowConsole = false;
 	bool capsLockToggled = false;
-	int lastTimeReturnPressed = 0;
 	int lastTimeConsoleShown = 0;
 	static void startIRCBackend();
 	void hideConsole();
@@ -44,8 +43,5 @@ public:
 	void peekConsole();
 	void virtualKeyCallBack(USHORT vKey);
 	void mouseCallBack(RAWMOUSE mouseInfo);
-	void doTextInput(int characterIndex, char character);
-	void checkForReturnKey();
-
 	std::string GenerateIRCNick(std::string name, uint64_t uid);
 };
