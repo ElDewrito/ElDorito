@@ -92,6 +92,6 @@ void ConsoleQueue::pushLineFromGameToUIMultipleLines(std::string multipleLines)
 
 void ConsoleQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	pushLineFromGameToUI(line);
+	pushLineFromGameToUI(">" + line);
 	pushLineFromGameToUIMultipleLines(Modules::CommandMap::Instance().ExecuteCommand(line, true));
 }

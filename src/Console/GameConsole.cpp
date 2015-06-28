@@ -62,7 +62,6 @@ void GameConsole::hideConsole()
 
 void GameConsole::displayChat(bool console)
 {
-	selectedQueue->startIndexForScrolling = 0;
 	capsLockToggled = GetKeyState(VK_CAPITAL) & 1;
 
 	if (console)
@@ -80,6 +79,8 @@ void GameConsole::displayChat(bool console)
 		showChat = true;
 	}
 
+	selectedQueue->startIndexForScrolling = 0;
+
 	// Disables game keyboard input and enables our keyboard hook
 	RAWINPUTDEVICE Rid;
 	Rid.usUsagePage = 0x01;
@@ -96,17 +97,19 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
 	if (!showChat && !showConsole)
 	{
-		if (*((uint16_t*)0x244D24A) != 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+		if (GetAsyncKeyState(VK_TAB) & 0x8000)
 		{
-			if (vKey == VK_RETURN)
-			{
-				displayChat(false);
-			}
+			return;
+		}
 
-			if (vKey == VK_OEM_3) // ` key
-			{
-				displayChat(true);
-			}
+		if (vKey == VK_RETURN)
+		{
+			displayChat(false);
+		}
+
+		if (vKey == VK_OEM_3) // ` key
+		{
+			displayChat(true);
 		}
 		return;
 	}
@@ -118,6 +121,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		{
 			selectedQueue->unchangingBacklog.push_back(currentInput.currentInput);
 			selectedQueue->pushLineFromKeyboardToGame(currentInput.currentInput);
+			selectedQueue->startIndexForScrolling = 0;
 		}
 		hideConsole();
 		break;

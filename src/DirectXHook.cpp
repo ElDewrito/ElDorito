@@ -44,7 +44,7 @@ int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
 void DirectXHook::drawChatInterface()
 {
 	auto& console = GameConsole::Instance();
-	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.showChat && !console.showConsole) || *((uint16_t*)0x244D24A) == 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
+	if ((console.getMsSinceLastConsoleOpen() > 10000 && !console.showChat && !console.showConsole) || (GetAsyncKeyState(VK_TAB) & 0x8000 && !console.showChat && !console.showConsole))
 	{
 		return;
 	}
