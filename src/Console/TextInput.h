@@ -13,7 +13,8 @@ public:
 
 	void type(char c)
 	{
-		currentInput.insert(currentPointerIndex, &c);
+		const std::string temp(1, c);
+		currentInput.insert(currentPointerIndex, temp);
 		currentPointerIndex++;
 	}
 
