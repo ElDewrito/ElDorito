@@ -16,7 +16,7 @@ To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMa
 
 Once they're installed just run the generate_vs2013_sln_files.bat, then open up build/ElDorito.sln and you should be able to build the dll fine.
 
-![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master&retina=true)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master&retina=true)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## Donations
 We don't accept donations, donate money to your favorite charity instead.
