@@ -8,6 +8,9 @@ ElDewrito:
 - also fix chat UI showing the full string (PRIVMSG !dew1234 #haloonline : Hi there!) for some messages
 - and TEST TEST TEST the chat UI
 - (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
+- fix this: chat ui doesn't work during loading screen because it relies on tick function to check for enter key (game doesn't tick in loading screen)
+- press ` should take you to console; pressing enter should never take you to console
+- add transparency
 
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
