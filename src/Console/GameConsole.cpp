@@ -7,7 +7,9 @@
 #include "../Pointer.hpp"
 #include <openssl/sha.h>
 #include <algorithm>
-
+#include "../ThirdParty/TeamspeakServer.hpp"
+#include "../ThirdParty/TeamspeakClient.hpp"
+#include "../ElDorito.hpp"
 void GameConsole::startIRCBackend()
 {
 	IRCBackend::Instance();
@@ -20,6 +22,7 @@ GameConsole::GameConsole()
 	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	consoleQueue.pushLineFromGameToUI("Enter help or help <command> to get started!");
 	consoleQueue.pushLineFromGameToUI("Press page-up or page-down while chat is open to scroll.");
+	consoleQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Hit F4 in game to start server, hit F5 to join to host's server.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initPlayerName();
@@ -142,6 +145,21 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		{
 			currentInput.del();
 		}
+		break;
+	case VK_F4:
+		//Start up TeamspeakServer
+
+		if (&ElDorito::IsHostPlayer){
+			CreateThread(0, 0, StartTeamspeakServer, 0, 0, 0);
+		}
+		else
+		{
+			consoleQueue.pushLineFromGameToUI("You are not the server host, you can't start a VoiP Server right now.");
+		}
+		break;
+	case VK_F5:
+		//Start up TeamspeakClient
+		CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 		break;
 
 	case VK_CAPITAL:
