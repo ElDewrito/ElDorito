@@ -134,6 +134,10 @@ void IRCBackend::ircChatLoop()
 				else if (messageIsInChannel(bufferSplitBySpace, gameChatChannel))
 					extractMessageAndSendToUI(bufferSplitBySpace, &console.gameChatQueue);
 			}
+			else if (bufferSplitByNewLines.at(i).find("Erroneous Nickname") != std::string::npos)
+			{
+				GameConsole::Instance().globalChatQueue.pushLineFromGameToUI("Error: invalid username.");
+			}
 		}
 	}
 
