@@ -114,8 +114,6 @@ namespace
 		SHA256_Final(hash, &sha256);
 		memcpy(&uid, hash, sizeof(uint64_t)); // use first 8 bytes of SHA256(pubKey) as UID
 
-		Utils::DebugLog::Instance().Log("UidGen", "Player UID: %016llX", uid);
-
 		UidPtr.Write<uint64_t>(uid);
 		UidValidPtr.Write(true);
 	}

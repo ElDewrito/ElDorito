@@ -2,6 +2,8 @@
 
 #include <cstdarg>
 #include <fstream>
+#include <time.h>
+#include <iomanip>
 
 #include "../Modules/ModuleGame.hpp"
 
@@ -31,7 +33,18 @@ namespace Utils
 
 		std::ofstream outfile;
 		outfile.open(gameModule.VarLogName->ValueString, std::ios_base::app);
-		outfile << '[' << module << "] " << buff << '\n';
+		if (outfile.fail())
+			return; // TODO: give output if the log stuff failed
+
+		time_t t = time(NULL);
+		tm ourLocalTime;
+		if (localtime_s(&ourLocalTime, &t) != 0)
+		{
+			outfile.close(); // TODO: give output that localtime failed (when will it ever fail tho?)
+			return;
+		}
+
+		outfile << '[' << std::put_time(&ourLocalTime, "%H:%M:%S") << "] " << module << " - " << buff << '\n';
 		outfile.close();
 	}
 }

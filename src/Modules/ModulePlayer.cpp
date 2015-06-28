@@ -22,8 +22,19 @@ namespace
 		return true;
 	}
 
-	bool VariablePlayerUserIDUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandPlayerPrintUID(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		bool uidIsValid = Pointer::Base(0x15AB728).Read<bool>();
+		if (!uidIsValid)
+		{
+			returnInfo = "Player UID not set";
+			return true;
+		}
+
+		uint64_t uid = Pointer::Base(0x15AB730).Read<uint64_t>();
+		std::string uidStr;
+		Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
+		returnInfo = "Player UID: 0x" + uidStr;
 		return true;
 	}
 }
@@ -52,6 +63,8 @@ namespace Modules
 		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
 		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
+
+		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 
 		// patch Game_GetPlayerName to get the name from our field
 		Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);
