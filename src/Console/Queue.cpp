@@ -55,6 +55,13 @@ void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
 	auto& ircBackend = IRCBackend::Instance();
 	auto& console = GameConsole::Instance();
+
+	if (ircBackend.gameChatChannel.empty())
+	{
+		pushLineFromGameToUI("Error: not connected to a game chat.");
+		return;
+	}
+
 	ircBackend.sendMessageToChannel(ircBackend.gameChatChannel, &console.gameChatQueue, line);
 
 	std::string preparedLineForUI = GameConsole::Instance().playerName;

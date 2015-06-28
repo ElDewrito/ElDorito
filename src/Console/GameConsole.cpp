@@ -120,12 +120,14 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			currentInput.backspace();
 		}
 		break;
+
 	case VK_DELETE:
 		if (!currentInput.currentInput.empty())
 		{
 			currentInput.del();
 		}
 		break;
+
 	case VK_F1:
 		selectedQueue = &consoleQueue;
 		selectedQueue->startIndexForUI = 0;
@@ -195,12 +197,15 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			currentInput.currentInput = selectedQueue->unchangingBacklog.at(selectedQueue->unchangingBacklog.size() - currentBacklogIndex - 1);
 		}
 		break;
+
 	case VK_LEFT:
 		currentInput.left();
 		break;
+
 	case VK_RIGHT:
 		currentInput.right();
 		break;
+
 	case VK_TAB:
 		if (dynamic_cast<ConsoleQueue*>(selectedQueue) && currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
@@ -235,6 +240,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			}
 		}
 		break;
+
 	case 'V':
 		if (GetAsyncKeyState(VK_CONTROL)) // CTRL+V pasting
 		{
