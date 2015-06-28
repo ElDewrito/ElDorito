@@ -85,7 +85,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 {
 	if (!isConsoleShown())
 	{
-		if (vKey == VK_RETURN)
+		if (vKey == VK_RETURN && *((uint16_t*)0x244D24A) != 16256) // 0x244D24A = 16256 means that tab is pressed in game (shows player k/d ratios)
 		{
 			showConsole();
 		}
