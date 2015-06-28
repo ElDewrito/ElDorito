@@ -9,6 +9,7 @@ ElDewrito:
 - and TEST TEST TEST the chat UI
 - (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
 - add transparency
+- fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
 
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
