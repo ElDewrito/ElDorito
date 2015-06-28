@@ -96,8 +96,6 @@ void IRCBackend::ircChatLoop()
 	int inDataLength;
 
 	while ((inDataLength = recv(winSocket, buffer, 512, 0)) > 0) { // received a packet from IRC server
-		// OutputDebugString(buffer); // use this line to debug IRC backend
-
 		buffer[inDataLength] = '\0'; // recv function doesn't put a null-terminator character
 
 		std::vector<std::string> bufferSplitByNewLines;
@@ -105,6 +103,8 @@ void IRCBackend::ircChatLoop()
 
 		for (size_t i = 0; i < bufferSplitByNewLines.size(); i++)
 		{
+			// OutputDebugString(bufferSplitByNewLines.at(i).c_str()); // use this line to debug IRC backend
+
 			if (receivedPING(bufferSplitByNewLines.at(i)))
 			{
 				std::string sendBuffer = bufferSplitByNewLines.at(i);
