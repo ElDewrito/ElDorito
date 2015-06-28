@@ -71,6 +71,10 @@ set(SOURCE_FILES
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
     src/ThirdParty/HttpRequest.hpp
+    src/ThirdParty/TeamspeakClient.cpp
+    src/ThirdParty/TeamspeakClient.hpp
+    src/ThirdParty/TeamspeakServer.cpp
+    src/ThirdParty/TeamspeakServer.hpp
     src/Utils/Assert.cpp
     src/Utils/Assert.hpp
     src/Utils/Bits.hpp
@@ -106,11 +110,13 @@ set(SOURCE_FILES
 include_directories($ENV{DXSDK_DIR}/Include)
 include_directories(${CMAKE_SOURCE_DIR}/libs/detours/include)
 include_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include)
+include_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/include)
 
 # Library directories
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 
 # Generate DLL from source files
 add_library(ElDorito SHARED ${SOURCE_FILES})
@@ -148,6 +154,10 @@ target_link_libraries(ElDorito Version)
 target_link_libraries(ElDorito ws2_32)
 target_link_libraries(ElDorito detours)
 target_link_libraries(ElDorito libeay32MT)
+target_link_libraries(ElDorito ts3client_win32)
+target_link_libraries(ElDorito ts3client_win64)
+target_link_libraries(ElDorito ts3server_win32)
+target_link_libraries(ElDorito ts3server_win64)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")
