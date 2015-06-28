@@ -1,6 +1,4 @@
-# ElDewrito
-
-[![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master&retina=true)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
+# ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## What is ElDewrito?
 ElDewrito is a fan mod for Halo Online that re-enables removed Halo 3 content, as there is no telling if Halo 3 will ever be brought to PC.
