@@ -33,7 +33,7 @@ after_build:
   - copy dewrito.json C:\projects\eldorito\build\Release\  
   - xcopy C:\projects\eldorito\libs\teamspeak\bin C:\projects\eldorito\build\Release /S /Y
   - cd C:\projects\eldorito\build\Release\
-  - 7z a c:\projects\eldorito\eldorito.zip * -tzip
+  - 7z a c:\projects\eldorito\eldorito.zip * -tzip -mx=9
   - cd c:\projects\eldorito
 
 artifacts:
