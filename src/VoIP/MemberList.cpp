@@ -7,7 +7,7 @@ void MemberList::ShowPlayerTalkEvent(std::string name)
 
 void MemberList::HidePlayerTalkEvent(std::string name)
 {
-	for (int i = 0; i < memberList.size(); i++)
+	for (size_t i = 0; i < memberList.size(); i++)
 	{
 		if (memberList.at(i) == name)
 		{

@@ -1,6 +1,7 @@
 #include "DirectXHook.hpp"
 #include "Console/GameConsole.hpp"
 #include <detours.h>
+#include "VoIP/MemberList.hpp"
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
@@ -85,6 +86,8 @@ void DirectXHook::drawVoipSettings()
 
 void DirectXHook::drawVoipMembers()
 {
+	auto& memberList = MemberList::Instance();
+
 	int x = (int) (0.86625 * *horizontalRes);
 	int y = (int) (0.4 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
@@ -93,17 +96,12 @@ void DirectXHook::drawVoipMembers()
 	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
 	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
 
-	drawBox(x, y, getTextWidth("Player Name 1", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 1", normalSizeFont);
-	y += fontHeight + verticalSpacingBetweenEachLine;
-
-	drawBox(x, y, getTextWidth("Player Name 2", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 2", normalSizeFont);
-	y += fontHeight + verticalSpacingBetweenEachLine;
-
-	drawBox(x, y, getTextWidth("Player Name 3", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 3", normalSizeFont);
-	y += fontHeight + verticalSpacingBetweenEachLine;
+	for (size_t i = 0; i < memberList.memberList.size(); i++)
+	{
+		drawBox(x, y, getTextWidth(memberList.memberList.at(i).c_str(), normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, memberList.memberList.at(i).c_str(), normalSizeFont);
+		y += fontHeight + verticalSpacingBetweenEachLine;
+	}
 }
 
 void DirectXHook::drawChatInterface()
@@ -240,7 +238,7 @@ void DirectXHook::hookDirectX()
 	}
 }
 
-void DirectXHook::drawText(int x, int y, DWORD color, char* text, LPD3DXFONT pFont)
+void DirectXHook::drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont)
 {
 	RECT rect;
 	SetRect(&rect, x, y, x, y);

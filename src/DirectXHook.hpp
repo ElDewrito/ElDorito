@@ -17,7 +17,7 @@ private:
 	static uint32_t* getDirectXVTableMethod1();
 	static uint32_t* getDirectXVTableMethod2();
 	static uint32_t* getDirectXVTableMethod3();
-	static void drawText(int x, int y, DWORD color, char* text, LPD3DXFONT pFont);
+	static void drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont);
 	static void drawRect(int x, int y, int width, int height, DWORD Color);
 	static void drawHorizontalLine(int x, int y, int width, D3DCOLOR Color);
 	static void drawVerticalLine(int x, int y, int height, D3DCOLOR Color);
