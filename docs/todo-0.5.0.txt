@@ -10,7 +10,7 @@ ElDewrito:
 - (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
 - add transparency
 - fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
-
+- force chat ui to game chat when a game starts
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
 - implement passworded server support to URI protocol (sample server browser does it like "dorito:127.0.0.1/password here", this isn't in skeetlauncher yet)
@@ -28,12 +28,9 @@ Server browser:
 VoIp:
 - SDK Documentation:          https://halowiki.llf.to/ts3_sdk/client_html/index.html
 - Mute clients locally: (D3d menu) https://halowiki.llf.to/ts3_sdk/client_html/ar01s24.html
-- Push to talk: (D3d menu)  https://halowiki.llf.to/ts3_sdk/client_html/ar01s30.html#faq_1
-- ~~Disconnect server when no longer connected to a host's game.    https://halowiki.llf.to/ts3_sdk/client_html/ar01s10.html~~
-- Removing Debugging for release builds
-- ~~Automatically start a VoIP server (if settings are set to) when someone switches the gametype to "online" from the lobby.~~
-- ~~Automatically try to join VoIP server from lobby when joining a new lobby.~~
+- kick clients from teamspeak server
 - D3d menu with microphone settings, Voice activation detection, auto gain control, mic volume, etc
 - D3d menu with current list of people in VoIP with mute buttons (if server host, kick/gag!)
-- D3d menu with current person talking https://blam.halo.click/4KTkOj.jpg
+- D3d menu of current players should show their team color (or grey if non team game) also would be nice to determain if the player is dead or alive while talking (maybe put a skull next to their name)
+- Add preferences and command arguments for changing and storing VoIP settings
 - More to come.
