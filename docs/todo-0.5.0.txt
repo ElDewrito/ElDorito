@@ -2,15 +2,7 @@ ElDewrito:
 - implement stats submissions (find endgame hook (done, need to fix it up a bit though) + find unique gameID/matchID field)
 - fix info server showing blank variant name
 - fix info server still running after host joins a different game
-- fix users still being in the game IRC channel after they've left
-- add a way for (server host/OP of game IRC channel) to kick everyone from the channel when server closes down
-- fix chat UI showing game chat msgs on global chat tab
-- also fix chat UI showing the full string (PRIVMSG !dew1234 #haloonline : Hi there!) for some messages
-- and TEST TEST TEST the chat UI
-- (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
-- add transparency
-- fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
-- force chat ui to game chat when a game starts
+
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
 - implement passworded server support to URI protocol (sample server browser does it like "dorito:127.0.0.1/password here", this isn't in skeetlauncher yet)
@@ -27,10 +19,23 @@ Server browser:
 
 VoIp:
 - SDK Documentation:          https://halowiki.llf.to/ts3_sdk/client_html/index.html
-- Mute clients locally: (D3d menu) https://halowiki.llf.to/ts3_sdk/client_html/ar01s24.html
+- Mute clients locally: (add button in D3d menu) https://halowiki.llf.to/ts3_sdk/client_html/ar01s24.html
 - kick clients from teamspeak server
 - D3d menu with microphone settings, Voice activation detection, auto gain control, mic volume, etc
 - D3d menu with current list of people in VoIP with mute buttons (if server host, kick/gag!)
 - D3d menu of current players should show their team color (or grey if non team game) also would be nice to determain if the player is dead or alive while talking (maybe put a skull next to their name)
 - Add preferences and command arguments for changing and storing VoIP settings
 - More to come.
+- use upnp to port forward
+
+Chat UI:
+- fix users still being in the game IRC channel after they've left
+- add a way for (server host/OP of game IRC channel) to kick everyone from the channel when server closes down
+- fix chat UI showing game chat msgs on global chat tab
+- fix chat UI showing the full string (PRIVMSG !dew1234 #haloonline : Hi there!) for some messages
+- (possibly) make chat UI key mapped to the "Chat" ingame key (right now remapping ingame keys seems broke though, but I'm sure it worked fine before)
+- add transparency
+- add color codes
+- fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
+- force chat ui to game chat when a game starts
+- TEST TEST TEST the UI for bugs
