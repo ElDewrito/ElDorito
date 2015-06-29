@@ -89,6 +89,8 @@ set(SOURCE_FILES
     src/Utils/Utils.hpp
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
+    src/VoIP/MemberList.cpp
+    src/VoIP/MemberList.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
     src/ElDorito.cpp
