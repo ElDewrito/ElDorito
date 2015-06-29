@@ -9,6 +9,9 @@ namespace Modules
 	public:
 		Command* VarVoIPPushToTalk;
 		Command* VarVoIPVolumeModifier;
+		Command* VarVoIPAGC;
+		Command* VarVoIPEchoCancellation;
+		Command* VarVoIPVADLevel;
 
 		ModuleVoIP();
 	};
