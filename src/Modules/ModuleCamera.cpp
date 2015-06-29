@@ -50,31 +50,31 @@ namespace
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
 
 		size_t offset = 0x166ACB0;
-		if (!mode.compare("first"))
+		if (!mode.compare("first")) // c_first_person_camera
 			offset = 0x166ACB0;
-		else if (!mode.compare("third"))
+		else if (!mode.compare("third")) // c_following_camera
 			offset = 0x16724D4;
-		/*else if (!mode.compare("dead"))
+		/*else if (!mode.compare("dead")) // c_dead_camera
 			offset = 0x16725DC;
-		else if (!mode.compare("scripted"))
+		else if (!mode.compare("scripted")) // c_scripted_camera
 			offset = 0x167280C;
-		else if (!mode.compare("pancam1"))
+		else if (!mode.compare("pancam1")) // c_director
 			offset = 0x165A64C;
 		else if (!mode.compare("pancam2"))
 			offset = 0x165A680;
 		else if (!mode.compare("pancam3"))
 			offset = 0x165A674;
-		else if (!mode.compare("unk1"))
+		else if (!mode.compare("unk1")) // c_orbiting_camera
 			offset = 0x167265C;
-		else if (!mode.compare("unk2"))
+		else if (!mode.compare("flying")) // c_flying_camera
 			offset = 0x16726D0;
-		else if (!mode.compare("unk3"))
+		else if (!mode.compare("unk3")) // c_static_camera
 			offset = 0x16728A8;
-		else if (!mode.compare("unk4"))
+		else if (!mode.compare("unk4")) // c_authored_camera
 			offset = 0x1672920;
-		else if (!mode.compare("debug1"))
+		else if (!mode.compare("debug1")) // c_camera
 			offset = 0x1672130;
-		else if (!mode.compare("debug2"))
+		else if (!mode.compare("debug2")) // c_null_camera
 			offset = 0x165A6E4;*/
 
 		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];

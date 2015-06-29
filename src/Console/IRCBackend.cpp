@@ -72,13 +72,13 @@ bool IRCBackend::initIRCChat()
 	auto& ircvars = Modules::ModuleIRC::Instance();
 	if (retVal = getaddrinfo(ircvars.VarIRCServer->ValueString.c_str(), ircvars.VarIRCServerPort->ValueString.c_str(), &hints, &ai))
 	{
-		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(retVal)));
+		console.globalChatQueue.pushLineFromGameToUI("IRC GAI error: " + std::string(gai_strerror(retVal)) + " (" + std::to_string(retVal) + ")");
 		return false;
 	}
 	winSocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (retVal = connect(winSocket, ai->ai_addr, ai->ai_addrlen))
 	{
-		console.globalChatQueue.pushLineFromGameToUI(std::string("IRC Error: ").append(gai_strerror(retVal)));
+		console.globalChatQueue.pushLineFromGameToUI("IRC connect error: " + std::string(gai_strerror(retVal)) + " (" + std::to_string(retVal) + ")");
 		return false;
 	}
 	freeaddrinfo(ai);

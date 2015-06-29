@@ -460,6 +460,8 @@ namespace
 			break;
 		}
 
+		freeaddrinfo(info);
+
 		if (!rawIpaddr)
 		{
 			returnInfo = "Unable to lookup " + address + ": No records found.";;
