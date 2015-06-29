@@ -40,6 +40,7 @@ public:
 	bool showConsole = false;
 
 	GameConsole();
+	void PushLineFromGameToUIQueues(std::string text);
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
 	void peekConsole();

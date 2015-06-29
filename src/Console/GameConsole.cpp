@@ -17,15 +17,20 @@ GameConsole::GameConsole()
 {
 	KeyboardHook::setHook();
 
-	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
-	consoleQueue.pushLineFromGameToUI("Enter help or help <command> to get started!");
-	consoleQueue.pushLineFromGameToUI("Press page-up or page-down while chat is open to scroll.");
-	consoleQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Start an online lobby to start VoIP, join a lobby to join VoIP! Hold F12 for help.");
-	globalChatQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Start an online lobby to start VoIP, join a lobby to join VoIP! Hold F12 for help.");
+	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+	PushLineFromGameToUIQueues("Press the ` key to open the console, or press ENTER to open the chat.");
+	PushLineFromGameToUIQueues("Press PAGE-UP or PAGE-DOWN while the chat is open to scroll.");
+	PushLineFromGameToUIQueues("Press F12 to open VoIP settings.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initPlayerName();
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
+}
+
+void GameConsole::PushLineFromGameToUIQueues(std::string text)
+{
+	consoleQueue.pushLineFromGameToUI(text);
+	globalChatQueue.pushLineFromGameToUI(text);
 }
 
 int GameConsole::getMsSinceLastConsoleOpen()
@@ -109,7 +114,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			displayChat(false);
 		}
 
-		if (vKey == VK_OEM_3) // ` key
+		if (vKey == VK_OEM_3 || vKey == VK_OEM_8) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
 		{
 			displayChat(true);
 		}
