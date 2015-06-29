@@ -287,6 +287,19 @@ void DirectXHook::hookDirectX()
 
 void DirectXHook::drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont)
 {
+	RECT shadow1;
+	RECT shadow2;
+	RECT shadow3;
+	RECT shadow4;
+	SetRect(&shadow1, x + 1, y + 1, x + 1, y + 1);
+	SetRect(&shadow2, x - 1, y + 1, x - 1, y + 1);
+	SetRect(&shadow3, x + 1, y - 1, x + 1, y - 1);
+	SetRect(&shadow4, x - 1, y - 1, x - 1, y - 1);
+	pFont->DrawText(NULL, text, -1, &shadow1, DT_LEFT | DT_NOCLIP, D3DCOLOR_XRGB(0, 0, 0));
+	pFont->DrawText(NULL, text, -1, &shadow2, DT_LEFT | DT_NOCLIP, D3DCOLOR_XRGB(0, 0, 0));
+	pFont->DrawText(NULL, text, -1, &shadow3, DT_LEFT | DT_NOCLIP, D3DCOLOR_XRGB(0, 0, 0));
+	pFont->DrawText(NULL, text, -1, &shadow4, DT_LEFT | DT_NOCLIP, D3DCOLOR_XRGB(0, 0, 0));
+
 	RECT rect;
 	SetRect(&rect, x, y, x, y);
 	pFont->DrawText(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, color);
