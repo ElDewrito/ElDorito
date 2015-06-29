@@ -82,9 +82,9 @@ bool IRCBackend::initIRCChat()
 		return false;
 	}
 	freeaddrinfo(ai);
-	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\n", console.playerName.c_str());
+	sprintf_s(buffer, "USER %s 0 * :#ElDorito player\r\n", console.ircName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
-	sprintf_s(buffer, "NICK %s\r\n", console.playerName.c_str());
+	sprintf_s(buffer, "NICK %s\r\n", console.ircName.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	return true;
 }
@@ -170,13 +170,13 @@ void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 		gameChatChannel = channel;
 	}
 
-	sprintf_s(buffer, "MODE %s +BIc\r\nJOIN %s\r\n", GameConsole::Instance().playerName.c_str(), channel.c_str());
+	sprintf_s(buffer, "MODE %s +BIc\r\nJOIN %s\r\n", GameConsole::Instance().ircName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 }
 
 void IRCBackend::leaveIRCChannel(std::string channel)
 {
-	sprintf_s(buffer, "MODE %s +BIc\r\nPART %s\r\n", GameConsole::Instance().playerName.c_str(), channel.c_str());
+	sprintf_s(buffer, "MODE %s +BIc\r\nPART %s\r\n", GameConsole::Instance().ircName.c_str(), channel.c_str());
 	send(winSocket, buffer, strlen(buffer), 0);
 	gameChatChannel = "";
 }

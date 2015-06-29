@@ -23,7 +23,7 @@ GameConsole::GameConsole()
 	PushLineFromGameToUIQueues("Press F12 to open VoIP settings.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
-	initPlayerName();
+	initIRCName();
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
 }
 
@@ -316,9 +316,9 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 	}
 }
 
-void GameConsole::initPlayerName()
+void GameConsole::initIRCName()
 {
-	playerName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
+	ircName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
 }
 
 std::string GameConsole::GenerateIRCNick(std::string name, uint64_t uid)

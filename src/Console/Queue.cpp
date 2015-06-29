@@ -34,7 +34,7 @@ void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
 	auto& console = GameConsole::Instance();
 	ircBackend.sendMessageToChannel(ircBackend.globalChatChannel, &console.globalChatQueue, line);
 
-	std::string preparedLineForUI = GameConsole::Instance().playerName;
+	std::string preparedLineForUI = GameConsole::Instance().ircName;
 	preparedLineForUI = preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
 	preparedLineForUI += ": ";
 	preparedLineForUI += line;
@@ -58,7 +58,7 @@ void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 
 	ircBackend.sendMessageToChannel(ircBackend.gameChatChannel, &console.gameChatQueue, line);
 
-	std::string preparedLineForUI = GameConsole::Instance().playerName;
+	std::string preparedLineForUI = GameConsole::Instance().ircName;
 	preparedLineForUI = preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
 	preparedLineForUI += ": ";
 	preparedLineForUI += line;

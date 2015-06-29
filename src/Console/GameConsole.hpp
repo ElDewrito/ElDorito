@@ -19,7 +19,7 @@ private:
 	static void startIRCBackend();
 	void hideConsole();
 	void displayChat(bool console);
-	void initPlayerName();
+	void initIRCName();
 	void handleDefaultKeyInput(USHORT vKey);
 
 public:
@@ -34,7 +34,7 @@ public:
 	std::vector<std::string> currentCommandList = std::vector < std::string > {};
 	Queue* selectedQueue = &globalChatQueue;
 	Queue* lastChatQueue = &globalChatQueue;
-	std::string playerName = "";
+	std::string ircName = "";
 	int lastTimeConsoleBlink = 0;
 	bool consoleBlinking = false;
 	bool showChat = false;
