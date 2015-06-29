@@ -153,6 +153,7 @@ void DirectXHook::drawChatInterface()
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+	size_t maxCharsPerLine = 105;
 
 	if (!normalSizeFont || fontHeight != currentFontHeight) {
 		if (normalSizeFont)
@@ -217,21 +218,14 @@ void DirectXHook::drawChatInterface()
 	{
 		std::string line = console.selectedQueue->queue.at(i);
 
-		if (getTextWidth(line.c_str(), normalSizeFont) > inputTextBoxWidth)
+		if (line.size() > maxCharsPerLine)
 		{
 			std::vector<std::string> linesWrapped = std::vector < std::string > {};
-			size_t indexRemaining = 0;
 
-			do
+			for (size_t i = 0; i < line.size(); i += maxCharsPerLine)
 			{
-				while (getTextWidth(line.c_str(), normalSizeFont) > inputTextBoxWidth)
-				{
-					line.pop_back();
-				}
-				linesWrapped.push_back(line);
-				indexRemaining += line.size();
-				line = console.selectedQueue->queue.at(i).substr(indexRemaining, console.selectedQueue->queue.at(i).size() - indexRemaining);
-			} while (indexRemaining < console.selectedQueue->queue.at(i).size());
+				linesWrapped.push_back(line.substr(i, maxCharsPerLine));
+			}
 
 			for (int i = linesWrapped.size() - 1; i >= 0; i--)
 			{
