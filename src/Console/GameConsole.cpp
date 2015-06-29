@@ -35,7 +35,7 @@ void GameConsole::PushLineFromGameToUIQueues(std::string text)
 
 int GameConsole::getMsSinceLastConsoleOpen()
 {
-	return GetTickCount() - lastTimeConsoleShown;
+	return GetTickCount() - selectedQueue->lastTimeQueueShown;
 }
 
 int GameConsole::getMsSinceLastConsoleBlink()
@@ -43,14 +43,9 @@ int GameConsole::getMsSinceLastConsoleBlink()
 	return GetTickCount() - lastTimeConsoleBlink;
 }
 
-void GameConsole::peekConsole()
-{
-	lastTimeConsoleShown = GetTickCount();
-}
-
 void GameConsole::hideConsole()
 {
-	lastTimeConsoleShown = GetTickCount();
+	selectedQueue->lastTimeQueueShown = GetTickCount();
 	showChat = false;
 	showConsole = false;
 	currentInput.set("");

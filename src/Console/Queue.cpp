@@ -21,7 +21,7 @@ void Queue::pushLineFromGameToUI(std::string line)
 	}
 	queue.at(0) = line;
 
-	GameConsole::Instance().peekConsole();
+	lastTimeQueueShown = GetTickCount();
 }
 
 GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_GREEN)

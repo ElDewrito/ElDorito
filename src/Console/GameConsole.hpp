@@ -15,7 +15,6 @@ class GameConsole : public Utils::Singleton<GameConsole>
 private:
 	const size_t INPUT_MAX_CHARS = 400;
 	bool capsLockToggled = false;
-	int lastTimeConsoleShown = 0;
 	static void startIRCBackend();
 	void hideConsole();
 	void displayChat(bool console);
@@ -44,7 +43,6 @@ public:
 	void PushLineFromGameToUIQueues(std::string text);
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
-	void peekConsole();
 	void virtualKeyCallBack(USHORT vKey);
 	void SwitchToGlobalChat();
 	void SwitchToGameChat();

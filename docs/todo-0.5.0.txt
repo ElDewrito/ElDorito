@@ -38,7 +38,3 @@ Chat UI:
 - add color codes
 - fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
 - TEST TEST TEST the UI for bugs
-
-If you're on the GlobalChat queue....
-but something is triggered to show on the consolequeue...
-the damn text shows up but obviously doesn't show the text because it's in a different queue
