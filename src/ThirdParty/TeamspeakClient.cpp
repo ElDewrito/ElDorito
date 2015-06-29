@@ -1240,7 +1240,12 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	}
 	console.consoleQueue.pushLineFromGameToUI("Attemtping connection to VoIP server (" + std::string(ipAddrStr) + ")");
 
-	if ((error = ts3client_startConnection(scHandlerID, identity, std::string(ipAddrStr).c_str(), 9987, console.playerName.c_str(), NULL, "", "secret")) != ERROR_ok) {
+	std::string PlayerName = console.playerName;
+	
+	//Remove dewf786e14e69337683| from player name
+	PlayerName.erase(0, 19);
+
+	if ((error = ts3client_startConnection(scHandlerID, identity, std::string(ipAddrStr).c_str(), 9987, PlayerName.c_str(), NULL, "", "secret")) != ERROR_ok) {
 		console.consoleQueue.pushLineFromGameToUI("Error connecting to Eldewrito VoIP Server: " + std::to_string(error));
 		return 1;
 	}
@@ -1372,7 +1377,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	/* Disconnect from server */
     if((error = ts3client_stopConnection(scHandlerID, "leaving")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error stopping connection: " + std::to_string(error));
+		console.consoleQueue.pushLineFromGameToUI("Error stopping VoIP connection: " + std::to_string(error));
         return 1;
     }
 
@@ -1380,20 +1385,20 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	/* Destroy server connection handler */
     if((error = ts3client_destroyServerConnectionHandler(scHandlerID)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error destroying clientlib: " + std::to_string(error));
+		console.consoleQueue.pushLineFromGameToUI("Error destroying VoIP clientlib: " + std::to_string(error));
         return 1;
     }
 
 	/* Shutdown client lib */
     if((error = ts3client_destroyClientLib()) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Failed to destroy clientlib: " + std::to_string(error));
+		console.consoleQueue.pushLineFromGameToUI("Failed to destroy VoIP clientlib: " + std::to_string(error));
         return 1;
     }
 
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
 	onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
-	console.consoleQueue.pushLineFromGameToUI("Stopped VoIP Client");
+	console.consoleQueue.pushLineFromGameToUI("Stopped Eldewrito VoIP Client");
 	return 0;
 }
 

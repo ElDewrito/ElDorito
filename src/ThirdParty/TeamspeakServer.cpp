@@ -306,8 +306,8 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	/* Create virtual server using default port 9987 with max 10 slots */
 
 	/* Create the virtual server with specified port, name, keyPair and max clients */
-	console.consoleQueue.pushLineFromGameToUI("Create Eldorito VoIP using keypair " + std::string(keyPair));
-	if ((error = ts3server_createVirtualServer(9987, "0.0.0.0", "Eldewrito VoIP Server", keyPair, 10, &serverID)) != ERROR_ok) {
+	console.consoleQueue.pushLineFromGameToUI("Create Eldewrito VoIP using keypair " + std::string(keyPair));
+	if ((error = ts3server_createVirtualServer(9987, "0.0.0.0", "Eldewrito VoIP Server", keyPair, 16, &serverID)) != ERROR_ok) {
 		char* errormsg;
 		if (ts3server_getGlobalErrorMessage(error, &errormsg) == ERROR_ok) {
 			console.consoleQueue.pushLineFromGameToUI("Error creating Eldewrito VoIP Server: " + std::string(errormsg) + "(" + std::to_string(error) + ")");
@@ -370,7 +370,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 		console.consoleQueue.pushLineFromGameToUI("Error destroying server lib: "+ error);
 		return 1;
 	}
-	console.consoleQueue.pushLineFromGameToUI("Stopped VoIP Server");
+	console.consoleQueue.pushLineFromGameToUI("Stopped Eldewrito VoIP Server");
 	return 0;
 }
 
