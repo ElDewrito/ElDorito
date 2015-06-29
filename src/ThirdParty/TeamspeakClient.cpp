@@ -202,7 +202,6 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 	if(ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		return;
 	printf("New client: %s \n", name);
-	MemberList::Instance().ShowPlayerTalkEvent(std::string(name));
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
 
@@ -244,8 +243,10 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 		return;
     if(status == STATUS_TALKING) {
 		console.consoleQueue.pushLineFromGameToUI("Client " + std::string(name) + " starts talking.");
+		MemberList::Instance().ShowPlayerTalkEvent(std::string(name));
     } else {
 		console.consoleQueue.pushLineFromGameToUI("Client " + std::string(name) + " stopped talking.");
+		MemberList::Instance().HidePlayerTalkEvent(std::string(name));
     }
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
