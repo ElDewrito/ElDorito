@@ -32,6 +32,7 @@
 #include "../Patches/Network.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../ElDorito.hpp"
+#include "../VoIP/MemberList.hpp"
 #define DEFAULT_VIRTUAL_SERVER 1
 #define NAME_BUFSIZE 1024
 #define CHANNEL_PASSWORD_BUFSIZE 1024
@@ -201,6 +202,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 	if(ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		return;
 	printf("New client: %s \n", name);
+	MemberList::Instance().ShowPlayerTalkEvent(std::string(name));
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
 
