@@ -54,7 +54,7 @@ void DirectXHook::drawVoipSettings()
 	int width = (int)(0.5 * *horizontalRes);
 	int height = (int)(0.3 * *verticalRes);
 	int fontHeight = (int)(0.034 * *verticalRes);
-	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
+	int verticalSpacingBetweenEachLine = (int)(1.3 * fontHeight);
 
 	if (!largeSizeFont || fontHeight != currentFontHeight) {
 		if (largeSizeFont)
@@ -70,22 +70,17 @@ void DirectXHook::drawVoipSettings()
 	drawBox(x, y, width, height, COLOR_BLACK, COLOR_BLACK);
 	drawText(centerTextHorizontally("ElDewrito VoIP Settings", x, width, largeSizeFont), y, COLOR_WHITE, "ElDewrito VoIP Settings", largeSizeFont);
 
-	/*
-	int horizontalSpacing = (int)(0.0048 * *horizontalRes);
-	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
-	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+	y += verticalSpacingBetweenEachLine;
 
-	drawBox(x, y, getTextWidth("Player Name 1", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 1");
-	y += fontHeight + verticalSpacingBetweenEachLine;
+	drawText(centerTextHorizontally("Try speaking. If the mic changes to green, you're good.", x, width, largeSizeFont), y, COLOR_WHITE, "Try speaking. If the mic changes to green, you're good.", largeSizeFont);
 
-	drawBox(x, y, getTextWidth("Player Name 2", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 2");
-	y += fontHeight + verticalSpacingBetweenEachLine;
+	y += verticalSpacingBetweenEachLine * 3;
 
-	drawBox(x, y, getTextWidth("Player Name 3", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 3");
-	y += fontHeight + verticalSpacingBetweenEachLine;*/
+	drawText(centerTextHorizontally("Voice activation threshold: -50", x, width, largeSizeFont), y, COLOR_WHITE, "Voice activation threshold: -50", largeSizeFont);
+
+	y += verticalSpacingBetweenEachLine;
+
+	drawText(centerTextHorizontally("Push to talk key: Caps Lock", x, width, largeSizeFont), y, COLOR_WHITE, "Push to talk key: Caps Lock", largeSizeFont);
 }
 
 void DirectXHook::drawVoipMembers()
