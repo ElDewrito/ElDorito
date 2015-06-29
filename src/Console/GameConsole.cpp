@@ -247,7 +247,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		break;
 
 	case 'V':
-		if (GetAsyncKeyState(VK_CONTROL)) // CTRL+V pasting
+		if (GetAsyncKeyState(VK_LCONTROL) & 0x8000 || GetAsyncKeyState(VK_RCONTROL) & 0x8000) // CTRL+V pasting
 		{
 			if (OpenClipboard(nullptr))
 			{
