@@ -13,6 +13,7 @@ class GameChatQueue;
 class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
+	const size_t INPUT_MAX_CHARS = 400;
 	bool capsLockToggled = false;
 	int lastTimeConsoleShown = 0;
 	static void startIRCBackend();

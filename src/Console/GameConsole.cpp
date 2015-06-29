@@ -150,6 +150,7 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 			currentInput.del();
 		}
 		break;
+
 	case VK_CAPITAL:
 		capsLockToggled = !capsLockToggled;
 		break;
@@ -270,7 +271,11 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 				{
 					char* textPointer = static_cast<char*>(GlobalLock(hData));
 					std::string text(textPointer);
-					currentInput.set(currentInput.currentInput + text);
+					std::string newInputLine = currentInput.currentInput + text;
+					if (newInputLine.size() <= INPUT_MAX_CHARS)
+					{
+						currentInput.set(newInputLine);
+					}
 					GlobalUnlock(hData);
 				}
 				CloseClipboard();
@@ -334,6 +339,11 @@ std::string GameConsole::GenerateIRCNick(std::string name, uint64_t uid)
 
 void GameConsole::handleDefaultKeyInput(USHORT vKey)
 {
+	if (currentInput.currentInput.size() > INPUT_MAX_CHARS)
+	{
+		return;
+	}
+
 	WORD buf;
 	BYTE keysDown[256] = {};
 
