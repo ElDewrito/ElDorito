@@ -147,7 +147,7 @@ void DirectXHook::drawChatInterface()
 	int x = (int)(0.05 * *horizontalRes);
 	int y = (int)(0.65 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
-	int inputTextBoxWidth = (int)(0.4 * *horizontalRes);
+	int inputTextBoxWidth = (int)(0.5 * *horizontalRes);
 	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
 	int horizontalSpacing = (int)(0.012 * inputTextBoxWidth);
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
@@ -184,7 +184,7 @@ void DirectXHook::drawChatInterface()
 	{
 		// Display current input
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str(), normalSizeFont);
+		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, console.currentInput.currentInput.c_str(), normalSizeFont);
 
 		// START: Line showing where the user currently is in the input field.
 		if (console.getMsSinceLastConsoleBlink() > 300)
@@ -199,7 +199,7 @@ void DirectXHook::drawChatInterface()
 			int width = 0;
 			if (currentInput.length() > 0) {
 				currentChar = currentInput[console.currentInput.currentPointerIndex];
-				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), normalSizeFont) - 3;
+				width = getTextWidth(currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), normalSizeFont) - 3;
 			}
 			else
 			{
@@ -215,8 +215,35 @@ void DirectXHook::drawChatInterface()
 	// Draw text from chat or console
 	for (int i = console.selectedQueue->startIndexForScrolling; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForScrolling; i++)
 	{
-		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str(), normalSizeFont);
-		y -= fontHeight + verticalSpacingBetweenEachLine;
+		std::string line = console.selectedQueue->queue.at(i);
+
+		if (getTextWidth(line.c_str(), normalSizeFont) > inputTextBoxWidth)
+		{
+			std::vector<std::string> linesWrapped = std::vector < std::string > {};
+			size_t indexRemaining = 0;
+
+			do
+			{
+				while (getTextWidth(line.c_str(), normalSizeFont) > inputTextBoxWidth)
+				{
+					line.pop_back();
+				}
+				linesWrapped.push_back(line);
+				indexRemaining += line.size();
+				line = console.selectedQueue->queue.at(i).substr(indexRemaining, console.selectedQueue->queue.at(i).size() - indexRemaining);
+			} while (indexRemaining < console.selectedQueue->queue.at(i).size());
+
+			for (int i = linesWrapped.size() - 1; i >= 0; i--)
+			{
+				drawText(x, y, COLOR_WHITE, linesWrapped.at(i).c_str(), normalSizeFont);
+				y -= fontHeight + verticalSpacingBetweenEachLine;
+			}
+		}
+		else
+		{
+			drawText(x, y, COLOR_WHITE, line.c_str(), normalSizeFont);
+			y -= fontHeight + verticalSpacingBetweenEachLine;
+		}
 	}
 }
 
