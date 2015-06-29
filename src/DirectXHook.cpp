@@ -122,20 +122,31 @@ void DirectXHook::drawVoipMembers()
 {
 	auto& memberList = MemberList::Instance();
 
-	int x = (int) (0.86625 * *horizontalRes);
-	int y = (int) (0.4 * *verticalRes);
+	int x = (int) (0.88 * *horizontalRes);
+	int y = (int) (0.0093 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
 	int horizontalSpacing = (int)(0.0048 * *horizontalRes);
 	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
 	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+	int slotWidth = 0;
+
+	for (size_t i = 0; i < memberList.memberList.size(); i++)
+	{
+		int usernameWidth = getTextWidth(memberList.memberList.at(i).c_str(), normalSizeFont) + 2 * horizontalSpacing;
+
+		if (slotWidth < usernameWidth)
+		{
+			slotWidth = usernameWidth;
+		}
+	}
 
 	for (size_t i = 0; i < memberList.memberList.size(); i++)
 	{
 		//TODO: If player is on red team, display red text. Blue, show blue text.
 		//TODO: If game is slayer, or "no team" just display white text.
-		drawBox(x, y, getTextWidth(memberList.memberList.at(i).c_str(), normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, memberList.memberList.at(i).c_str(), normalSizeFont);
+		drawBox(x, y, slotWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+		drawText(centerTextHorizontally(memberList.memberList.at(i).c_str(), x, slotWidth, normalSizeFont), y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, memberList.memberList.at(i).c_str(), normalSizeFont);
 		y += fontHeight + verticalSpacingBetweenEachLine;
 	}
 }
@@ -306,7 +317,7 @@ void DirectXHook::drawBox(int x, int y, int width, int height, D3DCOLOR BorderCo
 	drawHorizontalLine(x, y + height, width, BorderColor);
 }
 
-int DirectXHook::centerTextHorizontally(char* text, int x, int width, LPD3DXFONT pFont)
+int DirectXHook::centerTextHorizontally(const char* text, int x, int width, LPD3DXFONT pFont)
 {
 	return x + (width - getTextWidth(text, pFont)) / 2;
 }

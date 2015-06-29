@@ -25,7 +25,7 @@ private:
 	static void drawChatInterface();
 	static int getTextWidth(const char *szText, LPD3DXFONT pFont);
 	static int getSpaceCharacterWidth(LPD3DXFONT pFont);
-	static int centerTextHorizontally(char* text, int x, int width, LPD3DXFONT pFont);
+	static int centerTextHorizontally(const char* text, int x, int width, LPD3DXFONT pFont);
 	static void drawVoipMembers();
 	static void drawVoipSettings();
 
