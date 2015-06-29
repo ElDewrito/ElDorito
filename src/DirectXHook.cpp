@@ -2,7 +2,11 @@
 #include "Console/GameConsole.hpp"
 #include <detours.h>
 #include "VoIP/MemberList.hpp"
-
+#include "ThirdParty/TeamspeakClient.hpp"
+#include <teamspeak/public_definitions.h>
+#include <teamspeak/public_errors.h>
+#include <teamspeak/clientlib_publicdefinitions.h>
+#include <teamspeak/clientlib.h>
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
 int DirectXHook::currentFontHeight = 0;
@@ -17,7 +21,7 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	DirectXHook::pDevice = device;
 	DirectXHook::drawChatInterface();
 	DirectXHook::drawVoipMembers();
-	if (GetAsyncKeyState(VK_TAB) & 0x8000)
+	if (GetAsyncKeyState(VK_F12) & 0x8000)
 	{
 		DirectXHook::drawVoipSettings();
 	}
@@ -75,7 +79,22 @@ void DirectXHook::drawVoipSettings()
 
 	drawText(centerTextHorizontally("Try speaking. If the mic changes to green, you're good.", x, width, largeSizeFont), y, COLOR_WHITE, "Try speaking. If the mic changes to green, you're good.", largeSizeFont);
 
-	y += verticalSpacingBetweenEachLine * 3;
+	y += verticalSpacingBetweenEachLine;
+
+	unsigned int error;
+	float result;
+	uint64 vadTestscHandlerID = VoIPGetVadHandlerID();
+	int vadTestTalkStatus = VoIPGetTalkStatus();
+
+	if ((error = ts3client_getPreProcessorInfoValueFloat(vadTestscHandlerID, "decibel_last_period", &result)) != ERROR_ok) {
+		drawText(centerTextHorizontally("Error getting vad level", x, width, largeSizeFont), y, COLOR_RED, "Error getting vad level", largeSizeFont);
+	}
+	else
+	{
+		drawText(centerTextHorizontally(("%.2f - %s", result, (vadTestTalkStatus == STATUS_TALKING ? "talking" : "not talking")), x, width, largeSizeFont), y, (vadTestTalkStatus == STATUS_TALKING ? COLOR_GREEN : COLOR_RED), ("%.2f - %s", result, (vadTestTalkStatus == STATUS_TALKING ? "talking" : "not talking")), largeSizeFont);
+	}
+
+	y += verticalSpacingBetweenEachLine * 2;
 
 	drawText(centerTextHorizontally("Voice activation threshold: -50", x, width, largeSizeFont), y, COLOR_WHITE, "Voice activation threshold: -50", largeSizeFont);
 

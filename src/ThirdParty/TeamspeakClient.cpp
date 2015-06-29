@@ -33,6 +33,8 @@
 #include "../Modules/ModuleServer.hpp"
 #include "../ElDorito.hpp"
 #include "../VoIP/MemberList.hpp"
+#include "TeamspeakClient.hpp"
+#include <cstdint>
 #define DEFAULT_VIRTUAL_SERVER 1
 #define NAME_BUFSIZE 1024
 #define CHANNEL_PASSWORD_BUFSIZE 1024
@@ -60,7 +62,17 @@ int recordSound = 0;
 
 /* For voice activation detection demo */
 uint64 vadTestscHandlerID;
+UINT64 VoIPGetVadHandlerID()
+{
+	return vadTestscHandlerID;
+}
+
 int vadTestTalkStatus = 0;
+INT VoIPGetTalkStatus()
+{
+	return vadTestTalkStatus;
+}
+
 
 /* Enable to use custom encryption */
 /* #define USE_CUSTOM_ENCRYPTION
@@ -1282,7 +1294,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 		console.consoleQueue.pushLineFromGameToUI("Error toggling VAD: " + std::to_string(error));
 	}
 
-	//Then it sets the voice activation level to -50
+	//Then it sets the voice activation level to -40
 	char s[100];
 	snprintf(s, 100, "%d", -50);
 	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level",s)) != ERROR_ok) {
