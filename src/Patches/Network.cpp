@@ -740,6 +740,8 @@ namespace
 
 		// TODO: add something in leaveIRCChannel to kick everyone from the chan if the user is OP before leaving it
 
+		StopTeamspeakClient();
+		StopTeamspeakServer();
 
 		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);
