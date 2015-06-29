@@ -4,8 +4,6 @@
  * Copyright (c) 2007-2014 TeamSpeak Systems GmbH
  * SDK Documentation:          https://halowiki.llf.to/ts3_sdk/client_html/index.html
  * TODO: Mute clients locally: https://halowiki.llf.to/ts3_sdk/client_html/ar01s24.html
- * TODO: Push to talk:         https://halowiki.llf.to/ts3_sdk/client_html/ar01s30.html#faq_1
- * TODO: Disconnect server     https://halowiki.llf.to/ts3_sdk/client_html/ar01s10.html
  * TODO: Removing Debugging
  * TODO: Add server configuration option for "All Talk" (one channel) or "Team Talk" (two channels for red and blue)
  */
@@ -122,6 +120,7 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 	/* Failed to connect ? */
 	if(newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
 		printf("Looks like there is no server running.\n");
+		StopTeamspeakClient();
 	}
 }
 
