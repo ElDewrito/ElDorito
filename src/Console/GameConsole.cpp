@@ -257,10 +257,14 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 					char* textPointer = static_cast<char*>(GlobalLock(hData));
 					std::string text(textPointer);
 					std::string newInputLine = currentInput.currentInput + text;
-					if (newInputLine.size() <= INPUT_MAX_CHARS)
-					{
-						currentInput.set(newInputLine);
+
+					for(char c : text) {
+						if (currentInput.currentInput.size() <= INPUT_MAX_CHARS)
+						{
+							currentInput.type(c);
+						}
 					}
+
 					GlobalUnlock(hData);
 				}
 				CloseClipboard();
