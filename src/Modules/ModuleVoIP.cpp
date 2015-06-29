@@ -1,7 +1,7 @@
 #include "ModuleVoIP.hpp"
 #include <sstream>
 #include "../ElDorito.hpp"
-#include "../ThirdParty/TeamspeakClient.hpp"
+#include "../VoIP/TeamspeakClient.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>

@@ -16,8 +16,8 @@
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../Console/GameConsole.hpp"
 #include "../Console/IRCBackend.hpp"
-#include "../ThirdParty/TeamspeakServer.hpp"
-#include "../ThirdParty/TeamspeakClient.hpp"
+#include "../VoIP/TeamspeakServer.hpp"
+#include "../VoIP/TeamspeakClient.hpp"
 #include <iostream>
 
 namespace

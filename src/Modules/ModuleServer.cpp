@@ -16,8 +16,8 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../ThirdParty/TeamspeakServer.hpp"
-#include "../ThirdParty/TeamspeakClient.hpp"
+#include "../VoIP/TeamspeakServer.hpp"
+#include "../VoIP/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
 
 namespace

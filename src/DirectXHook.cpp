@@ -2,7 +2,7 @@
 #include "Console/GameConsole.hpp"
 #include <detours.h>
 #include "VoIP/MemberList.hpp"
-#include "ThirdParty/TeamspeakClient.hpp"
+#include "VoIP/TeamspeakClient.hpp"
 #include "Modules/ModuleVoIP.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>

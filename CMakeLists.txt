@@ -73,10 +73,6 @@ set(SOURCE_FILES
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
     src/ThirdParty/HttpRequest.hpp
-    src/ThirdParty/TeamspeakClient.cpp
-    src/ThirdParty/TeamspeakClient.hpp
-    src/ThirdParty/TeamspeakServer.cpp
-    src/ThirdParty/TeamspeakServer.hpp
     src/Utils/Assert.cpp
     src/Utils/Assert.hpp
     src/Utils/Bits.hpp
@@ -93,6 +89,10 @@ set(SOURCE_FILES
     src/Utils/VersionInfo.hpp
     src/VoIP/MemberList.cpp
     src/VoIP/MemberList.hpp
+    src/VoIP/TeamspeakClient.cpp
+    src/VoIP/TeamspeakClient.hpp
+    src/VoIP/TeamspeakServer.cpp
+    src/VoIP/TeamspeakServer.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
     src/ElDorito.cpp
