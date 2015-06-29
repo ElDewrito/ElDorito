@@ -168,6 +168,7 @@ void IRCBackend::joinIRCChannel(std::string channel, bool globalChat)
 		if (!gameChatChannel.empty())
 			leaveIRCChannel(gameChatChannel);
 		gameChatChannel = channel;
+		GameConsole::Instance().SwitchToGameChat();
 	}
 
 	sprintf_s(buffer, "MODE %s +BIc\r\nJOIN %s\r\n", GameConsole::Instance().ircName.c_str(), channel.c_str());

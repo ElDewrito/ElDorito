@@ -46,6 +46,8 @@ public:
 	int getMsSinceLastConsoleBlink();
 	void peekConsole();
 	void virtualKeyCallBack(USHORT vKey);
+	void SwitchToGlobalChat();
+	void SwitchToGameChat();
 	void mouseCallBack(RAWMOUSE mouseInfo);
 	std::string GenerateIRCNick(std::string name, uint64_t uid);
 };

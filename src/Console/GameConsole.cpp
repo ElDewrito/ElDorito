@@ -207,22 +207,12 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		{
 			if (selectedQueue == &globalChatQueue)
 			{
-				selectedQueue = &gameChatQueue;
-				lastChatQueue = selectedQueue;
-				selectedQueue->startIndexForScrolling = 0;
-				globalChatQueue.color = DirectXHook::COLOR_YELLOW;
-				gameChatQueue.color = DirectXHook::COLOR_GREEN;
-				currentBacklogIndex = -1;
+				SwitchToGameChat();
 				break;
 			}
 			else if (selectedQueue == &gameChatQueue)
 			{
-				selectedQueue = &globalChatQueue;
-				lastChatQueue = selectedQueue;
-				selectedQueue->startIndexForScrolling = 0;
-				globalChatQueue.color = DirectXHook::COLOR_GREEN;
-				gameChatQueue.color = DirectXHook::COLOR_YELLOW;
-				currentBacklogIndex = -1;
+				SwitchToGlobalChat();
 				break;
 			}
 		}
@@ -368,4 +358,24 @@ void GameConsole::handleDefaultKeyInput(USHORT vKey)
 		currentInput.type(buf >> 8);
 		currentInput.type(buf & 0x00ff);
 	}
+}
+
+void GameConsole::SwitchToGameChat()
+{
+	selectedQueue = &gameChatQueue;
+	lastChatQueue = selectedQueue;
+	selectedQueue->startIndexForScrolling = 0;
+	globalChatQueue.color = DirectXHook::COLOR_YELLOW;
+	gameChatQueue.color = DirectXHook::COLOR_GREEN;
+	currentBacklogIndex = -1;
+}
+
+void GameConsole::SwitchToGlobalChat()
+{
+	selectedQueue = &globalChatQueue;
+	lastChatQueue = selectedQueue;
+	selectedQueue->startIndexForScrolling = 0;
+	globalChatQueue.color = DirectXHook::COLOR_GREEN;
+	gameChatQueue.color = DirectXHook::COLOR_YELLOW;
+	currentBacklogIndex = -1;
 }

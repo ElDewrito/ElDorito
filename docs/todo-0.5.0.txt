@@ -37,5 +37,4 @@ Chat UI:
 - add transparency
 - add color codes
 - fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
-- force chat ui to game chat when a game starts
 - TEST TEST TEST the UI for bugs
