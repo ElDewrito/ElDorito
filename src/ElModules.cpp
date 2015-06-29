@@ -88,6 +88,7 @@ namespace Modules
 		ModuleCamera::Instance();
 		ModuleInput::Instance();
 		ModuleIRC::Instance();
+		ModuleVoIP::Instance();
 
 		AddCommand("Help", "help", "Displays this help text", eCommandFlagsNone, CommandHelp);
 		AddCommand("Execute", "exec", "Executes a list of commands", eCommandFlagsNone, CommandExecute, { "filename(string) The list of commands to execute" });

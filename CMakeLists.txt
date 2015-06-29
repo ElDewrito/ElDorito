@@ -43,7 +43,9 @@ set(SOURCE_FILES
     src/Modules/ModulePlayer.cpp
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
-    src/Modules/ModuleServer.hpp
+    src/Modules/ModuleServer.hpp    
+    src/Modules/ModuleVoIP.cpp
+    src/Modules/ModuleVoIP.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
     src/Patches/ContentItems.cpp

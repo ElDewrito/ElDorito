@@ -32,6 +32,7 @@
 #include "../Patch.hpp"
 #include "../Patches/Network.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Modules/ModuleVoIP.hpp"
 #include "../ElDorito.hpp"
 #include "../VoIP/MemberList.hpp"
 #include "../Modules/ModulePlayer.hpp"
@@ -1127,6 +1128,11 @@ char* programPath(char* programInvocation){
 	return path;
 }
 
+bool VoIPKeyPressed(int key) {
+	return ((GetAsyncKeyState(key) & 0x8000) != 0);
+}
+
+
 DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	uint64 scHandlerID;
 	unsigned int error;
@@ -1287,6 +1293,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
     version = NULL;
 
     SLEEP(300);
+	auto& voipvars = Modules::ModuleVoIP::Instance();
 
 	//Turns up the VoIP volume
 	if ((error = ts3client_setPlaybackConfigValue(scHandlerID, "volume_modifier", "15")) != ERROR_ok) {
@@ -1301,24 +1308,87 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP echo_canceling: " + std::to_string(error));
 	}
 
-	//This is a little hack for now until we implement push to talk.
-	//Sets Voice activation detection to off
-	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "vad", "true")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP VAD: " + std::to_string(error));
+	if (voipvars.VarVoIPPushToTalk->ValueInt == 0){
+		//Sets Voice activation detection to ON
+		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "vad", "true")) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP VAD: " + std::to_string(error));
+		}
+		char s[100];
+		snprintf(s, 100, "%d", -50);
+		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Error setting VoIP VAD level: " + std::to_string(error));
+		}
+#ifdef _DEBUG
+		console.consoleQueue.pushLineFromGameToUI("Set VoIP VAD level to -50");
+		console.consoleQueue.pushLineFromGameToUI("VoIP.PushToTalk is 0. Voice Activation Detection Enabled.");
+#endif
+	}
+	else
+	{
+		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "vad", "false")) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP VAD: " + std::to_string(error));
+		}
+#ifdef _DEBUG
+		console.consoleQueue.pushLineFromGameToUI("VoIP.PushToTalk is 1. Push to talk key is currently Caps Lock");
+#endif
 	}
 
-	//Then it sets the voice activation level to -40
-	char s[100];
-	snprintf(s, 100, "%d", -50);
-	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level",s)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error setting VoIP VAD level: " + std::to_string(error));
-	}
-#ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Set VoIP VAD level to -50");
-#endif
 	VoIPClientRunning = true;
 	while (!abort) {
-		SLEEP(200);
+		//BEGIN PUSH TO TALK
+		//TODO: only actually change these if something has changed instead of calling the functions all the time.
+		if (voipvars.VarVoIPPushToTalk->ValueInt == 1){
+			int talkBtnPressed = VoIPKeyPressed(VK_CAPITAL);
+			
+			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
+				talkBtnPressed ? INPUT_ACTIVE : INPUT_DEACTIVATED))
+				!= ERROR_ok) {
+				char* errorMsg;
+				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Error toggling push-to-talk: " + std::string(errorMsg));
+					ts3client_freeMemory(errorMsg);
+				}
+			}
+
+			if (ts3client_flushClientSelfUpdates(scHandlerID, NULL) != ERROR_ok) {
+				char* errorMsg;
+				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
+					ts3client_freeMemory(errorMsg);
+				}
+			}
+		}
+		else
+		{
+			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
+				INPUT_ACTIVE))
+				!= ERROR_ok) {
+				char* errorMsg;
+				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Error toggling push-to-talk: " + std::string(errorMsg));
+					ts3client_freeMemory(errorMsg);
+				}
+			}
+
+			if (ts3client_flushClientSelfUpdates(scHandlerID, NULL) != ERROR_ok) {
+				char* errorMsg;
+				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
+					ts3client_freeMemory(errorMsg);
+				}
+			}
+			if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "vad", "true")) != ERROR_ok) {
+				console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP VAD: " + std::to_string(error));
+			}
+			char s[100];
+			snprintf(s, 100, "%d", -50);
+			if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level", s)) != ERROR_ok) {
+				console.consoleQueue.pushLineFromGameToUI("Error setting VoIP VAD level: " + std::to_string(error));
+			}
+		}
+		//END PUSH TO TALK
+
+		SLEEP(100);
 		if (!VoIPClientRunning){
 			abort = true;
 		}

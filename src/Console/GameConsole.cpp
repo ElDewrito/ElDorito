@@ -20,7 +20,8 @@ GameConsole::GameConsole()
 	consoleQueue.pushLineFromGameToUI("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	consoleQueue.pushLineFromGameToUI("Enter help or help <command> to get started!");
 	consoleQueue.pushLineFromGameToUI("Press page-up or page-down while chat is open to scroll.");
-	consoleQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Start an online lobby to start VoIP, join a lobby to join VoIP!");
+	consoleQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Start an online lobby to start VoIP, join a lobby to join VoIP! Hold F12 for help.");
+	globalChatQueue.pushLineFromGameToUI("TEST BUILD WITH Eldewrito VoIP! Start an online lobby to start VoIP, join a lobby to join VoIP! Hold F12 for help.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initPlayerName();

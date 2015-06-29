@@ -3,6 +3,7 @@
 #include <detours.h>
 #include "VoIP/MemberList.hpp"
 #include "ThirdParty/TeamspeakClient.hpp"
+#include "Modules/ModuleVoIP.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
@@ -19,12 +20,17 @@ HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
-	DirectXHook::drawChatInterface();
 	DirectXHook::drawVoipMembers();
-	if (GetAsyncKeyState(VK_F12) & 0x8000)
+	if ((GetAsyncKeyState(VK_F12) & 0x8000) != 0)
 	{
 		DirectXHook::drawVoipSettings();
 	}
+	else
+	{
+		DirectXHook::drawChatInterface();
+	}
+
+
 	return (*DirectXHook::origEndScenePtr)(device);
 }
 
@@ -67,18 +73,27 @@ void DirectXHook::drawVoipSettings()
 			largeSizeFont->Release();
 		}
 
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &largeSizeFont);
+		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma", &largeSizeFont);
 		currentFontHeight = fontHeight;
 		return;
 	}
-
+	auto& voipvars = Modules::ModuleVoIP::Instance();
+	drawBox(x-1, y-1, width+2, height+2, COLOR_WHITE, COLOR_WHITE);
 	drawBox(x, y, width, height, COLOR_BLACK, COLOR_BLACK);
 	drawText(centerTextHorizontally("ElDewrito VoIP Settings", x, width, largeSizeFont), y, COLOR_WHITE, "ElDewrito VoIP Settings", largeSizeFont);
 
 	y += verticalSpacingBetweenEachLine;
-
-	drawText(centerTextHorizontally("Try speaking. If the mic changes to green, you're good.", x, width, largeSizeFont), y, COLOR_WHITE, "Try speaking. If the mic changes to green, you're good.", largeSizeFont);
-
+	if (voipvars.VarVoIPPushToTalk->ValueInt == 0){
+		drawText(centerTextHorizontally("Voice activation detection is enabled.", x, width, largeSizeFont), y, COLOR_WHITE, "Voice activation detection is enabled.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(centerTextHorizontally("Change VoIP.PushToTalk to 1 for push to talk.", x, width, largeSizeFont), y, COLOR_WHITE, "Change VoIP.PushToTalk to 1 for push to talk.", largeSizeFont);
+	}
+	else
+	{
+		drawText(centerTextHorizontally("VoIP.PushToTalk is enabled. Hold Caps-Lock to talk", x, width, largeSizeFont), y, COLOR_WHITE, "VoIP.PushToTalk is enabled. Hold Caps-Lock to talk", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(centerTextHorizontally("Change VoIP.PushToTalk to 0 for Voice Activation", x, width, largeSizeFont), y, COLOR_WHITE, "Change VoIP.PushToTalk to 0 for Voice Activation", largeSizeFont);
+	}
 	y += verticalSpacingBetweenEachLine;
 
 	unsigned int error;
@@ -117,6 +132,8 @@ void DirectXHook::drawVoipMembers()
 
 	for (size_t i = 0; i < memberList.memberList.size(); i++)
 	{
+		//TODO: If player is on red team, display red text. Blue, show blue text.
+		//TODO: If game is slayer, or "no team" just display white text.
 		drawBox(x, y, getTextWidth(memberList.memberList.at(i).c_str(), normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
 		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, memberList.memberList.at(i).c_str(), normalSizeFont);
 		y += fontHeight + verticalSpacingBetweenEachLine;
