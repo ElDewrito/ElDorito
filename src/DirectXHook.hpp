@@ -9,14 +9,15 @@ private:
 	static int currentFontHeight;
 
 	static LPDIRECT3DDEVICE9 pDevice;
-	static LPD3DXFONT dxFont;
+	static LPD3DXFONT normalSizeFont;
+	static LPD3DXFONT largeSizeFont;
 	static HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9);
 	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
 	
 	static uint32_t* getDirectXVTableMethod1();
 	static uint32_t* getDirectXVTableMethod2();
 	static uint32_t* getDirectXVTableMethod3();
-	static void drawText(int x, int y, DWORD color, char* text);
+	static void drawText(int x, int y, DWORD color, char* text, LPD3DXFONT pFont);
 	static void drawRect(int x, int y, int width, int height, DWORD Color);
 	static void drawHorizontalLine(int x, int y, int width, D3DCOLOR Color);
 	static void drawVerticalLine(int x, int y, int height, D3DCOLOR Color);
@@ -24,7 +25,9 @@ private:
 	static void drawChatInterface();
 	static int getTextWidth(const char *szText, LPD3DXFONT pFont);
 	static int getSpaceCharacterWidth(LPD3DXFONT pFont);
+	static int centerTextHorizontally(char* text, int x, int width, LPD3DXFONT pFont);
 	static void drawVoipMembers();
+	static void drawVoipSettings();
 
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);

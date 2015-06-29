@@ -7,7 +7,8 @@ uint32_t* DirectXHook::verticalRes = 0;
 int DirectXHook::currentFontHeight = 0;
 
 LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
-LPD3DXFONT DirectXHook::dxFont = 0;
+LPD3DXFONT DirectXHook::normalSizeFont = 0;
+LPD3DXFONT DirectXHook::largeSizeFont = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
@@ -15,6 +16,10 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	DirectXHook::pDevice = device;
 	DirectXHook::drawChatInterface();
 	DirectXHook::drawVoipMembers();
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+	{
+		DirectXHook::drawVoipSettings();
+	}
 	return (*DirectXHook::origEndScenePtr)(device);
 }
 
@@ -39,15 +44,33 @@ int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
 
 int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
 {
-	return getTextWidth("i i", dxFont) - ((getTextWidth("i", dxFont))* 2);
+	return getTextWidth("i i", pFont) - ((getTextWidth("i", pFont)) * 2);
 }
 
-void DirectXHook::drawVoipMembers()
+void DirectXHook::drawVoipSettings()
 {
-	int x = (int) (0.86625 * *horizontalRes);
-	int y = (int) (0.4 * *verticalRes);
-	int fontHeight = (int)(0.017 * *verticalRes);
-	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int x = (int)(0.28375 * *horizontalRes);
+	int y = (int)(0.25 * *verticalRes);
+	int width = (int)(0.5 * *horizontalRes);
+	int height = (int)(0.3 * *verticalRes);
+	int fontHeight = (int)(0.034 * *verticalRes);
+	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
+
+	if (!largeSizeFont || fontHeight != currentFontHeight) {
+		if (largeSizeFont)
+		{
+			largeSizeFont->Release();
+		}
+
+		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &largeSizeFont);
+		currentFontHeight = fontHeight;
+		return;
+	}
+
+	drawBox(x, y, width, height, COLOR_BLACK, COLOR_BLACK);
+	drawText(centerTextHorizontally("ElDewrito VoIP Settings", x, width, largeSizeFont), y, COLOR_WHITE, "ElDewrito VoIP Settings", largeSizeFont);
+
+	/*
 	int horizontalSpacing = (int)(0.0048 * *horizontalRes);
 	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
 	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
@@ -62,6 +85,29 @@ void DirectXHook::drawVoipMembers()
 
 	drawBox(x, y, getTextWidth("Player Name 3", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
 	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 3");
+	y += fontHeight + verticalSpacingBetweenEachLine;*/
+}
+
+void DirectXHook::drawVoipMembers()
+{
+	int x = (int) (0.86625 * *horizontalRes);
+	int y = (int) (0.4 * *verticalRes);
+	int fontHeight = (int)(0.017 * *verticalRes);
+	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int horizontalSpacing = (int)(0.0048 * *horizontalRes);
+	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
+	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+
+	drawBox(x, y, getTextWidth("Player Name 1", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 1", normalSizeFont);
+	y += fontHeight + verticalSpacingBetweenEachLine;
+
+	drawBox(x, y, getTextWidth("Player Name 2", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 2", normalSizeFont);
+	y += fontHeight + verticalSpacingBetweenEachLine;
+
+	drawBox(x, y, getTextWidth("Player Name 3", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 3", normalSizeFont);
 	y += fontHeight + verticalSpacingBetweenEachLine;
 }
 
@@ -83,13 +129,13 @@ void DirectXHook::drawChatInterface()
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
 	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
 
-	if (!dxFont || fontHeight != currentFontHeight) {
-		if (dxFont)
+	if (!normalSizeFont || fontHeight != currentFontHeight) {
+		if (normalSizeFont)
 		{
-			dxFont->Release();
+			normalSizeFont->Release();
 		}
 
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &dxFont);
+		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &normalSizeFont);
 		currentFontHeight = fontHeight;
 		return;
 	}
@@ -98,13 +144,13 @@ void DirectXHook::drawChatInterface()
 	{
 		int tempX = x;
 
-		drawBox(tempX, y, getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, "Global Chat");
-		tempX += getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing;
+		drawBox(tempX, y, getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, "Global Chat", normalSizeFont);
+		tempX += getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing;
 
-		drawBox(tempX, y, getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat");
-		tempX += getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing;
+		drawBox(tempX, y, getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
+		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat", normalSizeFont);
+		tempX += getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing;
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;
@@ -113,7 +159,7 @@ void DirectXHook::drawChatInterface()
 	{
 		// Display current input
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str());
+		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str(), normalSizeFont);
 
 		// START: Line showing where the user currently is in the input field.
 		if (console.getMsSinceLastConsoleBlink() > 300)
@@ -128,13 +174,13 @@ void DirectXHook::drawChatInterface()
 			int width = 0;
 			if (currentInput.length() > 0) {
 				currentChar = currentInput[console.currentInput.currentPointerIndex];
-				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), dxFont) - 3;
+				width = getTextWidth((char*)currentInput.substr(0, console.currentInput.currentPointerIndex).c_str(), normalSizeFont) - 3;
 			}
 			else
 			{
 				width = -3;
 			}
-			drawText(x + horizontalSpacing + width, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "|");
+			drawText(x + horizontalSpacing + width, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "|", normalSizeFont);
 		}
 		// END: Line showing where the user currently is in the input field.
 	}
@@ -144,7 +190,7 @@ void DirectXHook::drawChatInterface()
 	// Draw text from chat or console
 	for (int i = console.selectedQueue->startIndexForScrolling; i < console.selectedQueue->numOfLinesToShow + console.selectedQueue->startIndexForScrolling; i++)
 	{
-		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str());
+		drawText(x, y, COLOR_WHITE, (char*)console.selectedQueue->queue.at(i).c_str(), normalSizeFont);
 		y -= fontHeight + verticalSpacingBetweenEachLine;
 	}
 }
@@ -199,11 +245,11 @@ void DirectXHook::hookDirectX()
 	}
 }
 
-void DirectXHook::drawText(int x, int y, DWORD color, char* text)
+void DirectXHook::drawText(int x, int y, DWORD color, char* text, LPD3DXFONT pFont)
 {
 	RECT rect;
 	SetRect(&rect, x, y, x, y);
-	dxFont->DrawText(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, color);
+	pFont->DrawText(NULL, text, -1, &rect, DT_LEFT | DT_NOCLIP, color);
 }
 
 void DirectXHook::drawRect(int x, int y, int width, int height, DWORD Color)
@@ -229,4 +275,9 @@ void DirectXHook::drawBox(int x, int y, int width, int height, D3DCOLOR BorderCo
 	drawVerticalLine(x, y, height, BorderColor);
 	drawVerticalLine(x + width, y, height, BorderColor);
 	drawHorizontalLine(x, y + height, width, BorderColor);
+}
+
+int DirectXHook::centerTextHorizontally(char* text, int x, int width, LPD3DXFONT pFont)
+{
+	return x + (width - getTextWidth(text, pFont)) / 2;
 }
