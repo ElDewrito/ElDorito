@@ -46,6 +46,10 @@
 #define SLEEP(x) usleep(x*1000)
 #endif
 
+
+bool VoIPClientRunning = false;
+
+
 /* This is a global variable to indicate if sound needs to be recorded.
    Normally one would have thread synchronization with locks etc. for 
    thread safety. In the intterest of simplicity, this sample uses the
@@ -1278,10 +1282,12 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	}
 	console.consoleQueue.pushLineFromGameToUI("Set VAD level to -50");
 
-
+	VoIPClientRunning = true;
 	while (!abort) {
 		SLEEP(200);
-		//Loop
+		if (!VoIPClientRunning){
+			abort = true;
+		}
 	}
     /* Simple commandline interface */
 	/*
@@ -1384,6 +1390,11 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
 	onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
-
+	console.consoleQueue.pushLineFromGameToUI("Stopped VoIP Client");
 	return 0;
+}
+
+void StopTeamspeakClient(){
+	VoIPClientRunning = false;
+	return;
 }

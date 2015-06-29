@@ -29,7 +29,7 @@
 #else
 #define SLEEP(x) usleep(x*1000)
 #endif
-
+bool VoIPServerRunning = false;
 /*
 * Callback when client has connected.
 *
@@ -353,8 +353,8 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 		console.consoleQueue.pushLineFromGameToUI("Error flushing Eldewrito VoIP Server variables: " + error);
 		return 1;
 	}
-
-	while (true){
+	VoIPServerRunning = true;
+	while (VoIPServerRunning){
 		SLEEP(200);
 	}
 
@@ -370,6 +370,11 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 		console.consoleQueue.pushLineFromGameToUI("Error destroying server lib: "+ error);
 		return 1;
 	}
-
+	console.consoleQueue.pushLineFromGameToUI("Stopped VoIP Server");
 	return 0;
+}
+
+void StopTeamspeakServer(){
+	VoIPServerRunning = false;
+	return;
 }

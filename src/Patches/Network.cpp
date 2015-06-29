@@ -443,6 +443,10 @@ namespace
 		else
 		{
 			Patches::Network::StopInfoServer();
+			//Stop the VoIP Server and client
+			StopTeamspeakClient();
+			StopTeamspeakServer();
+
 			if (!irc.gameChatChannel.empty())
 				irc.leaveIRCChannel(irc.gameChatChannel);
 		}
