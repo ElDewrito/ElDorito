@@ -16,7 +16,8 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-
+#include "../ThirdParty/TeamspeakServer.hpp"
+#include "../ThirdParty/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
 
 namespace
@@ -574,7 +575,7 @@ namespace
 
 		// join our IRC channel
 		IRCBackend::Instance().joinIRCChannel("#eldoritogame-" + xnkid, false);
-
+		CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
 	}
