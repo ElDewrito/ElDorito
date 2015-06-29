@@ -36,6 +36,7 @@ namespace
 	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
 
 	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
+	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
 }
 
 namespace Patches
@@ -327,6 +328,20 @@ namespace Patches
 			else
 			{
 				writeAddr.Write<uint32_t>((uint32_t)&Network_state_end_game_write_stats_enterHook);
+				VirtualProtect(writeAddr, 4, temp, &temp2);
+			}
+
+			// Hook c_life_cycle_state_handler_leaving's vftable ::entry method
+			writeAddr = Pointer(0x16183BC);
+			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+			{
+				std::stringstream ss;
+				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+				OutputDebugString(ss.str().c_str());
+			}
+			else
+			{
+				writeAddr.Write<uint32_t>((uint32_t)&Network_state_leaving_enterHook);
 				VirtualProtect(writeAddr, 4, temp, &temp2);
 			}
 		}
@@ -713,5 +728,21 @@ namespace
 		typedef char(__thiscall *Network_state_end_game_write_stats_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_end_game_write_stats_enterFunc Network_state_end_game_write_stats_enter = reinterpret_cast<Network_state_end_game_write_stats_enterFunc>(0x492B50);
 		return Network_state_end_game_write_stats_enter(thisPtr, a2, a3, a4);
+	}
+
+	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
+	{
+		Patches::Network::StopInfoServer();
+
+		auto& irc = IRCBackend::Instance();
+		if (!irc.gameChatChannel.empty())
+			irc.leaveIRCChannel(irc.gameChatChannel);
+
+		// TODO: add something in leaveIRCChannel to kick everyone from the chan if the user is OP before leaving it
+
+
+		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
+		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);
+		return Network_state_leaving_enter(thisPtr, a2, a3, a4);
 	}
 }
