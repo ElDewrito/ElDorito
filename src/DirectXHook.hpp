@@ -24,6 +24,8 @@ private:
 	static void drawChatInterface();
 	static int getTextWidth(const char *szText, LPD3DXFONT pFont);
 	static int getSpaceCharacterWidth(LPD3DXFONT pFont);
+	static void drawVoipMembers();
+
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);
 	static CONST D3DCOLOR COLOR_GREEN = D3DCOLOR_ARGB(255, 127, 255, 000);

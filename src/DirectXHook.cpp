@@ -14,6 +14,7 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
 	DirectXHook::drawChatInterface();
+	DirectXHook::drawVoipMembers();
 	return (*DirectXHook::origEndScenePtr)(device);
 }
 
@@ -41,6 +42,29 @@ int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
 	return getTextWidth("i i", dxFont) - ((getTextWidth("i", dxFont))* 2);
 }
 
+void DirectXHook::drawVoipMembers()
+{
+	int x = (int) (0.86625 * *horizontalRes);
+	int y = (int) (0.4 * *verticalRes);
+	int fontHeight = (int)(0.017 * *verticalRes);
+	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int horizontalSpacing = (int)(0.0048 * *horizontalRes);
+	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
+	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+
+	drawBox(x, y, getTextWidth("Player Name 1", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 1");
+	y += fontHeight + verticalSpacingBetweenEachLine;
+
+	drawBox(x, y, getTextWidth("Player Name 2", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 2");
+	y += fontHeight + verticalSpacingBetweenEachLine;
+
+	drawBox(x, y, getTextWidth("Player Name 3", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
+	drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Player Name 3");
+	y += fontHeight + verticalSpacingBetweenEachLine;
+}
+
 void DirectXHook::drawChatInterface()
 {
 	auto& console = GameConsole::Instance();
@@ -57,6 +81,7 @@ void DirectXHook::drawChatInterface()
 	int horizontalSpacing = (int)(0.012 * inputTextBoxWidth);
 	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
 	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
+	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
 
 	if (!dxFont || fontHeight != currentFontHeight) {
 		if (dxFont)
@@ -74,11 +99,11 @@ void DirectXHook::drawChatInterface()
 		int tempX = x;
 
 		drawBox(tempX, y, getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.globalChatQueue.color, "Global Chat");
+		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, "Global Chat");
 		tempX += getTextWidth("Global Chat", dxFont) + 2 * horizontalSpacing;
 
 		drawBox(tempX, y, getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-		drawText(tempX + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, console.gameChatQueue.color, "Game Chat");
+		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat");
 		tempX += getTextWidth("Game Chat", dxFont) + 2 * horizontalSpacing;
 	}
 
@@ -88,7 +113,7 @@ void DirectXHook::drawChatInterface()
 	{
 		// Display current input
 		drawBox(x, y, inputTextBoxWidth, inputTextBoxHeight, COLOR_WHITE, COLOR_BLACK);
-		drawText(x + horizontalSpacing, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str());
+		drawText(x + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, (char*)console.currentInput.currentInput.c_str());
 
 		// START: Line showing where the user currently is in the input field.
 		if (console.getMsSinceLastConsoleBlink() > 300)
@@ -109,7 +134,7 @@ void DirectXHook::drawChatInterface()
 			{
 				width = -3;
 			}
-			drawText(x + horizontalSpacing + width, y + (inputTextBoxHeight - fontHeight) / 2, COLOR_WHITE, "|");
+			drawText(x + horizontalSpacing + width, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "|");
 		}
 		// END: Line showing where the user currently is in the input field.
 	}
