@@ -8,6 +8,7 @@ namespace Modules
 	{
 	public:
 		Command* VarVoIPPushToTalk;
+		Command* VarVoIPVolumeModifier;
 
 		ModuleVoIP();
 	};

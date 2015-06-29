@@ -1294,8 +1294,8 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
     SLEEP(300);
 	auto& voipvars = Modules::ModuleVoIP::Instance();
 
-	//Turns up the VoIP volume
-	if ((error = ts3client_setPlaybackConfigValue(scHandlerID, "volume_modifier", "15")) != ERROR_ok) {
+	//Sets the VoIP volume
+	if ((error = ts3client_setPlaybackConfigValue(scHandlerID, "volume_modifier", std::to_string(voipvars.VarVoIPVolumeModifier->ValueInt).c_str())) != ERROR_ok) {
 		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP agc: " + std::to_string(error));
 	}
 	//Turns on Automatic Gain Control
