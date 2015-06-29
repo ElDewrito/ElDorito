@@ -121,6 +121,7 @@ void ElDorito::OnMainMenuShown()
 	executeCommandQueue = true;
 	DirectXHook::hookDirectX();
 	GameConsole::Instance();
+	Menu::Instance();
 }
 
 bool ElDorito::IsHostPlayer()
