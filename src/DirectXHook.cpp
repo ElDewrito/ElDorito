@@ -17,7 +17,7 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	DirectXHook::pDevice = device;
 	DirectXHook::drawChatInterface();
 	DirectXHook::drawVoipMembers();
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+	if (GetAsyncKeyState(VK_TAB) & 0x8000)
 	{
 		DirectXHook::drawVoipSettings();
 	}
