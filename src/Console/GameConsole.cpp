@@ -22,7 +22,7 @@ GameConsole::GameConsole()
 	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 	PushLineFromGameToUIQueues("Press the ` key to open the console, or press ENTER to open the chat.");
 	PushLineFromGameToUIQueues("Press PAGE-UP or PAGE-DOWN while the chat is open to scroll.");
-	PushLineFromGameToUIQueues("Press F12 to open VoIP settings.");
+	PushLineFromGameToUIQueues("Press F11 to open server browser. Press F12 to open VoIP settings.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initIRCName();

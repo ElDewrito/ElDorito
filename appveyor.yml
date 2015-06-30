@@ -34,6 +34,8 @@ after_build:
   - xcopy C:\projects\eldorito\libs\teamspeak\bin C:\projects\eldorito\build\Release /S /Y
   - xcopy C:\projects\eldorito\libs\awesomium\bin_packed C:\projects\eldorito\build\Release /S /Y
   - cd C:\projects\eldorito\build\Release\
+  - del mtndew.exp
+  - del mtndew.lib
   - 7z a c:\projects\eldorito\eldorito.zip * -tzip -mx=9
   - cd c:\projects\eldorito
 
