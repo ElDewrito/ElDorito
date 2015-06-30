@@ -23,17 +23,23 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
 
-	DirectXHook::drawVoipMembers();
-	if ((GetAsyncKeyState(VK_F12) & 0x8000) != 0)
+	if (Menu::Instance().menuEnabled)
 	{
-		DirectXHook::drawVoipSettings();
+		Menu::Instance().drawMenu(device);
 	}
 	else
 	{
+		DirectXHook::drawVoipMembers();
+		if ((GetAsyncKeyState(VK_F12) & 0x8000) != 0)
+		{
+			DirectXHook::drawVoipSettings();
+		}
+		else
+		{
+			DirectXHook::drawChatInterface();
+		}
 		DirectXHook::drawChatInterface();
 	}
-	Menu::Instance().drawMenu(device);
-	DirectXHook::drawChatInterface();
 
 	return (*DirectXHook::origEndScenePtr)(device);
 }

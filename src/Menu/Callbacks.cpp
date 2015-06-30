@@ -225,3 +225,10 @@ void Callbacks::serverCallback(Awesomium::WebView* caller, const Awesomium::JSAr
 {
 
 }
+
+// TODO: TEMP: remove                           connect(ip address)
+void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
+{
+	args.At(0).ToString();
+	OutputDebugString("connect!");
+}

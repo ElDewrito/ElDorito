@@ -24,7 +24,6 @@ private:
 	MethodDispatcher methodDispatcher;
 	Callbacks callbacks{};
 
-	bool menuEnabled = true;
 	bool awesomiumReady = false;
 	Awesomium::WebCore* webCore;
 	Awesomium::WebView* webView;
@@ -37,9 +36,10 @@ private:
 	void initAwesomium();
 	void bindCallbacks();
 public:
+	bool menuEnabled = false; // TODO: change back to true
+
 	Menu();
 	~Menu();
-
 	void drawMenu(LPDIRECT3DDEVICE9 device);
 };
 

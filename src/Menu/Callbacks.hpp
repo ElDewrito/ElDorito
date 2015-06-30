@@ -45,5 +45,8 @@ public:
 	void scoreToWinCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void startGameCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void serverCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
+
+	// TODO: TEMP: remove
+	void connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 };
 
