@@ -41,7 +41,7 @@ Menu::~Menu()
 	Awesomium::WebCore::Shutdown();
 }
 
-void Menu::drawMenu(LPDIRECT3DDEVICE9 device)
+void Menu::drawMenu(LPDIRECT3DDEVICE9 pDevice)
 {
 	if (!menuEnabled || !awesomiumReady)
 	{
@@ -50,7 +50,7 @@ void Menu::drawMenu(LPDIRECT3DDEVICE9 device)
 
 	if (!texture)
 	{
-		device->CreateVertexBuffer(6 * sizeof(Vertex), D3DUSAGE_WRITEONLY, Vertex::FVF, D3DPOOL_DEFAULT, &quadVertexBuffer, 0);
+		pDevice->CreateVertexBuffer(6 * sizeof(Vertex), D3DUSAGE_WRITEONLY, Vertex::FVF, D3DPOOL_DEFAULT, &quadVertexBuffer, 0);
 		Vertex* v;
 		quadVertexBuffer->Lock(0, 0, (void**)&v, 0);
 
@@ -62,20 +62,32 @@ void Menu::drawMenu(LPDIRECT3DDEVICE9 device)
 		v[5] = { 1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
 		quadVertexBuffer->Unlock();
 
-		D3DXCreateTexture(device, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &texture);
+		D3DXCreateTexture(pDevice, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &texture);
 
-		device->SetTexture(0, texture);
+		pDevice->SetTexture(0, texture);
+
+		//AMDTEMPSTART
+		pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+		pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+		pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
+
+		D3DXMATRIX proj;
+		D3DXMatrixOrthoLH(&proj, 2.0f, 2.0f, 1.0f, 1000.0f);
+		pDevice->SetTransform(D3DTS_PROJECTION, &proj);
+
+		pDevice->SetRenderState(D3DRS_LIGHTING, false);
+		//AMDTEMPEND
 	}
 
-	device->SetTexture(0, texture); // This needs to be called every EndScene call for some reason
+	pDevice->SetTexture(0, texture); // This needs to be called every EndScene call for some reason
 
 	texture->LockRect(0, &lockRect, 0, 0);
 	memcpy(lockRect.pBits, ((Awesomium::BitmapSurface*) webView->surface())->buffer(), 4 * Callbacks::settings->HORIZONTAL_RESOLUTION * Callbacks::settings->VERTICAL_RESOLUTION);
 	texture->UnlockRect(0);
 
-	device->SetStreamSource(0, quadVertexBuffer, 0, sizeof(Vertex));
-	device->SetFVF(Vertex::FVF);
-	device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 4);
+	pDevice->SetStreamSource(0, quadVertexBuffer, 0, sizeof(Vertex));
+	pDevice->SetFVF(Vertex::FVF);
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 4);
 }
 
 void Menu::handleMouseInput()

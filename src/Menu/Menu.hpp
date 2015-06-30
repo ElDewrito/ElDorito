@@ -40,7 +40,7 @@ public:
 
 	Menu();
 	~Menu();
-	void drawMenu(LPDIRECT3DDEVICE9 device);
+	void drawMenu(LPDIRECT3DDEVICE9 pDevice);
 };
 
 struct Vertex
