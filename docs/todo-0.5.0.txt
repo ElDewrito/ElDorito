@@ -2,6 +2,7 @@ ElDewrito:
 - implement stats submissions (find endgame hook (done, need to fix it up a bit though) + find unique gameID/matchID field)
 - fix info server showing blank variant name
 - fix info server still running after host joins a different game
+- we need a build of medals.dll that is built with the /MT flag, doesn't start a console, doesn't generate MessageBoxes, uses the /mods/medals folder instead of HALO_ROOT and checks if halo3.zip exists first before launching
 
 DewritoLauncher:
 - add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
