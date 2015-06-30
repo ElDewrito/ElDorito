@@ -62,7 +62,7 @@ void Menu::drawMenu(LPDIRECT3DDEVICE9 pDevice)
 		v[5] = { 1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
 		quadVertexBuffer->Unlock();
 
-		D3DXCreateTexture(pDevice, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8B8G8R8, D3DPOOL_DEFAULT, &texture);
+		D3DXCreateTexture(pDevice, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &texture);
 
 		pDevice->SetTexture(0, texture);
 
