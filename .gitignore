@@ -216,3 +216,13 @@ FakesAssemblies/
 !libMDd.pdb
 !libMT.pdb
 !libMTd.pdb
+!awesomium.lib
+!avcodec-53.dll
+!avformat-53.dll
+!avutil-51.dll
+!awesomium.dll
+!awesomium_process.exe
+!icudt.dll
+!libEGL.dll
+!libGLESv2.dll
+!xinput9_1_0.dll

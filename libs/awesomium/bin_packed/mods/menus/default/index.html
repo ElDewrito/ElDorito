@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)http://eldorito.armorwatcher.com/servers/ -->
+<html dir="ltr" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Eldorito Server Browser </title>
+<link rel="shortcut icon" href="http://eldorito.armorwatcher.com/servers/favicon.png">
+ 
+<!-- Fonts -->
+<link href="./index_files/css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Quicksand">
+ 
+ 
+<link rel="stylesheet" href="./index_files/flexslider.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/jquery.fancybox-1.3.4.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/epicfullscreen.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/epicslider.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/style.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/udt_shortcodes.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/skin.css" type="text/css" media="all">
+<link rel="stylesheet" href="./index_files/udt_media_queries.css" type="text/css" media="all">
+<script type="text/javascript" id="www-widgetapi-script" src="./index_files/www-widgetapi.js" async=""></script><script src="./index_files/iframe_api"></script><script type="text/javascript" src="./index_files/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="./index_files/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="./index_files/jquery.ui.core.min.js"></script>
+<script type="text/javascript" src="./index_files/jquery.easing.1.3.js"></script>
+<script type="text/javascript" src="./index_files/jquery.epicfullscreen.js"></script>
+<script type="text/javascript" src="./index_files/jquery.epicHover-fadeZoom.js"></script>
+<script type="text/javascript" src="./index_files/jquery.epicslider.js"></script>
+<script type="text/javascript" src="./index_files/jquery.flexslider-min-edited.js"></script>
+<script type="text/javascript" src="./index_files/jquery.mobile-touch-swipe-1.0.js"></script>
+<script type="text/javascript" src="./index_files/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="./index_files/settings.js"></script>
+<script type="text/javascript" src="./index_files/common.js"></script>
+<script type="text/javascript" src="./index_files/udt_shortcodes.js"></script>
+<script type="text/javascript" src="./index_files/js"></script><script src="./index_files/main.js"></script>
+<script type="text/javascript" src="./index_files/contact.js"></script>
+ 
+<!-- Background  -->
+<script type="text/javascript" charset="UTF-8" src="./index_files/common(1).js"></script><script type="text/javascript" charset="UTF-8" src="./index_files/util.js"></script><script type="text/javascript" charset="UTF-8" src="./index_files/stats.js"></script><script type="text/javascript" charset="UTF-8" src="./index_files/AuthenticationService.Authenticate"></script></head><body class="home page"><div id="fullscreen-1" class="epic-fullscreen" data-image="images/background/background.jpg" style="z-index: -1; opacity: 1; background-color: transparent;"><div class="ef-overlay"></div><img class="ef-image" src="./index_files/background.jpg" style="opacity: 1; width: 1920px; height: 1080px; left: 0px; top: -72.5px;"></div>
+<!-- Background End  -->
+ 
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+ 
+
+ 
+
+ 
+ 
+<!-- Header -->
+<div id="header-wrapper" style="height: 442px;">
+        <div id="header-inner">
+                <header>
+       
+        <div style="clear:both;"></div>
+</header></div>
+<!-- Header End -->
+ 
+<!-- Container -->
+<div id="content-wrapper">
+ 
+        <!-- Content -->
+        <section class="homepage">
+                <div id="section-title">
+                        <div id="teaser" class="teaser-no-title">
+                                <div id="browser-title"><img src="./index_files/eldorito.png" alt="" height="50" width="50"> ELDORITO SERVER BROWSER</div>
+                                <div id="line1"></div>
+                                <button id="refresh">Refresh</button>
+                                <table id="serverlist" style="width:100%">
+  <tbody><tr>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);">Server Name | Host Player</td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Map</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Game Type</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Status</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Players</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Ping</b></td>
+  </tr>
+</tbody></table><br>
+ 
+        <script type="text/javascript">
+$(document).ready(function()
+{
+    // queryServer("192.99.124.162/list");
+   // addServer("127.0.0.1:11775", "Test server", "emoose", "Guardian", "guardian", "Team Slayer", "1", "16");
+});
+ 
+$("#refresh").click(function()
+{
+    $("#serverlist").find("tr:gt(0)").remove();
+    $.getJSON( "http://192.99.124.162/list", function( data ) {
+        if(data.result.code != 0)
+        {
+            alert("Error received from master: " + data.result.msg);
+            return;
+        }
+        console.log(data);
+        for(var i = 0; i < data.result.servers.length; i++)
+        {
+            var serverIP = data.result.servers[i];
+            queryServer(serverIP);
+        }
+    });
+});
+   
+function queryServer(serverIP)
+{
+    console.log(serverIP);
+    var startTime = Date.now();
+    $.getJSON("http://" + serverIP, function(serverInfo) {
+        var timeTaken = Date.now() - startTime;
+        console.log(timeTaken);
+        if(serverInfo.name === undefined) return;
+        var isPassworded = serverInfo.passworded !== undefined;
+        addServer(serverIP, isPassworded, serverInfo.name, serverInfo.hostPlayer, serverInfo.map, serverInfo.mapFile, serverInfo.variant, serverInfo.status, serverInfo.numPlayers, serverInfo.maxPlayers, timeTaken);
+        console.log(serverInfo);
+    });
+}
+ 
+function promptPassword(serverIP)
+{
+    var password = prompt("The server at " + serverIP + " is passworded, enter the password to join", "");
+    if(password != null)
+    {
+        window.open("dorito:" + serverIP + "/" + password);
+    }
+}
+ 
+function addServer(ip, isPassworded, name, host, map, mapfile, gamemode, status, numplayers, maxplayers, ping)
+{
+    var rex = /(<([^>]+)>)/ig;
+    var servName = "<td><a href=\"#\" onClick=\"callbacks.connect('" + ip + "');\">" + name.replace(rex , "") + " (" + host + ")</a></td>";
+    if(isPassworded)
+        servName = "<td><a href=\"#\" onclick=\"promptPassword('" + ip + "');\">[PASSWORDED] " + name + " (" + host + ")</a></td>";
+       
+    var servMap = "<td>" + map + " (" + mapfile + ")</td>";
+    var servType = "<td>" + gamemode + "</td>";
+    var servStatus = "<td>" + status + "</td>";
+    var servPlayers = "<td>" + numplayers + "/" + maxplayers + "</td>";
+    var servPing = "<td>" + ping + "</td>";
+ 
+    $('#serverlist tr:last').after("<tr>" + servName + servMap + servType + servStatus + servPlayers + servPing + "</tr>");
+}
+</script>
+        <div id="line1"></div>
+                        </div>
+                </div>
+               
+        </section>
+        <!-- Content End -->
+       
+</div>
+ 
+<!-- Container End -->
+
+</div><div id="fancybox-tmp"></div><div id="fancybox-loading"><div></div></div><div id="fancybox-overlay"></div><div id="fancybox-wrap"><div id="fancybox-outer"><div class="fancybox-bg" id="fancybox-bg-n"></div><div class="fancybox-bg" id="fancybox-bg-ne"></div><div class="fancybox-bg" id="fancybox-bg-e"></div><div class="fancybox-bg" id="fancybox-bg-se"></div><div class="fancybox-bg" id="fancybox-bg-s"></div><div class="fancybox-bg" id="fancybox-bg-sw"></div><div class="fancybox-bg" id="fancybox-bg-w"></div><div class="fancybox-bg" id="fancybox-bg-nw"></div><div id="fancybox-content"></div><a id="fancybox-close"></a><div id="fancybox-title"></div><a href="javascript:;" id="fancybox-left"><span class="fancy-ico" id="fancybox-left-ico"></span></a><a href="javascript:;" id="fancybox-right"><span class="fancy-ico" id="fancybox-right-ico"></span></a></div></div><iframe style="display: none !important; position: fixed !important; padding: 0px !important; margin: 0px !important; left: 0px !important; top: 0px !important; width: 100% !important; height: 100% !important; z-index: 2147483647 !important; border: none !important; background-color: transparent !important;"></iframe></body></html>

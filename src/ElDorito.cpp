@@ -1,5 +1,6 @@
 #include "ElDorito.hpp"
 #include "Console/GameConsole.hpp"
+#include "Menu/Menu.hpp"
 #include "DirectXHook.hpp"
 
 #include <iostream>
@@ -120,6 +121,7 @@ void ElDorito::OnMainMenuShown()
 	executeCommandQueue = true;
 	DirectXHook::hookDirectX();
 	GameConsole::Instance();
+	Menu::Instance();
 }
 
 bool ElDorito::IsHostPlayer()

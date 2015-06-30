@@ -8,6 +8,8 @@
 #include <openssl/sha.h>
 #include <algorithm>
 #include "../ElDorito.hpp"
+#include "../Menu/Menu.hpp"
+
 void GameConsole::startIRCBackend()
 {
 	IRCBackend::Instance();
@@ -112,6 +114,12 @@ void GameConsole::virtualKeyCallBack(USHORT vKey)
 		if (vKey == VK_OEM_3 || vKey == VK_OEM_8) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
 		{
 			displayChat(true);
+		}
+
+		// TODO: TEMP: remove
+		if (vKey == VK_F11)
+		{
+			Menu::Instance().menuEnabled = !Menu::Instance().menuEnabled;
 		}
 		return;
 	}
