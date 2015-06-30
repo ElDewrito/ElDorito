@@ -26,8 +26,6 @@ set(SOURCE_FILES
     src/Console/GameConsole.hpp
     src/Console/IRCBackend.cpp
     src/Console/IRCBackend.hpp
-    src/Console/KeyboardHook.cpp
-    src/Console/KeyboardHook.hpp
     src/Console/Queue.hpp
     src/Console/Queue.cpp
     src/Menu/Callbacks.cpp
@@ -101,6 +99,8 @@ set(SOURCE_FILES
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
+    src/KeyboardHook.cpp
+    src/KeyboardHook.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
     src/ElDorito.cpp

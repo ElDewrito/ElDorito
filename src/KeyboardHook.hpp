@@ -1,5 +1,5 @@
 #pragma once
-#include "GameConsole.hpp"
+#include "Console/GameConsole.hpp"
 #include <windows.h>
 #include <detours.h>
 
@@ -15,6 +15,7 @@ private:
 	
 	static HHOOK ourHookedFunctionPtr;
 	static LRESULT __stdcall hookCallback(int nCode, WPARAM wParam, LPARAM lParam);
+	static void keyCallBack(USHORT vKey);
 
 public:
 	static void setHook();

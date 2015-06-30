@@ -6,14 +6,17 @@ class DirectXHook {
 private:
 	static uint32_t* horizontalRes;
 	static uint32_t* verticalRes;
-	static int currentFontHeight;
+	static int normalSizeCurrentFontHeight;
+	static int largeSizeCurrentFontHeight;
+	static int normalSizeFontHeight;
+	static int largeSizeFontHeight;
 
 	static LPDIRECT3DDEVICE9 pDevice;
 	static LPD3DXFONT normalSizeFont;
 	static LPD3DXFONT largeSizeFont;
 	static HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9);
 	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
-	
+
 	static uint32_t* getDirectXVTableMethod1();
 	static uint32_t* getDirectXVTableMethod2();
 	static uint32_t* getDirectXVTableMethod3();
@@ -28,6 +31,7 @@ private:
 	static int centerTextHorizontally(const char* text, int x, int width, LPD3DXFONT pFont);
 	static void drawVoipMembers();
 	static void drawVoipSettings();
+	static void initFontsIfRequired();
 
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);
@@ -43,6 +47,7 @@ public:
 	static CONST D3DCOLOR COLOR_CYAN = D3DCOLOR_ARGB(255, 000, 255, 255);
 	static CONST D3DCOLOR COLOR_MAGNETA = D3DCOLOR_ARGB(255, 255, 000, 255);
 	static CONST D3DCOLOR COLOR_WHITE = D3DCOLOR_ARGB(255, 255, 255, 249);
+	static bool drawVoIPSettings;
 
 	static void hookDirectX();
 };

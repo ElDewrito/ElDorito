@@ -1,7 +1,7 @@
 #include "GameConsole.hpp"
 #include "../Utils/VersionInfo.hpp"
 #include "../DirectXHook.hpp"
-#include "KeyboardHook.hpp"
+#include "../KeyboardHook.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include "../Pointer.hpp"
@@ -97,33 +97,8 @@ void GameConsole::displayChat(bool console)
 	}
 }
 
-void GameConsole::virtualKeyCallBack(USHORT vKey)
+void GameConsole::consoleKeyCallBack(USHORT vKey)
 {
-	if (!showChat && !showConsole)
-	{
-		if (GetAsyncKeyState(VK_TAB) & 0x8000)
-		{
-			return;
-		}
-
-		if (vKey == VK_RETURN)
-		{
-			displayChat(false);
-		}
-
-		if (vKey == VK_OEM_3 || vKey == VK_OEM_8) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
-		{
-			displayChat(true);
-		}
-
-		// TODO: TEMP: remove
-		if (vKey == VK_F11)
-		{
-			Menu::Instance().menuEnabled = !Menu::Instance().menuEnabled;
-		}
-		return;
-	}
-
 	switch (vKey)
 	{
 	case VK_RETURN:

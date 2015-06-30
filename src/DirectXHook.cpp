@@ -12,16 +12,23 @@
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
-int DirectXHook::currentFontHeight = 0;
+int DirectXHook::normalSizeCurrentFontHeight = 0;
+int DirectXHook::largeSizeCurrentFontHeight = 0;
+int DirectXHook::largeSizeFontHeight = 0;
+int DirectXHook::normalSizeFontHeight = 0;
 
 LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
 LPD3DXFONT DirectXHook::normalSizeFont = 0;
 LPD3DXFONT DirectXHook::largeSizeFont = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 
+bool DirectXHook::drawVoIPSettings = false;
+
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
+
+	initFontsIfRequired();
 
 	if (Menu::Instance().menuEnabled)
 	{
@@ -30,15 +37,11 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	else
 	{
 		DirectXHook::drawVoipMembers();
-		if ((GetAsyncKeyState(VK_F12) & 0x8000) != 0)
+		DirectXHook::drawChatInterface();
+		if (drawVoIPSettings)
 		{
 			DirectXHook::drawVoipSettings();
 		}
-		else
-		{
-			DirectXHook::drawChatInterface();
-		}
-		DirectXHook::drawChatInterface();
 	}
 
 	return (*DirectXHook::origEndScenePtr)(device);
@@ -74,19 +77,8 @@ void DirectXHook::drawVoipSettings()
 	int y = (int)(0.25 * *verticalRes);
 	int width = (int)(0.5 * *horizontalRes);
 	int height = (int)(0.3 * *verticalRes);
-	int fontHeight = (int)(0.034 * *verticalRes);
-	int verticalSpacingBetweenEachLine = (int)(1.3 * fontHeight);
+	int verticalSpacingBetweenEachLine = (int)(1.3 * largeSizeFontHeight);
 
-	if (!largeSizeFont || fontHeight != currentFontHeight) {
-		if (largeSizeFont)
-		{
-			largeSizeFont->Release();
-		}
-
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma", &largeSizeFont);
-		currentFontHeight = fontHeight;
-		return;
-	}
 	auto& voipvars = Modules::ModuleVoIP::Instance();
 	drawBox(x-1, y-1, width+2, height+2, COLOR_WHITE, COLOR_WHITE);
 	drawBox(x, y, width, height, COLOR_BLACK, COLOR_BLACK);
@@ -156,25 +148,13 @@ void DirectXHook::drawChatInterface()
 
 	int x = (int)(0.05 * *horizontalRes);
 	int y = (int)(0.65 * *verticalRes);
-	int fontHeight = (int)(0.017 * *verticalRes);
 	int inputTextBoxWidth = (int)(0.5 * *horizontalRes);
-	int inputTextBoxHeight = fontHeight + (int)(0.769 * fontHeight);
+	int inputTextBoxHeight = normalSizeFontHeight + (int)(0.769 * normalSizeFontHeight);
 	int horizontalSpacing = (int)(0.012 * inputTextBoxWidth);
-	int verticalSpacingBetweenEachLine = (int)(0.154 * fontHeight);
-	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * fontHeight);
-	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - fontHeight) / 2;
+	int verticalSpacingBetweenEachLine = (int)(0.154 * normalSizeFontHeight);
+	int verticalSpacingBetweenLinesAndInputBox = (int)(1.8 * normalSizeFontHeight);
+	int verticalSpacingBetweenTopOfInputBoxAndFont = (inputTextBoxHeight - normalSizeFontHeight) / 2;
 	size_t maxCharsPerLine = 105;
-
-	if (!normalSizeFont || fontHeight != currentFontHeight) {
-		if (normalSizeFont)
-		{
-			normalSizeFont->Release();
-		}
-
-		D3DXCreateFont(pDevice, fontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &normalSizeFont);
-		currentFontHeight = fontHeight;
-		return;
-	}
 
 	if (console.showChat)
 	{
@@ -240,13 +220,13 @@ void DirectXHook::drawChatInterface()
 			for (int i = linesWrapped.size() - 1; i >= 0; i--)
 			{
 				drawText(x, y, COLOR_WHITE, linesWrapped.at(i).c_str(), normalSizeFont);
-				y -= fontHeight + verticalSpacingBetweenEachLine;
+				y -= normalSizeFontHeight + verticalSpacingBetweenEachLine;
 			}
 		}
 		else
 		{
 			drawText(x, y, COLOR_WHITE, line.c_str(), normalSizeFont);
-			y -= fontHeight + verticalSpacingBetweenEachLine;
+			y -= normalSizeFontHeight + verticalSpacingBetweenEachLine;
 		}
 	}
 }
@@ -349,4 +329,30 @@ void DirectXHook::drawBox(int x, int y, int width, int height, D3DCOLOR BorderCo
 int DirectXHook::centerTextHorizontally(const char* text, int x, int width, LPD3DXFONT pFont)
 {
 	return x + (width - getTextWidth(text, pFont)) / 2;
+}
+
+void DirectXHook::initFontsIfRequired()
+{
+	normalSizeFontHeight = (int)(0.017 * *verticalRes);
+	largeSizeFontHeight = (int)(0.034 * *verticalRes); 
+
+	if (!normalSizeFont || normalSizeFontHeight != normalSizeCurrentFontHeight) {
+		if (normalSizeFont)
+		{
+			normalSizeFont->Release();
+		}
+
+		D3DXCreateFont(pDevice, normalSizeFontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Verdana", &normalSizeFont);
+		normalSizeCurrentFontHeight = normalSizeFontHeight;
+	}
+
+	if (!largeSizeFont || largeSizeFontHeight != largeSizeCurrentFontHeight) {
+		if (largeSizeFont)
+		{
+			largeSizeFont->Release();
+		}
+
+		D3DXCreateFont(pDevice, largeSizeFontHeight, 0, FW_NORMAL, 1, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, ANTIALIASED_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Tahoma", &largeSizeFont);
+		largeSizeCurrentFontHeight = largeSizeFontHeight;
+	}
 }

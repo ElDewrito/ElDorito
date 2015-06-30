@@ -17,7 +17,6 @@ private:
 	bool capsLockToggled = false;
 	static void startIRCBackend();
 	void hideConsole();
-	void displayChat(bool console);
 	void initIRCName();
 	void handleDefaultKeyInput(USHORT vKey);
 
@@ -43,9 +42,10 @@ public:
 	void PushLineFromGameToUIQueues(std::string text);
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
-	void virtualKeyCallBack(USHORT vKey);
+	void consoleKeyCallBack(USHORT vKey);
 	void SwitchToGlobalChat();
 	void SwitchToGameChat();
 	void mouseCallBack(RAWMOUSE mouseInfo);
 	std::string GenerateIRCNick(std::string name, uint64_t uid);
+	void displayChat(bool console);
 };

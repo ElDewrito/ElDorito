@@ -1,4 +1,6 @@
 #include "KeyboardHook.hpp"
+#include "Menu\Menu.hpp"
+#include "DirectXHook.hpp"
 
 WNDPROC KeyboardHook::realProc = 0;
 HHOOK KeyboardHook::ourHookedFunctionPtr = 0;
@@ -18,7 +20,7 @@ LRESULT __stdcall KeyboardHook::hookedWndProc(HWND hWnd, UINT message, WPARAM wP
 
 			if (rwInput->header.dwType == RIM_TYPEKEYBOARD && (rwInput->data.keyboard.Flags == RI_KEY_MAKE || rwInput->data.keyboard.Flags == RI_KEY_E0))
 			{
-				console.virtualKeyCallBack(rwInput->data.keyboard.VKey);
+				console.consoleKeyCallBack(rwInput->data.keyboard.VKey);
 			}
 			else if (rwInput->header.dwType == RIM_TYPEMOUSE)
 			{
@@ -40,7 +42,7 @@ LRESULT __stdcall KeyboardHook::hookCallback(int nCode, WPARAM wParam, LPARAM lP
 	{
 		if (HK_IS_PRESSED)
 		{
-			GameConsole::Instance().virtualKeyCallBack(wParam);
+			keyCallBack(wParam);
 		}
 	}
 
@@ -54,5 +56,39 @@ void KeyboardHook::setHook()
 	if (!(ourHookedFunctionPtr = SetWindowsHookEx(WH_KEYBOARD, KeyboardHook::hookCallback, GetModuleHandle(0), GetWindowThreadProcessId(*((HWND*)0x199C014), 0))))
 	{
 		OutputDebugString("Failed to install keyboard hook!");
+	}
+}
+
+void KeyboardHook::keyCallBack(USHORT vKey)
+{
+	auto& console = GameConsole::Instance();
+
+	if (!console.showChat && !console.showConsole)
+	{
+		if (GetAsyncKeyState(VK_TAB) & 0x8000)
+		{
+			return;
+		}
+
+		if (vKey == VK_RETURN)
+		{
+			console.displayChat(false);
+		}
+
+		if (vKey == VK_OEM_3 || vKey == VK_OEM_8) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
+		{
+			console.displayChat(true);
+		}
+
+		// TODO: TEMP: remove
+		if (vKey == VK_F11)
+		{
+			Menu::Instance().menuEnabled = !Menu::Instance().menuEnabled;
+		}
+
+		if (vKey == VK_F12)
+		{
+			DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;
+		}
 	}
 }
