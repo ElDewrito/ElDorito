@@ -1,0 +1,21 @@
+
+body{background-color:#333;}
+
+/*Wrapper
+-------------------*/
+.epic-fullscreen{width:100%;height:100%;position:fixed;overflow:hidden;top:0px;left:0px;z-index:0;opacity: 0;}
+
+/*Overlay
+-------------------*/
+.epic-fullscreen .ef-overlay{position:absolute;width:100%;height:100%;background:transparent url(../images/ui_epicslider/patterns/pattern.png) repeat top left;z-index: 1;}
+
+/*Media
+-------------------*/
+.epic-fullscreen img{position:absolute;top:0;left:0;width:100%;max-width:none;}
+.epic-fullscreen .ef-video-fullscreen{position: absolute;}
+
+/*Error message
+-------------------*/
+.ef-error-wrapper{width:290px;text-align: center;position: absolute;top: 50%;left:50%;margin:-25px 0 0 -150px;display: none;z-index:1;}
+.ef-error-wrapper .ef-message{border:1px solid #222;padding:20px 10px;font:12px/15px Arial, Helvetica, sans-serif;color:#fff;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;
+box-sizing: border-box;}
