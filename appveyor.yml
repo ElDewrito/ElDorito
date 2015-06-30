@@ -36,7 +36,7 @@ after_build:
   - cd C:\projects\eldorito\build\Release\
   - del mtndew.exp
   - del mtndew.lib
-  - 7z a c:\projects\eldorito\eldorito-installer.7z C:\projects\eldorito\build\Release\* -t7z m0=lzma -mx=9 -mfb=64 -md=32m -ms=on
+  - 7z a c:\projects\eldorito\eldorito-installer.7z * -t7z m0=lzma -mx=9 -mfb=64 -md=32m -ms=on
   - copy /b "C:\projects\eldorito\7zsd.sfx" + "C:\projects\eldorito\7z_Eldewrito_Config.txt" + "c:\projects\eldorito\eldorito-installer.7z" "c:\projects\eldorito\Eldewrito-Installer.exe"
   - cd c:\projects\eldorito
 
