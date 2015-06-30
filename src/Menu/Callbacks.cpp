@@ -1,6 +1,7 @@
 #include "Callbacks.hpp"
 #include "..\ElModules.hpp"
 #include <Awesomium/STLHelpers.h>
+#include "Menu.hpp"
 
 // TODO: Does mouse filter even do anything? Should I add a callback for it?
 // TODO: add callbacks for keyboard bindings
@@ -231,6 +232,8 @@ void Callbacks::serverCallback(Awesomium::WebView* caller, const Awesomium::JSAr
 // TODO: TEMP: remove                           connect(string in form of ip:port)
 void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
+	Menu::Instance().menuEnabled = false;
+
 	std::string connectCommand("connect ");
 	connectCommand.append(Awesomium::ToString(args.At(0).ToString()));
 	Modules::CommandMap::Instance().ExecuteCommand(connectCommand);
