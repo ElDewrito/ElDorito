@@ -130,7 +130,7 @@ function promptPassword(serverIP)
 function addServer(ip, isPassworded, name, host, map, mapfile, gamemode, status, numplayers, maxplayers, ping)
 {
     var rex = /(<([^>]+)>)/ig;
-    var servName = "<td><a href=\"dorito:" + ip + "\">" + name.replace(rex , "") + " (" + host + ")</a></td>";
+    var servName = "<td><a href=\"#\" onClick=\"callbacks.connect('" + ip + "');\">" + name.replace(rex , "") + " (" + host + ")</a></td>";
     if(isPassworded)
         servName = "<td><a href=\"#\" onclick=\"promptPassword('" + ip + "');\">[PASSWORDED] " + name + " (" + host + ")</a></td>";
        

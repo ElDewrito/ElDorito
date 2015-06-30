@@ -155,7 +155,7 @@ void Menu::bindCallbacks()
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("server"), JSDelegate(&callbacks, &Callbacks::serverCallback));
 
 		// TODO: TEMP: remove
-		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("connect"), JSDelegate(&callbacks, &Callbacks::serverCallback));
+		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("connect"), JSDelegate(&callbacks, &Callbacks::connectCallback));
 	}
 
 	webView->set_js_method_handler(&methodDispatcher);
