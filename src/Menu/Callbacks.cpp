@@ -237,4 +237,5 @@ void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSA
 	std::string connectCommand("connect ");
 	connectCommand.append(Awesomium::ToString(args.At(0).ToString()));
 	Modules::CommandMap::Instance().ExecuteCommand(connectCommand);
+	OutputDebugString(connectCommand.c_str());
 }

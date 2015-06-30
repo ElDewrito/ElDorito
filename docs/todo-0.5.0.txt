@@ -5,8 +5,6 @@ ElDewrito:
 - we need a build of medals.dll that is built with the /MT flag, doesn't start a console, doesn't generate MessageBoxes, uses the /mods/medals folder instead of HALO_ROOT and checks if halo3.zip exists first before launching
 
 DewritoLauncher:
-- add URI protocol registration + rcon stuff (see SkeetLauncher source: http://pastebin.com/jHu9Rn3h)
-- implement passworded server support to URI protocol (sample server browser does it like "dorito:127.0.0.1/password here", this isn't in skeetlauncher yet)
 - allow the user to choose the update channel they want to use (channels.json on the update server will list the channel names and urls)
 
 Master server:
@@ -14,9 +12,8 @@ Master server:
   ^ that way when we do have a stats display site ready we can display stats since the start of 0.5.0 release
 
 Server browser:
-- make proper server browser (WIP?)
-- browser should be open source, that way we can put this server browser at the / route in master servers, and also host it locally
 - use dewrito.json file to find the master servers to query and query all of them for server IPs, after querying + combining IP lists then contact each server
+- implement passworded server support
 
 VoIp:
 - SDK Documentation:          https://halowiki.llf.to/ts3_sdk/client_html/index.html
@@ -26,7 +23,6 @@ VoIp:
 - D3d menu with current list of people in VoIP with mute buttons (if server host, kick/gag!)
 - D3d menu of current players should show their team color (or grey if non team game) also would be nice to determain if the player is dead or alive while talking (maybe put a skull next to their name)
 - Add preferences and command arguments for changing and storing VoIP settings
-- More to come.
 - use upnp to port forward
 
 Chat UI:
