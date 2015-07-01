@@ -20,28 +20,12 @@ int DirectXHook::normalSizeFontHeight = 0;
 LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
 LPD3DXFONT DirectXHook::normalSizeFont = 0;
 LPD3DXFONT DirectXHook::largeSizeFont = 0;
-bool DirectXHook::drawVoIPSettings = false;
-
-HRESULT(__stdcall * DirectXHook::origBeginScenePtr)(LPDIRECT3DDEVICE9) = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 
-HRESULT __stdcall DirectXHook::hookedBeginScene(LPDIRECT3DDEVICE9 device)
-{
-	if (Menu::Instance().menuEnabled)
-	{
-		return D3D_OK;
-	}
-
-	return (*DirectXHook::origBeginScenePtr)(device);
-}
+bool DirectXHook::drawVoIPSettings = false;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
-	if (Menu::Instance().menuEnabled)
-	{
-		return D3D_OK;
-	}
-
 	DirectXHook::pDevice = device;
 
 	initFontsIfRequired();
@@ -240,7 +224,19 @@ void DirectXHook::drawChatInterface()
 	}
 }
 
-uint32_t* DirectXHook::getDirectXVTable()
+uint32_t* DirectXHook::getDirectXVTableMethod1()
+{
+	return (uint32_t*)(((uint8_t*)GetModuleHandle("d3d9.dll")) + 0x4E08);
+}
+
+uint32_t* DirectXHook::getDirectXVTableMethod2()
+{
+	// new sig: 30 9D -1 -1 80 95 -1 -1 40 95 -1 -1 10 7F -1 -1 A0 F4 -1 -1 10 FE -1 -1 70 1C -1 -1 A0 B5 -1 -1 40 F5 -1 -1 60 07 -1 -1 F0 11 -1 -1 20 11 -1 -1 20 F5
+	// search for new sig gives 0 results even though it gives multiple results on cheat engine
+	return 0;
+}
+
+uint32_t* DirectXHook::getDirectXVTableMethod3()
 {
 	HMODULE hDLL = GetModuleHandle("d3d9");
 	LPDIRECT3D9(__stdcall*pDirect3DCreate9)(UINT) = (LPDIRECT3D9(__stdcall*)(UINT))GetProcAddress(hDLL, "Direct3DCreate9");
@@ -253,7 +249,7 @@ uint32_t* DirectXHook::getDirectXVTable()
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = d3ddm.Format;
 	IDirect3DDevice9 * ppReturnedDeviceInterface;	// interface IDirect3DDevice9 (pointer to array of pointers)
-	HWND hWnd = *((HWND*)0x199C014);
+	HWND hWnd = *((HWND*)0x199C014); // HWND hWnd = FindWindowA(NULL, "HaloOnline cert_ms23_release_106708_0");
 	hRes = pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT, &d3dpp, &ppReturnedDeviceInterface);
 
 	return *((uint32_t**)ppReturnedDeviceInterface); // returns an array of pointers
@@ -264,14 +260,12 @@ void DirectXHook::hookDirectX()
 	horizontalRes = (uint32_t*)0x2301D08;
 	verticalRes = (uint32_t*)0x2301D0C;
 
-	uint32_t* directXVTable = getDirectXVTable();
-	origBeginScenePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9)) directXVTable[41];
+	uint32_t* directXVTable = getDirectXVTableMethod3();
 	origEndScenePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9)) directXVTable[42];
 
 	DetourRestoreAfterWith();
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
-	DetourAttach((PVOID*)&origBeginScenePtr, &DirectXHook::hookedBeginScene); // redirect origEndScenePtr to newEndScene
 	DetourAttach((PVOID*)&origEndScenePtr, &DirectXHook::hookedEndScene); // redirect origEndScenePtr to newEndScene
 
 	if (DetourTransactionCommit() != NO_ERROR)

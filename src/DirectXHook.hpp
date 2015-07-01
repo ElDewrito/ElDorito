@@ -14,15 +14,12 @@ private:
 	static LPDIRECT3DDEVICE9 pDevice;
 	static LPD3DXFONT normalSizeFont;
 	static LPD3DXFONT largeSizeFont;
-
-	static HRESULT(__stdcall * origBeginScenePtr)(LPDIRECT3DDEVICE9);
-	static HRESULT __stdcall hookedBeginScene(LPDIRECT3DDEVICE9 device);
 	static HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9);
 	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
 
 	static uint32_t* getDirectXVTableMethod1();
 	static uint32_t* getDirectXVTableMethod2();
-	static uint32_t* getDirectXVTable();
+	static uint32_t* getDirectXVTableMethod3();
 	static void drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont);
 	static void drawRect(int x, int y, int width, int height, DWORD Color);
 	static void drawHorizontalLine(int x, int y, int width, D3DCOLOR Color);
