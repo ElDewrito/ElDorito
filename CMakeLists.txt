@@ -124,6 +124,7 @@ include_directories(${CMAKE_SOURCE_DIR}/libs/detours/include)
 include_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include)
 include_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/include)
 include_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/include)
+include_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/include)
 
 # Library directories
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
@@ -131,6 +132,7 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/lib/x86)
 
 # Generate DLL from source files
 add_library(ElDorito SHARED ${SOURCE_FILES})
@@ -173,6 +175,8 @@ target_link_libraries(ElDorito ts3client_win64)
 target_link_libraries(ElDorito ts3server_win32)
 target_link_libraries(ElDorito ts3server_win64)
 target_link_libraries(ElDorito awesomium)
+target_link_libraries(ElDorito SDL2)
+target_link_libraries(ElDorito SDL2main)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")
