@@ -30,18 +30,11 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 
 	initFontsIfRequired();
 
-	if (Menu::Instance().menuEnabled)
+	DirectXHook::drawVoipMembers();
+	DirectXHook::drawChatInterface();
+	if (drawVoIPSettings)
 	{
-		Menu::Instance().drawMenu(device);
-	}
-	else
-	{
-		DirectXHook::drawVoipMembers();
-		DirectXHook::drawChatInterface();
-		if (drawVoIPSettings)
-		{
-			DirectXHook::drawVoipSettings();
-		}
+		DirectXHook::drawVoipSettings();
 	}
 
 	return (*DirectXHook::origEndScenePtr)(device);
@@ -127,7 +120,7 @@ void DirectXHook::drawVoipMembers()
 	int x = (int) (0.88 * *horizontalRes);
 	int y = (int) (0.27 * *verticalRes);
 	int fontHeight = (int)(0.017 * *verticalRes);
-	int verticalSpacingBetweenEachLine = (int)(1.0 * fontHeight);
+	int verticalSpacingBetweenEachLine = (int)(0.5 * fontHeight);
 
 	for (size_t i = 0; i < memberList.memberList.size(); i++)
 	{

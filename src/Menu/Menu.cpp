@@ -2,26 +2,41 @@
 
 void Menu::startAwesomiumLoop()
 {
-	auto& menuInstance = Menu::Instance();
+	auto& menu = Menu::Instance();
 	
-	menuInstance.initAwesomium();
+	menu.initAwesomium();
+	menu.initSDL();
 
 	while (true)
 	{
-		if (!menuInstance.menuEnabled)
+		if (!menu.menuEnabled)
 		{
 			Sleep(1000);
 			continue;
 		}
 
-		while (menuInstance.webView->IsLoading())
+		while (menu.webView->IsLoading())
 		{
-			menuInstance.webCore->Update();
+			menu.webCore->Update();
 		}
 
-		menuInstance.awesomiumReady = true;
-		menuInstance.handleMouseInput();
-		menuInstance.webCore->Update();
+		menu.handleMouseInput();
+		menu.webCore->Update();
+
+		if (menu.bitmapSurface) {
+			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) menu.bitmapSurface->buffer(), Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 4 * 8, Callbacks::settings->HORIZONTAL_RESOLUTION * 4, 0, 0, 0, 0x000000ff);
+			SDL_DestroyTexture(menu.imageTexture);
+			menu.imageTexture = SDL_CreateTextureFromSurface(menu.renderTarget, surface);
+			SDL_FreeSurface(surface);
+
+			SDL_RenderClear(menu.renderTarget);
+			SDL_RenderCopy(menu.renderTarget, menu.imageTexture, 0, 0);
+			SDL_RenderPresent(menu.renderTarget);
+		}
+		else
+		{
+			menu.bitmapSurface = (Awesomium::BitmapSurface*)menu.webView->surface();
+		}
 	}
 }
 
@@ -39,57 +54,6 @@ Menu::~Menu()
 	webView->Destroy();
 	Sleep(100);
 	Awesomium::WebCore::Shutdown();
-}
-
-void Menu::drawMenu(LPDIRECT3DDEVICE9 pDevice)
-{
-	if (!menuEnabled || !awesomiumReady)
-	{
-		return;
-	}
-
-	if (!texture)
-	{
-		pDevice->CreateVertexBuffer(6 * sizeof(Vertex), D3DUSAGE_WRITEONLY, Vertex::FVF, D3DPOOL_DEFAULT, &quadVertexBuffer, 0);
-		Vertex* v;
-		quadVertexBuffer->Lock(0, 0, (void**)&v, 0);
-
-		v[0] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
-		v[1] = { -1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f };
-		v[2] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
-		v[3] = { -1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f };
-		v[4] = { 1.0f, 1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f };
-		v[5] = { 1.0f, -1.0f, 1.25f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f };
-		quadVertexBuffer->Unlock();
-
-		D3DXCreateTexture(pDevice, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 1, D3DUSAGE_DYNAMIC, D3DFMT_X8R8G8B8, D3DPOOL_DEFAULT, &texture);
-
-		pDevice->SetTexture(0, texture);
-
-		//AMDTEMPSTART
-		pDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-		pDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-		pDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
-
-		D3DXMATRIX proj;
-		D3DXMatrixOrthoLH(&proj, 2.0f, 2.0f, 1.0f, 1000.0f);
-		pDevice->SetTransform(D3DTS_PROJECTION, &proj);
-
-		pDevice->SetRenderState(D3DRS_LIGHTING, false);
-		//AMDTEMPEND
-	}
-
-	pDevice->SetTexture(0, texture); // This needs to be called every EndScene call for some reason
-
-	texture->LockRect(0, &lockRect, 0, 0);
-	memcpy(lockRect.pBits, ((Awesomium::BitmapSurface*) webView->surface())->buffer(), 4 * Callbacks::settings->HORIZONTAL_RESOLUTION * Callbacks::settings->VERTICAL_RESOLUTION);
-	// Awesomium::BitmapSurface* t = (Awesomium::BitmapSurface*) webView->surface();
-	// t->CopyTo((unsigned char*) lockRect.pBits, 4 * Callbacks::settings->HORIZONTAL_RESOLUTION, 4, false, false);
-	texture->UnlockRect(0);
-
-	pDevice->SetStreamSource(0, quadVertexBuffer, 0, sizeof(Vertex));
-	pDevice->SetFVF(Vertex::FVF);
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 4);
 }
 
 void Menu::handleMouseInput()
@@ -120,6 +84,28 @@ void Menu::initAwesomium()
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(std::string(path).append("\\mods\\menus\\default\\index.html").c_str())));
 
 	bindCallbacks();
+}
+
+void Menu::initSDL()
+{
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		OutputDebugString(SDL_GetError());
+	}
+
+	window = SDL_CreateWindowFrom(hWnd);
+
+	if (!window)
+	{
+		OutputDebugString(SDL_GetError());
+	}
+
+	renderTarget = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+	if (!renderTarget)
+	{
+		OutputDebugString(SDL_GetError());
+	}
 }
 
 void Menu::bindCallbacks()
