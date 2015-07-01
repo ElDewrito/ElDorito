@@ -9,6 +9,6 @@ ExtractTitle="Extracting..."
 InstallPath="C:\\Halo\\"
 GUIFlags="8+32+64+256+4096"
 GUIMode="1"
-OverwriteMode="2"
+OverwriteMode="0"
 FinishMessage="Eldewrito has been installed.\n\nPlease report any bugs to our GitHub, or the Forums.\n\nEnjoy!"
 ;!@InstallEnd@!
