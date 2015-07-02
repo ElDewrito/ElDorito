@@ -1,5 +1,5 @@
 ElDewrito:
-- implement stats submissions (find endgame hook (done, need to fix it up a bit though) + find unique gameID/matchID field)
+- implement stats submissions (only need to find/generate unique matchID field)
 - fix info server showing blank variant name
 - fix info server still running after host joins a different game
 - we need a build of medals.dll that is built with the /MT flag, doesn't start a console, doesn't generate MessageBoxes, uses the /mods/medals folder instead of HALO_ROOT and checks if halo3.zip exists first before launching
@@ -35,3 +35,6 @@ Chat UI:
 - add color codes
 - fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
 - TEST TEST TEST the UI for bugs 
+
+The top half of above must be sorted (before VoIP section) before we push anything to the main update server.
+Any further betas pushed must be precise. 0.5.0 branch is only for fixing/adding new things to the TODO above.
