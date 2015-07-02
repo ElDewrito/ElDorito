@@ -17,8 +17,8 @@ class Menu : public Utils::Singleton<Menu>
 private:
 	HWND hWnd = *((HWND*)0x199C014);
 	SDL_Window* window = nullptr;
-	SDL_Renderer* renderTarget = nullptr;
-	SDL_Texture* imageTexture = nullptr;
+	SDL_Surface* windowSurface = nullptr;
+	SDL_Surface* imageSurface = nullptr;
 	Awesomium::BitmapSurface* bitmapSurface = nullptr;
 
 	MethodDispatcher methodDispatcher;

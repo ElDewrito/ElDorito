@@ -3,7 +3,7 @@
 void Menu::startAwesomiumLoop()
 {
 	auto& menu = Menu::Instance();
-	
+
 	menu.initAwesomium();
 	menu.initSDL();
 
@@ -23,20 +23,8 @@ void Menu::startAwesomiumLoop()
 		menu.handleMouseInput();
 		menu.webCore->Update();
 
-		if (menu.bitmapSurface) {
-			SDL_Surface* surface = SDL_CreateRGBSurfaceFrom((void*) menu.bitmapSurface->buffer(), Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 4 * 8, Callbacks::settings->HORIZONTAL_RESOLUTION * 4, 0, 0, 0, 0x000000ff);
-			SDL_DestroyTexture(menu.imageTexture);
-			menu.imageTexture = SDL_CreateTextureFromSurface(menu.renderTarget, surface);
-			SDL_FreeSurface(surface);
-
-			SDL_RenderClear(menu.renderTarget);
-			SDL_RenderCopy(menu.renderTarget, menu.imageTexture, 0, 0);
-			SDL_RenderPresent(menu.renderTarget);
-		}
-		else
-		{
-			menu.bitmapSurface = (Awesomium::BitmapSurface*)menu.webView->surface();
-		}
+		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
+		SDL_UpdateWindowSurface(menu.window);
 	}
 }
 
@@ -100,9 +88,10 @@ void Menu::initSDL()
 		OutputDebugString(SDL_GetError());
 	}
 
-	renderTarget = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-	if (!renderTarget)
+	windowSurface = SDL_GetWindowSurface(window);
+	bitmapSurface = (Awesomium::BitmapSurface*) webView->surface();
+	imageSurface = SDL_CreateRGBSurfaceFrom((void*) bitmapSurface->buffer(), Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 4 * 8, Callbacks::settings->HORIZONTAL_RESOLUTION * 4, 0, 0, 0, 0x000000ff);
+	if (!imageSurface)
 	{
 		OutputDebugString(SDL_GetError());
 	}

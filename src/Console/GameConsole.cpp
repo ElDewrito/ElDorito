@@ -23,6 +23,7 @@ GameConsole::GameConsole()
 	PushLineFromGameToUIQueues("Press the ` key to open the console, or press ENTER to open the chat.");
 	PushLineFromGameToUIQueues("Press PAGE-UP or PAGE-DOWN while the chat is open to scroll.");
 	PushLineFromGameToUIQueues("Press F11 to open server browser. Press F12 to open VoIP settings.");
+	PushLineFromGameToUIQueues("DO NOT LEAVE THE SERVER BROWSER ON FOR TOO LONG AS THERE IS A MEMORY LEAK!");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initIRCName();
