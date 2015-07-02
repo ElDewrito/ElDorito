@@ -1,61 +1,153 @@
 <!DOCTYPE html>
-<html >
-  <head>
-    <meta charset="UTF-8">
-    <title>A Pen by  Trevor L.J.M. McIntire</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.0.2/css/material-design-iconic-font.min.css">
-    
-    
-    
-        <link rel="stylesheet" href="css/style.css">
+<html dir="ltr" lang="en-US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Eldorito Server Browser </title>
 
-    
-    
-    
-  </head>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Raleway" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Quicksand" />
 
-  <body>
+<link rel='stylesheet' href='./css/epicfullscreen.css' type='text/css' media='all' />
+<link rel='stylesheet' href='./css/style.css' type='text/css' media='all' />
+<link rel='stylesheet' href='./css/skin.css' type='text/css' media='all' />
 
-    
-<!--<div class="line"></div>-->
-<div class="container">
-  <div class="header">
-    <div class="section first">
-      <span>Server</span>
-    </div>
-    <div class="section second">
-      <span>Map</span>
-    </div>
-    <div class="section second">
-      <span>Gamemode</span>
-    </div>
-    <div class="section fifth">
-      <span>Players</span>
-    </div>
-    <div class="section fourth">
-      <span>Ping</span>
-    </div>
-  </div>
-  <div class="list">
-  </div>
-  <div class="menu">
-  </div>
-  <div class="controls">
-    <div class="container">
-      <div class="head">
-        <h1>Controls</h1>
-      </div>
-      <a class="btn" id="refresh">Refresh</a>
-    </div>
-  </div>
-  <div class="cover"></div>
+<script type='text/javascript' src='./js/jquery-1.11.0.min.js'></script>
+<script type='text/javascript' src='./js/jquery.ui.core.min.js'></script>
+<script type='text/javascript' src='./js/jquery.epicfullscreen.js'></script>
+<script type='text/javascript' src='./js/jquery.fancybox-1.3.4.pack.js'></script>
+<script type='text/javascript' src='./js/settings.js'></script>
+<script type='text/javascript' src='./js/common.js'></script>
+<div id="fullscreen-1" class="epic-fullscreen" data-image="images/background/background.jpg"></div>
+ 
+</head>
+ 
+<body class="home page">
+ 
+<div id="header-wrapper">
+<div id="header-inner">
+<header></header>
+<div style="clear:both;"></div>
 </div>
-    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
 
-        <script src="js/index.js"></script>
+<div id="content-wrapper">
+        <section class="homepage">
+                <div id="section-title">
+                        <div id="teaser" class="teaser-no-title">
+                                <div id="browser-title"><img src="eldorito.png" alt="" height="50" width="50"> ELDORITO SERVER BROWSER</div>
+                                  <div id="line1"></div>
+                                <header>
+			<!-- Navigation -->
+			<nav id="primary-nav">
+				<div class="menu-main-menu-container">
+					<ul id="menu-main-menu" class="menu">
+						<li class="menu-item current-menu-item current_page_item"><a href="http://167.114.156.21/honline/SkeetLauncher.zip">Download Skeet</a></li>
+					</ul>
+				</div>
+			</nav>
+		</header>
+</nav>
+        <div id="line1"></div>
+        <button id="refresh">Refresh</button>
+        <div id="line1"></div>
+        <table id="serverlist" style="width:100%">
+  <tr>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);">Server Name | Host Player</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Map</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Game Type</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Status</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Players</b></td>
+    <td style="padding-left:10px;background-color: rgba(255, 255, 255, 0.1);color: rgba(255,255,255,0.95);"><b>Ping</b></td>
+  </tr>
+</table><br>
+ 
+<script type="text/javascript">
+$(document).ready(function()
+{
+    // queryServer("192.99.124.162/list");
+   // addServer("127.0.0.1:11775", "Test server", "emoose", "Guardian", "guardian", "Team Slayer", "1", "16");
+});
 
+    $("#serverlist").find("tr:gt(0)").remove();
+    $.getJSON( "http://192.99.124.162/list", function( data ) {
+        if(data.result.code != 0)
+        {
+            alert("Error received from master: " + data.result.msg);
+            return;
+        }
+        console.log(data);
+        for(var i = 0; i < data.result.servers.length; i++)
+        {
+            var serverIP = data.result.servers[i];
+            queryServer(serverIP);
+        }
+    });
+
+$("#refresh").click(function()
+{
+    $("#serverlist").find("tr:gt(0)").remove();
+    $.getJSON( "http://192.99.124.162/list", function( data ) {
+        if(data.result.code != 0)
+        {
+            alert("Error received from master: " + data.result.msg);
+            return;
+        }
+        console.log(data);
+        for(var i = 0; i < data.result.servers.length; i++)
+        {
+            var serverIP = data.result.servers[i];
+            queryServer(serverIP);
+        }
+    });
+});
     
-    
-    
-  </body>
+function queryServer(serverIP)
+{
+    console.log(serverIP);
+    var startTime = Date.now();
+    $.getJSON("http://" + serverIP, function(serverInfo) {
+        var timeTaken = Date.now() - startTime;
+        console.log(timeTaken);
+        if(serverInfo.name === undefined) return;
+        var isPassworded = serverInfo.passworded !== undefined;
+//if no serverInfo.map, they jumped into an active game without unannouncing their server, causing a duplicate unjoinable game
+        if(serverInfo.map == "") return;
+        addServer(serverIP, isPassworded, serverInfo.name, serverInfo.hostPlayer, serverInfo.map, serverInfo.mapFile, serverInfo.variant, serverInfo.status, serverInfo.numPlayers, serverInfo.maxPlayers, timeTaken);
+        console.log(serverInfo);
+    });
+}
+
+function promptPassword(serverIP)
+{
+    var password = prompt("The server at " + serverIP + " is passworded, enter the password to join", "");
+    if(password != null)
+    {
+        window.open("dorito:" + serverIP + "/" + password);
+    }
+}
+
+function addServer(ip, isPassworded, name, host, map, mapfile, gamemode, status, numplayers, maxplayers, ping)
+{
+//because people can't be trusted with html tags, filter them out
+    var rex = /(<([^>]+)>)/ig;
+    var servName = "<td><a href=\"#\" onClick=\"callbacks.connect('" + ip + "');\">" + name.replace(rex , "") + " (" + host + ")</a></td>";
+    if(isPassworded)
+        servName = "<td><a href=\"#\" onclick=\"promptPassword('" + ip + "');\">[PASSWORDED] " + name + " (" + host + ")</a></td>";
+        
+    var servMap = "<td>" + map + " (" + mapfile + ")</td>";
+    var servType = "<td>" + gamemode + "</td>";
+    var servStatus = "<td>" + status + "</td>";
+    var servPlayers = "<td>" + numplayers + "/" + maxplayers + "</td>";
+    var servPing = "<td>" + ping + "</td>";
+
+    $('#serverlist tr:last').after("<tr>" + servName + servMap + servType + servStatus + servPlayers + servPing + "</tr>");
+}
+</script>
+        <div id="line1"></div>
+            </div>
+        </div>
+    </section> 
+</div>
+</body>
 </html>

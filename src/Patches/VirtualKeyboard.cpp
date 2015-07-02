@@ -4,6 +4,7 @@
 #include "../Patch.hpp"
 
 #include <ShlObj.h>
+#include "../Console/GameConsole.hpp"
 
 namespace
 {
@@ -116,25 +117,36 @@ namespace
 
 	bool ShowKeyboard(VirtualKeyboard *keyboard, const char *file, int line)
 	{
-		/*
-		TODO: This function is currently broken because it uses wide chars when GameConsole and the rest of this program uses chars.
+		auto& console = GameConsole::Instance();
+
+		if (!console.showChat && !console.showConsole)
+		{
+			console.displayChat(true);
+		}
+		else if (console.showChat)
+		{
+			console.hideConsole();
+			console.displayChat(true);
+		}
+
+		std::wstring titleUnicode(keyboard->title);
+		std::wstring descriptionUnicode(keyboard->description);
+		std::string title(titleUnicode.begin(), titleUnicode.end());
+		std::string description(descriptionUnicode.begin(), descriptionUnicode.end());
 
 		// This is kinda shitty, but just prompt the user for input by using the console
 		// Might be better to actually show a dialog or something
-		SetForegroundWindow(GetConsoleWindow());
-		std::wcout << std::endl;
-		std::wcout << keyboard->title << std::endl;
-		std::wcout << keyboard->description << std::endl;
-		std::wcout << L"> ";
-		std::wstring text;
-		std::getline(std::wcin, text);
-		wcscpy_s(keyboard->text, text.c_str());
+		console.consoleQueue.pushLineFromGameToUI(title);
+		console.consoleQueue.pushLineFromGameToUI(description);
+		
+		// std::wstring text;
+		// std::getline(std::wcin, text);
+		// wcscpy_s(keyboard->text, text.c_str());
 
 		// Not 100% sure on this next line,
 		// it's some sort of state value and 4 seems to mean "done"
 		// because it makes the Forge code copy the text somewhere
 		keyboard->unk6 = 4;
-		*/
 		return true;
 	}
 }

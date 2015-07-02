@@ -16,7 +16,6 @@ private:
 	const size_t INPUT_MAX_CHARS = 400;
 	bool capsLockToggled = false;
 	static void startIRCBackend();
-	void hideConsole();
 	void initIRCName();
 	void handleDefaultKeyInput(USHORT vKey);
 
@@ -47,5 +46,6 @@ public:
 	void SwitchToGameChat();
 	void mouseCallBack(RAWMOUSE mouseInfo);
 	std::string GenerateIRCNick(std::string name, uint64_t uid);
+	void hideConsole();
 	void displayChat(bool console);
 };
