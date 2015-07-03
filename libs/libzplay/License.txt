@@ -1,0 +1,155 @@
+libZPlay is released under GNU GPL license. 
+
+Copyright (C) 2010. Zoran Cindori 
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software Foundation;
+either version 2 of the License, or (at your option) any later version. 
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details. 
+
+You should have received a copy of the GNU General Public License along with this program;
+if not, write to the Free Software Foundation, Inc., 51 Franklin Street,
+Fifth Floor, Boston, MA 02110-1301, USA.  
+
+
+
+===========================================================================================
+libZPlay library is powered by:
+===========================================================================================
+
+ * ============================================================================
+ * libmad - MPEG audio decoder library
+ * Copyright (C) 2000-2004 Underbit Technologies, Inc. <support@underbit.com>
+ * http://www.underbit.com/products/mad/
+ * GNU General Public License ( GPL.TXT )
+ * ============================================================================
+ * THE OggVorbis SOURCE CODE IS (C) COPYRIGHT 1994-2002 
+ * by the Xiph.Org Foundation http://www.xiph.org/
+ * BSD-STYLE SOURCE LICENSE  ( XIPH.TXT )
+ * ============================================================================
+ * LIBA52
+ * free library for decoding ATSC A/52 streams.
+ * It is released under the terms of the GPL license.
+ * ============================================================================
+ * FLAC - Free Lossless Audio Codec
+ * Copyright (C) 2001,2002,2003,2004,2005,2006,2007  Josh Coalson
+ * http://flac.sourceforge.net/
+ *
+ * This file is part the FLAC project.  FLAC is comprised of several
+ * components distributed under difference licenses.  The codec libraries
+ * are distributed under Xiph.Org's BSD-like license (see the file
+ * XIPH.TXT in this distribution).  All other programs, libraries, and
+ * plugins are distributed under the LGPL or GPL (see LGPL.TXT and
+ * GPL.TXT).  The documentation is distributed under the Gnu FDL (see
+ * FDL.TXT).  Each file in the FLAC distribution contains at the top the
+ * terms under which it may be distributed.
+ *
+ * Since this particular file is relevant to all components of FLAC,
+ * it may be distributed under the Xiph.Org license, which is the least
+ * restrictive of those mentioned above.  See the file XIPH.TXT in this
+ * distribution.
+ * ============================================================================
+ * FAAD2 - Freeware Advanced Audio (AAC) Decoder including SBR decoding
+ * Copyright (C) 2003-2005 M. Bakker, Nero AG, http://www.nero.com
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * Any non-GPL usage of this software or parts of this software is strictly
+ * forbidden.
+ *
+ * The "appropriate copyright message" mentioned in section 2c of the GPLv2
+ * must read: "Code from FAAD2 is copyright (c) Nero AG, www.nero.com"
+ *
+ * Commercial non-GPL licensing of this software is possible.
+ * For more info contact Nero AG through Mpeg4AAClicense@nero.com.
+ *
+ * ============================================================================
+ * FAAC - Freeware Advanced Audio Coder Copyright (C) 2001 M. Bakker
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version. 
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. 
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+ *
+ * ============================================================================
+ * libmp3lame encoder
+ * LAME 3.xx LAME Ain't an MP3 Encoder http://www.mp3dev.org March 2001 
+ * 
+ * Originally developed by Mike Cheng (www.uq.net.au/~zzmcheng).
+ * Now maintained by Mark Taylor (www.mp3dev.org). 
+ *
+ * This code is distributed under the GNU LESSER PUBLIC LICENSE (LGPL, see www.gnu.org)
+ * with the following modification: 
+ * 
+ * If you determine that distribution of LAME requires a patent license,
+ * and you obtain a patent license, you may distribute LAME even though redistribution
+ * of LAME may also require a patent license. 
+ *
+ * You agree not to enforce any patent claims for any aspect of MPEG audio compression,
+ * or any other techniques contained in the LAME source code. 
+ *
+ * Copyrights (c) 1999-1007 by The LAME Project Copyrights (c) 1999,2000,2001
+ * by Mark Taylor Copyrights (c) 1999,2000,2001 by Mark Taylor Copyrights
+ * (c) 1998 by Michael Cheng Copyrights (c) 1995,1996,1997 by Michael Hipp: mpglib
+ *
+ * ============================================================================
+ * SoundTouch library Copyright (c) Olli Parviainen 2002-2009 
+ * http://www.surina.net/soundtouch
+ * GNU Lesser General Public License vesrion 2.1 (LGPL.TXT )
+ * ============================================================================
+ * Center Cut DSP Plugin for Winamp 2.x 
+ * Copyright (C) 2004  Moitah (moitah@yahoo.com)
+ * GNU General Public License ( GPL.TXT )
+ * ============================================================================
+ * Shibatch Super Equalizer ver 0.03 for winamp
+ * written by Naoki Shibata  shibatch@users.sourceforge.net
+ * http://shibatch.sourceforge.net/
+ *
+ * Shibatch Super Equalizer (except FFT part) is distributed under LGPL.
+ * See LGPL.txt for details.
+ * FFT part is a routine made by Mr.Ooura. This routine is a freeware.
+ * Contact Mr.Ooura for details of distributing licenses.
+ * http://momonga.t.u-tokyo.ac.jp/~ooura/fft.html
+ * ============================================================================
+ * The Independent JPEG Group's JPEG software
+ * JPEG decoding library
+ * Copyright (C) 1991-2010, Thomas G. Lane, Guido Vollbeding.
+ * www.ijg.org
+ * ============================================================================
+ * ZLIB DATA COMPRESSION LIBRARY
+ * (C) 1995-2010 Jean-loup Gailly and Mark Adler
+ * http://zlib.net/ 
+ * ============================================================================
+ * libpng library
+ * PNG picture decoding library
+ * Copyright (c) 2004, 2006-2007 Glenn Randers-Pehrson
+ * http://www.libpng.org/
+ * ============================================================================
+
+
+Read ./license directory for more informations.
+

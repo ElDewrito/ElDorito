@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{eacddce7-6b19-49ab-bfa4-a8cdd3630e5e}</UniqueIdentifier>
+      <Extensions>c</Extensions>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{a8aa1b01-ca37-4ad1-a9b1-ed1793b83882}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Asm">
+      <UniqueIdentifier>{eb9d43ae-6a2a-4ee9-91e2-d4a4b3040355}</UniqueIdentifier>
+      <Extensions>.nas</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bitstream.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="encoder.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="fft.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="gain_analysis.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="id3tag.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="lame.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mpglib_interface.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="newmdct.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="presets.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="psymodel.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="quantize.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="quantize_pvt.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="reservoir.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="set_get.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="tables.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="takehiro.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="util.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="vbrquantize.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="VbrTag.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="version.c">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bitstream.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="encoder.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="fft.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="gain_analysis.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="id3tag.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="l3side.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="lame-analysis.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="lame_global_flags.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="lameerror.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="machine.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="newmdct.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="psymodel.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="quantize.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="quantize_pvt.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="reservoir.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="set_get.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="tables.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="vbrquantize.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="VbrTag.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="i386\fft.nas">
+      <Filter>Asm</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="i386\fftfpu.nas">
+      <Filter>Asm</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="i386\ffttbl.nas">
+      <Filter>Asm</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="i386\scalar.nas">
+      <Filter>Asm</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\configMS.h">
+      <Filter>Include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="i386\choose_table.nas">
+      <Filter>Asm</Filter>
+    </CustomBuild>
+    <CustomBuild Include="i386\cpu_feat.nas">
+      <Filter>Asm</Filter>
+    </CustomBuild>
+    <CustomBuild Include="i386\fft3dn.nas">
+      <Filter>Asm</Filter>
+    </CustomBuild>
+    <CustomBuild Include="i386\fftsse.nas">
+      <Filter>Asm</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

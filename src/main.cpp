@@ -84,9 +84,23 @@
 	return EXCEPTION_CONTINUE_SEARCH;
 }*/
 
+extern BOOL installMedalJunk();
+
+void initMedals()
+{
+	// This is kind of a hack, but only install the medal system for now if
+	// halo3.zip can be opened for reading
+	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
+	if (!halo3Zip.is_open())
+		return;
+	halo3Zip.close();
+	installMedalJunk();
+}
+
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
+	initMedals();
 
 	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());

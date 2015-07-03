@@ -1,0 +1,11 @@
+
+REP  --> dont change flags, CMPSB/SCASB->change, LODSB/INSB/OUTSB/MOVSB-dont
+
+setxx
+
+cld/std/cmpsb/...   remove DF-src-set
+
+stackseg-size for PUSH (not 67)
+  src_set = SP, need ESP
+
+...

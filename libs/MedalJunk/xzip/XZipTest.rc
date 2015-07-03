@@ -1,0 +1,244 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "#ifdef _VC60\r\n"
+    "/////////////////////////////////////////////////////////////////////////////\r\n"
+    "//\r\n"
+    "// 24\r\n"
+    "//\r\n"
+    "1                      24      MOVEABLE PURE   ""app.manifest""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "hans.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 270, 131
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About XZipTest"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,14,20,20,SS_CENTERIMAGE | 
+                    WS_BORDER
+    LTEXT           "XZipTest Version 1.3",IDC_STATIC,40,13,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright © 2007 Hans Dietrich",IDC_STATIC,40,27,165,8
+    LTEXT           "This software is provided ""as is"" with no expressed or implied warranty.  I accept no liability for any damage or loss of business that this software may cause. ",
+                    IDC_STATIC,40,71,165,32
+    LTEXT           "Send email to Hans Dietrich",IDC_ABOUT_EMAIL,90,113,90,
+                    8,SS_CENTERIMAGE
+    DEFPUSHBUTTON   "OK",IDOK,209,9,50,14,WS_GROUP
+    LTEXT           "This software is released into the public domain.  You are free to use it in any way you like, except that you may not sell this source code.",
+                    IDC_STATIC,40,41,165,24
+END
+
+IDD_XZIPTEST_DIALOG DIALOGEX 0, 0, 240, 210
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION |
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "XZipTest"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Test",IDC_TEST,174,10,60,16
+    LISTBOX         IDC_LIST,5,35,230,170,LBS_OWNERDRAWFIXED |
+                    LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL |
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
+END
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_XLISTBOX MENU DISCARDABLE
+BEGIN
+    POPUP "XListBox"
+    BEGIN
+        MENUITEM "&Select All",                 ID_EDIT_SELECT_ALL
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "C&lear",                      ID_EDIT_CLEAR
+    END
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,3,0,1
+ PRODUCTVERSION 1,3,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "E-mail", "hdietrich@gmail.com\0"
+            VALUE "Article", "www.codeproject.com\0"
+            VALUE "FileDescription", "XZipTest\0"
+            VALUE "FileVersion", "1, 3, 0, 1\0"
+            VALUE "LegalCopyright", "Copyright © 2007 Hans Dietrich\0"
+            VALUE "OriginalFilename", "XZipTest.exe\0"
+            VALUE "ProductName", "XZipTest\0"
+            VALUE "ProductVersion", "1, 3, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE
+BEGIN
+    IDD_XZIPTEST_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 233
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_ABOUTBOX            "&About XZipTest..."
+    IDS_MAILTO              "mailto:hdietrich@gmail.com?subject=XZip"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "afxres.rc"         // Standard components
+#endif
+#ifdef _VC60
+/////////////////////////////////////////////////////////////////////////////
+//
+// 24
+//
+1                      24      MOVEABLE PURE   "app.manifest"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

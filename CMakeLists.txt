@@ -1,5 +1,36 @@
 cmake_minimum_required(VERSION 3.2)
 
+# Creates source groups for a target
+function(create_source_groups TARGET)
+  get_property(SOURCES TARGET ${TARGET} PROPERTY SOURCES)
+  foreach(FILE ${SOURCES}) 
+    get_filename_component(PARENT_DIR "${FILE}" PATH)
+
+    # skip src or include and changes /'s to \\'s
+    string(REGEX REPLACE "(\\./)?(src|include)/?" "" GROUP "${PARENT_DIR}")
+    string(REPLACE "/" "\\" GROUP "${GROUP}")
+
+    # group into "Source Files" and "Header Files"
+    if ("${FILE}" MATCHES "\\.c(pp)?$")
+      set(GROUP "Source Files\\${GROUP}")
+    elseif("${FILE}" MATCHES "\\.h(pp)?$")
+      set(GROUP "Header Files\\${GROUP}")
+    endif()
+
+    source_group("${GROUP}" FILES "${FILE}")
+  endforeach()
+
+  # Create a solution folder for the target based on the directory this
+  # function was called from
+
+  # There doesn't seem to be a function to convert an absolute path to a
+  # relative one, so hack around it by getting the length of the root directory
+  # and chopping it off of the beginning of the target's directory
+  string(LENGTH "${CMAKE_SOURCE_DIR}" SOURCE_DIR_LENGTH)
+  string(SUBSTRING "${CMAKE_CURRENT_SOURCE_DIR}" ${SOURCE_DIR_LENGTH} -1 FOLDER_NAME)
+  set_target_properties(${TARGET} PROPERTIES FOLDER "${FOLDER_NAME}")
+endfunction()
+
 # Statically link MSVC++ runtime to output
 set(CMAKE_USER_MAKE_RULES_OVERRIDE
    ${CMAKE_CURRENT_SOURCE_DIR}/c_flag_overrides.cmake)
@@ -13,10 +44,28 @@ set(HALO_ROOT "C:/Halo/" CACHE PATH "Root of the Halo install")
 project(ElDorito)
 
 # Add CXX flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
 
-# Add all source files
-set(SOURCE_FILES
+# Enable solution folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Subdirectories
+add_subdirectory(libs/lua-5.3.0)
+add_subdirectory(libs/libzplay)
+add_subdirectory(libs/MedalJunk)
+
+# Library directories
+link_directories($ENV{DXSDK_DIR}/Lib/x86)
+link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
+link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/lib/x86)
+
+# Create main target
+add_library(ElDorito SHARED
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
     src/Blam/BlamTypes.hpp
@@ -119,42 +168,16 @@ set(SOURCE_FILES
     src/ForgeSavingDialog.rc
     src/ElDorito.def)
 
+create_source_groups(ElDorito)
+
 # Include directories
-include_directories($ENV{DXSDK_DIR}/Include)
-include_directories(${CMAKE_SOURCE_DIR}/libs/detours/include)
-include_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include)
-include_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/include)
-include_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/include)
-include_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/include)
-
-# Library directories
-link_directories($ENV{DXSDK_DIR}/Lib/x86)
-link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
-link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/lib/x86)
-
-# Generate DLL from source files
-add_library(ElDorito SHARED ${SOURCE_FILES})
-
-# Preserve directory structure
-foreach(FILE ${SOURCE_FILES}) 
-  get_filename_component(PARENT_DIR "${FILE}" PATH)
-
-  # skip src or include and changes /'s to \\'s
-  string(REGEX REPLACE "(\\./)?(src|include)/?" "" GROUP "${PARENT_DIR}")
-  string(REPLACE "/" "\\" GROUP "${GROUP}")
-
-  # group into "Source Files" and "Header Files"
-  if ("${FILE}" MATCHES ".*\\.cpp")
-    set(GROUP "Source Files\\${GROUP}")
-  elseif("${FILE}" MATCHES ".*\\.h")
-    set(GROUP "Header Files\\${GROUP}")
-  endif()
-
-  source_group("${GROUP}" FILES "${FILE}")
-endforeach()
+target_include_directories(ElDorito PRIVATE
+  $ENV{DXSDK_DIR}/Include
+  ${CMAKE_SOURCE_DIR}/libs/detours/include
+  ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
+  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
+  ${CMAKE_SOURCE_DIR}/libs/awesomium/include
+  ${CMAKE_SOURCE_DIR}/libs/SDL2/include)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -165,19 +188,21 @@ if(IS_DIRECTORY ${HALO_ROOT})
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files
-target_link_libraries(ElDorito d3d9)
-target_link_libraries(ElDorito d3dx9)
-target_link_libraries(ElDorito Version)
-target_link_libraries(ElDorito ws2_32)
-target_link_libraries(ElDorito detours)
-target_link_libraries(ElDorito libeay32MT)
-target_link_libraries(ElDorito ts3client_win32)
-target_link_libraries(ElDorito ts3client_win64)
-target_link_libraries(ElDorito ts3server_win32)
-target_link_libraries(ElDorito ts3server_win64)
-target_link_libraries(ElDorito awesomium)
-target_link_libraries(ElDorito SDL2)
-target_link_libraries(ElDorito SDL2main)
+target_link_libraries(ElDorito
+  d3d9
+  d3dx9
+  Version
+  ws2_32
+  detours
+  libeay32MT
+  ts3client_win32
+  ts3client_win64
+  ts3server_win32
+  ts3server_win64
+  awesomium
+  SDL2
+  SDL2main
+  MedalJunk)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")
