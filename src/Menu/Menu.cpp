@@ -15,30 +15,28 @@ void Menu::startMenu()
 
 	while (true)
 	{
-		static bool switchedBackToGame = false;
 		if (!menu.menuEnabled)
 		{
-			if (!switchedBackToGame)
+			if (!menu.switchedBackToGame)
 			{
 				ShowWindow(menu.hWnd, SW_SHOW);
 				SDL_HideWindow(menu.window);
-				switchedBackToGame = true;
+				menu.switchedBackToGame = true;
 			}
 			Sleep(1000);
 			continue;
 		}
 
-		switchedBackToGame = false;
+		menu.switchedBackToGame = false;
 
 		while (menu.webView->IsLoading())
 		{
 			menu.webCore->Update();
 		}
 
-		static bool sdlInit = false;
-		if (!sdlInit)
+		if (!menu.sdlInit)
 		{
-			sdlInit = true;
+			menu.sdlInit = true;
 			if (!menu.initSDL())
 			{
 				return;
@@ -63,6 +61,10 @@ void Menu::startMenu()
 			else if (ev.type == SDL_MOUSEMOTION)
 			{
 				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
+			}
+			else if (ev.type == SDL_KEYUP && ev.key.keysym.sym == SDLK_F11)
+			{
+				menu.disableMenu();
 			}
 		}
 

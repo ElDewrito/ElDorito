@@ -16,6 +16,9 @@ class Menu : public Utils::Singleton<Menu>
 {
 private:
 	bool menuEnabled = false; // TODO: change back to true
+	bool switchedBackToGame = false;
+	bool sdlInit = false;
+
 	HWND hWnd = *((HWND*)0x199C014);
 	SDL_Window* window = nullptr;
 	SDL_Surface* windowSurface = nullptr;
