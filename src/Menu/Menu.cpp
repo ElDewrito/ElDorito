@@ -11,12 +11,66 @@ void Menu::startMenu()
 		return;
 	}
 
-	if (!menu.initSDL())
-	{
-		return;
-	}
+	SDL_Event ev;
 
-	startLoop();
+	while (true)
+	{
+		static bool switchedBackToGame = false;
+		if (!menu.menuEnabled)
+		{
+			if (!switchedBackToGame)
+			{
+				ShowWindow(menu.hWnd, SW_SHOW);
+				SDL_HideWindow(menu.window);
+				switchedBackToGame = true;
+			}
+			Sleep(1000);
+			continue;
+		}
+
+		switchedBackToGame = false;
+
+		while (menu.webView->IsLoading())
+		{
+			menu.webCore->Update();
+		}
+
+		static bool sdlInit = false;
+		if (!sdlInit)
+		{
+			sdlInit = true;
+			if (!menu.initSDL())
+			{
+				return;
+			}
+		}
+
+		while (SDL_PollEvent(&ev))
+		{
+			if (ev.type == SDL_QUIT)
+			{
+				menu.menuEnabled = false;
+				continue;
+			}
+			else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
+			{
+				menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
+			}
+			else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT)
+			{
+				menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
+			}
+			else if (ev.type == SDL_MOUSEMOTION)
+			{
+				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
+			}
+		}
+
+		menu.webCore->Update();
+
+		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
+		SDL_UpdateWindowSurface(menu.window);
+	}
 }
 
 Menu::Menu()
@@ -92,8 +146,6 @@ bool Menu::initSDL()
 		SDL_HideWindow(window);
 		return false;
 	}
-
-	ShowWindow(hWnd, SW_HIDE);
 	return true;
 }
 
@@ -150,54 +202,17 @@ void Menu::bindCallbacks()
 	webView->set_js_method_handler(&methodDispatcher);
 }
 
-void Menu::startLoop()
-{
-	auto& menu = Menu::Instance();
-	SDL_Event ev;
-
-	while (menu.menuEnabled)
-	{
-		while (menu.webView->IsLoading())
-		{
-			menu.webCore->Update();
-		}
-
-		while (SDL_PollEvent(&ev))
-		{
-			if (ev.type == SDL_QUIT)
-			{
-				menu.menuEnabled = false;
-				continue;
-			}
-			else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
-			{
-				menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
-			}
-			else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT)
-			{
-				menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
-			}
-			else if (ev.type == SDL_MOUSEMOTION)
-			{
-				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
-			}
-		}
-
-		menu.webCore->Update();
-
-		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
-		SDL_UpdateWindowSurface(menu.window);
-	}
-
-	ShowWindow(menu.hWnd, SW_SHOW);
-}
-
 void Menu::toggleMenu()
 {
 	menuEnabled = !menuEnabled;
 	if (menuEnabled)
 	{
-		startLoop();
+		ShowWindow(hWnd, SW_HIDE);
+		while (!window)
+		{
+			Sleep(100);
+		}
+		SDL_ShowWindow(window);
 	}
 }
 

@@ -29,7 +29,6 @@ private:
 	Awesomium::BitmapSurface* bitmapSurface = nullptr;
 
 	static void startMenu();
-	static void startLoop();
 	bool initAwesomium();
 	bool initSDL();
 	void bindCallbacks();
