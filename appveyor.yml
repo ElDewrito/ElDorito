@@ -57,7 +57,6 @@ notifications:
   url: https://dewrito.halo.click/api/push_build
   on_build_success: true
   on_build_failure: true
-  on_build_status_changed: true
 #deploy_script:
 #  - cd c:\projects\sqlite
 #  - curl -T sqlite.zip --user %ACCOUNT% https://webdav.yandex.ru/libs/sqlite.zip
