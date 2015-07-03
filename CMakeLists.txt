@@ -116,6 +116,7 @@ set(SOURCE_FILES
     src/Pointer.hpp
     src/resource.h
     src/ElDorito.rc
+    src/ForgeSavingDialog.rc
     src/ElDorito.def)
 
 # Include directories

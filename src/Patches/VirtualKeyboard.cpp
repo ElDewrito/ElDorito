@@ -4,7 +4,8 @@
 #include "../Patch.hpp"
 
 #include <ShlObj.h>
-#include "../Console/GameConsole.hpp"
+#include <windows.h>
+#include "../resource.h"
 
 namespace
 {
@@ -115,34 +116,35 @@ namespace
 		keyboard->SetDescription(newDescription);
 	}
 
+	char* inputLineText;
+	INT_PTR CALLBACK DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		if (uMsg == WM_COMMAND && wParam == 1)
+		{
+			HWND textEditHandle = GetDlgItem(hwndDlg, 0);
+			int len = SendMessage(textEditHandle, WM_GETTEXTLENGTH, 0, 0);
+			inputLineText = new char[len + 1];
+			SendMessage(textEditHandle, WM_GETTEXT, (WPARAM)len + 1, (LPARAM)inputLineText);
+			EndDialog(hwndDlg, 0);
+			return true;
+		}
+		return false;
+	}
+
+	static wchar_t* charToWChar(const char* text)
+	{
+		size_t size = strlen(text) + 1;
+		wchar_t* wa = new wchar_t[size];
+		mbstowcs(wa, text, size);
+		return wa;
+	}
+
 	bool ShowKeyboard(VirtualKeyboard *keyboard, const char *file, int line)
 	{
-		auto& console = GameConsole::Instance();
-
-		if (!console.showChat && !console.showConsole)
-		{
-			console.displayChat(true);
-		}
-		else if (console.showChat)
-		{
-			console.hideConsole();
-			console.displayChat(true);
-		}
-
-		std::wstring titleUnicode(keyboard->title);
-		std::wstring descriptionUnicode(keyboard->description);
-		std::string title(titleUnicode.begin(), titleUnicode.end());
-		std::string description(descriptionUnicode.begin(), descriptionUnicode.end());
-
-		// This is kinda shitty, but just prompt the user for input by using the console
-		// Might be better to actually show a dialog or something
-		console.consoleQueue.pushLineFromGameToUI(title);
-		console.consoleQueue.pushLineFromGameToUI(description);
+		DialogBoxParam(GetModuleHandle("mtndew.dll"), MAKEINTRESOURCE(IDD_DIALOG1), *((HWND*)0x199C014), &DialogProc, 0);
+		wcscpy_s(keyboard->text, charToWChar(inputLineText));
+		delete inputLineText;
 		
-		// std::wstring text;
-		// std::getline(std::wcin, text);
-		// wcscpy_s(keyboard->text, text.c_str());
-
 		// Not 100% sure on this next line,
 		// it's some sort of state value and 4 seems to mean "done"
 		// because it makes the Forge code copy the text somewhere
