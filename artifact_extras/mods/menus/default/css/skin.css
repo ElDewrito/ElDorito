@@ -42,6 +42,10 @@ h6, h6 span { font-size:20px; line-height:20px; }
 	line-height:24px;
 }
 
+td{
+	padding:10px;background:rgba(255, 255, 255, 0.05);
+}
+
 
 #browser-title {
     height:50px;
@@ -57,10 +61,7 @@ h6, h6 span { font-size:20px; line-height:20px; }
 }
 
 #refresh{
-	  background: -webkit-linear-gradient(#fff, #999);
-	  color:black;
-	  border: 1px solid #000;
-	  width:100px;
+	  width:840px;
 	  height:25px;
 }
 
@@ -156,7 +157,7 @@ body { background:#000000; color:#777777; }
 
 #content-wrapper section.portfolio, #content-wrapper section.portfolio-fixed-width-grid, #content-wrapper section.portfolio-full-width-grid, 
 #content-wrapper section.pages, #content-wrapper section.homepage, #content-wrapper section.latest-posts-grid, #folio-navigation, .pagination.detached {
-	margin-bottom:5px;box-shadow:0 0 5px rgba(0, 0, 0, 0.4);background:rgba(24, 24, 24, 0.71);
+	margin-bottom:40px;box-shadow:0 0 5px rgba(0, 0, 0, 0.4);background:rgba(24, 24, 24, 0.71);
 	
 }
 
