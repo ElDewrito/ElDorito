@@ -26,17 +26,15 @@ bool DirectXHook::drawVoIPSettings = false;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
-	if (Menu::Instance().menuEnabled)
-	{
-		return D3D_OK;
-	}
-
 	DirectXHook::pDevice = device;
 
 	initFontsIfRequired();
 
 	DirectXHook::drawVoipMembers();
-	DirectXHook::drawChatInterface();
+	if (!GameConsole::Instance().disableUI)
+	{
+		DirectXHook::drawChatInterface();
+	}
 	if (drawVoIPSettings)
 	{
 		DirectXHook::drawVoipSettings();

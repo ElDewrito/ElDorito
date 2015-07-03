@@ -15,30 +15,29 @@
 class Menu : public Utils::Singleton<Menu>
 {
 private:
+	bool menuEnabled = false; // TODO: change back to true
 	HWND hWnd = *((HWND*)0x199C014);
 	SDL_Window* window = nullptr;
 	SDL_Surface* windowSurface = nullptr;
 	SDL_Surface* imageSurface = nullptr;
-	Awesomium::BitmapSurface* bitmapSurface = nullptr;
 
 	MethodDispatcher methodDispatcher;
 	Callbacks callbacks{};
 
 	Awesomium::WebCore* webCore;
 	Awesomium::WebView* webView;
-	POINT oldCursorLocation;
-	POINT newCursorLocation;
-	DWORD lastLeftClick = GetTickCount();
+	Awesomium::BitmapSurface* bitmapSurface = nullptr;
 
-	static void startAwesomiumLoop();
-	void handleMouseInput();
-	void initAwesomium();
-	void initSDL();
+	static void startMenu();
+	static void startLoop();
+	bool initAwesomium();
+	bool initSDL();
 	void bindCallbacks();
+	bool doesFileExist(const char *fileName);
 
 public:
-	bool menuEnabled = false; // TODO: change back to true
-
 	Menu();
 	~Menu();
+	void toggleMenu();
+	void disableMenu();
 };

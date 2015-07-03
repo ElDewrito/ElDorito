@@ -80,10 +80,15 @@ void KeyboardHook::keyCallBack(USHORT vKey)
 			console.displayChat(true);
 		}
 
+		if (vKey == VK_F10)
+		{
+			GameConsole::Instance().disableUI = !GameConsole::Instance().disableUI;
+		}
+
 		// TODO: TEMP: remove
 		if (vKey == VK_F11)
 		{
-			Menu::Instance().menuEnabled = !Menu::Instance().menuEnabled;
+			Menu::Instance().toggleMenu();
 		}
 
 		if (vKey == VK_F12)

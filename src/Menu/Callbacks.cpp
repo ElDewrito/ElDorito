@@ -232,7 +232,7 @@ void Callbacks::serverCallback(Awesomium::WebView* caller, const Awesomium::JSAr
 // TODO: TEMP: remove                           connect(string in form of ip:port)
 void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-	Menu::Instance().menuEnabled = false;
+	Menu::Instance().disableMenu();
 
 	std::string connectCommand("connect ");
 	connectCommand.append(Awesomium::ToString(args.At(0).ToString()));

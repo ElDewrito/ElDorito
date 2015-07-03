@@ -1,91 +1,86 @@
 #include "Menu.hpp"
+#include <fstream>
+#include "..\Console\GameConsole.hpp"
 
-void Menu::startAwesomiumLoop()
+void Menu::startMenu()
 {
 	auto& menu = Menu::Instance();
 
-	menu.initAwesomium();
-	menu.initSDL();
-
-	while (true)
+	if (!menu.initAwesomium())
 	{
-		if (!menu.menuEnabled)
-		{
-			Sleep(1000);
-			continue;
-		}
-
-		while (menu.webView->IsLoading())
-		{
-			menu.webCore->Update();
-		}
-
-		menu.handleMouseInput();
-		menu.webCore->Update();
-
-		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
-		SDL_UpdateWindowSurface(menu.window);
+		return;
 	}
+
+	if (!menu.initSDL())
+	{
+		return;
+	}
+
+	startLoop();
 }
 
 Menu::Menu()
 {
-	GetCursorPos(&oldCursorLocation);
-	ScreenToClient(hWnd, &oldCursorLocation);
-
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startAwesomiumLoop, 0, 0, 0);
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startMenu, 0, 0, 0);
 }
 
 Menu::~Menu()
 {
+	SDL_FreeSurface(imageSurface);
+	SDL_FreeSurface(windowSurface);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
+
 	menuEnabled = false;
 	webView->Destroy();
 	Sleep(100);
 	Awesomium::WebCore::Shutdown();
 }
 
-void Menu::handleMouseInput()
+bool Menu::doesFileExist(const char *fileName)
 {
-	GetCursorPos(&newCursorLocation);
-	ScreenToClient(hWnd, &newCursorLocation);
-	if (oldCursorLocation.x != newCursorLocation.x || oldCursorLocation.y != newCursorLocation.y)
-	{
-		webView->InjectMouseMove(newCursorLocation.x, newCursorLocation.y);
-		oldCursorLocation = newCursorLocation;
-	}
-
-	if (GetKeyState(VK_LBUTTON) < 0 && GetTickCount() - lastLeftClick > 200) {
-		webView->InjectMouseDown(Awesomium::kMouseButton_Left);
-		webView->InjectMouseUp(Awesomium::kMouseButton_Left);
-		lastLeftClick = GetTickCount();
-	}
+	std::ifstream infile(fileName);
+	return infile.good();
 }
 
-void Menu::initAwesomium()
+bool Menu::initAwesomium()
 {
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
 
-	char path[260];
-	GetModuleFileName(NULL, path, 260);
-	PathRemoveFileSpec(path);
-	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(std::string(path).append("\\mods\\menus\\default\\index.html").c_str())));
+	char pathToOurDirectory[260];
+	GetModuleFileName(NULL, pathToOurDirectory, 260);
+	PathRemoveFileSpec(pathToOurDirectory);
+
+	std::string fullPath(pathToOurDirectory);
+	fullPath.append("\\mods\\menus\\default\\index.html");
+
+	if (!doesFileExist(fullPath.c_str()))
+	{
+		GameConsole::Instance().PushLineFromGameToUIQueues("Error: HALO_FOLDER/mods/menus/default/index.html does not exist.");
+		return false;
+	}
+
+	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
 
 	bindCallbacks();
+	return true;
 }
 
-void Menu::initSDL()
+bool Menu::initSDL()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		OutputDebugString(SDL_GetError());
+		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
+		return false;
 	}
 
-	window = SDL_CreateWindowFrom(hWnd);
+	window = SDL_CreateWindow("HTML5 Menu", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, SDL_WINDOW_SHOWN);
 
 	if (!window)
 	{
-		OutputDebugString(SDL_GetError());
+		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
+		return false;
 	}
 
 	windowSurface = SDL_GetWindowSurface(window);
@@ -93,8 +88,13 @@ void Menu::initSDL()
 	imageSurface = SDL_CreateRGBSurfaceFrom((void*) bitmapSurface->buffer(), Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 4 * 8, Callbacks::settings->HORIZONTAL_RESOLUTION * 4, 0, 0, 0, 0x000000ff);
 	if (!imageSurface)
 	{
-		OutputDebugString(SDL_GetError());
+		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
+		SDL_HideWindow(window);
+		return false;
 	}
+
+	ShowWindow(hWnd, SW_HIDE);
+	return true;
 }
 
 void Menu::bindCallbacks()
@@ -148,4 +148,60 @@ void Menu::bindCallbacks()
 	}
 
 	webView->set_js_method_handler(&methodDispatcher);
+}
+
+void Menu::startLoop()
+{
+	auto& menu = Menu::Instance();
+	SDL_Event ev;
+
+	while (menu.menuEnabled)
+	{
+		while (menu.webView->IsLoading())
+		{
+			menu.webCore->Update();
+		}
+
+		while (SDL_PollEvent(&ev))
+		{
+			if (ev.type == SDL_QUIT)
+			{
+				menu.menuEnabled = false;
+				continue;
+			}
+			else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
+			{
+				menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
+			}
+			else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT)
+			{
+				menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
+			}
+			else if (ev.type == SDL_MOUSEMOTION)
+			{
+				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
+			}
+		}
+
+		menu.webCore->Update();
+
+		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
+		SDL_UpdateWindowSurface(menu.window);
+	}
+
+	ShowWindow(menu.hWnd, SW_SHOW);
+}
+
+void Menu::toggleMenu()
+{
+	menuEnabled = !menuEnabled;
+	if (menuEnabled)
+	{
+		startLoop();
+	}
+}
+
+void Menu::disableMenu()
+{
+	menuEnabled = false;
 }

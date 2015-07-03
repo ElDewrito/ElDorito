@@ -36,6 +36,7 @@ public:
 	bool consoleBlinking = false;
 	bool showChat = false;
 	bool showConsole = false;
+	bool disableUI = false;
 
 	GameConsole();
 	void PushLineFromGameToUIQueues(std::string text);
