@@ -75,7 +75,7 @@ void KeyboardHook::keyCallBack(USHORT vKey)
 			console.displayChat(false);
 		}
 
-		if (vKey == VK_OEM_3 || vKey == VK_OEM_8) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
+		if (vKey == VK_OEM_3 || vKey == VK_OEM_8 || vKey == VK_F1) // ` key for US and UK (todo: only use one or the other, since VK_OEM_3 is @ on UK keyboards)
 		{
 			console.displayChat(true);
 		}
