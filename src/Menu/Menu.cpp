@@ -66,6 +66,17 @@ void Menu::startMenu()
 			{
 				menu.disableMenu();
 			}
+			else if (ev.type == SDL_MOUSEWHEEL)
+			{
+				if (ev.wheel.y > 0)
+				{
+					menu.webView->InjectMouseWheel(15, 0);
+				}
+				else
+				{
+					menu.webView->InjectMouseWheel(-15, 0);
+				}
+			}
 		}
 
 		menu.webCore->Update();
