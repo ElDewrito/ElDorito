@@ -45,13 +45,12 @@ after_build:
 artifacts:
   - path: Eldewrito-Installer.exe
     name: Eldewrito-Installer.exe
-deploy:
+notifications:
 - provider: Webhook
   url: https://dewrito.halo.click/api/push_build
-  authorization:
-    secure: wzN3/0mMzFM6sEayzxF2NQ==
-  on_build_success: True
-  on_build_failure: True
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
 #deploy_script:
 #  - cd c:\projects\sqlite
 #  - curl -T sqlite.zip --user %ACCOUNT% https://webdav.yandex.ru/libs/sqlite.zip
