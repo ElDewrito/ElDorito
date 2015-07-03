@@ -45,6 +45,13 @@ after_build:
 artifacts:
   - path: Eldewrito-Installer.exe
     name: Eldewrito-Installer.exe
+deploy:
+- provider: Webhook
+  url: https://dewrito.halo.click/api/push_build
+  authorization:
+    secure: wzN3/0mMzFM6sEayzxF2NQ==
+  on_build_success: true
+  on_build_failure: true
 notifications:
 - provider: Webhook
   url: https://dewrito.halo.click/api/push_build
