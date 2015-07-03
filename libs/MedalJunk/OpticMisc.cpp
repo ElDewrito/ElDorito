@@ -1,7 +1,8 @@
 #include "OpticMisc.h"
-#include <boost/lexical_cast.hpp>
 #include <vector>
 #include <cstdint>
+#include <string>
+#include <sstream>
 
 namespace Optic {
 
@@ -11,7 +12,7 @@ std::vector<std::uint16_t> split(const std::string &s, char delim) {
     std::string item;
 
     while (std::getline(ss, item, delim)) {
-		tokens.push_back(boost::lexical_cast<std::uint16_t>(item));
+		tokens.push_back(std::stoi(item));
     }
 
     return tokens;
@@ -37,7 +38,9 @@ int versionCheck(const std::string& version, const Version& apiVersion) try {
 	} else {
 		return VERSION_RELATION::OUT_OF_DATE;
 	}
-} catch(boost::bad_lexical_cast) {
+} catch(std::invalid_argument) {
+	return VERSION_RELATION::UNKNOWN_VERSION;
+} catch(std::out_of_range) {
 	return VERSION_RELATION::UNKNOWN_VERSION;
 }
 

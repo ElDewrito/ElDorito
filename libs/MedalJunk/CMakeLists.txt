@@ -59,23 +59,8 @@ add_library(MedalJunk STATIC
   Shared.h
   xde/xde.c
   xde/xde.h
-  xzip/Clipboard.cpp
-  xzip/Clipboard.h
-  xzip/resource.h
-  xzip/StdAfx.h
-  xzip/XHyperLink.cpp
-  xzip/XHyperLink.h
-  xzip/XListBox.cpp
-  xzip/XListBox.h
-  xzip/xtrace.h
   xzip/XUnzip.cpp
-  xzip/XUnzip.h
-  xzip/XZip.cpp
-  xzip/XZip.h
-  xzip/XZipTest.cpp
-  xzip/XZipTest.h
-  xzip/XZipTestDlg.cpp
-  xzip/XZipTestDlg.h)
+  xzip/XUnzip.h)
 
 create_source_groups(MedalJunk)
 

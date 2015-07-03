@@ -5,7 +5,9 @@
 #include <memory>
 #include <iostream>
 #include <Windows.h>
-#include <boost\algorithm\string.hpp>
+#include <functional>
+#include <algorithm>
+#include <locale>
 
 namespace Optic {
 
@@ -125,6 +127,12 @@ std::string OpticPack::getLua() const {
 	}
 }
 
+static inline std::string &trim(std::string &s) {
+	s.erase(0, s.find_first_not_of(' '));
+	s.erase(s.find_last_not_of(' ') + 1, std::string::npos);
+	return s;
+}
+
 std::map<std::string, std::string> OpticPack::parseMeta(std::unique_ptr<char[]> buffer) {
 	std::map<std::string, std::string> meta;
 	std::istringstream ifs(buffer.get());
@@ -135,8 +143,8 @@ std::map<std::string, std::string> OpticPack::parseMeta(std::unique_ptr<char[]> 
 		if(pos != std::string::npos) {
 			std::string key = line.substr(0, pos);
 			std::string value = line.substr(pos + 1);
-			boost::trim(key);
-			boost::trim(value);
+			trim(key);
+			trim(value);
 			meta[key] = value;
 		}
 	}
