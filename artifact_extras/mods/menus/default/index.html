@@ -125,9 +125,12 @@ function promptPassword(serverIP)
 function addServer(ip, isPassworded, name, host, map, mapfile, gamemode, status, numplayers, maxplayers, ping)
 {
 //because people can't be trusted with html tags, filter them out
-    var rex = /(<([^>]+)>)/ig;
+	name = sanitizeString(name);
+	name = name.substring(0,50);
+	host = sanitizeString(host);
+	host = sanitizeString(0,50);
 
-    var servName = "<td>" + name.replace(rex , "") + "</br>" + "<b>Host</b> - " + host.replace(rex , "") + "</br>" + "<b> IP </b> - " + ip + " - <a href=\"#\" onClick=\"callbacks.connect('" + ip + "');\">" + "<b><font color=red>Join</font></b></a>"   + "</br>" + "<b>Variant</b> - " + map.replace(rex , "") + "</br>" + "<b>GameType</b> - " + gamemode.replace(rex , "") + "</br>" + "</td>";
+    var servName = "<td>" + name + "</br>" + "<b>Host</b> - " + host + "</br>" + "<b> IP </b> - " + ip + " - <a href=\"#\" onClick=\"callbacks.connect('" + ip + "');\">" + "<b><font color=red>Join</font></b></a>"   + "</br>" + "<b>Variant</b> - " + map + "</br>" + "<b>GameType</b> - " + gamemode + "</br>" + "</td>";
     if(isPassworded)
         servName = "<td><a href=\"#\" onclick=\"promptPassword('" + ip + "');\">[PASSWORDED] " + name + " (" + host + ")</a></td>";
 
