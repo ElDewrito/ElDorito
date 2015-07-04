@@ -28,7 +28,6 @@ private:
 	Callbacks callbacks{};
 
 	Awesomium::WebCore* webCore;
-	Awesomium::WebSession* webSession;
 	Awesomium::WebView* webView;
 	Awesomium::BitmapSurface* bitmapSurface = nullptr;
 
