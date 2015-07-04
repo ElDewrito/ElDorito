@@ -1,6 +1,7 @@
 #include "Menu.hpp"
-#include <fstream>
 #include "..\Console\GameConsole.hpp"
+#include <fstream>
+#include <Awesomium\WebPreferences.h>
 
 void Menu::startMenu()
 {
@@ -112,15 +113,12 @@ bool Menu::doesFileExist(const char *fileName)
 
 bool Menu::initAwesomium()
 {
-	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
-	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
-
 	char pathToOurDirectory[260];
 	GetModuleFileName(NULL, pathToOurDirectory, 260);
 	PathRemoveFileSpec(pathToOurDirectory);
 
 	std::string fullPath(pathToOurDirectory);
-	fullPath.append("\\mods\\menus\\default\\index.html");
+	fullPath.append("\\mods\\menus\\default\\");
 
 	if (!doesFileExist(fullPath.c_str()))
 	{
@@ -128,6 +126,10 @@ bool Menu::initAwesomium()
 		return false;
 	}
 
+	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
+	webCore->CreateWebSession(Awesomium::WSLit(fullPath.c_str()), Awesomium::WebPreferences());
+	fullPath.append("index.html");
+	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
 
 	bindCallbacks();

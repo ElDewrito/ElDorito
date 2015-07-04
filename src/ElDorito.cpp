@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <Windows.h>
+#include <TlHelp32.h>
 #include <conio.h> // _getch()
 #include <cctype> //isprint
 
@@ -27,10 +28,41 @@ ElDorito::ElDorito()
 {
 }
 
-bool(__cdecl * Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
+bool(__cdecl * ElDorito::Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
 
-bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
+bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
 	return (*Video_InitD3D)(true, nullRefDevice); // sets windowless flag to true
+}
+
+void ElDorito::killProcessByName(const char *filename)
+{
+	HANDLE ourProc = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
+	if (!ourProc)
+	{
+		return;
+	}
+
+	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+	PROCESSENTRY32 pEntry;
+	pEntry.dwSize = sizeof(pEntry);
+	BOOL hRes = Process32First(hSnapShot, &pEntry);
+	while (hRes)
+	{
+		if (strcmp(pEntry.szExeFile, filename) == 0)
+		{
+			HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+			OutputDebugString(std::to_string((int) hProcess).c_str());
+			if (hProcess != NULL && hProcess != ourProc)
+			{
+				TerminateProcess(hProcess, 9);
+				CloseHandle(hProcess);
+			}
+		}
+		hRes = Process32Next(hSnapShot, &pEntry);
+	}
+	CloseHandle(hSnapShot);
+
+	CloseHandle(ourProc);
 }
 
 void ElDorito::Initialize()
@@ -48,6 +80,7 @@ void ElDorito::Initialize()
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
+	bool skipKill = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -76,6 +109,11 @@ void ElDorito::Initialize()
 				}
 			}
 
+			if (arg.compare(L"-multiInstance") == 0)
+			{
+				skipKill = true;
+			}
+
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
@@ -99,6 +137,12 @@ void ElDorito::Initialize()
 		TerminateProcess(GetCurrentProcess(), 0);
 	}
 #endif
+
+	if (!skipKill)
+	{
+		// killProcessByName("eldorado.exe"); TODO: do not kill our own process
+		killProcessByName("DewritoUpdater.exe");
+	}
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)

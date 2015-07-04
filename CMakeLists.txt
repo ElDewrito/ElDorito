@@ -85,6 +85,7 @@ add_library(ElDorito SHARED
     src/Menu/MethodDispatcher.cpp
     src/Menu/MethodDispatcher.hpp
     src/Menu/Settings.hpp
+    src/Menu/GameOptions.hpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
