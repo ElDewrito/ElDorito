@@ -3,6 +3,7 @@
 *
 * Copyright (c) 2007-2014 TeamSpeak-Systems
 * https://halowiki.llf.to/ts3_sdk/server_html/index.html
+* TODO: Kick clients:		   https://halowiki.llf.to/ts3_sdk/client_html/ar01s23s06.html
 */
 
 #ifdef _WINDOWS
@@ -44,6 +45,10 @@ void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsign
 	auto& console = GameConsole::Instance();
 	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
+
+	//Note: we can prevent clients from connecting by changing the removeClientError
+	//This would be very useful if a client is in some kind of ban list...
+	//See https://halowiki.llf.to/ts3_sdk/server_html/ar01s16.html#s_faq_2 for more info
 }
 
 /*

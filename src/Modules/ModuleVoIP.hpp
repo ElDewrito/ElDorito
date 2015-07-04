@@ -12,7 +12,7 @@ namespace Modules
 		Command* VarVoIPAGC;
 		Command* VarVoIPEchoCancellation;
 		Command* VarVoIPVADLevel;
-
+		Command* VarVoIPServerEnabled;
 		ModuleVoIP();
 	};
 }

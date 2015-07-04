@@ -443,10 +443,14 @@ namespace
 		auto& irc = IRCBackend::Instance();
 		if (isOnline == 1)
 		{
-			//Start the Teamspeak VoIP Server since this is the host
-			CreateThread(0, 0, StartTeamspeakServer, 0, 0, 0);
-			//Join the Teamspeak VoIP Server so the host can talk
-			CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+			auto& voipvars = Modules::ModuleVoIP::Instance();
+			if (voipvars.VarVoIPServerEnabled->ValueInt == 1){
+				//Start the Teamspeak VoIP Server since this is the host
+				CreateThread(0, 0, StartTeamspeakServer, 0, 0, 0);
+			
+				//Join the Teamspeak VoIP Server so the host can talk
+				CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+			}
 			// TODO: give output if StartInfoServer fails
 			Patches::Network::StartInfoServer();
 

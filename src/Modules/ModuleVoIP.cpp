@@ -2,6 +2,7 @@
 #include <sstream>
 #include "../ElDorito.hpp"
 #include "../VoIP/TeamspeakClient.hpp"
+#include "../VoIP/TeamspeakServer.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
@@ -103,6 +104,13 @@ bool VariableVADLevelUpdate(const std::vector<std::string>& Arguments, std::stri
 	returnInfo = "Set Voice Activation Level to " + Modules::ModuleVoIP::Instance().VarVoIPVADLevel->ValueString;
 	return true;
 }
+bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+{
+	//TODO: Check if host, kill client too. StopTeamspeakClient();
+	StopTeamspeakServer();
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt ? "VoIP Server will start when a new lobby is created" : "Disabled VoIP Auto Startup.";
+	return true;
+}
 namespace Modules
 {
 	ModuleVoIP::ModuleVoIP() : ModuleBase("VoIP")
@@ -138,5 +146,10 @@ namespace Modules
 
 		VarVoIPVADLevel->ValueFloatMin = -50.0f;
 		VarVoIPVADLevel->ValueFloatMax = 50.0f;
+
+		//Should we start a VoIP Server?
+		VarVoIPServerEnabled = AddVariableInt("ServerEnabled", "voip_server", "Enabled or disable the VoIP Server.", eCommandFlagsArchived, 1, VariableServerEnabledUpdate);
+		VarVoIPServerEnabled->ValueIntMin = 0;
+		VarVoIPServerEnabled->ValueIntMax = 1;
 	}
 }
