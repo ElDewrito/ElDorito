@@ -75,10 +75,6 @@ void Menu::startMenu()
 				{
 					menu.disableMenu();
 				}
-				else
-				{
-					menu.webView->InjectKeyboardEvent();
-				}
 				break;
 
 			case SDL_MOUSEWHEEL:
