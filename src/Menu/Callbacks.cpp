@@ -213,9 +213,71 @@ void Callbacks::gameTypeCallback(Awesomium::WebView* caller, const Awesomium::JS
 
 }
 
+void changeMap(int mapIndex)
+{
+	while (true)
+	{
+		switch (*state)
+		{
+		case 40:
+		case 54: // Game is loading
+			break;
+
+		case 24: // Start screen
+			*startScreenSelecter = 46576; // set it to second option (multiplayer)
+			Sleep(100);
+			// push A
+			break;
+
+		case 39: // Multiplayer screen
+			*lobbySelector = 9968; // set it to fourth option (map select)
+			Sleep(100);
+			// press A
+			Sleep(100);
+			switch (mapIndex) // set mapSelector = mapindex + 2
+			{
+			case 0:
+				*mapSelector = 44176;
+				break;
+
+			case 1:
+				*mapSelector = 46512;
+				break;
+
+			case 2:
+				*mapSelector = 48848;
+				break;
+
+			case 3:
+				*mapSelector = 51184;
+				break;
+
+			case 4:
+				*mapSelector = 53520;
+				break;
+
+			case 5:
+				*mapSelector = 535255856;
+				break;
+			}
+			Sleep(100);
+			// press A
+			Sleep(100);
+			// press A
+			return;
+
+		case 38: // forge screen
+			// press B
+			break;
+		}
+		Sleep(100);
+	}
+}
+
 void Callbacks::mapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	int mapIndex = args.At(0).ToInteger();
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&changeMap, &mapIndex, 0, 0); // this is a temp thing/hack; replace with a proper hook later
 }
 
 void Callbacks::forgeMapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)

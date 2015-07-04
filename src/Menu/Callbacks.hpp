@@ -47,3 +47,26 @@ public:
 	void connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 };
 
+uint16_t* state = (uint16_t*)0x5260730; // TEMP hack; replace with proper hook later
+uint16_t* startScreenSelecter; // 0=44912, 1=46576, 2=48240
+uint16_t* lobbySelector; // 0=4976, 1=6640, 2=8304, 3=9968, 4=11632
+uint16_t* mapSelector; // 0=39504, 1=41840, 2=44176, 3=46512, 4=48848, 5=51184, 6=53520, 7=55856
+
+/*
+By selector, I mean the horizontal orange highlight that selects an option. You can move the selector up and down vertically.
+
+selector: 00AB0F4C access (2 bytes; editable)
+
+state
+-----
+loading = 40/54
+start screen = 24
+
+play multi player = 39
+	x menu = 41
+
+forge = 38 (briefly 39 when accessed from start screen)
+	x menu = 40
+
+try force map loading with online
+*/
