@@ -138,7 +138,7 @@ bool Menu::initAwesomium()
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
 #ifdef _DEBUG
-	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
+	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu-debug/")));
 #else
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
 #endif
