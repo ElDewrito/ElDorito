@@ -129,7 +129,7 @@ bool Menu::initAwesomium()
 	GetModuleFileName(NULL, pathToOurDirectory, 260);
 	PathRemoveFileSpec(pathToOurDirectory);
 
-	std::string fullPath(pathToOurDirectory);
+	/*std::string fullPath(pathToOurDirectory);
 	fullPath.append("\\mods\\menus\\default\\");
 	
 	if (!doesDirExist(fullPath.c_str()))
@@ -146,10 +146,11 @@ bool Menu::initAwesomium()
 	{
 		GameConsole::Instance().PushLineFromGameToUIQueues("Error: HALO_FOLDER/mods/menus/default/index.html does not exist.");
 		return false;
-	}
+	}*/
 
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, webSession, Awesomium::kWebViewType_Offscreen);
-	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
+	// webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
+	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
 
 	bindCallbacks();
 	return true;
