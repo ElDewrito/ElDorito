@@ -36,6 +36,7 @@ private:
 	bool initSDL();
 	void bindCallbacks();
 	bool doesFileExist(const char *fileName);
+	bool doesDirExist(const std::string& dirName_in);
 
 public:
 	Menu();

@@ -111,6 +111,18 @@ bool Menu::doesFileExist(const char *fileName)
 	return infile.good();
 }
 
+bool Menu::doesDirExist(const std::string& dirName_in)
+{
+	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
+	if (ftyp == INVALID_FILE_ATTRIBUTES)
+		return false;
+
+	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+		return true;
+
+	return false;
+}
+
 bool Menu::initAwesomium()
 {
 	char pathToOurDirectory[260];
@@ -119,16 +131,23 @@ bool Menu::initAwesomium()
 
 	std::string fullPath(pathToOurDirectory);
 	fullPath.append("\\mods\\menus\\default\\");
+	
+	if (!doesDirExist(fullPath.c_str()))
+	{
+		GameConsole::Instance().PushLineFromGameToUIQueues("Error: HALO_FOLDER/mods/menus/default/ does not exist.");
+		return false;
+	}
 
+	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
+	webCore->CreateWebSession(Awesomium::WSLit(fullPath.c_str()), Awesomium::WebPreferences());
+	
+	fullPath.append("index.html");
 	if (!doesFileExist(fullPath.c_str()))
 	{
 		GameConsole::Instance().PushLineFromGameToUIQueues("Error: HALO_FOLDER/mods/menus/default/index.html does not exist.");
 		return false;
 	}
 
-	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
-	webCore->CreateWebSession(Awesomium::WSLit(fullPath.c_str()), Awesomium::WebPreferences());
-	fullPath.append("index.html");
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
 
