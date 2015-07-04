@@ -12,6 +12,7 @@
 #include "Patches\RawInput.hpp"
 #include "Patches\ContentItems.hpp"
 #include "Patches\PlayerUid.hpp"
+#include "Patches\KeyboardInput.hpp"
 
 #include "Modules\ModuleCamera.hpp"
 
@@ -35,6 +36,7 @@ namespace Patches
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();
 		PlayerUid::ApplyAll();
+		KeyboardInput::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()

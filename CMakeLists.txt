@@ -108,6 +108,8 @@ add_library(ElDorito SHARED
     src/Patches/ContentItems.hpp
     src/Patches/Core.cpp
     src/Patches/Core.hpp
+    src/Patches/KeyboardInput.cpp
+    src/Patches/KeyboardInput.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
     src/Patches/Mouse.cpp
