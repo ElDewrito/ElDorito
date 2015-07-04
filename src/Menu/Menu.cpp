@@ -206,9 +206,6 @@ void Menu::bindCallbacks()
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("forgeMap"), JSDelegate(&callbacks, &Callbacks::forgeMapCallback));
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("scoreToWin"), JSDelegate(&callbacks, &Callbacks::scoreToWinCallback));
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("startGame"), JSDelegate(&callbacks, &Callbacks::startGameCallback));
-		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("server"), JSDelegate(&callbacks, &Callbacks::serverCallback));
-
-		// TODO: TEMP: remove
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("connect"), JSDelegate(&callbacks, &Callbacks::connectCallback));
 	}
 

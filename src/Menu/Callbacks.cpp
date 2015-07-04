@@ -7,8 +7,8 @@
 // TODO: add callbacks for keyboard bindings
 // TODO: call setters using WebView::executejavascript
 // TODO: add GameOptions struct
-// TODO: fix tint
 // TODO: add transparency for armor customization (webView->SetTransparent(true) + it seems you need alpha blending)
+// Callback explanation/documentation: https://docs.google.com/spreadsheets/d/1ciHsJzeSkhECDJ9F6FTU5GDMgJoVsF33Z5S4KGXCytM/edit#gid=0
 
 Settings* Callbacks::settings = (Settings*) 0x23019B8;
 
@@ -32,12 +32,16 @@ void Callbacks::fovCallback(Awesomium::WebView* caller, const Awesomium::JSArray
 
 void Callbacks::hostStartTimerCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	std::string cmd("server.countdown ");
+	cmd.append(std::to_string(args.At(0).ToInteger()));
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
 
 void Callbacks::playerNameCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	std::string cmd("player.name ");
+	cmd.append(Awesomium::ToString(args.At(0).ToString()));
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
 
 void Callbacks::showFPSCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
@@ -90,12 +94,16 @@ void Callbacks::mouseInvertedCallback(Awesomium::WebView* caller, const Awesomiu
 
 void Callbacks::centeredCrosshairCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	std::string cmd("camera.crosshair ");
+	cmd.append(std::to_string(args.At(0).ToInteger()));
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
 
 void Callbacks::rawInputCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	std::string cmd("input.rawinput ");
+	cmd.append(std::to_string(args.At(0).ToInteger()));
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
 
 void Callbacks::resolutionCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
@@ -224,18 +232,11 @@ void Callbacks::startGameCallback(Awesomium::WebView* caller, const Awesomium::J
 	OutputDebugString("Start game!");
 }
 
-void Callbacks::serverCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
-{
-
-}
-
-// TODO: TEMP: remove                           connect(string in form of ip:port)
 void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
 	Menu::Instance().disableMenu();
 
-	std::string connectCommand("connect ");
-	connectCommand.append(Awesomium::ToString(args.At(0).ToString()));
-	Modules::CommandMap::Instance().ExecuteCommand(connectCommand);
-	OutputDebugString(connectCommand.c_str());
+	std::string cmd("connect ");
+	cmd.append(Awesomium::ToString(args.At(0).ToString()));
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
