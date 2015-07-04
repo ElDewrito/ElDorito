@@ -1,16 +1,3 @@
-#include "Console/GameConsole.hpp"
-#include <windows.h>
-#include <stdio.h>
-#include <iostream>
-#include <TlHelp32.h> //GetModuleBase
-#include <memory>
-#include <IPTypes.h> // for proxy
-#include <fstream>
-
-#include "Utils/VersionInfo.hpp"
-#include "ElDorito.hpp"
-#include "ElPatches.hpp"
-
 /*LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
 	const char *error_type = "Unknown";
