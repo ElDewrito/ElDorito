@@ -27,6 +27,12 @@ ElDorito::ElDorito()
 {
 }
 
+bool(__cdecl * Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
+
+bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
+	return (*Video_InitD3D)(true, nullRefDevice); // sets windowless flag to true
+}
+
 void ElDorito::Initialize()
 {
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
@@ -57,6 +63,18 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-launcher") == 0)
 				usingLauncher = true;
 #endif
+
+			if (arg.compare(L"-dedicated") == 0)
+			{
+				DetourRestoreAfterWith();
+				DetourTransactionBegin();
+				DetourUpdateThread(GetCurrentThread());
+				DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
+
+				if (DetourTransactionCommit() != NO_ERROR) {
+					return;
+				}
+			}
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
