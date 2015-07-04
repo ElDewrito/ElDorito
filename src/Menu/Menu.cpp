@@ -48,8 +48,7 @@ void Menu::startMenu()
 		{
 			if (ev.type == SDL_QUIT)
 			{
-				menu.menuEnabled = false;
-				continue;
+				menu.disableMenu();
 			}
 			else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
 			{
@@ -101,6 +100,7 @@ Menu::~Menu()
 
 	menuEnabled = false;
 	webView->Destroy();
+	webSession->Release();
 	Sleep(100);
 	Awesomium::WebCore::Shutdown();
 }
@@ -139,7 +139,7 @@ bool Menu::initAwesomium()
 	}
 
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
-	webCore->CreateWebSession(Awesomium::WSLit(fullPath.c_str()), Awesomium::WebPreferences());
+	webSession = webCore->CreateWebSession(Awesomium::WSLit(fullPath.c_str()), Awesomium::WebPreferences());
 	
 	fullPath.append("index.html");
 	if (!doesFileExist(fullPath.c_str()))
@@ -148,7 +148,7 @@ bool Menu::initAwesomium()
 		return false;
 	}
 
-	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
+	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, webSession, Awesomium::kWebViewType_Offscreen);
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit(fullPath.c_str())));
 
 	bindCallbacks();

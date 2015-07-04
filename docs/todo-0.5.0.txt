@@ -35,3 +35,6 @@ Chat UI:
 - add color codes
 - fix mouse scrolling so that it works outside of game (need to register mouse raw input device)
 - TEST TEST TEST the UI for bugs 
+
+Menu:
+- fix cookie loading (cookie saving works)
