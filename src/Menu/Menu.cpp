@@ -46,28 +46,42 @@ void Menu::startMenu()
 
 		while (SDL_PollEvent(&ev))
 		{
-			if (ev.type == SDL_QUIT)
+			switch (ev.type)
 			{
+			case SDL_QUIT:
 				menu.disableMenu();
-			}
-			else if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT)
-			{
-				menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
-			}
-			else if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT)
-			{
-				menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
-			}
-			else if (ev.type == SDL_MOUSEMOTION)
-			{
+				break;
+
+			case SDL_MOUSEBUTTONUP:
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+					menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
+				}
+				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				if (ev.button.button == SDL_BUTTON_LEFT)
+				{
+					menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
+				}
+				break;
+
+			case SDL_MOUSEMOTION:
 				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
-			}
-			else if (ev.type == SDL_KEYUP && ev.key.keysym.sym == SDLK_F11)
-			{
-				menu.disableMenu();
-			}
-			else if (ev.type == SDL_MOUSEWHEEL)
-			{
+				break;
+
+			case SDL_KEYUP:
+				if (ev.key.keysym.sym == SDLK_F11)
+				{
+					menu.disableMenu();
+				}
+				else
+				{
+					menu.webView->InjectKeyboardEvent();
+				}
+				break;
+
+			case SDL_MOUSEWHEEL:
 				if (ev.wheel.y > 0)
 				{
 					menu.webView->InjectMouseWheel(15, 0);
@@ -76,6 +90,7 @@ void Menu::startMenu()
 				{
 					menu.webView->InjectMouseWheel(-15, 0);
 				}
+				break;
 			}
 		}
 
@@ -126,7 +141,11 @@ bool Menu::initAwesomium()
 {
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
 	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
+#ifdef _DEBUG
 	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
+#else
+	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
+#endif
 
 	bindCallbacks();
 	return true;
