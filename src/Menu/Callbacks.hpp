@@ -47,9 +47,12 @@ public:
 	void connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	
 private:
-	static uint16_t* state;
-	static uint16_t* startScreenSelecter;
-	static uint16_t* lobbySelector;
-	static uint16_t* mapSelector;
-	static void changeMap(int mapIndex);
+	static uint16_t* state; // TEMP hack
+	static uint16_t* startScreenSelecter; // TEMP hack
+	static uint16_t* multiplayerScreenSelector; // TEMP hack
+	static uint16_t* mapSelector; // TEMP hack
+	static HWND hWnd; // TEMP hack
+
+	static void changeMapTemp(int mapIndex); // TEMP hack
+	static void sendInput(UINT vKeyCode);
 };

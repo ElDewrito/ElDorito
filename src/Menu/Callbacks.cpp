@@ -13,28 +13,14 @@
 Settings* Callbacks::settings = (Settings*) 0x23019B8;
 
 uint16_t* Callbacks::state = (uint16_t*)0x5260730; // TEMP hack; replace with proper hook later
+
+// By selector, I mean the horizontal orange highlight that selects an option. You can move the selector up and down vertically.
 uint16_t* Callbacks::startScreenSelecter; // 0=44912, 1=46576, 2=48240
-uint16_t* Callbacks::lobbySelector; // 0=4976, 1=6640, 2=8304, 3=9968, 4=11632
+uint16_t* Callbacks::multiplayerScreenSelector; // 0=4976, 1=6640, 2=8304, 3=9968, 4=11632
 uint16_t* Callbacks::mapSelector; // 0=39504, 1=41840, 2=44176, 3=46512, 4=48848, 5=51184, 6=53520, 7=55856
+HWND Callbacks::hWnd = *((HWND*)0x199C014); // TEMP hack
 
-/*
-By selector, I mean the horizontal orange highlight that selects an option. You can move the selector up and down vertically.
-
-selector: 00AB0F4C access (2 bytes; editable)
-
-state
------
-loading = 40/54
-start screen = 24
-
-play multi player = 39
-x menu = 41
-
-forge = 38 (briefly 39 when accessed from start screen)
-x menu = 40
-
-try force map loading with online
-*/
+// TODO: try force map loading with online
 
 void Callbacks::HUDShakeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
@@ -237,27 +223,80 @@ void Callbacks::gameTypeCallback(Awesomium::WebView* caller, const Awesomium::JS
 
 }
 
-void Callbacks::changeMap(int mapIndex)
+void Callbacks::sendInput(UINT vKeyCode)
+{
+	INPUT ip;
+
+	ip.type = INPUT_KEYBOARD;
+	ip.ki.wScan = 0;
+	ip.ki.time = 0;
+	ip.ki.dwExtraInfo = 0;
+
+	ip.ki.wVk = vKeyCode;
+	ip.ki.dwFlags = 0;
+	SendInput(1, &ip, sizeof(INPUT));
+
+	ip.ki.dwFlags = KEYEVENTF_KEYUP;
+	SendInput(1, &ip, sizeof(INPUT));
+}
+
+void Callbacks::changeMapTemp(int mapIndex) // this is a temp thing/hack; replace with a proper hook later
 {
 	while (true)
 	{
 		switch (*state)
 		{
-		case 40:
+		case 40: // Game is loading
 		case 54: // Game is loading
 			break;
 
 		case 24: // Start screen
+			if (!startScreenSelecter)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xC8, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4C8], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4C8;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				startScreenSelecter = (uint16_t*) (((uint8_t*)*tempStorage) + 0xF0);
+			}
 			*startScreenSelecter = 46576; // set it to second option (multiplayer)
 			Sleep(100);
-			// push A
+			sendInput(0x41);
 			break;
 
 		case 39: // Multiplayer screen
-			*lobbySelector = 9968; // set it to fourth option (map select)
+			if (!multiplayerScreenSelector)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xD3, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4D3], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4D3;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				multiplayerScreenSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+			*multiplayerScreenSelector = 9968; // set it to fourth option (map select)
 			Sleep(100);
-			// press A
-			Sleep(100);
+			sendInput(0x41);
+			break;
+
+		case 41: // Map selection screen
+			if (!mapSelector)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xDB, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4DB], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4DB;
+				while (*tempStorage == 0xCCCCCCCC && *tempStorage != (uint32_t) multiplayerScreenSelector)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				mapSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+
 			switch (mapIndex) // set mapSelector = mapindex + 2
 			{
 			case 0:
@@ -281,17 +320,20 @@ void Callbacks::changeMap(int mapIndex)
 				break;
 
 			case 5:
-				*mapSelector = 535255856;
+				*mapSelector = 55856;
 				break;
 			}
 			Sleep(100);
-			// press A
+			sendInput(0x41);
 			Sleep(100);
-			// press A
+			sendInput(0x41);
 			return;
 
 		case 38: // forge screen
-			// press B
+			sendInput(0x42);
+			break;
+
+		default:
 			break;
 		}
 		Sleep(100);
@@ -300,8 +342,7 @@ void Callbacks::changeMap(int mapIndex)
 
 void Callbacks::mapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-	int mapIndex = args.At(0).ToInteger();
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&changeMap, &mapIndex, 0, 0); // this is a temp thing/hack; replace with a proper hook later
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&changeMapTemp, (LPVOID) args.At(0).ToInteger(), 0, 0); // hack: use CreateThread's pointer argument as integer
 }
 
 void Callbacks::forgeMapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
