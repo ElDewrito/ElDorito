@@ -38,7 +38,7 @@ public:
 	void masterVolumeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void sfxVolumeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void musicVolumeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
-	void lanEnabledCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
+	void networkTypeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void gameTypeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void mapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
 	void forgeMapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args);
@@ -50,10 +50,11 @@ private:
 	static uint16_t* state; // TEMP hack
 	static uint16_t* startScreenSelecter; // TEMP hack
 	static uint16_t* multiplayerScreenSelector; // TEMP hack
-	static uint16_t* mapSelector; // TEMP hack
+	static uint16_t* mapAndGameTypeSelector; // TEMP hack
 	static HWND hWnd; // TEMP hack
 
 	static void changeMapTemp(int mapIndex); // TEMP hack
 	static void startGameTemp(); // TEMP hack
+	static void changeGameTypeTemp(int typeIndex); // TEMP hack
 	static void sendInput(UINT vKeyCode);
 };

@@ -17,7 +17,7 @@ uint16_t* Callbacks::state = (uint16_t*)0x5260730; // TEMP hack; replace with pr
 // By selector, I mean the horizontal orange highlight that selects an option. You can move the selector up and down vertically.
 uint16_t* Callbacks::startScreenSelecter; // 0=44912, 1=46576, 2=48240
 uint16_t* Callbacks::multiplayerScreenSelector; // 0=4976, 1=6640, 2=8304, 3=9968, 4=11632
-uint16_t* Callbacks::mapSelector; // 0=39504, 1=41840, 2=44176, 3=46512, 4=48848, 5=51184, 6=53520, 7=55856
+uint16_t* Callbacks::mapAndGameTypeSelector; // 0=39504, 1=41840, 2=44176, 3=46512, 4=48848, 5=51184, 6=53520, 7=55856, 8=58192, 9=31808, 10=34144
 HWND Callbacks::hWnd = *((HWND*)0x199C014); // TEMP hack
 
 // TODO: try force map loading with online
@@ -213,14 +213,14 @@ void Callbacks::musicVolumeCallback(Awesomium::WebView* caller, const Awesomium:
 	settings->MUSIC_VOLUME = args.At(0).ToInteger();
 }
 
-void Callbacks::lanEnabledCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
+void Callbacks::networkTypeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
 
 }
 
 void Callbacks::gameTypeCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
-
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&changeGameTypeTemp, (LPVOID)args.At(0).ToInteger(), 0, 0); // hack: use CreateThread's pointer argument as integer
 }
 
 void Callbacks::sendInput(UINT vKeyCode)
@@ -285,7 +285,7 @@ void Callbacks::changeMapTemp(int mapIndex) // this is a temp thing/hack; replac
 			break;
 
 		case 41: // Map selection screen
-			if (!mapSelector)
+			if (!mapAndGameTypeSelector)
 			{
 				Patch(0x6B0F4C, { 0x89, 0x0D, 0xDB, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4DB], ecx
 				uint32_t* tempStorage = (uint32_t*)0x51C4DB;
@@ -294,33 +294,145 @@ void Callbacks::changeMapTemp(int mapIndex) // this is a temp thing/hack; replac
 					Sleep(25);
 				}
 				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
-				mapSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+				mapAndGameTypeSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
 			}
 
 			switch (mapIndex) // set mapSelector = mapindex + 2
 			{
 			case 0:
-				*mapSelector = 44176;
+				*mapAndGameTypeSelector = 44176;
 				break;
 
 			case 1:
-				*mapSelector = 46512;
+				*mapAndGameTypeSelector = 46512;
 				break;
 
 			case 2:
-				*mapSelector = 48848;
+				*mapAndGameTypeSelector = 48848;
 				break;
 
 			case 3:
-				*mapSelector = 51184;
+				*mapAndGameTypeSelector = 51184;
 				break;
 
 			case 4:
-				*mapSelector = 53520;
+				*mapAndGameTypeSelector = 53520;
 				break;
 
 			case 5:
-				*mapSelector = 55856;
+				*mapAndGameTypeSelector = 55856;
+				break;
+			}
+			Sleep(100);
+			sendInput(0x41);
+			Sleep(100);
+			sendInput(0x41);
+			return;
+
+		case 38: // forge screen
+			sendInput(0x42);
+			break;
+
+		default:
+			break;
+		}
+		Sleep(100);
+	}
+}
+
+void Callbacks::changeGameTypeTemp(int typeIndex) // this is a temp thing/hack; replace with a proper hook later
+{
+	while (true)
+	{
+		switch (*state)
+		{
+		case 40: // Game is loading
+		case 54: // Game is loading
+			break;
+
+		case 24: // Start screen
+			if (!startScreenSelecter)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xC8, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4C8], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4C8;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				startScreenSelecter = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+			*startScreenSelecter = 46576; // set it to second option (multiplayer)
+			Sleep(100);
+			sendInput(0x41);
+			break;
+
+		case 39: // Multiplayer screen
+			if (!multiplayerScreenSelector)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xD3, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4D3], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4D3;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				multiplayerScreenSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+			*multiplayerScreenSelector = 8304; // set it to third option (game type select)
+			Sleep(100);
+			sendInput(0x41);
+			break;
+
+		case 41: // Game type selection screen
+			if (!mapAndGameTypeSelector)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xDB, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4DB], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4DB;
+				while (*tempStorage == 0xCCCCCCCC && *tempStorage != (uint32_t)multiplayerScreenSelector)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				mapAndGameTypeSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+
+			switch (typeIndex) // set gameTypeSelector = typeIndex + 2
+			{
+			case 0:
+				*mapAndGameTypeSelector = 44176;
+				break;
+
+			case 1:
+				*mapAndGameTypeSelector = 46512;
+				break;
+
+			case 2:
+				*mapAndGameTypeSelector = 48848;
+				break;
+
+			case 3:
+				*mapAndGameTypeSelector = 51184;
+				break;
+
+			case 4:
+				*mapAndGameTypeSelector = 53520;
+				break;
+
+			case 5:
+				*mapAndGameTypeSelector = 55856;
+				break;
+
+			case 6:
+				*mapAndGameTypeSelector = 58192;
+				break;
+
+			case 7:
+				*mapAndGameTypeSelector = 31808;
+				break;
+
+			case 8:
+				*mapAndGameTypeSelector = 34144;
 				break;
 			}
 			Sleep(100);
