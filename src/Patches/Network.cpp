@@ -346,6 +346,17 @@ namespace Patches
 			}
 		}
 
+		void ForceDedicated()
+		{
+			// Put the game into dedicated server mode
+			Patch(0x2E600, { 0xB0, 0x01 }).Apply();
+
+			// Force syslink to still work
+			Patch(0x12D62E, { 0xEB }).Apply();
+			Patch(0x12D67A, { 0xEB }).Apply();
+			Patch(0x5A8BB, { 0xEB }).Apply();
+		}
+
 		bool StartRemoteConsole()
 		{
 			if (rconSocketOpen)

@@ -81,6 +81,7 @@ void ElDorito::Initialize()
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
 	bool skipKill = false;
+	bool dedicated = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -99,14 +100,7 @@ void ElDorito::Initialize()
 
 			if (arg.compare(L"-dedicated") == 0)
 			{
-				DetourRestoreAfterWith();
-				DetourTransactionBegin();
-				DetourUpdateThread(GetCurrentThread());
-				DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
-
-				if (DetourTransactionCommit() != NO_ERROR) {
-					return;
-				}
+				dedicated = true;
 			}
 
 			if (arg.compare(L"-multiInstance") == 0)
@@ -123,6 +117,20 @@ void ElDorito::Initialize()
 
 			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"", true);
 		}
+	}
+
+	if (dedicated)
+	{
+		// Commenting this out for now because it makes testing difficult
+		/*DetourRestoreAfterWith();
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
+
+		if (DetourTransactionCommit() != NO_ERROR) {
+		return;
+		}*/
+		Patches::Network::ForceDedicated();
 	}
 
 	// Language patch

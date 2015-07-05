@@ -8,6 +8,7 @@ namespace Patches
 	namespace Network
 	{
 		void ApplyAll();
+		void ForceDedicated();
 
 		bool StartRemoteConsole();
 
