@@ -54,5 +54,6 @@ private:
 	static HWND hWnd; // TEMP hack
 
 	static void changeMapTemp(int mapIndex); // TEMP hack
+	static void startGameTemp(); // TEMP hack
 	static void sendInput(UINT vKeyCode);
 };

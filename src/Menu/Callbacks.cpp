@@ -340,6 +340,65 @@ void Callbacks::changeMapTemp(int mapIndex) // this is a temp thing/hack; replac
 	}
 }
 
+void Callbacks::startGameTemp() // this is a temp thing/hack; replace with a proper hook later
+{
+	while (true)
+	{
+		switch (*state)
+		{
+		case 40: // Game is loading
+		case 54: // Game is loading
+			break;
+
+		case 24: // Start screen
+			if (!startScreenSelecter)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xC8, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4C8], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4C8;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				startScreenSelecter = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+			*startScreenSelecter = 46576; // set it to second option (multiplayer)
+			Sleep(100);
+			sendInput(0x41);
+			break;
+
+		case 39: // Multiplayer screen
+			if (!multiplayerScreenSelector)
+			{
+				Patch(0x6B0F4C, { 0x89, 0x0D, 0xD3, 0xC4, 0x51, 0x00 }).Apply(); // mov [0051C4D3], ecx
+				uint32_t* tempStorage = (uint32_t*)0x51C4D3;
+				while (*tempStorage == 0xCCCCCCCC)
+				{
+					Sleep(25);
+				}
+				Patch(0x6B0F4C, { 0x8B, 0x81, 0xF0, 0x00, 0x00, 0x00 }).Apply(); // mov eax,[ecx+000000F0]
+				multiplayerScreenSelector = (uint16_t*)(((uint8_t*)*tempStorage) + 0xF0);
+			}
+			*multiplayerScreenSelector = 11632; // set it to fifth option (start game)
+			Sleep(100);
+			sendInput(0x41);
+			break;
+
+		case 41: // Map selection screen
+			sendInput(0x42);
+			return;
+
+		case 38: // forge screen
+			sendInput(0x42);
+			break;
+
+		default:
+			break;
+		}
+		Sleep(100);
+	}
+}
+
 void Callbacks::mapCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&changeMapTemp, (LPVOID) args.At(0).ToInteger(), 0, 0); // hack: use CreateThread's pointer argument as integer
@@ -356,14 +415,15 @@ void Callbacks::scoreToWinCallback(Awesomium::WebView* caller, const Awesomium::
 }
 
 void Callbacks::startGameCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args) {
-	OutputDebugString("Start game!");
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startGameTemp, 0, 0, 0);
 }
 
 void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
 	Menu::Instance().disableMenu();
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startGameTemp, 0, 0, 0);
 
-	std::string cmd("connect ");
+	/*std::string cmd("connect ");
 	cmd.append(Awesomium::ToString(args.At(0).ToString()));
-	Modules::CommandMap::Instance().ExecuteCommand(cmd);
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);*/
 }
