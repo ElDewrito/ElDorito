@@ -421,9 +421,8 @@ void Callbacks::startGameCallback(Awesomium::WebView* caller, const Awesomium::J
 void Callbacks::connectCallback(Awesomium::WebView* caller, const Awesomium::JSArray& args)
 {
 	Menu::Instance().disableMenu();
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startGameTemp, 0, 0, 0);
 
-	/*std::string cmd("connect ");
+	std::string cmd("connect ");
 	cmd.append(Awesomium::ToString(args.At(0).ToString()));
-	Modules::CommandMap::Instance().ExecuteCommand(cmd);*/
+	Modules::CommandMap::Instance().ExecuteCommand(cmd);
 }
