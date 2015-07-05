@@ -50,11 +50,19 @@ private:
 	static uint16_t* state; // TEMP hack
 	static uint16_t* startScreenSelecter; // TEMP hack
 	static uint16_t* multiplayerScreenSelector; // TEMP hack
-	static uint16_t* mapAndGameTypeSelector; // TEMP hack
+	static uint16_t* mapAndGameTypeAndNetworkTypeSelector; // TEMP hack
 	static HWND hWnd; // TEMP hack
 
 	static void changeMapTemp(int mapIndex); // TEMP hack
 	static void startGameTemp(); // TEMP hack
+
+	static void initMultiplayerScreenSelector();
+
 	static void changeGameTypeTemp(int typeIndex); // TEMP hack
+	static void changeNetworkTypeTemp(int mapIndex); // TEMP hack
+
+	static void initMapAndGameTypeSelector();
+
 	static void sendInput(UINT vKeyCode);
+	static void initStartScreenSelector();
 };
