@@ -107,7 +107,10 @@ bool VariableVADLevelUpdate(const std::vector<std::string>& Arguments, std::stri
 bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
 	//TODO: Check if host, kill client too. StopTeamspeakClient();
-	StopTeamspeakServer();
+	//TODO: Figure out why this doesn't stop the teamspeak server when setting to 0....
+	if (Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt == 0){
+		StopTeamspeakServer();
+	}
 	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt ? "VoIP Server will start when a new lobby is created" : "Disabled VoIP Auto Startup.";
 	return true;
 }
