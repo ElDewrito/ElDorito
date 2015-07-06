@@ -1,3 +1,4 @@
+![Eldewrito Logo](https://halo.click/H4STD8)
 # ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## What is ElDewrito?
@@ -9,6 +10,9 @@ Note that this is the source code repo for it, not the mod itself. You'll need a
 
 Pull requests are welcomed from anyone who wants to contribute to us.  
 Although it's recommended that you come talk to us on IRC first before starting work on anything major, so that we can discuss it and come up with the best way to help you implement it.
+
+## Download
+You can always download the latest builds of Eldewrito from our [release page](https://dewrito.halo.click/).
 
 ## Building
 To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMake installed.
