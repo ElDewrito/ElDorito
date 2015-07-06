@@ -1,5 +1,6 @@
 #include "ModuleGame.hpp"
 #include <sstream>
+#include <fstream>
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
@@ -194,13 +195,13 @@ namespace
 		return true;
 	}
 
-	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandGameForceLoad(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
 		if (Arguments.size() <= 0)
 		{
 			ss << "Current map: " << std::string((char*)(0x2391824)) << std::endl;
-			ss << "Usage: Game.Map <mapname> [gametype] [maptype]" << std::endl;
+			ss << "Usage: Game.ForceLoad <mapname> [gametype] [maptype]" << std::endl;
 			ss << "Available maps:";
 
 			for (auto map : Modules::ModuleGame::Instance().MapList)
@@ -333,6 +334,150 @@ namespace
 		return true;
 	}
 
+	size_t GetFileSize(std::ifstream &file)
+	{
+		auto originalPos = file.tellg();
+		file.seekg(0, std::ios::end);
+		auto size = static_cast<size_t>(file.tellg());
+		file.seekg(originalPos);
+		return size;
+	}
+
+	bool LoadMapVariant(std::ifstream &file, uint8_t *out)
+	{
+		// TODO: Would it be better to figure out how to use the game's file
+		// functions here?
+
+		// Verify file size
+		const auto MapVariantBlfSize = 0xE1F0;
+		if (GetFileSize(file) < MapVariantBlfSize)
+			return false;
+
+		// Load it into a buffer and have the game parse it
+		uint8_t blfData[MapVariantBlfSize];
+		file.read(reinterpret_cast<char*>(blfData), MapVariantBlfSize);
+
+		typedef bool(__thiscall *ParseMapVariantBlfPtr)(void *blf, uint8_t *outVariant, bool *result);
+		auto ParseMapVariant = reinterpret_cast<ParseMapVariantBlfPtr>(0x573250);
+		return ParseMapVariant(blfData, out, nullptr);
+	}
+
+	int GetMapId(const std::string &mapName)
+	{
+		// Open the .map file
+		auto mapPath = "maps/" + mapName + ".map";
+		std::ifstream mapFile(mapPath, std::ios::binary);
+		if (!mapFile.is_open())
+			return -1;
+
+		// Verify file size
+		const auto MapHeaderSize = 0x3390;
+		if (GetFileSize(mapFile) < MapHeaderSize)
+			return -1;
+
+		// Verify file header
+		const int32_t FileHeaderMagic = 'head';
+		int32_t actualMagic = 0;
+		mapFile.read(reinterpret_cast<char*>(&actualMagic), sizeof(actualMagic));
+		if (actualMagic != FileHeaderMagic)
+			return -1;
+
+		// Read map ID
+		int32_t mapId = 0;
+		mapFile.seekg(0x2DEC);
+		mapFile.read(reinterpret_cast<char*>(&mapId), sizeof(mapId));
+		return mapId;
+	}
+
+	bool LoadDefaultMapVariant(const std::string &mapName, uint8_t *out)
+	{
+		int mapId = GetMapId(mapName);
+		if (mapId < 0)
+			return false;
+
+		// Initialize an empty variant for the map
+		typedef void(__thiscall *InitializeMapVariantPtr)(uint8_t *outVariant, int mapId);
+		auto InitializeMapVariant = reinterpret_cast<InitializeMapVariantPtr>(0x581F70);
+		InitializeMapVariant(out, mapId);
+
+		// Make sure it actually loaded the map correctly by verifying that the
+		// variant is valid for the map
+		int32_t firstMapId = *reinterpret_cast<int32_t*>(out + 0xE0);
+		int32_t secondMapId = *reinterpret_cast<int32_t*>(out + 0x100);
+		return (firstMapId == mapId && secondMapId == mapId);
+	}
+
+	void SaveMapVariantToPreferences(const uint8_t *data)
+	{
+		// Check the lobby type so we know where to save the variant
+		// TODO: Might be useful to map out this enum
+		typedef int(__thiscall *GetUiGameModePtr)();
+		auto GetUiGameMode = reinterpret_cast<GetUiGameModePtr>(0x435640);
+		size_t variantOffset;
+		switch (GetUiGameMode())
+		{
+		case 2: // Customs
+			variantOffset = 0x7F0;
+			break;
+		case 3: // Forge
+			variantOffset = 0xEA98;
+			break;
+		default:
+			return;
+		}
+
+		// Copy the data in
+		auto savedVariant = reinterpret_cast<uint8_t*>(0x22C0130 + variantOffset);
+		memcpy(savedVariant, data, 0xE090);
+
+		// Mark preferences as dirty
+		*reinterpret_cast<bool*>(0x22C0129) = true;
+	}
+
+	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 1)
+		{
+			returnInfo = "You must specify an internal map or Forge map name!";
+			return false;
+		}
+		auto mapName = Arguments[0];
+		uint8_t variantData[0xE090];
+
+		// If the name is the name of a valid map variant, load it
+		auto variantFileName = "mods/maps/" + mapName + "/sandbox.map";
+		std::ifstream mapVariant(variantFileName, std::ios::binary);
+		if (mapVariant.is_open())
+		{
+			returnInfo = "Loading map variant " + variantFileName + "...";
+			if (!LoadMapVariant(mapVariant, variantData))
+			{
+				returnInfo += "\nInvalid map variant file!";
+				return false;
+			}
+		}
+		else
+		{
+			returnInfo = "Loading built-in map maps/" + mapName + ".map...";
+			if (!LoadDefaultMapVariant(mapName, variantData))
+			{
+				returnInfo += "\nInvalid map file!";
+				return false;
+			}
+		}
+
+		// Submit a request to load the variant
+		typedef bool(*LoadMapVariantPtr)(uint8_t *variant, void *unknown);
+		auto LoadMapVariant = reinterpret_cast<LoadMapVariantPtr>(0xA83AF0);
+		if (!LoadMapVariant(variantData, nullptr))
+		{
+			returnInfo += "\nLoad failed.";
+			return false;
+		}
+		SaveMapVariantToPreferences(variantData);
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -359,9 +504,11 @@ namespace Modules
 
 		AddCommand("Exit", "exit", "Ends the game process", eCommandFlagsNone, CommandGameExit);
 
-		AddCommand("Map", "map", "Loads a map", eCommandFlagsNone, CommandGameLoadMap, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
+		AddCommand("ForceLoad", "forceload", "Forces a map to load", eCommandFlagsNone, CommandGameForceLoad, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
+
+		AddCommand("Map", "map", "Loads a map or map variant", eCommandFlagsNone, CommandGameLoadMap, { "name(string) The internal name of the map or Forge map to load" });
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
