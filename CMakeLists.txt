@@ -67,6 +67,8 @@ add_library(ElDorito SHARED
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
     src/Blam/BlamTypes.hpp
+    src/Blam/Tags/Tags.hpp
+    src/Blam/Tags/GameEngineSettingsDefinition.hpp
     src/DirectXHook.cpp
     src/DirectXHook.hpp
     src/Console/GameConsole.cpp
