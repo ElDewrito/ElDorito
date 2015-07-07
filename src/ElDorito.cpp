@@ -34,14 +34,8 @@ bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice)
 	return (*Video_InitD3D)(true, nullRefDevice); // sets windowless flag to true
 }
 
-void ElDorito::killProcessByName(const char *filename)
+void ElDorito::killProcessByName(const char *filename, int ourProcessID)
 {
-	HANDLE ourProc = OpenProcess(PROCESS_TERMINATE, false, GetCurrentProcessId());
-	if (!ourProc)
-	{
-		return;
-	}
-
 	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
 	PROCESSENTRY32 pEntry;
 	pEntry.dwSize = sizeof(pEntry);
@@ -50,19 +44,20 @@ void ElDorito::killProcessByName(const char *filename)
 	{
 		if (strcmp(pEntry.szExeFile, filename) == 0)
 		{
-			HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
-			OutputDebugString(std::to_string((int) hProcess).c_str());
-			if (hProcess != NULL && hProcess != ourProc)
+			if (pEntry.th32ProcessID != ourProcessID)
 			{
-				TerminateProcess(hProcess, 9);
-				CloseHandle(hProcess);
+				HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+
+				if (hProcess != NULL)
+				{
+					TerminateProcess(hProcess, 9);
+					CloseHandle(hProcess);
+				}
 			}
 		}
 		hRes = Process32Next(hSnapShot, &pEntry);
 	}
 	CloseHandle(hSnapShot);
-
-	CloseHandle(ourProc);
 }
 
 void ElDorito::Initialize()
@@ -151,9 +146,10 @@ void ElDorito::Initialize()
 
 	if (!skipKill)
 	{
-		// killProcessByName("eldorado.exe"); TODO: do not kill our own process
-		killProcessByName("custom_menu.exe");
-		killProcessByName("DewritoUpdater.exe");
+		int ourPid = GetCurrentProcessId();
+		killProcessByName("eldorado.exe", ourPid);
+		killProcessByName("custom_menu.exe", ourPid);
+		killProcessByName("DewritoUpdater.exe", ourPid);
 	}
 }
 
