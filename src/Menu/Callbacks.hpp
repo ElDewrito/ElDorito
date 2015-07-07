@@ -1,4 +1,4 @@
-#pragma once
+/*#pragma once
 #include "Settings.hpp"
 #include <Awesomium/WebCore.h>
 
@@ -65,4 +65,4 @@ private:
 
 	static void sendInput(UINT vKeyCode);
 	static void initStartScreenSelector();
-};
+};*/

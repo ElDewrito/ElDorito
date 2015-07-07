@@ -1,118 +1,13 @@
 #include "Menu.hpp"
 #include "..\Console\GameConsole.hpp"
 #include <fstream>
-#include <Awesomium\WebPreferences.h>
-
-void Menu::startMenu()
-{
-	auto& menu = Menu::Instance();
-
-	if (!menu.initAwesomium())
-	{
-		return;
-	}
-
-	SDL_Event ev;
-
-	while (true)
-	{
-		if (!menu.menuEnabled)
-		{
-			if (!menu.switchedBackToGame)
-			{
-				ShowWindow(menu.hWnd, SW_SHOW);
-				SDL_HideWindow(menu.window);
-				menu.switchedBackToGame = true;
-			}
-			Sleep(1000);
-			continue;
-		}
-
-		menu.switchedBackToGame = false;
-
-		while (menu.webView->IsLoading())
-		{
-			menu.webCore->Update();
-		}
-
-		if (!menu.sdlInit)
-		{
-			menu.sdlInit = true;
-			if (!menu.initSDL())
-			{
-				return;
-			}
-		}
-
-		while (SDL_PollEvent(&ev))
-		{
-			switch (ev.type)
-			{
-			case SDL_QUIT:
-				menu.disableMenu();
-				break;
-
-			case SDL_MOUSEBUTTONUP:
-				if (ev.button.button == SDL_BUTTON_LEFT)
-				{
-					menu.webView->InjectMouseUp(Awesomium::kMouseButton_Left);
-				}
-				break;
-
-			case SDL_MOUSEBUTTONDOWN:
-				if (ev.button.button == SDL_BUTTON_LEFT)
-				{
-					menu.webView->InjectMouseDown(Awesomium::kMouseButton_Left);
-				}
-				break;
-
-			case SDL_MOUSEMOTION:
-				menu.webView->InjectMouseMove(ev.button.x, ev.button.y);
-				break;
-
-			case SDL_KEYUP:
-				if (ev.key.keysym.sym == SDLK_F11)
-				{
-					menu.disableMenu();
-				}
-				break;
-
-			case SDL_MOUSEWHEEL:
-				if (ev.wheel.y > 0)
-				{
-					menu.webView->InjectMouseWheel(15, 0);
-				}
-				else
-				{
-					menu.webView->InjectMouseWheel(-15, 0);
-				}
-				break;
-			}
-		}
-
-		menu.webCore->Update();
-
-		SDL_BlitSurface(menu.imageSurface, 0, menu.windowSurface, 0);
-		SDL_UpdateWindowSurface(menu.window);
-	}
-}
 
 Menu::Menu()
 {
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startMenu, 0, 0, 0);
 }
 
 Menu::~Menu()
 {
-	SDL_FreeSurface(imageSurface);
-	SDL_FreeSurface(windowSurface);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
-	menuEnabled = false;
-	webView->Destroy();
-	Sleep(100);
-	Awesomium::WebCore::Shutdown();
 }
 
 bool Menu::doesFileExist(const char *fileName)
@@ -133,51 +28,9 @@ bool Menu::doesDirExist(const std::string& dirName_in)
 	return false;
 }
 
-bool Menu::initAwesomium()
-{
-	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
-	webView = webCore->CreateWebView(Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 0, Awesomium::kWebViewType_Offscreen);
-#ifdef _DEBUG
-	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu-debug/")));
-#else
-	webView->LoadURL(Awesomium::WebURL(Awesomium::WSLit("http://vicelio.github.io/menu/")));
-#endif
-
-	bindCallbacks();
-	return true;
-}
-
-bool Menu::initSDL()
-{
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
-		return false;
-	}
-
-	window = SDL_CreateWindow("HTML5 Menu", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, SDL_WINDOW_SHOWN);
-
-	if (!window)
-	{
-		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
-		return false;
-	}
-
-	windowSurface = SDL_GetWindowSurface(window);
-	bitmapSurface = (Awesomium::BitmapSurface*) webView->surface();
-	imageSurface = SDL_CreateRGBSurfaceFrom((void*) bitmapSurface->buffer(), Callbacks::settings->HORIZONTAL_RESOLUTION, Callbacks::settings->VERTICAL_RESOLUTION, 4 * 8, Callbacks::settings->HORIZONTAL_RESOLUTION * 4, 0, 0, 0, 0x000000ff);
-	if (!imageSurface)
-	{
-		GameConsole::Instance().PushLineFromGameToUIQueues(SDL_GetError());
-		SDL_HideWindow(window);
-		return false;
-	}
-	return true;
-}
-
 void Menu::bindCallbacks()
 {
-	Awesomium::JSValue result = webView->CreateGlobalJavascriptObject(Awesomium::WSLit("callbacks"));
+	/*Awesomium::JSValue result = webView->CreateGlobalJavascriptObject(Awesomium::WSLit("callbacks"));
 
 	if (result.IsObject())
 	{
@@ -222,24 +75,20 @@ void Menu::bindCallbacks()
 		methodDispatcher.Bind(callbacksObject, Awesomium::WSLit("connect"), JSDelegate(&callbacks, &Callbacks::connectCallback));
 	}
 
-	webView->set_js_method_handler(&methodDispatcher);
+	webView->set_js_method_handler(&methodDispatcher);*/
 }
 
 void Menu::toggleMenu()
 {
-	menuEnabled = !menuEnabled;
-	if (menuEnabled)
-	{
-		ShowWindow(hWnd, SW_HIDE);
-		while (!window)
-		{
-			Sleep(100);
-		}
-		SDL_ShowWindow(window);
-	}
-}
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
 
-void Menu::disableMenu()
-{
-	menuEnabled = false;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	CreateProcess("custom_menu.exe", 0, 0, 0, false, 0, 0, 0, &si, &pi);
+
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
 }

@@ -61,8 +61,6 @@ link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/awesomium/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/SDL2/lib/x86)
 
 # Create main target
 add_library(ElDorito SHARED
@@ -81,9 +79,6 @@ add_library(ElDorito SHARED
     src/Menu/Callbacks.hpp
     src/Menu/Menu.cpp
     src/Menu/Menu.hpp
-    src/Menu/js_delegate.hpp
-    src/Menu/MethodDispatcher.cpp
-    src/Menu/MethodDispatcher.hpp
     src/Menu/Settings.hpp
     src/Menu/GameOptions.hpp
     src/Modules/ModuleBase.cpp
@@ -178,9 +173,7 @@ target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
-  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
-  ${CMAKE_SOURCE_DIR}/libs/awesomium/include
-  ${CMAKE_SOURCE_DIR}/libs/SDL2/include)
+  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -202,9 +195,6 @@ target_link_libraries(ElDorito
   ts3client_win64
   ts3server_win32
   ts3server_win64
-  awesomium
-  SDL2
-  SDL2main
   MedalJunk)
 
 # Rename output to mtndew

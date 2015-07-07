@@ -149,6 +149,7 @@ void ElDorito::Initialize()
 	if (!skipKill)
 	{
 		// killProcessByName("eldorado.exe"); TODO: do not kill our own process
+		killProcessByName("custom_menu.exe");
 		killProcessByName("DewritoUpdater.exe");
 	}
 }

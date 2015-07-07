@@ -1,4 +1,4 @@
-#include "Callbacks.hpp"
+/*#include "Callbacks.hpp"
 #include "..\ElModules.hpp"
 #include <Awesomium/STLHelpers.h>
 #include "Menu.hpp"
@@ -596,3 +596,4 @@ void Callbacks::startGameTemp() // this is a temp thing/hack; replace with a pro
 		Sleep(100);
 	}
 }
+*/
