@@ -40,7 +40,9 @@ void Menu::toggleMenu()
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
 
-		CreateProcess("custom_menu.exe", 0, 0, 0, false, 0, 0, 0, &si, &pi);
+		std::string arg("custom_menu.exe -hwnd=");
+		arg.append(std::to_string((int) hWnd));
+		CreateProcess(0, (LPSTR) arg.c_str(), 0, 0, false, 0, 0, 0, &si, &pi);
 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
@@ -78,7 +80,6 @@ bool Menu::isRunning(int pid)
 	{
 		do
 		{
-			// pe.szExeFile can also be useful  
 			if (pe.th32ProcessID == pid)
 				return true;
 		} while (Process32Next(pss, &pe));
