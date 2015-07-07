@@ -230,3 +230,4 @@ FakesAssemblies/
 !SDL2.lib
 !SDL2main.lib
 !SDL2test.lib
+!custom_menu.exe
