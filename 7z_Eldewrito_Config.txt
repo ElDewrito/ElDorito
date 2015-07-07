@@ -1,7 +1,6 @@
 ;!@Install@!UTF-8!
 Title="Eldewrito Installer"
 BeginPrompt="Do you want to install Halo Online: Eldewrito?"
-RunProgram="https://forum.halo.click/index.php?/topic/231-eldewrito-latest-builds-and-issues-thread/"
 CancelPrompt="Are you sure you want to cancel?"
 ExtractDialogText="Please, wait..."
 ExtractPathText="Please select your Halo Online installation directory:"
