@@ -1,5 +1,5 @@
 #include "KeyboardHook.hpp"
-#include "Menu\Menu.hpp"
+#include "Menu.hpp"
 #include "DirectXHook.hpp"
 
 WNDPROC KeyboardHook::realProc = 0;

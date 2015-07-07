@@ -75,12 +75,6 @@ add_library(ElDorito SHARED
     src/Console/IRCBackend.hpp
     src/Console/Queue.hpp
     src/Console/Queue.cpp
-    src/Menu/Callbacks.cpp
-    src/Menu/Callbacks.hpp
-    src/Menu/Menu.cpp
-    src/Menu/Menu.hpp
-    src/Menu/Settings.hpp
-    src/Menu/GameOptions.hpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
@@ -146,6 +140,9 @@ add_library(ElDorito SHARED
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
+    src/Menu.cpp
+    src/Menu.hpp
+    src/Settings.hpp
     src/KeyboardHook.cpp
     src/KeyboardHook.hpp
     src/CommandMap.cpp

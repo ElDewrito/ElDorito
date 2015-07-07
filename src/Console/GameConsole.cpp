@@ -8,7 +8,7 @@
 #include <openssl/sha.h>
 #include <algorithm>
 #include "../ElDorito.hpp"
-#include "../Menu/Menu.hpp"
+#include "../Menu.hpp"
 
 void GameConsole::startIRCBackend()
 {

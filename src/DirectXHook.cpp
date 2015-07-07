@@ -8,7 +8,7 @@
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <teamspeak/clientlib.h>
-#include "Menu/Menu.hpp"
+#include "Menu.hpp"
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
