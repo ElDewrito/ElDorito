@@ -114,6 +114,7 @@ bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std:
 	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt ? "VoIP Server will start when a new lobby is created" : "Disabled VoIP Auto Startup.";
 	return true;
 }
+
 namespace Modules
 {
 	ModuleVoIP::ModuleVoIP() : ModuleBase("VoIP")
@@ -154,5 +155,10 @@ namespace Modules
 		VarVoIPServerEnabled = AddVariableInt("ServerEnabled", "voip_server", "Enabled or disable the VoIP Server.", eCommandFlagsArchived, 1, VariableServerEnabledUpdate);
 		VarVoIPServerEnabled->ValueIntMin = 0;
 		VarVoIPServerEnabled->ValueIntMax = 1;
+
+		//Are we talking right now?
+		VarVoIPTalk = AddVariableInt("Talk", "voip_Talk", "Enables or disables talking (for push to talk)", eCommandFlagsNone, 0);
+		VarVoIPTalk->ValueIntMin = 0;
+		VarVoIPTalk->ValueIntMax = 1;
 	}
 }

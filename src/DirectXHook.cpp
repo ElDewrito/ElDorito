@@ -88,12 +88,14 @@ void DirectXHook::drawVoipSettings()
 	}
 	else
 	{
+		//TODO: Get key from keybinding
 		drawText(centerTextHorizontally("VoIP.PushToTalk is enabled. Hold Caps-Lock to talk", x, width, largeSizeFont), y, COLOR_WHITE, "VoIP.PushToTalk is enabled. Hold Caps-Lock to talk", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
 		drawText(centerTextHorizontally("Change VoIP.PushToTalk to 0 for Voice Activation", x, width, largeSizeFont), y, COLOR_WHITE, "Change VoIP.PushToTalk to 0 for Voice Activation", largeSizeFont);
 	}
 	y += verticalSpacingBetweenEachLine;
 
+	/*
 	unsigned int error;
 	float result;
 	uint64 vadTestscHandlerID = VoIPGetVadHandlerID();
@@ -106,13 +108,15 @@ void DirectXHook::drawVoipSettings()
 	{
 		drawText(centerTextHorizontally(("%.2f - %s", result, (vadTestTalkStatus == STATUS_TALKING ? "talking" : "not talking")), x, width, largeSizeFont), y, (vadTestTalkStatus == STATUS_TALKING ? COLOR_GREEN : COLOR_RED), ("%.2f - %s", result, (vadTestTalkStatus == STATUS_TALKING ? "talking" : "not talking")), largeSizeFont);
 	}
+	*/
+	drawText(centerTextHorizontally("Type \"bind KEY +VoIP.Talk\" to change PushToTalk Key", x, width, largeSizeFont), y, COLOR_WHITE, "Type \"bind KEY +VoIP.Talk\" to change PushToTalk Key", largeSizeFont);
 
 	y += verticalSpacingBetweenEachLine * 2;
 
 	drawText(centerTextHorizontally("Voice activation threshold: -50", x, width, largeSizeFont), y, COLOR_WHITE, "Voice activation threshold: -50", largeSizeFont);
 
 	y += verticalSpacingBetweenEachLine;
-
+	//TODO: Get key from keybinding
 	drawText(centerTextHorizontally("Push to talk key: Caps Lock", x, width, largeSizeFont), y, COLOR_WHITE, "Push to talk key: Caps Lock", largeSizeFont);
 }
 

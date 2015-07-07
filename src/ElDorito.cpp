@@ -76,6 +76,9 @@ void ElDorito::Initialize()
 	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
+	//This should be removed when we can save binds
+	Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
+
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);

@@ -1329,9 +1329,8 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 		//BEGIN PUSH TO TALK
 		//TODO: only actually change these if something has changed instead of calling the functions all the time.
 		if (voipvars.VarVoIPPushToTalk->ValueInt == 1){
-			int talkBtnPressed = VoIPKeyPressed(VK_CAPITAL);
 			
-			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, talkBtnPressed ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
+			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, voipvars.VarVoIPTalk->ValueInt ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
 				char* errorMsg;
 				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
 					console.consoleQueue.pushLineFromGameToUI("Error toggling push-to-talk: " + std::string(errorMsg));
