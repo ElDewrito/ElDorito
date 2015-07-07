@@ -5,6 +5,7 @@
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Menu.hpp"
 
 namespace
 {
@@ -478,6 +479,13 @@ namespace
 		return true;
 	}
 
+	bool CommandGameToggleMenu(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Menu::Instance().toggleMenu();
+		returnInfo += "Menu toggled.";
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -509,6 +517,8 @@ namespace Modules
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
 
 		AddCommand("Map", "map", "Loads a map or map variant", eCommandFlagsNone, CommandGameLoadMap, { "name(string) The internal name of the map or Forge map to load" });
+
+		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;

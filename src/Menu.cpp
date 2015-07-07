@@ -3,14 +3,6 @@
 #include <fstream>
 #include <TlHelp32.h>
 
-Menu::Menu()
-{
-}
-
-Menu::~Menu()
-{
-}
-
 bool Menu::doesFileExist(const char *fileName)
 {
 	std::ifstream infile(fileName);
@@ -31,7 +23,12 @@ bool Menu::doesDirExist(const std::string& dirName_in)
 
 void Menu::toggleMenu()
 {
-	if (!isMenuRunning())
+	if (isMenuRunning())
+	{
+		ShowWindow(hWnd, SW_SHOW);
+		TerminateProcess(OpenProcess(PROCESS_TERMINATE, false, pid), 0);
+	}
+	else
 	{
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -48,6 +45,8 @@ void Menu::toggleMenu()
 		CloseHandle(pi.hThread);
 
 		pid = pi.dwProcessId;
+
+		// The custom menu will automatically hide the game window. I do it there instead of here to minimize the switch delay.
 	}
 }
 

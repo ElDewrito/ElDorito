@@ -19,8 +19,5 @@ private:
 	bool isRunning(int pid);
 
 public:
-	Menu();
-	~Menu();
-
 	void toggleMenu();
 };
