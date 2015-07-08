@@ -29,9 +29,9 @@
     
     "masterServers": [
     	{
-            "list": "http://samantha-master.halo.click/list",
-            "announce": "http://samantha-master.halo.click/announce",
-            "stats": "http://samantha-master.halo.click/stats"
+            "list": "https://samantha-master.halo.click/list",
+            "announce": "https://samantha-master.halo.click/announce",
+            "stats": "https://samantha-master.halo.click/stats"
         },
         {
             "list": "http://192.99.124.162/list",
