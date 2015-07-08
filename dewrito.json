@@ -28,6 +28,11 @@
     "updateChannelsUrl": "http://167.114.156.21:81/honline/channels.json",
     
     "masterServers": [
+    	{
+            "list": "http://samantha-master.halo.click/list",
+            "announce": "http://samantha-master.halo.click/announce",
+            "stats": "http://samantha-master.halo.click/stats"
+        },
         {
             "list": "http://192.99.124.162/list",
             "announce": "http://192.99.124.162/announce",
