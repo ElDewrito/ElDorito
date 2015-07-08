@@ -1,10 +1,12 @@
 #include "ModuleGame.hpp"
 #include <sstream>
 #include <fstream>
+#include <type_traits>
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
 #include "../Menu.hpp"
 
 namespace
@@ -408,12 +410,18 @@ namespace
 		return (firstMapId == mapId && secondMapId == mapId);
 	}
 
+	// TODO: Might be useful to map out this enum
+	// 2 = customs, 3 = forge
+	int GetUiGameMode()
+	{
+		typedef int(__thiscall *GetUiGameModePtr)();
+		auto GetUiGameModeImpl = reinterpret_cast<GetUiGameModePtr>(0x435640);
+		return GetUiGameModeImpl();
+	}
+
 	void SaveMapVariantToPreferences(const uint8_t *data)
 	{
 		// Check the lobby type so we know where to save the variant
-		// TODO: Might be useful to map out this enum
-		typedef int(__thiscall *GetUiGameModePtr)();
-		auto GetUiGameMode = reinterpret_cast<GetUiGameModePtr>(0x435640);
 		size_t variantOffset;
 		switch (GetUiGameMode())
 		{
@@ -435,11 +443,30 @@ namespace
 		*reinterpret_cast<bool*>(0x22C0129) = true;
 	}
 
+	void SaveGameVariantToPreferences(const uint8_t *data)
+	{
+		if (GetUiGameMode() != 2)
+			return; // Only allow doing this from a customs lobby
+
+		// Copy the data in
+		auto savedVariant = reinterpret_cast<uint8_t*>(0x22C0130 + 0x37C);
+		memcpy(savedVariant, data, 0x264);
+
+		// Mark preferences as dirty
+		*reinterpret_cast<bool*>(0x22C0129) = true;
+	}
+
 	bool CommandGameLoadMap(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() != 1)
 		{
 			returnInfo = "You must specify an internal map or Forge map name!";
+			return false;
+		}
+		auto lobbyType = GetUiGameMode();
+		if (lobbyType != 2 && lobbyType != 3)
+		{
+			returnInfo = "You can only change maps from a Custom Games or Forge lobby.";
 			return false;
 		}
 		auto mapName = Arguments[0];
@@ -476,6 +503,152 @@ namespace
 			return false;
 		}
 		SaveMapVariantToPreferences(variantData);
+		returnInfo += "\nMap variant loaded successfully!";
+		return true;
+	}
+
+	bool LoadGameVariant(std::ifstream &file, uint8_t *out)
+	{
+		// Verify file size
+		const auto GameVariantBlfSize = 0x3BC;
+		if (GetFileSize(file) < GameVariantBlfSize)
+			return false;
+
+		// Load it into a buffer and have the game parse it
+		uint8_t blfData[GameVariantBlfSize];
+		file.read(reinterpret_cast<char*>(blfData), GameVariantBlfSize);
+
+		typedef bool(__thiscall *ParseGameVariantBlfPtr)(void *blf, uint8_t *outVariant, bool *result);
+		auto ParseGameVariant = reinterpret_cast<ParseGameVariantBlfPtr>(0x573150);
+		return ParseGameVariant(blfData, out, nullptr);
+	}
+
+	template<class T>
+	int FindDefaultGameVariant(const Blam::Tags::TagBlock<T> &variants, const std::string &name)
+	{
+		static_assert(std::is_base_of<Blam::Tags::GameVariantDefinition, T>::value, "T must be a GameVariantDefinition");
+		if (!variants)
+			return -1;
+		for (auto i = 0; i < variants.Count; i++)
+		{
+			if (variants[i].Name[0] && strcmp(variants[i].Name, name.c_str()) == 0)
+				return i;
+		}
+		return -1;
+	}
+
+	int FindDefaultGameVariant(Blam::Tags::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
+	{
+		switch (type)
+		{
+		case Blam::GameType::CTF:
+			return FindDefaultGameVariant(wezr->CtfVariants, name);
+		case Blam::GameType::Slayer:
+			return FindDefaultGameVariant(wezr->SlayerVariants, name);
+		case Blam::GameType::Oddball:
+			return FindDefaultGameVariant(wezr->OddballVariants, name);
+		case Blam::GameType::KOTH:
+			return FindDefaultGameVariant(wezr->KothVariants, name);
+		case Blam::GameType::VIP:
+			return FindDefaultGameVariant(wezr->VipVariants, name);
+		case Blam::GameType::Juggernaut:
+			return FindDefaultGameVariant(wezr->JuggernautVariants, name);
+		case Blam::GameType::Territories:
+			return FindDefaultGameVariant(wezr->TerritoriesVariants, name);
+		case Blam::GameType::Assault:
+			return FindDefaultGameVariant(wezr->AssaultVariants, name);
+		case Blam::GameType::Infection:
+			return FindDefaultGameVariant(wezr->InfectionVariants, name);
+		default: // None, Forge
+			return -1;
+		}
+	}
+
+	bool LoadDefaultGameVariant(const std::string &name, uint8_t *out)
+	{
+		// Get a handle to the wezr tag
+		typedef Blam::Tags::GameEngineSettingsDefinition* (*GetWezrTagPtr)();
+		auto GetWezrTag = reinterpret_cast<GetWezrTagPtr>(0x719290);
+		auto wezr = GetWezrTag();
+		if (!wezr)
+			return false;
+
+		// Search through each variant type until something is found
+		auto index = -1;
+		int type;
+		for (type = 1; type < Blam::GameType::GameTypeCount; type++)
+		{
+			index = FindDefaultGameVariant(wezr, static_cast<Blam::GameType>(type), name);
+			if (index != -1)
+				break;
+		}
+		if (type == Blam::GameType::GameTypeCount)
+			return false;
+
+		const auto VariantDataSize = 0x264;
+		memset(out, 0, VariantDataSize);
+
+		// Ask the game to generate the variant data
+		typedef bool(*LoadBuiltInGameVariantPtr)(Blam::GameType type, int index, uint8_t *out);
+		auto LoadBuiltInGameVariant = reinterpret_cast<LoadBuiltInGameVariantPtr>(0x572270);
+		return LoadBuiltInGameVariant(static_cast<Blam::GameType>(type), index, out);
+	}
+
+	bool CommandGameType(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 1)
+		{
+			returnInfo = "You must specify a built-in gametype or custom gametype name!";
+			return false;
+		}
+		if (GetUiGameMode() != 2)
+		{
+			returnInfo = "You can only change gametypes from a Custom Games lobby.";
+			return false;
+		}
+		auto name = Arguments[0];
+		uint8_t variantData[0x264];
+
+		// Check if this is a custom gametype by searching for a file
+		// corresponding to each supported game mode
+		std::ifstream gameVariant;
+		std::string variantFileName;
+		for (auto i = 1; i < Blam::GameType::GameTypeCount; i++)
+		{
+			variantFileName = "mods/variants/" + name + "/variant." + Blam::GameTypeNames[i];
+			gameVariant.open(variantFileName, std::ios::binary);
+			if (gameVariant.is_open())
+				break;
+		}
+		if (gameVariant.is_open())
+		{
+			returnInfo = "Loading game variant " + variantFileName + "...";
+			if (!LoadGameVariant(gameVariant, variantData))
+			{
+				returnInfo += "\nInvalid game variant file!";
+				return false;
+			}
+		}
+		else
+		{
+			returnInfo = "Loading built-in game variant " + name + "...";
+			if (!LoadDefaultGameVariant(name, variantData))
+			{
+				returnInfo += "\nInvalid game variant name!";
+				return false;
+			}
+		}
+
+		// Submit a request to load the variant
+		typedef bool(*LoadGameVariantPtr)(uint8_t *variant);
+		auto LoadGameVariant = reinterpret_cast<LoadGameVariantPtr>(0x439860);
+		if (!LoadGameVariant(variantData))
+		{
+			returnInfo += "\nLoad failed.";
+			return false;
+		}
+		SaveGameVariantToPreferences(variantData);
+		returnInfo += "\nGame variant loaded successfully!";
 		return true;
 	}
 
@@ -517,6 +690,8 @@ namespace Modules
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
 
 		AddCommand("Map", "map", "Loads a map or map variant", eCommandFlagsNone, CommandGameLoadMap, { "name(string) The internal name of the map or Forge map to load" });
+
+		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
 
 		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
 

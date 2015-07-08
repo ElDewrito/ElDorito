@@ -27,34 +27,34 @@ namespace Blam
 		template<class T>
 		struct TagBlock
 		{
-			int count;
-			T *data;
-			int unusedC;
+			int Count;
+			T *Data;
+			int UnusedC;
 
 			// Accesses an element by index.
-			T& operator[](int index) const { return data[index]; }
+			T& operator[](int index) const { return Data[index]; }
 
 			// Gets a pointer to the first element in the tag block.
-			T* begin() const { return &data[0]; }
+			T* begin() const { return &Data[0]; }
 
 			// Gets a pointer past the last element in the tag block.
-			T* end() const { return &data[count]; }
+			T* end() const { return &Data[Count]; }
 
 			// Determines whether the tag block is not null.
-			explicit operator bool() const { return data != nullptr; }
+			explicit operator bool() const { return Data != nullptr; }
 		};
 		TAG_STRUCT_SIZE_ASSERT(TagBlock<char>, 0xC);
 
 		// A tag reference element, which references another tag.
 		struct TagReference
 		{
-			int groupTag;
-			int unused4;
-			int unused8;
-			uint32_t index;
+			int GroupTag;
+			int Unused4;
+			int Unused8;
+			uint32_t Index;
 
 			// Determines whether the tag reference is not null.
-			explicit operator bool() const { return index == 0xFFFFFFFF; }
+			explicit operator bool() const { return Index == 0xFFFFFFFF; }
 		};
 		TAG_STRUCT_SIZE_ASSERT(TagReference, 0x10);
 
@@ -62,14 +62,14 @@ namespace Blam
 		template<class T>
 		struct DataReference
 		{
-			uint32_t size;
-			int unused4;
-			int unused8;
-			T *data;
-			int unused10;
+			uint32_t Size;
+			int Unused4;
+			int Unused8;
+			T *Data;
+			int Unused10;
 
 			// Determines whether the data reference is not null.
-			explicit operator bool() const { return data != nullptr; }
+			explicit operator bool() const { return Data != nullptr; }
 		};
 		TAG_STRUCT_SIZE_ASSERT(DataReference<char>, 0x14);
 
