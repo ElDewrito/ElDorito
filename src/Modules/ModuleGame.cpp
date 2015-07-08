@@ -659,6 +659,20 @@ namespace
 		return true;
 	}
 
+	bool CommandGameInLoadingScreen(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		uint8_t* state = (uint8_t*)(0x18A23B4);
+		if (*state == 0) // if in loading screen
+		{
+			returnInfo += "1";
+		}
+		else
+		{
+			returnInfo += "0";
+		}
+		return true;
+	}
+
 	bool CommandGameStart(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		typedef bool(__thiscall *SetSessionModePtr)(void *thisptr, int mode);
@@ -710,6 +724,8 @@ namespace Modules
 		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
 
 		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
+
+		AddCommand("InLoadingScreen", "in_loading_screen", "Gets whether or not loading screen is up.", eCommandFlagsNone, CommandGameInLoadingScreen);
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 
