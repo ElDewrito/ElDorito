@@ -184,6 +184,10 @@ if(IS_DIRECTORY ${HALO_ROOT})
                      COMMAND ${CMAKE_COMMAND} -E
                          copy $<TARGET_FILE:ElDorito>
                               ${HALO_ROOT}/$<TARGET_FILE_NAME:ElDorito>)
+  add_custom_command(TARGET ElDorito POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy ${CMAKE_CURRENT_SOURCE_DIR}/artifact_extras/custom_menu.exe
+                              ${HALO_ROOT}/custom_menu.exe)
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files
