@@ -34,11 +34,6 @@
             "stats": "http://192.99.124.162/stats"
         },
         {
-            "list": "http://eldewrito-masterserver-personality.c9.io/list",
-            "announce": "http://eldewrito-masterserver-personality.c9.io/announce",
-            "stats": "http://eldewrito-masterserver-personality.c9.io/stats"
-        },
-        {
             "list": "http://eldewrito-masterserver-thetwist84.c9.io/list",
             "announce": "http://eldewrito-masterserver-thetwist84.c9.io/announce",
             "stats": "http://eldewrito-masterserver-thetwist84.c9.io/stats"
@@ -49,19 +44,14 @@
             "stats": "http://eldewrito-masterserver-1-thetwist84.c9.io/stats"
         },
         {
-            "list": "http://argo.alligo.co/list",
-            "announce": "http://argo.alligo.co/announce",
-            "stats": "http://argo.alligo.co/stats"
-        },
-        {
             "list": "http://80.240.130.4:8117/list",
             "announce": "http://80.240.130.4:8117/announce",
             "stats": "http://80.240.130.4:8117/stats"
         },
         {
-            "list": "http://192.168.40.130/list",
-            "announce": "http://192.168.40.130/announce",
-            "stats": "http://192.168.40.130/stats"
+            "list": "http://eldewrito-masterserver-personality.c9.io/list",
+            "announce": "http://eldewrito-masterserver-personality.c9.io/announce",
+            "stats": "http://eldewrito-masterserver-personality.c9.io/stats"
         }
     ]
 }
