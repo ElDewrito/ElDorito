@@ -123,6 +123,8 @@ add_library(ElDorito SHARED
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
     src/ThirdParty/HttpRequest.hpp
+    src/ThirdParty/WebSockets.cpp
+    src/ThirdParty/WebSockets.hpp
     src/Utils/Assert.cpp
     src/Utils/Assert.hpp
     src/Utils/Bits.hpp
