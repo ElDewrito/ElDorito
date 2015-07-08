@@ -61,6 +61,7 @@ link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 
 # Create main target
 add_library(ElDorito SHARED
@@ -172,7 +173,8 @@ target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
-  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include)
+  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
+  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -194,6 +196,7 @@ target_link_libraries(ElDorito
   ts3client_win64
   ts3server_win32
   ts3server_win64
+  libwebsocketswin32
   MedalJunk)
 
 # Rename output to mtndew
