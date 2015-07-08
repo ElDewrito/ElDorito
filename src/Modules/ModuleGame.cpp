@@ -659,6 +659,22 @@ namespace
 		return true;
 	}
 
+	bool CommandGameStart(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		typedef bool(__thiscall *SetSessionModePtr)(void *thisptr, int mode);
+		auto SetSessionMode = reinterpret_cast<SetSessionModePtr>(0x459A40);
+
+		// Note: this isn't necessarily a proper way of getting the this
+		// pointer, but it seems to work OK
+		if (!SetSessionMode(reinterpret_cast<void*>(0x1BF1B90), 2))
+		{
+			returnInfo = "Unable to start the game!";
+			return false;
+		}
+		returnInfo = "Starting game...";
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -694,6 +710,8 @@ namespace Modules
 		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
 
 		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
+
+		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
