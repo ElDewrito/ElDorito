@@ -198,6 +198,7 @@ target_link_libraries(ElDorito
   ts3client_win64
   ts3server_win32
   ts3server_win64
+  ZLib
   libwebsocketswin32
   MedalJunk)
 
