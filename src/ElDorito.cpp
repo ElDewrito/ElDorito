@@ -21,6 +21,7 @@
 #include "ElPatches.hpp"
 #include "Patches/PlayerUid.hpp"
 #include "Patches/Network.hpp"
+#include "ThirdParty/WebSockets.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -151,6 +152,8 @@ void ElDorito::Initialize()
 		killProcessByName("custom_menu.exe", ourPid);
 		killProcessByName("DewritoUpdater.exe", ourPid);
 	}
+
+	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)

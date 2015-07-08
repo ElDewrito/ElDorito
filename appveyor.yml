@@ -32,6 +32,7 @@ after_build:
   - cd C:\projects\eldorito
   - copy dewrito.json C:\projects\eldorito\build\Release\  
   - xcopy C:\projects\eldorito\libs\teamspeak\bin C:\projects\eldorito\build\Release /S /Y
+  - xcopy C:\projects\eldorito\libs\libwebsockets\bin C:\projects\eldorito\build\Release /S /Y
   - xcopy C:\projects\eldorito\artifact_extras C:\projects\eldorito\build\Release /S /Y
   - cd C:\projects\eldorito\build\Release\
   - del mtndew.exp

@@ -1,1 +1,1 @@
-int StartRconWebSocketServer();
+DWORD WINAPI StartRconWebSocketServer(LPVOID);
