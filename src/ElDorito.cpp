@@ -35,6 +35,13 @@ bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice)
 	return (*Video_InitD3D)(true, nullRefDevice); // sets windowless flag to true
 }
 
+int(__cdecl * loadFinished)(void*) = (int(__cdecl *) (void*)) 0x5312C0;
+
+int __cdecl loadFinishedHook(void* a1) {
+	Menu::Instance().toggleMenu();
+	return (*loadFinished)(a1);
+}
+
 void ElDorito::killProcessByName(const char *filename, int ourProcessID)
 {
 	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -130,6 +137,18 @@ void ElDorito::Initialize()
 		return;
 		}*/
 		Patches::Network::ForceDedicated();
+	}
+	else
+	{
+		// Hook loadFinished
+		DetourRestoreAfterWith();
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourAttach((PVOID*)&loadFinished, &loadFinishedHook);
+
+		if (DetourTransactionCommit() != NO_ERROR) {
+			OutputDebugString("[sub_5312C0] loadFinished hook failed");
+		}
 	}
 
 	// Language patch
