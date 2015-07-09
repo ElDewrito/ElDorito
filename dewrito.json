@@ -47,5 +47,9 @@
         "list": "http://eldewrito-masterserver-1-thetwist84.c9.io/list",
         "announce": "http://eldewrito-masterserver-1-thetwist84.c9.io/announce",
         "stats": "http://eldewrito-masterserver-1-thetwist84.c9.io/stats"
+    }, {
+        "list": "http://nothing-michaeljohn21312.c9.io/list",
+        "announce": "http://nothing-michaeljohn21312.c9.io/announce",
+        "stats": "http://nothing-michaeljohn21312.c9.io/stats"
     }]
 }
