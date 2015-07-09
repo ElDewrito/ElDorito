@@ -36,6 +36,10 @@
         "announce": "http://192.99.124.162/announce",
         "stats": "http://192.99.124.162/stats"
     }, {
+        "list": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/list",
+        "announce": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/announce",
+        "stats": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/stats"
+    }, {
         "list": "http://eldewrito-masterserver-thetwist84.c9.io/list",
         "announce": "http://eldewrito-masterserver-thetwist84.c9.io/announce",
         "stats": "http://eldewrito-masterserver-thetwist84.c9.io/stats"
