@@ -6,10 +6,12 @@
 #include <memory>
 #include <IPTypes.h> // for proxy
 #include <fstream>
+#include <detours.h>
 
 #include "Utils/VersionInfo.hpp"
 #include "ElDorito.hpp"
 #include "ElPatches.hpp"
+#include "Menu.hpp"
 
 /*LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
@@ -97,6 +99,13 @@ void initMedals()
 	installMedalJunk();
 }
 
+int(__cdecl * loadFinished)(void*) = (int(__cdecl *) (void*)) 0x5312C0;
+
+int __cdecl loadFinishedHook(void* a1) {
+	Menu::Instance().toggleMenu();
+	return (*loadFinished)(a1);
+}
+
 BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
@@ -107,6 +116,18 @@ BOOL InitInstance(HINSTANCE hModule)
 
 	Patches::ApplyRequired();
 	ElDorito::Instance().Initialize();
+
+	// TODO: Clean up Patches::ApplyRequired() so that it's written like it is in C++ instead of C
+	
+	// Hook loadFinished
+	DetourRestoreAfterWith();
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+	DetourAttach((PVOID*)&loadFinished, &loadFinishedHook);
+
+	if (DetourTransactionCommit() != NO_ERROR) {
+		OutputDebugString("[sub_5312C0] loadFinished hook failed");
+	}
 
 	return true;
 }
