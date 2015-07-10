@@ -38,7 +38,8 @@ bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice)
 int(__cdecl * loadFinished)(void*) = (int(__cdecl *) (void*)) 0x5312C0;
 
 int __cdecl loadFinishedHook(void* a1) {
-	Menu::Instance().toggleMenu();
+	// TODO: reenable menu toggling when menu is ready
+	// Menu::Instance().toggleMenu();
 	return (*loadFinished)(a1);
 }
 
