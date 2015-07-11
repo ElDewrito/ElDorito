@@ -106,7 +106,7 @@ void DirectXHook::drawHelpMessage()
 		y += verticalSpacingBetweenEachLine;
 		drawText(x, y, COLOR_WHITE, "2. If the game is too bright, reset your NVidia control panel settings.", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
-		drawText(x, y, COLOR_WHITE, "3. If server browser doesn't work, go to http://vicelio.github.io/menu/, open the console (F1 key or ` key) and type: connect <ip address>", largeSizeFont);
+		drawText(x, y, COLOR_WHITE, "3. If server browser doesn't work, go to http://eldewrito.github.io/menu/, open the console (F1 key or ` key) and type: connect <ip address>", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
 	}
 }
