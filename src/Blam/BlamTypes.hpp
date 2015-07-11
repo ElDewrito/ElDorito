@@ -409,6 +409,7 @@ namespace GameGlobals
 	namespace Input
 	{
 		const size_t TLSOffset = 0xC4;
+		const size_t DisablePlayerInputIndex = 6;
 		const size_t HorizontalViewAngle = 0x30C;
 		const size_t VerticalViewAngle = 0x310;
 	}

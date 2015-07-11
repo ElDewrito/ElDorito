@@ -22,10 +22,14 @@ namespace Modules
 		Patch FirstPersonPatch;
 		Patch DeadPersonPatch;
 
+		Hook CameraPermissionHook;
+
 		Patch HideHudPatch;
 		Patch CenteredCrosshairPatch;
 
 		ModuleCamera();
+
+		void UpdatePosition();
 
 		//std::unordered_map<std::string, CameraType> CameraTypeStrings;
 		//std::unordered_map<CameraType, size_t> CameraTypeFunctions;

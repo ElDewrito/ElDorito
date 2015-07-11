@@ -160,6 +160,9 @@ void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
 	Patches::Tick();
 
+	// TODO: refactor this elsewhere
+	Modules::ModuleCamera::Instance().UpdatePosition();
+
 	if (executeCommandQueue)
 	{
 		Modules::CommandMap::Instance().ExecuteQueue();
