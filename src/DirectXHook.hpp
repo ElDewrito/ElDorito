@@ -32,6 +32,7 @@ private:
 	static void drawVoipMembers();
 	static void drawVoipSettings();
 	static void initFontsIfRequired();
+	static void drawHelpMessage();
 
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);
@@ -48,6 +49,7 @@ public:
 	static CONST D3DCOLOR COLOR_MAGNETA = D3DCOLOR_ARGB(255, 255, 000, 255);
 	static CONST D3DCOLOR COLOR_WHITE = D3DCOLOR_ARGB(255, 255, 255, 249);
 	static bool drawVoIPSettings;
+	static int helpMessageStartTime;
 
 	static void hookDirectX();
 };

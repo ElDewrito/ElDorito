@@ -23,6 +23,7 @@ LPD3DXFONT DirectXHook::largeSizeFont = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
 
 bool DirectXHook::drawVoIPSettings = false;
+int DirectXHook::helpMessageStartTime = 0;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
@@ -39,6 +40,8 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	{
 		DirectXHook::drawVoipSettings();
 	}
+
+	DirectXHook::drawHelpMessage();
 
 	return (*DirectXHook::origEndScenePtr)(device);
 }
@@ -65,6 +68,47 @@ int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
 int DirectXHook::getSpaceCharacterWidth(LPD3DXFONT pFont)
 {
 	return getTextWidth("i i", pFont) - ((getTextWidth("i", pFont)) * 2);
+}
+
+void DirectXHook::drawHelpMessage()
+{
+	if (!helpMessageStartTime)
+	{
+		helpMessageStartTime = GetTickCount();
+	}
+	else if (GetTickCount() - helpMessageStartTime < 15000)
+	{
+		int x = (int)(0.01 * *horizontalRes);
+		int y = (int)(0.01 * *verticalRes);
+		int verticalSpacingBetweenEachLine = (int)(1.0 * largeSizeFontHeight);
+
+		drawText(x, y, COLOR_RED, "Important Hotkeys", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "F9 = Read this help text for an extra 15 seconds", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "F10 = Disable Chat Interface", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, ">>>>>>>>>>> F11 = Server Browser <<<<<<<<<<< Click this to join a game/server.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "F12 = VOIP settings", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_RED, "Server Hosting Instructions", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "If you want to host, use the Halo 3 menu by using your arrow keys, and the A, B, X and Y buttons on your keyboard.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "You need to port forward: 11775, 11774, and 9987. 9987 is for in-game VoIP.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_RED, "Common Bugs", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "1. If your key bindings are messed up, reset your key bindings to default in settings.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "2. If the game is too bright, reset your NVidia control panel settings.", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "3. If server browser doesn't work, go to http://vicelio.github.io/menu/, open the console (F1 key or ` key) and type: connect <ip address>", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
+	}
 }
 
 void DirectXHook::drawVoipSettings()

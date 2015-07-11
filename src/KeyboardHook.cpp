@@ -80,6 +80,11 @@ void KeyboardHook::keyCallBack(USHORT vKey)
 			console.displayChat(true);
 		}
 
+		if (vKey == VK_F9)
+		{
+			DirectXHook::helpMessageStartTime = GetTickCount();
+		}
+
 		if (vKey == VK_F10)
 		{
 			GameConsole::Instance().disableUI = !GameConsole::Instance().disableUI;

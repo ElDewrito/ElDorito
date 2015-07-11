@@ -20,8 +20,6 @@ GameConsole::GameConsole()
 	KeyboardHook::setHook();
 
 	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
-	PushLineFromGameToUIQueues("If your key bindings are messed up, you need to reset key bindings in settings.");
-	PushLineFromGameToUIQueues("Press F11 to open server browser. Press F12 to open VoIP settings. Press F10 to disable chat interface.");
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initIRCName();
