@@ -108,6 +108,7 @@ BOOL InitInstance(HINSTANCE hModule)
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	Patches::ApplyRequired();
+	Menu::Instance(); // hook the loading functions to toggle the menu
 	ElDorito::Instance().Initialize();
 
 	return true;

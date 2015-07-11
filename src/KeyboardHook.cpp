@@ -93,7 +93,7 @@ void KeyboardHook::keyCallBack(USHORT vKey)
 		// TODO: TEMP: remove
 		if (vKey == VK_F11)
 		{
-			Menu::Instance().toggleMenu();
+			Menu::Instance().setEnabled(true);
 		}
 
 		if (vKey == VK_F12)

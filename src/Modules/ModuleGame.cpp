@@ -652,13 +652,6 @@ namespace
 		return true;
 	}
 
-	bool CommandGameToggleMenu(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		Menu::Instance().toggleMenu();
-		returnInfo += "Menu toggled.";
-		return true;
-	}
-
 	bool CommandGameStart(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		typedef bool(__thiscall *SetSessionModePtr)(void *thisptr, int mode);
@@ -708,8 +701,6 @@ namespace Modules
 		AddCommand("Map", "map", "Loads a map or map variant", eCommandFlagsNone, CommandGameLoadMap, { "name(string) The internal name of the map or Forge map to load" });
 
 		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
-
-		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 

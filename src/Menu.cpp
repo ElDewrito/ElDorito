@@ -3,6 +3,34 @@
 #include <fstream>
 #include <TlHelp32.h>
 
+int(__cdecl * Menu::loadFinished)(void*) = (int(__cdecl *) (void*)) 0x5312C0;
+char(__cdecl * Menu::loadMap)(void*) = (char(__cdecl *) (void*)) 0x566EF0;
+char* Menu::mapLoading = nullptr;
+
+Menu::Menu()
+{
+	// Hook loadFinished & loadMap
+	DetourRestoreAfterWith();
+	DetourTransactionBegin();
+	DetourUpdateThread(GetCurrentThread());
+	DetourAttach((PVOID*)&loadFinished, &hookedLoadFinished);
+	DetourAttach((PVOID*)&loadMap, &hookedLoadMap);
+}
+
+int __cdecl Menu::hookedLoadFinished(void* a1) {
+	if (!strstr(mapLoading, "mainmenu"))
+	{
+		Menu::Instance().setEnabled(false);
+	}
+
+	return (*loadFinished)(a1);
+}
+
+char __cdecl Menu::hookedLoadMap(void* a1) {
+	mapLoading = (char*)((uint8_t*)a1 + 36);
+	return (*loadMap)(a1);
+}
+
 bool Menu::doesFileExist(const char *fileName)
 {
 	std::ifstream infile(fileName);
@@ -21,14 +49,10 @@ bool Menu::doesDirExist(const std::string& dirName_in)
 	return false;
 }
 
-void Menu::toggleMenu()
+void Menu::setEnabled(bool enable)
 {
-	if (isMenuRunning())
-	{
-		ShowWindow(hWnd, SW_SHOW);
-		TerminateProcess(OpenProcess(PROCESS_TERMINATE, false, pid), 0);
-	}
-	else
+	bool running = isMenuRunning();
+	if (enable && !running)
 	{
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -38,8 +62,8 @@ void Menu::toggleMenu()
 		ZeroMemory(&pi, sizeof(pi));
 
 		std::string arg("custom_menu.exe -hwnd=");
-		arg.append(std::to_string((int) hWnd));
-		CreateProcess(0, (LPSTR) arg.c_str(), 0, 0, false, 0, 0, 0, &si, &pi);
+		arg.append(std::to_string((int)hWnd));
+		CreateProcess(0, (LPSTR)arg.c_str(), 0, 0, false, 0, 0, 0, &si, &pi);
 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
@@ -47,6 +71,12 @@ void Menu::toggleMenu()
 		pid = pi.dwProcessId;
 
 		// The custom menu will automatically hide the game window. I do it there instead of here to minimize the switch delay.
+	}
+
+	if (!enable && running)
+	{
+		ShowWindow(hWnd, SW_SHOW);
+		TerminateProcess(OpenProcess(PROCESS_TERMINATE, false, pid), 0);
 	}
 }
 
