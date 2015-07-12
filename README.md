@@ -29,4 +29,6 @@ Although if you have a spare server running [ElDewrito-MasterServer](https://git
 ## Help/Support/Contact
 We have an [IRC channel on Snoonet](https://irc.lc/snoonet/eldorito/) where most of the devs are, just /join #ElDorito
 
+You can also try checking the support question on the [Halo.Click](https://forum.halo.click/index.php?/forum/17-help-support/) forums. 
+
 If you have issues you can get in touch with us on there, or make a bug report in our issue tracker and we'll look over it.
