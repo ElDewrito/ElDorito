@@ -423,7 +423,7 @@ namespace
 
 	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
 		{ "base", 0 },
-		{ "none", 1 ),
+		{ "none", 1 },
 		{ "tankmode_human", 4 },
 	};
 }
