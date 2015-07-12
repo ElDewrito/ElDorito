@@ -668,8 +668,20 @@ namespace
 		return true;
 	}
 
-	bool CommandGameVersion(const std::vector<std::string>& Arguments, std::string& returnInfo) {
+	bool CommandGameVersion(const std::vector<std::string>& arguments, std::string& returnInfo) {
 		returnInfo = Utils::Version::GetVersionString();
+		return true;
+	}
+
+	bool CommandGameSetMenuEnabled(const std::vector<std::string>& arguments, std::string& returnInfo) {
+		bool enabled = arguments.size() < 1; //defaults to true
+		if (!enabled) {
+			std::string e(arguments[0].size(), NULL);
+			std::transform(arguments[0].begin(), arguments[0].end(), e.begin(), ::tolower);
+			enabled = e != "0" && e != "false";
+		}
+		Menu::Instance().setEnabled(enabled);
+		returnInfo = (enabled) ? "Enabling menu..." : "Disabling menu...";
 		return true;
 	}
 
@@ -711,6 +723,8 @@ namespace Modules
 
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
+		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
+
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
 		VarLanguageID->ValueIntMax = 11;
@@ -720,6 +734,8 @@ namespace Modules
 		VarSkipLauncher->ValueIntMax = 0;
 
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
+
+
 
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
