@@ -668,6 +668,11 @@ namespace
 		return true;
 	}
 
+	bool CommandGameVersion(const std::vector<std::string>& Arguments, std::string& returnInfo) {
+		returnInfo = Utils::Version::GetVersionString();
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -703,6 +708,8 @@ namespace Modules
 		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
+
+		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
