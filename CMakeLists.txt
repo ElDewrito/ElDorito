@@ -94,6 +94,8 @@ add_library(ElDorito SHARED
     src/Modules/ModuleServer.hpp    
     src/Modules/ModuleVoIP.cpp
     src/Modules/ModuleVoIP.hpp
+    src/Modules/ModuleTime.cpp
+    src/Modules/ModuleTime.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
     src/Patches/ContentItems.cpp
