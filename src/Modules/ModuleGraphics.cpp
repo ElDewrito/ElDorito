@@ -65,19 +65,19 @@ namespace Modules
 {
 	ModuleGraphics::ModuleGraphics() : ModuleBase("Graphics")
 	{
-		VarSaturation = AddVariableFloat("Graphics.Saturation", "saturation", "The saturation", eCommandFlagsNone, 1.0f, VariableSaturationUpdate);
+		VarSaturation = AddVariableFloat("Saturation", "saturation", "The saturation", eCommandFlagsNone, 1.0f, VariableSaturationUpdate);
 		VarSaturation->ValueFloatMin = -10.0f;
 		VarSaturation->ValueFloatMax = 10.0f;
 
-		VarRedHue = AddVariableFloat("Graphics.RedHue", "red_hue", "The red hue", eCommandFlagsNone, 1.0f, VariableRedHueUpdate);
+		VarRedHue = AddVariableFloat("RedHue", "red_hue", "The red hue", eCommandFlagsNone, 1.0f, VariableRedHueUpdate);
 		VarRedHue->ValueFloatMin = 0.0f;
 		VarRedHue->ValueFloatMax = 1.0f;
 
-		VarGreenHue = AddVariableFloat("Graphics.GreenHue", "green_hue", "The green hue", eCommandFlagsNone, 1.0f, VariableGreenHueUpdate);
+		VarGreenHue = AddVariableFloat("GreenHue", "green_hue", "The green hue", eCommandFlagsNone, 1.0f, VariableGreenHueUpdate);
 		VarGreenHue->ValueFloatMin = 0.0f;
 		VarGreenHue->ValueFloatMax = 1.0f;
 
-		VarBlueHue = AddVariableFloat("Graphics.BlueHue", "blue_hue", "The blue hue", eCommandFlagsNone, 1.0f, VariableBlueHueUpdate);
+		VarBlueHue = AddVariableFloat("BlueHue", "blue_hue", "The blue hue", eCommandFlagsNone, 1.0f, VariableBlueHueUpdate);
 		VarBlueHue->ValueFloatMin = 0.0f;
 		VarBlueHue->ValueFloatMax = 1.0f;
 	}

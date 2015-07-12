@@ -22,7 +22,7 @@ namespace Modules
 {
 	ModuleTime::ModuleTime() : ModuleBase("Time")
 	{
-		VarSpeed = AddVariableFloat("Game.Speed", "game_speed", "The game's speed", eCommandFlagsNone, 1.0f, VariableGameSpeedUpdate);
+		VarSpeed = AddVariableFloat("GameSpeed", "game_speed", "The game's speed", eCommandFlagsNone, 1.0f, VariableGameSpeedUpdate);
 		VarSpeed->ValueFloatMin = 0.0f;
 		VarSpeed->ValueFloatMax = 10.0f;
 	}
