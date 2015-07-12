@@ -9,6 +9,7 @@
 #include "Modules/ModuleIRC.hpp"
 #include "Modules/ModuleVoIP.hpp"
 #include "Modules/ModuleTime.hpp"
+#include "Modules/ModuleGraphics.hpp"
 
 namespace Modules
 {
