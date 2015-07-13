@@ -15,7 +15,7 @@ namespace
 		LookVectors = 5
 	};
 
-	// determine which camera definitions are editable baawsed on the current camera mode
+	// determine which camera definitions are editable based on the current camera mode
 	bool __stdcall IsCameraDefinitionEditable(CameraDefinitionType definition)
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
@@ -153,6 +153,17 @@ namespace
 		return true;
 	}
 
+	bool VariableCameraSpeedUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		float speed = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;
+
+		std::stringstream ss;
+		ss << "Camera speed set to " << speed;
+		returnInfo = ss.str();
+
+		return true;
+	}
+	
 	bool VariableCameraModeUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
@@ -293,6 +304,10 @@ namespace Modules
 		VarCameraHideHud->ValueIntMin = 0;
 		VarCameraHideHud->ValueIntMax = 1;
 
+		VarCameraSpeed = AddVariableFloat("Speed", "camera_speed", "The camera speed", eCommandFlagsArchived, 0.1f, VariableCameraSpeedUpdate);
+		VarCameraSpeed->ValueIntMin = 0.01f;
+		VarCameraSpeed->ValueIntMax = 5.0f;
+
 		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", eCommandFlagsDontUpdateInitial, "default", VariableCameraModeUpdate);
 	}
 
@@ -305,9 +320,8 @@ namespace Modules
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
 
-		// TODO: allow these to be configurable settings
-		float moveDelta = 0.04f;
-		float lookDelta = 0.01f;
+		float moveDelta = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;;
+		float lookDelta = 0.01f;	// not used yet
 
 		// current values
 		float hLookAngle = playerControlGlobalsPtr(0x30C).Read<float>();

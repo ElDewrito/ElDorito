@@ -14,6 +14,7 @@ namespace Modules
 		Command* VarCameraFov;
 		Command* VarCameraHideHud;
 		Command* VarCameraMode;
+		Command* VarCameraSpeed;
 
 		// patches to stop camera mode from changing
 		Patch Debug1CameraPatch;
