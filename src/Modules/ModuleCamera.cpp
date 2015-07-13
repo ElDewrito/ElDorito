@@ -305,8 +305,8 @@ namespace Modules
 		VarCameraHideHud->ValueIntMax = 1;
 
 		VarCameraSpeed = AddVariableFloat("Speed", "camera_speed", "The camera speed", eCommandFlagsArchived, 0.1f, VariableCameraSpeedUpdate);
-		VarCameraSpeed->ValueIntMin = 0.01f;
-		VarCameraSpeed->ValueIntMax = 5.0f;
+		VarCameraSpeed->ValueFloatMin = 0.01f;
+		VarCameraSpeed->ValueFloatMax = 5.0f;
 
 		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", eCommandFlagsDontUpdateInitial, "default", VariableCameraModeUpdate);
 	}
@@ -320,7 +320,7 @@ namespace Modules
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
 
-		float moveDelta = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;;
+		float moveDelta = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;
 		float lookDelta = 0.01f;	// not used yet
 
 		// current values
