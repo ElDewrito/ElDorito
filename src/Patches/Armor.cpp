@@ -260,7 +260,7 @@ namespace
 		{ "base", 0 },
 		{ "stealth", 2 },
 		{ "air_assault", 3 },
-		{ "none", 4 },
+		{ "none", 3 },
 		{ "renegade", 12 },
 		{ "nihard", 13 },
 		{ "gladiator", 16 },
