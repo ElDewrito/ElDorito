@@ -3,8 +3,6 @@
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 
-// TODO: cleanup
-
 namespace
 {
 	enum CameraDefinitionType : int
@@ -17,11 +15,11 @@ namespace
 		LookVectors = 5
 	};
 
-	// determine which camera definitions are editable based on the current camera mode
+	// determine which camera definitions are editable baawsed on the current camera mode
 	bool __stdcall IsCameraDefinitionEditable(CameraDefinitionType definition)
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
-		if (!mode.compare("third"))
+		if (!mode.compare("first") || !mode.compare("third"))
 		{
 			if (definition == CameraDefinitionType::PositionShift ||
 				definition == CameraDefinitionType::LookShift ||
@@ -57,7 +55,64 @@ namespace
 			ret
 		}
 	}
-	
+
+	// hook @ 0x614818 - allows for the modification of specific camera components based on current perspective
+	__declspec(naked) void UpdateCameraDefinitionsAlt1()
+	{
+		__asm
+		{
+			pushad
+			shr		esi, 1
+			push	esi
+			call	IsCameraDefinitionEditable
+			test	al, al
+			popad
+			jnz		skip
+			movss   dword ptr [edx + eax * 4], xmm0
+			skip:
+			push	061481Dh
+			ret
+		}
+	}
+
+	// hook @ 0x6148BE - allows for the modification of specific camera components based on current perspective
+	__declspec(naked) void UpdateCameraDefinitionsAlt2()
+	{
+		__asm
+		{
+			pushad
+			shr		esi, 1
+			push	esi
+			call	IsCameraDefinitionEditable
+			test	al, al
+			popad
+			jnz		skip
+			movss   dword ptr [edx + eax * 4], xmm1
+			skip:
+			push	06148C3h
+			ret
+		}
+	}
+
+	// hook @ 0x614902 - allows for the modification of specific camera components based on current perspective
+	__declspec(naked) void UpdateCameraDefinitionsAlt3()
+	{
+		__asm
+		{
+			pushad
+			shr		esi, 1
+			push	esi
+			call	IsCameraDefinitionEditable
+			test	al, al
+			popad
+			jnz		skip
+			movss   dword ptr [edi + eax * 4], xmm0
+			skip:
+			push	0614907h
+			ret
+		}
+	}
+
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
@@ -102,40 +157,74 @@ namespace
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
 
-		// update patches depending upon the current camera mode
+		// prevent the game from updating certain camera values depending on the current camera mode
 		Modules::ModuleCamera::Instance().CameraPermissionHook.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt1.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt2.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt3.Apply(mode == "default");
+
+		// prevent the game from automatically switching camera modes depending on the current mode
 		Modules::ModuleCamera::Instance().Debug1CameraPatch.Apply(mode == "default");
 		Modules::ModuleCamera::Instance().Debug2CameraPatch.Apply(mode == "default");
 		Modules::ModuleCamera::Instance().ThirdPersonPatch.Apply(mode == "default");
 		Modules::ModuleCamera::Instance().FirstPersonPatch.Apply(mode == "default");
 		Modules::ModuleCamera::Instance().DeadPersonPatch.Apply(mode == "default");
+
+		// hides the hud when flying or in static camera mode
 		Modules::ModuleCamera::Instance().HideHudPatch.Apply(mode != "flying" && mode != "static");
+
+		// prevents death from resetting look angles when in static camera mode
+		Modules::ModuleCamera::Instance().StaticILookVectorPatch.Apply(mode != "static");
+		Modules::ModuleCamera::Instance().StaticKLookVectorPatch.Apply(mode != "static");
 
 		// disable player movement while in flycam
 		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
 		playerControlGlobalsPtr(GameGlobals::Input::DisablePlayerInputIndex).Write(mode == "flying");
+
+		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 
 		// get new camera perspective function offset 
 		size_t offset = 0x166ACB0;
 		if (!mode.compare("first")) // c_first_person_camera
 		{
 			offset = 0x166ACB0;
+			directorGlobalsPtr(0x840).Write(0.0f);			// x camera shift
+			directorGlobalsPtr(0x844).Write(0.0f);			// y camera shift
+			directorGlobalsPtr(0x848).Write(0.0f);			// z camera shift
+			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
+			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
+			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
 		else if (!mode.compare("third")) // c_following_camera
 		{
 			offset = 0x16724D4;
-
-			// TOOD: set default camera shifts for better viewing angle
+			directorGlobalsPtr(0x840).Write(0.0f);			// x camera shift
+			directorGlobalsPtr(0x844).Write(0.0f);			// y camera shift
+			directorGlobalsPtr(0x848).Write(0.1f);			// z camera shift
+			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
+			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
+			directorGlobalsPtr(0x854).Write(0.5f);			// depth
+			directorGlobalsPtr(0x858).Write(1.91986218f);	// 110 degrees
 		}
 		else if (!mode.compare("flying")) // c_flying_camera
 		{
-			// TODO: fix bug when transitioning to static/flycam from within a vehicle or during other special conditions
-
 			offset = 0x16726D0;
+			directorGlobalsPtr(0x840).Write(0.0f);			// x camera shift
+			directorGlobalsPtr(0x844).Write(0.0f);			// y camera shift
+			directorGlobalsPtr(0x848).Write(0.0f);			// z camera shift
+			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
+			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
+			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
 		else if (!mode.compare("static")) // c_static_camera
 		{
 			offset = 0x16728A8;
+			directorGlobalsPtr(0x840).Write(0.0f);			// x camera shift
+			directorGlobalsPtr(0x844).Write(0.0f);			// y camera shift
+			directorGlobalsPtr(0x848).Write(0.0f);			// z camera shift
+			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
+			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
+			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
 
 		/*
@@ -177,11 +266,16 @@ namespace Modules
 {
 	ModuleCamera::ModuleCamera() : ModuleBase("Camera"), 
 		CameraPermissionHook(0x21440D, UpdateCameraDefinitions),
+		CameraPermissionHookAlt1(0x214818, UpdateCameraDefinitionsAlt1),
+		CameraPermissionHookAlt2(0x2148BE, UpdateCameraDefinitionsAlt2),
+		CameraPermissionHookAlt3(0x214902, UpdateCameraDefinitionsAlt3),
 		Debug1CameraPatch(0x325A80, 0x90, 6),
 		Debug2CameraPatch(0x191525, 0x90, 6),
 		ThirdPersonPatch(0x328640, 0x90, 6),
 		FirstPersonPatch(0x25F420, 0x90, 6),
 		DeadPersonPatch(0x329E6F, 0x90, 6),
+		StaticILookVectorPatch(0x211433, 0x90, 8),
+		StaticKLookVectorPatch(0x21143E, 0x90, 6),
 		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }), // 3.14f in hex form
 		CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 })
 	{

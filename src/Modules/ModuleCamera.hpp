@@ -22,10 +22,16 @@ namespace Modules
 		Patch FirstPersonPatch;
 		Patch DeadPersonPatch;
 
-		Hook CameraPermissionHook;
+		Patch StaticILookVectorPatch;
+		Patch StaticKLookVectorPatch;
 
 		Patch HideHudPatch;
 		Patch CenteredCrosshairPatch;
+
+		Hook CameraPermissionHook;
+		Hook CameraPermissionHookAlt1;
+		Hook CameraPermissionHookAlt2;
+		Hook CameraPermissionHookAlt3;
 
 		ModuleCamera();
 
