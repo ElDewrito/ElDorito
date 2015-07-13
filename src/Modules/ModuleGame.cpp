@@ -724,6 +724,8 @@ namespace Modules
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
 		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
+		
+		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://eldewrito.github.io/menu/");
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;

@@ -1,5 +1,6 @@
 #include "Menu.hpp"
 #include "Console\GameConsole.hpp"
+#include "Modules\ModuleGame.hpp"
 #include <fstream>
 #include <TlHelp32.h>
 
@@ -60,9 +61,12 @@ void Menu::setEnabled(bool enable)
 		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
-
+	
 		std::string arg("custom_menu.exe -hwnd=");
 		arg.append(std::to_string((int)hWnd));
+		arg.append(" -url=");
+		arg.append(Modules::ModuleGame::Instance().VarMenuURL->ValueString);
+		
 		CreateProcess(0, (LPSTR)arg.c_str(), 0, 0, false, 0, 0, 0, &si, &pi);
 
 		CloseHandle(pi.hProcess);
