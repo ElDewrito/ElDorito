@@ -65,7 +65,7 @@ namespace Modules
 {
 	ModuleGraphics::ModuleGraphics() : ModuleBase("Graphics")
 	{
-		VarSaturation = AddVariableFloat("Saturation", "saturation", "The saturation", eCommandFlagsNone, 1.0f, VariableSaturationUpdate);
+		VarSaturation = AddVariableFloat("Saturation", "saturation", "The saturation", eCommandFlagsArchived, 1.0f, VariableSaturationUpdate);
 		VarSaturation->ValueFloatMin = -10.0f;
 		VarSaturation->ValueFloatMax = 10.0f;
 

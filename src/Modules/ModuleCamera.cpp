@@ -308,7 +308,8 @@ namespace Modules
 		VarCameraSpeed->ValueFloatMin = 0.01f;
 		VarCameraSpeed->ValueFloatMax = 5.0f;
 
-		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", eCommandFlagsDontUpdateInitial, "default", VariableCameraModeUpdate);
+		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", 
+			(CommandFlags)(eCommandFlagsDontUpdateInitial | eCommandFlagsCheat), "default", VariableCameraModeUpdate);
 	}
 
 	void ModuleCamera::UpdatePosition()
