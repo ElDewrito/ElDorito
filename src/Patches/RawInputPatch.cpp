@@ -26,6 +26,12 @@ namespace
 {
 	bool RawInputHookImpl(RAWINPUT *rwInput)
 	{
+		// Disable mouse input if a controller is plugged in (this needs to be done
+		// even if raw input is off)
+		bool controllerEnabled = Pointer::Base(0x204DE98).Read<bool>();
+		if (controllerEnabled)
+			return true;
+
 		if (!Modules::ModuleInput::Instance().VarInputRawInput->ValueInt)
 			return false;
 		if (rwInput->header.dwType != RIM_TYPEMOUSE)
