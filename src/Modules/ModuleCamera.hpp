@@ -15,6 +15,8 @@ namespace Modules
 		Command* VarCameraHideHud;
 		Command* VarCameraMode;
 		Command* VarCameraSpeed;
+		Command* VarCameraSave;
+		Command* VarCameraLoad;
 
 		// patches to stop camera mode from changing
 		Patch Debug1CameraPatch;
@@ -37,8 +39,5 @@ namespace Modules
 		ModuleCamera();
 
 		void UpdatePosition();
-
-		//std::unordered_map<std::string, CameraType> CameraTypeStrings;
-		//std::unordered_map<CameraType, size_t> CameraTypeFunctions;
 	};
 }

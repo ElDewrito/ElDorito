@@ -2,6 +2,7 @@
 #include <sstream>
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
+#include "../Console/GameConsole.hpp"
 
 namespace
 {
@@ -163,7 +164,35 @@ namespace
 
 		return true;
 	}
-	
+
+	//bool VariableCameraSave(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	//{
+	//	auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
+	//	Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+
+	//	// only allow saving while in flycam or static modes
+	//	if (mode != "flying" && mode != "static")
+	//		return true;
+
+	//	// TODO: finish
+
+	//	return true;
+	//}
+	//
+	//bool VariableCameraLoad(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	//{
+	//	auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
+	//	Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+
+	//	// only allow loading while in flycam or static modes
+	//	if (mode != "flying" && mode != "static")
+	//		return true;
+
+	//	// TODO: finish
+
+	//	return true;
+	//}
+
 	bool VariableCameraModeUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
@@ -315,7 +344,9 @@ namespace Modules
 	void ModuleCamera::UpdatePosition()
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
-		if (mode.compare("flying"))
+
+		// only allow camera input while flying outside of cli/chat
+		if (mode.compare("flying") || GameConsole::Instance().showConsole || GameConsole::Instance().showChat)
 			return;
 
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
