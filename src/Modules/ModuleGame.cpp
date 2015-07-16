@@ -734,7 +734,7 @@ namespace Modules
 
 		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
 		
-		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://dewmenu.halo.click/");
+		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://no1dead.github.io/");
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
