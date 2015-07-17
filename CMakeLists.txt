@@ -104,6 +104,8 @@ add_library(ElDorito SHARED
     src/Patches/ContentItems.hpp
     src/Patches/Core.cpp
     src/Patches/Core.hpp
+    src/Patches/Forge.cpp
+    src/Patches/Forge.hpp
     src/Patches/KeyboardInput.cpp
     src/Patches/KeyboardInput.hpp
     src/Patches/Logging.cpp

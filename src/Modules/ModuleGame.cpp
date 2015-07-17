@@ -8,6 +8,7 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
 #include "../Menu.hpp"
+#include "../Patches/Forge.hpp"
 
 namespace
 {
@@ -685,6 +686,12 @@ namespace
 		return true;
 	}
 
+	bool CommandDeleteForgeItem(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		Patches::Forge::SignalDelete();
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -724,8 +731,10 @@ namespace Modules
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
 		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
+
+		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
 		
-		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://eldewrito.github.io/menu/");
+		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://dewmenu.halo.click/");
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;

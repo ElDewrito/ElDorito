@@ -383,6 +383,7 @@ namespace GameGlobals
 		const unsigned IntensityIndex = 16;
 	}
 
+	// atmosphere_fog globals
 	namespace Bloom
 	{
 		const size_t TLSOffset = 0x104;

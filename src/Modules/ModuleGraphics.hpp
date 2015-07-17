@@ -14,7 +14,9 @@ namespace Modules
 		Command* VarGreenHue;
 		Command* VarBlueHue;
 
-		// TODO: possibly have a reset/default command
+		Command* VarBloom;
+		Command* VarDepthOfField;
+		Command* VarLetterbox;
 
 		ModuleGraphics();
 	};
