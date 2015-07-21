@@ -651,6 +651,21 @@ namespace
 		returnInfo = ss.str();
 		return true;
 	}
+
+	bool CommandServerMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+
+		typedef bool(__cdecl *SetGameOnlineFunc)(int a1);
+		const SetGameOnlineFunc Server_Set_Mode = reinterpret_cast<SetGameOnlineFunc>(0xA7F950);
+		bool retVal = Server_Set_Mode(Modules::ModuleServer::Instance().VarServerMode->ValueInt);
+		if (retVal)
+		{
+			returnInfo = "Changed game mode to " + Modules::ModuleServer::Instance().VarServerMode->ValueString;
+			return true;
+		}
+		returnInfo = "Hmm, weird. Are you at the main menu?";
+		return true;
+	}
 }
 
 namespace Modules
@@ -685,5 +700,9 @@ namespace Modules
 
 		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername/UID The name or UID of the player to kick" });
 		AddCommand("ListPlayers", "list", "Lists players in the game (currently host only)", eCommandFlagsHostOnly, CommandServerListPlayers);
+		
+		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
+		VarServerMode->ValueIntMin = 0;
+		VarServerMode->ValueIntMax = 4;
 	}
 }
