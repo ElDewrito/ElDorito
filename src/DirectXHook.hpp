@@ -16,6 +16,8 @@ private:
 	static LPD3DXFONT largeSizeFont;
 	static HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9);
 	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
+	static HRESULT(__stdcall * origDrawIndexedPrimitivePtr)(LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
+	static HRESULT __stdcall hookedDrawIndexedPrimitive(LPDIRECT3DDEVICE9 device, D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
 
 	static uint32_t* getDirectXVTableMethod1();
 	static uint32_t* getDirectXVTableMethod2();
