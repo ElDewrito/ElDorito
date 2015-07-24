@@ -67,5 +67,12 @@ namespace Blam
 			auto GetChannelPeer = reinterpret_cast<GetChannelPeerPtr>(0x44E860);
 			return GetChannelPeer(&MembershipInfo, index);
 		}
+
+		bool SessionParameters::SetSessionMode(int mode)
+		{
+			typedef bool(__thiscall *SetSessionModePtr)(SessionParameters *thisPtr, int mode);
+			auto SetSessionMode = reinterpret_cast<SetSessionModePtr>(0x459A40);
+			return SetSessionMode(this, mode);
+		}
 	}
 }

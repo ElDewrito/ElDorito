@@ -68,6 +68,10 @@ namespace Blam
 		struct SessionParameters
 		{
 			uint8_t Unknown0[0xB7924]; // approx size
+
+			// Sets the session mode parameter.
+			// TODO: Map out this enum
+			bool SetSessionMode(int mode);
 		};
 		static_assert(sizeof(SessionParameters) == 0xB7924, "Invalid c_network_session_parameters size");
 
