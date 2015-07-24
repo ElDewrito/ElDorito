@@ -67,6 +67,8 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 add_library(ElDorito SHARED
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
+    src/Blam/BlamNetwork.cpp
+    src/Blam/BlamNetwork.hpp
     src/Blam/BlamTypes.hpp
     src/Blam/Tags/Tags.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
@@ -102,6 +104,8 @@ add_library(ElDorito SHARED
     src/Patches/Armor.hpp
     src/Patches/ContentItems.cpp
     src/Patches/ContentItems.hpp
+    src/Patches/CustomPackets.cpp
+    src/Patches/CustomPackets.hpp
     src/Patches/Core.cpp
     src/Patches/Core.hpp
     src/Patches/Forge.cpp
@@ -211,6 +215,8 @@ target_link_libraries(ElDorito
   ZLib
   libwebsocketswin32
   MedalJunk)
+
+target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

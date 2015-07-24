@@ -46,6 +46,9 @@ namespace Blam
 			WriteUnsigned(val - minValue, Utils::Bits::CountBits(maxValue - minValue));
 		}
 
+		void ReadBlock(size_t bits, uint8_t *out);
+		void WriteBlock(size_t bits, const uint8_t *data);
+
 	private:
 		uint8_t *start;      // 0x00
 		uint8_t *end;        // 0x04

@@ -14,6 +14,7 @@
 #include "Patches\PlayerUid.hpp"
 #include "Patches\KeyboardInput.hpp"
 #include "Patches\Forge.hpp"
+#include "Patches\CustomPackets.hpp"
 
 #include "Modules\ModuleCamera.hpp"
 
@@ -39,6 +40,7 @@ namespace Patches
 		PlayerUid::ApplyAll();
 		KeyboardInput::ApplyAll();
 		Forge::ApplyAll();
+		CustomPackets::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()
