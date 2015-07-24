@@ -28,9 +28,9 @@
     "updateChannelsUrl": "http://167.114.156.21:81/honline/channels.json",
 
     "masterServers": [{
-        "list": "https://samantha-master.halo.click/list",
-        "announce": "https://samantha-master.halo.click/announce",
-        "stats": "https://samantha-master.halo.click/stats"
+        "list": "http://samantha-master.halo.click/list",
+        "announce": "http://samantha-master.halo.click/announce",
+        "stats": "http://samantha-master.halo.click/stats"
     }, {
         "list": "http://192.99.124.162/list",
         "announce": "http://192.99.124.162/announce",
@@ -55,5 +55,9 @@
         "list": "http://nothing-michaeljohn21312.c9.io/list",
         "announce": "http://nothing-michaeljohn21312.c9.io/announce",
         "stats": "http://nothing-michaeljohn21312.c9.io/stats"
-    }]
+    }, {
+        "list": "http://edms.qmarchi.cf/list",
+        "announce": "http://edms.qmarchi.cf/announce",
+        "stats": "http://edms.qmarchi.cf/stats"
+	}]
 }

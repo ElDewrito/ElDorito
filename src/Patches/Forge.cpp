@@ -15,6 +15,9 @@ namespace Patches
 		void ApplyAll()
 		{
 			Hook(0x19D482, UpdateForgeInputHook, HookFlags::IsCall).Apply();
+
+			// enable teleporter volume editing compliments of zedd
+			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
 		}
 
 		void SignalDelete()

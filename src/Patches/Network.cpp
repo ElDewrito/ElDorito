@@ -237,6 +237,10 @@ namespace Patches
 
 								uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
 
+								uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
+								std::string uidStr;
+								Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
+
 								if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
 									continue;
 
@@ -255,6 +259,8 @@ namespace Patches
 								writer.Int(team);
 								writer.Key("isAlive");
 								writer.Bool(alive == 1);
+								writer.Key("uid");
+								writer.String(uidStr.c_str());
 								writer.EndObject();
 							}
 							writer.EndArray();
