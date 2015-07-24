@@ -131,6 +131,8 @@ add_library(ElDorito SHARED
     src/ThirdParty/HttpRequest.hpp
     src/ThirdParty/WebSockets.cpp
     src/ThirdParty/WebSockets.hpp
+    src/Utils/AntiSpeedHack.cpp
+    src/Utils/AntiSpeedHack.hpp
     src/Utils/Assert.cpp
     src/Utils/Assert.hpp
     src/Utils/Bits.hpp
