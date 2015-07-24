@@ -26,7 +26,7 @@ namespace Blam
 			uint8_t Unknown0[0x50];
 			uint64_t Uid;
 			wchar_t DisplayName[16];
-			uint8_t UnknownA8[0x15D0];
+			uint8_t Unknown78[0x15D0];
 		};
 		static_assert(sizeof(PlayerSession) == 0x1648, "Invalid PlayerSession size");
 

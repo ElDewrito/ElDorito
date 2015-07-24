@@ -20,7 +20,7 @@
  *    easier (this assumes your struct is called ExamplePacketData):
  *
  *    typedef Patches::CustomPackets::Packet<ExamplePacketData> ExamplePacket;
- *    typedef Packets::CustomPackets::PacketSender<ExamplePacketData> ExamplePacketSender;
+ *    typedef Patches::CustomPackets::PacketSender<ExamplePacketData> ExamplePacketSender;
  *
  *    The first typedef creates an alias for the Packet<> object, which is the
  *    object you will actually be sending over the network (it contains a
