@@ -32,22 +32,22 @@ namespace Patches
 		{
 			if (DialogShow)
 			{
-				if (!UIData) // the game can also free this mem at any time afaik, but it also looks like it resets this to 0, so we can just alloc it again
+				if (!UIData) // the game can also free this mem at any time afaik, but it also looks like it resets this ptr to 0, so we can just alloc it again
 				{
-					typedef void*(__cdecl * UIAlloc)(int size);
-					UIAlloc uiAlloc = (UIAlloc)0xAB4ED0;
-					UIData = uiAlloc(0x40);
+					typedef void*(__cdecl * UI_AllocPtr)(int size);
+					auto UI_Alloc = reinterpret_cast<UI_AllocPtr>(0xAB4ED0);
+					UIData = UI_Alloc(0x40);
 				}
 
 				// fill UIData with proper data
-				typedef void*(__thiscall * OpenUIDialogByIdFunc)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
-				OpenUIDialogByIdFunc openui = (OpenUIDialogByIdFunc)0xA92780;
-				openui(&UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
+				typedef void*(__thiscall * UI_OpenDialogByIdPtr)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+				auto UI_OpenDialogById = reinterpret_cast<UI_OpenDialogByIdPtr>(0xA92780);
+				UI_OpenDialogById(UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
 
-				// send UI notification
-				typedef int(*SendUINotification)(void* UIDataStruct);
-				SendUINotification sendUINotification = (SendUINotification)0xA93450;
-				sendUINotification(&UIData);
+				// post UI message
+				typedef int(*UI_PostMessagePtr)(void* uiDataStruct);
+				auto UI_PostMessage = reinterpret_cast<UI_PostMessagePtr>(0xA93450);
+				UI_PostMessage(UIData);
 
 				DialogShow = false;
 			}
@@ -186,17 +186,31 @@ namespace
 		}
 
 		bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
-		typedef void(__thiscall *UI_MenuUpdateFunc)(void* a1, int menuIdToLoad);
-		UI_MenuUpdateFunc menuUpdate = (UI_MenuUpdateFunc)0xADF6E0;
-		menuUpdate(a1, menuIdToLoad);
+		int uiData0x18Value = 1;
+		//if (menuIdToLoad == 0x100A8) // TODO1: find what 0x100A8(H3E) stringid is in HO
+		//	uiData0x18Value = 5;
+
+		typedef void(__thiscall *UI_MenuUpdatePtr)(void* a1, int menuIdToLoad);
+		auto UI_MenuUpdate = reinterpret_cast<UI_MenuUpdatePtr>(0xADF6E0);
+		UI_MenuUpdate(a1, menuIdToLoad);
 
 		if (shouldUpdate)
 		{
-			Patches::Ui::DialogStringId = menuIdToLoad;
-			Patches::Ui::DialogArg1 = 0xFF;
-			Patches::Ui::DialogFlags = 4;
-			Patches::Ui::DialogParentStringId = 0x1000D;
-			Patches::Ui::DialogShow = true;
+			typedef void*(__cdecl * UI_AllocPtr)(int size);
+			auto UI_Alloc = reinterpret_cast<UI_AllocPtr>(0xAB4ED0);
+			void* UIData = UI_Alloc(0x3C);
+
+			// fill UIData with proper data
+			typedef void*(__thiscall * UI_OpenDialogByIdPtr)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
+			auto UI_OpenDialogById = reinterpret_cast<UI_OpenDialogByIdPtr>(0xA92780);
+			UI_OpenDialogById(UIData, menuIdToLoad, 0xFF, 4, 0x1000D);
+
+			// post UI message
+			typedef int(*UI_PostMessagePtr)(void* uiDataStruct);
+			auto UI_PostMessage = reinterpret_cast<UI_PostMessagePtr>(0xA93450);
+			UI_PostMessage(UIData);
+
+			*(uint32_t*)((char*)UIData + 0x18) = uiData0x18Value;
 		}
 	}
 
