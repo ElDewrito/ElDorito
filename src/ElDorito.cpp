@@ -22,6 +22,7 @@
 #include "Patches/PlayerUid.hpp"
 #include "Patches/Network.hpp"
 #include "ThirdParty/WebSockets.hpp"
+#include "Server/ServerChat.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -153,6 +154,8 @@ void ElDorito::Initialize()
 		killProcessByName("DewritoUpdater.exe", ourPid);
 	}
 
+	// Initialize server modules
+	Server::Chat::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 }
 

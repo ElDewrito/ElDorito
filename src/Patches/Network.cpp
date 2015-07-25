@@ -15,7 +15,6 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../Console/GameConsole.hpp"
-#include "../Console/IRCBackend.hpp"
 #include "../VoIP/TeamspeakServer.hpp"
 #include "../VoIP/TeamspeakClient.hpp"
 #include <iostream>
@@ -457,7 +456,6 @@ namespace
 		if (!isHost)
 			return retval;
 
-		auto& irc = IRCBackend::Instance();
 		if (isOnline == 1)
 		{
 			auto& voipvars = Modules::ModuleVoIP::Instance();
@@ -470,11 +468,6 @@ namespace
 			}
 			// TODO: give output if StartInfoServer fails
 			Patches::Network::StartInfoServer();
-
-			// join IRC channel
-			std::string xnkid;
-			Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-			irc.joinIRCChannel("#eldoritogame-" + xnkid, false);
 		}
 		else
 		{
@@ -482,9 +475,6 @@ namespace
 			//Stop the VoIP Server and client
 			StopTeamspeakClient();
 			StopTeamspeakServer();
-
-			if (!irc.gameChatChannel.empty())
-				irc.leaveIRCChannel(irc.gameChatChannel);
 		}
 		return retval;
 	}
@@ -619,28 +609,9 @@ namespace
 
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, void* playerAddr, int reason)
 	{
-		uint32_t base = 0x1A4DC98;
-		uint32_t playerOffset = (uint32_t)playerAddr - base;
-		uint32_t playerIndex = playerOffset / 0xF8; // 0xF8 = size of player entry in this struct
-
-		uint32_t uidBase = 0x1A4ED18;
-		uint32_t uidOffset = uidBase + (0x1648 * playerIndex) + 0x50;
-		uint64_t uid = Pointer(uidOffset).Read<uint64_t>();
-
-		wchar_t playerName[0x10];
-		memcpy(playerName, (char*)uidOffset + 0x8, 0x10 * sizeof(wchar_t));
-
 		typedef bool(__thiscall *Network_leader_request_boot_machineFunc)(void *thisPtr, void* playerAddr, int reason);
-		const Network_leader_request_boot_machineFunc Network_leader_request_boot_machine = reinterpret_cast<Network_leader_request_boot_machineFunc>(0x45D4A0);
-		bool retVal = Network_leader_request_boot_machine(thisPtr, playerAddr, reason);
-		if (retVal)
-		{
-			// boot was successful, remove them from our chat now
-			std::string ircNick = GameConsole::Instance().GenerateIRCNick(Utils::String::ThinString(playerName), uid);
-			IRCBackend::Instance().KickUser(ircNick);
-		}
-
-		return retVal;
+		auto Network_leader_request_boot_machine = reinterpret_cast<Network_leader_request_boot_machineFunc>(0x45D4A0);
+		return Network_leader_request_boot_machine(thisPtr, playerAddr, reason);
 	}
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update
@@ -754,12 +725,6 @@ namespace
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
 	{
 		Patches::Network::StopInfoServer();
-
-		auto& irc = IRCBackend::Instance();
-		if (!irc.gameChatChannel.empty())
-			irc.leaveIRCChannel(irc.gameChatChannel);
-
-		// TODO: add something in leaveIRCChannel to kick everyone from the chan if the user is OP before leaving it
 
 		StopTeamspeakClient();
 		StopTeamspeakServer();

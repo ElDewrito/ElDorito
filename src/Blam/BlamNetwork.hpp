@@ -6,6 +6,12 @@ namespace Blam
 {
 	namespace Network
 	{
+		// The maximum number of peers in a network session.
+		const int MaxPeers = 17;
+
+		// The maximum number of players in a network session.
+		const int MaxPlayers = 16;
+
 		struct PeerInfo
 		{
 			uint8_t Unknown0[0xF0];
@@ -43,14 +49,14 @@ namespace Blam
 			int Unknown1C;
 			int Unknown20;
 			int Unknown24;
-			PeerInfo Peers[17];
+			PeerInfo Peers[MaxPeers];
 			uint8_t Unknown10A0[0x8];
-			PlayerSession PlayerSessions[16];
+			PlayerSession PlayerSessions[MaxPlayers];
 			uint8_t Unknown17528[0x18C7F8];
 			int LocalPeerIndex;
 			int Unknown1A3D24;
 			int Unknown1A3D28;
-			PeerChannel PeerChannels[17];
+			PeerChannel PeerChannels[MaxPeers];
 			uint8_t Unknown1A3DF8[0x128];
 
 			// Finds the first available connected peer, or -1 if none.
@@ -133,6 +139,10 @@ namespace Blam
 			// failure.
 			int GetChannelPeer(const ObserverChannel *channel) const;
 
+			// Gets whether a session is established.
+			bool IsEstablished() const { return Type > 3; }
+
+			// Gets whether the local peer is hosting the session.
 			bool IsHost() const { return Type == 6 || Type == 7; }
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");

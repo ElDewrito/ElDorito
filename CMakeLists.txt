@@ -76,8 +76,6 @@ add_library(ElDorito SHARED
     src/DirectXHook.hpp
     src/Console/GameConsole.cpp
     src/Console/GameConsole.hpp
-    src/Console/IRCBackend.cpp
-    src/Console/IRCBackend.hpp
     src/Console/Queue.hpp
     src/Console/Queue.cpp
     src/Modules/ModuleBase.cpp
@@ -88,8 +86,6 @@ add_library(ElDorito SHARED
     src/Modules/ModuleGame.hpp
     src/Modules/ModuleInput.cpp
     src/Modules/ModuleInput.hpp
-    src/Modules/ModuleIRC.cpp
-    src/Modules/ModuleIRC.hpp
     src/Modules/ModulePlayer.cpp
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
@@ -130,6 +126,8 @@ add_library(ElDorito SHARED
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
     src/Patches/VirtualKeyboard.hpp
+    src/Server/ServerChat.cpp
+    src/Server/ServerChat.hpp
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
     src/ThirdParty/HttpRequest.hpp

@@ -3,27 +3,48 @@
 #include "../DirectXHook.hpp"
 #include "../KeyboardHook.hpp"
 #include "../Modules/ModulePlayer.hpp"
-#include "../Patches/PlayerUid.hpp"
-#include "../Pointer.hpp"
-#include <openssl/sha.h>
 #include <algorithm>
-#include "../ElDorito.hpp"
-#include "../Menu.hpp"
+#include "../Server/ServerChat.hpp"
 
-void GameConsole::startIRCBackend()
+namespace
 {
-	IRCBackend::Instance();
+	class GameChatHandler: public Server::Chat::ChatHandler
+	{
+	public:
+		explicit GameChatHandler(GameChatQueue *gameChat)
+			: gameChat(gameChat)
+		{
+		}
+
+		virtual void MessageSent(int senderPeer, Server::Chat::ChatMessage *message, bool *ignore) override
+		{
+		}
+
+		virtual void MessageReceived(const Server::Chat::ChatMessage &message) override
+		{
+			std::string sender;
+			if (message.Type == Server::Chat::ChatMessageType::Server)
+				sender = "SERVER";
+			else
+				sender = Utils::String::ThinString(message.Sender);
+
+			auto line = "<" + sender + "> " + std::string(message.Body);
+			gameChat->pushLineFromGameToUI(line);
+		}
+
+	private:
+		GameChatQueue *gameChat;
+	};
 }
 
 GameConsole::GameConsole()
 {
 	KeyboardHook::setHook();
 
-	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+	auto gameChatHandler = std::make_shared<GameChatHandler>(&gameChatQueue);
+	Server::Chat::AddHandler(gameChatHandler);
 
-	Patches::PlayerUid::Get(); // ensure a UID is generated
-	initIRCName();
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
+	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 }
 
 void GameConsole::PushLineFromGameToUIQueues(std::string text)
@@ -283,27 +304,6 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 			}
 		}
 	}
-}
-
-void GameConsole::initIRCName()
-{
-	ircName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
-}
-
-std::string GameConsole::GenerateIRCNick(std::string name, uint64_t uid)
-{
-	std::string ircNick;
-	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), ircNick);
-	ircNick += "|" + name;
-
-	size_t maxLen = 27; // TODO: get max name len from server
-	maxLen -= 3; // dew prefix
-
-	if (ircNick.length() > maxLen)
-		ircNick = ircNick.substr(ircNick.length() - maxLen, maxLen);
-
-	ircNick = "dew" + ircNick;
-	return ircNick;
 }
 
 void GameConsole::handleDefaultKeyInput(USHORT vKey)

@@ -2,9 +2,9 @@
 
 #include "Queue.hpp"
 #include "GameConsole.hpp"
-#include "IRCBackend.hpp"
 #include "../DirectXHook.hpp"
 #include "../ElModules.hpp"
+#include "../Server/ServerChat.hpp"
 
 Queue::Queue(D3DCOLOR color) : color(color)
 {
@@ -24,45 +24,23 @@ void Queue::pushLineFromGameToUI(std::string line)
 	lastTimeQueueShown = GetTickCount();
 }
 
-GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_GREEN)
+GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 {
 }
 
 void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	auto& ircBackend = IRCBackend::Instance();
-	auto& console = GameConsole::Instance();
-	ircBackend.sendMessageToChannel(ircBackend.globalChatChannel, &console.globalChatQueue, line);
-
-	std::string preparedLineForUI = GameConsole::Instance().ircName;
-	preparedLineForUI = preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
-	preparedLineForUI += ": ";
-	preparedLineForUI += line;
-	pushLineFromGameToUI(preparedLineForUI);
+	pushLineFromGameToUI("NOT IMPLEMENTED");
 }
 
-GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
+GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_GREEN)
 {
 }
 
 void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	auto& ircBackend = IRCBackend::Instance();
-	auto& console = GameConsole::Instance();
-
-	if (ircBackend.gameChatChannel.empty())
-	{
-		pushLineFromGameToUI("Error: not connected to a game chat.");
-		return;
-	}
-
-	ircBackend.sendMessageToChannel(ircBackend.gameChatChannel, &console.gameChatQueue, line);
-
-	std::string preparedLineForUI = GameConsole::Instance().ircName;
-	preparedLineForUI = preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
-	preparedLineForUI += ": ";
-	preparedLineForUI += line;
-	pushLineFromGameToUI(preparedLineForUI);
+	if (!Server::Chat::SendGlobalMessage(line))
+		pushLineFromGameToUI("(Failed to send message!)");
 }
 
 ConsoleQueue::ConsoleQueue() : Queue(0)

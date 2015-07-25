@@ -49,6 +49,38 @@ namespace Blam
 		void ReadBlock(size_t bits, uint8_t *out);
 		void WriteBlock(size_t bits, const uint8_t *data);
 
+		// Serializes a string to the BitStream.
+		template<class CharType, size_t MaxSize>
+		void WriteString(const CharType(&str)[MaxSize])
+		{
+			// Compute length
+			size_t length = 0;
+			while (length < MaxSize - 1 && str[length])
+				length++;
+
+			// Write length
+			WriteUnsigned<uint64_t>(length, 0U, MaxSize - 1);
+
+			// Write string
+			WriteBlock(length * sizeof(CharType) * 8, reinterpret_cast<const uint8_t*>(&str));
+		}
+
+		// Deserializes a string from the BitStream.
+		// Returns false if the string is invalid.
+		template<class CharType, size_t MaxSize>
+		bool ReadString(CharType(&str)[MaxSize])
+		{
+			// Length
+			auto length = ReadUnsigned<size_t>(0U, MaxSize - 1);
+			if (length >= MaxSize)
+				return false;
+
+			// String
+			memset(&str, 0, MaxSize * sizeof(CharType));
+			ReadBlock(length * sizeof(CharType) * 8, reinterpret_cast<uint8_t*>(&str));
+			return true;
+		}
+
 	private:
 		uint8_t *start;      // 0x00
 		uint8_t *end;        // 0x04
