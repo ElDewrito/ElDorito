@@ -28,7 +28,10 @@ namespace
 			else
 				sender = Utils::String::ThinString(message.Sender);
 
-			auto line = "<" + sender + "> " + std::string(message.Body);
+			std::string line;
+			if (message.Type == Server::Chat::ChatMessageType::Team)
+				line += "(TEAM) ";
+			line += "<" + sender + "> " + std::string(message.Body);
 			gameChat->pushLineFromGameToUI(line);
 		}
 

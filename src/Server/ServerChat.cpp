@@ -108,24 +108,52 @@ namespace
 		{
 			if (!peers[peer])
 				continue; // Not being sent to this peer
-			if (peer != membership->LocalPeerIndex)
-			{
-				if (!SendMessagePacket(peer, *message))
-					return false;
-			}
-			else
-			{
+			if (peer == membership->LocalPeerIndex)
 				ClientReceivedMessage(*message);
-			}
+			else if (!SendMessagePacket(peer, *message))
+				return false;
 		}
 		return true;
 	}
 
-	// Returns a bitset of peers to send a message to.
-	PeerBitSet GetMessagePeers(int senderPeer, const ChatMessage &message)
+	// Gets a bitset of peers on the same team as a peer.
+	bool GetTeamPeers(Blam::Network::Session *session, int senderPeer, PeerBitSet *result)
 	{
-		// Just send the message to everyone for now
-		return PeerBitSet().set();
+		result->reset();
+
+		// Get the sender's team
+		if (!session->HasTeams())
+			return false;
+		auto membership = &session->MembershipInfo;
+		auto senderTeam = membership->GetPeerTeam(senderPeer);
+		if (senderTeam < 0)
+			return false;
+
+		// Loop through each peer and check if the peer is on the sender's team
+		for (auto peer = membership->FindFirstPeer(); peer >= 0; peer = membership->FindNextPeer(peer))
+		{
+			if (membership->GetPeerTeam(peer) == senderTeam)
+				result->set(peer);
+		}
+		return true;
+	}
+
+	// Gets a bitset of peers to send a message to.
+	bool GetMessagePeers(Blam::Network::Session *session, int senderPeer, const ChatMessage &message, PeerBitSet *result)
+	{
+		switch (message.Type)
+		{
+		case ChatMessageType::Global:
+			result->set();
+			break;
+		case ChatMessageType::Team:
+			GetTeamPeers(session, senderPeer, result);
+			break;
+		// TODO: ChatMessageType::Whisper
+		default:
+			return false;
+		}
+		return true;
 	}
 
 	// Fills in the sender name field of a message.
@@ -146,7 +174,7 @@ namespace
 	{
 		// Verify that the message isn't empty and that the type is valid
 		// TODO: Implement support for message types other than Global
-		if (peer < 0 || !message.Body[0] || message.Type != ChatMessageType::Global)
+		if (peer < 0 || !message.Body[0] || message.Type == ChatMessageType::Server)
 			return false;
 
 		// Don't trust the Sender field
@@ -154,7 +182,9 @@ namespace
 		if (!FillInSenderName(session, peer, &broadcastMessage))
 			return false;
 
-		auto targetPeers = GetMessagePeers(peer, message);
+		PeerBitSet targetPeers;
+		if (!GetMessagePeers(session, peer, message, &targetPeers))
+			return false;
 		return BroadcastMessage(session, peer, &broadcastMessage, targetPeers);
 	}
 
@@ -198,6 +228,16 @@ namespace Server
 				return false;
 
 			ChatMessage message(ChatMessageType::Global, body);
+			return SendClientMessage(session, message);
+		}
+
+		bool SendTeamMessage(const std::string &body)
+		{
+			auto session = Blam::Network::GetActiveSession();
+			if (!session || !session->IsEstablished() || !session->HasTeams())
+				return false;
+
+			ChatMessage message(ChatMessageType::Team, body);
 			return SendClientMessage(session, message);
 		}
 

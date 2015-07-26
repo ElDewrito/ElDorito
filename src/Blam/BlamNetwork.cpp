@@ -32,6 +32,14 @@ namespace Blam
 			return MembershipGetPeerPlayer(Peers[peer].PlayerMasks, 16);
 		}
 
+		int SessionMembership::GetPeerTeam(int peer) const
+		{
+			auto playerIndex = GetPeerPlayer(peer);
+			if (playerIndex < 0)
+				return -1;
+			return PlayerSessions[playerIndex].TeamIndex;
+		}
+
 		void Observer::ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet)
 		{
 			typedef int(__thiscall *ObserverChannelSendMessagePtr)(Observer *thisPtr, int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet);
@@ -68,11 +76,36 @@ namespace Blam
 			return GetChannelPeer(&MembershipInfo, index);
 		}
 
+		bool Session::HasTeams() const
+		{
+			auto gameVariantParameter = &Parameters.GameVariant;
+			if (!gameVariantParameter->IsAvailable())
+				return false;
+			auto gameVariant = gameVariantParameter->Get();
+			if (!gameVariant)
+				return false;
+			return (gameVariant->TeamGame & 1) != 0;
+		}
+
 		bool SessionParameters::SetSessionMode(int mode)
 		{
 			typedef bool(__thiscall *SetSessionModePtr)(SessionParameters *thisPtr, int mode);
 			auto SetSessionMode = reinterpret_cast<SetSessionModePtr>(0x459A40);
 			return SetSessionMode(this, mode);
+		}
+
+		bool SessionParameter::IsAvailable() const
+		{
+			typedef bool(__thiscall *IsAvailablePtr)(const SessionParameter *thisPtr);
+			auto IsAvailable = reinterpret_cast<IsAvailablePtr>(0x450CF0);
+			return IsAvailable(this);
+		}
+
+		PBLAM_GAME_VARIANT GameVariantSessionParameter::Get() const
+		{
+			typedef PBLAM_GAME_VARIANT(__thiscall *GetGameVariantPtr)(const GameVariantSessionParameter *thisPtr);
+			auto GetGameVariant = reinterpret_cast<GetGameVariantPtr>(0x456140);
+			return GetGameVariant(this);
 		}
 	}
 }

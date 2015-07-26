@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "BlamTypes.hpp"
 
 namespace Blam
 {
@@ -32,7 +33,8 @@ namespace Blam
 			uint8_t Unknown0[0x50];
 			uint64_t Uid;
 			wchar_t DisplayName[16];
-			uint8_t Unknown78[0x15D0];
+			int TeamIndex;
+			uint8_t Unknown78[0x15CC];
 		};
 		static_assert(sizeof(PlayerSession) == 0x1648, "Invalid PlayerSession size");
 
@@ -65,15 +67,38 @@ namespace Blam
 			// Finds the next available connected peer, or -1 if none.
 			int FindNextPeer(int lastPeer) const;
 
-			// Gets the player index corresponding to a peer.
+			// Gets the player index corresponding to a peer, or -1 if none.
 			int GetPeerPlayer(int peer) const;
+
+			// Gets a peer's team index, or -1 on failure.
+			// Note that -1 does NOT mean that teams are disabled.
+			int GetPeerTeam(int peer) const;
 		};
 		static_assert(sizeof(SessionMembership) == 0x1A3F20, "Invalid c_network_session_membership size");
+
+		// c_network_session_parameter
+		struct SessionParameter
+		{
+			// Returns whether the parameter has data available.
+			bool IsAvailable() const;
+		};
+
+		// c_network_session_parameter_game_variant
+		struct GameVariantSessionParameter: SessionParameter
+		{
+			uint8_t Unknown0[0x3570];
+
+			// Gets the current variant data, or null if not available.
+			PBLAM_GAME_VARIANT Get() const;
+		};
+		static_assert(sizeof(GameVariantSessionParameter) == 0x3570, "Invalid c_network_session_parameter_game_variant size");
 
 		// c_network_session_parameters
 		struct SessionParameters
 		{
-			uint8_t Unknown0[0xB7924]; // approx size
+			uint8_t Unknown0[0x2D2D8];
+			GameVariantSessionParameter GameVariant;
+			uint8_t Unknown30848[0x870DC]; // approx size
 
 			// Sets the session mode parameter.
 			// TODO: Map out this enum
@@ -144,6 +169,9 @@ namespace Blam
 
 			// Gets whether the local peer is hosting the session.
 			bool IsHost() const { return Type == 6 || Type == 7; }
+
+			// Gets whether teams are enabled.
+			bool HasTeams() const;
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");
 

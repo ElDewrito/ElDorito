@@ -78,6 +78,10 @@ namespace Server
 		// Sends a message to every peer. Returns true if successful.
 		bool SendGlobalMessage(const std::string &body);
 
+		// Sends a message to every player on the local player's team. Returns
+		// true if successful.
+		bool SendTeamMessage(const std::string &body);
+
 		// Sends a server message to specific peers. Only works if you are
 		// host. Returns true if successful.
 		bool SendServerMessage(const std::string &body, PeerBitSet peers);
