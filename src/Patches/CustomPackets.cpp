@@ -1,24 +1,32 @@
 #include "CustomPackets.hpp"
 #include "../Pointer.hpp"
 #include "../Patch.hpp"
+#include <openssl/sha.h>
+#include <unordered_map>
+#include <limits>
 
 namespace
 {
-	const int FirstCustomPacketId = 0x27;
+	using namespace Patches::CustomPackets;
+
+	const int CustomPacketId = 0x27; // Last packet ID used by the game is 0x26
 
 	struct CustomPacket
 	{
 		std::string Name;
-		std::shared_ptr<Patches::CustomPackets::RawPacketHandler> Handler;
+		std::shared_ptr<RawPacketHandler> Handler;
 	};
-	std::vector<CustomPacket> customPackets;
-
-	void *GetNetworkSession();
+	std::unordered_map<PacketGuid, CustomPacket> customPackets;
+	CustomPacket* LookUpPacketType(PacketGuid guid);
 
 	void InitializePacketsHook();
-	void DeserializePacketHook();
-	void __fastcall SerializePacketHook(void *thisPtr, int unused, Blam::BitStream *stream, int id, int packetSize, void *packet);
 	void HandlePacketHook();
+
+	typedef void(*SerializePacketFn)(Blam::BitStream *stream, int packetSize, const uint8_t *packet);
+	typedef bool(*DeserializePacketFn)(Blam::BitStream *stream, int packetSize, uint8_t *packet);
+
+	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const uint8_t *packet);
+	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, uint8_t *packet);
 }
 
 namespace Patches
@@ -28,16 +36,10 @@ namespace Patches
 		void ApplyAll()
 		{
 			Hook(0x9E226, InitializePacketsHook, HookFlags::IsCall).Apply();
-			Hook(0x7FFAF, DeserializePacketHook).Apply();
-
-			Hook(0x7D618, SerializePacketHook, HookFlags::IsCall).Apply();
-			Hook(0x7D81D, SerializePacketHook, HookFlags::IsCall).Apply();
-			Hook(0x841F5, SerializePacketHook, HookFlags::IsCall).Apply();
-
 			Hook(0x9CAFA, HandlePacketHook).Apply();
 		}
 
-		void SendPacket(int targetPeer, int id, const void *packet, int packetSize)
+		void SendPacket(int targetPeer, const void *packet, int packetSize)
 		{
 			auto session = Blam::Network::GetActiveSession();
 			if (!session)
@@ -45,17 +47,33 @@ namespace Patches
 			auto channelIndex = session->MembershipInfo.PeerChannels[targetPeer].ChannelIndex;
 			if (channelIndex == -1)
 				return;
-			session->Observer->ObserverChannelSendMessage(0, channelIndex, false, id, packetSize, packet);
+			session->Observer->ObserverChannelSendMessage(0, channelIndex, false, CustomPacketId, packetSize, packet);
 		}
 
-		int RegisterRawPacket(const std::string &name, std::shared_ptr<RawPacketHandler> handler)
+		PacketGuid GenerateGuid(const std::string &name)
 		{
-			auto id = FirstCustomPacketId + customPackets.size();
+			// Generate a SHA-1 digest and take the first 4 bytes
+			unsigned char digest[SHA_DIGEST_LENGTH];
+			SHA_CTX context;
+			if (!SHA1_Init(&context))
+				throw std::runtime_error("SHA1_Init failed");
+			if (!SHA1_Update(&context, name.c_str(), name.length()))
+				throw std::runtime_error("SHA1_Update failed");
+			if (!SHA1_Final(digest, &context))
+				throw std::runtime_error("SHA1_Final failed");
+			return static_cast<PacketGuid>(digest[0] << 24 | digest[1] << 16 | digest[2] << 8 | digest[3]);
+		}
+
+		PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler)
+		{
+			auto guid = GenerateGuid(name);
+			if (LookUpPacketType(guid))
+				throw std::runtime_error("Duplicate packet GUID"); // TODO: Throwing an exception here might not be the best idea...
 			CustomPacket packet;
 			packet.Name = name;
 			packet.Handler = handler;
-			customPackets.push_back(packet);
-			return id;
+			customPackets[guid] = packet;
+			return guid;
 		}
 	}
 }
@@ -65,97 +83,97 @@ namespace
 	void InitializePacketsHook()
 	{
 		// Replace the packet buffer with one we control
+		// Only one extra packet type is ever allocated
 		auto packetHandlerPtr = Pointer::Base(0x1E4A498);
-		auto packetCount = FirstCustomPacketId + customPackets.size();
+		auto packetCount = CustomPacketId + 1;
 		auto packetBufferSize = packetCount * 0x24;
 		auto customPacketBuffer = new uint8_t[packetBufferSize];
 		packetHandlerPtr.Write<uint8_t*>(customPacketBuffer);
 		memset(customPacketBuffer, 0, packetBufferSize);
 
-		// Register custom packets
-		typedef void(__thiscall *RegisterCustomPacketPtr)(uint8_t *thisPtr, int id, const char *name, int unk8, int minSize, int maxSize, void *serializeFunc, void *deserializeFunc, int unk1C, int unk20);
-		auto RegisterCustomPacket = reinterpret_cast<RegisterCustomPacketPtr>(0x4801B0);
-		for (size_t i = 0; i < customPackets.size(); i++)
-		{
-			auto id = FirstCustomPacketId + i;
-			auto name = customPackets[i].Name.c_str();
-			auto handler = customPackets[i].Handler;
-			auto minSize = handler->GetMinRawPacketSize();
-			auto maxSize = handler->GetMaxRawPacketSize();
+		// Register the "master" custom packet
+		auto name = "eldewrito-custom-packet";
+		auto minSize = 0;
+		auto maxSize = std::numeric_limits<int>::max();
 
-			// NOTE: The serialize and deserialize functions are null here because the hooks take care of
-			// finding the handler for custom packets
-			RegisterCustomPacket(customPacketBuffer, id, name, 0, minSize, maxSize, nullptr, nullptr, 0, 0);
-		}
+		typedef void(__thiscall *RegisterCustomPacketPtr)(uint8_t *thisPtr, int id, const char *name, int unk8, int minSize, int maxSize, SerializePacketFn serializeFunc, DeserializePacketFn deserializeFunc, int unk1C, int unk20);
+		auto RegisterCustomPacket = reinterpret_cast<RegisterCustomPacketPtr>(0x4801B0);
+		RegisterCustomPacket(customPacketBuffer, CustomPacketId, name, 0, minSize, maxSize, SerializeCustomPacket, DeserializeCustomPacket, 0, 0);
 
 		// HACK: Patch the packet verification function and change the max packet ID it accepts
-		Patch(0x80022, { static_cast<uint8_t>(packetCount) }).Apply();
+		Patch(0x80022, { static_cast<uint8_t>(CustomPacketId + 1) }).Apply();
 	}
 
-	bool DeserializeCustomPacket(int packetId, Blam::BitStream *stream, int packetSize, void *packet)
+	CustomPacket* LookUpPacketType(PacketGuid guid)
 	{
-		auto packetIndex = packetId - FirstCustomPacketId;
-		if (packetIndex < 0 || packetIndex >= static_cast<int>(customPackets.size()))
-			return false;
-		return customPackets[packetIndex].Handler->DeserializeRawPacket(stream, packetSize, packet);
+		auto it = customPackets.find(guid);
+		if (it == customPackets.end())
+			return nullptr;
+		return &it->second;
 	}
 
-	__declspec(naked) void DeserializePacketHook()
+	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const uint8_t *packet)
 	{
-		__asm
-		{
-			// Set up function arguments
-			push esi
-			push dword ptr [edi]
-			push dword ptr [ebp + 8]
+		auto packetBase = reinterpret_cast<const PacketBase*>(packet);
 
-			// Get the packet ID and check if it's custom
-			mov eax, dword ptr [ebp + 0xC]
-			mov eax, dword ptr [eax]
-			cmp eax, FirstCustomPacketId
-			jge custom
+		// Serialize the packet header
+		stream->WriteBlock(sizeof(packetBase->Header) * 8, reinterpret_cast<const uint8_t*>(&packetBase->Header));
 
-			// Packet is built-in
-			// Execute replaced code and return
-			mov eax, dword ptr [ebx + 0x18]
-			push 0x47FFB8
-			ret
+		// Serialize the type GUID
+		stream->WriteUnsigned(packetBase->TypeGuid, sizeof(packetBase->TypeGuid) * 8);
 
-		custom:
-			// Push the packet id and call our custom deserializer
-			push eax
-			call DeserializeCustomPacket
-			mov dword ptr [esp], 0x47FFBA
-			ret
-		}
-	}
-
-	void __fastcall SerializePacketHook(void *thisPtr, int unused, Blam::BitStream *stream, int id, int packetSize, void *packet)
-	{
-		// If the packet is custom, invoke its handler to serialize it
-		auto packetIndex = id - FirstCustomPacketId;
-		if (packetIndex >= 0 && packetIndex < static_cast<int>(customPackets.size()))
-		{
-			typedef void(__thiscall *SerializePacketInfoPtr)(void *thisPtr, Blam::BitStream *stream, int id, int packetSize);
-			auto SerializePacketInfo = reinterpret_cast<SerializePacketInfoPtr>(0x4800D0);
-			SerializePacketInfo(thisPtr, stream, id, packetSize);
-
-			customPackets[packetIndex].Handler->SerializeRawPacket(stream, packetSize, packet);
+		// Look up the handler to use and serialize the rest of the packet
+		auto type = LookUpPacketType(packetBase->TypeGuid);
+		if (!type)
 			return;
-		}
 
-		// Serialize built-in packet
-		typedef void(__thiscall *SerializePacketPtr)(void *thisPtr, Blam::BitStream *stream, int id, int packetSize, void *packet);
-		auto SerializePacket = reinterpret_cast<SerializePacketPtr>(0x480090);
-		SerializePacket(thisPtr, stream, id, packetSize, packet);
+		// Verify the packet size with the handler
+		auto minSize = type->Handler->GetMinRawPacketSize();
+		auto maxSize = type->Handler->GetMaxRawPacketSize();
+		if (packetSize < minSize || packetSize > maxSize)
+			return;
+
+		// Serialize the rest of the packet
+		type->Handler->SerializeRawPacket(stream, packetSize, packet);
+	}
+
+	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, uint8_t *packet)
+	{
+		if (packetSize < static_cast<int>(sizeof(PacketBase)))
+			return false;
+		auto packetBase = reinterpret_cast<PacketBase*>(packet);
+
+		// Deserialize the packet header
+		stream->ReadBlock(sizeof(packetBase->Header) * 8, reinterpret_cast<uint8_t*>(&packetBase->Header));
+
+		// Deserialize the type GUID and look up the handler to use
+		packetBase->TypeGuid = stream->ReadUnsigned<PacketGuid>(sizeof(PacketGuid) * 8);
+		auto type = LookUpPacketType(packetBase->TypeGuid);
+		if (!type)
+			return false;
+
+		// Verify the packet size with the handler
+		auto minSize = type->Handler->GetMinRawPacketSize();
+		auto maxSize = type->Handler->GetMaxRawPacketSize();
+		if (packetSize < minSize || packetSize > maxSize)
+			return false;
+
+		// Deserialize the rest of the packet
+		return type->Handler->DeserializeRawPacket(stream, packetSize, packet);
 	}
 
 	bool HandleCustomPacket(int id, Blam::Network::ObserverChannel *sender, const void *packet)
 	{
-		auto packetIndex = id - FirstCustomPacketId;
-		if (packetIndex < 0 || packetIndex >= static_cast<int>(customPackets.size()))
+		// Only handle the master custom packet
+		if (id != CustomPacketId)
 			return false;
-		customPackets[packetIndex].Handler->HandleRawPacket(sender, packet);
+
+		// Use the type GUID to look up the handler to use
+		auto packetBase = static_cast<const PacketBase*>(packet);
+		auto type = LookUpPacketType(packetBase->TypeGuid);
+		if (!type)
+			return false;
+		type->Handler->HandleRawPacket(sender, packet);
 		return true;
 	}
 

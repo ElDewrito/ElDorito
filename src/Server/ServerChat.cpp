@@ -82,7 +82,7 @@ namespace
 	{
 		if (peer < 0)
 			return false;
-		ChatMessagePacket packet;
+		auto packet = PacketSender->New();
 		packet.Data = message;
 		PacketSender->Send(peer, packet);
 		return true;
@@ -218,7 +218,7 @@ namespace Server
 		{
 			// Register custom packet type
 			auto handler = std::make_shared<ChatMessagePacketHandler>();
-			PacketSender = Patches::CustomPackets::RegisterPacket<ChatMessage>(handler);
+			PacketSender = Patches::CustomPackets::RegisterPacket<ChatMessage>("eldewrito-text-chat", handler);
 		}
 
 		bool SendGlobalMessage(const std::string &body)

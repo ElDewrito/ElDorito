@@ -43,18 +43,23 @@
  *       get the player or peer that sent the packet, see below.
  *
  * 4. On initialization, register your packet by calling RegisterPacket and
- *    passing in a shared_ptr to an instance of the handler class you just
- *    defined. This will return a shared_ptr to a sender object which you will
- *    use to send packets.
+ *    passing in a unique packet name and a shared_ptr to an instance of the
+ *    handler class you just defined. This will return a shared_ptr to a sender
+ *    object which you will use to send packets.
+ *
+ *    It is recommended that you prefix the packet name with your plugin name,
+ *    or "eldewrito" for packets built into ElDewrito. This helps ensure
+ *    uniqueness.
  *
  *    auto handler = std::make_shared<ExamplePacketHandler>();
- *    auto myPacketSender = Patches::CustomPacket::RegisterPacket<ExamplePacketData>(handler);
+ *    auto myPacketSender = Patches::CustomPacket::RegisterPacket<ExamplePacketData>("eldewrito-example-packet", handler);
  *
- * 5. Finally, to send packets, create an ExamplePacket (NOT ExamplePacketData)
- *    object, fill in its Data structure, and then pass it to your sender with
- *    a peer index to send to (see below on how to get this):
+ * 5. Finally, to send packets, use the New() method on your PacketSender
+ *    object to create a packet with a properly-initialized header. Fill in its
+ *    Data structure, and then pass it to your sender with a peer index to send
+ *    to (see below on how to get this):
  *
- *    ExamplePacket myPacket;
+ *    auto myPacket = myPacketSender->New();
  *    myPacket.Data.Foo = 42;
  *    myPacketSender->Send(peer, myPacket);
  *
@@ -88,10 +93,14 @@
  *    RegisterVariadicPacket instead.
  *
  * 6. Finally, to send packets, you will need to allocate a VariadicPacket by
- *    using the static Allocate() method. Pass in the number of extra elements
- *    you want:
+ *    using the New() method on your PacketSender. Pass in the number of extra
+ *    elements you want:
  *
- *    auto examplePacket = ExamplePacket::Allocate(123);
+ *    auto examplePacket = myPacketSender->New(123);
+ *
+ *    Note that this will give you a shared_ptr to the packet instead of just
+ *    returning a struct as with the fixed-size packets. This is done because
+ *    variable-length structs cannot be stack-allocated by definition.
  *
  *    Extra elements are made available by the ExtraData[] array on the packet
  *    object. After you fill out the Data and ExtraData[] arrays, you can then
@@ -193,8 +202,11 @@ namespace Patches
 	{
 		void ApplyAll();
 
+		// Type used for a custom packet GUID.
+		typedef uint32_t PacketGuid;
+
 		// Sends raw packet data.
-		void SendPacket(int targetPeer, int id, const void *packet, int packetSize);
+		void SendPacket(int targetPeer, const void *packet, int packetSize);
 
 		// Base class for raw packet data handlers.
 		class RawPacketHandler
@@ -218,12 +230,29 @@ namespace Patches
 			virtual void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) = 0;
 		};
 
+		// Base struct for custom packets.
+		struct PacketBase
+		{
+			explicit PacketBase(PacketGuid guid)
+				: TypeGuid(guid)
+			{
+			}
+
+			// The packet's header (initialized automatically).
+			Blam::Network::PacketHeader Header;
+
+			// The GUID of the packet's type.
+			PacketGuid TypeGuid;
+		};
+
 		// A packet which can be sent across the network.
 		template<class TData>
-		struct Packet
+		struct Packet: PacketBase
 		{
-			// The packet's header. This will be initialized automatically.
-			Blam::Network::PacketHeader Header;
+			explicit Packet(PacketGuid guid)
+				: PacketBase(guid)
+			{
+			}
 
 			// The packet's data.
 			TData Data;
@@ -232,12 +261,12 @@ namespace Patches
 		// A packet which can be sent across the network with extra data that
 		// varies in size.
 		template<class TData, class TExtraData>
-		class VariadicPacket
+		class VariadicPacket: PacketBase
 		{
 			// Private - use Allocate() to create a VariadicPacket
-			explicit VariadicPacket(int extraDataCount)
+			VariadicPacket(PacketGuid guid, int extraDataCount)
+				: PacketBase(guid), extraDataCount(extraDataCount)
 			{
-				this->extraDataCount = extraDataCount;
 			}
 
 			VariadicPacket(const VariadicPacket&) = delete;
@@ -278,11 +307,11 @@ namespace Patches
 			}
 
 			// Allocates a new variadic packet.
-			static std::shared_ptr<TPacketType> Allocate(int extraDataCount)
+			static std::shared_ptr<TPacketType> Allocate(PacketGuid guid, int extraDataCount)
 			{
 				auto packetSize = CalculateSize(extraDataCount);
 				auto buffer = new uint8_t[packetSize];
-				new (buffer) VariadicPacket<TData, TExtraData>(extraDataCount);
+				new (buffer) VariadicPacket<TData, TExtraData>(guid, extraDataCount);
 				return std::shared_ptr<TPacketType>(reinterpret_cast<TPacketType*>(buffer), [](TPacketType* x)
 				{
 					delete[] reinterpret_cast<uint8_t*>(x);
@@ -296,9 +325,6 @@ namespace Patches
 				result->extraDataCount = extraDataCount;
 				return result;
 			}
-
-			// The packet's header. This will be initialized automatically.
-			Blam::Network::PacketHeader Header;
 
 			// The packet's data.
 			TData Data;
@@ -338,11 +364,6 @@ namespace Patches
 				if (packetSize != sizeof(Packet<TData>))
 					return;
 				auto fullPacket = static_cast<const Packet<TData>*>(packet);
-
-				// Serialize the packet header directly
-				stream->WriteBlock(sizeof(fullPacket->Header) * 8, reinterpret_cast<const uint8_t*>(&fullPacket->Header));
-
-				// Pass the type-safe packet to the Serialize() function
 				Serialize(stream, &fullPacket->Data);
 			}
 
@@ -352,11 +373,6 @@ namespace Patches
 				if (packetSize != sizeof(Packet<TData>))
 					return false;
 				auto fullPacket = static_cast<Packet<TData>*>(packet);
-
-				// Deserialize the packet header
-				stream->ReadBlock(sizeof(fullPacket->Header) * 8, reinterpret_cast<uint8_t*>(&fullPacket->Header));
-
-				// Pass the type-safe packet to the Deserialize() function
 				return Deserialize(stream, &fullPacket->Data);
 			}
 
@@ -417,8 +433,7 @@ namespace Patches
 				if (TPacket::CalculateExtraDataCount(packetSize) != fullPacket->GetExtraDataCount())
 					return;
 
-				// Serialize the packet header and extra data count
-				stream->WriteBlock(sizeof(fullPacket->Header) * 8, reinterpret_cast<const uint8_t*>(&fullPacket->Header));
+				// Serialize the extra data count
 				stream->WriteUnsigned(static_cast<uint32_t>(fullPacket->GetExtraDataCount()), 32);
 
 				// Pass the packet to the Serialize() function
@@ -434,9 +449,7 @@ namespace Patches
 				if (calculatedExtraDataCount < 0)
 					return false;
 
-				// Deserialize the packet header and extra data count
-				auto header = static_cast<Blam::Network::PacketHeader*>(packet);
-				stream->ReadBlock(sizeof(*header) * 8, reinterpret_cast<uint8_t*>(header));
+				// Deserialize the extra data count
 				auto extraDataCount = static_cast<int>(stream->ReadUnsigned<uint32_t>(32));
 				if (extraDataCount != calculatedExtraDataCount)
 					return false;
@@ -460,65 +473,83 @@ namespace Patches
 		template<class TData>
 		class PacketSender
 		{
+			typedef Packet<TData> TPacket;
+
 		public:
-			explicit PacketSender(int id)
+			explicit PacketSender(PacketGuid id)
 			{
 				this->id = id;
 			}
 
-			// Sends packet data to a peer.
-			void Send(int targetPeer, const Packet<TData> &packet)
+			// Creates a new packet.
+			TPacket New() const
 			{
-				SendPacket(targetPeer, id, &packet, sizeof(packet));
+				return Packet<TData>(id);
+			}
+
+			// Sends packet data to a peer.
+			void Send(int targetPeer, const TPacket &packet) const
+			{
+				SendPacket(targetPeer, &packet, sizeof(packet));
 			}
 
 		private:
-			int id;
+			PacketGuid id;
 		};
 
 		// Sends variable-length packets across the network.
 		template<class TData, class TExtraData>
 		class VariadicPacketSender
 		{
+			typedef VariadicPacket<TData, TExtraData> TPacket;
+
 		public:
-			explicit VariadicPacketSender(int id)
+			explicit VariadicPacketSender(PacketGuid id)
 			{
 				this->id = id;
 			}
 
+			// Creates a new packet.
+			std::shared_ptr<TPacket> New(int extraDataCount) const
+			{
+				return TPacket::Allocate(id, extraDataCount);
+			}
+
 			// Sends packet data to a peer.
-			void Send(int targetPeer, const VariadicPacket<TData, TExtraData> &packet)
+			void Send(int targetPeer, const TPacket &packet)
 			{
 				SendPacket(targetPeer, id, &packet, packet.GetSize());
 			}
 
 			// Sends packet data to a peer.
-			void Send(int targetPeer, std::shared_ptr<const VariadicPacket<TData, TExtraData>> packet)
+			void Send(int targetPeer, std::shared_ptr<const TPacket> packet)
 			{
 				Send(targetPeer, *packet);
 			}
 
 		private:
-			int id;
+			PacketGuid id;
 		};
 
 		// Registers a packet handler under a particular name and returns the
-		// id of the new packet type.
-		int RegisterRawPacket(const std::string &name, std::shared_ptr<RawPacketHandler> handler);
+		// GUID of the new packet type.
+		PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler);
 
-		// Registers a packet so that it can be sent and received.
+		// Registers a packet handler under a particular name and returns an
+		// object which can be used to easily send packets.
 		template<class TPacket>
-		std::shared_ptr<PacketSender<TPacket>> RegisterPacket(std::shared_ptr<PacketHandler<TPacket>> handler)
+		std::shared_ptr<PacketSender<TPacket>> RegisterPacket(const std::string &name, std::shared_ptr<PacketHandler<TPacket>> handler)
 		{
-			auto id = RegisterRawPacket(typeid(TPacket).name(), handler);
+			auto id = RegisterPacketImpl(name, handler);
 			return std::make_shared<PacketSender<TPacket>>(id);
 		}
 
-		// Registers a variadic packet so that it can be sent and received.
+		// Registers a variadic packet handler under a particular name and
+		// returns an object which can be used to easily send packets.
 		template<class TPacket, class TExtraData>
-		std::shared_ptr<VariadicPacketSender<TPacket, TExtraData>> RegisterVariadicPacket(std::shared_ptr<VariadicPacketHandler<TPacket, TExtraData>> handler)
+		std::shared_ptr<VariadicPacketSender<TPacket, TExtraData>> RegisterVariadicPacket(const std::string &name, std::shared_ptr<VariadicPacketHandler<TPacket, TExtraData>> handler)
 		{
-			auto id = RegisterRawPacket(typeid(TPacket).name(), handler);
+			auto id = RegisterPacketImpl(name, handler);
 			return std::make_shared<VariadicPacketSender<TPacket, TExtraData>>(id);
 		}
 	}
