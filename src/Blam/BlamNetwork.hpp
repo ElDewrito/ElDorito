@@ -122,6 +122,36 @@ namespace Blam
 			uint8_t XnkAddr[0x10];
 		};
 
+		// Packet serialization function pointer types.
+		typedef void(*SerializePacketFn)(BitStream *stream, int packetSize, const void *packet);
+		typedef bool(*DeserializePacketFn)(BitStream *stream, int packetSize, void *packet);
+
+		// Contains information about a registered packet type.
+		struct RegisteredPacket
+		{
+			bool Initialized;
+			const char *Name;
+			int Unknown8;
+			int MinSize;
+			int MaxSize;
+			SerializePacketFn Serialize;
+			DeserializePacketFn Deserialize;
+			int Unknown1C;
+			int Unknown20;
+		};
+		static_assert(sizeof(RegisteredPacket) == 0x24, "Invalid RegisteredPacket size");
+
+		// A table of registered packets.
+		struct PacketTable
+		{
+			// There's more than 1 registered packet, but the array size can
+			// vary if custom packets are installed.
+			RegisteredPacket Packets[1];
+
+			// Registers a packet at an index.
+			void Register(int index, const char *name, int unk8, int minSize, int maxSize, SerializePacketFn serializeFunc, DeserializePacketFn deserializeFunc, int unk1C, int unk20);
+		};
+
 		// c_network_observer
 		struct Observer
 		{
@@ -178,5 +208,13 @@ namespace Blam
 		// Gets a pointer to the active network session.
 		// Can be null!
 		Session *GetActiveSession();
+
+		// Gets a pointer to the active packet table.
+		// Can be null!
+		PacketTable *GetPacketTable();
+
+		// Sets the active packet table.
+		// Only use this if you know what you're doing!
+		void SetPacketTable(const PacketTable *newTable);
 	}
 }

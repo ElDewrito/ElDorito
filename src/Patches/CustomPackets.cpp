@@ -22,11 +22,8 @@ namespace
 	void InitializePacketsHook();
 	void HandlePacketHook();
 
-	typedef void(*SerializePacketFn)(Blam::BitStream *stream, int packetSize, const uint8_t *packet);
-	typedef bool(*DeserializePacketFn)(Blam::BitStream *stream, int packetSize, uint8_t *packet);
-
-	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const uint8_t *packet);
-	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, uint8_t *packet);
+	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const void *packet);
+	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, void *packet);
 }
 
 namespace Patches
@@ -82,23 +79,18 @@ namespace
 {
 	void InitializePacketsHook()
 	{
-		// Replace the packet buffer with one we control
+		// Replace the packet table with one we control
 		// Only one extra packet type is ever allocated
-		auto packetHandlerPtr = Pointer::Base(0x1E4A498);
 		auto packetCount = CustomPacketId + 1;
-		auto packetBufferSize = packetCount * 0x24;
-		auto customPacketBuffer = new uint8_t[packetBufferSize];
-		packetHandlerPtr.Write<uint8_t*>(customPacketBuffer);
-		memset(customPacketBuffer, 0, packetBufferSize);
+		auto customPacketTable = reinterpret_cast<Blam::Network::PacketTable*>(new Blam::Network::RegisteredPacket[packetCount]);
+		Blam::Network::SetPacketTable(customPacketTable);
+		memset(customPacketTable, 0, packetCount * sizeof(Blam::Network::RegisteredPacket));
 
 		// Register the "master" custom packet
 		auto name = "eldewrito-custom-packet";
 		auto minSize = 0;
 		auto maxSize = std::numeric_limits<int>::max();
-
-		typedef void(__thiscall *RegisterCustomPacketPtr)(uint8_t *thisPtr, int id, const char *name, int unk8, int minSize, int maxSize, SerializePacketFn serializeFunc, DeserializePacketFn deserializeFunc, int unk1C, int unk20);
-		auto RegisterCustomPacket = reinterpret_cast<RegisterCustomPacketPtr>(0x4801B0);
-		RegisterCustomPacket(customPacketBuffer, CustomPacketId, name, 0, minSize, maxSize, SerializeCustomPacket, DeserializeCustomPacket, 0, 0);
+		customPacketTable->Register(CustomPacketId, name, 0, minSize, maxSize, SerializeCustomPacket, DeserializeCustomPacket, 0, 0);
 
 		// HACK: Patch the packet verification function and change the max packet ID it accepts
 		Patch(0x80022, { static_cast<uint8_t>(CustomPacketId + 1) }).Apply();
@@ -112,9 +104,9 @@ namespace
 		return &it->second;
 	}
 
-	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const uint8_t *packet)
+	void SerializeCustomPacket(Blam::BitStream *stream, int packetSize, const void *packet)
 	{
-		auto packetBase = reinterpret_cast<const PacketBase*>(packet);
+		auto packetBase = static_cast<const PacketBase*>(packet);
 
 		// Serialize the packet header
 		stream->WriteBlock(sizeof(packetBase->Header) * 8, reinterpret_cast<const uint8_t*>(&packetBase->Header));
@@ -137,11 +129,11 @@ namespace
 		type->Handler->SerializeRawPacket(stream, packetSize, packet);
 	}
 
-	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, uint8_t *packet)
+	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, void *packet)
 	{
 		if (packetSize < static_cast<int>(sizeof(PacketBase)))
 			return false;
-		auto packetBase = reinterpret_cast<PacketBase*>(packet);
+		auto packetBase = static_cast<PacketBase*>(packet);
 
 		// Deserialize the packet header
 		stream->ReadBlock(sizeof(packetBase->Header) * 8, reinterpret_cast<uint8_t*>(&packetBase->Header));

@@ -107,5 +107,24 @@ namespace Blam
 			auto GetGameVariant = reinterpret_cast<GetGameVariantPtr>(0x456140);
 			return GetGameVariant(this);
 		}
+
+		PacketTable *GetPacketTable()
+		{
+			auto packetTablePtr = Pointer::Base(0x1E4A498);
+			return packetTablePtr.Read<PacketTable*>();
+		}
+
+		void SetPacketTable(const PacketTable *newTable)
+		{
+			auto packetTablePtr = Pointer::Base(0x1E4A498);
+			packetTablePtr.Write<const PacketTable*>(newTable);
+		}
+
+		void PacketTable::Register(int index, const char *name, int unk8, int minSize, int maxSize, SerializePacketFn serializeFunc, DeserializePacketFn deserializeFunc, int unk1C, int unk20)
+		{
+			typedef void(__thiscall *RegisterPacketPtr)(PacketTable *thisPtr, int id, const char *name, int unk8, int minSize, int maxSize, Blam::Network::SerializePacketFn serializeFunc, Blam::Network::DeserializePacketFn deserializeFunc, int unk1C, int unk20);
+			auto RegisterPacket = reinterpret_cast<RegisterPacketPtr>(0x4801B0);
+			RegisterPacket(this, index, name, unk8, minSize, maxSize, serializeFunc, deserializeFunc, unk1C, unk20);
+		}
 	}
 }
