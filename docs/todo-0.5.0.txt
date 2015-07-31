@@ -18,7 +18,6 @@ Server browser:
 VoIp:
 - SDK Documentation:          https://halowiki.llf.to/ts3_sdk/client_html/index.html
 - Mute clients locally: (add button in D3d menu) https://halowiki.llf.to/ts3_sdk/client_html/ar01s24.html
-- kick clients from teamspeak server
 - D3d menu with microphone settings, Voice activation detection, auto gain control, mic volume, etc
 - D3d menu with current list of people in VoIP with mute buttons (if server host, kick/gag!)
 - D3d menu of current players should show their team color (or grey if non team game) also would be nice to determain if the player is dead or alive while talking (maybe put a skull next to their name)
