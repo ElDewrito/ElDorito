@@ -1,10 +1,7 @@
 #include "Logging.hpp"
 #include "../Patch.hpp"
 #include "../ElDorito.hpp"
-
-#include <cstdarg>
-#include <fstream>
-#include "../Modules/ModuleGame.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 namespace
 {
@@ -15,6 +12,8 @@ namespace
 	int networkLogHook(char* format, ...);
 	void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5);
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5);
+	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut);
+	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -23,6 +22,8 @@ namespace
 	Hook DebugLogFloatHook(0x2189F0, debuglog_float);
 	Hook DebugLogIntHook(0x218A10, debuglog_int);
 	Hook DebugLogStringHook(0x218A30, debuglog_string);
+	Hook PacketReceiveHook(0x7FF88, packetRecvHook, HookFlags::IsCall);
+	Hook PacketSendHook(0x800A4, packetSendHook, HookFlags::IsCall);
 }
 
 namespace Patches
@@ -54,6 +55,12 @@ namespace Patches
 			DebugLogFloatHook.Apply(!enable);
 			DebugLogIntHook.Apply(!enable);
 			DebugLogStringHook.Apply(!enable);
+		}
+
+		void EnablePacketsLog(bool enable)
+		{
+			PacketReceiveHook.Apply(!enable);
+			PacketSendHook.Apply(!enable);
 		}
 	}
 }
@@ -141,5 +148,33 @@ namespace
 
 		Utils::DebugLog::Instance().Log("UiLog", (char*)logData1);
 		return;
+	}
+
+	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut)
+	{
+		typedef bool(__thiscall *DeserializePacketInfoPtr)(void *thisPtr, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut);
+		auto DeserializePacketInfo = reinterpret_cast<DeserializePacketInfoPtr>(0x47FFE0);
+		if (!DeserializePacketInfo(thisPtr, stream, packetIdOut, packetSizeOut))
+			return false;
+		
+		auto packetTable = Blam::Network::GetPacketTable();
+		if (!packetTable)
+			return true;
+		auto packet = &packetTable->Packets[*packetIdOut];
+		Utils::DebugLog::Instance().Log("Packets", "RECV %s (size=0x%X)", packet->Name, *packetSizeOut);
+		return true;
+	}
+
+	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize)
+	{
+		typedef bool(__thiscall *SerializePacketInfoPtr)(void *thisPtr, Blam::BitStream *stream, int packetId, int packetSize);
+		auto SerializePacketInfo = reinterpret_cast<SerializePacketInfoPtr>(0x4800D0);
+		SerializePacketInfo(thisPtr, stream, packetId, packetSize);
+
+		auto packetTable = Blam::Network::GetPacketTable();
+		if (!packetTable)
+			return;
+		auto packet = &packetTable->Packets[packetId];
+		Utils::DebugLog::Instance().Log("Packets", "SEND %s (size=0x%X)", packet->Name, packetSize);
 	}
 }

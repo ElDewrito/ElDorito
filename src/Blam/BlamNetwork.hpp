@@ -22,9 +22,9 @@ namespace Blam
 
 		struct PeerChannel
 		{
+			int Unknown0;
 			int ChannelIndex; // Can be -1 for none
-			int Unknown4;
-			int UnknownC;
+			int Unknown8;
 		};
 		static_assert(sizeof(PeerChannel) == 0xC, "Invalid PeerChannel size");
 
@@ -57,9 +57,8 @@ namespace Blam
 			uint8_t Unknown17528[0x18C7F8];
 			int LocalPeerIndex;
 			int Unknown1A3D24;
-			int Unknown1A3D28;
 			PeerChannel PeerChannels[MaxPeers];
-			uint8_t Unknown1A3DF8[0x128];
+			uint8_t Unknown1A3DF8[0x12C];
 
 			// Finds the first available connected peer, or -1 if none.
 			int FindFirstPeer() const;

@@ -9,5 +9,6 @@ namespace Patches
 		void EnableUiLog(bool enable);
 		void EnableGame1Log(bool enable);
 		void EnableGame2Log(bool enable);
+		void EnablePacketsLog(bool enable);
 	}
 }
