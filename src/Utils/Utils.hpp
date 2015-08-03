@@ -7,3 +7,4 @@
 #include "Bits.hpp"
 #include "Cryptography.hpp"
 #include "DebugLog.hpp"
+#include "AntiSpeedHack.hpp"
