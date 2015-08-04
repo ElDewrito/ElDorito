@@ -277,10 +277,9 @@ int kickTeamspeakClient(const std::string& name) {
 			return 0;
 		}
 	}
-	//This is unreachable code from what I can tell, but it's only a few kilobytes to cover our ass
+	//This would only trigger if we get a list of IDs with nothing in it but the null terminator
 	console.consoleQueue.pushLineFromGameToUI("Kick: Miscellaneous kick error (-4)");
 	ts3server_freeMemory(listClientIDs);
-	ts3server_freeMemory(workingClientName);
 	return -4;
 }
 
