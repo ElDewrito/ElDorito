@@ -256,7 +256,6 @@ int kickTeamspeakClient(const std::string& name) {
 
 	if (ts3server_getClientList(1, &listClientIDs) != ERROR_ok) {
 		console.consoleQueue.pushLineFromGameToUI("Kick: Error getting list of clients (-1)");
-		ts3server_freeMemory(listClientIDs);
 		return -1;
 	}
 	for (int a = 0; listClientIDs[a] != NULL; a++) {
