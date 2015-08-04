@@ -264,7 +264,6 @@ int kickTeamspeakClient(const std::string& name) {
 		if (ts3server_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
 			console.consoleQueue.pushLineFromGameToUI("Kick: Error getting client name (-2)");
 			ts3server_freeMemory(listClientIDs);
-			ts3server_freeMemory(workingClientName);
 			return -2;
 		}
 		if (name == workingClientName) {
