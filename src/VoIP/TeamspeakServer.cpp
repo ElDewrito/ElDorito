@@ -248,36 +248,42 @@ int writeKeyPairToFile(const char *fileName, const char* keyPair) {
 /*
 * Kick a client given their username
 */
-int kickTeamspeakClient(std::string name) {
+int kickTeamspeakClient(const std::string& name) {
 	anyID* listClientIDs;
 	char* workingClientName;
 
 	auto& console = GameConsole::Instance();
 
-	if (ts3server_getClientList(1, &listClientIDs) == ERROR_ok) {
-		for (int a = 0; a < sizeof(listClientIDs); a++) {
-			//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestKick further down
-			if (ts3server_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) == ERROR_ok) {
-				std::string workingClientNameStr(workingClientName);
-				if (name == workingClientNameStr) {
-					if (ts3client_requestClientKickFromServer(1, listClientIDs[a], "Kicked from server", NULL) == ERROR_ok) {
-						break;
-					}
-				}
-			}
-			else {
-				console.consoleQueue.pushLineFromGameToUI("Kick: Error getting client name");
-				return -2;
-			}
-		}
-	}
-	else {
-		console.consoleQueue.pushLineFromGameToUI("Kick: Error getting list of clients");
+	if (ts3server_getClientList(1, &listClientIDs) != ERROR_ok) {
+		console.consoleQueue.pushLineFromGameToUI("Kick: Error getting list of clients (-1)");
+		ts3server_freeMemory(listClientIDs);
 		return -1;
 	}
+	for (int a = 0; listClientIDs[a] != NULL; a++) {
+		//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestKick further down
+		if (ts3server_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Kick: Error getting client name (-2)");
+			ts3server_freeMemory(listClientIDs);
+			ts3server_freeMemory(workingClientName);
+			return -2;
+		}
+		if (name == workingClientName) {
+			if (ts3client_requestClientKickFromServer(1, listClientIDs[a], "Kicked from server", NULL) != ERROR_ok) {
+				console.consoleQueue.pushLineFromGameToUI("Kick: Error kicking client (-3)");
+				ts3server_freeMemory(listClientIDs);
+				ts3server_freeMemory(workingClientName);
+				return -3;
+			}
+			ts3server_freeMemory(listClientIDs);
+			ts3server_freeMemory(workingClientName);
+			return 0;
+		}
+	}
+	//This is unreachable code from what I can tell, but it's only a few kilobytes to cover our ass
+	console.consoleQueue.pushLineFromGameToUI("Kick: Miscellaneous kick error (-4)");
 	ts3server_freeMemory(listClientIDs);
 	ts3server_freeMemory(workingClientName);
-	return 0;
+	return -4;
 }
 
 

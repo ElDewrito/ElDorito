@@ -1,3 +1,3 @@
 DWORD WINAPI StartTeamspeakServer(LPVOID);
-int kickTeamspeakClient(std::string name);
+int kickTeamspeakClient(const std::string& name);
 void StopTeamspeakServer();
