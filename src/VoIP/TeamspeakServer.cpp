@@ -265,15 +265,15 @@ int kickTeamspeakClient(const std::string& name) {
 			ts3server_freeMemory(listClientIDs);
 			return -2;
 		}
-		if (name == workingClientName) {
+		bool nameEvaluationBool = name == workingClientName;
+		ts3server_freeMemory(workingClientName);
+		if (nameEvaluationBool) {
 			if (ts3client_requestClientKickFromServer(1, listClientIDs[a], "Kicked from server", NULL) != ERROR_ok) {
 				console.consoleQueue.pushLineFromGameToUI("Kick: Error kicking client (-3)");
 				ts3server_freeMemory(listClientIDs);
-				ts3server_freeMemory(workingClientName);
 				return -3;
 			}
 			ts3server_freeMemory(listClientIDs);
-			ts3server_freeMemory(workingClientName);
 			return 0;
 		}
 	}
