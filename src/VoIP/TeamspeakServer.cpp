@@ -3,7 +3,6 @@
 *
 * Copyright (c) 2007-2014 TeamSpeak-Systems
 * https://halowiki.llf.to/ts3_sdk/server_html/index.html
-* TODO: Kick clients:		   https://halowiki.llf.to/ts3_sdk/client_html/ar01s23s06.html
 */
 
 #ifdef _WINDOWS
@@ -20,6 +19,8 @@
 #include "../Console/GameConsole.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
+#include <teamspeak/clientlib_publicdefinitions.h>
+#include <teamspeak/clientlib.h>
 #include <teamspeak/serverlib_publicdefinitions.h>
 #include <teamspeak/serverlib.h>
 
@@ -244,6 +245,44 @@ int writeKeyPairToFile(const char *fileName, const char* keyPair) {
 	printf("Wrote keypair '%s' to file '%s'.\n", keyPair, fileName);
 	return 0;
 }
+/*
+* Kick a client given their username
+*/
+int kickTeamspeakClient(const std::string& name) {
+	anyID* listClientIDs;
+	char* workingClientName;
+
+	auto& console = GameConsole::Instance();
+
+	if (ts3server_getClientList(1, &listClientIDs) != ERROR_ok) {
+		console.consoleQueue.pushLineFromGameToUI("Kick: Error getting list of clients (-1)");
+		return -1;
+	}
+	for (int a = 0; listClientIDs[a] != NULL; a++) {
+		//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestKick further down
+		if (ts3server_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Kick: Error getting client name (-2)");
+			ts3server_freeMemory(listClientIDs);
+			return -2;
+		}
+		bool nameEvaluationBool = name == workingClientName;
+		ts3server_freeMemory(workingClientName);
+		if (nameEvaluationBool) {
+			if (ts3client_requestClientKickFromServer(1, listClientIDs[a], "Kicked from server", NULL) != ERROR_ok) {
+				console.consoleQueue.pushLineFromGameToUI("Kick: Error kicking client (-3)");
+				ts3server_freeMemory(listClientIDs);
+				return -3;
+			}
+			ts3server_freeMemory(listClientIDs);
+			return 0;
+		}
+	}
+	//This would only trigger if we get a list of IDs with nothing in it but the null terminator
+	console.consoleQueue.pushLineFromGameToUI("Kick: Miscellaneous kick error (-4)");
+	ts3server_freeMemory(listClientIDs);
+	return -4;
+}
+
 
 DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	char *version;

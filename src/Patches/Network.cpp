@@ -635,9 +635,11 @@ namespace
 		bool retVal = Network_leader_request_boot_machine(thisPtr, playerAddr, reason);
 		if (retVal)
 		{
-			// boot was successful, remove them from our chat now
+			// boot was successful, remove them from chat...
 			std::string ircNick = GameConsole::Instance().GenerateIRCNick(Utils::String::ThinString(playerName), uid);
 			IRCBackend::Instance().KickUser(ircNick);
+			// ...and VoIP
+			kickTeamspeakClient(Utils::String::ThinString(playerName));
 		}
 
 		return retVal;
