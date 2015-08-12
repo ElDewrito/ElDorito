@@ -3,12 +3,14 @@
 #include "../ElDorito.hpp"
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
+#include "../Blam/Tags/Scenario.hpp"
 
 namespace
 {
 	void GameTickHook(int frames, float *deltaTimeInfo);
 	void TagsLoadedHook();
 	void FovHook();
+	void GrenadeLoadoutHook();
 }
 
 namespace Patches
@@ -35,6 +37,7 @@ namespace Patches
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
 			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
+			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
 
 			// Hook game ticks
 			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
@@ -92,6 +95,59 @@ namespace
 			call Patches::ApplyAfterTagsLoaded
 			push 0x6D617467
 			push 0x5030EF
+			ret
+		}
+	}
+
+	void GrenadeLoadoutHookImpl(uint8_t* unit)
+	{
+		// Based off of 0x8227B48C in H3 non-TU
+
+		// TODO: Clean this up, hardcoded offsets are hacky
+		const size_t GrenadeCountOffset = 0x320;
+		const size_t ControllingPlayerOffset = 0x198;
+		auto grenadeCounts = unit + GrenadeCountOffset; // 0 = frag, 1 = plasma, 2 = spike, 3 = firebomb
+		auto playerIndex = *reinterpret_cast<int16_t*>(unit + ControllingPlayerOffset);
+		if (playerIndex < 0)
+		{
+			memset(grenadeCounts, 0, 4);
+			return;
+		}
+
+		// Get the player's grenade setting (haxhaxhax)
+		const size_t DatumArrayPtrOffset = 0x44;
+		const size_t PlayerSize = 0x2F08;
+		const size_t GrenadeSettingOffset = 0x2DB4;
+		auto grenadeSettingPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0][DatumArrayPtrOffset](PlayerSize * playerIndex + GrenadeSettingOffset);
+		auto grenadeSetting = grenadeSettingPtr.Read<int16_t>();
+
+		// Get the current scenario tag
+		auto scenario = Blam::Tags::GetCurrentScenario();
+
+		// If the setting is none (2) or the scenario has invalid starting
+		// profile data, set the grenade counts to 0 and return
+		if (grenadeSetting == 2 || !scenario->StartingProfile)
+		{
+			memset(grenadeCounts, 0, 4);
+			return;
+		}
+
+		// Load the grenade counts from the scenario tag
+		auto profile = &scenario->StartingProfile[0];
+		grenadeCounts[0] = profile->FragGrenades;
+		grenadeCounts[1] = profile->PlasmaGrenades;
+		grenadeCounts[2] = profile->SpikeGrenades;
+		grenadeCounts[3] = profile->FirebombGrenades;
+	}
+
+	__declspec(naked) void GrenadeLoadoutHook()
+	{
+		__asm
+		{
+			push edi // Unit object data
+			call GrenadeLoadoutHookImpl
+			add esp, 4
+			push 0x5A32C7
 			ret
 		}
 	}

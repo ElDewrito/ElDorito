@@ -70,6 +70,7 @@ add_library(ElDorito SHARED
     src/Blam/BlamTypes.hpp
     src/Blam/Tags/Tags.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
+    src/Blam/Tags/Scenario.hpp
     src/DirectXHook.cpp
     src/DirectXHook.hpp
     src/Console/GameConsole.cpp
