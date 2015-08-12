@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <sstream>
 #include "ElDorito.hpp"
+#include "Blam\BlamNetwork.hpp"
 
 namespace Modules
 {
@@ -113,6 +114,14 @@ namespace Modules
 		if (!cmd || (isUserInput && cmd->Flags & eCommandFlagsInternal))
 			return false;
 
+		// Host-only commands
+		if (cmd->Flags & eCommandFlagsCheat || cmd->Flags & eCommandFlagsHostOnly)
+		{
+			auto session = Blam::Network::GetActiveSession();
+			if (session && session->IsEstablished() && !session->IsHost())
+				return false;
+		}
+
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
 		for (int i = 1; i < numArgs; i++)
@@ -164,8 +173,13 @@ namespace Modules
 			return "Command queued until mainmenu shows";
 		}
 
-		if ((cmd->Flags & eCommandFlagsHostOnly) && !ElDorito::Instance().IsHostPlayer())
-			return "Only a player hosting a game can use this command";
+		// Host-only commands
+		if (cmd->Flags & eCommandFlagsCheat || cmd->Flags & eCommandFlagsHostOnly)
+		{
+			auto session = Blam::Network::GetActiveSession();
+			if (session && session->IsEstablished() && !session->IsHost())
+				return "Only a player hosting a game can use this command";
+		}
 
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
