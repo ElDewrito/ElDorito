@@ -19,7 +19,6 @@ private:
 
 public:
 	ConsoleQueue consoleQueue = ConsoleQueue();
-	GlobalChatQueue globalChatQueue = GlobalChatQueue();
 	GameChatQueue gameChatQueue = GameChatQueue();
 	TextInput currentInput;
 	int currentBacklogIndex = -1;
@@ -40,7 +39,6 @@ public:
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
 	void consoleKeyCallBack(USHORT vKey);
-	void SwitchToGlobalChat();
 	void SwitchToGameChat();
 	void mouseCallBack(RAWMOUSE mouseInfo);
 	void hideConsole();

@@ -19,13 +19,6 @@ public:
 	virtual void pushLineFromKeyboardToGame(std::string line) = 0;
 };
 
-class GlobalChatQueue : public Queue
-{
-public:
-	GlobalChatQueue();
-	virtual void pushLineFromKeyboardToGame(std::string line);
-};
-
 class GameChatQueue : public Queue
 {
 public:

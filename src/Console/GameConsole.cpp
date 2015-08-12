@@ -53,7 +53,6 @@ GameConsole::GameConsole()
 void GameConsole::PushLineFromGameToUIQueues(std::string text)
 {
 	consoleQueue.pushLineFromGameToUI(text);
-	globalChatQueue.pushLineFromGameToUI(text);
 }
 
 int GameConsole::getMsSinceLastConsoleOpen()
@@ -202,7 +201,7 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 		break;
 
 	case VK_TAB:
-		if (showChat)
+		/*if (showChat)
 		{
 			if (selectedQueue == &globalChatQueue)
 			{
@@ -214,7 +213,7 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 				SwitchToGlobalChat();
 				break;
 			}
-		}
+		}*/
 		
 		if (currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
@@ -347,17 +346,7 @@ void GameConsole::SwitchToGameChat()
 	selectedQueue = &gameChatQueue;
 	lastChatQueue = selectedQueue;
 	selectedQueue->startIndexForScrolling = 0;
-	globalChatQueue.color = DirectXHook::COLOR_YELLOW;
+	//globalChatQueue.color = DirectXHook::COLOR_YELLOW;
 	gameChatQueue.color = DirectXHook::COLOR_GREEN;
-	currentBacklogIndex = -1;
-}
-
-void GameConsole::SwitchToGlobalChat()
-{
-	selectedQueue = &globalChatQueue;
-	lastChatQueue = selectedQueue;
-	selectedQueue->startIndexForScrolling = 0;
-	globalChatQueue.color = DirectXHook::COLOR_GREEN;
-	gameChatQueue.color = DirectXHook::COLOR_YELLOW;
 	currentBacklogIndex = -1;
 }

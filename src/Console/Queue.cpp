@@ -24,15 +24,6 @@ void Queue::pushLineFromGameToUI(std::string line)
 	lastTimeQueueShown = GetTickCount();
 }
 
-GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
-{
-}
-
-void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
-{
-	pushLineFromGameToUI("NOT IMPLEMENTED");
-}
-
 GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_GREEN)
 {
 }
@@ -40,7 +31,7 @@ GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_GREEN)
 void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
 	if (!Server::Chat::SendGlobalMessage(line))
-		pushLineFromGameToUI("(Failed to send message!)");
+		pushLineFromGameToUI("(Failed to send message! Are you in a game?)");
 }
 
 ConsoleQueue::ConsoleQueue() : Queue(0)
