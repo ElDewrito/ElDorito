@@ -18,6 +18,7 @@
 #include "../VoIP/TeamspeakServer.hpp"
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 namespace
 {
@@ -591,32 +592,52 @@ namespace
 
 		std::string kickPlayerName = Arguments[0];
 
-		uint32_t uidBase = 0x1A4ED18;
-
-		uint64_t uid = 0;
-		wchar_t playerName[0x10];
-		for (int i = 0; i < 16; i++)
+		auto* session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
 		{
-			uint32_t uidOffset = uidBase + (0x1648 * i) + 0x50;
+			returnInfo = "No session found, are you hosting a game?";
+			return false;
+		}
 
-			uid = Pointer(uidOffset).Read<uint64_t>();
-			std::stringstream uidStream;
-			uidStream << std::hex << uid;
-			auto uidString = uidStream.str();
+		if (!session->IsHost())
+		{
+			returnInfo = "You must be hosting a game to use this command";
+			return false;
+		}
 
-			memcpy(playerName, (char*)(uidOffset + 8), 0x10 * sizeof(wchar_t));
-			if (!Utils::String::ThinString(playerName).compare(kickPlayerName) || !uidString.compare(kickPlayerName))
+		int peerIdx = session->MembershipInfo.FindFirstPeer();
+		while (peerIdx != -1)
+		{
+			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+			if (playerIdx != -1)
 			{
-				typedef bool(__cdecl *Network_squad_session_boot_playerFunc)(int playerIdx, int reason);
-				const Network_squad_session_boot_playerFunc Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerFunc>(0x437D60);
-				bool retVal = Network_squad_session_boot_player(i, 4);
-				if (retVal)
+				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+
+				std::stringstream uidStream;
+				uidStream << std::hex << player->Uid;
+				auto uidString = uidStream.str();
+
+				if (!Utils::String::Trim(Utils::String::ThinString(player->DisplayName)).compare(kickPlayerName) || !uidString.compare(kickPlayerName))
 				{
-					returnInfo = "Issued kick request for player " + kickPlayerName;
-					return true;
+					typedef bool(__cdecl *Network_squad_session_boot_playerPtr)(int playerIdx, int reason);
+					auto Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerPtr>(0x437D60);
+
+					if (Network_squad_session_boot_player(peerIdx, 4))
+					{
+						returnInfo = "Issued kick request for player " + kickPlayerName + " (peer: " + std::to_string(peerIdx) + " player: " + std::to_string(playerIdx) + ")";
+						return true;
+					}
+					else
+					{
+						returnInfo = "Failed to kick player " + kickPlayerName;
+						return false;
+					}
 				}
 			}
+
+			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
+
 		returnInfo = "Player " + kickPlayerName + " not found in game?";
 		return false;
 	}
@@ -629,22 +650,32 @@ namespace
 		// TODO: find an addr where we can find this data in clients memory
 		// so people could use it to find peoples UIDs and report them for cheating etc
 
-		uint32_t uidBase = 0x1A4ED18;
-
-		uint64_t uid = 0;
-		wchar_t playerName[0x10];
-		for (int i = 0; i < 16; i++)
+		auto* session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
 		{
-			uint32_t uidOffset = uidBase + (0x1648 * i) + 0x50;
+			returnInfo = "No session found, are you hosting a game?";
+			return false;
+		}
 
-			uid = Pointer(uidOffset).Read<uint64_t>();
-			memcpy(playerName, (char*)(uidOffset + 8), 0x10 * sizeof(wchar_t));
+		if (!session->IsHost())
+		{
+			returnInfo = "You must be hosting a game to use this command";
+			return false;
+		}
 
-			std::string name = Utils::String::ThinString(playerName);
-			if (uid == 0 && name.empty())
-				continue; // todo: proper way of checking if this index is populated
+		int peerIdx = session->MembershipInfo.FindFirstPeer();
+		while (peerIdx != -1)
+		{
+			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+			if (playerIdx != -1)
+			{
+				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 
-			ss << std::dec << i << ": " << name << " (uid: " << std::hex << uid << ")" << std::endl;
+				std::string name = Utils::String::ThinString(player->DisplayName);
+				ss << std::dec << "(" << peerIdx << "/" << playerIdx << "): " << name << " (uid: 0x" << std::hex << player->Uid << ")" << std::endl;
+			}
+
+			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
 
 		returnInfo = ss.str();
