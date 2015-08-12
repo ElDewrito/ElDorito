@@ -11,6 +11,10 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void GrenadeLoadoutHook();
+	void HostObjectHealthHook();
+	void HostObjectShieldHook();
+	void ClientObjectHealthHook();
+	void ClientObjectShieldHook();
 }
 
 namespace Patches
@@ -49,6 +53,12 @@ namespace Patches
 
 			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
 			Hook(0x1030EA, TagsLoadedHook).Apply();
+
+			// player damage descope hooks
+			Hook(0x7553A0, HostObjectHealthHook).Apply();	// host object health
+			Hook(0x754B4E, HostObjectShieldHook).Apply();	// host object shield
+			Hook(0x733F13, ClientObjectHealthHook).Apply();	// client object health
+			Hook(0x7329CE, ClientObjectShieldHook).Apply();	// client object shield
 
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
@@ -148,6 +158,183 @@ namespace
 			call GrenadeLoadoutHookImpl
 			add esp, 4
 			push 0x5A32C7
+			ret
+		}
+	}
+
+	// hook @ 0xB553A0
+	__declspec(naked) void HostObjectHealthHook()
+	{
+		__asm
+		{
+			pushad
+
+			; get tls info
+			mov		eax, dword ptr fs:[02Ch]	; tls array address
+			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
+
+			; get local player object offset
+			mov		ebx, dword ptr ds:[eax + 05Ch]	; local player mappings
+			mov		ebx, dword ptr ds:[ebx + 014h]	; local player datum
+			and		ebx, 0FFFFh						; local player index
+			shl		ebx, 4							; multiply by object entry size of 16 bytes
+			add		ebx, 0Ch						; add object header size
+
+			; get local player object data address
+			mov		ecx, dword ptr ds:[eax + 0448h]	; object header address
+			mov		ecx, dword ptr ds:[ecx + 044h]	; first object address
+			add		ecx, ebx						; local player object address
+			mov		ecx, [ecx]						; local player object data address
+
+			; check if damaging local player object and descope if so
+			cmp		edi, ecx
+			jne		orig
+		
+			; descope local player
+			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
+
+			orig:
+			popad
+			ucomiss	xmm1, xmm0
+			movss   dword ptr ds:[edi + 100h], xmm1
+			push	0B553ABh
+			ret
+		}
+	}
+
+	// hook @ 0xB54B4E
+	__declspec(naked) void HostObjectShieldHook()
+	{
+		__asm
+		{
+			pushad
+
+			; get tls info
+			mov		eax, dword ptr fs:[02Ch]	; tls array address
+			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
+
+			; get local player object offset
+			mov		ebx, dword ptr ds:[eax + 05Ch]	; local player mappings
+			mov		ebx, dword ptr ds:[ebx + 014h]	; local player datum
+			and		ebx, 0FFFFh						; local player index
+			shl		ebx, 4							; multiply by object entry size of 16 bytes
+			add		ebx, 0Ch						; add object header size
+
+			; get local player object data address
+			mov		ecx, dword ptr ds:[eax + 0448h]	; object header address
+			mov		ecx, dword ptr ds:[ecx + 044h]	; first object address
+			add		ecx, ebx						; local player object address
+			mov		ecx, [ecx]						; local player object data address
+
+			; check if damaging local player object and descope if so
+			cmp		edi, ecx
+			jne		orig
+
+			; descope local player
+			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
+
+			orig:
+			popad
+			movss   dword ptr ds:[edi + 0FCh], xmm1
+			push	0B54B56h
+			ret
+		}
+	}
+
+	// hook @ 0xB33F13
+	__declspec(naked) void ClientObjectHealthHook()
+	{
+		__asm
+		{
+			pushad
+
+			; get tls info
+			mov		eax, dword ptr fs:[02Ch]	; tls array address
+			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
+
+			; get local player object offset
+			mov		ebx, dword ptr ds:[eax + 05Ch]	; local player mappings
+			mov		ebx, dword ptr ds:[ebx + 014h]	; local player datum
+			and		ebx, 0FFFFh						; local player index
+			shl		ebx, 4							; multiply by object entry size of 16 bytes
+			add		ebx, 0Ch						; add object header size
+
+			; get local player object data address
+			mov		ecx, dword ptr ds:[eax + 0448h]	; object header address
+			mov		ecx, dword ptr ds:[ecx + 044h]	; first object address
+			add		ecx, ebx						; local player object address
+			mov		ecx, [ecx]						; local player object data address
+
+			; check if damaging local player object
+			cmp		edi, ecx
+			jne		orig
+
+			; only descope if health is decreasing at a rate greater than epsilon
+			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
+			movd	xmm7, esi
+			movss	xmm6, dword ptr ds:[edi + 100h]		; get original health
+			subss	xmm6, xmm0							; get negative health delta (orig - new)
+			comiss	xmm6, xmm7							; compare health delta with epsilon
+			jb		orig								; skip descope if delta is less than epsilon
+
+			; descope local player
+			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
+
+			orig:
+			popad
+			movss   dword ptr ds:[edi + 100h], xmm0
+			push	0B33F1Bh
+			ret
+		}
+	}
+
+	// hook @ 0xB329CE
+	__declspec(naked) void ClientObjectShieldHook()
+	{
+		__asm
+		{
+			pushad
+
+			; get tls info
+			mov		eax, dword ptr fs:[02Ch]	; tls array address
+			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
+
+			; get local player object offset
+			mov		ebx, dword ptr ds:[eax + 05Ch]	; local player mappings
+			mov		ebx, dword ptr ds:[ebx + 014h]	; local player datum
+			and		ebx, 0FFFFh						; local player index
+			shl		ebx, 4							; multiply by object entry size of 16 bytes
+			add		ebx, 0Ch						; add object header size
+
+			; get local player object data address
+			mov		edx, dword ptr ds:[eax + 0448h]	; object header address
+			mov		edx, dword ptr ds:[edx + 044h]	; first object address
+			add		edx, ebx						; local player object address
+			mov		edx, [edx]						; local player object data address
+
+			; check if damaging local player object
+			cmp		ecx, edx
+			jne		orig
+
+			; only descope if shield is decreasing at a rate greater than epsilon
+			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
+			movd	xmm7, esi
+			movss	xmm6, dword ptr ds:[ecx + 0FCh]		; get original shield
+			subss	xmm6, xmm0							; get negative shield delta (orig - new)
+			comiss	xmm6, xmm7							; compare shield delta with epsilon
+			jb		orig								; skip descope if delta is less than epsilon
+
+			; descope local player
+			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
+
+			orig:
+			popad
+			movss   dword ptr ds:[ecx + 0FCh], xmm0
+			push	0B329D6h
 			ret
 		}
 	}
