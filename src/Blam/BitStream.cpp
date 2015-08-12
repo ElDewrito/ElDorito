@@ -40,4 +40,18 @@ namespace Blam
 			return WriteBits(this, val, bits);
 		}
 	}
+
+	void BitStream::ReadBlock(size_t bits, uint8_t *out)
+	{
+		typedef void(__thiscall* ReadBlockPtr)(BitStream *thisPtr, uint8_t *out, size_t bits);
+		ReadBlockPtr ReadBlock = reinterpret_cast<ReadBlockPtr>(0x558740);
+		ReadBlock(this, out, bits);
+	}
+
+	void BitStream::WriteBlock(size_t bits, const uint8_t *data)
+	{
+		typedef void(__thiscall* WriteBlockPtr)(BitStream *thisPtr, const uint8_t *data, size_t bits, int unkn);
+		WriteBlockPtr WriteBlock = reinterpret_cast<WriteBlockPtr>(0x55A000);
+		WriteBlock(this, data, bits, 0);
+	}
 }

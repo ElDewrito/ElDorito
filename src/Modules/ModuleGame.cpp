@@ -6,6 +6,7 @@
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
 #include "../Menu.hpp"
 #include "../Patches/Forge.hpp"
@@ -30,6 +31,7 @@ namespace
 					Patches::Logging::EnableUiLog(false);
 					Patches::Logging::EnableGame1Log(false);
 					Patches::Logging::EnableGame2Log(false);
+					Patches::Logging::EnablePacketsLog(false);
 				}
 				else
 				{
@@ -38,8 +40,9 @@ namespace
 					auto hookUI = arg.compare("ui") == 0;
 					auto hookGame1 = arg.compare("game1") == 0;
 					auto hookGame2 = arg.compare("game2") == 0;
+					auto hookPackets = arg.compare("packets") == 0;
 					if (arg.compare("all") == 0 || arg.compare("on") == 0)
-						hookNetwork = hookSSL = hookUI = hookGame1 = hookGame2 = true;
+						hookNetwork = hookSSL = hookUI = hookGame1 = hookGame2 = hookPackets = true;
 
 					if (hookNetwork)
 					{
@@ -70,6 +73,12 @@ namespace
 						newFlags |= DebugLoggingModes::eDebugLoggingModeGame2;
 						Patches::Logging::EnableGame2Log(true);
 					}
+
+					if (hookPackets)
+					{
+						newFlags |= DebugLoggingModes::eDebugLoggingModePackets;
+						Patches::Logging::EnablePacketsLog(true);
+					}
 				}
 			}
 		}
@@ -93,10 +102,12 @@ namespace
 				ss << "Game1 ";
 			if (newFlags & DebugLoggingModes::eDebugLoggingModeGame2)
 				ss << "Game2 ";
+			if (newFlags & DebugLoggingModes::eDebugLoggingModePackets)
+				ss << "Packets ";
 		}
 		if (Arguments.size() <= 0)
 		{
-			ss << std::endl << "Usage: Game.DebugMode <network | ssl | ui | game1 | game2 | all | off>";
+			ss << std::endl << "Usage: Game.DebugMode <network | ssl | ui | game1 | game2 | packets | all | off>";
 		}
 		returnInfo = ss.str();
 		return true;
@@ -655,12 +666,8 @@ namespace
 
 	bool CommandGameStart(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		typedef bool(__thiscall *SetSessionModePtr)(void *thisptr, int mode);
-		auto SetSessionMode = reinterpret_cast<SetSessionModePtr>(0x459A40);
-
-		// Note: this isn't necessarily a proper way of getting the this
-		// pointer, but it seems to work OK
-		if (!SetSessionMode(reinterpret_cast<void*>(0x1BF1B90), 2))
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->Parameters.SetSessionMode(2))
 		{
 			returnInfo = "Unable to start the game!";
 			return false;
