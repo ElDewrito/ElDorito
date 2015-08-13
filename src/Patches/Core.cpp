@@ -60,6 +60,10 @@ namespace Patches
 			Hook(0x733F13, ClientObjectHealthHook).Apply();	// client object health
 			Hook(0x7329CE, ClientObjectShieldHook).Apply();	// client object shield
 
+			// Adds the FMOD WASAPI output fix from FMODEx 4.44.56, which stops weird popping sound at startup
+			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
+			Patch(0x100DA75, { 0x2 }).Apply();
+
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
 			Patch::NopFill(Pointer::Base(0x2EC10), 6);
