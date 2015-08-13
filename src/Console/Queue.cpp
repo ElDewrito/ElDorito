@@ -24,16 +24,24 @@ void Queue::pushLineFromGameToUI(std::string line)
 	lastTimeQueueShown = GetTickCount();
 }
 
-GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
+GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_GREEN)
 {
 }
 
 void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	pushLineFromGameToUI("NOT IMPLEMENTED");
+	auto& ircBackend = IRCBackend::Instance();
+	auto& console = GameConsole::Instance();
+	ircBackend.sendMessageToChannel(ircBackend.globalChatChannel, &console.globalChatQueue, line);
+
+	std::string preparedLineForUI = GameConsole::Instance().ircName;
+	preparedLineForUI = "<" + preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
+	preparedLineForUI += "> ";
+	preparedLineForUI += line;
+	pushLineFromGameToUI(preparedLineForUI);
 }
 
-GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_GREEN)
+GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 {
 }
 

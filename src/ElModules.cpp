@@ -87,6 +87,7 @@ namespace Modules
 		ModuleServer::Instance();
 		ModuleCamera::Instance();
 		ModuleInput::Instance();
+		ModuleIRC::Instance();
 		ModuleVoIP::Instance();
 		ModuleTime::Instance();
 		ModuleGraphics::Instance();

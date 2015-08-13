@@ -5,6 +5,9 @@
 #include "../Modules/ModulePlayer.hpp"
 #include <algorithm>
 #include "../Server/ServerChat.hpp"
+#include "../Patches/PlayerUid.hpp"
+#include "../Pointer.hpp"
+#include <openssl/sha.h>
 
 namespace
 {
@@ -40,6 +43,11 @@ namespace
 	};
 }
 
+void GameConsole::startIRCBackend()
+{
+	IRCBackend::Instance();
+}
+
 GameConsole::GameConsole()
 {
 	KeyboardHook::setHook();
@@ -48,6 +56,31 @@ GameConsole::GameConsole()
 	Server::Chat::AddHandler(gameChatHandler);
 
 	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
+
+	Patches::PlayerUid::Get(); // ensure a UID is generated
+	initIRCName();
+	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
+}
+
+void GameConsole::initIRCName()
+{
+	ircName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
+}
+
+std::string GameConsole::GenerateIRCNick(const std::string& name, uint64_t uid)
+{
+	std::string ircNick;
+	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), ircNick);
+	ircNick += "|" + name;
+
+	size_t maxLen = 27; // TODO: get max name len from server
+	maxLen -= 3; // dew prefix
+
+	if (ircNick.length() > maxLen)
+		ircNick = ircNick.substr(ircNick.length() - maxLen, maxLen);
+
+	ircNick = "dew" + ircNick;
+	return ircNick;
 }
 
 void GameConsole::PushLineFromGameToUIQueues(std::string text)

@@ -19,6 +19,7 @@
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Console/GameConsole.hpp"
 
 namespace
 {
@@ -577,6 +578,8 @@ namespace
 
 		// start voip
 		CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+
+		GameConsole::Instance().SwitchToGameChat(); // TODO: move this a network_state::enter() hook, otherwise hosts and people who join thru LAN browser won't get switched to game chat
 
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
