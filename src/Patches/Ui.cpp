@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Menu.hpp"
 
 namespace
 {
@@ -13,6 +14,7 @@ namespace
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
+	bool MainMenuCreateLobbyHook(int lobbyType);
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -126,6 +128,10 @@ namespace Patches
 
 			// Hook window title sprintf to replace the dest buf with our string
 			Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
+
+			// Hook the call to create a lobby from the main menu so that we
+			// can show the server browser if matchmaking is selected
+			Hook(0x6E79A7, MainMenuCreateLobbyHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -341,5 +347,20 @@ namespace
 			mov eax, 0xB21B9F
 			jmp eax
 		}
+	}
+
+	bool MainMenuCreateLobbyHook(int lobbyType)
+	{
+		// If matchmaking is selected, show the server browser instead
+		// TODO: Really need to map out the ui_game_mode enum...
+		if (lobbyType == 1)
+		{
+			Menu::Instance().setEnabled(true);
+			return true;
+		}
+
+		typedef bool(*CreateLobbyPtr)(int lobbyType);
+		auto CreateLobby = reinterpret_cast<CreateLobbyPtr>(0xA7EE70);
+		return CreateLobby(lobbyType);
 	}
 }
