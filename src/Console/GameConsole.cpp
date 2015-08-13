@@ -34,7 +34,8 @@ namespace
 			std::string line;
 			if (message.Type == Server::Chat::ChatMessageType::Team)
 				line += "(TEAM) ";
-			line += "<" + sender + "> " + std::string(message.Body);
+			line += "<" + sender + "> " + Utils::String::Trim(std::string(message.Body));
+			Utils::String::RemoveCharsFromString(line, "\t\r\n");
 			gameChat->pushLineFromGameToUI(line);
 		}
 

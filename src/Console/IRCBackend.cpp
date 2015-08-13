@@ -221,5 +221,6 @@ void IRCBackend::extractMessageAndSendToUI(std::vector<std::string> &bufferSplit
 	if (topic)
 		preparedLineForUI = "Channel topic: " + message;
 
+	Utils::String::RemoveCharsFromString(preparedLineForUI, "\t\r\n");
 	queue->pushLineFromGameToUI(preparedLineForUI);
 }

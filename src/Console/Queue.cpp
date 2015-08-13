@@ -38,6 +38,7 @@ void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
 	preparedLineForUI = "<" + preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
 	preparedLineForUI += "> ";
 	preparedLineForUI += line;
+	Utils::String::RemoveCharsFromString(preparedLineForUI, "\t\r\n");
 	pushLineFromGameToUI(preparedLineForUI);
 }
 
