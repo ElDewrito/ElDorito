@@ -95,10 +95,9 @@ namespace
 			if (binding->command.size() == 0)
 				continue; // Key is not bound
 
-			// Read the key and swallow it
+			// Read the key
 			auto keyCode = static_cast<Blam::KeyCodes>(i);
 			auto keyTicks = Patches::KeyboardInput::GetKeyTicks(keyCode, Blam::eInputTypeSpecial);
-			Patches::KeyboardInput::Swallow(keyCode);
 
 			// We're only interested in the key if it was just pressed or if
 			// this is a hold binding and it was just released
@@ -122,6 +121,35 @@ namespace
 			GameConsole::Instance().consoleQueue.pushLineFromGameToUIMultipleLines(result);
 		}
 	}
+
+	bool CommandUIButtonPress(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 1)
+		{
+			returnInfo = "Usage: Input.UIButtonPress <btnCode>";
+			return false;
+		}
+
+		// taken from sub_A935C0
+
+		// alt?A936B0
+
+		uint32_t keyPressData[4];
+		keyPressData[0] = 0xD;
+		keyPressData[1] = 0; // controller idx
+		keyPressData[2] = std::stoul(Arguments[0], 0, 0); // button idx, corresponds with Blam::ButtonCodes
+		keyPressData[3] = 0xFF;
+
+		typedef void*(__cdecl *sub_AAD930Ptr)();
+		auto sub_AAD930 = reinterpret_cast<sub_AAD930Ptr>(0xAAD930);
+		void* classPtr = sub_AAD930();
+
+		typedef int(__thiscall *sub_AAB7D0Ptr)(void* thisPtr, void* a2);
+		auto sub_AAB7D0 = reinterpret_cast<sub_AAB7D0Ptr>(0xAAB7D0);
+		int retVal = sub_AAB7D0(classPtr, keyPressData);
+
+		return retVal != 0;
+	}
 }
 
 namespace Modules
@@ -134,6 +162,16 @@ namespace Modules
 
 		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsNone, CommandBind, { "key", "[+]command", "arguments" });
 		Patches::KeyboardInput::RegisterUpdateCallback(KeyboardUpdated);
+
+		AddCommand("UIButtonPress", "ui_btn_press", "Emulates a gamepad button press on UI menus", eCommandFlagsNone, CommandUIButtonPress, { "btnCode The code of the button to press" });
+
+		// Default keybindings (TODO: port bind saving code from recode)
+		bindings[Blam::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A
+		bindings[Blam::eKeyCodesSpace].command = { "ui_btn_press", "0" };  // A
+		bindings[Blam::eKeyCodesEscape].command = { "ui_btn_press", "1" }; // B
+		bindings[Blam::eKeyCodesBack].command = { "ui_btn_press", "1" };   // B
+		bindings[Blam::eKeyCodesEnd].command = { "ui_btn_press", "1" };    // B
+		bindings[Blam::eKeyCodesDelete].command = { "forge_delete" };
 	}
 }
 
