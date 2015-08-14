@@ -250,9 +250,9 @@ namespace
 		{ "question", Blam::eKeyCodesQuestion },
 		{ "rshift", Blam::eKeyCodesRShift },
 		{ "lcontrol", Blam::eKeyCodesLControl },
-		{ "lmenu", Blam::eKeyCodesLmenu },
+		{ "lalt", Blam::eKeyCodesLAlt },
 		{ "space", Blam::eKeyCodesSpace },
-		{ "rmenu", Blam::eKeyCodesRmenu },
+		{ "ralt", Blam::eKeyCodesRAlt },
 		{ "apps", Blam::eKeyCodesApps },
 		{ "rcontrol", Blam::eKeyCodesRcontrol },
 		{ "up", Blam::eKeyCodesUp },
@@ -284,6 +284,6 @@ namespace
 		{ "decimal", Blam::eKeyCodesDecimal },
 		{ "shift", Blam::eKeyCodesShift },
 		{ "ctrl", Blam::eKeyCodesCtrl },
-		{ "menu", Blam::eKeyCodesMenu },
+		{ "alt", Blam::eKeyCodesAlt },
 	};
 }

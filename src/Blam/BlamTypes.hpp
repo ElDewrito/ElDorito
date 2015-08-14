@@ -110,9 +110,9 @@ namespace Blam
 		eKeyCodesRShift,
 		eKeyCodesLControl,
 		eKeyCodesUnused46, // Left Windows key, but will always fail
-		eKeyCodesLmenu,
+		eKeyCodesLAlt,
 		eKeyCodesSpace,
-		eKeyCodesRmenu,
+		eKeyCodesRAlt,
 		eKeyCodesUnused4A, // Right Windows key, but will always fail
 		eKeyCodesApps,
 		eKeyCodesRcontrol,
@@ -147,7 +147,7 @@ namespace Blam
 		eKeyCodesShift,
 		eKeyCodesCtrl,
 		eKeyCodesUnused6B, // Windows key, but will always fail
-		eKeyCodesMenu,
+		eKeyCodesAlt,
 
 		eKeyCodes_Count // Not actually a key, just represents the number of
 		                //   keys that the game scans
