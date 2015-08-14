@@ -166,11 +166,11 @@ namespace Modules
 		AddCommand("UIButtonPress", "ui_btn_press", "Emulates a gamepad button press on UI menus", eCommandFlagsNone, CommandUIButtonPress, { "btnCode The code of the button to press" });
 
 		// Default keybindings (TODO: port bind saving code from recode)
-		bindings[Blam::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A
+		/*bindings[Blam::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A
 		bindings[Blam::eKeyCodesSpace].command = { "ui_btn_press", "0" };  // A
 		bindings[Blam::eKeyCodesEscape].command = { "ui_btn_press", "1" }; // B
 		bindings[Blam::eKeyCodesBack].command = { "ui_btn_press", "1" };   // B
-		bindings[Blam::eKeyCodesEnd].command = { "ui_btn_press", "1" };    // B
+		bindings[Blam::eKeyCodesEnd].command = { "ui_btn_press", "1" };    // B*/
 		bindings[Blam::eKeyCodesDelete].command = { "forge_delete" };
 	}
 }
