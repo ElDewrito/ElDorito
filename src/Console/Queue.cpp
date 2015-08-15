@@ -5,6 +5,7 @@
 #include "../DirectXHook.hpp"
 #include "../ElModules.hpp"
 #include "../Server/ServerChat.hpp"
+#include "IRCBackend.hpp"
 
 Queue::Queue(D3DCOLOR color) : color(color)
 {

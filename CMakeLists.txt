@@ -67,6 +67,8 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 add_library(ElDorito SHARED
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
+    src/Blam/BlamInput.cpp
+    src/Blam/BlamInput.hpp
     src/Blam/BlamNetwork.cpp
     src/Blam/BlamNetwork.hpp
     src/Blam/BlamTypes.hpp
@@ -111,8 +113,8 @@ add_library(ElDorito SHARED
     src/Patches/Core.hpp
     src/Patches/Forge.cpp
     src/Patches/Forge.hpp
-    src/Patches/KeyboardInput.cpp
-    src/Patches/KeyboardInput.hpp
+    src/Patches/Input.cpp
+    src/Patches/Input.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
     src/Patches/Mouse.cpp
@@ -163,8 +165,6 @@ add_library(ElDorito SHARED
     src/Menu.cpp
     src/Menu.hpp
     src/Settings.hpp
-    src/KeyboardHook.cpp
-    src/KeyboardHook.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
     src/ElDorito.cpp

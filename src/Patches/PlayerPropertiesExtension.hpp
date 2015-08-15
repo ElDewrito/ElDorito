@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Utils/Singleton.hpp"
-#include "../Blam/BlamTypes.hpp"
+#include "../Blam/BitStream.hpp"
 
 #include <vector>
 #include <memory>

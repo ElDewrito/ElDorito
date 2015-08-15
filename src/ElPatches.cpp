@@ -2,7 +2,6 @@
 
 #include "ElDorito.hpp"
 #include "Patches\Core.hpp"
-#include "Patches\Logging.hpp"
 #include "Patches\Mouse.hpp"
 #include "Patches\Network.hpp"
 #include "Patches\Scoreboard.hpp"
@@ -12,7 +11,7 @@
 #include "Patches\RawInput.hpp"
 #include "Patches\ContentItems.hpp"
 #include "Patches\PlayerUid.hpp"
-#include "Patches\KeyboardInput.hpp"
+#include "Patches\Input.hpp"
 #include "Patches\Forge.hpp"
 #include "Patches\CustomPackets.hpp"
 
@@ -38,7 +37,7 @@ namespace Patches
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();
 		PlayerUid::ApplyAll();
-		KeyboardInput::ApplyAll();
+		Input::ApplyAll();
 		Forge::ApplyAll();
 		CustomPackets::ApplyAll();
 	}

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "BlamTypes.hpp"
+#include "BitStream.hpp"
 
 namespace Blam
 {

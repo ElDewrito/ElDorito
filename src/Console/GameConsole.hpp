@@ -2,7 +2,6 @@
 #include <memory>
 #include "../Utils/Utils.hpp"
 #include "Queue.hpp"
-#include "IRCBackend.hpp"
 #include "TextInput.h"
 
 class Queue;	
@@ -10,14 +9,22 @@ class ConsoleQueue;
 class GlobalChatQueue;
 class GameChatQueue;
 
+namespace Blam
+{
+	namespace Input
+	{
+		struct KeyEvent;
+	}
+}
+
 class GameConsole : public Utils::Singleton<GameConsole>
 {
 private:
 	const size_t INPUT_MAX_CHARS = 512;
-	bool capsLockToggled = false;
 	static void startIRCBackend();
 	void initIRCName();
-	void handleDefaultKeyInput(USHORT vKey);
+	bool keyDownCallBack(const Blam::Input::KeyEvent& key);
+	bool keyTypedCallBack(const Blam::Input::KeyEvent& key);
 
 public:
 	ConsoleQueue consoleQueue = ConsoleQueue();
@@ -42,11 +49,12 @@ public:
 	void PushLineFromGameToUIQueues(std::string text);
 	int getMsSinceLastConsoleOpen();
 	int getMsSinceLastConsoleBlink();
-	void consoleKeyCallBack(USHORT vKey);
+	bool consoleKeyCallBack();
 	void SwitchToGlobalChat();
 	void SwitchToGameChat();
 	void mouseCallBack(RAWMOUSE mouseInfo);
 	std::string GenerateIRCNick(const std::string& name, uint64_t uid);
 	void hideConsole();
 	void displayChat(bool console);
+	void gameInputCallBack();
 };

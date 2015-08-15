@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamInput.hpp"
 #include "../Menu.hpp"
 
 namespace
@@ -242,18 +243,18 @@ namespace
 		auto CurTime = std::chrono::high_resolution_clock::now();
 		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
 
-		if (btnCode == Blam::ButtonCodes::eButtonCodesLeft || btnCode == Blam::ButtonCodes::eButtonCodesRight)
+		if (btnCode == Blam::Input::eButtonCodesLeft || btnCode == Blam::Input::eButtonCodesRight)
 		{
 			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
 				return 1;
 
 			PrevTime = CurTime;
 
-			if (btnCode == Blam::ButtonCodes::eButtonCodesLeft) // analog left / arrow key left
-				*(uint32_t*)(controllerStruct + 0x1C) = Blam::ButtonCodes::eButtonCodesLB;
+			if (btnCode == Blam::Input::eButtonCodesLeft) // analog left / arrow key left
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eButtonCodesLB;
 
-			if (btnCode == Blam::ButtonCodes::eButtonCodesRight) // analog right / arrow key right
-				*(uint32_t*)(controllerStruct + 0x1C) = Blam::ButtonCodes::eButtonCodesRB;
+			if (btnCode == Blam::Input::eButtonCodesRight) // analog right / arrow key right
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eButtonCodesRB;
 		}
 
 		typedef char(__thiscall *UI_Forge_ButtonPressHandler)(void* a1, void* controllerStruct);
@@ -268,7 +269,7 @@ namespace
 		auto CurTime = std::chrono::high_resolution_clock::now();
 		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
 
-		if (btnCode >= Blam::ButtonCodes::eButtonCodesLeft && btnCode <= Blam::ButtonCodes::eButtonCodesDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
+		if (btnCode >= Blam::Input::eButtonCodesLeft && btnCode <= Blam::Input::eButtonCodesDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
 		{
 			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
 				return 1;

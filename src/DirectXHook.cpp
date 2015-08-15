@@ -97,10 +97,12 @@ void DirectXHook::drawHelpMessage()
 		y += verticalSpacingBetweenEachLine;
 		drawText(x, y, COLOR_WHITE, "F12 = VOIP settings", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
+		drawText(x, y, COLOR_WHITE, "T = Chat", largeSizeFont);
+		y += verticalSpacingBetweenEachLine;
 		y += verticalSpacingBetweenEachLine;
 		drawText(x, y, COLOR_RED, "Server Hosting Instructions", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
-		drawText(x, y, COLOR_WHITE, "If you want to host, use the Halo 3 menu by using your arrow keys, and the A, B, X and Y buttons on your keyboard.", largeSizeFont);
+		drawText(x, y, COLOR_WHITE, "If you want to host, use the Halo 3 menu by using your arrow keys, and the Enter, Escape, and X buttons on your keyboard.", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;
 		drawText(x, y, COLOR_WHITE, "You need to port forward: 11775, 11774, and 9987. 9987 is for in-game VoIP.", largeSizeFont);
 		y += verticalSpacingBetweenEachLine;

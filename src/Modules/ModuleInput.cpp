@@ -1,8 +1,9 @@
 #include "ModuleInput.hpp"
 #include <sstream>
 #include "../ElDorito.hpp"
-#include "../Patches/KeyboardInput.hpp"
+#include "../Patches/Input.hpp"
 #include "../Console/GameConsole.hpp"
+#include "../Blam/BlamInput.hpp"
 
 namespace
 {
@@ -20,7 +21,7 @@ namespace
 	}
 
 	// Maps key names to key code values
-	extern std::map<std::string, Blam::KeyCodes> keyCodes;
+	extern std::map<std::string, Blam::Input::KeyCodes> keyCodes;
 
 	// Holds information about a command bound to a key
 	struct KeyBinding
@@ -31,7 +32,7 @@ namespace
 	};
 
 	// Bindings for each key
-	KeyBinding bindings[Blam::eKeyCodes_Count];
+	KeyBinding bindings[Blam::Input::eKeyCodes_Count];
 
 	bool CommandBind(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
@@ -89,15 +90,15 @@ namespace
 
 	void KeyboardUpdated()
 	{
-		for (auto i = 0; i < Blam::eKeyCodes_Count; i++)
+		for (auto i = 0; i < Blam::Input::eKeyCodes_Count; i++)
 		{
 			const auto binding = &bindings[i];
 			if (binding->command.size() == 0)
 				continue; // Key is not bound
 
 			// Read the key
-			auto keyCode = static_cast<Blam::KeyCodes>(i);
-			auto keyTicks = Patches::KeyboardInput::GetKeyTicks(keyCode, Blam::eInputTypeSpecial);
+			auto keyCode = static_cast<Blam::Input::KeyCodes>(i);
+			auto keyTicks = GetKeyTicks(keyCode, Blam::Input::eInputTypeSpecial);
 
 			// We're only interested in the key if it was just pressed or if
 			// this is a hold binding and it was just released
@@ -161,129 +162,130 @@ namespace Modules
 		VarInputRawInput->ValueIntMax = 1;
 
 		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsNone, CommandBind, { "key", "[+]command", "arguments" });
-		Patches::KeyboardInput::RegisterUpdateCallback(KeyboardUpdated);
+		Patches::Input::RegisterDefaultInputHandler(KeyboardUpdated);
 
 		AddCommand("UIButtonPress", "ui_btn_press", "Emulates a gamepad button press on UI menus", eCommandFlagsNone, CommandUIButtonPress, { "btnCode The code of the button to press" });
 
 		// Default keybindings (TODO: port bind saving code from recode)
-		/*bindings[Blam::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A
-		bindings[Blam::eKeyCodesSpace].command = { "ui_btn_press", "0" };  // A
-		bindings[Blam::eKeyCodesEscape].command = { "ui_btn_press", "1" }; // B
-		bindings[Blam::eKeyCodesBack].command = { "ui_btn_press", "1" };   // B
-		bindings[Blam::eKeyCodesEnd].command = { "ui_btn_press", "1" };    // B*/
-		bindings[Blam::eKeyCodesDelete].command = { "forge_delete" };
+		bindings[Blam::Input::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A
+		bindings[Blam::Input::eKeyCodesSpace].command = { "ui_btn_press", "0" };  // A
+		bindings[Blam::Input::eKeyCodesEscape].command = { "ui_btn_press", "1" }; // B
+		bindings[Blam::Input::eKeyCodesBack].command = { "ui_btn_press", "1" };   // B
+		bindings[Blam::Input::eKeyCodesEnd].command = { "ui_btn_press", "1" };    // B
+		bindings[Blam::Input::eKeyCodesHome].command = { "ui_btn_press", "2" };   // X
+		bindings[Blam::Input::eKeyCodesDelete].command = { "forge_delete" };
 	}
 }
 
 namespace
 {
 	// Key codes table
-	std::map<std::string, Blam::KeyCodes> keyCodes =
+	std::map<std::string, Blam::Input::KeyCodes> keyCodes =
 	{
-		{ "escape", Blam::eKeyCodesEscape },
-		{ "f1", Blam::eKeyCodesF1 },
-		{ "f2", Blam::eKeyCodesF2 },
-		{ "f3", Blam::eKeyCodesF3 },
-		{ "f4", Blam::eKeyCodesF4 },
-		{ "f5", Blam::eKeyCodesF5 },
-		{ "f6", Blam::eKeyCodesF6 },
-		{ "f7", Blam::eKeyCodesF7 },
-		{ "f8", Blam::eKeyCodesF8 },
-		{ "f9", Blam::eKeyCodesF9 },
-		{ "f10", Blam::eKeyCodesF10 },
-		{ "f11", Blam::eKeyCodesF11 },
-		{ "f12", Blam::eKeyCodesF12 },
-		{ "printscreen", Blam::eKeyCodesPrintScreen },
-		{ "f14", Blam::eKeyCodesF14 },
-		{ "f15", Blam::eKeyCodesF15 },
-		{ "tilde", Blam::eKeyCodesTilde },
-		{ "1", Blam::eKeyCodes1 },
-		{ "2", Blam::eKeyCodes2 },
-		{ "3", Blam::eKeyCodes3 },
-		{ "4", Blam::eKeyCodes4 },
-		{ "5", Blam::eKeyCodes5 },
-		{ "6", Blam::eKeyCodes6 },
-		{ "7", Blam::eKeyCodes7 },
-		{ "8", Blam::eKeyCodes8 },
-		{ "9", Blam::eKeyCodes9 },
-		{ "0", Blam::eKeyCodes0 },
-		{ "minus", Blam::eKeyCodesMinus },
-		{ "plus", Blam::eKeyCodesPlus },
-		{ "back", Blam::eKeyCodesBack },
-		{ "tab", Blam::eKeyCodesTab },
-		{ "q", Blam::eKeyCodesQ },
-		{ "w", Blam::eKeyCodesW },
-		{ "e", Blam::eKeyCodesE },
-		{ "r", Blam::eKeyCodesR },
-		{ "t", Blam::eKeyCodesT },
-		{ "y", Blam::eKeyCodesY },
-		{ "u", Blam::eKeyCodesU },
-		{ "i", Blam::eKeyCodesI },
-		{ "o", Blam::eKeyCodesO },
-		{ "p", Blam::eKeyCodesP },
-		{ "lbracket", Blam::eKeyCodesLBracket },
-		{ "rbracket", Blam::eKeyCodesRBracket },
-		{ "pipe", Blam::eKeyCodesPipe },
-		{ "capital", Blam::eKeyCodesCapital },
-		{ "a", Blam::eKeyCodesA },
-		{ "s", Blam::eKeyCodesS },
-		{ "d", Blam::eKeyCodesD },
-		{ "f", Blam::eKeyCodesF },
-		{ "g", Blam::eKeyCodesG },
-		{ "h", Blam::eKeyCodesH },
-		{ "j", Blam::eKeyCodesJ },
-		{ "k", Blam::eKeyCodesK },
-		{ "l", Blam::eKeyCodesL },
-		{ "colon", Blam::eKeyCodesColon },
-		{ "quote", Blam::eKeyCodesQuote },
-		{ "enter", Blam::eKeyCodesEnter },
-		{ "lshift", Blam::eKeyCodesLShift },
-		{ "z", Blam::eKeyCodesZ },
-		{ "x", Blam::eKeyCodesX },
-		{ "c", Blam::eKeyCodesC },
-		{ "v", Blam::eKeyCodesV },
-		{ "b", Blam::eKeyCodesB },
-		{ "n", Blam::eKeyCodesN },
-		{ "m", Blam::eKeyCodesM },
-		{ "comma", Blam::eKeyCodesComma },
-		{ "period", Blam::eKeyCodesPeriod },
-		{ "question", Blam::eKeyCodesQuestion },
-		{ "rshift", Blam::eKeyCodesRShift },
-		{ "lcontrol", Blam::eKeyCodesLControl },
-		{ "lalt", Blam::eKeyCodesLAlt },
-		{ "space", Blam::eKeyCodesSpace },
-		{ "ralt", Blam::eKeyCodesRAlt },
-		{ "apps", Blam::eKeyCodesApps },
-		{ "rcontrol", Blam::eKeyCodesRcontrol },
-		{ "up", Blam::eKeyCodesUp },
-		{ "down", Blam::eKeyCodesDown },
-		{ "left", Blam::eKeyCodesLeft },
-		{ "right", Blam::eKeyCodesRight },
-		{ "insert", Blam::eKeyCodesInsert },
-		{ "home", Blam::eKeyCodesHome },
-		{ "pageup", Blam::eKeyCodesPageUp },
-		{ "delete", Blam::eKeyCodesDelete },
-		{ "end", Blam::eKeyCodesEnd },
-		{ "pagedown", Blam::eKeyCodesPageDown },
-		{ "numlock", Blam::eKeyCodesNumLock },
-		{ "divide", Blam::eKeyCodesDivide },
-		{ "multiply", Blam::eKeyCodesMultiply },
-		{ "numpad0", Blam::eKeyCodesNumpad0 },
-		{ "numpad1", Blam::eKeyCodesNumpad1 },
-		{ "numpad2", Blam::eKeyCodesNumpad2 },
-		{ "numpad3", Blam::eKeyCodesNumpad3 },
-		{ "numpad4", Blam::eKeyCodesNumpad4 },
-		{ "numpad5", Blam::eKeyCodesNumpad5 },
-		{ "numpad6", Blam::eKeyCodesNumpad6 },
-		{ "numpad7", Blam::eKeyCodesNumpad7 },
-		{ "numpad8", Blam::eKeyCodesNumpad8 },
-		{ "numpad9", Blam::eKeyCodesNumpad9 },
-		{ "subtract", Blam::eKeyCodesSubtract },
-		{ "add", Blam::eKeyCodesAdd },
-		{ "numpadenter", Blam::eKeyCodesNumpadEnter },
-		{ "decimal", Blam::eKeyCodesDecimal },
-		{ "shift", Blam::eKeyCodesShift },
-		{ "ctrl", Blam::eKeyCodesCtrl },
-		{ "alt", Blam::eKeyCodesAlt },
+		{ "escape", Blam::Input::eKeyCodesEscape },
+		{ "f1", Blam::Input::eKeyCodesF1 },
+		{ "f2", Blam::Input::eKeyCodesF2 },
+		{ "f3", Blam::Input::eKeyCodesF3 },
+		{ "f4", Blam::Input::eKeyCodesF4 },
+		{ "f5", Blam::Input::eKeyCodesF5 },
+		{ "f6", Blam::Input::eKeyCodesF6 },
+		{ "f7", Blam::Input::eKeyCodesF7 },
+		{ "f8", Blam::Input::eKeyCodesF8 },
+		{ "f9", Blam::Input::eKeyCodesF9 },
+		{ "f10", Blam::Input::eKeyCodesF10 },
+		{ "f11", Blam::Input::eKeyCodesF11 },
+		{ "f12", Blam::Input::eKeyCodesF12 },
+		{ "printscreen", Blam::Input::eKeyCodesPrintScreen },
+		{ "f14", Blam::Input::eKeyCodesF14 },
+		{ "f15", Blam::Input::eKeyCodesF15 },
+		{ "tilde", Blam::Input::eKeyCodesTilde },
+		{ "1", Blam::Input::eKeyCodes1 },
+		{ "2", Blam::Input::eKeyCodes2 },
+		{ "3", Blam::Input::eKeyCodes3 },
+		{ "4", Blam::Input::eKeyCodes4 },
+		{ "5", Blam::Input::eKeyCodes5 },
+		{ "6", Blam::Input::eKeyCodes6 },
+		{ "7", Blam::Input::eKeyCodes7 },
+		{ "8", Blam::Input::eKeyCodes8 },
+		{ "9", Blam::Input::eKeyCodes9 },
+		{ "0", Blam::Input::eKeyCodes0 },
+		{ "minus", Blam::Input::eKeyCodesMinus },
+		{ "plus", Blam::Input::eKeyCodesPlus },
+		{ "back", Blam::Input::eKeyCodesBack },
+		{ "tab", Blam::Input::eKeyCodesTab },
+		{ "q", Blam::Input::eKeyCodesQ },
+		{ "w", Blam::Input::eKeyCodesW },
+		{ "e", Blam::Input::eKeyCodesE },
+		{ "r", Blam::Input::eKeyCodesR },
+		{ "t", Blam::Input::eKeyCodesT },
+		{ "y", Blam::Input::eKeyCodesY },
+		{ "u", Blam::Input::eKeyCodesU },
+		{ "i", Blam::Input::eKeyCodesI },
+		{ "o", Blam::Input::eKeyCodesO },
+		{ "p", Blam::Input::eKeyCodesP },
+		{ "lbracket", Blam::Input::eKeyCodesLBracket },
+		{ "rbracket", Blam::Input::eKeyCodesRBracket },
+		{ "pipe", Blam::Input::eKeyCodesPipe },
+		{ "capital", Blam::Input::eKeyCodesCapital },
+		{ "a", Blam::Input::eKeyCodesA },
+		{ "s", Blam::Input::eKeyCodesS },
+		{ "d", Blam::Input::eKeyCodesD },
+		{ "f", Blam::Input::eKeyCodesF },
+		{ "g", Blam::Input::eKeyCodesG },
+		{ "h", Blam::Input::eKeyCodesH },
+		{ "j", Blam::Input::eKeyCodesJ },
+		{ "k", Blam::Input::eKeyCodesK },
+		{ "l", Blam::Input::eKeyCodesL },
+		{ "colon", Blam::Input::eKeyCodesColon },
+		{ "quote", Blam::Input::eKeyCodesQuote },
+		{ "enter", Blam::Input::eKeyCodesEnter },
+		{ "lshift", Blam::Input::eKeyCodesLShift },
+		{ "z", Blam::Input::eKeyCodesZ },
+		{ "x", Blam::Input::eKeyCodesX },
+		{ "c", Blam::Input::eKeyCodesC },
+		{ "v", Blam::Input::eKeyCodesV },
+		{ "b", Blam::Input::eKeyCodesB },
+		{ "n", Blam::Input::eKeyCodesN },
+		{ "m", Blam::Input::eKeyCodesM },
+		{ "comma", Blam::Input::eKeyCodesComma },
+		{ "period", Blam::Input::eKeyCodesPeriod },
+		{ "question", Blam::Input::eKeyCodesQuestion },
+		{ "rshift", Blam::Input::eKeyCodesRShift },
+		{ "lcontrol", Blam::Input::eKeyCodesLControl },
+		{ "lalt", Blam::Input::eKeyCodesLAlt },
+		{ "space", Blam::Input::eKeyCodesSpace },
+		{ "ralt", Blam::Input::eKeyCodesRAlt },
+		{ "apps", Blam::Input::eKeyCodesApps },
+		{ "rcontrol", Blam::Input::eKeyCodesRcontrol },
+		{ "up", Blam::Input::eKeyCodesUp },
+		{ "down", Blam::Input::eKeyCodesDown },
+		{ "left", Blam::Input::eKeyCodesLeft },
+		{ "right", Blam::Input::eKeyCodesRight },
+		{ "insert", Blam::Input::eKeyCodesInsert },
+		{ "home", Blam::Input::eKeyCodesHome },
+		{ "pageup", Blam::Input::eKeyCodesPageUp },
+		{ "delete", Blam::Input::eKeyCodesDelete },
+		{ "end", Blam::Input::eKeyCodesEnd },
+		{ "pagedown", Blam::Input::eKeyCodesPageDown },
+		{ "numlock", Blam::Input::eKeyCodesNumLock },
+		{ "divide", Blam::Input::eKeyCodesDivide },
+		{ "multiply", Blam::Input::eKeyCodesMultiply },
+		{ "numpad0", Blam::Input::eKeyCodesNumpad0 },
+		{ "numpad1", Blam::Input::eKeyCodesNumpad1 },
+		{ "numpad2", Blam::Input::eKeyCodesNumpad2 },
+		{ "numpad3", Blam::Input::eKeyCodesNumpad3 },
+		{ "numpad4", Blam::Input::eKeyCodesNumpad4 },
+		{ "numpad5", Blam::Input::eKeyCodesNumpad5 },
+		{ "numpad6", Blam::Input::eKeyCodesNumpad6 },
+		{ "numpad7", Blam::Input::eKeyCodesNumpad7 },
+		{ "numpad8", Blam::Input::eKeyCodesNumpad8 },
+		{ "numpad9", Blam::Input::eKeyCodesNumpad9 },
+		{ "subtract", Blam::Input::eKeyCodesSubtract },
+		{ "add", Blam::Input::eKeyCodesAdd },
+		{ "numpadenter", Blam::Input::eKeyCodesNumpadEnter },
+		{ "decimal", Blam::Input::eKeyCodesDecimal },
+		{ "shift", Blam::Input::eKeyCodesShift },
+		{ "ctrl", Blam::Input::eKeyCodesCtrl },
+		{ "alt", Blam::Input::eKeyCodesAlt },
 	};
 }

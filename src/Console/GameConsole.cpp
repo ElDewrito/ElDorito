@@ -1,13 +1,15 @@
 #include "GameConsole.hpp"
 #include "../Utils/VersionInfo.hpp"
 #include "../DirectXHook.hpp"
-#include "../KeyboardHook.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include <algorithm>
 #include "../Server/ServerChat.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include "../Pointer.hpp"
-#include <openssl/sha.h>
+#include "../Patches/Input.hpp"
+#include "../Blam/BlamInput.hpp"
+#include "IRCBackend.hpp"
+#include "../Menu.hpp"
 
 namespace
 {
@@ -42,6 +44,46 @@ namespace
 	private:
 		GameChatQueue *gameChat;
 	};
+
+	class GameConsoleInputContext: public Patches::Input::InputContext
+	{
+	public:
+		explicit GameConsoleInputContext(GameConsole* console) : console(console) {}
+
+		virtual void InputActivated() override
+		{
+			// TODO: Allow input contexts to block input more easily without
+			// potentially overriding blocks the game has set
+
+			// Block UI input
+			BlockInput(Blam::Input::eInputTypeUi, true);
+		}
+
+		virtual void InputDeactivated() override
+		{
+			// Unblock UI input
+			BlockInput(Blam::Input::eInputTypeUi, false);
+		}
+
+		virtual bool GameInputTick() override
+		{
+			// The "done" state is delayed a tick in order to prevent input
+			// replication, since the UI can get new keys before the game does
+			return done;
+		}
+
+		virtual bool UiInputTick() override
+		{
+			BlockInput(Blam::Input::eInputTypeUi, false); // UI input needs to be unblocked
+			done = console->consoleKeyCallBack();
+			BlockInput(Blam::Input::eInputTypeUi, true);
+			return true;
+		}
+
+	private:
+		GameConsole* console;
+		bool done;
+	};
 }
 
 void GameConsole::startIRCBackend()
@@ -51,8 +93,6 @@ void GameConsole::startIRCBackend()
 
 GameConsole::GameConsole()
 {
-	KeyboardHook::setHook();
-
 	auto gameChatHandler = std::make_shared<GameChatHandler>(&gameChatQueue);
 	Server::Chat::AddHandler(gameChatHandler);
 
@@ -61,6 +101,9 @@ GameConsole::GameConsole()
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initIRCName();
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
+
+	// Register our game input handler
+	Patches::Input::RegisterDefaultInputHandler(std::bind(&GameConsole::gameInputCallBack, this));
 }
 
 void GameConsole::initIRCName()
@@ -106,23 +149,10 @@ void GameConsole::hideConsole()
 	showChat = false;
 	showConsole = false;
 	currentInput.set("");
-
-	// Enables game keyboard input and disables our keyboard hook
-	RAWINPUTDEVICE Rid;
-	Rid.usUsagePage = 0x01;
-	Rid.usUsage = 0x06;
-	Rid.dwFlags = RIDEV_REMOVE;
-	Rid.hwndTarget = 0;
-
-	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
-		consoleQueue.pushLineFromGameToUI("Unregistering keyboard failed");
-	}
 }
 
 void GameConsole::displayChat(bool console)
 {
-	capsLockToggled = GetKeyState(VK_CAPITAL) & 1;
-
 	if (console)
 	{
 		if (selectedQueue != &consoleQueue)
@@ -139,24 +169,38 @@ void GameConsole::displayChat(bool console)
 	}
 
 	selectedQueue->startIndexForScrolling = 0;
+	tabHitLast = false;
 
-	// Disables game keyboard input and enables our keyboard hook
-	RAWINPUTDEVICE Rid;
-	Rid.usUsagePage = 0x01;
-	Rid.usUsage = 0x06;
-	Rid.dwFlags = RIDEV_NOLEGACY; // adds HID keyboard and also ignores legacy keyboard messages
-	Rid.hwndTarget = 0;
-
-	if (!RegisterRawInputDevices(&Rid, 1, sizeof(Rid))) {
-		consoleQueue.pushLineFromGameToUI("Registering keyboard failed");
-	}
+	PushContext(std::make_shared<GameConsoleInputContext>(this));
 }
 
-void GameConsole::consoleKeyCallBack(USHORT vKey)
+bool GameConsole::consoleKeyCallBack()
 {
-	switch (vKey)
+	Blam::Input::KeyEvent event;
+	while (ReadKeyEvent(&event, Blam::Input::eInputTypeUi))
 	{
-	case VK_RETURN:
+		switch (event.Type)
+		{
+		case Blam::Input::eKeyEventTypeDown:
+			if (!keyDownCallBack(event))
+				return false;
+			break;
+		case Blam::Input::eKeyEventTypeChar:
+			if (!keyTypedCallBack(event))
+				return false;
+			break;
+		}
+	}
+	return true;
+}
+
+bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
+{
+	using Blam::Input::KeyCodes;
+
+	switch (key.Code)
+	{
+	case KeyCodes::eKeyCodesEnter:
 		if (!currentInput.currentInput.empty())
 		{
 			selectedQueue->unchangingBacklog.push_back(currentInput.currentInput);
@@ -164,45 +208,41 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 			selectedQueue->startIndexForScrolling = 0;
 		}
 		hideConsole();
-		break;
+		return false;
 
-	case VK_ESCAPE:
+	case KeyCodes::eKeyCodesEscape:
 		hideConsole();
-		break;
+		return false;
 
-	case VK_BACK:
+	case KeyCodes::eKeyCodesBack:
 		if (!currentInput.currentInput.empty())
 		{
 			currentInput.backspace();
 		}
 		break;
 
-	case VK_DELETE:
+	case KeyCodes::eKeyCodesDelete:
 		if (!currentInput.currentInput.empty())
 		{
 			currentInput.del();
 		}
 		break;
 
-	case VK_CAPITAL:
-		capsLockToggled = !capsLockToggled;
-		break;
-
-	case VK_PRIOR: // PAGE UP
+	case KeyCodes::eKeyCodesPageUp:
 		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
 			selectedQueue->startIndexForScrolling++;
 		}
 		break;
 
-	case VK_NEXT: // PAGE DOWN
+	case KeyCodes::eKeyCodesPageDown:
 		if (selectedQueue->startIndexForScrolling > 0)
 		{
 			selectedQueue->startIndexForScrolling--;
 		}
 		break;
 
-	case VK_UP:
+	case KeyCodes::eKeyCodesUp:
 		currentBacklogIndex++;
 		if (currentBacklogIndex > (int)selectedQueue->unchangingBacklog.size() - 1)
 		{
@@ -214,7 +254,7 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 		}
 		break;
 
-	case VK_DOWN:
+	case KeyCodes::eKeyCodesDown:
 		currentBacklogIndex--;
 		if (currentBacklogIndex < 0)
 		{
@@ -227,15 +267,15 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 		}
 		break;
 
-	case VK_LEFT:
+	case KeyCodes::eKeyCodesLeft:
 		currentInput.left();
 		break;
 
-	case VK_RIGHT:
+	case KeyCodes::eKeyCodesRight:
 		currentInput.right();
 		break;
 
-	case VK_TAB:
+	case KeyCodes::eKeyCodesTab:
 		if (showChat)
 		{
 			if (selectedQueue == &globalChatQueue)
@@ -249,7 +289,7 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 				break;
 			}
 		}
-		
+
 		if (currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
 			if (tabHitLast)
@@ -284,44 +324,41 @@ void GameConsole::consoleKeyCallBack(USHORT vKey)
 		}
 		break;
 
-	case 'V':
-		if (GetAsyncKeyState(VK_LCONTROL) & 0x8000 || GetAsyncKeyState(VK_RCONTROL) & 0x8000) // CTRL+V pasting
+	case KeyCodes::eKeyCodesV:
+		if (!(key.Modifiers & Blam::Input::eKeyEventModifiersCtrl)) // CTRL+V pasting
+			break;
+		if (!OpenClipboard(nullptr))
+			break;
+		auto hData = GetClipboardData(CF_TEXT);
+		if (hData)
 		{
-			if (OpenClipboard(nullptr))
+			auto textPointer = static_cast<char*>(GlobalLock(hData));
+			for (size_t i = 0; textPointer[i]; i++)
 			{
-				HANDLE hData = GetClipboardData(CF_TEXT);
-				if (hData)
-				{
-					char* textPointer = static_cast<char*>(GlobalLock(hData));
-					std::string text(textPointer);
-					std::string newInputLine = currentInput.currentInput + text;
-
-					for(char c : text) {
-						if (currentInput.currentInput.size() <= INPUT_MAX_CHARS)
-						{
-							currentInput.type(c);
-						}
-					}
-
-					GlobalUnlock(hData);
-				}
-				CloseClipboard();
+				auto ch = textPointer[i];
+				if (ch == '\r' || ch == '\n' || ch == '\t')
+					continue;
+				if (currentInput.currentInput.size() >= INPUT_MAX_CHARS)
+					break;
+				currentInput.type(ch);
 			}
+			GlobalUnlock(hData);
 		}
-		else
-		{
-			handleDefaultKeyInput(vKey);
-		}
-		break;
-
-	default:
-		handleDefaultKeyInput(vKey);
+		CloseClipboard();
 		break;
 	}
-
-	tabHitLast = vKey == VK_TAB;
+	tabHitLast = (key.Code == KeyCodes::eKeyCodesTab);
+	return true;
 }
 
+bool GameConsole::keyTypedCallBack(const Blam::Input::KeyEvent& key)
+{
+	if (key.Char >= 0 && key.Char <= 127 && currentInput.currentInput.size() < INPUT_MAX_CHARS)
+		currentInput.type(static_cast<char>(key.Char));
+	return true;
+}
+
+// TODO: Get this working again
 void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 {
 	if (mouseInfo.usButtonFlags == RI_MOUSE_WHEEL)
@@ -343,39 +380,6 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 	}
 }
 
-void GameConsole::handleDefaultKeyInput(USHORT vKey)
-{
-	if (currentInput.currentInput.size() > INPUT_MAX_CHARS)
-	{
-		return;
-	}
-
-	WORD buf;
-	BYTE keysDown[256] = {};
-
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) // 0x8000 = 0b1000000000000000
-	{
-		keysDown[VK_SHIFT] = 0x80; // sets highest-order bit to 1: 0b10000000
-	}
-
-	if (capsLockToggled)
-	{
-		keysDown[VK_CAPITAL] = 0x1; // sets lowest-order bit to 1: 0b00000001
-	}
-
-	int retVal = ToAscii(vKey, 0, keysDown, &buf, 0);
-
-	if (retVal == 1)
-	{
-		currentInput.type(buf & 0x00ff);
-	}
-	else if (retVal == 2)
-	{
-		currentInput.type(buf >> 8);
-		currentInput.type(buf & 0x00ff);
-	}
-}
-
 void GameConsole::SwitchToGameChat()
 {
 	selectedQueue = &gameChatQueue;
@@ -394,4 +398,30 @@ void GameConsole::SwitchToGlobalChat()
 	globalChatQueue.color = DirectXHook::COLOR_GREEN;
 	gameChatQueue.color = DirectXHook::COLOR_YELLOW;
 	currentBacklogIndex = -1;
+}
+
+void GameConsole::gameInputCallBack()
+{
+	using namespace Blam::Input;
+
+	// TODO: Make these rebindable!
+
+	if (!disableUI && GetKeyTicks(eKeyCodesT, eInputTypeUi) == 1)
+		displayChat(false);
+
+	if (!disableUI && (GetKeyTicks(eKeyCodesTilde, eInputTypeUi) == 1 || GetKeyTicks(eKeyCodesF1, eInputTypeUi) == 1))
+		displayChat(true);
+
+	if (GetKeyTicks(eKeyCodesF9, eInputTypeUi) == 1)
+		DirectXHook::helpMessageStartTime = GetTickCount();
+
+	if (GetKeyTicks(eKeyCodesF10, eInputTypeUi) == 1)
+		disableUI = !disableUI;
+
+	// TODO: Should we keep this since we have the server browser option on the menu now?
+	if (GetKeyTicks(eKeyCodesF11, eInputTypeUi) == 1)
+		Menu::Instance().setEnabled(true);
+
+	if (GetKeyTicks(eKeyCodesF12, eInputTypeUi) == 1)
+		DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;
 }
