@@ -699,6 +699,18 @@ namespace
 		returnInfo = "Hmm, weird. Are you at the main menu?";
 		return true;
 	}
+
+	bool CommandServerLobbyType(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		typedef bool(__cdecl *SetLobbyType)(int a1);
+		const SetLobbyType Server_Lobby_Type = reinterpret_cast<SetLobbyType>(0xA7EE70);
+		bool retVal1 = Server_Lobby_Type(Modules::ModuleServer::Instance().VarServerLobbyType->ValueInt);
+		if (retVal1)
+		{
+			returnInfo = "Changed game state to " + Modules::ModuleServer::Instance().VarServerLobbyType->ValueString;
+			return true;
+		}
+	}
 }
 
 namespace Modules
@@ -735,6 +747,10 @@ namespace Modules
 		AddCommand("ListPlayers", "list", "Lists players in the game (currently host only)", eCommandFlagsHostOnly, CommandServerListPlayers);
 		
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
+		VarServerMode->ValueIntMin = 0;
+		VarServerMode->ValueIntMax = 4;
+
+		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
 		VarServerMode->ValueIntMin = 0;
 		VarServerMode->ValueIntMax = 4;
 	}

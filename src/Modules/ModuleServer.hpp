@@ -14,6 +14,7 @@ namespace Modules
 		Command* VarServerPort;
 		Command* VarServerShouldAnnounce;
 		Command* VarServerMode;
+		Command* VarServerLobbyType;
 
 		BYTE SyslinkData[0x176];
 
