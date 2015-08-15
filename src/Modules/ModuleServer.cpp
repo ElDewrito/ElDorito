@@ -707,7 +707,7 @@ namespace
 		bool retVal1 = Server_Lobby_Type(Modules::ModuleServer::Instance().VarServerLobbyType->ValueInt);
 		if (retVal1)
 		{
-			returnInfo = "Changed game state to " + Modules::ModuleServer::Instance().VarServerLobbyType->ValueString;
+			returnInfo = "Changed lobby type to " + Modules::ModuleServer::Instance().VarServerLobbyType->ValueString;
 			return true;
 		}
 	}
