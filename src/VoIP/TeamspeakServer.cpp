@@ -404,7 +404,6 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 
 	/* Stop virtual server */
 	if ((error = ts3server_stopVirtualServer(serverID)) != ERROR_ok) {
-		
 		console.consoleQueue.pushLineFromGameToUI("Error stopping virtual server: "+ error);
 		return 1;
 	}
