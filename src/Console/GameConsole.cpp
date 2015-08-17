@@ -23,6 +23,7 @@ namespace
 
 		virtual void MessageSent(int senderPeer, Server::Chat::ChatMessage *message, bool *ignore) override
 		{
+			Censor(message, "dodger"); // ayyyyy
 		}
 
 		virtual void MessageReceived(const Server::Chat::ChatMessage &message) override
@@ -42,6 +43,19 @@ namespace
 		}
 
 	private:
+		void Censor(Server::Chat::ChatMessage *message, const std::string &str)
+		{
+			auto len = str.length();
+			for (auto subStr = message->Body; *subStr; subStr++)
+			{
+				if (!_strnicmp(subStr, str.c_str(), len))
+				{
+					memset(subStr + 1, '*', len - 1);
+					subStr += len - 1;
+				}
+			}
+		}
+
 		GameChatQueue *gameChat;
 	};
 
