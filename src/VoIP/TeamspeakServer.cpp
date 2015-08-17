@@ -277,8 +277,8 @@ int kickTeamspeakClient(const std::string& name) {
 			return 0;
 		}
 	}
-	//This would only trigger if we get a list of IDs with nothing in it but the null terminator
-	console.consoleQueue.pushLineFromGameToUI("Kick: Miscellaneous kick error (-4)");
+	
+	console.consoleQueue.pushLineFromGameToUI("Kick: Client not found (-4)");
 	ts3server_freeMemory(listClientIDs);
 	return -4;
 }

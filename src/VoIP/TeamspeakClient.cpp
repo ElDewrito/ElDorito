@@ -1165,6 +1165,7 @@ int muteTeamspeakClient(const std::string& name) {
 		int clientIsMuted;
 		if (ts3client_getClientVariableAsInt(scHandlerID, listClientIDs[a], CLIENT_IS_MUTED, &clientIsMuted) != ERROR_ok){
 			console.consoleQueue.pushLineFromGameToUI("Mute: Error getting client mute state (-3)");
+			ts3client_freeMemory(listClientIDs);
 			return -3;
 		}
 		if (nameEvaluationBool) {
@@ -1173,7 +1174,7 @@ int muteTeamspeakClient(const std::string& name) {
 			clientIDArray[1] = 0;
 			if (clientIsMuted){
 				if (ts3client_requestUnmuteClients(1, clientIDArray, NULL) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Mute: Error Umuting client (-4)");
+					console.consoleQueue.pushLineFromGameToUI("Mute: Error umuting client (-4)");
 					ts3client_freeMemory(listClientIDs);
 					return -4;
 				}
@@ -1181,7 +1182,7 @@ int muteTeamspeakClient(const std::string& name) {
 			else
 			{
 				if (ts3client_requestMuteClients(1, clientIDArray, NULL) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Mute: Error muteing client (-5)");
+					console.consoleQueue.pushLineFromGameToUI("Mute: Error muting client (-5)");
 					ts3client_freeMemory(listClientIDs);
 					return -5;
 				}
@@ -1190,8 +1191,8 @@ int muteTeamspeakClient(const std::string& name) {
 			return 0;
 		}
 	}
-	//This would only trigger if we get a list of IDs with nothing in it but the null terminator
-	console.consoleQueue.pushLineFromGameToUI("Mute: Miscellaneous mute error (-6)");
+	
+	console.consoleQueue.pushLineFromGameToUI("Mute: Client not found (-6)");
 	ts3client_freeMemory(listClientIDs);
 	return -6;
 }

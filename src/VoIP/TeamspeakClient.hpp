@@ -1,4 +1,7 @@
+#pragma once
+
 #include <Windows.h>
+
 DWORD WINAPI StartTeamspeakClient(LPVOID);
 void StopTeamspeakClient();
 int muteTeamspeakClient(const std::string& name);
