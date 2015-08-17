@@ -7,6 +7,7 @@
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <teamspeak/clientlib.h>
+#include "../Blam/BlamNetwork.hpp"
 
 bool VariablePushToTalkUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
@@ -126,6 +127,51 @@ bool VariableEnabledUpdate(const std::vector<std::string>& Arguments, std::strin
 	return true;
 }
 
+bool CommandVoIPMutePlayer(const std::vector<std::string>& Arguments, std::string& returnInfo)
+{
+	if (Arguments.size() <= 0)
+	{
+		returnInfo = "Invalid arguments";
+		return false;
+	}
+
+	std::string mutePlayerName = Arguments[0];
+
+	auto* session = Blam::Network::GetActiveSession();
+	if (!session || !session->IsEstablished())
+	{
+		returnInfo = "No session found, are you in a game?";
+		return false;
+	}
+
+	int peerIdx = session->MembershipInfo.FindFirstPeer();
+	while (peerIdx != -1)
+	{
+		int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+		if (playerIdx != -1)
+		{
+			auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+
+			std::stringstream uidStream;
+			uidStream << std::hex << player->Uid;
+			auto uidString = uidStream.str();
+
+			if (!Utils::String::Trim(Utils::String::ThinString(player->DisplayName)).compare(mutePlayerName) || !uidString.compare(mutePlayerName))
+			{
+				if (muteTeamspeakClient(Utils::String::Trim(Utils::String::ThinString(player->DisplayName))) == 0){
+					returnInfo = "Toggled mute on " + mutePlayerName;
+					return true;
+				}
+			}
+		}
+
+		peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+	}
+
+	returnInfo = "Player " + mutePlayerName + " not found in game?";
+	return false;
+}
+
 namespace Modules
 {
 	ModuleVoIP::ModuleVoIP() : ModuleBase("VoIP")
@@ -176,5 +222,8 @@ namespace Modules
 		VarVoIPEnabled = AddVariableInt("Enabled", "voip_enabled", "Enabled or disable the VoIP Client.", eCommandFlagsArchived, 1, VariableEnabledUpdate);
 		VarVoIPEnabled->ValueIntMin = 0;
 		VarVoIPEnabled->ValueIntMax = 1;
+
+		AddCommand("MutePlayer", "mute", "Toggles mute on a player in VoIP", eCommandFlagsNone, CommandVoIPMutePlayer, { "playername/UID The name or UID of the player to mute or unmute" });
+
 	}
 }

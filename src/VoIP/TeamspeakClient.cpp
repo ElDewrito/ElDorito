@@ -1138,6 +1138,64 @@ UINT64 VoIPGetscHandlerID()
 	return scHandlerID;
 }
 
+/*
+* Mute a client given their username
+*/
+int muteTeamspeakClient(const std::string& name) {
+	anyID* listClientIDs;
+	char* workingClientName;
+
+	auto& console = GameConsole::Instance();
+
+	if (ts3client_getClientList(1, &listClientIDs) != ERROR_ok) {
+		console.consoleQueue.pushLineFromGameToUI("Mute: Error getting list of clients (-1)");
+		return -1;
+	}
+	for (int a = 0; listClientIDs[a] != NULL; a++) {
+		//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestMute further down
+		if (ts3client_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
+			console.consoleQueue.pushLineFromGameToUI("Mute: Error getting client name (-2)");
+			ts3client_freeMemory(listClientIDs);
+			return -2;
+		}
+		bool nameEvaluationBool = name == workingClientName;
+		ts3client_freeMemory(workingClientName);
+
+
+		int clientIsMuted;
+		if (ts3client_getClientVariableAsInt(scHandlerID, listClientIDs[a], CLIENT_IS_MUTED, &clientIsMuted) != ERROR_ok){
+			console.consoleQueue.pushLineFromGameToUI("Mute: Error getting client mute state (-3)");
+			return -3;
+		}
+		if (nameEvaluationBool) {
+			anyID clientIDArray[2];
+			clientIDArray[0] = listClientIDs[a];
+			clientIDArray[1] = 0;
+			if (clientIsMuted){
+				if (ts3client_requestUnmuteClients(1, clientIDArray, NULL) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Mute: Error Umuting client (-4)");
+					ts3client_freeMemory(listClientIDs);
+					return -4;
+				}
+			}
+			else
+			{
+				if (ts3client_requestMuteClients(1, clientIDArray, NULL) != ERROR_ok) {
+					console.consoleQueue.pushLineFromGameToUI("Mute: Error muteing client (-5)");
+					ts3client_freeMemory(listClientIDs);
+					return -5;
+				}
+			}
+			ts3client_freeMemory(listClientIDs);
+			return 0;
+		}
+	}
+	//This would only trigger if we get a list of IDs with nothing in it but the null terminator
+	console.consoleQueue.pushLineFromGameToUI("Mute: Miscellaneous mute error (-6)");
+	ts3client_freeMemory(listClientIDs);
+	return -6;
+}
+
 DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	
 	unsigned int error;
