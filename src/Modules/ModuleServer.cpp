@@ -577,7 +577,10 @@ namespace
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
 
 		// start voip
-		CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+		if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 1) 
+		{
+			CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+		}
 
 		GameConsole::Instance().SwitchToGameChat(); // TODO: move this a network_state::enter() hook, otherwise hosts and people who join thru LAN browser won't get switched to game chat
 

@@ -109,9 +109,20 @@ bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std:
 	//TODO: Check if host, kill client too. StopTeamspeakClient();
 	//TODO: Figure out why this doesn't stop the teamspeak server when setting to 0....
 	if (Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt == 0){
+		StopTeamspeakClient();
 		StopTeamspeakServer();
 	}
 	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt ? "VoIP Server will start when a new lobby is created" : "Disabled VoIP Auto Startup.";
+	return true;
+}
+
+bool VariableEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+{
+	//TODO: Connect to lobby VOIP if changing to 1, for now this is fine because it will join next time they connet to a lobby
+	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 0){
+		StopTeamspeakClient();
+	}
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt ? "VoIP client will start when joining a lobby" : "Disabled VoIP.";
 	return true;
 }
 
@@ -160,5 +171,10 @@ namespace Modules
 		VarVoIPTalk = AddVariableInt("Talk", "voip_Talk", "Enables or disables talking (for push to talk)", eCommandFlagsNone, 0);
 		VarVoIPTalk->ValueIntMin = 0;
 		VarVoIPTalk->ValueIntMax = 1;
+
+		//Should we start a VoIP client?
+		VarVoIPEnabled = AddVariableInt("Enabled", "voip_enabled", "Enabled or disable the VoIP Client.", eCommandFlagsArchived, 1, VariableEnabledUpdate);
+		VarVoIPEnabled->ValueIntMin = 0;
+		VarVoIPEnabled->ValueIntMax = 1;
 	}
 }
