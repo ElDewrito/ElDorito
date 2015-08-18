@@ -45,15 +45,10 @@ namespace
 	private:
 		void Censor(Server::Chat::ChatMessage *message, const std::string &str)
 		{
-			auto len = str.length();
-			for (auto subStr = message->Body; *subStr; subStr++)
-			{
-				if (!_strnicmp(subStr, str.c_str(), len))
-				{
-					memset(subStr + 1, '*', len - 1);
-					subStr += len - 1;
-				}
-			}
+			std::string body = message->Body;
+			Utils::String::ReplaceString(body, str, "BLAM!");
+			strncpy_s(message->Body, body.c_str(), sizeof(message->Body) - 1);
+			message->Body[sizeof(message->Body) - 1] = 0;
 		}
 
 		GameChatQueue *gameChat;
@@ -422,6 +417,13 @@ void GameConsole::gameInputCallBack()
 
 	if (!disableUI && GetKeyTicks(eKeyCodesT, eInputTypeUi) == 1)
 		displayChat(false);
+
+	if (!disableUI && GetKeyTicks(eKeyCodesY, eInputTypeUi) == 1)
+	{
+		displayChat(false);
+		SwitchToGameChat();
+		currentInput.type("!team ");
+	}
 
 	if (!disableUI && (GetKeyTicks(eKeyCodesTilde, eInputTypeUi) == 1 || GetKeyTicks(eKeyCodesF1, eInputTypeUi) == 1))
 		displayChat(true);

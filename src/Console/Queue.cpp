@@ -49,8 +49,17 @@ GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_YELLOW)
 
 void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 {
-	if (!Server::Chat::SendGlobalMessage(line))
-		pushLineFromGameToUI("(Failed to send message!)");
+	// Messages beginning with !t or !team are team messages
+	if (line.substr(0, 3) == "!t " || line.substr(0, 6) == "!team ")
+	{
+		if (!Server::Chat::SendTeamMessage(line.substr(line.find(' ') + 1)))
+			pushLineFromGameToUI("(Failed to send message! Are you in a game with teams enabled?)");
+	}
+	else
+	{
+		if (!Server::Chat::SendGlobalMessage(line))
+			pushLineFromGameToUI("(Failed to send message! Are you in a game?)");
+	}	
 }
 
 ConsoleQueue::ConsoleQueue() : Queue(0)

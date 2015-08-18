@@ -13,9 +13,14 @@ public:
 
 	void type(char c)
 	{
-		const std::string temp(1, c);
-		currentInput.insert(currentPointerIndex, temp);
+		currentInput.insert(currentPointerIndex, 1, c);
 		currentPointerIndex++;
+	}
+
+	void type(const std::string& str)
+	{
+		currentInput.insert(currentPointerIndex, str);
+		currentPointerIndex += str.length();
 	}
 
 	void backspace()
