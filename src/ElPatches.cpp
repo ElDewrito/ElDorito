@@ -14,6 +14,7 @@
 #include "Patches\Input.hpp"
 #include "Patches\Forge.hpp"
 #include "Patches\CustomPackets.hpp"
+#include "Patches\Logging.hpp"
 
 #include "Modules\ModuleCamera.hpp"
 
@@ -40,6 +41,7 @@ namespace Patches
 		Input::ApplyAll();
 		Forge::ApplyAll();
 		CustomPackets::ApplyAll();
+		Logging::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()

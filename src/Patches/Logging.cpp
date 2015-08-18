@@ -14,6 +14,7 @@ namespace
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5);
 	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut);
 	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize);
+	void ExceptionHook(char* msg);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -30,6 +31,13 @@ namespace Patches
 {
 	namespace Logging
 	{
+		void ApplyAll()
+		{
+			Patch(0x11C158, { 0x8D, 0x85, 0x00, 0xFC, 0xFF, 0xFF, 0x50 }).Apply();
+			Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
+			Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
+		}
+
 		void EnableNetworkLog(bool enable)
 		{
 			NetworkLogHook.Apply(!enable);
@@ -176,5 +184,17 @@ namespace
 			return;
 		auto packet = &packetTable->Packets[packetId];
 		Utils::DebugLog::Instance().Log("Packets", "SEND %s (size=0x%X)", packet->Name, packetSize);
+	}
+
+	void ExceptionHook(char* msg)
+	{
+		auto* except = *Pointer::Base(0x1F8E880).Read<EXCEPTION_RECORD**>();
+
+		Utils::DebugLog::Instance().Log("GameCrash", std::string(msg));
+
+		Utils::DebugLog::Instance().Log("GameCrash", "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
+			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, except->ExceptionAddress, except->NumberParameters);
+
+		std::exit(0);
 	}
 }
