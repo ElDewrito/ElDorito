@@ -4,7 +4,6 @@
 
 #include "ModuleServer.hpp"
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include "../ElDorito.hpp"
 #include "../Patches/Network.hpp"
@@ -15,7 +14,6 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../VoIP/TeamspeakServer.hpp"
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
 #include "../Blam/BlamNetwork.hpp"
@@ -713,6 +711,80 @@ namespace
 			returnInfo = "Changed lobby type to " + Modules::ModuleServer::Instance().VarServerLobbyType->ValueString;
 			return true;
 		}
+		return false;
+	}
+
+	const uint16_t PingId = 0xF00D;
+	bool CommandServerPing(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() > 1)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		auto session = Blam::Network::GetActiveSession();
+		if (!session)
+		{
+			returnInfo = "No session available";
+			return false;
+		}
+
+		// If an IP address was passed, send to that address
+		if (Arguments.size() == 1)
+		{
+			struct in_addr inAddr;
+			if (!inet_pton(AF_INET, Arguments[0].c_str(), &inAddr))
+			{
+				returnInfo = "Invalid IPv4 address";
+				return false;
+			}
+
+			auto blamAddress = Blam::Network::NetworkAddress::FromInAddr(inAddr.S_un.S_addr, 11774);
+			if (!session->Gateway->Ping(blamAddress, PingId))
+			{
+				returnInfo = "Failed to send ping packet";
+				return false;
+			}
+			return true;
+		}
+		
+		// Otherwise, send to the host
+		if (!session->IsEstablished())
+		{
+			returnInfo = "You are not in a game. Use \"ping <ip>\" instead.";
+			return false;
+		}
+		if (session->IsHost())
+		{
+			returnInfo = "You can't ping yourself. Use \"ping <ip>\" to ping someone else.";
+			return false;
+		}
+		auto membership = &session->MembershipInfo;
+		auto channelIndex = membership->PeerChannels[membership->HostPeerIndex].ChannelIndex;
+		if (channelIndex == -1)
+		{
+			returnInfo = "You are not connected to a game. Use \"ping <ip>\" instead.";
+			return false;
+		}
+		session->Observer->Ping(0, channelIndex, PingId);
+		return true;
+	}
+
+	void PongReceived(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency)
+	{
+		if (id != PingId)
+			return; // Only show pings sent by the ping command
+
+		struct in_addr inAddr;
+		inAddr.S_un.S_addr = from.ToInAddr();
+		char ipStr[INET_ADDRSTRLEN];
+		if (!inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
+			return;
+
+		// PONG <ip> <timestamp> <latency>
+		auto message = "PONG " + std::string(ipStr) + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
+		GameConsole::Instance().consoleQueue.pushLineFromGameToUI(message);
 	}
 }
 
@@ -748,6 +820,8 @@ namespace Modules
 
 		AddCommand("KickPlayer", "kick", "Kicks a player from the game (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername/UID The name or UID of the player to kick" });
 		AddCommand("ListPlayers", "list", "Lists players in the game (currently host only)", eCommandFlagsHostOnly, CommandServerListPlayers);
+
+		AddCommand("Ping", "ping", "Ping a server", eCommandFlagsNone, CommandServerPing, { "[ip] The IP address of the server to ping. Omit to ping the host." });
 		
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
 		VarServerMode->ValueIntMin = 0;
@@ -756,5 +830,7 @@ namespace Modules
 		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
 		VarServerMode->ValueIntMin = 0;
 		VarServerMode->ValueIntMax = 4;
+
+		Patches::Network::OnPong(PongReceived);
 	}
 }

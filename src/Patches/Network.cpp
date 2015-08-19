@@ -32,6 +32,9 @@ namespace
 
 	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
+
+	std::vector<Patches::Network::PongCallback> pongCallbacks;
+	void PongReceivedHook();
 }
 
 namespace Patches
@@ -316,6 +319,9 @@ namespace Patches
 			// Hook leader_request_boot_machine so we can do some extra things if the boot succeeded
 			Hook(0x37E17, Network_leader_request_boot_machineHook, HookFlags::IsCall).Apply();
 
+			// Pong hook
+			Hook(0x9D9DB, PongReceivedHook).Apply();
+
 			// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
 			DWORD temp;
 			DWORD temp2;
@@ -434,6 +440,11 @@ namespace Patches
 			lastAnnounce = 0;
 
 			return true;
+		}
+
+		void OnPong(PongCallback callback)
+		{
+			pongCallbacks.push_back(callback);
 		}
 	}
 }
@@ -745,5 +756,25 @@ namespace
 		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);
 		return Network_state_leaving_enter(thisPtr, a2, a3, a4);
+	}
+
+	void PongReceivedHookImpl(const Blam::Network::NetworkAddress &from, const Blam::Network::PongPacket &pong, uint32_t latency)
+	{
+		for (auto &&callback : pongCallbacks)
+			callback(from, pong.Timestamp, pong.ID, latency);
+	}
+
+	__declspec(naked) void PongReceivedHook()
+	{
+		__asm
+		{
+			push esi // Latency
+			push edi // Pong packet
+			push dword ptr [ebp + 8] // Sender
+			call PongReceivedHookImpl
+			add esp, 12
+			push 0x49D9FA
+			ret
+		}
 	}
 }

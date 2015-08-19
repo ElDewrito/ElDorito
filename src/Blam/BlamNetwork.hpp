@@ -106,9 +106,38 @@ namespace Blam
 		};
 		static_assert(sizeof(SessionParameters) == 0xB7924, "Invalid c_network_session_parameters size");
 
+		// Represents a network address.
+		struct NetworkAddress
+		{
+			union
+			{
+				uint32_t IPv4;
+				uint8_t Data[16];
+			} Address;
+			uint16_t Port;
+			uint16_t AddressSize; // 4 for IPv4, 16 for IPv6
+
+			static NetworkAddress FromInAddr(unsigned long address, uint16_t port)
+			{
+				NetworkAddress result;
+				result.Address.IPv4 = _byteswap_ulong(address);
+				result.Port = port;
+				result.AddressSize = 4;
+				return result;
+			}
+
+			unsigned long ToInAddr() const
+			{
+				return _byteswap_ulong(Address.IPv4);
+			}
+		};
+		static_assert(sizeof(NetworkAddress) == 0x14, "Invalid NetworkAddress size");
+
 		struct ObserverChannel
 		{
-			uint8_t Unknown0[0x10D8];
+			uint8_t Unknown0[0xAD4];
+			NetworkAddress Address;
+			uint8_t UnknownAE8[0x5F0];
 		};
 		static_assert(sizeof(ObserverChannel) == 0x10D8, "Invalid ObserverChannel size");
 
@@ -152,13 +181,42 @@ namespace Blam
 			void Register(int index, const char *name, int unk8, int minSize, int maxSize, SerializePacketFn serializeFunc, DeserializePacketFn deserializeFunc, int unk1C, int unk20);
 		};
 
+		// "ping" packets
+		struct PingPacket
+		{
+			uint16_t ID;
+			uint32_t Timestamp; // timeGetTime()
+			bool Unknown8;
+		};
+		static_assert(sizeof(PingPacket) == 0xC, "Invalid PingPacket size");
+
+		// "pong" packets
+		struct PongPacket
+		{
+			uint16_t ID;        // Copied from ping packet
+			uint32_t Timestamp; // Copied from ping packet
+			int Unknown8;       // Always 2
+		};
+		static_assert(sizeof(PongPacket) == 0xC, "Invalid PongPacket size");
+
+		enum PacketID
+		{
+			ePacketIDPing,
+			ePacketIDPong,
+			// TODO: Finish
+		};
+
 		// c_network_observer
 		struct Observer
 		{
 			uint8_t Unknown0[0x23F20]; // approx size
 
 			// Sends a message across a channel.
-			void ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet);
+			void ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool outOfBand, int id, int packetSize, const void *packet);
+
+			// Sends a ping across a channel.
+			// See MessageGateway::Ping().
+			void Ping(int ownerIndex, int channelIndex, uint16_t id);
 		};
 		static_assert(sizeof(Observer) == 0x23F20, "Invalid c_network_observer size");
 
@@ -166,6 +224,14 @@ namespace Blam
 		struct MessageGateway
 		{
 			uint8_t Unknown0[0x688];
+
+			// Sends a message directly to a network address.
+			bool SendDirectedMessage(const NetworkAddress &address, int id, int packetSize, const void *packet);
+
+			// Sends a ping to a network address. ID can be anything.
+			// Once a pong is received back, callbacks registered with
+			// Patches::Network::OnPong() will be invoked.
+			bool Ping(NetworkAddress &address, uint16_t id);
 		};
 		static_assert(sizeof(MessageGateway) == 0x688, "Invalid c_network_message_gateway size");
 

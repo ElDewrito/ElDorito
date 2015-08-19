@@ -1,6 +1,18 @@
 #include "BlamNetwork.hpp"
 #include "../Pointer.hpp"
 
+namespace
+{
+	Blam::Network::PingPacket MakePingPacket(uint16_t id)
+	{
+		Blam::Network::PingPacket packet;
+		packet.ID = id;
+		packet.Unknown8 = false; // unused?
+		packet.Timestamp = timeGetTime();
+		return packet;
+	}
+}
+
 namespace Blam
 {
 	namespace Network
@@ -45,6 +57,12 @@ namespace Blam
 			typedef int(__thiscall *ObserverChannelSendMessagePtr)(Observer *thisPtr, int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet);
 			auto ObserverChannelSendMessage = reinterpret_cast<ObserverChannelSendMessagePtr>(0x4474F0);
 			ObserverChannelSendMessage(this, ownerIndex, channelIndex, secure, id, packetSize, packet);
+		}
+
+		void Observer::Ping(int ownerIndex, int channelIndex, uint16_t id)
+		{
+			auto packet = MakePingPacket(id);
+			ObserverChannelSendMessage(ownerIndex, channelIndex, true, ePacketIDPing, sizeof(packet), &packet);
 		}
 
 		PacketHeader::PacketHeader()
@@ -125,6 +143,19 @@ namespace Blam
 			typedef void(__thiscall *RegisterPacketPtr)(PacketTable *thisPtr, int id, const char *name, int unk8, int minSize, int maxSize, Blam::Network::SerializePacketFn serializeFunc, Blam::Network::DeserializePacketFn deserializeFunc, int unk1C, int unk20);
 			auto RegisterPacket = reinterpret_cast<RegisterPacketPtr>(0x4801B0);
 			RegisterPacket(this, index, name, unk8, minSize, maxSize, serializeFunc, deserializeFunc, unk1C, unk20);
+		}
+
+		bool MessageGateway::SendDirectedMessage(const NetworkAddress &address, int id, int packetSize, const void *packet)
+		{
+			typedef bool(__thiscall *SendDirectedMessagePtr)(MessageGateway *thisPtr, const NetworkAddress &address, int id, int packetSize, const void *packet);
+			auto SendDirectedMessage = reinterpret_cast<SendDirectedMessagePtr>(0x4840C0);
+			return SendDirectedMessage(this, address, id, packetSize, packet);
+		}
+
+		bool MessageGateway::Ping(NetworkAddress &address, uint16_t id)
+		{
+			auto packet = MakePingPacket(id);
+			return SendDirectedMessage(address, ePacketIDPing, sizeof(packet), &packet);
 		}
 	}
 }
