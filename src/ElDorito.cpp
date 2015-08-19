@@ -98,10 +98,12 @@ void ElDorito::Initialize()
 				usingLauncher = true;
 #endif
 
+#ifdef _DEBUG
 			if (arg.compare(L"-dedicated") == 0)
 			{
 				dedicated = true;
 			}
+#endif
 
 			if (arg.compare(L"-multiInstance") == 0)
 			{
