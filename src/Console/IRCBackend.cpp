@@ -69,7 +69,15 @@ bool IRCBackend::initIRCChat()
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
+	// HACK: If the IRC server is set to SnooNet, switch it to qmarchi's
+	// Otherwise people with existing cfg files will still be stuck on SnooNet
 	auto& ircvars = Modules::ModuleIRC::Instance();
+	if (ircvars.VarIRCServer->ValueString == "irc.snoonet.org")
+	{
+		ircvars.VarIRCServer->ValueString = "irc.justsomegamers.com";
+		Modules::CommandMap::Instance().ExecuteCommand("WriteConfig"); // ugh
+	}
+	
 	if (retVal = getaddrinfo(ircvars.VarIRCServer->ValueString.c_str(), ircvars.VarIRCServerPort->ValueString.c_str(), &hints, &ai))
 	{
 		console.globalChatQueue.pushLineFromGameToUI("IRC GAI error: " + std::string(gai_strerror(retVal)) + " (" + std::to_string(retVal) + "/" + std::to_string(WSAGetLastError()) + ")");
