@@ -110,6 +110,7 @@ GameConsole::GameConsole()
 	Patches::PlayerUid::Get(); // ensure a UID is generated
 	initIRCName();
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
+	gameChatQueue.visible = false;
 
 	// Register our game input handler
 	Patches::Input::RegisterDefaultInputHandler(std::bind(&GameConsole::gameInputCallBack, this));
@@ -391,6 +392,8 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 
 void GameConsole::SwitchToGameChat()
 {
+	if (!gameChatQueue.visible)
+		return;
 	selectedQueue = &gameChatQueue;
 	lastChatQueue = selectedQueue;
 	selectedQueue->startIndexForScrolling = 0;
@@ -401,6 +404,8 @@ void GameConsole::SwitchToGameChat()
 
 void GameConsole::SwitchToGlobalChat()
 {
+	if (!globalChatQueue.visible)
+		return;
 	selectedQueue = &globalChatQueue;
 	lastChatQueue = selectedQueue;
 	selectedQueue->startIndexForScrolling = 0;

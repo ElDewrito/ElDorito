@@ -11,6 +11,7 @@ public:
 	const int numOfLinesToShow = 12;
 	int startIndexForScrolling = 0;
 	int lastTimeQueueShown = 0;
+	bool visible = true;
 	D3DCOLOR color;
 	std::vector<std::string> queue = std::vector<std::string>{}; // index 0 is newest command; the higher the index, the older the command
 

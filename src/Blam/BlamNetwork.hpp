@@ -271,6 +271,29 @@ namespace Blam
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");
 
+		// Lifecycle states.
+		enum LifeCycleState
+		{
+			eLifeCycleStateNone,
+			eLifeCycleStatePreGame,
+			eLifeCycleStateStartGame,
+			eLifeCycleStateInGame,
+			eLifeCycleStateEndGameWriteStats,
+			eLifeCycleStateLeaving,
+			eLifeCycleStateJoining,
+			eLifeCycleStateMatchmakingStart,
+			eLifeCycleStateMatchmakingFindMatchClient,
+			eLifeCycleStateMatchmakingFindMatch,
+			eLifeCycleStateMatchmakingFindAndAssembleMatch,
+			eLifeCycleStateMatchmakingAssembleMatch,
+			eLifeCycleStateMatchmakingArbitration,
+			eLifeCycleStateMatchmakingSelectHost,
+			eLifeCycleStateMatchmakingPrepareMap,
+			eLifeCycleStateInMatch,
+			eLifeCycleStateEndMatchWriteStats,
+			eLifeCycleStatePostMatch,
+		};
+
 		// Gets a pointer to the active network session.
 		// Can be null!
 		Session *GetActiveSession();

@@ -580,8 +580,6 @@ namespace
 			CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 		}
 
-		GameConsole::Instance().SwitchToGameChat(); // TODO: move this a network_state::enter() hook, otherwise hosts and people who join thru LAN browser won't get switched to game chat
-
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
 	}
@@ -786,6 +784,24 @@ namespace
 		auto message = "PONG " + std::string(ipStr) + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
 		GameConsole::Instance().consoleQueue.pushLineFromGameToUI(message);
 	}
+
+	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
+	{
+		switch (newState)
+		{
+		case Blam::Network::eLifeCycleStateNone:
+			// Switch to global chat on the main menu
+			GameConsole::Instance().SwitchToGlobalChat();
+			GameConsole::Instance().gameChatQueue.visible = false;
+			break;
+		case Blam::Network::eLifeCycleStatePreGame:
+		case Blam::Network::eLifeCycleStateInGame:
+			// Switch to game chat when joining a game
+			GameConsole::Instance().gameChatQueue.visible = true;
+			GameConsole::Instance().SwitchToGameChat();
+			break;
+		}
+	}
 }
 
 namespace Modules
@@ -832,5 +848,6 @@ namespace Modules
 		VarServerMode->ValueIntMax = 4;
 
 		Patches::Network::OnPong(PongReceived);
+		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 	}
 }

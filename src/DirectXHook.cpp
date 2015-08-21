@@ -211,33 +211,42 @@ void DirectXHook::drawChatInterface()
 	{
 		int tempX = x;
 
-		if (console.globalChatQueue.color == COLOR_GREEN) // ugly hack
+		if (console.globalChatQueue.visible)
 		{
-			drawBox(tempX, y, getTextWidth(">Global Chat<", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
-			drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, ">Global Chat<", normalSizeFont);
-			tempX += getTextWidth(">Global Chat<", normalSizeFont) + 2 * horizontalSpacing;
-		}
-		else
-		{
-			drawBox(tempX, y, getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
-			drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, "Global Chat", normalSizeFont);
-			tempX += getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing;
-		}
-
-		if (console.gameChatQueue.color == COLOR_GREEN) // ugly hack
-		{
-			drawBox(tempX, y, getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-			drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, ">Game Chat<", normalSizeFont);
-			tempX += getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing;
-		}
-		else
-		{
-			drawBox(tempX, y, getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-			drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat", normalSizeFont);
-			tempX += getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing;
+			if (console.globalChatQueue.color == COLOR_GREEN) // ugly hack
+			{
+				drawBox(tempX, y, getTextWidth(">Global Chat<", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
+				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, ">Global Chat<", normalSizeFont);
+				tempX += getTextWidth(">Global Chat<", normalSizeFont) + 2 * horizontalSpacing;
+			}
+			else
+			{
+				drawBox(tempX, y, getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.globalChatQueue.color, COLOR_BLACK);
+				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.globalChatQueue.color, "Global Chat", normalSizeFont);
+				tempX += getTextWidth("Global Chat", normalSizeFont) + 2 * horizontalSpacing;
+			}
 		}
 
-		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, "Press tab to switch between the two. Press ` or F1 to open console.", normalSizeFont);
+		if (console.gameChatQueue.visible)
+		{
+			if (console.gameChatQueue.color == COLOR_GREEN) // ugly hack
+			{
+				drawBox(tempX, y, getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
+				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, ">Game Chat<", normalSizeFont);
+				tempX += getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing;
+			}
+			else
+			{
+				drawBox(tempX, y, getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
+				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat", normalSizeFont);
+				tempX += getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing;
+			}
+		}
+
+		std::string helpText = "Press ` or F1 to open console.";
+		if (console.globalChatQueue.visible && console.gameChatQueue.visible)
+			helpText = "Press tab to switch between the two. " + helpText;
+		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, helpText.c_str(), normalSizeFont);
 	}
 
 	y -= verticalSpacingBetweenLinesAndInputBox;

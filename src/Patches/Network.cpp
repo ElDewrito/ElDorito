@@ -4,7 +4,6 @@
 #include "../Utils/VersionInfo.hpp"
 #include "../Modules/ModuleServer.hpp"
 
-#include <cstring>
 #include <cstdio>
 
 #include "../ElDorito.hpp"
@@ -35,6 +34,9 @@ namespace
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	void PongReceivedHook();
+
+	std::vector<Patches::Network::LifeCycleStateChangedCallback> lifeCycleStateChangedCallbacks;
+	void LifeCycleStateChangedHook();
 }
 
 namespace Patches
@@ -322,6 +324,10 @@ namespace Patches
 			// Pong hook
 			Hook(0x9D9DB, PongReceivedHook).Apply();
 
+			// Lifecycle state change hook
+			Hook(0x8E527, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
+			Hook(0x8E10F, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
+
 			// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
 			DWORD temp;
 			DWORD temp2;
@@ -445,6 +451,11 @@ namespace Patches
 		void OnPong(PongCallback callback)
 		{
 			pongCallbacks.push_back(callback);
+		}
+
+		void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback)
+		{
+			lifeCycleStateChangedCallbacks.push_back(callback);
 		}
 	}
 }
@@ -760,8 +771,8 @@ namespace
 
 	void PongReceivedHookImpl(const Blam::Network::NetworkAddress &from, const Blam::Network::PongPacket &pong, uint32_t latency)
 	{
-		for (auto &&callback : pongCallbacks)
-			callback(from, pong.Timestamp, pong.ID, latency);
+		/*for (auto &&callback : pongCallbacks)
+			callback(from, pong.Timestamp, pong.ID, latency);*/
 	}
 
 	__declspec(naked) void PongReceivedHook()
@@ -775,6 +786,29 @@ namespace
 			add esp, 12
 			push 0x49D9FA
 			ret
+		}
+	}
+
+	void LifeCycleStateChangedHookImpl(Blam::Network::LifeCycleState newState)
+	{
+		for (auto &&callback : lifeCycleStateChangedCallbacks)
+			callback(newState);
+	}
+
+	__declspec(naked) void LifeCycleStateChangedHook()
+	{
+		__asm
+		{
+			pop esi // HACK: esi = return address
+
+			// Execute replaced code
+			mov ecx, edi // ecx = New lifecycle state object
+			call dword ptr [eax + 8] // lifecycle->enter()
+
+			push dword ptr [ebx] // Lifecycle state type
+			call LifeCycleStateChangedHookImpl
+			add esp, 4
+			jmp esi
 		}
 	}
 }

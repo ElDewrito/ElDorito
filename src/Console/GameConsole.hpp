@@ -25,6 +25,7 @@ private:
 	void initIRCName();
 	bool keyDownCallBack(const Blam::Input::KeyEvent& key);
 	bool keyTypedCallBack(const Blam::Input::KeyEvent& key);
+	bool gameChatEnabled = false;
 
 public:
 	ConsoleQueue consoleQueue = ConsoleQueue();

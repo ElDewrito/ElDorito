@@ -1,9 +1,10 @@
 #pragma once
 
-#define WM_RCON WM_USER + 1337
-#define WM_INFOSERVER WM_RCON + 1
 #include <functional>
 #include "../Blam/BlamNetwork.hpp"
+
+#define WM_RCON WM_USER + 1337
+#define WM_INFOSERVER WM_RCON + 1
 
 namespace Patches
 {
@@ -28,5 +29,13 @@ namespace Patches
 
 		// Registers a function to be called when a pong is received.
 		void OnPong(PongCallback callback);
+
+		// Callback for a lifecycle state change handler function.
+		// newState - The new lifecycle state.
+		typedef std::function<void(Blam::Network::LifeCycleState newState)> LifeCycleStateChangedCallback;
+
+		// Registers a function to be called when the lifecycle state is
+		// changed.
+		void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback);
 	}
 }
