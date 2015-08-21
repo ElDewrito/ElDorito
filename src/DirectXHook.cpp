@@ -79,7 +79,8 @@ void DirectXHook::drawHelpMessage()
 {
 	if (!helpMessageStartTime)
 	{
-		helpMessageStartTime = GetTickCount();
+		//helpMessageStartTime = GetTickCount();
+		return;
 	}
 	else if (GetTickCount() - helpMessageStartTime < 15000)
 	{
