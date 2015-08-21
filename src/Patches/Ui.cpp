@@ -2,7 +2,6 @@
 
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
-#include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Menu.hpp"
 
@@ -16,6 +15,7 @@ namespace
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	bool MainMenuCreateLobbyHook(int lobbyType);
+	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct);
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -61,6 +61,10 @@ namespace Patches
 			// Fix for leave game button to show H3 pause menu
 			Hook(0x3B6826, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
+
+			// Allows you to press B to close the H3 pause menu
+			// TODO: find out what the byte that's being checked does, we're just patching out the check here but maybe it's important
+			Patch::NopFill(Pointer::Base(0x6E05F3), 2);
 
 			// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
 			Patch(0x6C34B0, { 0xB6 }).Apply();
@@ -133,6 +137,16 @@ namespace Patches
 			// Hook the call to create a lobby from the main menu so that we
 			// can show the server browser if matchmaking is selected
 			Hook(0x6E79A7, MainMenuCreateLobbyHook, HookFlags::IsCall).Apply();
+
+			// hook c_start_menu::ButtonPress on each c_start_menu_* vftable
+			Pointer(0x0169FE08).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x0169FFA8).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A0118).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A0350).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A0488).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A18B0).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A1BE8).Write((uint32_t)&c_start_menu__ButtonPressHook);
+			Pointer(0x016A6C80).Write((uint32_t)&c_start_menu__ButtonPressHook);
 		}
 
 		void ApplyMapNameFixes()
@@ -363,5 +377,26 @@ namespace
 		typedef bool(*CreateLobbyPtr)(int lobbyType);
 		auto CreateLobby = reinterpret_cast<CreateLobbyPtr>(0xA7EE70);
 		return CreateLobby(lobbyType);
+	}
+
+	// Fix to ignore duplicate button presses when using keyboard
+	// TODO: find the proper fix for this, it seems like when your on the pause menu / forge menu it sends 3 button presses when you press a key (two dpad presses and an analog press)
+	// eg. for dpad right it sends DpadRight (sent @ 0xA93E40), DpadRight (sent @ 0xA941B9), Right (sent @ 0xA93E23)
+	// only sends one button press on the main menu though, which is strange
+	// we just ignore the dpad button presses so options don't get skipped.
+	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct)
+	{
+		bool usingController = Pointer(0x244DE98).Read<uint32_t>() == 1;
+		if (!usingController)
+		{
+			uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
+
+			if (btnCode >= Blam::Input::eButtonCodesDpadUp && btnCode <= Blam::Input::eButtonCodesDpadRight)
+				return 1; // ignore the dpad button presses
+		}
+
+		typedef int(__thiscall *c_start_menu__ButtonPressPtr)(void* thisPtr, uint8_t* controllerStruct);
+		auto c_start_menu__ButtonPress = reinterpret_cast<c_start_menu__ButtonPressPtr>(0xB1F620);
+		return c_start_menu__ButtonPress(thisPtr, controllerStruct);
 	}
 }
