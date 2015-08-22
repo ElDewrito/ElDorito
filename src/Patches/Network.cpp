@@ -771,8 +771,8 @@ namespace
 
 	void PongReceivedHookImpl(const Blam::Network::NetworkAddress &from, const Blam::Network::PongPacket &pong, uint32_t latency)
 	{
-		/*for (auto &&callback : pongCallbacks)
-			callback(from, pong.Timestamp, pong.ID, latency);*/
+		for (auto &&callback : pongCallbacks)
+			callback(from, pong.Timestamp, pong.ID, latency);
 	}
 
 	__declspec(naked) void PongReceivedHook()
