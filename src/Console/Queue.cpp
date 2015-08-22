@@ -52,12 +52,14 @@ void GameChatQueue::pushLineFromKeyboardToGame(std::string line)
 	// Messages beginning with !t or !team are team messages
 	if (line.substr(0, 3) == "!t " || line.substr(0, 6) == "!team ")
 	{
-		if (!Server::Chat::SendTeamMessage(line.substr(line.find(' ') + 1)))
+		line = Utils::String::Trim(line.substr(line.find(' ') + 1));
+		if (line.length() && !Server::Chat::SendTeamMessage(line))
 			pushLineFromGameToUI("(Failed to send message! Are you in a game with teams enabled?)");
 	}
 	else
 	{
-		if (!Server::Chat::SendGlobalMessage(line))
+		line = Utils::String::Trim(line);
+		if (line.length() && !Server::Chat::SendGlobalMessage(line))
 			pushLineFromGameToUI("(Failed to send message! Are you in a game?)");
 	}	
 }

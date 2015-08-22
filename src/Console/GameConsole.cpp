@@ -423,7 +423,7 @@ void GameConsole::gameInputCallBack()
 	if (!disableUI && GetKeyTicks(eKeyCodesT, eInputTypeUi) == 1)
 		displayChat(false);
 
-	if (!disableUI && GetKeyTicks(eKeyCodesY, eInputTypeUi) == 1)
+	if (!disableUI && gameChatQueue.visible && GetKeyTicks(eKeyCodesY, eInputTypeUi) == 1)
 	{
 		displayChat(false);
 		SwitchToGameChat();
