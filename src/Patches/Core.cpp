@@ -56,11 +56,11 @@ namespace Patches
 			Hook(0x1030EA, TagsLoadedHook).Apply();
 
 			// player damage descope hooks
-			Hook(0x7553A0, HostObjectShieldHook).Apply();		// host object shield
-			Hook(0x754B4E, HostObjectHealthHook).Apply();		// host object health
-			Hook(0x733F13, ClientObjectShieldHook).Apply();		// client object shield
-			Hook(0x756FB7, ClientObjectShieldHook2).Apply();	// client object shield
-			Hook(0x7329CE, ClientObjectHealthHook).Apply();		// client object health
+			//Hook(0x7553A0, HostObjectShieldHook).Apply();		// host object shield
+			//Hook(0x754B4E, HostObjectHealthHook).Apply();		// host object health
+			//Hook(0x733F13, ClientObjectShieldHook).Apply();		// client object shield
+			//Hook(0x756FB7, ClientObjectShieldHook2).Apply();	// client object shield
+			//Hook(0x7329CE, ClientObjectHealthHook).Apply();		// client object health
 
 			// Adds the FMOD WASAPI output fix from FMODEx 4.44.56, which stops weird popping sound at startup
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
@@ -192,10 +192,18 @@ namespace
 			add		ecx, ebx						; local player object address
 			mov		ecx, [ecx]						; local player object data address
 
-			; check if damaging local player object and descope if so
+			; check if damaging local player object
 			cmp		edi, ecx
 			jne		orig
 		
+			; only descope if shield is decreasing at a rate greater than epsilon
+			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
+			movd	xmm7, esi
+			movss	xmm6, dword ptr ds:[edi + 100h]		; get original shield
+			subss	xmm6, xmm1							; get negative shield delta (orig - new)
+			comiss	xmm6, xmm7							; compare shield delta with epsilon
+			jb		orig								; skip descope if delta is less than epsilon
+
 			; descope local player
 			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
 			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
@@ -233,9 +241,17 @@ namespace
 			add		ecx, ebx						; local player object address
 			mov		ecx, [ecx]						; local player object data address
 
-			; check if damaging local player object and descope if so
+			; check if damaging local player object
 			cmp		edi, ecx
 			jne		orig
+
+			; only descope if health is decreasing at a rate greater than epsilon
+			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
+			movd	xmm7, esi
+			movss	xmm6, dword ptr ds:[edi + 0FCh]		; get original health
+			subss	xmm6, xmm1							; get negative health delta (orig - new)
+			comiss	xmm6, xmm7							; compare health delta with epsilon
+			jb		orig								; skip descope if delta is less than epsilon
 
 			; descope local player
 			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
@@ -302,18 +318,35 @@ namespace
 	{
 		__asm
 		{
-			push	eax
+			pushad
 
 			; get tls info
 			mov		eax, dword ptr fs:[02Ch]	; tls array address
 			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
 
+			; get local player object offset
+			mov		ebx, dword ptr ds:[eax + 05Ch]	; local player mappings
+			mov		ebx, dword ptr ds:[ebx + 014h]	; local player datum
+			and		ebx, 0FFFFh						; local player index
+			shl		ebx, 4							; multiply by object entry size of 16 bytes
+			add		ebx, 0Ch						; add object header size
+
+			; get local player object data address
+			mov		ecx, dword ptr ds:[eax + 0448h]	; object header address
+			mov		ecx, dword ptr ds:[ecx + 044h]	; first object address
+			add		ecx, ebx						; local player object address
+			mov		ecx, [ecx]						; local player object data address
+
+			; check if damaging local player object
+			cmp		edi, ecx
+			jne		orig
+
 			; descope local player
-			mov		eax, dword ptr ds:[eax + 0C4h]		; player control globals
-			mov		word ptr ds:[eax + 032Ah], 0FFFFh	; descope
+			mov		edx, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[edx + 032Ah], 0FFFFh	; descope
 
-			pop		eax
-
+			orig:
+			popad
 			mov		dword ptr ds:[edi + 100h], 0
 			push	0B56FC1h
 			ret
