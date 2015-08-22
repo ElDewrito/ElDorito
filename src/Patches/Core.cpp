@@ -11,10 +11,11 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void GrenadeLoadoutHook();
-	void HostObjectHealthHook();
 	void HostObjectShieldHook();
-	void ClientObjectHealthHook();
+	void HostObjectHealthHook();
 	void ClientObjectShieldHook();
+	void ClientObjectShieldHook2();
+	void ClientObjectHealthHook();
 }
 
 namespace Patches
@@ -55,10 +56,11 @@ namespace Patches
 			Hook(0x1030EA, TagsLoadedHook).Apply();
 
 			// player damage descope hooks
-			Hook(0x7553A0, HostObjectHealthHook).Apply();	// host object health
-			Hook(0x754B4E, HostObjectShieldHook).Apply();	// host object shield
-			Hook(0x733F13, ClientObjectHealthHook).Apply();	// client object health
-			Hook(0x7329CE, ClientObjectShieldHook).Apply();	// client object shield
+			Hook(0x7553A0, HostObjectShieldHook).Apply();		// host object shield
+			Hook(0x754B4E, HostObjectHealthHook).Apply();		// host object health
+			Hook(0x733F13, ClientObjectShieldHook).Apply();		// client object shield
+			Hook(0x756FB7, ClientObjectShieldHook2).Apply();	// client object shield
+			Hook(0x7329CE, ClientObjectHealthHook).Apply();		// client object health
 
 			// Adds the FMOD WASAPI output fix from FMODEx 4.44.56, which stops weird popping sound at startup
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
@@ -167,7 +169,7 @@ namespace
 	}
 
 	// hook @ 0xB553A0
-	__declspec(naked) void HostObjectHealthHook()
+	__declspec(naked) void HostObjectShieldHook()
 	{
 		__asm
 		{
@@ -208,7 +210,7 @@ namespace
 	}
 
 	// hook @ 0xB54B4E
-	__declspec(naked) void HostObjectShieldHook()
+	__declspec(naked) void HostObjectHealthHook()
 	{
 		__asm
 		{
@@ -248,7 +250,7 @@ namespace
 	}
 
 	// hook @ 0xB33F13
-	__declspec(naked) void ClientObjectHealthHook()
+	__declspec(naked) void ClientObjectShieldHook()
 	{
 		__asm
 		{
@@ -275,12 +277,12 @@ namespace
 			cmp		edi, ecx
 			jne		orig
 
-			; only descope if health is decreasing at a rate greater than epsilon
+			; only descope if shield is decreasing at a rate greater than epsilon
 			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
 			movd	xmm7, esi
-			movss	xmm6, dword ptr ds:[edi + 100h]		; get original health
-			subss	xmm6, xmm0							; get negative health delta (orig - new)
-			comiss	xmm6, xmm7							; compare health delta with epsilon
+			movss	xmm6, dword ptr ds:[edi + 100h]		; get original shield
+			subss	xmm6, xmm0							; get negative shield delta (orig - new)
+			comiss	xmm6, xmm7							; compare shield delta with epsilon
 			jb		orig								; skip descope if delta is less than epsilon
 
 			; descope local player
@@ -295,8 +297,31 @@ namespace
 		}
 	}
 
+	// hook @ 0xB56FB7 - used in the case of an instant shield depletion from a charged plasma pistol shot
+	__declspec(naked) void ClientObjectShieldHook2()
+	{
+		__asm
+		{
+			push	eax
+
+			; get tls info
+			mov		eax, dword ptr fs:[02Ch]	; tls array address
+			mov		eax, dword ptr ds:[eax]		; slot 0 tls address
+
+			; descope local player
+			mov		eax, dword ptr ds:[eax + 0C4h]		; player control globals
+			mov		word ptr ds:[eax + 032Ah], 0FFFFh	; descope
+
+			pop		eax
+
+			mov		dword ptr ds:[edi + 100h], 0
+			push	0B56FC1h
+			ret
+		}
+	}
+
 	// hook @ 0xB329CE
-	__declspec(naked) void ClientObjectShieldHook()
+	__declspec(naked) void ClientObjectHealthHook()
 	{
 		__asm
 		{
@@ -323,12 +348,12 @@ namespace
 			cmp		ecx, edx
 			jne		orig
 
-			; only descope if shield is decreasing at a rate greater than epsilon
+			; only descope if health is decreasing at a rate greater than epsilon
 			mov		esi, 03C23D70Ah						; use an epsilon of 0.01f
 			movd	xmm7, esi
-			movss	xmm6, dword ptr ds:[ecx + 0FCh]		; get original shield
-			subss	xmm6, xmm0							; get negative shield delta (orig - new)
-			comiss	xmm6, xmm7							; compare shield delta with epsilon
+			movss	xmm6, dword ptr ds:[ecx + 0FCh]		; get original health
+			subss	xmm6, xmm0							; get negative health delta (orig - new)
+			comiss	xmm6, xmm7							; compare health delta with epsilon
 			jb		orig								; skip descope if delta is less than epsilon
 
 			; descope local player
