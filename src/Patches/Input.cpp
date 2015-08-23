@@ -8,8 +8,9 @@ namespace
 {
 	using namespace Patches::Input;
 
-	void ProcessGameInputHook();
+	void UpdateInputHook();
 	void ProcessUiInputHook();
+	void QuickUpdateUiInputHook();
 	void KeyTestHook();
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
@@ -23,8 +24,9 @@ namespace Patches
 	{
 		void ApplyAll()
 		{
-			Hook(0x105C35, ProcessGameInputHook, HookFlags::IsCall).Apply();
+			Hook(0x1129A0, UpdateInputHook).Apply();
 			Hook(0x105CBA, ProcessUiInputHook, HookFlags::IsCall).Apply();
+			Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
 			Hook(0x111B66, KeyTestHook, HookFlags::IsCall).Apply();
 			Hook(0x111CE6, KeyTestHook, HookFlags::IsCall).Apply();
 		}
@@ -54,7 +56,7 @@ namespace
 			contextStack.top()->InputActivated();
 	}
 
-	void ProcessGameInputHook()
+	void UpdateInputHook()
 	{
 		// If the current context is done, pop it off
 		if (contextDone)
@@ -75,11 +77,13 @@ namespace
 			for (auto &&handler : defaultHandlers)
 				handler();
 		}
-		
-		// Run default input
-		typedef void(*DefaultProcessInputPtr)();
-		auto DefaultProcessInput = reinterpret_cast<DefaultProcessInputPtr>(0x60D880);
-		DefaultProcessInput();
+	}
+
+	void UiInputTick()
+	{
+		// Tick the active context
+		if (!contextStack.empty() && !contextStack.top()->UiInputTick())
+			contextDone = true;
 	}
 
 	void ProcessUiInputHook()
@@ -89,9 +93,17 @@ namespace
 		auto PumpMessages = reinterpret_cast<PumpMessagesPtr>(0x508170);
 		PumpMessages();
 
-		// Tick the active context
-		if (!contextStack.empty() && !contextStack.top()->UiInputTick())
-			contextDone = true;
+		UiInputTick();
+	}
+
+	void QuickUpdateUiInputHook()
+	{
+		// Quick pump Windows messages (replaced function)
+		typedef void(*QuickPumpMessagesPtr)();
+		auto QuickPumpMessages = reinterpret_cast<QuickPumpMessagesPtr>(0x42E940);
+		QuickPumpMessages();
+
+		UiInputTick();
 	}
 
 	// Returns true if a key should be blocked.
