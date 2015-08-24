@@ -577,6 +577,8 @@ namespace
 		// start voip
 		if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 1) 
 		{
+			//Make sure teamspeak is stopped before we try to start it.
+			StopTeamspeakClient();
 			CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 		}
 
