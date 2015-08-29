@@ -305,4 +305,10 @@ namespace GameGlobals
 		const size_t Player2DatumIdx = 0x4;
 		const size_t Player3DatumIdx = 0x4;
 	}
+
+	namespace PersistentUserDataChud
+	{
+		const size_t TLSOffset = 0x424;
+		const size_t SprintMeterOffset = 0x157;
+	}
 }

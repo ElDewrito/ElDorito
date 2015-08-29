@@ -19,6 +19,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console/GameConsole.hpp"
 #include "../Server/VariableSynchronization.hpp"
+#include "../Patches/Sprint.hpp"
 
 namespace
 {
@@ -805,6 +806,14 @@ namespace
 			break;
 		}
 	}
+
+	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerSprintEnabledClient->ValueInt != 0;
+		Patches::Sprint::Enable(enabled);
+		return true;
+	}
 }
 
 namespace Modules
@@ -849,6 +858,10 @@ namespace Modules
 		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
 		VarServerMode->ValueIntMin = 0;
 		VarServerMode->ValueIntMax = 4;
+
+		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
 #ifdef _DEBUG
 		// Synchronization system testing

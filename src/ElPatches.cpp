@@ -15,6 +15,7 @@
 #include "Patches\Forge.hpp"
 #include "Patches\CustomPackets.hpp"
 #include "Patches\Logging.hpp"
+#include "Patches\Sprint.hpp"
 
 #include "Modules\ModuleCamera.hpp"
 
@@ -57,7 +58,8 @@ namespace Patches
 
 	void Tick()
 	{
-		Patches::Ui::Tick();
+		Ui::Tick();
+		Sprint::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

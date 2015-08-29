@@ -15,6 +15,8 @@ namespace Modules
 		Command* VarServerShouldAnnounce;
 		Command* VarServerMode;
 		Command* VarServerLobbyType;
+		Command* VarServerSprintEnabled;
+		Command* VarServerSprintEnabledClient;
 
 		BYTE SyslinkData[0x176];
 
