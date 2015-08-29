@@ -18,6 +18,7 @@
 #include "../Utils/Cryptography.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console/GameConsole.hpp"
+#include "../Server/VariableSynchronization.hpp"
 
 namespace
 {
@@ -848,6 +849,13 @@ namespace Modules
 		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
 		VarServerMode->ValueIntMin = 0;
 		VarServerMode->ValueIntMax = 4;
+
+#ifdef _DEBUG
+		// Synchronization system testing
+		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);
+		auto syncTestClient = AddVariableInt("SyncTestClient", "synctestclient", "Sync test client", eCommandFlagsHidden);
+		Server::VariableSynchronization::Synchronize(syncTestServer, syncTestClient);
+#endif
 
 		Patches::Network::OnPong(PongReceived);
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);

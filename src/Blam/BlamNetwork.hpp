@@ -14,16 +14,36 @@ namespace Blam
 		// The maximum number of players in a network session.
 		const int MaxPlayers = 16;
 
+		enum PeerConnectionState
+		{
+			ePeerConnectionStateNone,
+			ePeerConnectionStateRejoining,
+			ePeerConnectionStateReserved,
+			ePeerConnectionStateDisconnected,
+			ePeerConnectionStateConnected,
+			ePeerConnectionStateJoining,
+			ePeerConnectionStateJoined,
+			ePeerConnectionStateWaiting,
+			ePeerConnectionStateEstablished
+		};
+
 		struct PeerInfo
 		{
-			uint8_t Unknown0[0xF0];
+			uint8_t Unknown0[0x10];
+			PeerConnectionState ConnectionState;
+			int Unknown14;
+			uint32_t StartTime;
+			uint8_t Unknown1C[0xD4];
 			uint32_t PlayerMasks[2];
+
+			bool IsConnected() const { return ConnectionState >= ePeerConnectionStateConnected; }
+			bool IsEstablished() const { return ConnectionState >= ePeerConnectionStateEstablished; }
 		};
 		static_assert(sizeof(PeerInfo) == 0xF8, "Invalid PeerInfo size");
 
 		struct PeerChannel
 		{
-			int Unknown0;
+			bool Unavailable;
 			int ChannelIndex; // Can be -1 for none
 			int Unknown8;
 		};

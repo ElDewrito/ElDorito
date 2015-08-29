@@ -1,7 +1,7 @@
 #include "CustomPackets.hpp"
 #include "../Pointer.hpp"
 #include "../Patch.hpp"
-#include <openssl/sha.h>
+#include "../Utils/Cryptography.hpp"
 #include <unordered_map>
 #include <limits>
 
@@ -47,23 +47,11 @@ namespace Patches
 			session->Observer->ObserverChannelSendMessage(0, channelIndex, false, CustomPacketId, packetSize, packet);
 		}
 
-		PacketGuid GenerateGuid(const std::string &name)
-		{
-			// Generate a SHA-1 digest and take the first 4 bytes
-			unsigned char digest[SHA_DIGEST_LENGTH];
-			SHA_CTX context;
-			if (!SHA1_Init(&context))
-				throw std::runtime_error("SHA1_Init failed");
-			if (!SHA1_Update(&context, name.c_str(), name.length()))
-				throw std::runtime_error("SHA1_Update failed");
-			if (!SHA1_Final(digest, &context))
-				throw std::runtime_error("SHA1_Final failed");
-			return static_cast<PacketGuid>(digest[0] << 24 | digest[1] << 16 | digest[2] << 8 | digest[3]);
-		}
-
 		PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler)
 		{
-			auto guid = GenerateGuid(name);
+			PacketGuid guid;
+			if (!Utils::Cryptography::Hash32(name, &guid))
+				throw std::runtime_error("Failed to generate packet GUID");
 			if (LookUpPacketType(guid))
 				throw std::runtime_error("Duplicate packet GUID"); // TODO: Throwing an exception here might not be the best idea...
 			CustomPacket packet;

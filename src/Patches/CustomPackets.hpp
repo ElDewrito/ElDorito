@@ -518,7 +518,7 @@ namespace Patches
 			// Sends packet data to a peer.
 			void Send(int targetPeer, const TPacket &packet)
 			{
-				SendPacket(targetPeer, id, &packet, packet.GetSize());
+				SendPacket(targetPeer, &packet, packet.GetSize());
 			}
 
 			// Sends packet data to a peer.

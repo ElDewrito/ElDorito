@@ -43,7 +43,9 @@ namespace Modules
 		eCommandTypeVariableInt,
 		eCommandTypeVariableInt64,
 		eCommandTypeVariableFloat,
-		eCommandTypeVariableString
+		eCommandTypeVariableString,
+
+		eCommandType_Count
 	};
 	struct Command
 	{

@@ -1,28 +1,18 @@
 #include "ElDorito.hpp"
 #include "Console/GameConsole.hpp"
-#include "Menu.hpp"
 #include "DirectXHook.hpp"
-
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <vector>
 
 #include <Windows.h>
 #include <TlHelp32.h>
-#include <conio.h> // _getch()
-#include <cctype> //isprint
 
 #include <codecvt>
-#include <cvt/wstring> // wstring_convert
 
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
-#include "Patches/PlayerUid.hpp"
 #include "Patches/Network.hpp"
 #include "ThirdParty/WebSockets.hpp"
 #include "Server/ServerChat.hpp"
+#include "Server/VariableSynchronization.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -158,11 +148,13 @@ void ElDorito::Initialize()
 
 	// Initialize server modules
 	Server::Chat::Initialize();
+	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
+	Server::VariableSynchronization::Tick();
 	Patches::Tick();
 
 	// TODO: refactor this elsewhere

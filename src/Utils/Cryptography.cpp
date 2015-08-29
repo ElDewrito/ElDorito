@@ -3,6 +3,7 @@
 // STL
 #include <string>
 #include <sstream>
+#include <cstdint>
 
 // people will hate me for this, but PHP/node/etc RSA funcs all use openssl, so we'll use it as well to make it easier on us
 #include <openssl\rsa.h>
@@ -145,6 +146,21 @@ namespace Utils
 			BIO_free_all(pubKeyBuff);
 			BN_free(bn);
 			RSA_free(rsa);
+			return true;
+		}
+
+		bool Hash32(const std::string& str, uint32_t *out)
+		{
+			// Generate a SHA-1 digest and take the first 4 bytes
+			unsigned char digest[SHA_DIGEST_LENGTH];
+			SHA_CTX context;
+			if (!SHA1_Init(&context))
+				return false;
+			if (!SHA1_Update(&context, str.c_str(), str.length()))
+				return false;
+			if (!SHA1_Final(digest, &context))
+				return false;
+			*out = digest[0] << 24 | digest[1] << 16 | digest[2] << 8 | digest[3];
 			return true;
 		}
 	}
