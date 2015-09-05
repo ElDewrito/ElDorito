@@ -1,5 +1,6 @@
 #include "BlamNetwork.hpp"
 #include "../Pointer.hpp"
+#include "../Utils/String.hpp"
 
 namespace
 {
@@ -20,7 +21,11 @@ namespace Blam
 		Session *GetActiveSession()
 		{
 			auto networkSessionPtr = Pointer::Base(0x15AB848);
-			return networkSessionPtr.Read<Session*>();
+
+			// Make sure to fix up display names
+			Session *result = networkSessionPtr.Read<Session*>();
+			result->RestrictDisplayNames();
+			return result;
 		}
 
 		int SessionMembership::FindFirstPeer() const
@@ -103,6 +108,26 @@ namespace Blam
 			if (!gameVariant)
 				return false;
 			return (gameVariant->TeamGame & 1) != 0;
+		}
+
+		void Session::RestrictDisplayNames()
+		{
+			for (int i = 0; i < MaxPlayers; i++)
+			{
+				wchar_t *name = MembershipInfo.PlayerSessions[i].DisplayName;
+
+				for (int j = 0; j < 16; j++)
+				{
+					int value = (int)name[j];
+
+					if (value != 0) {
+						if (value < 33)
+							name[j] = (wchar_t)33;
+						else if (value > 126)
+							name[j] = (wchar_t)126;
+					}
+				}
+			}
 		}
 
 		bool SessionParameters::SetSessionMode(int mode)

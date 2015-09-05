@@ -288,6 +288,8 @@ namespace Blam
 
 			// Gets whether teams are enabled.
 			bool HasTeams() const;
+
+			void RestrictDisplayNames();
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");
 
