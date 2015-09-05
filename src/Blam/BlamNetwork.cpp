@@ -121,8 +121,8 @@ namespace Blam
 					int value = (int)name[j];
 
 					if (value != 0) {
-						if (value < 33)
-							name[j] = (wchar_t)33;
+						if (value < 32)
+							name[j] = (wchar_t)32;
 						else if (value > 126)
 							name[j] = (wchar_t)126;
 					}
