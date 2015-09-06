@@ -31,29 +31,35 @@
         "list": "http://samantha-master.halo.click/list",
         "announce": "http://samantha-master.halo.click/announce",
         "stats": "http://samantha-master.halo.click/stats"
-    }, {
+    },
+    {
         "list": "http://192.99.124.162/list",
         "announce": "http://192.99.124.162/announce",
         "stats": "http://192.99.124.162/stats"
-    }, {
+    },
+    {
         "list": "http://eldewrito.red-m.net/list",
         "announce": "http://eldewrito.red-m.net/announce",
         "stats": "http://eldewrito.red-m.net/stats"
-    }, {
+    },
+    {
         "list": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/list",
         "announce": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/announce",
         "stats": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/stats"
-    }, {
-        "list": "http://edms-thetwist84-3.c9.io/list",
-        "announce": "http://edms-thetwist84-3.c9.io/announce",
-        "stats": "http://edms-thetwist84-3.c9.io/stats"
-    }, {
+    },
+    {
+        "list": "http://212.227.255.14:8080/list",
+        "announce": "http://212.227.255.14:8080/announce",
+        "stats": "http://212.227.255.14:8080/stats"
+    },
+    {
         "list": "http://nothing-michaeljohn21312.c9.io/list",
         "announce": "http://nothing-michaeljohn21312.c9.io/announce",
         "stats": "http://nothing-michaeljohn21312.c9.io/stats"
-    }, {
+    },
+    {
         "list": "http://edms.qmarchi.cf/list",
         "announce": "http://edms.qmarchi.cf/announce",
         "stats": "http://edms.qmarchi.cf/stats"
-	}]
+    }]
 }
