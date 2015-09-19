@@ -57,6 +57,9 @@ namespace Patches
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
 			Patch(0x100DA75, { 0x2 }).Apply();
 
+			// Fix random colored lighting
+			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
+
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
 			Patch::NopFill(Pointer::Base(0x2EC10), 6);
