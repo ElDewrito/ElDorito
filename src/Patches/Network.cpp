@@ -617,9 +617,22 @@ namespace
 		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
 	}
 
+	void SanitizePlayerName(char16_t *name)
+	{
+		for (auto i = 0; i < 16 && name[i]; i++)
+		{
+			// Replace non-ASCII characters with underscores
+			if (name[i] < 32 || name[i] > 126)
+				name[i] = '_';
+		}
+	}
+
 	// Applies player properties data including extended properties
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
 	{
+		// The player name is at the beginning of the block - sanitize it
+		SanitizePlayerName(reinterpret_cast<char16_t*>(properties));
+
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *properties, uint32_t arg10);
 		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
