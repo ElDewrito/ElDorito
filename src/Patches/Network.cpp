@@ -484,7 +484,7 @@ namespace
 				if (voipvars.VarVoIPEnabled->ValueInt == 1)
 				{
 					//Make sure teamspeak is stopped before we try to start it.
-					StopTeamspeakClient();
+					//StopTeamspeakClient();
 					//Join the Teamspeak VoIP Server so the host can talk
 					CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 				}
