@@ -76,9 +76,8 @@ void Menu::setEnabled(bool enable)
 
 		// The custom menu will automatically hide the game window. I do it there instead of here to minimize the switch delay.
 	}
-
-	if (!enable && running)
-	{
+	else
+	{ 
 		ShowWindow(hWnd, SW_SHOW);
 		TerminateProcess(OpenProcess(PROCESS_TERMINATE, false, pid), 0);
 	}

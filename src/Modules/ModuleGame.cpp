@@ -664,6 +664,15 @@ namespace
 		return true;
 	}
 
+
+	bool CommandGameToggleMenu(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+	Menu::Instance().setEnabled(true);
+	returnInfo += "Menu toggled.";
+	return true;
+	}
+
+
 	bool CommandGameStart(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto session = Blam::Network::GetActiveSession();
@@ -724,6 +733,8 @@ namespace Modules
 		AddCommand("Info", "info", "Displays information about the game", eCommandFlagsNone, CommandGameInfo);
 
 		AddCommand("Exit", "exit", "Ends the game process", eCommandFlagsNone, CommandGameExit);
+
+		AddCommand("ToggleMenu", "toggle_menu", "Toggles the custom HTML5 menu.", eCommandFlagsNone, CommandGameToggleMenu);
 
 		AddCommand("ForceLoad", "forceload", "Forces a map to load", eCommandFlagsNone, CommandGameForceLoad, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
