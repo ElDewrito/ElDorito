@@ -24,17 +24,17 @@
         "game.cfg": "EF9771599CA2E6C4A33BA2D2828508D67E919058"
     },
 
-    "updateServiceUrl": "https://dew.halo.click/update_server/update.json",
-    "updateChannelsUrl": "https://dew.halo.click/update_server/channels.json",
+    "updateServiceUrl": "http://dew.halo.click/update_server/update.json",
+    "updateChannelsUrl": "http://dew.halo.click/honline/channels.json",
 
     "masterServers": [{
         "list": "http://samantha-master.halo.click/list",
         "announce": "http://samantha-master.halo.click/announce",
         "stats": "http://samantha-master.halo.click/stats"
     }, {
-        "list": "http://192.99.124.162/list",
-        "announce": "http://192.99.124.162/announce",
-        "stats": "http://192.99.124.162/stats"
+        "list": "http://kelly-master.halo.click/list",
+        "announce": "http://kelly-master.halo.click/announce",
+        "stats": "http://kelly-master.halo.click/stats"
     }, {
         "list": "http://eldewrito.red-m.net/list",
         "announce": "http://eldewrito.red-m.net/announce",
@@ -44,16 +44,16 @@
         "announce": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/announce",
         "stats": "http://kyrluckechuck-dewrito-master-server-kyrluckechuck.c9.io/stats"
     }, {
-        "list": "http://edms-thetwist84-3.c9.io/list",
-        "announce": "http://edms-thetwist84-3.c9.io/announce",
-        "stats": "http://edms-thetwist84-3.c9.io/stats"
+        "list": "http://eldewrito-masterserver-thetwist84.c9.io/list",
+        "announce": "http://eldewrito-masterserver-thetwist84.c9.io/announce",
+        "stats": "http://eldewrito-masterserver-thetwist84.c9.io/stats"
+    }, {
+        "list": "http://eldewrito-masterserver-1-thetwist84.c9.io/list",
+        "announce": "http://eldewrito-masterserver-1-thetwist84.c9.io/announce",
+        "stats": "http://eldewrito-masterserver-1-thetwist84.c9.io/stats"
     }, {
         "list": "http://nothing-michaeljohn21312.c9.io/list",
         "announce": "http://nothing-michaeljohn21312.c9.io/announce",
         "stats": "http://nothing-michaeljohn21312.c9.io/stats"
-    }, {
-        "list": "http://edms.qmarchi.cf/list",
-        "announce": "http://edms.qmarchi.cf/announce",
-        "stats": "http://edms.qmarchi.cf/stats"
-	}]
+    }]
 }
