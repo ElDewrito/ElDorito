@@ -32,6 +32,9 @@
 #define SLEEP(x) usleep(x*1000)
 #endif
 bool VoIPServerRunning = false;
+bool IsVoIPServerRunning(){
+	return VoIPServerRunning;
+}
 /*
 * Callback when client has connected.
 *

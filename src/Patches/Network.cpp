@@ -180,6 +180,14 @@ namespace Patches
 						writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
 						writer.Key("sprintUnlimitedEnabled");
 						writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+						writer.Key("VoIP");
+						writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
+
+						auto session = Blam::Network::GetActiveSession();
+						if (session && session->IsEstablished()){
+							writer.Key("teams");
+							writer.Bool(session->HasTeams());
+						}
 						writer.Key("map");
 						writer.String(Utils::String::ThinString(mapVariantName).c_str());
 						writer.Key("mapFile");
@@ -488,7 +496,7 @@ namespace
 				if (voipvars.VarVoIPEnabled->ValueInt == 1)
 				{
 					//Make sure teamspeak is stopped before we try to start it.
-					//StopTeamspeakClient();
+					StopTeamspeakClient();
 					//Join the Teamspeak VoIP Server so the host can talk
 					CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
 				}

@@ -116,10 +116,11 @@ struct WaveHeader {
  *                               Contains error state when losing connection.
  */
 void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
-	printf("Connect status changed: %llu %d %d\n", (unsigned long long)serverConnectionHandlerID, newStatus, errorNumber);
+	auto& console = GameConsole::Instance();
+	console.consoleQueue.pushLineFromGameToUI("Connect status changed : " + std::to_string(serverConnectionHandlerID) + " " + std::to_string(newStatus) + " " + std::to_string(errorNumber));
 	/* Failed to connect ? */
 	if(newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
-		printf("Looks like there is no server running.\n");
+		console.consoleQueue.pushLineFromGameToUI("Looks like there is no server running.\n");
 		StopTeamspeakClient();
 	}
 }
