@@ -176,6 +176,10 @@ namespace Patches
 						writer.Int(Pointer(0x1860454).Read<uint32_t>());
 						writer.Key("hostPlayer");
 						writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+						writer.Key("sprintEnabled");
+						writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
+						writer.Key("sprintUnlimitedEnabled");
+						writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
 						writer.Key("map");
 						writer.String(Utils::String::ThinString(mapVariantName).c_str());
 						writer.Key("mapFile");
