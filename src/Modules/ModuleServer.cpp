@@ -611,38 +611,38 @@ namespace
 			return false;
 		}
 
-		int peerIdx = session->MembershipInfo.FindFirstPeer();
-		while (peerIdx != -1)
+		auto membership = &session->MembershipInfo;
+		for (auto peerIdx = membership->FindFirstPeer(); peerIdx >= 0; peerIdx = membership->FindNextPeer(peerIdx))
 		{
-			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-			if (playerIdx != -1)
+			auto playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+			if (playerIdx == -1)
+				continue;
+			auto* player = &membership->PlayerSessions[playerIdx];
+
+			std::stringstream uidStream;
+			uidStream << std::hex << player->Uid;
+			auto uidString = uidStream.str();
+
+			if (Utils::String::ThinString(player->DisplayName) == kickPlayerName || uidString == kickPlayerName)
 			{
-				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+				typedef bool(__cdecl *Network_squad_session_boot_playerPtr)(int playerIdx, int reason);
+				auto Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerPtr>(0x437D60);
 
-				std::stringstream uidStream;
-				uidStream << std::hex << player->Uid;
-				auto uidString = uidStream.str();
-
-				if (!Utils::String::Trim(Utils::String::ThinString(player->DisplayName)).compare(kickPlayerName) || !uidString.compare(kickPlayerName))
+				// Note: this actually is a player index, not a peer index
+				if (Network_squad_session_boot_player(playerIdx, 4))
 				{
-					typedef bool(__cdecl *Network_squad_session_boot_playerPtr)(int playerIdx, int reason);
-					auto Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerPtr>(0x437D60);
-
-					if (Network_squad_session_boot_player(peerIdx, 4))
-					{
-						returnInfo = "Issued kick request for player " + kickPlayerName + " (peer: " + std::to_string(peerIdx) + " player: " + std::to_string(playerIdx) + ")";
-						return true;
-					}
-					else
-					{
-						returnInfo = "Failed to kick player " + kickPlayerName;
-						return false;
-					}
+					returnInfo = "Issued kick request for player " + kickPlayerName + " (" + std::to_string(playerIdx) + ")";
+					return true;
+				}
+				else
+				{
+					returnInfo = "Failed to kick player " + kickPlayerName;
+					return false;
 				}
 			}
-
-			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
+
+		// Player wasn't found - 
 
 		returnInfo = "Player " + kickPlayerName + " not found in game?";
 		return false;
@@ -678,7 +678,7 @@ namespace
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 
 				std::string name = Utils::String::ThinString(player->DisplayName);
-				ss << std::dec << "(" << peerIdx << "/" << playerIdx << "): " << name << " (uid: 0x" << std::hex << player->Uid << ")" << std::endl;
+				ss << std::dec << "[" << playerIdx << "]: \"" << name << "\" (uid: " << std::hex << player->Uid << ")" << std::endl;
 			}
 
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
