@@ -641,6 +641,10 @@ namespace
 			if (name[i] < 32 || name[i] > 126)
 				name[i] = 'A' + i;
 
+			// Replace double quotes with single quotes
+			if (name[i] == '"')
+				name[i] = '\'';
+
 			// Track the first and last non-space chars
 			if (name[i] != ' ')
 			{
