@@ -92,6 +92,18 @@ namespace
 		out->armor[ArmorIndexes::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndexes);
 	}
 
+	uint8_t ValidateArmorPiece(std::unordered_map<std::string, uint8_t> indexes, uint8_t index)
+	{
+		// Just do a quick check to see if the index has a key associated with it,
+		// and force it to 0 if not
+		for (auto pair : indexes)
+		{
+			if (pair.second == index)
+				return index;
+		}
+		return 0;
+	}
+
 	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<CustomizationData>
 	{
 	protected:
@@ -102,17 +114,15 @@ namespace
 
 		void ApplyData(int playerIndex, void *session, const CustomizationData &data)
 		{
-			/*std::cout << "Applying customization data to player " << playerIndex << ":" << std::endl;
-			std::cout << "helmet    = " << static_cast<int>(data.armor.helmet) << std::endl;
-			std::cout << "chest     = " << static_cast<int>(data.armor.chest) << std::endl;
-			std::cout << "shoulders = " << static_cast<int>(data.armor.shoulders) << std::endl;
-			std::cout << "arms      = " << static_cast<int>(data.armor.arms) << std::endl;
-			std::cout << "legs      = " << static_cast<int>(data.armor.legs) << std::endl;
-			std::cout << "acc       = " << static_cast<int>(data.armor.acc) << std::endl;
-			std::cout << "pelvis    = " << static_cast<int>(data.armor.pelvis) << std::endl;*/
-
 			CustomizationData *armorSessionData = reinterpret_cast<CustomizationData*>(reinterpret_cast<uint8_t*>(session) + 0x6E8);
-			*armorSessionData = data;
+			armorSessionData->armor[ArmorIndexes::Helmet] = ValidateArmorPiece(helmetIndexes, data.armor[ArmorIndexes::Helmet]);
+			armorSessionData->armor[ArmorIndexes::Chest] = ValidateArmorPiece(chestIndexes, data.armor[ArmorIndexes::Chest]);
+			armorSessionData->armor[ArmorIndexes::Shoulders] = ValidateArmorPiece(shouldersIndexes, data.armor[ArmorIndexes::Shoulders]);
+			armorSessionData->armor[ArmorIndexes::Arms] = ValidateArmorPiece(armsIndexes, data.armor[ArmorIndexes::Arms]);
+			armorSessionData->armor[ArmorIndexes::Legs] = ValidateArmorPiece(legsIndexes, data.armor[ArmorIndexes::Legs]);
+			armorSessionData->armor[ArmorIndexes::Acc] = ValidateArmorPiece(accIndexes, data.armor[ArmorIndexes::Acc]);
+			armorSessionData->armor[ArmorIndexes::Pelvis] = ValidateArmorPiece(pelvisIndexes, data.armor[ArmorIndexes::Pelvis]);
+			memcpy(armorSessionData->colors, data.colors, sizeof(data.colors));
 		}
 
 		void Serialize(Blam::BitStream *stream, const CustomizationData &data)
