@@ -629,21 +629,44 @@ namespace
 		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
 	}
 
-	void SanitizePlayerName(char16_t *name)
+	void SanitizePlayerName(wchar_t *name)
 	{
-		for (auto i = 0; i < 16 && name[i]; i++)
+		// Clamp the name length to 15 chars
+		name[15] = '\0';
+
+		int i, firstNonSpace = -1, lastNonSpace = -1;
+		for (i = 0; name[i]; i++)
 		{
-			// Replace non-ASCII characters with underscores
+			// Replace non-ASCII characters with a letter corresponding to the string position
 			if (name[i] < 32 || name[i] > 126)
-				name[i] = '_';
+				name[i] = 'A' + i;
+
+			// Track the first and last non-space chars
+			if (name[i] != ' ')
+			{
+				if (firstNonSpace < 0)
+					firstNonSpace = i;
+				lastNonSpace = i;
+			}
 		}
+		if (firstNonSpace < 0)
+		{
+			// String is all spaces
+			wcscpy_s(name, 16, L"Forgot");
+			return;
+		}
+
+		// Strip the spaces from the beginning and end
+		auto newLength = lastNonSpace - firstNonSpace + 1;
+		memmove(&name[0], &name[firstNonSpace], newLength * sizeof(wchar_t));
+		name[newLength] = '\0';
 	}
 
 	// Applies player properties data including extended properties
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
 	{
 		// The player name is at the beginning of the block - sanitize it
-		SanitizePlayerName(reinterpret_cast<char16_t*>(properties));
+		SanitizePlayerName(reinterpret_cast<wchar_t*>(properties));
 
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *properties, uint32_t arg10);
