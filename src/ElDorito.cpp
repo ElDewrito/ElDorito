@@ -13,6 +13,7 @@
 #include "ThirdParty/WebSockets.hpp"
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
+#include "Server/BanList.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -145,6 +146,9 @@ void ElDorito::Initialize()
 		killProcessByName("custom_menu.exe", ourPid);
 		killProcessByName("DewritoUpdater.exe", ourPid);
 	}
+
+	// Ensure a ban list file exists
+	Server::SaveDefaultBanList(Server::LoadDefaultBanList());
 
 	// Initialize server modules
 	Server::Chat::Initialize();

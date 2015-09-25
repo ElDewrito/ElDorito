@@ -135,6 +135,8 @@ add_library(ElDorito SHARED
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
     src/Patches/VirtualKeyboard.hpp
+    src/Server/BanList.cpp
+    src/Server/BanList.hpp
     src/Server/ServerChat.cpp
     src/Server/ServerChat.hpp
     src/Server/VariableSynchronization.cpp

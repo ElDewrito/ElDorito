@@ -1,18 +1,21 @@
 #include "Network.hpp"
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // TODO: Remove this and fix the deprecated calls
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <cstdio>
+
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
 #include "../Utils/VersionInfo.hpp"
 #include "../Modules/ModuleServer.hpp"
-
-#include <cstdio>
-
 #include "../ElDorito.hpp"
-
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../VoIP/TeamspeakServer.hpp"
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Server/BanList.hpp"
 
 namespace
 {
@@ -22,6 +25,7 @@ namespace
 	char __cdecl Network_transport_secure_key_createHook(void* xnetInfo);
 	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2);
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason);
+	bool __fastcall Network_session_handle_join_requestHook(Blam::Network::Session *thisPtr, void *unused, const Blam::Network::NetworkAddress &address, void *request);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -339,6 +343,9 @@ namespace Patches
 			// Lifecycle state change hook
 			Hook(0x8E527, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
 			Hook(0x8E10F, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
+
+			// Hook the join request handler to check the user's IP address against the ban list
+			Hook(0x9D0F7, Network_session_handle_join_requestHook, HookFlags::IsCall).Apply();
 
 			// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
 			DWORD temp;
@@ -701,6 +708,34 @@ namespace
 		if (playerIndex >= 0)
 			kickTeamspeakClient(playerName);
 		return true;
+	}
+
+	bool __fastcall Network_session_handle_join_requestHook(Blam::Network::Session *thisPtr, void *unused, const Blam::Network::NetworkAddress &address, void *request)
+	{
+		// Convert the IP to a string
+		struct in_addr inAddr;
+		inAddr.S_un.S_addr = address.ToInAddr();
+		char ipStr[INET_ADDRSTRLEN];
+		if (inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
+		{
+			// Check if the IP is in the ban list
+			auto banList = Server::LoadDefaultBanList();
+			if (banList.ContainsIp(ipStr))
+			{
+				// Send a join refusal
+				typedef void(__thiscall *Network_session_acknowledge_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, int reason);
+				auto Network_session_acknowledge_join_request = reinterpret_cast<Network_session_acknowledge_join_requestFunc>(0x45A230);
+				Network_session_acknowledge_join_request(thisPtr, address, 0); // TODO: Use a special code for bans and hook the join refusal handler so we can display a message to the player
+
+				Utils::DebugLog::Instance().Log("Network", "Refused join request from banned IP %s", ipStr);
+				return true;
+			}
+		}
+
+		// Continue the join process
+		typedef bool(__thiscall *Network_session_handle_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, void *request);
+		auto Network_session_handle_join_request = reinterpret_cast<Network_session_handle_join_requestFunc>(0x4DA410);
+		return Network_session_handle_join_request(thisPtr, address, request);
 	}
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update
