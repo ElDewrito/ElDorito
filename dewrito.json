@@ -35,9 +35,5 @@
         "list": "http://kelly-master.halo.click/list",
         "announce": "http://kelly-master.halo.click/announce",
         "stats": "http://kelly-master.halo.click/stats"
-    }, {
-        "list": "http://eldewrito.red-m.net/list",
-        "announce": "http://eldewrito.red-m.net/announce",
-        "stats": "http://eldewrito.red-m.net/stats"
     }]
 }
