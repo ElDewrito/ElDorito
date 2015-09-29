@@ -72,7 +72,7 @@ namespace Modules
 		// patch BLF save func to get the name from our field
 		Pointer::Base(0x124E6A).Write<uint32_t>((uint32_t)&this->UserName);
 
-		char* defaultNames[41] = {
+		char* defaultNames[51] = {
 			"Donut", "Penguin", "Stumpy", "Whicker", "Shadow", "Howard", "Wilshire",
 			"Darling", "Disco", "Jack", "The Bear", "Sneak", "The Big ", "Whisp",
 			"Wheezy", "Crazy", "Goat", "Pirate", "Saucy", "Hambone", "Butcher",
@@ -83,6 +83,6 @@ namespace Modules
 		};
 
 		srand((unsigned int)time(0));
-		Modules::CommandMap::Instance().SetVariable(VarPlayerName, std::string(defaultNames[rand() % 41]), std::string());
+		Modules::CommandMap::Instance().SetVariable(VarPlayerName, std::string(defaultNames[rand() % 51]), std::string());
 	}
 }
