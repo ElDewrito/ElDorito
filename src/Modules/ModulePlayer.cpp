@@ -78,7 +78,8 @@ namespace Modules
 			"Wheezy", "Crazy", "Goat", "Pirate", "Saucy", "Hambone", "Butcher",
 			"Walla Walla", "Snake", "Caboose", "Sleepy", "Killer", "Stompy",
 			"Mopey", "Dopey", "Wease", "Ghost", "Dasher", "Grumpy", "Hollywood",
-			"Tooth", "Noodle", "King", "Cupid", "Prancer", "Pyong", "Jasper"
+			"Tooth", "Noodle", "King", "Cupid", "Prancer", "Pyong", "Jasper",
+			"Fish", "Moose", "Banana", "Peanut", "Code", "Upvote", "Commit"
 		};
 
 		srand((unsigned int)time(0));
