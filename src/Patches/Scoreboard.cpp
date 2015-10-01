@@ -75,19 +75,35 @@ namespace
 		// Get function pointers
 		typedef void* (*AllocateFunc)(size_t size);
 		AllocateFunc Allocate = (AllocateFunc)0xD874A0;
+		typedef void (*FreeFunc)(void *ptr);
+		FreeFunc Free = (FreeFunc)0xD873C0;
 
 		// Get the player's display name
 		Pointer playerName = Pointer(playerData)(GameGlobals::Players::DisplayNameOffset);
+		if (playerName.Read<char16_t>() == 0)
+			return nullptr; // Don't update to a blank name
 
-		// Allocate a string for the name if one hasn't been already
+		// If the player name hasn't changed, don't bother updating it
 		PlayerNameString* result = playerNames[index];
-		if (!result)
+		if (result && memcmp(result->name, playerName, 32) == 0)
+			return nullptr;
+
+		// If the name is already allocated, decrease its reference count and free it if necessary
+		if (result)
 		{
-			result = (PlayerNameString*)Allocate(sizeof(PlayerNameString));
-			memset(result, 0, sizeof(result));
-			result->header.refCount = 1;
-			playerNames[index] = result;
+			result->header.refCount--;
+			if (!result->header.refCount)
+			{
+				Free(result);
+				result = nullptr;
+			}
 		}
+
+		// Allocate a new string for the name
+		result = (PlayerNameString*)Allocate(sizeof(PlayerNameString));
+		memset(result, 0, sizeof(result));
+		result->header.refCount = 1;
+		playerNames[index] = result;
 
 		// Copy the name in
 		memcpy(result->name, playerName, 32);
