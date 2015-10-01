@@ -16,7 +16,8 @@ namespace
 		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
 
 		std::wstring nameStr = Utils::String::WidenString(name);
-		wcscpy_s(Modules::ModulePlayer::Instance().UserName, 16, nameStr.c_str());
+		wcsncpy_s(Modules::ModulePlayer::Instance().UserName, nameStr.c_str(), 16);
+		Modules::ModulePlayer::Instance().UserName[15] = 0;
 		std::string actualName = Utils::String::ThinString(Modules::ModulePlayer::Instance().UserName);
 
 		return true;
