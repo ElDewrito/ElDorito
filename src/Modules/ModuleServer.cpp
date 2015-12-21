@@ -1056,14 +1056,14 @@ namespace Modules
 
 		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 
-		AddCommand("KickPlayer", "kick", "Kicks a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
+		AddCommand("KickPlayer", "k", "Kicks a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
 		AddCommand("KickBanPlayer", "kb", "Kicks and IP bans a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerBanPlayer, { "playername The name of the player to ban" });
 
-		AddCommand("KickUid", "kickuid", "Kicks players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerUid, { "uid The UID of the players to kick" });
-		AddCommand("KickBanUid", "kbuid", "Kicks and IP bans players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerUid, { "uid The UID of the players to ban" });
+		AddCommand("KickUid", "ku", "Kicks players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerUid, { "uid The UID of the players to kick" });
+		AddCommand("KickBanUid", "kbu", "Kicks and IP bans players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerUid, { "uid The UID of the players to ban" });
 
-		AddCommand("KickIndex", "kickidx", "Kicks a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerIndex, { "index The index of the player to kick" });
-		AddCommand("KickBanIndex", "kbidx", "Kicks and IP bans a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerIndex, { "index The index of the player to ban" });
+		AddCommand("KickIndex", "ki", "Kicks a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerIndex, { "index The index of the player to kick" });
+		AddCommand("KickBanIndex", "kbi", "Kicks and IP bans a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerIndex, { "index The index of the player to ban" });
 
 		AddCommand("AddBan", "addban", "Adds to the ban list (does NOT kick anyone)", eCommandFlagsNone, CommandServerBan, { "type The ban type (only \"ip\" is supported for now)", "val The value to add to the ban list" });
 		AddCommand("Unban", "unban", "Removes from the ban list", eCommandFlagsNone, CommandServerUnban, { "type The ban type (only \"ip\" is supported for now)", "val The value to remove from the ban list" });
