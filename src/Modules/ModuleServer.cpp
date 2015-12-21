@@ -617,11 +617,12 @@ namespace
 		return -1;
 	}
 
-	int FindPlayerByUid(uint64_t uid)
+	std::vector<int> FindPlayersByUid(uint64_t uid)
 	{
+		std::vector<int> indices;
 		auto* session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished() || !session->IsHost())
-			return -1;
+			return indices;
 		auto membership = &session->MembershipInfo;
 		for (auto peerIdx = membership->FindFirstPeer(); peerIdx >= 0; peerIdx = membership->FindNextPeer(peerIdx))
 		{
@@ -630,9 +631,9 @@ namespace
 				continue;
 			auto* player = &membership->PlayerSessions[playerIdx];
 			if (player->Uid == uid)
-				return playerIdx;
+				indices.push_back(playerIdx);
 		}
-		return -1;
+		return indices;
 	}
 
 	void BanIp(const std::string &ip)
@@ -711,26 +712,31 @@ namespace
 			returnInfo = "You must be hosting a game to use this command";
 			return false;
 		}
-		auto playerIdx = FindPlayerByUid(uid);
-		if (playerIdx < 0)
+		auto indices = FindPlayersByUid(uid);
+		if (indices.size() == 0)
 		{
 			returnInfo = "Player with UID " + Arguments[0] + " not found.";
 			return false;
 		}
-		auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
-		auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].DisplayName);
-		if (!Blam::Network::BootPlayer(playerIdx, 4))
+		auto success = false;
+		for (auto playerIdx : indices)
 		{
-			returnInfo = "Failed to kick player " + kickPlayerName;
-			return false;
+			auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
+			auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].DisplayName);
+			if (!Blam::Network::BootPlayer(playerIdx, 4))
+			{
+				returnInfo += "Failed to kick player " + kickPlayerName + "\n";
+				continue;
+			}
+			if (type == KickType::Ban)
+			{
+				BanIp(ip);
+				returnInfo += "Added IP " + ip + " to the ban list\n";
+			}
+			returnInfo += "Issued kick request for player " + kickPlayerName + " (" + std::to_string(playerIdx) + ")\n";
+			success = true;
 		}
-		if (type == KickType::Ban)
-		{
-			BanIp(ip);
-			returnInfo = "Added IP " + ip + " to the ban list\n";
-		}
-		returnInfo += "Issued kick request for player " + kickPlayerName + " (" + std::to_string(playerIdx) + ")";
-		return true;
+		return success;
 	}
 
 	bool DoKickIndexCommand(KickType type, const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -1053,8 +1059,8 @@ namespace Modules
 		AddCommand("KickPlayer", "kick", "Kicks a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
 		AddCommand("KickBanPlayer", "kb", "Kicks and IP bans a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerBanPlayer, { "playername The name of the player to ban" });
 
-		AddCommand("KickUid", "kickuid", "Kicks a player from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerUid, { "uid The UID of the player to kick" });
-		AddCommand("KickBanUid", "kbuid", "Kicks and IP bans a player from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerUid, { "uid The UID of the player to ban" });
+		AddCommand("KickUid", "kickuid", "Kicks players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerUid, { "uid The UID of the players to kick" });
+		AddCommand("KickBanUid", "kbuid", "Kicks and IP bans players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerUid, { "uid The UID of the players to ban" });
 
 		AddCommand("KickIndex", "kickidx", "Kicks a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerIndex, { "index The index of the player to kick" });
 		AddCommand("KickBanIndex", "kbidx", "Kicks and IP bans a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerIndex, { "index The index of the player to ban" });
