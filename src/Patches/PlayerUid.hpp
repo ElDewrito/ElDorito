@@ -10,5 +10,6 @@ namespace Patches
 		void ApplyAll();
 		uint64_t Get();
 		std::string GetFormattedPrivKey();
+		bool ParseUid(const std::string &str, uint64_t *out);
 	}
 }

@@ -1,30 +1,16 @@
 #include "BanList.hpp"
 
 #include <fstream>
+#include <iomanip>
 #include "../Utils/String.hpp"
-
-namespace
-{
-	bool ParseUid(const std::string &str, uint64_t *out)
-	{
-		try
-		{
-			size_t end;
-			*out = std::stoull(str, &end, 16);
-			return end == str.length(); // Only succeed if there's nothing after the number
-		}
-		catch (std::exception&)
-		{
-			return false;
-		}
-	}
-}
+#include "../Patches/PlayerUid.hpp"
 
 namespace Server
 {
 	BanList::BanList(const std::string &path)
 	{
-		Read(std::ifstream(path));
+		std::ifstream stream(path);
+		Read(stream);
 	}
 
 	void BanList::Read(std::istream &stream)
@@ -55,8 +41,9 @@ namespace Server
 			}
 			else if (components[0] == "uid")
 			{
+				// NOTE: UID banning is NOT implemented yet
 				uint64_t uid;
-				if (ParseUid(components[1], &uid))
+				if (Patches::PlayerUid::ParseUid(components[1], &uid))
 					AddUid(uid);
 			}
 		}
@@ -65,24 +52,23 @@ namespace Server
 	void BanList::Save(std::ostream &stream) const
 	{
 		stream << "# ElDewrito server ban list\n";
-		stream << "# Players matching the filters in this file will not be allowed to connect to your server.\n";
-		stream << "# Use the \"ban\" and \"unban\" console commands to easily edit this file.\n\n";
+		stream << "# Players matching the filters in this file will not be allowed to connect to your server.\n\n";
 		
 		stream << "# IPv4 address bans\n";
 		stream << "# Format: ip XXX.XXX.XXX.XXX\n";
 		for (auto ip : ipAddresses)
 			stream << "ip " << ip << '\n';
-		stream << '\n';
 		
-		stream << "# UID bans\n";
+		/*stream << "\n# UID bans\n";
 		stream << "# Format: uid XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n";
 		for (auto uid : uids)
-			stream << "uid " << std::hex << uid << std::dec << '\n';
+			stream << "uid " << std::hex << std::setw(16) << std::setfill('0') << uid << std::dec << '\n';*/
 	}
 
 	void BanList::Save(const std::string &path) const
 	{
-		Save(std::ofstream(path, std::ios::trunc));
+		std::ofstream stream(path, std::ios::trunc);
+		Save(stream);
 	}
 
 	BanList LoadDefaultBanList()

@@ -7,7 +7,7 @@ namespace
 	{
 		Blam::Network::PingPacket packet;
 		packet.ID = id;
-		packet.Unknown8 = false; // unused?
+		packet.QosResponse = false;
 		packet.Timestamp = timeGetTime();
 		return packet;
 	}
@@ -42,6 +42,13 @@ namespace Blam
 			typedef int(*MembershipGetPeerPlayerPtr)(const uint32_t *playerMasks, int max);
 			auto MembershipGetPeerPlayer = reinterpret_cast<MembershipGetPeerPlayerPtr>(0x52E280);
 			return MembershipGetPeerPlayer(Peers[peer].PlayerMasks, 16);
+		}
+
+		int SessionMembership::GetPlayerPeer(int player) const
+		{
+			if (player < 0 || player >= MaxPlayers)
+				return -1;
+			return PlayerSessions[player].PeerIndex;
 		}
 
 		int SessionMembership::GetPeerTeam(int peer) const
@@ -105,6 +112,17 @@ namespace Blam
 			return (gameVariant->TeamGame & 1) != 0;
 		}
 
+		NetworkAddress Session::GetPeerAddress(int peerIndex) const
+		{
+			if (peerIndex != MembershipInfo.LocalPeerIndex)
+			{
+				auto channelIndex = MembershipInfo.PeerChannels[peerIndex].ChannelIndex;
+				if (channelIndex >= 0)
+					return Observer->Channels[channelIndex].Address;
+			}
+			return NetworkAddress::FromInAddr(0x0100007F, 11774);
+		}
+
 		bool SessionParameters::SetSessionMode(int mode)
 		{
 			typedef bool(__thiscall *SetSessionModePtr)(SessionParameters *thisPtr, int mode);
@@ -156,6 +174,13 @@ namespace Blam
 		{
 			auto packet = MakePingPacket(id);
 			return SendDirectedMessage(address, ePacketIDPing, sizeof(packet), &packet);
+		}
+
+		bool BootPlayer(int playerIndex, int reason)
+		{
+			typedef bool(__cdecl *Network_squad_session_boot_playerPtr)(int playerIndex, int reason);
+			auto Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerPtr>(0x437D60);
+			return Network_squad_session_boot_player(playerIndex, reason);
 		}
 	}
 }

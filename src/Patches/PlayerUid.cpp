@@ -67,6 +67,20 @@ namespace Patches
 			EnsureValidUid();
 			return Utils::Cryptography::ReformatKey(true, Modules::ModulePlayer::Instance().VarPlayerPrivKey->ValueString);
 		}
+
+		bool ParseUid(const std::string &str, uint64_t *out)
+		{
+			try
+			{
+				size_t end;
+				*out = std::stoull(str, &end, 16);
+				return end == str.length(); // Only succeed if there's nothing after the number
+			}
+			catch (std::exception&)
+			{
+				return false;
+			}
+		}
 	}
 }
 

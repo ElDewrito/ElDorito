@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace Utils
 {
@@ -29,5 +30,21 @@ namespace Utils
 		std::string Trim(const std::string &string, bool fromEnd = true);
 
 		std::vector<std::string> Wrap(const std::string &string, size_t lineLength);
+
+		template<class T, class InputIt>
+		std::string Join(InputIt first, InputIt last, const char *delim = " ")
+		{
+			std::ostringstream stream;
+			std::copy(first, last, std::ostream_iterator<T>(stream, delim));
+			auto str = stream.str();
+			str.erase(str.length() - 1);
+			return str;
+		}
+
+		template<class T>
+		std::string Join(const std::vector<T> &vec, const char *delim = " ")
+		{
+			return Join<T>(vec.begin(), vec.end(), delim);
+		}
 	}
 }

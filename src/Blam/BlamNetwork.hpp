@@ -51,7 +51,11 @@ namespace Blam
 
 		struct PlayerSession
 		{
-			uint8_t Unknown0[0x50];
+			uint32_t Unknown0;
+			uint32_t Unknown4;
+			uint32_t Unknown8;
+			int PeerIndex;
+			uint8_t Unknown10[0x40];
 			uint64_t Uid;
 			wchar_t DisplayName[16];
 			int TeamIndex;
@@ -89,6 +93,9 @@ namespace Blam
 
 			// Gets the player index corresponding to a peer, or -1 if none.
 			int GetPeerPlayer(int peer) const;
+
+			// Gets the peer index corresponding to a player, or -1 if none.
+			int GetPlayerPeer(int player) const;
 
 			// Gets a peer's team index, or -1 on failure.
 			// Note that -1 does NOT mean that teams are disabled.
@@ -206,7 +213,7 @@ namespace Blam
 		{
 			uint16_t ID;
 			uint32_t Timestamp; // timeGetTime()
-			bool Unknown8;
+			bool QosResponse;   // Called "qos_response" in H2V
 		};
 		static_assert(sizeof(PingPacket) == 0xC, "Invalid PingPacket size");
 
@@ -229,7 +236,8 @@ namespace Blam
 		// c_network_observer
 		struct Observer
 		{
-			uint8_t Unknown0[0x23F20]; // approx size
+			ObserverChannel Channels[34];
+			uint8_t Unknown0[0x270]; // approx size
 
 			// Sends a message across a channel.
 			void ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool outOfBand, int id, int packetSize, const void *packet);
@@ -288,6 +296,9 @@ namespace Blam
 
 			// Gets whether teams are enabled.
 			bool HasTeams() const;
+
+			// Gets the network address of a peer.
+			NetworkAddress GetPeerAddress(int peerIndex) const;
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");
 
@@ -325,5 +336,8 @@ namespace Blam
 		// Sets the active packet table.
 		// Only use this if you know what you're doing!
 		void SetPacketTable(const PacketTable *newTable);
+
+		// Kicks a player.
+		bool BootPlayer(int playerIndex, int reason);
 	}
 }

@@ -636,41 +636,48 @@ namespace
 		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
 	}
 
+	// ASCII chars that can't appear in names
+	const wchar_t DisallowedNameChars[] = { '\'', '\"' };
+
 	void SanitizePlayerName(wchar_t *name)
 	{
-		// Clamp the name length to 15 chars
-		name[15] = '\0';
-
-		int i, firstNonSpace = -1, lastNonSpace = -1;
-		for (i = 0; name[i]; i++)
+		int i, dest = 0;
+		auto space = false;
+		for (i = 0; i < 15 && dest < 15 && name[i]; i++)
 		{
-			// Replace non-ASCII characters with a letter corresponding to the string position
-			if (name[i] < 32 || name[i] > 126)
-				name[i] = 'A' + i;
-
-			// Replace double quotes with single quotes
-			if (name[i] == '"')
-				name[i] = '\'';
-
-			// Track the first and last non-space chars
-			if (name[i] != ' ')
+			auto allowed = false;
+			if (name[i] > 32 && name[i] < 127)
 			{
-				if (firstNonSpace < 0)
-					firstNonSpace = i;
-				lastNonSpace = i;
+				// ASCII characters are allowed if they aren't in the disallowed list
+				allowed = true;
+				for (auto ch : DisallowedNameChars)
+				{
+					if (name[i] == ch)
+					{
+						allowed = false;
+						break;
+					}
+				}
+			}
+			else if (name[i] == ' ' && dest > 0)
+			{
+				// If this isn't at the beginning of the string, indicate that
+				// a space should be inserted before the next allowed character
+				space = true;
+			}
+			if (allowed)
+			{
+				if (space)
+				{
+					name[dest++] = ' ';
+					space = false;
+				}
+				name[dest++] = name[i];
 			}
 		}
-		if (firstNonSpace < 0)
-		{
-			// String is all spaces
+		memset(&name[dest], 0, (16 - dest) * sizeof(wchar_t));
+		if (dest == 0)
 			wcscpy_s(name, 16, L"Forgot");
-			return;
-		}
-
-		// Strip the spaces from the beginning and end
-		auto newLength = lastNonSpace - firstNonSpace + 1;
-		memmove(&name[0], &name[firstNonSpace], newLength * sizeof(wchar_t));
-		name[newLength] = '\0';
 	}
 
 	// Applies player properties data including extended properties
