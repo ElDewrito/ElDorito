@@ -33,6 +33,9 @@ namespace Patches
 
 			// Patch to allow spawning AI through effects
 			Patch::NopFill(Pointer::Base(0x1033321), 2);
+			
+			// Patch to fix audio popping
+			Patch::NopFill(Pointer::Base(0x140DA75), 2);
 
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
