@@ -70,7 +70,6 @@ void ElDorito::Initialize()
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
-	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
 	bool skipKill = false;
 	bool dedicated = false;
 
@@ -84,10 +83,6 @@ void ElDorito::Initialize()
 			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
 
-#ifndef _DEBUG
-			if (arg.compare(L"-launcher") == 0)
-				usingLauncher = true;
-#endif
 
 #ifdef _DEBUG
 			if (arg.compare(L"-dedicated") == 0)
@@ -130,14 +125,6 @@ void ElDorito::Initialize()
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
 	setWatermarkText("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
-
-#ifndef _DEBUG
-	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
-	{
-		MessageBox(GetConsoleWindow(), "Please run Halo Online using the ElDewrito launcher.\nIt should be named DewritoUpdater.exe.", "ElDewrito", MB_OK | MB_ICONINFORMATION);
-		TerminateProcess(GetCurrentProcess(), 0);
-	}
-#endif
 
 	if (!skipKill)
 	{
