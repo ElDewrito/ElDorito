@@ -59,7 +59,7 @@ namespace Patches
 			Patch(0x100DA75, { 0x2 }).Apply();
 
 			// Put Audio Channels to 1024
-			Hook(0x404E9C, AudioMaxChannelsHook).Apply();
+			Hook(0x4E9C, AudioMaxChannelsHook).Apply();
 
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
