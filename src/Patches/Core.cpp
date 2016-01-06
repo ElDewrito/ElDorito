@@ -11,6 +11,7 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void GrenadeLoadoutHook();
+	void AudioMaxChannelsHook();
 }
 
 namespace Patches
