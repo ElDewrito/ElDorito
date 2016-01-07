@@ -676,6 +676,18 @@ namespace
 		return true;
 	}
 
+	bool CommandGameStop(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->Parameters.SetSessionMode(1))
+		{
+			returnInfo = "Unable to stop the game!";
+			return false;
+		}
+		returnInfo = "Stopping game...";
+		return true;
+	}
+
 	bool CommandGameVersion(const std::vector<std::string>& arguments, std::string& returnInfo) {
 		returnInfo = Utils::Version::GetVersionString();
 		return true;
@@ -735,6 +747,8 @@ namespace Modules
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 
+		AddCommand("Stop", "stop", "Starts or restarts the game", eCommandFlagsNone, CommandGameStop);
+
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
 		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
@@ -746,10 +760,6 @@ namespace Modules
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
 		VarLanguageID->ValueIntMin = 0;
 		VarLanguageID->ValueIntMax = 11;
-
-		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", eCommandFlagsArchived, 0);
-		VarSkipLauncher->ValueIntMin = 0;
-		VarSkipLauncher->ValueIntMax = 0;
 
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 

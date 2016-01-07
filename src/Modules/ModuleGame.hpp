@@ -18,7 +18,6 @@ namespace Modules
 	{
 	public:
 		Command* VarLanguageID;
-		Command* VarSkipLauncher;
 		Command* VarLogName;
 		Command* VarMenuURL;
 
