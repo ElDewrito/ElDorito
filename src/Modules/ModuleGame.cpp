@@ -747,7 +747,7 @@ namespace Modules
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 
-		AddCommand("Stop", "stop", "Starts or restarts the game", eCommandFlagsNone, CommandGameStop);
+		AddCommand("Stop", "stop", "Stops the game, goes back to lobby", eCommandFlagsNone, CommandGameStop);
 
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
