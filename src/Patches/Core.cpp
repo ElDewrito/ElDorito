@@ -11,6 +11,7 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void GrenadeLoadoutHook();
+	void AudioMaxChannelsHook();
 }
 
 namespace Patches
@@ -57,6 +58,9 @@ namespace Patches
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
 			Patch(0x100DA75, { 0x2 }).Apply();
 
+			// Put Audio Channels to 1024
+			Hook(0x4E9C, AudioMaxChannelsHook).Apply();
+
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
@@ -97,6 +101,22 @@ namespace
 			ret
 		}
 	}
+	
+	
+	__declspec(naked) void AudioMaxChannelsHook()
+ 	{
+ 		__asm
+ 		{
+ 			push 0
+ 			push ebx
+ 			push 0x400 // increase max channels from 0x40 to 0x400
+ 			push eax
+ 			call dword ptr [ecx] // inits fmod
+ 			push 0x404EA4
+ 			ret
+ 		}
+ 	}
+
 
 	__declspec(naked) void TagsLoadedHook()
 	{
