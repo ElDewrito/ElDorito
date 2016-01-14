@@ -28,6 +28,9 @@ int DirectXHook::helpMessageStartTime = 0;
 
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
+	if (Menu::Instance().isMenuRunning())
+		return D3D_OK;
+
 	DirectXHook::pDevice = device;
 
 	initFontsIfRequired();

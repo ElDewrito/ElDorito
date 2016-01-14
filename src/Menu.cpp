@@ -61,14 +61,15 @@ void Menu::setEnabled(bool enable)
 		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
-	
+		
 		std::string arg("custom_menu.exe -hwnd=");
-		arg.append(std::to_string((int)hWnd));
+		HWND hWnd = *((HWND*) 0x199C014);
+		arg.append(std::to_string((int) hWnd));
 		arg.append(" -url=");
 		arg.append(Modules::ModuleGame::Instance().VarMenuURL->ValueString);
 		
 		CreateProcess(0, (LPSTR)arg.c_str(), 0, 0, false, 0, 0, 0, &si, &pi);
-
+		
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 
@@ -79,7 +80,6 @@ void Menu::setEnabled(bool enable)
 
 	if (!enable && running)
 	{
-		ShowWindow(hWnd, SW_SHOW);
 		TerminateProcess(OpenProcess(PROCESS_TERMINATE, false, pid), 0);
 	}
 }
@@ -106,19 +106,23 @@ bool Menu::isRunning(int pid)
 {
 	HANDLE pss = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
 
-	PROCESSENTRY32 pe = { 0 };
-	pe.dwSize = sizeof(pe);
+	PROCESSENTRY32 pe;
+	pe.dwSize = sizeof(PROCESSENTRY32);
+
+	bool exists = false;
 
 	if (Process32First(pss, &pe))
 	{
 		do
 		{
-			if (pe.th32ProcessID == pid)
-				return true;
+			if (pe.th32ProcessID == pid) {
+				exists = true;
+				break;
+			}
 		} while (Process32Next(pss, &pe));
 	}
 
 	CloseHandle(pss);
 
-	return false;
+	return exists;
 }
