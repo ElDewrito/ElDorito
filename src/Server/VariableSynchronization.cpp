@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <bitset>
 
+#include "../Console/GameConsole.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Utils/Cryptography.hpp"
 #include "../Patches/CustomPackets.hpp"
@@ -384,8 +385,8 @@ namespace
 	void SyncUpdateHandler::HandlePacket(Blam::Network::ObserverChannel* sender, const VariadicPacket<SyncUpdatePacketData, SyncUpdatePacketVar>* packet)
 	{
 		auto session = Blam::Network::GetActiveSession();
-		if (session->GetChannelPeer(sender) != session->MembershipInfo.HostPeerIndex)
-			return; // Packets must come from the host
+		if (!session || session->IsHost())
+			return; // Ignore packets sent by clients
 
 		// Update each variable based on the binding ID
 		for (auto i = 0; i < packet->GetExtraDataCount(); i++)
