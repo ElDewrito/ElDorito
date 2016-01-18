@@ -96,11 +96,6 @@ void ElDorito::Initialize()
 			}
 #endif
 
-			if (arg.compare(L"-multiInstance") == 0)
-			{
-				skipKill = true;
-			}
-
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
@@ -138,14 +133,6 @@ void ElDorito::Initialize()
 		TerminateProcess(GetCurrentProcess(), 0);
 	}
 #endif
-
-	if (!skipKill)
-	{
-		int ourPid = GetCurrentProcessId();
-		killProcessByName("eldorado.exe", ourPid);
-		killProcessByName("custom_menu.exe", ourPid);
-		killProcessByName("DewritoUpdater.exe", ourPid);
-	}
 
 	// Ensure a ban list file exists
 	Server::SaveDefaultBanList(Server::LoadDefaultBanList());
