@@ -11,7 +11,8 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void GrenadeLoadoutHook();
-	void AudioMaxChannelsHook();
+	void FmodSystemInitHook();
+	void FmodSystemInitHook2();
 }
 
 namespace Patches
@@ -58,8 +59,15 @@ namespace Patches
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
 			Patch(0x100DA75, { 0x2 }).Apply();
 
-			// Put Audio Channels to 1024
-			Hook(0x4E9C, AudioMaxChannelsHook).Apply();
+			// tweak dsp buffer settings for lower latency
+			// http://www.fmod.org/docs/content/generated/FMOD_System_SetDSPBufferSize.html
+			Patch(0x4E7E, { 0x4 }).Apply();		// numbuffers = 4
+			Patch(0x4E81, { 0x1 }).Apply();		// bufferlength = 256
+
+			// increase max virtual audio channels from 64 to 2048
+			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
+			Hook(0x4E9C, FmodSystemInitHook).Apply();
+			Hook(0x4EC0, FmodSystemInitHook2).Apply();
 
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
@@ -102,21 +110,34 @@ namespace
 		}
 	}
 	
-	
-	__declspec(naked) void AudioMaxChannelsHook()
+	__declspec(naked) void FmodSystemInitHook()
  	{
  		__asm
  		{
- 			push 0
- 			push ebx
- 			push 0x400 // increase max channels from 0x40 to 0x400
- 			push eax
- 			call dword ptr [ecx] // inits fmod
- 			push 0x404EA4
+ 			push	0				; extradriverdata
+ 			push	ebx				; flags
+ 			push	0x800			; maxchannels
+ 			push	eax				; FMOD_SYSTEM
+ 			call	dword ptr [ecx]	; FMOD::System::init
+ 			push	0x404EA4
  			ret
  		}
  	}
 
+	// this may or may not be needed
+	__declspec(naked) void FmodSystemInitHook2()
+ 	{
+ 		__asm
+ 		{
+ 			push	0				; extradriverdata
+ 			push	ebx				; flags
+ 			push	0x800			; maxchannels
+ 			push	eax				; FMOD_SYSTEM
+ 			call	dword ptr [ecx]	; FMOD::System::init
+			push	0x404EC8
+ 			ret
+ 		}
+ 	}
 
 	__declspec(naked) void TagsLoadedHook()
 	{
