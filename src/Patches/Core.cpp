@@ -12,7 +12,7 @@ namespace
 	void FovHook();
 	void GrenadeLoadoutHook();
 	void FmodSystemInitHook();
-	void FmodSystemInitHook2();
+	//void FmodSystemInitHook2();
 }
 
 namespace Patches
@@ -59,15 +59,16 @@ namespace Patches
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
 			Patch(0x100DA75, { 0x2 }).Apply();
 
+			// this doesn't get called by the game and manually calling it doesn't seem to work, leaving for future reference
 			// tweak dsp buffer settings for lower latency
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetDSPBufferSize.html
-			Patch(0x4E7E, { 0x4 }).Apply();		// numbuffers = 4
-			Patch(0x4E81, { 0x1 }).Apply();		// bufferlength = 256
+			//Patch(0x4E7E, { 0x4 }).Apply();		// numbuffers = 4
+			//Patch(0x4E81, { 0x1 }).Apply();		// bufferlength = 256
 
 			// increase max virtual audio channels from 64 to 2048
 			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
 			Hook(0x4E9C, FmodSystemInitHook).Apply();
-			Hook(0x4EC0, FmodSystemInitHook2).Apply();
+			//Hook(0x4EC0, FmodSystemInitHook2).Apply();	// this doesn't appear to get called by the game
 
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
@@ -124,20 +125,19 @@ namespace
  		}
  	}
 
-	// this may or may not be needed
-	__declspec(naked) void FmodSystemInitHook2()
- 	{
- 		__asm
- 		{
- 			push	0				; extradriverdata
- 			push	ebx				; flags
- 			push	0x800			; maxchannels
- 			push	eax				; FMOD_SYSTEM
- 			call	dword ptr [ecx]	; FMOD::System::init
-			push	0x404EC8
- 			ret
- 		}
- 	}
+	//__declspec(naked) void FmodSystemInitHook2()
+ //	{
+ //		__asm
+ //		{
+ //			push	0				; extradriverdata
+ //			push	ebx				; flags
+ //			push	0x800			; maxchannels
+ //			push	eax				; FMOD_SYSTEM
+ //			call	dword ptr [ecx]	; FMOD::System::init
+	//		push	0x404EC8
+ //			ret
+ //		}
+ //	}
 
 	__declspec(naked) void TagsLoadedHook()
 	{
