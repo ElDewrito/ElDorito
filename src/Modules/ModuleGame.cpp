@@ -711,6 +711,34 @@ namespace
 		return true;
 	}
 
+	bool CommandListMaps(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		WIN32_FIND_DATA find;
+		auto handle = FindFirstFile("maps\\*.map", &find);
+		if (handle == INVALID_HANDLE_VALUE)
+			return true;
+
+		// Get a list of all map names and sort them alphabetically
+		std::vector<std::string> mapNames;
+		do
+		{
+			std::string name = find.cFileName;
+			name = name.substr(0, name.length() - 4); // Remove .map extension
+			mapNames.push_back(name);
+		} while (FindNextFile(handle, &find));
+		FindClose(handle);
+		std::sort(mapNames.begin(), mapNames.end());
+
+		// Return a comma-separated list
+		for (auto&& name : mapNames)
+		{
+			if (returnInfo.length() > 0)
+				returnInfo += ',';
+			returnInfo += name;
+		}
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -754,6 +782,8 @@ namespace Modules
 		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
 
 		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
+
+		AddCommand("ListMaps", "maps", "List all available map files", eCommandFlagsNone, CommandListMaps);
 		
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
