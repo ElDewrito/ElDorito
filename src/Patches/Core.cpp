@@ -13,6 +13,7 @@ namespace
 	void GrenadeLoadoutHook();
 	void FmodSystemInitHook();
 	//void FmodSystemInitHook2();
+	double GetAspectRatio();
 }
 
 namespace Patches
@@ -82,6 +83,8 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
 			//Enable more aspect ratios than 4:3 and 16:9
+			Hook(0x6648C9, GetAspectRatio, HookFlags::IsCall).Apply();
+			Hook(0x216487, GetAspectRatio, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x62217D), 2);
 			Patch::NopFill(Pointer::Base(0x622183), 6);
 			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
@@ -207,5 +210,12 @@ namespace
 			push 0x5A32C7
 			ret
 		}
+	}
+
+	double GetAspectRatio()
+	{
+		int* width = reinterpret_cast<int*>(0x19106C0);
+		int* height = reinterpret_cast<int*>(0x19106C4);
+		return ((double)*width / (double)*height);
 	}
 }
