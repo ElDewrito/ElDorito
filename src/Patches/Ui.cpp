@@ -59,8 +59,8 @@ namespace Patches
 		void ApplyAll()
 		{
 			// Fix for leave game button to show H3 pause menu
-			Hook(0x3B6826, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
-			Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
+			Hook(0x234756, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
+			Patch::NopFill(Pointer::Base(0x234756 + 5), 1);
 
 			// Allows you to press B to close the H3 pause menu
 			// TODO: find out what the byte that's being checked does, we're just patching out the check here but maybe it's important
