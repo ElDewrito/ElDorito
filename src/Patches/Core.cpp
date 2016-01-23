@@ -80,6 +80,12 @@ namespace Patches
 			Patch(0x7FC40B, { 0xC3 }).Apply();
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
+
+			//Enable more aspect ratios than 4:3 and 16:9
+			Patch::NopFill(Pointer::Base(0x62217D), 2);
+			Patch::NopFill(Pointer::Base(0x622183), 6);
+			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
+			Patch::NopFill(Pointer::Base(0x10BF21), 6);
 		}
 	}
 }
