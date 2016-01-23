@@ -300,6 +300,7 @@ namespace
 		{ "base", 0 },
 		{ "stealth", 2 },
 		{ "air_assault", 3 },
+		{ "none", 4 },
 		{ "renegade", 12 },
 		{ "nihard", 13 },
 		{ "gladiator", 16 },
@@ -331,6 +332,7 @@ namespace
 		{ "base", 0 },
 		{ "stealth", 2 },
 		{ "air_assault", 3 },
+		{ "none", 4 },
 		{ "renegade", 12 },
 		{ "nihard", 13 },
 		{ "gladiator", 16 },
@@ -361,6 +363,7 @@ namespace
 	std::unordered_map<std::string, uint8_t> armsIndexes = {
 		{ "base", 0 },
 		{ "stealth", 1 },
+		{ "none", 4 },
 		{ "renegade", 6 },
 		{ "nihard", 7 },
 		{ "gladiator", 10 },
@@ -392,6 +395,7 @@ namespace
 	std::unordered_map<std::string, uint8_t> legsIndexes = {
 		{ "base", 0 },
 		{ "stealth", 1 },
+		{ "none", 4 },
 		{ "renegade", 5 },
 		{ "nihard", 6 },
 		{ "gladiator", 9 },
@@ -428,6 +432,7 @@ namespace
 
 	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
 		{ "base", 0 },
+		{ "none", 1 },
 		{ "tankmode_human", 4 },
 	};
 }
