@@ -182,5 +182,19 @@ namespace Blam
 			auto Network_squad_session_boot_player = reinterpret_cast<Network_squad_session_boot_playerPtr>(0x437D60);
 			return Network_squad_session_boot_player(playerIndex, reason);
 		}
+
+		bool EndGame()
+		{
+			typedef bool(__cdecl *Network_squad_session_end_gamePtr)();
+			auto Network_squad_session_end_game = reinterpret_cast<Network_squad_session_end_gamePtr>(0x438780);
+			return Network_squad_session_end_game();
+		}
+
+		void LeaveGame()
+		{
+			typedef void(__cdecl *Network_LeaveGamePtr)();
+			auto Network_LeaveGame = reinterpret_cast<Network_LeaveGamePtr>(0xA81270);
+			Network_LeaveGame();
+		}
 	}
 }
