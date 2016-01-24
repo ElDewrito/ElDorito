@@ -240,7 +240,7 @@ namespace
 		if (weapon == weaponIndices.end())
 			weapon = weaponIndices.begin();
 
-		PoseWithWeapon(bipedObject, (*weapon).second);
+		PoseWithWeapon(bipedObject, weapon->second);
 	}
 
 	void UiPlayerModelArmorHook()
