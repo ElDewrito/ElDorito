@@ -55,6 +55,7 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> legsIndexes;
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
+	extern std::unordered_map<std::string, uint32_t> weaponIndices;
 
 	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
@@ -62,12 +63,9 @@ namespace
 		return (it != indexes.end()) ? it->second : 0;
 	}
 
-	void BuildCustomizationData(CustomizationData *out)
+	void BuildCustomizationData(Modules::ModulePlayer &playerVars, CustomizationData *out)
 	{
 		memset(out, 0, sizeof(CustomizationData));
-
-		// Load armor settings from preferences
-		auto& playerVars = Modules::ModulePlayer::Instance();
 
 		memset(out->colors, 0, 5 * sizeof(uint32_t));
 
@@ -109,7 +107,7 @@ namespace
 	protected:
 		void BuildData(int playerIndex, CustomizationData *out)
 		{
-			BuildCustomizationData(out);
+			BuildCustomizationData(Modules::ModulePlayer::Instance(), out);
 		}
 
 		void ApplyData(int playerIndex, void *session, const CustomizationData &data)
@@ -205,9 +203,11 @@ namespace
 
 	void CustomizeBiped(uint32_t bipedObject)
 	{
+		auto &playerVars = Modules::ModulePlayer::Instance();
+
 		// Generate customization data
 		CustomizationData customization;
-		BuildCustomizationData(&customization);
+		BuildCustomizationData(playerVars, &customization);
 
 		// Apply armor to the biped
 		typedef void(*ApplyArmorPtr)(CustomizationData *customization, uint32_t objectDatum);
@@ -235,7 +235,12 @@ namespace
 		UpdateArmorColors(bipedObject);
 
 		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		PoseWithWeapon(bipedObject, 0x151E);
+		auto weapon = weaponIndices.find(playerVars.VarRenderWeapon->ValueString);
+
+		if (weapon == weaponIndices.end())
+			weapon = weaponIndices.begin();
+
+		PoseWithWeapon(bipedObject, weapon->second);
 	}
 
 	void UiPlayerModelArmorHook()
@@ -429,5 +434,14 @@ namespace
 	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
 		{ "base", 0 },
 		{ "tankmode_human", 4 },
+	};
+
+	std::unordered_map<std::string, uint32_t> weaponIndices = {
+		{ "assault_rifle", 0x151E },
+		{ "battle_rifle", 0x157C },
+		{ "covenant_carbine", 0x14FE },
+		{ "dmr", 0x1580 },
+		{ "plasma_rifle", 0x1525 },
+		{ "smg", 0x157D }
 	};
 }
