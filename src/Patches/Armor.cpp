@@ -201,7 +201,12 @@ namespace
 		UpdateArmorColors(bipedObject);
 
 		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		PoseWithWeapon(bipedObject, weaponIndices[playerVars.VarRenderWeapon->ValueString]);
+		auto weapon = weaponIndices.find(playerVars.VarRenderWeapon->ValueString);
+
+		if (weapon == weaponIndices.end())
+			weapon = weaponIndices.begin();
+
+		PoseWithWeapon(bipedObject, (*weapon).second);
 	}
 
 	void UiPlayerModelArmorHook()
