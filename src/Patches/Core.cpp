@@ -82,11 +82,15 @@ namespace Patches
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
-			//Enable more aspect ratios than 4:3 and 16:9
+			//Fix aspect ratio not matching resolution
 			Hook(0x6648C9, GetAspectRatio, HookFlags::IsCall).Apply();
 			Hook(0x216487, GetAspectRatio, HookFlags::IsCall).Apply();
+
+			//Disable converting the game's resolution to 16:9
 			Patch::NopFill(Pointer::Base(0x62217D), 2);
 			Patch::NopFill(Pointer::Base(0x622183), 6);
+
+			//Allow the user to select any resolution that Windows supports in the settings screen.
 			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
 			Patch::NopFill(Pointer::Base(0x10BF21), 6);
 		}
