@@ -26,6 +26,7 @@ namespace
 	DWORD __cdecl Network_managed_session_create_session_internalHook(int a1, int a2);
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason);
 	bool __fastcall Network_session_handle_join_requestHook(Blam::Network::Session *thisPtr, void *unused, const Blam::Network::NetworkAddress &address, void *request);
+	int Network_GetMaxPlayersHook();
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
@@ -376,6 +377,9 @@ namespace Patches
 				writeAddr.Write<uint32_t>((uint32_t)&Network_state_leaving_enterHook);
 				VirtualProtect(writeAddr, 4, temp, &temp2);
 			}
+
+			// Set the max player count to Server.MaxPlayers when hosting a lobby
+			Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
 		}
 
 		void ForceDedicated()
@@ -743,6 +747,12 @@ namespace
 		typedef bool(__thiscall *Network_session_handle_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, void *request);
 		auto Network_session_handle_join_request = reinterpret_cast<Network_session_handle_join_requestFunc>(0x4DA410);
 		return Network_session_handle_join_request(thisPtr, address, request);
+	}
+
+	int Network_GetMaxPlayersHook()
+	{
+		int maxPlayers = Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt;
+		return Utils::Clamp(maxPlayers, 1, 16);
 	}
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update
