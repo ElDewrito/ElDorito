@@ -225,9 +225,11 @@ target_link_libraries(ElDorito
   ts3server_win64
   ZLib
   libwebsocketswin32
-  MedalJunk)
+  MedalJunk
+  psapi)
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
+target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")
