@@ -391,6 +391,23 @@ namespace Patches
 			Patch(0x12D62E, { 0xEB }).Apply();
 			Patch(0x12D67A, { 0xEB }).Apply();
 			Patch(0x5A8BB, { 0xEB }).Apply();
+
+			// Crash fixes
+			Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
+			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+			Patch(0x62E636, { 0x33, 0xFF }).Apply();
+
+			// Forces the game to use a null d3d device
+			Patch(0x2EBBB, { 0x1 }).Apply();
+
+			// Fixes an exception that happens with null d3d
+			Patch(0x675E30, { 0xC3 }).Apply();
+
+			// Fixes the game being stuck in some d3d-related while loop
+			Patch(0x622290, { 0xC3 }).Apply();
+
+			// Stops D3DDevice->EndScene from being called
+			Patch(0x621796, 0x90, 6).Apply(); // TODO: set eax?
 		}
 
 		bool StartRemoteConsole()
