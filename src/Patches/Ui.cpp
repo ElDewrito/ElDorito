@@ -442,22 +442,17 @@ namespace
 		int* UIResolution = reinterpret_cast<int*>(HUDAttributes + 0x10);
 		float* MotionSensorOffset = reinterpret_cast<float*>(HUDAttributes + 0x18);
 
-		// The game's UI is designed to be displayed at 1920x1080.
-		// if the game is running at 16:9 then force the default for best results
-		if (gameResolution[0] / 16 == gameResolution[1] / 9) {
+		// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
+		// Fixes the visor getting cut off.
+		if (gameResolution[0] < 1920) {
 			UIResolution[0] = 1920;// width
-			UIResolution[1] = 1080;// height
-
-			MotionSensorOffset[0] = 122; // Radar blip height
-			MotionSensorOffset[1] = 996; // Radar blip height
-		}
-		else {
+			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1920);// height
+		} else {
 			UIResolution[0] = gameResolution[0];// width
 			UIResolution[1] = gameResolution[1];// height
-
-			MotionSensorOffset[0] = (gameResolution[0] * ((float)122 / (float)1920)); // Radar blip width
-			MotionSensorOffset[1] = (gameResolution[1] * ((float)996 / (float)1080)); // Radar blip height
 		}
+		MotionSensorOffset[0] = 122; // HUD Radar Blip X Offset
+		MotionSensorOffset[1] = (float)(UIResolution[1] - 84); // HUD Radar Blip Y Offset
 
 		return HUDAttributes;
 	}
