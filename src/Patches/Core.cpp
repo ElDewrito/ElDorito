@@ -218,8 +218,7 @@ namespace
 
 	double GetAspectRatio()
 	{
-		int* width = reinterpret_cast<int*>(0x19106C0);
-		int* height = reinterpret_cast<int*>(0x19106C4);
-		return ((double)*width / (double)*height);
+		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+		return ((double)gameResolution[0] / (double)gameResolution[1]);
 	}
 }

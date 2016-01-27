@@ -16,6 +16,7 @@ namespace
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	bool MainMenuCreateLobbyHook(int lobbyType);
 	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct);
+	int GetHUDAttributesHook(int a1, char a2);
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -147,6 +148,9 @@ namespace Patches
 			Pointer(0x016A18B0).Write((uint32_t)&c_start_menu__ButtonPressHook);
 			Pointer(0x016A1BE8).Write((uint32_t)&c_start_menu__ButtonPressHook);
 			Pointer(0x016A6C80).Write((uint32_t)&c_start_menu__ButtonPressHook);
+
+			//Modify the HUD Attributes section of globals.chgd whenever the game requests it.
+			Hook(0x6C816A, GetHUDAttributesHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -426,5 +430,35 @@ namespace
 		typedef int(__thiscall *c_start_menu__ButtonPressPtr)(void* thisPtr, uint8_t* controllerStruct);
 		auto c_start_menu__ButtonPress = reinterpret_cast<c_start_menu__ButtonPressPtr>(0xB1F620);
 		return c_start_menu__ButtonPress(thisPtr, controllerStruct);
+	}
+
+	int GetHUDAttributesHook(int a1, char a2) {
+		// Run the original function
+		typedef int(*GetHUDAttributesFunc)(int a1, char a2);
+		GetHUDAttributesFunc GetHUDAttributes = reinterpret_cast<GetHUDAttributesFunc>(0xAC78D0);
+		int HUDAttributes = GetHUDAttributes(a1, a2);
+
+		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+		int* UIResolution = reinterpret_cast<int*>(HUDAttributes + 0x10);
+		float* MotionSensorOffset = reinterpret_cast<float*>(HUDAttributes + 0x18);
+
+		// The game's UI is designed to be displayed at 1920x1080.
+		// if the game is running at 16:9 then force the default for best results
+		if (gameResolution[0] / 16 == gameResolution[1] / 9) {
+			UIResolution[0] = 1920;// width
+			UIResolution[1] = 1080;// height
+
+			MotionSensorOffset[0] = 122; // Radar blip height
+			MotionSensorOffset[1] = 996; // Radar blip height
+		}
+		else {
+			UIResolution[0] = gameResolution[0];// width
+			UIResolution[1] = gameResolution[1];// height
+
+			MotionSensorOffset[0] = (gameResolution[0] * ((float)122 / (float)1920)); // Radar blip width
+			MotionSensorOffset[1] = (gameResolution[1] * ((float)996 / (float)1080)); // Radar blip height
+		}
+
+		return HUDAttributes;
 	}
 }
