@@ -3,6 +3,8 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/Tags/ChudGlobalsDefinition.hpp"
+#include "../Blam/Tags/ChudDefinition.hpp"
 #include "../Menu.hpp"
 
 namespace
@@ -16,7 +18,7 @@ namespace
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	bool MainMenuCreateLobbyHook(int lobbyType);
 	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct);
-	int GetHUDAttributesHook(int a1, char a2);
+	void ResolutionChangeHook();
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -149,8 +151,8 @@ namespace Patches
 			Pointer(0x016A1BE8).Write((uint32_t)&c_start_menu__ButtonPressHook);
 			Pointer(0x016A6C80).Write((uint32_t)&c_start_menu__ButtonPressHook);
 
-			//Modify the HUD Attributes section of globals.chgd whenever the game requests it.
-			Hook(0x6C816A, GetHUDAttributesHook, HookFlags::IsCall).Apply();
+			// Runs when the game's resolution is changed
+			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -202,6 +204,25 @@ namespace Patches
 					}
 				}
 			}
+		}
+
+
+		void ApplyUIResolution() {
+			int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+			Blam::Tags::ChudGlobalsDefinition* globals = Blam::Tags::GetTag<Blam::Tags::ChudGlobalsDefinition>(0x01BD);
+
+			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
+			// Fixes the visor getting cut off.
+			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = gameResolution[0] <= 1920 ? 1920 : gameResolution[0];
+			globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
+
+			// Adjust motion sensor blip to match the UI resolution
+			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
+			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
+
+			// Fix the bottom of the visor
+			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
+			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
 		}
 	}
 }
@@ -432,28 +453,13 @@ namespace
 		return c_start_menu__ButtonPress(thisPtr, controllerStruct);
 	}
 
-	int GetHUDAttributesHook(int a1, char a2) {
-		// Run the original function
-		typedef int(*GetHUDAttributesFunc)(int a1, char a2);
-		GetHUDAttributesFunc GetHUDAttributes = reinterpret_cast<GetHUDAttributesFunc>(0xAC78D0);
-		int HUDAttributes = GetHUDAttributes(a1, a2);
+	void ResolutionChangeHook()
+	{
+		typedef void(__thiscall *ApplyResolutionChangeFunc)();
+		ApplyResolutionChangeFunc ApplyResolutionChange = reinterpret_cast<ApplyResolutionChangeFunc>(0xA226D0);
+		ApplyResolutionChange();
 
-		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
-		int* UIResolution = reinterpret_cast<int*>(HUDAttributes + 0x10);
-		float* MotionSensorOffset = reinterpret_cast<float*>(HUDAttributes + 0x18);
-
-		// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
-		// Fixes the visor getting cut off.
-		if (gameResolution[0] < 1920) {
-			UIResolution[0] = 1920;// width
-			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1920);// height
-		} else {
-			UIResolution[0] = gameResolution[0];// width
-			UIResolution[1] = gameResolution[1];// height
-		}
-		MotionSensorOffset[0] = 122; // HUD Radar Blip X Offset
-		MotionSensorOffset[1] = (float)(UIResolution[1] - 84); // HUD Radar Blip Y Offset
-
-		return HUDAttributes;
+		// Update the ingame UI's resolution
+		Patches::Ui::ApplyUIResolution();
 	}
 }
