@@ -207,14 +207,27 @@ namespace Patches
 		}
 
 
-		void ApplyUIResolution() {
+		void ApplyUIResolution() 
+		{
 			int* gameResolution = reinterpret_cast<int*>(0x19106C0);
 			Blam::Tags::ChudGlobalsDefinition* globals = Blam::Tags::GetTag<Blam::Tags::ChudGlobalsDefinition>(0x01BD);
 
 			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
 			// Fixes the visor getting cut off.
-			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = gameResolution[0] <= 1920 ? 1920 : gameResolution[0];
-			globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
+			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
+
+			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
+				// On aspect ratios with a greater width than 16:9 center the UI on the screen
+				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
+				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
+				globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
+			}
+			else
+			{
+				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
+				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
+				globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
+			}
 
 			// Adjust motion sensor blip to match the UI resolution
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
