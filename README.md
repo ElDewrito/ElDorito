@@ -12,7 +12,7 @@ Pull requests are welcomed from anyone who wants to contribute to us.
 Although it's recommended that you come talk to us on IRC first before starting work on anything major, so that we can discuss it and come up with the best way to help you implement it.
 
 ## Download
-You can always download the latest builds of Eldewrito from our [release page](https://dewrito.halo.click/).
+You should always check for the latest builds of ElDewrito on our [subreddit](https://www.reddit.com/r/HaloOnline/).
 
 ## Building
 To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMake installed.
@@ -29,6 +29,6 @@ Although if you have a spare server running [ElDewrito-MasterServer](https://git
 ## Help/Support/Contact
 We have an [IRC channel on Snoonet](https://irc.lc/snoonet/eldorito/) where most of the devs are, just /join #ElDorito
 
-You can also try checking the support question on the [Halo.Click](https://forum.halo.click/index.php?/forum/17-help-support/) forums. 
+You can also try checking the support question on the [subreddit](https://www.reddit.com/r/HaloOnline/) or the [Halo.Cafe](https://halo.cafe/) forums. 
 
 If you have issues you can get in touch with us on there, or make a bug report in our issue tracker and we'll look over it.

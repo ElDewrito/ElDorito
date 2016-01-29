@@ -71,7 +71,6 @@ void ElDorito::Initialize()
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
-	bool skipKill = false;
 	bool dedicated = false;
 
 	if( szArgList && numArgs > 1 )
@@ -89,12 +88,11 @@ void ElDorito::Initialize()
 				usingLauncher = true;
 #endif
 
-#ifdef _DEBUG
 			if (arg.compare(L"-dedicated") == 0)
 			{
 				dedicated = true;
+				usingLauncher = true;
 			}
-#endif
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
