@@ -437,7 +437,7 @@ namespace
 	};
 
 	std::unordered_map<std::string, uint32_t> weaponIndices = {
-				{ "assault_rifle", 0x151E },
+		{ "assault_rifle", 0x151E },
 		{ "ar_variant_2", 0x1581 },
 		{ "ar_variant_3", 0x1582 },
 		{ "ar_variant_5", 0x1583 },
