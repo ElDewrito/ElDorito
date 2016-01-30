@@ -437,11 +437,38 @@ namespace
 	};
 
 	std::unordered_map<std::string, uint32_t> weaponIndices = {
-		{ "assault_rifle", 0x151E },
+				{ "assault_rifle", 0x151E },
+		{ "ar_variant_2", 0x1581 },
+		{ "ar_variant_3", 0x1582 },
+		{ "ar_variant_5", 0x1583 },
+		{ "ar_variant_6", 0x1584 },
 		{ "battle_rifle", 0x157C },
+		{ "br_variant_1", 0x15BB },
+		{ "br_variant_2", 0x15BC },
+		{ "br_variant_3", 0x1585 },
+		{ "br_variant_4", 0x1586 },
+		{ "br_variant_5", 0x15BD },
+		{ "br_variant_6", 0x1587 },
 		{ "covenant_carbine", 0x14FE },
+		{ "covenant_carbine_variant_1", 0x15C0 },
+		{ "covenant_carbine_variant_2", 0x15C1 },
+		{ "covenant_carbine_variant_3", 0x15C2 },
+		{ "covenant_carbine_variant_4", 0x15C3 },
+		{ "covenant_carbine_variant_5", 0x15C4 },
+		{ "covenant_carbine_variant_6", 0x1591 },
 		{ "dmr", 0x1580 },
+		{ "dmr_variant_1", 0x15BE },
+		{ "dmr_variant_2", 0x1588 },
+		{ "dmr_variant_3", 0x1589 },
+		{ "dmr_variant_4", 0x158A },
+		{ "dmr_variant_5" , 0x15BF },
+		{ "dmr_variant_6" , 0x158B },
 		{ "plasma_rifle", 0x1525 },
-		{ "smg", 0x157D }
+		{ "plasma_rifle_variant_6", 0x1590 },
+		{ "smg", 0x157D },
+		{ "smg_variant_1", 0x158C },
+		{ "smg_variant_2", 0x158D },
+		{ "smg_variant_4", 0x158E },
+		{ "smg_variant_6", 0x158F }
 	};
 }
