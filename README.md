@@ -2,9 +2,7 @@
 # ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## What is ElDewrito?
-ElDewrito is a fan mod for Halo Online that re-enables removed Halo 3 content, as there is no telling if Halo 3 will ever be brought to PC.
-
-Halo Online is the closest thing we have, and fortunately it still contains a lot of Halo 3 content inside it. ElDewrito aims to unlock and expand on this content.
+ElDewrito is a fan mod for Halo Online that re-enables removed and disabled Halo 3 content, as there is no telling if any other Halo game will ever be brought to PC. Halo Online is the best thing we have, and fortunately it contains a lot of Halo 3 and Halo ODST content. ElDewrito aims to unlock and expand on this content.
 
 Note that this is the source code repo for it, not the mod itself. You'll need a copy of Halo Online and the ElDewrito Launcher to install ED.
 
@@ -21,8 +19,6 @@ Once they're installed just run the generate_vs2013_sln_files.bat, then open up 
 
 ## Donations
 We don't accept donations, donate money to your favorite charity instead.
-
-We do it for free, because the possibility of Halo 3 on PC fills us with glee.
 
 Although if you have a spare server running [ElDewrito-MasterServer](https://github.com/ElDewrito/ElDewrito-MasterServer) on it would be welcomed, get in touch with us on IRC and we can help you set this up.
 
