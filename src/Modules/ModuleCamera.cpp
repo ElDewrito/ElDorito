@@ -374,8 +374,8 @@ namespace Modules
 		float iUp = directorGlobalsPtr(0x868).Read<float>();
 		float jUp = directorGlobalsPtr(0x86C).Read<float>();
 		float kUp = directorGlobalsPtr(0x870).Read<float>();
-		float iRight = cos(hLookAngle + 3.14159265359 / 2);
-		float jRight = sin(hLookAngle + 3.14159265359 / 2);
+		float iRight = cos(hLookAngle + 3.14159265359f / 2);
+		float jRight = sin(hLookAngle + 3.14159265359f / 2);
 
 		// TODO: use shockfire's keyboard hooks instead
 
@@ -440,11 +440,11 @@ namespace Modules
 
 		if (GetAsyncKeyState('Z') & 0x8000)
 		{
-			fov -= 0.003;
+			fov -= 0.003f;
 		}
 		if (GetAsyncKeyState('C') & 0x8000)
 		{
-			fov += 0.003;
+			fov += 0.003f;
 		}
 
 		// update position

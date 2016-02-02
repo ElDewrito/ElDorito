@@ -311,4 +311,9 @@ namespace GameGlobals
 		const size_t TLSOffset = 0x424;
 		const size_t SprintMeterOffset = 0x157;
 	}
+
+	namespace ObjectHeader
+	{
+		const size_t TLSOffset = 0x448;
+	}
 }

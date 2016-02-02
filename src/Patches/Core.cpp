@@ -10,9 +10,13 @@ namespace
 	void GameTickHook(int frames, float *deltaTimeInfo);
 	void TagsLoadedHook();
 	void FovHook();
-	void GrenadeLoadoutHook();
 	void FmodSystemInitHook();
-	//void FmodSystemInitHook2();
+	int __cdecl DualWieldHook(unsigned short objectIndex);
+	void SprintInputHook();
+	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex);
+	void EquipmentHook();
+	void EquipmentTestHook();
+	void GrenadeLoadoutHook();
 }
 
 namespace Patches
@@ -36,21 +40,19 @@ namespace Patches
 			// Patch to allow spawning AI through effects
 			Patch::NopFill(Pointer::Base(0x1033321), 2);
 
-			// Prevent game variant weapons from being overridden
-			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
-			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
-			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
+			// Fix random colored lighting
+			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
 			// Hook game ticks
 			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
+
+			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
+			Hook(0x1030EA, TagsLoadedHook).Apply();
 
 			// Prevent FOV from being overridden when the game loads
 			Patch::NopFill(Pointer::Base(0x25FA79), 10);
 			Patch::NopFill(Pointer::Base(0x25FA86), 5);
 			Hook(0x10CA02, FovHook).Apply();
-
-			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
-			Hook(0x1030EA, TagsLoadedHook).Apply();
 
 			// Force descoping for all weapons
 			Pointer::Base(0x73F1E6).Write<uint8_t>(0);
@@ -68,10 +70,25 @@ namespace Patches
 			// increase max virtual audio channels from 64 to 2048
 			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
 			Hook(0x4E9C, FmodSystemInitHook).Apply();
-			//Hook(0x4EC0, FmodSystemInitHook2).Apply();	// this doesn't appear to get called by the game
+			//Hook(0x4EC0, FmodSystemInitHook2).Apply(); // this doesn't appear to get called by the game
+			
+			// Enable dual-wielding
+			Hook(0x761550, DualWieldHook).Apply();
 
-			// Fix random colored lighting
-			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
+			// Hook sprint input for dual-wielding
+			Hook(0x6DFBB, SprintInputHook).Apply();
+
+			// Equipment patches
+			Patch::NopFill(Pointer::Base(0x786CFF), 6);
+			Patch::NopFill(Pointer::Base(0x786CF7), 6);
+			Hook(0x7440F0, GetEquipmentCountHook).Apply();
+			Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
+			Hook(0x786CF2, EquipmentTestHook).Apply();
+
+			// Prevent game variant weapons from being overridden
+			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
+			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
+			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
 
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
@@ -98,47 +115,6 @@ namespace
 		GameTick(frames, deltaTimeInfo);
 	}
 
-	__declspec(naked) void FovHook()
-	{
-		__asm
-		{
-			// Override the FOV that the memmove before this sets
-			mov eax, ds:[0x189D42C]
-			mov ds:[0x2301D98], eax
-			mov ecx, [edi + 0x18]
-			push 0x50CA08
-			ret
-		}
-	}
-	
-	__declspec(naked) void FmodSystemInitHook()
- 	{
- 		__asm
- 		{
- 			push	0				; extradriverdata
- 			push	ebx				; flags
- 			push	0x800			; maxchannels
- 			push	eax				; FMOD_SYSTEM
- 			call	dword ptr [ecx]	; FMOD::System::init
- 			push	0x404EA4
- 			ret
- 		}
- 	}
-
-	//__declspec(naked) void FmodSystemInitHook2()
- //	{
- //		__asm
- //		{
- //			push	0				; extradriverdata
- //			push	ebx				; flags
- //			push	0x800			; maxchannels
- //			push	eax				; FMOD_SYSTEM
- //			call	dword ptr [ecx]	; FMOD::System::init
-	//		push	0x404EC8
- //			ret
- //		}
- //	}
-
 	__declspec(naked) void TagsLoadedHook()
 	{
 		__asm
@@ -146,6 +122,33 @@ namespace
 			call Patches::ApplyAfterTagsLoaded
 			push 0x6D617467
 			push 0x5030EF
+			ret
+		}
+	}
+
+	__declspec(naked) void FovHook()
+	{
+		__asm
+		{
+			// Override the FOV that the memmove before this sets
+			mov eax, ds:[0x189D42C]
+			mov ds : [0x2301D98], eax
+			mov ecx, [edi + 0x18]
+			push 0x50CA08
+			ret
+		}
+	}
+
+	__declspec(naked) void FmodSystemInitHook()
+	{
+		__asm
+		{
+			push	0; extradriverdata
+			push	ebx; flags
+			push	0x800; maxchannels
+			push	eax; FMOD_SYSTEM
+			call	dword ptr[ecx]; FMOD::System::init
+			push	0x404EA4
 			ret
 		}
 	}
@@ -191,6 +194,54 @@ namespace
 		grenadeCounts[3] = profile->FirebombGrenades;
 	}
 
+	uint32_t GetObjectDataAddress(uint32_t objectDatum)
+	{
+		uint32_t objectIndex = objectDatum & UINT16_MAX;
+		Pointer &objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
+		uint32_t objectAddress = objectHeaderPtr(0x44).Read<uint32_t>() + 0xC + objectIndex * 0x10;
+		return *(uint32_t*)(objectAddress);
+	}
+
+	int __cdecl DualWieldHook(unsigned short objectIndex)
+	{
+		auto& dorito = ElDorito::Instance();
+
+		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
+
+		char* tagAddr = (char*)Blam::Tags::GetTagAddress(index);
+
+		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
+	}
+
+	__declspec(naked) void SprintInputHook()
+	{
+		__asm
+		{
+			mov		ecx, edi
+			cmp		byte ptr ds : [0244D33Dh], 0	; zero if dual wielding
+			jne		enable                          ; leave sprint enabled(for now) if not dual wielding
+			and		ax, 0FEFFh                      ; disable by removing the 8th bit indicating no sprint input press
+		enable :
+			mov		dword ptr ds : [esi + 8], eax
+			push	046DFC0h
+			ret
+		}
+	}
+
+	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex)
+	{
+		auto& dorito = ElDorito::Instance();
+
+		if (equipmentIndex == 0xFFFF)
+			return 0;
+
+		// checks if dual wielding and disables equipment use if so
+		if (*(uint8_t*)(0x244D33D) == 0)
+			return 0;
+
+		return *(uint8_t*)(GetObjectDataAddress(playerObjectIndex) + 0x320 + equipmentIndex);
+	}
+
 	__declspec(naked) void GrenadeLoadoutHook()
 	{
 		__asm
@@ -199,6 +250,108 @@ namespace
 			call GrenadeLoadoutHookImpl
 			add esp, 4
 			push 0x5A32C7
+			ret
+		}
+	}
+
+	void EquipmentHookImpl(unsigned short playerIndex, unsigned short equipmentIndex)
+	{
+		BYTE unkData[0x40];
+		BYTE b69Data[0x48];
+
+		Pointer& playerHeaderPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
+		uint32_t playerStructAddress = playerHeaderPtr(0x44).Read<uint32_t>() + playerIndex * GameGlobals::Players::PlayerEntryLength;
+		uint32_t playerObjectDatum = *(uint32_t*)(playerStructAddress + 0x30);
+
+		Pointer &objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
+		uint32_t objectAddress = objectHeaderPtr(0x44).Read<uint32_t>() + 0xC + equipmentIndex * 0x10;
+		uint32_t objectDataAddress = *(uint32_t*)objectAddress;
+		uint32_t index = *(uint32_t*)objectDataAddress;
+
+		memset(b69Data, 0, 0x48);
+		*(uint32_t*)(b69Data) = 0x3D; // object type?
+		*(uint32_t*)(b69Data + 4) = equipmentIndex;
+
+		// add equipment to the player, also removes the object from gameworld
+		typedef char(__cdecl* Objects_AttachPtr)(int a1, void* a2);
+		auto Objects_Attach = reinterpret_cast<Objects_AttachPtr>(0xB69C50);
+		Objects_Attach(playerObjectDatum, b69Data); // 82182C48
+
+		// prints text to the HUD, taken from HO's code
+		{
+			typedef int(__thiscall* sub_589680Ptr)(void* thisPtr, int a2);
+			auto sub_589680 = reinterpret_cast<sub_589680Ptr>(0x589680);
+			sub_589680(&unkData, playerIndex);
+
+			typedef BOOL(__thiscall* sub_589770Ptr)(void* thisPtr);
+			auto sub_589770 = reinterpret_cast<sub_589770Ptr>(0x589770);
+			while ((unsigned __int8)sub_589770(&unkData))
+			{
+				typedef int(__thiscall* sub_589760Ptr)(void* thisPtr);
+				auto sub_589760 = reinterpret_cast<sub_589760Ptr>(0x589760);
+				int v9 = sub_589760(&unkData);
+
+				typedef int(__cdecl* sub_A95850Ptr)(unsigned int a1, short a2);
+				auto sub_A95850 = reinterpret_cast<sub_A95850Ptr>(0xA95850);
+				sub_A95850(v9, index);
+			}
+		}
+
+		// unsure what these do, taken from HO code
+		{
+			typedef int(__cdecl *sub_B887B0Ptr)(unsigned short a1, unsigned short a2);
+			auto sub_B887B0 = reinterpret_cast<sub_B887B0Ptr>(0xB887B0);
+			sub_B887B0(playerIndex, index); // sub_82437A08
+
+			typedef void(_cdecl *sub_4B31C0Ptr)(unsigned short a1, unsigned short a2);
+			auto sub_4B31C0 = reinterpret_cast<sub_4B31C0Ptr>(0x4B31C0);
+			sub_4B31C0(playerObjectDatum, index); // sub_8249A1A0
+		}
+
+		// called by powerup pickup func, deletes the item but also crashes the game when used with equipment
+		// not needed since Objects_Attach removes it from the game world
+		/*
+		typedef int(__cdecl *Objects_DeletePtr)(int objectIndex);
+		auto Objects_Delete = reinterpret_cast<Objects_DeletePtr>(0xB57090);
+		Objects_Delete(equipmentIndex);*/
+	}
+
+	__declspec(naked) void EquipmentHook()
+	{
+		__asm
+		{
+			mov edx, 0x531D70
+			call edx
+			mov esi, [ebp + 8]
+			push edi
+			push esi
+			test al, al
+			jz DoEquipmentHook
+			mov edx, 0x4B4A20
+			call edx
+			add esp, 8
+			push 0x5397D8
+			ret
+		DoEquipmentHook :
+			call EquipmentHookImpl
+			add esp, 8
+			push 0x5397D8
+			ret
+		}
+	}
+
+	// replaces some check that always fails and allows you to throw equipment, as long as it still has a use remaining
+	// if you've used up all the uses and try throwing again it'll still destroy your first thrown equipment though
+	// H3E likely has this check somewhere closer to the top of the hooked func, but I couldn't find it
+	__declspec(naked) void EquipmentTestHook()
+	{
+		__asm
+		{
+			push dword ptr[ebp + 8]
+			mov edx, 0xB89190 // Equipment_GetNumRemainingUses(int16 objectIdx)
+			call edx
+			add esp, 4
+			push 0xB86CFD
 			ret
 		}
 	}
