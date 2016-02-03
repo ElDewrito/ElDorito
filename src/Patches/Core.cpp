@@ -205,12 +205,11 @@ namespace
 
 	int __cdecl DualWieldHook(unsigned short objectIndex)
 	{
+		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
+			return 0;
 		auto& dorito = ElDorito::Instance();
-
 		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-
 		char* tagAddr = (char*)Blam::Tags::GetTagAddress(index);
-
 		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
 	}
 

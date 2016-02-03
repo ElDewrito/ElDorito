@@ -185,6 +185,8 @@ namespace Patches
 						writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
 						writer.Key("sprintUnlimitedEnabled");
 						writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+						writer.Key("dualWielding");
+						writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
 						writer.Key("VoIP");
 						writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
 
