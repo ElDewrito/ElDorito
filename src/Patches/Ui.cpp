@@ -160,6 +160,9 @@ namespace Patches
 
 			// Runs when the game's resolution is changed
 			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
+
+			// Enable H3UI scaling
+			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
 		}
 
 		void ApplyMapNameFixes()
@@ -243,6 +246,11 @@ namespace Patches
 			// Fix the bottom of the visor
 			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
 			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+
+			// Scale H3UI to match the aspect ratio
+			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
+			UIResolution[0] = 1152;//1152 x 640 resolution
+			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 		}
 	}
 }
