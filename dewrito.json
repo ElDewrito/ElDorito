@@ -4,40 +4,42 @@
         "bink\\loading_loop.bik": "3DDA646C567E7C4773B88D79FFD6748B5B87238F",
         "bink\\logo_343.bik": "098436B6EEA5D3FFAF44C07DE9848A216FB0F552",
         "bink\\logo_microsoft.bik": "BAF159095D312C7B4BC732082C2E0BD704087BDE",
-        "maps\\fonts\\font_package.bin": "DDFA833A4C617DA68E003104A3806278F09AFDA0",
-        "maps\\audio.dat": "12C59AB970CE0E8803452D2DC7316EC96572DB8A",
+        "maps\\fonts\\font_package.bin": "B0E6A49047A5C3C2DE94AE0264569B9D16EB78F2",
+        "maps\\audio.dat": "B332700AAD4315BDAA927AD4F5A656CE528046A6",
+        "maps\\bunkerworld.map": "FE5A61453219076EE4548109D9488117715FC2A9",
+        "maps\\chill.map": "0613A56FF447DD9C4389552779134FD87D9A98A0",
+        "maps\\cyberdyne.map": "33AE360FB7244B8C7E65E7491E64CB300C1D8636",
+        "maps\\deadlock.map": "20C0CF965F26E9D622865CAB237474F65781CCBD",
         "maps\\guardian.map": "480B141516E3DD86F44F98E7C3D7014A95CC3515",
         "maps\\mainmenu.map": "A4BD5AE67AFC1E1C2D56FA3D6326B6153B6E0A3E",
-        "maps\\resources.dat": "14F7979BFD2A753531BE37577C3F7DCE3FBF8FCA",
+        "maps\\resources.dat": "02455647A1EBB9FB8A30CF85CCF5CBE965A8B51B",
         "maps\\riverworld.map": "6779C56F63833F7057DC71DBA938FE64F749B316",
         "maps\\s3d_avalanche.map": "AF8EDF59F4B748A0F93559EA8E00678CF304F768",
         "maps\\s3d_edge.map": "D52636EC13689C8A0E198589ECB8FA3C8A2E14DD",
         "maps\\s3d_reactor.map": "62504F55802DC316B88E93BE4D7AB622AAFC385F",
         "maps\\s3d_turf.map": "18188B45A7641F4438C9026AC98B2E3D875BB991",
-        "maps\\string_ids.dat": "7CDA619AE6C113D178A942853551C7E8D229237A",
-        "maps\\tags.dat": "E8DE5203BED00E77CCC05DE55215A24ABB601D77",
-        "maps\\textures.dat": "8BCE4AAF1BDEF2A5312BF2180F3D0CE15D232399",
-        "maps\\textures_b.dat": "871229504133EAE3468A7D8ECA3BBC1E0A221D8D",
+        "maps\\shrine.map": "CF76F7D76BEBED85C6378244F95ED51F1C022CAB",
+        "maps\\string_ids.dat": "3B5C7278E7DB27B7DF7EAFA174ED2CB7A632963A",
+        "maps\\tags.dat": "95750879B3D222FE98B1922256BC8EABDE821AD9",
+        "maps\\textures.dat": "36EBD9917E168ED8C6BF746A30EBE1BEB9F1FE55",
+        "maps\\textures_b.dat": "12D4B177592067C8E01A6EB25DAE1AC06F111428",
         "maps\\video.dat": "94CE0296BA71CA4679780A1405683501B5A478D5",
+        "maps\\zanzibar.map": "02D1EA2A8EA313301FDA081203E7FE8FAAA8FDF3",
         "binkw32.dll": "C1F3CBD820DBFAFB46FEC1AC49E055E856685238",
-        "eldorado.exe": "0586C67FBB3713F7ED55771C63B1C100A29D5AE4",
-        "game.cfg": "EF9771599CA2E6C4A33BA2D2828508D67E919058"
+        "eldorado.exe": "7504BDBC28E34466B6CC7924D3164CD27E04D66F",
+        "game.cfg": "BB9E370DECDCD08A616EF6D4DEDE7478AB28D030"
     },
 
-    "updateServiceUrl": "http://dew.halo.click/update_server/update.json",
-    "updateChannelsUrl": "http://dew.halo.click/honline/channels.json",
+    "updateServiceUrl": "http://eldewrito.anvilonline.net/update.json",
+    "updateChannelsUrl": "",
 
     "masterServers": [{
-        "list": "http://samantha-master.halo.click/list",
-        "announce": "http://samantha-master.halo.click/announce",
-        "stats": "http://samantha-master.halo.click/stats"
-    }, {
         "list": "http://kelly-master.halo.click/list",
         "announce": "http://kelly-master.halo.click/announce",
         "stats": "http://kelly-master.halo.click/stats"
-    }, {		
-        "list": "http://eldewrito.red-m.net/list",		
-        "announce": "http://eldewrito.red-m.net/announce",		
-        "stats": "http://eldewrito.red-m.net/stats"		
+    }, {
+        "list": "http://eldewrito.red-m.net/list",
+        "announce": "http://eldewrito.red-m.net/announce",
+        "stats": "http://eldewrito.red-m.net/stats"
     }]
 }
