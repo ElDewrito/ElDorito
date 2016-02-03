@@ -12,10 +12,14 @@ namespace
 	void ProcessUiInputHook();
 	void QuickUpdateUiInputHook();
 	void KeyTestHook();
+	void SetBindingsHook(int localPlayerIndex, Blam::Input::BindingsTable *bindings);
+	void DualWieldBindingsHandler(int localPlayerIndex);
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	bool contextDone = false;
+
+	std::vector<BindingsUpdatedHandler> bindingsUpdatedHandlers;
 }
 
 namespace Patches
@@ -29,6 +33,9 @@ namespace Patches
 			Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
 			Hook(0x111B66, KeyTestHook, HookFlags::IsCall).Apply();
 			Hook(0x111CE6, KeyTestHook, HookFlags::IsCall).Apply();
+			Hook(0x6A237F, SetBindingsHook, HookFlags::IsCall).Apply();
+			Hook(0x10D139, SetBindingsHook, HookFlags::IsCall).Apply();
+			RegisterBindingsUpdatedHandler(DualWieldBindingsHandler);
 		}
 
 		void PushContext(std::shared_ptr<InputContext> context)
@@ -42,6 +49,11 @@ namespace Patches
 		void RegisterDefaultInputHandler(DefaultInputHandler func)
 		{
 			defaultHandlers.push_back(func);
+		}
+
+		void RegisterBindingsUpdatedHandler(BindingsUpdatedHandler func)
+		{
+			bindingsUpdatedHandlers.push_back(func);
 		}
 	}
 }
@@ -134,5 +146,52 @@ namespace
 			lea eax, [eax + 2]
 			jmp eax
 		}
+	}
+
+	void SetBindingsHook(int localPlayerIndex, Blam::Input::BindingsTable *bindings)
+	{
+		typedef void(*SetBindingsPtr)(int localPlayerIndex, Blam::Input::BindingsTable *bindings);
+		auto SetBindings = reinterpret_cast<SetBindingsPtr>(0x60D830);
+		SetBindings(localPlayerIndex, bindings);
+
+		for (auto &&handler : bindingsUpdatedHandlers)
+			handler(localPlayerIndex);
+	}
+
+	void DualWieldBindingsHandler(int localPlayerIndex)
+	{
+		auto bindings = Blam::Input::GetBindings(localPlayerIndex);
+
+		// Unbind all actions bound to Q (haxhaxhax)
+		for (auto i = 0; i < Blam::Input::eInputAction_KeyboardMouseCount; i++)
+		{
+			if (bindings->SecondaryKeys[i] == Blam::Input::eKeyCodesQ)
+				bindings->SecondaryKeys[i] = Blam::Input::eKeyCodes_None;
+			if (bindings->PrimaryKeys[i] == Blam::Input::eKeyCodesQ)
+			{
+				bindings->PrimaryKeys[i] = bindings->SecondaryKeys[i];
+				bindings->SecondaryKeys[i] = Blam::Input::eKeyCodes_None;
+			}
+		}
+
+		// TODO: Pull these values from variables, or set up our own complete binding system
+
+		// Pick up left = Q
+		bindings->PrimaryKeys[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eKeyCodesQ;
+		bindings->SecondaryKeys[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eKeyCodes_None;
+		bindings->PrimaryMouseButtons[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eMouseButtons_None;
+		bindings->SecondaryMouseButtons[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eMouseButtons_None;
+
+		// Reload left = Q
+		bindings->PrimaryKeys[Blam::Input::eInputActionReloadLeft] = Blam::Input::eKeyCodesQ;
+		bindings->SecondaryKeys[Blam::Input::eInputActionReloadLeft] = Blam::Input::eKeyCodes_None;
+		bindings->PrimaryMouseButtons[Blam::Input::eInputActionReloadLeft] = Blam::Input::eMouseButtons_None;
+		bindings->SecondaryMouseButtons[Blam::Input::eInputActionReloadLeft] = Blam::Input::eMouseButtons_None;
+		
+		// Fire left = RMB
+		bindings->PrimaryKeys[Blam::Input::eInputActionFireLeft] = Blam::Input::eKeyCodes_None;
+		bindings->SecondaryKeys[Blam::Input::eInputActionFireLeft] = Blam::Input::eKeyCodes_None;
+		bindings->PrimaryMouseButtons[Blam::Input::eInputActionFireLeft] = Blam::Input::eMouseButtonsRight;
+		bindings->SecondaryMouseButtons[Blam::Input::eInputActionFireLeft] = Blam::Input::eMouseButtons_None;
 	}
 }

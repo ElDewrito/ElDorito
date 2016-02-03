@@ -31,5 +31,17 @@ namespace Blam
 			auto EngineBlockInput = reinterpret_cast<EngineBlockInputPtr>(0x512530);
 			EngineBlockInput(type, block);
 		}
+
+		BindingsTable* GetBindings(int localPlayerIndex)
+		{
+			if (localPlayerIndex < 0 || localPlayerIndex >= 4)
+				return nullptr;
+
+			// NOTE: There is reason to believe that the bindings table array
+			// is actually part of a larger structure which encompasses other
+			// input data too, because there are memsets to this address which
+			// zero out 0x14D4 bytes
+			return &reinterpret_cast<BindingsTable*>(0x244C9D0)[localPlayerIndex];
+		}
 	}
 }

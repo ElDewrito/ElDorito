@@ -151,6 +151,72 @@ namespace
 
 		return retVal != 0;
 	}
+
+	// TODO: Remove these once the action enum is mapped out better
+
+#ifdef _DEBUG
+	bool CommandBindAction(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 2)
+			return false;
+
+		// Get the key, convert it to lowercase, and translate it to a key code
+		auto action = std::stoi(Arguments[0]);
+		auto key = Arguments[1];
+		std::transform(key.begin(), key.end(), key.begin(), tolower);
+		auto it = keyCodes.find(key);
+		if (it == keyCodes.end())
+		{
+			returnInfo = "Unrecognized key name: " + key;
+			return false;
+		}
+		auto keyCode = it->second;
+		Blam::Input::GetBindings(0)->PrimaryKeys[action] = keyCode;
+		Blam::Input::GetBindings(0)->SecondaryKeys[action] = keyCode;
+		returnInfo = "Binding set.";
+		return true;
+	}
+
+	bool CommandDumpBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		returnInfo = "";
+		auto bindings = Blam::Input::GetBindings(0);
+		for (auto i = 0; i < Blam::Input::eInputAction_KeyboardMouseCount; i++)
+		{
+			auto primary = bindings->PrimaryKeys[i];
+			auto secondary = bindings->SecondaryKeys[i];
+			auto mousePrimary = bindings->PrimaryMouseButtons[i];
+			auto mouseSecondary = bindings->SecondaryMouseButtons[i];
+			returnInfo += std::to_string(i);
+			if (primary < Blam::Input::eKeyCodes_Count)
+			{
+				std::string name = "Unknown";
+				for (auto it = keyCodes.begin(); it != keyCodes.end(); ++it)
+				{
+					if (it->second == primary)
+						name = it->first;
+				}
+				returnInfo += " " + name;
+			}
+			if (secondary < Blam::Input::eKeyCodes_Count)
+			{
+				std::string name = "Unknown";
+				for (auto it = keyCodes.begin(); it != keyCodes.end(); ++it)
+				{
+					if (it->second == secondary)
+						name = it->first;
+				}
+				returnInfo += " " + name;
+			}
+			if (mousePrimary < Blam::Input::eMouseButtons_Count)
+				returnInfo += " m" + std::to_string(mousePrimary);
+			if (mouseSecondary < Blam::Input::eMouseButtons_Count)
+				returnInfo += " m" + std::to_string(mouseSecondary);
+			returnInfo += "\n";
+		}
+		return true;
+	}
+#endif
 }
 
 namespace Modules
@@ -165,6 +231,11 @@ namespace Modules
 		Patches::Input::RegisterDefaultInputHandler(KeyboardUpdated);
 
 		AddCommand("UIButtonPress", "ui_btn_press", "Emulates a gamepad button press on UI menus", eCommandFlagsNone, CommandUIButtonPress, { "btnCode The code of the button to press" });
+
+#ifdef _DEBUG
+		AddCommand("DumpBindings", "dumpbindings", "Test", eCommandFlagsNone, CommandDumpBindings);
+		AddCommand("BindAction", "action", "Test", eCommandFlagsNone, CommandBindAction, { "action", "key" });
+#endif
 
 		// Default keybindings (TODO: port bind saving code from recode)
 		bindings[Blam::Input::eKeyCodesEnter].command = { "ui_btn_press", "0" };  // A

@@ -49,5 +49,10 @@ namespace Patches
 		// Registers a function to be called when the default input handler is
 		// ticked.
 		void RegisterDefaultInputHandler(DefaultInputHandler func);
+
+		typedef std::function<void(int localPlayerIndex)> BindingsUpdatedHandler;
+
+		// Registers a function to be called after new input bindings are set.
+		void RegisterBindingsUpdatedHandler(BindingsUpdatedHandler func);
 	}
 }

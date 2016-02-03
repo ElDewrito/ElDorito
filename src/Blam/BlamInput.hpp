@@ -148,8 +148,30 @@ namespace Blam
 			eKeyCodesUnused6B, // Windows key, but will always fail
 			eKeyCodesAlt,
 
-			eKeyCodes_Count // Not actually a key, just represents the number
-							// of keys that the game scans
+			eKeyCodes_Count, // Not actually a key, just represents the number
+							 // of keys that the game scans
+
+			eKeyCodes_None = 0xFF, // An invalid key code (for use in unset bindings)
+		};
+
+		enum MouseButtons : uint8_t
+		{
+			eMouseButtonsLeft,
+			eMouseButtonsMiddle,
+			eMouseButtonsRight,
+			eMouseButtons4,
+			eMouseButtons5,
+
+			// Not sure what these 3 are...they aren't buttons and can't be bound to anything
+			eMouseButtonsUnk5,
+			eMouseButtonsUnk6,
+			eMouseButtonsUnk7,
+
+			eMouseButtonsWheelUp,
+			eMouseButtonsWheelDown,
+
+			eMouseButtons_Count,
+			eMouseButtons_None = 0xFF, // An invalid mouse button (for use in unset bindings)
 		};
 
 		enum InputType : uint32_t
@@ -184,6 +206,102 @@ namespace Blam
 		};
 		static_assert(sizeof(KeyEvent) == 0x10, "Invalid KeyEvent size");
 
+		// TODO: Map more of these unknowns
+
+		enum InputAction : uint8_t
+		{
+			eInputActionUnk0,
+			eInputActionUnk1,
+			eInputActionUnk2,
+			eInputActionUnk3,
+			eInputActionUnk4,
+			eInputActionUnk5,
+			eInputActionPause,
+			eInputActionScoreboard,
+			eInputActionUnk8,
+			eInputActionUnk9,
+			eInputActionUnk10,
+			eInputActionUnk11,
+			eInputActionUnk12,
+			eInputActionUnk13,
+			eInputActionUnk14,
+			eInputActionUnk15,
+			eInputActionJump,
+			eInputActionSwitchGrenades,
+			eInputActionUnk18,
+			eInputActionUnk19,
+			eInputActionReloadRight,
+			eInputActionPickUpRight,
+			eInputActionReloadLeft,
+			eInputActionPickUpLeft,
+			eInputActionMelee,
+			eInputActionThrowGrenade,
+			eInputActionFireRight,
+			eInputActionFireLeft,
+			eInputActionMelee2, // ???
+			eInputActionCrouch,
+			eInputActionZoom,
+			eInputActionUnk31,
+			eInputActionUnk32,
+			eInputActionSprint,
+			eInputActionUnk34,
+			eInputActionUnk35,
+			eInputActionUnk36,
+			eInputActionUnk37,
+			eInputActionUnk38,
+			eInputActionGeneralChat,
+			eInputActionTeamChat,
+			eInputActionUnk41,
+			eInputActionUnk42,
+			eInputActionUnk43,
+			eInputActionUseConsumable1,
+			eInputActionUseConsumable2,
+			eInputActionUseConsumable3,
+			eInputActionUseConsumable4,
+			eInputActionBoostVehicle,
+			eInputActionDiveVehicle,
+			eInputActionRaiseVehicle,
+			eInputActionAccelerate,
+			eInputActionBrake,
+			eInputActionUnk53,
+			eInputActionUnk54,
+			eInputActionExitVehicle,
+			eInputActionUnk56,
+			eInputActionUnk57,
+			eInputActionUnk58,
+
+			eInputAction_ControllerCount = 59,
+
+			// These actions CANNOT be bound to controller buttons or else you
+			// will overflow the controller bindings array! (Also, it seems
+			// that mouse bindings will ignore these, even though there's room
+			// for them.)
+
+			eInputActionMoveForward = 59,
+			eInputActionMoveBack,
+			eInputActionMoveLeft,
+			eInputActionMoveRight,
+
+			eInputAction_KeyboardMouseCount = 63
+		};
+
+		struct BindingsTable
+		{
+			float Unknown0;
+			float Unknown4;
+			uint8_t ControllerBindings[eInputAction_ControllerCount];
+			uint8_t Unknown43[eInputAction_ControllerCount];
+			KeyCodes PrimaryKeys[eInputAction_KeyboardMouseCount];
+			KeyCodes SecondaryKeys[eInputAction_KeyboardMouseCount];
+			MouseButtons PrimaryMouseButtons[eInputAction_KeyboardMouseCount];
+			MouseButtons SecondaryMouseButtons[eInputAction_KeyboardMouseCount];
+			float Unknown1F8;
+			float Unknown1FC;
+			float Unknown200;
+			float Unknown204;
+		};
+		static_assert(sizeof(BindingsTable) == 0x208, "Invalid BindingsTable size");
+
 		// Gets the number of ticks that a key has been held down for.
 		// Will always be nonzero if the key is down.
 		uint8_t GetKeyTicks(KeyCodes key, InputType type);
@@ -202,5 +320,10 @@ namespace Blam
 
 		// Blocks or unblocks an input type.
 		void BlockInput(InputType type, bool block);
+
+		// Gets a pointer to the input bindings table for a local player.
+		// Halo Online only uses index 0, but there are 4 total.
+		// This will return null if the index is out-of-range.
+		BindingsTable* GetBindings(int localPlayerIndex);
 	}
 }
