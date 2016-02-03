@@ -81,7 +81,8 @@ namespace Patches
 			// Equipment patches
 			Patch::NopFill(Pointer::Base(0x786CFF), 6);
 			Patch::NopFill(Pointer::Base(0x786CF7), 6);
-			Hook(0x7440F0, GetEquipmentCountHook).Apply();
+
+			Hook(0x7A21D4, GetEquipmentCountHook, HookFlags::IsCall).Apply();
 			Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
 			Hook(0x786CF2, EquipmentTestHook).Apply();
 
@@ -230,16 +231,14 @@ namespace
 
 	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex)
 	{
-		auto& dorito = ElDorito::Instance();
-
-		if (equipmentIndex == 0xFFFF)
-			return 0;
-
 		// checks if dual wielding and disables equipment use if so
 		if (*(uint8_t*)(0x244D33D) == 0)
 			return 0;
 
-		return *(uint8_t*)(GetObjectDataAddress(playerObjectIndex) + 0x320 + equipmentIndex);
+		// Call the original function if not dual wielding
+		typedef int(__cdecl* GetEquipmentCountFunc)(uint16_t playerObjectIndex, uint16_t equipmentIndex);
+		GetEquipmentCountFunc GetEquipmentCount = reinterpret_cast<GetEquipmentCountFunc>(0xB440F0);
+		return GetEquipmentCount(playerObjectIndex, equipmentIndex);
 	}
 
 	__declspec(naked) void GrenadeLoadoutHook()
