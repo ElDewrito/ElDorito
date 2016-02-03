@@ -1071,8 +1071,8 @@ namespace Modules
 		VarServerMode->ValueIntMax = 4;
 
 		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
-		VarServerMode->ValueIntMin = 0;
-		VarServerMode->ValueIntMax = 4;
+		VarServerLobbyType->ValueIntMin = 0;
+		VarServerLobbyType->ValueIntMax = 4;
 
 		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
