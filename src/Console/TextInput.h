@@ -39,7 +39,7 @@ public:
 
 	void home()
 	{
-		if (currentPointerIndex != currentInput.begin)
+		if (currentPointerIndex > 0)
 		{
 			currentPointerIndex = currentInput.begin;
 		}
@@ -47,7 +47,7 @@ public:
 
 	void end()
 	{
-		if (currentPointerIndex != currentInput.end)
+		if (currentPointerIndex < -1)
 		{
 			currentPointerIndex = currentInput.end;
 		}
