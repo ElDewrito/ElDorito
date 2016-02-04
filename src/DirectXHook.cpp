@@ -18,6 +18,7 @@ int DirectXHook::largeSizeFontHeight = 0;
 int DirectXHook::normalSizeFontHeight = 0;
 
 LPDIRECT3DDEVICE9 DirectXHook::pDevice = 0;
+D3DVIEWPORT9 viewport;
 LPD3DXFONT DirectXHook::normalSizeFont = 0;
 LPD3DXFONT DirectXHook::largeSizeFont = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
@@ -29,6 +30,11 @@ int DirectXHook::helpMessageStartTime = 0;
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
 	DirectXHook::pDevice = device;
+
+	//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
+	DirectXHook::pDevice->GetViewport(&viewport);
+	viewport.X = 0;
+	DirectXHook::pDevice->SetViewport(&viewport);
 
 	initFontsIfRequired();
 
