@@ -6,8 +6,7 @@ ElDewrito is a fan mod for Halo Online that enables LAN-based online multiplayer
 
 Note that this is the source code repo for it, not the mod itself. You'll need a copy of Halo Online and the ElDewrito Launcher to install ED.
 
-Pull requests are welcomed from anyone who wants to contribute to us.  
-Although it's recommended that you come talk to us on IRC first before starting work on anything major, so that we can discuss it and come up with the best way to help you implement it.
+Pull requests are welcomed from anyone who wants to contribute to us. We recommend that you come talk to us on IRC first before starting work on anything major, so that we can discuss it and come up with the best way to help you implement it. Also, please use Visual Studio to edit and test your code. Pull requests which were clearly made with GitHub's online editor will be rejected. Your commits should be meaningful and represent logical increments in functionality.
 
 ## Download
 You should always check for the latest builds of ElDewrito on our [subreddit](https://www.reddit.com/r/HaloOnline/).
