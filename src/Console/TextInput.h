@@ -37,6 +37,20 @@ public:
 		}
 	}
 
+	void home()
+	{
+		if (currentPointerIndex > 0) {
+			currentPointerIndex = 0;
+		}
+	}
+
+	void end()
+	{
+		if (currentPointerIndex < currentInput.size()) {
+			currentPointerIndex = currentInput.size();
+		}
+	}
+
 	void left()
 	{
 		if (currentPointerIndex > 0)
