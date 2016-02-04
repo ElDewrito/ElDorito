@@ -21,6 +21,8 @@ namespace Modules
 		Command* VarServerSprintUnlimitedClient;
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
+		Command* VarServerEquipmentEnabled;
+		Command* VarServerEquipmentEnabledClient;
 
 		BYTE SyslinkData[0x176];
 
