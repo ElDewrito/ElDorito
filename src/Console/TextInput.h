@@ -46,8 +46,8 @@ public:
 
 	void end()
 	{
-		if (currentPointerIndex < -1) {
-			currentPointerIndex = -1;
+		if (currentPointerIndex < currentInput.size()) {
+			currentPointerIndex = currentInput.size();
 		}
 	}
 
