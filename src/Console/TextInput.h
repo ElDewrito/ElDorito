@@ -39,17 +39,17 @@ public:
 
 	void home()
 	{
-		if (currentPointerIndex != 0)
+		if (currentPointerIndex != currentInput.begin)
 		{
-			currentPointerIndex == 0;
+			currentPointerIndex = currentInput.begin;
 		}
 	}
 
 	void end()
 	{
-		if (currentPointerIndex != -1)
+		if (currentPointerIndex != currentInput.end)
 		{
-			currentPointerIndex == -1;
+			currentPointerIndex = currentInput.end;
 		}
 	}
 
