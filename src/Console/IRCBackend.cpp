@@ -72,9 +72,9 @@ bool IRCBackend::initIRCChat()
 	// HACK: If the IRC server is set to SnooNet, switch it to qmarchi's
 	// Otherwise people with existing cfg files will still be stuck on SnooNet
 	auto& ircvars = Modules::ModuleIRC::Instance();
-	if (ircvars.VarIRCServer->ValueString == "irc.snoonet.org")
+	if (ircvars.VarIRCServer->ValueString == "irc.justsomegamers.com")
 	{
-		ircvars.VarIRCServer->ValueString = "irc.justsomegamers.com";
+		ircvars.VarIRCServer->ValueString = "irc.snoonet.org";
 		Modules::CommandMap::Instance().ExecuteCommand("WriteConfig"); // ugh
 	}
 	
