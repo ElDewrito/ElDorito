@@ -37,6 +37,22 @@ public:
 		}
 	}
 
+	void home()
+	{
+		if (currentPointerIndex != currentInput.begin)
+		{
+			currentPointerIndex = currentInput.begin;
+		}
+	}
+
+	void end()
+	{
+		if (currentPointerIndex != currentInput.end)
+		{
+			currentPointerIndex = currentInput.end;
+		}
+	}
+
 	void left()
 	{
 		if (currentPointerIndex > 0)
