@@ -1086,6 +1086,10 @@ namespace Modules
 		VarServerDualWieldEnabledClient = AddVariableInt("DualWieldEnabledClient", "dualwield_client", "", eCommandFlagsInternal, 0);
 		Server::VariableSynchronization::Synchronize(VarServerDualWieldEnabled, VarServerDualWieldEnabledClient);
 
+		VarServerEquipmentEnabled = AddVariableInt("EquipmentEnabled", "equipment", "Controls whether equipment is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerEquipmentEnabledClient = AddVariableInt("EquipmentEnabledClient", "equipment_client", "", eCommandFlagsInternal, 0);
+		Server::VariableSynchronization::Synchronize(VarServerEquipmentEnabled, VarServerEquipmentEnabledClient);
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);
