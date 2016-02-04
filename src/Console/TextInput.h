@@ -39,32 +39,28 @@ public:
 
 	void home()
 	{
-		if (currentPointerIndex > 0)
-		{
-			currentPointerIndex = currentInput.begin;
+		if (currentPointerIndex > 0) {
+			currentPointerIndex = 0;
 		}
 	}
 
 	void end()
 	{
-		if (currentPointerIndex < -1)
-		{
-			currentPointerIndex = currentInput.end;
+		if (currentPointerIndex < -1) {
+			currentPointerIndex = -1;
 		}
 	}
 
 	void left()
 	{
-		if (currentPointerIndex > 0)
-		{
+		if (currentPointerIndex > 0) {
 			currentPointerIndex--;
 		}
 	}
 
 	void right()
 	{
-		if (currentPointerIndex < currentInput.size())
-		{
+		if (currentPointerIndex < currentInput.size()) {
 			currentPointerIndex++;
 		}
 	}
