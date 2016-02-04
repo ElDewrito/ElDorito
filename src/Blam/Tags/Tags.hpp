@@ -11,6 +11,12 @@
 		"Tag structure " #type " has incorrect size" \
 	)
 
+// Padding
+#define PAD8 char : 8
+#define PAD16 short : 16
+#define PAD24 char : 8; short : 16
+#define PAD32 int : 32
+
 namespace Blam
 {
 	namespace Tags
@@ -88,11 +94,11 @@ namespace Blam
 			static const bool Value = sizeof(test(std::declval<T>())) == sizeof(yes);
 		};
 
-		inline void *GetTagAddress(uint32_t index)
+		inline void *GetTagAddress(uint32_t group, uint32_t index)
 		{
 			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
 			auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-			return GetTagAddressImpl(0, index);
+			return GetTagAddressImpl(group, index);
 		}
 
 		// Gets a tag by index.
@@ -102,7 +108,7 @@ namespace Blam
 			static_assert(IsTagType<TagType>::Value, "Cannot call GetTag() on a non-tag type");
 			
 			if (index != 0xFFFFFFFF)
-				return GetTagAddress(TagType::GroupTag, index);
+				return reinterpret_cast<TagType *>(GetTagAddress(TagType::GroupTag, index));
 
 			return nullptr;
 		}

@@ -13,10 +13,12 @@ namespace
 	void FmodSystemInitHook();
 	int __cdecl DualWieldHook(unsigned short objectIndex);
 	void SprintInputHook();
+	void ScopeLevelHook();
 	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex);
 	void EquipmentHook();
 	void EquipmentTestHook();
 	void GrenadeLoadoutHook();
+	double GetAspectRatio();
 }
 
 namespace Patches
@@ -77,14 +79,16 @@ namespace Patches
 
 			// Hook sprint input for dual-wielding
 			Hook(0x6DFBB, SprintInputHook).Apply();
+			
+			// Hook scope level for dual-wielding
+			Hook(0x1D50CB, ScopeLevelHook).Apply();
 
 			// Equipment patches
 			Patch::NopFill(Pointer::Base(0x786CFF), 6);
 			Patch::NopFill(Pointer::Base(0x786CF7), 6);
-
 			Hook(0x7A21D4, GetEquipmentCountHook, HookFlags::IsCall).Apply();
-			Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
-			Hook(0x786CF2, EquipmentTestHook).Apply();
+			//Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
+			//Hook(0x786CF2, EquipmentTestHook).Apply();
 
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
@@ -98,6 +102,18 @@ namespace Patches
 			Patch(0x7FC40B, { 0xC3 }).Apply();
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
+
+			//Fix aspect ratio not matching resolution
+			Hook(0x6648C9, GetAspectRatio, HookFlags::IsCall).Apply();
+			Hook(0x216487, GetAspectRatio, HookFlags::IsCall).Apply();
+
+			//Disable converting the game's resolution to 16:9
+			Patch::NopFill(Pointer::Base(0x62217D), 2);
+			Patch::NopFill(Pointer::Base(0x622183), 6);
+
+			//Allow the user to select any resolution that Windows supports in the settings screen.
+			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
+			Patch::NopFill(Pointer::Base(0x10BF21), 6);
 		}
 	}
 }
@@ -209,7 +225,7 @@ namespace
 			return 0;
 		auto& dorito = ElDorito::Instance();
 		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		char* tagAddr = (char*)Blam::Tags::GetTagAddress(index);
+		char* tagAddr = (char*)Blam::Tags::GetTagAddress(0, index);
 		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
 	}
 
@@ -221,9 +237,24 @@ namespace
 			cmp		byte ptr ds : [0244D33Dh], 0	; zero if dual wielding
 			jne		enable                          ; leave sprint enabled(for now) if not dual wielding
 			and		ax, 0FEFFh                      ; disable by removing the 8th bit indicating no sprint input press
-		enable :
+		enable:
 			mov		dword ptr ds : [esi + 8], eax
 			push	046DFC0h
+			ret
+		}
+	}
+
+	// scope level is an int16 with -1 indicating no scope, 0 indicating first level, 1 indicating second level etc.
+	__declspec(naked) void ScopeLevelHook()
+	{
+		__asm
+		{
+			mov		word ptr ds : [edi + esi + 32Ah], 0FFFFh	; no scope by default
+			cmp		byte ptr ds : [0244D33Dh], 0                ; zero if dual wielding
+			je		noscope                                     ; prevent scoping when dual wielding
+			mov		word ptr ds : [edi + esi + 32Ah], ax        ; otherwise use intended scope level
+		noscope:
+			push	05D50D3h
 			ret
 		}
 	}
@@ -352,5 +383,11 @@ namespace
 			push 0xB86CFD
 			ret
 		}
+	}
+
+	double GetAspectRatio()
+	{
+		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+		return ((double)gameResolution[0] / (double)gameResolution[1]);
 	}
 }
