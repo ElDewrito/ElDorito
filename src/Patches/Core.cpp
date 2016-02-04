@@ -252,8 +252,11 @@ namespace
 		}
 	}
 
-	void EquipmentHookImpl(unsigned short playerIndex, unsigned short equipmentIndex)
+	int EquipmentHookImpl(unsigned short playerIndex, unsigned short equipmentIndex)
 	{
+		if (!Modules::ModuleServer::Instance().VarServerEquipmentEnabledClient->ValueInt)
+		return 0;
+		
 		BYTE unkData[0x40];
 		BYTE b69Data[0x48];
 
