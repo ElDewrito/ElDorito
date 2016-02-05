@@ -37,18 +37,30 @@ public:
 		}
 	}
 
+	void home()
+	{
+		if (currentPointerIndex > 0) {
+			currentPointerIndex = 0;
+		}
+	}
+
+	void end()
+	{
+		if (currentPointerIndex < currentInput.size()) {
+			currentPointerIndex = currentInput.size();
+		}
+	}
+
 	void left()
 	{
-		if (currentPointerIndex > 0)
-		{
+		if (currentPointerIndex > 0) {
 			currentPointerIndex--;
 		}
 	}
 
 	void right()
 	{
-		if (currentPointerIndex < currentInput.size())
-		{
+		if (currentPointerIndex < currentInput.size()) {
 			currentPointerIndex++;
 		}
 	}
