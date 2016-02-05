@@ -14,7 +14,7 @@ namespace
 	int __cdecl DualWieldHook(unsigned short objectIndex);
 	void SprintInputHook();
 	double GetAspectRatio();
-	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex);
+	int GetEquipmentCountHook(uint32_t unitIndex, short equipmentIndex);
 	void EquipmentHook();
 	void EquipmentTestHook();
 	void GrenadeLoadoutHook();
@@ -208,10 +208,45 @@ namespace
 		grenadeCounts[3] = profile->FirebombGrenades;
 	}
 
+	// TODO: Set up a proper data_array class...this is disgusting.
+
+	bool UnitIsDualWielding(uint32_t unitIndex)
+	{
+		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
+		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0]((unitIndex & 0xFFFF) * 0x10)(0xC)[0];
+		if (!unitDatumPtr)
+			return false;
+		auto dualWieldWeaponIndex = unitDatumPtr(0x2CB).Read<int8_t>();
+		if (dualWieldWeaponIndex < 0 || dualWieldWeaponIndex >= 4)
+			return false;
+		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
+		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
+		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
+	}
+
+	bool PlayerIsDualWielding(uint32_t playerIndex)
+	{
+		auto playerArrayPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
+		auto playerUnitIndex = playerArrayPtr(0x44)[0]((playerIndex & 0xFFFF) * 0x2F08)(0x30).Read<uint32_t>();
+		if (playerUnitIndex == 0xFFFFFFFF)
+			return false;
+		return UnitIsDualWielding(playerUnitIndex);
+	}
+
+	bool LocalPlayerIsDualWielding()
+	{
+		typedef uint32_t(*GetLocalPlayerPtr)(int index);
+		auto GetLocalPlayer = reinterpret_cast<GetLocalPlayerPtr>(0x589C30);
+		auto localPlayerIndex = GetLocalPlayer(0);
+		if (localPlayerIndex == 0xFFFFFFFF)
+			return false;
+		return PlayerIsDualWielding(localPlayerIndex);
+	}
+
 	uint32_t GetObjectDataAddress(uint32_t objectDatum)
 	{
 		uint32_t objectIndex = objectDatum & UINT16_MAX;
-		Pointer &objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
+		Pointer objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
 		uint32_t objectAddress = objectHeaderPtr(0x44).Read<uint32_t>() + 0xC + objectIndex * 0x10;
 		return *(uint32_t*)(objectAddress);
 	}
@@ -230,27 +265,30 @@ namespace
 	{
 		__asm
 		{
-			mov		ecx, edi
-			cmp		byte ptr ds : [0244D33Dh], 0	; zero if dual wielding
-			jne		enable                          ; leave sprint enabled(for now) if not dual wielding
+			push	eax 
+			call	LocalPlayerIsDualWielding
+			test	al, al
+			pop		eax
+			jz		enable                          ; leave sprint enabled(for now) if not dual wielding
 			and		ax, 0FEFFh                      ; disable by removing the 8th bit indicating no sprint input press
 		enable :
 			mov		dword ptr ds : [esi + 8], eax
+			mov		ecx, edi
 			push	046DFC0h
 			ret
 		}
 	}
 
-	int __cdecl GetEquipmentCountHook(uint16_t playerObjectIndex, uint16_t equipmentIndex)
+	int GetEquipmentCountHook(uint32_t unitIndex, short equipmentIndex)
 	{
-		// checks if dual wielding and disables equipment use if so
-		if (*(uint8_t*)(0x244D33D) == 0)
+		// Disable equipment use if dual wielding
+		if (UnitIsDualWielding(unitIndex))
 			return 0;
 
 		// Call the original function if not dual wielding
-		typedef int(__cdecl* GetEquipmentCountFunc)(uint16_t playerObjectIndex, uint16_t equipmentIndex);
+		typedef int(__cdecl* GetEquipmentCountFunc)(uint32_t unitIndex, short equipmentIndex);
 		GetEquipmentCountFunc GetEquipmentCount = reinterpret_cast<GetEquipmentCountFunc>(0xB440F0);
-		return GetEquipmentCount(playerObjectIndex, equipmentIndex);
+		return GetEquipmentCount(unitIndex, equipmentIndex);
 	}
 
 	__declspec(naked) void GrenadeLoadoutHook()
