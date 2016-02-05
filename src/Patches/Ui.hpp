@@ -6,7 +6,6 @@ namespace Patches
 	{
 		void ApplyAll();
 		void ApplyMapNameFixes();
-		void ApplyUIResolution();
 
 		void Tick();
 

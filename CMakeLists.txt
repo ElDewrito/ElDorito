@@ -73,8 +73,6 @@ add_library(ElDorito SHARED
     src/Blam/BlamNetwork.hpp
     src/Blam/BlamTypes.hpp
     src/Blam/Tags/Tags.hpp
-    src/Blam/Tags/ChudDefinition.hpp
-    src/Blam/Tags/ChudGlobalsDefinition.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
     src/Blam/Tags/Scenario.hpp
     src/DirectXHook.cpp
