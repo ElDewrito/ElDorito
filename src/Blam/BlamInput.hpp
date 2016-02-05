@@ -6,179 +6,200 @@ namespace Blam
 {
 	namespace Input
 	{
-		enum ButtonCodes : uint32_t
+		enum UiButtonCode : uint32_t
 		{
-			eButtonCodesA = 0,
-			eButtonCodesB,
-			eButtonCodesX,
-			eButtonCodesY,
-			eButtonCodesRB,
-			eButtonCodesLB,
-			eButtonCodesLT,
-			eButtonCodesRT,
-			eButtonCodesDpadUp,
-			eButtonCodesDpadDown,
-			eButtonCodesDpadLeft,
-			eButtonCodesDpadRight,
-			eButtonCodesStart,
-			eButtonCodesBack,
-			eButtonCodesLS,
-			eButtonCodesRS,
-			eButtonCodesEmulatedInput,
-			eButtonCodesUnk1,
-			eButtonCodesLeft, // analog/arrow left
-			eButtonCodesRight, // analog/arrow right
-			eButtonCodesUp, // analog/arrow up
-			eButtonCodesDown, // analog/arrow down
-			eButtonCodesLSHorizontal = 0x1A,
-			eButtonCodesLSVertical,
-			eButtonCodesRSHorizontal,
-			eButtonCodesRSVertical,
+			eUiButtonCodeA = 0,
+			eUiButtonCodeB,
+			eUiButtonCodeX,
+			eUiButtonCodeY,
+			eUiButtonCodeRB,
+			eUiButtonCodeLB,
+			eUiButtonCodeLT,
+			eUiButtonCodeRT,
+			eUiButtonCodeDpadUp,
+			eUiButtonCodeDpadDown,
+			eUiButtonCodeDpadLeft,
+			eUiButtonCodeDpadRight,
+			eUiButtonCodeStart,
+			eUiButtonCodeBack,
+			eUiButtonCodeLS,
+			eUiButtonCodeRS,
+			eUiButtonCodeEmulatedInput,
+			eUiButtonCodeUnk1,
+			eUiButtonCodeLeft, // analog/arrow left
+			eUiButtonCodeRight, // analog/arrow right
+			eUiButtonCodeUp, // analog/arrow up
+			eUiButtonCodeDown, // analog/arrow down
+			eUiButtonCodeLSHorizontal = 0x1A,
+			eUiButtonCodeLSVertical,
+			eUiButtonCodeRSHorizontal,
+			eUiButtonCodeRSVertical,
 		};
 
-		enum KeyCodes : int16_t
+		enum ControllerButton : uint8_t
 		{
-			eKeyCodesEscape,
-			eKeyCodesF1,
-			eKeyCodesF2,
-			eKeyCodesF3,
-			eKeyCodesF4,
-			eKeyCodesF5,
-			eKeyCodesF6,
-			eKeyCodesF7,
-			eKeyCodesF8,
-			eKeyCodesF9,
-			eKeyCodesF10,
-			eKeyCodesF11,
-			eKeyCodesF12,
-			eKeyCodesPrintScreen,
-			eKeyCodesF14,
-			eKeyCodesF15,
-			eKeyCodesTilde, // VK_OEM_3
-			eKeyCodes1,
-			eKeyCodes2,
-			eKeyCodes3,
-			eKeyCodes4,
-			eKeyCodes5,
-			eKeyCodes6,
-			eKeyCodes7,
-			eKeyCodes8,
-			eKeyCodes9,
-			eKeyCodes0,
-			eKeyCodesMinus,
-			eKeyCodesPlus,
-			eKeyCodesBack,
-			eKeyCodesTab,
-			eKeyCodesQ,
-			eKeyCodesW,
-			eKeyCodesE,
-			eKeyCodesR,
-			eKeyCodesT,
-			eKeyCodesY,
-			eKeyCodesU,
-			eKeyCodesI,
-			eKeyCodesO,
-			eKeyCodesP,
-			eKeyCodesLBracket, // VK_OEM_4
-			eKeyCodesRBracket, // VK_OEM_6
-			eKeyCodesPipe, // VK_OEM_5
-			eKeyCodesCapital,
-			eKeyCodesA,
-			eKeyCodesS,
-			eKeyCodesD,
-			eKeyCodesF,
-			eKeyCodesG,
-			eKeyCodesH,
-			eKeyCodesJ,
-			eKeyCodesK,
-			eKeyCodesL,
-			eKeyCodesColon, // VK_OEM_1
-			eKeyCodesQuote, // VK_OEM_7
-			eKeyCodesEnter,
-			eKeyCodesLShift,
-			eKeyCodesZ,
-			eKeyCodesX,
-			eKeyCodesC,
-			eKeyCodesV,
-			eKeyCodesB,
-			eKeyCodesN,
-			eKeyCodesM,
-			eKeyCodesComma,
-			eKeyCodesPeriod,
-			eKeyCodesQuestion, // VK_OEM_2
-			eKeyCodesRShift,
-			eKeyCodesLControl,
-			eKeyCodesUnused46, // Left Windows key, but will always fail
-			eKeyCodesLAlt,
-			eKeyCodesSpace,
-			eKeyCodesRAlt,
-			eKeyCodesUnused4A, // Right Windows key, but will always fail
-			eKeyCodesApps,
-			eKeyCodesRcontrol,
-			eKeyCodesUp,
-			eKeyCodesDown,
-			eKeyCodesLeft,
-			eKeyCodesRight,
-			eKeyCodesInsert,
-			eKeyCodesHome,
-			eKeyCodesPageUp,
-			eKeyCodesDelete,
-			eKeyCodesEnd,
-			eKeyCodesPageDown,
-			eKeyCodesNumLock,
-			eKeyCodesDivide,
-			eKeyCodesMultiply,
-			eKeyCodesNumpad0,
-			eKeyCodesNumpad1,
-			eKeyCodesNumpad2,
-			eKeyCodesNumpad3,
-			eKeyCodesNumpad4,
-			eKeyCodesNumpad5,
-			eKeyCodesNumpad6,
-			eKeyCodesNumpad7,
-			eKeyCodesNumpad8,
-			eKeyCodesNumpad9,
-			eKeyCodesSubtract,
-			eKeyCodesAdd,
-			eKeyCodesNumpadEnter,
-			eKeyCodesDecimal,
-			eKeyCodesUnused68,
-			eKeyCodesShift,
-			eKeyCodesCtrl,
-			eKeyCodesUnused6B, // Windows key, but will always fail
-			eKeyCodesAlt,
+			eControllerButtonLeftTrigger,
+			eControllerButtonRightTrigger,
+			eControllerButtonDpadUp,
+			eControllerButtonDpadDown,
+			eControllerButtonDpadLeft,
+			eControllerButtonDpadRight,
+			eControllerButtonStart,
+			eControllerButtonSelect,
+			eControllerButtonLeftStick,
+			eControllerButtonRightStick,
+			eControllerButtonA,
+			eControllerButtonB,
+			eControllerButtonX,
+			eControllerButtonY,
+			eControllerButtonLeftBumper,
+			eControllerButtonRightBumper,
 
-			eKeyCodes_Count, // Not actually a key, just represents the number
-							 // of keys that the game scans
-
-			eKeyCodes_None = 0xFF, // An invalid key code (for use in unset bindings)
+			eControllerButton_Count,
+			eControllerButton_None = 0xFF, // An invalid controller button (for use in unset bindings)
 		};
 
-		enum MouseButtons : uint8_t
+		enum KeyCode : uint16_t
 		{
-			eMouseButtonsLeft,
-			eMouseButtonsMiddle,
-			eMouseButtonsRight,
-			eMouseButtons4,
-			eMouseButtons5,
+			eKeyCodeEscape,
+			eKeyCodeF1,
+			eKeyCodeF2,
+			eKeyCodeF3,
+			eKeyCodeF4,
+			eKeyCodeF5,
+			eKeyCodeF6,
+			eKeyCodeF7,
+			eKeyCodeF8,
+			eKeyCodeF9,
+			eKeyCodeF10,
+			eKeyCodeF11,
+			eKeyCodeF12,
+			eKeyCodePrintScreen,
+			eKeyCodeF14,
+			eKeyCodeF15,
+			eKeyCodeTilde, // VK_OEM_3
+			eKeyCode1,
+			eKeyCode2,
+			eKeyCode3,
+			eKeyCode4,
+			eKeyCode5,
+			eKeyCode6,
+			eKeyCode7,
+			eKeyCode8,
+			eKeyCode9,
+			eKeyCode0,
+			eKeyCodeMinus,
+			eKeyCodePlus,
+			eKeyCodeBack,
+			eKeyCodeTab,
+			eKeyCodeQ,
+			eKeyCodeW,
+			eKeyCodeE,
+			eKeyCodeR,
+			eKeyCodeT,
+			eKeyCodeY,
+			eKeyCodeU,
+			eKeyCodeI,
+			eKeyCodeO,
+			eKeyCodeP,
+			eKeyCodeLBracket, // VK_OEM_4
+			eKeyCodeRBracket, // VK_OEM_6
+			eKeyCodePipe, // VK_OEM_5
+			eKeyCodeCapital,
+			eKeyCodeA,
+			eKeyCodeS,
+			eKeyCodeD,
+			eKeyCodeF,
+			eKeyCodeG,
+			eKeyCodeH,
+			eKeyCodeJ,
+			eKeyCodeK,
+			eKeyCodeL,
+			eKeyCodeColon, // VK_OEM_1
+			eKeyCodeQuote, // VK_OEM_7
+			eKeyCodeEnter,
+			eKeyCodeLShift,
+			eKeyCodeZ,
+			eKeyCodeX,
+			eKeyCodeC,
+			eKeyCodeV,
+			eKeyCodeB,
+			eKeyCodeN,
+			eKeyCodeM,
+			eKeyCodeComma,
+			eKeyCodePeriod,
+			eKeyCodeQuestion, // VK_OEM_2
+			eKeyCodeRShift,
+			eKeyCodeLControl,
+			eKeyCodeUnused46, // Left Windows key, but will always fail
+			eKeyCodeLAlt,
+			eKeyCodeSpace,
+			eKeyCodeRAlt,
+			eKeyCodeUnused4A, // Right Windows key, but will always fail
+			eKeyCodeApps,
+			eKeyCodeRcontrol,
+			eKeyCodeUp,
+			eKeyCodeDown,
+			eKeyCodeLeft,
+			eKeyCodeRight,
+			eKeyCodeInsert,
+			eKeyCodeHome,
+			eKeyCodePageUp,
+			eKeyCodeDelete,
+			eKeyCodeEnd,
+			eKeyCodePageDown,
+			eKeyCodeNumLock,
+			eKeyCodeDivide,
+			eKeyCodeMultiply,
+			eKeyCodeNumpad0,
+			eKeyCodeNumpad1,
+			eKeyCodeNumpad2,
+			eKeyCodeNumpad3,
+			eKeyCodeNumpad4,
+			eKeyCodeNumpad5,
+			eKeyCodeNumpad6,
+			eKeyCodeNumpad7,
+			eKeyCodeNumpad8,
+			eKeyCodeNumpad9,
+			eKeyCodeSubtract,
+			eKeyCodeAdd,
+			eKeyCodeNumpadEnter,
+			eKeyCodeDecimal,
+			eKeyCodeUnused68,
+			eKeyCodeShift,
+			eKeyCodeCtrl,
+			eKeyCodeUnused6B, // Windows key, but will always fail
+			eKeyCodeAlt,
+
+			eKeyCode_Count,
+			eKeyCode_None = 0xFF, // An invalid key code (for use in unset bindings)
+		};
+
+		enum MouseButton : uint8_t
+		{
+			eMouseButtonLeft,
+			eMouseButtonMiddle,
+			eMouseButtonRight,
+			eMouseButton4,
+			eMouseButton5,
 
 			// Not sure what these 3 are...they aren't buttons and can't be bound to anything
-			eMouseButtonsUnk5,
-			eMouseButtonsUnk6,
-			eMouseButtonsUnk7,
+			eMouseButtonUnk5,
+			eMouseButtonUnk6,
+			eMouseButtonUnk7,
 
-			eMouseButtonsWheelUp,
-			eMouseButtonsWheelDown,
+			eMouseButtonWheelUp,
+			eMouseButtonWheelDown,
 
-			eMouseButtons_Count,
-			eMouseButtons_None = 0xFF, // An invalid mouse button (for use in unset bindings)
+			eMouseButton_Count,
+			eMouseButton_None = 0xFF, // An invalid mouse button (for use in unset bindings)
 		};
 
 		enum InputType : uint32_t
 		{
 			eInputTypeUi,      // ABXY, mouse clicks, etc.
 			eInputTypeGame,    // All in-game actions (including camera)
-							   //   Disabled when the pause menu is open
+			                   //   Disabled when the pause menu is open
 			eInputTypeSpecial, // Escape, tab, menu navigation
 		};
 
@@ -200,115 +221,127 @@ namespace Blam
 		{
 			KeyEventModifiers Modifiers; // Bitfield of modifier keys that are down
 			KeyEventType Type;           // Event type
-			KeyCodes Code;               // The key code, or -1 if unavailable
+			KeyCode Code;                // The key code, or -1 if unavailable
 			char16_t Char;               // For eKeyEventTypeChar events, the character that was typed, or -1 if unavailable
 			bool PreviousState;          // If true, the key was down before this event happened
 		};
 		static_assert(sizeof(KeyEvent) == 0x10, "Invalid KeyEvent size");
 
-		// TODO: Map more of these unknowns
-
-		enum InputAction : uint8_t
+		enum GameAction : uint8_t
 		{
-			eInputActionUnk0,
-			eInputActionUnk1,
-			eInputActionUnk2,
-			eInputActionUnk3,
-			eInputActionUnk4,
-			eInputActionUnk5,
-			eInputActionPause,
-			eInputActionScoreboard,
-			eInputActionUnk8,
-			eInputActionUnk9,
-			eInputActionUnk10,
-			eInputActionUnk11,
-			eInputActionUnk12,
-			eInputActionUnk13,
-			eInputActionUnk14,
-			eInputActionUnk15,
-			eInputActionJump,
-			eInputActionSwitchGrenades,
-			eInputActionUnk18,
-			eInputActionUnk19,
-			eInputActionReloadRight,
-			eInputActionPickUpRight,
-			eInputActionReloadLeft,
-			eInputActionPickUpLeft,
-			eInputActionMelee,
-			eInputActionThrowGrenade,
-			eInputActionFireRight,
-			eInputActionFireLeft,
-			eInputActionMelee2, // ???
-			eInputActionCrouch,
-			eInputActionZoom,
-			eInputActionUnk31,
-			eInputActionUnk32,
-			eInputActionSprint,
-			eInputActionUnk34,
-			eInputActionUnk35,
-			eInputActionUnk36,
-			eInputActionUnk37,
-			eInputActionUnk38,
-			eInputActionGeneralChat,
-			eInputActionTeamChat,
-			eInputActionUnk41,
-			eInputActionUnk42,
-			eInputActionUnk43,
-			eInputActionUseConsumable1,
-			eInputActionUseConsumable2,
-			eInputActionUseConsumable3,
-			eInputActionUseConsumable4,
-			eInputActionBoostVehicle,
-			eInputActionDiveVehicle,
-			eInputActionRaiseVehicle,
-			eInputActionAccelerate,
-			eInputActionBrake,
-			eInputActionUnk53,
-			eInputActionUnk54,
-			eInputActionExitVehicle,
-			eInputActionUnk56,
-			eInputActionUnk57,
-			eInputActionUnk58,
+			// These actions mirror the ControllerButton enum
 
-			eInputAction_ControllerCount = 59,
+			eGameActionUiLeftTrigger,
+			eGameActionUiRightTrigger,
+			eGameActionUiUp,
+			eGameActionUiDown,
+			eGameActionUiLeft,
+			eGameActionUiRight,
+			eGameActionUiStart,
+			eGameActionUiSelect,
+			eGameActionUiLeftStick,
+			eGameActionUiRightStick,
+			eGameActionUiA,
+			eGameActionUiB,
+			eGameActionUiX,
+			eGameActionUiY,
+			eGameActionUiLeftBumper,
+			eGameActionUiRightBumper,
+
+			// In-game actions
+
+			eGameActionJump,
+			eGameActionSwitchGrenades,
+			eGameActionSwitchWeapons,
+			eGameActionUnk19,
+			eGameActionReloadRight,
+			eGameActionUse,
+			eGameActionReloadLeft,
+			eGameActionPickUpLeft,
+			eGameActionMelee,
+			eGameActionThrowGrenade,
+			eGameActionFireRight,
+			eGameActionFireLeft,
+			eGameActionMeleeFire, // Fires a weapon with a trigger bound to the melee key
+			eGameActionCrouch,
+			eGameActionZoom,
+			eGameActionUnk31,
+			eGameActionUnk32,
+			eGameActionSprint,
+			eGameActionUnk34,
+			eGameActionUnk35,
+			eGameActionUnk36,
+			eGameActionUnk37,
+			eGameActionUnk38,
+			eGameActionGeneralChat,
+			eGameActionTeamChat,
+			eGameActionUnk41,
+			eGameActionUnk42,
+			eGameActionUnk43,
+			eGameActionUseConsumable1,
+			eGameActionUseConsumable2,
+			eGameActionUseConsumable3,
+			eGameActionUseConsumable4,
+			eGameActionVehicleBoost,
+			eGameActionVehicleDive,
+			eGameActionVehicleRaise,
+			eGameActionVehicleAccelerate,
+			eGameActionVehicleBrake,
+			eGameActionVehicleFire,
+			eGameActionVehicleAltFire,
+			eGameActionVehicleExit,
+			eGameActionUnk56,
+			eGameActionUnk57,
+			eGameActionUnk58,
+
+			eGameAction_ControllerCount = 59,
 
 			// These actions CANNOT be bound to controller buttons or else you
 			// will overflow the controller bindings array! (Also, it seems
 			// that mouse bindings will ignore these, even though there's room
 			// for them.)
 
-			eInputActionMoveForward = 59,
-			eInputActionMoveBack,
-			eInputActionMoveLeft,
-			eInputActionMoveRight,
+			eGameActionMoveForward = 59,
+			eGameActionMoveBack,
+			eGameActionMoveLeft,
+			eGameActionMoveRight,
 
-			eInputAction_KeyboardMouseCount = 63
+			eGameAction_KeyboardMouseCount = 63
 		};
 
 		struct BindingsTable
 		{
-			float Unknown0;
-			float Unknown4;
-			uint8_t ControllerBindings[eInputAction_ControllerCount];
-			uint8_t Unknown43[eInputAction_ControllerCount];
-			KeyCodes PrimaryKeys[eInputAction_KeyboardMouseCount];
-			KeyCodes SecondaryKeys[eInputAction_KeyboardMouseCount];
-			MouseButtons PrimaryMouseButtons[eInputAction_KeyboardMouseCount];
-			MouseButtons SecondaryMouseButtons[eInputAction_KeyboardMouseCount];
-			float Unknown1F8;
-			float Unknown1FC;
-			float Unknown200;
-			float Unknown204;
+			float Unknown0; // Default = 120
+			float Unknown4; // Default = 60
+			ControllerButton ControllerButtons[eGameAction_ControllerCount];
+			bool ControllerHoldButtons[eGameAction_ControllerCount]; // true if a button needs to be held down? just a guess
+			KeyCode PrimaryKeys[eGameAction_KeyboardMouseCount];
+			KeyCode SecondaryKeys[eGameAction_KeyboardMouseCount];
+			MouseButton PrimaryMouseButtons[eGameAction_KeyboardMouseCount];
+			MouseButton SecondaryMouseButtons[eGameAction_KeyboardMouseCount];
+			uint32_t Unknown1F8;
+			uint32_t Unknown1FC;
+			float Unknown200; // Default = .8
+			float Unknown204; // Default = 1
 		};
 		static_assert(sizeof(BindingsTable) == 0x208, "Invalid BindingsTable size");
 
+		struct BindingsPreferences
+		{
+			KeyCode PrimaryKeys[eGameAction_KeyboardMouseCount];
+			MouseButton PrimaryMouseButtons[eGameAction_KeyboardMouseCount];
+			KeyCode SecondaryKeys[eGameAction_KeyboardMouseCount];
+			MouseButton SecondaryMouseButtons[eGameAction_KeyboardMouseCount];
+		};
+		static_assert(sizeof(BindingsPreferences) == 0x17C, "Invalid BindingsPreferences size");
+
 		// Gets the number of ticks that a key has been held down for.
 		// Will always be nonzero if the key is down.
-		uint8_t GetKeyTicks(KeyCodes key, InputType type);
+		uint8_t GetKeyTicks(KeyCode key, InputType type);
 
 		// Gets the number of milliseconds that a key has been held down for.
 		// Will always be nonzero if the key is down.
-		uint16_t GetKeyMs(KeyCodes key, InputType type);
+		uint16_t GetKeyMs(KeyCode key, InputType type);
 
 		// Reads a raw keyboard input event. Returns false if nothing is
 		// available. You should call this in a loop to ensure that you process
@@ -321,9 +354,14 @@ namespace Blam
 		// Blocks or unblocks an input type.
 		void BlockInput(InputType type, bool block);
 
-		// Gets a pointer to the input bindings table for a local player.
+		// Gets the input bindings table for a local player.
 		// Halo Online only uses index 0, but there are 4 total.
-		// This will return null if the index is out-of-range.
-		BindingsTable* GetBindings(int localPlayerIndex);
+		// This will fail if the index is out-of-range.
+		bool GetBindings(int localPlayerIndex, BindingsTable *result);
+
+		// Updates the input bindings table for a local player.
+		// Halo Online only uses index 0, but there are 4 total.
+		// This will fail if the index is out-of range.
+		bool SetBindings(int localPlayerIndex, const BindingsTable &newBindings);
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Modules/ModuleInput.hpp"
 
 namespace
 {
@@ -12,14 +13,14 @@ namespace
 	void ProcessUiInputHook();
 	void QuickUpdateUiInputHook();
 	void KeyTestHook();
-	void SetBindingsHook(int localPlayerIndex, Blam::Input::BindingsTable *bindings);
-	void DualWieldBindingsHandler(int localPlayerIndex);
+	void InitBindingsHook(Blam::Input::BindingsTable *bindings);
+	Blam::Input::BindingsPreferences* PreferencesGetKeyBindingsHook(Blam::Input::BindingsPreferences *result);
+	void PreferencesSetKeyBindingsHook(Blam::Input::BindingsPreferences newBindings);
+	void GetDefaultBindingsHook(int type, Blam::Input::BindingsTable *result);
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	bool contextDone = false;
-
-	std::vector<BindingsUpdatedHandler> bindingsUpdatedHandlers;
 }
 
 namespace Patches
@@ -33,9 +34,11 @@ namespace Patches
 			Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
 			Hook(0x111B66, KeyTestHook, HookFlags::IsCall).Apply();
 			Hook(0x111CE6, KeyTestHook, HookFlags::IsCall).Apply();
-			Hook(0x6A237F, SetBindingsHook, HookFlags::IsCall).Apply();
-			Hook(0x10D139, SetBindingsHook, HookFlags::IsCall).Apply();
-			RegisterBindingsUpdatedHandler(DualWieldBindingsHandler);
+			Hook(0x20BF00, InitBindingsHook).Apply();
+			Hook(0x10AB40, PreferencesGetKeyBindingsHook).Apply();
+			Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
+			Hook(0x20C040, GetDefaultBindingsHook).Apply();
+			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 		}
 
 		void PushContext(std::shared_ptr<InputContext> context)
@@ -49,11 +52,6 @@ namespace Patches
 		void RegisterDefaultInputHandler(DefaultInputHandler func)
 		{
 			defaultHandlers.push_back(func);
-		}
-
-		void RegisterBindingsUpdatedHandler(BindingsUpdatedHandler func)
-		{
-			bindingsUpdatedHandlers.push_back(func);
 		}
 	}
 }
@@ -148,50 +146,38 @@ namespace
 		}
 	}
 
-	void SetBindingsHook(int localPlayerIndex, Blam::Input::BindingsTable *bindings)
+	// Hook to initialize bindings with ModuleInput's values
+	void InitBindingsHook(Blam::Input::BindingsTable *bindings)
 	{
-		typedef void(*SetBindingsPtr)(int localPlayerIndex, Blam::Input::BindingsTable *bindings);
-		auto SetBindings = reinterpret_cast<SetBindingsPtr>(0x60D830);
-		SetBindings(localPlayerIndex, bindings);
-
-		for (auto &&handler : bindingsUpdatedHandlers)
-			handler(localPlayerIndex);
+		*bindings = *Modules::ModuleInput::GetBindings();
 	}
 
-	void DualWieldBindingsHandler(int localPlayerIndex)
+	// Hook to redirect keybind preference reads to ModuleInput
+	Blam::Input::BindingsPreferences* PreferencesGetKeyBindingsHook(Blam::Input::BindingsPreferences *result)
 	{
-		auto bindings = Blam::Input::GetBindings(localPlayerIndex);
+		auto bindings = Modules::ModuleInput::GetBindings();
+		memcpy(result->PrimaryKeys, bindings->PrimaryKeys, sizeof(result->PrimaryKeys));
+		memcpy(result->PrimaryMouseButtons, bindings->PrimaryMouseButtons, sizeof(result->PrimaryMouseButtons));
+		memcpy(result->SecondaryKeys, bindings->SecondaryKeys, sizeof(result->SecondaryKeys));
+		memcpy(result->SecondaryMouseButtons, bindings->SecondaryMouseButtons, sizeof(result->SecondaryMouseButtons));
+		return result;
+	}
 
-		// Unbind all actions bound to Q (haxhaxhax)
-		for (auto i = 0; i < Blam::Input::eInputAction_KeyboardMouseCount; i++)
-		{
-			if (bindings->SecondaryKeys[i] == Blam::Input::eKeyCodesQ)
-				bindings->SecondaryKeys[i] = Blam::Input::eKeyCodes_None;
-			if (bindings->PrimaryKeys[i] == Blam::Input::eKeyCodesQ)
-			{
-				bindings->PrimaryKeys[i] = bindings->SecondaryKeys[i];
-				bindings->SecondaryKeys[i] = Blam::Input::eKeyCodes_None;
-			}
-		}
+	// Hook to redirect keybind preference writes to ModuleInput
+	void PreferencesSetKeyBindingsHook(Blam::Input::BindingsPreferences newBindings)
+	{
+		auto bindings = Modules::ModuleInput::GetBindings();
+		memcpy(bindings->PrimaryKeys, newBindings.PrimaryKeys, sizeof(bindings->PrimaryKeys));
+		memcpy(bindings->PrimaryMouseButtons, newBindings.PrimaryMouseButtons, sizeof(bindings->PrimaryMouseButtons));
+		memcpy(bindings->SecondaryKeys, newBindings.SecondaryKeys, sizeof(bindings->SecondaryKeys));
+		memcpy(bindings->SecondaryMouseButtons, newBindings.SecondaryMouseButtons, sizeof(bindings->SecondaryMouseButtons));
+		Blam::Input::SetBindings(0, *bindings);
+		Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
+	}
 
-		// TODO: Pull these values from variables, or set up our own complete binding system
-
-		// Pick up left = Q
-		bindings->PrimaryKeys[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eKeyCodesQ;
-		bindings->SecondaryKeys[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eKeyCodes_None;
-		bindings->PrimaryMouseButtons[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eMouseButtons_None;
-		bindings->SecondaryMouseButtons[Blam::Input::eInputActionPickUpLeft] = Blam::Input::eMouseButtons_None;
-
-		// Reload left = Q
-		bindings->PrimaryKeys[Blam::Input::eInputActionReloadLeft] = Blam::Input::eKeyCodesQ;
-		bindings->SecondaryKeys[Blam::Input::eInputActionReloadLeft] = Blam::Input::eKeyCodes_None;
-		bindings->PrimaryMouseButtons[Blam::Input::eInputActionReloadLeft] = Blam::Input::eMouseButtons_None;
-		bindings->SecondaryMouseButtons[Blam::Input::eInputActionReloadLeft] = Blam::Input::eMouseButtons_None;
-		
-		// Fire left = RMB
-		bindings->PrimaryKeys[Blam::Input::eInputActionFireLeft] = Blam::Input::eKeyCodes_None;
-		bindings->SecondaryKeys[Blam::Input::eInputActionFireLeft] = Blam::Input::eKeyCodes_None;
-		bindings->PrimaryMouseButtons[Blam::Input::eInputActionFireLeft] = Blam::Input::eMouseButtonsRight;
-		bindings->SecondaryMouseButtons[Blam::Input::eInputActionFireLeft] = Blam::Input::eMouseButtons_None;
+	// Hook to prevent the game from resetting keybindings when we don't want it to
+	void GetDefaultBindingsHook(int type, Blam::Input::BindingsTable *result)
+	{
+		*result = *Modules::ModuleInput::GetBindings();
 	}
 }

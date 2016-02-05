@@ -328,18 +328,18 @@ namespace
 		auto CurTime = std::chrono::high_resolution_clock::now();
 		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
 
-		if (btnCode == Blam::Input::eButtonCodesLeft || btnCode == Blam::Input::eButtonCodesRight)
+		if (btnCode == Blam::Input::eUiButtonCodeLeft || btnCode == Blam::Input::eUiButtonCodeRight)
 		{
 			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
 				return 1;
 
 			PrevTime = CurTime;
 
-			if (btnCode == Blam::Input::eButtonCodesLeft) // analog left / arrow key left
-				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eButtonCodesLB;
+			if (btnCode == Blam::Input::eUiButtonCodeLeft) // analog left / arrow key left
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eUiButtonCodeLB;
 
-			if (btnCode == Blam::Input::eButtonCodesRight) // analog right / arrow key right
-				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eButtonCodesRB;
+			if (btnCode == Blam::Input::eUiButtonCodeRight) // analog right / arrow key right
+				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eUiButtonCodeRB;
 		}
 
 		typedef char(__thiscall *UI_Forge_ButtonPressHandler)(void* a1, void* controllerStruct);
@@ -354,7 +354,7 @@ namespace
 		auto CurTime = std::chrono::high_resolution_clock::now();
 		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
 
-		if (btnCode >= Blam::Input::eButtonCodesLeft && btnCode <= Blam::Input::eButtonCodesDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
+		if (btnCode >= Blam::Input::eUiButtonCodeLeft && btnCode <= Blam::Input::eUiButtonCodeDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
 		{
 			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
 				return 1;
@@ -483,7 +483,7 @@ namespace
 		{
 			uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
 
-			if (btnCode >= Blam::Input::eButtonCodesDpadUp && btnCode <= Blam::Input::eButtonCodesDpadRight)
+			if (btnCode >= Blam::Input::eUiButtonCodeDpadUp && btnCode <= Blam::Input::eUiButtonCodeDpadRight)
 				return 1; // ignore the dpad button presses
 		}
 

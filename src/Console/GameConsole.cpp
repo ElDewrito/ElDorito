@@ -206,11 +206,11 @@ bool GameConsole::consoleKeyCallBack()
 
 bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 {
-	using Blam::Input::KeyCodes;
+	using Blam::Input::KeyCode;
 
 	switch (key.Code)
 	{
-	case KeyCodes::eKeyCodesEnter:
+	case KeyCode::eKeyCodeEnter:
 		if (!currentInput.currentInput.empty())
 		{
 			selectedQueue->unchangingBacklog.push_back(currentInput.currentInput);
@@ -220,39 +220,39 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		hideConsole();
 		return false;
 
-	case KeyCodes::eKeyCodesEscape:
+	case KeyCode::eKeyCodeEscape:
 		hideConsole();
 		return false;
 
-	case KeyCodes::eKeyCodesBack:
+	case KeyCode::eKeyCodeBack:
 		if (!currentInput.currentInput.empty())
 		{
 			currentInput.backspace();
 		}
 		break;
 
-	case KeyCodes::eKeyCodesDelete:
+	case KeyCode::eKeyCodeDelete:
 		if (!currentInput.currentInput.empty())
 		{
 			currentInput.del();
 		}
 		break;
 
-	case KeyCodes::eKeyCodesPageUp:
+	case KeyCode::eKeyCodePageUp:
 		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
 			selectedQueue->startIndexForScrolling++;
 		}
 		break;
 
-	case KeyCodes::eKeyCodesPageDown:
+	case KeyCode::eKeyCodePageDown:
 		if (selectedQueue->startIndexForScrolling > 0)
 		{
 			selectedQueue->startIndexForScrolling--;
 		}
 		break;
 
-	case KeyCodes::eKeyCodesUp:
+	case KeyCode::eKeyCodeUp:
 		currentBacklogIndex++;
 		if (currentBacklogIndex > (int)selectedQueue->unchangingBacklog.size() - 1)
 		{
@@ -264,7 +264,7 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		}
 		break;
 
-	case KeyCodes::eKeyCodesDown:
+	case KeyCode::eKeyCodeDown:
 		currentBacklogIndex--;
 		if (currentBacklogIndex < 0)
 		{
@@ -277,15 +277,15 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		}
 		break;
 
-	case KeyCodes::eKeyCodesLeft:
+	case KeyCode::eKeyCodeLeft:
 		currentInput.left();
 		break;
 
-	case KeyCodes::eKeyCodesRight:
+	case KeyCode::eKeyCodeRight:
 		currentInput.right();
 		break;
 
-	case KeyCodes::eKeyCodesTab:
+	case KeyCode::eKeyCodeTab:
 		if (showChat)
 		{
 			if (selectedQueue == &globalChatQueue)
@@ -334,7 +334,7 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		}
 		break;
 
-	case KeyCodes::eKeyCodesV:
+	case KeyCode::eKeyCodeV:
 		if (!(key.Modifiers & Blam::Input::eKeyEventModifiersCtrl)) // CTRL+V pasting
 			break;
 		if (!OpenClipboard(nullptr))
@@ -357,7 +357,7 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		CloseClipboard();
 		break;
 	}
-	tabHitLast = (key.Code == KeyCodes::eKeyCodesTab);
+	tabHitLast = (key.Code == KeyCode::eKeyCodeTab);
 	return true;
 }
 
@@ -420,29 +420,29 @@ void GameConsole::gameInputCallBack()
 
 	// TODO: Make these rebindable!
 
-	if (!disableUI && GetKeyTicks(eKeyCodesT, eInputTypeUi) == 1)
+	if (!disableUI && GetKeyTicks(eKeyCodeT, eInputTypeUi) == 1)
 		displayChat(false);
 
-	if (!disableUI && gameChatQueue.visible && GetKeyTicks(eKeyCodesY, eInputTypeUi) == 1)
+	if (!disableUI && gameChatQueue.visible && GetKeyTicks(eKeyCodeY, eInputTypeUi) == 1)
 	{
 		displayChat(false);
 		SwitchToGameChat();
 		currentInput.type("!team ");
 	}
 
-	if (!disableUI && (GetKeyTicks(eKeyCodesTilde, eInputTypeUi) == 1 || GetKeyTicks(eKeyCodesF1, eInputTypeUi) == 1))
+	if (!disableUI && (GetKeyTicks(eKeyCodeTilde, eInputTypeUi) == 1 || GetKeyTicks(eKeyCodeF1, eInputTypeUi) == 1))
 		displayChat(true);
 
-	if (GetKeyTicks(eKeyCodesF9, eInputTypeUi) == 1)
+	if (GetKeyTicks(eKeyCodeF9, eInputTypeUi) == 1)
 		DirectXHook::helpMessageStartTime = GetTickCount();
 
-	if (GetKeyTicks(eKeyCodesF10, eInputTypeUi) == 1)
+	if (GetKeyTicks(eKeyCodeF10, eInputTypeUi) == 1)
 		disableUI = !disableUI;
 
 	// TODO: Should we keep this since we have the server browser option on the menu now?
-	if (GetKeyTicks(eKeyCodesF11, eInputTypeUi) == 1)
+	if (GetKeyTicks(eKeyCodeF11, eInputTypeUi) == 1)
 		Menu::Instance().setEnabled(true);
 
-	if (GetKeyTicks(eKeyCodesF12, eInputTypeUi) == 1)
+	if (GetKeyTicks(eKeyCodeF12, eInputTypeUi) == 1)
 		DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;
 }

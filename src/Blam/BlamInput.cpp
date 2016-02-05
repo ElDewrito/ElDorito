@@ -4,16 +4,16 @@ namespace Blam
 {
 	namespace Input
 	{
-		uint8_t GetKeyTicks(KeyCodes key, InputType type)
+		uint8_t GetKeyTicks(KeyCode key, InputType type)
 		{
-			typedef uint8_t(*EngineGetKeyTicksPtr)(KeyCodes, InputType);
+			typedef uint8_t(*EngineGetKeyTicksPtr)(KeyCode, InputType);
 			auto EngineGetKeyTicks = reinterpret_cast<EngineGetKeyTicksPtr>(0x511B60);
 			return EngineGetKeyTicks(key, type);
 		}
 
-		uint16_t GetKeyMs(KeyCodes key, InputType type)
+		uint16_t GetKeyMs(KeyCode key, InputType type)
 		{
-			typedef uint8_t(*EngineGetKeyMsPtr)(KeyCodes, InputType);
+			typedef uint8_t(*EngineGetKeyMsPtr)(KeyCode, InputType);
 			auto EngineGetKeyMs = reinterpret_cast<EngineGetKeyMsPtr>(0x511CE0);
 			return EngineGetKeyMs(key, type);
 		}
@@ -32,16 +32,24 @@ namespace Blam
 			EngineBlockInput(type, block);
 		}
 
-		BindingsTable* GetBindings(int localPlayerIndex)
+		bool GetBindings(int localPlayerIndex, BindingsTable *result)
 		{
 			if (localPlayerIndex < 0 || localPlayerIndex >= 4)
-				return nullptr;
+				return false;
+			typedef void(*EngineGetBindingsPtr)(int localPlayerIndex, BindingsTable *result);
+			auto EngineGetBindings = reinterpret_cast<EngineGetBindingsPtr>(0x60BE70);
+			EngineGetBindings(localPlayerIndex, result);
+			return true;
+		}
 
-			// NOTE: There is reason to believe that the bindings table array
-			// is actually part of a larger structure which encompasses other
-			// input data too, because there are memsets to this address which
-			// zero out 0x14D4 bytes
-			return &reinterpret_cast<BindingsTable*>(0x244C9D0)[localPlayerIndex];
+		bool SetBindings(int localPlayerIndex, const BindingsTable &newBindings)
+		{
+			if (localPlayerIndex < 0 || localPlayerIndex >= 4)
+				return false;
+			typedef void(*EngineSetBindingsPtr)(int localPlayerIndex, const BindingsTable &newBindings);
+			auto EngineSetBindings = reinterpret_cast<EngineSetBindingsPtr>(0x60D830);
+			EngineSetBindings(localPlayerIndex, newBindings);
+			return true;
 		}
 	}
 }

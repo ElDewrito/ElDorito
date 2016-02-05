@@ -72,6 +72,7 @@ namespace
 			return false;
 		}
 		outFile << Modules::CommandMap::Instance().SaveVariables();
+		outFile << "\n" << Modules::ModuleInput::Instance().ExportBindings();
 
 		returnInfo = "Wrote config to " + prefsName;
 		return true;

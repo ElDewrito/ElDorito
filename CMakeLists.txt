@@ -156,6 +156,7 @@ add_library(ElDorito SHARED
     src/Utils/DebugLog.cpp
     src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
+    src/Utils/NameValueTable.hpp
     src/Utils/Singleton.hpp
     src/Utils/String.cpp
     src/Utils/String.hpp

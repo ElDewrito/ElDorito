@@ -2,6 +2,14 @@
 
 #include "ModuleBase.hpp"
 
+namespace Blam
+{
+	namespace Input
+	{
+		struct BindingsTable;
+	}
+}
+
 namespace Modules
 {
 	class ModuleInput : public Utils::Singleton<ModuleInput>, public ModuleBase
@@ -9,6 +17,12 @@ namespace Modules
 	public:
 		Command* VarInputRawInput;
 
+		Command* CommandBindControllerAction;
+		Command* CommandBindKeyboardAction;
+
 		ModuleInput();
+
+		static Blam::Input::BindingsTable *GetBindings();
+		std::string ExportBindings() const;
 	};
 }
