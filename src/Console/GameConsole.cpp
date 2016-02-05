@@ -418,17 +418,29 @@ void GameConsole::gameInputCallBack()
 {
 	using namespace Blam::Input;
 
-	// TODO: Make these rebindable!
-
-	if (!disableUI && GetKeyTicks(eKeyCodeT, eInputTypeUi) == 1)
-		displayChat(false);
-
-	if (!disableUI && gameChatQueue.visible && GetKeyTicks(eKeyCodeY, eInputTypeUi) == 1)
+	if (!disableUI)
 	{
-		displayChat(false);
-		SwitchToGameChat();
-		currentInput.type("!team ");
+		auto action = GetActionState(eGameActionGeneralChat);
+		if (!(action->Flags & eActionStateFlagsHandled) && action->Ticks)
+		{
+			action->Flags |= eActionStateFlagsHandled;
+			displayChat(false);
+		}
 	}
+
+	if (!disableUI && gameChatQueue.visible)
+	{
+		auto action = GetActionState(eGameActionTeamChat);
+		if (!(action->Flags & eActionStateFlagsHandled) && action->Ticks)
+		{
+			action->Flags |= eActionStateFlagsHandled;
+			displayChat(false);
+			SwitchToGameChat();
+			currentInput.type("!team ");
+		}
+	}
+
+	// TODO: Make these rebindable!
 
 	if (!disableUI && (GetKeyTicks(eKeyCodeTilde, eInputTypeUi) == 1 || GetKeyTicks(eKeyCodeF1, eInputTypeUi) == 1))
 		displayChat(true);

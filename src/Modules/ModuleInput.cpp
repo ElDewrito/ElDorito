@@ -735,5 +735,7 @@ namespace
 		{ "Menu", eGameActionUiStart },
 		{ "Scoreboard", eGameActionUiSelect },
 		{ "ForgeDelete", eGameActionUiY },
+		{ "Chat", eGameActionGeneralChat },
+		{ "TeamChat", eGameActionTeamChat },
 	};
 }

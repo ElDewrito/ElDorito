@@ -51,5 +51,13 @@ namespace Blam
 			EngineSetBindings(localPlayerIndex, newBindings);
 			return true;
 		}
+
+		ActionState* GetActionState(GameAction action)
+		{
+			if (action < 0 || action >= eGameAction_KeyboardMouseCount)
+				return nullptr;
+			auto actions = reinterpret_cast<ActionState*>(0x244D1F0);
+			return &actions[action];
+		}
 	}
 }

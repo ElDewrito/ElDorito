@@ -335,6 +335,23 @@ namespace Blam
 		};
 		static_assert(sizeof(BindingsPreferences) == 0x17C, "Invalid BindingsPreferences size");
 
+		enum ActionStateFlags : uint8_t
+		{
+			eActionStateFlags_None = 0,
+			eActionStateFlagsHandled = 1 << 0, // Action has been handled and should be ignored
+			// TODO: Other flags?
+		};
+
+		struct ActionState
+		{
+			uint16_t Msec;     // Number of milliseconds the action has been down for
+			uint8_t Ticks;     // Number of ticks the action has been down for
+			uint8_t Flags;     // See the ActionStateFlags enum
+			float Time;        // Number of seconds the action has been down for
+			uint32_t Unknown8;
+		};
+		static_assert(sizeof(ActionState) == 0xC, "Invalid ActionState size");
+
 		// Gets the number of ticks that a key has been held down for.
 		// Will always be nonzero if the key is down.
 		uint8_t GetKeyTicks(KeyCode key, InputType type);
@@ -363,5 +380,9 @@ namespace Blam
 		// Halo Online only uses index 0, but there are 4 total.
 		// This will fail if the index is out-of range.
 		bool SetBindings(int localPlayerIndex, const BindingsTable &newBindings);
+
+		// Gets the state of the button bound to an action.
+		// Will return null if the action is invalid.
+		ActionState* GetActionState(GameAction action);
 	}
 }
