@@ -222,7 +222,7 @@ namespace
 			return 0;
 		auto& dorito = ElDorito::Instance();
 		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		char* tagAddr = (char*)Blam::Tags::GetTagAddress(index);
+		char* tagAddr = (char*)Blam::Tags::GetTagAddress('weap', index);
 		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
 	}
 
