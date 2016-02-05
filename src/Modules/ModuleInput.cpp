@@ -340,7 +340,7 @@ namespace
 		// This ensures that weapons with a trigger bound to the melee key will
 		// still work.
 		if (action == eGameActionMelee)
-			bindings.ControllerButtons[eGameActionMelee] = button;
+			bindings.ControllerButtons[eGameActionMeleeFire] = button;
 
 		SetBindings(0, bindings);
 		if (button != eKeyCode_None)
