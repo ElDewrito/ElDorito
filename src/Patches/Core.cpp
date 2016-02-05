@@ -18,6 +18,7 @@ namespace
 	void EquipmentHook();
 	void EquipmentTestHook();
 	void GrenadeLoadoutHook();
+	void ScopeLevelHook();
 }
 
 namespace Patches
@@ -78,6 +79,9 @@ namespace Patches
 
 			// Hook sprint input for dual-wielding
 			Hook(0x6DFBB, SprintInputHook).Apply();
+
+			// Hook scope level for dual-wielding
+			Hook(0x1D50CB, ScopeLevelHook).Apply();
 
 			// Equipment patches
 			Patch::NopFill(Pointer::Base(0x786CFF), 6);
@@ -409,5 +413,25 @@ namespace
 	{
 		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
 		return ((double)gameResolution[0] / (double)gameResolution[1]);
+	}
+
+	// scope level is an int16 with -1 indicating no scope, 0 indicating first level, 1 indicating second level etc.
+	__declspec(naked) void ScopeLevelHook()
+	{
+		__asm
+		{
+			mov		word ptr ds : [edi + esi + 32Ah], 0FFFFh	; no scope by default
+			push	eax
+			push	ecx
+			call	LocalPlayerIsDualWielding
+			test	al, al
+			pop		ecx
+			pop		eax
+			jnz		noscope                                     ; prevent scoping when dual wielding
+			mov		word ptr ds : [edi + esi + 32Ah], ax        ; otherwise use intended scope level
+		noscope:
+			push	05D50D3h
+			ret
+		}
 	}
 }
