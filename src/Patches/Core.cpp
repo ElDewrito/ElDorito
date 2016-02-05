@@ -88,8 +88,8 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x786CF7), 6);
 
 			Hook(0x7A21D4, GetEquipmentCountHook, HookFlags::IsCall).Apply();
-			Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
-			Hook(0x786CF2, EquipmentTestHook).Apply();
+			/*Hook(0x139888, EquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
+			Hook(0x786CF2, EquipmentTestHook).Apply();*/
 
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
