@@ -6,6 +6,7 @@
 namespace
 {
 	void AimAssistHook();
+	uint32_t DualAimAssistHook(uint32_t unitObject, short weaponIndex);
 }
 
 namespace Patches
@@ -14,8 +15,8 @@ namespace Patches
 	{
 		void ApplyAll()
 		{
-			// Aim assist hook
 			Hook(0x18AA17, AimAssistHook).Apply();
+			Hook(0x18ABAB, DualAimAssistHook, HookFlags::IsCall).Apply();
 		}
 	}
 }
@@ -46,5 +47,17 @@ namespace
 			mov edx, 0x58AA1F
 			jmp edx
 		}
+	}
+
+	uint32_t DualAimAssistHook(uint32_t unitObject, short weaponIndex)
+	{
+		// If using a mouse, report that there's no weapon being dual wielded
+		if (!Pointer::Base(0x204DE98).Read<uint32_t>())
+			return 0xFFFFFFFF;
+
+		// Otherwise, get the weapon datum index normally
+		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
+		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
+		return UnitGetWeapon(unitObject, weaponIndex);
 	}
 }
