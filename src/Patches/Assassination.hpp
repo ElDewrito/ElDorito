@@ -5,5 +5,6 @@ namespace Patches
 	namespace Assassination
 	{
 		void Enable(bool enabled);
+		void Tick();
 	}
 }

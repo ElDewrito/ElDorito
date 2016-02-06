@@ -1019,14 +1019,6 @@ namespace
 		Patches::Sprint::SetUnlimited(unlimited);
 		return true;
 	}
-
-	bool AssassinationEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		auto &serverModule = Modules::ModuleServer::Instance();
-		auto enabled = serverModule.VarServerAssassinationEnabledClient->ValueInt != 0;
-		Patches::Assassination::Enable(enabled);
-		return true;
-	}
 }
 
 namespace Modules

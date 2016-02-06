@@ -7,394 +7,461 @@ namespace Blam
 	{
 		struct ModelAnimationGraph : Tag<'jmad'>
 		{
-			struct TagBlock0;
-			struct TagBlock1;
-			struct TagBlock2;
-			struct TagBlock3;
+			struct SkeletonNode;
+			struct SoundReference;
+			struct EffectReference;
+			struct BlendScreen;
+			struct Leg;
 			struct Animation;
-			struct TagBlock10;
-			struct TagBlock26;
-			struct TagBlock27;
-			struct TagBlock28;
-			struct TagBlock31;
-			struct TagBlock32;
+			struct Mode;
+			struct VehicleSuspension;
+			struct ObjectOverlay;
+			struct InheritanceList;
+			struct WeaponList;
+			struct ResourceGroup;
 
-			TagReference Unknown0;
-			int32_t Unknown10;
-			TagBlock<TagBlock0> Unknown14;
-			TagBlock<TagBlock1> Unknown20;
-			TagBlock<TagBlock2> Unknown2c;
-			TagBlock<TagBlock3> Unknown38;
-			int32_t Unknown44;
-			int32_t Unknown48;
-			int32_t Unknown4c;
+			TagReference ParentAnimationGraph;
+			uint8_t InheritanceFlags;
+			uint8_t PrivateFlags;
+			int16_t AnimationCodecPack;
+			TagBlock<SkeletonNode> SkeletonNodes;
+			TagBlock<SoundReference> SoundReferences;
+			TagBlock<EffectReference> EffectReferences;
+			TagBlock<BlendScreen> BlendScreens;
+			TagBlock<Leg> Legs;
 			TagBlock<Animation> Animations;
-			TagBlock<TagBlock10> Unknown5c;
-			TagBlock<TagBlock26> Unknown68;
-			TagBlock<TagBlock27> Unknown74;
-			TagBlock<TagBlock28> Unknown80;
-			TagBlock<TagBlock31> Unknown8c;
-			int32_t Unknown98;
-			int32_t Unknown9c;
-			int32_t UnknownA0;
-			int32_t UnknownA4;
-			int32_t UnknownA8;
-			int32_t UnknownAc;
-			int32_t UnknownB0;
-			int32_t UnknownB4;
-			int32_t UnknownB8;
-			int32_t UnknownBc;
-			int32_t UnknownC0;
-			int32_t UnknownC4;
-			int32_t UnknownC8;
-			int32_t UnknownCc;
-			int32_t UnknownD0;
-			int32_t UnknownD4;
-			int32_t UnknownD8;
-			int32_t UnknownDc;
-			int32_t UnknownE0;
-			int32_t UnknownE4;
-			int32_t UnknownE8;
-			int32_t UnknownEc;
-			int32_t UnknownF0;
-			int32_t UnknownF4;
-			TagBlock<TagBlock32> UnknownF8;
+			TagBlock<Mode> Modes;
+			TagBlock<VehicleSuspension> VehicleSuspension2;
+			TagBlock<ObjectOverlay> ObjectOverlays;
+			TagBlock<InheritanceList> InheritanceList2;
+			TagBlock<WeaponList> WeaponList2;
+			uint32_t UnknownArmNodes1;
+			uint32_t UnknownArmNodes2;
+			uint32_t UnknownArmNodes3;
+			uint32_t UnknownArmNodes4;
+			uint32_t UnknownArmNodes5;
+			uint32_t UnknownArmNodes6;
+			uint32_t UnknownArmNodes7;
+			uint32_t UnknownArmNodes8;
+			uint32_t UnknownNodes1;
+			uint32_t UnknownNodes2;
+			uint32_t UnknownNodes3;
+			uint32_t UnknownNodes4;
+			uint32_t UnknownNodes5;
+			uint32_t UnknownNodes6;
+			uint32_t UnknownNodes7;
+			uint32_t UnknownNodes8;
+			DataReference<uint8_t> LastImportResults;
+			uint32_t Unknown;
+			uint32_t Unknown2;
+			uint32_t Unknown3;
+			TagBlock<ResourceGroup> ResourceGroups;
 
-			struct TagBlock0
+			struct SkeletonNode
 			{
-				int32_t Unknown0;
-				int32_t Unknown4;
-				int32_t Unknown8;
-				int32_t UnknownC;
-				int32_t Unknown10;
-				int32_t Unknown14;
-				int32_t Unknown18;
-				int32_t Unknown1c;
+				int32_t Name;
+				int16_t NextSiblingNodeIndex;
+				int16_t FirstChildNodeIndex;
+				int16_t ParentNodeIndex;
+				uint8_t ModelFlags;
+				uint8_t NodeJointFlags;
+				float BaseVectorI;
+				float BaseVectorJ;
+				float BaseVectorK;
+				float VectorRange;
+				float ZPosition;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock0, 0x20);
+			TAG_STRUCT_SIZE_ASSERT(SkeletonNode, 0x20);
 
-			struct TagBlock1
+			struct SoundReference
 			{
-				TagReference Unknown0;
-				int32_t Unknown10;
+				TagReference Sound;
+				uint16_t Flags;
+				int16_t Unknown;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock1, 0x14);
+			TAG_STRUCT_SIZE_ASSERT(SoundReference, 0x14);
 
-			struct TagBlock2
+			struct EffectReference
 			{
-				TagReference Unknown0;
-				int32_t Unknown10;
+				TagReference Effect;
+				uint16_t Flags;
+				int16_t Unknown;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock2, 0x14);
+			TAG_STRUCT_SIZE_ASSERT(EffectReference, 0x14);
 
-			struct TagBlock3
+			struct BlendScreen
 			{
-				int32_t Unknown0;
-				int32_t Unknown4;
-				int32_t Unknown8;
-				int32_t UnknownC;
-				int32_t Unknown10;
-				int32_t Unknown14;
-				int32_t Unknown18;
+				int32_t Label;
+				float RightYawPerFrame;
+				float LeftYawPerFrame;
+				int16_t RightFrameCount;
+				int16_t LeftFrameCount;
+				float DownPitchPerFrame;
+				float UpPitchPerFrame;
+				int16_t DownPitchFrameCount;
+				int16_t UpPitchFrameCount;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock3, 0x1C);
+			TAG_STRUCT_SIZE_ASSERT(BlendScreen, 0x1C);
+
+			struct Leg
+			{
+				int32_t FootMarker;
+				float FootMin;
+				float FootMax;
+				int32_t AnkleMarker;
+				float AnkleMin;
+				float AnkleMax;
+				int16_t Anchors;
+				int16_t Unknown;
+			};
+			TAG_STRUCT_SIZE_ASSERT(Leg, 0x1C);
 
 			struct Animation
 			{
-				struct TagBlock5;
-				struct TagBlock6;
-				struct TagBlock7;
-				struct TagBlock8;
-				struct TagBlock9;
+				struct FrameEvent;
+				struct SoundEvent;
+				struct EffectEvent;
+				struct Unknown3;
+				struct ObjectSpaceParentNode;
+				struct LegAnchoring;
 
-				int32_t Unknown0;
-				int32_t Unknown4;
-				int32_t Unknown8;
-				int32_t UnknownC;
+				int32_t Name;
+				float Weight;
+				int16_t LoopFrameIndex;
+				uint16_t PlaybackFlags;
+				int8_t BlendScreen;
+				int8_t DesiredCompression;
+				int8_t CurrentCompression;
+				int8_t NodeCount;
 				int16_t FrameCount;
-				int32_t Unknown14;
-				int32_t Unknown18;
-				int32_t Unknown1c;
-				int32_t Unknown20;
-				int32_t Unknown24;
-				int32_t Unknown28;
-				TagBlock<TagBlock5> Unknown2c;
-				TagBlock<TagBlock6> Unknown38;
-				TagBlock<TagBlock7> Unknown44;
-				TagBlock<TagBlock8> Unknown50;
-				TagBlock<TagBlock9> Unknown5c;
-				int32_t Unknown68;
-				int32_t Unknown6c;
-				int32_t Unknown70;
-				int32_t Unknown74;
-				int32_t Unknown78;
-				int32_t Unknown7c;
-				int32_t Unknown80;
-				int32_t Unknown84;
+				int8_t Type;
+				int8_t FrameInfoType;
+				uint16_t ProductionFlags;
+				uint16_t InternalFlags;
+				int32_t NodeListChecksum;
+				int32_t ProductionChecksum;
+				int16_t Unknown;
+				int16_t Unknown2;
+				int16_t PreviousVariantSibling;
+				int16_t NextVariantSibling;
+				int16_t RawInformationGroupIndex;
+				int16_t RawInformationMemberIndex;
+				TagBlock<FrameEvent> FrameEvents;
+				TagBlock<SoundEvent> SoundEvents;
+				TagBlock<EffectEvent> EffectEvents;
+				TagBlock<Unknown3> Unknown4;
+				TagBlock<ObjectSpaceParentNode> ObjectSpaceParentNodes;
+				TagBlock<LegAnchoring> LegAnchoring2;
+				float Unknown5;
+				float Unknown6;
+				float Unknown7;
+				float Unknown8;
+				float Unknown9;
 
-				struct TagBlock5
+				struct FrameEvent
 				{
-					int32_t Unknown0;
+					int16_t Type;
+					int16_t Frame;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock5, 0x4);
+				TAG_STRUCT_SIZE_ASSERT(FrameEvent, 0x4);
 
-				struct TagBlock6
+				struct SoundEvent
 				{
-					int32_t Unknown0;
-					int32_t Unknown4;
+					int16_t Sound;
+					int16_t Frame;
+					int32_t MarkerName;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock6, 0x8);
+				TAG_STRUCT_SIZE_ASSERT(SoundEvent, 0x8);
 
-				struct TagBlock7
+				struct EffectEvent
 				{
-					int32_t Unknown0;
-					int32_t Unknown4;
-					int32_t Unknown8;
+					int16_t Effect;
+					int16_t Frame;
+					int32_t MarkerName;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock7, 0xC);
+				TAG_STRUCT_SIZE_ASSERT(EffectEvent, 0x8);
 
-				struct TagBlock8
+				struct Unknown3
 				{
-					int32_t Unknown0;
+					int16_t Unknown;
+					int16_t Unknown2;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock8, 0x4);
+				TAG_STRUCT_SIZE_ASSERT(Unknown3, 0x4);
 
-				struct TagBlock9
+				struct ObjectSpaceParentNode
 				{
-					int32_t Unknown0;
-					int32_t Unknown4;
-					int32_t Unknown8;
-					int32_t UnknownC;
-					int32_t Unknown10;
-					int32_t Unknown14;
-					int32_t Unknown18;
+					int16_t NodeIndex;
+					uint16_t ComponentFlags;
+					int16_t RotationX;
+					int16_t RotationY;
+					int16_t RotationZ;
+					int16_t RotationW;
+					float DefaultTranslationX;
+					float DefaultTranslationY;
+					float DefaultTranslationZ;
+					float DefaultScale;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock9, 0x1C);
+				TAG_STRUCT_SIZE_ASSERT(ObjectSpaceParentNode, 0x1C);
+
+				struct LegAnchoring
+				{
+					struct TagBlock2;
+
+					int16_t LegIndex;
+					int16_t Unknown;
+					TagBlock<TagBlock2> Unknown3;
+
+					struct TagBlock2
+					{
+						int16_t Frame1a;
+						int16_t Frame2a;
+						int16_t Frame1b;
+						int16_t Frame2b;
+						uint32_t Unknown;
+						uint32_t Unknown2;
+						uint32_t Unknown3;
+					};
+					TAG_STRUCT_SIZE_ASSERT(TagBlock2, 0x14);
+				};
+				TAG_STRUCT_SIZE_ASSERT(LegAnchoring, 0x10);
 			};
 			TAG_STRUCT_SIZE_ASSERT(Animation, 0x88);
 
-			struct TagBlock10
+			struct Mode
 			{
-				struct TagBlock11;
-				struct TagBlock25;
+				struct WeaponClass;
+				struct ModeIk;
 
-				int32_t Unknown0;
-				TagBlock<TagBlock11> Unknown4;
-				TagBlock<TagBlock25> Unknown10;
-				int32_t Unknown1c;
-				int32_t Unknown20;
-				int32_t Unknown24;
+				int32_t Label;
+				TagBlock<WeaponClass> WeaponClass2;
+				TagBlock<ModeIk> ModeIk2;
+				uint32_t Unknown;
+				uint32_t Unknown2;
+				uint32_t Unknown3;
 
-				struct TagBlock11
+				struct WeaponClass
 				{
-					struct TagBlock12;
-					struct TagBlock20;
-					struct TagBlock21;
+					struct WeaponType;
+					struct WeaponIk;
+					struct SyncAction;
 
-					int32_t Unknown0;
-					TagBlock<TagBlock12> Unknown4;
-					TagBlock<TagBlock20> Unknown10;
-					TagBlock<TagBlock21> Unknown1c;
+					int32_t Label;
+					TagBlock<WeaponType> WeaponType2;
+					TagBlock<WeaponIk> WeaponIk2;
+					TagBlock<SyncAction> SyncActions;
 
-					struct TagBlock12
+					struct WeaponType
 					{
-						struct TagBlock13;
-						struct TagBlock14;
-						struct TagBlock15;
-						struct TagBlock18;
+						struct Action;
+						struct Overlay;
+						struct DeathAndDamage;
+						struct Transition;
 
-						int32_t Unknown0;
-						TagBlock<TagBlock13> Unknown4;
-						TagBlock<TagBlock14> Unknown10;
-						TagBlock<TagBlock15> Unknown1c;
-						TagBlock<TagBlock18> Unknown28;
+						int32_t Label;
+						TagBlock<Action> Actions;
+						TagBlock<Overlay> Overlays;
+						TagBlock<DeathAndDamage> DeathAndDamage2;
+						TagBlock<Transition> Transitions;
 
-						struct TagBlock13
+						struct Action
 						{
-							int32_t Unknown0;
-							int32_t Unknown4;
+							int32_t Label;
+							int16_t GraphIndex;
+							int16_t Animation;
 						};
-						TAG_STRUCT_SIZE_ASSERT(TagBlock13, 0x8);
+						TAG_STRUCT_SIZE_ASSERT(Action, 0x8);
 
-						struct TagBlock14
+						struct Overlay
 						{
-							int32_t Unknown0;
-							int32_t Unknown4;
+							int32_t Label;
+							int16_t GraphIndex;
+							int16_t Animation;
 						};
-						TAG_STRUCT_SIZE_ASSERT(TagBlock14, 0x8);
+						TAG_STRUCT_SIZE_ASSERT(Overlay, 0x8);
 
-						struct TagBlock15
+						struct DeathAndDamage
 						{
-							struct TagBlock16;
+							struct Direction;
 
-							int32_t Unknown0;
-							TagBlock<TagBlock16> Unknown4;
+							int32_t Label;
+							TagBlock<Direction> Directions;
 
-							struct TagBlock16
+							struct Direction
 							{
-								struct TagBlock17;
+								struct Region;
 
-								TagBlock<TagBlock17> Unknown0;
+								TagBlock<Region> Regions;
 
-								struct TagBlock17
+								struct Region
 								{
-									int32_t Unknown0;
+									int16_t GraphIndex;
+									int16_t Animation;
 								};
-								TAG_STRUCT_SIZE_ASSERT(TagBlock17, 0x4);
+								TAG_STRUCT_SIZE_ASSERT(Region, 0x4);
 							};
-							TAG_STRUCT_SIZE_ASSERT(TagBlock16, 0xC);
+							TAG_STRUCT_SIZE_ASSERT(Direction, 0xC);
 						};
-						TAG_STRUCT_SIZE_ASSERT(TagBlock15, 0x10);
+						TAG_STRUCT_SIZE_ASSERT(DeathAndDamage, 0x10);
 
-						struct TagBlock18
+						struct Transition
 						{
-							struct TagBlock19;
+							struct Destination;
 
-							int32_t Unknown0;
-							int32_t Unknown4;
-							int32_t Unknown8;
-							TagBlock<TagBlock19> UnknownC;
+							int32_t FullName;
+							int32_t StateName;
+							int16_t Unknown;
+							int8_t IndexA;
+							int8_t IndexB;
+							TagBlock<Destination> Destinations;
 
-							struct TagBlock19
+							struct Destination
 							{
-								int32_t Unknown0;
-								int32_t Unknown4;
-								int32_t Unknown8;
-								int32_t UnknownC;
-								int32_t Unknown10;
+								int32_t FullName;
+								int32_t ModeName;
+								int32_t StateName;
+								int8_t FrameEventLink;
+								int8_t Unknown;
+								int8_t IndexA;
+								int8_t IndexB;
+								int16_t GraphIndex;
+								int16_t Animation;
 							};
-							TAG_STRUCT_SIZE_ASSERT(TagBlock19, 0x14);
+							TAG_STRUCT_SIZE_ASSERT(Destination, 0x14);
 						};
-						TAG_STRUCT_SIZE_ASSERT(TagBlock18, 0x18);
+						TAG_STRUCT_SIZE_ASSERT(Transition, 0x18);
 					};
-					TAG_STRUCT_SIZE_ASSERT(TagBlock12, 0x34);
+					TAG_STRUCT_SIZE_ASSERT(WeaponType, 0x34);
 
-					struct TagBlock20
+					struct WeaponIk
 					{
-						int32_t Unknown0;
-						int32_t Unknown4;
+						int32_t Marker;
+						int32_t AttachToMarker;
 					};
-					TAG_STRUCT_SIZE_ASSERT(TagBlock20, 0x8);
+					TAG_STRUCT_SIZE_ASSERT(WeaponIk, 0x8);
 
-					struct TagBlock21
+					struct SyncAction
 					{
-						struct TagBlock22;
+						struct Class;
 
-						int32_t Unknown0;
-						TagBlock<TagBlock22> Unknown4;
+						int32_t Label;
+						TagBlock<Class> Class2;
 
-						struct TagBlock22
+						struct Class
 						{
-							struct TagBlock23;
-							struct TagBlock24;
+							struct TagBlock3;
+							struct SyncBiped;
 
-							int32_t Unknown0;
-							TagBlock<TagBlock23> Unknown4;
-							TagBlock<TagBlock24> Unknown10;
+							int32_t Label;
+							TagBlock<TagBlock3> Unknown2;
+							TagBlock<SyncBiped> SyncBiped2;
 
-							struct TagBlock23
+							struct TagBlock3
 							{
-								int32_t Unknown0;
-								int32_t Unknown4;
-								int32_t Unknown8;
-								int32_t UnknownC;
-								int32_t Unknown10;
-								int32_t Unknown14;
-								int32_t Unknown18;
-								int32_t Unknown1c;
-								int32_t Unknown20;
-								int32_t Unknown24;
-								int32_t Unknown28;
-								int32_t Unknown2c;
+								int32_t Unknown;
+								int16_t GraphIndex;
+								int16_t Animation;
+								uint32_t Unknown2;
+								uint32_t Unknown3;
+								uint32_t Unknown4;
+								uint32_t Unknown5;
+								uint32_t Unknown6;
+								uint32_t Unknown7;
+								uint32_t Unknown8;
+								uint32_t Unknown9;
+								uint32_t Unknown10;
+								uint32_t Unknown11;
 							};
-							TAG_STRUCT_SIZE_ASSERT(TagBlock23, 0x30);
+							TAG_STRUCT_SIZE_ASSERT(TagBlock3, 0x30);
 
-							struct TagBlock24
+							struct SyncBiped
 							{
-								int32_t Unknown0;
-								TagReference Unknown4;
+								int32_t Unknown;
+								TagReference Biped;
 							};
-							TAG_STRUCT_SIZE_ASSERT(TagBlock24, 0x14);
+							TAG_STRUCT_SIZE_ASSERT(SyncBiped, 0x14);
 						};
-						TAG_STRUCT_SIZE_ASSERT(TagBlock22, 0x1C);
+						TAG_STRUCT_SIZE_ASSERT(Class, 0x1C);
 					};
-					TAG_STRUCT_SIZE_ASSERT(TagBlock21, 0x10);
+					TAG_STRUCT_SIZE_ASSERT(SyncAction, 0x10);
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock11, 0x28);
+				TAG_STRUCT_SIZE_ASSERT(WeaponClass, 0x28);
 
-				struct TagBlock25
+				struct ModeIk
 				{
-					int32_t Unknown0;
-					int32_t Unknown4;
+					int32_t Marker;
+					int32_t AttachToMarker;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock25, 0x8);
+				TAG_STRUCT_SIZE_ASSERT(ModeIk, 0x8);
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock10, 0x28);
+			TAG_STRUCT_SIZE_ASSERT(Mode, 0x28);
 
-			struct TagBlock26
+			struct VehicleSuspension
 			{
-				int32_t Unknown0;
-				int32_t Unknown4;
-				int32_t Unknown8;
-				int32_t UnknownC;
-				int32_t Unknown10;
-				int32_t Unknown14;
-				int32_t Unknown18;
-				int32_t Unknown1c;
-				int32_t Unknown20;
-				int32_t Unknown24;
+				int32_t Label;
+				int16_t GraphIndex;
+				int16_t Animation;
+				int32_t MarkerName;
+				float MassPointOffset;
+				float FullExtensionGroundDepth;
+				float FullCompressionGroundDepth;
+				int32_t RegionName;
+				float MassPointOffset2;
+				float ExpressionGroundDepth;
+				float CompressionGroundDepth;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock26, 0x28);
+			TAG_STRUCT_SIZE_ASSERT(VehicleSuspension, 0x28);
 
-			struct TagBlock27
+			struct ObjectOverlay
 			{
-				int32_t Unknown0;
-				int32_t Unknown4;
-				int32_t Unknown8;
-				int32_t UnknownC;
-				int32_t Unknown10;
+				int32_t Label;
+				int16_t GraphIndex;
+				int16_t Animation;
+				int16_t Unknown;
+				int16_t FunctionControls;
+				int32_t Function;
+				uint32_t Unknown2;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock27, 0x14);
+			TAG_STRUCT_SIZE_ASSERT(ObjectOverlay, 0x14);
 
-			struct TagBlock28
+			struct InheritanceList
 			{
-				struct TagBlock29;
-				struct TagBlock30;
+				struct NodeMap;
+				struct NodeMapFlag;
 
-				TagReference Unknown0;
-				TagBlock<TagBlock29> Unknown10;
-				TagBlock<TagBlock30> Unknown1c;
-				int32_t Unknown28;
-				int32_t Unknown2c;
+				TagReference InheritedGraph;
+				TagBlock<NodeMap> NodeMap2;
+				TagBlock<NodeMapFlag> NodeMapFlags;
+				float RootZOffset;
+				uint32_t InheritanceFlags;
 
-				struct TagBlock29
+				struct NodeMap
 				{
-					int16_t Unknown0;
+					int16_t LocalNode;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock29, 0x2);
+				TAG_STRUCT_SIZE_ASSERT(NodeMap, 0x2);
 
-				struct TagBlock30
+				struct NodeMapFlag
 				{
-					int32_t Unknown0;
+					uint32_t LocalNodeFlags;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock30, 0x4);
+				TAG_STRUCT_SIZE_ASSERT(NodeMapFlag, 0x4);
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock28, 0x30);
+			TAG_STRUCT_SIZE_ASSERT(InheritanceList, 0x30);
 
-			struct TagBlock31
+			struct WeaponList
 			{
-				int32_t Unknown0;
-				int32_t Unknown4;
+				int32_t WeaponName;
+				int32_t WeaponClass;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock31, 0x8);
+			TAG_STRUCT_SIZE_ASSERT(WeaponList, 0x8);
 
-			struct TagBlock32
+			struct ResourceGroup
 			{
-				int32_t Unknown0;
-				void* Unknown4;
-				int32_t Unknown8;
+				int32_t MemberCount;
+				void* Resource;
+				int32_t UselessPadding;
 			};
-			TAG_STRUCT_SIZE_ASSERT(TagBlock32, 0xC);
+			TAG_STRUCT_SIZE_ASSERT(ResourceGroup, 0xC);
 		};
 		TAG_STRUCT_SIZE_ASSERT(ModelAnimationGraph, 0x104);
 	}

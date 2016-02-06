@@ -105,6 +105,8 @@ add_library(ElDorito SHARED
     src/Modules/ModuleGraphics.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
+    src/Patches/Assassination.cpp
+    src/Patches/Assassination.hpp
     src/Patches/ContentItems.cpp
     src/Patches/ContentItems.hpp
     src/Patches/CustomPackets.cpp
