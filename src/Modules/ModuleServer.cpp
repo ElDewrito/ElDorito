@@ -19,6 +19,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console/GameConsole.hpp"
 #include "../Server/VariableSynchronization.hpp"
+#include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
 #include "../Server/BanList.hpp"
 
@@ -1018,6 +1019,14 @@ namespace
 		Patches::Sprint::SetUnlimited(unlimited);
 		return true;
 	}
+
+	bool AssassinationEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerAssassinationEnabledClient->ValueInt != 0;
+		Patches::Assassination::Enable(enabled);
+		return true;
+	}
 }
 
 namespace Modules
@@ -1085,6 +1094,10 @@ namespace Modules
 		VarServerDualWieldEnabled = AddVariableInt("DualWieldEnabled", "dualwield", "Controls whether dual wielding is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerDualWieldEnabledClient = AddVariableInt("DualWieldEnabledClient", "dualwield_client", "", eCommandFlagsInternal, 0);
 		Server::VariableSynchronization::Synchronize(VarServerDualWieldEnabled, VarServerDualWieldEnabledClient);
+
+		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerAssassinationEnabledClient = AddVariableInt("AssassinationEnabledClient", "assassination_client", "", eCommandFlagsInternal, 0);
+		Server::VariableSynchronization::Synchronize(VarServerAssassinationEnabled, VarServerAssassinationEnabledClient);
 
 #ifdef _DEBUG
 		// Synchronization system testing
