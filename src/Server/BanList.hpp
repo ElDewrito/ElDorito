@@ -70,7 +70,7 @@ namespace Server
 		std::unordered_set<uint64_t> uids;
 	};
 
-	const std::string DefaultBanListPath = "banlist.txt";
+	const std::string DefaultBanListPath = "dewrito\\configs\\banlist.txt";
 
 	// Loads the default ban list file.
 	// If it does not exist, an empty ban list will be returned.

@@ -62,7 +62,7 @@ namespace
 	// retrieves master server endpoints from dewrito.json
 	void GetEndpoints(std::vector<std::string>& destVect, std::string endpointType)
 	{
-		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
+		std::ifstream in("dewrito\\configs\\dewrito.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
 		{
 			std::string contents;

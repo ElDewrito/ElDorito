@@ -92,7 +92,7 @@ void initMedals()
 {
 	// This is kind of a hack, but only install the medal system for now if
 	// halo3.zip can be opened for reading
-	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
+	std::ifstream halo3Zip("dewrito\\medals\\halo3.zip");
 	if (!halo3Zip.is_open())
 		return;
 	halo3Zip.close();

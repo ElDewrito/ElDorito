@@ -61,7 +61,7 @@ void ElDorito::Initialize()
 	Modules::ElModules::Instance();
 
 	// load variables/commands from cfg file
-	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
+	Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito\\configs\\dewrito_prefs.cfg");
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
 	//This should be removed when we can save binds
