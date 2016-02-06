@@ -203,7 +203,7 @@ namespace
 		memcpy(bindings->PrimaryMouseButtons, newBindings.PrimaryMouseButtons, sizeof(bindings->PrimaryMouseButtons));
 		memcpy(bindings->SecondaryKeys, newBindings.SecondaryKeys, sizeof(bindings->SecondaryKeys));
 		memcpy(bindings->SecondaryMouseButtons, newBindings.SecondaryMouseButtons, sizeof(bindings->SecondaryMouseButtons));
-		Blam::Input::SetBindings(0, *bindings);
+		Modules::ModuleInput::UpdateBindings();
 		Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
 	}
 

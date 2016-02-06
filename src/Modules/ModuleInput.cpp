@@ -31,6 +31,16 @@ namespace
 	// Bindings for each key
 	CommandBinding commandBindings[eKeyCode_Count];
 
+	void CopyBinding(GameAction sourceAction, GameAction destAction)
+	{
+		bindings.ControllerButtons[destAction] = bindings.ControllerButtons[sourceAction];
+		bindings.ControllerHoldButtons[destAction] = bindings.ControllerHoldButtons[sourceAction];
+		bindings.PrimaryKeys[destAction] = bindings.PrimaryKeys[sourceAction];
+		bindings.SecondaryKeys[destAction] = bindings.SecondaryKeys[sourceAction];
+		bindings.PrimaryMouseButtons[destAction] = bindings.PrimaryMouseButtons[sourceAction];
+		bindings.SecondaryMouseButtons[destAction] = bindings.SecondaryMouseButtons[sourceAction];
+	}
+
 	void LoadDefaultBindings()
 	{
 		memset(&bindings, 0, sizeof(bindings));
@@ -71,7 +81,6 @@ namespace
 		bindings.ControllerButtons[eGameActionThrowGrenade]   = eControllerButtonLeftTrigger;
 		bindings.ControllerButtons[eGameActionFireRight]      = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionFireLeft]       = eControllerButtonLeftTrigger;
-		bindings.ControllerButtons[eGameActionMeleeFire]      = bindings.ControllerButtons[eGameActionMelee];
 		bindings.ControllerButtons[eGameActionCrouch]         = eControllerButtonX;
 		bindings.ControllerButtons[eGameActionZoom]           = eControllerButtonRightStick;
 		bindings.ControllerButtons[eGameActionUnk31]          = eControllerButtonDpadLeft;
@@ -89,7 +98,6 @@ namespace
 		bindings.ControllerButtons[eGameActionVehicleRaise]   = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionVehicleFire]    = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionVehicleAltFire] = eControllerButtonLeftTrigger;
-		bindings.ControllerButtons[eGameActionVehicleExit]    = bindings.ControllerButtons[eGameActionUse];
 		bindings.ControllerButtons[eGameActionUnk56]          = eControllerButtonDpadDown;
 		bindings.ControllerButtons[eGameActionUnk57]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
@@ -122,8 +130,6 @@ namespace
 		bindings.SecondaryMouseButtons[eGameActionThrowGrenade]  = eMouseButtonMiddle;
 		bindings.PrimaryMouseButtons[eGameActionFireRight]       = eMouseButtonLeft;
 		bindings.PrimaryMouseButtons[eGameActionFireLeft]        = eMouseButtonRight;
-		bindings.PrimaryKeys[eGameActionMeleeFire]               = bindings.PrimaryKeys[eGameActionMelee];
-		bindings.SecondaryKeys[eGameActionMeleeFire]             = bindings.SecondaryKeys[eGameActionMelee];
 		bindings.PrimaryKeys[eGameActionCrouch]                  = eKeyCodeLControl;
 		bindings.PrimaryMouseButtons[eGameActionZoom]            = eMouseButtonRight;
 		bindings.PrimaryKeys[eGameActionSprint]                  = eKeyCodeLShift;
@@ -142,7 +148,6 @@ namespace
 		bindings.SecondaryKeys[eGameActionVehicleBrake]          = eKeyCodeDown;
 		bindings.PrimaryMouseButtons[eGameActionVehicleFire]     = eMouseButtonLeft;
 		bindings.PrimaryMouseButtons[eGameActionVehicleAltFire]  = eMouseButtonRight;
-		bindings.PrimaryKeys[eGameActionVehicleExit]             = bindings.PrimaryKeys[eGameActionUse];
 		bindings.PrimaryKeys[eGameActionUnk56]                   = eKeyCodeD;
 		bindings.PrimaryKeys[eGameActionUnk57]                   = eKeyCodeA;
 		bindings.PrimaryKeys[eGameActionUnk58]                   = eKeyCodeSpace;
@@ -154,8 +159,8 @@ namespace
 		bindings.SecondaryKeys[eGameActionMoveLeft]              = eKeyCodeLeft;
 		bindings.PrimaryKeys[eGameActionMoveRight]               = eKeyCodeD;
 		bindings.SecondaryKeys[eGameActionMoveRight]             = eKeyCodeRight;
-		
-		SetBindings(0, bindings);
+
+		Modules::ModuleInput::UpdateBindings();
 	}
 
 	int GetDefaultSettingsKey(int action, KeyCode *keys, MouseButton *mouseButtons)
@@ -366,13 +371,7 @@ namespace
 		// Update the bindings table!
 		bindings.ControllerButtons[action] = button;
 
-		// If the action is melee, bind it to the "melee fire" action as well.
-		// This ensures that weapons with a trigger bound to the melee key will
-		// still work.
-		if (action == eGameActionMelee)
-			bindings.ControllerButtons[eGameActionMeleeFire] = button;
-
-		SetBindings(0, bindings);
+		Modules::ModuleInput::UpdateBindings();
 		if (button != eKeyCode_None)
 			returnInfo = "Action binding set.";
 		else
@@ -443,18 +442,7 @@ namespace
 		bindings.SecondaryKeys[action] = secondaryKey;
 		bindings.SecondaryMouseButtons[action] = secondaryMouse;
 
-		// If the action is melee, bind it to the "melee fire" action as well.
-		// This ensures that weapons with a trigger bound to the melee key will
-		// still work.
-		if (action == eGameActionMelee)
-		{
-			bindings.PrimaryKeys[eGameActionMeleeFire] = primaryKey;
-			bindings.PrimaryMouseButtons[eGameActionMeleeFire] = primaryMouse;
-			bindings.SecondaryKeys[eGameActionMeleeFire] = secondaryKey;
-			bindings.SecondaryMouseButtons[eGameActionMeleeFire] = secondaryMouse;
-		}
-
-		SetBindings(0, bindings);
+		Modules::ModuleInput::UpdateBindings();
 		if (primaryKey != eKeyCode_None || primaryMouse != eMouseButton_None)
 			returnInfo = "Action binding set.";
 		else
@@ -527,6 +515,13 @@ namespace Modules
 	BindingsTable* ModuleInput::GetBindings()
 	{
 		return &bindings;
+	}
+
+	void ModuleInput::UpdateBindings()
+	{
+		CopyBinding(eGameActionMelee, eGameActionMeleeFire); // Ensure that the banshee bomb is bound to melee
+		CopyBinding(eGameActionUse, eGameActionVehicleExit); // Keep enter and exit vehicle to the same button
+		SetBindings(0, bindings);
 	}
 
 	std::string ModuleInput::ExportBindings() const
@@ -760,7 +755,6 @@ namespace
 		{ "VehicleDive", eGameActionVehicleDive },
 		{ "VehicleFire", eGameActionVehicleFire },
 		{ "VehicleAltFire", eGameActionVehicleAltFire },
-		{ "VehicleExit", eGameActionVehicleExit },
 
 		// UI
 		{ "Menu", eGameActionUiStart },
