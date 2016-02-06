@@ -238,6 +238,20 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		}
 		break;
 
+	case KeyCodes::eKeyCodesHome:
+		if (!currentInput.currentInput.empty())
+		{
+			currentInput.home();
+		}
+		break;
+
+	case KeyCodes::eKeyCodesEnd:
+		if (!currentInput.currentInput.empty())
+		{
+			currentInput.end();
+		}
+		break;
+
 	case KeyCodes::eKeyCodesPageUp:
 		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
