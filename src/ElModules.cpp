@@ -61,7 +61,7 @@ namespace
 
 	bool CommandWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		std::string prefsName = "dewrito_prefs.cfg";
+		std::string prefsName = "dewrito\\configs\\dewrito_prefs.cfg";
 		if (Arguments.size() > 0)
 			prefsName = Arguments[0];
 
