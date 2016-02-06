@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <functional>
+#include <vector>
+#include "../Blam/BlamInput.hpp"
 
 namespace Patches
 {
@@ -49,5 +51,10 @@ namespace Patches
 		// Registers a function to be called when the default input handler is
 		// ticked.
 		void RegisterDefaultInputHandler(DefaultInputHandler func);
+
+		// Sets what controls can be configured in the keyboard settings menu.
+		void SetKeyboardSettingsMenu(
+			const std::vector<Blam::Input::ConfigurableAction> &infantrySettings,
+			const std::vector<Blam::Input::ConfigurableAction> &vehicleSettings);
 	}
 }

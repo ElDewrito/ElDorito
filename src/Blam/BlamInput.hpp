@@ -352,6 +352,15 @@ namespace Blam
 		};
 		static_assert(sizeof(ActionState) == 0xC, "Invalid ActionState size");
 
+		struct ConfigurableAction
+		{
+			const char *Name;        // "settings_" followed by the string_id
+			int DefaultPrimaryKey;   // KeyCode, (MouseButton + 1) * 0x100, or -1
+			int DefaultSecondaryKey; // KeyCode, (MouseButton + 1) * 0x100, or -1
+			int Action;              // GameAction
+		};
+		static_assert(sizeof(ConfigurableAction) == 0x10, "Invalid ConfigurableAction size");
+
 		// Gets the number of ticks that a key has been held down for.
 		// Will always be nonzero if the key is down.
 		uint8_t GetKeyTicks(KeyCode key, InputType type);

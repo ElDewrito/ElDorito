@@ -14,6 +14,8 @@ namespace
 	extern Utils::NameValueTable<KeyCode> keyCodes;
 	extern Utils::NameValueTable<MouseButton> mouseButtons;
 	extern Utils::NameValueTable<GameAction> gameActions;
+	extern std::vector<ConfigurableAction> infantryControls;
+	extern std::vector<ConfigurableAction> vehicleControls;
 
 	// The bindings to redirect preferences.dat reads to
 	BindingsTable bindings;
@@ -154,6 +156,34 @@ namespace
 		bindings.SecondaryKeys[eGameActionMoveRight]             = eKeyCodeRight;
 		
 		SetBindings(0, bindings);
+	}
+
+	int GetDefaultSettingsKey(int action, KeyCode *keys, MouseButton *mouseButtons)
+	{
+		auto primaryKey = keys[action];
+		if (primaryKey != eKeyCode_None)
+			return primaryKey;
+		auto mouseButton = mouseButtons[action];
+		if (mouseButton != eMouseButton_None)
+			return (mouseButton + 1) * 0x100;
+		return -1;
+	}
+
+	void PopulateDefaultKeys(std::vector<ConfigurableAction> *actions)
+	{
+		for (auto &configAction : *actions)
+		{
+			configAction.DefaultPrimaryKey = GetDefaultSettingsKey(configAction.Action, bindings.PrimaryKeys, bindings.PrimaryMouseButtons);
+			configAction.DefaultSecondaryKey = GetDefaultSettingsKey(configAction.Action, bindings.SecondaryKeys, bindings.SecondaryMouseButtons);
+		}
+	}
+
+	void BuildSettingsMenu()
+	{
+		// Set default keys based on the default bindings that have been set
+		PopulateDefaultKeys(&infantryControls);
+		PopulateDefaultKeys(&vehicleControls);
+		Patches::Input::SetKeyboardSettingsMenu(infantryControls, vehicleControls);
 	}
 
 	bool VariableInputRawInputUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -482,6 +512,7 @@ namespace Modules
 #endif
 
 		LoadDefaultBindings();
+		BuildSettingsMenu();
 
 		// Default command bindings (TODO: port bind saving code from recode)
 		commandBindings[eKeyCodeEnter].command = { "ui_btn_press", "0" };  // A
@@ -704,22 +735,22 @@ namespace
 		{ "Back", eGameActionMoveBack },
 		{ "Left", eGameActionMoveLeft },
 		{ "Right", eGameActionMoveRight },
+		{ "Sprint", eGameActionSprint },
 		{ "Jump", eGameActionJump },
 		{ "Crouch", eGameActionCrouch },
-		{ "Sprint", eGameActionSprint },
 		{ "Use", eGameActionUse },
 		{ "DualWield", eGameActionPickUpLeft },
 
 		// Combat
 		{ "Fire", eGameActionFireRight },
-		{ "Reload", eGameActionReloadRight },
 		{ "FireLeft", eGameActionFireLeft },
+		{ "Reload", eGameActionReloadRight },
 		{ "ReloadLeft", eGameActionReloadLeft },
 		{ "Zoom", eGameActionZoom },
+		{ "SwitchWeapons", eGameActionSwitchWeapons },
 		{ "Melee", eGameActionMelee },
 		{ "Grenade", eGameActionThrowGrenade },
 		{ "SwitchGrenades", eGameActionSwitchGrenades },
-		{ "SwitchWeapons", eGameActionSwitchWeapons },
 
 		// Vehicles
 		{ "VehicleAccelerate", eGameActionVehicleAccelerate },
@@ -737,5 +768,49 @@ namespace
 		{ "ForgeDelete", eGameActionUiY },
 		{ "Chat", eGameActionGeneralChat },
 		{ "TeamChat", eGameActionTeamChat },
+	};
+
+	// Macro to prefix a string with "settings_" because the actual string_ids don't include that prefix
+	#define S(name) ("settings_" name)
+
+	// Default keys for these menus are populated in BuildSettingsMenu
+
+	// Infantry controls settings menu
+	std::vector<ConfigurableAction> infantryControls =
+	{
+		{ S("actions_move_forward"),        -1, -1, eGameActionMoveForward },
+		{ S("actions_move_backward"),       -1, -1, eGameActionMoveBack },
+		{ S("actions_move_left"),           -1, -1, eGameActionMoveLeft },
+		{ S("actions_move_right"),          -1, -1, eGameActionMoveRight },
+		{ S("actions_sprint"),              -1, -1, eGameActionSprint },
+		{ S("actions_jump"),                -1, -1, eGameActionJump },
+		{ S("actions_crouch"),              -1, -1, eGameActionCrouch },
+		{ S("actions_use"),                 -1, -1, eGameActionUse },
+		{ S("actions_dualwield"),           -1, -1, eGameActionPickUpLeft },
+		{ S("actions_shoot"),               -1, -1, eGameActionFireRight },
+		{ S("actions_shoot_left"),          -1, -1, eGameActionFireLeft },
+		{ S("actions_reload"),              -1, -1, eGameActionReloadRight },
+		{ S("actions_reload_left"),         -1, -1, eGameActionReloadLeft },
+		{ S("actions_zoom"),                -1, -1, eGameActionZoom },
+		{ S("actions_switch_weapons"),      -1, -1, eGameActionSwitchWeapons },
+		{ S("actions_melee"),               -1, -1, eGameActionMelee },
+		{ S("actions_throw_grenade"),       -1, -1, eGameActionThrowGrenade },
+		{ S("actions_toggle_grenade_type"), -1, -1, eGameActionSwitchGrenades },
+		{ S("actions_show_scores"),         -1, -1, eGameActionUiSelect },
+		{ S("actions_forge_delete"),        -1, -1, eGameActionUiY },
+		{ S("actions_chat_all"),            -1, -1, eGameActionGeneralChat },
+		{ S("actions_chat_team"),           -1, -1, eGameActionTeamChat },
+	};
+
+	// Vehicle controls settings menu
+	std::vector<ConfigurableAction> vehicleControls =
+	{
+		{ S("actions_vehicle_accelerate"), -1, -1, eGameActionVehicleAccelerate },
+		{ S("actions_vehicle_reverse"),    -1, -1, eGameActionVehicleBrake },
+		{ S("actions_vehicle_boost"),      -1, -1, eGameActionVehicleBoost },
+		{ S("actions_vehicle_raise"),      -1, -1, eGameActionVehicleRaise },
+		{ S("actions_vehicle_dive"),       -1, -1, eGameActionVehicleDive },
+		{ S("actions_vehicle_fire"),       -1, -1, eGameActionVehicleFire },
+		{ S("actions_vehicle_alt_fire"),   -1, -1, eGameActionVehicleAltFire },
 	};
 }

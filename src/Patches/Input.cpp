@@ -21,6 +21,8 @@ namespace
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	bool contextDone = false;
+
+	std::vector<Blam::Input::ConfigurableAction> settings;
 }
 
 namespace Patches
@@ -52,6 +54,36 @@ namespace Patches
 		void RegisterDefaultInputHandler(DefaultInputHandler func)
 		{
 			defaultHandlers.push_back(func);
+		}
+
+		void SetKeyboardSettingsMenu(
+			const std::vector<Blam::Input::ConfigurableAction> &infantrySettings,
+			const std::vector<Blam::Input::ConfigurableAction> &vehicleSettings)
+		{
+			// The settings array needs to have infantry settings followed by
+			// vehicle settings due to assumptions that the EXE makes
+			settings.clear();
+			settings.insert(settings.end(), infantrySettings.begin(), infantrySettings.end());
+			settings.insert(settings.end(), vehicleSettings.begin(), vehicleSettings.end());
+
+			// Patch the exe to point to the new menus
+			auto infantryCount = infantrySettings.size();
+			auto vehicleCount = vehicleSettings.size();
+			uint32_t infantryPointers[] = { 0x398573, 0x3993CF, 0x39A42F, 0x39B4B0 };
+			uint32_t vehiclePointers[] = { 0x39856D, 0x3993CA, 0x39A63A, 0x39A645, 0x39B4AB };
+			uint32_t endPointers[] = { 0x39A84A };
+			uint32_t infantryCountPointers[] = { 0x39857B, 0x3993BC, 0x39B495 };
+			uint32_t vehicleCountPointers[] = { 0x398580, 0x3993C1, 0x39B49A };
+			for (auto pointer : infantryPointers)
+				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0]);
+			for (auto pointer : vehiclePointers)
+				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0] + infantryCount);
+			for (auto pointer : endPointers)
+				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0] + settings.size());
+			for (auto pointer : infantryCountPointers)
+				Pointer::Base(pointer).Write<int>(static_cast<int>(infantryCount));
+			for (auto pointer : vehicleCountPointers)
+				Pointer::Base(pointer).Write<int>(static_cast<int>(vehicleCount));
 		}
 	}
 }
