@@ -98,6 +98,7 @@ namespace
 		bindings.ControllerButtons[eGameActionVehicleRaise]   = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionVehicleFire]    = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionVehicleAltFire] = eControllerButtonLeftTrigger;
+		bindings.ControllerButtons[eGameActionMeleeFire]      = eControllerButtonB;
 		bindings.ControllerButtons[eGameActionUnk56]          = eControllerButtonDpadDown;
 		bindings.ControllerButtons[eGameActionUnk57]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
@@ -148,6 +149,8 @@ namespace
 		bindings.SecondaryKeys[eGameActionVehicleBrake]          = eKeyCodeDown;
 		bindings.PrimaryMouseButtons[eGameActionVehicleFire]     = eMouseButtonLeft;
 		bindings.PrimaryMouseButtons[eGameActionVehicleAltFire]  = eMouseButtonRight;
+		bindings.PrimaryKeys[eGameActionMeleeFire]               = eKeyCodeQ;
+		bindings.SecondaryKeys[eGameActionMeleeFire]             = eKeyCodeV;
 		bindings.PrimaryKeys[eGameActionUnk56]                   = eKeyCodeD;
 		bindings.PrimaryKeys[eGameActionUnk57]                   = eKeyCodeA;
 		bindings.PrimaryKeys[eGameActionUnk58]                   = eKeyCodeSpace;
@@ -519,7 +522,7 @@ namespace Modules
 
 	void ModuleInput::UpdateBindings()
 	{
-		CopyBinding(eGameActionMelee, eGameActionMeleeFire); // Ensure that the banshee bomb is bound to melee
+		//CopyBinding(eGameActionMelee, eGameActionMeleeFire); // Ensure that the banshee bomb is bound to melee
 		CopyBinding(eGameActionUse, eGameActionVehicleExit); // Keep enter and exit vehicle to the same button
 		SetBindings(0, bindings);
 	}
@@ -755,6 +758,7 @@ namespace
 		{ "VehicleDive", eGameActionVehicleDive },
 		{ "VehicleFire", eGameActionVehicleFire },
 		{ "VehicleAltFire", eGameActionVehicleAltFire },
+		{ "BansheeBomb", eGameActionMeleeFire },
 
 		// UI
 		{ "Menu", eGameActionUiStart },
@@ -806,5 +810,6 @@ namespace
 		{ S("actions_vehicle_dive"),       -1, -1, eGameActionVehicleDive },
 		{ S("actions_vehicle_fire"),       -1, -1, eGameActionVehicleFire },
 		{ S("actions_vehicle_alt_fire"),   -1, -1, eGameActionVehicleAltFire },
+		{ S("actions_vehicle_bansheebomb"),-1, -1, eGameActionMeleeFire },
 	};
 }
