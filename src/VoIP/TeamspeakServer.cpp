@@ -318,7 +318,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	funcs.onAccountingErrorEvent = onAccountingErrorEvent;
 
 	/* Initialize server lib with callbacks */
-	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL)) != ERROR_ok) {
+	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, "dewrito\\logs")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3server_getGlobalErrorMessage(error, &errormsg) == ERROR_ok) {
 			console.consoleQueue.pushLineFromGameToUI("Error initialzing Eldewrito VoIP Server serverlib : " + std::string(errormsg));
@@ -337,7 +337,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 
 	/* Attempt to load keypair from file */
 	/* Assemble filename: keypair_<port>.txt */
-	strcpy(filename, "keypair_");
+	strcpy(filename, "dewrito\\configs\\keypair_");
 	sprintf(port_str, "%d", 9987);  // Default port
 	strcat(filename, port_str);
 	strcat(filename, ".txt");

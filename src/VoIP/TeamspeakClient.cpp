@@ -1063,15 +1063,15 @@ void toggleRecordSound(uint64 serverConnectionHandlerID){
 int readIdentity(char* identity) {
     FILE *file;
 
-    if((file = fopen("identity.txt", "r")) == NULL) {
-        printf("Could not open file 'identity.txt' for reading.\n");
+	if ((file = fopen("dewrito\\configs\\identity.txt", "r")) == NULL) {
+        printf("Could not open file 'dewrito\\configs\\identity.txt' for reading.\n");
         return -1;
     }
 
     fgets(identity, IDENTITY_BUFSIZE, file);
     if(ferror(file) != 0) {
         fclose (file);
-        printf("Error reading identity from file 'identity.txt'.\n");
+        printf("Error reading identity from file 'dewrito\\configs\\identity.txt'.\n");
         return -1;
     }
     fclose (file);
@@ -1081,15 +1081,15 @@ int readIdentity(char* identity) {
 int writeIdentity(const char* identity) {
     FILE *file;
 
-    if((file = fopen("identity.txt", "w")) == NULL) {
-        printf("Could not open file 'identity.txt' for writing.\n");
+    if((file = fopen("dewrito\\configs\\identity.txt", "w")) == NULL) {
+        printf("Could not open file 'dewrito\\configs\\identity.txt' for writing.\n");
         return -1;
     }
 
     fputs(identity, file);
     if(ferror(file) != 0) {
         fclose (file);
-        printf("Error writing identity to file 'identity.txt'.\n");
+        printf("Error writing identity to file 'dewrito\\configs\\identity.txt'.\n");
         return -1;
     }
     fclose (file);
@@ -1239,7 +1239,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	/* Initialize client lib with callbacks */
 	/* Resource path points to the SDK\bin directory to locate the soundbackends folder when running from Visual Studio. */
 	/* If you want to run directly from the SDK\bin directory, use an empty string instead to locate the soundbackends folder in the current directory. */
-	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "")) != ERROR_ok) {
+	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, "dewrito\\logs", "")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
 			console.consoleQueue.pushLineFromGameToUI("Error initialzing serverlib: " + std::string(errormsg));

@@ -146,21 +146,21 @@ namespace
 		GetCurrentDirectoryW(256, currentDir);
 
 		if (variantType == 10)
-			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\", currentDir, variantName);
+			swprintf_s(dest, MaxCount, L"%lsdewrito\\maps\\%ls\\", currentDir, variantName);
 		else
-			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\", currentDir, variantName);
+			swprintf_s(dest, MaxCount, L"%lsdewrito\\variants\\%ls\\", currentDir, variantName);
 
 		SHCreateDirectoryExW(NULL, dest, NULL);
 
 		if (variantType == 10)
-			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\sandbox.map", currentDir, variantName);
+			swprintf_s(dest, MaxCount, L"%lsdewrito\\maps\\%ls\\sandbox.map", currentDir, variantName);
 		else
 		{
 			typedef wchar_t*(__cdecl *FS_GetFileNameForItemTypeFunc)(uint32_t type);
 			FS_GetFileNameForItemTypeFunc FS_GetFileNameForItemType = (FS_GetFileNameForItemTypeFunc)0x526550;
 			wchar_t* fileName = FS_GetFileNameForItemType(variantType);
 
-			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\%ls", currentDir, variantName, fileName);
+			swprintf_s(dest, MaxCount, L"%lsdewrito\\variants\\%ls\\%ls", currentDir, variantName, fileName);
 		}
 	}
 
@@ -201,8 +201,8 @@ namespace
 		memset(currentDir, 0, 256);
 		GetCurrentDirectoryA(256, currentDir);
 
-		std::string variantPath = std::string(currentDir) + std::string("\\mods\\variants");
-		std::string mapsPath = std::string(currentDir) + std::string("\\mods\\maps");
+		std::string variantPath = std::string(currentDir) + std::string("\\dewrito\\variants");
+		std::string mapsPath = std::string(currentDir) + std::string("\\dewrito\\maps");
 
 		AddAllBLFContentItems(variantPath);
 		AddAllBLFContentItems(mapsPath);
@@ -293,7 +293,7 @@ namespace
 		memset(currentDir, 0, 256 * sizeof(wchar_t));
 		GetCurrentDirectoryW(256, currentDir);
 
-		swprintf_s(destPtr, size, L"%ls\\mods\\temp\\", currentDir);
+		swprintf_s(destPtr, size, L"%ls\\dewrito\\temp\\", currentDir);
 
 		SHCreateDirectoryExW(NULL, destPtr, NULL);
 		return destPtr;
