@@ -4,8 +4,11 @@ init:
 - cmd: git config --global core.autocrlf input
 environment:
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
-  _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
-  _release: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "ElDorito.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="x86"'
+  _cefzip: '%APPVEYOR_BUILD_FOLDER%\custom_menu.7z'
+  _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config -x!*.exp -x!*.ilk -x!*.lib
+  _cef7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_cefzip% -r -x!*.pdb -x!*.config -x!*.exp -x!*.ilk -x!*.lib
+  _eldewrito: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "ElDorito.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="x86"'
+  _cefsimple: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "cefsimple.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="x86"'
 install:
 - cmd: >-
     cinst cmake -version 3.2.3 -y
@@ -13,41 +16,72 @@ install:
     cmake --version
 
 
+    MKDIR %APPVEYOR_BUILD_FOLDER%\ED\dewrito\configs\
+
+    MKDIR %APPVEYOR_BUILD_FOLDER%\ED\dewrito\medals\
+
+
+    COPY /Y /Z %APPVEYOR_BUILD_FOLDER%\dewrito.json %APPVEYOR_BUILD_FOLDER%\ED\dewrito\configs\dewrito.json
+
+    ECHO D| XCOPY /S /Y /Z %APPVEYOR_BUILD_FOLDER%\libs\libwebsockets\bin %APPVEYOR_BUILD_FOLDER%\ED
+
+    ECHO D| XCOPY /S /Y /Z %APPVEYOR_BUILD_FOLDER%\libs\teamspeak\bin %APPVEYOR_BUILD_FOLDER%\ED
+
+
+    CD %APPVEYOR_BUILD_FOLDER%\ED\dewrito\medals\
+
+    curl -fsSL -o halo3.zip http://eldewrito.anvilonline.net/0.5.0.2/mods/medals/halo3.zip
+
+
+    CD %APPVEYOR_BUILD_FOLDER%\libs\
+
+    7z x cef.7z -o%APPVEYOR_BUILD_FOLDER%\libs\cef\ -y
+
+
     CD %APPVEYOR_BUILD_FOLDER%\
+
+    generate_vs2013_sln_files.bat
+
+
+    CD %APPVEYOR_BUILD_FOLDER%\libs\cef\
 
     generate_vs2013_sln_files.bat
 build_script:
 - cmd: >-
     CD %APPVEYOR_BUILD_FOLDER%\build\
 
-    %_release%
+    %_eldewrito%
 
 
     CD %APPVEYOR_BUILD_FOLDER%\build\Release\
 
     appveyor PushArtifact mtndew.dll
 
-
     %_7z% *.dll
 
 
-    CD %APPVEYOR_BUILD_FOLDER%\
+    CD %APPVEYOR_BUILD_FOLDER%\libs\cef\build\cefsimple\
 
-    %_7z% dewrito.json
+    %_cefsimple%
 
-    CD %APPVEYOR_BUILD_FOLDER%\libs\libwebsockets\bin\
 
-    %_7z% *
+    MOVE Release\cefsimple.exe Release\custom_menu.exe
 
-    CD %APPVEYOR_BUILD_FOLDER%\libs\teamspeak\bin\
+    ECHO D| XCOPY /S /Y /Z Release %APPVEYOR_BUILD_FOLDER%\ED\dewrito\menu
 
-    %_7z% *
 
-    CD %APPVEYOR_BUILD_FOLDER%\artifact_extras\
+    CD %APPVEYOR_BUILD_FOLDER%\ED\
 
     %_7z% *
 
     appveyor PushArtifact %_zip%
+
+
+    CD %APPVEYOR_BUILD_FOLDER%\ED\dewrito\menu
+
+    %_cef7z% *
+
+    appveyor PushArtifact %_cefzip%
 
 
     Copy /b "%APPVEYOR_BUILD_FOLDER%\7zsd.sfx" + "%APPVEYOR_BUILD_FOLDER%\7z_Eldewrito_Config.txt" + %_zip% "%APPVEYOR_BUILD_FOLDER%\ElDewrito-Installer.exe"

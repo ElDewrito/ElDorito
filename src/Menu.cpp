@@ -62,7 +62,7 @@ void Menu::setEnabled(bool enable)
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
 	
-		std::string arg("custom_menu.exe -hwnd=");
+		std::string arg("dewrito\\menu\\custom_menu.exe -hwnd=");
 		arg.append(std::to_string((int)hWnd));
 		arg.append(" -url=");
 		arg.append(Modules::ModuleGame::Instance().VarMenuURL->ValueString);
