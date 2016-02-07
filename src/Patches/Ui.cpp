@@ -15,12 +15,10 @@ namespace
 	int UI_ShowHalo3PauseMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
 	void UI_EndGame();
 	char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
-	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct);
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	bool MainMenuCreateLobbyHook(int lobbyType);
-	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct);
 	void ResolutionChangeHook();
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
@@ -86,10 +84,6 @@ namespace Patches
 			// Fix menu update code to include missing mainmenu code
 			Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
 
-			// Hacky fix to stop the game crashing when you move selection on UI
-			// (todo: find out what's really causing this)
-			Patch::NopFill(Pointer::Base(0x569D07), 3);
-
 			// Sorta hacky way of getting game options screen to show when you press X on lobby
 			// TODO: find real way of showing the [X] Edit Game Options text, that might enable it to work without patching
 			Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
@@ -108,21 +102,6 @@ namespace Patches
 			else
 			{
 				writeAddr.Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
-				VirtualProtect(writeAddr, 4, temp, &temp2);
-			}
-
-			// Hook pause menu vftable button handler, to let us limit the button presses
-			// TODO: fix this, since it doesn't seem to work, even though it should
-			writeAddr = Pointer(0x16A0148);
-			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
-			{
-				std::stringstream ss;
-				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
-				OutputDebugString(ss.str().c_str());
-			}
-			else
-			{
-				writeAddr.Write<uint32_t>((uint32_t)&UI_ButtonPressHandlerHook);
 				VirtualProtect(writeAddr, 4, temp, &temp2);
 			}
 
@@ -148,21 +127,16 @@ namespace Patches
 			// can show the server browser if matchmaking is selected
 			Hook(0x6E79A7, MainMenuCreateLobbyHook, HookFlags::IsCall).Apply();
 
-			// hook c_start_menu::ButtonPress on each c_start_menu_* vftable
-			Pointer(0x0169FE08).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x0169FFA8).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A0118).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A0350).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A0488).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A18B0).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A1BE8).Write((uint32_t)&c_start_menu__ButtonPressHook);
-			Pointer(0x016A6C80).Write((uint32_t)&c_start_menu__ButtonPressHook);
-
 			// Runs when the game's resolution is changed
 			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
 
 			// Enable H3UI scaling
 			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
+
+			// Change the way that Forge handles dpad up so that it doesn't mess with key repeat
+			// Comparing the action tick count to 1 instead of using the "handled" flag does roughly the same thing and lets the menu UI read the key too
+			Patch(0x19F17F, { 0x75 }).Apply();
+			Patch::NopFill(Pointer::Base(0x19F198), 4);
 		}
 
 		void ApplyMapNameFixes()
@@ -320,50 +294,22 @@ namespace
 			Blam::Network::LeaveGame();
 	}
 
-	std::chrono::high_resolution_clock::time_point PrevTime = std::chrono::high_resolution_clock::now();
 	char __fastcall UI_Forge_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct)
 	{
 		uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
 
-		auto CurTime = std::chrono::high_resolution_clock::now();
-		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
-
-		if (btnCode == Blam::Input::eUiButtonCodeLeft || btnCode == Blam::Input::eUiButtonCodeRight)
+		if (btnCode == Blam::Input::eUiButtonCodeLeft || btnCode == Blam::Input::eUiButtonCodeRight ||
+			btnCode == Blam::Input::eUiButtonCodeDpadLeft || btnCode == Blam::Input::eUiButtonCodeDpadRight)
 		{
-			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
-				return 1;
-
-			PrevTime = CurTime;
-
-			if (btnCode == Blam::Input::eUiButtonCodeLeft) // analog left / arrow key left
+			if (btnCode == Blam::Input::eUiButtonCodeLeft || btnCode == Blam::Input::eUiButtonCodeDpadLeft) // analog left / arrow key left
 				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eUiButtonCodeLB;
 
-			if (btnCode == Blam::Input::eUiButtonCodeRight) // analog right / arrow key right
+			if (btnCode == Blam::Input::eUiButtonCodeRight || btnCode == Blam::Input::eUiButtonCodeDpadRight) // analog right / arrow key right
 				*(uint32_t*)(controllerStruct + 0x1C) = Blam::Input::eUiButtonCodeRB;
 		}
 
 		typedef char(__thiscall *UI_Forge_ButtonPressHandler)(void* a1, void* controllerStruct);
 		UI_Forge_ButtonPressHandler buttonHandler = (UI_Forge_ButtonPressHandler)0xAE2180;
-		return buttonHandler(a1, controllerStruct);
-	}
-
-	char __fastcall UI_ButtonPressHandlerHook(void* a1, int unused, uint8_t* controllerStruct)
-	{
-		uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
-
-		auto CurTime = std::chrono::high_resolution_clock::now();
-		auto timeSinceLastAction = std::chrono::duration_cast<std::chrono::milliseconds>(CurTime - PrevTime);
-
-		if (btnCode >= Blam::Input::eUiButtonCodeLeft && btnCode <= Blam::Input::eUiButtonCodeDown) // btnCode = 0x10 (sent on all arrow key presses) or 0x12 (arrow left) 0x13 (arrow right) 0x14 (arrow up) 0x15 (arrow down)
-		{
-			if (timeSinceLastAction.count() < 200) // 200ms between button presses otherwise it spams the key
-				return 1;
-
-			PrevTime = CurTime;
-		}
-
-		typedef char(__thiscall *UI_ButtonPressHandler)(void* a1, void* controllerStruct);
-		UI_ButtonPressHandler buttonHandler = (UI_ButtonPressHandler)0xAB1BA0;
 		return buttonHandler(a1, controllerStruct);
 	}
 
@@ -469,27 +415,6 @@ namespace
 			auto CreateLobby = reinterpret_cast<CreateLobbyPtr>(0xA7EE70);
 			return CreateLobby(lobbyType);
 		}
-	}
-
-	// Fix to ignore duplicate button presses when using keyboard
-	// TODO: find the proper fix for this, it seems like when your on the pause menu / forge menu it sends 3 button presses when you press a key (two dpad presses and an analog press)
-	// eg. for dpad right it sends DpadRight (sent @ 0xA93E40), DpadRight (sent @ 0xA941B9), Right (sent @ 0xA93E23)
-	// only sends one button press on the main menu though, which is strange
-	// we just ignore the dpad button presses so options don't get skipped.
-	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct)
-	{
-		bool usingController = Pointer(0x244DE98).Read<uint32_t>() == 1;
-		if (!usingController)
-		{
-			uint32_t btnCode = *(uint32_t*)(controllerStruct + 0x1C);
-
-			if (btnCode >= Blam::Input::eUiButtonCodeDpadUp && btnCode <= Blam::Input::eUiButtonCodeDpadRight)
-				return 1; // ignore the dpad button presses
-		}
-
-		typedef int(__thiscall *c_start_menu__ButtonPressPtr)(void* thisPtr, uint8_t* controllerStruct);
-		auto c_start_menu__ButtonPress = reinterpret_cast<c_start_menu__ButtonPressPtr>(0xB1F620);
-		return c_start_menu__ButtonPress(thisPtr, controllerStruct);
 	}
 
 	void ResolutionChangeHook()

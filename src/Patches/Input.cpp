@@ -5,24 +5,29 @@
 #include "../Blam/BlamInput.hpp"
 #include "../Modules/ModuleInput.hpp"
 
+using namespace Patches::Input;
+using namespace Blam::Input;
+
 namespace
 {
-	using namespace Patches::Input;
-
 	void UpdateInputHook();
 	void ProcessUiInputHook();
 	void QuickUpdateUiInputHook();
 	void KeyTestHook();
-	void InitBindingsHook(Blam::Input::BindingsTable *bindings);
-	Blam::Input::BindingsPreferences* PreferencesGetKeyBindingsHook(Blam::Input::BindingsPreferences *result);
-	void PreferencesSetKeyBindingsHook(Blam::Input::BindingsPreferences newBindings);
-	void GetDefaultBindingsHook(int type, Blam::Input::BindingsTable *result);
+	void InitBindingsHook(BindingsTable *bindings);
+	BindingsPreferences* PreferencesGetKeyBindingsHook(BindingsPreferences *result);
+	void PreferencesSetKeyBindingsHook(BindingsPreferences newBindings);
+	void GetDefaultBindingsHook(int type, BindingsTable *result);
+	void GetKeyboardActionTypeHook();
+	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	bool contextDone = false;
 
-	std::vector<Blam::Input::ConfigurableAction> settings;
+	std::vector<ConfigurableAction> settings;
+
+	extern InputType actionInputTypes[eGameAction_KeyboardMouseCount];
 }
 
 namespace Patches
@@ -40,7 +45,23 @@ namespace Patches
 			Hook(0x10AB40, PreferencesGetKeyBindingsHook).Apply();
 			Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
 			Hook(0x20C040, GetDefaultBindingsHook).Apply();
+			Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
 			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
+			Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
+
+			// Fix a bug in the keyboard input routine that screws up UI keys.
+			// If an action has the "handled" flag set and has a secondary key
+			// bound to it, then the tick count gets reset to 0 because the
+			// secondary key won't be down and the action gets spammed.
+			//
+			// To fix it, we have to nop out every place where the flag is
+			// checked, disable the code which updates the flag, and then
+			// update it ourselves only after every key has been checked.
+			uint32_t keyboardFixPointers[] = { 0x20C529, 0x20C558, 0x20C591, 0x20C5C2, 0x20C5FA, 0x20C63F };
+			for (auto pointer : keyboardFixPointers)
+				Patch::NopFill(Pointer::Base(pointer), 2);
+			Patch(0x20C69F, { 0xEB }).Apply();
+			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
 		}
 
 		void PushContext(std::shared_ptr<InputContext> context)
@@ -57,8 +78,8 @@ namespace Patches
 		}
 
 		void SetKeyboardSettingsMenu(
-			const std::vector<Blam::Input::ConfigurableAction> &infantrySettings,
-			const std::vector<Blam::Input::ConfigurableAction> &vehicleSettings)
+			const std::vector<ConfigurableAction> &infantrySettings,
+			const std::vector<ConfigurableAction> &vehicleSettings)
 		{
 			// The settings array needs to have infantry settings followed by
 			// vehicle settings due to assumptions that the EXE makes
@@ -75,11 +96,11 @@ namespace Patches
 			uint32_t infantryCountPointers[] = { 0x39857B, 0x3993BC, 0x39B495 };
 			uint32_t vehicleCountPointers[] = { 0x398580, 0x3993C1, 0x39B49A };
 			for (auto pointer : infantryPointers)
-				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0]);
+				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0]);
 			for (auto pointer : vehiclePointers)
-				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0] + infantryCount);
+				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + infantryCount);
 			for (auto pointer : endPointers)
-				Pointer::Base(pointer).Write<Blam::Input::ConfigurableAction*>(&settings[0] + settings.size());
+				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + settings.size());
 			for (auto pointer : infantryCountPointers)
 				Pointer::Base(pointer).Write<int>(static_cast<int>(infantryCount));
 			for (auto pointer : vehicleCountPointers)
@@ -149,9 +170,9 @@ namespace
 	}
 
 	// Returns true if a key should be blocked.
-	bool KeyTestHookImpl(Blam::Input::InputType type)
+	bool KeyTestHookImpl(InputType type)
 	{
-		return (type == Blam::Input::eInputTypeGame || type == Blam::Input::eInputTypeSpecial) && !contextStack.empty();
+		return (type == eInputTypeGame || type == eInputTypeSpecial) && !contextStack.empty();
 	}
 
 	// Hook for the engine's "get key ticks" and "get key ms" functions. If the
@@ -179,13 +200,13 @@ namespace
 	}
 
 	// Hook to initialize bindings with ModuleInput's values
-	void InitBindingsHook(Blam::Input::BindingsTable *bindings)
+	void InitBindingsHook(BindingsTable *bindings)
 	{
 		*bindings = *Modules::ModuleInput::GetBindings();
 	}
 
 	// Hook to redirect keybind preference reads to ModuleInput
-	Blam::Input::BindingsPreferences* PreferencesGetKeyBindingsHook(Blam::Input::BindingsPreferences *result)
+	BindingsPreferences* PreferencesGetKeyBindingsHook(BindingsPreferences *result)
 	{
 		auto bindings = Modules::ModuleInput::GetBindings();
 		memcpy(result->PrimaryKeys, bindings->PrimaryKeys, sizeof(result->PrimaryKeys));
@@ -196,7 +217,7 @@ namespace
 	}
 
 	// Hook to redirect keybind preference writes to ModuleInput
-	void PreferencesSetKeyBindingsHook(Blam::Input::BindingsPreferences newBindings)
+	void PreferencesSetKeyBindingsHook(BindingsPreferences newBindings)
 	{
 		auto bindings = Modules::ModuleInput::GetBindings();
 		memcpy(bindings->PrimaryKeys, newBindings.PrimaryKeys, sizeof(bindings->PrimaryKeys));
@@ -208,8 +229,112 @@ namespace
 	}
 
 	// Hook to prevent the game from resetting keybindings when we don't want it to
-	void GetDefaultBindingsHook(int type, Blam::Input::BindingsTable *result)
+	void GetDefaultBindingsHook(int type, BindingsTable *result)
 	{
 		*result = *Modules::ModuleInput::GetBindings();
 	}
+
+	// Hook to get keyboard action types from the actionInputTypes array
+	// instead of using hardcoded values
+	__declspec(naked) void GetKeyboardActionTypeHook()
+	{
+		__asm
+		{
+			// ecx has the action index
+			// eax needs to contain the type on return
+			// ecx needs to be 0 on return
+			mov eax, actionInputTypes[ecx * 4]
+			xor ecx, ecx
+			push 0x60C51E
+			ret
+		}
+	}
+
+	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions)
+	{
+		typedef void(*EngineProcessKeyBindingsPtr)(const BindingsTable &bindings, ActionState *actions);
+		auto EngineProcessKeyBindings = reinterpret_cast<EngineProcessKeyBindingsPtr>(0x60C4A0);
+		EngineProcessKeyBindings(bindings, actions);
+
+		// Unset the "handled" flag for inactive actions
+		for (auto i = 0; i < eGameAction_KeyboardMouseCount; i++)
+		{
+			if (actions[i].Ticks == 0)
+				actions[i].Flags &= ~eActionStateFlagsHandled;
+		}
+	}
+}
+
+namespace
+{
+	// These override the input type used to check each action, because the
+	// defaults aren't very good and treat the UI actions as game input
+	//
+	// TODO: Use this with the controller input routine too!
+	InputType actionInputTypes[eGameAction_KeyboardMouseCount] =
+	{
+		eInputTypeUi,      // eGameActionUiLeftTrigger
+		eInputTypeUi,      // eGameActionUiRightTrigger
+		eInputTypeUi,      // eGameActionUiUp
+		eInputTypeUi,      // eGameActionUiDown
+		eInputTypeUi,      // eGameActionUiLeft
+		eInputTypeUi,      // eGameActionUiRight
+		eInputTypeSpecial, // eGameActionUiStart
+		eInputTypeSpecial, // eGameActionUiSelect
+		eInputTypeUi,      // eGameActionUiLeftStick
+		eInputTypeUi,      // eGameActionUiRightStick
+		eInputTypeUi,      // eGameActionUiA
+		eInputTypeUi,      // eGameActionUiB
+		eInputTypeUi,      // eGameActionUiX
+		eInputTypeUi,      // eGameActionUiY
+		eInputTypeUi,      // eGameActionUiLeftBumper
+		eInputTypeUi,      // eGameActionUiRightBumper
+		eInputTypeGame,    // eGameActionJump
+		eInputTypeGame,    // eGameActionSwitchGrenades
+		eInputTypeGame,    // eGameActionSwitchWeapons
+		eInputTypeGame,    // eGameActionUnk19
+		eInputTypeGame,    // eGameActionReloadRight
+		eInputTypeGame,    // eGameActionUse
+		eInputTypeGame,    // eGameActionReloadLeft
+		eInputTypeGame,    // eGameActionPickUpLeft
+		eInputTypeGame,    // eGameActionMelee
+		eInputTypeGame,    // eGameActionThrowGrenade
+		eInputTypeGame,    // eGameActionFireRight
+		eInputTypeGame,    // eGameActionFireLeft
+		eInputTypeGame,    // eGameActionMeleeFire
+		eInputTypeGame,    // eGameActionCrouch
+		eInputTypeGame,    // eGameActionZoom
+		eInputTypeGame,    // eGameActionUnk31
+		eInputTypeGame,    // eGameActionUnk32
+		eInputTypeGame,    // eGameActionSprint
+		eInputTypeGame,    // eGameActionUnk34
+		eInputTypeGame,    // eGameActionUnk35
+		eInputTypeGame,    // eGameActionUnk36
+		eInputTypeGame,    // eGameActionUnk37
+		eInputTypeGame,    // eGameActionUnk38
+		eInputTypeUi,      // eGameActionGeneralChat
+		eInputTypeUi,      // eGameActionTeamChat
+		eInputTypeGame,    // eGameActionUnk41
+		eInputTypeGame,    // eGameActionUnk42
+		eInputTypeGame,    // eGameActionUnk43
+		eInputTypeGame,    // eGameActionUseConsumable1
+		eInputTypeGame,    // eGameActionUseConsumable2
+		eInputTypeGame,    // eGameActionUseConsumable3
+		eInputTypeGame,    // eGameActionUseConsumable4
+		eInputTypeGame,    // eGameActionVehicleBoost
+		eInputTypeGame,    // eGameActionVehicleDive
+		eInputTypeGame,    // eGameActionVehicleRaise
+		eInputTypeGame,    // eGameActionVehicleAccelerate
+		eInputTypeGame,    // eGameActionVehicleBrake
+		eInputTypeGame,    // eGameActionVehicleFire
+		eInputTypeGame,    // eGameActionVehicleAltFire
+		eInputTypeGame,    // eGameActionVehicleExit
+		eInputTypeUi,      // eGameActionUnk56
+		eInputTypeUi,      // eGameActionUnk57
+		eInputTypeUi,      // eGameActionUnk58
+		eInputTypeGame,    // eGameActionMoveForward
+		eInputTypeGame,    // eGameActionMoveBack
+		eInputTypeGame,    // eGameActionMoveLeft
+		eInputTypeGame,    // eGameActionMoveRight
+	};
 }

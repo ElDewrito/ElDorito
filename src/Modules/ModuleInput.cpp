@@ -115,8 +115,14 @@ namespace
 		bindings.PrimaryKeys[eGameActionUiRight]                 = eKeyCodeRight;
 		bindings.PrimaryKeys[eGameActionUiStart]                 = eKeyCodeEscape;
 		bindings.PrimaryKeys[eGameActionUiSelect]                = eKeyCodeTab;
-		bindings.PrimaryKeys[eGameActionUiA]                     = eKeyCodeSpace;
+		bindings.PrimaryKeys[eGameActionUiA]                     = eKeyCodeEnter;
+		bindings.SecondaryKeys[eGameActionUiA]                   = eKeyCodeSpace;
+		bindings.PrimaryKeys[eGameActionUiB]                     = eKeyCodeB;
+		bindings.SecondaryKeys[eGameActionUiB]                   = eKeyCodeEscape;
+		bindings.PrimaryKeys[eGameActionUiX]                     = eKeyCodeX;
 		bindings.PrimaryKeys[eGameActionUiY]                     = eKeyCodeDelete;
+		bindings.PrimaryKeys[eGameActionUiLeftBumper]            = eKeyCodeQ;
+		bindings.PrimaryKeys[eGameActionUiRightBumper]           = eKeyCodeE;
 		bindings.PrimaryKeys[eGameActionJump]                    = eKeyCodeSpace;
 		bindings.PrimaryKeys[eGameActionSwitchGrenades]          = eKeyCodeG;
 		bindings.PrimaryMouseButtons[eGameActionSwitchWeapons]   = eMouseButtonWheelUp;
@@ -506,13 +512,9 @@ namespace Modules
 		BuildSettingsMenu();
 
 		// Default command bindings (TODO: port bind saving code from recode)
-		commandBindings[eKeyCodeEnter].command = { "ui_btn_press", "0" };  // A
-		commandBindings[eKeyCodeSpace].command = { "ui_btn_press", "0" };  // A
-		commandBindings[eKeyCodeEscape].command = { "ui_btn_press", "1" }; // B
 		commandBindings[eKeyCodeBack].command = { "ui_btn_press", "1" };   // B
 		commandBindings[eKeyCodeEnd].command = { "ui_btn_press", "1" };    // B
 		commandBindings[eKeyCodeHome].command = { "ui_btn_press", "2" };   // X
-		//bindings[eKeyCodeDelete].command = { "forge_delete" };
 	}
 
 	BindingsTable* ModuleInput::GetBindings()
