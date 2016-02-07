@@ -990,15 +990,13 @@ namespace
 		switch (newState)
 		{
 		case Blam::Network::eLifeCycleStateNone:
-			// Switch to global chat on the main menu
-			GameConsole::Instance().SwitchToGlobalChat();
+			// Disable game chat on the main menu
 			GameConsole::Instance().gameChatQueue.visible = false;
 			break;
 		case Blam::Network::eLifeCycleStatePreGame:
 		case Blam::Network::eLifeCycleStateInGame:
-			// Switch to game chat when joining a game
+			// Enable to game chat when joining a game
 			GameConsole::Instance().gameChatQueue.visible = true;
-			GameConsole::Instance().SwitchToGameChat();
 			break;
 		}
 	}

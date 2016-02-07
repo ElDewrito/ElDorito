@@ -8,7 +8,6 @@
 #include "../Pointer.hpp"
 #include "../Patches/Input.hpp"
 #include "../Blam/BlamInput.hpp"
-#include "IRCBackend.hpp"
 #include "../Menu.hpp"
 
 namespace
@@ -95,11 +94,6 @@ namespace
 	};
 }
 
-void GameConsole::startIRCBackend()
-{
-	IRCBackend::Instance();
-}
-
 GameConsole::GameConsole()
 {
 	auto gameChatHandler = std::make_shared<GameChatHandler>(&gameChatQueue);
@@ -108,39 +102,14 @@ GameConsole::GameConsole()
 	PushLineFromGameToUIQueues("ElDewrito Version: " + Utils::Version::GetVersionString() + " Build Date: " + __DATE__ + " " + __TIME__);
 
 	Patches::PlayerUid::Get(); // ensure a UID is generated
-	initIRCName();
-	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&startIRCBackend, 0, 0, 0);
-	gameChatQueue.visible = false;
 
 	// Register our game input handler
 	Patches::Input::RegisterDefaultInputHandler(std::bind(&GameConsole::gameInputCallBack, this));
 }
 
-void GameConsole::initIRCName()
-{
-	ircName = GenerateIRCNick(Modules::ModulePlayer::Instance().VarPlayerName->ValueString, Pointer::Base(0x15AB730).Read<uint64_t>());
-}
-
-std::string GameConsole::GenerateIRCNick(const std::string& name, uint64_t uid)
-{
-	std::string ircNick;
-	Utils::String::BytesToHexString(&uid, sizeof(uint64_t), ircNick);
-	ircNick += "|" + name;
-
-	size_t maxLen = 27; // TODO: get max name len from server
-	maxLen -= 3; // dew prefix
-
-	if (ircNick.length() > maxLen)
-		ircNick = ircNick.substr(ircNick.length() - maxLen, maxLen);
-
-	ircNick = "dew" + ircNick;
-	return ircNick;
-}
-
 void GameConsole::PushLineFromGameToUIQueues(std::string text)
 {
 	consoleQueue.pushLineFromGameToUI(text);
-	globalChatQueue.pushLineFromGameToUI(text);
 }
 
 int GameConsole::getMsSinceLastConsoleOpen()
@@ -238,6 +207,20 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		}
 		break;
 
+	case KeyCode::eKeyCodeHome:
+		if (!currentInput.currentInput.empty())
+		{
+			currentInput.home();
+		}
+		break;
+
+	case KeyCode::eKeyCodeEnd:
+		if (!currentInput.currentInput.empty())
+		{
+			currentInput.end();
+		}
+		break;
+
 	case KeyCode::eKeyCodePageUp:
 		if (selectedQueue->startIndexForScrolling < selectedQueue->numOfLinesBuffer - selectedQueue->numOfLinesToShow)
 		{
@@ -286,20 +269,6 @@ bool GameConsole::keyDownCallBack(const Blam::Input::KeyEvent& key)
 		break;
 
 	case KeyCode::eKeyCodeTab:
-		if (showChat)
-		{
-			if (selectedQueue == &globalChatQueue)
-			{
-				SwitchToGameChat();
-				break;
-			}
-			else if (selectedQueue == &gameChatQueue)
-			{
-				SwitchToGlobalChat();
-				break;
-			}
-		}
-
 		if (currentInput.currentInput.find_first_of(" ") == std::string::npos && currentInput.currentInput.length() > 0)
 		{
 			if (tabHitLast)
@@ -390,30 +359,6 @@ void GameConsole::mouseCallBack(RAWMOUSE mouseInfo)
 	}
 }
 
-void GameConsole::SwitchToGameChat()
-{
-	if (!gameChatQueue.visible)
-		return;
-	selectedQueue = &gameChatQueue;
-	lastChatQueue = selectedQueue;
-	selectedQueue->startIndexForScrolling = 0;
-	globalChatQueue.color = DirectXHook::COLOR_YELLOW;
-	gameChatQueue.color = DirectXHook::COLOR_GREEN;
-	currentBacklogIndex = -1;
-}
-
-void GameConsole::SwitchToGlobalChat()
-{
-	if (!globalChatQueue.visible)
-		return;
-	selectedQueue = &globalChatQueue;
-	lastChatQueue = selectedQueue;
-	selectedQueue->startIndexForScrolling = 0;
-	globalChatQueue.color = DirectXHook::COLOR_GREEN;
-	gameChatQueue.color = DirectXHook::COLOR_YELLOW;
-	currentBacklogIndex = -1;
-}
-
 void GameConsole::gameInputCallBack()
 {
 	using namespace Blam::Input;
@@ -443,7 +388,6 @@ void GameConsole::gameInputCallBack()
 			(secondaryTeamChatKey != eKeyCode_None && GetKeyTicks(secondaryTeamChatKey, eInputTypeUi)))
 		{
 			displayChat(false);
-			SwitchToGameChat();
 			currentInput.type("!team ");
 		}
 	}
