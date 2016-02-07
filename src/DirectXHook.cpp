@@ -218,22 +218,6 @@ void DirectXHook::drawChatInterface()
 	{
 		int tempX = x;
 
-		/*if (console.gameChatQueue.visible)
-		{
-			if (console.gameChatQueue.color == COLOR_GREEN) // ugly hack
-			{
-				drawBox(tempX, y, getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, ">Game Chat<", normalSizeFont);
-				tempX += getTextWidth(">Game Chat<", normalSizeFont) + 2 * horizontalSpacing;
-			}
-			else
-			{
-				drawBox(tempX, y, getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing, inputTextBoxHeight, console.gameChatQueue.color, COLOR_BLACK);
-				drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, console.gameChatQueue.color, "Game Chat", normalSizeFont);
-				tempX += getTextWidth("Game Chat", normalSizeFont) + 2 * horizontalSpacing;
-			}
-		}*/
-
 		std::string helpText = "Press ` or F1 to open console.";
 		drawText(tempX + horizontalSpacing, y + verticalSpacingBetweenTopOfInputBoxAndFont, COLOR_WHITE, helpText.c_str(), normalSizeFont);
 	}
