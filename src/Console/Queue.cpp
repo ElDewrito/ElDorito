@@ -5,7 +5,6 @@
 #include "../DirectXHook.hpp"
 #include "../ElModules.hpp"
 #include "../Server/ServerChat.hpp"
-#include "IRCBackend.hpp"
 
 Queue::Queue(D3DCOLOR color) : color(color)
 {
@@ -23,24 +22,6 @@ void Queue::pushLineFromGameToUI(std::string line)
 	queue.at(0) = line;
 
 	lastTimeQueueShown = GetTickCount();
-}
-
-GlobalChatQueue::GlobalChatQueue() : Queue(DirectXHook::COLOR_GREEN)
-{
-}
-
-void GlobalChatQueue::pushLineFromKeyboardToGame(std::string line)
-{
-	auto& ircBackend = IRCBackend::Instance();
-	auto& console = GameConsole::Instance();
-	ircBackend.sendMessageToChannel(ircBackend.globalChatChannel, &console.globalChatQueue, line);
-
-	std::string preparedLineForUI = GameConsole::Instance().ircName;
-	preparedLineForUI = "<" + preparedLineForUI.substr(preparedLineForUI.find_first_of("|") + 1, std::string::npos);
-	preparedLineForUI += "> ";
-	preparedLineForUI += line;
-	Utils::String::RemoveCharsFromString(preparedLineForUI, "\t\r\n");
-	pushLineFromGameToUI(preparedLineForUI);
 }
 
 GameChatQueue::GameChatQueue() : Queue(DirectXHook::COLOR_YELLOW)

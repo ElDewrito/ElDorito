@@ -6,7 +6,6 @@
 #include "Modules/ModuleServer.hpp"
 #include "Modules/ModuleCamera.hpp"
 #include "Modules/ModuleInput.hpp"
-#include "Modules/ModuleIRC.hpp"
 #include "Modules/ModuleVoIP.hpp"
 #include "Modules/ModuleTime.hpp"
 #include "Modules/ModuleGraphics.hpp"
