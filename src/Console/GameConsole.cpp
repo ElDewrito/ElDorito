@@ -418,22 +418,30 @@ void GameConsole::gameInputCallBack()
 {
 	using namespace Blam::Input;
 
+	BindingsTable bindings;
+	GetBindings(0, &bindings);
+
+	// TODO: Change the input type for these actions to eInputTypeUi somehow so
+	// that they can be bound to controllers...
+	auto primaryChatKey = bindings.PrimaryKeys[eGameActionGeneralChat];
+	auto secondaryChatKey = bindings.SecondaryKeys[eGameActionGeneralChat];
+	auto primaryTeamChatKey = bindings.PrimaryKeys[eGameActionTeamChat];
+	auto secondaryTeamChatKey = bindings.SecondaryKeys[eGameActionTeamChat];
+
 	if (!disableUI)
 	{
-		auto action = GetActionState(eGameActionGeneralChat);
-		if (!(action->Flags & eActionStateFlagsHandled) && action->Ticks)
+		if ((primaryChatKey != eKeyCode_None && GetKeyTicks(primaryChatKey, eInputTypeUi)) ||
+			(secondaryChatKey != eKeyCode_None && GetKeyTicks(secondaryChatKey, eInputTypeUi)))
 		{
-			action->Flags |= eActionStateFlagsHandled;
 			displayChat(false);
 		}
 	}
 
 	if (!disableUI && gameChatQueue.visible)
 	{
-		auto action = GetActionState(eGameActionTeamChat);
-		if (!(action->Flags & eActionStateFlagsHandled) && action->Ticks)
+		if ((primaryTeamChatKey != eKeyCode_None && GetKeyTicks(primaryTeamChatKey, eInputTypeUi)) ||
+			(secondaryTeamChatKey != eKeyCode_None && GetKeyTicks(secondaryTeamChatKey, eInputTypeUi)))
 		{
-			action->Flags |= eActionStateFlagsHandled;
 			displayChat(false);
 			SwitchToGameChat();
 			currentInput.type("!team ");
