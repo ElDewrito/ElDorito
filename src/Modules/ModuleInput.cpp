@@ -117,8 +117,8 @@ namespace
 		bindings.PrimaryKeys[eGameActionUiSelect]                = eKeyCodeTab;
 		bindings.PrimaryKeys[eGameActionUiA]                     = eKeyCodeEnter;
 		bindings.SecondaryKeys[eGameActionUiA]                   = eKeyCodeSpace;
-		bindings.PrimaryKeys[eGameActionUiB]                     = eKeyCodeB;
-		bindings.SecondaryKeys[eGameActionUiB]                   = eKeyCodeEscape;
+		bindings.PrimaryKeys[eGameActionUiB]                     = eKeyCodeEscape;
+		bindings.SecondaryKeys[eGameActionUiB]                   = eKeyCodeBack;
 		bindings.PrimaryKeys[eGameActionUiX]                     = eKeyCodeX;
 		bindings.PrimaryKeys[eGameActionUiY]                     = eKeyCodeDelete;
 		bindings.PrimaryKeys[eGameActionUiLeftBumper]            = eKeyCodeQ;
@@ -512,7 +512,8 @@ namespace Modules
 		BuildSettingsMenu();
 
 		// Default command bindings (TODO: port bind saving code from recode)
-		commandBindings[eKeyCodeBack].command = { "ui_btn_press", "1" };   // B
+		commandBindings[eKeyCodeA].command = { "ui_btn_press", "0" };      // A
+		commandBindings[eKeyCodeB].command = { "ui_btn_press", "1" };      // B
 		commandBindings[eKeyCodeEnd].command = { "ui_btn_press", "1" };    // B
 		commandBindings[eKeyCodeHome].command = { "ui_btn_press", "2" };   // X
 	}
