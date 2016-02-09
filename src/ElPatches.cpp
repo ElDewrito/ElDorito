@@ -61,7 +61,6 @@ namespace Patches
 	{
 		Ui::Tick();
 		Sprint::Tick();
-		Assassination::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

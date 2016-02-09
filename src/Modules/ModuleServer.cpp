@@ -1019,6 +1019,14 @@ namespace
 		Patches::Sprint::SetUnlimited(unlimited);
 		return true;
 	}
+
+	bool AssassinationDisabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerAssassinationEnabledClient->ValueInt != 0;
+		Patches::Assassination::Enable(enabled);
+		return true;
+	}
 }
 
 namespace Modules
@@ -1088,7 +1096,7 @@ namespace Modules
 		Server::VariableSynchronization::Synchronize(VarServerDualWieldEnabled, VarServerDualWieldEnabledClient);
 
 		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
-		VarServerAssassinationEnabledClient = AddVariableInt("AssassinationEnabledClient", "assassination_client", "", eCommandFlagsInternal, 0);
+		VarServerAssassinationEnabledClient = AddVariableInt("AssassinationEnabledClient", "assassination_client", "", eCommandFlagsInternal, 0, AssassinationDisabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerAssassinationEnabled, VarServerAssassinationEnabledClient);
 
 #ifdef _DEBUG
