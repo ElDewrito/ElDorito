@@ -22,7 +22,6 @@ namespace Modules
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
 		Command* VarServerAssassinationEnabled;
-		Command* VarServerAssassinationEnabledClient;
 
 		BYTE SyslinkData[0x176];
 
