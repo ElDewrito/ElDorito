@@ -16,6 +16,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console/GameConsole.hpp"
 #include "../Server/VariableSynchronization.hpp"
+#include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
 #include "../Server/BanList.hpp"
 
@@ -859,6 +860,14 @@ namespace
 		Patches::Sprint::SetUnlimited(unlimited);
 		return true;
 	}
+
+	bool AssassinationDisabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerAssassinationEnabled->ValueInt != 0;
+		Patches::Assassination::Enable(enabled);
+		return true;
+	}
 }
 
 namespace Modules
@@ -931,6 +940,8 @@ namespace Modules
 
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
+
+		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1, AssassinationDisabledChanged);
 
 #ifdef _DEBUG
 		// Synchronization system testing

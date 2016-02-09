@@ -19,6 +19,7 @@ namespace Modules
 		Command* VarServerSprintEnabledClient;
 		Command* VarServerSprintUnlimited;
 		Command* VarServerSprintUnlimitedClient;
+		Command* VarServerAssassinationEnabled;
 		Command* VarFloodFilterEnabled;
 		Command* VarFloodMessageScoreShort;
 		Command* VarFloodMessageScoreLong;
