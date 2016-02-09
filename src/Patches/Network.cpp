@@ -949,7 +949,7 @@ namespace
 		{
 			; check datum index against array count
 			cmp		ecx, [eax + 34h]
-			jge		resume
+			jl		resume
 
 			; fake success if datum does not exist
 			xor		edx, edx
