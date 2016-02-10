@@ -42,6 +42,8 @@ namespace
 
 	std::vector<Patches::Network::LifeCycleStateChangedCallback> lifeCycleStateChangedCallbacks;
 	void LifeCycleStateChangedHook();
+
+	void GetTextureDimensionsHook();
 }
 
 namespace Patches
@@ -396,10 +398,15 @@ namespace Patches
 			Patch(0x12D67A, { 0xEB }).Apply();
 			Patch(0x5A8BB, { 0xEB }).Apply();
 
-			// Crash fixes
+			// Misc. crash fixes
 			Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
 			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+
+			// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
 			Patch(0x62E636, { 0x33, 0xFF }).Apply();
+
+			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
+			Hook(0x66E982, GetTextureDimensionsHook).Apply();
 
 			// Forces the game to use a null d3d device
 			Patch(0x2EBBB, { 0x1 }).Apply();
@@ -936,6 +943,28 @@ namespace
 			call LifeCycleStateChangedHookImpl
 			add esp, 4
 			jmp esi
+		}
+	}
+	
+	// hook @ 0xA6E982 - http://pastebin.com/ZcsHYsiD
+	__declspec(naked) void GetTextureDimensionsHook()
+	{
+		__asm
+		{
+			; check datum index against array count
+			cmp		ecx, [eax + 34h]
+			jl		resume
+
+			; fake success if datum does not exist
+			xor		edx, edx
+			push	0A6E9B0h
+			ret
+
+			resume:
+			mov		eax, [eax + 44h]
+			lea		eax, [eax + ecx * 8]
+			push	0A6E988h
+			ret
 		}
 	}
 }

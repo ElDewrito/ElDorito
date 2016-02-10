@@ -76,13 +76,17 @@ namespace Modules
 		Pointer::Base(0x124E6A).Write<uint32_t>((uint32_t)&this->UserName);
 
 		char* defaultNames[] = {
-			"Donut", "Penguin", "Stumpy", "Whicker", "Shadow", "Howard", "Wilshire",
-			"Darling", "Disco", "Jack", "The Bear", "Sneak", "The Big ", "Whisp",
-			"Wheezy", "Crazy", "Goat", "Pirate", "Saucy", "Hambone", "Butcher",
-			"Walla Walla", "Snake", "Caboose", "Sleepy", "Killer", "Stompy",
-			"Mopey", "Dopey", "Wease", "Ghost", "Dasher", "Grumpy", "Hollywood",
-			"Tooth", "Noodle", "King", "Cupid", "Prancer", "Pyong", "Jasper",
-			"Fish", "Moose", "Banana", "Peanut", "Code", "Upvote", "Commit"
+            "Mustard", "Sleepy", "Dopey", "Grumpy", "Mopey", "Sketch", "Crazy", "Saucy", "Wheezy", "Kitty",
+            "Killer", "Steak", "Butcher", "Darling", "Disco", "Donut", "Cotton", "Stank", "Ratjar", "Noodle",
+            "Weasel", "Snake", "Shadow", "Caboose", "King", "Sneak", "The Bear", "Ghost", "Penguin", "Coward",
+            "Moogley", "Doggy Dog", "Potato", "Wilshire", "Pirate", "Wallace", "Tooth", "Goat", "Stumpy", "Stomp",
+            "Winky", "Ling-ling", "Hippo", "Turtle", "Moose", "Derby", "Wiggly", "Bongo", "Skip", "Bork",
+            "Lemon", "Hermit", "Ralfie", "Cheese", "Duke", "Badger", "Beagle", "Wort", "Wiggler", "Soffish",
+            "Yodler", "Geronimo", "Darkman", "Snoozy", "Shaggy", "Banana", "Shiz", "Giant", "Slinky", "Pretzel",
+            "Brutus", "Pinky", "Milo", "Monkey", "Bozo", "Grunty", "Bower", "Floss", "Nappy", "Gerbil",
+            "Goose", "Scruffy", "Soap", "Polo", "Muffin", "Beast", "Clubby", "Surly", "Balin", "Poodle",
+            "Snaz", "Jungle Jim", "Spork", "Grub", "Snook", "Spleen", "Goose", "Pumpkin", "Monkey", "Custard",
+            "Cracky", "Pickle", "Slim", "Lucky", "Pudding"
 		};
 
 		srand(static_cast<unsigned int>(time(nullptr)));
