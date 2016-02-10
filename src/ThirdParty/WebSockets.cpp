@@ -75,8 +75,8 @@ static struct libwebsocket_protocols protocols[] = {
 DWORD WINAPI StartRconWebSocketServer(LPVOID) {
 	//auto& console = GameConsole::Instance();
 
-	// server url will be http://localhost:11776
-	int port = 11776;
+	// server url will be http://localhost:11776 by default
+	int port = Modules::ModuleGame::Instance().VarRconPort->ValueInt;
 	struct libwebsocket_context *context;
 	// create libwebsocket context representing this server
 	int opts = 0;

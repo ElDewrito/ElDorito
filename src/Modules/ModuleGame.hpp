@@ -21,6 +21,7 @@ namespace Modules
 		Command* VarSkipLauncher;
 		Command* VarLogName;
 		Command* VarMenuURL;
+		Command* VarRconPort;
 
 		int DebugFlags;
 		std::vector<std::string> MapList;
