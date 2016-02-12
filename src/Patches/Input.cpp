@@ -1,5 +1,7 @@
+#define _USE_MATH_DEFINES
 #include "Input.hpp"
 #include <stack>
+#include <cmath>
 
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
@@ -20,6 +22,7 @@ namespace
 	void GetDefaultBindingsHook(int type, BindingsTable *result);
 	void GetKeyboardActionTypeHook();
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
+	void UpdateUiControllerInputHook();
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
@@ -48,6 +51,7 @@ namespace Patches
 			Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
 			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 			Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
+			Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
 
 			// Fix a bug in the keyboard input routine that screws up UI keys.
 			// If an action has the "handled" flag set and has a secondary key
@@ -261,6 +265,65 @@ namespace
 		{
 			if (actions[i].Ticks == 0)
 				actions[i].Flags &= ~eActionStateFlagsHandled;
+		}
+	}
+
+	void UpdateUiControllerInputHook()
+	{
+		typedef void(*UiUpdateControllerInputPtr)();
+		auto UiUpdateControllerInput = reinterpret_cast<UiUpdateControllerInputPtr>(0xA93A50);
+		typedef bool(*IsMainMenuPtr)();
+		auto IsMainMenu = reinterpret_cast<IsMainMenuPtr>(0x531E90);
+		typedef float(*UiGetTimeDeltaPtr)();
+		auto UiGetTimeDelta = reinterpret_cast<UiGetTimeDeltaPtr>(0xA844E0);
+		typedef void(*UpdateCharPlatformPtr)();
+		auto UpdateCharPlatform = reinterpret_cast<UpdateCharPlatformPtr>(0xBB5F00);
+		typedef void(*RotateCharPlatformPtr)(float timeDelta, float amount);
+		auto RotateCharPlatform = reinterpret_cast<RotateCharPlatformPtr>(0xBB5DA0);
+
+		UiUpdateControllerInput();
+
+		// Handle char_platform controls
+		//
+		// This spices things up a bit compared to the default implementation
+		// by making the platform automatically rotate slowly until the player
+		// manually rotates it.
+
+		static auto firstRotate = true;
+		static auto autoRotate = true;
+		if (!IsMainMenu())
+		{
+			// char_platform is only on the main menu
+			firstRotate = true;
+			autoRotate = true;
+			return;
+		}
+		if (firstRotate)
+		{
+			// Rotate it to the left a bit initially so that you can see the
+			// front of your Spartan at the start
+			RotateCharPlatform(1.0f, -0.25f);
+			firstRotate = false;
+			return;
+		}
+		auto leftAction = GetActionState(eGameActionUiLeft);
+		auto rightAction = GetActionState(eGameActionUiRight);
+		auto rotateLeft = (leftAction->Ticks != 0);
+		auto rotateRight = (rightAction->Ticks != 0);
+		auto rotateAmount = static_cast<int>(rotateRight) - static_cast<int>(rotateLeft);
+		if (rotateAmount)
+		{
+			RotateCharPlatform(UiGetTimeDelta(), rotateAmount * 1.0f);
+			autoRotate = false;
+		}
+		else if (autoRotate)
+		{
+			// Slowly rotate counterclockwise
+			RotateCharPlatform(UiGetTimeDelta(), 0.025f);
+		}
+		else
+		{
+			UpdateCharPlatform();
 		}
 	}
 }
