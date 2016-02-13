@@ -61,6 +61,7 @@ namespace Patches
 	{
 		Ui::Tick();
 		Sprint::Tick();
+		Forge::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

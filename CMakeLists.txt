@@ -67,10 +67,13 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 add_library(ElDorito SHARED
     src/Blam/BitStream.cpp
     src/Blam/BitStream.hpp
+    src/Blam/BlamData.cpp
+    src/Blam/BlamData.hpp
     src/Blam/BlamInput.cpp
     src/Blam/BlamInput.hpp
     src/Blam/BlamNetwork.cpp
     src/Blam/BlamNetwork.hpp
+    src/Blam/BlamObjects.hpp
     src/Blam/BlamTypes.hpp
     src/Blam/Tags/Tags.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
