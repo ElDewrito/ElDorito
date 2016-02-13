@@ -5,6 +5,9 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../ElDorito.hpp"
 
+using namespace Blam;
+using namespace Blam::Objects;
+
 namespace
 {
 	bool shouldDelete = false;
@@ -97,28 +100,26 @@ namespace
 			return; // Don't scan multiple times per tick
 
 		// Scan the object table to check if the barrier disablers are spawned
-		auto objectHeaders = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset).Read<Blam::DataArray*>();
+		auto objectHeadersPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset);
+		auto objectHeaders = objectHeadersPtr.Read<const DataArray<ObjectHeader>*>();
 		if (!objectHeaders)
 			return;
-		Blam::DataIterator it(objectHeaders);
 		killBarriersEnabled = true;
 		pushBarriersEnabled = true;
-		while (killBarriersEnabled || pushBarriersEnabled)
+		for (auto &&header : *objectHeaders)
 		{
-			auto header = it.Next<Blam::Objects::ObjectHeader>();
-			if (!header)
-				break; // At the end of the table
-			if (header->Type != Blam::Objects::eObjectTypeScenery)
-				continue; // Ignore non-scenery objects
-
 			// The objects are identified by tag index.
-			// 0x5728 disables kill barriers
-			// 0x5729 disables push barriers
-			auto tagIndex = reinterpret_cast<Blam::DatumIndex*>(header->Data)->Index(); // Tag index is at the beginning of object data
+			// scen 0x5728 disables kill barriers
+			// scen 0x5729 disables push barriers
+			if (header.Type != eObjectTypeScenery)
+				continue;
+			auto tagIndex = header.GetTagIndex().Index();
 			if (tagIndex == 0x5728)
 				killBarriersEnabled = false;
 			else if (tagIndex == 0x5729)
 				pushBarriersEnabled = false;
+			if (!killBarriersEnabled && !pushBarriersEnabled)
+				break;
 		}
 		barriersEnabledValid = true;
 	}

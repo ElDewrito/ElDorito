@@ -35,6 +35,17 @@ namespace Blam
 			uint32_t Unknown8;
 			uint32_t PoolOffset; // Offset from the start of the object pool
 			void *Data;          // Pointer to the object data in the pool
+
+			// Gets the tag index of the object.
+			// Returns DatumIndex::Null if the Data pointer is null.
+			DatumIndex GetTagIndex() const
+			{
+				if (!Data)
+					return DatumIndex::Null;
+
+				// HACK: The first value in the object data struct is the tag index.
+				return *static_cast<DatumIndex*>(Data);
+			}
 		};
 		static_assert(sizeof(ObjectHeader) == 0x10, "Invalid ObjectHeader size");
 	}
