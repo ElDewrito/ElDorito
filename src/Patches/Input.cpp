@@ -22,7 +22,7 @@ namespace
 	void GetDefaultBindingsHook(int type, BindingsTable *result);
 	void GetKeyboardActionTypeHook();
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
-	void UpdateUiControllerInputHook();
+	void UpdateUiControllerInputHook(int a0);
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
@@ -268,9 +268,9 @@ namespace
 		}
 	}
 
-	void UpdateUiControllerInputHook()
+	void UpdateUiControllerInputHook(int a0)
 	{
-		typedef void(*UiUpdateControllerInputPtr)();
+		typedef void(*UiUpdateControllerInputPtr)(int a0);
 		auto UiUpdateControllerInput = reinterpret_cast<UiUpdateControllerInputPtr>(0xA93A50);
 		typedef bool(*IsMainMenuPtr)();
 		auto IsMainMenu = reinterpret_cast<IsMainMenuPtr>(0x531E90);
@@ -281,7 +281,7 @@ namespace
 		typedef void(*RotateCharPlatformPtr)(float timeDelta, float amount);
 		auto RotateCharPlatform = reinterpret_cast<RotateCharPlatformPtr>(0xBB5DA0);
 
-		UiUpdateControllerInput();
+		UiUpdateControllerInput(a0);
 
 		// Handle char_platform controls
 		//
