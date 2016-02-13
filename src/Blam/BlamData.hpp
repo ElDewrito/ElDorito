@@ -38,7 +38,7 @@ namespace Blam
 	};
 	static_assert(sizeof(DatumIndex) == 4, "Invalid DatumIndex size");
 
-	// Base for allocated data structures.
+	// Base for structures in a data array.
 	struct DatumBase
 	{
 	private:
@@ -50,7 +50,7 @@ namespace Blam
 		// Gets the datum's salt value.
 		DatumIndex::TSalt GetSalt() const { return salt; }
 
-		// Returns true if this datum is null.
+		// Returns true if the datum is null.
 		bool IsNull() const { return salt == 0; }
 	};
 	static_assert(sizeof(DatumBase) == 2, "Invalid DatumBase size");
@@ -58,24 +58,23 @@ namespace Blam
 	// An array of data objects which can be accessed by datum index.
 	struct DataArray
 	{
-		char Name[0x20];            // Name given to the array when it was allocated (e.g. "players")
-		int MaxCount;               // The total number of data slots available
-		int DatumSize;              // Size of each datum in bytes
-		uint8_t Unknown28;
-		uint8_t Unknown29;
-		uint8_t Flags;
-		uint8_t Unknown2B;
-		int Signature;              // 'd@t@'
-		void *Allocator;
-		int NextIndex;              // Index to start searching at to allocate a new datum
-		int FirstUnallocated;       // Data starting at this index is guaranteed to be unallocated
-		int NumActive;              // Number of used data slots
-		DatumIndex::TSalt NextSalt; // Next salt value to use
-		uint16_t Unknown42;
-		void *Data;                 // The data objects
-		uint32_t *UsedSlots;        // Bitarray with 1 bit per slot, where 1 = used and 0 = unused
-		int HeaderSize;             // Size of this object
-		int TotalSize;              // Total size allocated for the data array
+		char Name[0x20];               // Name given to the array when it was allocated (e.g. "players")
+		int MaxCount;                  // The total number of data slots available
+		int DatumSize;                 // Size of each datum in bytes
+		uint8_t Alignment;             // Bit to align datum addresses to (0 = none)
+		bool IsValid;                  // true if the array can be used
+		uint16_t Flags;                // TODO: Map these out
+		int Signature;                 // 'd@t@'
+		void *Allocator;               // Object used to allocate the array
+		int NextIndex;                 // Index to start searching at to allocate a new datum
+		int FirstUnallocated;          // Data starting at this index is guaranteed to be unallocated
+		int ActualCount;               // Number of indices that are actually used
+		DatumIndex::TSalt NextSalt;    // Next salt value to use
+		DatumIndex::TSalt AltNextSalt; // Alternate next salt value to use (apparently used mainly by effects)
+		void *Data;                    // The data objects
+		uint32_t *ActiveIndices;       // Bitarray with 1 bit per index, where 1 = used and 0 = unused
+		int HeaderSize;                // Size of this object, including padding for alignment
+		int TotalSize;                 // Total size allocated for the data array
 
 		// Gets a pointer to the datum corresponding to a datum index.
 		// Returns null if the datum index does not match a valid datum.
