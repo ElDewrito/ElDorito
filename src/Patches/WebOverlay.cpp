@@ -72,7 +72,7 @@ namespace Patches
 				auto inputContext = std::make_shared<WebOverlayInputContext>();
 				Patches::Input::PushContext(inputContext);
 			}
-			webRenderer->ShowRenderer(show, false);
+			webRenderer->ShowRenderer(show, true);
 		}
 	}
 }

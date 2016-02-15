@@ -409,7 +409,7 @@ bool WebRenderer::Resize(uint32_t p_Width, uint32_t p_Height)
 
 bool WebRenderer::UpdateMouse(uint32_t p_X, uint32_t p_Y)
 {
-	if (!m_RenderHandler || GetState() != RendererState_Shown)
+	if (!m_RenderHandler || !IsRendering())
 		return false;
 
 	auto s_Browser = m_RenderHandler->GetBrowser().get();
@@ -427,7 +427,7 @@ bool WebRenderer::UpdateMouse(uint32_t p_X, uint32_t p_Y)
 
 bool WebRenderer::SendMouseEvent(uint32_t p_X, uint32_t p_Y, cef_mouse_button_type_t p_Button, bool p_Pressed)
 {
-	if (!m_RenderHandler || GetState() != RendererState_Shown)
+	if (!m_RenderHandler || !IsRendering())
 		return false;
 
 	auto s_Browser = m_RenderHandler->GetBrowser().get();
@@ -447,7 +447,7 @@ bool WebRenderer::SendMouseEvent(uint32_t p_X, uint32_t p_Y, cef_mouse_button_ty
 
 bool WebRenderer::SendMouseWheelEvent(uint32_t p_X, uint32_t p_Y, int p_DeltaX, int p_DeltaY)
 {
-	if (!m_RenderHandler || GetState() != RendererState_Shown)
+	if (!m_RenderHandler || !IsRendering())
 		return false;
 
 	auto s_Browser = m_RenderHandler->GetBrowser().get();
@@ -465,7 +465,7 @@ bool WebRenderer::SendMouseWheelEvent(uint32_t p_X, uint32_t p_Y, int p_DeltaX, 
 
 bool WebRenderer::SendKeyEvent(const CefKeyEvent &p_Event)
 {
-	if (!m_RenderHandler || GetState() != RendererState_Shown)
+	if (!m_RenderHandler || !IsRendering())
 		return false;
 
 	auto s_Browser = m_RenderHandler->GetBrowser().get();
