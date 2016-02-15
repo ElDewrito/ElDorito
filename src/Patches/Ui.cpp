@@ -6,7 +6,7 @@
 #include "../Blam/Tags/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Menu.hpp"
+#include "WebOverlay.hpp"
 
 namespace
 {
@@ -234,11 +234,8 @@ namespace
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
 	{
 		auto& dorito = ElDorito::Instance();
-		if (!dorito.GameHasMenuShown && menuIdToLoad == 0x10083)
-		{
-			dorito.GameHasMenuShown = true;
+		if (menuIdToLoad == 0x10083)
 			dorito.OnMainMenuShown();
-		}
 
 		bool shouldUpdate = *(DWORD*)((uint8_t*)a1 + 0x10) >= 0x1E;
 		int uiData0x18Value = 1;
@@ -405,7 +402,7 @@ namespace
 		switch (lobbyType)
 		{
 		case 1: // Matchmaking
-			Menu::Instance().setEnabled(true);
+			Patches::WebOverlay::Show(true);
 			return true;
 		case 4: // Theater (rip)
 			ShowLanBrowser();
@@ -425,5 +422,6 @@ namespace
 
 		// Update the ingame UI's resolution
 		Patches::Ui::ApplyUIResolution();
+		Patches::WebOverlay::Resize();
 	}
 }

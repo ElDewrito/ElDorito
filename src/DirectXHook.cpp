@@ -2,13 +2,10 @@
 #include "Console/GameConsole.hpp"
 #include <detours.h>
 #include "VoIP/MemberList.hpp"
-#include "VoIP/TeamspeakClient.hpp"
 #include "Modules/ModuleVoIP.hpp"
-#include <teamspeak/public_definitions.h>
-#include <teamspeak/public_errors.h>
-#include <teamspeak/clientlib_publicdefinitions.h>
-#include <teamspeak/clientlib.h>
-#include "Menu.hpp"
+#include "Web/WebRenderer.hpp"
+#include "Patch.hpp"
+#include "Modules/ModuleGame.hpp"
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
@@ -22,39 +19,55 @@ D3DVIEWPORT9 viewport;
 LPD3DXFONT DirectXHook::normalSizeFont = 0;
 LPD3DXFONT DirectXHook::largeSizeFont = 0;
 HRESULT(__stdcall * DirectXHook::origEndScenePtr)(LPDIRECT3DDEVICE9) = 0;
-HRESULT(__stdcall * DirectXHook::origDrawIndexedPrimitivePtr)(LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT) = 0;
+HRESULT(__stdcall * DirectXHook::origResetPtr)(LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*) = 0;
 
 bool DirectXHook::drawVoIPSettings = false;
 int DirectXHook::helpMessageStartTime = 0;
 
+using namespace Anvil::Client::Rendering;
+
 HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 {
-	DirectXHook::pDevice = device;
+	pDevice = device;
 
 	//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
-	DirectXHook::pDevice->GetViewport(&viewport);
+	pDevice->GetViewport(&viewport);
 	viewport.X = 0;
-	DirectXHook::pDevice->SetViewport(&viewport);
+	pDevice->SetViewport(&viewport);
 
 	initFontsIfRequired();
 
-	DirectXHook::drawVoipMembers();
+	drawVoipMembers();
 	if (!GameConsole::Instance().disableUI)
 	{
-		DirectXHook::drawChatInterface();
+		drawChatInterface();
 	}
 	if (drawVoIPSettings)
 	{
-		DirectXHook::drawVoipSettings();
+		drawVoipSettings();
 	}
 
-	DirectXHook::drawHelpMessage();
+	drawHelpMessage();
 
-	return (*DirectXHook::origEndScenePtr)(device);
+	updateWebRenderer(device);
+
+	return (*origEndScenePtr)(device);
 }
-HRESULT __stdcall DirectXHook::hookedDrawIndexedPrimitive(LPDIRECT3DDEVICE9 device, D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
+
+HRESULT __stdcall DirectXHook::hookedReset(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params)
 {
-	return (*DirectXHook::origDrawIndexedPrimitivePtr)(device, Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+	auto webRenderer = WebRenderer::GetInstance();
+	webRenderer->PreReset();
+	auto result = origResetPtr(device, params);
+	webRenderer->PostReset();
+	return result;
+}
+
+void DirectXHook::updateWebRenderer(LPDIRECT3DDEVICE9 device)
+{
+	auto webRenderer = WebRenderer::GetInstance();
+	if (webRenderer->Initialized() && webRenderer->IsRendering())
+		webRenderer->Render(device);
 }
 
 int DirectXHook::getTextWidth(const char *szText, LPD3DXFONT pFont)
@@ -284,34 +297,44 @@ void DirectXHook::drawChatInterface()
 	}
 }
 
-void DirectXHook::hookDirectX()
+void DirectXHook::applyPatches()
+{
+	Hook(0x620386, createDeviceHook, HookFlags::IsCall).Apply();
+}
+
+bool DirectXHook::createDeviceHook(bool windowless, bool nullRefDevice)
+{
+	typedef bool(*CreateDevicePtr)(bool windowless, bool nullRefDevice);
+	auto CreateDevice = reinterpret_cast<CreateDevicePtr>(0xA21B40);
+	if (!CreateDevice(windowless, nullRefDevice))
+		return false;
+	return hookDirectX(*reinterpret_cast<LPDIRECT3DDEVICE9*>(0x50DADDC));
+}
+
+bool DirectXHook::hookDirectX(LPDIRECT3DDEVICE9 device)
 {
 	horizontalRes = (uint32_t*)0x2301D08;
 	verticalRes = (uint32_t*)0x2301D0C;
 
-	uint32_t* directXVTable = **((uint32_t***)0x50DADDC);	// d3d9 interface ptr
-	origEndScenePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9)) directXVTable[42];
-	origDrawIndexedPrimitivePtr = (HRESULT(__stdcall *) (LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT)) directXVTable[82];
+	auto directXVTable = *((uint32_t**)device);	// d3d9 interface ptr
+	origEndScenePtr = reinterpret_cast<decltype(origEndScenePtr)>(directXVTable[42]);
+	origResetPtr = reinterpret_cast<decltype(origResetPtr)>(directXVTable[16]);
 
-	DetourRestoreAfterWith();
 	DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 	DetourAttach((PVOID*)&origEndScenePtr, &DirectXHook::hookedEndScene); // redirect origEndScenePtr to newEndScene
-
+	DetourAttach((PVOID*)&origResetPtr, &DirectXHook::hookedReset); // redirect DrawIndexedPrimitive to newDrawIndexedPrimitive
 	if (DetourTransactionCommit() != NO_ERROR)
 	{
-		OutputDebugString("DirectX EndScene hook failed.");
+		OutputDebugString("DirectX hooks failed.");
+		return false;
 	}
 
-	DetourRestoreAfterWith();
-	DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());
-	DetourAttach((PVOID*)&origDrawIndexedPrimitivePtr, &DirectXHook::hookedDrawIndexedPrimitive); // redirect DrawIndexedPrimitive to newDrawIndexedPrimitive
-
-	if (DetourTransactionCommit() != NO_ERROR)
-	{
-		OutputDebugString("DirectX DrawIndexedPrimitive hook failed.");
-	}
+	auto webRenderer = WebRenderer::GetInstance();
+	auto menuUrl = Modules::ModuleGame::Instance().VarMenuURL->ValueString;
+	if (!webRenderer->InitRenderer(device) || !webRenderer->Init(menuUrl))
+		return false;
+	return true;
 }
 
 void DirectXHook::drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont)

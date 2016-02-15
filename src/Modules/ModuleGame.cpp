@@ -8,8 +8,8 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
-#include "../Menu.hpp"
 #include "../Patches/Forge.hpp"
+#include "../Patches/WebOverlay.hpp"
 
 namespace
 {
@@ -700,7 +700,7 @@ namespace
 			std::transform(arguments[0].begin(), arguments[0].end(), e.begin(), ::tolower);
 			enabled = e != "0" && e != "false";
 		}
-		Menu::Instance().setEnabled(enabled);
+		Patches::WebOverlay::Show(enabled);
 		returnInfo = (enabled) ? "Enabling menu..." : "Disabling menu...";
 		return true;
 	}
@@ -793,7 +793,7 @@ namespace Modules
 
 		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", eCommandFlagsArchived, 0);
 		VarSkipLauncher->ValueIntMin = 0;
-		VarSkipLauncher->ValueIntMax = 0;
+		VarSkipLauncher->ValueIntMax = 1;
 
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 

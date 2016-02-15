@@ -19,6 +19,9 @@ namespace
 	void EquipmentTestHook();
 	void GrenadeLoadoutHook();
 	void ScopeLevelHook();
+	void ShutdownHook();
+
+	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 }
 
 namespace Patches
@@ -118,6 +121,14 @@ namespace Patches
 			//Allow the user to select any resolution that Windows supports in the settings screen.
 			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
 			Patch::NopFill(Pointer::Base(0x10BF21), 6);
+
+			// Run callbacks on engine shutdown
+			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
+		}
+
+		void RegisterShutdownCallback(ShutdownCallback callback)
+		{
+			shutdownCallbacks.push_back(callback);
 		}
 	}
 }
@@ -436,5 +447,15 @@ namespace
 			push	05D50D3h
 			ret
 		}
+	}
+
+	void ShutdownHook()
+	{
+		for (auto &&callback : shutdownCallbacks)
+			callback();
+
+		typedef void(*EngineShutdownPtr)();
+		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);
+		EngineShutdown();
 	}
 }

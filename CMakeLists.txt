@@ -62,6 +62,7 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
+LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/cef/lib)
 
 # Create main target
 add_library(ElDorito SHARED
@@ -136,6 +137,8 @@ add_library(ElDorito SHARED
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
     src/Patches/VirtualKeyboard.hpp
+    src/Patches/WebOverlay.cpp
+    src/Patches/WebOverlay.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
     src/Server/ServerChat.cpp
@@ -158,6 +161,8 @@ add_library(ElDorito SHARED
     src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
     src/Utils/NameValueTable.hpp
+    src/Utils/Rectangle.cpp
+    src/Utils/Rectangle.hpp
     src/Utils/Singleton.hpp
     src/Utils/String.cpp
     src/Utils/String.hpp
@@ -170,8 +175,13 @@ add_library(ElDorito SHARED
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
-    src/Menu.cpp
-    src/Menu.hpp
+    src/Web/Logger.hpp
+    src/Web/WebRenderer.cpp
+    src/Web/WebRenderer.hpp
+    src/Web/WebRendererApp.cpp
+    src/Web/WebRendererApp.hpp
+    src/Web/WebRendererHandler.cpp
+    src/Web/WebRendererHandler.hpp
     src/Settings.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
@@ -199,7 +209,9 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
   ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
-  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include)
+  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include
+  ${CMAKE_SOURCE_DIR}/libs/cef
+  ${CMAKE_SOURCE_DIR}/libs/cef/include)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -209,8 +221,8 @@ if(IS_DIRECTORY ${HALO_ROOT})
                               ${HALO_ROOT}/$<TARGET_FILE_NAME:ElDorito>)
   add_custom_command(TARGET ElDorito POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
-                         copy ${CMAKE_CURRENT_SOURCE_DIR}/artifact_extras/custom_menu.exe
-                              ${HALO_ROOT}/custom_menu.exe)
+                         copy_directory ${CMAKE_SOURCE_DIR}/artifact_extras
+                              ${HALO_ROOT})
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files
@@ -228,7 +240,10 @@ target_link_libraries(ElDorito
   ZLib
   libwebsocketswin32
   MedalJunk
-  psapi)
+  psapi
+  libcef
+  debug libcef_dll_wrapperd
+  optimized libcef_dll_wrapper)
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)

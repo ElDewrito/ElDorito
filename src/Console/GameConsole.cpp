@@ -5,10 +5,9 @@
 #include <algorithm>
 #include "../Server/ServerChat.hpp"
 #include "../Patches/PlayerUid.hpp"
-#include "../Pointer.hpp"
 #include "../Patches/Input.hpp"
 #include "../Blam/BlamInput.hpp"
-#include "../Menu.hpp"
+#include "../Patches/WebOverlay.hpp"
 
 namespace
 {
@@ -58,19 +57,12 @@ namespace
 	public:
 		explicit GameConsoleInputContext(GameConsole* console) : console(console) {}
 
-		virtual void InputActivated() override
+		virtual void Activated() override
 		{
-			// TODO: Allow input contexts to block input more easily without
-			// potentially overriding blocks the game has set
-
-			// Block UI input
-			BlockInput(Blam::Input::eInputTypeUi, true);
 		}
 
-		virtual void InputDeactivated() override
+		virtual void Deactivated() override
 		{
-			// Unblock UI input
-			BlockInput(Blam::Input::eInputTypeUi, false);
 		}
 
 		virtual bool GameInputTick() override
@@ -82,9 +74,7 @@ namespace
 
 		virtual bool UiInputTick() override
 		{
-			BlockInput(Blam::Input::eInputTypeUi, false); // UI input needs to be unblocked
 			done = console->consoleKeyCallBack();
-			BlockInput(Blam::Input::eInputTypeUi, true);
 			return true;
 		}
 
@@ -405,7 +395,7 @@ void GameConsole::gameInputCallBack()
 
 	// TODO: Should we keep this since we have the server browser option on the menu now?
 	if (GetKeyTicks(eKeyCodeF11, eInputTypeUi) == 1)
-		Menu::Instance().setEnabled(true);
+		Patches::WebOverlay::Show(true);
 
 	if (GetKeyTicks(eKeyCodeF12, eInputTypeUi) == 1)
 		DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;

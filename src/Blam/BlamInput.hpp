@@ -201,6 +201,8 @@ namespace Blam
 			eInputTypeGame,    // All in-game actions (including camera)
 			                   //   Disabled when the pause menu is open
 			eInputTypeSpecial, // Escape, tab, menu navigation
+
+			eInputType_Count,
 		};
 
 		enum KeyEventModifiers : uint8_t

@@ -1,11 +1,4 @@
 #include "ElDorito.hpp"
-#include "Console/GameConsole.hpp"
-#include "DirectXHook.hpp"
-
-#include <Windows.h>
-#include <TlHelp32.h>
-
-#include <codecvt>
 
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
@@ -14,6 +7,11 @@
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
+#include "Console/GameConsole.hpp"
+
+#include <Windows.h>
+#include <TlHelp32.h>
+#include <codecvt>
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -182,8 +180,10 @@ std::string ElDorito::GetDirectory()
 
 void ElDorito::OnMainMenuShown()
 {
+	if (GameHasMenuShown)
+		return;
+	GameHasMenuShown = true;
 	executeCommandQueue = true;
-	DirectXHook::hookDirectX();
 	GameConsole::Instance();
 }
 

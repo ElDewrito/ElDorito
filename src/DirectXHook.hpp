@@ -16,12 +16,9 @@ private:
 	static LPD3DXFONT largeSizeFont;
 	static HRESULT(__stdcall * origEndScenePtr)(LPDIRECT3DDEVICE9);
 	static HRESULT __stdcall hookedEndScene(LPDIRECT3DDEVICE9 device);
-	static HRESULT(__stdcall * origDrawIndexedPrimitivePtr)(LPDIRECT3DDEVICE9, D3DPRIMITIVETYPE, INT, UINT, UINT, UINT, UINT);
-	static HRESULT __stdcall hookedDrawIndexedPrimitive(LPDIRECT3DDEVICE9 device, D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount);
+	static HRESULT(__stdcall * DirectXHook::origResetPtr)(LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
+	static HRESULT __stdcall hookedReset(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params);
 
-	static uint32_t* getDirectXVTableMethod1();
-	static uint32_t* getDirectXVTableMethod2();
-	static uint32_t* getDirectXVTableMethod3();
 	static void drawText(int x, int y, DWORD color, const char* text, LPD3DXFONT pFont);
 	static void drawRect(int x, int y, int width, int height, DWORD Color);
 	static void drawHorizontalLine(int x, int y, int width, D3DCOLOR Color);
@@ -35,6 +32,8 @@ private:
 	static void drawVoipSettings();
 	static void initFontsIfRequired();
 	static void drawHelpMessage();
+	static void updateWebRenderer(LPDIRECT3DDEVICE9 device);
+	static bool createDeviceHook(bool windowless, bool nullRefDevice);
 
 public:
 	static CONST D3DCOLOR COLOR_RED = D3DCOLOR_ARGB(255, 255, 000, 000);
@@ -53,5 +52,6 @@ public:
 	static bool drawVoIPSettings;
 	static int helpMessageStartTime;
 
-	static void hookDirectX();
+	static void applyPatches();
+	static bool hookDirectX(LPDIRECT3DDEVICE9 device);
 };

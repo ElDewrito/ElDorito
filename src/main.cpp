@@ -1,17 +1,12 @@
 #include "Console/GameConsole.hpp"
 #include <windows.h>
 #include <stdio.h>
-#include <iostream>
-#include <TlHelp32.h> //GetModuleBase
 #include <memory>
 #include <IPTypes.h> // for proxy
 #include <fstream>
-#include <detours.h>
-
 #include "Utils/VersionInfo.hpp"
 #include "ElDorito.hpp"
 #include "ElPatches.hpp"
-#include "Menu.hpp"
 
 /*LONG WINAPI TopLevelExceptionHandler(unsigned int code, EXCEPTION_POINTERS *pExceptionInfo)
 {
@@ -108,7 +103,6 @@ BOOL InitInstance(HINSTANCE hModule)
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	Patches::ApplyRequired();
-	Menu::Instance(); // hook the loading functions to toggle the menu
 	ElDorito::Instance().Initialize();
 
 	return true;
