@@ -1,143 +1,70 @@
 #include "VersionInfo.hpp"
 
-#include <windows.h>
+#define V(a, b, c, d) (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))
+#define V1(v) (((v) >> 24) & 0xFF)
+#define V2(v) (((v) >> 16) & 0xFF)
+#define V3(v) (((v) >> 8) & 0xFF)
+#define V4(v) ((v) & 0xFF)
 
-static HMODULE s_versionModule = NULL;
+/******************************************************************************
+ * ElDewrito Version Information                                              *
+ *                                                                            *
+ * DO NOT CHANGE THIS UNLESS YOU KNOW _FOR SURE_ WHAT YOU ARE DOING.          *
+ * THE GAME HAS A VERSION CHECK IN IT FOR A REASON.                           *
+ *                                                                            *
+ * Even seemingly-minor changes can have an effect on how your game           *
+ * communicates with other players. You should ONLY be playing with other     *
+ * people who are on the EXACT SAME build as you. Otherwise, you may run into *
+ * problems ranging from minor gameplay glitches to straight-up crashes. Just *
+ * because you don't notice any issues doesn't mean that there aren't any.    *
+ *                                                                            *
+ * Additionally, BYPASSING THE VERSION CHECK IS CONSIDERED CHEATING.          *
+ * You will have access to features that others do not have, even if they do  *
+ * not give you an obvious advantage over anyone.                             *
+ *                                                                            *
+ * If you understand the above and STILL for some insane reason think that    *
+ * you need to change this version number,                                    *
+ *                                                                            *
+ * DO NOT BY ANY MEANS TRY TO DISTRIBUTE YOUR CUSTOM BUILD IN PUBLIC.         *
+ *                                                                            *
+ * YOU MAY BE _BANNED_ FROM THE SUBREDDIT OR THE IRC CHANNEL FOR DISTRIBUTING *
+ * CHEATS AND/OR CONFUSING OTHER USERS.                                       *
+ *                                                                            *
+ * We have considered making ElDewrito a closed-source mod several times now. *
+ * You are more than welcome to test new features for us, but please only do  *
+ * so with other people who have access to those features. It's not helpful   *
+ * for us to receive bug reports from people who bypassed the version check.  *
+ *                                                                            *
+ * Don't ruin the fun for everyone else.                                      *
+ ******************************************************************************/
+
+#define CURRENT_VERSION V(0, 5, 1, 0)
+
+#ifdef _DEBUG
+#define VERSION_SUFFIX "-debug"
+#elif !defined(ELDEWRITO_RELEASE)
+#define VERSION_SUFFIX "-dev"
+#else
+#define VERSION_SUFFIX ""
+#endif
 
 namespace Utils
 {
 	namespace Version
 	{
-		DWORD GetVersionInt()
+		uint32_t GetVersionInt()
 		{
-			DWORD retVer = 0;
-
-			HRSRC hVersion = FindResource(s_versionModule,
-				MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-			if (!hVersion)
-				return retVer;
-
-			HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
-			if (!hGlobal)
-				return retVer;
-
-			LPVOID versionInfo = LockResource(hGlobal);
-			if (!versionInfo)
-				return retVer;
-
-			DWORD versionSize = SizeofResource(s_versionModule, hVersion);
-			LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
-			if (!versionCopy)
-				return retVer;
-
-			CopyMemory(versionCopy, versionInfo, versionSize);
-			FreeResource(versionInfo);
-
-			DWORD vLen;
-			BOOL retVal;
-
-			LPVOID retbuf = NULL;
-
-			retVal = VerQueryValue(versionCopy, "\\", &retbuf, (UINT *)&vLen);
-			if (retVal && vLen == sizeof(VS_FIXEDFILEINFO))
-			{
-				VS_FIXEDFILEINFO* ffInfo = (VS_FIXEDFILEINFO*)retbuf;
-				DWORD majorVer = HIWORD(ffInfo->dwFileVersionMS);
-				DWORD minorVer = LOWORD(ffInfo->dwFileVersionMS);
-				DWORD buildNum = HIWORD(ffInfo->dwFileVersionLS);
-				DWORD buildQfe = LOWORD(ffInfo->dwFileVersionLS);
-
-				retVer =
-					((majorVer & 0xFF) << 24) |
-					((minorVer & 0xFF) << 16) |
-					((buildNum & 0xFF) << 8) |
-					(buildQfe & 0xFF);
-			}
-
-			LocalFree(versionCopy);
-
-			return retVer;
+			return CURRENT_VERSION;
 		}
 
 		std::string GetVersionString()
 		{
-			static std::string versionStr;
-
-			if (versionStr.length() == 0)
-			{
-				char version[256];
-				memset(version, 0, 256);
-				DWORD versionInt = GetVersionInt();
-				sprintf_s(version, 256, "%d.%d.%d.%d", ((versionInt >> 24) & 0xFF), ((versionInt >> 16) & 0xFF), ((versionInt >> 8) & 0xFF), (versionInt & 0xFF));
-#ifdef _DEBUG
-				versionStr = std::string(version) + "-debug";
-#else
-				versionStr = std::string(version);
-#endif
-			}
-			return versionStr;
-		}
-
-		std::string GetInfo(const std::string &csEntry)
-		{
-			std::string csRet;
-
-			HRSRC hVersion = FindResource(s_versionModule,
-				MAKEINTRESOURCE(VS_VERSION_INFO), RT_VERSION);
-			if (!hVersion)
-				return csRet;
-
-			HGLOBAL hGlobal = LoadResource(s_versionModule, hVersion);
-			if (!hGlobal)
-				return csRet;
-
-			LPVOID versionInfo = LockResource(hGlobal);
-			if (!versionInfo)
-				return csRet;
-
-			DWORD versionSize = SizeofResource(s_versionModule, hVersion);
-			LPVOID versionCopy = LocalAlloc(LMEM_FIXED, versionSize);
-			if (!versionCopy)
-				return csRet;
-
-			CopyMemory(versionCopy, versionInfo, versionSize);
-			FreeResource(versionInfo);
-
-			DWORD vLen, langD;
-			BOOL retVal;
-
-			LPVOID retbuf = NULL;
-
-			static char fileEntry[256];
-
-			retVal = VerQueryValue(versionCopy, "\\VarFileInfo\\Translation", &retbuf, (UINT *)&vLen);
-			if (retVal && vLen == 4)
-			{
-				memcpy(&langD, retbuf, 4);
-				sprintf_s(fileEntry, "\\StringFileInfo\\%02X%02X%02X%02X\\%s",
-					(langD & 0xff00) >> 8, langD & 0xff, (langD & 0xff000000) >> 24,
-					(langD & 0xff0000) >> 16, csEntry.c_str());
-			}
-			else
-			{
-				unsigned long lang = GetUserDefaultLangID();
-				sprintf_s(fileEntry, "\\StringFileInfo\\%04X04B0\\%s", lang, csEntry.c_str());
-			}
-
-			if (VerQueryValue(versionCopy, fileEntry, &retbuf, (UINT *)&vLen))
-			{
-				strcpy_s(fileEntry, (const char*)retbuf);
-				csRet = fileEntry;
-			}
-
-			LocalFree(versionCopy);
-
-			return csRet;
-		}
-
-		void SetModule(HMODULE module)
-		{
-			s_versionModule = module;
+			auto v = CURRENT_VERSION;
+			return
+				std::to_string(V1(v)) + "." +
+				std::to_string(V2(v)) + "." +
+				std::to_string(V3(v)) + "." +
+				std::to_string(V4(v)) + VERSION_SUFFIX;
 		}
 	}
 }

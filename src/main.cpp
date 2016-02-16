@@ -104,7 +104,6 @@ BOOL InitInstance(HINSTANCE hModule)
 	DisableThreadLibraryCalls(hModule);
 	initMedals();
 
-	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	Patches::ApplyRequired();
