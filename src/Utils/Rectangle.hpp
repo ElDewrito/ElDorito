@@ -24,17 +24,23 @@ namespace Utils
 		int Width;
 		int Height;
 
-		// Sets all of the rectangle's values to 0.
-		void Reset();
-
 		// Returns true if the rectangle has a width or a height of 0.
 		bool IsEmpty() const;
 
-		// Adds another rectangle to the rectangle.
-		void Add(int x, int y, int width, int height);
+		// Returns true if the rectangle intersects another rectangle.
+		bool Intersects(const Rectangle &other) const;
 
-		// Adds another rectangle to the rectangle.
-		void Add(const Rectangle &other);
+		// Returns the intersection of this rectangle with another rectangle.
+		Rectangle Intersect(const Rectangle &other) const;
+
+		// Translates the rectangle and returns the result.
+		Rectangle Translate(int x, int y) const;
+
+		// Adds another rectangle to the rectangle and returns the result.
+		Rectangle Add(int x, int y, int width, int height) const;
+
+		// Adds another rectangle to the rectangle and returns the result.
+		Rectangle Add(const Rectangle &other) const;
 
 		// Copies a rectangle of data from a source buffer to a destination buffer.
 		static void Copy(void *dest, int destX, int destY, uint32_t destStride, const void *source, const Rectangle &sourceRect, uint32_t sourceStride, uint32_t elementSize);

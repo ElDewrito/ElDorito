@@ -3,41 +3,64 @@
 
 using namespace Utils;
 
-void Rectangle::Reset()
-{
-	X = 0;
-	Y = 0;
-	Width = 0;
-	Height = 0;
-}
-
 bool Rectangle::IsEmpty() const
 {
 	return Width == 0 || Height == 0;
 }
 
-void Rectangle::Add(int x, int y, int width, int height)
+bool Rectangle::Intersects(const Rectangle &other) const
 {
-	Add(Rectangle(x, y, width, height));
+	if (IsEmpty() || other.IsEmpty())
+		return false;
+	auto right = X + Width;
+	auto bottom = Y + Height;
+	auto otherRight = other.X + other.Width;
+	auto otherBottom = other.Y + other.Height;
+	return (X < otherRight && right > other.X && Y < otherBottom && bottom > other.Y);
 }
 
-void Rectangle::Add(const Rectangle &other)
+Rectangle Rectangle::Intersect(const Rectangle &other) const
+{
+	if (IsEmpty() || other.IsEmpty())
+		return Rectangle();
+	
+	Rectangle result;
+	result.X = std::max(X, other.X);
+	result.Y = std::max(Y, other.Y);
+	auto right = std::min(X + Width, other.X + other.Width);
+	auto bottom = std::min(Y + Height, other.Y + other.Height);
+	if (right <= result.X || bottom <= result.Y)
+		return Rectangle();
+	result.Width = right - result.X;
+	result.Height = bottom - result.Y;
+	return result;
+}
+
+Rectangle Rectangle::Translate(int x, int y) const
+{
+	return Rectangle(X + x, Y + y, Width, Height);
+}
+
+Rectangle Rectangle::Add(int x, int y, int width, int height) const
+{
+	return Add(Rectangle(x, y, width, height));
+}
+
+Rectangle Rectangle::Add(const Rectangle &other) const
 {
 	if (IsEmpty())
-	{
-		*this = other;
-		return;
-	}
-	
+		return other;
 	if (other.IsEmpty())
-		return;
+		return *this;
 
+	Rectangle result;
+	result.X = std::min(X, other.X);
+	result.Y = std::min(Y, other.Y);
 	auto right = std::max(X + Width, other.X + other.Width);
 	auto bottom = std::max(Y + Height, other.Y + other.Height);
-	X = std::min(X, other.X);
-	Y = std::min(Y, other.Y);
-	Width = right - X;
-	Height = bottom - Y;
+	result.Width = right - X;
+	result.Height = bottom - Y;
+	return result;
 }
 
 void Rectangle::Copy(void *dest, int destX, int destY, uint32_t destStride, const void *source, const Rectangle &sourceRect, uint32_t sourceStride, uint32_t elementSize)

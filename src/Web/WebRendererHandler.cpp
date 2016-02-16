@@ -9,9 +9,13 @@ using namespace Anvil::Client::Rendering;
 
 WebRendererHandler::WebRendererHandler(LPDIRECT3DDEVICE9 p_Device) :
 	m_Device(p_Device),
-	m_Browser(nullptr)
+	m_Browser(nullptr),
+	m_TextureStride(0),
+	m_PopupVisible(false),
+	m_PopupValid(false)
 {
 	m_TextureData.resize(0);
+	m_PopupData.resize(0);
 }
 
 void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
@@ -35,6 +39,45 @@ bool WebRendererHandler::GetViewRect(CefRefPtr<CefBrowser> p_Browser, CefRect& p
 	return true;
 }
 
+bool WebRendererHandler::GetScreenInfo(CefRefPtr<CefBrowser> p_Browser, CefScreenInfo &p_ScreenInfo)
+{
+	uint32_t s_Width = 0, s_Height = 0;
+	if (!GetViewportInformation(s_Width, s_Height))
+		return false;
+	p_ScreenInfo.device_scale_factor = 1.0f;
+	p_ScreenInfo.depth = 32;
+	p_ScreenInfo.depth_per_component = 8;
+	p_ScreenInfo.is_monochrome = false;
+	p_ScreenInfo.rect.x = 0;
+	p_ScreenInfo.rect.y = 0;
+	p_ScreenInfo.rect.width = s_Width;
+	p_ScreenInfo.rect.height = s_Height;
+	p_ScreenInfo.available_rect = p_ScreenInfo.rect;
+	return true;
+}
+
+bool WebRendererHandler::GetScreenPoint(CefRefPtr<CefBrowser> p_Browser, int p_ViewX, int p_ViewY, int &p_ScreenX, int &p_ScreenY)
+{
+	p_ScreenX = p_ViewX;
+	p_ScreenY = p_ViewY;
+	return true;
+}
+
+void WebRendererHandler::OnPopupShow(CefRefPtr<CefBrowser> p_Browser, bool p_Show)
+{
+	// Require a redraw when hiding the popup
+	m_PopupVisible = p_Show;
+	if (!p_Show)
+		p_Browser->GetHost()->Invalidate(PET_VIEW);
+}
+
+void WebRendererHandler::OnPopupSize(CefRefPtr<CefBrowser> p_Browser, const CefRect &p_Rect)
+{
+	m_PopupRect = Utils::Rectangle(p_Rect.x, p_Rect.y, p_Rect.width, p_Rect.height);
+	m_PopupData.resize(p_Rect.width * p_Rect.height * 4);
+	m_PopupValid = false;
+}
+
 void WebRendererHandler::OnPaint(CefRefPtr<CefBrowser> p_Browser, PaintElementType p_Type, const RectList& p_DirtyRects, const void* p_Buffer, int p_Width, int p_Height)
 {
 	if (m_TextureData.size() == 0)
@@ -42,13 +85,46 @@ void WebRendererHandler::OnPaint(CefRefPtr<CefBrowser> p_Browser, PaintElementTy
 
 	m_TextureLock.lock();
 
-	// Blit the dirty rects
+	// Copy the dirty rects
 	auto s_Stride = p_Width * 4;
+	Utils::Rectangle s_PopupDirtyRect;
 	for (auto& l_Rect : p_DirtyRects)
 	{
-		Utils::Rectangle s_CopyRect(l_Rect.x, l_Rect.y, l_Rect.width, l_Rect.height);
-		Utils::Rectangle::Copy(m_TextureData.data(), l_Rect.x, l_Rect.y, s_Stride, p_Buffer, s_CopyRect, s_Stride, 4);
-		m_DirtyRect.Add(s_CopyRect);
+		Utils::Rectangle s_SrcRect(l_Rect.x, l_Rect.y, l_Rect.width, l_Rect.height);
+		if (p_Type == PET_VIEW)
+		{
+			// Copy the view data to the screen
+			Utils::Rectangle::Copy(m_TextureData.data(), l_Rect.x, l_Rect.y, m_TextureStride, p_Buffer, s_SrcRect, s_Stride, 4);
+			m_DirtyRect = m_DirtyRect.Add(s_SrcRect);
+
+			// If the dirty rectangle intersects the popup,
+			// then that portion of the popup needs to be updated
+			if (m_PopupVisible && m_PopupValid && s_SrcRect.Intersects(m_PopupRect))
+				s_PopupDirtyRect = s_PopupDirtyRect.Add(s_SrcRect.Intersect(m_PopupRect));
+		}
+		else if (p_Type == PET_POPUP)
+		{
+			// Copy the dirty rectangle to the popup data
+			Utils::Rectangle::Copy(m_PopupData.data(), l_Rect.x, l_Rect.y, s_Stride, p_Buffer, s_SrcRect, s_Stride, 4);
+			m_PopupValid = true;
+
+			if (m_PopupVisible)
+			{
+				// ...and to the screen
+				auto s_PopupScreenRect = s_SrcRect.Translate(m_PopupRect.X, m_PopupRect.Y);
+				Utils::Rectangle::Copy(m_TextureData.data(), s_PopupScreenRect.X, s_PopupScreenRect.Y, m_TextureStride, p_Buffer, s_SrcRect, s_Stride, 4);
+				m_DirtyRect = m_DirtyRect.Add(s_PopupScreenRect);
+			}
+		}
+	}
+
+	// If the popup needs to be redrawn, do it
+	if (!s_PopupDirtyRect.IsEmpty())
+	{
+		auto s_PopupStride = m_PopupRect.Width * 4;
+		auto s_PopupSrcRect = s_PopupDirtyRect.Translate(-m_PopupRect.X, -m_PopupRect.Y);
+		Utils::Rectangle::Copy(m_TextureData.data(), s_PopupDirtyRect.X, s_PopupDirtyRect.Y, m_TextureStride, m_PopupData.data(), s_PopupSrcRect, s_PopupStride, 4);
+		// No need to update the dirty rect here
 	}
 
 	m_TextureLock.unlock();
@@ -83,6 +159,7 @@ bool WebRendererHandler::Resize(uint32_t p_Width, uint32_t p_Height)
 
 	// Resize to our new data
 	m_TextureData.resize(s_TextureDataSize);
+	m_TextureStride = p_Width * 4;
 
 	// Clear out the buffer
 	fill(m_TextureData.begin(), m_TextureData.end(), 0);
@@ -108,7 +185,7 @@ Utils::Rectangle WebRendererHandler::GetTextureDirtyRect()
 
 void WebRendererHandler::ResetTextureDirtyRect()
 {
-	m_DirtyRect.Reset();
+	m_DirtyRect = Utils::Rectangle();
 }
 
 CefRefPtr<CefBrowser> WebRendererHandler::GetBrowser()
