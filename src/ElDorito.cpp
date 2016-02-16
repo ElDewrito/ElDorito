@@ -14,8 +14,23 @@
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
+#include <fstream>
+#include <detours.h>
 
 size_t ElDorito::MainThreadID = 0;
+
+extern BOOL installMedalJunk();
+
+void initMedals()
+{
+	// This is kind of a hack, but only install the medal system for now if
+	// halo3.zip can be opened for reading
+	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
+	if (!halo3Zip.is_open())
+		return;
+	halo3Zip.close();
+	installMedalJunk();
+}
 
 ElDorito::ElDorito()
 {
@@ -107,16 +122,22 @@ void ElDorito::Initialize()
 
 	if (dedicated)
 	{
+		Patches::Network::ForceDedicated();
+
 		// Commenting this out for now because it makes testing difficult
-		/*DetourRestoreAfterWith();
+		DetourRestoreAfterWith();
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
 
 		if (DetourTransactionCommit() != NO_ERROR) {
 		return;
-		}*/
-		Patches::Network::ForceDedicated();
+		}
+
+	}
+	else
+	{
+		initMedals();
 	}
 
 	// Language patch
@@ -183,6 +204,8 @@ std::string ElDorito::GetDirectory()
 void ElDorito::OnMainMenuShown()
 {
 	executeCommandQueue = true;
+
+	// TEMP COMMENTED OUT
 	DirectXHook::hookDirectX();
 	GameConsole::Instance();
 }

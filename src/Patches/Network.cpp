@@ -388,6 +388,7 @@ namespace Patches
 			Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
 		}
 
+		// TODO: the stuff commented out below isn't needed to idle in the menu, will likely need to uncomment some of it again
 		void ForceDedicated()
 		{
 			// Put the game into dedicated server mode
@@ -398,15 +399,21 @@ namespace Patches
 			Patch(0x12D67A, { 0xEB }).Apply();
 			Patch(0x5A8BB, { 0xEB }).Apply();
 
-			// Misc. crash fixes
-			Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
-			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+			// fix dedi crash @ 0xA22325
+			*reinterpret_cast<uint8_t*>(0x1917CED) = 0;
 
-			// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
-			Patch(0x62E636, { 0x33, 0xFF }).Apply();
+			// skips loading d3dx9_43.dll @ 0xA20386 - not sure if needed yet
+			Patch::NopFill(0x620380, 11);
 
-			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
-			Hook(0x66E982, GetTextureDimensionsHook).Apply();
+			//// Misc. crash fixes
+			//Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
+			//Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+
+			//// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
+			//Patch(0x62E636, { 0x33, 0xFF }).Apply();
+
+			//// Prevents dedicated hosts from crashing due to invalid texture datum lookup
+			//Hook(0x66E982, GetTextureDimensionsHook).Apply();
 
 			// Forces the game to use a null d3d device
 			Patch(0x2EBBB, { 0x1 }).Apply();
@@ -415,10 +422,10 @@ namespace Patches
 			Patch(0x675E30, { 0xC3 }).Apply();
 
 			// Fixes the game being stuck in some d3d-related while loop
-			Patch(0x622290, { 0xC3 }).Apply();
+			//Patch(0x622290, { 0xC3 }).Apply(); // possibly no longer needed?
 
-			// Stops D3DDevice->EndScene from being called
-			Patch(0x621796, 0x90, 6).Apply(); // TODO: set eax?
+			//// Stops D3DDevice->EndScene from being called
+			//Patch(0x621796, 0x90, 6).Apply(); // TODO: set eax?
 		}
 
 		bool StartRemoteConsole()
