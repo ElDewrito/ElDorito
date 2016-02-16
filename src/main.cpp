@@ -91,7 +91,6 @@ BOOL InitInstance(HINSTANCE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
 
-	Utils::Version::SetModule(hModule);
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
 
 	Patches::ApplyRequired();
