@@ -36,11 +36,12 @@ ElDorito::ElDorito()
 {
 }
 
-bool(__cdecl * ElDorito::Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
-
-bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
-	return (*Video_InitD3D)(true, nullRefDevice); // sets windowless flag to true
-}
+//bool(__cdecl * ElDorito::Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
+//
+//bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
+//	// TEMP: leave window enabled for now so async networkWndProc stuff still works
+//	return (*Video_InitD3D)(false, true);
+//}
 
 void ElDorito::killProcessByName(const char *filename, int ourProcessID)
 {
@@ -86,7 +87,6 @@ void ElDorito::Initialize()
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
-	bool dedicated = false;
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -105,7 +105,7 @@ void ElDorito::Initialize()
 
 			if (arg.compare(L"-dedicated") == 0)
 			{
-				dedicated = true;
+				isDedicated = true;
 				usingLauncher = true;
 			}
 
@@ -120,19 +120,19 @@ void ElDorito::Initialize()
 		}
 	}
 
-	if (dedicated)
+	if (isDedicated)
 	{
 		Patches::Network::ForceDedicated();
 
-		// Commenting this out for now because it makes testing difficult
-		DetourRestoreAfterWith();
-		DetourTransactionBegin();
-		DetourUpdateThread(GetCurrentThread());
-		DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
+		//// Commenting this out for now because it makes testing difficult
+		//DetourRestoreAfterWith();
+		//DetourTransactionBegin();
+		//DetourUpdateThread(GetCurrentThread());
+		//DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
 
-		if (DetourTransactionCommit() != NO_ERROR) {
-		return;
-		}
+		//if (DetourTransactionCommit() != NO_ERROR) {
+		//return;
+		//}
 
 	}
 	else
@@ -204,10 +204,11 @@ std::string ElDorito::GetDirectory()
 void ElDorito::OnMainMenuShown()
 {
 	executeCommandQueue = true;
-
-	// TEMP COMMENTED OUT
-	DirectXHook::hookDirectX();
-	GameConsole::Instance();
+	if (!isDedicated)
+	{
+		DirectXHook::hookDirectX();
+		GameConsole::Instance();
+	}
 }
 
 bool ElDorito::IsHostPlayer()
