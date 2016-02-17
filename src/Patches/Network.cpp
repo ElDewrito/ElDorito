@@ -414,9 +414,11 @@ namespace Patches
 			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
 			Hook(0x66E982, GetTextureDimensionsHook).Apply();
 
-			//// Misc. crash fixes
+			// allows for the switching of teams
+			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+
+			//// fixed a UI crash that should no longer be necessary
 			//Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
-			//Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
 
 			//// Stops D3DDevice->EndScene from being called
 			//Patch(0x621796, 0x90, 6).Apply(); // TODO: set eax?
