@@ -1,20 +1,13 @@
 #pragma once
 
-// STL
+#include <cstdint>
 #include <string>
-#include <vector>
-
-// Windows
-#include <Windows.h>
 
 namespace Utils
 {
 	namespace Version
 	{
-		void SetModule(HMODULE module);
-
-		DWORD GetVersionInt();
+		uint32_t GetVersionInt();
 		std::string GetVersionString();
-		std::string GetInfo(const std::string &csEntry);
 	}
 }

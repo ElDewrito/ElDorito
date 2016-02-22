@@ -40,9 +40,10 @@ public:
 private:
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
-	static bool(__cdecl * Video_InitD3D)(bool, bool);
+	bool isDedicated = false;
+	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);
 	void killProcessByName(const char *filename, int ourProcessID);
-	static bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice);
+	//static bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice);
 };
