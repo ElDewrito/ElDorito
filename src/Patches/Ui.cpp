@@ -20,6 +20,7 @@ namespace
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	bool MainMenuCreateLobbyHook(int lobbyType);
 	void ResolutionChangeHook();
+	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -137,6 +138,9 @@ namespace Patches
 			// Comparing the action tick count to 1 instead of using the "handled" flag does roughly the same thing and lets the menu UI read the key too
 			Patch(0x19F17F, { 0x75 }).Apply();
 			Patch::NopFill(Pointer::Base(0x19F198), 4);
+
+			// Reimplement the function that assigns lobby roster colors
+			Hook(0x726100, UI_UpdateRosterColorsHook).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -425,5 +429,109 @@ namespace
 
 		// Update the ingame UI's resolution
 		Patches::Ui::ApplyUIResolution();
+	}
+
+	int UI_ListItem_GetIndex(void *item)
+	{
+		typedef int(__fastcall* UI_ListItem_GetIndexPtr)(void *thisPtr, int unused);
+		auto vtable = *reinterpret_cast<void***>(item);
+		auto GetIndex = reinterpret_cast<UI_ListItem_GetIndexPtr>(vtable[6]);
+		return GetIndex(item, 0);
+	}
+
+	bool UI_OrderedDataSource_Get(void *data, int index, int key, void *result)
+	{
+		typedef bool(__fastcall* UI_OrderedDataSource_GetPtr)(void *thisPtr, int unused, int index, int key, void *result);
+		auto vtable = *reinterpret_cast<void***>(data);
+		auto Get = reinterpret_cast<UI_OrderedDataSource_GetPtr>(vtable[11]);
+		return Get(data, 0, index, key, result);
+	}
+
+	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0)
+	{
+		typedef void*(__fastcall* UI_GetOrderedDataSourcePtr)(void *thisPtr, int unused);
+		auto UI_GetOrderedDataSource = reinterpret_cast<UI_GetOrderedDataSourcePtr>(0xB14FE0);
+		typedef void(__fastcall* UI_BaseUpdateListColorsPtr)(void *thisPtr, int unused, void *a0);
+		auto UI_BaseUpdateListColors = reinterpret_cast<UI_BaseUpdateListColorsPtr>(0xB16650);
+		typedef void*(__fastcall* UI_Widget_FindFirstChildPtr)(void *thisPtr, int unused, int type);
+		auto UI_Widget_FindFirstChild = reinterpret_cast<UI_Widget_FindFirstChildPtr>(0xAB8F80);
+		typedef void*(__fastcall* UI_ListItem_NextPtr)(void *thisPtr, int unused, bool a0);
+		auto UI_ListItem_Next = reinterpret_cast<UI_ListItem_NextPtr>(0xAB9230);
+		typedef void*(__fastcall* UI_Widget_FindChildTextPtr)(void *thisPtr, int unused, int name);
+		auto UI_Widget_FindChildText = reinterpret_cast<UI_Widget_FindChildTextPtr>(0xAB8AE0);
+		typedef void*(__fastcall* UI_Widget_FindChildBitmapPtr)(void *thisPtr, int unused, int name);
+		auto UI_Widget_FindChildBitmap = reinterpret_cast<UI_Widget_FindChildBitmapPtr>(0xAB8A40);
+		typedef void(*UI_ColorWidgetWithPlayerColorPtr)(void *widget, int colorIndex, bool isTeam);
+		auto UI_ColorWidgetWithPlayerColor = reinterpret_cast<UI_ColorWidgetWithPlayerColorPtr>(0xAA4C80);
+		typedef void(__fastcall* UI_Widget_MultiplyColorPtr)(void *thisPtr, int unused, float *argbColor);
+		auto UI_Widget_MultiplyColor = reinterpret_cast<UI_Widget_MultiplyColorPtr>(0xAB9D70);
+		typedef void(*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
+		auto RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
+
+		const auto str_name = 0x2AA;
+		const auto str_base_color = 0x10144;
+		const auto str_base_color_hilite = 0x103DD;
+		const auto str_team = 0x11D;
+		const auto str_player_row_type = 0x103CD;
+
+		// Call the base function in c_gui_list_widget
+		UI_BaseUpdateListColors(thisPtr, 0, a0);
+
+		// Get the data source to fetch player information from
+		auto data = UI_GetOrderedDataSource(thisPtr, 0);
+		if (!data)
+			return;
+
+		// Get whether teams are enabled by querying the session parameter
+		// TODO: Is there a better way of doing this? The code that H3E uses doesn't seem to work anymore...
+		static auto teamsEnabled = false; // This is static so that last value of this can be reused if the session closes
+		auto session = Blam::Network::GetActiveSession();
+		if (session && session->IsEstablished())
+			teamsEnabled = session->HasTeams();
+
+		// Loop through each list item widget
+		auto item = UI_Widget_FindFirstChild(thisPtr, 0, 5); // 5 = List item
+		while (item)
+		{
+			// Get child widget pointers
+			auto nameWidget = UI_Widget_FindChildText(item, 0, str_name);
+			auto baseColorWidget = UI_Widget_FindChildBitmap(item, 0, str_base_color);
+			auto baseColorHiliteWidget = UI_Widget_FindChildBitmap(item, 0, str_base_color_hilite);
+
+			// Get the list item index needed for data binding
+			auto itemIndex = UI_ListItem_GetIndex(item);
+
+			// Only set the color if player_row_type == 0
+			auto playerRowType = 0;
+			if (UI_OrderedDataSource_Get(data, itemIndex, str_player_row_type, &playerRowType) && playerRowType == 0)
+			{
+				// If teams are enabled and the player is assigned to a team, then use the team color,
+				// otherwise use the primary color
+				auto teamIndex = 0;
+				if (teamsEnabled && UI_OrderedDataSource_Get(data, itemIndex, str_team, &teamIndex) && teamIndex >= 0)
+				{
+					if (nameWidget)
+						UI_ColorWidgetWithPlayerColor(nameWidget, teamIndex, true);
+					if (baseColorWidget)
+						UI_ColorWidgetWithPlayerColor(baseColorWidget, teamIndex, true);
+					if (baseColorHiliteWidget)
+						UI_ColorWidgetWithPlayerColor(baseColorHiliteWidget, teamIndex, true);
+				}
+				else
+				{
+					// Pull the primary color directly out of the data source (it's easier)
+					auto primaryColor = *reinterpret_cast<uint32_t*>(reinterpret_cast<uint8_t*>(data) + itemIndex * 0x1678 + 0x7F8);
+					float primaryColorF[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+					RgbToFloatColor(primaryColor, &primaryColorF[1]);
+					if (baseColorWidget)
+						UI_Widget_MultiplyColor(baseColorWidget, 0, primaryColorF);
+					if (baseColorHiliteWidget)
+						UI_Widget_MultiplyColor(baseColorHiliteWidget, 0, primaryColorF);
+				}
+			}
+
+			// Move to the next item
+			item = UI_ListItem_Next(item, 0, true);
+		}
 	}
 }
