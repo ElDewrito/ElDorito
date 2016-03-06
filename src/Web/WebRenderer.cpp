@@ -1,7 +1,9 @@
 #include "WebRenderer.hpp"
 #include "WebRendererHandler.hpp"
 #include "WebRendererApp.hpp"
+#include "WebRendererSchemeHandlerFactory.hpp"
 #include <cef_app.h>
+#include <cef_origin_whitelist.h>
 
 #include <d3dx9.h>
 #include "Logger.hpp"
@@ -44,7 +46,7 @@ std::string WebRenderer::GetUIDirectory()
 	auto s_LocalExecutable = std::string(s_PathBuffer);
 	auto s_RunningDirectory = s_LocalExecutable.substr(0, s_LocalExecutable.find_last_of("\\/"));
 
-	return s_RunningDirectory + "/ui";
+	return s_RunningDirectory + "/mods/ui/web";
 }
 
 bool WebRenderer::Init(const std::string &p_Url)
@@ -90,8 +92,8 @@ bool WebRenderer::Init(const std::string &p_Url)
 	s_Settings.ignore_certificate_errors = true;
 	s_Settings.single_process = false;
 	s_Settings.persist_user_preferences = true;
-	CefString(&s_Settings.user_data_path) = "mods/menus/default";
-	CefString(&s_Settings.cache_path) = "mods/menus/default";
+	CefString(&s_Settings.user_data_path) = "mods/ui/cache";
+	CefString(&s_Settings.cache_path) = "mods/ui/cache";
 #if _DEBUG
 	s_Settings.log_severity = LOGSEVERITY_VERBOSE;
 	s_Settings.remote_debugging_port = 8884;
@@ -162,6 +164,11 @@ bool WebRenderer::Init(const std::string &p_Url)
 		Shutdown();
 		return false;
 	}
+
+	// Register our custom handlers
+	m_SchemeHandlerFactory = new WebRendererSchemeHandlerFactory();
+	CefRegisterSchemeHandlerFactory("dew", "", m_SchemeHandlerFactory.get());
+	CefAddCrossOriginWhitelistEntry("dew://ui", "http", "", true);
 
 	auto s_RequestContext = CefRequestContext::GetGlobalContext();
 	if (!CefBrowserHost::CreateBrowser(s_WindowInfo, m_RenderHandler.get(), s_ContainerPath.c_str(), s_BrowserSettings, s_RequestContext))
@@ -537,8 +544,9 @@ bool WebRenderer::Shutdown()
 	// Set us to be in the "shutdown" state and free resources
 	SetState(RendererState_Shutdown);
 
-	// Release app handle
+	// Release handles
 	m_App = nullptr;
+	m_SchemeHandlerFactory = nullptr;
 
 	if (m_RenderHandler)
 	{

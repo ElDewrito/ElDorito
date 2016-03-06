@@ -1,0 +1,13 @@
+{
+	"screens": [
+		{
+			"id": "example",
+			"url": "dew://screens/example/"
+		},
+		{
+			"id": "menu",
+			"url": "http://scooterpsu.github.io/"
+		}
+	],
+	"initialScreen": "example"
+}

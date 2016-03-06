@@ -23,11 +23,13 @@ namespace Anvil
 			};
 
 			class WebRendererHandler;
+			class WebRendererSchemeHandlerFactory;
 
 			class WebRenderer
 			{
 				CefRefPtr<WebRendererHandler> m_RenderHandler;
 				CefRefPtr<CefApp> m_App;
+				CefRefPtr<WebRendererSchemeHandlerFactory> m_SchemeHandlerFactory;
 				
 				RendererState m_State;
 

@@ -5,7 +5,6 @@
 #include "Modules/ModuleVoIP.hpp"
 #include "Web/WebRenderer.hpp"
 #include "Patch.hpp"
-#include "Modules/ModuleGame.hpp"
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
@@ -331,8 +330,7 @@ bool DirectXHook::hookDirectX(LPDIRECT3DDEVICE9 device)
 	}
 
 	auto webRenderer = WebRenderer::GetInstance();
-	auto menuUrl = Modules::ModuleGame::Instance().VarMenuURL->ValueString;
-	if (!webRenderer->InitRenderer(device) || !webRenderer->Init(menuUrl))
+	if (!webRenderer->InitRenderer(device) || !webRenderer->Init("dew://ui/"))
 		return false;
 	return true;
 }

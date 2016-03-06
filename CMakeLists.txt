@@ -8,6 +8,7 @@ function(create_source_groups TARGET)
 
     # skip src or include and changes /'s to \\'s
     string(REGEX REPLACE "(\\./)?(src|include)/?" "" GROUP "${PARENT_DIR}")
+    string(REPLACE "${CMAKE_SOURCE_DIR}/" "" GROUP "${GROUP}")
     string(REPLACE "/" "\\" GROUP "${GROUP}")
 
     # group into "Source Files" and "Header Files"
@@ -62,7 +63,8 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
-LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/cef/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
 
 # Create main target
 add_library(ElDorito SHARED
@@ -182,6 +184,10 @@ add_library(ElDorito SHARED
     src/Web/WebRendererApp.hpp
     src/Web/WebRendererHandler.cpp
     src/Web/WebRendererHandler.hpp
+    src/Web/WebRendererSchemeHandler.cpp
+    src/Web/WebRendererSchemeHandler.hpp
+    src/Web/WebRendererSchemeHandlerFactory.cpp
+    src/Web/WebRendererSchemeHandlerFactory.hpp
     src/Settings.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
@@ -203,6 +209,19 @@ add_library(ElDorito SHARED
 
 create_source_groups(ElDorito)
 
+# Web files
+add_custom_target(web 
+    SOURCES
+        web/lib/jquery-2.2.1.min.js
+        web/screens/example/index.html
+        web/screens/screens.json
+        web/ui/index.html
+        web/ui/index.css
+        web/ui/index.js)
+
+create_source_groups(web)
+add_dependencies(ElDorito web)
+
 # Include directories
 target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
@@ -211,7 +230,8 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
   ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include
   ${CMAKE_SOURCE_DIR}/libs/cef
-  ${CMAKE_SOURCE_DIR}/libs/cef/include)
+  ${CMAKE_SOURCE_DIR}/libs/cef/include
+  ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -223,6 +243,10 @@ if(IS_DIRECTORY ${HALO_ROOT})
                      COMMAND ${CMAKE_COMMAND} -E
                          copy_directory ${CMAKE_SOURCE_DIR}/artifact_extras
                               ${HALO_ROOT})
+  #add_custom_command(TARGET web POST_BUILD
+  #                   COMMAND ${CMAKE_COMMAND} -E
+  #                       copy_directory ${CMAKE_SOURCE_DIR}/web
+  #                            ${HALO_ROOT}/mods/ui/web)
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files
@@ -243,7 +267,9 @@ target_link_libraries(ElDorito
   psapi
   libcef
   debug libcef_dll_wrapperd
-  optimized libcef_dll_wrapper)
+  optimized libcef_dll_wrapper
+  debug cppnetlib-uri-d
+  optimized cppnetlib-uri)
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)
