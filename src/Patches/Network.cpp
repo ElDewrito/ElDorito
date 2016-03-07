@@ -502,9 +502,11 @@ namespace Patches
 			return true;
 		}
 
-		void OnPong(PongCallback callback)
+		uint16_t OnPong(PongCallback callback)
 		{
+			static uint16_t id = 0;
 			pongCallbacks.push_back(callback);
+			return id++;
 		}
 
 		void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback)

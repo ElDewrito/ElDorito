@@ -7,6 +7,7 @@
 
 #include <d3dx9.h>
 #include "Logger.hpp"
+#include "Bridge/WebRendererQueryHandler.hpp"
 
 // 1 to enable multi_threaded_message_loop
 #define MULTITHREADED 1
@@ -327,6 +328,8 @@ bool WebRenderer::Update()
 #if !MULTITHREADED
 	CefDoMessageLoopWork();
 #endif
+
+	m_RenderHandler->GetQueryHandler()->Update();
 	return true;
 }
 

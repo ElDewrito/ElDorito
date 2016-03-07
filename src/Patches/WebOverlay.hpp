@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace Patches
 {
@@ -8,5 +9,6 @@ namespace Patches
 		void Tick();
 		void Resize();
 		void Show(bool show);
+		uint16_t GetPingId();
 	}
 }

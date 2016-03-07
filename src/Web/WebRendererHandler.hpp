@@ -1,8 +1,10 @@
 #pragma once
 #include <include/cef_client.h>
 #include <include/cef_render_handler.h>
+#include <include/wrapper/cef_message_router.h>
 #include <d3d9.h>
 #include <mutex>
+#include <memory>
 #include "../Utils/Rectangle.hpp"
 
 namespace Anvil
@@ -11,10 +13,16 @@ namespace Anvil
 	{
 		namespace Rendering
 		{
+			namespace Bridge
+			{
+				class WebRendererQueryHandler;
+			}
+
 			class WebRendererHandler :
 				public CefClient,
 				public CefLifeSpanHandler,
-				public CefRenderHandler
+				public CefRenderHandler,
+				public CefRequestHandler
 			{
 				LPDIRECT3DDEVICE9 m_Device;
 				LPDIRECT3DTEXTURE9 m_Texture;
@@ -29,6 +37,8 @@ namespace Anvil
 				bool m_PopupValid;
 
 				CefRefPtr<CefBrowser> m_Browser;
+				CefRefPtr<CefMessageRouterBrowserSide> m_BrowserRouter;
+				std::shared_ptr<Bridge::WebRendererQueryHandler> m_QueryHandler;
 
 			public:
 				explicit WebRendererHandler(LPDIRECT3DDEVICE9 p_Device);
@@ -36,6 +46,7 @@ namespace Anvil
 
 				CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
 				CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+				CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 
 				void OnAfterCreated(CefRefPtr<CefBrowser> p_Browser) override;
 				void OnBeforeClose(CefRefPtr<CefBrowser> p_Browser) override;
@@ -51,6 +62,10 @@ namespace Anvil
 				bool GetViewportInformation(uint32_t& p_Width, uint32_t& p_Height);
 				bool Resize(uint32_t p_Width, uint32_t p_Height);
 
+				void OnRenderProcessTerminated(CefRefPtr<CefBrowser> p_Browser, TerminationStatus p_Status) override;
+				bool OnBeforeBrowse(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefRequest> p_Request, bool p_IsRedirect) override;
+				bool OnProcessMessageReceived(CefRefPtr<CefBrowser> p_Browser, CefProcessId p_SourceProcess, CefRefPtr<CefProcessMessage> p_Message) override;
+
 				uint8_t* GetTexture();
 				uint32_t GetTextureLength();
 				Utils::Rectangle GetTextureDirtyRect();
@@ -59,6 +74,8 @@ namespace Anvil
 				CefRefPtr<CefBrowser> GetBrowser();
 				void LockTexture();
 				void UnlockTexture();
+
+				std::shared_ptr<Bridge::WebRendererQueryHandler> GetQueryHandler() const { return m_QueryHandler; }
 
 			protected:
 				IMPLEMENT_REFCOUNTING(WebRendererHandler);

@@ -157,6 +157,9 @@ namespace Blam
 			{
 				return _byteswap_ulong(Address.IPv4);
 			}
+
+			static bool Parse(const std::string &addr, uint16_t port, NetworkAddress *result);
+			std::string ToString() const;
 		};
 		static_assert(sizeof(NetworkAddress) == 0x14, "Invalid NetworkAddress size");
 

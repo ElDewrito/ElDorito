@@ -33,7 +33,7 @@ public:
 	std::string GetDirectory();
 
 	void Initialize();
-	void Tick(const std::chrono::duration<double>& DeltaTile);
+	void Tick();
 	void OnMainMenuShown();
 	bool IsHostPlayer();
 

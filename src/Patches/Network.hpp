@@ -28,7 +28,8 @@ namespace Patches
 		typedef std::function<void(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency)> PongCallback;
 
 		// Registers a function to be called when a pong is received.
-		void OnPong(PongCallback callback);
+		// Returns a unique ID that pings should be sent with.
+		uint16_t OnPong(PongCallback callback);
 
 		// Callback for a lifecycle state change handler function.
 		// newState - The new lifecycle state.

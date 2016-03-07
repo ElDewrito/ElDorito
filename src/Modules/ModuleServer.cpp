@@ -25,16 +25,6 @@
 
 namespace
 {
-	std::string IpToString(const Blam::Network::NetworkAddress &addr)
-	{
-		struct in_addr inAddr;
-		inAddr.S_un.S_addr = addr.ToInAddr();
-		char ipStr[INET_ADDRSTRLEN];
-		if (!inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
-			return "";
-		return std::string(ipStr);
-	}
-
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
@@ -673,7 +663,7 @@ namespace
 			returnInfo = "Player \"" + kickPlayerName + "\" not found.";
 			return false;
 		}
-		auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
+		auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)).ToString();
 		if (!Blam::Network::BootPlayer(playerIdx, 4))
 		{
 			returnInfo = "Failed to kick player " + kickPlayerName;
@@ -716,7 +706,7 @@ namespace
 		auto success = false;
 		for (auto playerIdx : indices)
 		{
-			auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
+			auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)).ToString();
 			auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].DisplayName);
 			if (!Blam::Network::BootPlayer(playerIdx, 4))
 			{
@@ -763,7 +753,7 @@ namespace
 		}
 		auto player = &session->MembershipInfo.PlayerSessions[index];
 		auto kickPlayerName = Utils::String::ThinString(player->DisplayName);
-		auto ip = IpToString(session->GetPeerAddress(player->PeerIndex));
+		auto ip = session->GetPeerAddress(player->PeerIndex).ToString();
 		if (!Blam::Network::BootPlayer(index, 4))
 		{
 			returnInfo = "Failed to kick player " + kickPlayerName;
@@ -880,7 +870,7 @@ namespace
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 				auto name = Utils::String::ThinString(player->DisplayName);
 				auto ip = session->GetPeerAddress(peerIdx);
-				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Uid << ", ip: " << IpToString(ip) << ")" << std::endl;
+				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Uid << ", ip: " << ip.ToString() << ")" << std::endl;
 			}
 
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
@@ -918,7 +908,7 @@ namespace
 		return false;
 	}
 
-	const uint16_t PingId = 0xF00D;
+	uint16_t PingId;
 	bool CommandServerPing(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() > 1)
@@ -937,14 +927,12 @@ namespace
 		// If an IP address was passed, send to that address
 		if (Arguments.size() == 1)
 		{
-			struct in_addr inAddr;
-			if (!inet_pton(AF_INET, Arguments[0].c_str(), &inAddr))
+			Blam::Network::NetworkAddress blamAddress;
+			if (!Blam::Network::NetworkAddress::Parse(Arguments[0], 11774, &blamAddress))
 			{
 				returnInfo = "Invalid IPv4 address";
 				return false;
 			}
-
-			auto blamAddress = Blam::Network::NetworkAddress::FromInAddr(inAddr.S_un.S_addr, 11774);
 			if (!session->Gateway->Ping(blamAddress, PingId))
 			{
 				returnInfo = "Failed to send ping packet";
@@ -981,7 +969,7 @@ namespace
 			return; // Only show pings sent by the ping command
 
 		// PONG <ip> <timestamp> <latency>
-		auto ipStr = IpToString(from);
+		auto ipStr = from.ToString();
 		auto message = "PONG " + ipStr + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
 		GameConsole::Instance().consoleQueue.pushLineFromGameToUI(message);
 	}
@@ -1102,7 +1090,7 @@ namespace Modules
 		Server::VariableSynchronization::Synchronize(syncTestServer, syncTestClient);
 #endif
 
-		Patches::Network::OnPong(PongReceived);
+		PingId = Patches::Network::OnPong(PongReceived);
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace
 {
-	void GameTickHook(int frames, float *deltaTimeInfo);
+	void GameTickHook();
 	void TagsLoadedHook();
 	void FovHook();
 	void FmodSystemInitHook();
@@ -52,7 +52,9 @@ namespace Patches
 			Patch(0x625ACA, { 0x20 }).Apply();
 			
 			// Hook game ticks
-			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x105ABA, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x105AD7, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x1063E6, GameTickHook, HookFlags::IsCall).Apply();
 
 			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
 			Hook(0x1030EA, TagsLoadedHook).Apply();
@@ -135,16 +137,15 @@ namespace Patches
 
 namespace
 {
-	void GameTickHook(int frames, float *deltaTimeInfo)
+	void GameTickHook()
 	{
 		// Tick ElDorito
-		float deltaTime = *deltaTimeInfo;
-		ElDorito::Instance().Tick(std::chrono::duration<double>(deltaTime));
+		ElDorito::Instance().Tick();
 
-		// Tick the game
-		typedef void (*GameTickFunc)(int frames, float *deltaTimeInfo);
-		GameTickFunc GameTick = reinterpret_cast<GameTickFunc>(0x5336F0);
-		GameTick(frames, deltaTimeInfo);
+		// Call replaced function
+		typedef void(*sub_5547F0_Ptr)();
+		auto sub_5547F0 = reinterpret_cast<sub_5547F0_Ptr>(0x5547F0);
+		sub_5547F0();
 	}
 
 	__declspec(naked) void TagsLoadedHook()

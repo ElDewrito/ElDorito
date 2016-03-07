@@ -159,7 +159,7 @@ void ElDorito::Initialize()
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 }
 
-void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
+void ElDorito::Tick()
 {
 	Server::VariableSynchronization::Tick();
 	Patches::Tick();

@@ -6,8 +6,13 @@
 		},
 		{
 			"id": "menu",
-			"url": "http://scooterpsu.github.io/"
+			"var": "Game.MenuURL"
 		}
 	],
-	"initialScreen": "example"
+	"initialScreen": {
+		"id": "example",
+		"data": {
+			"title": "Hello, world!"
+		}
+	}
 }

@@ -177,6 +177,10 @@ add_library(ElDorito SHARED
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
+    src/Web/Bridge/Client/ClientFunctions.hpp
+    src/Web/Bridge/WebRendererQuery.hpp
+    src/Web/Bridge/WebRendererQueryHandler.cpp
+    src/Web/Bridge/WebRendererQueryHandler.hpp
     src/Web/Logger.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
@@ -212,12 +216,13 @@ create_source_groups(ElDorito)
 # Web files
 add_custom_target(web 
     SOURCES
+        web/lib/dew.js
         web/lib/jquery-2.2.1.min.js
         web/screens/example/index.html
         web/screens/screens.json
         web/ui/index.html
         web/ui/index.css
-        web/ui/index.js)
+        web/ui/ui.js)
 
 create_source_groups(web)
 add_dependencies(ElDorito web)
@@ -233,12 +238,31 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/cef/include
   ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include)
 
+# CEF Process
+add_executable(CefProcess WIN32
+    src/CefProcess/App.cpp
+    src/CefProcess/App.hpp
+    src/CefProcess/main.cpp)
+
+target_include_directories(CefProcess PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/cef
+    ${CMAKE_SOURCE_DIR}/libs/cef/include)
+
+target_link_libraries(CefProcess
+    libcef
+    debug libcef_dll_wrapperd
+    optimized libcef_dll_wrapper)
+
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
   add_custom_command(TARGET ElDorito POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
                          copy $<TARGET_FILE:ElDorito>
                               ${HALO_ROOT}/$<TARGET_FILE_NAME:ElDorito>)
+  add_custom_command(TARGET CefProcess POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy $<TARGET_FILE:CefProcess>
+                              ${HALO_ROOT}/custom_menu.exe)
   add_custom_command(TARGET ElDorito POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
                          copy_directory ${CMAKE_SOURCE_DIR}/artifact_extras

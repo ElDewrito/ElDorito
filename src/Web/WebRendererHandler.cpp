@@ -4,6 +4,8 @@ Code was used from NoFaTe (http://nofate.me)
 #include "WebRendererHandler.hpp"
 #include "Logger.hpp"
 #include "../Utils/Rectangle.hpp"
+#include "Bridge/WebRendererQueryHandler.hpp"
+#include "Bridge/Client/ClientFunctions.hpp"
 
 using namespace Anvil::Client::Rendering;
 
@@ -16,16 +18,40 @@ WebRendererHandler::WebRendererHandler(LPDIRECT3DDEVICE9 p_Device) :
 {
 	m_TextureData.resize(0);
 	m_PopupData.resize(0);
+
+	// Create the browser-side message router
+	// These functions must be named the same as the ones defined by CefProcess
+	CefMessageRouterConfig s_RouterConfig;
+	s_RouterConfig.js_query_function = "dewQuery";
+	s_RouterConfig.js_cancel_function = "dewQueryCancel";
+	m_BrowserRouter = CefMessageRouterBrowserSide::Create(s_RouterConfig);
 }
 
 void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 {
 	m_Browser = p_Browser;
+
+	// Register the query handler
+	if (!m_QueryHandler)
+	{
+		m_QueryHandler = std::make_shared<Bridge::WebRendererQueryHandler>();
+
+		m_QueryHandler->AddMethod("hide", Bridge::ClientFunctions::OnHide);
+		m_QueryHandler->AddMethod("command", Bridge::ClientFunctions::OnCommand);
+		m_QueryHandler->AddMethod("ping", Bridge::ClientFunctions::OnPing);
+
+		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
+	}
 }
 
 void WebRendererHandler::OnBeforeClose(CefRefPtr<CefBrowser> p_Browser)
 {
+	if (m_BrowserRouter)
+		m_BrowserRouter->OnBeforeClose(p_Browser);
+
 	// Release our browser handle
+	m_QueryHandler = nullptr;
+	m_BrowserRouter = nullptr;
 	m_Browser = nullptr;
 }
 
@@ -201,4 +227,22 @@ void WebRendererHandler::LockTexture()
 void WebRendererHandler::UnlockTexture()
 {
 	m_TextureLock.unlock();
+}
+
+void WebRendererHandler::OnRenderProcessTerminated(CefRefPtr<CefBrowser> p_Browser, TerminationStatus p_Status)
+{
+	if (m_BrowserRouter)
+		m_BrowserRouter->OnRenderProcessTerminated(p_Browser);
+}
+
+bool WebRendererHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefRequest> p_Request, bool p_IsRedirect)
+{
+	if (m_BrowserRouter)
+		m_BrowserRouter->OnBeforeBrowse(p_Browser, p_Frame);
+	return false;
+}
+
+bool WebRendererHandler::OnProcessMessageReceived(CefRefPtr<CefBrowser> p_Browser, CefProcessId p_SourceProcess, CefRefPtr<CefProcessMessage> p_Message)
+{
+	return m_BrowserRouter->OnProcessMessageReceived(p_Browser, p_SourceProcess, p_Message);
 }

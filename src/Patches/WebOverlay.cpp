@@ -4,6 +4,8 @@
 #include "Input.hpp"
 #include "Core.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/BlamNetwork.hpp"
+#include "../Patches/Network.hpp"
 #include <Windows.h>
 
 using namespace Blam::Input;
@@ -12,9 +14,11 @@ using namespace Anvil::Client::Rendering;
 namespace
 {
 	HHOOK MessageHook;
+	uint16_t PingId;
 
 	HWND CreateGameWindowHook();
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
+	void PongReceived(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency);
 
 	void ShutdownRenderer();
 
@@ -45,6 +49,7 @@ namespace Patches
 		{
 			Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
 			Core::RegisterShutdownCallback(ShutdownRenderer);
+			Network::OnPong(PongReceived);
 		}
 
 		void Tick()
@@ -73,6 +78,12 @@ namespace Patches
 				Patches::Input::PushContext(inputContext);
 			}
 			webRenderer->ShowRenderer(show, true);
+			webRenderer->ExecuteJavascript(show ? "ui.notify('show',{},false,true);" : "ui.notify('hide',{},false,true);");
+		}
+
+		uint16_t GetPingId()
+		{
+			return PingId;
 		}
 	}
 }
@@ -292,5 +303,17 @@ namespace
 			GetMsgHookImpl(code, wParam, lParam);
 
 		return CallNextHookEx(MessageHook, code, wParam, lParam);
+	}
+
+	void PongReceived(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency)
+	{
+		if (id != PingId)
+			return;
+		std::string data = "{";
+		data += "address: '" + from.ToString() + "'";
+		data += ",latency: " + std::to_string(latency);
+		data += ",timestamp: " + std::to_string(timestamp);
+		data += "}";
+		WebRenderer::GetInstance()->ExecuteJavascript("ui.notify('pong'," + data + ",false,true);");
 	}
 }

@@ -1,16 +1,71 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Example Screen</title>
-		<script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
-	</head>
-	<body style="background-color: white;">
-		<h1>Hello, world!</h1>
-		<input type="button" id="menuButton" value="Activate the menu">
-		<script type="text/javascript">
-			$("#menuButton").click(function() {
-				window.parent.dew.activateScreen("menu");
-			});
-		</script>
-	</body>
+<head>
+    <title>Example Screen</title>
+    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="dew://lib/dew.js"></script>
+</head>
+<body style="background-color: white;">
+    <h1 id="title"></h1>
+
+    <form id="commandForm">
+        <input type="text" name="command">
+        <input type="submit" value="Run">
+    </form>
+    <div id="resultText"></div><br><br>
+
+    <form id="pingForm">
+        <input type="text" name="address">
+        <input type="submit" value="Ping">
+    </form>
+    <div id="pingText"></div><br><br>
+
+    <input type="button" id="menuButton" value="Activate the menu">
+    <input type="button" id="closeButton" value="Close"><br><br>
+
+    <span>Activation data:&nbsp;</span>
+    <span id="activationData"></span>
+
+    <script type="text/javascript">
+        $("#commandForm").submit(function (event) {
+            event.preventDefault();
+            dew.command(event.target.command.value, {}, function (result) {
+                $("#resultText").text(result);
+            });
+            event.target.command.value = "";
+        });
+
+        $("#pingForm").submit(function (event) {
+            event.preventDefault();
+            dew.ping(event.target.address.value);
+        });
+
+        $("#menuButton").click(function () {
+            dew.requestScreen("menu");
+        });
+
+        $("#closeButton").click(function () {
+            dew.hide();
+        });
+
+        dew.on("show", function (event) {
+            alert("Example page shown");
+        });
+
+        dew.on("hide", function (event) {
+            alert("Example page hidden");
+        });
+
+        dew.on("pong", function (event) {
+            $("#pingText").text(event.data.address + " " + event.data.latency + "ms");
+        });
+
+        dew.on("activate", function (event) {
+            $("#activationData").text(JSON.stringify(event.data));
+            if ("title" in event.data) {
+                $("#title").text(event.data.title);
+            }
+        });
+    </script>
+</body>
 </html>
