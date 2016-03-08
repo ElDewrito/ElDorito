@@ -5,9 +5,7 @@
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
     <script type="text/javascript" src="dew://lib/dew.js"></script>
 </head>
-<body style="background-color: white;">
-    <h1 id="title"></h1>
-
+<body style="background-color: rgba(255, 255, 255, 0.8);">
     <form id="commandForm">
         <input type="text" name="command">
         <input type="submit" value="Run">
@@ -20,7 +18,15 @@
     </form>
     <div id="pingText"></div><br><br>
 
+    <form id="overlayForm">
+        <input type="text" name="text">
+        <input type="submit" value="Overlay">
+        <input type="button" id="hideOverlayButton" value="Hide">
+    </form>
+    <br><br>
+
     <input type="button" id="menuButton" value="Activate the menu">
+    <input type="button" id="captureButton" value="Release input">
     <input type="button" id="closeButton" value="Close"><br><br>
 
     <span>Activation data:&nbsp;</span>
@@ -40,8 +46,22 @@
             dew.ping(event.target.address.value);
         });
 
+        $("#overlayForm").submit(function (event) {
+            event.preventDefault();
+            dew.show("hello", { text: event.target.text.value });
+        });
+
+        $("#hideOverlayButton").click(function() {
+            dew.hide("hello");
+        });
+
         $("#menuButton").click(function () {
-            dew.requestScreen("menu");
+            dew.hide();
+            dew.show("browser");
+        });
+
+        $("#captureButton").click(function() {
+            dew.captureInput(false);
         });
 
         $("#closeButton").click(function () {
@@ -49,22 +69,17 @@
         });
 
         dew.on("show", function (event) {
-            alert("Example page shown");
+            //alert("Example page shown");
+            $("#activationData").text(JSON.stringify(event.data));
+            dew.captureInput(true);
         });
 
         dew.on("hide", function (event) {
-            alert("Example page hidden");
+            //alert("Example page hidden");
         });
 
         dew.on("pong", function (event) {
             $("#pingText").text(event.data.address + " " + event.data.latency + "ms");
-        });
-
-        dew.on("activate", function (event) {
-            $("#activationData").text(JSON.stringify(event.data));
-            if ("title" in event.data) {
-                $("#title").text(event.data.title);
-            }
         });
     </script>
 </body>

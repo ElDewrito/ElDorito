@@ -406,7 +406,7 @@ namespace
 		switch (lobbyType)
 		{
 		case 1: // Matchmaking
-			Patches::WebOverlay::Show(true);
+			Patches::WebOverlay::ShowScreen("example", "{ \"foo\": \"bar\" }");
 			return true;
 		case 4: // Theater (rip)
 			ShowLanBrowser();

@@ -214,15 +214,18 @@ add_library(ElDorito SHARED
 create_source_groups(ElDorito)
 
 # Web files
+set (WEB_SOURCES
+    web/lib/dew.js
+    web/lib/jquery-2.2.1.min.js
+    web/screens/example/index.html
+    web/screens/hello/index.html
+    web/screens/screens.json
+    web/ui/index.html
+    web/ui/index.css
+    web/ui/ui.js)
 add_custom_target(web 
-    SOURCES
-        web/lib/dew.js
-        web/lib/jquery-2.2.1.min.js
-        web/screens/example/index.html
-        web/screens/screens.json
-        web/ui/index.html
-        web/ui/index.css
-        web/ui/ui.js)
+    DEPENDS ${WEB_SOURCES}
+    SOURCES ${WEB_SOURCES})
 
 create_source_groups(web)
 add_dependencies(ElDorito web)
@@ -267,10 +270,10 @@ if(IS_DIRECTORY ${HALO_ROOT})
                      COMMAND ${CMAKE_COMMAND} -E
                          copy_directory ${CMAKE_SOURCE_DIR}/artifact_extras
                               ${HALO_ROOT})
-  #add_custom_command(TARGET web POST_BUILD
-  #                   COMMAND ${CMAKE_COMMAND} -E
-  #                       copy_directory ${CMAKE_SOURCE_DIR}/web
-  #                            ${HALO_ROOT}/mods/ui/web)
+  add_custom_command(TARGET web POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy_directory ${CMAKE_SOURCE_DIR}/web
+                              ${HALO_ROOT}/mods/ui/web)
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files

@@ -15,6 +15,7 @@ namespace
 {
 	HHOOK MessageHook;
 	uint16_t PingId;
+	bool InputCaptured = false;
 
 	HWND CreateGameWindowHook();
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
@@ -24,19 +25,22 @@ namespace
 
 	class WebOverlayInputContext : public Patches::Input::InputContext
 	{
+	public:
 		void Activated() override { }
 		void Deactivated() override { }
 
 		bool GameInputTick() override
 		{
-			// Deactivate when the renderer closes
-			return WebRenderer::GetInstance()->IsRendering();
+			if (!WebRenderer::GetInstance()->IsRendering())
+				InputCaptured = false;
+			return InputCaptured;
 		}
 
 		bool UiInputTick() override
 		{
-			// Deactivate when the renderer closes
-			return WebRenderer::GetInstance()->IsRendering();
+			if (!WebRenderer::GetInstance()->IsRendering())
+				InputCaptured = false;
+			return InputCaptured;
 		}
 	};
 }
@@ -70,15 +74,25 @@ namespace Patches
 			auto webRenderer = WebRenderer::GetInstance();
 			if (show == webRenderer->IsRendering())
 				return;
+			webRenderer->ShowRenderer(show, true);
+		}
 
-			if (show)
+		void ShowScreen(const std::string &id, const std::string &data)
+		{
+			WebRenderer::GetInstance()->ExecuteJavascript("ui.requestScreen('" + id + "', " + data + ");");
+		}
+
+		void CaptureInput(bool capture)
+		{
+			if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
+				return;
+			InputCaptured = capture;
+			if (capture)
 			{
 				// Override game input
 				auto inputContext = std::make_shared<WebOverlayInputContext>();
 				Patches::Input::PushContext(inputContext);
 			}
-			webRenderer->ShowRenderer(show, true);
-			webRenderer->ExecuteJavascript(show ? "ui.notify('show',{},false,true);" : "ui.notify('hide',{},false,true);");
 		}
 
 		uint16_t GetPingId()
@@ -267,9 +281,9 @@ namespace
 		if (!msg->hwnd)
 			return;
 
-		// Ignore messages if the web renderer isn't active
+		// Ignore messages if the web renderer isn't active or if input isn't captured
 		auto webRenderer = WebRenderer::GetInstance();
-		if (!webRenderer->IsRendering())
+		if (!InputCaptured || !webRenderer->IsRendering())
 			return;
 
 		switch (msg->message)

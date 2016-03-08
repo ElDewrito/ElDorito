@@ -15,6 +15,12 @@ namespace Anvil
 				class ClientFunctions
 				{
 				public:
+					static QueryError OnShow(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						Patches::WebOverlay::Show(true);
+						return QueryError_Ok;
+					}
+
 					static QueryError OnHide(const rapidjson::Value &p_Args, std::string *p_Result)
 					{
 						Patches::WebOverlay::Show(false);
@@ -65,6 +71,21 @@ namespace Anvil
 							*p_Result = "Network error: Failed to send ping";
 							return QueryError_NetworkError;
 						}
+						return QueryError_Ok;
+					}
+
+					static QueryError OnCaptureInput(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						// Get the "capture" argument
+						auto s_CaptureValue = p_Args.FindMember("capture");
+						if (s_CaptureValue == p_Args.MemberEnd() || !s_CaptureValue->value.IsBool())
+						{
+							*p_Result = "Bad query: A \"capture\" argument is required and must be a boolean";
+							return QueryError_BadQuery;
+						}
+
+						// Toggle input capture
+						Patches::WebOverlay::CaptureInput(s_CaptureValue->value.GetBool());
 						return QueryError_Ok;
 					}
 				};

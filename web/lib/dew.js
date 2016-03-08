@@ -27,7 +27,7 @@ DewError = {
     }
 
     // Calls a native method.
-    function callMethod(method, args, onSuccess, onFailure) {
+    dew.callMethod = function (method, args, onSuccess, onFailure) {
         try {
             // Ensure default values
             onSuccess = onSuccess || defaultSuccess;
@@ -72,28 +72,30 @@ DewError = {
             if (typeof data !== "object" || !("event" in data)) {
                 return;
             }
-            if (data.event == name) {
+            if (data.event === name) {
                 callback(data);
             }
         }, false);
     }
 
     // Posts a message to the UI.
-    function postUiMessage(message) {
+    function postUiMessage(message, data) {
         if (window.parent) {
-            window.parent.postMessage(message, "*");
+            window.parent.postMessage({
+                message: message,
+                data: data
+            }, "*");
         }
     }
 
     // Notify the UI once the screen loads.
     $(window).load(function () {
-        postUiMessage({ loaded: true });
+        postUiMessage("loaded", {});
     });
 
     /**
 	 * <p>Methods for interfacing with ElDewrito.</p>
-	 * <p>Some methods run asynchronously and accept success and failure callbacks.
-	 * For performance reasons, asynchronous methods that are run while the web overlay is closed will be delayed until it is open again.</p>
+	 * <p>Some methods run asynchronously and accept success and failure callbacks.</p>
 	 *
 	 * @namespace dew
 	 */
@@ -115,16 +117,45 @@ DewError = {
 	 */
 
     /**
-	 * (ASYNCHRONOUS) Hides the web overlay.
-	 * While the web overlay is hidden, other dew methods will not run until the overlay is re-shown by the user.
+	 * Requests to show a screen.
+     * If the requested screen is still loading, it will not be shown until it finishes.
+	 *
+	 * @name dew.show
+	 * @function
+	 * @param {string} [id] - The ID of the screen to show. If this is null or omitted, the current screen will be shown.
+	 * @param {object} [data] - Data to pass to the screen's [show]{@link event:show} event.
+	 */
+    dew.show = function (id, data) {
+        postUiMessage("show", {
+            screen: id || null,
+            data: data || {}
+        });
+    }
+
+    /**
+	 * Requests to hide a screen.
 	 *
 	 * @name dew.hide
 	 * @function
-	 * @param {SuccessCallback} [onSuccess] - The success callback.
-	 * @param {FailureCallback} [onFailure] - The failure callback.
+     * @param {string} [id] - The ID of the screen to hide. If this is null or omitted, the current screen will be hidden.
 	 */
-    dew.hide = function (onSuccess, onFailure) {
-        callMethod("hide", {}, onSuccess, onFailure);
+    dew.hide = function (id) {
+        postUiMessage("hide", {
+            screen: id || null
+        });
+    }
+
+    /**
+     * Requests to change this screen's input capture state.
+     * 
+     * @name dew.captureInput
+     * @function
+     * @param {boolean} capture - true to capture mouse and keyboard input, false to release.
+     */
+    dew.captureInput = function (capture) {
+        postUiMessage("captureInput", {
+            capture: !!capture
+        });
     }
 
     /**
@@ -140,7 +171,7 @@ DewError = {
 	 * @param {FailureCallback} [onFailure] - The failure callback.
 	 */
     dew.command = function (command, options, onSuccess, onFailure) {
-        callMethod("command", function () {
+        dew.callMethod("command", function () {
             options = options || {};
             return {
                 command: command.toString(),
@@ -162,7 +193,7 @@ DewError = {
 	 * @see dew.on
 	 */
     dew.ping = function (address, onSuccess, onFailure) {
-        callMethod("ping", function () {
+        dew.callMethod("ping", function () {
             return {
                 address: address.toString()
             };
@@ -193,24 +224,17 @@ DewError = {
 	 */
 
     /**
-	 * Fired when the current screen is made active and before it is shown.
-	 * The data passed to this event is the data that was passed to {@link dew.requestScreen}.
-	 *
-	 * @event activate
-	 * @type {object}
-	 */
-
-    /**
-	 * Fired after the current screen is hidden, either because the web overlay was hidden or because another screen is being made active.
-	 *
-	 * @event hide
-	 * @type {object}
-	 */
-
-    /**
-	 * Fired after the current screen is shown, either because the web overlay was shown or because the screen was just made active.
+	 * Fired after the current screen is shown.
+	 * The data passed to this event is the data that was passed to {@link dew.show}.
 	 *
 	 * @event show
+	 * @type {object}
+	 */
+
+    /**
+	 * Fired after the current screen is hidden.
+	 *
+	 * @event hide
 	 * @type {object}
 	 */
 
@@ -224,19 +248,6 @@ DewError = {
 	 * @property {number} latency - The round-trip time of the ping in milliseconds.
 	 * @property {number} timestamp - A timestamp value representing when the ping was sent.
 	 */
-
-    /**
-	 * Requests a different screen to be shown.
-	 * This will hide the current screen and then show the new one.
-	 *
-	 * @name dew.requestScreen
-	 * @function
-	 * @param {string} id - The ID of the screen to request.
-	 * @param {object} [data] - Data to pass to the screen's [activate]{@link event:activate} event.
-	 */
-    dew.requestScreen = function (id, data) {
-        postUiMessage({ requestScreen: id, data: data });
-    }
 
     /**
 	 * Gets the name of the DewError value corresponding to an error code.

@@ -2,17 +2,21 @@
 	"screens": [
 		{
 			"id": "example",
-			"url": "dew://screens/example/"
+			"url": "dew://screens/example/",
+			"captureInput": true,
+			"zIndex": 0
 		},
 		{
-			"id": "menu",
-			"var": "Game.MenuURL"
+			"id": "hello",
+			"url": "dew://screens/hello/",
+			"captureInput": false,
+			"zIndex": 100
+		},
+		{
+			"id": "browser",
+			"var": "Game.MenuURL",
+			"captureInput": true,
+			"zIndex": 0
 		}
-	],
-	"initialScreen": {
-		"id": "example",
-		"data": {
-			"title": "Hello, world!"
-		}
-	}
+	]
 }

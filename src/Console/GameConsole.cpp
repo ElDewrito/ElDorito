@@ -395,7 +395,7 @@ void GameConsole::gameInputCallBack()
 
 	// TODO: Should we keep this since we have the server browser option on the menu now?
 	if (GetKeyTicks(eKeyCodeF11, eInputTypeUi) == 1)
-		Patches::WebOverlay::Show(true);
+		Patches::WebOverlay::ShowScreen("example", "{}");
 
 	if (GetKeyTicks(eKeyCodeF12, eInputTypeUi) == 1)
 		DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;

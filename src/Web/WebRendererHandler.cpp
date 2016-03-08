@@ -36,9 +36,11 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 	{
 		m_QueryHandler = std::make_shared<Bridge::WebRendererQueryHandler>();
 
+		m_QueryHandler->AddMethod("show", Bridge::ClientFunctions::OnShow);
 		m_QueryHandler->AddMethod("hide", Bridge::ClientFunctions::OnHide);
 		m_QueryHandler->AddMethod("command", Bridge::ClientFunctions::OnCommand);
 		m_QueryHandler->AddMethod("ping", Bridge::ClientFunctions::OnPing);
+		m_QueryHandler->AddMethod("captureInput", Bridge::ClientFunctions::OnCaptureInput);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}
