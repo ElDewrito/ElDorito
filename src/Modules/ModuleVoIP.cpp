@@ -172,6 +172,27 @@ bool CommandVoIPMutePlayer(const std::vector<std::string>& Arguments, std::strin
 	return false;
 }
 
+bool CommandVoipRetryConnection(const std::vector<std::string>& Arguments, std::string& returnInfo)
+{
+	auto* session = Blam::Network::GetActiveSession();
+	if (!session || !session->IsEstablished())
+	{
+		returnInfo = "No session found, are you in a game?";
+		return false;
+	}
+
+	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt != 1)
+	{
+		returnInfo = "You do not have voip enabled";
+		return false;
+	}
+
+	//Make sure teamspeak is stopped before we try to start it.
+	StopTeamspeakClient();
+	CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+	return true;
+}
+
 namespace Modules
 {
 	ModuleVoIP::ModuleVoIP() : ModuleBase("VoIP")
@@ -224,6 +245,8 @@ namespace Modules
 		VarVoIPEnabled->ValueIntMax = 1;
 
 		AddCommand("MutePlayer", "mute", "Toggles mute on a player in VoIP", eCommandFlagsNone, CommandVoIPMutePlayer, { "playername/UID The name or UID of the player to mute or unmute" });
+
+		AddCommand("Retry", "retry", "Retry voip connection to currently connected server", eCommandFlagsNone, CommandVoipRetryConnection);
 
 	}
 }

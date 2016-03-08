@@ -50,6 +50,8 @@ void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsign
 	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 
+	ts3client_requestConnectionInfo(serverID, clientID, NULL); //handle kicking in callback function
+
 	//Note: we can prevent clients from connecting by changing the removeClientError
 	//This would be very useful if a client is in some kind of ban list...
 	//See https://halowiki.llf.to/ts3_sdk/server_html/ar01s16.html#s_faq_2 for more info
@@ -286,6 +288,24 @@ int kickTeamspeakClient(const std::string& name) {
 	return -4;
 }
 
+//prevent leaking clients ips to other clients with modified dlls
+unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExport* client, int* mayViewIpPort, const struct ClientMiniExport* targetClient)
+{
+	if (client->ID == 1)//owner
+		return ERROR_ok;
+	else
+		return ERROR_permissions_client_insufficient;
+}
+
+//prevent anyone from kicking anyone
+unsigned int permClientKickFromServer(uint64 serverID, const struct ClientMiniExport* client, int toKickCount, struct ClientMiniExport* toKickClients, const char* reasonText)
+{
+	if (client->ID == 1)//owner
+		return ERROR_ok;
+	else
+		return ERROR_permissions_client_insufficient;
+}
+
 
 DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	char *version;
@@ -316,6 +336,8 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	funcs.onClientStartTalkingEvent = onClientStartTalkingEvent;
 	funcs.onClientStopTalkingEvent = onClientStopTalkingEvent;
 	funcs.onAccountingErrorEvent = onAccountingErrorEvent;
+	funcs.permSendConnectionInfo = permSendConnectionInfo;
+	funcs.permClientKickFromServer = permClientKickFromServer;
 
 	/* Initialize server lib with callbacks */
 	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL)) != ERROR_ok) {
