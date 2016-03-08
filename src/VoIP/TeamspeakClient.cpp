@@ -1287,6 +1287,7 @@ void onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientI
 
 DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	
+	Sleep(750);//Doing this allows us to abort the current client thread before creating a new one and running into problems
 	unsigned int error;
 	char* mode;
 	char** device;

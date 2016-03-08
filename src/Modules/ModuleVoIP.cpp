@@ -119,11 +119,21 @@ bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std:
 
 bool VariableEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	//TODO: Connect to lobby VOIP if changing to 1, for now this is fine because it will join next time they connet to a lobby
 	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 0){
 		StopTeamspeakClient();
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt ? "VoIP client will start when joining a lobby" : "Disabled VoIP.";
+	else
+	{
+		//Only if we are in a game
+		auto* session = Blam::Network::GetActiveSession();
+		if (session && session->IsEstablished())
+		{
+			//Make sure teamspeak is stopped before we try to start it.
+			StopTeamspeakClient();
+			CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
+		}
+	}
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt ? "VoIP client will attempt to rejoin server if you are in one." : "Disabled VoIP.";
 	return true;
 }
 
