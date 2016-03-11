@@ -269,17 +269,10 @@ bool WebRenderer::Render(LPDIRECT3DDEVICE9 p_Device)
 
 	m_RenderHandler->LockTexture();
 
-	auto s_DirtyRect = m_RenderHandler->GetTextureDirtyRect();
-	if (!s_DirtyRect.IsEmpty())
+	if (!m_RenderHandler->GetTextureDirtyRect().IsEmpty())
 	{
-		RECT s_LockRect;
-		s_LockRect.left = s_DirtyRect.X;
-		s_LockRect.top = s_DirtyRect.Y;
-		s_LockRect.right = s_DirtyRect.X + s_DirtyRect.Width;
-		s_LockRect.bottom = s_DirtyRect.Y + s_DirtyRect.Height;
-
 		D3DLOCKED_RECT s_Rect;
-		auto s_Result = m_Texture->LockRect(0, &s_Rect, &s_LockRect, 0);
+		auto s_Result = m_Texture->LockRect(0, &s_Rect, nullptr, D3DLOCK_DISCARD);
 		if (SUCCEEDED(s_Result))
 		{
 			uint32_t s_Width = 0, s_Height = 0;
@@ -298,7 +291,7 @@ bool WebRenderer::Render(LPDIRECT3DDEVICE9 p_Device)
 				return false;
 			}
 
-			Utils::Rectangle::Copy(s_Rect.pBits, 0, 0, s_Rect.Pitch, s_TextureData, s_DirtyRect, s_Width * 4, 4);
+			memcpy(s_Rect.pBits, s_TextureData, s_Width * s_Height * 4);
 
 			m_Texture->UnlockRect(0);
 			m_RenderHandler->ResetTextureDirtyRect();

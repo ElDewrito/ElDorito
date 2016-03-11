@@ -36,4 +36,10 @@ void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type
 	// CEF will NOT shut down properly unless this switch is passed
 	// See https://bitbucket.org/chromiumembedded/cef/issues/1680/windows-2454-crash-on-shutdown-with-multi
 	command_line->AppendSwitch("disable-extensions");
+
+	// These switches make performance significantly faster, especially at high resolutions
+	// See https://bitbucket.org/chromiumembedded/cef/commits/e3c1d8632eb43c1c2793d71639f3f5695696a5e8
+	command_line->AppendSwitch("disable-gpu");
+	command_line->AppendSwitch("disable-gpu-compositing");
+	command_line->AppendSwitch("enable-begin-frame-scheduling");
 }
