@@ -126,6 +126,82 @@ namespace
 		return hwnd;
 	}
 
+	// Keyboard and mouse functions based off of cefclient
+
+	bool IsKeyDown(WPARAM wparam)
+	{
+		return (GetKeyState(wparam) & 0x8000) != 0;
+	}
+
+	int GetCefMouseModifiers(WPARAM wParam)
+	{
+		auto modifiers = 0;
+		if (wParam & MK_CONTROL)
+			modifiers |= EVENTFLAG_CONTROL_DOWN;
+		if (wParam & MK_SHIFT)
+			modifiers |= EVENTFLAG_SHIFT_DOWN;
+		if (IsKeyDown(VK_MENU))
+			modifiers |= EVENTFLAG_ALT_DOWN;
+		if (wParam & MK_LBUTTON)
+			modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+		if (wParam & MK_MBUTTON)
+			modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+		if (wParam & MK_RBUTTON)
+			modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+
+		// Low bit set from GetKeyState indicates "toggled".
+		if (GetKeyState(VK_NUMLOCK) & 1)
+			modifiers |= EVENTFLAG_NUM_LOCK_ON;
+		if (GetKeyState(VK_CAPITAL) & 1)
+			modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+		return modifiers;
+	}
+
+	int GetLastClickCount(LPMSG msg)
+	{
+		static int lastClickX, lastClickY;
+		static int lastClickCount;
+		static UINT lastClickButton;
+		static LONG lastClickTime;
+		auto cancelPreviousClick = false;
+
+		if (msg->message == WM_LBUTTONDOWN || msg->message == WM_RBUTTONDOWN ||
+			msg->message == WM_MBUTTONDOWN || msg->message == WM_MOUSEMOVE ||
+			msg->message == WM_MOUSELEAVE)
+		{
+			auto currentTime = msg->time;
+			auto x = msg->pt.x;
+			auto y = msg->pt.y;
+			cancelPreviousClick =
+				(abs(lastClickX - x) > (GetSystemMetrics(SM_CXDOUBLECLK) / 2))
+				|| (abs(lastClickY - y) > (GetSystemMetrics(SM_CYDOUBLECLK) / 2))
+				|| ((currentTime - lastClickTime) > GetDoubleClickTime());
+			if (cancelPreviousClick && (msg->message == WM_MOUSEMOVE || msg->message == WM_MOUSELEAVE))
+			{
+				lastClickCount = 0;
+				lastClickX = 0;
+				lastClickY = 0;
+				lastClickTime = 0;
+			}
+		}
+		if (msg->message == WM_LBUTTONDOWN || msg->message == WM_MBUTTONDOWN || msg->message == WM_RBUTTONDOWN)
+		{
+			if (!cancelPreviousClick && msg->message == lastClickButton)
+			{
+				lastClickCount++;
+			}
+			else
+			{
+				lastClickCount = 1;
+				lastClickX = msg->pt.x;
+				lastClickY = msg->pt.y;
+			}
+			lastClickTime = msg->time;
+			lastClickButton = msg->message;
+		}
+		return lastClickCount;
+	}
+
 	void HandleMouseMessage(LPMSG msg)
 	{
 		auto webRenderer = WebRenderer::GetInstance();
@@ -133,37 +209,36 @@ namespace
 		auto mousePos = msg->pt;
 		ScreenToClient(msg->hwnd, &mousePos);
 
+		CefMouseEvent mouse;
+		mouse.x = mousePos.x;
+		mouse.y = mousePos.y;
+		mouse.modifiers = GetCefMouseModifiers(msg->wParam);
+		auto lastClickCount = GetLastClickCount(msg);
+
 		switch (msg->message)
 		{
 		case WM_MOUSEMOVE:
-			webRenderer->UpdateMouse(mousePos.x, mousePos.y);
+			webRenderer->SendMouseMoveEvent(mouse, false);
 			break;
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONUP:
-			webRenderer->SendMouseEvent(mousePos.x, mousePos.y, MBT_LEFT, msg->message == WM_LBUTTONDOWN);
+			webRenderer->SendMouseClickEvent(mouse, MBT_LEFT, msg->message == WM_LBUTTONUP, lastClickCount);
 			break;
 		case WM_MBUTTONDOWN:
 		case WM_MBUTTONUP:
-			webRenderer->SendMouseEvent(mousePos.x, mousePos.y, MBT_MIDDLE, msg->message == WM_MBUTTONDOWN);
+			webRenderer->SendMouseClickEvent(mouse, MBT_MIDDLE, msg->message == WM_MBUTTONUP, lastClickCount);
 			break;
 		case WM_RBUTTONDOWN:
 		case WM_RBUTTONUP:
-			webRenderer->SendMouseEvent(mousePos.x, mousePos.y, MBT_RIGHT, msg->message == WM_RBUTTONDOWN);
+			webRenderer->SendMouseClickEvent(mouse, MBT_RIGHT, msg->message == WM_RBUTTONUP, lastClickCount);
 			break;
 		case WM_MOUSEWHEEL:
-			webRenderer->SendMouseWheelEvent(mousePos.x, mousePos.y, 0, GET_WHEEL_DELTA_WPARAM(msg->wParam));
+			webRenderer->SendMouseWheelEvent(mouse, 0, GET_WHEEL_DELTA_WPARAM(msg->wParam));
 			break;
 		case WM_MOUSEHWHEEL:
-			webRenderer->SendMouseWheelEvent(mousePos.x, mousePos.y, GET_WHEEL_DELTA_WPARAM(msg->wParam), 0);
+			webRenderer->SendMouseWheelEvent(mouse, GET_WHEEL_DELTA_WPARAM(msg->wParam), 0);
 			break;
 		}
-	}
-
-	// Keyboard functions taken from cefclient
-
-	bool IsKeyDown(WPARAM wparam)
-	{
-		return (GetKeyState(wparam) & 0x8000) != 0;
 	}
 
 	int GetCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)

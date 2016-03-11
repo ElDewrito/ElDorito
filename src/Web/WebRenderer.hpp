@@ -58,9 +58,9 @@ namespace Anvil
 
 				bool Resize(uint32_t p_Width, uint32_t p_Height);
 
-				bool UpdateMouse(uint32_t p_X, uint32_t p_Y);
-				bool SendMouseEvent(uint32_t p_X, uint32_t p_Y, cef_mouse_button_type_t p_Button, bool p_Pressed);
-				bool SendMouseWheelEvent(uint32_t p_X, uint32_t p_Y, int p_XDelta, int p_YDelta);
+				bool SendMouseMoveEvent(const CefMouseEvent &p_Event, bool p_MouseLeave);
+				bool SendMouseClickEvent(const CefMouseEvent &p_Event, CefBrowserHost::MouseButtonType p_Button, bool p_MouseUp, int p_ClickCount);
+				bool SendMouseWheelEvent(const CefMouseEvent &p_Event, int p_DeltaX, int p_DeltaY);
 				bool SendKeyEvent(const CefKeyEvent &p_Event);
 
 				bool OpenUrl(const std::string &p_Url);

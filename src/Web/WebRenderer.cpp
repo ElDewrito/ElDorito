@@ -113,16 +113,6 @@ bool WebRenderer::Init(const std::string &p_Url)
 
 	WriteLog("UI Directory: %s", s_UIDirectory.c_str());
 
-	m_RenderHandler = new WebRendererHandler(m_Device);
-	if (!m_RenderHandler)
-	{
-		WriteLog("RenderHandler failed to create.");
-
-		// This should clear out and free all allocated resources up to this point.
-		Shutdown();
-		return false;
-	}
-
 	CefWindowInfo s_WindowInfo;
 	CefBrowserSettings s_BrowserSettings;
 
@@ -158,7 +148,7 @@ bool WebRenderer::Init(const std::string &p_Url)
 
 	s_WindowInfo.SetAsWindowless(s_Parameters.hFocusWindow, true);
 
-	m_RenderHandler = new WebRendererHandler(m_Device);
+	m_RenderHandler = new WebRendererHandler(m_Device, s_Parameters.hFocusWindow);
 	if (!m_RenderHandler)
 	{
 		WriteLog("WebRendererHandler failed to initialize.");
@@ -410,7 +400,7 @@ bool WebRenderer::Resize(uint32_t p_Width, uint32_t p_Height)
 	return true;
 }
 
-bool WebRenderer::UpdateMouse(uint32_t p_X, uint32_t p_Y)
+bool WebRenderer::SendMouseMoveEvent(const CefMouseEvent &p_Event, bool p_MouseLeave)
 {
 	if (!m_RenderHandler || !IsRendering())
 		return false;
@@ -419,16 +409,11 @@ bool WebRenderer::UpdateMouse(uint32_t p_X, uint32_t p_Y)
 	if (!s_Browser)
 		return false;
 
-	CefMouseEvent s_Event;
-	s_Event.x = p_X;
-	s_Event.y = p_Y;
-	
-	s_Browser->GetHost()->SendMouseMoveEvent(s_Event, false);
-
+	s_Browser->GetHost()->SendMouseMoveEvent(p_Event, p_MouseLeave);
 	return true;
 }
 
-bool WebRenderer::SendMouseEvent(uint32_t p_X, uint32_t p_Y, cef_mouse_button_type_t p_Button, bool p_Pressed)
+bool WebRenderer::SendMouseClickEvent(const CefMouseEvent &p_Event, CefBrowserHost::MouseButtonType p_Button, bool p_MouseUp, int p_ClickCount)
 {
 	if (!m_RenderHandler || !IsRendering())
 		return false;
@@ -437,18 +422,11 @@ bool WebRenderer::SendMouseEvent(uint32_t p_X, uint32_t p_Y, cef_mouse_button_ty
 	if (!s_Browser)
 		return false;
 
-	CefMouseEvent s_Event;
-	s_Event.x = p_X;
-	s_Event.y = p_Y;
-	s_Event.modifiers = 0;
-
-	auto s_LastClickCount = 1;
-
-	s_Browser->GetHost()->SendMouseClickEvent(s_Event, p_Button, !p_Pressed, s_LastClickCount);
+	s_Browser->GetHost()->SendMouseClickEvent(p_Event, p_Button, p_MouseUp, p_ClickCount);
 	return true;
 }
 
-bool WebRenderer::SendMouseWheelEvent(uint32_t p_X, uint32_t p_Y, int p_DeltaX, int p_DeltaY)
+bool WebRenderer::SendMouseWheelEvent(const CefMouseEvent &p_Event, int p_DeltaX, int p_DeltaY)
 {
 	if (!m_RenderHandler || !IsRendering())
 		return false;
@@ -457,12 +435,7 @@ bool WebRenderer::SendMouseWheelEvent(uint32_t p_X, uint32_t p_Y, int p_DeltaX, 
 	if (!s_Browser)
 		return false;
 
-	CefMouseEvent s_Event;
-	s_Event.x = p_X;
-	s_Event.y = p_Y;
-	s_Event.modifiers = 0;
-
-	s_Browser->GetHost()->SendMouseWheelEvent(s_Event, p_DeltaX, p_DeltaY);
+	s_Browser->GetHost()->SendMouseWheelEvent(p_Event, p_DeltaX, p_DeltaY);
 	return true;
 }
 

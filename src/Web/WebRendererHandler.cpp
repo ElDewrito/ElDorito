@@ -9,8 +9,9 @@ Code was used from NoFaTe (http://nofate.me)
 
 using namespace Anvil::Client::Rendering;
 
-WebRendererHandler::WebRendererHandler(LPDIRECT3DDEVICE9 p_Device) :
+WebRendererHandler::WebRendererHandler(LPDIRECT3DDEVICE9 p_Device, HWND p_Window) :
 	m_Device(p_Device),
+	m_Window(p_Window),
 	m_Browser(nullptr),
 	m_TextureStride(0),
 	m_PopupVisible(false),
@@ -86,8 +87,13 @@ bool WebRendererHandler::GetScreenInfo(CefRefPtr<CefBrowser> p_Browser, CefScree
 
 bool WebRendererHandler::GetScreenPoint(CefRefPtr<CefBrowser> p_Browser, int p_ViewX, int p_ViewY, int &p_ScreenX, int &p_ScreenY)
 {
-	p_ScreenX = p_ViewX;
-	p_ScreenY = p_ViewY;
+	POINT point;
+	point.x = p_ViewX;
+	point.y = p_ViewY;
+	if (!ClientToScreen(m_Window, &point))
+		return false;
+	p_ScreenX = point.x;
+	p_ScreenY = point.y;
 	return true;
 }
 
@@ -247,4 +253,10 @@ bool WebRendererHandler::OnBeforeBrowse(CefRefPtr<CefBrowser> p_Browser, CefRefP
 bool WebRendererHandler::OnProcessMessageReceived(CefRefPtr<CefBrowser> p_Browser, CefProcessId p_SourceProcess, CefRefPtr<CefProcessMessage> p_Message)
 {
 	return m_BrowserRouter->OnProcessMessageReceived(p_Browser, p_SourceProcess, p_Message);
+}
+
+void WebRendererHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefContextMenuParams> p_Params, CefRefPtr<CefMenuModel> p_Model)
+{
+	// Disallow context menus
+	p_Model->Clear();
 }

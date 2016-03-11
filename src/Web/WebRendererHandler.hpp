@@ -22,10 +22,11 @@ namespace Anvil
 				public CefClient,
 				public CefLifeSpanHandler,
 				public CefRenderHandler,
-				public CefRequestHandler
+				public CefRequestHandler,
+				public CefContextMenuHandler
 			{
 				LPDIRECT3DDEVICE9 m_Device;
-				LPDIRECT3DTEXTURE9 m_Texture;
+				HWND m_Window;
 				std::mutex m_TextureLock;
 				std::vector<uint8_t> m_TextureData;
 				uint32_t m_TextureStride;
@@ -41,12 +42,13 @@ namespace Anvil
 				std::shared_ptr<Bridge::WebRendererQueryHandler> m_QueryHandler;
 
 			public:
-				explicit WebRendererHandler(LPDIRECT3DDEVICE9 p_Device);
+				explicit WebRendererHandler(LPDIRECT3DDEVICE9 p_Device, HWND p_Window);
 				virtual ~WebRendererHandler() { }
 
 				CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
 				CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 				CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+				CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
 
 				void OnAfterCreated(CefRefPtr<CefBrowser> p_Browser) override;
 				void OnBeforeClose(CefRefPtr<CefBrowser> p_Browser) override;
@@ -65,6 +67,8 @@ namespace Anvil
 				void OnRenderProcessTerminated(CefRefPtr<CefBrowser> p_Browser, TerminationStatus p_Status) override;
 				bool OnBeforeBrowse(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefRequest> p_Request, bool p_IsRedirect) override;
 				bool OnProcessMessageReceived(CefRefPtr<CefBrowser> p_Browser, CefProcessId p_SourceProcess, CefRefPtr<CefProcessMessage> p_Message) override;
+
+				void OnBeforeContextMenu(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefContextMenuParams> p_Params, CefRefPtr<CefMenuModel> p_Model) override;
 
 				uint8_t* GetTexture();
 				uint32_t GetTextureLength();
