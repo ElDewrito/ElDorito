@@ -242,7 +242,7 @@ namespace
 			return false;
 		}
 
-		mapName = "maps\\" + mapName;
+		mapName = ElDorito::Instance().GetMapsFolder() + mapName;
 
 		if (Arguments.size() >= 2)
 		{
@@ -380,7 +380,7 @@ namespace
 	int GetMapId(const std::string &mapName)
 	{
 		// Open the .map file
-		auto mapPath = "maps/" + mapName + ".map";
+		auto mapPath = ElDorito::Instance().GetMapsFolder() + mapName + ".map";
 		std::ifstream mapFile(mapPath, std::ios::binary);
 		if (!mapFile.is_open())
 			return -1;
@@ -713,8 +713,9 @@ namespace
 
 	bool CommandListMaps(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
+		auto searchPath = ElDorito::Instance().GetMapsFolder() + "*.map";
 		WIN32_FIND_DATA find;
-		auto handle = FindFirstFile("maps\\*.map", &find);
+		auto handle = FindFirstFile(searchPath.c_str(), &find);
 		if (handle == INVALID_HANDLE_VALUE)
 			return true;
 
@@ -804,7 +805,7 @@ namespace Modules
 
 		//populate map list on load
 		WIN32_FIND_DATA Finder;
-		HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\maps\\*.map").c_str(), &Finder);
+		HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\" + ElDorito::Instance().GetMapsFolder() + "*.map").c_str(), &Finder);
 		if (hFind != INVALID_HANDLE_VALUE)
 		{
 			do

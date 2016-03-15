@@ -36,11 +36,13 @@ public:
 	void Tick(const std::chrono::duration<double>& DeltaTile);
 	void OnMainMenuShown();
 	bool IsHostPlayer();
+	std::string GetMapsFolder() const { return mapsFolder; }
 
 private:
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;
+	std::string mapsFolder;
 	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);
