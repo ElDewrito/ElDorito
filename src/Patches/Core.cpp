@@ -22,8 +22,20 @@ namespace
 	void GrenadeLoadoutHook();
 	void ScopeLevelHook();
 	void ShutdownHook();
+	const char *GetMapsFolderHook();
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
+	std::string MapsFolder;
+	std::string MapFormatString;
+	std::string StringIdsPath;
+	std::string TagsPath;
+	std::string TagListPath;
+	std::string ResourcesPath;
+	std::string TexturesPath;
+	std::string TexturesBPath;
+	std::string AudioPath;
+	std::string VideoPath;
+	std::string FontsPath;
 }
 
 namespace Patches
@@ -125,6 +137,10 @@ namespace Patches
 			//Allow the user to select any resolution that Windows supports in the settings screen.
 			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
 			Patch::NopFill(Pointer::Base(0x10BF21), 6);
+			
+			// Maps folder override
+			Hook(0x101FC0, GetMapsFolderHook).Apply();
+			SetMapsFolder("maps\\");
 
 			// Run callbacks on engine shutdown
 			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
@@ -133,6 +149,35 @@ namespace Patches
 		void OnShutdown(ShutdownCallback callback)
 		{
 			shutdownCallbacks.push_back(callback);
+		}
+		
+		void SetMapsFolder(const std::string &path)
+		{
+			MapsFolder = path;
+			MapFormatString = MapsFolder + "%s.map";
+			StringIdsPath = MapsFolder + "string_ids.dat";
+			TagsPath = MapsFolder + "tags.dat";
+			TagListPath = MapsFolder + "tag_list.csv";
+			ResourcesPath = MapsFolder + "resources.dat";
+			TexturesPath = MapsFolder + "textures.dat";
+			TexturesBPath = MapsFolder + "textures_b.dat";
+			AudioPath = MapsFolder + "audio.dat";
+			VideoPath = MapsFolder + "video.dat";
+			FontsPath = MapsFolder + "fonts\\";
+
+			Pointer::Base(0x1AC050).Write(MapFormatString.c_str());
+
+			Pointer::Base(0x149CFEC).Write(StringIdsPath.c_str());
+			Pointer::Base(0x149CFF0).Write(TagsPath.c_str());
+			Pointer::Base(0x149CFF4).Write(TagListPath.c_str());
+			Pointer::Base(0x149CFF8).Write(ResourcesPath.c_str());
+			Pointer::Base(0x149CFFC).Write(TexturesPath.c_str());
+			Pointer::Base(0x149D000).Write(TexturesBPath.c_str());
+			Pointer::Base(0x149D004).Write(AudioPath.c_str());
+			Pointer::Base(0x149D008).Write(VideoPath.c_str());
+
+			Pointer::Base(0x149D358).Write(FontsPath.c_str());
+			Pointer::Base(0x149D35C).Write(FontsPath.c_str());
 		}
 	}
 }
@@ -460,5 +505,10 @@ namespace
 		typedef void(*EngineShutdownPtr)();
 		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);
 		EngineShutdown();
+	}
+	
+	const char* GetMapsFolderHook()
+	{
+		return MapsFolder.c_str();
 	}
 }

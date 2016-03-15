@@ -7,6 +7,7 @@
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
+#include "Patches/Core.hpp"
 #include "Console.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
 #include "Web/Ui/WebConsole.hpp"
@@ -77,6 +78,7 @@ void ElDorito::Initialize()
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
+	mapsFolder = "maps\\";
 
 	if( szArgList && numArgs > 1 )
 	{
@@ -99,6 +101,13 @@ void ElDorito::Initialize()
 				usingLauncher = true;
 			}
 
+			if (arg.compare(L"-maps") == 0 && i < numArgs - 1)
+			{
+				mapsFolder = Utils::String::ThinString(szArgList[i + 1]);
+				if (mapsFolder.length() > 0 && mapsFolder.back() != '\\' && mapsFolder.back() != '/')
+					mapsFolder += "\\";
+			}
+
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
@@ -109,6 +118,8 @@ void ElDorito::Initialize()
 			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"", true);
 		}
 	}
+
+	Patches::Core::SetMapsFolder(mapsFolder);
 
 	if (isDedicated)
 	{

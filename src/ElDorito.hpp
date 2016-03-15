@@ -29,11 +29,13 @@ public:
 	void Initialize();
 	void Tick();
 	void OnMainMenuShown();
+	std::string GetMapsFolder() const { return mapsFolder; }
 
 private:
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;
+	std::string mapsFolder;
 	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);
