@@ -7,6 +7,12 @@
 			"zIndex": 0
 		},
 		{
+			"id": "console",
+			"url": "dew://screens/console/",
+			"captureInput": true,
+			"zIndex": 10
+		},
+		{
 			"id": "test",
 			"url": "dew://screens/test/",
 			"captureInput": true,

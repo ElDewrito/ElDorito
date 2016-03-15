@@ -276,6 +276,14 @@ DewError = {
 	 */
 
     /**
+     * Fired when a line is written to the in-game console.
+     * 
+     * @event console
+     * @type {object}
+     * @property {string} line - The line that was written. <b>Make sure to escape this properly before displaying it!</b>
+     */
+
+    /**
 	 * Gets the name of the DewError value corresponding to an error code.
 	 *
 	 * @name dew.getErrorName

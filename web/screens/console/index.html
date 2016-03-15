@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <title>ElDewrito Console</title>
+        <link rel="stylesheet" type="text/css" href="console.css"/>
+        <script src="dew://lib/dew.js"></script>
+        <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="console.js"></script>
+    </head>
+    <body>
+        <div class="console">
+            <div id="input-box" class="box">
+                <span class="prompt">
+                    ElDewrito <span id="version"></span>&gt;&nbsp;
+                </span>
+                <span class="command-span">
+                    <input type="text" id="command" autocomplete="off" spellcheck="false"/>
+                </span>
+            </div>
+            <div class="box transparent" id="output-box"></div>
+            <div class="box transparent info">
+                Enter <span class="important">help</span> for a list of available commands. Press Escape to close.
+            </div>
+        </div>
+    </body>
+</html>

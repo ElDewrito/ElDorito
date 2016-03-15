@@ -174,6 +174,8 @@ add_library(ElDorito SHARED
     src/Web/Bridge/WebRendererQueryHandler.cpp
     src/Web/Bridge/WebRendererQueryHandler.hpp
     src/Web/Logger.hpp
+    src/Web/Ui/WebConsole.cpp
+    src/Web/Ui/WebConsole.hpp
     src/Web/Ui/ScreenLayer.cpp
     src/Web/Ui/ScreenLayer.hpp
     src/Web/WebRenderer.cpp
@@ -211,6 +213,9 @@ create_source_groups(ElDorito)
 set (WEB_SOURCES
     web/lib/dew.js
     web/lib/jquery-2.2.1.min.js
+    web/screens/console/console.css
+    web/screens/console/console.js
+    web/screens/console/index.html
     web/screens/screens.json
     web/screens/test/index.html
     web/screens/test_overlay/index.html

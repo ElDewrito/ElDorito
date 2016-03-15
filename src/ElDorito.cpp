@@ -9,6 +9,7 @@
 #include "Server/BanList.hpp"
 #include "Console.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
+#include "Web/Ui/WebConsole.hpp"
 #include "ElModules.hpp"
 #include "Modules/ModuleGame.hpp"
 #include "Patch.hpp"
@@ -127,6 +128,7 @@ void ElDorito::Initialize()
 	else
 	{
 		Web::Ui::ScreenLayer::Init();
+		Web::Ui::WebConsole::Init();
 	}
 
 	// Language patch
