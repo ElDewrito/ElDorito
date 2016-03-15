@@ -8,6 +8,7 @@
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
 #include "Console/GameConsole.hpp"
+#include "Web/Ui/ScreenLayer.hpp"
 
 #include <fstream>
 #include <Windows.h>
@@ -135,6 +136,7 @@ void ElDorito::Initialize()
 	else
 	{
 		initMedals();
+		Web::Ui::ScreenLayer::Init();
 	}
 
 	// Language patch
@@ -163,6 +165,7 @@ void ElDorito::Tick()
 {
 	Server::VariableSynchronization::Tick();
 	Patches::Tick();
+	Web::Ui::ScreenLayer::Tick();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();

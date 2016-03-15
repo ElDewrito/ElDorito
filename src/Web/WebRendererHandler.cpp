@@ -42,6 +42,7 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("command", Bridge::ClientFunctions::OnCommand);
 		m_QueryHandler->AddMethod("ping", Bridge::ClientFunctions::OnPing);
 		m_QueryHandler->AddMethod("captureInput", Bridge::ClientFunctions::OnCaptureInput);
+		m_QueryHandler->AddMethod("version", Bridge::ClientFunctions::OnVersion);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}

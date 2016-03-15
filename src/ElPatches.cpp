@@ -17,7 +17,6 @@
 #include "Patches\Logging.hpp"
 #include "Patches\Sprint.hpp"
 #include "Modules\ModuleCamera.hpp"
-#include "Patches\WebOverlay.hpp"
 #include "DirectXHook.hpp"
 
 namespace
@@ -45,7 +44,6 @@ namespace Patches
 		CustomPackets::ApplyAll();
 		Logging::ApplyAll();
 		DirectXHook::applyPatches();
-		WebOverlay::ApplyAll();
 	}
 	
 	void ApplyOnFirstTick()
@@ -65,7 +63,6 @@ namespace Patches
 		Ui::Tick();
 		Sprint::Tick();
 		Forge::Tick();
-		WebOverlay::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

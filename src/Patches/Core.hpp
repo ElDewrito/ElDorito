@@ -10,6 +10,6 @@ namespace Patches
 		typedef std::function<void()> ShutdownCallback;
 
 		// Registers a function to be called when the game shuts down.
-		void RegisterShutdownCallback(ShutdownCallback callback);
+		void OnShutdown(ShutdownCallback callback);
 	}
 }

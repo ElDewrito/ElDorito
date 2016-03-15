@@ -6,7 +6,9 @@
 #include "../Blam/Tags/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "WebOverlay.hpp"
+#include "../Web/Ui/ScreenLayer.hpp"
+
+using namespace Patches::Ui;
 
 namespace
 {
@@ -21,6 +23,9 @@ namespace
 	bool MainMenuCreateLobbyHook(int lobbyType);
 	void ResolutionChangeHook();
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
+	HWND CreateGameWindowHook();
+
+	std::vector<CreateWindowCallback> createWindowCallbacks;
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -59,6 +64,11 @@ namespace Patches
 
 				DialogShow = false;
 			}
+		}
+
+		void OnCreateWindow(CreateWindowCallback callback)
+		{
+			createWindowCallbacks.push_back(callback);
 		}
 
 		void ApplyAll()
@@ -141,6 +151,9 @@ namespace Patches
 
 			// Reimplement the function that assigns lobby roster colors
 			Hook(0x726100, UI_UpdateRosterColorsHook).Apply();
+
+			// Game window creation callbacks
+			Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -406,7 +419,7 @@ namespace
 		switch (lobbyType)
 		{
 		case 1: // Matchmaking
-			Patches::WebOverlay::ShowScreen("example", "{ \"foo\": \"bar\" }");
+			Web::Ui::ScreenLayer::Show("browser", "{}");
 			return true;
 		case 4: // Theater (rip)
 			ShowLanBrowser();
@@ -426,7 +439,7 @@ namespace
 
 		// Update the ingame UI's resolution
 		Patches::Ui::ApplyUIResolution();
-		Patches::WebOverlay::Resize();
+		Web::Ui::ScreenLayer::Resize();
 	}
 
 	int UI_ListItem_GetIndex(void *item)
@@ -531,5 +544,19 @@ namespace
 			// Move to the next item
 			item = UI_ListItem_Next(item, 0, true);
 		}
+	}
+
+	HWND CreateGameWindowHook()
+	{
+		typedef HWND(*CreateGameWindowPtr)();
+		auto CreateGameWindow = reinterpret_cast<CreateGameWindowPtr>(0xA223F0);
+		auto hwnd = CreateGameWindow();
+		if (!hwnd)
+			return nullptr;
+
+		for (auto &&callback : createWindowCallbacks)
+			callback(hwnd);
+
+		return hwnd;
 	}
 }

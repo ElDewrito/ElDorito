@@ -34,6 +34,16 @@ DewError = {
             onFailure = onFailure || defaultFailure;
             args = args || {};
 
+            // Ensure that we have a function to send queries to ED
+            if (!window.dewQuery) {
+                onFailure({
+                    method: method,
+                    code: DewError.UNSUPPORTED_METHOD,
+                    message: "Unsupported method: window.dewQuery() is not available"
+                });
+                return;
+            }
+
             // If args is a function, run it to get the actual arguments
             // This is useful in order to ensure that JS exceptions trigger onFailure
             if (typeof args === "function") {
@@ -57,7 +67,11 @@ DewError = {
                 }
             });
         } catch (e) {
-            onFailure(DewError.JS_EXCEPTION, e.message);
+            onFailure({
+                method: method,
+                code: DewError.JS_EXCEPTION,
+                message: e.message
+            });
         }
     }
 
@@ -88,9 +102,9 @@ DewError = {
         }
     }
 
-    // Notify the UI once the screen loads.
-    $(window).load(function () {
-        postUiMessage("loaded", {});
+    // Disable text selection by default since most screens won't want it
+    window.addEventListener("load", function (event) {
+        document.body.style["-webkit-user-select"] = "none";
     });
 
     /**
@@ -115,6 +129,18 @@ DewError = {
 	 * @param {DewError} err.code - The internal error code.
 	 * @param {string} err.message - The error message.
 	 */
+
+    /**
+     * (ASYNCHRONOUS) Retrieves the current version of ElDewrito.
+     * 
+     * @name dew.getVersion
+     * @function
+     * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the version string.
+     * @param {FailureCallback} [onFailure] - The failure callback.
+     */
+    dew.getVersion = function(onSuccess, onFailure) {
+        dew.callMethod("version", {}, onSuccess, onFailure);
+    }
 
     /**
 	 * Requests to show a screen.

@@ -46,7 +46,7 @@
 
     // Finds a screen by ID.
     function findScreen(id) {
-        if (id !== null && screens.hasOwnProperty(id)) {
+        if (typeof id !== "undefined" && id !== null && screens.hasOwnProperty(id)) {
             return screens[id];
         }
         return null;
@@ -81,6 +81,8 @@
         if (screen.selector !== null) {
             return;
         }
+
+        // Create the iframe
         screen.selector = $("<iframe></iframe>", {
                 "class": "screen-frame",
                 src: screen.url
@@ -89,6 +91,14 @@
             .css("z-index", screen.zIndex)
             .css("pointer-events", screen.captureInput ? "auto" : "none")
 		    .appendTo($("#content"));
+
+        // Once the screen loads, show it if it's visible
+        screen.selector.on("load", function () {
+            screen.loaded = true;
+            if (screen.visible) {
+                showScreen(screen, true);
+            }
+        });
     }
 
     // Shows or hides a screen.
@@ -163,10 +173,11 @@
 
     // Requests to show a screen.
     ui.requestScreen = function (id, data) {
-        if (typeof id === "undefined" || id === null || !screens.hasOwnProperty(id)) {
+        var screen = findScreen(id);
+        if (screen === null) {
+            console.error("Requested to show screen \"" + id + "\", but it isn't defined!");
             return;
         }
-        var screen = screens[id];
         screen.data = data || {};
         if (screen.loaded) {
             // Show the screen immediately
@@ -175,6 +186,16 @@
             // The screen will be shown once it finishes loading
             screen.visible = true;
         }
+    }
+
+    // Requests to hide a screen.
+    ui.hideScreen = function (id) {
+        var screen = findScreen(id);
+        if (screen === null) {
+            console.error("Requested to hide screen \"" + id + "\", but it isn't defined!");
+            return;
+        }
+        showScreen(screen, false);
     }
 
     // Register the message handler.
@@ -196,21 +217,8 @@
                 break;
             case "hide":
                 // Requested to hide a screen
-                var hideScreen = (typeof data.screen === "string") ? findScreen(data.screen) : screen;
-                if (hideScreen !== null) {
-                    showScreen(hideScreen, false);
-                }
-                break;
-            case "loaded":
-                // A screen loaded
-                if (!screen.loaded) {
-                    screen.loaded = true;
-
-                    // If the screen should be visible, then show it
-                    if (screen.visible) {
-                        showScreen(screen, true);
-                    }
-                }
+                var hideId = (typeof data.screen === "string") ? data.screen : screen.id;
+                ui.hideScreen(hideId);
                 break;
             case "captureInput":
                 // Requested to change capture state

@@ -128,7 +128,7 @@ namespace Patches
 			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
 		}
 
-		void RegisterShutdownCallback(ShutdownCallback callback)
+		void OnShutdown(ShutdownCallback callback)
 		{
 			shutdownCallbacks.push_back(callback);
 		}

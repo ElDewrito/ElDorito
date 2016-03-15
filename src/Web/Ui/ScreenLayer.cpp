@@ -1,11 +1,9 @@
-#include "WebOverlay.hpp"
-#include "../Web/WebRenderer.hpp"
-#include "../Patch.hpp"
-#include "Input.hpp"
-#include "Core.hpp"
-#include "../Blam/BlamInput.hpp"
-#include "../Blam/BlamNetwork.hpp"
-#include "../Patches/Network.hpp"
+#include "ScreenLayer.hpp"
+#include "../WebRenderer.hpp"
+#include "../../Patches/Input.hpp"
+#include "../../Patches/Core.hpp"
+#include "../../Blam/BlamInput.hpp"
+#include "../../Patches/Ui.hpp"
 #include <Windows.h>
 
 using namespace Blam::Input;
@@ -14,12 +12,10 @@ using namespace Anvil::Client::Rendering;
 namespace
 {
 	HHOOK MessageHook;
-	uint16_t PingId;
 	bool InputCaptured = false;
 
-	HWND CreateGameWindowHook();
+	void WindowCreated(HWND window);
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
-	void PongReceived(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency);
 
 	void ShutdownRenderer();
 
@@ -45,85 +41,90 @@ namespace
 	};
 }
 
-namespace Patches
+namespace Web
 {
-	namespace WebOverlay
+	namespace Ui
 	{
-		void ApplyAll()
+		namespace ScreenLayer
 		{
-			Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
-			Core::RegisterShutdownCallback(ShutdownRenderer);
-			Network::OnPong(PongReceived);
-		}
-
-		void Tick()
-		{
-			WebRenderer::GetInstance()->Update();
-		}
-
-		void Resize()
-		{
-			auto hwnd = *reinterpret_cast<HWND*>(0x199C014);
-			RECT clientRect;
-			if (GetClientRect(hwnd, &clientRect))
-				WebRenderer::GetInstance()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
-		}
-
-		void Show(bool show)
-		{
-			auto webRenderer = WebRenderer::GetInstance();
-			if (show == webRenderer->IsRendering())
-				return;
-			webRenderer->ShowRenderer(show, true);
-		}
-
-		void ShowScreen(const std::string &id, const std::string &data)
-		{
-			WebRenderer::GetInstance()->ExecuteJavascript("ui.requestScreen('" + id + "', " + data + ");");
-		}
-
-		void CaptureInput(bool capture)
-		{
-			if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
-				return;
-			InputCaptured = capture;
-			if (capture)
+			void Init()
 			{
-				// Override game input
-				auto inputContext = std::make_shared<WebOverlayInputContext>();
-				Patches::Input::PushContext(inputContext);
+				Patches::Ui::OnCreateWindow(WindowCreated);
+				Patches::Core::OnShutdown(ShutdownRenderer);
 			}
-		}
 
-		uint16_t GetPingId()
-		{
-			return PingId;
+			void Tick()
+			{
+				WebRenderer::GetInstance()->Update();
+			}
+
+			void Resize()
+			{
+				auto hwnd = *reinterpret_cast<HWND*>(0x199C014);
+				RECT clientRect;
+				if (GetClientRect(hwnd, &clientRect))
+					WebRenderer::GetInstance()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+			}
+
+			void Show(bool show)
+			{
+				auto webRenderer = WebRenderer::GetInstance();
+				if (show == webRenderer->IsRendering())
+					return;
+				webRenderer->ShowRenderer(show, true);
+			}
+
+			void Show(const std::string &screenId, const std::string &data)
+			{
+				// ui.requestScreen(id, data)
+				auto js = "ui.requestScreen('" + screenId + "', " + data + ");";
+				WebRenderer::GetInstance()->ExecuteJavascript(js);
+			}
+
+			void Hide(const std::string &screenId)
+			{
+				// ui.hideScreen(id)
+				auto js = "ui.hideScreen('" + screenId + "');";
+				WebRenderer::GetInstance()->ExecuteJavascript(js);
+			}
+
+			void Notify(const std::string &event, const std::string &data, bool broadcast)
+			{
+				// ui.notify(event, data, broadcast, fromDew)
+				auto js = "ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
+				WebRenderer::GetInstance()->ExecuteJavascript(js);
+			}
+
+			void CaptureInput(bool capture)
+			{
+				if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
+					return;
+				InputCaptured = capture;
+				if (capture)
+				{
+					// Override game input
+					auto inputContext = std::make_shared<WebOverlayInputContext>();
+					Patches::Input::PushContext(inputContext);
+				}
+			}
 		}
 	}
 }
 
 namespace
 {
+	void WindowCreated(HWND window)
+	{
+		Web::Ui::ScreenLayer::Resize();
+
+		// Install window hooks
+		auto threadId = GetWindowThreadProcessId(window, nullptr);
+		MessageHook = SetWindowsHookEx(WH_GETMESSAGE, GetMsgHook, nullptr, threadId);
+	}
+
 	void ShutdownRenderer()
 	{
 		WebRenderer::GetInstance()->Shutdown();
-	}
-
-	HWND CreateGameWindowHook()
-	{
-		typedef HWND(*CreateGameWindowPtr)();
-		auto CreateGameWindow = reinterpret_cast<CreateGameWindowPtr>(0xA223F0);
-		auto hwnd = CreateGameWindow();
-		if (!hwnd)
-			return nullptr;
-
-		Patches::WebOverlay::Resize();
-
-		// Install window hooks
-		auto threadId = GetWindowThreadProcessId(hwnd, nullptr);
-		MessageHook = SetWindowsHookEx(WH_GETMESSAGE, GetMsgHook, nullptr, threadId);
-
-		return hwnd;
 	}
 
 	// Keyboard and mouse functions based off of cefclient
@@ -392,17 +393,5 @@ namespace
 			GetMsgHookImpl(code, wParam, lParam);
 
 		return CallNextHookEx(MessageHook, code, wParam, lParam);
-	}
-
-	void PongReceived(const Blam::Network::NetworkAddress &from, uint32_t timestamp, uint16_t id, uint32_t latency)
-	{
-		if (id != PingId)
-			return;
-		std::string data = "{";
-		data += "address: '" + from.ToString() + "'";
-		data += ",latency: " + std::to_string(latency);
-		data += ",timestamp: " + std::to_string(timestamp);
-		data += "}";
-		WebRenderer::GetInstance()->ExecuteJavascript("ui.notify('pong'," + data + ",false,true);");
 	}
 }

@@ -58,8 +58,8 @@ Rectangle Rectangle::Add(const Rectangle &other) const
 	result.Y = std::min(Y, other.Y);
 	auto right = std::max(X + Width, other.X + other.Width);
 	auto bottom = std::max(Y + Height, other.Y + other.Height);
-	result.Width = right - X;
-	result.Height = bottom - Y;
+	result.Width = right - result.X;
+	result.Height = bottom - result.Y;
 	return result;
 }
 

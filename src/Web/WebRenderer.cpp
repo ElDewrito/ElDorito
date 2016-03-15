@@ -102,6 +102,9 @@ bool WebRenderer::Init(const std::string &p_Url)
 	s_Settings.log_severity = LOGSEVERITY_WARNING;
 #endif
 
+	// Delete the log file so that it doesn't grow huge and take up space
+	DeleteFileW(s_Settings.log_file.str);
+
 	if (!CefInitialize(s_Args, s_Settings, m_App, nullptr))
 	{
 		WriteLog("CefInitialize failed.");
@@ -331,6 +334,8 @@ bool WebRenderer::IsRendering()
 
 bool WebRenderer::ShowRenderer(bool p_Show, bool p_Overlay)
 {
+	// NOTE: Do NOT call WasHidden() because it causes issues where some UI controls (e.g. scrollbars) do not update properly
+
 	auto s_State = GetState();
 	if (s_State == RendererState_Hidden && p_Show)
 	{
@@ -339,10 +344,7 @@ bool WebRenderer::ShowRenderer(bool p_Show, bool p_Overlay)
 		{
 			auto s_Browser = m_RenderHandler->GetBrowser();
 			if (s_Browser)
-			{
 				s_Browser->GetHost()->SendFocusEvent(true);
-				s_Browser->GetHost()->WasHidden(false);
-			}
 		}
 		return true;
 	}
@@ -354,10 +356,7 @@ bool WebRenderer::ShowRenderer(bool p_Show, bool p_Overlay)
 		{
 			auto s_Browser = m_RenderHandler->GetBrowser();
 			if (s_Browser)
-			{
 				s_Browser->GetHost()->SendFocusEvent(false);
-				s_Browser->GetHost()->WasHidden(true);
-			}
 		}
 		return true;
 	}

@@ -139,8 +139,6 @@ add_library(ElDorito SHARED
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
     src/Patches/VirtualKeyboard.hpp
-    src/Patches/WebOverlay.cpp
-    src/Patches/WebOverlay.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
     src/Server/ServerChat.cpp
@@ -177,11 +175,14 @@ add_library(ElDorito SHARED
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
+    src/Web/Bridge/Client/ClientFunctions.cpp
     src/Web/Bridge/Client/ClientFunctions.hpp
     src/Web/Bridge/WebRendererQuery.hpp
     src/Web/Bridge/WebRendererQueryHandler.cpp
     src/Web/Bridge/WebRendererQueryHandler.hpp
     src/Web/Logger.hpp
+    src/Web/Ui/ScreenLayer.cpp
+    src/Web/Ui/ScreenLayer.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
     src/Web/WebRendererApp.cpp
@@ -217,11 +218,11 @@ create_source_groups(ElDorito)
 set (WEB_SOURCES
     web/lib/dew.js
     web/lib/jquery-2.2.1.min.js
-    web/screens/example/index.html
-    web/screens/hello/index.html
     web/screens/screens.json
+    web/screens/test/index.html
+    web/screens/test_overlay/index.html
     web/ui/index.html
-    web/ui/index.css
+    web/ui/ui.css
     web/ui/ui.js)
 add_custom_target(web 
     DEPENDS ${WEB_SOURCES}

@@ -7,7 +7,7 @@
 #include "../Patches/PlayerUid.hpp"
 #include "../Patches/Input.hpp"
 #include "../Blam/BlamInput.hpp"
-#include "../Patches/WebOverlay.hpp"
+#include "../Web/Ui/ScreenLayer.hpp"
 
 namespace
 {
@@ -395,7 +395,7 @@ void GameConsole::gameInputCallBack()
 
 	// TODO: Should we keep this since we have the server browser option on the menu now?
 	if (GetKeyTicks(eKeyCodeF11, eInputTypeUi) == 1)
-		Patches::WebOverlay::ShowScreen("example", "{}");
+		Web::Ui::ScreenLayer::Show("browser", "{}");
 
 	if (GetKeyTicks(eKeyCodeF12, eInputTypeUi) == 1)
 		DirectXHook::drawVoIPSettings = !DirectXHook::drawVoIPSettings;

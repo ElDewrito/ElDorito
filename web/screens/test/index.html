@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Example Screen</title>
+    <title>Test Screen</title>
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
     <script type="text/javascript" src="dew://lib/dew.js"></script>
 </head>
@@ -48,11 +48,11 @@
 
         $("#overlayForm").submit(function (event) {
             event.preventDefault();
-            dew.show("hello", { text: event.target.text.value });
+            dew.show("test_overlay", { text: event.target.text.value });
         });
 
         $("#hideOverlayButton").click(function() {
-            dew.hide("hello");
+            dew.hide("test_overlay");
         });
 
         $("#menuButton").click(function () {
