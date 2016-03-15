@@ -2,6 +2,13 @@
     var screenJsonUrl = "dew://screens/screens.json";
     var screens = {};
 
+    // Screen states.
+    var ScreenState = {
+        HIDDEN: 0,  // The screen is hidden.
+        WAITING: 1, // The screen is loading and should be shown once it is finished.
+        VISIBLE: 2  // The screen is visible.
+    };
+
     window.ui = window.ui || {};
 
     // Shows the web overlay.
@@ -21,14 +28,22 @@
 
     // Updates the overlay after a screen has been shown, hidden, or changed.
     function updateOverlay() {
-        // Count the number of visible screens and determine whether input should be captured
+        // Count the number of visible screens,
+        // determine whether input should be captured,
+        // and find the topmost screen that captures input
         var visible = 0;
         var capture = false;
+        var topmostZ = 0;
+        var topmostScreen = null;
         $.each(screens, function (id, screen) {
-            if (screen.visible && screen.loaded) {
+            if (screen.state === ScreenState.VISIBLE) {
                 visible++;
                 if (screen.captureInput) {
                     capture = true;
+                    if (!topmostScreen || screen.zIndex > topmostZ) {
+                        topmostScreen = screen;
+                        topmostZ = screen.zIndex;
+                    }
                 }
             }
         });
@@ -42,6 +57,9 @@
 
         // Capture input accordingly
         captureInput(capture);
+        if (topmostScreen) {
+            topmostScreen.selector.focus();
+        }
     }
 
     // Finds a screen by ID.
@@ -72,6 +90,7 @@
         }
         screen.selector[0].contentWindow.postMessage({
             event: event,
+            screen: screen.id,
             data: data || {}
         }, "*");
     }
@@ -84,19 +103,34 @@
 
         // Create the iframe
         screen.selector = $("<iframe></iframe>", {
-                "class": "screen-frame",
-                src: screen.url
+                "class": "screen-frame"
             })
 		    .hide()
             .css("z-index", screen.zIndex)
             .css("pointer-events", screen.captureInput ? "auto" : "none")
 		    .appendTo($("#content"));
 
-        // Once the screen loads, show it if it's visible
-        screen.selector.on("load", function () {
+        // Once the screen loads, show it if it should be visible
+        screen.selector.on("load", function (event) {
             screen.loaded = true;
-            if (screen.visible) {
+            if (screen.state === ScreenState.WAITING) {
                 showScreen(screen, true);
+            }
+        });
+
+        // Send a HEAD request to the screen's URL to make sure that it can be accessed
+        $.ajax(screen.url, {
+            method: "HEAD",
+            crossDomain: false, // dew://ui/ is whitelisted to bypass the same-origin restriction for HTTP
+            cache: false
+        }).done(function (data, textStatus, jqXHR) {
+            // URL is accessible - navigate to it
+            screen.selector[0].src = screen.url;
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            // URL is not accessible - try the fallback URL
+            console.error("Failed to access " + screen.url + " - trying fallback");
+            if (screen.fallbackUrl) {
+                screen.selector[0].src = screen.fallbackUrl;
             }
         });
     }
@@ -107,14 +141,15 @@
             return;
         }
         if (show) {
-            screen.visible = true;
+            screen.state = ScreenState.VISIBLE;
             screen.selector.show();
             notifyScreen(screen, "show", screen.data);
-        } else if (screen.visible) {
-            screen.visible = false;
+        } else if (screen.state === ScreenState.WAITING || screen.state === ScreenState.VISIBLE) {
+            screen.state = ScreenState.HIDDEN;
             screen.selector.hide();
             notifyScreen(screen, "hide", {});
         }
+        screen.data = {};
         updateOverlay();
     }
 
@@ -130,7 +165,7 @@
     // Sends an event notification.
     ui.notify = function (event, data, broadcast, fromDew) {
         $.each(screens, function (id, screen) {
-            if (broadcast || (screen.visible && screen.loaded)) {
+            if (broadcast || screen.state === ScreenState.VISIBLE) {
                 notifyScreen(screen, event, data);
             }
         });
@@ -146,9 +181,10 @@
         var screen = {
             id: data.id,
             url: null,
+            fallbackUrl: data.fallbackUrl || null,
             captureInput: data.captureInput || false,
             zIndex: data.zIndex || 0,
-            visible: false,
+            state: ScreenState.HIDDEN,
             loaded: false,
             data: {},
             selector: null
@@ -184,7 +220,7 @@
             showScreen(screen, true);
         } else {
             // The screen will be shown once it finishes loading
-            screen.visible = true;
+            screen.state = ScreenState.WAITING;
         }
     }
 

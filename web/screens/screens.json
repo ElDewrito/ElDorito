@@ -3,6 +3,7 @@
 		{
 			"id": "browser",
 			"var": "Game.MenuURL",
+			"fallbackUrl": "dew://screens/error/",
 			"captureInput": true,
 			"zIndex": 0
 		},

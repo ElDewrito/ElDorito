@@ -213,6 +213,9 @@ create_source_groups(ElDorito)
 set (WEB_SOURCES
     web/lib/dew.js
     web/lib/jquery-2.2.1.min.js
+    web/screens/error/error.css
+    web/screens/error/error.js
+    web/screens/error/index.html
     web/screens/console/console.css
     web/screens/console/console.js
     web/screens/console/index.html
