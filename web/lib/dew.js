@@ -108,27 +108,28 @@ DewError = {
     });
 
     /**
-	 * <p>Methods for interfacing with ElDewrito.</p>
-	 * <p>Some methods run asynchronously and accept success and failure callbacks.</p>
-	 *
-	 * @namespace dew
-	 */
+     * Methods for interfacing with ElDewrito.
+     * 
+     * Some methods run asynchronously and accept success and failure callbacks.
+     *
+     * @namespace dew
+     */
 
     /**
-	 * The onSuccess callback is called when an asynchronous method succeeds.
-	 *
-	 * @callback SuccessCallback
-	 * @param {*} result - The result value. The type of this depends on the method that was called.
-	 */
+     * The onSuccess callback is called when an asynchronous method succeeds.
+     *
+     * @callback SuccessCallback
+     * @param {*} result - The result value. The type of this depends on the method that was called.
+     */
 
     /**
-	 * The onFailure callback is called when an asynchronous method fails to execute.
-	 *
-	 * @callback FailureCallback
-	 * @param {object} err - Information about the error that occurred.
-	 * @param {DewError} err.code - The internal error code.
-	 * @param {string} err.message - The error message.
-	 */
+     * The onFailure callback is called when an asynchronous method fails to execute.
+     *
+     * @callback FailureCallback
+     * @param {object} err - Information about the error that occurred.
+     * @param {DewError} err.code - The internal error code.
+     * @param {string} err.message - The error message.
+     */
 
     /**
      * (ASYNCHRONOUS) Retrieves the current version of ElDewrito.
@@ -138,19 +139,23 @@ DewError = {
      * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the version string.
      * @param {FailureCallback} [onFailure] - The failure callback.
      */
-    dew.getVersion = function(onSuccess, onFailure) {
+    dew.getVersion = function (onSuccess, onFailure) {
         dew.callMethod("version", {}, onSuccess, onFailure);
     }
 
     /**
-	 * Requests to show a screen.
+     * Requests to show a screen.
+     * 
      * If the requested screen is still loading, it will not be shown until it finishes.
-	 *
-	 * @name dew.show
-	 * @function
-	 * @param {string} [id] - The ID of the screen to show. If this is null or omitted, the current screen will be shown.
-	 * @param {object} [data] - Data to pass to the screen's [show]{@link event:show} event.
-	 */
+     * 
+     * This will always send a [show]{@link event:show} event to the screen, even if it is already visible.
+     * You can use this as a simple means of sending messages between screens.
+     *
+     * @name dew.show
+     * @function
+     * @param {string} [id] - The ID of the screen to show. If this is null or omitted, the current screen will be shown.
+     * @param {object} [data] - Data to pass to the screen's [show]{@link event:show} event.
+     */
     dew.show = function (id, data) {
         postUiMessage("show", {
             screen: id || null,
@@ -159,12 +164,14 @@ DewError = {
     }
 
     /**
-	 * Requests to hide a screen.
-	 *
-	 * @name dew.hide
-	 * @function
+     * Requests to hide a screen.
+     * 
+     * This will send a [hide]{@link event:hide} event to the screen if it is visible.
+     *
+     * @name dew.hide
+     * @function
      * @param {string} [id] - The ID of the screen to hide. If this is null or omitted, the current screen will be hidden.
-	 */
+     */
     dew.hide = function (id) {
         postUiMessage("hide", {
             screen: id || null
@@ -185,17 +192,18 @@ DewError = {
     }
 
     /**
-	 * (ASYNCHRONOUS) Runs a console command.
-	 * This will always succeed unless an error occurs while calling the method itself.
-	 *
-	 * @name dew.console
-	 * @function
-	 * @param {string} command - The command and its arguments, separated by spaces.
-	 * @param {object} [options] - Additional options that control how the command should run.
-	 * @param {boolean} [options.internal=false] - If set to true, then internal commands can be executed.
-	 * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the string returned by the command.
-	 * @param {FailureCallback} [onFailure] - The failure callback.
-	 */
+     * (ASYNCHRONOUS) Runs a console command.
+     * 
+     * This will always succeed unless an error occurs while calling the method itself.
+     *
+     * @name dew.command
+     * @function
+     * @param {string} command - The command and its arguments, separated by spaces.
+     * @param {object} [options] - Additional options that control how the command should run.
+     * @param {boolean} [options.internal=false] - If set to true, then internal commands can be executed.
+     * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the string returned by the command.
+     * @param {FailureCallback} [onFailure] - The failure callback.
+     */
     dew.command = function (command, options, onSuccess, onFailure) {
         dew.callMethod("command", function () {
             options = options || {};
@@ -207,17 +215,20 @@ DewError = {
     }
 
     /**
-	 * (ASYNCHRONOUS) Pings a server.
-	 * The screen will receive a [pong]{@link event:pong} event if the server responds.
-	 *
-	 * @name dew.ping
-	 * @function
-	 * @param {string} address - The IP address of the server to ping. Must not include a port number.
-	 * @param {SuccessCallback} [onSuccess] - The success callback. This will be called after the ping is sent, not when a response is received.
-	 * @param {FailureCallback} [onFailure] - The failure callback.
-	 * @see event:pong
-	 * @see dew.on
-	 */
+     * (ASYNCHRONOUS) Pings a server.
+     * 
+     * The screen will receive a [pong]{@link event:pong} event if the server responds.
+     *
+     * **This method is currently broken and will report ping times that are much higher than they should be.**
+     *
+     * @name dew.ping
+     * @function
+     * @param {string} address - The IPv4 address of the server to ping. Must not include a port number.
+     * @param {SuccessCallback} [onSuccess] - The success callback. This will be called after the ping is sent, not when a response is received.
+     * @param {FailureCallback} [onFailure] - The failure callback.
+     * @see event:pong
+     * @see dew.on
+     */
     dew.ping = function (address, onSuccess, onFailure) {
         dew.callMethod("ping", function () {
             return {
@@ -227,70 +238,73 @@ DewError = {
     }
 
     /**
-	 * Registers a callback to be run when an event occurs.
-	 *
-	 * @name dew.on
-	 * @function
-	 * @param {string} event - The name of the event to register a callback for.
-	 * @param {EventCallback} callback - The callback to register.
-	 * @see event:hide
-	 * @see event:show
-	 */
+     * Registers a callback to be run when an event occurs.
+     *
+     * @name dew.on
+     * @function
+     * @param {string} event - The name of the event to register a callback for (e.g. "show").
+     * @param {EventCallback} callback - The callback to register.
+     * @see event:show
+     * @see event:hide
+     * @see event:pong
+     * @see event:console
+     */
     dew.on = function (event, callback) {
         registerEvent(event, callback);
     }
 
     /**
-	 * A callback function for responding to events.
-	 *
-	 * @callback EventCallback
-	 * @param {object} event - The event information.
-	 * @param {string} event.event - The name of the event.
-	 * @param {string} event.data - Event-specific data.
-	 */
+     * A callback function for responding to events.
+     *
+     * @callback EventCallback
+     * @param {object} event - The event information.
+     * @param {string} event.event - The name of the event.
+     * @param {string} event.screen - The ID of the screen the event was sent to.
+     * @param {string} event.data - Event-specific data.
+     */
 
     /**
-	 * Fired after the current screen is shown.
-	 * The data passed to this event is the data that was passed to {@link dew.show}.
-	 *
-	 * @event show
-	 * @type {object}
-	 */
+     * Fired after the current screen is shown.
+     * The data passed to this event is the data that was passed to {@link dew.show}.
+     *
+     * @event show
+     * @type {object}
+     */
 
     /**
-	 * Fired after the current screen is hidden.
-	 *
-	 * @event hide
-	 * @type {object}
-	 */
+     * Fired after the current screen is hidden.
+     *
+     * @event hide
+     * @type {object}
+     */
 
     /**
-	 * Fired when a server replies to a [ping]{@link dew.ping}.
-	 * This can only be received while the screen is active.
-	 *
-	 * @event pong
-	 * @type {object}
-	 * @property {string} address - The IP address of the server.
-	 * @property {number} latency - The round-trip time of the ping in milliseconds.
-	 * @property {number} timestamp - A timestamp value representing when the ping was sent.
-	 */
+     * Fired when a server replies to a [ping]{@link dew.ping}.
+     * This can only be received while the screen is active.
+     *
+     * @event pong
+     * @type {object}
+     * @property {string} address - The IP address of the server.
+     * @property {number} latency - The round-trip time of the ping in milliseconds.
+     * @property {number} timestamp - A timestamp value representing when the ping was sent.
+     */
 
     /**
      * Fired when a line is written to the in-game console.
      * 
      * @event console
      * @type {object}
-     * @property {string} line - The line that was written. <b>Make sure to escape this properly before displaying it!</b>
+     * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
      */
 
     /**
-	 * Gets the name of the DewError value corresponding to an error code.
-	 *
-	 * @name dew.getErrorName
-	 * @function
-	 * @param {DewError} code - The error code.
-	 * @returns {string} The error code's name.
-	 */
+     * Gets the name of the DewError value corresponding to an error code.
+     *
+     * @name dew.getErrorName
+     * @function
+     * @param {DewError} code - The error code.
+     * @returns {string} The error code's name.
+     */
     dew.getErrorName = function (code) {
         for (var error in DewError) {
             if (DewError.hasOwnProperty(error) && DewError[error] == code) {
