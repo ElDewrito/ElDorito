@@ -1,6 +1,6 @@
 #include "PlayerUid.hpp"
 
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include "../ElDorito.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Patch.hpp"
@@ -97,9 +97,8 @@ namespace
 		uint64_t uid;
 		if (pubKey.length() <= 0)
 		{
-			auto& console = GameConsole::Instance();
 			// TODO: run this code before the game, and pop up a message box "Generating keypair..." before the game starts, so players know what's going on
-			console.consoleQueue.pushLineFromGameToUI("Generating player keypair, this may take a moment...");
+			Console::WriteLine("Generating player keypair, this may take a moment...");
 			std::string privKey;
 			Utils::Cryptography::GenerateRSAKeyPair(4096, privKey, pubKey);
 
@@ -115,7 +114,7 @@ namespace
 			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPrivKey, privKey, std::string());
 			Modules::CommandMap::Instance().SetVariable(playerVars.VarPlayerPubKey, pubKey, std::string());
 
-			console.consoleQueue.pushLineFromGameToUI("Done!");
+			Console::WriteLine("Done!");
 
 			// save the keypair
 			Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");

@@ -2,7 +2,7 @@
 #include <sstream>
 #include "../ElDorito.hpp"
 #include "../Patches/Input.hpp"
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Utils/NameValueTable.hpp"
 
@@ -294,7 +294,7 @@ namespace
 			
 			// Execute the command and print its result
 			auto result = Modules::CommandMap::Instance().ExecuteCommand(command, true);
-			GameConsole::Instance().consoleQueue.pushLineFromGameToUIMultipleLines(result);
+			Console::WriteLine(result);
 		}
 	}
 

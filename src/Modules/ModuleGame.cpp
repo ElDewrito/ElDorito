@@ -2,6 +2,7 @@
 #include <sstream>
 #include <fstream>
 #include <type_traits>
+#include <algorithm>
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
@@ -10,6 +11,8 @@
 #include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
+#include "ModuleServer.hpp"
+#include "../Patch.hpp"
 
 namespace
 {

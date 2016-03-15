@@ -1,6 +1,7 @@
 #include "ModuleGraphics.hpp"
 #include <sstream>
 #include "../ElDorito.hpp"
+#include "../Blam/BlamTypes.hpp"
 
 namespace
 {

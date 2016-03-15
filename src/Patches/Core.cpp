@@ -4,6 +4,8 @@
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
 #include "../Blam/Tags/Scenario.hpp"
+#include "../Blam/BlamTypes.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 namespace
 {

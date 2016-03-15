@@ -4,6 +4,7 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Modules/ModuleInput.hpp"
+#include "../Modules/ModuleCamera.hpp"
 
 namespace
 {

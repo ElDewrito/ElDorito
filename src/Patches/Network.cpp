@@ -4,6 +4,7 @@
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <cstdio>
+#include <ctime>
 
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
@@ -16,6 +17,8 @@
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Server/BanList.hpp"
+#include "../Modules/ModulePlayer.hpp"
+#include "../Modules/ModuleVoIP.hpp"
 
 namespace
 {

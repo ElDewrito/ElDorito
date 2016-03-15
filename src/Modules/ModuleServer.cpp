@@ -17,11 +17,13 @@
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Utils/Cryptography.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
 #include "../Server/BanList.hpp"
+#include "ModulePlayer.hpp"
+#include "ModuleVoIP.hpp"
 
 namespace
 {
@@ -971,23 +973,7 @@ namespace
 		// PONG <ip> <timestamp> <latency>
 		auto ipStr = from.ToString();
 		auto message = "PONG " + ipStr + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
-		GameConsole::Instance().consoleQueue.pushLineFromGameToUI(message);
-	}
-
-	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
-	{
-		switch (newState)
-		{
-		case Blam::Network::eLifeCycleStateNone:
-			// Disable game chat on the main menu
-			GameConsole::Instance().gameChatQueue.visible = false;
-			break;
-		case Blam::Network::eLifeCycleStatePreGame:
-		case Blam::Network::eLifeCycleStateInGame:
-			// Enable to game chat when joining a game
-			GameConsole::Instance().gameChatQueue.visible = true;
-			break;
-		}
+		Console::WriteLine(message);
 	}
 
 	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -1091,6 +1077,5 @@ namespace Modules
 #endif
 
 		PingId = Patches::Network::OnPong(PongReceived);
-		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 	}
 }

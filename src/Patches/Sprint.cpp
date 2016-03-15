@@ -1,6 +1,7 @@
 #include "Sprint.hpp"
 #include "../Patch.hpp"
 #include "../ElDorito.hpp"
+#include "../Blam/BlamTypes.hpp"
 
 namespace
 {

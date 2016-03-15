@@ -7,28 +7,18 @@
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
-#include "Console/GameConsole.hpp"
+#include "Console.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
+#include "ElModules.hpp"
+#include "Modules/ModuleGame.hpp"
+#include "Patch.hpp"
+#include "Modules/ModuleCamera.hpp"
 
-#include <fstream>
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <codecvt>
 
 size_t ElDorito::MainThreadID = 0;
-
-extern BOOL installMedalJunk();
-
-void initMedals()
-{
-	// This is kind of a hack, but only install the medal system for now if
-	// halo3.zip can be opened for reading
-	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
-	if (!halo3Zip.is_open())
-		return;
-	halo3Zip.close();
-	installMedalJunk();
-}
 
 ElDorito::ElDorito()
 {
@@ -72,6 +62,7 @@ void ElDorito::Initialize()
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
 	// init our command modules
+	Console::Init();
 	Modules::ElModules::Instance();
 
 	// load variables/commands from cfg file
@@ -135,7 +126,6 @@ void ElDorito::Initialize()
 	}
 	else
 	{
-		initMedals();
 		Web::Ui::ScreenLayer::Init();
 	}
 
@@ -207,15 +197,6 @@ void ElDorito::OnMainMenuShown()
 		return;
 	GameHasMenuShown = true;
 	executeCommandQueue = true;
-	if (!isDedicated)
-	{
-		GameConsole::Instance();
-	}
-}
-
-bool ElDorito::IsHostPlayer()
-{
-	return Patches::Network::IsInfoSocketOpen(); // TODO: find a way of using an ingame variable instead
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

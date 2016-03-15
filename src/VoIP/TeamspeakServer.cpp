@@ -16,12 +16,10 @@
 #endif
 #include <stdio.h>
 
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
-#include <teamspeak/clientlib_publicdefinitions.h>
 #include <teamspeak/clientlib.h>
-#include <teamspeak/serverlib_publicdefinitions.h>
 #include <teamspeak/serverlib.h>
 
 
@@ -46,8 +44,7 @@ bool IsVoIPServerRunning(){
 
 void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsigned int* removeClientError) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 
 	//Note: we can prevent clients from connecting by changing the removeClientError
@@ -65,8 +62,7 @@ void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsign
 */
 void onClientDisconnected(uint64 serverID, anyID clientID, uint64 channelID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " left channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Client " + std::to_string(clientID) + " left channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 }
 
@@ -81,8 +77,7 @@ void onClientDisconnected(uint64 serverID, anyID clientID, uint64 channelID) {
 */
 void onClientMoved(uint64 serverID, anyID clientID, uint64 oldChannelID, uint64 newChannelID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " moved from channel " + std::to_string((unsigned long long)oldChannelID) + " to channel " + std::to_string((unsigned long long)newChannelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Client " + std::to_string(clientID) + " moved from channel " + std::to_string((unsigned long long)oldChannelID) + " to channel " + std::to_string((unsigned long long)newChannelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 }
 
@@ -96,8 +91,7 @@ void onClientMoved(uint64 serverID, anyID clientID, uint64 oldChannelID, uint64 
 */
 void onChannelCreated(uint64 serverID, anyID invokerClientID, uint64 channelID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Channel " + std::to_string((unsigned long long)channelID) + " created by " + std::to_string(invokerClientID) + "on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Channel " + std::to_string((unsigned long long)channelID) + " created by " + std::to_string(invokerClientID) + "on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 }
 
@@ -111,8 +105,7 @@ void onChannelCreated(uint64 serverID, anyID invokerClientID, uint64 channelID) 
 */
 void onChannelEdited(uint64 serverID, anyID invokerClientID, uint64 channelID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Channel " + std::to_string((unsigned long long)channelID) + " edited by " + std::to_string(invokerClientID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Channel " + std::to_string((unsigned long long)channelID) + " edited by " + std::to_string(invokerClientID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 }
 
@@ -126,8 +119,7 @@ void onChannelEdited(uint64 serverID, anyID invokerClientID, uint64 channelID) {
 */
 void onChannelDeleted(uint64 serverID, anyID invokerClientID, uint64 channelID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Channel " + std::to_string((unsigned long long)channelID) + " deleted by " + std::to_string(invokerClientID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
+	Console::WriteLine("Channel " + std::to_string((unsigned long long)channelID) + " deleted by " + std::to_string(invokerClientID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 }
 
@@ -146,8 +138,7 @@ void onUserLoggingMessageEventServer(const char* logMessage, int logLevel, const
 	/* Your custom error display here... */
 	/* printf("LOG: %s\n", completeLogString); */
 	if (logLevel == LogLevel_CRITICAL) {
-		auto& console = GameConsole::Instance();
-		console.consoleQueue.pushLineFromGameToUI("Eldewrito VoIP had a critical error." + std::string(completeLogString));
+		Console::WriteLine("Eldewrito VoIP had a critical error." + std::string(completeLogString));
 		exit(1);  /* Your custom handling of critical errors */
 	}
 }
@@ -161,8 +152,7 @@ void onUserLoggingMessageEventServer(const char* logMessage, int logLevel, const
 */
 void onClientStartTalkingEvent(uint64 serverID, anyID clientID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("onClientStartTalkingEvent serverID=" + std::to_string((unsigned long long)serverID) + ", clientID = " + std::to_string(clientID));
+	Console::WriteLine("onClientStartTalkingEvent serverID=" + std::to_string((unsigned long long)serverID) + ", clientID = " + std::to_string(clientID));
 #endif
 }
 
@@ -175,8 +165,7 @@ void onClientStartTalkingEvent(uint64 serverID, anyID clientID) {
 */
 void onClientStopTalkingEvent(uint64 serverID, anyID clientID) {
 #ifdef _DEBUG
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("onClientStopTalkingEvent serverID=" + std::to_string((unsigned long long)serverID) + ", clientID = " + std::to_string(clientID));
+	Console::WriteLine("onClientStopTalkingEvent serverID=" + std::to_string((unsigned long long)serverID) + ", clientID = " + std::to_string(clientID));
 #endif
 }
 
@@ -189,7 +178,6 @@ void onClientStopTalkingEvent(uint64 serverID, anyID clientID) {
 *   errorCode - Code of the occured error. Use ts3server_getGlobalErrorMessage() to convert to a message string
 */
 void onAccountingErrorEvent(uint64 serverID, unsigned int errorCode) {
-	auto& console = GameConsole::Instance();
 	char* errorMessage;
 	if (ts3server_getGlobalErrorMessage(errorCode, &errorMessage) == ERROR_ok) {
 		printf("onAccountingErrorEvent serverID=%llu, errorCode=%u: %s\n", (unsigned long long)serverID, errorCode, errorMessage);
@@ -255,16 +243,14 @@ int kickTeamspeakClient(const std::string& name) {
 	anyID* listClientIDs;
 	char* workingClientName;
 
-	auto& console = GameConsole::Instance();
-
 	if (ts3server_getClientList(1, &listClientIDs) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("VoIP: Error getting list of clients (-1)");
+		Console::WriteLine("VoIP: Error getting list of clients (-1)");
 		return -1;
 	}
 	for (int a = 0; listClientIDs[a] != NULL; a++) {
 		//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestKick further down
 		if (ts3server_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("VoIP: Error getting client name (-2)");
+			Console::WriteLine("VoIP: Error getting client name (-2)");
 			ts3server_freeMemory(listClientIDs);
 			return -2;
 		}
@@ -272,7 +258,7 @@ int kickTeamspeakClient(const std::string& name) {
 		ts3server_freeMemory(workingClientName);
 		if (nameEvaluationBool) {
 			if (ts3client_requestClientKickFromServer(1, listClientIDs[a], "Kicked from server", NULL) != ERROR_ok) {
-				console.consoleQueue.pushLineFromGameToUI("VoIP: Error kicking client (-3)");
+				Console::WriteLine("VoIP: Error kicking client (-3)");
 				ts3server_freeMemory(listClientIDs);
 				return -3;
 			}
@@ -281,7 +267,7 @@ int kickTeamspeakClient(const std::string& name) {
 		}
 	}
 	
-	console.consoleQueue.pushLineFromGameToUI("VoIP: Client not found (-4)");
+	Console::WriteLine("VoIP: Client not found (-4)");
 	ts3server_freeMemory(listClientIDs);
 	return -4;
 }
@@ -298,9 +284,8 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 
 	/* Create struct for callback function pointers */
 	struct ServerLibFunctions funcs;
-	auto& console = GameConsole::Instance();
 
-	console.consoleQueue.pushLineFromGameToUI("Starting Eldewrito VoIP Server on port 9987...");
+	Console::WriteLine("Starting Eldewrito VoIP Server on port 9987...");
 
 	/* Initialize all callbacks with NULL */
 	memset(&funcs, 0, sizeof(struct ServerLibFunctions));
@@ -321,7 +306,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL)) != ERROR_ok) {
 		char* errormsg;
 		if (ts3server_getGlobalErrorMessage(error, &errormsg) == ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("Error initialzing Eldewrito VoIP Server serverlib : " + std::string(errormsg));
+			Console::WriteLine("Error initialzing Eldewrito VoIP Server serverlib : " + std::string(errormsg));
 			ts3server_freeMemory(errormsg);
 		}
 		return 1;
@@ -353,11 +338,11 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	/* Create virtual server using default port 9987 with max 10 slots */
 
 	/* Create the virtual server with specified port, name, keyPair and max clients */
-	console.consoleQueue.pushLineFromGameToUI("Create Eldewrito VoIP using keypair " + std::string(keyPair));
+	Console::WriteLine("Create Eldewrito VoIP using keypair " + std::string(keyPair));
 	if ((error = ts3server_createVirtualServer(9987, "0.0.0.0", "Eldewrito VoIP Server", keyPair, 16, &serverID)) != ERROR_ok) {
 		char* errormsg;
 		if (ts3server_getGlobalErrorMessage(error, &errormsg) == ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("Error creating Eldewrito VoIP Server: " + std::string(errormsg) + "(" + std::to_string(error) + ")");
+			Console::WriteLine("Error creating Eldewrito VoIP Server: " + std::string(errormsg) + "(" + std::to_string(error) + ")");
 			ts3server_freeMemory(errormsg);
 		}
 		return 1;
@@ -368,7 +353,7 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 		if ((error = ts3server_getVirtualServerKeyPair(serverID, &keyPair)) != ERROR_ok) {
 			char* errormsg;
 			if (ts3server_getGlobalErrorMessage(error, &errormsg) == ERROR_ok) {
-				console.consoleQueue.pushLineFromGameToUI("Error creating Eldewrito VoIP Server: "+ std::string(errormsg));
+				Console::WriteLine("Error creating Eldewrito VoIP Server: "+ std::string(errormsg));
 				ts3server_freeMemory(errormsg);
 			}
 			return 0;
@@ -384,20 +369,20 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 
 	/* Set welcome message */
 	if ((error = ts3server_setVirtualServerVariableAsString(serverID, VIRTUALSERVER_WELCOMEMESSAGE, "Eldorito VoIP")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error setting Eldewrito VoIP Server welcomemessage: "+ error);
+		Console::WriteLine("Error setting Eldewrito VoIP Server welcomemessage: "+ error);
 		return 1;
 	}
 
 	/* Set server password */
 	/* TODO: Make the password the server host uid? */
 	if ((error = ts3server_setVirtualServerVariableAsString(serverID, VIRTUALSERVER_PASSWORD, "secret")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error setting Eldewrito VoIP Server password: " + error);
+		Console::WriteLine("Error setting Eldewrito VoIP Server password: " + error);
 		return 1;
 	}
 
 	/* Flush above two changes to server */
 	if ((error = ts3server_flushVirtualServerVariable(serverID)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error flushing Eldewrito VoIP Server variables: " + error);
+		Console::WriteLine("Error flushing Eldewrito VoIP Server variables: " + error);
 		return 1;
 	}
 	VoIPServerRunning = true;
@@ -407,16 +392,16 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 
 	/* Stop virtual server */
 	if ((error = ts3server_stopVirtualServer(serverID)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error stopping virtual server: "+ error);
+		Console::WriteLine("Error stopping virtual server: "+ error);
 		return 1;
 	}
 
 	/* Shutdown server lib */
 	if ((error = ts3server_destroyServerLib()) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error destroying server lib: "+ error);
+		Console::WriteLine("Error destroying server lib: "+ error);
 		return 1;
 	}
-	console.consoleQueue.pushLineFromGameToUI("Stopped Eldewrito VoIP Server");
+	Console::WriteLine("Stopped Eldewrito VoIP Server");
 	return 0;
 }
 

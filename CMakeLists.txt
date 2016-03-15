@@ -52,11 +52,6 @@ endif()
 # Enable solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Subdirectories
-add_subdirectory(libs/lua-5.3.0)
-add_subdirectory(libs/libzplay)
-add_subdirectory(libs/MedalJunk)
-
 # Library directories
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
@@ -81,12 +76,10 @@ add_library(ElDorito SHARED
     src/Blam/Tags/Tags.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
     src/Blam/Tags/Scenario.hpp
+    src/Console.cpp
+    src/Console.hpp
     src/DirectXHook.cpp
     src/DirectXHook.hpp
-    src/Console/GameConsole.cpp
-    src/Console/GameConsole.hpp
-    src/Console/Queue.hpp
-    src/Console/Queue.cpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
@@ -286,13 +279,11 @@ target_link_libraries(ElDorito
   detours
   libeay32MT
   ts3client_win32
-  ts3client_win64
   ts3server_win32
-  ts3server_win64
   ZLib
   libwebsocketswin32
-  MedalJunk
   psapi
+  winmm
   libcef
   debug libcef_dll_wrapperd
   optimized libcef_dll_wrapper

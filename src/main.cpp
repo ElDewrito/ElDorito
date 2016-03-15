@@ -1,9 +1,5 @@
-#include "Console/GameConsole.hpp"
 #include <windows.h>
-#include <stdio.h>
-#include <memory>
 #include <IPTypes.h> // for proxy
-#include <fstream>
 #include "Utils/VersionInfo.hpp"
 #include "ElDorito.hpp"
 #include "ElPatches.hpp"

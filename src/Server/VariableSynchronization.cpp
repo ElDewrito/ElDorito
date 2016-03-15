@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <bitset>
 
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Utils/Cryptography.hpp"
 #include "../Patches/CustomPackets.hpp"

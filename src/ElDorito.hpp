@@ -1,15 +1,9 @@
 #pragma once
 
-#include <chrono>
 #include <map>
-#include <vector>
-#include <stdint.h>
-#include <memory>
 
 #include "Utils/Utils.hpp"
-#include "ElModules.hpp"
 #include "Pointer.hpp"
-#include "Patch.hpp"
 
 class ElDorito : public Utils::Singleton < ElDorito >
 {
@@ -35,7 +29,6 @@ public:
 	void Initialize();
 	void Tick();
 	void OnMainMenuShown();
-	bool IsHostPlayer();
 
 private:
 	static size_t MainThreadID; // Thread
