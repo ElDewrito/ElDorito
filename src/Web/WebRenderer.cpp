@@ -99,7 +99,7 @@ bool WebRenderer::Init(const std::string &p_Url)
 	s_Settings.log_severity = LOGSEVERITY_VERBOSE;
 	s_Settings.remote_debugging_port = 8884;
 #else
-	s_Settings.log_severity = LOGSEVERITY_WARNING;
+	s_Settings.log_severity = LOGSEVERITY_INFO;
 #endif
 
 	// Delete the log file so that it doesn't grow huge and take up space
