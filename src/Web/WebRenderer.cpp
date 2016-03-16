@@ -1,6 +1,7 @@
 #include "WebRenderer.hpp"
 #include "WebRendererHandler.hpp"
 #include "WebRendererApp.hpp"
+#include "WebRendererSchemeHandler.hpp"
 #include "WebRendererSchemeHandlerFactory.hpp"
 #include <cef_app.h>
 #include <cef_origin_whitelist.h>
@@ -50,7 +51,7 @@ std::string WebRenderer::GetUIDirectory()
 	return s_RunningDirectory + "/mods/ui/web";
 }
 
-bool WebRenderer::Init(const std::string &p_Url)
+bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 {
 	// Do not try to initialize unless we are already at a disabled state
 	if (GetState() != RendererState_Startup)
@@ -95,12 +96,16 @@ bool WebRenderer::Init(const std::string &p_Url)
 	s_Settings.persist_user_preferences = true;
 	CefString(&s_Settings.user_data_path) = "mods/ui/cache";
 	CefString(&s_Settings.cache_path) = "mods/ui/cache";
-#if _DEBUG
-	s_Settings.log_severity = LOGSEVERITY_VERBOSE;
-	s_Settings.remote_debugging_port = 8884;
-#else
-	s_Settings.log_severity = LOGSEVERITY_INFO;
-#endif
+	if (p_EnableDebugging)
+	{
+		s_Settings.log_severity = LOGSEVERITY_VERBOSE;
+		s_Settings.remote_debugging_port = 8884;
+		WriteLog("Web renderer debugging enabled on port %d", s_Settings.remote_debugging_port);
+	}
+	else
+	{
+		s_Settings.log_severity = LOGSEVERITY_WARNING;
+	}
 
 	// Delete the log file so that it doesn't grow huge and take up space
 	DeleteFileW(s_Settings.log_file.str);
@@ -461,6 +466,27 @@ bool WebRenderer::OpenUrl(const std::string &p_Url)
 		return false;
 
 	s_Browser->GetFocusedFrame()->LoadURL(p_Url);
+	return true;
+}
+
+bool WebRenderer::Reload(bool p_IgnoreCache)
+{
+	if (!m_RenderHandler || !Initialized())
+		return false;
+
+	auto s_Browser = m_RenderHandler->GetBrowser().get();
+	if (!s_Browser)
+		return false;
+
+	if (p_IgnoreCache)
+	{
+		WebRendererSchemeHandler::ClearCache();
+		s_Browser->ReloadIgnoreCache();
+	}
+	else
+	{
+		s_Browser->Reload();
+	}
 	return true;
 }
 

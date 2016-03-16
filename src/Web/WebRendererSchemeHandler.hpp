@@ -34,6 +34,7 @@ namespace Anvil
 
 			public:
 				static void ExpireCache(int64_t p_Frame);
+				static void ClearCache();
 
 			protected:
 				std::string m_TempData;

@@ -95,14 +95,10 @@
         }, "*");
     }
 
-    // Creates the frame for a screen once its URL has been determined.
+    // Creates a frame for a screen.
     function createFrame(screen) {
-        if (screen.selector !== null) {
-            return;
-        }
-
-        // Create the iframe
-        screen.selector = $("<iframe></iframe>", {
+        // Create an iframe
+        var selector = $("<iframe></iframe>", {
                 "class": "screen-frame"
             })
 		    .hide()
@@ -111,12 +107,25 @@
 		    .appendTo($("#content"));
 
         // Once the screen loads, show it if it should be visible
-        screen.selector.on("load", function (event) {
+        selector.on("load", function (event) {
             screen.loaded = true;
             if (screen.state === ScreenState.WAITING) {
                 showScreen(screen, true);
             }
         });
+
+        return selector;
+    }
+
+    // Reloads a screen.
+    function reloadScreen(screen) {
+        screen.loaded = false;
+
+        // If the screen is visible, hide it and put it in the waiting state
+        if (screen.state === ScreenState.WAITING || screen.state === ScreenState.VISIBLE) {
+            showScreen(screen, false);
+            screen.state = ScreenState.WAITING;
+        }
 
         // Send a HEAD request to the screen's URL to make sure that it can be accessed
         $.ajax(screen.url, {
@@ -143,7 +152,7 @@
         if (show) {
             screen.state = ScreenState.VISIBLE;
             screen.selector.show();
-            notifyScreen(screen, "show", screen.data);
+            notifyScreen(screen, "show", screen.data || {});
         } else if (screen.state === ScreenState.WAITING || screen.state === ScreenState.VISIBLE) {
             screen.state = ScreenState.HIDDEN;
             screen.selector.hide();
@@ -189,19 +198,20 @@
             data: {},
             selector: null
         };
+        screen.selector = createFrame(screen);
         screens[screen.id] = screen;
 
         // Load its frame
         if ("url" in data) {
             // Just use the URL in the data
             screen.url = data.url;
-            createFrame(screen);
+            reloadScreen(screen);
         } else if ("var" in data) {
             // Get the screen URL from a variable
             dew.command(data.var, { internal: true }, function (value) {
                 if (value !== "") {
                     screen.url = value;
-                    createFrame(screen);
+                    reloadScreen(screen);
                 }
             });
         }
@@ -234,31 +244,52 @@
         showScreen(screen, false);
     }
 
+    // Reloads all screens.
+    ui.reload = function () {
+        $.each(screens, function (id, screen) {
+            reloadScreen(screen);
+        });
+    }
+
     // Register the message handler.
     window.addEventListener("message", function (event) {
-        var screen = findScreenFromWindow(event.source);
-        if (screen === null) {
-            return; // Only accept messages from screens
+        // Get the screen that sent the event
+        // If the event was sent by the UI layer, then a null screen is possible
+        var screen = null;
+        if (event.source !== window) {
+            // Event was sent from a screen
+            screen = findScreenFromWindow(event.source);
+            if (screen === null) {
+                return;
+            }
         }
+
+        // Make sure the event data is valid
         var eventData = event.data;
         if (eventData === null || typeof eventData !== "object" || typeof eventData.message !== "string" || typeof eventData.data !== "object") {
             return;
         }
+
+        // Process the message
         var data = eventData.data;
         switch (eventData.message) {
             case "show":
                 // Requested to show a screen
-                var showId = (typeof data.screen === "string") ? data.screen : screen.id;
-                ui.requestScreen(showId, data.data);
+                var showId = (typeof data.screen === "string") ? data.screen : (screen ? screen.id : null);
+                if (showId) {
+                    ui.requestScreen(showId, data.data);
+                }
                 break;
             case "hide":
                 // Requested to hide a screen
-                var hideId = (typeof data.screen === "string") ? data.screen : screen.id;
-                ui.hideScreen(hideId);
+                var hideId = (typeof data.screen === "string") ? data.screen : (screen ? screen.id : null);
+                if (hideId) {
+                    ui.hideScreen(hideId);
+                }
                 break;
             case "captureInput":
                 // Requested to change capture state
-                if ("capture" in data) {
+                if (screen && "capture" in data) {
                     setCaptureState(screen, !!data.capture);
                 }
                 break;

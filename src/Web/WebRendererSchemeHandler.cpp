@@ -415,3 +415,10 @@ void WebRendererSchemeHandler::ExpireCache(int64_t p_Frame)
 
 	m_CachedDataMutex.unlock();
 }
+
+void WebRendererSchemeHandler::ClearCache()
+{
+	m_CachedDataMutex.lock();
+	m_CachedData.clear();
+	m_CachedDataMutex.unlock();
+}

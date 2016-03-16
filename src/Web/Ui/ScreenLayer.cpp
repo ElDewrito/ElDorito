@@ -1,10 +1,13 @@
 #include "ScreenLayer.hpp"
 #include "../WebRenderer.hpp"
+#include "../WebRendererSchemeHandler.hpp"
 #include "../../Patches/Input.hpp"
 #include "../../Patches/Core.hpp"
 #include "../../Blam/BlamInput.hpp"
 #include "../../Patches/Ui.hpp"
+#include "../../ElDorito.hpp"
 #include <Windows.h>
+#include <shellapi.h>
 
 using namespace Blam::Input;
 using namespace Anvil::Client::Rendering;
@@ -18,6 +21,7 @@ namespace
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
 
 	void ShutdownRenderer();
+	void OnGameInputUpdated();
 
 	class WebOverlayInputContext : public Patches::Input::InputContext
 	{
@@ -27,6 +31,7 @@ namespace
 
 		bool GameInputTick() override
 		{
+			OnGameInputUpdated();
 			if (!WebRenderer::GetInstance()->IsRendering())
 				InputCaptured = false;
 			return InputCaptured;
@@ -51,6 +56,7 @@ namespace Web
 			{
 				Patches::Ui::OnCreateWindow(WindowCreated);
 				Patches::Core::OnShutdown(ShutdownRenderer);
+				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
 			}
 
 			void Tick()
@@ -393,5 +399,32 @@ namespace
 			GetMsgHookImpl(code, wParam, lParam);
 
 		return CallNextHookEx(MessageHook, code, wParam, lParam);
+	}
+
+	// Debug keys
+	void OnGameInputUpdated()
+	{
+		if (!ElDorito::Instance().IsWebDebuggingEnabled())
+			return;
+
+		auto webRenderer = WebRenderer::GetInstance();
+
+		// If F5 is pressed, reload all screens
+		if (GetKeyTicks(eKeyCodeF5, eInputTypeUi) == 1)
+		{
+			WebRendererSchemeHandler::ClearCache(); // hax
+			webRenderer->ExecuteJavascript("ui.reload();");
+		}
+
+		// If F6 is pressed, reload everything and ignore the cache
+		if (GetKeyTicks(eKeyCodeF6, eInputTypeUi) == 1)
+		{
+			webRenderer->Reload(true);
+			Web::Ui::ScreenLayer::CaptureInput(false);
+		}
+
+		// If F7 is pressed, open the remote debugger in Chrome
+		if (GetKeyTicks(eKeyCodeF7, eInputTypeUi) == 1)
+			ShellExecute(nullptr, nullptr, "chrome.exe", "http://localhost:8884/", nullptr, SW_SHOWNORMAL);
 	}
 }

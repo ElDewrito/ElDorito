@@ -2,6 +2,7 @@
 #include <detours.h>
 #include "Web/WebRenderer.hpp"
 #include "Patch.hpp"
+#include "ElDorito.hpp"
 
 uint32_t* DirectXHook::horizontalRes = 0;
 uint32_t* DirectXHook::verticalRes = 0;
@@ -73,7 +74,8 @@ bool DirectXHook::hookDirectX(LPDIRECT3DDEVICE9 device)
 	}
 
 	auto webRenderer = WebRenderer::GetInstance();
-	if (!webRenderer->InitRenderer(device) || !webRenderer->Init("dew://ui/"))
+	auto webDebugging = ElDorito::Instance().IsWebDebuggingEnabled();
+	if (!webRenderer->InitRenderer(device) || !webRenderer->Init("dew://ui/", webDebugging))
 		return false;
 	return true;
 }

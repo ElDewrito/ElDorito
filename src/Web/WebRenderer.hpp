@@ -43,7 +43,7 @@ namespace Anvil
 				WebRenderer();
 				static std::shared_ptr<WebRenderer> GetInstance();
 
-				bool Init(const std::string &p_Url);
+				bool Init(const std::string &p_Url, bool p_EnableDebugging);
 
 				bool InitRenderer(LPDIRECT3DDEVICE9 p_Device);
 
@@ -64,6 +64,7 @@ namespace Anvil
 				bool SendKeyEvent(const CefKeyEvent &p_Event);
 
 				bool OpenUrl(const std::string &p_Url);
+				bool Reload(bool p_IgnoreCache);
 
 				bool ExecuteJavascript(std::string p_Code);
 

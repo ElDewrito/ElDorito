@@ -108,6 +108,9 @@ void ElDorito::Initialize()
 					mapsFolder += "\\";
 			}
 
+			if (arg.compare(L"-webdebug") == 0)
+				webDebugging = true;
+
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
@@ -118,6 +121,11 @@ void ElDorito::Initialize()
 			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"", true);
 		}
 	}
+
+#if _DEBUG
+	// Always enable web debugging in debug builds
+	webDebugging = true;
+#endif
 
 	Patches::Core::SetMapsFolder(mapsFolder);
 

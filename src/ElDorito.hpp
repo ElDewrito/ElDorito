@@ -30,12 +30,14 @@ public:
 	void Tick();
 	void OnMainMenuShown();
 	std::string GetMapsFolder() const { return mapsFolder; }
+	bool IsWebDebuggingEnabled() const { return webDebugging; }
 
 private:
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;
 	std::string mapsFolder;
+	bool webDebugging = false;
 	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);

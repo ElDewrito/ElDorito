@@ -94,8 +94,10 @@ DewError = {
 
     // Posts a message to the UI.
     function postUiMessage(message, data) {
-        if (window.parent) {
-            window.parent.postMessage({
+        // If this is running in the UI layer, then post to the current window, otherwise post to the parent
+        var targetWindow = (window.location.href.startsWith("dew://ui/")) ? window : window.parent;
+        if (targetWindow) {
+            targetWindow.postMessage({
                 message: message,
                 data: data
             }, "*");
@@ -307,7 +309,7 @@ DewError = {
      */
     dew.getErrorName = function (code) {
         for (var error in DewError) {
-            if (DewError.hasOwnProperty(error) && DewError[error] == code) {
+            if (DewError.hasOwnProperty(error) && DewError[error] === code) {
                 return error;
             }
         }
