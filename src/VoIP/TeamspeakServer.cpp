@@ -23,7 +23,8 @@
 #include <teamspeak/clientlib.h>
 #include <teamspeak/serverlib_publicdefinitions.h>
 #include <teamspeak/serverlib.h>
-
+#include "../Modules/ModuleVoIP.hpp"
+#include "TeamspeakClient.hpp"
 
 #ifdef _WIN32
 #define snprintf sprintf_s
@@ -50,7 +51,8 @@ void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsign
 	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
 
-	ts3client_requestConnectionInfo(serverID, clientID, NULL); //handle kicking in callback function
+	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt != 0)
+		ts3client_requestConnectionInfo(serverID, clientID, NULL); //handle kicking in callback function
 
 	//Note: we can prevent clients from connecting by changing the removeClientError
 	//This would be very useful if a client is in some kind of ban list...
@@ -291,7 +293,7 @@ int kickTeamspeakClient(const std::string& name) {
 //prevent leaking clients ips to other clients with modified dlls
 unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExport* client, int* mayViewIpPort, const struct ClientMiniExport* targetClient)
 {
-	if (client->ID == 1)//owner
+	if (client->ID == VoIPGetClientID())//owner
 		return ERROR_ok;
 	else
 		return ERROR_permissions_client_insufficient;
@@ -300,7 +302,7 @@ unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExpo
 //prevent anyone from kicking anyone
 unsigned int permClientKickFromServer(uint64 serverID, const struct ClientMiniExport* client, int toKickCount, struct ClientMiniExport* toKickClients, const char* reasonText)
 {
-	if (client->ID == 1)//owner
+	if (client->ID == VoIPGetClientID())//owner
 		return ERROR_ok;
 	else
 		return ERROR_permissions_client_insufficient;

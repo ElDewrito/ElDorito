@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
-#include <queue>
 
 #include <teamspeak/public_definitions.h>
 #include <teamspeak/public_errors.h>
@@ -80,6 +79,11 @@ INT VoIPGetTalkStatus()
 	return vadTestTalkStatus;
 }
 
+anyID selfID = -1;
+anyID VoIPGetClientID()
+{
+	return selfID;
+}
 
 /* Enable to use custom encryption */
 /* #define USE_CUSTOM_ENCRYPTION
@@ -127,7 +131,15 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 	/* Failed to connect ? */
 	if(newStatus == STATUS_DISCONNECTED || errorNumber == ERROR_failed_connection_initialisation || errorNumber  == ERROR_connection_lost) {
 		console.consoleQueue.pushLineFromGameToUI("Looks like there is no server running.\n");
+		selfID = -1;
 		StopTeamspeakClient();
+	}
+	else if (newStatus == STATUS_CONNECTED)//Find out client id
+	{
+		anyID id;
+		ts3client_getClientID(serverConnectionHandlerID, &id);
+		selfID = id;
+		ts3client_freeMemory(&id);
 	}
 }
 
