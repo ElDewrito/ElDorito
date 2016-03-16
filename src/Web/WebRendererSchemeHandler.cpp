@@ -59,8 +59,12 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 	//for (auto it = s_Headers.begin(); it != s_Headers.end(); ++it)
 	//	Logger(Util::LogLevel::Debug, "%ls => %ls", it->first.c_str(), it->second.c_str());
 
+	// HACK: Replace spaces in the URL with %20 (this is the most common reason for a URI to be invalid)
+	auto s_Url = p_Request->GetURL().ToString();
+	boost::replace_all(s_Url, " ", "%20");
+
 	// [scheme:][//authority][path][?query][#fragment]
-	boost::network::uri::uri s_RequestURI(p_Request->GetURL().ToString());
+	boost::network::uri::uri s_RequestURI(s_Url);
 
 	if (!s_RequestURI.is_valid())
 	{
@@ -74,7 +78,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 		return;
 	}
 
-	auto s_FinalPath = s_RequestURI.path();
+	auto s_FinalPath = boost::network::uri::decoded(s_RequestURI.path());
 
 	if (s_FinalPath.size() == 0)
 		s_FinalPath = "/";
