@@ -2,7 +2,7 @@
 
 namespace Blam
 {
-	const DatumIndex DatumIndex::Null(0xFFFFFFFF);
+	const DatumIndex DatumIndex::Null;
 
 	DatumBase* DataArrayBase::Get(DatumIndex index) const
 	{

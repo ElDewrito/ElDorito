@@ -67,6 +67,7 @@ add_library(ElDorito SHARED
     src/Blam/BitStream.hpp
     src/Blam/BlamData.cpp
     src/Blam/BlamData.hpp
+    src/Blam/BlamEvents.hpp
     src/Blam/BlamInput.cpp
     src/Blam/BlamInput.hpp
     src/Blam/BlamNetwork.cpp
@@ -108,6 +109,8 @@ add_library(ElDorito SHARED
     src/Patches/CustomPackets.hpp
     src/Patches/Core.cpp
     src/Patches/Core.hpp
+    src/Patches/Events.cpp
+    src/Patches/Events.hpp
     src/Patches/Forge.cpp
     src/Patches/Forge.hpp
     src/Patches/Input.cpp
@@ -174,10 +177,12 @@ add_library(ElDorito SHARED
     src/Web/Bridge/WebRendererQueryHandler.cpp
     src/Web/Bridge/WebRendererQueryHandler.hpp
     src/Web/Logger.hpp
-    src/Web/Ui/WebConsole.cpp
-    src/Web/Ui/WebConsole.hpp
+    src/Web/Ui/MpEventDispatcher.cpp
+    src/Web/Ui/MpEventDispatcher.hpp
     src/Web/Ui/ScreenLayer.cpp
     src/Web/Ui/ScreenLayer.hpp
+    src/Web/Ui/WebConsole.cpp
+    src/Web/Ui/WebConsole.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
     src/Web/WebRendererApp.cpp
@@ -219,6 +224,7 @@ set (WEB_SOURCES
     web/screens/console/console.css
     web/screens/console/console.js
     web/screens/console/index.html
+    web/screens/medals/index.html
     web/screens/screens.json
     web/screens/test/index.html
     web/screens/test_overlay/index.html

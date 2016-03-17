@@ -14,6 +14,43 @@ DewError = {
     NETWORK_ERROR: 6
 };
 
+/**
+ * Multiplayer event audiences.
+ *
+ * @readonly
+ * @enum {number}
+ */
+MPEventAudience = {
+    CAUSE_PLAYER: 0,
+    CAUSE_TEAM: 1,
+    EFFECT_PLAYER: 2,
+    EFFECT_TEAM: 3,
+    ALL: 4
+};
+
+/**
+ * Multiplayer event categories.
+ * 
+ * @readonly
+ * @enum {number}
+ */
+MPEventCategory = {
+    GENERAL: 0,
+    FLAVOR: 1,
+    SLAYER: 2,
+    CTF: 3,
+    ODDBALL: 4,
+    FORGE: 5,
+    KOTH: 6,
+    VIP: 7,
+    JUGGERNAUT: 8,
+    TERRITORIES: 9,
+    ASSAULT: 10,
+    INFECTION: 11,
+    SURVIVAL: 12,
+    WP: 13
+};
+
 (function () {
     window.dew = window.dew || {};
 
@@ -250,6 +287,7 @@ DewError = {
      * @see event:hide
      * @see event:pong
      * @see event:console
+     * @see event:mpevent
      */
     dew.on = function (event, callback) {
         registerEvent(event, callback);
@@ -297,6 +335,16 @@ DewError = {
      * @event console
      * @type {object}
      * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
+     */
+
+    /**
+     * Fired when a multiplayer event occurs that affects the local player.
+     * 
+     * @event mpevent
+     * @type {object} 
+     * @property {string} name - The internal name of the event.
+     * @property {MPEventCategory} category - The event's category.
+     * @property {MPEventAudience} audience - The audience that the event is intended for.
      */
 
     /**

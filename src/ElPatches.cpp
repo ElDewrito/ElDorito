@@ -16,7 +16,7 @@
 #include "Patches\CustomPackets.hpp"
 #include "Patches\Logging.hpp"
 #include "Patches\Sprint.hpp"
-#include "Modules\ModuleCamera.hpp"
+#include "Patches\Events.hpp"
 #include "DirectXHook.hpp"
 
 namespace
@@ -43,6 +43,7 @@ namespace Patches
 		Forge::ApplyAll();
 		CustomPackets::ApplyAll();
 		Logging::ApplyAll();
+		Events::ApplyAll();
 		DirectXHook::applyPatches();
 	}
 	
