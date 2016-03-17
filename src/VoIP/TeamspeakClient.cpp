@@ -253,6 +253,11 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	auto& console = GameConsole::Instance();
 	console.consoleQueue.pushLineFromGameToUI("ClientID " + std::to_string(clientID) + " timeouts with message " + std::string(timeoutMessage));
+	char *name;
+	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
+		return;
+	MemberList::Instance().HidePlayerTalkEvent(name);
+	ts3client_freeMemory(name);
 }
 
 /*
