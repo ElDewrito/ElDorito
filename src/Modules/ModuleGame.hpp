@@ -22,6 +22,7 @@ namespace Modules
 		Command* VarLogName;
 		Command* VarMenuURL;
 		Command* VarRconPort;
+		Command* VarMedalPack;
 
 		int DebugFlags;
 		std::vector<std::string> MapList;

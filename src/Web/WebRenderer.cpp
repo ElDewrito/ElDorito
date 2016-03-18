@@ -165,8 +165,7 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 	}
 
 	// Register our custom handlers
-	m_SchemeHandlerFactory = new WebRendererSchemeHandlerFactory();
-	CefRegisterSchemeHandlerFactory("dew", "", m_SchemeHandlerFactory.get());
+	RegisterScheme("dew", GetUIDirectory());
 	CefAddCrossOriginWhitelistEntry("dew://ui", "http", "", true);
 
 	auto s_RequestContext = CefRequestContext::GetGlobalContext();
@@ -490,6 +489,21 @@ bool WebRenderer::Reload(bool p_IgnoreCache)
 	return true;
 }
 
+bool WebRenderer::RegisterScheme(const std::string &p_Name, const boost::filesystem::path &p_Directory)
+{
+	if (!boost::filesystem::exists(p_Directory))
+		return false;
+	auto s_SchemeHandlerFactory = new WebRendererSchemeHandlerFactory(p_Name, p_Directory);
+	if (!CefRegisterSchemeHandlerFactory(p_Name, "", s_SchemeHandlerFactory))
+		return false;
+
+	// Allow additional protocols to be accessed from dew://
+	if (p_Name != "dew")
+		CefAddCrossOriginWhitelistEntry("dew://*", p_Name, "", true);
+
+	return true;
+}
+
 bool WebRenderer::ExecuteJavascript(std::string p_Code)
 {
 	auto s_Browser = m_RenderHandler->GetBrowser().get();
@@ -540,7 +554,6 @@ bool WebRenderer::Shutdown()
 
 	// Release handles
 	m_App = nullptr;
-	m_SchemeHandlerFactory = nullptr;
 
 	if (m_RenderHandler)
 	{

@@ -4,6 +4,7 @@
 #include <include/internal/cef_ptr.h>
 #include <include/cef_app.h>
 #include <memory>
+#include <boost/filesystem.hpp>
 
 namespace Anvil
 {
@@ -29,7 +30,6 @@ namespace Anvil
 			{
 				CefRefPtr<WebRendererHandler> m_RenderHandler;
 				CefRefPtr<CefApp> m_App;
-				CefRefPtr<WebRendererSchemeHandlerFactory> m_SchemeHandlerFactory;
 				
 				RendererState m_State;
 
@@ -65,6 +65,8 @@ namespace Anvil
 
 				bool OpenUrl(const std::string &p_Url);
 				bool Reload(bool p_IgnoreCache);
+
+				bool RegisterScheme(const std::string &p_Name, const boost::filesystem::path &p_Directory);
 
 				bool ExecuteJavascript(std::string p_Code);
 

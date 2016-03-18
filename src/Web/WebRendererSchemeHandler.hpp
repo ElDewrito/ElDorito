@@ -3,6 +3,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
+#include <boost/filesystem.hpp>
 #include <include/cef_scheme.h>
 #include <unordered_map>
 #include <mutex>
@@ -18,7 +19,7 @@ namespace Anvil
 				public boost::basic_lockable_adapter<boost::mutex>
 			{
 			public:
-				WebRendererSchemeHandler(bool p_Main, CefRefPtr<CefFrame> p_Frame);
+				WebRendererSchemeHandler(const std::string &p_Scheme, const boost::filesystem::path &p_Directory, bool p_Main, CefRefPtr<CefFrame> p_Frame);
 				~WebRendererSchemeHandler();
 
 			protected:
@@ -37,6 +38,8 @@ namespace Anvil
 				static void ClearCache();
 
 			protected:
+				std::string m_Scheme;
+				boost::filesystem::path m_Directory;
 				std::string m_TempData;
 				std::string m_TempFileName;
 				std::string m_ContentType;

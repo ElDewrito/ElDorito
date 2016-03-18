@@ -26,9 +26,10 @@ using namespace Anvil::Client::Rendering;
 std::unordered_map<int64_t, std::unordered_map<std::string, std::string>> WebRendererSchemeHandler::m_CachedData;
 std::mutex WebRendererSchemeHandler::m_CachedDataMutex;
 
-WebRendererSchemeHandler::WebRendererSchemeHandler(bool p_Main, CefRefPtr<CefFrame> p_Frame)
-	: m_Main(p_Main), m_Frame(p_Frame)
+WebRendererSchemeHandler::WebRendererSchemeHandler(const std::string &p_Scheme, const boost::filesystem::path &p_Directory, bool p_Main, CefRefPtr<CefFrame> p_Frame)
+	: m_Scheme(p_Scheme), m_Main(p_Main), m_Frame(p_Frame)
 {
+	m_Directory = boost::filesystem::canonical(p_Directory);
 	m_RequestedLength = 0;
 	m_Offset = 0;
 	m_Partial = false;
@@ -72,7 +73,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 		return;
 	}
 
-	if (s_RequestURI.scheme() != "dew")
+	if (s_RequestURI.scheme() != m_Scheme)
 	{
 		p_Callback->Cancel();
 		return;
@@ -89,7 +90,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 	auto s_Host = s_RequestURI.host();
 
 	// Deny access to the internal pages from other frames?
-	if (s_Host == "ui" && !m_Main)
+	if (m_Scheme == "dew" && s_Host == "ui" && !m_Main)
 	{
 		p_Callback->Cancel();
 		return;
@@ -99,7 +100,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 	boost::filesystem::path s_Path(s_FinalPath);
 	m_TempFileName = s_Path.filename().string();
 
-	auto s_VFSPath = str(boost::format("/%s/%s") % s_RequestURI.host() % s_FinalPath.substr(1));
+	auto s_VFSPath = str(boost::format("/%s/%s/%s") % m_Scheme % s_RequestURI.host() % s_FinalPath.substr(1));
 
 	m_TempData.clear();
 	m_TempFileName.clear();
@@ -300,17 +301,21 @@ bool WebRendererSchemeHandler::ReadLocalFile(std::string p_Host, std::string p_P
 {
 	p_OutString = "";
 
-	auto s_UIDirectory = WebRenderer::GetInstance()->GetUIDirectory();
-
-	auto s_DirectoryPath = s_UIDirectory + "/" + p_Host;
-
-	auto s_FilePath = s_DirectoryPath + p_Path;
-
 	try
 	{
+		auto s_FilePath = m_Directory / p_Host / p_Path;
+		if (!boost::filesystem::exists(s_FilePath))
+			return false;
+
+		// Make sure the file is inside the directory
+		s_FilePath = boost::filesystem::canonical(s_FilePath, m_Directory);
+		if (!boost::starts_with(s_FilePath, m_Directory))
+			return false;
+
 		// using boost's memory mapped file.
-		auto s_FileSize = boost::filesystem::file_size(s_FilePath.c_str());
-		boost::interprocess::file_mapping s_File(s_FilePath.c_str(), boost::interprocess::read_only);
+		auto s_FileSize = boost::filesystem::file_size(s_FilePath);
+		auto s_FilePathStr = s_FilePath.string();
+		boost::interprocess::file_mapping s_File(s_FilePathStr.c_str(), boost::interprocess::read_only);
 		
 		boost::interprocess::mapped_region s_Region(s_File, boost::interprocess::read_only);
 

@@ -806,6 +806,8 @@ namespace Modules
 
 		VarRconPort = AddVariableInt("RconPort", "rcon_port", "The port to use for rcon in this instance of the game", eCommandFlagsArchived, 11776);
 
+		VarMedalPack = AddVariableString("MedalPack", "medals", "The name of the medal pack to use", eCommandFlagsArchived, "default");
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

@@ -77,5 +77,10 @@ bool DirectXHook::hookDirectX(LPDIRECT3DDEVICE9 device)
 	auto webDebugging = ElDorito::Instance().IsWebDebuggingEnabled();
 	if (!webRenderer->InitRenderer(device) || !webRenderer->Init("dew://ui/", webDebugging))
 		return false;
+
+	// Register a medals:// scheme to point to mods\medals (and ensure the directory for a default pack exists)
+	boost::system::error_code error;
+	boost::filesystem::create_directories("mods\\medals\\default", error);
+	webRenderer->RegisterScheme("medals", "mods\\medals");
 	return true;
 }
