@@ -134,12 +134,9 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 		selfID = -1;
 		StopTeamspeakClient();
 	}
-	else if (newStatus == STATUS_CONNECTED)//Find out client id
+	else if (newStatus == STATUS_CONNECTED)
 	{
-		anyID id;
-		ts3client_getClientID(serverConnectionHandlerID, &id);
-		selfID = id;
-		ts3client_freeMemory(&id);
+		ts3client_getClientID(serverConnectionHandlerID, &selfID);
 	}
 }
 
