@@ -4,11 +4,9 @@ namespace Web
 {
 	namespace Ui
 	{
-		namespace WebConsole
+		namespace WebLoadingScreen
 		{
 			void Init();
-			void Show();
-			void Hide();
 		}
 	}
 }

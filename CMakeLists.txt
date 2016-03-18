@@ -115,6 +115,8 @@ add_library(ElDorito SHARED
     src/Patches/Forge.hpp
     src/Patches/Input.cpp
     src/Patches/Input.hpp
+    src/Patches/LoadingScreen.cpp
+    src/Patches/LoadingScreen.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
     src/Patches/Mouse.cpp
@@ -183,6 +185,8 @@ add_library(ElDorito SHARED
     src/Web/Ui/ScreenLayer.hpp
     src/Web/Ui/WebConsole.cpp
     src/Web/Ui/WebConsole.hpp
+    src/Web/Ui/WebLoadingScreen.cpp
+    src/Web/Ui/WebLoadingScreen.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
     src/Web/WebRendererApp.cpp
@@ -224,6 +228,9 @@ set (WEB_SOURCES
     web/screens/console/console.css
     web/screens/console/console.js
     web/screens/console/index.html
+    web/screens/loading/loading.css
+    web/screens/loading/loading.js
+    web/screens/loading/index.html
     web/screens/medals/index.html
     web/screens/screens.json
     web/screens/test/index.html

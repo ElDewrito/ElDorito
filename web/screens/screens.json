@@ -20,6 +20,12 @@
 			"zIndex": -10
 		},
 		{
+			"id": "loading",
+			"url": "dew://screens/loading/",
+			"captureInput": false,
+			"zIndex": 0
+		},
+		{
 			"id": "test",
 			"url": "dew://screens/test/",
 			"captureInput": true,

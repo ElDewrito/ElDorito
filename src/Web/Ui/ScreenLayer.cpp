@@ -6,7 +6,6 @@
 #include "../../Blam/BlamInput.hpp"
 #include "../../Patches/Ui.hpp"
 #include "../../ElDorito.hpp"
-#include "MpEventDispatcher.hpp"
 #include <Windows.h>
 #include <shellapi.h>
 
@@ -58,7 +57,6 @@ namespace Web
 				Patches::Ui::OnCreateWindow(WindowCreated);
 				Patches::Core::OnShutdown(ShutdownRenderer);
 				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-				MpEventDispatcher::Init();
 			}
 
 			void Tick()

@@ -17,6 +17,7 @@
 #include "Patches\Logging.hpp"
 #include "Patches\Sprint.hpp"
 #include "Patches\Events.hpp"
+#include "Patches\LoadingScreen.hpp"
 #include "DirectXHook.hpp"
 
 namespace
@@ -44,6 +45,7 @@ namespace Patches
 		CustomPackets::ApplyAll();
 		Logging::ApplyAll();
 		Events::ApplyAll();
+		LoadingScreen::ApplyAll();
 		DirectXHook::applyPatches();
 	}
 	
