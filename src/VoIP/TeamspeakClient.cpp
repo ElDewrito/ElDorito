@@ -1233,10 +1233,10 @@ std::string IpToString(const Blam::Network::NetworkAddress &addr)
 
 void onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID)
 {
-	if (clientID == 1)//ignore self
+	if (clientID == selfID)
 		return;
 	auto& console = GameConsole::Instance();
-	Sleep(1000); //Give a moment for clients to be in-game
+	Sleep(1000);
 	auto* session = Blam::Network::GetActiveSession();
 	if (!session || !session->IsEstablished() || !session->IsHost())
 		return;
@@ -1250,7 +1250,7 @@ void onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID)
 		char *name;
 		if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		{
-			
+			console.consoleQueue.pushLineFromGameToUI("VoIP: Could not determine client id: " + std::to_string(clientID) + "'s name");
 		}
 		//can't integrate banlist into server connection event on serverside since we need ip first. Can't get ip until we have requested connection info from server.
 		//There is no available server function that will return the ip, only client can request and view ip
@@ -1304,7 +1304,7 @@ void onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientI
 
 DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	
-	Sleep(750);//Doing this allows us to abort the current client thread before creating a new one and running into problems
+	Sleep(750);
 	unsigned int error;
 	char* mode;
 	char** device;

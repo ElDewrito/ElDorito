@@ -293,7 +293,7 @@ int kickTeamspeakClient(const std::string& name) {
 //prevent leaking clients ips to other clients with modified dlls
 unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExport* client, int* mayViewIpPort, const struct ClientMiniExport* targetClient)
 {
-	if (client->ID == VoIPGetClientID())//owner
+	if (client->ID == VoIPGetClientID())
 		return ERROR_ok;
 	else
 		return ERROR_permissions_client_insufficient;
@@ -302,12 +302,31 @@ unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExpo
 //prevent anyone from kicking anyone
 unsigned int permClientKickFromServer(uint64 serverID, const struct ClientMiniExport* client, int toKickCount, struct ClientMiniExport* toKickClients, const char* reasonText)
 {
-	if (client->ID == VoIPGetClientID())//owner
+	if (client->ID == VoIPGetClientID())
 		return ERROR_ok;
 	else
 		return ERROR_permissions_client_insufficient;
 }
 
+unsigned int permChannelDelete(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelEdit(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID, struct VariablesExport* variables)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelMove(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID, uint64 newParentChannelID)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelCreate(uint64 serverID, const struct ClientMiniExport* client, uint64 parentChannelID, struct VariablesExport* variables)
+{
+	return ERROR_permissions_client_insufficient;
+}
 
 DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	char *version;
@@ -340,6 +359,10 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	funcs.onAccountingErrorEvent = onAccountingErrorEvent;
 	funcs.permSendConnectionInfo = permSendConnectionInfo;
 	funcs.permClientKickFromServer = permClientKickFromServer;
+	funcs.permChannelDelete = permChannelDelete;
+	funcs.permChannelEdit = permChannelEdit;
+	funcs.permChannelMove = permChannelMove;
+	funcs.permChannelCreate = permChannelCreate;
 
 	/* Initialize server lib with callbacks */
 	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL)) != ERROR_ok) {
