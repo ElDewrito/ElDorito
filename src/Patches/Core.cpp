@@ -57,10 +57,7 @@ namespace Patches
 
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
-			
-			// Active camo fix
-			Patch(0x625ACA, { 0x20 }).Apply();
-			
+
 			// Hook game ticks
 			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
 
