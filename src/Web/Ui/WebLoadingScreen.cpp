@@ -12,10 +12,9 @@ namespace
 	{
 		uint32_t currentBytes;
 		uint32_t totalBytes;
-		bool firstLoad;
 
 	public:
-		WebLoadingScreenUi() : currentBytes(0), totalBytes(0), firstLoad(true) { }
+		WebLoadingScreenUi() : currentBytes(0), totalBytes(0) { }
 
 		void Show(const std::string &mapPath) override;
 		void Begin(uint32_t totalBytes) override;
@@ -43,10 +42,6 @@ namespace
 {
 	void WebLoadingScreenUi::Show(const std::string &mapPath)
 	{
-		// Don't show when the mainmenu loads for the first time
-		if (firstLoad)
-			return;
-
 		// The map path is in the form "maps\\<name>", so strip the folder from the beginning to get just the name
 		auto separatorIndex = mapPath.find_first_of("\\/");
 		auto mapName = mapPath.substr(separatorIndex + 1);
@@ -90,6 +85,5 @@ namespace
 	void WebLoadingScreenUi::Hide()
 	{
 		ScreenLayer::Hide("loading");
-		firstLoad = false;
 	}
 }
