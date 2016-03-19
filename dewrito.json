@@ -34,9 +34,9 @@
     "updateChannelsUrl": "",
 
     "masterServers": [{
-        "list": "http://kelly-master.halo.click/list",
-        "announce": "http://kelly-master.halo.click/announce",
-        "stats": "http://kelly-master.halo.click/stats"
+        "list": "http://158.69.166.144:8080/list",
+        "announce": "http://158.69.166.144:8080/announce",
+        "stats": "http://158.69.166.144:8080/stats"
     }, {
         "list": "http://eldewrito.red-m.net/list",
         "announce": "http://eldewrito.red-m.net/announce",
