@@ -9,6 +9,10 @@
     </head>
     <body>
         <div class="console">
+            <div class="box transparent info">
+                Enter <span class="important">help</span> for a list of available commands. Press Escape to close.
+            </div>
+            <div class="box transparent" id="output-box"></div>
             <div id="input-box" class="box">
                 <span class="prompt">
                     ElDewrito <span id="version"></span>&gt;&nbsp;
@@ -16,10 +20,6 @@
                 <span class="command-span">
                     <input type="text" id="command" autocomplete="off" spellcheck="false"/>
                 </span>
-            </div>
-            <div class="box transparent" id="output-box"></div>
-            <div class="box transparent info">
-                Enter <span class="important">help</span> for a list of available commands. Press Escape to close.
             </div>
         </div>
     </body>
