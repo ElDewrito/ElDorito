@@ -11,6 +11,8 @@
 #ifdef _WIN32
 #define _CRT_SECURE_NO_WARNINGS
 #pragma warning(disable : 4996)
+#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <Windows.h>
 #include <conio.h>
 #else
@@ -34,7 +36,10 @@
 #include "../ElDorito.hpp"
 #include "../VoIP/MemberList.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "../Modules/ModuleServer.hpp"
+#include "../Server/BanList.hpp"
 #include "TeamspeakClient.hpp"
+#include "TeamspeakServer.hpp"
 #include <cstdint>
 #define DEFAULT_VIRTUAL_SERVER 1
 #define NAME_BUFSIZE 1024
@@ -74,6 +79,11 @@ INT VoIPGetTalkStatus()
 	return vadTestTalkStatus;
 }
 
+anyID selfID = -1;
+anyID VoIPGetClientID()
+{
+	return selfID;
+}
 
 /* Enable to use custom encryption */
 /* #define USE_CUSTOM_ENCRYPTION
@@ -119,9 +129,14 @@ void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus,
 	auto& console = GameConsole::Instance();
 	console.consoleQueue.pushLineFromGameToUI("Connect status changed : " + std::to_string(serverConnectionHandlerID) + " " + std::to_string(newStatus) + " " + std::to_string(errorNumber));
 	/* Failed to connect ? */
-	if(newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
+	if(newStatus == STATUS_DISCONNECTED || errorNumber == ERROR_failed_connection_initialisation || errorNumber  == ERROR_connection_lost) {
 		console.consoleQueue.pushLineFromGameToUI("Looks like there is no server running.\n");
+		selfID = -1;
 		StopTeamspeakClient();
+	}
+	else if (newStatus == STATUS_CONNECTED)
+	{
+		ts3client_getClientID(serverConnectionHandlerID, &selfID);
 	}
 }
 
@@ -235,6 +250,11 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
 	auto& console = GameConsole::Instance();
 	console.consoleQueue.pushLineFromGameToUI("ClientID " + std::to_string(clientID) + " timeouts with message " + std::string(timeoutMessage));
+	char *name;
+	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
+		return;
+	MemberList::Instance().HidePlayerTalkEvent(name);
+	ts3client_freeMemory(name);
 }
 
 /*
@@ -1198,8 +1218,90 @@ int muteTeamspeakClient(const std::string& name) {
 	return -6;
 }
 
+std::string IpToString(const Blam::Network::NetworkAddress &addr)
+{
+	struct in_addr inAddr;
+	inAddr.S_un.S_addr = addr.ToInAddr();
+	char ipStr[INET_ADDRSTRLEN];
+	if (!inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
+		return "";
+	return std::string(ipStr);
+}
+
+void onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID)
+{
+	if (clientID == selfID)
+		return;
+	auto& console = GameConsole::Instance();
+	Sleep(1000);
+	auto* session = Blam::Network::GetActiveSession();
+	if (!session || !session->IsEstablished() || !session->IsHost())
+		return;
+
+	auto membership = &session->MembershipInfo;
+	char *ip;
+	unsigned int error = 0xFFFF;
+
+	if ((error = ts3client_getConnectionVariableAsString(serverConnectionHandlerID, clientID, CONNECTION_CLIENT_IP, &ip)) == ERROR_ok)
+	{
+		char *name;
+		if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
+		{
+			console.consoleQueue.pushLineFromGameToUI("VoIP: Could not determine client id: " + std::to_string(clientID) + "'s name");
+		}
+		//can't integrate banlist into server connection event on serverside since we need ip first. Can't get ip until we have requested connection info from server.
+		//There is no available server function that will return the ip, only client can request and view ip
+		Server::BanList banList = Server::LoadDefaultBanList();
+		if (banList.ContainsIp(std::string(ip)))
+		{
+			if (ts3client_requestClientKickFromServer(serverConnectionHandlerID, clientID, "Kicked from server", NULL) != ERROR_ok)
+				console.consoleQueue.pushLineFromGameToUI("VoIP: error kicking banned ip " + std::string(ip));
+			else
+				console.consoleQueue.pushLineFromGameToUI("VoIP: kicked banned ip " + std::string(ip));
+		}
+			
+
+		bool foundMatch = false;
+		for (auto peerIdx = membership->FindFirstPeer(); peerIdx >= 0; peerIdx = membership->FindNextPeer(peerIdx))
+		{
+			std::string peerIp = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(peerIdx)));
+			if (peerIp.compare(std::string(ip)) == 0)
+			{
+				foundMatch = true;
+				break;
+			}
+		}
+		if (!foundMatch)
+		{
+			if (ts3client_requestClientKickFromServer(serverConnectionHandlerID, clientID, "Kicked from server", NULL) == ERROR_ok)
+				console.consoleQueue.pushLineFromGameToUI("VoIP: Kicked client since not in-game: " + std::string(ip) + " (" + std::string(name) + ")");
+			else
+				console.consoleQueue.pushLineFromGameToUI("VoIP: error kicking: " + std::string(ip));
+		}
+		ts3client_freeMemory(name);
+		ts3client_freeMemory(ip);
+	}
+	else
+	{
+		char buf[6];
+		sprintf(buf, "%u", error);
+		console.consoleQueue.pushLineFromGameToUI("VoIP: Errorcode: " + std::string(buf));
+	}
+}
+
+void onClientKickFromServerEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, anyID kickerID, const char* kickerName, const char* kickerUniqueIdentifier, const char* kickMessage)
+{
+	char *name;
+	if (ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) == ERROR_ok)
+	{
+		MemberList::Instance().HidePlayerTalkEvent(std::string(name));
+		ts3client_freeMemory(name);
+	}
+}
+
 DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	
+	Sleep(750);
 	unsigned int error;
 	char* mode;
 	char** device;
@@ -1232,6 +1334,8 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	funcs.onCustomPacketEncryptEvent = onCustomPacketEncryptEvent;
 	funcs.onCustomPacketDecryptEvent = onCustomPacketDecryptEvent;
 	funcs.onEditMixedPlaybackVoiceDataEvent = onEditMixedPlaybackVoiceDataEvent;
+	funcs.onConnectionInfoEvent = onConnectionInfoEvent;
+	funcs.onClientKickFromServerEvent = onClientKickFromServerEvent;
 #ifdef CUSTOM_PASSWORDS
 	funcs.onClientPasswordEncrypt           = onClientPasswordEncrypt;
 #endif
@@ -1533,6 +1637,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	recordSound = 0;
 	onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
 	console.consoleQueue.pushLineFromGameToUI("Stopped Eldewrito VoIP Client");
+	MemberList::Instance().memberList.clear();
 	return 0;
 }
 

@@ -23,7 +23,8 @@
 #include <teamspeak/clientlib.h>
 #include <teamspeak/serverlib_publicdefinitions.h>
 #include <teamspeak/serverlib.h>
-
+#include "../Modules/ModuleVoIP.hpp"
+#include "TeamspeakClient.hpp"
 
 #ifdef _WIN32
 #define snprintf sprintf_s
@@ -49,6 +50,9 @@ void onClientConnected(uint64 serverID, anyID clientID, uint64 channelID, unsign
 	auto& console = GameConsole::Instance();
 	console.consoleQueue.pushLineFromGameToUI("Client " + std::to_string(clientID) + " joined channel " + std::to_string((unsigned long long)channelID) + " on Eldewrito VoIP Server " + std::to_string((unsigned long long)serverID));
 #endif
+
+	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt != 0)
+		ts3client_requestConnectionInfo(serverID, clientID, NULL); //handle kicking in callback function
 
 	//Note: we can prevent clients from connecting by changing the removeClientError
 	//This would be very useful if a client is in some kind of ban list...
@@ -286,6 +290,43 @@ int kickTeamspeakClient(const std::string& name) {
 	return -4;
 }
 
+//prevent leaking clients ips to other clients with modified dlls
+unsigned int permSendConnectionInfo(uint64 serverID, const struct ClientMiniExport* client, int* mayViewIpPort, const struct ClientMiniExport* targetClient)
+{
+	if (client->ID == VoIPGetClientID())
+		return ERROR_ok;
+	else
+		return ERROR_permissions_client_insufficient;
+}
+
+//prevent anyone from kicking anyone
+unsigned int permClientKickFromServer(uint64 serverID, const struct ClientMiniExport* client, int toKickCount, struct ClientMiniExport* toKickClients, const char* reasonText)
+{
+	if (client->ID == VoIPGetClientID())
+		return ERROR_ok;
+	else
+		return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelDelete(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelEdit(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID, struct VariablesExport* variables)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelMove(uint64 serverID, const struct ClientMiniExport* client, uint64 channelID, uint64 newParentChannelID)
+{
+	return ERROR_permissions_client_insufficient;
+}
+
+unsigned int permChannelCreate(uint64 serverID, const struct ClientMiniExport* client, uint64 parentChannelID, struct VariablesExport* variables)
+{
+	return ERROR_permissions_client_insufficient;
+}
 
 DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	char *version;
@@ -316,6 +357,12 @@ DWORD WINAPI StartTeamspeakServer(LPVOID) {
 	funcs.onClientStartTalkingEvent = onClientStartTalkingEvent;
 	funcs.onClientStopTalkingEvent = onClientStopTalkingEvent;
 	funcs.onAccountingErrorEvent = onAccountingErrorEvent;
+	funcs.permSendConnectionInfo = permSendConnectionInfo;
+	funcs.permClientKickFromServer = permClientKickFromServer;
+	funcs.permChannelDelete = permChannelDelete;
+	funcs.permChannelEdit = permChannelEdit;
+	funcs.permChannelMove = permChannelMove;
+	funcs.permChannelCreate = permChannelCreate;
 
 	/* Initialize server lib with callbacks */
 	if ((error = ts3server_initServerLib(&funcs, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL)) != ERROR_ok) {
