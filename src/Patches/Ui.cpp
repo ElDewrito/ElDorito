@@ -162,7 +162,7 @@ namespace Patches
 				L"Hot winds blow over what should be a dead moon. A reminder of the power Forerunners once wielded. 6-16 players.",
 				L"The remote frontier world of Partition has provided this ancient databank with the safety of seclusion. 6-16 players.",
 				L"Being constructed just prior to the Invasion, its builders had to evacuate before it was completed. 6-16 players.",
-				L"Though they dominate on open terrain, many Scarabs have fallen victim to the narrow streets of Earth's cities. 4-10 players.",
+				L"Downtown Tyumen's Precinct 13 offers an ideal context for urban combat training. 4-10 players.",
 				L"Software simulations are held in contempt by the veteran instructors who run these training facilities. 4-10 players.",
 				L"Without cooling systems such as these, excess heat from the Ark's forges would render the construct uninhabitable. 2-8 players.",
 				L"A relic of older conflicts, this base was reactivated after the New Mombasa Slipspace Event. 4-12 players.",
