@@ -8,6 +8,9 @@ namespace Modules
 	{
 	public:
 		Command* VarServerName;
+		Command* VarServerNameClient;
+		Command* VarServerMessage;
+		Command* VarServerMessageClient;
 		Command* VarServerPassword;
 		Command* VarServerCountdown;
 		Command* VarServerMaxPlayers;

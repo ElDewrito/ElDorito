@@ -7,7 +7,7 @@ html, body {
 body {
     background: black;
     color: white;
-    font: 24pt "Tahoma", sans-serif;
+    font-family: "Tahoma", sans-serif;
 }
 
 .container {
@@ -22,4 +22,9 @@ body {
 h1 {
     margin: 0;
     padding: 0;
+    font-size: 24pt;
+}
+
+#server {
+    font-weight: bold;
 }

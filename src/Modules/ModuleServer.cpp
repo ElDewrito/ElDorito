@@ -1006,6 +1006,12 @@ namespace Modules
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
 		VarServerName = AddVariableString("Name", "server_name", "The name of the server", eCommandFlagsArchived, "HaloOnline Server");
+		VarServerNameClient = AddVariableString("NameClient", "server_name_client", "", eCommandFlagsInternal);
+		Server::VariableSynchronization::Synchronize(VarServerName, VarServerNameClient);
+
+		VarServerMessage = AddVariableString("Message", "server_msg", "Text to display on the loading screen (limited to 512 chars)", eCommandFlagsArchived, "");
+		VarServerMessageClient = AddVariableString("MessageClient", "server_msg_client", "", eCommandFlagsInternal);
+		Server::VariableSynchronization::Synchronize(VarServerMessage, VarServerMessageClient);
 
 		VarServerPassword = AddVariableString("Password", "password", "The server password", eCommandFlagsArchived, "");
 
