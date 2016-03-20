@@ -5,6 +5,9 @@
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
 #include "../../../Utils/VersionInfo.hpp"
+#include "../../../Utils/String.hpp"
+#include "../../../ThirdParty/rapidjson/writer.h"
+#include "../../../ThirdParty/rapidjson/stringbuffer.h"
 
 namespace
 {
@@ -108,6 +111,109 @@ namespace Anvil
 					QueryError OnVersion(const rapidjson::Value &p_Args, std::string *p_Result)
 					{
 						*p_Result = Utils::Version::GetVersionString();
+						return QueryError_Ok;
+					}
+
+					QueryError OnMapVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						// Get the map variant session parameter
+						auto session = Blam::Network::GetActiveSession();
+						if (!session || !session->IsEstablished())
+						{
+							*p_Result = "Not available: A game session is not active";
+							return QueryError_NotAvailable;
+						}
+						auto mapVariant = reinterpret_cast<uint8_t*>(session->Parameters.MapVariant.Get());
+						if (!mapVariant)
+						{
+							*p_Result = "Not available: Map variant data is not available";
+							return QueryError_NotAvailable;
+						}
+
+						// Get values out of it
+						auto name = Utils::String::ThinString(reinterpret_cast<const wchar_t*>(mapVariant + 0x8));
+						auto description = reinterpret_cast<const char*>(mapVariant + 0x28);
+						auto author = reinterpret_cast<const char*>(mapVariant + 0xA8);
+						auto mapId = *reinterpret_cast<uint32_t*>(mapVariant + 0x100);
+
+						// Build a JSON response
+						rapidjson::StringBuffer buffer;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+						writer.StartObject();
+						writer.Key("name");
+						writer.String(name.c_str());
+						writer.Key("description");
+						writer.String(description);
+						writer.Key("author");
+						writer.String(author);
+						writer.Key("mapId");
+						writer.Int64(mapId);
+						writer.EndObject();
+						*p_Result = buffer.GetString();
+						return QueryError_Ok;
+					}
+
+					QueryError OnGameVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						// Get the game variant session parameter
+						auto session = Blam::Network::GetActiveSession();
+						if (!session || !session->IsEstablished())
+						{
+							*p_Result = "Not available: A game session is not active";
+							return QueryError_NotAvailable;
+						}
+						auto gameVariant = session->Parameters.GameVariant.Get();
+						if (!gameVariant)
+						{
+							*p_Result = "Not available: Game variant data is not available";
+							return QueryError_NotAvailable;
+						}
+
+						// Get values out of it
+						auto mode = gameVariant->GameType;
+						auto name = Utils::String::ThinString(gameVariant->Name);
+						auto description = gameVariant->Description;
+						auto author = gameVariant->Author;
+						auto teams = (gameVariant->TeamGame & 1) != 0;
+						auto timeLimit = gameVariant->RoundTimeLimit;
+						auto rounds = gameVariant->NumberOfRounds;
+
+						// The score-to-win value location varies depending on gametype
+						auto scoreToWin = -1;
+						auto rawGameVariant = reinterpret_cast<uint8_t*>(gameVariant);
+						switch (gameVariant->GameType)
+						{
+						case Blam::GameType::Slayer: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1D4); break;
+						case Blam::GameType::Oddball: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1D8); break;
+						case Blam::GameType::KOTH: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1D8); break;
+						case Blam::GameType::CTF: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1DC); break;
+						case Blam::GameType::Assault: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1DC); break;
+						case Blam::GameType::Juggernaut: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1D4); break;
+						case Blam::GameType::VIP: scoreToWin = *reinterpret_cast<int16_t*>(rawGameVariant + 0x1D4); break;
+						}
+
+						// Build a JSON response
+						rapidjson::StringBuffer buffer;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+						writer.StartObject();
+						writer.Key("mode");
+						writer.Int(mode);
+						writer.Key("name");
+						writer.String(name.c_str());
+						writer.Key("description");
+						writer.String(description);
+						writer.Key("author");
+						writer.String(author);
+						writer.Key("teams");
+						writer.Bool(teams);
+						writer.Key("timeLimit");
+						writer.Int(timeLimit);
+						writer.Key("rounds");
+						writer.Int(rounds);
+						writer.Key("scoreToWin");
+						writer.Int(scoreToWin);
+						writer.EndObject();
+						*p_Result = buffer.GetString();
 						return QueryError_Ok;
 					}
 				}

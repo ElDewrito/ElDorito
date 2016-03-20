@@ -5,13 +5,45 @@
  * @enum {number}
  */
 DewError = {
+    /**
+     * The method ran successfully.
+     */
     OK: 0,
+
+    /**
+     * An unknown error occurred while running the method.
+     */
     UNKNOWN_ERROR: 1,
+
+    /**
+     * A JavaScript exception occurred while running the method.
+     */
     JS_EXCEPTION: 2,
+
+    /**
+     * A game communication error occurred.
+     */
     BAD_QUERY: 3,
+
+    /**
+     * The method is not supported by the game.
+     */
     UNSUPPORTED_METHOD: 4,
+
+    /**
+     * An invalid argument was passed to the method.
+     */
     INVALID_ARGUMENT: 5,
-    NETWORK_ERROR: 6
+
+    /**
+     * An error occurred while performing a network operation.
+     */
+    NETWORK_ERROR: 6,
+
+    /**
+     * The requested information is not available.
+     */
+    NOT_AVAILABLE: 7
 };
 
 /**
@@ -51,6 +83,26 @@ MPEventCategory = {
     WP: 13
 };
 
+/**
+ * Game modes.
+ * 
+ * @readonly
+ * @enum {number}
+ */
+GameMode = {
+    NONE: 0,
+    CTF: 1,
+    SLAYER: 2,
+    ODDBALL: 3,
+    KOTH: 4,
+    FORGE: 5,
+    VIP: 6,
+    JUGGERNAUT: 7,
+    TERRITORIES: 8,
+    ASSAULT: 9,
+    INFECTION: 10
+};
+
 (function () {
     window.dew = window.dew || {};
 
@@ -63,12 +115,23 @@ MPEventCategory = {
         console.error("Dew query \"" + err.method + "\" failed with code " + err.code + " (" + dew.getErrorName(err.code) + "): " + err.message);
     }
 
+    // Default 1:1 result mapping.
+    function defaultResultMapping(result) {
+        return result;
+    }
+
+    // JSON result mapping.
+    function jsonResultMapping(result) {
+        return JSON.parse(result);
+    }
+
     // Calls a native method.
-    dew.callMethod = function (method, args, onSuccess, onFailure) {
+    dew.callMethod = function (method, args, onSuccess, onFailure, resultMapping) {
         try {
             // Ensure default values
             onSuccess = onSuccess || defaultSuccess;
             onFailure = onFailure || defaultFailure;
+            resultMapping = resultMapping || defaultResultMapping;
             args = args || {};
 
             // Ensure that we have a function to send queries to ED
@@ -94,7 +157,22 @@ MPEventCategory = {
                     args: args
                 }),
                 persistent: false,
-                onSuccess: onSuccess,
+                onSuccess: function (resultStr) {
+                    // Map the result string using the resultMapping function,
+                    // calling onFailure if an error occurs in the process
+                    var result;
+                    try {
+                        result = resultMapping(resultStr);
+                    } catch (e) {
+                        onFailure({
+                            method: method,
+                            code: DewError.JS_EXCEPTION,
+                            message: e.message
+                        });
+                        return;
+                    }
+                    onSuccess(result);
+                },
                 onFailure: function (code, message) {
                     onFailure({
                         method: method,
@@ -168,6 +246,7 @@ MPEventCategory = {
      * @param {object} err - Information about the error that occurred.
      * @param {DewError} err.code - The internal error code.
      * @param {string} err.message - The error message.
+     * @param {string} err.method - The name of the internal method that was called.
      */
 
     /**
@@ -277,6 +356,64 @@ MPEventCategory = {
     }
 
     /**
+     * (ASYNCHRONOUS) Gets info about the current map variant.
+     * 
+     * If map variant info is not available, onFailure will be called with [DewError.NOT_AVAILABLE]{@link DewError}.
+     * 
+     * @name dew.getMapVariantInfo
+     * @function
+     * @param {MapVariantInfoSuccessCallback} onSuccess - The success callback. It will be passed information about the map variant.
+     * @param {FailureCallback} onFailure - The failure callback.
+     * @see MapVariantInfoSuccessCallback
+     */
+    dew.getMapVariantInfo = function (onSuccess, onFailure) {
+        dew.callMethod("mapVariantInfo", {}, onSuccess, onFailure, jsonResultMapping);
+    }
+
+    /**
+     * Called when {@link dew.getMapVariantInfo} succeeds.
+     *
+     * @callback MapVariantInfoSuccessCallback
+     * @param {object} info - The map variant info.
+     * @param {string} info.name - The name. Can be empty.
+     * @param {string} info.description - The description. Can be empty.
+     * @param {string} info.author - The author. Can be empty.
+     * @param {number} info.mapId - The map ID.
+     * @see dew.getMapVariantInfo
+     */
+
+    /**
+     * (ASYNCHRONOUS) Gets info about the current game variant.
+     * 
+     * If game variant info is not available, onFailure will be called with [DewError.NOT_AVAILABLE]{@link DewError}.
+     * 
+     * @name dew.getGameVariantInfo
+     * @function
+     * @param {GameVariantInfoSuccessCallback} onSuccess - The success callback. It will be passed information about the game variant.
+     * @param {FailureCallback} onFailure - The failure callback.
+     * @see GameVariantInfoSuccessCallback
+     */
+    dew.getGameVariantInfo = function (onSuccess, onFailure) {
+        dew.callMethod("gameVariantInfo", {}, onSuccess, onFailure, jsonResultMapping);
+    }
+
+    /**
+     * Called when {@link dew.getGameVariantInfo} succeeds.
+     *
+     * @callback GameVariantInfoSuccessCallback
+     * @param {object} info - The game variant info.
+     * @param {GameMode} info.mode - The base game mode.
+     * @param {string} info.name - The name. Can be empty.
+     * @param {string} info.description - The description. Can be empty.
+     * @param {string} info.author - The author. Can be empty.
+     * @param {boolean} info.teams - `true` if teams are enabled.
+     * @param {number} info.timeLimit - The time limit in minutes (0 if unlimited).
+     * @param {number} info.rounds - The number of rounds.
+     * @param {number} info.scoreToWin - The score-to-win (-1 if unlimited).
+     * @see dew.getGameVariantInfo
+     */
+
+    /**
      * Registers a callback to be run when an event occurs.
      *
      * @name dew.on
@@ -288,6 +425,7 @@ MPEventCategory = {
      * @see event:pong
      * @see event:console
      * @see event:mpevent
+     * @see event:loadprogress
      */
     dew.on = function (event, callback) {
         registerEvent(event, callback);
@@ -345,6 +483,17 @@ MPEventCategory = {
      * @property {string} name - The internal name of the event.
      * @property {MPEventCategory} category - The event's category.
      * @property {MPEventAudience} audience - The audience that the event is intended for.
+     */
+
+    /**
+     * Fired when the loading screen is active and the loading progress changes.
+     * 
+     * This event is only sent to visible screens.
+     * 
+     * @event loadprogress
+     * @type {object}
+     * @property {number} currentBytes - The current number of bytes that have been decompressed.
+     * @property {number} totalBytes - The total number of bytes that need to be decompressed.
      */
 
     /**

@@ -96,11 +96,14 @@ namespace Blam
 		/* 0xB2C */ uint32_t GameType; // see Blam::GameType
 		float Unknown1; // gravity maybe?
 		uint8_t Unknown2[0x2C];
-		/* 0xB60 */ uint8_t Unknown3[0xF0]; // start of variant data
+		wchar_t Name[0x10];
+		char Description[0x80];
+		char Author[0x10];
+		/* 0xC10 */ uint8_t Unknown3[0x40];
 		/* 0xC50 */ uint8_t TeamGame; // default 0, 1 for eg. Team Slayer, 0 for Slayer (note: the game ANDs this with 1, is that actually necessary?)
 		uint8_t RoundTimeLimit; // default 8
-		uint8_t Unknown5; // default 1
-		uint8_t NumberOfRounds; // default 2
+		uint8_t NumberOfRounds; // default 1
+		uint8_t Unknown5; // default 2
 		uint8_t Unknown6; // default 0x10
 		uint8_t Unknown7; // 0
 		uint8_t Unknown8; // 0

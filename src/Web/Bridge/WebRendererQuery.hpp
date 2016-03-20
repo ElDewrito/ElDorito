@@ -19,7 +19,8 @@ namespace Anvil
 					QueryError_BadQuery,
 					QueryError_UnsupportedMethod,
 					QueryError_InvalidArgument,
-					QueryError_NetworkError
+					QueryError_NetworkError,
+					QueryError_NotAvailable
 				};
 
 				// Signature for a function that handles queries.

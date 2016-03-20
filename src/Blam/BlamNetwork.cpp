@@ -147,6 +147,13 @@ namespace Blam
 			return GetGameVariant(this);
 		}
 
+		void* MapVariantSessionParameter::Get() const
+		{
+			typedef void*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
+			auto GetMapVariant = reinterpret_cast<GetMapVariantPtr>(0x456410);
+			return GetMapVariant(this);
+		}
+
 		PacketTable *GetPacketTable()
 		{
 			auto packetTablePtr = Pointer::Base(0x1E4A498);

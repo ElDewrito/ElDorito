@@ -43,6 +43,8 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("ping", Bridge::ClientFunctions::OnPing);
 		m_QueryHandler->AddMethod("captureInput", Bridge::ClientFunctions::OnCaptureInput);
 		m_QueryHandler->AddMethod("version", Bridge::ClientFunctions::OnVersion);
+		m_QueryHandler->AddMethod("mapVariantInfo", Bridge::ClientFunctions::OnMapVariantInfo);
+		m_QueryHandler->AddMethod("gameVariantInfo", Bridge::ClientFunctions::OnGameVariantInfo);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}
