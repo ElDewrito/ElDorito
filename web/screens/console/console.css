@@ -15,9 +15,54 @@ html, body {
 
 .console .box {
     margin: 4px;
-    padding: 4px;
     border: 2px solid #202020;
     background-color: #404040;
+}
+
+.console .box.input, .console .box.info, .console .box.button {
+    box-sizing: border-box;
+    height: 30px;
+    padding: 0 4px;
+    line-height: 26px;
+}
+
+.console .box.input .prompt {
+    color: #00bfff;
+    float: left;
+}
+
+.console .box.info {
+    display: inline-block;
+    width: calc(100% - 314px);
+    color: #c0c0c0;
+}
+
+.console .box.info .important {
+    color: white;
+}
+
+.console .box.button {
+    display: inline-block;
+    color: #00bfff;
+    text-decoration: none;
+    border-color: #00bfff;
+}
+
+.console .box.button:hover {
+    color: white;
+    border-color: white;
+}
+
+.console .box.output {
+    padding: 4px;
+    height: calc(50% - 90px);
+    overflow: auto;
+    word-wrap: break-word;
+    -webkit-user-select: text;
+}
+
+.console .box.transparent {
+    background-color: rgba(64, 64, 64, 0.75);
 }
 
 .console .box::-webkit-scrollbar {
@@ -28,10 +73,6 @@ html, body {
     background: #202020;
     border: 2px solid rgba(0, 0, 0, 0);
     background-clip: padding-box;
-}
-
-.console .box.transparent {
-    background-color: rgba(64, 64, 64, 0.9);
 }
 
 .console .command-span {
@@ -54,18 +95,6 @@ html, body {
     background: #c0c0c0;
 }
 
-.console .prompt {
-    color: #00bfff;
-    float: left;
-}
-
-.console #output-box {
-    height: 50%;
-    overflow: auto;
-    word-wrap: break-word;
-    -webkit-user-select: text;
-}
-
 .console #output-box pre {
     margin: 0;
 }
@@ -78,10 +107,6 @@ html, body {
     color: #00bfff;
 }
 
-.console .info {
-    color: #c0c0c0;
-}
-
-.console .info .important {
-    color: white;
+.console #output-box .debug-line {
+    color: #af4444;
 }
