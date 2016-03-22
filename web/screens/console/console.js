@@ -207,10 +207,6 @@ $(window).load(function () {
         focusInput();
     });
 
-    $("#button-reload").click(function () {
-        location.reload();
-    });
-
     $("#button-size").click(function () {
         setConsoleSize(0);
         focusInput();

@@ -368,6 +368,8 @@ void WebRendererSchemeHandler::GetResponseHeaders(CefRefPtr<CefResponse> p_Respo
 
 	if (m_ShouldCache)
 		s_Headers.insert(std::make_pair("Cache-Control", "public, max-age=0"));
+	else
+		s_Headers.insert(std::make_pair("Cache-Control", "private, max-age=0, no-cache"));
 
 	s_Headers.insert(std::make_pair("Content-Length", boost::lexical_cast<std::string>(m_RequestedLength).c_str()));
 
