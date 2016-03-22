@@ -11,21 +11,23 @@
         <div class="console">
             <div id="input-box" class="box input">
                 <span class="prompt">
-                    ElDewrito <span id="version"></span> &gt;&nbsp;
+                    ElDewrito <span id="version"></span>&gt;&nbsp;
                 </span>
                 <span class="command-span">
                     <input type="text" id="command" autocomplete="off" spellcheck="false"/>
                 </span>
             </div>
             <div class="box transparent output" id="output-box"></div>
-            <div class="box transparent info">
-                Enter <span class="important">help</span> for a list of available commands. Press Escape to close. 
+            <div class="controls">
+                <div class="box transparent info">
+                    Enter <span class="important">help</span> for a list of available commands. Press Escape to close.
+                </div>
+                <div id="button-help" class="box transparent button">Help</div>
+                <div id="button-clear" class="box transparent button">Clear</div>
+                <div id="button-reload" class="box transparent button">Reload</div>
+                <div id="button-size" class="box transparent button">Size</div>
+                <div id="button-hide" class="box transparent button">Close</div>
             </div>
-            <a class="box transparent button" href="javascript:runCommand('Console.Help')">Help</a>
-            <a class="box transparent button" href="javascript:clearConsole()">Clear</a>
-            <a class="box transparent button" href="javascript:location.reload()">Reload</a>
-            <a class="box transparent button" href="javascript:setConsoleSize(0)">Size</a>
-            <a class="box transparent button" href="javascript:dew.hide()">Hide</a>
         </div>
     </body>
 </html>

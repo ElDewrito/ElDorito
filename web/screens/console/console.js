@@ -1,3 +1,9 @@
+var inputHistory = [];
+var selectedHistoryIndex = 0;
+
+var consoleSize = 2;
+var commandList = {};
+
 function focusInput() {
     $("#command").focus();
 }
@@ -47,7 +53,7 @@ function showConsoleHelp() {
         "Help" : "Display the game's help text"
     }
     $.each(commandList, function(key, value) {
-        appendLine("", "<b>" + key + "</b> - " + value, false);
+        appendLine("", key + " - " + value);
     });
 }
 
@@ -60,40 +66,11 @@ function setConsoleSize(size) {
         appendLine("debug-line", "Parameter is not a number! Options: 0, 1, 2, 3 or 4");
         return;
     }
-    if (!!size) {
-        switch (size) {
-            case 1:
-                $(".console #output-box").css({"height": "calc(25% - 90px)"});
-                consoleSize = 1;
-                break;
-            case 3:
-                $(".console #output-box").css({"height": "calc(75% - 90px)"});
-                consoleSize = 3;
-                break;
-            case 4:
-                $(".console #output-box").css({"height": "calc(100% - 90px)"});
-                consoleSize = 4;
-                break;
-            default: 
-                $(".console #output-box").css({"height": "calc(50% - 90px)"});
-                consoleSize = 2;
-                break;
-        }
+    if (size === 0) {
+        size = (consoleSize % 4) + 1;
     }
-    else {
-        if (consoleSize == 1) {
-            setConsoleSize(2);
-        }
-        else if (consoleSize == 2) {
-            setConsoleSize(3);
-        }
-        else if (consoleSize == 3) {
-            setConsoleSize(4);
-        }
-        else if (consoleSize == 4) {
-            setConsoleSize(1);
-        }
-    }
+    consoleSize = size;
+    $(".console").css({ "height": consoleSize * 25 + "%" });
 }
 
 function setConsoleTransparency(percentage) {
@@ -121,75 +98,57 @@ function scrollToBottom() {
     box.scrollTop(box.prop("scrollHeight"));
 }
 
-function appendLine(cssClass, line, htmlFilter) {
-    if (typeof htmlFilter === 'undefined' || htmlFilter === null) {
-        htmlFilter = true;
-    }
+function appendLine(cssClass, line) {
     if (line === "") {
         line = "\n";
     }
     var atBottom = isScrolledToBottom($("#output-box"));
-    if (htmlFilter) {
-        $("<pre></pre>", {
-                "class": cssClass
-            })
-            .text(line)
-            .appendTo($("#output-box"));
-    }
-    else {
-        $("<pre></pre>", {
-                "class": cssClass
-            })
-            .html(line)
-            .appendTo($("#output-box"));
-    }
+    $("<pre></pre>", {
+            "class": cssClass
+        })
+        .html(line)
+        .appendTo($("#output-box"));
     if (atBottom) {
         scrollToBottom();
     }
 }
 
 function runCommand(command) {
-    if(!!command.trim()) {
+    if (!!command.trim()) {
+        appendLine("command-line", "> " + command);
         switch (command.toLowerCase()) {
             case "clear":
                 clearConsole();
                 break;
             case "console.help":
-                appendLine("command-line", "> " + command);
                 showConsoleHelp();
                 break;
             case "console.reload":
                 reloadConsole();
                 break;
             case "console.history":
-                appendLine("command-line", "> " + command);
                 getInputHistory();
                 break;
             case "console.togglesize":
-                appendLine("command-line", "> " + command);
                 setConsoleSize(0);
                 break;
             default:
-                if (command.toLowerCase().indexOf('console.size') == 0){
-                    appendLine("command-line", "> " + command);
-                    commandValue = command.split(' ');
+                if (command.toLowerCase().indexOf('console.size') === 0){
+                    var commandValue = command.split(' ');
                     setConsoleSize(parseInt(commandValue[1]));
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.transparency') == 0){
-                    appendLine("command-line", "> " + command);
-                    commandValue = command.split(' ');
+                else if (command.toLowerCase().indexOf('console.transparency') === 0){
+                    var commandValue = command.split(' ');
                     setConsoleTransparency(parseInt(commandValue[1]));
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.opacity') == 0){
-                    appendLine("command-line", "> " + command);
-                    commandValue = command.split(' ');
+                else if (command.toLowerCase().indexOf('console.opacity') === 0){
+                    var commandValue = command.split(' ');
                     setConsoleOpacity(parseInt(commandValue[1]));
                     break;
                 }
                 dew.command(command, {}, function (output) {
-                    appendLine("command-line", "> " + command);
                     if (output !== "") {
                         appendLine("", output);
                     }
@@ -197,23 +156,20 @@ function runCommand(command) {
                 });
                 break;
         }
-        clearInput();
         pushInputHistory(command);
         resetInputHistoryIndex();
     }
 }
 
 $(window).load(function () {
-    inputHistory = [];
-    selectedHistoryIndex = 0;
-
-    consoleSize = 2;
-
     dew.getVersion(function (version) {
         $("#version").text(version);
     });
 
     focusInput();
+    $("#input-box").click(function () {
+        focusInput();
+    });
 
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
@@ -238,6 +194,33 @@ $(window).load(function () {
             selectInputHistoryIndex(1);
         }
     });
+
+    $("#button-help").click(function () {
+        runCommand("Console.Help");
+        runCommand("Help");
+        focusInput();
+    });
+
+    $("#button-clear").click(function () {
+        clearConsole();
+        clearInput();
+        focusInput();
+    });
+
+    $("#button-reload").click(function () {
+        location.reload();
+    });
+
+    $("#button-size").click(function () {
+        setConsoleSize(0);
+        focusInput();
+    });
+
+    $("#button-hide").click(function () {
+        dew.hide();
+    });
+
+    setConsoleSize(consoleSize);
 });
 
 dew.on("show", function (e) {

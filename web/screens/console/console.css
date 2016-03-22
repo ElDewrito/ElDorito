@@ -9,21 +9,16 @@ html, body {
 .console {
     color: white;
     font: 10pt "Consolas", monospace;
-    width: 100%;
-    height: 100%;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
 }
 
 .console .box {
-    margin: 4px;
+    margin: 4px 4px 0 4px;
+    padding: 4px;
     border: 2px solid #202020;
     background-color: #404040;
-}
-
-.console .box.input, .console .box.info, .console .box.button {
-    box-sizing: border-box;
-    height: 30px;
-    padding: 0 4px;
-    line-height: 26px;
 }
 
 .console .box.input .prompt {
@@ -32,9 +27,8 @@ html, body {
 }
 
 .console .box.info {
-    display: inline-block;
-    width: calc(100% - 314px);
     color: #c0c0c0;
+    flex: 1;
 }
 
 .console .box.info .important {
@@ -42,27 +36,32 @@ html, body {
 }
 
 .console .box.button {
-    display: inline-block;
-    color: #00bfff;
-    text-decoration: none;
-    border-color: #00bfff;
+    color: #c0c0c0;
+    min-width: 75px;
+    text-align: center;
+    margin-left: 0;
 }
 
 .console .box.button:hover {
     color: white;
-    border-color: white;
+    border-color: #c0c0c0;
+}
+
+.console .controls {
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: row;
 }
 
 .console .box.output {
-    padding: 4px;
-    height: calc(50% - 90px);
     overflow: auto;
     word-wrap: break-word;
     -webkit-user-select: text;
+    flex: 1;
 }
 
 .console .box.transparent {
-    background-color: rgba(64, 64, 64, 0.75);
+    background-color: rgba(64, 64, 64, 0.9);
 }
 
 .console .box::-webkit-scrollbar {
