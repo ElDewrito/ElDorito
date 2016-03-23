@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ModuleBase.hpp"
+#include <cstdint>
 
 namespace Modules
 {
@@ -26,7 +27,7 @@ namespace Modules
 		Command* VarServerDualWieldEnabledClient;
 		Command* VarServerAssassinationEnabled;
 
-		BYTE SyslinkData[0x176];
+		uint8_t SyslinkData[0x176];
 
 		ModuleServer();
 	};

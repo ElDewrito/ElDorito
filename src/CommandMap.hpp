@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Windows.h>
 #include <vector>
 #include <deque>
 
@@ -29,11 +28,6 @@ enum CommandFlags
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
-
-namespace
-{
-	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
-}
 
 namespace Modules
 {

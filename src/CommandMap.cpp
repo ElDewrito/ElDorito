@@ -4,6 +4,11 @@
 #include "ElDorito.hpp"
 #include "Blam\BlamNetwork.hpp"
 
+namespace
+{
+	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
+}
+
 namespace Modules
 {
 	Command::Command() : UpdateEvent(0), ValueInt(0), ValueFloat(0.f), DefaultValueInt(0), DefaultValueFloat(0.f), ValueIntMin(0), ValueIntMax(0), ValueFloatMin(0.f), ValueFloatMax(0.f)
@@ -148,13 +153,18 @@ namespace Modules
 		if (cmd->Type == eCommandTypeCommand)
 			return cmd->UpdateEvent(argsVect, *output); // if it's a command call it and return
 
-		std::string previousValue;
-		auto updateRet = SetVariable(cmd, (numArgs > 1 ? argsVect[0] : ""), previousValue);
+		if (numArgs <= 1)
+		{
+			*output = cmd->ValueString;
+			return true;
+		}
 
+		std::string previousValue;
+		auto updateRet = SetVariable(cmd, argsVect[0], previousValue);
 		switch (updateRet)
 		{
 		case eVariableSetReturnValueError:
-			*output = "Command/Variable not found";
+			*output = "Command/variable not found";
 			return false;
 		case eVariableSetReturnValueInvalidArgument:
 			*output = "Invalid value";
@@ -169,16 +179,6 @@ namespace Modules
 			else
 				*output = "Value " + argsVect[0] + " out of range [this shouldn't be happening!]";
 			return false;
-		}
-
-		// special case for blanking strings
-		if (cmd->Type == eCommandTypeVariableString && numArgs > 1 && argsVect[0].empty())
-			cmd->ValueString = "";
-
-		if (numArgs <= 1)
-		{
-			*output = previousValue;
-			return true;
 		}
 
 		if (!cmd->UpdateEvent)
@@ -256,50 +256,50 @@ namespace Modules
 
 	VariableSetReturnValue CommandMap::SetVariable(Command* command, std::string& value, std::string& previousValue)
 	{
+		// Disallow setting internal variables through the console
+		if (command->Flags & eCommandFlagsInternal)
+			return eVariableSetReturnValueError;
+
 		try {
 			switch (command->Type)
 			{
 			case eCommandTypeVariableString:
 				previousValue = command->ValueString;
-				if (value.length() > 0)
-					command->ValueString = value;
+				command->ValueString = value;
 				break;
 			case eCommandTypeVariableInt:
-				previousValue = std::to_string(command->ValueInt);
-				if (value.length() > 0)
 				{
+					previousValue = std::to_string(command->ValueInt);
 					auto newValue = std::stoul(value, 0, 0);
 					if ((command->ValueIntMin || command->ValueIntMax) && (newValue < command->ValueIntMin || newValue > command->ValueIntMax))
 						return eVariableSetReturnValueOutOfRange;
 
 					command->ValueInt = newValue;
 					command->ValueString = std::to_string(command->ValueInt); // set the ValueString too so we can print the value out easier
+					break;
 				}
-				break;
 			case eCommandTypeVariableInt64:
-				previousValue = std::to_string(command->ValueInt);
-				if (value.length() > 0)
 				{
+					previousValue = std::to_string(command->ValueInt);
 					auto newValue = std::stoull(value, 0, 0);
 					if ((command->ValueInt64Min || command->ValueInt64Max) && (newValue < command->ValueInt64Min || newValue > command->ValueInt64Max))
 						return eVariableSetReturnValueOutOfRange;
 
 					command->ValueInt64 = newValue;
 					command->ValueString = std::to_string(command->ValueInt64); // set the ValueString too so we can print the value out easier
+					break;
 				}
-				break;
 			case eCommandTypeVariableFloat:
-				previousValue = std::to_string(command->ValueFloat);
-				if (value.length() > 0)
 				{
+					previousValue = std::to_string(command->ValueFloat);
 					auto newValue = std::stof(value, 0);
 					if ((command->ValueFloatMin || command->ValueFloatMax) && (newValue < command->ValueFloatMin || newValue > command->ValueFloatMax))
 						return eVariableSetReturnValueOutOfRange;
 
 					command->ValueFloat = newValue;
 					command->ValueString = std::to_string(command->ValueFloat); // set the ValueString too so we can print the value out easier
+					break;
 				}
-				break;
 			}
 		}
 		catch (std::invalid_argument)
