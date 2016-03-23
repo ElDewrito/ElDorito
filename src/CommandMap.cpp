@@ -102,75 +102,31 @@ namespace Modules
 		return ExecuteCommand(commandStr, isUserInput);
 	}
 
-	bool CommandMap::ExecuteCommandWithStatus(std::string command, bool isUserInput)
+	bool CommandMap::ExecuteCommandWithStatus(std::string command, bool isUserInput, std::string *output)
 	{
+		*output = "";
+
 		int numArgs = 0;
 		auto args = CommandLineToArgvA((PCHAR)command.c_str(), &numArgs);
 
 		if (numArgs <= 0)
+		{
+			*output = "Invalid input";
 			return false;
+		}
 
 		auto cmd = FindCommand(args[0]);
 		if (!cmd || (isUserInput && cmd->Flags & eCommandFlagsInternal))
-			return false;
-
-		// Host-only commands
-		if (cmd->Flags & eCommandFlagsCheat || cmd->Flags & eCommandFlagsHostOnly)
 		{
-			auto session = Blam::Network::GetActiveSession();
-			if (session && session->IsEstablished() && !session->IsHost())
-				return false;
-		}
-
-		std::vector<std::string> argsVect;
-		if (numArgs > 1)
-		for (int i = 1; i < numArgs; i++)
-			argsVect.push_back(args[i]);
-
-		if (cmd->Type == eCommandTypeCommand)
-		{
-			cmd->UpdateEvent(argsVect, std::string()); // if it's a command call it and return
-			return true;
-		}
-
-		std::string previousValue;
-		auto updateRet = SetVariable(cmd, (numArgs > 1 ? argsVect[0] : ""), previousValue);
-
-		if (updateRet != eVariableSetReturnValueSuccess)
+			*output = "Command/Variable not found";
 			return false;
-
-		if (numArgs <= 1)
-			return true;
-
-		if (!cmd->UpdateEvent)
-			return true; // no update event, so we'll just return with what we set the value to
-
-		auto ret = cmd->UpdateEvent(argsVect, std::string());
-
-		if (ret) // error, revert the variable
-			return true;
-
-		// error, revert the variable
-		this->SetVariable(cmd, previousValue, std::string());
-		return false;
-	}
-
-	std::string CommandMap::ExecuteCommand(std::string command, bool isUserInput)
-	{
-		int numArgs = 0;
-		auto args = CommandLineToArgvA((PCHAR)command.c_str(), &numArgs);
-
-		if (numArgs <= 0)
-			return "Invalid input";
-
-		auto cmd = FindCommand(args[0]);
-		if (!cmd || (isUserInput && cmd->Flags & eCommandFlagsInternal))
-			return "Command/Variable not found";
+		}
 
 		if ((cmd->Flags & eCommandFlagsRunOnMainMenu) && !ElDorito::Instance().GameHasMenuShown)
 		{
 			queuedCommands.push_back(command);
-			return "Command queued until mainmenu shows";
+			*output = "Command queued until mainmenu shows";
+			return true;
 		}
 
 		// Host-only commands
@@ -178,20 +134,19 @@ namespace Modules
 		{
 			auto session = Blam::Network::GetActiveSession();
 			if (session && session->IsEstablished() && !session->IsHost())
-				return "Only a player hosting a game can use this command";
+			{
+				*output = "Only a player hosting a game can use this command";
+				return false;
+			}
 		}
 
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
-		for (int i = 1; i < numArgs; i++)
-			argsVect.push_back(args[i]);
+			for (int i = 1; i < numArgs; i++)
+				argsVect.push_back(args[i]);
 
 		if (cmd->Type == eCommandTypeCommand)
-		{
-			std::string retInfo;
-			cmd->UpdateEvent(argsVect, retInfo); // if it's a command call it and return
-			return retInfo;
-		}
+			return cmd->UpdateEvent(argsVect, *output); // if it's a command call it and return
 
 		std::string previousValue;
 		auto updateRet = SetVariable(cmd, (numArgs > 1 ? argsVect[0] : ""), previousValue);
@@ -199,18 +154,21 @@ namespace Modules
 		switch (updateRet)
 		{
 		case eVariableSetReturnValueError:
-			return "Command/Variable not found";
+			*output = "Command/Variable not found";
+			return false;
 		case eVariableSetReturnValueInvalidArgument:
-			return "Invalid value";
+			*output = "Invalid value";
+			return false;
 		case eVariableSetReturnValueOutOfRange:
 			if (cmd->Type == eCommandTypeVariableInt)
-				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueIntMin) + ".." + std::to_string(cmd->ValueIntMax) + "]";
-			if (cmd->Type == eCommandTypeVariableInt64)
-				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueInt64Min) + ".." + std::to_string(cmd->ValueInt64Max) + "]";
-			if (cmd->Type == eCommandTypeVariableFloat)
-				return "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueFloatMin) + ".." + std::to_string(cmd->ValueFloatMax) + "]";
-
-			return "Value " + argsVect[0] + " out of range [this shouldn't be happening!]";
+				*output = "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueIntMin) + ".." + std::to_string(cmd->ValueIntMax) + "]";
+			else if (cmd->Type == eCommandTypeVariableInt64)
+				*output = "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueInt64Min) + ".." + std::to_string(cmd->ValueInt64Max) + "]";
+			else if (cmd->Type == eCommandTypeVariableFloat)
+				*output = "Value " + argsVect[0] + " out of range [" + std::to_string(cmd->ValueFloatMin) + ".." + std::to_string(cmd->ValueFloatMax) + "]";
+			else
+				*output = "Value " + argsVect[0] + " out of range [this shouldn't be happening!]";
+			return false;
 		}
 
 		// special case for blanking strings
@@ -218,21 +176,33 @@ namespace Modules
 			cmd->ValueString = "";
 
 		if (numArgs <= 1)
-			return previousValue;
+		{
+			*output = previousValue;
+			return true;
+		}
 
 		if (!cmd->UpdateEvent)
-			return previousValue + " -> " + cmd->ValueString; // no update event, so we'll just return with what we set the value to
+		{
+			*output = previousValue + " -> " + cmd->ValueString; // no update event, so we'll just return with what we set the value to
+			return true;
+		}
 
-		std::string retVal;
-		auto ret = cmd->UpdateEvent(argsVect, retVal);
+		auto ret = cmd->UpdateEvent(argsVect, *output);
 
 		if (!ret) // error, revert the variable
 			this->SetVariable(cmd, previousValue, std::string());
 
-		if (retVal.length() <= 0)
-			return previousValue + " -> " + cmd->ValueString;
+		if (output->length() <= 0)
+			*output = previousValue + " -> " + cmd->ValueString;
 
-		return retVal;
+		return ret;
+	}
+
+	std::string CommandMap::ExecuteCommand(std::string command, bool isUserInput)
+	{
+		std::string output;
+		ExecuteCommandWithStatus(command, isUserInput, &output);
+		return output;
 	}
 
 	bool CommandMap::GetVariableInt(const std::string& name, unsigned long& value)
@@ -398,10 +368,11 @@ namespace Modules
 		std::istringstream stream(commands);
 		std::stringstream ss;
 		std::string line;
+		std::string output;
 		int lineIdx = 0;
 		while (std::getline(stream, line))
 		{
-			if (!this->ExecuteCommandWithStatus(line, isUserInput))
+			if (!this->ExecuteCommandWithStatus(line, isUserInput, &output))
 			{
 				ss << "Error at line " << lineIdx << std::endl;
 			}

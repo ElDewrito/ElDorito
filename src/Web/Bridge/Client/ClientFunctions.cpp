@@ -54,7 +54,8 @@ namespace Anvil
 						auto s_IsInternal = (s_InternalValue != p_Args.MemberEnd() && s_InternalValue->value.IsBool() && s_InternalValue->value.GetBool());
 
 						// Run the command
-						*p_Result = Modules::CommandMap::Instance().ExecuteCommand(s_CommandValue->value.GetString(), !s_IsInternal);
+						if (!Modules::CommandMap::Instance().ExecuteCommandWithStatus(s_CommandValue->value.GetString(), !s_IsInternal, p_Result))
+							return QueryError_CommandFailed;
 						return QueryError_Ok;
 					}
 

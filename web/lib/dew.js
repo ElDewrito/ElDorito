@@ -43,7 +43,12 @@ DewError = {
     /**
      * The requested information is not available.
      */
-    NOT_AVAILABLE: 7
+    NOT_AVAILABLE: 7,
+
+    /**
+     * The console command failed to execute successfully.
+     */
+    COMMAND_FAILED: 8
 };
 
 /**
@@ -345,7 +350,8 @@ CommandType = {
     /**
      * (ASYNCHRONOUS) Runs a console command.
      * 
-     * This will always succeed unless an error occurs while calling the method itself.
+     * If the command does not run successfully, onFailure will be called with [DewError.COMMAND_FAILED]{@link DewError}.
+     * The error message will be the command output.
      *
      * @name dew.command
      * @function
@@ -353,7 +359,7 @@ CommandType = {
      * @param {object} [options] - Additional options that control how the command should run.
      * @param {boolean} [options.internal=false] - If set to true, then internal commands can be executed.
      * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the string returned by the command.
-     * @param {FailureCallback} [onFailure] - The failure callback.
+     * @param {FailureCallback} [onFailure] - The failure callback. If the command fails with [DewError.COMMAND_FAILED]{@link DewError}, this will be called with the error message set to the command output.
      */
     dew.command = function (command, options, onSuccess, onFailure) {
         dew.callMethod("command", function () {

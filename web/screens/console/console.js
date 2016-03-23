@@ -106,7 +106,7 @@ function appendLine(cssClass, line) {
     $("<pre></pre>", {
             "class": cssClass
         })
-        .html(line)
+        .text(line)
         .appendTo($("#output-box"));
     if (atBottom) {
         scrollToBottom();
@@ -153,6 +153,8 @@ function runCommand(command) {
                         appendLine("", output);
                     }
                     scrollToBottom();
+                }, function (error) {
+                    appendLine("debug-line", error.message);
                 });
                 break;
         }
