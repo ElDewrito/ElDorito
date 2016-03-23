@@ -170,8 +170,12 @@ body {
     white-space: pre-wrap;
 }
 
-.console .box.output pre.info {
+.console .box.output pre.info, .console .box.output pre.suggestion {
     padding: 20px;
+} 
+
+.console .box.output pre.suggestion {
+    background: rgba(255,255,255,0.05);
 }
 
 .console .box.output pre .command {
@@ -180,6 +184,10 @@ body {
 
 .console .box.output pre .command:hover {
     text-decoration: underline;
+}
+
+.console .box.output pre .description {
+    color: #ABABAB;
 }
 
 .console .box.output pre:nth-child(even) {

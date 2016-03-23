@@ -1,8 +1,46 @@
 var inputHistory = [];
 var selectedHistoryIndex = 0;
+var commandList = {};
 
 var consoleSize = 2;
-var commandList = {};
+var consoleDock = 1;
+var consoleInvert = 1;
+var consoleTransparency = 75;
+var consoleOpacity = 100;
+
+function isset(val) {
+     return !!val;
+}
+
+function ifset(val, other) {
+    return isset(val) ? val : other;
+}
+
+function htmlEncode(value){
+  return $('<div>').text(value).html();
+}
+
+function findPartialsMatch(matchArray) {
+    var firstString = matchArray[0];
+    if (matchArray.length > 1) {
+        var partialString = "";
+        var match = true;
+        for (var i = 0, length = firstString.length; i < length; i++) {
+            $.each(matchArray, function (key, value) {
+                if(value.toLowerCase().indexOf(partialString.toLowerCase()) != 0) {
+                    match = false;
+                }
+            });
+            if (!match) {
+                return partialString.slice(0, -1);
+            }
+            partialString += firstString[i];
+        }
+    }
+    else {
+        return firstString;
+    }
+}
 
 function focusInput() {
     $("#command").focus();
@@ -52,6 +90,15 @@ function resetInputHistoryIndex() {
 function getConsoleHelp() {
     commands = [
         {
+            "module": "",
+            "name": "Variables",
+            "shortName": "variables",
+            "description": "Display all game variables with current values and a description",
+            "defaultValue": null,
+            "hidden": false,
+            "arguments": []
+        },
+        {
             "module": "Console",
             "name": "Clear",
             "shortName": "console_clear",
@@ -65,6 +112,7 @@ function getConsoleHelp() {
             "name": "Console.Dock",
             "shortName": "console_dock",
             "description": "Toggle Console docking, allows you to drag and resize the console if undocked. Options: 0, 1 or 2. Setting it to 0 will do the same as the Dock button",
+            "value": consoleDock,
             "defaultValue": 1,
             "hidden": false,
             "arguments": [
@@ -85,6 +133,7 @@ function getConsoleHelp() {
             "name": "Console.Invert",
             "shortName": "console_invert",
             "description": "Inverts the Console input box and drag handle",
+            "value": consoleInvert,
             "defaultValue": 1,
             "hidden": false,
             "arguments": [
@@ -96,6 +145,7 @@ function getConsoleHelp() {
             "name": "Console.Opacity",
             "shortName": "console_opacity",
             "description": "Set the Console's overall opacity. Range: 0 - 100. Do not set below 40",
+            "value": consoleOpacity,
             "defaultValue": 100,
             "hidden": false,
             "arguments": [
@@ -116,10 +166,11 @@ function getConsoleHelp() {
             "name": "Console.Size",
             "shortName": "console_size",
             "description": "Set the Console's output box size manually. Options: 1, 2, 3 or 4. Setting it to 0 will do the same as Console.ToggleSize",
+            "value": consoleSize,
             "defaultValue": 2,
             "hidden": false,
             "arguments": [
-                "sizeIndex(int) Options: 0, 1, 2, 3 or 4. 1 = 25% height, 2 = 50% height, 3 = 75% height, 4 = 100% height, 0 toggles between 1, 2, 3 and 4."
+                "sizeIndex(int) Options: 0, 1, 2, 3 or 4. 1 = 25%, 2 = 50%, 3 = 75%, 4 = 100%, 0 toggles 1, 2, 3 and 4."
             ]
         },
         {
@@ -127,6 +178,7 @@ function getConsoleHelp() {
             "name": "Console.Transparency",
             "shortName": "console_transparency",
             "description": "Set the Console's background transparency. Range: 0 - 100",
+            "value": consoleTransparency,
             "defaultValue": 75,
             "hidden": false,
             "arguments": [
@@ -138,43 +190,104 @@ function getConsoleHelp() {
 }
 
 function showHelp(command) {
-    $.merge(commandList, getConsoleHelp());
-    if (command == null) {
-        commandList = commandList.sort(function (a, b) {
+    var commands = [];
+    $.extend(commands, commandList, getConsoleHelp());
+    if (!isset(command)) {
+        commands = commands.sort(function (a, b) {
             return a.module.localeCompare( b.module );
         });
-        $.each(commandList, function (key, value) {
-            if (!value.hidden){
-                var name = value.name;
-                if (value.defaultValue !== null) {
-                    name += " " + value.defaultValue;
-                }
-                appendLine("", "<span class=\"command\" data-command=\"" + name + "\"><b>" + name + "</b></span> - " + value.description, false);
+        appendLine("", "Left click on a command to set it in the input box, right click for help related to the command and ctrl + click to directly execute command.");
+        $.each(commands, function (key, value) {
+            if (!value.hidden && !value.hideValue && !value.internal){
+                appendHTMLLine("", "<span class=\"command\"><b>$1</b></span>  -  <span class=\"description\">$2</span>", [value.name, value.description]);
             }
         });
     }
     else {
-        commandItem = $.grep(commandList, function(item){
+        commandItem = $.grep(commands, function(item){
             return item.name.toLowerCase() == command.toLowerCase();
         });
         commandItem = commandItem[0];
-        var name = commandItem.name;
-        var usage = "";
-        var parameters = [];
-        if (commandItem.defaultValue !== null) {
-            name += " " + commandItem.defaultValue;
+        if (isset(commandItem) && !commandItem.hidden && !commandItem.hideValue && !commandItem.internal) {
+            var name = commandItem.name;
+            var usage = "";
+            var parameters = [];
+            $.each(commandItem.arguments, function (key, value) {
+                argument = value.split(" ");
+                description = value.replace(argument[0] + " ", "");
+                usage += "<" + argument[0] + "> ";
+                parameters.push({"name": argument[0], "description": description});
+            });
+            appendHTMLLine("", "<span class=\"command\"><b>$1</b></span>  -  <span class=\"description\">$2</span>", [name, commandItem.description]);
+            if (isset(commandItem.defaultValue)) {
+                appendLine("", "Default: " + commandItem.defaultValue);
+                if (!isset(usage)) {
+                    usage = commandItem.defaultValue;
+                }
+            }
+            if (isset(commandItem.value) && commandItem.value != commandItem.defaultValue) {
+                appendLine("", "Current value: " + commandItem.value);
+            }
+            appendLine("", "Usage: " + name + " " + usage);
+            $.each(parameters, function (key, value) {
+                appendHTMLLine("", "       <i>$1</i>: <span class=\"description\">$2</span>", [value.name, value.description]);
+            });
         }
-        appendLine("", "<span class=\"command\" data-command=\"" + name + "\"><b>" + name + "</b></span> - " + commandItem.description, false);
-        $.each(commandItem.arguments, function (key, value) {
-            argument = value.split(" ");
-            description = value.replace(argument[0] + " ", "");
-            usage += "<" + argument[0] + "> ";
-            parameters.push({"name": argument[0], "description": description});
+        else {
+            appendLine("error-line", "Command/Variable '" + command + "' not found");
+        }
+    }
+}
+
+function showVariables() {
+    var commands = [];
+    $.extend(commands, commandList, getConsoleHelp());
+    commands = commands.sort(function (a, b) {
+        return a.module.localeCompare( b.module );
+    });
+    $.each(commands, function (key, value) {
+        if ((isset(value.value) || isset(value.defaultValue)) && !value.hidden && !value.hideValue && !value.internal) {
+            var varValue = value.value;
+            if (value.name == "Player.PrivKey") {
+                varValue = "Enter the variable manually to check this value";
+            }
+            appendHTMLLine("", "<span class=\"command\"><b>$1</b></span> = $2    <span class=\"description\">$3</span>", [value.name, varValue, value.description]);
+        }
+    });
+}
+
+function getSuggestedCommands(partial) {
+    var suggestions = [];
+    var commands = [];
+    $.extend(commands, commandList, getConsoleHelp());
+    $(".suggestion").remove();
+    if (isset(partial)) {
+        commandItem = $.grep(commands, function(item){
+            return item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0;
         });
-        appendLine("", "Usage: " + name + " " + usage);
-        $.each(parameters, function (key, value) {
-            appendLine("", "  <i>" + value.name + "</i>: " + value.description, false);
+        $.each(commandItem, function (key, value) {
+            suggestions.push(value.name);
         });
+        var match = findPartialsMatch(suggestions);
+        if (match.toLowerCase() != partial.toLowerCase() || partial.length <= 1) {
+            var suggestionsString = "";
+            $.each(suggestions, function (key, value) {
+                suggestionsString += htmlEncode(value) + "</span>       <span class=\"command\"><b>";
+            })
+            appendHTMLLine("debug-line suggestion", "<span class=\"command\"><b>" + suggestionsString + "</b></span>", []);
+            return match;
+        }
+        else {
+            return suggestions[0];
+        }
+    }
+}
+
+function setSuggestedCommands(partial) {
+    $(".suggestion").remove();
+    var suggestion = getSuggestedCommands(partial);
+    if (isset(suggestion)) {
+        setInput(suggestion);
     }
 }
 
@@ -207,10 +320,12 @@ function dockConsole(toggle) {
             $(".console").draggable("disable").resizable("disable");
             setConsoleSize(consoleSize);
             $(".console").css({left: "0px", top: "0px", width: "100%"});
+            consoleDock = 1;
             break;
         case 2:
             $(".console").draggable("enable").resizable("enable");
             $(".console").css({left: "15px", top: "15px", width: "calc(100% - 30px)"});
+            consoleDock = 2;
             break;
         default:
             if ($(".console").draggable("option", "disabled")) {
@@ -236,10 +351,12 @@ function invertConsole(toggle) {
         case 1:
             $(".console").prepend($(".console .box.titlebar"));
             $(".console .box.output").after($(".console .box.input"));
+            consoleInvert = 1;
             break;
         case 2:
             $(".console").prepend($(".console .box.input"));
             $(".console .box.output").after($(".console .box.titlebar"));
+            consoleInvert = 2;
             break;
         default:
             if ($(".console").children.first().hasClass("titlebar")) {
@@ -261,6 +378,7 @@ function setConsoleTransparency(percentage) {
         appendLine("error-line", "Parameter is out of range! Range 0 - 100");
         return;
     }
+    consoleTransparency = percentage;
     percentage = percentage / 100;
     $(".console").css({"background-color": "rgba(64, 64, 64, " + percentage + ")"});
 }
@@ -274,6 +392,7 @@ function setConsoleOpacity(percentage) {
         appendLine("error-line", "Parameter is out of range! Range 0 - 100");
         return;
     }
+    consoleOpacity = percentage;
     percentage = percentage / 100;
     $("body").css({"opacity": percentage});
 }
@@ -287,35 +406,39 @@ function scrollToBottom() {
     box.scrollTop(box.prop("scrollHeight"));
 }
 
-function appendLine(cssClass, line, htmlFilter) {
-    if (typeof htmlFilter === 'undefined' || htmlFilter === null) {
-        htmlFilter = true;
-    }
-    if (line === "") {
-        line = "\n";
-    }
+function appendLine(cssClass, line) {
     var atBottom = isScrolledToBottom($("#output-box"));
-    if (htmlFilter) {
-        $("<pre></pre>", {
-                "class": cssClass
-            })
-            .text(line)
-            .appendTo($("#output-box"));
-    }
-    else {
-        $("<pre></pre>", {
-                "class": cssClass
-            })
-            .html(line)
-            .appendTo($("#output-box"));
-    }
+    $("<pre></pre>", {
+        "class": cssClass
+    })
+    .text(line)
+    .appendTo($("#output-box"));
     if (atBottom) {
         scrollToBottom();
     }
 }
 
+function appendHTMLLine(cssClass, html, contents) {
+    if ($.isArray(contents)) {
+        var atBottom = isScrolledToBottom($("#output-box"))
+
+        $.each(contents, function (key, value) {
+            html = html.replace("$" + (key + 1), htmlEncode(value));
+        });
+
+        $("<pre></pre>", {
+            "class": cssClass
+        })
+        .html(html)
+        .appendTo($("#output-box"));
+        if (atBottom) {
+            scrollToBottom();
+        }
+    }
+}
+
 function runCommand(command) {
-    if (!!command.trim()) {
+    if (isset(command.trim())) {
         switch (command.toLowerCase()) {
             case "clear":
                 clearConsole();
@@ -327,9 +450,9 @@ function runCommand(command) {
                 appendLine("command-line", "> " + command);
                 getInputHistory();
                 break;
-            case "console.test":
+            case "variables":
                 appendLine("command-line", "> " + command);
-                showHelp();
+                showVariables();
                 break;
             default:
                 if (command.toLowerCase().indexOf('console.size') == 0){
@@ -384,6 +507,7 @@ function runCommand(command) {
         clearInput();
         pushInputHistory(command);
         resetInputHistoryIndex();
+        $(".suggestion").remove();
     }
 }
 
@@ -406,7 +530,7 @@ $(window).load(function () {
 
     $(".console")
         .draggable({ handle: ".titlebar", containment: "body", snap: "body", snapMode: "inner", snapTolerance: 10, disabled: true })
-        .resizable({ containment: "body", minWidth: 400, minHeight: 300, disabled: true });
+        .resizable({ containment: "body", minWidth: 400, minHeight: 300, handles: "n, e, s, w, se", disabled: true });
 
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
@@ -415,7 +539,7 @@ $(window).load(function () {
         }
     });
 
-    $("#command").keydown(function (e) {
+    $("html").on("keyup", "#command", function (e) {
         if (e.keyCode === 13) {
             // Run the command when enter is pressed
             runCommand($("#command").val());
@@ -429,6 +553,18 @@ $(window).load(function () {
         else if (e.keyCode === 40) {
             // Run the command when down is pressed
             selectInputHistoryIndex(1);
+        }
+        else if (e.keyCode >= 48 && e.keyCode <= 90 || e.keyCode === 8 || e.keyCode === 46) {
+            // Run the command when user is typing
+            getSuggestedCommands($("#command").val());
+        }
+    });
+
+    $("html").on("keydown", "#command", function (e) {
+        if (e.keyCode === 9) {
+            // Run the command when tab is pressed
+            e.preventDefault();
+            setSuggestedCommands($("#command").val());
         }
     });
 
@@ -445,13 +581,18 @@ $(window).load(function () {
         appendLine("", e.data.line);
     });
 
-    $("html").on("click", ".command", function () {
-        setInput($(this).data("command"));
+    $("html").on("click", ".command", function (e) {
+        if (e.ctrlKey) {
+            runCommand($(this).text());
+        }
+        else {
+            setInput($(this).text());
+        }
         focusInput();
     });
 
     $("html").on("contextmenu", ".command", function () {
-        setInput("help " + $(this).data("command"));
+        setInput("help " + $(this).text());
         focusInput();
     });
 
