@@ -103,6 +103,39 @@ GameMode = {
     INFECTION: 10
 };
 
+/**
+ * Console command and variable types.
+ * 
+ * @readonly
+ * @enum {number}
+ */
+CommandType = {
+    /**
+     * A command.
+     */
+    COMMAND: 0,
+
+    /**
+     * An integer variable.
+     */
+    INT: 1,
+
+    /**
+     * A 64-bit integer variable.
+     */
+    INT64: 2,
+
+    /**
+     * A floating-point variable.
+     */
+    FLOAT: 3,
+
+    /**
+     * A string variable.
+     */
+    STRING: 4
+};
+
 (function () {
     window.dew = window.dew || {};
 
@@ -411,6 +444,41 @@ GameMode = {
      * @param {number} info.rounds - The number of rounds.
      * @param {number} info.scoreToWin - The score-to-win (-1 if unlimited).
      * @see dew.getGameVariantInfo
+     */
+
+    /**
+     * (ASYNCHRONOUS) Gets a list of available console commands.
+     * 
+     * @param {CommandListSuccessCallback} onSuccess - The success callback. It will be passed an array of objects containing command info.
+     * @param {FailureCallback} onFailure - The failure callback.
+     * @see CommandListSuccessCallback
+     */
+    dew.getCommands = function (onSuccess, onFailure) {
+        dew.callMethod("commands", {}, onSuccess, onFailure, jsonResultMapping);
+    }
+
+    /**
+     * Called when {@link dew.getCommands} succeeds.
+     *
+     * @callback CommandListSuccessCallback
+     * @param {object[]} commands - An array of available commands.
+     * @param {CommandType} commands[].type - The type of the command or variable.
+     * @param {string} commands[].module - The module name.
+     * @param {string} commands[].name - The name of the command or variable. This includes the module prefix.
+     * @param {string} commands[].shortName - The short name of the command or variable.
+     * @param {string} commands[].description - A description to display in a help listing.
+     * @param {*} commands[].value - The current value of the variable. For commands, this will be `null`.
+     * @param {*} commands[].defaultValue - The default value of the variable. For commands, this will be `null`.
+     * @param {*} commands[].minValue - The minimum value of the variable. For string variables and commands, this will be `null`.
+     * @param {*} commands[].maxValue - The maximum value of the variable. For string variables and commands, this will be `null`.
+     * @param {boolean} commands[].replicated - `true` if the variable should be synchronized to clients.
+     * @param {boolean} commands[].archived - `true` if the variable should be saved when the config file is written.
+     * @param {boolean} commands[].hidden - `true` if the command or variable should be omitted from a help listing.
+     * @param {boolean} commands[].hostOnly - `true` if the command or variable can only be used by the game host.
+     * @param {boolean} commands[].hideValue - `true` if the variable's value should be omitted from a help listing.
+     * @param {boolean} commands[].internal - `true` if the command or variable can only be set internally.
+     * @param {string[]} commands[].arguments - A list of arguments for the command. Each string will contain a value name, a space, and then a description. For variables, this will be empty.
+     * @see dew.getCommands
      */
 
     /**

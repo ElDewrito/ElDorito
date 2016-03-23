@@ -19,6 +19,7 @@ namespace Anvil
 					QueryError OnVersion(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnMapVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnGameVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result);
+					QueryError OnCommands(const rapidjson::Value &p_Args, std::string *p_Result);
 				}
 			}
 		}

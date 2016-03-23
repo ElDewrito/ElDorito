@@ -216,6 +216,103 @@ namespace Anvil
 						*p_Result = buffer.GetString();
 						return QueryError_Ok;
 					}
+
+					QueryError OnCommands(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						const auto &commandMap = Modules::CommandMap::Instance();
+						
+						rapidjson::StringBuffer buffer;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+						writer.StartArray();
+						for (auto &&command : commandMap.Commands)
+						{
+							writer.StartObject();
+							writer.Key("type");
+							writer.Int(command.Type);
+							writer.Key("module");
+							writer.String(command.ModuleName.c_str());
+							writer.Key("name");
+							writer.String(command.Name.c_str());
+							writer.Key("shortName");
+							writer.String(command.ShortName.c_str());
+							writer.Key("description");
+							writer.String(command.Description.c_str());
+							switch (command.Type)
+							{
+							case Modules::eCommandTypeVariableInt:
+								writer.Key("value");
+								writer.Int(command.ValueInt);
+								writer.Key("defaultValue");
+								writer.Int(command.DefaultValueInt);
+								writer.Key("minValue");
+								writer.Int(command.ValueIntMin);
+								writer.Key("maxValue");
+								writer.Int(command.ValueIntMax);
+								break;
+							case Modules::eCommandTypeVariableInt64:
+								writer.Key("value");
+								writer.Int64(command.ValueInt64);
+								writer.Key("defaultValue");
+								writer.Int64(command.DefaultValueInt64);
+								writer.Key("minValue");
+								writer.Int64(command.ValueInt64Min);
+								writer.Key("maxValue");
+								writer.Int64(command.ValueInt64Max);
+								break;
+							case Modules::eCommandTypeVariableFloat:
+								writer.Key("value");
+								writer.Double(command.ValueFloat);
+								writer.Key("defaultValue");
+								writer.Double(command.DefaultValueFloat);
+								writer.Key("minValue");
+								writer.Double(command.ValueFloatMin);
+								writer.Key("maxValue");
+								writer.Double(command.ValueFloatMax);
+								break;
+							case Modules::eCommandTypeVariableString:
+								writer.Key("value");
+								writer.String(command.ValueString.c_str());
+								writer.Key("defaultValue");
+								writer.String(command.DefaultValueString.c_str());
+								writer.Key("minValue");
+								writer.Null();
+								writer.Key("maxValue");
+								writer.Null();
+								break;
+							default:
+								writer.Key("value");
+								writer.Null();
+								writer.Key("defaultValue");
+								writer.Null();
+								writer.Key("minValue");
+								writer.Null();
+								writer.Key("maxValue");
+								writer.Null();
+								break;
+							}
+							writer.Key("replicated");
+							writer.Bool((command.Flags & eCommandFlagsReplicated) != 0);
+							writer.Key("archived");
+							writer.Bool((command.Flags & eCommandFlagsArchived) != 0);
+							writer.Key("hidden");
+							writer.Bool((command.Flags & eCommandFlagsHidden) != 0);
+							writer.Key("hostOnly");
+							writer.Bool((command.Flags & eCommandFlagsHostOnly) != 0);
+							writer.Key("hideValue");
+							writer.Bool((command.Flags & eCommandFlagsOmitValueInList) != 0);
+							writer.Key("internal");
+							writer.Bool((command.Flags & eCommandFlagsInternal) != 0);
+							writer.Key("arguments");
+							writer.StartArray();
+							for (auto &&arg : command.CommandArgs)
+								writer.String(arg.c_str());
+							writer.EndArray();
+							writer.EndObject();
+						}
+						writer.EndArray();
+						*p_Result = buffer.GetString();
+						return QueryError_Ok;
+					}
 				}
 			}
 		}
