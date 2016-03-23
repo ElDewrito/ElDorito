@@ -3,29 +3,38 @@
     <head>
         <title>ElDewrito Console</title>
         <link rel="stylesheet" type="text/css" href="console.css"/>
+        <link rel="stylesheet" href="dew://lib/jquery-ui.css">
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="dew://lib/jquery-ui.js"></script>
         <script src="console.js"></script>
     </head>
     <body>
-        <div class="console">
-            <div id="input-box" class="box input">
-                <span class="prompt">
-                    ElDewrito <span id="version"></span>&gt;&nbsp;
-                </span>
-                <span class="command-span">
-                    <input type="text" id="command" autocomplete="off" spellcheck="false"/>
-                </span>
-            </div>
-            <div class="box transparent output" id="output-box"></div>
-            <div class="controls">
-                <div class="box transparent info">
-                    Enter <span class="important">help</span> for a list of available commands. Press Escape to close.
+        <div class="console"><div class="box titlebar">
+                ElDewrito <span id="version"></span>
+            </div><div class="box buttons top">
+                <div id="button-size" class="button">
+                    Size
+                </div><div id="button-dock" class="button">
+                    Dock
+                </div><div id="button-hide" class="button">
+                    Close
                 </div>
-                <div id="button-help" class="box transparent button">Help</div>
-                <div id="button-clear" class="box transparent button">Clear</div>
-                <div id="button-size" class="box transparent button">Size</div>
-                <div id="button-hide" class="box transparent button">Close</div>
+            </div><div class="box output" id="output-box">
+                <pre class="info">Enter <span class="command" data-command="help"><b>help</b></span> for a list of available commands. Press Escape to close.</pre>
+            </div><div id="input-box" class="box input">
+                <span class="prompt">
+                    &gt;&nbsp;
+                </span>
+                <input type="text" class="input" id="command" autocomplete="off" spellcheck="false"/>
+            </div><div class="box buttons bottom">
+                <div id="button-help" class="button">
+                    Help
+                </div><div id="button-clear" class="button">
+                    Clear
+                </div><div id="button-reload" class="button">
+                    Reload
+                </div>
             </div>
         </div>
     </body>
