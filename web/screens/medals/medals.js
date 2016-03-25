@@ -78,12 +78,6 @@ function display_medal(medal){
 
 function doMedal(eventString, audience){
     if(eventJson[eventString]){
-        if(eventJson[eventString].hasOwnProperty('image')){
-            display_medal(eventJson[eventString].image);
-        }
-        if(eventJson[eventString].hasOwnProperty('sound')){
-            queue_audio(eventJson[eventString].sound);		
-        }
         switch(audience){
             case 0:
                 if(eventJson[eventString].hasOwnProperty('cause_player')){
@@ -125,6 +119,7 @@ function doMedal(eventString, audience){
                     }	
                 }
                 break;
+            case 4:
         }
     }
 }
