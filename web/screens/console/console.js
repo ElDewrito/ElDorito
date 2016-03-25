@@ -16,7 +16,7 @@ function ifset(val, other) {
     return isset(val) ? val : other;
 }
 
-function htmlEncode(value){
+function htmlEncode(value) {
   return $('<div>').text(value).html();
 }
 
@@ -27,7 +27,7 @@ function findPartialsMatch(matchArray) {
         var match = true;
         for (var i = 0, length = firstString.length; i < length; i++) {
             $.each(matchArray, function (key, value) {
-                if(value.toLowerCase().indexOf(partialString.toLowerCase()) != 0) {
+                if (value.toLowerCase().indexOf(partialString.toLowerCase()) != 0) {
                     match = false;
                 }
             });
@@ -60,8 +60,14 @@ function clearConsole() {
     $("#output-box").empty();
 }
 
-function reloadConsole() {
-    location.reload();
+function resetConsole() {
+    sizeConsole(2, true);
+    dockConsole(1, true);
+    invertConsole(1, true)
+    transparencyConsole(75, true);
+    opacityConsole(100, true);
+    clearConsole();
+    clearInput();
 }
 
 function pushInputHistory(command) {
@@ -77,7 +83,7 @@ function getInputHistory() {
 }
 
 function selectInputHistoryIndex(direction) {
-    if(selectedHistoryIndex + direction <= inputHistory.length && selectedHistoryIndex + direction >= 0) {
+    if (selectedHistoryIndex + direction <= inputHistory.length && selectedHistoryIndex + direction >= 0) {
         selectedHistoryIndex = selectedHistoryIndex + direction;
         $("#command").val(inputHistory[selectedHistoryIndex]);
     }
@@ -154,9 +160,9 @@ function getConsoleHelp() {
         },
         {
             "module": "Console",
-            "name": "Console.Reload",
-            "shortName": "console_reload",
-            "description": "Reload (resets) the Console, useful if something goes wrong and you can no longer properly use the console",
+            "name": "Console.Reset",
+            "shortName": "console_reset",
+            "description": "Reset the Console, useful if something goes wrong and you can no longer properly use the console",
             "defaultValue": null,
             "hidden": false,
             "arguments": []
@@ -193,18 +199,30 @@ function showHelp(command) {
     var commands = [];
     $.extend(commands, commandList, getConsoleHelp());
     if (!isset(command)) {
-        commands = commands.sort(function (a, b) {
-            return a.module.localeCompare( b.module );
+        commands = commands.sort(function(a, b) {
+            if (a.module < b.module) {
+                return -1;  
+            } else if (a.module > b.module) {
+                return 1;
+            } else {
+                if (a.name < b.name) {
+                    return -1
+                } else if (a.name > b.name) {
+                    return 1;
+                } else {
+                    return 0;
+            }
+            }
         });
         appendLine("", "Left click on a command to set it in the input box, right click for help related to the command and ctrl + click to directly execute command.");
         $.each(commands, function (key, value) {
-            if (!value.hidden && !value.hideValue && !value.internal){
+            if (!value.hidden && !value.hideValue && !value.internal) {
                 appendHTMLLine("", "<span class=\"command\"><b>$1</b></span>  -  <span class=\"description\">$2</span>", [value.name, value.description]);
             }
         });
     }
     else {
-        commandItem = $.grep(commands, function(item){
+        commandItem = $.grep(commands, function(item) {
             return item.name.toLowerCase() == command.toLowerCase();
         });
         commandItem = commandItem[0];
@@ -242,8 +260,20 @@ function showHelp(command) {
 function showVariables() {
     var commands = [];
     $.extend(commands, commandList, getConsoleHelp());
-    commands = commands.sort(function (a, b) {
-        return a.module.localeCompare( b.module );
+    commands = commands.sort(function(a, b) {
+        if (a.module < b.module) {
+            return -1;  
+        } else if (a.module > b.module) {
+            return 1;
+        } else {
+            if (a.name < b.name) {
+                return -1
+            } else if (a.name > b.name) {
+                return 1;
+            } else {
+                return 0;
+        }
+        }
     });
     $.each(commands, function (key, value) {
         if ((isset(value.value) || isset(value.defaultValue)) && !value.hidden && !value.hideValue && !value.internal) {
@@ -262,14 +292,14 @@ function getSuggestedCommands(partial) {
     $.extend(commands, commandList, getConsoleHelp());
     $(".suggestion").remove();
     if (isset(partial)) {
-        commandItem = $.grep(commands, function(item){
+        commandItem = $.grep(commands, function(item) {
             return item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0;
         });
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
         });
         var match = findPartialsMatch(suggestions);
-        if (match.toLowerCase() != partial.toLowerCase() || partial.length <= 1) {
+        if ((match.toLowerCase() != partial.toLowerCase() && $.inArray(match, suggestions) == -1) || partial.length <= 1) {
             var suggestionsString = "";
             $.each(suggestions, function (key, value) {
                 suggestionsString += htmlEncode(value) + "</span>       <span class=\"command\"><b>";
@@ -291,9 +321,15 @@ function setSuggestedCommands(partial) {
     }
 }
 
-function setConsoleSize(size) {
-    if (isNaN(size)) {
-        appendLine("error-line", "Parameter is not an integer! Options: 0, 1, 2, 3 or 4");
+function sizeConsole(size, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(size))) {
+        if (!isset(toggle)) {
+            appendLine("", consoleSize);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Options: 0, 1, 2, 3 or 4");
+        }
         return;
     }
     else if (size != 0 && size != 1 && size != 2 && size != 3 && size != 4) {
@@ -302,13 +338,22 @@ function setConsoleSize(size) {
     if (size === 0) {
         size = (consoleSize % 4) + 1;
     }
+    if (!silent) {
+        appendLine("", consoleSize + " -> " + size);
+    }
     consoleSize = size;
     $(".console").css({ "height": consoleSize * 25 + "%" });
 }
 
-function dockConsole(toggle) {
-    if (isNaN(toggle)) {
-        appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+function dockConsole(toggle, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(toggle))) {
+        if (!isset(toggle)) {
+            appendLine("", consoleDock);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+        }
         return;
     }
     else if (toggle != 0 && toggle != 1 && toggle != 2) {
@@ -318,13 +363,19 @@ function dockConsole(toggle) {
     switch(toggle) {
         case 1:
             $(".console").draggable("disable").resizable("disable");
-            setConsoleSize(consoleSize);
+            sizeConsole(consoleSize);
             $(".console").css({left: "0px", top: "0px", width: "100%"});
+            if (!silent) {
+                appendLine("", consoleDock + " -> " + 1);
+            }
             consoleDock = 1;
             break;
         case 2:
             $(".console").draggable("enable").resizable("enable");
             $(".console").css({left: "15px", top: "15px", width: "calc(100% - 30px)"});
+            if (!silent) {
+                appendLine("", consoleDock + " -> " + 2);
+            }
             consoleDock = 2;
             break;
         default:
@@ -338,9 +389,15 @@ function dockConsole(toggle) {
     }
 }
 
-function invertConsole(toggle) {
-    if (isNaN(toggle)) {
-        appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+function invertConsole(toggle, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(toggle))) {
+        if (!isset(toggle)) {
+            appendLine("", consoleInvert);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+        }
         return;
     }
     else if (toggle != 0 && toggle != 1 && toggle != 2) {
@@ -351,11 +408,17 @@ function invertConsole(toggle) {
         case 1:
             $(".console").prepend($(".console .box.titlebar"));
             $(".console .box.output").after($(".console .box.input"));
+            if (!silent) {
+                appendLine("", consoleInvert + " -> " + 1);
+            }
             consoleInvert = 1;
             break;
         case 2:
             $(".console").prepend($(".console .box.input"));
             $(".console .box.output").after($(".console .box.titlebar"));
+            if (!silent) {
+                appendLine("", consoleInvert + " -> " + 1);
+            }
             consoleInvert = 2;
             break;
         default:
@@ -369,28 +432,46 @@ function invertConsole(toggle) {
     }
 }
 
-function setConsoleTransparency(percentage) {
-    if (isNaN(percentage)) {
-        appendLine("error-line", "Parameter is not an integer! Range 0 - 100");
+function transparencyConsole(percentage, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(percentage))) {
+        if (!isset(percentage)) {
+            appendLine("", consoleTransparency);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Range 0 - 100");
+        }
         return;
     }
     else if (percentage < 0 || percentage > 100) {
         appendLine("error-line", "Parameter is out of range! Range 0 - 100");
         return;
+    }
+    if (!silent) {
+        appendLine("", consoleTransparency + " -> " + percentage);
     }
     consoleTransparency = percentage;
     percentage = percentage / 100;
     $(".console").css({"background-color": "rgba(64, 64, 64, " + percentage + ")"});
 }
 
-function setConsoleOpacity(percentage) {
-    if (isNaN(percentage)) {
-        appendLine("error-line", "Parameter is not an integer! Range 0 - 100");
+function opacityConsole(percentage, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(percentage))) {
+        if (!isset(percentage)) {
+            appendLine("", consoleOpacity);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Range 0 - 100");
+        }
         return;
     }
     else if (percentage < 0 || percentage > 100) {
         appendLine("error-line", "Parameter is out of range! Range 0 - 100");
         return;
+    }
+    if (!silent) {
+        appendLine("", consoleOpacity + " -> " + percentage);
     }
     consoleOpacity = percentage;
     percentage = percentage / 100;
@@ -443,8 +524,8 @@ function runCommand(command) {
             case "clear":
                 clearConsole();
                 break;
-            case "console.reload":
-                reloadConsole();
+            case "console.reset":
+                resetConsole();
                 break;
             case "console.history":
                 appendLine("command-line", "> " + command);
@@ -455,37 +536,37 @@ function runCommand(command) {
                 showVariables();
                 break;
             default:
-                if (command.toLowerCase().indexOf('console.size') == 0){
+                if (command.toLowerCase().indexOf('console.size') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
-                    setConsoleSize(parseInt(commandValue[1]));
+                    sizeConsole(commandValue[1]);
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.dock') == 0){
+                else if (command.toLowerCase().indexOf('console.dock') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
-                    dockConsole(parseInt(commandValue[1]));
+                    dockConsole(commandValue[1]);
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.invert') == 0){
+                else if (command.toLowerCase().indexOf('console.invert') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
-                    invertConsole(parseInt(commandValue[1]));
+                    invertConsole(commandValue[1]);
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.transparency') == 0){
+                else if (command.toLowerCase().indexOf('console.transparency') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
-                    setConsoleTransparency(parseInt(commandValue[1]));
+                    transparencyConsole(commandValue[1]);
                     break;
                 }
-                else if (command.toLowerCase().indexOf('console.opacity') == 0){
+                else if (command.toLowerCase().indexOf('console.opacity') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
-                    setConsoleOpacity(parseInt(commandValue[1]));
+                    opacityConsole(commandValue[1]);
                     break;
                 }
-                else if (command.toLowerCase().indexOf('help') == 0){
+                else if (command.toLowerCase().indexOf('help') == 0) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
                     showHelp(commandValue[1]);
@@ -516,7 +597,7 @@ $(window).load(function () {
         $("#version").text(version);
     });
 
-    dew.getCommands(function (commands){
+    dew.getCommands(function (commands) {
         commandList = commands;
     }, function () {
         appendLine("error-line", "Could not retrieve list of commands!");
@@ -607,12 +688,12 @@ $(window).load(function () {
         focusInput();
     });
 
-    $("html").on("click", "#button-reload", function () {
-        location.reload();
+    $("html").on("click", "#button-reset", function () {
+        resetConsole();
     });
 
     $("html").on("click", "#button-size", function () {
-        setConsoleSize(0);
+        sizeConsole(0);
         focusInput();
     });
 
@@ -625,5 +706,5 @@ $(window).load(function () {
         dew.hide();
     });
 
-    setConsoleSize(consoleSize);
+    sizeConsole(consoleSize, true);
 });

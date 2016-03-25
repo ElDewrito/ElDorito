@@ -182,7 +182,7 @@ body {
     color: #FF9B00;
 }
 
-.console .box.output pre .command:hover {
+.console .box.output pre .command:hover,.console .box.output pre .command.selected {
     text-decoration: underline;
 }
 
@@ -194,7 +194,7 @@ body {
 /*     background: rgba(255,255,255,0.05); */
 }
 
-.console .box.output pre::selection {
+.console .box.output *::selection {
     background: #c0c0c0;
 }
 
