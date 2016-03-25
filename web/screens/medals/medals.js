@@ -120,6 +120,13 @@ function doMedal(eventString, audience){
                 }
                 break;
             case 4:
+                if(eventJson[eventString].hasOwnProperty('image')){
+                    display_medal(eventJson[eventString].image);
+                }
+                if(eventJson[eventString].hasOwnProperty('sound')){
+                    queue_audio(eventJson[eventString].sound);		
+                }
+                break;
         }
     }
 }
