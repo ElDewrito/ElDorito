@@ -693,12 +693,12 @@ $(window).load(function () {
     });
 
     $("html").on("click", "#button-size", function () {
-        sizeConsole(0);
+        sizeConsole(0, true);
         focusInput();
     });
 
     $("html").on("click", "#button-dock", function () {
-        dockConsole(0);
+        dockConsole(0, true);
         focusInput();
     });
 
