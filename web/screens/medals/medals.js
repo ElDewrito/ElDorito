@@ -65,7 +65,7 @@ function display_medal(medal){
 	var currentMedalNum = medalNum;
 	$('<img />', { 
         id: currentMedalNum,
-        src: medalsPath + 'images/' + medal
+        src: medalsPath + 'images/' + htmlEncode(medal)
     }).prependTo($('#medalBox'));
 	$("#"+currentMedalNum).pulse();
 	setTimeout(function(){
@@ -132,4 +132,8 @@ function doMedal(eventString, audience){
                 break;
         }
     }
+}
+
+function htmlEncode(value) {
+    return $('<div>').text(value).html();
 }
