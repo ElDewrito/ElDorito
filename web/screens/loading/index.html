@@ -8,12 +8,32 @@
         <script type="text/javascript" src="loading.js"></script>
     </head>
     <body>
+        <!-- Game Loading Screen -->
+        <div class="header">
+            <img id="logo" src="images/logo.png">
+            <div class="serverName"></div>
+            <img id="gametypeicon">
+            <div id="gametype"></div>
+            <div class="gamerounds">Rounds: <span id="gamerounds"></span></div>
+            <div class="gamescore">Score to Win: <span id="gamescore"></span></div>
+            <div class="timelimit">Time Limit: <span id="timelimit"></span></div>
+        </div>
         <div class="container">
-            <div>
-                <h1 id="text"></h1>
-                <p id="server"></p>
-                <p id="message"></p>
-            </div>
+            <div class="serverMessage"></div>
+            <progress id="progressbar" value="0" max="100"></progress>
+        </div>
+        <div class="footer">
+            <div id="title"></div>
+            <div id="desc"></div>
+        </div>
+
+        <!-- Generic Loading Screen -->
+        <div class="generic">
+          <div class="stars"></div>
+          <div class="ring"></div>
+          <div class="clouds"></div>
+          <div class="eldorito"></div>
+          <div class="eldorito loading"></div>
         </div>
     </body>
 </html>
