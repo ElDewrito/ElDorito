@@ -380,10 +380,10 @@ function dockConsole(toggle, silent) {
             break;
         default:
             if ($(".console").draggable("option", "disabled")) {
-                dockConsole(2);
+                dockConsole(2, silent);
             }
             else {
-                dockConsole(1);
+                dockConsole(1, silent);
             }
             break;
     }
@@ -423,10 +423,10 @@ function invertConsole(toggle, silent) {
             break;
         default:
             if ($(".console").children.first().hasClass("titlebar")) {
-                dockConsole(2);
+                dockConsole(2, silent);
             }
             else {
-                dockConsole(1);
+                dockConsole(1, silent);
             }
             break;
     }
