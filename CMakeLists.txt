@@ -222,16 +222,52 @@ create_source_groups(ElDorito)
 set (WEB_SOURCES
     web/lib/dew.js
     web/lib/jquery-2.2.1.min.js
-    web/screens/error/error.css
-    web/screens/error/error.js
-    web/screens/error/index.html
+    web/lib/jquery-ui.css
+    web/lib/jquery-ui.js
     web/screens/console/console.css
     web/screens/console/console.js
     web/screens/console/index.html
+    web/screens/error/error.css
+    web/screens/error/error.js
+    web/screens/error/index.html
+    web/screens/loading/Conduit-ITC.woff
+    web/screens/loading/images/cloud_back.png
+    web/screens/loading/images/cloud_front.png
+    web/screens/loading/images/EldoritoLogoFinalBlueSmall.png
+    web/screens/loading/images/EldoritoLogoFinalSmall.png
+    web/screens/loading/images/gametypes/assault.png
+    web/screens/loading/images/gametypes/ctf.png
+    web/screens/loading/images/gametypes/forge.png
+    web/screens/loading/images/gametypes/infection.png
+    web/screens/loading/images/gametypes/juggernaut.png
+    web/screens/loading/images/gametypes/koth.png
+    web/screens/loading/images/gametypes/none.png
+    web/screens/loading/images/gametypes/oddball.png
+    web/screens/loading/images/gametypes/slayer.png
+    web/screens/loading/images/gametypes/territories.png
+    web/screens/loading/images/gametypes/vip.png
+    web/screens/loading/images/gametypes/zombiez.png
+    web/screens/loading/images/logo.png
+    web/screens/loading/images/maps/bunkerworld.png
+    web/screens/loading/images/maps/chill.png
+    web/screens/loading/images/maps/cyberdyne.png
+    web/screens/loading/images/maps/deadlock.png
+    web/screens/loading/images/maps/guardian.png
+    web/screens/loading/images/maps/riverworld.png
+    web/screens/loading/images/maps/s3d_avalanche.png
+    web/screens/loading/images/maps/s3d_edge.png
+    web/screens/loading/images/maps/s3d_reactor.png
+    web/screens/loading/images/maps/s3d_turf.png
+    web/screens/loading/images/maps/shrine.png
+    web/screens/loading/images/maps/zanzibar.png
+    web/screens/loading/images/ring.png
+    web/screens/loading/images/stars.jpg
+    web/screens/loading/index.html
     web/screens/loading/loading.css
     web/screens/loading/loading.js
-    web/screens/loading/index.html
     web/screens/medals/index.html
+    web/screens/medals/medals.css
+    web/screens/medals/medals.js
     web/screens/screens.json
     web/screens/test/index.html
     web/screens/test_overlay/index.html
