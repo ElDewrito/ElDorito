@@ -19,64 +19,64 @@ dew.on("mpevent", function (event) {
 });
 
 $.fn.pulse = function() { 
-	var i = 0.5, x = 0, medal = this.selector;
-	function pulseLoop(medal) { 
-		setTimeout(function () {  
-			$(medal).css({'transform': 'scale('+ i +','+ i +')', 'opacity': x });
-			i+=0.1, x+=0.4;
-			if (i < 1.5) { 
-				pulseLoop(medal);
-			} else if (i = 1.5) {
-				$(medal).css({'transform' : 'scale(1.2,1.2)'});   
-				setTimeout(function () {  
-					$(medal).css({'transform' : 'scale(1,1)'});             
-				}, animTime)
-			}  
-		}, animTime)
-	}
-	pulseLoop(medal);
+    var i = 0.5, x = 0, medal = this.selector;
+    function pulseLoop(medal) { 
+        setTimeout(function () {  
+            $(medal).css({'transform': 'scale('+ i +','+ i +')', 'opacity': x });
+            i+=0.1, x+=0.4;
+            if (i < 1.5) { 
+                pulseLoop(medal);
+            } else if (i = 1.5) {
+                $(medal).css({'transform' : 'scale(1.2,1.2)'});   
+                setTimeout(function () {  
+                    $(medal).css({'transform' : 'scale(1,1)'});             
+                }, animTime)
+            }  
+        }, animTime)
+    }
+    pulseLoop(medal);
 };
 
 function queue_audio(audio){
-	playQueue.push(medalsPath + 'audio/' + audio);
-	if(!isPlaying){
-		play(playQueue[0]);	
-	}
+    playQueue.push(medalsPath + 'audio/' + audio);
+    if(!isPlaying){
+        play(playQueue[0]);	
+    }
 }
 
 var isPlaying = false;
 function play(audio){
-	isPlaying = true;
-	var audioElement = new Audio(audio);
-	audioElement.play();
+    isPlaying = true;
+    var audioElement = new Audio(audio);
+    audioElement.play();
     audioElement.volume = 0.5;
-	audioElement.onended = function(){
-		isPlaying = false;
-		playQueue.splice(0, 1);
-		if(playQueue.length > 0){
-			play(playQueue[0]);	
-		}
-	}
+    audioElement.onended = function(){
+        isPlaying = false;
+        playQueue.splice(0, 1);
+        if(playQueue.length > 0){
+            play(playQueue[0]);	
+        }
+    }
 }
 
 var medalNum = 0;
 function display_medal(medal){
     dew.show();
-	var currentMedalNum = medalNum;
-	$('<img />', { 
+    var currentMedalNum = medalNum;
+    $('<img />', { 
         id: currentMedalNum,
         src: medalsPath + 'images/' + htmlEncode(medal)
     }).prependTo($('#medalBox'));
-	$("#"+currentMedalNum).pulse();
-	setTimeout(function(){
-		$("#"+currentMedalNum).fadeOut(fadeTime, function() { 
+    $("#"+currentMedalNum).pulse();
+    setTimeout(function(){
+        $("#"+currentMedalNum).fadeOut(fadeTime, function() { 
             $("#"+currentMedalNum).remove(); 
             if(!$('#medalBox img').length){
                 dew.hide();  
             }
         });
-	}, removeTime);
-	medalNum++;
+    }, removeTime);
+    medalNum++;
 }
 
 function doMedal(eventString, audience){
