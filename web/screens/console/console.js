@@ -363,7 +363,7 @@ function dockConsole(toggle, silent) {
     switch(toggle) {
         case 1:
             $(".console").draggable("disable").resizable("disable");
-            sizeConsole(consoleSize);
+            sizeConsole(consoleSize, silent);
             $(".console").css({left: "0px", top: "0px", width: "100%"});
             if (!silent) {
                 appendLine("", consoleDock + " -> " + 1);
@@ -379,7 +379,7 @@ function dockConsole(toggle, silent) {
             consoleDock = 2;
             break;
         default:
-            if ($(".console").draggable("option", "disabled")) {
+            if (consoleDock == 1) {
                 dockConsole(2, silent);
             }
             else {
@@ -417,12 +417,12 @@ function invertConsole(toggle, silent) {
             $(".console").prepend($(".console .box.input"));
             $(".console .box.output").after($(".console .box.titlebar"));
             if (!silent) {
-                appendLine("", consoleInvert + " -> " + 1);
+                appendLine("", consoleInvert + " -> " + 2);
             }
             consoleInvert = 2;
             break;
         default:
-            if ($(".console").children.first().hasClass("titlebar")) {
+            if (consoleInvert == 1) {
                 dockConsole(2, silent);
             }
             else {
