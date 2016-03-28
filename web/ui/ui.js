@@ -1,5 +1,6 @@
 (function () {
     var screenJsonUrl = "dew://screens/screens.json";
+    var jsonQuery = null;
     var screens = {};
 
     // Screen states.
@@ -219,6 +220,13 @@
 
     // Requests to show a screen.
     ui.requestScreen = function (id, data) {
+        if (jsonQuery) {
+            // The screen will be requested once the screen JSON loads
+            jsonQuery = jsonQuery.done(function () {
+                ui.requestScreen(id, data);
+            });
+            return;
+        }
         var screen = findScreen(id);
         if (screen === null) {
             console.error("Requested to show screen \"" + id + "\", but it isn't defined!");
@@ -298,12 +306,13 @@
 
     $(window).load(function () {
         // Request the list of screens as JSON data and create each one
-        $.getJSON(screenJsonUrl, function (data) {
+        jsonQuery = $.getJSON(screenJsonUrl, function (data) {
             if (data.screens) {
                 $.each(data.screens, function (index, screen) {
                     ui.createScreen(screen);
                 });
             }
+            jsonQuery = null;
         });
     });
 })();

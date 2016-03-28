@@ -83,21 +83,21 @@ namespace Web
 			void Show(const std::string &screenId, const std::string &data)
 			{
 				// ui.requestScreen(id, data)
-				auto js = "ui.requestScreen('" + screenId + "', " + data + ");";
+				auto js = "if (window.ui) ui.requestScreen('" + screenId + "', " + data + ");";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
 			}
 
 			void Hide(const std::string &screenId)
 			{
 				// ui.hideScreen(id)
-				auto js = "ui.hideScreen('" + screenId + "');";
+				auto js = "if (window.ui) ui.hideScreen('" + screenId + "');";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
 			}
 
 			void Notify(const std::string &event, const std::string &data, bool broadcast)
 			{
 				// ui.notify(event, data, broadcast, fromDew)
-				auto js = "ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
+				auto js = "if (window.ui) ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
 			}
 
