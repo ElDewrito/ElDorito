@@ -269,8 +269,6 @@ set (WEB_SOURCES
     web/screens/medals/medals.css
     web/screens/medals/medals.js
     web/screens/screens.json
-    web/screens/test/index.html
-    web/screens/test_overlay/index.html
     web/ui/index.html
     web/ui/ui.css
     web/ui/ui.js)

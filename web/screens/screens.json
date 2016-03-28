@@ -24,18 +24,6 @@
 			"url": "dew://screens/loading/",
 			"captureInput": false,
 			"zIndex": 0
-		},
-		{
-			"id": "test",
-			"url": "dew://screens/test/",
-			"captureInput": true,
-			"zIndex": 0
-		},
-		{
-			"id": "test_overlay",
-			"url": "dew://screens/test_overlay/",
-			"captureInput": false,
-			"zIndex": 100
 		}
 	]
 }
