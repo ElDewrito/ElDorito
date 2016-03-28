@@ -6,7 +6,7 @@ var playQueue = [];
 var eventJson;
 
 $(document).ready(function() {
-    dew.command('Game.MedalPack', {}, function(response) {
+    dew.command('Game.MedalPack', {}).then(function(response) {
         medalsPath = medalsPath + response + "/";
         $.getJSON(medalsPath+'events.json', function(json) {
             eventJson = json;

@@ -13,11 +13,11 @@ dew.on("show", function (event) {
         $(".generic").hide();
         $(".container").show();
         $("body").css({backgroundImage: "url('images/maps/" + mapName + ".png')"});
-        dew.getMapVariantInfo(function (info) {
+        dew.getMapVariantInfo().then(function (info) {
             $("#title").text(info.name);
             $("#desc").text(info.description);
         });
-        dew.getGameVariantInfo(function (info) {
+        dew.getGameVariantInfo().then(function (info) {
             $("#gametypeicon").attr("src", "images/gametypes/" + gameModes[info.mode] + ".png");
             $("#gametype").text(info.name);  
             if(info.rounds > 0){
@@ -36,10 +36,10 @@ dew.on("show", function (event) {
                 $("#timelimit").text("Unlimited");  
             }                
         });
-        dew.command("Server.NameClient", { internal: true }, function (name) {
+        dew.command("Server.NameClient", { internal: true }).then(function (name) {
             $(".serverName").text(name);
         });
-        dew.command("Server.MessageClient", { internal: true }, function (message) {
+        dew.command("Server.MessageClient", { internal: true }).then(function (message) {
             if(message.length > 0){
                 $(".serverMessage").show();
                 $(".serverMessage").html(textWithNewLines(message));

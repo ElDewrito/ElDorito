@@ -1,10 +1,59 @@
 /**
+ * Creates a new DewError object which represents an ElDewrito communication error.
+ * 
+ * @class
+ * @param {string} message - The error message.
+ * @param {DewErrorCode} [code] - The error code.
+ * @param {string} [method] - The internal method name.
+ */
+function DewError(message, code, method) {
+    Error.captureStackTrace(this, this.constructor);
+
+    /**
+     * @member {string}
+     */
+    this.name = this.constructor.name;
+
+    /**
+     * The error message.
+     * @member {string}
+     */
+    this.message = message || "";
+
+    /**
+     * The error code.
+     * @member {DewErrorCode}
+     */
+    this.code = (typeof code === "number") ? code : DewErrorCode.UNKNOWN_ERROR;
+
+    /**
+     * The internal method name.
+     * @member {string}
+     */
+    this.method = method || "";
+}
+
+/**
+ * Gets the name of the error's code.
+ * 
+ * @returns {string} A string representing the error's code.
+ */
+DewError.prototype.getCodeName = function () {
+    for (var name in DewErrorCode) {
+        if (DewErrorCode.hasOwnProperty(name) && DewErrorCode[name] === this.code) {
+            return name;
+        }
+    }
+    return this.code.toString();
+}
+
+/**
  * Error codes.
  *
  * @readonly
  * @enum {number}
  */
-DewError = {
+DewErrorCode = {
     /**
      * The method ran successfully.
      */
@@ -144,15 +193,6 @@ CommandType = {
 (function () {
     window.dew = window.dew || {};
 
-    // Default success handler.
-    function defaultSuccess(result) {
-    }
-
-    // Default failure handler.
-    function defaultFailure(err) {
-        console.error("Dew query \"" + err.method + "\" failed with code " + err.code + " (" + dew.getErrorName(err.code) + "): " + err.message);
-    }
-
     // Default 1:1 result mapping.
     function defaultResultMapping(result) {
         return result;
@@ -163,27 +203,19 @@ CommandType = {
         return JSON.parse(result);
     }
 
-    // Calls a native method.
-    dew.callMethod = function (method, args, onSuccess, onFailure, resultMapping) {
-        try {
-            // Ensure default values
-            onSuccess = onSuccess || defaultSuccess;
-            onFailure = onFailure || defaultFailure;
-            resultMapping = resultMapping || defaultResultMapping;
-            args = args || {};
-
+    // Calls a native method and returns a Promise for it.
+    dew.callMethod = function (method, args, resultMapping) {
+        resultMapping = resultMapping || defaultResultMapping;
+        args = args || {};
+        return new Promise(function (resolve, reject) {
             // Ensure that we have a function to send queries to ED
             if (!window.dewQuery) {
-                onFailure({
-                    method: method,
-                    code: DewError.UNSUPPORTED_METHOD,
-                    message: "Unsupported method: window.dewQuery() is not available"
-                });
+                reject(new DewError("Unsupported method: window.dewQuery() is not available", DewErrorCode.UNSUPPORTED_METHOD, method));
                 return;
             }
 
             // If args is a function, run it to get the actual arguments
-            // This is useful in order to ensure that JS exceptions trigger onFailure
+            // This is useful in order to ensure that JS exceptions cause the promise to fail.
             if (typeof args === "function") {
                 args = args();
             }
@@ -196,36 +228,21 @@ CommandType = {
                 }),
                 persistent: false,
                 onSuccess: function (resultStr) {
-                    // Map the result string using the resultMapping function,
-                    // calling onFailure if an error occurs in the process
-                    var result;
+                    // Try to map the result string and resolve the promise with it
+                    var value;
                     try {
-                        result = resultMapping(resultStr);
+                        value = resultMapping(resultStr);
                     } catch (e) {
-                        onFailure({
-                            method: method,
-                            code: DewError.JS_EXCEPTION,
-                            message: e.message
-                        });
+                        reject(e);
                         return;
                     }
-                    onSuccess(result);
+                    resolve(value);
                 },
                 onFailure: function (code, message) {
-                    onFailure({
-                        method: method,
-                        code: code,
-                        message: message
-                    });
+                    reject(new DewError(message, code, method));
                 }
             });
-        } catch (e) {
-            onFailure({
-                method: method,
-                code: DewError.JS_EXCEPTION,
-                message: e.message
-            });
-        }
+        });
     }
 
     // Registers an event handler for a UI event.
@@ -264,39 +281,29 @@ CommandType = {
 
     /**
      * Methods for interfacing with ElDewrito.
-     * 
-     * Some methods run asynchronously and accept success and failure callbacks.
      *
      * @namespace dew
      */
 
     /**
-     * The onSuccess callback is called when an asynchronous method succeeds.
+     * A promise made by an asynchronous ElDewrito method.
+     * 
+     * If the promise is rejected for a reason related to ElDewrito, it will be rejected with a {@link DewError} object.
+     * This object includes an [error code]{@link DewErrorCode} which can be used to easily figure out what went wrong.
      *
-     * @callback SuccessCallback
-     * @param {*} result - The result value. The type of this depends on the method that was called.
-     */
-
-    /**
-     * The onFailure callback is called when an asynchronous method fails to execute.
-     *
-     * @callback FailureCallback
-     * @param {object} err - Information about the error that occurred.
-     * @param {DewError} err.code - The internal error code.
-     * @param {string} err.message - The error message.
-     * @param {string} err.method - The name of the internal method that was called.
+     * If the promise is rejected for any other reason, it may be rejected with a generic Error.
+     * Therefore, you must use `instanceof DewError` to check that the error is actually an ElDewrito error before getting specific information.
+     * 
+     * @typedef {Promise<*|Error>} DewPromise
      */
 
     /**
      * (ASYNCHRONOUS) Retrieves the current version of ElDewrito.
      * 
-     * @name dew.getVersion
-     * @function
-     * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the version string.
-     * @param {FailureCallback} [onFailure] - The failure callback.
+     * @returns {DewPromise<string>} - A promise for the version string.
      */
-    dew.getVersion = function (onSuccess, onFailure) {
-        dew.callMethod("version", {}, onSuccess, onFailure);
+    dew.getVersion = function () {
+        return dew.callMethod("version");
     }
 
     /**
@@ -307,8 +314,6 @@ CommandType = {
      * This will always send a [show]{@link event:show} event to the screen, even if it is already visible.
      * You can use this as a simple means of sending messages between screens.
      *
-     * @name dew.show
-     * @function
      * @param {string} [id] - The ID of the screen to show. If this is null or omitted, the current screen will be shown.
      * @param {object} [data] - Data to pass to the screen's [show]{@link event:show} event.
      */
@@ -324,8 +329,6 @@ CommandType = {
      * 
      * This will send a [hide]{@link event:hide} event to the screen if it is visible.
      *
-     * @name dew.hide
-     * @function
      * @param {string} [id] - The ID of the screen to hide. If this is null or omitted, the current screen will be hidden.
      */
     dew.hide = function (id) {
@@ -337,8 +340,6 @@ CommandType = {
     /**
      * Requests to change this screen's input capture state.
      * 
-     * @name dew.captureInput
-     * @function
      * @param {boolean} capture - true to capture mouse and keyboard input, false to release.
      */
     dew.captureInput = function (capture) {
@@ -350,25 +351,22 @@ CommandType = {
     /**
      * (ASYNCHRONOUS) Runs a console command.
      * 
-     * If the command does not run successfully, onFailure will be called with [DewError.COMMAND_FAILED]{@link DewError}.
+     * If the command does not run successfully, the promise will be rejected with a [DewErrorCode.COMMAND_FAILED]{@link DewErrorCode} error.
      * The error message will be the command output.
      *
-     * @name dew.command
-     * @function
      * @param {string} command - The command and its arguments, separated by spaces.
      * @param {object} [options] - Additional options that control how the command should run.
      * @param {boolean} [options.internal=false] - If set to true, then internal commands can be executed.
-     * @param {SuccessCallback} [onSuccess] - The success callback. It will be passed the string returned by the command.
-     * @param {FailureCallback} [onFailure] - The failure callback. If the command fails with [DewError.COMMAND_FAILED]{@link DewError}, this will be called with the error message set to the command output.
+     * @returns {DewPromise<string>} A promise for the command output.
      */
-    dew.command = function (command, options, onSuccess, onFailure) {
-        dew.callMethod("command", function () {
+    dew.command = function (command, options) {
+        return dew.callMethod("command", function () {
             options = options || {};
             return {
                 command: command.toString(),
                 internal: (typeof options.internal === "boolean") ? options.internal : false
             };
-        }, onSuccess, onFailure);
+        });
     }
 
     /**
@@ -378,112 +376,94 @@ CommandType = {
      *
      * **This method is currently broken and will report ping times that are much higher than they should be.**
      *
-     * @name dew.ping
-     * @function
      * @param {string} address - The IPv4 address of the server to ping. Must not include a port number.
-     * @param {SuccessCallback} [onSuccess] - The success callback. This will be called after the ping is sent, not when a response is received.
-     * @param {FailureCallback} [onFailure] - The failure callback.
-     * @see event:pong
-     * @see dew.on
+     * @returns {DewPromise} A promise that will be resolved once the ping is sent.
      */
-    dew.ping = function (address, onSuccess, onFailure) {
-        dew.callMethod("ping", function () {
+    dew.ping = function (address) {
+        return dew.callMethod("ping", function () {
             return {
                 address: address.toString()
             };
-        }, onSuccess, onFailure);
+        });
     }
 
     /**
      * (ASYNCHRONOUS) Gets info about the current map variant.
      * 
-     * If map variant info is not available, onFailure will be called with [DewError.NOT_AVAILABLE]{@link DewError}.
+     * If map variant info is not available, the promise will be rejected with a [DewErrorCode.NOT_AVAILABLE]{@link DewErrorCode} error.
      * 
-     * @name dew.getMapVariantInfo
-     * @function
-     * @param {MapVariantInfoSuccessCallback} onSuccess - The success callback. It will be passed information about the map variant.
-     * @param {FailureCallback} onFailure - The failure callback.
-     * @see MapVariantInfoSuccessCallback
+     * @returns {DewPromise<MapVariantInfo>} A promise for the map variant info.
      */
-    dew.getMapVariantInfo = function (onSuccess, onFailure) {
-        dew.callMethod("mapVariantInfo", {}, onSuccess, onFailure, jsonResultMapping);
+    dew.getMapVariantInfo = function () {
+        return dew.callMethod("mapVariantInfo", {}, jsonResultMapping);
     }
 
     /**
-     * Called when {@link dew.getMapVariantInfo} succeeds.
+     * Contains information about a map variant.
      *
-     * @callback MapVariantInfoSuccessCallback
-     * @param {object} info - The map variant info.
-     * @param {string} info.name - The name. Can be empty.
-     * @param {string} info.description - The description. Can be empty.
-     * @param {string} info.author - The author. Can be empty.
-     * @param {number} info.mapId - The map ID.
+     * @typedef {object} MapVariantInfo
+     * @property {string} name - The name. Can be empty.
+     * @property {string} description - The description. Can be empty.
+     * @property {string} author - The author. Can be empty.
+     * @property {number} mapId - The map ID.
      * @see dew.getMapVariantInfo
      */
 
     /**
      * (ASYNCHRONOUS) Gets info about the current game variant.
      * 
-     * If game variant info is not available, onFailure will be called with [DewError.NOT_AVAILABLE]{@link DewError}.
+     * If game variant info is not available, the promise will be rejected with a [DewErrorCode.NOT_AVAILABLE]{@link DewErrorCode} error.
      * 
-     * @name dew.getGameVariantInfo
-     * @function
-     * @param {GameVariantInfoSuccessCallback} onSuccess - The success callback. It will be passed information about the game variant.
-     * @param {FailureCallback} onFailure - The failure callback.
-     * @see GameVariantInfoSuccessCallback
+     * @returns {DewPromise<GameVariantInfo>} A promise for the game variant info.
      */
-    dew.getGameVariantInfo = function (onSuccess, onFailure) {
-        dew.callMethod("gameVariantInfo", {}, onSuccess, onFailure, jsonResultMapping);
+    dew.getGameVariantInfo = function () {
+        return dew.callMethod("gameVariantInfo", {}, jsonResultMapping);
     }
 
     /**
-     * Called when {@link dew.getGameVariantInfo} succeeds.
+     * Contains information about a game variant.
      *
-     * @callback GameVariantInfoSuccessCallback
-     * @param {object} info - The game variant info.
-     * @param {GameMode} info.mode - The base game mode.
-     * @param {string} info.name - The name. Can be empty.
-     * @param {string} info.description - The description. Can be empty.
-     * @param {string} info.author - The author. Can be empty.
-     * @param {boolean} info.teams - `true` if teams are enabled.
-     * @param {number} info.timeLimit - The time limit in minutes (0 if unlimited).
-     * @param {number} info.rounds - The number of rounds.
-     * @param {number} info.scoreToWin - The score-to-win (-1 if unlimited).
+     * @typedef {object} GameVariantInfo
+     * @property {GameMode} mode - The base game mode.
+     * @property {string} name - The name. Can be empty.
+     * @property {string} description - The description. Can be empty.
+     * @property {string} author - The author. Can be empty.
+     * @property {boolean} teams - `true` if teams are enabled.
+     * @property {number} timeLimit - The time limit in minutes (0 if unlimited).
+     * @property {number} rounds - The number of rounds.
+     * @property {number} scoreToWin - The score-to-win (-1 if unlimited).
      * @see dew.getGameVariantInfo
      */
 
     /**
      * (ASYNCHRONOUS) Gets a list of available console commands.
      * 
-     * @param {CommandListSuccessCallback} onSuccess - The success callback. It will be passed an array of objects containing command info.
-     * @param {FailureCallback} onFailure - The failure callback.
-     * @see CommandListSuccessCallback
+     * @returns {DewPromise<ConsoleCommand[]>} A promise for the list of available console commands.
      */
-    dew.getCommands = function (onSuccess, onFailure) {
-        dew.callMethod("commands", {}, onSuccess, onFailure, jsonResultMapping);
+    dew.getCommands = function () {
+        return dew.callMethod("commands", {}, jsonResultMapping);
     }
 
     /**
-     * Called when {@link dew.getCommands} succeeds.
+     * Contains information about a console command and its current state.
      *
-     * @callback CommandListSuccessCallback
-     * @param {object[]} commands - An array of available commands.
-     * @param {CommandType} commands[].type - The type of the command or variable.
-     * @param {string} commands[].module - The module name.
-     * @param {string} commands[].name - The name of the command or variable. This includes the module prefix.
-     * @param {string} commands[].shortName - The short name of the command or variable.
-     * @param {string} commands[].description - A description to display in a help listing.
-     * @param {*} commands[].value - The current value of the variable. For commands, this will be `null`.
-     * @param {*} commands[].defaultValue - The default value of the variable. For commands, this will be `null`.
-     * @param {*} commands[].minValue - The minimum value of the variable. For string variables and commands, this will be `null`.
-     * @param {*} commands[].maxValue - The maximum value of the variable. For string variables and commands, this will be `null`.
-     * @param {boolean} commands[].replicated - `true` if the variable should be synchronized to clients.
-     * @param {boolean} commands[].archived - `true` if the variable should be saved when the config file is written.
-     * @param {boolean} commands[].hidden - `true` if the command or variable should be omitted from a help listing.
-     * @param {boolean} commands[].hostOnly - `true` if the command or variable can only be used by the game host.
-     * @param {boolean} commands[].hideValue - `true` if the variable's value should be omitted from a help listing.
-     * @param {boolean} commands[].internal - `true` if the command or variable can only be set internally.
-     * @param {string[]} commands[].arguments - A list of arguments for the command. Each string will contain a value name, a space, and then a description. For variables, this will be empty.
+     * @typedef {object} ConsoleCommand
+     * @property {CommandType} type - The type of the command or variable.
+     * @property {string} module - The module name.
+     * @property {string} name - The name of the command or variable. This includes the module prefix.
+     * @property {string} shortName - The short name of the command or variable.
+     * @property {string} description - A description to display in a help listing.
+     * @property {*} value - The current value of the variable. For commands, this will be `null`.
+     * @property {*} defaultValue - The default value of the variable. For commands, this will be `null`.
+     * @property {*} minValue - The minimum value of the variable. For string variables and commands, this will be `null`.
+     * @property {*} maxValue - The maximum value of the variable. For string variables and commands, this will be `null`.
+     * @property {boolean} replicated - `true` if the variable should be synchronized to clients.
+     * @property {boolean} archived - `true` if the variable should be saved when the config file is written.
+     * @property {boolean} hidden - `true` if the command or variable should be omitted from a help listing.
+     * @property {boolean} hostOnly - `true` if the command or variable can only be used by the game host.
+     * @property {boolean} hideValue - `true` if the variable's value should be omitted from a help listing.
+     * @property {boolean} internal - `true` if the command or variable can only be set internally.
+     * @property {string[]} arguments - A list of arguments for the command. Each string will contain a value name, a space, and then a description. For variables, this will be empty.
      * @see dew.getCommands
      */
 
@@ -569,21 +549,4 @@ CommandType = {
      * @property {number} currentBytes - The current number of bytes that have been decompressed.
      * @property {number} totalBytes - The total number of bytes that need to be decompressed.
      */
-
-    /**
-     * Gets the name of the DewError value corresponding to an error code.
-     *
-     * @name dew.getErrorName
-     * @function
-     * @param {DewError} code - The error code.
-     * @returns {string} The error code's name.
-     */
-    dew.getErrorName = function (code) {
-        for (var error in DewError) {
-            if (DewError.hasOwnProperty(error) && DewError[error] === code) {
-                return error;
-            }
-        }
-        return code.toString();
-    }
 })();

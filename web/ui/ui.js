@@ -13,17 +13,17 @@
 
     // Shows the web overlay.
     function showOverlay() {
-        dew.callMethod("show", {});
+        return dew.callMethod("show");
     }
 
     // Hides the web overlay.
     function hideOverlay() {
-        dew.callMethod("hide", {});
+        return dew.callMethod("hide");
     }
 
     // Controls whether the web overlay captures input.
     function captureInput(capture) {
-        dew.callMethod("captureInput", { capture: !!capture });
+        return dew.callMethod("captureInput", { capture: !!capture });
     }
 
     // Updates the overlay after a screen has been shown, hidden, or changed.

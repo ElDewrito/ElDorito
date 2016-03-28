@@ -572,13 +572,13 @@ function runCommand(command) {
                     showHelp(commandValue[1]);
                     break;
                 }
-                dew.command(command, {}, function (output) {
+                dew.command(command).then(function (output) {
                     appendLine("command-line", "> " + command);
                     if (output !== "") {
                         appendLine("", output);
                     }
                     scrollToBottom();
-                }, function (error) {
+                }).catch(function (error) {
                     appendLine("command-line", "> " + command);
                     appendLine("error-line", error.message);
                 });
@@ -593,13 +593,13 @@ function runCommand(command) {
 }
 
 $(window).load(function () {
-    dew.getVersion(function (version) {
+    dew.getVersion().then(function (version) {
         $("#version").text(version);
     });
 
-    dew.getCommands(function (commands) {
+    dew.getCommands().then(function (commands) {
         commandList = commands;
-    }, function () {
+    }).catch(function () {
         appendLine("error-line", "Could not retrieve list of commands!");
     });
 
