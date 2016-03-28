@@ -209,7 +209,7 @@
             reloadScreen(screen);
         } else if ("var" in data) {
             // Get the screen URL from a variable
-            dew.command(data.var, { internal: true }, function (value) {
+            dew.command(data.var, { internal: true }).then(function (value) {
                 if (value !== "") {
                     screen.url = value;
                     reloadScreen(screen);
