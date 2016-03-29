@@ -7,13 +7,21 @@ html, body {
 }
 
 body {
-    background-image: url('images/background.png');
+    font: 24px "Conduit ITC", sans-serif;
+    margin: 0;
+}
+
+
+/* Map Loading Screen */
+
+.mapLoader {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     color: white;
-    font: 24pt "Conduit ITC", sans-serif;
-    margin: 0;
 }
 
 progress {
@@ -45,64 +53,57 @@ progress::-webkit-progress-value {
     background-color: black;
     opacity: 0.9;
     border-bottom: 1px solid #7fa4c5;
-    display: none;
-}
-
-.footer{
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 15vh;
-    background-color: black;
-    opacity: 0.9;
-    border-top: 1px solid #7fa4c5;
-    display: none;
 }
 
 .header img{
     position: absolute;
-    top: 1.5vh;
-    height: 12vh;
+    top: 3.5vh;
+    height: 8vh;
     padding: 0;
 }
 
 #logo {
-    float: left;
-    left: 1vw;   
+    left: 2vw;
 }
 
 #gametypeicon {
-    float: right;
-    right: 1vw;
+    height: 9vh;
+    top: 3vh;
+    right: 2vw;
 }
 
 #gametype, .gamerounds, .gamescore, .timelimit {
     position: absolute;
-    right: 16vh;
-    float: right;
+    right: 9vw;
+    color: rgba(255,255,255,0.75);
+    font-size: 2vh;
     text-align: right;
+    font-weight: 400;
+}
+
+#gametype span, .gamerounds span, .gamescore span, .timelimit span {
+    display: inline-block;
+    padding-left: 0.75vh;
+    font-weight: 700;
 }
 
 #gametype {
-    font-size: 4.5vh;
-    top: 0.75vh;
+    top: 2.25vh;
+    color: white;
+    font-size: 3.25vh;
     font-weight: 700;
 }
 
 .gamerounds {
-    font-size: 2.5vh;
-    top: 5.25vh;
+    top: 6.05vh;
 }
 
 .gamescore {
-    font-size: 2.5vh;
-    top: 7.85vh;
+    top: 8.1vh;
 }
 
 .timelimit {
-    font-size: 2.5vh;
-    top: 10.5vh;
+    top: 10vh;
 }
 
 .container {
@@ -111,7 +112,6 @@ progress::-webkit-progress-value {
     left: 0;
     width: 100%;
     height: 70vh;
-    z-index: -1;
 }
 
 .serverName {
@@ -131,7 +131,6 @@ progress::-webkit-progress-value {
 
 .serverMessage {
     position: relative;
-    float: left;
     top: 0;
     max-height: 80%;
     max-width: 45%;
@@ -144,21 +143,30 @@ progress::-webkit-progress-value {
     display: none;
 }
 
+.footer{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 15vh;
+    background-color: black;
+    opacity: 0.9;
+    border-top: 1px solid #7fa4c5;
+}
+
 #title {
     position: absolute;
-    float: left;
     font-size: 7vh;
-    top: 2vh;
+    top: 2.4vh;
     left: 2vw;
 }
 
 #desc {
-    position: relative;
+    position: absolute;
     top: 3.5vh;
     right: 2vw;
-    float: right;
     font-size: 2.5vh;
-    text-align: right;
+    text-align: left;
     color: #7fa4c5;
     max-width: 40%;
 }
@@ -166,11 +174,11 @@ progress::-webkit-progress-value {
 
 /* Generic Loading Screen */
 
-.generic  {
+.genericLoader  {
     display: none;
 }
 
-.generic .clouds {
+.genericLoader .clouds {
     position: absolute;
     margin: 0;
     width: 100%;
@@ -181,6 +189,7 @@ progress::-webkit-progress-value {
     background-size: calc(100% + 200px) 55%, calc(100% + 200px) 70%;
     background-position: 100% calc(100% - 50px), 0% calc(100% - 50px);
     background-repeat: no-repeat;
+    transform: translatez(0);
     animation-duration: 10s;
     animation-delay: 0s;
     animation-name: clouds;
@@ -189,7 +198,7 @@ progress::-webkit-progress-value {
     animation-timing-function: ease-in-out;
 }
 
-.generic .ring {
+.genericLoader .ring {
     position: absolute;
     margin: 0;
     width: 100%;
@@ -200,7 +209,7 @@ progress::-webkit-progress-value {
     background-repeat: no-repeat;
 }
 
-.generic .stars {
+.genericLoader .stars {
     position: absolute;
     margin: 0;
     width: 100%;
@@ -209,6 +218,7 @@ progress::-webkit-progress-value {
     background-size: cover;
     background-position: 50% 0%;
     background-repeat: repeat;
+    transform: translatez(0);
     animation-duration: 100s;
     animation-delay: 0s;
     animation-name: stars;
@@ -217,7 +227,7 @@ progress::-webkit-progress-value {
     animation-timing-function: linear;
 }
 
-.generic .eldorito {
+.genericLoader .eldorito {
     position: absolute;
     margin: 0;
     bottom: 42%;
@@ -229,7 +239,7 @@ progress::-webkit-progress-value {
     background-repeat: no-repeat;
 }
 
-.generic .eldorito.loading {
+.genericLoader .eldorito.loading {
     background-image: url(images/EldoritoLogoFinalBlueSmall.png);
     -webkit-clip-path: inset(100% 0 0 0);
 }
