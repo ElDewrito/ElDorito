@@ -16,6 +16,8 @@ namespace Modules
 	{
 	public:
 		Command* VarInputRawInput;
+		Command* VarControllerSensitivityX;
+		Command* VarControllerSensitivityY;
 
 		Command* CommandBindControllerAction;
 		Command* CommandBindKeyboardAction;
