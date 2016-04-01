@@ -70,7 +70,7 @@ function loadGeneric() {
 }
 
 function resetLoader() {
-    $(".genericLoaderm, .mapLoader").hide();
+    $(".genericLoader, .mapLoader").hide();
     $("#gametype, #gamerounds, #gamescore, #timelimit, .serverName, .serverMessage, .title, .desc").text("");
     $(".mapLoader").css({backgroundImage: ""});
     $("#gametypeicon").attr("src", "");
