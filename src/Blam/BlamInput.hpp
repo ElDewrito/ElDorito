@@ -313,8 +313,8 @@ namespace Blam
 
 		struct BindingsTable
 		{
-			float Unknown0; // Default = 120
-			float Unknown4; // Default = 60
+			float ControllerSensitivityX; // Default = 120
+			float ControllerSensitivityY; // Default = 60
 			ControllerButton ControllerButtons[eGameAction_ControllerCount];
 			bool ControllerHoldButtons[eGameAction_ControllerCount]; // true if a button needs to be held down? just a guess
 			KeyCode PrimaryKeys[eGameAction_KeyboardMouseCount];

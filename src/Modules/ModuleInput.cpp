@@ -45,8 +45,8 @@ namespace
 	{
 		memset(&bindings, 0, sizeof(bindings));
 
-		bindings.Unknown0 = 120.f;
-		bindings.Unknown4 = 60.f;
+		bindings.ControllerSensitivityX = 120.f;
+		bindings.ControllerSensitivityY = 60.f;
 		bindings.Unknown200 = .8f;
 		bindings.Unknown204 = 1.f;
 
@@ -459,6 +459,22 @@ namespace
 		return true;
 	}
 
+	bool VariableControllerSensitivityXUpdated(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto newSensitivity = Modules::ModuleInput::Instance().VarControllerSensitivityX->ValueFloat;
+		bindings.ControllerSensitivityX = std::max(1.f, newSensitivity);
+		Modules::ModuleInput::UpdateBindings();
+		return true;
+	}
+
+	bool VariableControllerSensitivityYUpdated(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto newSensitivity = Modules::ModuleInput::Instance().VarControllerSensitivityY->ValueFloat;
+		bindings.ControllerSensitivityY = std::max(1.f, newSensitivity);
+		Modules::ModuleInput::UpdateBindings();
+		return true;
+	}
+
 #ifdef _DEBUG
 	bool CommandDumpBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
@@ -507,6 +523,9 @@ namespace Modules
 #ifdef _DEBUG
 		AddCommand("DebugBindings", "debugbindings", "Dumps the input bindings table", eCommandFlagsNone, CommandDumpBindings);
 #endif
+
+		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
+		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 
 		LoadDefaultBindings();
 		BuildSettingsMenu();
