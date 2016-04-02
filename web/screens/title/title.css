@@ -1,5 +1,9 @@
 @font-face{font-family:"Conduit ITC";src:url(Conduit-ITC.woff);}
 
+html {
+    cursor: default;    
+}
+
 body {
     margin: 0;
     font-family: "Conduit ITC", sans-serif;
