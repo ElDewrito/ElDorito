@@ -24,6 +24,12 @@
 			"url": "dew://screens/loading/",
 			"captureInput": false,
 			"zIndex": 0
+		},
+		{
+			"id": "title",
+			"url": "dew://screens/title/",
+			"captureInput": true,
+			"zIndex": 9
 		}
 	]
 }

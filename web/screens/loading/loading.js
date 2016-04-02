@@ -1,3 +1,4 @@
+var loadingCount = 0;
 var mapName = "";
 var gameModes = ["slayer","ctf","slayer","oddball","koth","forge","vip","juggernaut","territories","assault","infection"];
 
@@ -20,7 +21,6 @@ function timeConvert(mins){
 
 function updateProgress(progress) {
     $("#progressbar").attr('value', progress);
-    progress = 100 - progress;
     $(".loading").css({"-webkit-clip-path": "inset(" + progress + "% 0 0 0)"});
 }
 
@@ -84,10 +84,14 @@ dew.on("show", function (event) {
         loadGeneric();
     }
     updateProgress(0);
+    loadingCount++;
 });
 
 dew.on("hide", function (e) {
     resetLoader();
+    if (loadingCount == 1 && mapName == "mainmenu"){
+        dew.show("title");
+    }
 });
 
 dew.on("loadprogress", function (event) {
