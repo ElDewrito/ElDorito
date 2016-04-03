@@ -69,6 +69,7 @@ namespace Anvil
 				bool OnProcessMessageReceived(CefRefPtr<CefBrowser> p_Browser, CefProcessId p_SourceProcess, CefRefPtr<CefProcessMessage> p_Message) override;
 
 				void OnBeforeContextMenu(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, CefRefPtr<CefContextMenuParams> p_Params, CefRefPtr<CefMenuModel> p_Model) override;
+				bool OnBeforePopup(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, const CefString& p_Url, const CefString& p_FrameName, CefLifeSpanHandler::WindowOpenDisposition p_Disposition, bool p_UserGesture, const CefPopupFeatures& p_Features, CefWindowInfo& p_WindowInfo, CefRefPtr<CefClient>& p_Client, CefBrowserSettings& p_Settings, bool* p_NoJavaScript) override;
 
 				uint8_t* GetTexture();
 				uint32_t GetTextureLength();

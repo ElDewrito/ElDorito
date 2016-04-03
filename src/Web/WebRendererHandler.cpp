@@ -6,6 +6,7 @@ Code was used from NoFaTe (http://nofate.me)
 #include "../Utils/Rectangle.hpp"
 #include "Bridge/WebRendererQueryHandler.hpp"
 #include "Bridge/Client/ClientFunctions.hpp"
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace Anvil::Client::Rendering;
 
@@ -263,4 +264,16 @@ void WebRendererHandler::OnBeforeContextMenu(CefRefPtr<CefBrowser> p_Browser, Ce
 {
 	// Disallow context menus
 	p_Model->Clear();
+}
+
+bool WebRendererHandler::OnBeforePopup(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, const CefString& p_Url, const CefString& p_FrameName, CefLifeSpanHandler::WindowOpenDisposition p_Disposition, bool p_UserGesture, const CefPopupFeatures& p_Features, CefWindowInfo& p_WindowInfo, CefRefPtr<CefClient>& p_Client, CefBrowserSettings& p_Settings, bool* p_NoJavaScript)
+{
+	// Make sure that the URL starts with http:// or https:// so it can't be used to execute arbitrary shell commands
+	auto s_UrlStr = p_Url.ToWString();
+	if (!boost::istarts_with(s_UrlStr, L"http://") && !boost::istarts_with(s_UrlStr, L"https://"))
+		s_UrlStr = L"http://" + s_UrlStr;
+	
+	// Open the URL in the user's browser
+	ShellExecuteW(nullptr, L"open", s_UrlStr.c_str(), L"", nullptr, SW_SHOWNORMAL);
+	return true;
 }
