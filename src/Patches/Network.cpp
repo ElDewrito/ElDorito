@@ -850,13 +850,7 @@ namespace
 
 	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
 	{
-		// TODO: check if the user is hosting/joined a game (ie. make sure the game isn't just an offline game)
-		// TODO: make sure the game has had 2 or more players during gameplay
-		// TODO: get a game/match ID
-		// TODO: make sure we haven't announced stats already for this game ID
-		// TODO: make Server.AnnounceStats only callable in code, not via the console (once we've finished debugging it etc
-
-		Modules::CommandMap::Instance().ExecuteCommand("Server.AnnounceStats");
+		// There used to be a stats upload here, which is why this hook does nothing
 
 		typedef char(__thiscall *Network_state_end_game_write_stats_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_end_game_write_stats_enterFunc Network_state_end_game_write_stats_enter = reinterpret_cast<Network_state_end_game_write_stats_enterFunc>(0x492B50);

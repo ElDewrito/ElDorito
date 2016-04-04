@@ -12,10 +12,7 @@
 
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
-#include "../ThirdParty/rapidjson/writer.h"
-#include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../VoIP/TeamspeakClient.hpp"
-#include "../Utils/Cryptography.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console/GameConsole.hpp"
 #include "../Server/VariableSynchronization.hpp"
@@ -227,150 +224,6 @@ namespace
 		return true;
 	}
 
-	DWORD WINAPI CommandServerAnnounceStats_Thread(LPVOID lpParam)
-	{
-		std::stringstream ss;
-		std::vector<std::string> statsEndpoints;
-		auto& debugLog = Utils::DebugLog::Instance();
-
-		GetEndpoints(statsEndpoints, "stats");
-
-		//typedef int(__cdecl *Game_GetLocalPlayerDatumIdxFunc)(int localPlayerIdx);
-		//Game_GetLocalPlayerDatumIdxFunc Game_GetLocalPlayerDatumIdx = reinterpret_cast<Game_GetLocalPlayerDatumIdxFunc>(0x589C30);
-		//uint16_t playerIdx = (uint16_t)(Game_GetLocalPlayerDatumIdx(0) & 0xFFFF);
-		// above wont work since we're on a different thread without the proper TLS data :(
-
-		auto& localPlayers = ElDorito::GetMainTls(GameGlobals::LocalPlayers::TLSOffset)[0];
-		uint16_t playerIdx = (uint16_t)(localPlayers(GameGlobals::LocalPlayers::Player0DatumIdx).Read<uint32_t>() & 0xFFFF);
-
-		auto& playersGlobal = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
-		int32_t team = playersGlobal(0x54 + GameGlobals::Players::TeamOffset + (playerIdx * GameGlobals::Players::PlayerEntryLength)).Read<int32_t>();
-
-		int16_t score = playersGlobal(0x54 + GameGlobals::Players::ScoreBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
-		int16_t kills = playersGlobal(0x54 + GameGlobals::Players::KillsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
-		int16_t deaths = playersGlobal(0x54 + GameGlobals::Players::DeathsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
-		// unsure about assists
-		int16_t assists = playersGlobal(0x54 + GameGlobals::Players::AssistsBase + (playerIdx * GameGlobals::Players::ScoresEntryLength)).Read<int16_t>();
-
-		// TODO: get an ID for this match
-		int32_t gameId = 0x1337BEEF;
-
-		// build our stats announcement
-		rapidjson::StringBuffer statsBuff;
-		rapidjson::Writer<rapidjson::StringBuffer> statsWriter(statsBuff);
-		statsWriter.StartObject();
-		statsWriter.Key("gameId");
-		statsWriter.Int(gameId);
-		statsWriter.Key("score");
-		statsWriter.Int(score);
-		statsWriter.Key("kills");
-		statsWriter.Int(kills);
-		statsWriter.Key("assists");
-		statsWriter.Int(assists);
-		statsWriter.Key("deaths");
-		statsWriter.Int(deaths);
-		statsWriter.Key("team");
-		statsWriter.Int(team);
-		statsWriter.Key("medals");
-		statsWriter.StartArray();
-
-		// TODO: log each medal earned during the game and output them here
-		/*statsWriter.String("doublekill");
-		statsWriter.String("triplekill");
-		statsWriter.String("overkill");
-		statsWriter.String("unfreakingbelieveable");*/
-
-		statsWriter.EndArray();
-		statsWriter.EndObject();
-
-		std::string statsObject = statsBuff.GetString();
-		// todo: look into using JSON Web Tokens (JWT) that use JSON Web Signature (JWS), instead of using our own signature stuff
-		std::string statsSignature;
-		if (!Utils::Cryptography::CreateRSASignature(Patches::PlayerUid::GetFormattedPrivKey(), (void*)statsObject.c_str(), statsObject.length(), statsSignature))
-		{
-			ss << "Failed to create stats RSA signature!";
-			debugLog.Log("AnnounceStats", ss.str());
-			return 0;
-		}
-
-		rapidjson::StringBuffer s;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-		writer.StartObject();
-		writer.Key("statsVersion");
-		writer.Int(1);
-		writer.Key("stats");
-		writer.String(statsObject.c_str()); // write stats object as a string instead of object so that the string matches up exactly with what we signed (also because there's no easy way to append a writer..)
-		writer.Key("publicKey");
-		writer.String(Modules::ModulePlayer::Instance().VarPlayerPubKey->ValueString.c_str());
-		writer.Key("signature");
-		writer.String(statsSignature.c_str());
-		writer.EndObject();
-
-		std::string sendObject = s.GetString();
-
-		for (auto server : statsEndpoints)
-		{
-			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-
-			try
-			{
-				if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
-				{
-					ss << "Unable to connect to master server " << server << " (error: " << req.lastError << "/" << std::to_string(GetLastError()) << ")" << std::endl << std::endl;
-					continue;
-				}
-			}
-			catch (...)
-			{
-				ss << "Exception during master server stats announce request to " << server << std::endl << std::endl;
-				continue;
-			}
-
-			// make sure the server replied with 200 OK
-			std::wstring expected = L"HTTP/1.1 200 OK";
-			if (req.responseHeader.length() < expected.length())
-			{
-				ss << "Invalid master server stats response from " << server << std::endl << std::endl;
-				continue;
-			}
-
-			auto respHdr = req.responseHeader.substr(0, expected.length());
-			if (respHdr.compare(expected))
-			{
-				ss << "Invalid master server stats response from " << server << std::endl << std::endl;
-				continue;
-			}
-
-			// parse the json response
-			std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
-			rapidjson::Document json;
-			if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
-			{
-				ss << "Invalid master server JSON response from " << server << std::endl << std::endl;
-				continue;
-			}
-
-			if (!json.HasMember("result"))
-			{
-				ss << "Master server JSON response from " << server << " is missing data." << std::endl << std::endl;
-				continue;
-			}
-
-			auto& result = json["result"];
-			if (result["code"].GetInt() != 0)
-			{
-				ss << "Master server " << server << " returned error code " << result["code"].GetInt() << " (" << result["msg"].GetString() << ")" << std::endl << std::endl;
-				continue;
-			}
-		}
-
-		std::string errors = ss.str();
-		if (errors.length() > 0)
-			debugLog.Log("AnnounceStats", ss.str());
-
-		return true;
-	}
-
 	bool CommandServerAnnounce(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (!Patches::Network::IsInfoSocketOpen())
@@ -388,16 +241,6 @@ namespace
 
 		auto thread = CreateThread(NULL, 0, CommandServerUnannounce_Thread, (LPVOID)&Arguments, 0, NULL);
 		returnInfo = "Unannouncing to master servers...";
-		return true;
-	}
-
-	bool CommandServerAnnounceStats(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		//if (!IsEndGame())
-		//	return false;
-
-		auto thread = CreateThread(NULL, 0, CommandServerAnnounceStats_Thread, (LPVOID)&Arguments, 0, NULL);
-		returnInfo = "Announcing stats to master servers...";
 		return true;
 	}
 
@@ -1045,8 +888,6 @@ namespace Modules
 		AddCommand("Connect", "connect", "Begins establishing a connection to a server", eCommandFlagsRunOnMainMenu, CommandServerConnect, { "host:port The server info to connect to", "password(string) The password for the server" });
 		AddCommand("Announce", "announce", "Announces this server to the master servers", eCommandFlagsHostOnly, CommandServerAnnounce);
 		AddCommand("Unannounce", "unannounce", "Notifies the master servers to remove this server", eCommandFlagsHostOnly, CommandServerUnannounce);
-
-		AddCommand("AnnounceStats", "announcestats", "Announces the players stats to the masters at the end of the game", eCommandFlagsNone, CommandServerAnnounceStats);
 
 		AddCommand("KickPlayer", "k", "Kicks a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
 		AddCommand("KickBanPlayer", "kb", "Kicks and IP bans a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerBanPlayer, { "playername The name of the player to ban" });
