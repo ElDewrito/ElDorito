@@ -2,6 +2,7 @@
 
 html {
     cursor: default;    
+    overflow: hidden;
 }
 
 body {
@@ -9,21 +10,30 @@ body {
     font-family: "Conduit ITC", sans-serif;
 }
 
-.genericLoader .clouds {
+.genericLoader .cloudfront {
     position: absolute;
+    bottom: -13vh;
     margin: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-        url(images/cloud_front.png),
-        url(images/cloud_back.png);
-    background-size: calc(100% + 200px) 55%, calc(100% + 200px) 70%;
-    background-position: 100% calc(100% - 50px), 0% calc(100% - 50px);
-    background-repeat: no-repeat;
-    transform: translatez(0);
-    animation-duration: 10s;
+    height: 65%;
+    width: 150%;
+    animation-duration: 35s;
     animation-delay: 0s;
-    animation-name: clouds;
+    animation-name: cloudfront;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    z-index: 1;
+}
+
+.genericLoader .cloudback {
+    position: absolute;
+    bottom: -15vh;
+    margin: 0;
+    height: 80%;
+    width: 150%;
+    animation-duration: 35s;
+    animation-delay: 0s;
+    animation-name: cloudback;
     animation-direction: alternate;
     animation-iteration-count: infinite;
     animation-timing-function: ease-in-out;
@@ -44,13 +54,7 @@ body {
     position: absolute;
     margin: 0;
     width: 100%;
-    height: 100%;
-    background-image: url(images/stars.jpg);
-    background-size: cover;
-    background-position: 50% 0%;
-    background-repeat: repeat;
-    transform: translatez(0);
-    animation-duration: 100s;
+    animation-duration: 120s;
     animation-delay: 0s;
     animation-name: stars;
     animation-direction: normal;
@@ -68,29 +72,36 @@ body {
     background-size: auto 100%;
     background-position: 50%;
     background-repeat: no-repeat;
+    z-index: 2;
 }
 
 @keyframes stars {
     0% {
-        background-position: 0% 0%;
+        transform: translate3d(0,0,0);
     }
     100% {
-        background-position: 100% calc(100% - 100vh);
+        transform: translate3d(0%,calc(-100% + 100vh),0);
     }
 }
 
-@keyframes clouds {
+@keyframes cloudfront {
     0% {
-        background-position: 
-            100% calc(100% + 50px), 
-            0% calc(100% + 50px);
+        transform: translate3d(-30%,0,0);            
     }
     100% {
-        background-position: 
-            0% calc(100% + 50px), 
-            100% calc(100% + 50px);
+        transform: translate3d(-5%,0,0)
     }
 }
+
+@keyframes cloudback {
+    0% {
+        transform: translate3d(-5%,0,0)
+    }
+    100% {
+        transform: translate3d(-30%,0,0);            
+    }
+}
+
 
 .instructionText {
     position: absolute;
@@ -99,6 +110,7 @@ body {
     text-align: center;
     color: white;
     font-size: 4.5vh;
+    z-index: 2;
 }
 
 .instructionText img{
@@ -114,6 +126,7 @@ body {
     text-align: center;
     color: white;
     font-size: 10vh;
+    z-index: 2;
 }
 
 .legend {
