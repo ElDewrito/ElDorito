@@ -606,6 +606,19 @@ namespace
 		return LoadBuiltInGameVariant(static_cast<Blam::GameType>(type), index, out);
 	}
 
+	const std::string GameTypeExtensions[] =
+	{
+		"ctf",
+		"slayer",
+		"oddball",
+		"koth",
+		"jugg",
+		"terries",
+		"assault",
+		"zombiez",
+		"vip",
+	};
+
 	bool CommandGameType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() != 1)
@@ -625,9 +638,9 @@ namespace
 		// corresponding to each supported game mode
 		std::ifstream gameVariant;
 		std::string variantFileName;
-		for (auto i = 1; i < Blam::GameType::GameTypeCount; i++)
+		for (auto &&extension : GameTypeExtensions)
 		{
-			variantFileName = "mods/variants/" + name + "/variant." + Blam::GameTypeNames[i];
+			variantFileName = "mods/variants/" + name + "/variant." + extension;
 			gameVariant.open(variantFileName, std::ios::binary);
 			if (gameVariant.is_open())
 				break;
