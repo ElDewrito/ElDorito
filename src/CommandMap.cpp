@@ -215,7 +215,7 @@ namespace Modules
 
 		// special case for blanking strings
 		if (cmd->Type == eCommandTypeVariableString && numArgs > 1 && argsVect[0].empty())
-			cmd->ValueString = "";
+			cmd->ValueString = "\"\"";
 
 		if (numArgs <= 1)
 			return previousValue;
