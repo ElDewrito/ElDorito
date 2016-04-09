@@ -31,6 +31,9 @@ namespace Server
 			Count
 		};
 
+		// The maximum length of a chat message in characters, not including a null terminator.
+		const size_t MaxMessageLength = 128;
+
 		// Chat message data.
 		struct ChatMessage
 		{
@@ -51,7 +54,7 @@ namespace Server
 			uint64_t Target;
 
 			// The message body.
-			char Body[512];
+			char Body[MaxMessageLength + 1];
 		};
 
 		// Interface for a class which processes and handles chat messages.
