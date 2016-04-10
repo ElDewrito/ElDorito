@@ -78,6 +78,9 @@ namespace Server
 		// Initializes the server chat system.
 		void Initialize();
 
+		// Updates the server chat system.
+		void Tick();
+
 		// Sends a message to every peer. Returns true if successful.
 		bool SendGlobalMessage(const std::string &body);
 

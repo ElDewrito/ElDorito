@@ -22,6 +22,11 @@ namespace Modules
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
 		Command* VarServerAssassinationEnabled;
+		Command* VarFloodFilterEnabled;
+		Command* VarFloodMessageScoreShort;
+		Command* VarFloodMessageScoreLong;
+		Command* VarFloodTimeoutScore;
+		Command* VarFloodTimeoutSeconds;
 
 		BYTE SyslinkData[0x176];
 
