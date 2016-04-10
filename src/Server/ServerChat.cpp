@@ -3,7 +3,11 @@
 #include "ServerChat.hpp"
 #include "../Patches/CustomPackets.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Utils/String.hpp"
 #include <unordered_map>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
 #include <Windows.h>
 
 namespace
@@ -137,7 +141,7 @@ namespace
 	{
 		auto membership = &session->MembershipInfo;
 		auto channelIndex = membership->PeerChannels[peer].ChannelIndex;
-		return (channelIndex >= 0) ? session->Observer->Channels[channelIndex].Address.Address.IPv4 : 0x0100007F; // Local peers don't have a channel
+		return (channelIndex >= 0) ? session->Observer->Channels[channelIndex].Address.Address.IPv4 : 0x7F000001; // Local peers don't have a channel
 	}
 
 	// Gets a bitset of peers on the same team as a peer.
@@ -235,6 +239,30 @@ namespace
 		return false;
 	}
 
+	// Writes a message to the log file.
+	void LogMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
+	{
+		// Try to open the log file for appending
+		auto logPath = Modules::ModuleServer::Instance().VarChatLogPath->ValueString;
+		std::ofstream logFile(logPath, std::ios::app);
+		if (!logFile)
+			return;
+
+		// Get the UTC time
+		auto now = std::chrono::system_clock::now();
+		auto time = std::chrono::system_clock::to_time_t(now);
+		struct tm gmTime;
+		gmtime_s(&gmTime, &time);
+
+		auto sender = Utils::String::ThinString(message.Sender);
+		auto ip = GetPeerIp(session, peer);
+
+		logFile << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
+		logFile << "<" << sender << "/"; // Sender name
+		logFile << (ip >> 24) << "." << ((ip >> 16) & 0xFF) << "." << ((ip >> 8) & 0xFF) << "." << (ip & 0xFF) << "> "; // IP address
+		logFile << message.Body << "\n"; // Message body
+	}
+
 	// Callback for when a message is received as the host.
 	bool HostReceivedMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
 	{
@@ -249,15 +277,19 @@ namespace
 			return false;
 
 		// Check the message against the flood filter if it's enabled
+		auto &serverModule = Modules::ModuleServer::Instance();
 		if (peer != session->MembershipInfo.LocalPeerIndex)
 		{
-			auto &serverModule = Modules::ModuleServer::Instance();
 			if (serverModule.VarFloodFilterEnabled->ValueInt)
 			{
-				if (FloodFilterMessage(session, peer, message))
+				if (FloodFilterMessage(session, peer, broadcastMessage))
 					return true; // Message was thrown out
 			}
 		}
+
+		// Write the message to the log file if logging is enabled
+		if (serverModule.VarChatLogEnabled->ValueInt)
+			LogMessage(session, peer, broadcastMessage);
 
 		PeerBitSet targetPeers;
 		if (!GetMessagePeers(session, peer, message, &targetPeers))

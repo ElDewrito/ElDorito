@@ -27,6 +27,8 @@ namespace Modules
 		Command* VarFloodMessageScoreLong;
 		Command* VarFloodTimeoutScore;
 		Command* VarFloodTimeoutSeconds;
+		Command* VarChatLogEnabled;
+		Command* VarChatLogPath;
 
 		BYTE SyslinkData[0x176];
 
