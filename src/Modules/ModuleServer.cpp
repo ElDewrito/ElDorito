@@ -942,6 +942,7 @@ namespace Modules
 		VarFloodMessageScoreLong = AddVariableInt("FloodMessageScoreLong", "floodscorelong", "Sets the flood filter score for long messages", eCommandFlagsArchived, 5);
 		VarFloodTimeoutScore = AddVariableInt("FloodTimeoutScore", "floodscoremax", "Sets the flood filter score that triggers a timeout", eCommandFlagsArchived, 10);
 		VarFloodTimeoutSeconds = AddVariableInt("FloodTimeoutSeconds", "floodtimeout", "Sets the timeout period in seconds before a spammer can send messages again", eCommandFlagsArchived, 120);
+		VarFloodTimeoutResetSeconds = AddVariableInt("FloodTimeoutResetSeconds", "floodtimeoutreset", "Sets the period in seconds before a spammer's next timeout is reset", eCommandFlagsArchived, 1800);
 
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");

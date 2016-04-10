@@ -27,6 +27,7 @@ namespace Modules
 		Command* VarFloodMessageScoreLong;
 		Command* VarFloodTimeoutScore;
 		Command* VarFloodTimeoutSeconds;
+		Command* VarFloodTimeoutResetSeconds;
 		Command* VarChatLogEnabled;
 		Command* VarChatLogPath;
 

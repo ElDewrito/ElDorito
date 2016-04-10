@@ -24,10 +24,12 @@ namespace
 
 	struct ClientSpamStats
 	{
-		ClientSpamStats() : SpamScore(0), TimeoutSeconds(0) {}
+		ClientSpamStats() : SpamScore(0), TimeoutSeconds(0), NextTimeoutSeconds(0), TimeoutResetSeconds(0) {}
 
-		int SpamScore;       // Decreased by 1 each second.
-		int TimeoutSeconds;  // The number of seconds that the client is timed out for.
+		int SpamScore;           // Decreased by 1 each second.
+		int TimeoutSeconds;      // The number of seconds that the client is timed out for.
+		int NextTimeoutSeconds;  // The length of the next timeout period in seconds (0 = default).
+		int TimeoutResetSeconds; // The number of seconds remaining before the next timeout length is reset.
 	};
 
 	// Maps IP addresses to spam statistics.
@@ -225,7 +227,16 @@ namespace
 			// If the total score reached the timeout score, then start a timeout
 			auto &serverModule = Modules::ModuleServer::Instance();
 			if (spamIt->second.SpamScore >= static_cast<int>(serverModule.VarFloodTimeoutScore->ValueInt))
-				spamIt->second.TimeoutSeconds = serverModule.VarFloodTimeoutSeconds->ValueInt;
+			{
+				// If the IP had a previous timeout that hasn't been reset yet, double it, otherwise start with the default
+				if (spamIt->second.NextTimeoutSeconds > 0)
+					spamIt->second.NextTimeoutSeconds *= 2;
+				else
+					spamIt->second.NextTimeoutSeconds = serverModule.VarFloodTimeoutSeconds->ValueInt;
+
+				spamIt->second.TimeoutSeconds = spamIt->second.NextTimeoutSeconds;
+				spamIt->second.TimeoutResetSeconds = serverModule.VarFloodTimeoutResetSeconds->ValueInt;
+			}
 		}
 
 		// If the IP is in a timeout state, send an error and return
@@ -278,7 +289,7 @@ namespace
 
 		// Check the message against the flood filter if it's enabled
 		auto &serverModule = Modules::ModuleServer::Instance();
-		if (peer != session->MembershipInfo.LocalPeerIndex)
+		//if (peer != session->MembershipInfo.LocalPeerIndex)
 		{
 			if (serverModule.VarFloodFilterEnabled->ValueInt)
 			{
@@ -356,9 +367,16 @@ namespace Server
 
 					if (it->second.SpamScore > 0)
 						it->second.SpamScore--;
+
 					if (it->second.TimeoutSeconds > 0)
 						it->second.TimeoutSeconds--;
-					if (it->second.TimeoutSeconds <= 0 && it->second.SpamScore <= 0)
+					else if (it->second.TimeoutResetSeconds > 0)
+						it->second.TimeoutResetSeconds--; // Only decrement the timeout reset if no timeout is active
+
+					if (it->second.TimeoutResetSeconds == 0)
+						it->second.NextTimeoutSeconds = 0;
+
+					if (it->second.TimeoutSeconds <= 0 && it->second.SpamScore <= 0 && it->second.TimeoutResetSeconds <= 0)
 						SpamStats.erase(it);
 
 					it = nextIt;
