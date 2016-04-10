@@ -928,6 +928,9 @@ namespace Modules
 		VarFloodTimeoutScore = AddVariableInt("FloodTimeoutScore", "floodscoremax", "Sets the flood filter score that triggers a timeout", eCommandFlagsArchived, 10);
 		VarFloodTimeoutSeconds = AddVariableInt("FloodTimeoutSeconds", "floodtimeout", "Sets the timeout period in seconds before a spammer can send messages again", eCommandFlagsArchived, 120);
 
+		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
+		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);
