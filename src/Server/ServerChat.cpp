@@ -289,7 +289,7 @@ namespace
 
 		// Check the message against the flood filter if it's enabled
 		auto &serverModule = Modules::ModuleServer::Instance();
-		//if (peer != session->MembershipInfo.LocalPeerIndex)
+		if (peer != session->MembershipInfo.LocalPeerIndex)
 		{
 			if (serverModule.VarFloodFilterEnabled->ValueInt)
 			{
