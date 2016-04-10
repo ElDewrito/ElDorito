@@ -921,6 +921,13 @@ namespace Modules
 		VarServerSprintUnlimitedClient = AddVariableInt("UnlimitedSprintClient", "unlimited_sprint_client", "", eCommandFlagsInternal, 0, UnlimitedSprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintUnlimited, VarServerSprintUnlimitedClient);
 
+		// TODO: Fine-tune these default values
+		VarFloodFilterEnabled = AddVariableInt("FloodFilterEnabled", "floodfilter", "Controls whether chat flood filtering is enabled", eCommandFlagsArchived, 1);
+		VarFloodMessageScoreShort = AddVariableInt("FloodMessageScoreShort", "floodscoreshort", "Sets the flood filter score for short messages", eCommandFlagsArchived, 2);
+		VarFloodMessageScoreLong = AddVariableInt("FloodMessageScoreLong", "floodscorelong", "Sets the flood filter score for long messages", eCommandFlagsArchived, 5);
+		VarFloodTimeoutScore = AddVariableInt("FloodTimeoutScore", "floodscoremax", "Sets the flood filter score that triggers a timeout", eCommandFlagsArchived, 10);
+		VarFloodTimeoutSeconds = AddVariableInt("FloodTimeoutSeconds", "floodtimeout", "Sets the timeout period in seconds before a spammer can send messages again", eCommandFlagsArchived, 120);
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);

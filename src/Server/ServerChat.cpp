@@ -2,6 +2,9 @@
 
 #include "ServerChat.hpp"
 #include "../Patches/CustomPackets.hpp"
+#include "../Modules/ModuleServer.hpp"
+#include <unordered_map>
+#include <Windows.h>
 
 namespace
 {
@@ -14,6 +17,20 @@ namespace
 
 	bool HostReceivedMessage(Blam::Network::Session *session, int peer, const ChatMessage &message);
 	void ClientReceivedMessage(const ChatMessage &message);
+
+	struct ClientSpamStats
+	{
+		ClientSpamStats() : SpamScore(0), TimeoutSeconds(0) {}
+
+		int SpamScore;       // Decreased by 1 each second.
+		int TimeoutSeconds;  // The number of seconds that the client is timed out for.
+	};
+
+	// Maps IP addresses to spam statistics.
+	std::unordered_map<uint32_t, ClientSpamStats> SpamStats;
+
+	DWORD LastTimeMs;   // The time, in milliseconds, of the last tick.
+	DWORD SpamUpdateMs; // Number of milliseconds since the last spam score decrement.
 
 	// Packet handler for chat messages.
 	class ChatMessagePacketHandler: public Patches::CustomPackets::PacketHandler<ChatMessage>
@@ -116,6 +133,13 @@ namespace
 		return true;
 	}
 
+	uint32_t GetPeerIp(Blam::Network::Session *session, int peer)
+	{
+		auto membership = &session->MembershipInfo;
+		auto channelIndex = membership->PeerChannels[peer].ChannelIndex;
+		return (channelIndex >= 0) ? session->Observer->Channels[channelIndex].Address.Address.IPv4 : 0x0100007F; // Local peers don't have a channel
+	}
+
 	// Gets a bitset of peers on the same team as a peer.
 	bool GetTeamPeers(Blam::Network::Session *session, int senderPeer, PeerBitSet *result)
 	{
@@ -169,6 +193,48 @@ namespace
 		return true;
 	}
 
+	// Calculates the spam score of a message.
+	int CalculateSpamScore(uint32_t ip, ClientSpamStats *stats, const ChatMessage &message)
+	{
+		// Compute a score between the short and long scores based on the message length
+		// Messages which are closer to the maximum length will have a score closer to the maximum score
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto shortScore = serverModule.VarFloodMessageScoreShort->ValueInt;
+		auto longScore = serverModule.VarFloodMessageScoreLong->ValueInt;
+		return shortScore + strlen(message.Body) * (longScore + 1 - shortScore) / (MaxMessageLength + 1);
+	}
+
+	// Checks a message against the flood filter and returns true if it should be thrown out.
+	bool FloodFilterMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
+	{
+		// Increase the IP's spam score and put it in timeout if it exceeds the maximum
+		auto ip = GetPeerIp(session, peer);
+		auto spamIt = SpamStats.find(ip);
+		if (spamIt == SpamStats.end())
+			spamIt = SpamStats.insert({ ip, ClientSpamStats() }).first;
+		if (spamIt->second.TimeoutSeconds <= 0)
+		{
+			// Calculate the message's spam score and add it to the IP's total score
+			auto score = CalculateSpamScore(ip, &spamIt->second, message);
+			spamIt->second.SpamScore += score;
+
+			// If the total score reached the timeout score, then start a timeout
+			auto &serverModule = Modules::ModuleServer::Instance();
+			if (spamIt->second.SpamScore >= static_cast<int>(serverModule.VarFloodTimeoutScore->ValueInt))
+				spamIt->second.TimeoutSeconds = serverModule.VarFloodTimeoutSeconds->ValueInt;
+		}
+
+		// If the IP is in a timeout state, send an error and return
+		if (spamIt->second.TimeoutSeconds > 0)
+		{
+			PeerBitSet targetPeers;
+			targetPeers.set(peer);
+			SendServerMessage("You have exceeded the server's spam limit. You can chat again in " + std::to_string(spamIt->second.TimeoutSeconds) + " second(s).", targetPeers);
+			return true;
+		}
+		return false;
+	}
+
 	// Callback for when a message is received as the host.
 	bool HostReceivedMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
 	{
@@ -181,6 +247,17 @@ namespace
 		auto broadcastMessage = message;
 		if (!FillInSenderName(session, peer, &broadcastMessage))
 			return false;
+
+		// Check the message against the flood filter if it's enabled
+		if (peer != session->MembershipInfo.LocalPeerIndex)
+		{
+			auto &serverModule = Modules::ModuleServer::Instance();
+			if (serverModule.VarFloodFilterEnabled->ValueInt)
+			{
+				if (FloodFilterMessage(session, peer, message))
+					return true; // Message was thrown out
+			}
+		}
 
 		PeerBitSet targetPeers;
 		if (!GetMessagePeers(session, peer, message, &targetPeers))
@@ -216,9 +293,45 @@ namespace Server
 	{
 		void Initialize()
 		{
+			LastTimeMs = timeGetTime();
+
 			// Register custom packet type
 			auto handler = std::make_shared<ChatMessagePacketHandler>();
 			PacketSender = Patches::CustomPackets::RegisterPacket<ChatMessage>("eldewrito-text-chat", handler);
+		}
+
+		void Tick()
+		{
+			auto session = Blam::Network::GetActiveSession();
+
+			// Compute the time delta (the game also uses timeGetTime in its various subsystems to do this)
+			auto currentTimeMs = timeGetTime();
+			auto timeDeltaMs = currentTimeMs - LastTimeMs;
+			LastTimeMs = currentTimeMs;
+
+			// Update the flood filter for each second that has passed since the last flood filter update
+			SpamUpdateMs += timeDeltaMs;
+			while (SpamUpdateMs >= 1000)
+			{
+				SpamUpdateMs -= 1000;
+
+				// Decrease each spam score and timeout, and remove empty structures to save memory
+				auto it = SpamStats.begin();
+				while (it != SpamStats.end())
+				{
+					auto nextIt = it;
+					++nextIt;
+
+					if (it->second.SpamScore > 0)
+						it->second.SpamScore--;
+					if (it->second.TimeoutSeconds > 0)
+						it->second.TimeoutSeconds--;
+					if (it->second.TimeoutSeconds <= 0 && it->second.SpamScore <= 0)
+						SpamStats.erase(it);
+
+					it = nextIt;
+				}
+			}
 		}
 
 		bool SendGlobalMessage(const std::string &body)

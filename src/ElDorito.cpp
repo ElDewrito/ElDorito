@@ -146,6 +146,7 @@ void ElDorito::Initialize()
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
 {
 	Server::VariableSynchronization::Tick();
+	Server::Chat::Tick();
 	Patches::Tick();
 
 	// TODO: refactor this elsewhere

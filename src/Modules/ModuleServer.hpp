@@ -19,6 +19,11 @@ namespace Modules
 		Command* VarServerSprintEnabledClient;
 		Command* VarServerSprintUnlimited;
 		Command* VarServerSprintUnlimitedClient;
+		Command* VarFloodFilterEnabled;
+		Command* VarFloodMessageScoreShort;
+		Command* VarFloodMessageScoreLong;
+		Command* VarFloodTimeoutScore;
+		Command* VarFloodTimeoutSeconds;
 
 		BYTE SyslinkData[0x176];
 
