@@ -1,5 +1,4 @@
 #include "ModulePlayer.hpp"
-#include <sstream>
 #include "../ElDorito.hpp"
 #include "../Patches/Armor.hpp"
 
@@ -13,13 +12,11 @@ namespace
 
 	bool VariablePlayerNameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		std::string name = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
-
-		std::wstring nameStr = Utils::String::WidenString(name);
-		wcsncpy_s(Modules::ModulePlayer::Instance().UserName, nameStr.c_str(), 16);
-		Modules::ModulePlayer::Instance().UserName[15] = 0;
-		std::string actualName = Utils::String::ThinString(Modules::ModulePlayer::Instance().UserName);
-
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+		auto name = modulePlayer.VarPlayerName->ValueString;
+		auto nameW = Utils::String::WidenString(name);
+		wcsncpy_s(modulePlayer.UserName, nameW.c_str(), 16);
+		modulePlayer.UserName[15] = 0;
 		return true;
 	}
 

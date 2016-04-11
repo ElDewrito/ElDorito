@@ -23,7 +23,7 @@ namespace Patches
 			}
 		}
 
-		void PlayerPropertiesExtender::ApplyData(int playerIndex, void *session, const void *data)
+		void PlayerPropertiesExtender::ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const void *data)
 		{
 			// Apply all of the data structures in order
 			const uint8_t *ptr = static_cast<const uint8_t*>(data);
