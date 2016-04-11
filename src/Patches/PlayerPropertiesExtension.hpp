@@ -2,6 +2,7 @@
 
 #include "../Utils/Singleton.hpp"
 #include "../Blam/BitStream.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 #include <vector>
 #include <memory>
@@ -21,7 +22,7 @@ namespace Patches
 			virtual size_t GetDataSize() const = 0;
 
 			// Applies extension data to a player.
-			virtual void ApplyData(int playerIndex, void *session, const void *data) = 0;
+			virtual void ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const void *data) = 0;
 
 			// Serializes the extension data to be sent across the network.
 			virtual void Serialize(Blam::BitStream *stream, const void *data) = 0;
@@ -39,7 +40,7 @@ namespace Patches
 			virtual void BuildData(int playerIndex, TData *out) = 0;
 
 			// Applies extension data to a player.
-			virtual void ApplyData(int playerIndex, void *session, const TData &data) = 0;
+			virtual void ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const TData &data) = 0;
 
 			// Serializes the extension data to be sent across the network.
 			virtual void Serialize(Blam::BitStream *stream, const TData &data) = 0;
@@ -58,7 +59,7 @@ namespace Patches
 				return sizeof(TData);
 			}
 
-			void ApplyData(int playerIndex, void *session, const void *data)
+			void ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const void *data)
 			{
 				ApplyData(playerIndex, session, *static_cast<const TData*>(data));
 			}
@@ -92,7 +93,7 @@ namespace Patches
 			void BuildData(int playerIndex, void *out);
 
 			// Applies all extension data in a player-properties structure.
-			void ApplyData(int playerIndex, void *session, const void *data);
+			void ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const void *data);
 
 			// Serializes all extension data in a player-properties structure.
 			void SerializeData(Blam::BitStream *stream, const void *data);

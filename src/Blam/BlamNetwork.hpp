@@ -38,6 +38,7 @@ namespace Blam
 
 			bool IsConnected() const { return ConnectionState >= ePeerConnectionStateConnected; }
 			bool IsEstablished() const { return ConnectionState >= ePeerConnectionStateEstablished; }
+			bool OwnsPlayer(int playerIndex) const { return (PlayerMasks[0] & (1 << playerIndex)) != 0; }
 		};
 		static_assert(sizeof(PeerInfo) == 0xF8, "Invalid PeerInfo size");
 
@@ -49,6 +50,43 @@ namespace Blam
 		};
 		static_assert(sizeof(PeerChannel) == 0xC, "Invalid PeerChannel size");
 
+		struct ColorIndexes
+		{
+			enum
+			{
+				Primary = 0,
+				Secondary,
+				Visor,
+				Lights,
+				Holo,
+
+				Count
+			};
+		};
+
+		struct ArmorIndexes
+		{
+			enum
+			{
+				Helmet = 0,
+				Chest,
+				Shoulders,
+				Arms,
+				Legs,
+				Acc,
+				Pelvis,
+
+				Count
+			};
+		};
+
+		struct CustomizationData
+		{
+			uint32_t Colors[ColorIndexes::Count];
+			uint8_t Armor[ArmorIndexes::Count];
+		};
+		static_assert(sizeof(CustomizationData) == 0x1C, "Invalid CustomizationData size");
+
 		struct PlayerSession
 		{
 			uint32_t Unknown0;
@@ -59,7 +97,9 @@ namespace Blam
 			uint64_t Uid;
 			wchar_t DisplayName[16];
 			int TeamIndex;
-			uint8_t Unknown78[0x15CC];
+			uint8_t Unknown7C[0x66C];
+			CustomizationData Customization;
+			uint8_t Unknown704[0xF44];
 		};
 		static_assert(sizeof(PlayerSession) == 0x1648, "Invalid PlayerSession size");
 

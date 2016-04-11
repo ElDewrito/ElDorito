@@ -28,8 +28,8 @@ namespace
 	bool __fastcall Network_session_handle_join_requestHook(Blam::Network::Session *thisPtr, void *unused, const Blam::Network::NetworkAddress &address, void *request);
 	int Network_GetMaxPlayersHook();
 
-	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
-	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
+	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
 	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
 	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
 	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
@@ -685,10 +685,17 @@ namespace
 	}
 
 	// Applies player properties data including extended properties
-	void __fastcall ApplyPlayerPropertiesExtended(uint8_t *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
+	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
 	{
-		// The player name is at the beginning of the block - sanitize it
-		SanitizePlayerName(reinterpret_cast<wchar_t*>(properties));
+		auto sessionData = &thisPtr->PlayerSessions[playerIndex];
+
+		// If the player already has a name and isn't host, then use that instead of the one in the packet
+		// This prevents people from changing their name mid-game by forcing a player properties update
+		// The player name is stored at the beginning of the player-properties packet (TODO: Map it out properly!)
+		if (sessionData->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
+			memcpy(reinterpret_cast<wchar_t*>(properties), sessionData->DisplayName, sizeof(sessionData->DisplayName));
+		else
+			SanitizePlayerName(reinterpret_cast<wchar_t*>(properties));
 
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *properties, uint32_t arg10);
@@ -696,7 +703,6 @@ namespace
 		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, properties, arg10);
 
 		// Apply the extended properties
-		uint8_t *sessionData = thisPtr + 0x10A8 + playerIndex * 0x1648;
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, sessionData, properties + PlayerPropertiesSize);
 	}
 
@@ -757,40 +763,35 @@ namespace
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update
 	// Editing the existing function doesn't allow for a lot of flexibility
-	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(uint8_t *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC)
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC)
 	{
-		int unk0 = *reinterpret_cast<int*>(thisPtr + 0x25B870);
-		if (unk0 == 3)
+		if (thisPtr->Type == 3)
 			return false;
 
-		// Get the player index
-		int unk1 = *reinterpret_cast<int*>(thisPtr + 0x1A3D40);
-		uint8_t *unk2 = thisPtr + 0x20;
-		uint8_t *unk3 = unk2 + unk1 * 0xF8 + 0x118;
-		typedef int (*GetPlayerIndexPtr)(void *arg0, int arg4);
-		GetPlayerIndexPtr GetPlayerIndex = reinterpret_cast<GetPlayerIndexPtr>(0x52E280);
-		int playerIndex = GetPlayerIndex(unk3, 0x10);
+		// Ensure that there is a player associated with the local peer
+		auto membership = &thisPtr->MembershipInfo;
+		auto playerIndex = thisPtr->MembershipInfo.GetPeerPlayer(membership->LocalPeerIndex);
 		if (playerIndex == -1)
 			return false;
 
 		// Copy the player properties to a new array and add the extension data
-		size_t packetSize = GetPlayerPropertiesPacketSize();
-		size_t extendedSize = packetSize - PlayerPropertiesPacketHeaderSize - PlayerPropertiesPacketFooterSize;
+		auto packetSize = GetPlayerPropertiesPacketSize();
+		auto extendedSize = packetSize - PlayerPropertiesPacketHeaderSize - PlayerPropertiesPacketFooterSize;
 		auto extendedProperties = std::make_unique<uint8_t[]>(extendedSize);
 		memcpy(&extendedProperties[0], properties, PlayerPropertiesSize);
 		Patches::Network::PlayerPropertiesExtender::Instance().BuildData(playerIndex, &extendedProperties[PlayerPropertiesSize]);
 
-		if (unk0 == 6 || unk0 == 7)
+		if (thisPtr->Type == 6 || thisPtr->Type == 7)
 		{
 			// Apply player properties locally
-			ApplyPlayerPropertiesExtended(unk2, NULL, playerIndex, arg0, arg4, &extendedProperties[0], argC);
+			ApplyPlayerPropertiesExtended(membership, nullptr, playerIndex, arg0, arg4, &extendedProperties[0], argC);
 		}
 		else
 		{
 			// Send player properties across the network
-			int unk5 = *reinterpret_cast<int*>(thisPtr + 0x30);
-			int unk6 = *reinterpret_cast<int*>(thisPtr + 0x1A3D4C + unk5 * 0xC);
-			if (unk6 == -1)
+			auto hostPeer = membership->HostPeerIndex;
+			auto channelIndex = membership->PeerChannels[hostPeer].ChannelIndex;
+			if (channelIndex == -1)
 				return true;
 
 			// Allocate the packet
@@ -798,10 +799,9 @@ namespace
 			memset(&packet[0], 0, packetSize);
 
 			// Initialize it
-			int id = *reinterpret_cast<int*>(thisPtr + 0x25BBF0);
 			typedef void (*InitPacketPtr)(int id, void *packet);
 			InitPacketPtr InitPacket = reinterpret_cast<InitPacketPtr>(0x482040);
-			InitPacket(id, &packet[0]);
+			InitPacket(thisPtr->AddressIndex, &packet[0]);
 
 			// Set up the header and footer
 			*reinterpret_cast<int*>(&packet[0x10]) = arg0;
@@ -812,12 +812,7 @@ namespace
 			memcpy(&packet[PlayerPropertiesPacketHeaderSize], &extendedProperties[0], extendedSize);
 
 			// Send!
-			int unk7 = *reinterpret_cast<int*>(thisPtr + 0x10);
-			void *networkObserver = *reinterpret_cast<void**>(thisPtr + 0x8);
-
-			typedef void (__thiscall *ObserverChannelSendMessagePtr)(void *thisPtr, int arg0, int arg4, int arg8, int messageType, int messageSize, void *data);
-			ObserverChannelSendMessagePtr ObserverChannelSendMessage = reinterpret_cast<ObserverChannelSendMessagePtr>(0x4474F0);
-			ObserverChannelSendMessage(networkObserver, unk7, unk6, 0, 0x1A, packetSize, &packet[0]);
+			thisPtr->Observer->ObserverChannelSendMessage(thisPtr->Unknown10, channelIndex, 0, 0x1A, packetSize, &packet[0]);
 		}
 		return true;
 	}
