@@ -139,13 +139,6 @@ namespace
 		return true;
 	}
 
-	uint32_t GetPeerIp(Blam::Network::Session *session, int peer)
-	{
-		auto membership = &session->MembershipInfo;
-		auto channelIndex = membership->PeerChannels[peer].ChannelIndex;
-		return (channelIndex >= 0) ? session->Observer->Channels[channelIndex].Address.Address.IPv4 : 0x7F000001; // Local peers don't have a channel
-	}
-
 	// Gets a bitset of peers on the same team as a peer.
 	bool GetTeamPeers(Blam::Network::Session *session, int senderPeer, PeerBitSet *result)
 	{
@@ -214,7 +207,7 @@ namespace
 	bool FloodFilterMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
 	{
 		// Increase the IP's spam score and put it in timeout if it exceeds the maximum
-		auto ip = GetPeerIp(session, peer);
+		auto ip = session->GetPeerAddress(peer).Address.IPv4;
 		auto spamIt = SpamStats.find(ip);
 		if (spamIt == SpamStats.end())
 			spamIt = SpamStats.insert({ ip, ClientSpamStats() }).first;
@@ -253,6 +246,10 @@ namespace
 	// Writes a message to the log file.
 	void LogMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
 	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		if (!serverModule.VarChatLogEnabled->ValueInt)
+			return;
+
 		// Try to open the log file for appending
 		auto logPath = Modules::ModuleServer::Instance().VarChatLogPath->ValueString;
 		std::ofstream logFile(logPath, std::ios::app);
@@ -265,11 +262,19 @@ namespace
 		struct tm gmTime;
 		gmtime_s(&gmTime, &time);
 
+		// Get the name and IP address
 		auto sender = Utils::String::ThinString(message.Sender);
-		auto ip = GetPeerIp(session, peer);
+		auto ip = session->GetPeerAddress(peer).Address.IPv4;
+
+		// Get the UID
+		uint64_t uid = 0;
+		auto playerIndex = session->MembershipInfo.GetPeerPlayer(peer);
+		if (playerIndex >= 0)
+			uid = session->MembershipInfo.PlayerSessions[playerIndex].Uid;
 
 		logFile << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
 		logFile << "<" << sender << "/"; // Sender name
+		logFile << std::setw(16) << std::setfill('0') << std::hex << uid << std::dec << std::setw(0) << "/"; // UID
 		logFile << (ip >> 24) << "." << ((ip >> 16) & 0xFF) << "." << ((ip >> 8) & 0xFF) << "." << (ip & 0xFF) << "> "; // IP address
 		logFile << message.Body << "\n"; // Message body
 	}
@@ -298,9 +303,7 @@ namespace
 			}
 		}
 
-		// Write the message to the log file if logging is enabled
-		if (serverModule.VarChatLogEnabled->ValueInt)
-			LogMessage(session, peer, broadcastMessage);
+		LogMessage(session, peer, broadcastMessage);
 
 		PeerBitSet targetPeers;
 		if (!GetMessagePeers(session, peer, message, &targetPeers))
@@ -345,8 +348,6 @@ namespace Server
 
 		void Tick()
 		{
-			auto session = Blam::Network::GetActiveSession();
-
 			// Compute the time delta (the game also uses timeGetTime in its various subsystems to do this)
 			auto currentTimeMs = timeGetTime();
 			auto timeDeltaMs = currentTimeMs - LastTimeMs;
