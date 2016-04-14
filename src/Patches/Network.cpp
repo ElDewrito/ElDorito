@@ -672,7 +672,7 @@ namespace
 	}
 
 	// ASCII chars that can't appear in names
-	const wchar_t DisallowedNameChars[] = { '\'', '\"' };
+	const wchar_t DisallowedNameChars[] = { '\'', '\"', '<', '>', '/', '\\' };
 
 	void SanitizePlayerName(wchar_t *name)
 	{
@@ -702,7 +702,7 @@ namespace
 			}
 			if (allowed)
 			{
-				if (space)
+				if (space && dest < 14)
 				{
 					name[dest++] = ' ';
 					space = false;
