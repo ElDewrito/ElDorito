@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/BlamNetwork.hpp"
 #include "../Menu.hpp"
 
 namespace
