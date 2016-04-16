@@ -23,6 +23,7 @@ namespace
 	void ScopeLevelHook();
 	void ShutdownHook();
 	const char *GetMapsFolderHook();
+	bool LoadMapHook(void *data);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -36,6 +37,8 @@ namespace
 	std::string AudioPath;
 	std::string VideoPath;
 	std::string FontsPath;
+
+	std::vector<Patches::Core::MapLoadedCallback> mapLoadedCallbacks;
 }
 
 namespace Patches
@@ -141,11 +144,21 @@ namespace Patches
 
 			// Run callbacks on engine shutdown
 			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
+
+			// Map loading
+			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
 		}
 
 		void OnShutdown(ShutdownCallback callback)
 		{
 			shutdownCallbacks.push_back(callback);
+		}
+
+		void OnMapLoaded(MapLoadedCallback callback)
+		{
+			mapLoadedCallbacks.push_back(callback);
 		}
 		
 		void SetMapsFolder(const std::string &path)
@@ -507,5 +520,18 @@ namespace
 	const char* GetMapsFolderHook()
 	{
 		return MapsFolder.c_str();
+	}
+
+	bool LoadMapHook(void *data)
+	{
+		typedef bool(*LoadMapPtr)(void *data);
+		auto LoadMap = reinterpret_cast<LoadMapPtr>(0x566EF0);
+		if (!LoadMap(data))
+			return false;
+
+		for (auto &&callback : mapLoadedCallbacks)
+			callback(static_cast<const char*>(data) + 0x24); // hax
+
+		return true;
 	}
 }
