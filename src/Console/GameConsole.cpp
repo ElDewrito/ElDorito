@@ -27,12 +27,7 @@ namespace
 
 		virtual void MessageReceived(const Server::Chat::ChatMessage &message) override
 		{
-			std::string sender;
-			if (message.Type == Server::Chat::ChatMessageType::Server)
-				sender = "SERVER";
-			else
-				sender = Utils::String::ThinString(message.Sender);
-
+			auto sender = Server::Chat::GetSenderName(message);
 			std::string line;
 			if (message.Type == Server::Chat::ChatMessageType::Team)
 				line += "(TEAM) ";

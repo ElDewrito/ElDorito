@@ -50,13 +50,13 @@ namespace
 			// Body
 			stream->WriteString(data->Body);
 
-			// For non-server messages, serialize the sender name
+			// For non-server messages, serialize the sender index
 			if (data->Type != ChatMessageType::Server)
-				stream->WriteString(data->Sender);
+				stream->WriteUnsigned<uint8_t>(data->SenderPlayer, 0, Blam::Network::MaxPlayers - 1);
 
-			// For whisper messages, serialize the target UID
+			// For whisper messages, serialize the target index
 			if (data->Type == ChatMessageType::Whisper)
-				stream->WriteUnsigned(data->Target, 64);
+				stream->WriteUnsigned<uint8_t>(data->TargetPlayer, 0, Blam::Network::MaxPlayers - 1);
 		}
 
 		bool Deserialize(Blam::BitStream *stream, ChatMessage *data) override
@@ -72,13 +72,14 @@ namespace
 			if (!stream->ReadString(data->Body))
 				return false;
 
-			// For non-server messages, deserialize the sender name
-			if (data->Type != ChatMessageType::Server && !stream->ReadString(data->Sender))
-				return false;
+			// For non-server messages, deserialize the sender index
+			if (data->Type != ChatMessageType::Server)
+				data->SenderPlayer = stream->ReadUnsigned<uint8_t>(0, Blam::Network::MaxPlayers - 1);
 
-			// For whisper messages, deserialize the target UID
+			// For whisper messages, deserialize the target index
 			if (data->Type == ChatMessageType::Whisper)
-				data->Target = stream->ReadUnsigned<uint64_t>(64);
+				data->TargetPlayer = stream->ReadUnsigned<uint8_t>(0, Blam::Network::MaxPlayers - 1);
+
 			return true;
 		}
 
@@ -179,17 +180,14 @@ namespace
 		return true;
 	}
 
-	// Fills in the sender name field of a message.
-	bool FillInSenderName(Blam::Network::Session *session, int senderPeer, ChatMessage *message)
+	// Gets the name of a message's sender.
+	std::string GetSenderName(Blam::Network::Session *session, const ChatMessage &message)
 	{
-		// Look up the player associated with the peer and copy the name in
-		auto membership = &session->MembershipInfo;
-		auto playerIndex = membership->GetPeerPlayer(senderPeer);
-		if (playerIndex < 0)
-			return false;
-		memset(message->Sender, 0, sizeof(message->Sender));
-		wcsncpy(message->Sender, membership->PlayerSessions[playerIndex].Properties.DisplayName, sizeof(message->Sender) / sizeof(message->Sender[0]) - 1);
-		return true;
+		if (message.Type == ChatMessageType::Server || message.SenderPlayer >= Blam::Network::MaxPlayers)
+			return "SERVER";
+		auto &membership = session->MembershipInfo;
+		auto &player = membership.PlayerSessions[message.SenderPlayer];
+		return Utils::String::ThinString(player.Properties.DisplayName);
 	}
 
 	// Calculates the spam score of a message.
@@ -263,7 +261,7 @@ namespace
 		gmtime_s(&gmTime, &time);
 
 		// Get the name and IP address
-		auto sender = Utils::String::ThinString(message.Sender);
+		auto sender = GetSenderName(session, message);
 		auto ip = session->GetPeerAddress(peer).Address.IPv4;
 
 		// Get the UID
@@ -287,10 +285,12 @@ namespace
 		if (peer < 0 || !message.Body[0] || message.Type == ChatMessageType::Server)
 			return false;
 
-		// Don't trust the Sender field
+		// Don't trust the sender field
 		auto broadcastMessage = message;
-		if (!FillInSenderName(session, peer, &broadcastMessage))
+		auto player = session->MembershipInfo.GetPeerPlayer(peer);
+		if (player < 0)
 			return false;
+		broadcastMessage.SenderPlayer = player;
 
 		// Check the message against the flood filter if it's enabled
 		auto &serverModule = Modules::ModuleServer::Instance();
@@ -418,6 +418,11 @@ namespace Server
 		void AddHandler(std::shared_ptr<ChatHandler> handler)
 		{
 			chatHandlers.push_back(handler);
+		}
+
+		std::string GetSenderName(const ChatMessage &message)
+		{
+			return ::GetSenderName(Blam::Network::GetActiveSession(), message);
 		}
 
 		ChatMessage::ChatMessage(ChatMessageType type, const std::string &body)

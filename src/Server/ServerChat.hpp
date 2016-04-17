@@ -45,13 +45,11 @@ namespace Server
 			// The message type.
 			ChatMessageType Type;
 
-			// The display name of the sender.
-			// Not available for messages sent from clients or for server messages.
-			wchar_t Sender[16];
+			// For non-server messages, the index of the player to send the message to.
+			uint8_t SenderPlayer;
 
-			// For Whisper messages, the UID of the player to send the message to.
-			// Not available for other message types.
-			uint64_t Target;
+			// For directed messages, the index of the player to send the message to.
+			uint8_t TargetPlayer;
 
 			// The message body.
 			char Body[MaxMessageLength + 1];
@@ -94,5 +92,8 @@ namespace Server
 
 		// Registers a chat handler object.
 		void AddHandler(std::shared_ptr<ChatHandler> handler);
+
+		// Gets the display name of the player who sent a message, or "SERVER" for server messages.
+		std::string GetSenderName(const ChatMessage &message);
 	}
 }
