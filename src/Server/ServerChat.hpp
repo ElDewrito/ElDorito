@@ -45,7 +45,7 @@ namespace Server
 			// The message type.
 			ChatMessageType Type;
 
-			// For non-server messages, the index of the player to send the message to.
+			// For non-server messages, the index of the player that originally sent the message.
 			uint8_t SenderPlayer;
 
 			// For directed messages, the index of the player to send the message to.
