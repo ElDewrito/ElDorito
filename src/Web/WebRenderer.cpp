@@ -576,6 +576,7 @@ bool WebRenderer::Shutdown()
 		s_Browser = nullptr;
 	}
 
+	CefClearSchemeHandlerFactories();
 	CefShutdown();
 
 	// Set us back to our disabled state
