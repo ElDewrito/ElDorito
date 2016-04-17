@@ -198,7 +198,7 @@ namespace
 		ss << "Loaded Game Type: 0x" << std::hex << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
 		ss << "Tag Table Offset: 0x" << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
 		ss << "Tag Bank Offset: 0x" << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
-		ss << "Players global addr: 0x" << std::hex << ElDorito::GetMainTls(GameGlobals::Players::TLSOffset).Read<uint32_t>() << std::endl;
+		ss << "Players global addr: 0x" << std::hex << ElDorito::GetMainTls(0x40).Read<uint32_t>() << std::endl;
 
 		returnInfo = ss.str();
 		return true;

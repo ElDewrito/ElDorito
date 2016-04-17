@@ -449,7 +449,7 @@ namespace
 			if (playerIdx == -1)
 				continue;
 			auto* player = &membership->PlayerSessions[playerIdx];
-			if (Utils::String::ThinString(player->DisplayName) == name)
+			if (Utils::String::ThinString(player->Properties.DisplayName) == name)
 				return playerIdx;
 		}
 		return -1;
@@ -468,7 +468,7 @@ namespace
 			if (playerIdx == -1)
 				continue;
 			auto* player = &membership->PlayerSessions[playerIdx];
-			if (player->Uid == uid)
+			if (player->Properties.Uid == uid)
 				indices.push_back(playerIdx);
 		}
 		return indices;
@@ -560,7 +560,7 @@ namespace
 		for (auto playerIdx : indices)
 		{
 			auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
-			auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].DisplayName);
+			auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].Properties.DisplayName);
 			if (!Blam::Network::BootPlayer(playerIdx, 4))
 			{
 				returnInfo += "Failed to kick player " + kickPlayerName + "\n";
@@ -605,7 +605,7 @@ namespace
 			return false;
 		}
 		auto player = &session->MembershipInfo.PlayerSessions[index];
-		auto kickPlayerName = Utils::String::ThinString(player->DisplayName);
+		auto kickPlayerName = Utils::String::ThinString(player->Properties.DisplayName);
 		auto ip = IpToString(session->GetPeerAddress(player->PeerIndex));
 		if (!Blam::Network::BootPlayer(index, 4))
 		{
@@ -721,9 +721,9 @@ namespace
 			if (playerIdx != -1)
 			{
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-				auto name = Utils::String::ThinString(player->DisplayName);
+				auto name = Utils::String::ThinString(player->Properties.DisplayName);
 				auto ip = session->GetPeerAddress(peerIdx);
-				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Uid << ", ip: " << IpToString(ip) << ")" << std::endl;
+				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid << ", ip: " << IpToString(ip) << ")" << std::endl;
 			}
 
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);

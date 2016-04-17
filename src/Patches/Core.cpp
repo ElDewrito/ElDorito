@@ -4,6 +4,7 @@
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
 #include "../Blam/Tags/Scenario.hpp"
+#include "../Blam/BlamPlayers.hpp"
 
 namespace
 {
@@ -232,12 +233,9 @@ namespace
 			return;
 		}
 
-		// Get the player's grenade setting (haxhaxhax)
-		const size_t DatumArrayPtrOffset = 0x44;
-		const size_t PlayerSize = 0x2F08;
-		const size_t GrenadeSettingOffset = 0x2DB4;
-		auto grenadeSettingPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0][DatumArrayPtrOffset](PlayerSize * playerIndex + GrenadeSettingOffset);
-		auto grenadeSetting = grenadeSettingPtr.Read<int16_t>();
+		// Get the player's grenade setting
+		auto &players = Blam::Players::GetPlayers();
+		auto grenadeSetting = players[playerIndex].SpawnGrenadeSetting;
 
 		// Get the current scenario tag
 		auto scenario = Blam::Tags::GetCurrentScenario();
@@ -258,12 +256,10 @@ namespace
 		grenadeCounts[3] = profile->FirebombGrenades;
 	}
 
-	// TODO: Set up a proper data_array class...this is disgusting.
-
-	bool UnitIsDualWielding(uint32_t unitIndex)
+	bool UnitIsDualWielding(Blam::DatumIndex unitIndex)
 	{
 		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
-		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0]((unitIndex & 0xFFFF) * 0x10)(0xC)[0];
+		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
 		if (!unitDatumPtr)
 			return false;
 		auto dualWieldWeaponIndex = unitDatumPtr(0x2CB).Read<int8_t>();
@@ -274,23 +270,18 @@ namespace
 		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
 	}
 
-	bool PlayerIsDualWielding(uint32_t playerIndex)
+	bool PlayerIsDualWielding(Blam::DatumIndex playerIndex)
 	{
-		auto playerArrayPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
-		auto playerUnitIndex = playerArrayPtr(0x44)[0]((playerIndex & 0xFFFF) * 0x2F08)(0x30).Read<uint32_t>();
-		if (playerUnitIndex == 0xFFFFFFFF)
-			return false;
-		return UnitIsDualWielding(playerUnitIndex);
+		auto &players = Blam::Players::GetPlayers();
+		return UnitIsDualWielding(players[playerIndex].SlaveUnit);
 	}
 
 	bool LocalPlayerIsDualWielding()
 	{
-		typedef uint32_t(*GetLocalPlayerPtr)(int index);
-		auto GetLocalPlayer = reinterpret_cast<GetLocalPlayerPtr>(0x589C30);
-		auto localPlayerIndex = GetLocalPlayer(0);
-		if (localPlayerIndex == 0xFFFFFFFF)
+		auto localPlayer = Blam::Players::GetLocalPlayer(0);
+		if (localPlayer == Blam::DatumIndex::Null)
 			return false;
-		return PlayerIsDualWielding(localPlayerIndex);
+		return PlayerIsDualWielding(localPlayer);
 	}
 
 	uint32_t GetObjectDataAddress(uint32_t objectDatum)
@@ -358,9 +349,8 @@ namespace
 		BYTE unkData[0x40];
 		BYTE b69Data[0x48];
 
-		Pointer& playerHeaderPtr = ElDorito::GetMainTls(GameGlobals::Players::TLSOffset)[0];
-		uint32_t playerStructAddress = playerHeaderPtr(0x44).Read<uint32_t>() + playerIndex * GameGlobals::Players::PlayerEntryLength;
-		uint32_t playerObjectDatum = *(uint32_t*)(playerStructAddress + 0x30);
+		auto &players = Blam::Players::GetPlayers();
+		uint32_t playerObjectDatum = players[playerIndex].SlaveUnit;
 
 		Pointer &objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
 		uint32_t objectAddress = objectHeaderPtr(0x44).Read<uint32_t>() + 0xC + equipmentIndex * 0x10;

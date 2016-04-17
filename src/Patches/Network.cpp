@@ -29,7 +29,7 @@ namespace
 	int Network_GetMaxPlayersHook();
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
-	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10);
+	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *data, uint32_t arg10);
 	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
 	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
 	bool DeserializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
@@ -716,25 +716,25 @@ namespace
 	}
 
 	// Applies player properties data including extended properties
-	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *properties, uint32_t arg10)
+	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *data, uint32_t arg10)
 	{
-		auto sessionData = &thisPtr->PlayerSessions[playerIndex];
+		auto properties = &thisPtr->PlayerSessions[playerIndex].Properties;
 
 		// If the player already has a name and isn't host, then use that instead of the one in the packet
 		// This prevents people from changing their name mid-game by forcing a player properties update
 		// The player name is stored at the beginning of the player-properties packet (TODO: Map it out properly!)
-		if (sessionData->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
-			memcpy(reinterpret_cast<wchar_t*>(properties), sessionData->DisplayName, sizeof(sessionData->DisplayName));
+		if (properties->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
+			memcpy(reinterpret_cast<wchar_t*>(data), properties->DisplayName, sizeof(properties->DisplayName));
 		else
-			SanitizePlayerName(reinterpret_cast<wchar_t*>(properties));
+			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
 
 		// Apply the base properties
-		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *properties, uint32_t arg10);
+		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
 		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
-		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, properties, arg10);
+		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
 
 		// Apply the extended properties
-		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, sessionData, properties + PlayerPropertiesSize);
+		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
 	}
 
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason)
@@ -745,7 +745,7 @@ namespace
 		auto playerIndex = membership->GetPeerPlayer(peerIndex);
 		std::string playerName;
 		if (playerIndex >= 0)
-			playerName = Utils::String::ThinString(membership->PlayerSessions[playerIndex].DisplayName);
+			playerName = Utils::String::ThinString(membership->PlayerSessions[playerIndex].Properties.DisplayName);
 		
 		typedef bool(__thiscall *Network_leader_request_boot_machineFunc)(void *thisPtr, void* peerAddr, int reason);
 		auto Network_leader_request_boot_machine = reinterpret_cast<Network_leader_request_boot_machineFunc>(0x45D4A0);

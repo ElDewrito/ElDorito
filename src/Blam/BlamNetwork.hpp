@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "BlamTypes.hpp"
+#include "BlamPlayers.hpp"
 #include "BitStream.hpp"
 
 namespace Blam
@@ -50,56 +51,19 @@ namespace Blam
 		};
 		static_assert(sizeof(PeerChannel) == 0xC, "Invalid PeerChannel size");
 
-		struct ColorIndexes
-		{
-			enum
-			{
-				Primary = 0,
-				Secondary,
-				Visor,
-				Lights,
-				Holo,
-
-				Count
-			};
-		};
-
-		struct ArmorIndexes
-		{
-			enum
-			{
-				Helmet = 0,
-				Chest,
-				Shoulders,
-				Arms,
-				Legs,
-				Acc,
-				Pelvis,
-
-				Count
-			};
-		};
-
-		struct CustomizationData
-		{
-			uint32_t Colors[ColorIndexes::Count];
-			uint8_t Armor[ArmorIndexes::Count];
-		};
-		static_assert(sizeof(CustomizationData) == 0x1C, "Invalid CustomizationData size");
-
 		struct PlayerSession
 		{
 			uint32_t Unknown0;
 			uint32_t Unknown4;
 			uint32_t Unknown8;
 			int PeerIndex;
-			uint8_t Unknown10[0x40];
-			uint64_t Uid;
-			wchar_t DisplayName[16];
-			int TeamIndex;
-			uint8_t Unknown7C[0x66C];
-			CustomizationData Customization;
-			uint8_t Unknown704[0xF44];
+			uint32_t Unknown10;
+			uint32_t Unknown14;
+			uint32_t Unknown18;
+			uint32_t Unknown1C;
+			Players::PlayerProperties Properties;
+			uint32_t Unknown1640;
+			uint32_t Unknown1644;
 		};
 		static_assert(sizeof(PlayerSession) == 0x1648, "Invalid PlayerSession size");
 

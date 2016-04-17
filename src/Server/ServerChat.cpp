@@ -188,7 +188,7 @@ namespace
 		if (playerIndex < 0)
 			return false;
 		memset(message->Sender, 0, sizeof(message->Sender));
-		wcsncpy(message->Sender, membership->PlayerSessions[playerIndex].DisplayName, sizeof(message->Sender) / sizeof(message->Sender[0]) - 1);
+		wcsncpy(message->Sender, membership->PlayerSessions[playerIndex].Properties.DisplayName, sizeof(message->Sender) / sizeof(message->Sender[0]) - 1);
 		return true;
 	}
 
@@ -270,7 +270,7 @@ namespace
 		uint64_t uid = 0;
 		auto playerIndex = session->MembershipInfo.GetPeerPlayer(peer);
 		if (playerIndex >= 0)
-			uid = session->MembershipInfo.PlayerSessions[playerIndex].Uid;
+			uid = session->MembershipInfo.PlayerSessions[playerIndex].Properties.Uid;
 
 		logFile << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
 		logFile << "<" << sender << "/"; // Sender name

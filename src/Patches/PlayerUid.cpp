@@ -1,11 +1,11 @@
 #include "PlayerUid.hpp"
 
 #include "../Console/GameConsole.hpp"
-#include "../ElDorito.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Patch.hpp"
 #include "PlayerPropertiesExtension.hpp"
 #include "../Utils/Cryptography.hpp"
+#include "../Blam/BlamPlayers.hpp"
 
 #include <openssl/sha.h>
 
@@ -26,9 +26,9 @@ namespace
 			*out = Patches::PlayerUid::Get();
 		}
 
-		void ApplyData(int playerIndex, Blam::Network::PlayerSession *session, const uint64_t &data) override
+		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const uint64_t &data) override
 		{
-			session->Uid = data;
+			properties->Uid = data;
 		}
 
 		void Serialize(Blam::BitStream *stream, const uint64_t &data) override

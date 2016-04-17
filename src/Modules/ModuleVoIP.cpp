@@ -153,12 +153,12 @@ bool CommandVoIPMutePlayer(const std::vector<std::string>& Arguments, std::strin
 			auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 
 			std::stringstream uidStream;
-			uidStream << std::hex << player->Uid;
+			uidStream << std::hex << player->Properties.Uid;
 			auto uidString = uidStream.str();
 
-			if (!Utils::String::Trim(Utils::String::ThinString(player->DisplayName)).compare(mutePlayerName) || !uidString.compare(mutePlayerName))
+			if (!Utils::String::Trim(Utils::String::ThinString(player->Properties.DisplayName)).compare(mutePlayerName) || !uidString.compare(mutePlayerName))
 			{
-				if (muteTeamspeakClient(Utils::String::Trim(Utils::String::ThinString(player->DisplayName))) == 0){
+				if (muteTeamspeakClient(Utils::String::Trim(Utils::String::ThinString(player->Properties.DisplayName))) == 0){
 					returnInfo = "Toggled mute on " + mutePlayerName;
 					return true;
 				}
