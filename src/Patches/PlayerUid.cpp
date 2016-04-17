@@ -1,11 +1,12 @@
 #include "PlayerUid.hpp"
 
 #include "../Console.hpp"
-#include "../ElDorito.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Patch.hpp"
 #include "PlayerPropertiesExtension.hpp"
 #include "../Utils/Cryptography.hpp"
+#include "../Blam/BlamPlayers.hpp"
+#include "../Utils/String.hpp"
 
 #include <openssl/sha.h>
 
@@ -21,22 +22,22 @@ namespace
 	class UidExtension : public Patches::Network::PlayerPropertiesExtension<uint64_t>
 	{
 	protected:
-		void BuildData(int playerIndex, uint64_t *out)
+		void BuildData(int playerIndex, uint64_t *out) override
 		{
 			*out = Patches::PlayerUid::Get();
 		}
 
-		void ApplyData(int playerIndex, void *session, const uint64_t &data)
+		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const uint64_t &data) override
 		{
-			*reinterpret_cast<uint64_t*>(static_cast<uint8_t*>(session) + 0x50) = data;
+			properties->Uid = data;
 		}
 
-		void Serialize(Blam::BitStream *stream, const uint64_t &data)
+		void Serialize(Blam::BitStream *stream, const uint64_t &data) override
 		{
 			stream->WriteUnsigned(data, 64);
 		}
 
-		void Deserialize(Blam::BitStream *stream, uint64_t *out)
+		void Deserialize(Blam::BitStream *stream, uint64_t *out) override
 		{
 			*out = stream->ReadUnsigned<uint64_t>(64);
 		}

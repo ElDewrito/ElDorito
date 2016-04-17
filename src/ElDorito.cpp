@@ -179,6 +179,7 @@ void ElDorito::Initialize()
 void ElDorito::Tick()
 {
 	Server::VariableSynchronization::Tick();
+	Server::Chat::Tick();
 	Patches::Tick();
 	Web::Ui::ScreenLayer::Tick();
 

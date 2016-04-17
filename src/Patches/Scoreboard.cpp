@@ -2,7 +2,7 @@
 
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
-#include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamPlayers.hpp"
 
 namespace
 {
@@ -67,7 +67,7 @@ namespace
 		return length;
 	}
 
-	PlayerNameString* GetPlayerName(void *playerData, int index)
+	PlayerNameString* GetPlayerName(Blam::Players::PlayerDatum *playerData, int index)
 	{
 		if (index == -1)
 			return nullptr;
@@ -78,14 +78,12 @@ namespace
 		typedef void (*FreeFunc)(void *ptr);
 		FreeFunc Free = (FreeFunc)0xD873C0;
 
-		// Get the player's display name
-		Pointer playerName = Pointer(playerData)(GameGlobals::Players::DisplayNameOffset);
-		if (playerName.Read<char16_t>() == 0)
+		if (!playerData->Properties.DisplayName[0])
 			return nullptr; // Don't update to a blank name
 
 		// If the player name hasn't changed, don't bother updating it
 		PlayerNameString* result = playerNames[index];
-		if (result && memcmp(result->name, playerName, 32) == 0)
+		if (result && memcmp(result->name, playerData->Properties.DisplayName, 32) == 0)
 			return nullptr;
 
 		// If the name is already allocated, decrease its reference count and free it if necessary
@@ -106,7 +104,7 @@ namespace
 		playerNames[index] = result;
 
 		// Copy the name in
-		memcpy(result->name, playerName, 32);
+		memcpy(result->name, playerData->Properties.DisplayName, 32);
 
 		// Set the string length and return
 		int length = GetUtf16Length(result->name, 16);

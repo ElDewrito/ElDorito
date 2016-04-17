@@ -23,13 +23,13 @@ namespace Patches
 			}
 		}
 
-		void PlayerPropertiesExtender::ApplyData(int playerIndex, void *session, const void *data)
+		void PlayerPropertiesExtender::ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const void *data)
 		{
 			// Apply all of the data structures in order
 			const uint8_t *ptr = static_cast<const uint8_t*>(data);
 			for (auto it = extensions.begin(); it != extensions.end(); ++it)
 			{
-				(*it)->ApplyData(playerIndex, session, ptr);
+				(*it)->ApplyData(playerIndex, properties, ptr);
 				ptr += (*it)->GetDataSize();
 			}
 		}

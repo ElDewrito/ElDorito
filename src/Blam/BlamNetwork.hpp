@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "BlamTypes.hpp"
+#include "BlamPlayers.hpp"
 #include "BitStream.hpp"
 
 namespace Blam
@@ -38,6 +39,7 @@ namespace Blam
 
 			bool IsConnected() const { return ConnectionState >= ePeerConnectionStateConnected; }
 			bool IsEstablished() const { return ConnectionState >= ePeerConnectionStateEstablished; }
+			bool OwnsPlayer(int playerIndex) const { return (PlayerMasks[0] & (1 << playerIndex)) != 0; }
 		};
 		static_assert(sizeof(PeerInfo) == 0xF8, "Invalid PeerInfo size");
 
@@ -55,11 +57,13 @@ namespace Blam
 			uint32_t Unknown4;
 			uint32_t Unknown8;
 			int PeerIndex;
-			uint8_t Unknown10[0x40];
-			uint64_t Uid;
-			wchar_t DisplayName[16];
-			int TeamIndex;
-			uint8_t Unknown78[0x15CC];
+			uint32_t Unknown10;
+			uint32_t Unknown14;
+			uint32_t Unknown18;
+			uint32_t Unknown1C;
+			Players::PlayerProperties Properties;
+			uint32_t Unknown1640;
+			uint32_t Unknown1644;
 		};
 		static_assert(sizeof(PlayerSession) == 0x1648, "Invalid PlayerSession size");
 

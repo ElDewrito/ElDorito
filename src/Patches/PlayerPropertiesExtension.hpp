@@ -2,6 +2,7 @@
 
 #include "../Utils/Singleton.hpp"
 #include "../Blam/BitStream.hpp"
+#include "../Blam/BlamPlayers.hpp"
 
 #include <vector>
 #include <memory>
@@ -14,6 +15,8 @@ namespace Patches
 		class PlayerPropertiesExtensionBase
 		{
 		public:
+			virtual ~PlayerPropertiesExtensionBase() { }
+
 			// Builds extension data for a player.
 			virtual void BuildData(int playerIndex, void *out) = 0;
 
@@ -21,7 +24,7 @@ namespace Patches
 			virtual size_t GetDataSize() const = 0;
 
 			// Applies extension data to a player.
-			virtual void ApplyData(int playerIndex, void *session, const void *data) = 0;
+			virtual void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const void *data) = 0;
 
 			// Serializes the extension data to be sent across the network.
 			virtual void Serialize(Blam::BitStream *stream, const void *data) = 0;
@@ -39,7 +42,7 @@ namespace Patches
 			virtual void BuildData(int playerIndex, TData *out) = 0;
 
 			// Applies extension data to a player.
-			virtual void ApplyData(int playerIndex, void *session, const TData &data) = 0;
+			virtual void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const TData &data) = 0;
 
 			// Serializes the extension data to be sent across the network.
 			virtual void Serialize(Blam::BitStream *stream, const TData &data) = 0;
@@ -48,27 +51,27 @@ namespace Patches
 			virtual void Deserialize(Blam::BitStream *stream, TData *out) = 0;
 
 		public:
-			void BuildData(int playerIndex, void *out)
+			void BuildData(int playerIndex, void *out) override
 			{
 				BuildData(playerIndex, static_cast<TData*>(out));
 			}
 
-			size_t GetDataSize() const
+			size_t GetDataSize() const override
 			{
 				return sizeof(TData);
 			}
 
-			void ApplyData(int playerIndex, void *session, const void *data)
+			void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const void *data) override
 			{
-				ApplyData(playerIndex, session, *static_cast<const TData*>(data));
+				ApplyData(playerIndex, properties, *static_cast<const TData*>(data));
 			}
 
-			void Serialize(Blam::BitStream *stream, const void *data)
+			void Serialize(Blam::BitStream *stream, const void *data) override
 			{
 				Serialize(stream, *static_cast<const TData*>(data));
 			}
 
-			void Deserialize(Blam::BitStream *stream, void *out)
+			void Deserialize(Blam::BitStream *stream, void *out) override
 			{
 				Deserialize(stream, static_cast<TData*>(out));
 			}
@@ -92,7 +95,7 @@ namespace Patches
 			void BuildData(int playerIndex, void *out);
 
 			// Applies all extension data in a player-properties structure.
-			void ApplyData(int playerIndex, void *session, const void *data);
+			void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const void *data);
 
 			// Serializes all extension data in a player-properties structure.
 			void SerializeData(Blam::BitStream *stream, const void *data);

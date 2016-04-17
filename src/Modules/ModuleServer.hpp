@@ -26,6 +26,14 @@ namespace Modules
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
 		Command* VarServerAssassinationEnabled;
+		Command* VarFloodFilterEnabled;
+		Command* VarFloodMessageScoreShort;
+		Command* VarFloodMessageScoreLong;
+		Command* VarFloodTimeoutScore;
+		Command* VarFloodTimeoutSeconds;
+		Command* VarFloodTimeoutResetSeconds;
+		Command* VarChatLogEnabled;
+		Command* VarChatLogPath;
 
 		uint8_t SyslinkData[0x176];
 

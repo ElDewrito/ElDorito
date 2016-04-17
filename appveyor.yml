@@ -1,4 +1,4 @@
-version: 0.5.1.{build}
+version: 0.6.0.{build}
 clone_folder: C:\Projects\ElDorito
 init:
 - cmd: git config --global core.autocrlf input

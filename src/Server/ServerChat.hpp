@@ -31,6 +31,9 @@ namespace Server
 			Count
 		};
 
+		// The maximum length of a chat message in characters, not including a null terminator.
+		const size_t MaxMessageLength = 128;
+
 		// Chat message data.
 		struct ChatMessage
 		{
@@ -42,16 +45,14 @@ namespace Server
 			// The message type.
 			ChatMessageType Type;
 
-			// The display name of the sender.
-			// Not available for messages sent from clients or for server messages.
-			wchar_t Sender[16];
+			// For non-server messages, the index of the player to send the message to.
+			uint8_t SenderPlayer;
 
-			// For Whisper messages, the UID of the player to send the message to.
-			// Not available for other message types.
-			uint64_t Target;
+			// For directed messages, the index of the player to send the message to.
+			uint8_t TargetPlayer;
 
 			// The message body.
-			char Body[512];
+			char Body[MaxMessageLength + 1];
 		};
 
 		// Interface for a class which processes and handles chat messages.
@@ -75,6 +76,9 @@ namespace Server
 		// Initializes the server chat system.
 		void Initialize();
 
+		// Updates the server chat system.
+		void Tick();
+
 		// Sends a message to every peer. Returns true if successful.
 		bool SendGlobalMessage(const std::string &body);
 
@@ -88,5 +92,8 @@ namespace Server
 
 		// Registers a chat handler object.
 		void AddHandler(std::shared_ptr<ChatHandler> handler);
+
+		// Gets the display name of the player who sent a message, or "SERVER" for server messages.
+		std::string GetSenderName(const ChatMessage &message);
 	}
 }

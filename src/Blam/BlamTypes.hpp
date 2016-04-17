@@ -237,22 +237,6 @@ namespace GameGlobals
 		const unsigned EnableIndex = 0;
 		const unsigned IntensityIndex = 8;
 	}
-
-	namespace Players
-	{
-		const size_t TLSOffset = 0x40;
-		const size_t ArrayHeaderLength = 0x54;
-		const size_t PlayerEntryLength = 0x2F08;
-		const size_t ScoresEntryLength = 0x34; // size of scores entry per player
-
-		const size_t DisplayNameOffset = 0xA8;
-		const size_t TeamOffset = 0xC8; // ( (TLSOffset) + ArrayHeaderLength + (i*PlayerEntryLength) + TeamOffset )
-
-		const size_t ScoreBase = 0x4046C; // ( (TLSOffset) + ArrayHeaderLength + (i*ScoresEntryLength) + ScoreBase )
-		const size_t KillsBase = 0x40470;
-		const size_t DeathsBase = 0x40472;
-		const size_t AssistsBase = 0x40474; // not sure about this
-	}
 	
 	namespace Input
 	{

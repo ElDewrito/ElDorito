@@ -73,6 +73,8 @@ add_library(ElDorito SHARED
     src/Blam/BlamNetwork.cpp
     src/Blam/BlamNetwork.hpp
     src/Blam/BlamObjects.hpp
+    src/Blam/BlamPlayers.cpp
+    src/Blam/BlamPlayers.hpp
     src/Blam/BlamTypes.hpp
     src/Blam/Tags/Tags.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp

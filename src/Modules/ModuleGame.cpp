@@ -201,7 +201,7 @@ namespace
 		ss << "Loaded Game Type: 0x" << std::hex << Pointer(0x023DAF18).Read<int32_t>() << std::endl;
 		ss << "Tag Table Offset: 0x" << std::hex << Pointer(0x22AAFF4).Read<uint32_t>() << std::endl;
 		ss << "Tag Bank Offset: 0x" << std::hex << Pointer(0x22AAFF8).Read<uint32_t>() << std::endl;
-		ss << "Players global addr: 0x" << std::hex << ElDorito::GetMainTls(GameGlobals::Players::TLSOffset).Read<uint32_t>() << std::endl;
+		ss << "Players global addr: 0x" << std::hex << ElDorito::GetMainTls(0x40).Read<uint32_t>() << std::endl;
 
 		returnInfo = ss.str();
 		return true;
@@ -609,6 +609,19 @@ namespace
 		return LoadBuiltInGameVariant(static_cast<Blam::GameType>(type), index, out);
 	}
 
+	const std::string GameTypeExtensions[] =
+	{
+		"ctf",
+		"slayer",
+		"oddball",
+		"koth",
+		"jugg",
+		"terries",
+		"assault",
+		"zombiez",
+		"vip",
+	};
+
 	bool CommandGameType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() != 1)
@@ -628,9 +641,9 @@ namespace
 		// corresponding to each supported game mode
 		std::ifstream gameVariant;
 		std::string variantFileName;
-		for (auto i = 1; i < Blam::GameType::GameTypeCount; i++)
+		for (auto &&extension : GameTypeExtensions)
 		{
-			variantFileName = "mods/variants/" + name + "/variant." + Blam::GameTypeNames[i];
+			variantFileName = "mods/variants/" + name + "/variant." + extension;
 			gameVariant.open(variantFileName, std::ios::binary);
 			if (gameVariant.is_open())
 				break;

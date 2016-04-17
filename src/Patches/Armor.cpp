@@ -6,46 +6,12 @@
 #include <iostream>
 #include <unordered_map>
 
+using namespace Blam::Players;
+
 namespace
 {
-	struct ColorIndexes
-	{
-		enum
-		{
-			Primary = 0,
-			Secondary,
-			Visor,
-			Lights,
-			Holo,
-
-			Count
-		};
-	};
-
-	struct ArmorIndexes
-	{
-		enum
-		{
-			Helmet = 0,
-			Chest,
-			Shoulders,
-			Arms,
-			Legs,
-			Acc,
-			Pelvis,
-
-			Count
-		};
-	};
-
 	// Used during bitstream operations to automatically calculate the size of each armor component
-	const uint8_t MaxArmorIndexes[] = { 81, 82, 82, 50, 52, 24, 4 };
-
-	struct CustomizationData
-	{
-		uint32_t colors[ColorIndexes::Count];
-		uint8_t armor[ArmorIndexes::Count];
-	};
+	const uint8_t MaxArmorIndices[] = { 81, 82, 82, 50, 52, 24, 4 };
 
 	// TODO: These are defined at the bottom of the file...should probably move them elsewhere
 	extern std::unordered_map<std::string, uint8_t> helmetIndexes;
@@ -63,31 +29,31 @@ namespace
 		return (it != indexes.end()) ? it->second : 0;
 	}
 
-	void BuildCustomizationData(Modules::ModulePlayer &playerVars, CustomizationData *out)
+	void BuildPlayerCustomization(Modules::ModulePlayer &playerVars, PlayerCustomization *out)
 	{
-		memset(out, 0, sizeof(CustomizationData));
+		memset(out, 0, sizeof(PlayerCustomization));
 
-		memset(out->colors, 0, 5 * sizeof(uint32_t));
+		memset(out->Colors, 0, 5 * sizeof(uint32_t));
 
 		uint32_t temp = 0;
 		if (playerVars.VarColorsPrimary->ValueString.length() > 0 && playerVars.VarColorsPrimary->ValueString.substr(0, 1) == "#")
-			out->colors[ColorIndexes::Primary] = std::stoi(playerVars.VarColorsPrimary->ValueString.substr(1), 0, 16);
+			out->Colors[ColorIndices::Primary] = std::stoi(playerVars.VarColorsPrimary->ValueString.substr(1), 0, 16);
 		if (playerVars.VarColorsSecondary->ValueString.length() > 0 && playerVars.VarColorsSecondary->ValueString.substr(0, 1) == "#")
-			out->colors[ColorIndexes::Secondary] = std::stoi(playerVars.VarColorsSecondary->ValueString.substr(1), 0, 16);
+			out->Colors[ColorIndices::Secondary] = std::stoi(playerVars.VarColorsSecondary->ValueString.substr(1), 0, 16);
 		if (playerVars.VarColorsLights->ValueString.length() > 0 && playerVars.VarColorsLights->ValueString.substr(0, 1) == "#")
-			out->colors[ColorIndexes::Lights] = std::stoi(playerVars.VarColorsLights->ValueString.substr(1), 0, 16);
+			out->Colors[ColorIndices::Lights] = std::stoi(playerVars.VarColorsLights->ValueString.substr(1), 0, 16);
 		if (playerVars.VarColorsVisor->ValueString.length() > 0 && playerVars.VarColorsVisor->ValueString.substr(0, 1) == "#")
-			out->colors[ColorIndexes::Visor] = std::stoi(playerVars.VarColorsVisor->ValueString.substr(1), 0, 16);
+			out->Colors[ColorIndices::Visor] = std::stoi(playerVars.VarColorsVisor->ValueString.substr(1), 0, 16);
 		if (playerVars.VarColorsHolo->ValueString.length() > 0 && playerVars.VarColorsHolo->ValueString.substr(0, 1) == "#")
-			out->colors[ColorIndexes::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
+			out->Colors[ColorIndices::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
 
-		out->armor[ArmorIndexes::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndexes);
-		out->armor[ArmorIndexes::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndexes);
-		out->armor[ArmorIndexes::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndexes);
-		out->armor[ArmorIndexes::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndexes);
-		out->armor[ArmorIndexes::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndexes);
-		out->armor[ArmorIndexes::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndexes);
-		out->armor[ArmorIndexes::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndexes);
+		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndexes);
+		out->Armor[ArmorIndices::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndexes);
+		out->Armor[ArmorIndices::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndexes);
+		out->Armor[ArmorIndices::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndexes);
+		out->Armor[ArmorIndices::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndexes);
+		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndexes);
+		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndexes);
 	}
 
 	uint8_t ValidateArmorPiece(std::unordered_map<std::string, uint8_t> indexes, uint8_t index)
@@ -102,49 +68,49 @@ namespace
 		return 0;
 	}
 
-	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<CustomizationData>
+	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<PlayerCustomization>
 	{
 	protected:
-		void BuildData(int playerIndex, CustomizationData *out)
+		void BuildData(int playerIndex, PlayerCustomization *out) override
 		{
-			BuildCustomizationData(Modules::ModulePlayer::Instance(), out);
+			BuildPlayerCustomization(Modules::ModulePlayer::Instance(), out);
 		}
 
-		void ApplyData(int playerIndex, void *session, const CustomizationData &data)
+		void ApplyData(int playerIndex, PlayerProperties *properties, const PlayerCustomization &data) override
 		{
-			CustomizationData *armorSessionData = reinterpret_cast<CustomizationData*>(reinterpret_cast<uint8_t*>(session) + 0x6E8);
-			armorSessionData->armor[ArmorIndexes::Helmet] = ValidateArmorPiece(helmetIndexes, data.armor[ArmorIndexes::Helmet]);
-			armorSessionData->armor[ArmorIndexes::Chest] = ValidateArmorPiece(chestIndexes, data.armor[ArmorIndexes::Chest]);
-			armorSessionData->armor[ArmorIndexes::Shoulders] = ValidateArmorPiece(shouldersIndexes, data.armor[ArmorIndexes::Shoulders]);
-			armorSessionData->armor[ArmorIndexes::Arms] = ValidateArmorPiece(armsIndexes, data.armor[ArmorIndexes::Arms]);
-			armorSessionData->armor[ArmorIndexes::Legs] = ValidateArmorPiece(legsIndexes, data.armor[ArmorIndexes::Legs]);
-			armorSessionData->armor[ArmorIndexes::Acc] = ValidateArmorPiece(accIndexes, data.armor[ArmorIndexes::Acc]);
-			armorSessionData->armor[ArmorIndexes::Pelvis] = ValidateArmorPiece(pelvisIndexes, data.armor[ArmorIndexes::Pelvis]);
-			memcpy(armorSessionData->colors, data.colors, sizeof(data.colors));
+			auto armorSessionData = &properties->Customization;
+			armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndexes, data.Armor[ArmorIndices::Helmet]);
+			armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndexes, data.Armor[ArmorIndices::Chest]);
+			armorSessionData->Armor[ArmorIndices::Shoulders] = ValidateArmorPiece(shouldersIndexes, data.Armor[ArmorIndices::Shoulders]);
+			armorSessionData->Armor[ArmorIndices::Arms] = ValidateArmorPiece(armsIndexes, data.Armor[ArmorIndices::Arms]);
+			armorSessionData->Armor[ArmorIndices::Legs] = ValidateArmorPiece(legsIndexes, data.Armor[ArmorIndices::Legs]);
+			armorSessionData->Armor[ArmorIndices::Acc] = ValidateArmorPiece(accIndexes, data.Armor[ArmorIndices::Acc]);
+			armorSessionData->Armor[ArmorIndices::Pelvis] = ValidateArmorPiece(pelvisIndexes, data.Armor[ArmorIndices::Pelvis]);
+			memcpy(armorSessionData->Colors, data.Colors, sizeof(data.Colors));
 		}
 
-		void Serialize(Blam::BitStream *stream, const CustomizationData &data)
+		void Serialize(Blam::BitStream *stream, const PlayerCustomization &data) override
 		{
 			// Colors
-			for (int i = 0; i < ColorIndexes::Count; i++)
-				stream->WriteUnsigned<uint32_t>(data.colors[i], 24);
+			for (int i = 0; i < ColorIndices::Count; i++)
+				stream->WriteUnsigned<uint32_t>(data.Colors[i], 24);
 			
 			// Armor
-			for (int i = 0; i < ArmorIndexes::Count; i++)
-				stream->WriteUnsigned<uint8_t>(data.armor[i], 0, MaxArmorIndexes[i]);
+			for (int i = 0; i < ArmorIndices::Count; i++)
+				stream->WriteUnsigned<uint8_t>(data.Armor[i], 0, MaxArmorIndices[i]);
 		}
 
-		void Deserialize(Blam::BitStream *stream, CustomizationData *out)
+		void Deserialize(Blam::BitStream *stream, PlayerCustomization *out) override
 		{
-			memset(out, 0, sizeof(CustomizationData));
+			memset(out, 0, sizeof(PlayerCustomization));
 
 			// Colors
-			for (int i = 0; i < ColorIndexes::Count; i++)
-				out->colors[i] = stream->ReadUnsigned<uint32_t>(24);
+			for (int i = 0; i < ColorIndices::Count; i++)
+				out->Colors[i] = stream->ReadUnsigned<uint32_t>(24);
 
 			// Armor
-			for (int i = 0; i < ArmorIndexes::Count; i++)
-				out->armor[i] = stream->ReadUnsigned<uint8_t>(0, MaxArmorIndexes[i]);
+			for (int i = 0; i < ArmorIndices::Count; i++)
+				out->Armor[i] = stream->ReadUnsigned<uint8_t>(0, MaxArmorIndices[i]);
 		}
 	};
 
@@ -206,22 +172,22 @@ namespace
 		auto &playerVars = Modules::ModulePlayer::Instance();
 
 		// Generate customization data
-		CustomizationData customization;
-		BuildCustomizationData(playerVars, &customization);
+		PlayerCustomization customization;
+		BuildPlayerCustomization(playerVars, &customization);
 
 		// Apply armor to the biped
-		typedef void(*ApplyArmorPtr)(CustomizationData *customization, uint32_t objectDatum);
+		typedef void(*ApplyArmorPtr)(PlayerCustomization *customization, uint32_t objectDatum);
 		ApplyArmorPtr ApplyArmor = reinterpret_cast<ApplyArmorPtr>(0x5A4430);
 		ApplyArmor(&customization, bipedObject);
 
 		// Apply each color
-		for (int i = 0; i < ColorIndexes::Count; i++)
+		for (int i = 0; i < ColorIndices::Count; i++)
 		{
 			// Convert the color data from RGB to float3
 			float colorData[3];
 			typedef void(*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
 			RgbToFloatColorPtr RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
-			RgbToFloatColor(customization.colors[i], colorData);
+			RgbToFloatColor(customization.Colors[i], colorData);
 
 			// Apply the color
 			typedef void(*ApplyArmorColorPtr)(uint32_t objectDatum, int colorIndex, float *colorData);

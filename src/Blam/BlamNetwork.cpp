@@ -59,7 +59,7 @@ namespace Blam
 			auto playerIndex = GetPeerPlayer(peer);
 			if (playerIndex < 0)
 				return -1;
-			return PlayerSessions[playerIndex].TeamIndex;
+			return PlayerSessions[playerIndex].Properties.TeamIndex;
 		}
 
 		void Observer::ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet)
