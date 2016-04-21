@@ -288,7 +288,10 @@ bool WebRenderer::Render(LPDIRECT3DDEVICE9 p_Device)
 				return false;
 			}
 
-			memcpy(s_Rect.pBits, s_TextureData, s_Width * s_Height * 4);
+			// We cannot assume that s_Rect.Pitch == s_Width * 4, so a rectangular copy needs to be done
+			// Otherwise there is corruption at certain resolutions (e.g. 1680x1050)
+			Utils::Rectangle s_CopyRect(0, 0, s_Width, s_Height);
+			Utils::Rectangle::Copy(s_Rect.pBits, 0, 0, s_Rect.Pitch, s_TextureData, s_CopyRect, s_Width * 4, 4);
 
 			m_Texture->UnlockRect(0);
 			m_RenderHandler->ResetTextureDirtyRect();
