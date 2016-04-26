@@ -160,8 +160,24 @@ namespace Patches
 				auto string = std::string(Blam::Cache::StringIdCache::Instance.GetString(element.Name));
 				auto index = (uint16_t)element.Weapon.Index;
 
-				weaponIndices.emplace(string, index);
+				if (index != 0xFFFF)
+				{
+					weaponIndices.emplace(string, index);
+				}
 			}
+		}
+
+		bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo)
+		{
+			std::stringstream ss;
+
+			for (auto &entry : weaponIndices)
+			{
+				ss << entry.first << std::endl;
+			}
+
+			returnInfo = ss.str();
+			return true;
 		}
 	}
 }

@@ -66,6 +66,8 @@ namespace Modules
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 
+		AddCommand("ListRenderWeapons", "list_render_weapons", "Lists available weapons to display on the player's render mannequin", eCommandFlagsNone, Patches::Armor::CommandPlayerListRenderWeapons);
+
 		// patch Game_GetPlayerName to get the name from our field
 		Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);
 
