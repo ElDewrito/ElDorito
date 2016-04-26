@@ -1,10 +1,16 @@
+
+#include <unordered_map>
+
 #include "Armor.hpp"
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
 #include "../Modules/ModulePlayer.hpp"
 
-#include <iostream>
-#include <unordered_map>
+#include "../Blam/Cache/StringIdCache.hpp"
+#include "../Blam/Tags/Tags.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Globals.hpp"
+#include "../Blam/Tags/MultiplayerGlobals.hpp"
 
 using namespace Blam::Players;
 
@@ -21,7 +27,7 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> legsIndexes;
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
-	extern std::unordered_map<std::string, uint32_t> weaponIndices;
+	extern std::unordered_map<std::string, uint16_t> weaponIndices;
 
 	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
@@ -143,6 +149,36 @@ namespace Patches
 		{
 			updateUiPlayerArmor = true;
 		}
+
+		void ApplyAfterTagsLoaded()
+		{
+			auto *matg = Blam::Tags::TagInstance(0x0016).GetDefinition<Blam::Tags::Globals>();
+			auto *mulg = Blam::Tags::TagInstance(matg->MultiplayerGlobals.Index).GetDefinition<Blam::Tags::MultiplayerGlobals>();
+
+			for (auto &element : mulg->Universal2[0].GameVariantWeapons)
+			{
+				auto string = std::string(Blam::Cache::StringIdCache::Instance.GetString(element.Name));
+				auto index = (uint16_t)element.Weapon.Index;
+
+				if (index != 0xFFFF)
+				{
+					weaponIndices.emplace(string, index);
+				}
+			}
+		}
+
+		bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo)
+		{
+			std::stringstream ss;
+
+			for (auto &entry : weaponIndices)
+			{
+				ss << entry.first << std::endl;
+			}
+
+			returnInfo = ss.str();
+			return true;
+		}
 	}
 }
 
@@ -201,12 +237,12 @@ namespace
 		UpdateArmorColors(bipedObject);
 
 		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		auto weapon = weaponIndices.find(playerVars.VarRenderWeapon->ValueString);
+		auto weaponName = playerVars.VarRenderWeapon->ValueString;
 
-		if (weapon == weaponIndices.end())
-			weapon = weaponIndices.begin();
+		if (weaponIndices.find(weaponName) == weaponIndices.end())
+			weaponName = (playerVars.VarRenderWeapon->ValueString = "assault_rifle");
 
-		PoseWithWeapon(bipedObject, weapon->second);
+		PoseWithWeapon(bipedObject, weaponIndices.find(weaponName)->second);
 	}
 
 	void UiPlayerModelArmorHook()
@@ -402,39 +438,7 @@ namespace
 		{ "tankmode_human", 4 },
 	};
 
-	std::unordered_map<std::string, uint32_t> weaponIndices = {
-		{ "assault_rifle", 0x151E },
-		{ "ar_variant_2", 0x1581 },
-		{ "ar_variant_3", 0x1582 },
-		{ "ar_variant_5", 0x1583 },
-		{ "ar_variant_6", 0x1584 },
-		{ "battle_rifle", 0x157C },
-		{ "br_variant_1", 0x15BB },
-		{ "br_variant_2", 0x15BC },
-		{ "br_variant_3", 0x1585 },
-		{ "br_variant_4", 0x1586 },
-		{ "br_variant_5", 0x15BD },
-		{ "br_variant_6", 0x1587 },
-		{ "covenant_carbine", 0x14FE },
-		{ "covenant_carbine_variant_1", 0x15C0 },
-		{ "covenant_carbine_variant_2", 0x15C1 },
-		{ "covenant_carbine_variant_3", 0x15C2 },
-		{ "covenant_carbine_variant_4", 0x15C3 },
-		{ "covenant_carbine_variant_5", 0x15C4 },
-		{ "covenant_carbine_variant_6", 0x1591 },
-		{ "dmr", 0x1580 },
-		{ "dmr_variant_1", 0x15BE },
-		{ "dmr_variant_2", 0x1588 },
-		{ "dmr_variant_3", 0x1589 },
-		{ "dmr_variant_4", 0x158A },
-		{ "dmr_variant_5" , 0x15BF },
-		{ "dmr_variant_6" , 0x158B },
-		{ "plasma_rifle", 0x1525 },
-		{ "plasma_rifle_variant_6", 0x1590 },
-		{ "smg", 0x157D },
-		{ "smg_variant_1", 0x158C },
-		{ "smg_variant_2", 0x158D },
-		{ "smg_variant_4", 0x158E },
-		{ "smg_variant_6", 0x158F }
+	std::unordered_map<std::string, uint16_t> weaponIndices = {
+
 	};
 }

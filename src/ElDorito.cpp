@@ -18,6 +18,8 @@
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
 
+#include "Blam/Cache/StringIdCache.hpp"
+
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <codecvt>
@@ -174,6 +176,11 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
+
+	if (!Blam::Cache::StringIdCache::Instance.Load("maps\\string_ids.dat"))
+	{
+		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
+	}
 }
 
 void ElDorito::Tick()

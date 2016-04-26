@@ -76,9 +76,17 @@ add_library(ElDorito SHARED
     src/Blam/BlamPlayers.cpp
     src/Blam/BlamPlayers.hpp
     src/Blam/BlamTypes.hpp
-    src/Blam/Tags/Tags.hpp
+    src/Blam/Cache/StringIdCache.cpp
+    src/Blam/Cache/StringIdCache.hpp
+    src/Blam/Tags/ChudDefinition.hpp
+    src/Blam/Tags/ChudGlobalsDefinition.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
+    src/Blam/Tags/Globals.hpp
+    src/Blam/Tags/MultiplayerGlobals.hpp
     src/Blam/Tags/Scenario.hpp
+    src/Blam/Tags/TagInstance.cpp
+    src/Blam/Tags/TagInstance.hpp
+    src/Blam/Tags/Tags.hpp
     src/Console.cpp
     src/Console.hpp
     src/DirectXHook.cpp
