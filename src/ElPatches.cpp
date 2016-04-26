@@ -19,6 +19,11 @@
 #include "Patches\Assassination.hpp"
 #include "Modules\ModuleCamera.hpp"
 
+#include "Blam\Cache\StringIdCache.hpp"
+#include "Blam\Tags\TagInstance.hpp"
+#include "Blam\Tags\Globals.hpp"
+#include "Blam\Tags\MultiplayerGlobals.hpp"
+
 namespace
 {
 	void UnprotectMemory();
@@ -53,6 +58,7 @@ namespace Patches
 
 	void ApplyAfterTagsLoaded()
 	{
+		Armor::ApplyAfterTagsLoaded();
 		Armor::RefreshUiPlayer();
 		Ui::ApplyUIResolution();
 	}

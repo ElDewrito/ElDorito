@@ -1,11 +1,16 @@
+
+#include <unordered_map>
+
 #include "Armor.hpp"
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
 #include "../Modules/ModulePlayer.hpp"
-#include "../Blam/Tags/Tags.hpp"
 
-#include <iostream>
-#include <unordered_map>
+#include "../Blam/Cache/StringIdCache.hpp"
+#include "../Blam/Tags/Tags.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Globals.hpp"
+#include "../Blam/Tags/MultiplayerGlobals.hpp"
 
 using namespace Blam::Players;
 
@@ -22,6 +27,7 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> legsIndexes;
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
+	extern std::unordered_map<std::string, uint16_t> weaponIndices;
 
 	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
@@ -143,6 +149,20 @@ namespace Patches
 		{
 			updateUiPlayerArmor = true;
 		}
+
+		void ApplyAfterTagsLoaded()
+		{
+			auto *matg = Blam::Tags::TagInstance(0x0016).GetDefinition<Blam::Tags::Globals>();
+			auto *mulg = Blam::Tags::TagInstance(matg->MultiplayerGlobals.Index).GetDefinition<Blam::Tags::MultiplayerGlobals>();
+
+			for (auto &element : mulg->Universal2[0].GameVariantWeapons)
+			{
+				auto string = std::string(Blam::Cache::StringIdCache::Instance.GetString(element.Name));
+				auto index = (uint16_t)element.Weapon.Index;
+
+				weaponIndices.emplace(string, index);
+			}
+		}
 	}
 }
 
@@ -201,12 +221,12 @@ namespace
 		UpdateArmorColors(bipedObject);
 
 		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		auto weaponIndex = playerVars.VarRenderWeapon->ValueInt;
+		auto weaponName = playerVars.VarRenderWeapon->ValueString;
 
-		if (Blam::Tags::GetGroupTag((uint16_t)playerVars.VarRenderWeapon->ValueInt) != 'weap')
-			weaponIndex = (playerVars.VarRenderWeapon->ValueInt = playerVars.VarRenderWeapon->DefaultValueInt);
+		if (weaponIndices.find(weaponName) == weaponIndices.end())
+			weaponName = (playerVars.VarRenderWeapon->ValueString = "assault_rifle");
 
-		PoseWithWeapon(bipedObject, weaponIndex);
+		PoseWithWeapon(bipedObject, weaponIndices.find(weaponName)->second);
 	}
 
 	void UiPlayerModelArmorHook()
@@ -400,5 +420,9 @@ namespace
 	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
 		{ "base", 0 },
 		{ "tankmode_human", 4 },
+	};
+
+	std::unordered_map<std::string, uint16_t> weaponIndices = {
+
 	};
 }

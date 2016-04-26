@@ -18,6 +18,8 @@
 #include <fstream>
 #include <detours.h>
 
+#include "Blam\Cache\StringIdCache.hpp"
+
 size_t ElDorito::MainThreadID = 0;
 
 extern BOOL installMedalJunk();
@@ -171,6 +173,11 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
+
+	if (!Blam::Cache::StringIdCache::Instance.Load("maps\\string_ids.dat"))
+	{
+		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
+	}
 }
 
 void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
