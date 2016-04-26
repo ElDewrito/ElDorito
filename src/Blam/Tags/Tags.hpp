@@ -94,6 +94,13 @@ namespace Blam
 			static const bool Value = sizeof(test(std::declval<T>())) == sizeof(yes);
 		};
 
+		inline int GetGroupTag(uint16_t index)
+		{
+			typedef int(*GetGroupTagPtr)(uint16_t);
+			auto GetGroupTagImpl = reinterpret_cast<GetGroupTagPtr>(0x5033A0);
+			return GetGroupTagImpl(index);
+		}
+
 		inline void *GetTagAddress(uint32_t group, uint32_t index)
 		{
 			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
