@@ -1,5 +1,6 @@
 
 #include <unordered_map>
+#include <map>
 
 #include "Armor.hpp"
 #include "PlayerPropertiesExtension.hpp"
@@ -27,7 +28,7 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> legsIndexes;
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
-	extern std::unordered_map<std::string, uint16_t> weaponIndices;
+	extern std::map<std::string, uint16_t> weaponIndices;
 
 	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
@@ -438,7 +439,7 @@ namespace
 		{ "tankmode_human", 4 },
 	};
 
-	std::unordered_map<std::string, uint16_t> weaponIndices = {
+	std::map<std::string, uint16_t> weaponIndices = {
 
 	};
 }
