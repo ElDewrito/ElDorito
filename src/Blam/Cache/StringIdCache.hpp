@@ -16,7 +16,11 @@ namespace Blam
 		struct StringIdCache
 		{
 			StringIdCacheHeader Header;
+			char *Data;
 			char **Strings;
+
+			StringIdCache();
+			~StringIdCache();
 
 			static StringIdCache Instance;
 

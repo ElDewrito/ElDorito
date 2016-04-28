@@ -1,6 +1,5 @@
 #include <fstream>
 #include "StringIdCache.hpp"
-#include <Windows.h>
 
 namespace Blam
 {
@@ -8,10 +7,22 @@ namespace Blam
 	{
 		StringIdCache StringIdCache::Instance;
 
+		StringIdCache::StringIdCache()
+			: Header(), Data(nullptr), Strings(nullptr)
+		{
+		}
+
+		StringIdCache::~StringIdCache()
+		{
+			if (Strings != nullptr)
+				delete Strings;
+
+			if (Data != nullptr)
+				delete Data;
+		}
+
 		bool StringIdCache::Load(const std::string &path)
 		{
-			char buffer[256];
-
 			std::ifstream stream;
 			stream.open(path, std::ios::binary);
 
@@ -20,25 +31,25 @@ namespace Blam
 
 			stream.read((char *)&Header, sizeof(StringIdCacheHeader));
 
+			Data = new char[Header.StringDataSize + 1];
 			Strings = new char *[Header.StringCount];
-			auto *stringOffsets = new int32_t[Header.StringCount];
 
+			auto *stringOffsets = new int32_t[Header.StringCount];
 			stream.read((char *)stringOffsets, sizeof(int32_t) * Header.StringCount);
 
 			auto dataOffset = stream.tellg().seekpos();
+			stream.read(Data, Header.StringDataSize);
+			Data[Header.StringDataSize] = '\0';
 
 			for (auto i = 0; i < Header.StringCount; i++)
 			{
 				if (stringOffsets[i] < 0 || stringOffsets[i] >= Header.StringDataSize)
+				{
+					Strings[i] = nullptr;
 					continue;
+				}
 
-				stream.seekg(dataOffset + stringOffsets[i], std::ios::beg);
-
-				auto stringLength = 0;
-				while (stream.get(buffer[stringLength]) && buffer[stringLength++] != '\0');
-
-				Strings[i] = new char[stringLength];
-				std::copy(buffer, buffer + stringLength, Strings[i]);
+				Strings[i] = Data + stringOffsets[i];
 			}
 
 			stream.close();
