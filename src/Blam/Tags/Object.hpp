@@ -1,10 +1,15 @@
 #pragma once
 #include "Tags.hpp"
+#include "../Math/RealColorRGB.hpp"
+#include "../Math/RealPoint3D.hpp"
 
 namespace Blam
 {
 	namespace Tags
 	{
+		using Blam::Math::RealColorRGB;
+		using Blam::Math::RealPoint3D;
+
 		struct Object : Tag<'obje'>
 		{
 			struct EarlyMoverProperty;
@@ -20,18 +25,14 @@ namespace Blam
 			int16_t ObjectType;
 			uint16_t Flags;
 			float BoundingRadius;
-			float BoundingOffsetX;
-			float BoundingOffsetY;
-			float BoundingOffsetZ;
+			RealPoint3D BoundingOffset;
 			float AccelerationScale;
 			int16_t LightmapShadowModeSize;
 			int8_t SweetenerSize;
 			int8_t WaterDensity;
 			int32_t Unknown;
 			float DynamicLightSphereRadius;
-			float DynamicLightSphereOffsetX;
-			float DynamicLightSphereOffsetY;
-			float DynamicLightSphereOffsetZ;
+			RealPoint3D DynamicLightSphereOffset;
 			int32_t DefaultModelVariant;
 			TagReference Model;
 			TagReference CrateObject;
@@ -120,12 +121,8 @@ namespace Blam
 				struct InitialPermutation
 				{
 					uint32_t Weight;
-					float ColorLowerBoundR;
-					float ColorLowerBoundG;
-					float ColorLowerBoundB;
-					float ColorUpperBoundR;
-					float ColorUpperBoundG;
-					float ColorUpperBoundB;
+					RealColorRGB LowerBoundColor;
+					RealColorRGB UpperBoundColor;
 					int32_t VariantName;
 				};
 				TAG_STRUCT_SIZE_ASSERT(InitialPermutation, 0x20);
@@ -133,12 +130,8 @@ namespace Blam
 				struct Function
 				{
 					uint32_t ScaleFlags;
-					float ColorLowerBoundR;
-					float ColorLowerBoundG;
-					float ColorLowerBoundB;
-					float ColorUpperBoundR;
-					float ColorUpperBoundG;
-					float ColorUpperBoundB;
+					RealColorRGB LowerBoundColor;
+					RealColorRGB UpperBoundColor;
 					int32_t DarkenBy;
 					int32_t ScaleBy;
 				};
@@ -188,9 +181,7 @@ namespace Blam
 			{
 				int16_t Type;
 				int16_t Unknown;
-				float OffsetX;
-				float OffsetY;
-				float OffsetZ;
+				RealPoint3D Offset;
 				float Radius;
 			};
 			TAG_STRUCT_SIZE_ASSERT(ModelObjectDatum, 0x14);

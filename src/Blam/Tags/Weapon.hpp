@@ -1,10 +1,15 @@
 #pragma once
 #include "Item.hpp"
+#include "../Math/RealVector2D.hpp"
+#include "../Math/RealVector3D.hpp"
 
 namespace Blam
 {
 	namespace Tags
 	{
+		using Blam::Math::RealVector2D;
+		using Blam::Math::RealVector3D;
+
 		enum class WeaponFlags : int32_t
 		{
 			None,
@@ -164,11 +169,8 @@ namespace Blam
 			TagReference AgedMaterialEffects;
 			float HammerAgePerUseMp;
 			float HammerAgePerUseSp;
-			float FirstPersonWeaponOffsetI;
-			float FirstPersonWeaponOffsetJ;
-			float FirstPersonWeaponOffsetK;
-			float FirstPersonScopeSizeI;
-			float FirstPersonScopeSizeJ;
+			RealVector3D FirstPersonWeaponOffset;
+			RealVector2D FirstPersonScopeSize;
 			float ThirdPersonPitchBoundsMin;
 			float ThirdPersonPitchBoundsMax;
 			float ZoomTransitionTime;

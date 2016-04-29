@@ -78,6 +78,14 @@ add_library(ElDorito SHARED
     src/Blam/BlamTypes.hpp
     src/Blam/Cache/StringIdCache.cpp
     src/Blam/Cache/StringIdCache.hpp
+    src/Blam/Math/RealColorRGB.cpp
+    src/Blam/Math/RealColorRGB.hpp
+    src/Blam/Math/RealPoint3D.cpp
+    src/Blam/Math/RealPoint3D.hpp
+    src/Blam/Math/RealVector2D.cpp
+    src/Blam/Math/RealVector2D.hpp
+    src/Blam/Math/RealVector3D.cpp
+    src/Blam/Math/RealVector3D.hpp
     src/Blam/Tags/ChudDefinition.hpp
     src/Blam/Tags/ChudGlobalsDefinition.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
