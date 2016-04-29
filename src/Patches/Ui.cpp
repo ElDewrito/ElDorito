@@ -3,6 +3,8 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/Tags/ChudGlobalsDefinition.hpp"
+#include "../Blam/Tags/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Menu.hpp"
 
@@ -18,6 +20,7 @@ namespace
 	bool MainMenuCreateLobbyHook(int lobbyType);
 	int __fastcall c_start_menu__ButtonPressHook(void* thisPtr, int unused, uint8_t* controllerStruct);
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
+	void ResolutionChangeHook();
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 }
@@ -152,6 +155,12 @@ namespace Patches
 
 			// Reimplement the function that assigns lobby roster colors
 			Hook(0x726100, UI_UpdateRosterColorsHook).Apply();
+
+			// Runs when the game's resolution is changed
+			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
+
+			// Enable H3UI scaling
+			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
 		}
 
 		void ApplyMapNameFixes()
@@ -203,6 +212,43 @@ namespace Patches
 					}
 				}
 			}
+		}
+
+
+		void ApplyUIResolution() 
+		{
+			int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+			Blam::Tags::ChudGlobalsDefinition* globals = Blam::Tags::GetTag<Blam::Tags::ChudGlobalsDefinition>(0x01BD);
+
+			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
+			// Fixes the visor getting cut off.
+			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
+
+			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
+				// On aspect ratios with a greater width than 16:9 center the UI on the screen
+				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
+				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
+				globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
+			}
+			else
+			{
+				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
+				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
+				globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
+			}
+
+			// Adjust motion sensor blip to match the UI resolution
+			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
+			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
+
+			// Fix the bottom of the visor
+			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
+			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+
+			// Scale H3UI to match the aspect ratio
+			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
+			UIResolution[0] = 1152;//1152 x 640 resolution
+			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 		}
 	}
 }
@@ -514,5 +560,15 @@ namespace
 			// Move to the next item
 			item = UI_ListItem_Next(item, 0, true);
 		}
+	}
+
+	void ResolutionChangeHook()
+	{
+		typedef void(__thiscall *ApplyResolutionChangeFunc)();
+		ApplyResolutionChangeFunc ApplyResolutionChange = reinterpret_cast<ApplyResolutionChangeFunc>(0xA226D0);
+		ApplyResolutionChange();
+
+		// Update the ingame UI's resolution
+		Patches::Ui::ApplyUIResolution();
 	}
 }

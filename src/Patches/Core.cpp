@@ -13,6 +13,7 @@ namespace
 	void GrenadeLoadoutHook();
 	void FmodSystemInitHook();
 	//void FmodSystemInitHook2();
+	double GetAspectRatio();
 }
 
 namespace Patches
@@ -80,6 +81,18 @@ namespace Patches
 			Patch(0x7FC40B, { 0xC3 }).Apply();
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
+
+			//Fix aspect ratio not matching resolution
+			Hook(0x6648C9, GetAspectRatio, HookFlags::IsCall).Apply();
+			Hook(0x216487, GetAspectRatio, HookFlags::IsCall).Apply();
+
+			//Disable converting the game's resolution to 16:9
+			Patch::NopFill(Pointer::Base(0x62217D), 2);
+			Patch::NopFill(Pointer::Base(0x622183), 6);
+
+			//Allow the user to select any resolution that Windows supports in the settings screen.
+			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
+			Patch::NopFill(Pointer::Base(0x10BF21), 6);
 		}
 	}
 }
@@ -201,5 +214,11 @@ namespace
 			push 0x5A32C7
 			ret
 		}
+	}
+
+	double GetAspectRatio()
+	{
+		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
+		return ((double)gameResolution[0] / (double)gameResolution[1]);
 	}
 }

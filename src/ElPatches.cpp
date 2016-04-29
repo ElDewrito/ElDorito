@@ -54,6 +54,7 @@ namespace Patches
 	void ApplyAfterTagsLoaded()
 	{
 		Armor::RefreshUiPlayer();
+		Ui::ApplyUIResolution();
 	}
 
 	void Tick()
