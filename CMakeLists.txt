@@ -82,11 +82,14 @@ add_library(ElDorito SHARED
     src/Blam/Tags/ChudGlobalsDefinition.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp
     src/Blam/Tags/Globals.hpp
+    src/Blam/Tags/Item.hpp
     src/Blam/Tags/MultiplayerGlobals.hpp
+    src/Blam/Tags/Object.hpp
     src/Blam/Tags/Scenario.hpp
     src/Blam/Tags/TagInstance.cpp
     src/Blam/Tags/TagInstance.hpp
     src/Blam/Tags/Tags.hpp
+    src/Blam/Tags/Weapon.hpp
     src/Console.cpp
     src/Console.hpp
     src/DirectXHook.cpp

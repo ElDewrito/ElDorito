@@ -3,9 +3,11 @@
 #include "../ElDorito.hpp"
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
-#include "../Blam/Tags/Scenario.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Weapon.hpp"
+#include "../Blam/Tags/Scenario.hpp"
 #include "../Modules/ModuleServer.hpp"
 
 namespace
@@ -286,13 +288,18 @@ namespace
 	{
 		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
 		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
+
 		if (!unitDatumPtr)
 			return false;
+
 		auto dualWieldWeaponIndex = unitDatumPtr(0x2CB).Read<int8_t>();
+
 		if (dualWieldWeaponIndex < 0 || dualWieldWeaponIndex >= 4)
 			return false;
+
 		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
 		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
+
 		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
 	}
 
@@ -320,12 +327,17 @@ namespace
 
 	int __cdecl DualWieldHook(unsigned short objectIndex)
 	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Weapon;
+		using Blam::Tags::WeaponFlags;
+
 		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
 			return 0;
-		auto& dorito = ElDorito::Instance();
-		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		char* tagAddr = (char*)Blam::Tags::GetTagAddress('weap', index);
-		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
+
+		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
+		auto *weapon = TagInstance(index).GetDefinition<Weapon>();
+
+		return ((int32_t)weapon->WeaponFlags & (int32_t)WeaponFlags::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void SprintInputHook()

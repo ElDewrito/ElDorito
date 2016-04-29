@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
@@ -210,14 +211,19 @@ namespace Patches
 
 		void ApplyUIResolution() 
 		{
-			int* gameResolution = reinterpret_cast<int*>(0x19106C0);
-			Blam::Tags::ChudGlobalsDefinition* globals = Blam::Tags::GetTag<Blam::Tags::ChudGlobalsDefinition>(0x01BD);
+			using Blam::Tags::TagInstance;
+			using Blam::Tags::ChudGlobalsDefinition;
+			using Blam::Tags::ChudDefinition;
+
+			auto *gameResolution = reinterpret_cast<int*>(0x19106C0);
+			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
 
 			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
 			// Fixes the visor getting cut off.
 			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
 
-			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
+			if ((gameResolution[0] / 16 > gameResolution[1] / 9))
+			{
 				// On aspect ratios with a greater width than 16:9 center the UI on the screen
 				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
 				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
@@ -235,11 +241,11 @@ namespace Patches
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
 
 			// Fix the bottom of the visor
-			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
+			auto *chud = TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
 			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
 
 			// Scale H3UI to match the aspect ratio
-			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
+			auto *UIResolution = reinterpret_cast<int*>(0x19106C8);
 			UIResolution[0] = 1152;//1152 x 640 resolution
 			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 		}
