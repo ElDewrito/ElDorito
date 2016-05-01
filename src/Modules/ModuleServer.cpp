@@ -819,6 +819,11 @@ namespace
 			returnInfo = "No session available";
 			return false;
 		}
+		if (!session->HasTeams())
+		{
+			returnInfo = "Teams are not enabled";
+			return false;
+		}
 
 		// Build an array of active player indices
 		int players[Blam::Network::MaxPlayers];
