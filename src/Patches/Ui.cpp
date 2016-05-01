@@ -222,18 +222,26 @@ namespace Patches
 			// Fixes the visor getting cut off.
 			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
 
-			if ((gameResolution[0] / 16 > gameResolution[1] / 9))
-			{
+			// H3UI Resolution
+			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
+
+			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
 				// On aspect ratios with a greater width than 16:9 center the UI on the screen
 				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
 				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
 				globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
+
+				UIResolution[0] = (int)(((float)gameResolution[0] / (float)gameResolution[1]) * 640);;
+				UIResolution[1] = 640;
 			}
 			else
 			{
 				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
 				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
 				globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
+
+				UIResolution[0] = 1152;//1152 x 640 resolution
+				UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 			}
 
 			// Adjust motion sensor blip to match the UI resolution
@@ -243,11 +251,6 @@ namespace Patches
 			// Fix the bottom of the visor
 			auto *chud = TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
 			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
-
-			// Scale H3UI to match the aspect ratio
-			auto *UIResolution = reinterpret_cast<int*>(0x19106C8);
-			UIResolution[0] = 1152;//1152 x 640 resolution
-			UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 		}
 	}
 }
