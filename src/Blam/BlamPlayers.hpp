@@ -48,10 +48,39 @@ namespace Blam
 		};
 		static_assert(sizeof(PlayerCustomization) == 0x20, "Invalid PlayerCustomization size");
 
+		// Contains information about a player which can be set by the client.
+		// This structure is included in the player-properties packet sent to the host.
+		// See the comment in the PlayerProperties structure below for more information.
+		struct ClientPlayerProperties
+		{
+			wchar_t DisplayName[16];
+			int8_t TeamIndex;
+			int16_t Unknown22;
+			uint32_t Unknown24;
+			uint32_t Unknown28;
+			uint32_t Unknown2C;
+		};
+		static_assert(sizeof(ClientPlayerProperties) == 0x30, "Invalid ClientPlayerProperties size");
+
 		// Contains information about a player.
 		struct PlayerProperties
 		{
-			uint8_t Unknown0[0x30];
+			// The way that the ClientPlayerProperties struct works is a bit complicated.
+			// Whenever the client requests a properties update, the struct gets copied out of the packet and into the struct here.
+			// Then, when the membership data updates, the values are copied out into the ones below.
+			//
+			// So, if a value is in both PlayerProperties and ClientPlayerProperties, the following rules apply:
+			// - If you need to read the value, then ALWAYS use the value directly in PlayerProperties.
+			// - If you need to write the value, then ALWAYS write the value to the ClientPlayerProperties structure.
+			// - Be sure to call Update() on the membership data after writing.
+			//
+			// For example, to toggle a player to the other team, you will need to do:
+			//
+			//   properties.ClientProperties.TeamIndex = !properties.TeamIndex;
+			//   membership.Update();
+			//
+			ClientPlayerProperties ClientProperties;
+
 			uint64_t Uid;
 			wchar_t DisplayName[16];
 			int TeamIndex;
