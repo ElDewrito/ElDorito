@@ -258,6 +258,8 @@ namespace
 
 	bool UnitIsDualWielding(Blam::DatumIndex unitIndex)
 	{
+		if (!unitIndex)
+			return false;
 		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
 		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
 		if (!unitDatumPtr)
