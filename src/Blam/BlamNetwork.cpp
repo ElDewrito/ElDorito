@@ -37,6 +37,20 @@ namespace Blam
 			return MembershipFindNextPeer(this, lastPeer);
 		}
 
+		int SessionMembership::FindFirstPlayer() const
+		{
+			typedef int(__thiscall *MembershipFindFirstPlayerPtr)(const SessionMembership *thisPtr);
+			auto MembershipFindFirstPlayer = reinterpret_cast<MembershipFindFirstPlayerPtr>(0x44E6C0);
+			return MembershipFindFirstPlayer(this);
+		}
+
+		int SessionMembership::FindNextPlayer(int lastPlayer) const
+		{
+			typedef int(__thiscall *MembershipFindNextPlayerPtr)(const SessionMembership *thisPtr, int lastPlayer);
+			auto MembershipFindNextPlayer = reinterpret_cast<MembershipFindNextPlayerPtr>(0x44E750);
+			return MembershipFindNextPlayer(this, lastPlayer);
+		}
+
 		int SessionMembership::GetPeerPlayer(int peer) const
 		{
 			typedef int(*MembershipGetPeerPlayerPtr)(const uint32_t *playerMasks, int max);
@@ -57,6 +71,14 @@ namespace Blam
 			if (playerIndex < 0)
 				return -1;
 			return PlayerSessions[playerIndex].Properties.TeamIndex;
+		}
+
+		void SessionMembership::Update()
+		{
+			// The engine does this all over the place
+			// These properties are almost always incremented together, so it's hard to tell what they actually do individually
+			PlayerUpdateCount++;
+			PeerUpdateCount++;
 		}
 
 		void Observer::ObserverChannelSendMessage(int ownerIndex, int channelIndex, bool secure, int id, int packetSize, const void *packet)

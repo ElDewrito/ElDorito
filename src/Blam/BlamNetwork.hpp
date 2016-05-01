@@ -72,7 +72,7 @@ namespace Blam
 		{
 			int Unknown0;
 			int Unknown4;
-			int Unknown8;
+			int PlayerUpdateCount; // ?
 			int UnknownC;
 			int HostPeerIndex;
 			int Unknown14;
@@ -81,11 +81,12 @@ namespace Blam
 			int Unknown20;
 			int Unknown24;
 			PeerInfo Peers[MaxPeers];
-			uint8_t Unknown10A0[0x8];
+			uint32_t Unknown10A0;
+			uint32_t ActivePlayerMask; // If a bit is set, the corresponding player is active
 			PlayerSession PlayerSessions[MaxPlayers];
 			uint8_t Unknown17528[0x18C7F8];
 			int LocalPeerIndex;
-			int Unknown1A3D24;
+			int PeerUpdateCount; // ?
 			PeerChannel PeerChannels[MaxPeers];
 			uint8_t Unknown1A3DF8[0x12C];
 
@@ -94,6 +95,12 @@ namespace Blam
 
 			// Finds the next available connected peer, or -1 if none.
 			int FindNextPeer(int lastPeer) const;
+
+			// Finds the first available connected player, or -1 if none.
+			int FindFirstPlayer() const;
+
+			// Finds the next available connected player, or -1 if none.
+			int FindNextPlayer(int lastPlayer) const;
 
 			// Gets the player index corresponding to a peer, or -1 if none.
 			int GetPeerPlayer(int peer) const;
@@ -104,6 +111,10 @@ namespace Blam
 			// Gets a peer's team index, or -1 on failure.
 			// Note that -1 does NOT mean that teams are disabled.
 			int GetPeerTeam(int peer) const;
+
+			// Signals that membership data has been changed and needs to be updated.
+			// Call this after modifying player or peer data.
+			void Update();
 		};
 		static_assert(sizeof(SessionMembership) == 0x1A3F20, "Invalid c_network_session_membership size");
 
