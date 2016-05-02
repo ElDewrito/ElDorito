@@ -248,9 +248,16 @@ namespace Patches
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
 
-			// Fix the bottom of the visor
-			auto *chud = TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
-			chud->HudWidgets[26].PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+			// Search for the visor bottom and fix it if found
+			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
+			for (auto &widget : chud->HudWidgets)
+			{
+				if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
+				{
+					widget.PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+					break;
+				}
+			}
 		}
 	}
 }
