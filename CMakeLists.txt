@@ -76,16 +76,53 @@ add_library(ElDorito SHARED
     src/Blam/BlamPlayers.cpp
     src/Blam/BlamPlayers.hpp
     src/Blam/BlamTypes.hpp
-    src/Blam/Cache/StringIdCache.cpp
-    src/Blam/Cache/StringIdCache.hpp
+    src/Blam/Padding.hpp
+    src/Blam/Cache/StringIDCache.cpp
+    src/Blam/Cache/StringIDCache.hpp
+    src/Blam/Math/Angle.cpp
+    src/Blam/Math/Angle.hpp
+    src/Blam/Math/Bounds.cpp
+    src/Blam/Math/Bounds.hpp
+    src/Blam/Math/ColorARGB.cpp
+    src/Blam/Math/ColorARGB.hpp
+    src/Blam/Math/ColorRGB.cpp
+    src/Blam/Math/ColorRGB.hpp
+    src/Blam/Math/Point2D.cpp
+    src/Blam/Math/Point2D.hpp
+    src/Blam/Math/RealColorARGB.cpp
+    src/Blam/Math/RealColorARGB.hpp
     src/Blam/Math/RealColorRGB.cpp
     src/Blam/Math/RealColorRGB.hpp
+    src/Blam/Math/RealEulerAngles2D.cpp
+    src/Blam/Math/RealEulerAngles2D.hpp
+    src/Blam/Math/RealEulerAngles3D.cpp
+    src/Blam/Math/RealEulerAngles3D.hpp
+    src/Blam/Math/RealMatrix3x3.cpp
+    src/Blam/Math/RealMatrix3x3.hpp
+    src/Blam/Math/RealMatrix4x3.cpp
+    src/Blam/Math/RealMatrix4x3.hpp
+    src/Blam/Math/RealOrientation3D.cpp
+    src/Blam/Math/RealOrientation3D.hpp
+    src/Blam/Math/RealPlane2D.cpp
+    src/Blam/Math/RealPlane2D.hpp
+    src/Blam/Math/RealPlane3D.cpp
+    src/Blam/Math/RealPlane3D.hpp
+    src/Blam/Math/RealPoint2D.cpp
+    src/Blam/Math/RealPoint2D.hpp
     src/Blam/Math/RealPoint3D.cpp
     src/Blam/Math/RealPoint3D.hpp
+    src/Blam/Math/RealQuaternion.cpp
+    src/Blam/Math/RealQuaternion.hpp
+    src/Blam/Math/RealRectangle2D.cpp
+    src/Blam/Math/RealRectangle2D.hpp
+    src/Blam/Math/RealRectangle3D.cpp
+    src/Blam/Math/RealRectangle3D.hpp
     src/Blam/Math/RealVector2D.cpp
     src/Blam/Math/RealVector2D.hpp
     src/Blam/Math/RealVector3D.cpp
     src/Blam/Math/RealVector3D.hpp
+    src/Blam/Math/Rectangle2D.cpp
+    src/Blam/Math/Rectangle2D.hpp
     src/Blam/Tags/ChudDefinition.hpp
     src/Blam/Tags/ChudGlobalsDefinition.hpp
     src/Blam/Tags/GameEngineSettingsDefinition.hpp

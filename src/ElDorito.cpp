@@ -177,7 +177,7 @@ void ElDorito::Initialize()
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 
-	if (!Blam::Cache::StringIdCache::Instance.Load("maps\\string_ids.dat"))
+	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{
 		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
 	}

@@ -1,18 +1,18 @@
 #include <fstream>
-#include "StringIdCache.hpp"
+#include "StringIDCache.hpp"
 
 namespace Blam
 {
 	namespace Cache
 	{
-		StringIdCache StringIdCache::Instance;
+		StringIDCache StringIDCache::Instance;
 
-		StringIdCache::StringIdCache()
+		StringIDCache::StringIDCache()
 			: Header(), Data(nullptr), Strings(nullptr)
 		{
 		}
 
-		StringIdCache::~StringIdCache()
+		StringIDCache::~StringIDCache()
 		{
 			if (Strings != nullptr)
 				delete Strings;
@@ -21,7 +21,7 @@ namespace Blam
 				delete Data;
 		}
 
-		bool StringIdCache::Load(const std::string &path)
+		bool StringIDCache::Load(const std::string &path)
 		{
 			std::ifstream stream;
 			stream.open(path, std::ios::binary);
@@ -29,7 +29,7 @@ namespace Blam
 			if (!stream.good())
 				return false;
 
-			stream.read((char *)&Header, sizeof(StringIdCacheHeader));
+			stream.read((char *)&Header, sizeof(StringIDCacheHeader));
 
 			Data = new char[Header.StringDataSize + 1];
 			Strings = new char *[Header.StringCount];
@@ -58,14 +58,14 @@ namespace Blam
 			return true;
 		}
 
-		char *StringIdCache::GetString(const int32_t stringId)
+		char *StringIDCache::GetString(const int32_t StringID)
 		{
 			int32_t setMin = 0x1;
 			int32_t setMax = 0xF1E;
 			int32_t setOffsets[] = { 0x90F, 0x1, 0x685, 0x720, 0x7C4, 0x778, 0x7D0, 0x8EA, 0x902 };
 
-			int32_t set = (int32_t)((stringId >> 16) & 0xFF);
-			int32_t index = (int32_t)(stringId & 0xFFFF);
+			int32_t set = (int32_t)((StringID >> 16) & 0xFF);
+			int32_t index = (int32_t)(StringID & 0xFFFF);
 
 			if (set == 0 && (index < setMin || index > setMax))
 				return Strings[index];

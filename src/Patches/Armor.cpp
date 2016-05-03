@@ -158,7 +158,7 @@ namespace Patches
 
 			for (auto &element : mulg->Universal2[0].GameVariantWeapons)
 			{
-				auto string = std::string(Blam::Cache::StringIdCache::Instance.GetString(element.Name));
+				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
 				auto index = (uint16_t)element.Weapon.Index;
 
 				if (index != 0xFFFF)
