@@ -936,9 +936,13 @@ namespace Modules
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
 
-		VarServerPort = AddVariableInt("Port", "server_port", "The port number the HTTP server runs on, game uses different one", eCommandFlagsArchived, 11775);
+		VarServerPort = AddVariableInt("Port", "server_port", "The port number the HTTP server runs on, the game uses Server.GamePort", eCommandFlagsArchived, 11775);
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
+
+		VarServerGamePort = AddVariableInt("GamePort", "server_gameport", "The port number used by Halo Online", eCommandFlagsArchived, 11774);
+		VarServerGamePort->ValueIntMin = 1;
+		VarServerGamePort->ValueIntMax = 0xFFFF;
 
 		VarServerShouldAnnounce = AddVariableInt("ShouldAnnounce", "should_announce", "Controls whether the server will be announced to the master servers", eCommandFlagsArchived, 1, VariableServerShouldAnnounceUpdate);
 		VarServerShouldAnnounce->ValueIntMin = 0;
