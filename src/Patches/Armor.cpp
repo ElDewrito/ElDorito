@@ -10,8 +10,8 @@
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Blam/Tags/Tags.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Game/Globals.hpp"
-#include "../Blam/Game/MultiplayerGlobals.hpp"
+#include "../Blam/Tags/Game/Globals.hpp"
+#include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
 
 using namespace Blam::Players;
 
@@ -154,8 +154,8 @@ namespace Patches
 		void ApplyAfterTagsLoaded()
 		{
 			using Blam::Tags::TagInstance;
-			using Blam::Game::Globals;
-			using Blam::Game::MultiplayerGlobals;
+			using Blam::Tags::Game::Globals;
+			using Blam::Tags::Game::MultiplayerGlobals;
 
 			auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
 			auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();

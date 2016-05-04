@@ -4,8 +4,8 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/UI/ChudGlobalsDefinition.hpp"
-#include "../Blam/UI/ChudDefinition.hpp"
+#include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
+#include "../Blam/Tags/UI/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 
@@ -212,10 +212,10 @@ namespace Patches
 		void ApplyUIResolution() 
 		{
 			using Blam::Tags::TagInstance;
-			using Blam::UI::ChudGlobalsDefinition;
-			using Blam::UI::ChudDefinition;
+			using Blam::Tags::UI::ChudGlobalsDefinition;
+			using Blam::Tags::UI::ChudDefinition;
 
-			auto *gameResolution = reinterpret_cast<int*>(0x19106C0);
+			auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
 			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
 
 			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.

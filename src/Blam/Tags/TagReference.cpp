@@ -5,7 +5,7 @@ namespace Blam
 	namespace Tags
 	{
 		TagReference::TagReference()
-			: TagReference(Tag::Null, -1)
+			: TagReference((Tag)-1, -1)
 		{
 		}
 
@@ -27,7 +27,7 @@ namespace Blam
 
 		TagReference::operator bool() const
 		{
-			return GroupTag != Tag::Null
+			return GroupTag != (Tag)-1
 				&& TagIndex != -1;
 		}
 	}

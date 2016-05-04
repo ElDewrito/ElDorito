@@ -78,10 +78,5 @@ namespace Blam
 
 			return Strings[index + setOffsets[set]];
 		}
-
-		char *StringIDCache::GetString(const Blam::Text::StringID &stringID)
-		{
-			return GetString(stringID.Value);
-		}
 	}
 }

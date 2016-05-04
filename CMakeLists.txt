@@ -123,18 +123,41 @@ add_library(ElDorito SHARED
     src/Blam/Math/RealVector3D.hpp
     src/Blam/Math/Rectangle2D.cpp
     src/Blam/Math/Rectangle2D.hpp
-    src/Blam/Tags/ChudDefinition.hpp
-    src/Blam/Tags/ChudGlobalsDefinition.hpp
-    src/Blam/Tags/GameEngineSettingsDefinition.hpp
-    src/Blam/Tags/Globals.hpp
-    src/Blam/Tags/Item.hpp
-    src/Blam/Tags/MultiplayerGlobals.hpp
-    src/Blam/Tags/Object.hpp
-    src/Blam/Tags/Scenario.hpp
+    src/Blam/Tags/Tag.cpp
+    src/Blam/Tags/Tag.hpp
+    src/Blam/Tags/TagBlock.cpp
+    src/Blam/Tags/TagBlock.hpp
+    src/Blam/Tags/TagData.cpp
+    src/Blam/Tags/TagData.hpp
+    src/Blam/Tags/TagGroup.cpp
+    src/Blam/Tags/TagGroup.hpp
     src/Blam/Tags/TagInstance.cpp
     src/Blam/Tags/TagInstance.hpp
+    src/Blam/Tags/TagReference.cpp
+    src/Blam/Tags/TagReference.hpp
     src/Blam/Tags/Tags.hpp
-    src/Blam/Tags/Weapon.hpp
+    src/Blam/Tags/Game/AssaultVariant.hpp
+    src/Blam/Tags/Game/CTFVariant.hpp
+    src/Blam/Tags/Game/GameEngineSettings.hpp
+    src/Blam/Tags/Game/GameVariant.hpp
+    src/Blam/Tags/Game/Globals.hpp
+    src/Blam/Tags/Game/InfectionVariant.hpp
+    src/Blam/Tags/Game/JuggernautVariant.hpp
+    src/Blam/Tags/Game/KOTHVariant.hpp
+    src/Blam/Tags/Game/MultiplayerGlobals.hpp
+    src/Blam/Tags/Game/OddballVariant.hpp
+    src/Blam/Tags/Game/SandboxVariant.hpp
+    src/Blam/Tags/Game/TerritoriesVariant.hpp
+    src/Blam/Tags/Game/TraitsProfile.hpp
+    src/Blam/Tags/Game/VIPVariant.hpp
+    src/Blam/Tags/Items/Item.hpp
+    src/Blam/Tags/Items/Weapon.hpp
+    src/Blam/Tags/Objects/Damage.hpp
+    src/Blam/Tags/Objects/Object.hpp
+    src/Blam/Tags/Scenario/Scenario.hpp
+    src/Blam/Tags/Sounds/Noise.hpp
+    src/Blam/Tags/UI/ChudDefinition.hpp
+    src/Blam/Tags/UI/ChudGlobalsDefinition.hpp
     src/Console.cpp
     src/Console.hpp
     src/DirectXHook.cpp

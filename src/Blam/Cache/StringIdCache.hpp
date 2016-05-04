@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include "../Text/StringID.hpp"
 
 namespace Blam
 {
@@ -27,7 +26,6 @@ namespace Blam
 
 			bool Load(const std::string &path);
 			char *GetString(const uint32_t stringID);
-			char *GetString(const Blam::Text::StringID &stringID);
 		};
 	}
 }

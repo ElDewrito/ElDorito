@@ -6,8 +6,8 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Items/Weapon.hpp"
-#include "../Blam/Scenario/Scenario.hpp"
+#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModuleServer.hpp"
 
 namespace
@@ -266,7 +266,7 @@ namespace
 		auto grenadeSetting = players[playerIndex].SpawnGrenadeSetting;
 
 		// Get the current scenario tag
-		auto scenario = Blam::Tags::GetCurrentScenario();
+		auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
 
 		// If the setting is none (2) or the scenario has invalid starting
 		// profile data, set the grenade counts to 0 and return
@@ -330,7 +330,7 @@ namespace
 	int __cdecl DualWieldHook(unsigned short objectIndex)
 	{
 		using Blam::Tags::TagInstance;
-		using Blam::Items::Weapon;
+		using Blam::Tags::Items::Weapon;
 
 		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
 			return 0;

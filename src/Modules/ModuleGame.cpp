@@ -8,7 +8,7 @@
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Blam/Game/GameEngineSettings.hpp"
+#include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
@@ -541,7 +541,7 @@ namespace
 	template<class T>
 	int FindDefaultGameVariant(const Blam::Tags::TagBlock<T> &variants, const std::string &name)
 	{
-		static_assert(std::is_base_of<Blam::Game::GameVariant, T>::value, "T must be a GameVariantDefinition");
+		static_assert(std::is_base_of<Blam::Tags::Game::GameVariant, T>::value, "T must be a GameVariantDefinition");
 		if (!variants)
 			return -1;
 		for (auto i = 0; i < variants.Count; i++)
@@ -552,7 +552,7 @@ namespace
 		return -1;
 	}
 
-	int FindDefaultGameVariant(Blam::Game::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
+	int FindDefaultGameVariant(Blam::Tags::Game::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
 	{
 		switch (type)
 		{
@@ -582,9 +582,9 @@ namespace
 	bool LoadDefaultGameVariant(const std::string &name, uint8_t *out)
 	{
 		// Get a handle to the wezr tag
-		typedef Blam::Game::GameEngineSettingsDefinition *(*GetWezrTagPtr)();
+		typedef Blam::Tags::Game::GameEngineSettingsDefinition *(*GetWezrTagPtr)();
 		auto GetWezrTag = reinterpret_cast<GetWezrTagPtr>(0x719290);
-		auto wezr = GetWezrTag();
+		auto *wezr = GetWezrTag();
 		if (!wezr)
 			return false;
 
