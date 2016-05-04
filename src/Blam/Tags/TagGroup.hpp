@@ -5,10 +5,10 @@ namespace Blam
 {
 	namespace Tags
 	{
-		template <const uint32_t GroupTagValue>
+		template <const Tag GroupTagValue>
 		struct TagGroup
 		{
-			static const Tag GroupTag;
+			static const Tag GroupTag = GroupTagValue;
 		};
 	}
 }
