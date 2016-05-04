@@ -10,8 +10,8 @@
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Blam/Tags/Tags.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/Globals.hpp"
-#include "../Blam/Tags/MultiplayerGlobals.hpp"
+#include "../Blam/Game/Globals.hpp"
+#include "../Blam/Game/MultiplayerGlobals.hpp"
 
 using namespace Blam::Players;
 
@@ -153,13 +153,17 @@ namespace Patches
 
 		void ApplyAfterTagsLoaded()
 		{
-			auto *matg = Blam::Tags::TagInstance(0x0016).GetDefinition<Blam::Tags::Globals>();
-			auto *mulg = Blam::Tags::TagInstance(matg->MultiplayerGlobals.Index).GetDefinition<Blam::Tags::MultiplayerGlobals>();
+			using Blam::Tags::TagInstance;
+			using Blam::Game::Globals;
+			using Blam::Game::MultiplayerGlobals;
 
-			for (auto &element : mulg->Universal2[0].GameVariantWeapons)
+			auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
+			auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+
+			for (auto &element : mulg->Universal[0].GameVariantWeapons)
 			{
 				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
-				auto index = (uint16_t)element.Weapon.Index;
+				auto index = (uint16_t)element.Weapon.TagIndex;
 
 				if (index != 0xFFFF)
 				{

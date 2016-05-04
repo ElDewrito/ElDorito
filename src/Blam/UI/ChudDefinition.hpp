@@ -1,11 +1,19 @@
 #pragma once
-#include "Tags.hpp"
+#include <cstdint>
+#include "../Tags/Tags.hpp"
+#include "../Text/StringID.hpp"
 
 namespace Blam
 {
-	namespace Tags
+	namespace UI
 	{
-		struct ChudDefinition : Tag<'chdt'>
+		using Blam::Tags::TagBlock;
+		using Blam::Tags::TagData;
+		using Blam::Tags::TagGroup;
+		using Blam::Tags::TagReference;
+		using Blam::Text::StringID;
+
+		struct ChudDefinition : TagGroup<'chdt'>
 		{
 			struct HudWidgetDefinition;
 

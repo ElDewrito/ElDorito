@@ -22,8 +22,8 @@
 
 #include "Blam\Cache\StringIdCache.hpp"
 #include "Blam\Tags\TagInstance.hpp"
-#include "Blam\Tags\Globals.hpp"
-#include "Blam\Tags\MultiplayerGlobals.hpp"
+#include "Blam\Game\Globals.hpp"
+#include "Blam\Game\MultiplayerGlobals.hpp"
 
 namespace
 {

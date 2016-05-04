@@ -6,8 +6,8 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/Weapon.hpp"
-#include "../Blam/Tags/Scenario.hpp"
+#include "../Blam/Items/Weapon.hpp"
+#include "../Blam/Scenario/Scenario.hpp"
 #include "../Modules/ModuleServer.hpp"
 
 namespace
@@ -330,8 +330,7 @@ namespace
 	int __cdecl DualWieldHook(unsigned short objectIndex)
 	{
 		using Blam::Tags::TagInstance;
-		using Blam::Tags::Weapon;
-		using Blam::Tags::WeaponFlags;
+		using Blam::Items::Weapon;
 
 		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
 			return 0;
@@ -339,7 +338,7 @@ namespace
 		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
 		auto *weapon = TagInstance(index).GetDefinition<Weapon>();
 
-		return ((int32_t)weapon->WeaponFlags & (int32_t)WeaponFlags::CanBeDualWielded) != 0;
+		return ((int32_t)weapon->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void SprintInputHook()

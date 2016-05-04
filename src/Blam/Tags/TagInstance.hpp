@@ -17,8 +17,6 @@ namespace Blam
 			template <typename T>
 			inline T *GetDefinition()
 			{
-				static_assert(IsTagType<T>::Value, "Cannot call TagInstance::GetDefinition() on a non-tag type");
-
 				if (Index != 0xFFFF)
 				{
 					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);

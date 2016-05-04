@@ -1,11 +1,19 @@
 #pragma once
-#include "Tags.hpp"
+#include <cstdint>
+#include "../Tags/Tags.hpp"
+#include "../Text/StringID.hpp"
 #include "../../Pointer.hpp"
 
 namespace Blam
 {
 	namespace Tags
 	{
+		using Blam::Tags::TagBlock;
+		using Blam::Tags::TagData;
+		using Blam::Tags::TagGroup;
+		using Blam::Tags::TagReference;
+		using Blam::Text::StringID;
+
 		struct Scenario;
 
 		inline Scenario *GetCurrentScenario()
@@ -14,7 +22,7 @@ namespace Blam
 			return scenario.Read<Scenario*>();
 		}
 
-		struct Scenario : Tag<'scnr'>
+		struct Scenario : TagGroup<'scnr'>
 		{
 			struct TagBlock0;
 			struct TagBlock1;
@@ -263,7 +271,7 @@ namespace Blam
 			int Unknown404;
 			int Unknown408;
 			int Unknown40C;
-			DataReference<uint8_t> Unknown410;
+			TagData<uint8_t> Unknown410;
 			TagBlock<TagBlock61> Unknown424;
 			TagBlock<TagBlock63> Unknown430;
 			TagBlock<TagBlock64> Unknown43C;

@@ -4,8 +4,8 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/ChudGlobalsDefinition.hpp"
-#include "../Blam/Tags/ChudDefinition.hpp"
+#include "../Blam/UI/ChudGlobalsDefinition.hpp"
+#include "../Blam/UI/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 
@@ -212,8 +212,8 @@ namespace Patches
 		void ApplyUIResolution() 
 		{
 			using Blam::Tags::TagInstance;
-			using Blam::Tags::ChudGlobalsDefinition;
-			using Blam::Tags::ChudDefinition;
+			using Blam::UI::ChudGlobalsDefinition;
+			using Blam::UI::ChudDefinition;
 
 			auto *gameResolution = reinterpret_cast<int*>(0x19106C0);
 			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
@@ -249,7 +249,7 @@ namespace Patches
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
 
 			// Search for the visor bottom and fix it if found
-			Blam::Tags::ChudDefinition* chud = Blam::Tags::GetTag<Blam::Tags::ChudDefinition>(0x0C1E);
+			auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
 			for (auto &widget : chud->HudWidgets)
 			{
 				if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new

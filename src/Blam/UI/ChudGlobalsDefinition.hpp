@@ -1,11 +1,19 @@
 #pragma once
-#include "Tags.hpp"
+#include <cstdint>
+#include "../Tags/Tags.hpp"
+#include "../Text/StringID.hpp"
 
 namespace Blam
 {
-	namespace Tags
+	namespace UI
 	{
-		struct ChudGlobalsDefinition : Tag<'chgd'>
+		using Blam::Tags::TagBlock;
+		using Blam::Tags::TagData;
+		using Blam::Tags::TagGroup;
+		using Blam::Tags::TagReference;
+		using Blam::Text::StringID;
+
+		struct ChudGlobalsDefinition : TagGroup<'chgd'>
 		{
 			struct HudGlobal;
 			struct HudShader;
@@ -64,7 +72,7 @@ namespace Blam
 			uint32_t Unknown20;
 			uint32_t Unknown21;
 			uint32_t Unknown22;
-			DataReference<uint8_t> Unknown23;
+			TagData<uint8_t> Unknown23;
 			uint32_t Unknown24;
 			uint32_t Unknown25;
 			uint32_t Unknown26;
@@ -81,23 +89,23 @@ namespace Blam
 			uint32_t Unknown37;
 			uint32_t Unknown38;
 			uint32_t Unknown39;
-			DataReference<uint8_t> Unknown40;
+			TagData<uint8_t> Unknown40;
 			float SprintFovMultiplier;
 			float SprintFovTransitionInTime;
 			float SprintFovTransitionOutTime;
 			TagReference ParallaxData;
 			uint32_t Unknown41;
-			DataReference<uint8_t> Unknown42;
-			DataReference<uint8_t> Unknown43;
-			DataReference<uint8_t> Unknown44;
-			DataReference<uint8_t> Unknown45;
-			DataReference<uint8_t> Unknown46;
+			TagData<uint8_t> Unknown42;
+			TagData<uint8_t> Unknown43;
+			TagData<uint8_t> Unknown44;
+			TagData<uint8_t> Unknown45;
+			TagData<uint8_t> Unknown46;
 			uint32_t Unknown47;
-			DataReference<uint8_t> Unknown48;
-			DataReference<uint8_t> Unknown49;
-			DataReference<uint8_t> Unknown50;
-			DataReference<uint8_t> Unknown51;
-			DataReference<uint8_t> Unknown52;
+			TagData<uint8_t> Unknown48;
+			TagData<uint8_t> Unknown49;
+			TagData<uint8_t> Unknown50;
+			TagData<uint8_t> Unknown51;
+			TagData<uint8_t> Unknown52;
 			TagReference Unknown53;
 			uint32_t Unknown54;
 			uint32_t Unknown55;

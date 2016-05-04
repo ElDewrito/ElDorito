@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include "../Text/StringID.hpp"
 
 namespace Blam
 {
@@ -25,7 +26,8 @@ namespace Blam
 			static StringIDCache Instance;
 
 			bool Load(const std::string &path);
-			char *GetString(const int32_t StringID);
+			char *GetString(const uint32_t stringID);
+			char *GetString(const Blam::Text::StringID &stringID);
 		};
 	}
 }

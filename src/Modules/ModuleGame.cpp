@@ -8,7 +8,7 @@
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
+#include "../Blam/Game/GameEngineSettings.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
@@ -541,7 +541,7 @@ namespace
 	template<class T>
 	int FindDefaultGameVariant(const Blam::Tags::TagBlock<T> &variants, const std::string &name)
 	{
-		static_assert(std::is_base_of<Blam::Tags::GameVariantDefinition, T>::value, "T must be a GameVariantDefinition");
+		static_assert(std::is_base_of<Blam::Game::GameVariant, T>::value, "T must be a GameVariantDefinition");
 		if (!variants)
 			return -1;
 		for (auto i = 0; i < variants.Count; i++)
@@ -552,20 +552,20 @@ namespace
 		return -1;
 	}
 
-	int FindDefaultGameVariant(Blam::Tags::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
+	int FindDefaultGameVariant(Blam::Game::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
 	{
 		switch (type)
 		{
 		case Blam::GameType::CTF:
-			return FindDefaultGameVariant(wezr->CtfVariants, name);
+			return FindDefaultGameVariant(wezr->CTFVariants, name);
 		case Blam::GameType::Slayer:
 			return FindDefaultGameVariant(wezr->SlayerVariants, name);
 		case Blam::GameType::Oddball:
 			return FindDefaultGameVariant(wezr->OddballVariants, name);
 		case Blam::GameType::KOTH:
-			return FindDefaultGameVariant(wezr->KothVariants, name);
+			return FindDefaultGameVariant(wezr->KOTHVariants, name);
 		case Blam::GameType::VIP:
-			return FindDefaultGameVariant(wezr->VipVariants, name);
+			return FindDefaultGameVariant(wezr->VIPVariants, name);
 		case Blam::GameType::Juggernaut:
 			return FindDefaultGameVariant(wezr->JuggernautVariants, name);
 		case Blam::GameType::Territories:
@@ -582,7 +582,7 @@ namespace
 	bool LoadDefaultGameVariant(const std::string &name, uint8_t *out)
 	{
 		// Get a handle to the wezr tag
-		typedef Blam::Tags::GameEngineSettingsDefinition* (*GetWezrTagPtr)();
+		typedef Blam::Game::GameEngineSettingsDefinition *(*GetWezrTagPtr)();
 		auto GetWezrTag = reinterpret_cast<GetWezrTagPtr>(0x719290);
 		auto wezr = GetWezrTag();
 		if (!wezr)

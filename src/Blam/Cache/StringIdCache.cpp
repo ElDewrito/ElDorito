@@ -58,7 +58,7 @@ namespace Blam
 			return true;
 		}
 
-		char *StringIDCache::GetString(const int32_t StringID)
+		char *StringIDCache::GetString(const uint32_t StringID)
 		{
 			int32_t setMin = 0x1;
 			int32_t setMax = 0xF1E;
@@ -77,6 +77,11 @@ namespace Blam
 				index -= setMin;
 
 			return Strings[index + setOffsets[set]];
+		}
+
+		char *StringIDCache::GetString(const Blam::Text::StringID &stringID)
+		{
+			return GetString(stringID.Value);
 		}
 	}
 }
