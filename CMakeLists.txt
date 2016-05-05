@@ -60,6 +60,8 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/boost-1.60/lib)
+
 
 # Create main target
 add_library(ElDorito SHARED
@@ -371,7 +373,8 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include
   ${CMAKE_SOURCE_DIR}/libs/cef
   ${CMAKE_SOURCE_DIR}/libs/cef/include
-  ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include)
+  ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include
+  ${CMAKE_SOURCE_DIR}/libs/boost-1.60/include)
 
 # CEF Process
 add_executable(CefProcess WIN32
