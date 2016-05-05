@@ -400,7 +400,7 @@ if(IS_DIRECTORY ${HALO_ROOT})
                               ${HALO_ROOT}/custom_menu.exe)
   add_custom_command(TARGET ElDorito POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
-                         copy_directory ${CMAKE_SOURCE_DIR}/artifact_extras
+                         copy_directory ${CMAKE_SOURCE_DIR}/libs/cef/artifact_extras
                               ${HALO_ROOT})
   add_custom_command(TARGET web POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
