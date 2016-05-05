@@ -472,7 +472,7 @@ CommandType = {
      *
      * @param {string} message - The chat message to send.
      * @param {boolean} teamChat - If true the message is sent to team chat instead of global.
-     * @returns {DewPromise<ConsoleCommand[]>} A promise for the list of available console commands.
+     * @returns {DewPromise} A promise that will be resolved once the message is sent.
      */
     dew.sendChat = function (message, teamChat) {
         return dew.callMethod("sendChat", function () {
@@ -573,7 +573,8 @@ CommandType = {
      * @type {object}
      * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
      * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
-     * @property {string} teamIndex - The team index of the player.
+     * @property {bool} teamChat - Set to true if the message was sent to team chat.
+     * @property {number} teamIndex - The team index of the player.
      * @property {string} UID - The UID of the player.
      * @property {string} color - The hex color of the player's primary armor color.
      */

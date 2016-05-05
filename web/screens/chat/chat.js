@@ -1,9 +1,15 @@
+var isTeamChat = false;
+
 $(window).load(function () {
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
             // Hide when escape is pressed
             dew.hide();
         }
+    });
+
+    dew.on("show", function(e) {
+        isTeamChat = e.data.teamChat;
     });
 
     dew.on("chat", function (e) {
@@ -14,10 +20,8 @@ $(window).load(function () {
 
     $("html").on("keyup", "#chatBox", function (e) {
         if (e.keyCode === 13) {
-            //Send global chat message
-            dew.sendChat($("#chatBox").val(), false);
-            //For team messages:
-            //dew.sendChat($("#chatBox").val(), true);
+            //Send the chat message
+            dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
         }
     });

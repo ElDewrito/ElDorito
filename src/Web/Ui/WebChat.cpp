@@ -35,9 +35,17 @@ namespace Web
 				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
 			}
 
-			void Show()
+			void Show(bool teamChat)
 			{
-				ScreenLayer::Show("chat", "{}");
+				rapidjson::StringBuffer jsonBuffer;
+				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+
+				jsonWriter.StartObject();
+				jsonWriter.Key("teamChat");
+				jsonWriter.Bool(teamChat);
+				jsonWriter.EndObject();
+
+				ScreenLayer::Show("chat", jsonBuffer.GetString());
 			}
 
 			void Hide()
@@ -67,11 +75,14 @@ namespace
 		jsonWriter.Key("sender");
 		jsonWriter.String(Server::Chat::GetSenderName(message).c_str());
 
+		jsonWriter.Key("teamChat");
+		jsonWriter.Bool(message.Type == Server::Chat::ChatMessageType::Team);
+
 		auto session = Blam::Network::GetActiveSession();
 		if (session) {
 			auto player = session->MembershipInfo.PlayerSessions[message.SenderPlayer];
 			jsonWriter.Key("teamIndex");
-			jsonWriter.String(std::to_string(player.Properties.TeamIndex).c_str());
+			jsonWriter.Int(player.Properties.TeamIndex);
 
 			std::string uidStr;
 			Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
@@ -92,6 +103,9 @@ namespace
 	{
 		//TODO: Don't hardocde
 		if (GetKeyTicks(eKeyCodeT, eInputTypeUi) == 1)
-			Web::Ui::WebChat::Show();
+			Web::Ui::WebChat::Show(true);
+
+		if (GetKeyTicks(eKeyCodeY, eInputTypeUi) == 1)
+			Web::Ui::WebChat::Show(false);
 	}
 }
