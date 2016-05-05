@@ -19,23 +19,8 @@ install:
 
     cd build
 
-    IF EXIST "C:\Program Files (x86)\CMake\bin\" (
+    cmake -G "Visual Studio 12" --build ..
 
-      "C:\Program Files (x86)\CMake\bin\cmake" -G "Visual Studio 12" --build ..
-
-    ) ELSE (
-
-      IF EXIST "C:\Program Files\CMake\bin\" (
-
-        "C:\Program Files\CMake\bin\cmake" -G "Visual Studio 12" --build ..
-
-      ) ELSE (
-
-        cmake -G "Visual Studio 12" --build ..
-
-      )
-
-    )
 build_script:
 - cmd: >-
     CD %APPVEYOR_BUILD_FOLDER%\build\
@@ -63,7 +48,7 @@ build_script:
 
     %_7z% *
 
-    CD %APPVEYOR_BUILD_FOLDER%\artifact_extras\
+    CD %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras\
 
     %_7z% *
 
