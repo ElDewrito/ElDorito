@@ -1,6 +1,6 @@
 /**
  * Creates a new DewError object which represents an ElDewrito communication error.
- * 
+ *
  * @class
  * @param {string} message - The error message.
  * @param {DewErrorCode} [code] - The error code.
@@ -35,7 +35,7 @@ function DewError(message, code, method) {
 
 /**
  * Gets the name of the error's code.
- * 
+ *
  * @returns {string} A string representing the error's code.
  */
 DewError.prototype.getCodeName = function () {
@@ -116,7 +116,7 @@ MPEventAudience = {
 
 /**
  * Multiplayer event categories.
- * 
+ *
  * @readonly
  * @enum {number}
  */
@@ -139,7 +139,7 @@ MPEventCategory = {
 
 /**
  * Game modes.
- * 
+ *
  * @readonly
  * @enum {number}
  */
@@ -159,7 +159,7 @@ GameMode = {
 
 /**
  * Console command and variable types.
- * 
+ *
  * @readonly
  * @enum {number}
  */
@@ -287,19 +287,19 @@ CommandType = {
 
     /**
      * A promise made by an asynchronous ElDewrito method.
-     * 
+     *
      * If the promise is rejected for a reason related to ElDewrito, it will be rejected with a {@link DewError} object.
      * This object includes an [error code]{@link DewErrorCode} which can be used to easily figure out what went wrong.
      *
      * If the promise is rejected for any other reason, it may be rejected with a generic Error.
      * Therefore, you must use `instanceof DewError` to check that the error is actually an ElDewrito error before getting specific information.
-     * 
+     *
      * @typedef {Promise<*|Error>} DewPromise
      */
 
     /**
      * (ASYNCHRONOUS) Retrieves the current version of ElDewrito.
-     * 
+     *
      * @returns {DewPromise<string>} - A promise for the version string.
      */
     dew.getVersion = function () {
@@ -308,9 +308,9 @@ CommandType = {
 
     /**
      * Requests to show a screen.
-     * 
+     *
      * If the requested screen is still loading, it will not be shown until it finishes.
-     * 
+     *
      * This will always send a [show]{@link event:show} event to the screen, even if it is already visible.
      * You can use this as a simple means of sending messages between screens.
      *
@@ -326,7 +326,7 @@ CommandType = {
 
     /**
      * Requests to hide a screen.
-     * 
+     *
      * This will send a [hide]{@link event:hide} event to the screen if it is visible.
      *
      * @param {string} [id] - The ID of the screen to hide. If this is null or omitted, the current screen will be hidden.
@@ -339,7 +339,7 @@ CommandType = {
 
     /**
      * Requests to change this screen's input capture state.
-     * 
+     *
      * @param {boolean} capture - true to capture mouse and keyboard input, false to release.
      */
     dew.captureInput = function (capture) {
@@ -350,7 +350,7 @@ CommandType = {
 
     /**
      * (ASYNCHRONOUS) Runs a console command.
-     * 
+     *
      * If the command does not run successfully, the promise will be rejected with a [DewErrorCode.COMMAND_FAILED]{@link DewErrorCode} error.
      * The error message will be the command output.
      *
@@ -371,7 +371,7 @@ CommandType = {
 
     /**
      * (ASYNCHRONOUS) Pings a server.
-     * 
+     *
      * The screen will receive a [pong]{@link event:pong} event if the server responds.
      *
      * **This method is currently broken and will report ping times that are much higher than they should be.**
@@ -389,9 +389,9 @@ CommandType = {
 
     /**
      * (ASYNCHRONOUS) Gets info about the current map variant.
-     * 
+     *
      * If map variant info is not available, the promise will be rejected with a [DewErrorCode.NOT_AVAILABLE]{@link DewErrorCode} error.
-     * 
+     *
      * @returns {DewPromise<MapVariantInfo>} A promise for the map variant info.
      */
     dew.getMapVariantInfo = function () {
@@ -411,9 +411,9 @@ CommandType = {
 
     /**
      * (ASYNCHRONOUS) Gets info about the current game variant.
-     * 
+     *
      * If game variant info is not available, the promise will be rejected with a [DewErrorCode.NOT_AVAILABLE]{@link DewErrorCode} error.
-     * 
+     *
      * @returns {DewPromise<GameVariantInfo>} A promise for the game variant info.
      */
     dew.getGameVariantInfo = function () {
@@ -437,7 +437,7 @@ CommandType = {
 
     /**
      * (ASYNCHRONOUS) Gets a list of available console commands.
-     * 
+     *
      * @returns {DewPromise<ConsoleCommand[]>} A promise for the list of available console commands.
      */
     dew.getCommands = function () {
@@ -466,6 +466,22 @@ CommandType = {
      * @property {string[]} arguments - A list of arguments for the command. Each string will contain a value name, a space, and then a description. For variables, this will be empty.
      * @see dew.getCommands
      */
+
+    /**
+     * (ASYNCHRONOUS) Sends a chat message.
+     *
+     * @param {string} message - The chat message to send.
+     * @param {boolean} teamChat - If true the message is sent to team chat instead of global.
+     * @returns {DewPromise<ConsoleCommand[]>} A promise for the list of available console commands.
+     */
+    dew.sendChat = function (message, teamChat) {
+        return dew.callMethod("sendChat", function () {
+            return {
+                message: message.toString(),
+                teamChat: teamChat
+            };
+        });
+     }
 
     /**
      * Registers a callback to be run when an event occurs.
@@ -523,7 +539,7 @@ CommandType = {
 
     /**
      * Fired when a line is written to the in-game console.
-     * 
+     *
      * @event console
      * @type {object}
      * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
@@ -531,9 +547,9 @@ CommandType = {
 
     /**
      * Fired when a multiplayer event occurs that affects the local player.
-     * 
+     *
      * @event mpevent
-     * @type {object} 
+     * @type {object}
      * @property {string} name - The internal name of the event.
      * @property {MPEventCategory} category - The event's category.
      * @property {MPEventAudience} audience - The audience that the event is intended for.
@@ -541,12 +557,24 @@ CommandType = {
 
     /**
      * Fired when the loading screen is active and the loading progress changes.
-     * 
+     *
      * This event is only sent to visible screens.
-     * 
+     *
      * @event loadprogress
      * @type {object}
      * @property {number} currentBytes - The current number of bytes that have been decompressed.
      * @property {number} totalBytes - The total number of bytes that need to be decompressed.
+     */
+
+    /**
+     * Fired when a chat message is recieved.
+     *
+     * @event chat
+     * @type {object}
+     * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
+     * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
+     * @property {string} teamIndex - The team index of the player.
+     * @property {string} UID - The UID of the player.
+     * @property {string} color - The hex color of the player's primary armor color.
      */
 })();

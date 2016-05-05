@@ -14,6 +14,12 @@
 			"zIndex": 10
 		},
 		{
+			"id": "chat",
+			"url": "dew://screens/chat/",
+			"captureInput": true,
+			"zIndex": 10
+		},
+		{
 			"id": "medals",
 			"url": "dew://screens/medals/",
 			"captureInput": false,

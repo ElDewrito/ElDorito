@@ -10,6 +10,7 @@
 #include "Patches/Core.hpp"
 #include "Console.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
+#include "Web/Ui/WebChat.hpp"
 #include "Web/Ui/WebConsole.hpp"
 #include "Web/Ui/WebLoadingScreen.hpp"
 #include "Web/Ui/MpEventDispatcher.hpp"
@@ -152,6 +153,7 @@ void ElDorito::Initialize()
 	{
 		Web::Ui::ScreenLayer::Init();
 		Web::Ui::MpEventDispatcher::Init();
+		Web::Ui::WebChat::Init();
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
 	}

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 # Creates source groups for a target
 function(create_source_groups TARGET)
   get_property(SOURCES TARGET ${TARGET} PROPERTY SOURCES)
-  foreach(FILE ${SOURCES}) 
+  foreach(FILE ${SOURCES})
     get_filename_component(PARENT_DIR "${FILE}" PATH)
 
     # skip src or include and changes /'s to \\'s
@@ -173,7 +173,7 @@ add_library(ElDorito SHARED
     src/Modules/ModulePlayer.cpp
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
-    src/Modules/ModuleServer.hpp    
+    src/Modules/ModuleServer.hpp
     src/Modules/ModuleVoIP.cpp
     src/Modules/ModuleVoIP.hpp
     src/Modules/ModuleTime.cpp
@@ -266,6 +266,8 @@ add_library(ElDorito SHARED
     src/Web/Ui/ScreenLayer.hpp
     src/Web/Ui/WebConsole.cpp
     src/Web/Ui/WebConsole.hpp
+    src/Web/Ui/WebChat.cpp
+    src/Web/Ui/WebChat.hpp
     src/Web/Ui/WebLoadingScreen.cpp
     src/Web/Ui/WebLoadingScreen.hpp
     src/Web/WebRenderer.cpp
@@ -353,7 +355,7 @@ set (WEB_SOURCES
     web/ui/index.html
     web/ui/ui.css
     web/ui/ui.js)
-add_custom_target(web 
+add_custom_target(web
     DEPENDS ${WEB_SOURCES}
     SOURCES ${WEB_SOURCES})
 

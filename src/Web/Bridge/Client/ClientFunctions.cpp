@@ -4,6 +4,7 @@
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
+#include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
 #include "../../../Utils/String.hpp"
 #include "../../../ThirdParty/rapidjson/writer.h"
@@ -312,6 +313,30 @@ namespace Anvil
 						}
 						writer.EndArray();
 						*p_Result = buffer.GetString();
+						return QueryError_Ok;
+					}
+
+					QueryError OnSendChat(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						auto message = p_Args.FindMember("message");
+						auto teamChat = p_Args.FindMember("teamChat");
+
+						if (message == p_Args.MemberEnd() || !message->value.IsString())
+						{
+							*p_Result = "Bad query: A \"message\" argument is required and must be a string";
+							return QueryError_BadQuery;
+						}
+						if (teamChat == p_Args.MemberEnd() || !teamChat->value.IsBool())
+						{
+							*p_Result = "Bad query: A \"teamChat\" argument is required and must be a boolean";
+							return QueryError_BadQuery;
+						}
+
+						if(teamChat->value.GetBool())
+							Server::Chat::SendTeamMessage(message->value.GetString());
+						else
+							Server::Chat::SendGlobalMessage(message->value.GetString());
+
 						return QueryError_Ok;
 					}
 				}
