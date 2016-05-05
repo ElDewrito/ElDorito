@@ -10,6 +10,7 @@ $(window).load(function () {
 
     dew.on("show", function(e) {
         isTeamChat = e.data.teamChat;
+        dew.captureInput(e.data.captureInput);
     });
 
     dew.on("chat", function (e) {

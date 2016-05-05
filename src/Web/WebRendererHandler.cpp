@@ -48,6 +48,7 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("gameVariantInfo", Bridge::ClientFunctions::OnGameVariantInfo);
 		m_QueryHandler->AddMethod("commands", Bridge::ClientFunctions::OnCommands);
 		m_QueryHandler->AddMethod("sendChat", Bridge::ClientFunctions::OnSendChat);
+		m_QueryHandler->AddMethod("sessionInfo", Bridge::ClientFunctions::OnSessionInfo);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}

@@ -21,6 +21,7 @@ namespace Anvil
 					QueryError OnGameVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnCommands(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnSendChat(const rapidjson::Value &p_Args, std::string *p_Result);
+					QueryError OnSessionInfo(const rapidjson::Value &p_Args, std::string *p_Result);
 				}
 			}
 		}

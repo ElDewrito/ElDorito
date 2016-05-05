@@ -43,6 +43,8 @@ namespace Web
 				jsonWriter.StartObject();
 				jsonWriter.Key("teamChat");
 				jsonWriter.Bool(teamChat);
+				jsonWriter.Key("captureInput");
+				jsonWriter.Bool(true);
 				jsonWriter.EndObject();
 
 				ScreenLayer::Show("chat", jsonBuffer.GetString());

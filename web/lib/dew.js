@@ -472,7 +472,7 @@ CommandType = {
      *
      * @param {string} message - The chat message to send.
      * @param {boolean} teamChat - If true the message is sent to team chat instead of global.
-     * @returns {DewPromise} A promise that will be resolved once the message is sent.
+     * @returns {DewPromise<boolean>} A promise for the success of sending the message.
      */
     dew.sendChat = function (message, teamChat) {
         return dew.callMethod("sendChat", function () {
@@ -482,6 +482,27 @@ CommandType = {
             };
         });
      }
+
+    /**
+     * (ASYNCHRONOUS) Gets information about the current game multiplayer session.
+     *
+     * @param {string} message - The chat message to send.
+     * @param {boolean} teamChat - If true the message is sent to team chat instead of global.
+     * @returns {DewPromise<SessionInfo>} A promise for the game multiplayer session information.
+     */
+    dew.getSessionInfo = function () {
+        return dew.callMethod("sessionInfo", {}, jsonResultMapping);
+    }
+
+    /**
+     * Contains information about the current game multiplayer session
+     *
+     * @typedef {object} SessionInfo
+     * @property {boolean} established - `true` if a session is established.
+     * @property {boolean} hasTeams - `true` if the current session has teams.
+     * @property {boolean} isHost - `true` if the player is the host of the session.
+     * @see dew.sessionInfo
+     */
 
     /**
      * Registers a callback to be run when an event occurs.

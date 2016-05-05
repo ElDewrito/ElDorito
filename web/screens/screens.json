@@ -16,7 +16,7 @@
 		{
 			"id": "chat",
 			"url": "dew://screens/chat/",
-			"captureInput": true,
+			"captureInput": false,
 			"zIndex": 10
 		},
 		{

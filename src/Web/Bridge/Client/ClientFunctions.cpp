@@ -333,10 +333,45 @@ namespace Anvil
 						}
 
 						if(teamChat->value.GetBool())
-							Server::Chat::SendTeamMessage(message->value.GetString());
+							*p_Result = Server::Chat::SendTeamMessage(message->value.GetString());
 						else
-							Server::Chat::SendGlobalMessage(message->value.GetString());
+							*p_Result = Server::Chat::SendGlobalMessage(message->value.GetString());
 
+						return QueryError_Ok;
+					}
+
+					QueryError OnSessionInfo(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						rapidjson::StringBuffer buffer;
+						rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+						writer.StartObject();
+						auto session = Blam::Network::GetActiveSession();
+						if (!session || !session->IsEstablished())
+						{
+							writer.Key("established");
+							writer.Bool(false);
+
+							writer.Key("hasTeams");
+							writer.Bool(false);
+
+							writer.Key("isHost");
+							writer.Bool(false);
+						}
+						else
+						{
+							writer.Key("established");
+							writer.Bool(true);
+
+							writer.Key("hasTeams");
+							writer.Bool(session->HasTeams());
+
+							writer.Key("isHost");
+							writer.Bool(session->IsHost());
+						}
+						writer.EndObject();
+
+						*p_Result = buffer.GetString();
 						return QueryError_Ok;
 					}
 				}
