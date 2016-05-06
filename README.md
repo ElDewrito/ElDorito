@@ -1,5 +1,5 @@
-<img src="http://i.imgur.com/IkTrjna.png" width="164" height="164" />
-# ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
+<img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" style="float: right"/>
+# ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/3y5603c0svd05hoy/branch/master?svg=true)](https://ci.appveyor.com/project/medsouz/eldorito/branch/master)
 
 ## What is ElDewrito?
 ElDewrito is a fan mod for Halo Online that enables LAN-based online multiplayer across the globe, as well as many bug-fixes and enhancements. As there is no telling if any other Halo game will ever be brought to PC, Halo Online is the best thing we have, and fortunately it contains a lot of Halo 3 and Halo ODST content. ElDewrito aims to unlock and expand on this content.
@@ -24,6 +24,6 @@ Although if you have a spare server running [ElDewrito-MasterServer](https://git
 ## Help/Support/Contact
 We have an [IRC channel on Snoonet](https://irc.lc/snoonet/eldorito/) where most of the devs are, just /join #ElDorito
 
-You can also try checking the support question on the [subreddit](https://www.reddit.com/r/HaloOnline/) or the [Halo.Cafe](https://halo.cafe/) forums. 
+You can also try checking the support question on the [subreddit](https://www.reddit.com/r/HaloOnline/) or the [Halo.Cafe](https://halo.cafe/) forums.
 
 If you have issues you can get in touch with us on there, or make a bug report in our issue tracker and we'll look over it.
