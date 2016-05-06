@@ -103,11 +103,13 @@ namespace
 
 	void OnGameInputUpdated()
 	{
-		//TODO: Don't hardocde
-		if (GetKeyTicks(eKeyCodeT, eInputTypeUi) == 1)
+		BindingsTable bindings;
+		GetBindings(0, &bindings);
+
+		if (GetKeyTicks(bindings.PrimaryKeys[eGameActionTeamChat], eInputTypeUi) == 1 || GetKeyTicks(bindings.SecondaryKeys[eGameActionTeamChat], eInputTypeUi) == 1)
 			Web::Ui::WebChat::Show(true);
 
-		if (GetKeyTicks(eKeyCodeY, eInputTypeUi) == 1)
+		if (GetKeyTicks(bindings.PrimaryKeys[eGameActionGeneralChat], eInputTypeUi) == 1 || GetKeyTicks(bindings.SecondaryKeys[eGameActionGeneralChat], eInputTypeUi) == 1)
 			Web::Ui::WebChat::Show(false);
 	}
 }
