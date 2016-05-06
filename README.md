@@ -1,5 +1,5 @@
 <img src="http://i.imgur.com/IkTrjna.png" width="164" height="164" />
-# ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
+# ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/medsouz/eldorito/build/artifacts)
 
 ## What is ElDewrito?
 ElDewrito is a fan mod for Halo Online that enables LAN-based online multiplayer across the globe, as well as many bug-fixes and enhancements. As there is no telling if any other Halo game will ever be brought to PC, Halo Online is the best thing we have, and fortunately it contains a lot of Halo 3 and Halo ODST content. ElDewrito aims to unlock and expand on this content.
