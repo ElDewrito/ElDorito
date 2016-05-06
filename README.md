@@ -1,4 +1,4 @@
-![Eldewrito Logo](https://halo.click/H4STD8)
+<img src="http://i.imgur.com/IkTrjna.png" width="164" height="164" />
 # ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/github/ElDewrito/ElDorito?branch=master)](https://ci.appveyor.com/project/emoose/eldorito/history/branch/master)
 
 ## What is ElDewrito?
