@@ -1,5 +1,4 @@
-
-<img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" style="float: right"/>
+<img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" align="right"/>
 # ElDewrito [![Build status](https://ci.appveyor.com/api/projects/status/3y5603c0svd05hoy/branch/master?svg=true)](https://ci.appveyor.com/project/medsouz/eldorito/branch/master)
 
 
