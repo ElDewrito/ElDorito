@@ -2,6 +2,7 @@
 #include "../Patch.hpp"
 #include "../ElDorito.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include <Psapi.h>
 
 namespace
 {
@@ -186,6 +187,51 @@ namespace
 		Utils::DebugLog::Instance().Log("Packets", "SEND %s (size=0x%X)", packet->Name, packetSize);
 	}
 
+	void LogCurrentProcessModules()
+	{
+		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
+		if (!hProcess)
+			return;
+
+		HMODULE hMods[1024];
+		DWORD cbNeeded;
+		if (!EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+			return;
+
+		struct ModuleInfo
+		{
+			std::string Path;
+			uint32_t Address;
+			size_t Size;
+		};
+
+		std::map<HMODULE, ModuleInfo> modules;
+		for (auto i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+			if (!GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+				continue;
+
+			MODULEINFO mod;
+			if (!GetModuleInformation(hProcess, hMods[i], &mod, sizeof(MODULEINFO)))
+				continue;
+
+			ModuleInfo info;
+			info.Path = szModName;
+			info.Address = reinterpret_cast<uint32_t>(mod.lpBaseOfDll);
+			info.Size = mod.SizeOfImage;
+			modules.insert({ hMods[i], info });
+		}
+
+		for (auto&& module : modules)
+		{
+			Utils::DebugLog::Instance().Log("LoadedModule", "0x%08X - 0x%08X | %s", 
+				module.second.Address, module.second.Address + module.second.Size, module.second.Path.c_str());
+		}
+
+		CloseHandle(hProcess);
+	}
+
 	void ExceptionHook(char* msg)
 	{
 		auto* except = *Pointer::Base(0x1F8E880).Read<EXCEPTION_RECORD**>();
@@ -194,6 +240,8 @@ namespace
 
 		Utils::DebugLog::Instance().Log("GameCrash", "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
 			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, except->ExceptionAddress, except->NumberParameters);
+
+		LogCurrentProcessModules();
 
 		std::exit(0);
 	}
