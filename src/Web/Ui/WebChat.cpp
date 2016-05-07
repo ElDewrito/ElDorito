@@ -77,24 +77,46 @@ namespace
 		jsonWriter.Key("sender");
 		jsonWriter.String(Server::Chat::GetSenderName(message).c_str());
 
-		jsonWriter.Key("teamChat");
-		jsonWriter.Bool(message.Type == Server::Chat::ChatMessageType::Team);
+		char* chatType;
 
-		auto session = Blam::Network::GetActiveSession();
-		if (session) {
-			auto player = session->MembershipInfo.PlayerSessions[message.SenderPlayer];
-			jsonWriter.Key("teamIndex");
-			jsonWriter.Int(player.Properties.TeamIndex);
+		switch (message.Type) {
+			case Server::Chat::ChatMessageType::Global:
+				chatType = "GLOBAL";
+				break;
+			case Server::Chat::ChatMessageType::Team:
+				chatType = "TEAM";
+				break;
+			case Server::Chat::ChatMessageType::Whisper:
+				chatType = "WHISPER";
+				break;
+			case Server::Chat::ChatMessageType::Server:
+				chatType = "SERVER";
+				break;
+			default:
+				chatType = "UNKNOWN";
+				break;
+		}
 
-			std::string uidStr;
-			Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
-			jsonWriter.Key("UID");
-			jsonWriter.String(uidStr.c_str());
+		jsonWriter.Key("chatType");
+		jsonWriter.String(chatType);
 
-			std::stringstream color;
-			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-			jsonWriter.Key("color");
-			jsonWriter.String(color.str().c_str());
+		if (message.Type != Server::Chat::ChatMessageType::Server) {
+			auto session = Blam::Network::GetActiveSession();
+			if (session) {
+				auto player = session->MembershipInfo.PlayerSessions[message.SenderPlayer];
+				jsonWriter.Key("teamIndex");
+				jsonWriter.Int(player.Properties.TeamIndex);
+
+				std::string uidStr;
+				Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
+				jsonWriter.Key("UID");
+				jsonWriter.String(uidStr.c_str());
+
+				std::stringstream color;
+				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+				jsonWriter.Key("color");
+				jsonWriter.String(color.str().c_str());
+			}
 		}
 		jsonWriter.EndObject();
 

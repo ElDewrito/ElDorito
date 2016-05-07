@@ -594,9 +594,9 @@ CommandType = {
      * @type {object}
      * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
      * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
-     * @property {bool} teamChat - Set to true if the message was sent to team chat.
-     * @property {number} teamIndex - The team index of the player.
-     * @property {string} UID - The UID of the player.
-     * @property {string} color - The hex color of the player's primary armor color.
+     * @property {string} chatType - The type of message that was recieved. Can be "GLOBAL", "TEAM", "WHISPER", or "SERVER".
+     * @property {number} teamIndex - The team index of the player. Not included when chatType is "SERVER".
+     * @property {string} UID - The UID of the player. Not included when chatType is "SERVER".
+     * @property {string} color - The hex color of the player's primary armor color. Not included when chatType is "SERVER".
      */
 })();
