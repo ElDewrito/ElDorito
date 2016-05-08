@@ -32,20 +32,19 @@ $(window).load(function () {
             } else {
                 dew.hide();
             }
+            if(e.data.teamChat && teamGame){
+                $("#chatBox").attr("placeholder", "TEAM");
+            } else {
+                $("#chatBox").attr("placeholder", "GLOBAL");                    
+            }
             clearTimeout(hideTimer);
-            if (!stayOpen){
+            if (!stayOpen) {
                 dew.captureInput(e.data.captureInput);
-                if (e.data.captureInput){               
+                if (e.data.captureInput) {               
                     stayOpen = true; 
-                    if(e.data.teamChat && teamGame){
-                        $("#chatBox").attr("placeholder", "TEAM");
-                    }else{
-                        $("#chatBox").attr("placeholder", "GLOBAL");                    
-                    }
                     $("#chatBox").show();
                     document.getElementById('chatBox').focus();
-
-                } else{
+                } else {
                     $("#chatBox").hide();
                     fadeAway();
                 }
@@ -83,6 +82,7 @@ $(window).load(function () {
             dew.captureInput(false);
             fadeAway();
             stayOpen = false;
+            $("#chatBox").hide();
         }
     });
 });
