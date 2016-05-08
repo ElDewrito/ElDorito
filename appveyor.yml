@@ -5,13 +5,12 @@ init:
 environment:
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
-  _release: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "ElDorito.vcxproj" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="x86"'
+  _release: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "ElDorito.sln" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="Win32"'
 install:
 - cmd: >-
-    cinst cmake -version 3.2.3 -y
+    cinst cmake -version 3.3.1 -y
 
     cmake --version
-
 
     CD %APPVEYOR_BUILD_FOLDER%\
 
@@ -27,28 +26,25 @@ build_script:
 
     %_release%
 
+    appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll
 
-    CD %APPVEYOR_BUILD_FOLDER%\build\Release\
+    mkdir C:\ed
 
-    appveyor PushArtifact mtndew.dll
+    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll C:\ed
 
+    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\CefProcess.exe C:\ed\custom_menu.exe
 
-    %_7z% *.dll
+    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json C:\ed
 
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\libwebsockets\bin C:\ed
 
-    CD %APPVEYOR_BUILD_FOLDER%\
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\teamspeak\bin C:\ed
 
-    %_7z% dewrito.json
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras C:\ed
 
-    CD %APPVEYOR_BUILD_FOLDER%\libs\libwebsockets\bin\
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web C:\ed\mods\ui\web
 
-    %_7z% *
-
-    CD %APPVEYOR_BUILD_FOLDER%\libs\teamspeak\bin\
-
-    %_7z% *
-
-    CD %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras\
+    cd C:\ed
 
     %_7z% *
 
