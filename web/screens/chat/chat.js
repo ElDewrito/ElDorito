@@ -1,29 +1,96 @@
 var isTeamChat = false;
+var stayOpen = false;
+var hideTimer;
+var hideDelay = 4500;
+var fadeTime = 800;
+var teamGame;
+var established;
 
 $(window).load(function () {
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
-            // Hide when escape is pressed
-            dew.hide();
+            $("#chatBox").hide();
+            dew.captureInput(false);
+            fadeAway();
+            stayOpen = false;
         }
     });
 
     dew.on("show", function(e) {
-        isTeamChat = e.data.teamChat;
-        dew.captureInput(e.data.captureInput);
+        dew.getSessionInfo().then(function (res) {
+            teamGame = res.hasTeams;
+            established = res.established;
+            if (established){
+                if(e.data.hasOwnProperty('teamChat')){
+                    isTeamChat = e.data.teamChat;
+                    if (isTeamChat && !teamGame){
+                        dew.hide();
+                    } else {
+                        $("#chat").show();
+                    }
+                }              
+            } else {
+                dew.hide();
+            }
+            clearTimeout(hideTimer);
+            if (!stayOpen){
+                dew.captureInput(e.data.captureInput);
+                if (e.data.captureInput){               
+                    stayOpen = true; 
+                    if(e.data.teamChat && teamGame){
+                        $("#chatBox").attr("placeholder", "TEAM");
+                    }else{
+                        $("#chatBox").attr("placeholder", "GLOBAL");                    
+                    }
+                    $("#chatBox").show();
+                    document.getElementById('chatBox').focus();
+
+                } else{
+                    $("#chatBox").hide();
+                    fadeAway();
+                }
+            }
+        });
     });
 
     dew.on("chat", function (e) {
-        console.log(e);
-        //Make sure to escape chat messages
-        $("#chat").append("<p style='color: " + e.data.color + "'>" + $("<div>").text("<" + e.data.sender + "> " + e.data.message).html() + "</p>");
+        var bgColor =  e.data.color;
+        dew.getSessionInfo().then(function (res) {
+            teamGame = res.hasTeams;
+            if (teamGame){
+                if (e.data.teamIndex == 0){
+                    bgColor = "#c02020";
+                } else if (e.data.teamIndex == 1){
+                    bgColor = "#214EC0";
+                }
+            }
+            var messageClass = 'nameCard';
+            var chatType = e.data.chatType
+            if(e.data.message.startsWith('/me ')){
+                messageClass += ' emote';
+                chatType += ' emote';
+                e.data.message = e.data.message.substring(4, e.data.message.length);
+            }
+            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatType })).parent().append($("<div>").text(e.data.message).html()));
+        });
+        dew.show();
     });
 
     $("html").on("keyup", "#chatBox", function (e) {
         if (e.keyCode === 13) {
-            //Send the chat message
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
+            dew.captureInput(false);
+            fadeAway();
+            stayOpen = false;
         }
     });
 });
+
+function fadeAway(){
+    hideTimer = setTimeout(function(){ 
+        $("#chat").fadeOut(fadeTime, function() {
+            dew.hide(); 
+        });
+    }, hideDelay);
+}
