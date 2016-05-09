@@ -9,10 +9,7 @@ var established;
 $(window).load(function () {
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
-            $("#chatBox").hide();
-            dew.captureInput(false);
-            fadeAway();
-            stayOpen = false;
+            chatboxClear();
         }
     });
 
@@ -20,6 +17,11 @@ $(window).load(function () {
         dew.getSessionInfo().then(function (res) {
             teamGame = res.hasTeams;
             established = res.established;
+            if (res.mapName != "mainmenu"){
+                $('#chatWindow').css( 'background-color', 'transparent');
+            } else {
+                $('#chatWindow').css( 'background-color', 'rgba(0,0,0,0.5)');                
+            }
             if (established){
                 if(e.data.hasOwnProperty('teamChat')){
                     isTeamChat = e.data.teamChat;
@@ -63,6 +65,7 @@ $(window).load(function () {
                     bgColor = "#214EC0";
                 }
             }
+            bgColor = hexToRgba(bgColor);
             var messageClass = 'nameCard';
             var chatType = e.data.chatType
             if(e.data.message.startsWith('/me ')){
@@ -79,10 +82,7 @@ $(window).load(function () {
         if (e.keyCode === 13) {
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
-            dew.captureInput(false);
-            fadeAway();
-            stayOpen = false;
-            $("#chatBox").hide();
+            chatboxClear();
         }
     });
 });
@@ -93,4 +93,16 @@ function fadeAway(){
             dew.hide(); 
         });
     }, hideDelay);
+}
+
+function chatboxClear(){
+    dew.captureInput(false);
+    fadeAway();
+    stayOpen = false;
+    $("#chatBox").hide();
+}
+
+function hexToRgba(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return 'rgba('+parseInt(result[1], 16)+","+parseInt(result[2], 16)+","+parseInt(result[3], 16)+",0.7)";
 }
