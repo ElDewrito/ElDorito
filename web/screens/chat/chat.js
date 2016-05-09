@@ -17,21 +17,23 @@ $(window).load(function () {
             $("#chatBox").focus();
         }
     });
+    
     $("body").click(function() {
         $("#chatBox").focus();   
     });
+
     dew.on("show", function(e) {
         clearTimeout(hideTimer);
+        if(e.data.chatType =="TEAM"){
+            isTeamChat = true;
+        }
         dew.getSessionInfo().then(function (i) {
             if (i.established){
-                if(e.data.hasOwnProperty("teamChat")){
-                    isTeamChat = e.data.teamChat;
-                    if (isTeamChat && !i.hasTeams){
-                        dew.hide();
-                    } else {
-                        $("#chat").show();
-                    }
-                }              
+                if (isTeamChat && !i.hasTeams){
+                    dew.hide();
+                } else {
+                    $("#chat").show();
+                }            
                 $('body').removeClass();
                 if (i.mapName != "mainmenu"){
                     $("body").addClass("inGame");
