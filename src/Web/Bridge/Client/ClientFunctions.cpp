@@ -4,6 +4,7 @@
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
+#include "../../../Pointer.hpp"
 #include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
 #include "../../../Utils/String.hpp"
@@ -369,6 +370,9 @@ namespace Anvil
 							writer.Key("isHost");
 							writer.Bool(session->IsHost());
 						}
+						writer.Key("mapName");
+						writer.String((char*)Pointer(0x22AB018)(0x1A4));
+
 						writer.EndObject();
 
 						*p_Result = buffer.GetString();

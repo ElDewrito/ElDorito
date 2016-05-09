@@ -501,6 +501,7 @@ CommandType = {
      * @property {boolean} established - `true` if a session is established.
      * @property {boolean} hasTeams - `true` if the current session has teams.
      * @property {boolean} isHost - `true` if the player is the host of the session.
+     * @property {string} mapName - Name of the currently loaded map.
      * @see dew.sessionInfo
      */
 
