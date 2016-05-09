@@ -2,6 +2,7 @@
 #include <sstream>
 #include "../ElDorito.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Patches/Ui.hpp"
 
 namespace
 {
@@ -104,6 +105,15 @@ namespace
 
 		return true;
 	}
+
+	bool VariableUIScalingUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 0)
+			returnInfo = "The changes will apply on game restart";
+		else if(ElDorito::Instance().GameHasMenuShown) //If the user comes to their senses and turns UI scaling back on then apply the change. Running before the main menu has shown may result in a crash.
+			Patches::Ui::ApplyUIResolution();
+		return true;
+	}
 }
 
 namespace Modules
@@ -139,5 +149,9 @@ namespace Modules
 		VarLetterbox = AddVariableInt("Letterbox", "letterbox", "A cinematic letterbox.", eCommandFlagsNone, 0, VariableLetterboxUpdate);
 		VarLetterbox->ValueIntMin = 0;
 		VarLetterbox->ValueIntMax = 1;
+
+		VarUIScaling = AddVariableInt("UIScaling", "uiscaling", "Enables proper UI scaling to match your monitor's resolution.", eCommandFlagsArchived, 1, VariableUIScalingUpdate);
+		VarUIScaling->ValueIntMin = 0;
+		VarUIScaling->ValueIntMax = 1;
 	}
 }

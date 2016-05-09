@@ -18,6 +18,8 @@ namespace Modules
 		Command* VarDepthOfField;
 		Command* VarLetterbox;
 
+		Command* VarUIScaling;
+
 		ModuleGraphics();
 	};
 }

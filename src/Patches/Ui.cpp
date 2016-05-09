@@ -7,6 +7,7 @@
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Modules/ModuleGraphics.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 
 using namespace Patches::Ui;
@@ -142,8 +143,10 @@ namespace Patches
 			// Runs when the game's resolution is changed
 			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
 
-			// Enable H3UI scaling
-			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
+			if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 1) {
+				// Enable H3UI scaling
+				Patch::NopFill(Pointer::Base(0x61FAD1), 2);
+			}
 
 			// Change the way that Forge handles dpad up so that it doesn't mess with key repeat
 			// Comparing the action tick count to 1 instead of using the "handled" flag does roughly the same thing and lets the menu UI read the key too
@@ -211,51 +214,53 @@ namespace Patches
 
 		void ApplyUIResolution() 
 		{
-			using Blam::Tags::TagInstance;
-			using Blam::Tags::UI::ChudGlobalsDefinition;
-			using Blam::Tags::UI::ChudDefinition;
+			if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 1) {
+				using Blam::Tags::TagInstance;
+				using Blam::Tags::UI::ChudGlobalsDefinition;
+				using Blam::Tags::UI::ChudDefinition;
 
-			auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
-			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
+				auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
+				auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
 
-			// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
-			// Fixes the visor getting cut off.
-			globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
+				// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
+				// Fixes the visor getting cut off.
+				globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
 
-			// H3UI Resolution
-			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
+				// H3UI Resolution
+				int* UIResolution = reinterpret_cast<int*>(0x19106C8);
 
-			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
-				// On aspect ratios with a greater width than 16:9 center the UI on the screen
-				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
-				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
-				globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
+				if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
+					// On aspect ratios with a greater width than 16:9 center the UI on the screen
+					globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
+					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
+					globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
 
-				UIResolution[0] = (int)(((float)gameResolution[0] / (float)gameResolution[1]) * 640);;
-				UIResolution[1] = 640;
-			}
-			else
-			{
-				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
-				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
-				globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
-
-				UIResolution[0] = 1152;//1152 x 640 resolution
-				UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
-			}
-
-			// Adjust motion sensor blip to match the UI resolution
-			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
-			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
-
-			// Search for the visor bottom and fix it if found
-			auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
-			for (auto &widget : chud->HudWidgets)
-			{
-				if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
+					UIResolution[0] = (int)(((float)gameResolution[0] / (float)gameResolution[1]) * 640);;
+					UIResolution[1] = 640;
+				}
+				else
 				{
-					widget.PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
-					break;
+					globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
+					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
+					globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
+
+					UIResolution[0] = 1152;//1152 x 640 resolution
+					UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
+				}
+
+				// Adjust motion sensor blip to match the UI resolution
+				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
+				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
+
+				// Search for the visor bottom and fix it if found
+				auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
+				for (auto &widget : chud->HudWidgets)
+				{
+					if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
+					{
+						widget.PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+						break;
+					}
 				}
 			}
 		}
