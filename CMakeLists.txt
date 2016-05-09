@@ -309,6 +309,9 @@ set (WEB_SOURCES
     web/lib/jquery-2.2.1.min.js
     web/lib/jquery-ui.css
     web/lib/jquery-ui.js
+    web/screens/chat/chat.css
+    web/screens/chat/chat.js
+    web/screens/chat/index.html
     web/screens/console/console.css
     web/screens/console/console.js
     web/screens/console/index.html
