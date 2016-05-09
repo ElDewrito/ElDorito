@@ -5,6 +5,55 @@ body {
     font-family: "Conduit ITC", sans-serif;
 }
 
+#chat{
+    position: absolute;
+    font-size: 1.5vw;
+    line-height: 2vw;
+    letter-spacing: 0.02vw;
+    color: white;
+    overflow:hidden;
+}
+
+.inGame #chat{
+    bottom: 42%;
+    left: 7%;  
+    width: 27%;
+    height: 39.5%;
+}
+
+.inLobby #chat{
+    bottom: 0%;
+    left: 36%; 
+    width: 27%;
+    height: 39.5%;
+}
+
+#chatWindow{
+    position: absolute;
+    bottom: 2vw;
+    width: 100%;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.02vw;
+    word-wrap: break-word;
+}
+
+.inGame #chatWindow{
+    background-color: transparent;    
+}
+
+.inLobby #chatWindow{
+    background-color: rgba(0,0,0,0.5);    
+}
+
+#chatWindow p{
+    margin: 0;
+    margin-bottom: 0.25vw;
+}
+
 #chatBox{
     position: absolute;
     bottom: 0;
@@ -24,62 +73,33 @@ body {
     outline: none;
 }
 
-#chatWindow{
-    position: absolute;
-    bottom: 2vw;
-    width: 100%;
-    color: #95bde1;
-    text-shadow:
-        -1px -1px 0 #000,  
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-         1px 1px 0 #000;
-    letter-spacing: 0.02vw;
-    background-color: rgba(0,0,0,0.5);
-    word-wrap: break-word;
-}
-
-
-#chat{
-    position: absolute;
-    font-size: 1.5vw;
-    line-height: 2vw;
-    letter-spacing: 0.02vw;
-    bottom: 42%;
-    left: 7%;
-    color: white;
-    width: 27%;
-    height: 39.5%;
-    overflow:hidden;
-}
-
-#chatWindow p{
-    margin: 0;
-    margin-bottom: 0.25vw;
-}
-
 .nameCard{
     padding: 2px 5px; 
     color: white; 
     margin-right: 4px;
 }
 
-.GLOBAL{  
+.GLOBAL, .TEAM{ 
+    color: #95bde1; 
 }
 
 .TEAM{
 }
 
-.TEAM span:after{
+.TEAM span::after{
     content: " (TEAM)";
 }
 
 .SERVER{
-    color: yellow;
+    color: #FFFF00;
 }
 
 .WHISPER{
-    color: red;
+    color: #FF0000;
+}
+
+.WHISPER span::after{
+    content: " (TO YOU)";
 }
 
 .UNKNOWN{
@@ -88,4 +108,5 @@ body {
 .emote{
     background-color: transparent !important;
     font-style: italic;
+    color: white !important;
 }
