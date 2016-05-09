@@ -1,0 +1,91 @@
+@font-face{font-family:"Conduit ITC";src:url(Conduit-ITC.woff);}
+
+body {
+    margin: 0;
+    font-family: "Conduit ITC", sans-serif;
+}
+
+#chatBox{
+    position: absolute;
+    bottom: 0;
+    border: 2px solid #95bde1;
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    margin-top: 10px;
+    width: calc(100% - 8px);
+    display: none;
+    font-size: 1.15vw;
+    height: 1.25vw;
+    -webkit-backface-visibility: hidden;
+    padding: 2px;
+}
+
+#chatBox:focus{
+    outline: none;
+}
+
+#chatWindow{
+    position: absolute;
+    bottom: 2vw;
+    width: 100%;
+    color: #95bde1;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.02vw;
+    background-color: rgba(0,0,0,0.5);
+    word-wrap: break-word;
+}
+
+
+#chat{
+    position: absolute;
+    font-size: 1.5vw;
+    line-height: 2vw;
+    letter-spacing: 0.02vw;
+    bottom: 42%;
+    left: 7%;
+    color: white;
+    width: 27%;
+    height: 39.5%;
+    overflow:hidden;
+}
+
+#chatWindow p{
+    margin: 0;
+    margin-bottom: 0.25vw;
+}
+
+.nameCard{
+    padding: 2px 5px; 
+    color: white; 
+    margin-right: 4px;
+}
+
+.GLOBAL{  
+}
+
+.TEAM{
+}
+
+.TEAM span:after{
+    content: " (TEAM)";
+}
+
+.SERVER{
+    color: yellow;
+}
+
+.WHISPER{
+    color: red;
+}
+
+.UNKNOWN{
+}
+
+.emote{
+    background-color: transparent !important;
+    font-style: italic;
+}
