@@ -8,6 +8,10 @@ namespace Modules
 	ModuleUPnP::ModuleUPnP() : ModuleBase("UPnP")
 	{
 		upnpDevice = upnpDiscover(2000, NULL, NULL, 0, 0, 2, &upnpDiscoverError);
+
+		VarUPnPEnabled = AddVariableInt("Enabled", "upnp_enabled", "Enables UPnP to automatically port forward when hosting a game.", eCommandFlagsArchived, 1);
+		VarUPnPEnabled->ValueIntMin = 0;
+		VarUPnPEnabled->ValueIntMax = 1;
 	}
 
 	Utils::UPnPResult ModuleUPnP::UPnPForwardPort(bool tcp, int externalport, int internalport, const std::string & ruleName)

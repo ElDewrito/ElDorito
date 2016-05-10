@@ -443,6 +443,7 @@ target_link_libraries(ElDorito
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)
+target_compile_definitions(ElDorito PRIVATE MINIUPNP_STATICLIB)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

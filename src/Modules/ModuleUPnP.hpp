@@ -10,6 +10,8 @@ namespace Modules
 	class ModuleUPnP : public Utils::Singleton<ModuleUPnP>, public ModuleBase
 	{
 	public:
+		Command* VarUPnPEnabled;
+
 		ModuleUPnP();
 		Utils::UPnPResult UPnPForwardPort(bool tcp, int externalport, int internalport, const std::string & ruleName);
 	private:
