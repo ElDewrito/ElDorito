@@ -17,38 +17,36 @@ $(window).load(function () {
             $("#chatBox").focus();
         }
     });
-    
+
     $("body").click(function() {
-        $("#chatBox").focus();   
+        $("#chatBox").focus();
     });
 
     dew.on("show", function(e) {
         clearTimeout(hideTimer);
-        if(e.data.chatType =="TEAM"){
-            isTeamChat = true;
-        }
+        isTeamChat = e.data.teamChat;
         dew.getSessionInfo().then(function (i) {
             if (i.established){
                 if (isTeamChat && !i.hasTeams){
-                    dew.hide();
+                    isTeamChat = false;
                 } else {
                     $("#chat").show();
-                }            
+                }
                 $('body').removeClass();
                 if (i.mapName != "mainmenu"){
                     $("body").addClass("inGame");
                 } else {
-                    $("body").addClass("inLobby");                
+                    $("body").addClass("inLobby");
                 }
                 if(isTeamChat && i.hasTeams){
                     $("#chatBox").attr("placeholder", "TEAM");
                 } else {
-                    $("#chatBox").attr("placeholder", "GLOBAL");                    
+                    $("#chatBox").attr("placeholder", "GLOBAL");
                 }
                 if (!stayOpen) {
                     dew.captureInput(e.data.captureInput);
-                    if (e.data.captureInput) {                    
-                        stayOpen = true; 
+                    if (e.data.captureInput) {
+                        stayOpen = true;
                         $("#chatBox").show(0, "linear", function() {
                             $("#chatBox").focus();
                         });
@@ -62,7 +60,7 @@ $(window).load(function () {
             }
         });
     });
-    
+
     dew.on("chat", function (e) {
         dew.getSessionInfo().then(function (i) {
             if(e.data.hasOwnProperty('color')){
@@ -93,9 +91,9 @@ $(window).load(function () {
 
 function fadeAway(){
     clearTimeout(hideTimer);
-    hideTimer = setTimeout(function(){ 
+    hideTimer = setTimeout(function(){
         $("#chat").fadeOut(fadeTime, function() {
-            dew.hide(); 
+            dew.hide();
         });
     }, hideDelay);
 }
