@@ -61,6 +61,7 @@ link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/boost-1.60/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/miniupnpc/lib)
 
 
 # Create main target
@@ -182,6 +183,8 @@ add_library(ElDorito SHARED
     src/Modules/ModuleTime.hpp
     src/Modules/ModuleGraphics.cpp
     src/Modules/ModuleGraphics.hpp
+    src/Modules/ModuleUPnP.cpp
+    src/Modules/ModuleUPnP.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
     src/Patches/Assassination.cpp
@@ -248,6 +251,7 @@ add_library(ElDorito SHARED
     src/Utils/String.cpp
     src/Utils/String.hpp
     src/Utils/Utils.hpp
+    src/Utils/UPnP.hpp
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
     src/VoIP/MemberList.cpp
@@ -377,7 +381,8 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/cef
   ${CMAKE_SOURCE_DIR}/libs/cef/include
   ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include
-  ${CMAKE_SOURCE_DIR}/libs/boost-1.60/include)
+  ${CMAKE_SOURCE_DIR}/libs/boost-1.60/include
+  ${CMAKE_SOURCE_DIR}/libs/miniupnpc/include)
 
 # CEF Process
 add_executable(CefProcess WIN32
@@ -432,7 +437,9 @@ target_link_libraries(ElDorito
   debug libcef_dll_wrapperd
   optimized libcef_dll_wrapper
   debug cppnetlib-uri-d
-  optimized cppnetlib-uri)
+  optimized cppnetlib-uri
+  iphlpapi
+  miniupnpc)
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)
