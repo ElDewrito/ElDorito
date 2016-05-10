@@ -29,9 +29,8 @@ $(window).load(function () {
             if (i.established){
                 if (isTeamChat && !i.hasTeams){
                     isTeamChat = false;
-                } else {
-                    $("#chat").show();
-                }
+                } 
+                $("#chat").show();
                 $('body').removeClass();
                 if (i.mapName != "mainmenu"){
                     $("body").addClass("inGame");
