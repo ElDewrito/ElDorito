@@ -3,6 +3,8 @@
 #include "../ElDorito.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include <Psapi.h>
+#include <fstream>
+#include <iostream>
 
 namespace
 {
@@ -187,49 +189,48 @@ namespace
 		Utils::DebugLog::Instance().Log("Packets", "SEND %s (size=0x%X)", packet->Name, packetSize);
 	}
 
-	void LogCurrentProcessModules()
+	struct ModuleInfo
 	{
+		std::string Path;
+		uint32_t Address;
+		size_t Size;
+		uint32_t EntryPoint;
+	};
+
+	std::map<HMODULE, ModuleInfo> GetLoadedModules()
+	{
+		std::map<HMODULE, ModuleInfo> modules;
+
 		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
 		if (!hProcess)
-			return;
+			return modules;
 
 		HMODULE hMods[1024];
 		DWORD cbNeeded;
-		if (!EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
-			return;
-
-		struct ModuleInfo
+		if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
 		{
-			std::string Path;
-			uint32_t Address;
-			size_t Size;
-		};
+			for (auto i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+			{
+				TCHAR szModName[MAX_PATH];
+				if (!GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+					continue;
 
-		std::map<HMODULE, ModuleInfo> modules;
-		for (auto i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
-		{
-			TCHAR szModName[MAX_PATH];
-			if (!GetModuleFileNameEx(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
-				continue;
+				MODULEINFO mod;
+				if (!GetModuleInformation(hProcess, hMods[i], &mod, sizeof(MODULEINFO)))
+					continue;
 
-			MODULEINFO mod;
-			if (!GetModuleInformation(hProcess, hMods[i], &mod, sizeof(MODULEINFO)))
-				continue;
-
-			ModuleInfo info;
-			info.Path = szModName;
-			info.Address = reinterpret_cast<uint32_t>(mod.lpBaseOfDll);
-			info.Size = mod.SizeOfImage;
-			modules.insert({ hMods[i], info });
-		}
-
-		for (auto&& module : modules)
-		{
-			Utils::DebugLog::Instance().Log("LoadedModule", "0x%08X - 0x%08X | %s", 
-				module.second.Address, module.second.Address + module.second.Size, module.second.Path.c_str());
+				ModuleInfo info;
+				info.Path = szModName;
+				info.Address = reinterpret_cast<uint32_t>(mod.lpBaseOfDll);
+				info.Size = mod.SizeOfImage;
+				info.EntryPoint = reinterpret_cast<uint32_t>(mod.EntryPoint);
+				modules.insert({ hMods[i], info });
+			}
 		}
 
 		CloseHandle(hProcess);
+
+		return modules;
 	}
 
 	void ExceptionHook(char* msg)
@@ -241,7 +242,24 @@ namespace
 		Utils::DebugLog::Instance().Log("GameCrash", "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
 			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, except->ExceptionAddress, except->NumberParameters);
 
-		LogCurrentProcessModules();
+		// identify problematic module, log the location and dump its contents
+		auto modules = GetLoadedModules();
+		for (auto&& module : modules)
+		{
+			if (reinterpret_cast<uint32_t>(except->ExceptionAddress) >= module.second.Address && 
+				reinterpret_cast<uint32_t>(except->ExceptionAddress) < module.second.Address + module.second.Size)
+			{
+				Utils::DebugLog::Instance().Log("CrashModule", "0x%08X - 0x%08X | 0x%08X | %s",
+					module.second.Address, module.second.Address + module.second.Size, module.second.EntryPoint, module.second.Path.c_str());
+
+				// copy the module from the filesystem rather than in-memory for easier disassembly pre-relocation
+				std::ifstream  src(module.second.Path.c_str(), std::ios::binary);
+				std::ofstream  dst("crashmodule.bin", std::ios::binary);
+				dst << src.rdbuf();
+
+				break;
+			}
+		}
 
 		std::exit(0);
 	}

@@ -12,6 +12,7 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	void FmodSystemInitHook();
+	void FmodSystemInitHook2();
 	int __cdecl DualWieldHook(unsigned short objectIndex);
 	void SprintInputHook();
 	double GetAspectRatio();
@@ -77,17 +78,28 @@ namespace Patches
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
 			Patch(0x100DA75, { 0x2 }).Apply();
 
-			// this doesn't get called by the game and manually calling it doesn't seem to work, leaving for future reference
-			// tweak dsp buffer settings for lower latency
-			// http://www.fmod.org/docs/content/generated/FMOD_System_SetDSPBufferSize.html
-			//Patch(0x4E7E, { 0x4 }).Apply();		// numbuffers = 4
-			//Patch(0x4E81, { 0x1 }).Apply();		// bufferlength = 256
+			// TODO: experiment with this to prevent lag
+			// https://www.fmod.org/docs/content/generated/FMOD_System_SetStreamBufferSize.html
+			//*reinterpret_cast<uint8_t*>(0x404F42 + 1) = 8; // FMOD_TIMEUNIT_RAWBYTES
+			//*reinterpret_cast<uint32_t*>(0x404F44 + 1) = 1024 * 1024; // filebuffersize
+			//*reinterpret_cast<uint8_t*>(0x404F42 + 1) = 1; // FMOD_TIMEUNIT_RAWBYTES
+			//*reinterpret_cast<uint32_t*>(0x404F44 + 1) = 1000; // filebuffersize
 
-			// increase max virtual audio channels from 64 to 2048
+			// TODO: experiment with this to potentially improve playback latency
+			// http://www.fmod.org/docs/content/generated/FMOD_System_SetDSPBufferSize.html
+			//Patch::NopFill(0x404E7B, 2); // allow it to be called
+			//*reinterpret_cast<uint8_t*>(0x404E7D + 1) = 4; // numbuffers
+			//*reinterpret_cast<uint32_t*>(0x404E7F + 1) = 2048; // bufferlength
+
+			// increase max virtual audio channels from 64 to 256
 			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
 			Hook(0x4E9C, FmodSystemInitHook).Apply();
-			//Hook(0x4EC0, FmodSystemInitHook2).Apply(); // this doesn't appear to get called by the game
-			
+			Hook(0x4EC0, FmodSystemInitHook2).Apply();
+
+			// increase software channels from 192 to 256
+			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
+			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = 256;
+
 			// Enable dual-wielding
 			Hook(0x761550, DualWieldHook).Apply();
 
@@ -210,10 +222,24 @@ namespace
 		{
 			push	0; extradriverdata
 			push	ebx; flags
-			push	0x800; maxchannels
+			push	100h; maxchannels
 			push	eax; FMOD_SYSTEM
 			call	dword ptr[ecx]; FMOD::System::init
 			push	0x404EA4
+			ret
+		}
+	}
+
+	__declspec(naked) void FmodSystemInitHook2()
+	{
+		__asm
+		{
+			push	0; extradriverdata
+			push	ebx; flags
+			push	100h; maxchannels
+			push	eax; FMOD_SYSTEM
+			call	dword ptr[ecx]; FMOD::System::init
+			push	0x404EC8
 			ret
 		}
 	}

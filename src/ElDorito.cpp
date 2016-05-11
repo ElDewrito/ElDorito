@@ -250,17 +250,19 @@ void ElDorito::setWatermarkText(const std::string& Message)
 	Pointer::Base(0x2E533E).Write<uint8_t>(0x90);
 }
 
+void* _mainTLS;
 Pointer ElDorito::GetMainTls(size_t tlsOffset)
 {
-	uint32_t tlsAddress;
-
-	_asm
+	// cache the result allowing future cross-thread calls to succeed
+	if (_mainTLS == nullptr)
 	{
-		mov     eax, dword ptr fs:[2Ch]
-		mov     eax, dword ptr ds:[eax]
-		add		eax, tlsOffset
-		mov		tlsAddress, eax
+		_asm
+		{
+			mov     eax, dword ptr fs:[2Ch]
+			mov     eax, dword ptr ds:[eax]
+			mov		_mainTLS, eax
+		}
 	}
 
-	return tlsAddress;
+	return Pointer(_mainTLS)(tlsOffset);
 }
