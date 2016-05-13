@@ -97,8 +97,8 @@ body {
 
 .legend {
     position: absolute;
-    width: 20vmax;
-    height: 8vmax;
+    width: 32vmin;
+    height: 14vmin;
     top: 1vw;
     left: 1vw;
     border: 2px solid white;
@@ -106,7 +106,7 @@ body {
 }
 
 .legend img{
-    height: 3vmax;
+    height: 5vmin;
 }
 
 #navigate{
@@ -114,14 +114,14 @@ body {
     top: 0.25vw;
     width: 100%;
     text-align: center;
-    font-size: 1.5vmax;
+    font-size: 3vmin;
     color: white;
 }
 
 #up{
     position: absolute;
     left: 20%;
-    top: 25%;
+    top: 28.5%;
 }
 
 #down{

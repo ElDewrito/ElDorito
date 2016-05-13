@@ -30,7 +30,8 @@ $(window).load(function(){
                 if(isTeamChat && !i.hasTeams){
                     isTeamChat = false;
                 } 
-                $("#chat").show();
+                $("#chat").stop();
+                $("#chat").show(true, true);
                 $('body').removeClass();
                 if(i.mapName != "mainmenu"){
                     $("body").addClass("inGame");
