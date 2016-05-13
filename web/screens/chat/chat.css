@@ -121,4 +121,7 @@ body {
         left: 37.5%; 
         width: 24.5%;
     } 
+    .inGame #chat{
+        width: 18%;
+    }
 }
