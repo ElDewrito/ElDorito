@@ -189,7 +189,7 @@ progress::-webkit-progress-value {
         url(images/cloud_front.png),
         url(images/cloud_back.png);
     background-size: calc(100% + 200px) 55%, calc(100% + 200px) 70%;
-    background-position: 100% calc(100% - 50px), 0% calc(100% - 50px);
+    background-position: 100% 100%, 0% 100%;
     background-repeat: no-repeat;
     animation-duration: 10s;
     animation-delay: 0s;

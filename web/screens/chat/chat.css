@@ -3,19 +3,20 @@
 body {
     margin: 0;
     font-family: "Conduit ITC", sans-serif;
+    overflow: hidden;
 }
 
 #chat{
     position: absolute;
-    font-size: 1.5vw;
-    line-height: 2vw;
+    font-size: 2.655vh;
+    line-height: 3.54vh;
     letter-spacing: 0.02vw;
     color: white;
     overflow:hidden;
 }
 
 .inGame #chat{
-    bottom: 42%;
+    bottom: 41%;
     left: 7%;  
     width: 27%;
     height: 39.5%;
@@ -23,8 +24,8 @@ body {
 
 .inLobby #chat{
     bottom: 0%;
-    left: 36%; 
-    width: 27%;
+    left: 32%; 
+    width: 35%;
     height: 39.5%;
 }
 
@@ -51,7 +52,7 @@ body {
 
 #chatWindow p{
     margin: 0;
-    margin-bottom: 0.25vw;
+    padding-bottom: 0.19vw;
 }
 
 #chatBox{
@@ -60,11 +61,10 @@ body {
     border: 2px solid #95bde1;
     background-color: rgba(0,0,0,0.5);
     color: white;
-    margin-top: 10px;
     width: calc(100% - 8px);
     display: none;
-    font-size: 1.15vw;
-    height: 1.25vw;
+    font-size: 2.0355vh;
+    height: 2.5665vh;
     -webkit-backface-visibility: hidden;
     padding: 2px;
 }
@@ -77,6 +77,7 @@ body {
     padding: 2px 5px; 
     color: white; 
     margin-right: 4px;
+    height: 1.1vw;
 }
 
 .GLOBAL, .TEAM{ 
@@ -109,4 +110,15 @@ body {
     background-color: transparent !important;
     font-style: italic;
     color: white !important;
+}
+
+.nameCard.emote{
+    margin-right: 0;
+}
+
+@media screen and (min-aspect-ratio: 20/9) {
+    .inLobby #chat{
+        left: 37.5%; 
+        width: 24.5%;
+    } 
 }

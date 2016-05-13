@@ -5,70 +5,72 @@ var hideDelay = 4500;
 var fadeTime = 800;
 var nameCardOpacity = 0.7;
 
-$(window).load(function () {
-    $(document).keydown(function (e) {
-        if (e.keyCode === 27) { //ESC
+$(window).load(function(){
+    $(document).keydown(function(e){
+        if(e.keyCode === 27) { //ESC
             chatboxHide();
-        } else if (e.keyCode === 13) { //Enter
+        }else if (e.keyCode === 13){ //Enter
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
             chatboxHide();
-        } else {
+        }else{
             $("#chatBox").focus();
         }
     });
 
-    $("body").click(function() {
+    $("body").click(function(){
         $("#chatBox").focus();
     });
 
-    dew.on("show", function(e) {
+    dew.on("show", function(e){
         clearTimeout(hideTimer);
         isTeamChat = e.data.teamChat;
-        dew.getSessionInfo().then(function (i) {
-            if (i.established){
-                if (isTeamChat && !i.hasTeams){
+        dew.getSessionInfo().then(function(i){
+            if(i.established){
+                if(isTeamChat && !i.hasTeams){
                     isTeamChat = false;
                 } 
                 $("#chat").show();
                 $('body').removeClass();
-                if (i.mapName != "mainmenu"){
+                if(i.mapName != "mainmenu"){
                     $("body").addClass("inGame");
-                } else {
+                }else{
                     $("body").addClass("inLobby");
                 }
                 if(isTeamChat && i.hasTeams){
                     $("#chatBox").attr("placeholder", "TEAM");
-                } else {
+                }else{
                     $("#chatBox").attr("placeholder", "GLOBAL");
                 }
-                if (!stayOpen) {
+                if(!stayOpen){
                     dew.captureInput(e.data.captureInput);
                     if (e.data.captureInput) {
                         stayOpen = true;
-                        $("#chatBox").show(0, "linear", function() {
+                        $("#chatBox").show(0, "linear", function(){
                             $("#chatBox").focus();
+                            $("#chatWindow").css("bottom", "3.54vh");
                         });
-                    } else {
+                    }else{
                         $("#chatBox").hide();
+                        $("#chatWindow").css("bottom", "0");
                         fadeAway();
                     }
                 }
-            } else {
+            }else{
                 dew.hide();
             }
         });
     });
 
-    dew.on("chat", function (e) {
-        dew.getSessionInfo().then(function (i) {
+    dew.on("chat", function(e){
+        dew.getSessionInfo().then(function(i){
             if(e.data.hasOwnProperty('color')){
                 var bgColor =  e.data.color;
                 if (i.hasTeams){
                     if(e.data.hasOwnProperty('teamIndex')){
-                        if (e.data.teamIndex == 0){
+                        if(e.data.teamIndex == 0){
                             bgColor = "#c02020";
-                        } else if (e.data.teamIndex == 1){
+                        }else if(e.data.teamIndex == 1){
                             bgColor = "#214EC0";
                         }
                     }
@@ -91,7 +93,7 @@ $(window).load(function () {
 function fadeAway(){
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function(){
-        $("#chat").fadeOut(fadeTime, function() {
+        $("#chat").fadeOut(fadeTime, function(){
             dew.hide();
         });
     }, hideDelay);
@@ -104,7 +106,7 @@ function chatboxHide(){
     $("#chatBox").hide();
 }
 
-function hexToRgba(hex,opacity) {
+function hexToRgba(hex,opacity){
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return 'rgba('+parseInt(result[1], 16)+","+parseInt(result[2], 16)+","+parseInt(result[3], 16)+","+opacity+")";
 }
