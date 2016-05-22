@@ -30,6 +30,8 @@ build_script:
 
     mkdir C:\ed
 
+    git clone https://github.com/scooterpsu/medalPack.git C:\ed\mods\medals\default
+
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll C:\ed
 
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\CefProcess.exe C:\ed\custom_menu.exe
