@@ -15,7 +15,7 @@ namespace
 	void UpdateInputHook();
 	void ProcessUiInputHook();
 	void QuickUpdateUiInputHook();
-	void KeyTestHook();
+	void BlockInputHook(InputType type, bool blocked);
 	void InitBindingsHook(BindingsTable *bindings);
 	BindingsPreferences* PreferencesGetKeyBindingsHook(BindingsPreferences *result);
 	void PreferencesSetKeyBindingsHook(BindingsPreferences newBindings);
@@ -23,10 +23,15 @@ namespace
 	void GetKeyboardActionTypeHook();
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
 	void UpdateUiControllerInputHook(int a0);
+	 
+	// Block/unblock input without acquiring or de-acquiring the mouse
+	void QuickBlockInput();
+	void QuickUnblockInput();
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	bool contextDone = false;
+	bool blockStates[eInputType_Count];
 
 	std::vector<ConfigurableAction> settings;
 
@@ -42,8 +47,7 @@ namespace Patches
 			Hook(0x1129A0, UpdateInputHook).Apply();
 			Hook(0x105CBA, ProcessUiInputHook, HookFlags::IsCall).Apply();
 			Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
-			Hook(0x111B66, KeyTestHook, HookFlags::IsCall).Apply();
-			Hook(0x111CE6, KeyTestHook, HookFlags::IsCall).Apply();
+			Hook(0x234238, BlockInputHook, HookFlags::IsCall).Apply();
 			Hook(0x20BF00, InitBindingsHook).Apply();
 			Hook(0x10AB40, PreferencesGetKeyBindingsHook).Apply();
 			Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
@@ -52,6 +56,7 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 			Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
 			Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
+			Patch::NopFill(Pointer::Base(0x112613), 2); // Never clip the cursor to the window boundaries
 
 			// Fix a bug in the keyboard input routine that screws up UI keys.
 			// If an action has the "handled" flag set and has a secondary key
@@ -70,10 +75,21 @@ namespace Patches
 
 		void PushContext(std::shared_ptr<InputContext> context)
 		{
-			if (!contextStack.empty())
-				contextStack.top()->InputDeactivated();
+			if (contextStack.empty())
+			{
+				// Block all input, unacquiring the mouse in the process
+				for (auto i = 0; i < eInputType_Count; i++)
+					BlockInput(static_cast<InputType>(i), true);
+			}
+			else
+			{
+				// Deactivate the current context
+				contextStack.top()->Deactivated();
+			}
+			
+			// Push and activate the new context
 			contextStack.push(context);
-			context->InputActivated();
+			context->Activated();
 		}
 
 		void RegisterDefaultInputHandler(DefaultInputHandler func)
@@ -117,10 +133,29 @@ namespace
 {
 	void PopContext()
 	{
-		contextStack.top()->InputDeactivated();
+		contextStack.top()->Deactivated();
 		contextStack.pop();
 		if (!contextStack.empty())
-			contextStack.top()->InputActivated();
+		{
+			// Activate the previous context
+			contextStack.top()->Activated();
+		}
+		else
+		{
+			// Restore the game's input block states
+			for (auto i = 0; i < eInputType_Count; i++)
+				BlockInput(static_cast<InputType>(i), blockStates[i]);
+		}
+	}
+
+	void QuickBlockInput()
+	{
+		memset(reinterpret_cast<bool*>(0x238DBEB), 1, eInputType_Count);
+	}
+
+	void QuickUnblockInput()
+	{
+		memset(reinterpret_cast<bool*>(0x238DBEB), 0, eInputType_Count);
 	}
 
 	void UpdateInputHook()
@@ -135,8 +170,10 @@ namespace
 		if (!contextStack.empty())
 		{
 			// Tick the active context
+			QuickUnblockInput();
 			if (!contextStack.top()->GameInputTick())
 				contextDone = true;
+			QuickBlockInput();
 		}
 		else
 		{
@@ -148,9 +185,14 @@ namespace
 
 	void UiInputTick()
 	{
+		if (contextStack.empty())
+			return;
+
 		// Tick the active context
-		if (!contextStack.empty() && !contextStack.top()->UiInputTick())
+		QuickUnblockInput();
+		if (!contextStack.top()->UiInputTick())
 			contextDone = true;
+		QuickBlockInput();
 	}
 
 	void ProcessUiInputHook()
@@ -173,34 +215,13 @@ namespace
 		UiInputTick();
 	}
 
-	// Returns true if a key should be blocked.
-	bool KeyTestHookImpl(InputType type)
+	void BlockInputHook(InputType type, bool blocked)
 	{
-		return (type == eInputTypeGame || type == eInputTypeSpecial) && !contextStack.empty();
-	}
-
-	// Hook for the engine's "get key ticks" and "get key ms" functions. If the
-	// zero flag is not set when this returns, the key will be blocked.
-	__declspec(naked) void KeyTestHook()
-	{
-		__asm
-		{
-			// Replaced code (checks if the input type is blocked)
-			cmp byte ptr ds:0x238DBEB[eax], 0
-			jnz done
-
-			push eax
-			call KeyTestHookImpl
-			add esp, 4
-			test eax, eax
-
-		done:
-			// The replaced instruction is 7 bytes long, so get the return
-			// address and add 2 without affecting the flags
-			pop eax
-			lea eax, [eax + 2]
-			jmp eax
-		}
+		// If a context isn't active, then block input normally,
+		// otherwise save the value for when the contexts are done
+		if (contextStack.empty())
+			BlockInput(type, blocked);
+		blockStates[type] = blocked;
 	}
 
 	// Hook to initialize bindings with ModuleInput's values

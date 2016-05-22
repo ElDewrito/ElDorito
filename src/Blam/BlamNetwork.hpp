@@ -135,12 +135,23 @@ namespace Blam
 		};
 		static_assert(sizeof(GameVariantSessionParameter) == 0x3570, "Invalid c_network_session_parameter_game_variant size");
 
+		// c_network_session_parameter_map_variant
+		struct MapVariantSessionParameter: SessionParameter
+		{
+			uint8_t Unknown0[0x2A1D0];
+
+			// Gets the current variant data, or null if not available.
+			void* Get() const;
+		};
+		static_assert(sizeof(MapVariantSessionParameter) == 0x2A1D0, "Invalid c_network_session_parameter_map_variant size");
+
 		// c_network_session_parameters
 		struct SessionParameters
 		{
 			uint8_t Unknown0[0x2D2D8];
 			GameVariantSessionParameter GameVariant;
-			uint8_t Unknown30848[0x870DC]; // approx size
+			MapVariantSessionParameter MapVariant;
+			uint8_t Unknown30848[0x5CF0C]; // approx size
 
 			// Sets the session mode parameter.
 			// TODO: Map out this enum
@@ -172,6 +183,9 @@ namespace Blam
 			{
 				return _byteswap_ulong(Address.IPv4);
 			}
+
+			static bool Parse(const std::string &addr, uint16_t port, NetworkAddress *result);
+			std::string ToString() const;
 		};
 		static_assert(sizeof(NetworkAddress) == 0x14, "Invalid NetworkAddress size");
 

@@ -12,18 +12,17 @@ namespace Patches
 		void ApplyAll();
 
 		// Base class for objects which override game input.
-		// When an input context is active, game and special input will be
-		// blocked.
+		// While a context is active, all game input is blocked.
 		class InputContext
 		{
 		public:
 			virtual ~InputContext() { }
 
 			// Called when the input context is made active.
-			virtual void InputActivated() = 0;
+			virtual void Activated() = 0;
 
 			// Called when the input context is deactivated.
-			virtual void InputDeactivated() = 0;
+			virtual void Deactivated() = 0;
 
 			// Called on the active context each time the game processes input,
 			// overriding the default input processing routine. If this returns

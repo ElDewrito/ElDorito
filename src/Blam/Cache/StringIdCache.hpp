@@ -7,21 +7,25 @@ namespace Blam
 {
 	namespace Cache
 	{
-		struct StringIdCacheHeader
+		struct StringIDCacheHeader
 		{
 			int32_t StringCount;
 			int32_t StringDataSize;
 		};
 
-		struct StringIdCache
+		struct StringIDCache
 		{
-			StringIdCacheHeader Header;
+			StringIDCacheHeader Header;
+			char *Data;
 			char **Strings;
 
-			static StringIdCache Instance;
+			StringIDCache();
+			~StringIDCache();
+
+			static StringIDCache Instance;
 
 			bool Load(const std::string &path);
-			char *GetString(const int32_t stringId);
+			char *GetString(const uint32_t stringID);
 		};
 	}
 }

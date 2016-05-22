@@ -3,12 +3,16 @@
 #include "../ElDorito.hpp"
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
-#include "../Blam/Tags/Scenario.hpp"
+#include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 namespace
 {
-	void GameTickHook(int frames, float *deltaTimeInfo);
+	void GameTickHook();
 	void TagsLoadedHook();
 	void FovHook();
 	void FmodSystemInitHook();
@@ -21,8 +25,11 @@ namespace
 	void EquipmentTestHook();
 	void GrenadeLoadoutHook();
 	void ScopeLevelHook();
+	void ShutdownHook();
 	const char *GetMapsFolderHook();
+	bool LoadMapHook(void *data);
 
+	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
 	std::string MapFormatString;
 	std::string StringIdsPath;
@@ -34,6 +41,8 @@ namespace
 	std::string AudioPath;
 	std::string VideoPath;
 	std::string FontsPath;
+
+	std::vector<Patches::Core::MapLoadedCallback> mapLoadedCallbacks;
 }
 
 namespace Patches
@@ -61,7 +70,9 @@ namespace Patches
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
 			// Hook game ticks
-			Hook(0x105E64, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x105ABA, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x105AD7, GameTickHook, HookFlags::IsCall).Apply();
+			Hook(0x1063E6, GameTickHook, HookFlags::IsCall).Apply();
 
 			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
 			Hook(0x1030EA, TagsLoadedHook).Apply();
@@ -141,12 +152,30 @@ namespace Patches
 			//Allow the user to select any resolution that Windows supports in the settings screen.
 			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
 			Patch::NopFill(Pointer::Base(0x10BF21), 6);
-
+			
 			// Maps folder override
 			Hook(0x101FC0, GetMapsFolderHook).Apply();
 			SetMapsFolder("maps\\");
+
+			// Run callbacks on engine shutdown
+			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
+
+			// Map loading
+			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
 		}
 
+		void OnShutdown(ShutdownCallback callback)
+		{
+			shutdownCallbacks.push_back(callback);
+		}
+
+		void OnMapLoaded(MapLoadedCallback callback)
+		{
+			mapLoadedCallbacks.push_back(callback);
+		}
+		
 		void SetMapsFolder(const std::string &path)
 		{
 			MapsFolder = path;
@@ -180,16 +209,15 @@ namespace Patches
 
 namespace
 {
-	void GameTickHook(int frames, float *deltaTimeInfo)
+	void GameTickHook()
 	{
 		// Tick ElDorito
-		float deltaTime = *deltaTimeInfo;
-		ElDorito::Instance().Tick(std::chrono::duration<double>(deltaTime));
+		ElDorito::Instance().Tick();
 
-		// Tick the game
-		typedef void (*GameTickFunc)(int frames, float *deltaTimeInfo);
-		GameTickFunc GameTick = reinterpret_cast<GameTickFunc>(0x5336F0);
-		GameTick(frames, deltaTimeInfo);
+		// Call replaced function
+		typedef void(*sub_5547F0_Ptr)();
+		auto sub_5547F0 = reinterpret_cast<sub_5547F0_Ptr>(0x5547F0);
+		sub_5547F0();
 	}
 
 	__declspec(naked) void TagsLoadedHook()
@@ -264,7 +292,7 @@ namespace
 		auto grenadeSetting = players[playerIndex].SpawnGrenadeSetting;
 
 		// Get the current scenario tag
-		auto scenario = Blam::Tags::GetCurrentScenario();
+		auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
 
 		// If the setting is none (2) or the scenario has invalid starting
 		// profile data, set the grenade counts to 0 and return
@@ -288,13 +316,18 @@ namespace
 			return false;
 		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
 		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
+
 		if (!unitDatumPtr)
 			return false;
+
 		auto dualWieldWeaponIndex = unitDatumPtr(0x2CB).Read<int8_t>();
+
 		if (dualWieldWeaponIndex < 0 || dualWieldWeaponIndex >= 4)
 			return false;
+
 		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
 		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
+
 		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
 	}
 
@@ -322,12 +355,16 @@ namespace
 
 	int __cdecl DualWieldHook(unsigned short objectIndex)
 	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Items::Weapon;
+
 		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
 			return 0;
-		auto& dorito = ElDorito::Instance();
-		uint32_t index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		char* tagAddr = (char*)Blam::Tags::GetTagAddress('weap', index);
-		return ((*(uint32_t*)(tagAddr + 0x1D4) >> 22) & 1) == 1;
+
+		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
+		auto *weapon = TagInstance(index).GetDefinition<Weapon>();
+
+		return ((int32_t)weapon->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void SprintInputHook()
@@ -499,8 +536,31 @@ namespace
 		}
 	}
 
+	void ShutdownHook()
+	{
+		for (auto &&callback : shutdownCallbacks)
+			callback();
+
+		typedef void(*EngineShutdownPtr)();
+		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);
+		EngineShutdown();
+	}
+	
 	const char* GetMapsFolderHook()
 	{
 		return MapsFolder.c_str();
+	}
+
+	bool LoadMapHook(void *data)
+	{
+		typedef bool(*LoadMapPtr)(void *data);
+		auto LoadMap = reinterpret_cast<LoadMapPtr>(0x566EF0);
+		if (!LoadMap(data))
+			return false;
+
+		for (auto &&callback : mapLoadedCallbacks)
+			callback(static_cast<const char*>(data) + 0x24); // hax
+
+		return true;
 	}
 }

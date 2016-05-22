@@ -15,6 +15,9 @@ namespace Blam
 		typedef uint16_t TSalt;  // Type of a salt value
 		typedef uint16_t TIndex; // Type of an index value
 
+		// Creates a null datum index.
+		DatumIndex() : Handle(0xFFFFFFFF) { }
+
 		// Creates a datum index from a handle.
 		DatumIndex(uint32_t handle) : Handle(handle) { }
 

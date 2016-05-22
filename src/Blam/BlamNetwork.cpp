@@ -1,3 +1,6 @@
+#include <WS2tcpip.h>
+#define WIN32_LEAN_AND_MEAN
+
 #include "BlamNetwork.hpp"
 #include "../Pointer.hpp"
 
@@ -166,6 +169,13 @@ namespace Blam
 			return GetGameVariant(this);
 		}
 
+		void* MapVariantSessionParameter::Get() const
+		{
+			typedef void*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
+			auto GetMapVariant = reinterpret_cast<GetMapVariantPtr>(0x456410);
+			return GetMapVariant(this);
+		}
+
 		PacketTable *GetPacketTable()
 		{
 			auto packetTablePtr = Pointer::Base(0x1E4A498);
@@ -217,6 +227,25 @@ namespace Blam
 			typedef void(__cdecl *Network_LeaveGamePtr)();
 			auto Network_LeaveGame = reinterpret_cast<Network_LeaveGamePtr>(0xA81270);
 			Network_LeaveGame();
+		}
+
+		bool NetworkAddress::Parse(const std::string &addr, uint16_t port, NetworkAddress *result)
+		{
+			struct in_addr inAddr;
+			if (!inet_pton(AF_INET, addr.c_str(), &inAddr))
+				return false;
+			*result = Blam::Network::NetworkAddress::FromInAddr(inAddr.S_un.S_addr, port);
+			return true;
+		}
+
+		std::string NetworkAddress::ToString() const
+		{
+			struct in_addr inAddr;
+			inAddr.S_un.S_addr = ToInAddr();
+			char ipStr[INET_ADDRSTRLEN];
+			if (!inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
+				return "";
+			return std::string(ipStr);
 		}
 	}
 }

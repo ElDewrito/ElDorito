@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Windows.h>
 #include <vector>
 #include <deque>
 
@@ -29,11 +28,6 @@ enum CommandFlags
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
-
-namespace
-{
-	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
-}
 
 namespace Modules
 {
@@ -99,7 +93,7 @@ namespace Modules
 		std::string ExecuteCommand(std::vector<std::string> command, bool isUserInput = false);
 		std::string ExecuteCommand(std::string command, bool isUserInput = false);
 		std::string ExecuteCommands(std::string& commands, bool isUserInput = false);
-		bool ExecuteCommandWithStatus(std::string command, bool isUserInput = false);
+		bool ExecuteCommandWithStatus(std::string command, bool isUserInput, std::string *output);
 		std::string ExecuteQueue();
 
 		bool GetVariableInt(const std::string& name, unsigned long& value);

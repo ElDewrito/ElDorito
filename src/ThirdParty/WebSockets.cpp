@@ -2,11 +2,9 @@
 #include <stdlib.h>
 
 #include <libwebsockets.h>
-#include "../Console/GameConsole.hpp"
 #include "../ElModules.hpp"
-#include "websock-w32.h"
-#include "gettimeofday.h"
 #include "WebSockets.hpp"
+#include "../Modules/ModuleGame.hpp"
 
 static int callback_http(struct libwebsocket_context *context,
 struct libwebsocket *wsi,

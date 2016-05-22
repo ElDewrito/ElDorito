@@ -26,16 +26,12 @@
 #include <teamspeak/public_errors.h>
 #include <teamspeak/clientlib_publicdefinitions.h>
 #include <teamspeak/clientlib.h>
-#include "../Console/GameConsole.hpp"
-#include "../Patch.hpp"
-#include "../Patches/Network.hpp"
+#include "../Console.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleVoIP.hpp"
-#include "../ElDorito.hpp"
 #include "../VoIP/MemberList.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "TeamspeakClient.hpp"
-#include <cstdint>
 #define DEFAULT_VIRTUAL_SERVER 1
 #define NAME_BUFSIZE 1024
 #define CHANNEL_PASSWORD_BUFSIZE 1024
@@ -116,11 +112,10 @@ struct WaveHeader {
  *                               Contains error state when losing connection.
  */
 void onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("Connect status changed : " + std::to_string(serverConnectionHandlerID) + " " + std::to_string(newStatus) + " " + std::to_string(errorNumber));
+	Console::WriteLine("Connect status changed : " + std::to_string(serverConnectionHandlerID) + " " + std::to_string(newStatus) + " " + std::to_string(errorNumber));
 	/* Failed to connect ? */
 	if(newStatus == STATUS_DISCONNECTED && errorNumber == ERROR_failed_connection_initialisation) {
-		console.consoleQueue.pushLineFromGameToUI("Looks like there is no server running.\n");
+		Console::WriteLine("Looks like there is no server running.\n");
 		StopTeamspeakClient();
 	}
 }
@@ -211,13 +206,12 @@ void onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 
  *                               Values: ENTER_VISIBILITY, RETAIN_VISIBILITY, LEAVE_VISIBILITY
  */
 void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
-	auto& console = GameConsole::Instance();
 	char* name;
 
     /* Query client nickname from ID */
 	if(ts3client_getClientVariableAsString(serverConnectionHandlerID, clientID, CLIENT_NICKNAME, &name) != ERROR_ok)
 		return;
-	console.consoleQueue.pushLineFromGameToUI("Client " + std::string(name) + " has joined the VoIP chat!");
+	Console::WriteLine("Client " + std::string(name) + " has joined the VoIP chat!");
 	ts3client_freeMemory(name);  /* Release dynamically allocated memory only if function succeeded */
 }
 
@@ -233,8 +227,7 @@ void onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clien
  *   timeoutMessage            - Optional message giving the reason for the timeout
  */
 void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* timeoutMessage) {
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI("ClientID " + std::to_string(clientID) + " timeouts with message " + std::string(timeoutMessage));
+	Console::WriteLine("ClientID " + std::to_string(clientID) + " timeouts with message " + std::string(timeoutMessage));
 }
 
 /*
@@ -247,7 +240,6 @@ void onClientMoveTimeoutEvent(uint64 serverConnectionHandlerID, anyID clientID, 
  *   clientID                  - ID of the client who announced the talk status change
  */
 void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID) {
-	auto& console = GameConsole::Instance();
 	char* name;
 	/* If we are currently in configure-microphone mode, remember the status and use it later in the loop in configureMicrophone() */
 	if(serverConnectionHandlerID == vadTestscHandlerID) {
@@ -260,12 +252,12 @@ void onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int i
 		return;
     if(status == STATUS_TALKING) {
 #ifdef _DEBUG
-		console.consoleQueue.pushLineFromGameToUI("Client " + std::string(name) + " starts talking.");
+		Console::WriteLine("Client " + std::string(name) + " starts talking.");
 #endif
 		MemberList::Instance().ShowPlayerTalkEvent(std::string(name));
     } else {
 #ifdef _DEBUG
-		console.consoleQueue.pushLineFromGameToUI("Client " + std::string(name) + " stopped talking.");
+		Console::WriteLine("Client " + std::string(name) + " stopped talking.");
 #endif
 		MemberList::Instance().HidePlayerTalkEvent(std::string(name));
     }
@@ -310,8 +302,7 @@ void onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessa
 void onUserLoggingMessageEvent(const char* logMessage, int logLevel, const char* logChannel, uint64 logID, const char* logTime, const char* completeLogString) {
 	/* Your custom error display here... */
 
-	auto& console = GameConsole::Instance();
-	console.consoleQueue.pushLineFromGameToUI(completeLogString);
+	Console::WriteLine(completeLogString);
 	if (logLevel == LogLevel_CRITICAL) {
 		exit(1);  /* Your custom handling of critical errors */
 	}
@@ -1146,16 +1137,14 @@ int muteTeamspeakClient(const std::string& name) {
 	anyID* listClientIDs;
 	char* workingClientName;
 
-	auto& console = GameConsole::Instance();
-
 	if (ts3client_getClientList(1, &listClientIDs) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Mute: Error getting list of clients (-1)");
+		Console::WriteLine("Mute: Error getting list of clients (-1)");
 		return -1;
 	}
 	for (int a = 0; listClientIDs[a] != NULL; a++) {
 		//The server ID here defaults to 1. We should have no reason to change it, but if we do, change this function and the requestMute further down
 		if (ts3client_getClientVariableAsString(1, listClientIDs[a], CLIENT_NICKNAME, &workingClientName) != ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("Mute: Error getting client name (-2)");
+			Console::WriteLine("Mute: Error getting client name (-2)");
 			ts3client_freeMemory(listClientIDs);
 			return -2;
 		}
@@ -1165,7 +1154,7 @@ int muteTeamspeakClient(const std::string& name) {
 
 		int clientIsMuted;
 		if (ts3client_getClientVariableAsInt(scHandlerID, listClientIDs[a], CLIENT_IS_MUTED, &clientIsMuted) != ERROR_ok){
-			console.consoleQueue.pushLineFromGameToUI("Mute: Error getting client mute state (-3)");
+			Console::WriteLine("Mute: Error getting client mute state (-3)");
 			ts3client_freeMemory(listClientIDs);
 			return -3;
 		}
@@ -1175,7 +1164,7 @@ int muteTeamspeakClient(const std::string& name) {
 			clientIDArray[1] = 0;
 			if (clientIsMuted){
 				if (ts3client_requestUnmuteClients(1, clientIDArray, NULL) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Mute: Error umuting client (-4)");
+					Console::WriteLine("Mute: Error umuting client (-4)");
 					ts3client_freeMemory(listClientIDs);
 					return -4;
 				}
@@ -1183,7 +1172,7 @@ int muteTeamspeakClient(const std::string& name) {
 			else
 			{
 				if (ts3client_requestMuteClients(1, clientIDArray, NULL) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Mute: Error muting client (-5)");
+					Console::WriteLine("Mute: Error muting client (-5)");
 					ts3client_freeMemory(listClientIDs);
 					return -5;
 				}
@@ -1193,7 +1182,7 @@ int muteTeamspeakClient(const std::string& name) {
 		}
 	}
 	
-	console.consoleQueue.pushLineFromGameToUI("Mute: Client not found (-6)");
+	Console::WriteLine("Mute: Client not found (-6)");
 	ts3client_freeMemory(listClientIDs);
 	return -6;
 }
@@ -1207,9 +1196,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	char identity[IDENTITY_BUFSIZE];
 	short abort = 0;
 
-	auto& console = GameConsole::Instance();
-
-	console.consoleQueue.pushLineFromGameToUI("Starting Eldewrito VoIP Client...");
+	Console::WriteLine("Starting Eldewrito VoIP Client...");
 	/* Create struct for callback function pointers */
 	struct ClientUIFunctions funcs;
 
@@ -1242,7 +1229,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	if ((error = ts3client_initClientLib(&funcs, NULL, LogType_FILE | LogType_CONSOLE | LogType_USERLOGGING, NULL, "")) != ERROR_ok) {
 		char* errormsg;
 		if (ts3client_getErrorMessage(error, &errormsg) == ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("Error initialzing serverlib: " + std::string(errormsg));
+			Console::WriteLine("Error initialzing serverlib: " + std::string(errormsg));
 			ts3client_freeMemory(errormsg);
 		}
 		return 1;
@@ -1250,63 +1237,63 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	/* Spawn a new server connection handler using the default port and store the server ID */
 	if ((error = ts3client_spawnNewServerConnectionHandler(0, &scHandlerID)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error spawning server connection handler: " + std::to_string(error));
+		Console::WriteLine("Error spawning server connection handler: " + std::to_string(error));
 		return 1;
 	}
 
 	/* Get default capture mode */
 	if ((error = ts3client_getDefaultCaptureMode(&mode)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error getting default capture mode: " + std::to_string(error));
+		Console::WriteLine("Error getting default capture mode: " + std::to_string(error));
 		return 1;
 	}
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Default capture mode: " + std::string(mode));
+	Console::WriteLine("Default capture mode: " + std::string(mode));
 #endif
 	/* Get default capture device */
 	if ((error = ts3client_getDefaultCaptureDevice(mode, &device)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error getting default capture device: " + std::to_string(error));
+		Console::WriteLine("Error getting default capture device: " + std::to_string(error));
 		return 1;
 	}
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Default capture device: " + std::string(device[0]) + " " + std::string(device[1]));
+	Console::WriteLine("Default capture device: " + std::string(device[0]) + " " + std::string(device[1]));
 #endif
 	/* Open default capture device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
 	if ((error = ts3client_openCaptureDevice(scHandlerID, mode, device[1])) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error opening capture device: " + std::to_string(error));
+		Console::WriteLine("Error opening capture device: " + std::to_string(error));
 	}
 
 	/* Get default playback mode */
 	if ((error = ts3client_getDefaultPlayBackMode(&mode)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error getting default playback mode: " + std::to_string(error));
+		Console::WriteLine("Error getting default playback mode: " + std::to_string(error));
 		return 1;
 	}
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Default playback mode:  " + std::string(mode));
+	Console::WriteLine("Default playback mode:  " + std::string(mode));
 #endif
 	/* Get default playback device */
 	if ((error = ts3client_getDefaultPlaybackDevice(mode, &device)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error getting default playback device: " + std::to_string(error));
+		Console::WriteLine("Error getting default playback device: " + std::to_string(error));
 		return 1;
 	}
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Default playback device: " + std::string(device[0]) + " " + std::string(device[1]));
+	Console::WriteLine("Default playback device: " + std::string(device[0]) + " " + std::string(device[1]));
 #endif
 	/* Open default playback device */
 	/* Instead of passing mode and device[1], it would also be possible to pass empty strings to open the default device */
 	if ((error = ts3client_openPlaybackDevice(scHandlerID, mode, device[1])) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error opening playback device: " + std::to_string(error));
+		Console::WriteLine("Error opening playback device: " + std::to_string(error));
 	}
 
 	/* Try reading identity from file, otherwise create new identity */
 	if (readIdentity(identity) != 0) {
 		char* id;
 		if ((error = ts3client_createIdentity(&id)) != ERROR_ok) {
-			console.consoleQueue.pushLineFromGameToUI("Error creating identity: " + std::to_string(error));
+			Console::WriteLine("Error creating identity: " + std::to_string(error));
 			return 0;
 		}
 		if (strlen(id) >= IDENTITY_BUFSIZE) {
-			console.consoleQueue.pushLineFromGameToUI("Not enough bufsize for identity string");
+			Console::WriteLine("Not enough bufsize for identity string");
 			return 0;
 		}
 		strcpy(identity, id);
@@ -1314,7 +1301,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 		writeIdentity(identity);
 	}
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("Using identity: " + std::string(identity));
+	Console::WriteLine("Using identity: " + std::string(identity));
 #endif
 	/* Connect to server on localhost:9987 with nickname "client", no default channel, no default channel password and server password "secret" */
 	static char ipAddrStr[64];
@@ -1334,25 +1321,25 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 	if (strcmp(ipAddrStr, "0.0.0.0") == 0){
 		sprintf(ipAddrStr, "localhost");
 	}
-	console.consoleQueue.pushLineFromGameToUI("Attempting connection to Eldewrito VoIP server (" + std::string(ipAddrStr) + ")");
+	Console::WriteLine("Attempting connection to Eldewrito VoIP server (" + std::string(ipAddrStr) + ")");
 	std::string PlayerName = Modules::ModulePlayer::Instance().VarPlayerName->ValueString;
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("VoIP name is: " + PlayerName);
+	Console::WriteLine("VoIP name is: " + PlayerName);
 #endif
 	if ((error = ts3client_startConnection(scHandlerID, identity, std::string(ipAddrStr).c_str(), 9987, PlayerName.c_str(), NULL, "", "secret")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error connecting to Eldewrito VoIP Server: " + std::to_string(error));
+		Console::WriteLine("Error connecting to Eldewrito VoIP Server: " + std::to_string(error));
 		return 1;
 	}
 
-	console.consoleQueue.pushLineFromGameToUI("Eldewrito VoIP initialized and running!");
+	Console::WriteLine("Eldewrito VoIP initialized and running!");
 
 	/* Query and print client lib version */
     if((error = ts3client_getClientLibVersion(&version)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Failed to get VoIP clientlib version: " + std::to_string(error));
+		Console::WriteLine("Failed to get VoIP clientlib version: " + std::to_string(error));
         return 1;
     }
 #ifdef _DEBUG
-	console.consoleQueue.pushLineFromGameToUI("VoIP Client lib version: " + std::string(version));
+	Console::WriteLine("VoIP Client lib version: " + std::string(version));
 #endif
     ts3client_freeMemory(version);  /* Release dynamically allocated memory */
     version = NULL;
@@ -1362,25 +1349,25 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	//Sets the VoIP volume
 	if ((error = ts3client_setPlaybackConfigValue(scHandlerID, "volume_modifier", voipvars.VarVoIPVolumeModifier->ValueString.c_str())) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP agc: " + std::to_string(error));
+		Console::WriteLine("Error toggling VoIP agc: " + std::to_string(error));
 	}
 	//Sets Automatic Gain Control
 	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "agc", voipvars.VarVoIPAGC->ValueInt ? "true" : "false")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP agc: " + std::to_string(error));
+		Console::WriteLine("Error toggling VoIP agc: " + std::to_string(error));
 	}
 	//Sets Echo Canceling
 	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "echo_canceling", voipvars.VarVoIPEchoCancellation->ValueInt ? "true" : "false")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP echo_canceling: " + std::to_string(error));
+		Console::WriteLine("Error toggling VoIP echo_canceling: " + std::to_string(error));
 	}
 
 
 	//Sets Voice activation detection
 	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "vad", voipvars.VarVoIPPushToTalk->ValueInt ? "true" : "false")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error toggling VoIP VAD: " + std::to_string(error));
+		Console::WriteLine("Error toggling VoIP VAD: " + std::to_string(error));
 	}
 
 	if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level", voipvars.VarVoIPPushToTalk->ValueInt ? "-50" : voipvars.VarVoIPVADLevel->ValueString.c_str())) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error setting VoIP VAD level: " + std::to_string(error));
+		Console::WriteLine("Error setting VoIP VAD level: " + std::to_string(error));
 	}
 
 	VoIPClientRunning = true;
@@ -1393,7 +1380,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, voipvars.VarVoIPTalk->ValueInt ? INPUT_ACTIVE : INPUT_DEACTIVATED)) != ERROR_ok) {
 				char* errorMsg;
 				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Error toggling push-to-talk: " + std::string(errorMsg));
+					Console::WriteLine("Error toggling push-to-talk: " + std::string(errorMsg));
 					ts3client_freeMemory(errorMsg);
 				}
 			}
@@ -1401,7 +1388,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 			if (ts3client_flushClientSelfUpdates(scHandlerID, NULL) != ERROR_ok) {
 				char* errorMsg;
 				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
+					Console::WriteLine("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
 					ts3client_freeMemory(errorMsg);
 				}
 			}
@@ -1411,7 +1398,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 			if ((error = ts3client_setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, INPUT_ACTIVE))	!= ERROR_ok) {
 				char* errorMsg;
 				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Error toggling push-to-talk: " + std::string(errorMsg));
+					Console::WriteLine("Error toggling push-to-talk: " + std::string(errorMsg));
 					ts3client_freeMemory(errorMsg);
 				}
 			}
@@ -1419,7 +1406,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 			if (ts3client_flushClientSelfUpdates(scHandlerID, NULL) != ERROR_ok) {
 				char* errorMsg;
 				if (ts3client_getErrorMessage(error, &errorMsg) != ERROR_ok) {
-					console.consoleQueue.pushLineFromGameToUI("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
+					Console::WriteLine("Error flushing after toggling push-to-talk: " + std::string(errorMsg));
 					ts3client_freeMemory(errorMsg);
 				}
 			}
@@ -1511,7 +1498,7 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	/* Disconnect from server */
     if((error = ts3client_stopConnection(scHandlerID, "leaving")) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error stopping VoIP connection: " + std::to_string(error));
+		Console::WriteLine("Error stopping VoIP connection: " + std::to_string(error));
         return 1;
     }
 
@@ -1519,20 +1506,20 @@ DWORD WINAPI StartTeamspeakClient(LPVOID) {
 
 	/* Destroy server connection handler */
     if((error = ts3client_destroyServerConnectionHandler(scHandlerID)) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Error destroying VoIP clientlib: " + std::to_string(error));
+		Console::WriteLine("Error destroying VoIP clientlib: " + std::to_string(error));
         return 1;
     }
 
 	/* Shutdown client lib */
     if((error = ts3client_destroyClientLib()) != ERROR_ok) {
-		console.consoleQueue.pushLineFromGameToUI("Failed to destroy VoIP clientlib: " + std::to_string(error));
+		Console::WriteLine("Failed to destroy VoIP clientlib: " + std::to_string(error));
         return 1;
     }
 
 	/* This is a small hack, to close an open recording sound file */
 	recordSound = 0;
 	onEditMixedPlaybackVoiceDataEvent(DEFAULT_VIRTUAL_SERVER, NULL, 0, 0, NULL, NULL);
-	console.consoleQueue.pushLineFromGameToUI("Stopped Eldewrito VoIP Client");
+	Console::WriteLine("Stopped Eldewrito VoIP Client");
 	return 0;
 }
 

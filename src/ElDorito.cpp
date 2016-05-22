@@ -1,11 +1,4 @@
 #include "ElDorito.hpp"
-#include "Console/GameConsole.hpp"
-#include "DirectXHook.hpp"
-
-#include <Windows.h>
-#include <TlHelp32.h>
-
-#include <codecvt>
 
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
@@ -15,25 +8,24 @@
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
 #include "Patches/Core.hpp"
-#include <fstream>
-#include <detours.h>
+#include "Console.hpp"
+#include "Web/Ui/ScreenLayer.hpp"
+#include "Web/Ui/WebChat.hpp"
+#include "Web/Ui/WebConsole.hpp"
+#include "Web/Ui/WebLoadingScreen.hpp"
+#include "Web/Ui/MpEventDispatcher.hpp"
+#include "ElModules.hpp"
+#include "Modules/ModuleGame.hpp"
+#include "Patch.hpp"
+#include "Modules/ModuleCamera.hpp"
 
-#include "Blam\Cache\StringIdCache.hpp"
+#include "Blam/Cache/StringIdCache.hpp"
+
+#include <Windows.h>
+#include <TlHelp32.h>
+#include <codecvt>
 
 size_t ElDorito::MainThreadID = 0;
-
-extern BOOL installMedalJunk();
-
-void initMedals()
-{
-	// This is kind of a hack, but only install the medal system for now if
-	// halo3.zip can be opened for reading
-	std::ifstream halo3Zip("mods\\medals\\halo3.zip");
-	if (!halo3Zip.is_open())
-		return;
-	halo3Zip.close();
-	installMedalJunk();
-}
 
 ElDorito::ElDorito()
 {
@@ -77,6 +69,7 @@ void ElDorito::Initialize()
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
 	// init our command modules
+	Console::Init();
 	Modules::ElModules::Instance();
 
 	// load variables/commands from cfg file
@@ -120,6 +113,9 @@ void ElDorito::Initialize()
 					mapsFolder += "\\";
 			}
 
+			if (arg.compare(L"-webdebug") == 0)
+				webDebugging = true;
+
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
@@ -130,6 +126,11 @@ void ElDorito::Initialize()
 			Modules::CommandMap::Instance().ExecuteCommand(argname + " \"" + argvalue + "\"", true);
 		}
 	}
+
+#if _DEBUG
+	// Always enable web debugging in debug builds
+	webDebugging = true;
+#endif
 
 	Patches::Core::SetMapsFolder(mapsFolder);
 
@@ -150,7 +151,11 @@ void ElDorito::Initialize()
 	}
 	else
 	{
-		initMedals();
+		Web::Ui::ScreenLayer::Init();
+		Web::Ui::MpEventDispatcher::Init();
+		Web::Ui::WebChat::Init();
+		Web::Ui::WebConsole::Init();
+		Web::Ui::WebLoadingScreen::Init();
 	}
 
 	// Language patch
@@ -174,17 +179,18 @@ void ElDorito::Initialize()
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 
-	if (!Blam::Cache::StringIdCache::Instance.Load("maps\\string_ids.dat"))
+	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{
 		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
 	}
 }
 
-void ElDorito::Tick(const std::chrono::duration<double>& DeltaTime)
+void ElDorito::Tick()
 {
 	Server::VariableSynchronization::Tick();
 	Server::Chat::Tick();
 	Patches::Tick();
+	Web::Ui::ScreenLayer::Tick();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
@@ -222,17 +228,10 @@ std::string ElDorito::GetDirectory()
 
 void ElDorito::OnMainMenuShown()
 {
+	if (GameHasMenuShown)
+		return;
+	GameHasMenuShown = true;
 	executeCommandQueue = true;
-	if (!isDedicated)
-	{
-		DirectXHook::hookDirectX();
-		GameConsole::Instance();
-	}
-}
-
-bool ElDorito::IsHostPlayer()
-{
-	return Patches::Network::IsInfoSocketOpen(); // TODO: find a way of using an ingame variable instead
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

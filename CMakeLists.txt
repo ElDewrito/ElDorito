@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 3.2)
 # Creates source groups for a target
 function(create_source_groups TARGET)
   get_property(SOURCES TARGET ${TARGET} PROPERTY SOURCES)
-  foreach(FILE ${SOURCES}) 
+  foreach(FILE ${SOURCES})
     get_filename_component(PARENT_DIR "${FILE}" PATH)
 
     # skip src or include and changes /'s to \\'s
     string(REGEX REPLACE "(\\./)?(src|include)/?" "" GROUP "${PARENT_DIR}")
+    string(REPLACE "${CMAKE_SOURCE_DIR}/" "" GROUP "${GROUP}")
     string(REPLACE "/" "\\" GROUP "${GROUP}")
 
     # group into "Source Files" and "Header Files"
@@ -51,17 +52,17 @@ endif()
 # Enable solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Subdirectories
-add_subdirectory(libs/lua-5.3.0)
-add_subdirectory(libs/libzplay)
-add_subdirectory(libs/MedalJunk)
-
 # Library directories
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/boost-1.60/lib)
+link_directories(${CMAKE_SOURCE_DIR}/libs/miniupnpc/lib)
+
 
 # Create main target
 add_library(ElDorito SHARED
@@ -69,6 +70,7 @@ add_library(ElDorito SHARED
     src/Blam/BitStream.hpp
     src/Blam/BlamData.cpp
     src/Blam/BlamData.hpp
+    src/Blam/BlamEvents.hpp
     src/Blam/BlamInput.cpp
     src/Blam/BlamInput.hpp
     src/Blam/BlamNetwork.cpp
@@ -77,23 +79,92 @@ add_library(ElDorito SHARED
     src/Blam/BlamPlayers.cpp
     src/Blam/BlamPlayers.hpp
     src/Blam/BlamTypes.hpp
-    src/Blam/Cache/StringIdCache.cpp
-    src/Blam/Cache/StringIdCache.hpp
-    src/Blam/Tags/ChudDefinition.hpp
-    src/Blam/Tags/ChudGlobalsDefinition.hpp
-    src/Blam/Tags/GameEngineSettingsDefinition.hpp
-    src/Blam/Tags/Globals.hpp
-    src/Blam/Tags/MultiplayerGlobals.hpp
-    src/Blam/Tags/Scenario.hpp
+    src/Blam/Padding.hpp
+    src/Blam/Cache/StringIDCache.cpp
+    src/Blam/Cache/StringIDCache.hpp
+    src/Blam/Math/Angle.cpp
+    src/Blam/Math/Angle.hpp
+    src/Blam/Math/Bounds.cpp
+    src/Blam/Math/Bounds.hpp
+    src/Blam/Math/ColorARGB.cpp
+    src/Blam/Math/ColorARGB.hpp
+    src/Blam/Math/ColorRGB.cpp
+    src/Blam/Math/ColorRGB.hpp
+    src/Blam/Math/Point2D.cpp
+    src/Blam/Math/Point2D.hpp
+    src/Blam/Math/RealColorARGB.cpp
+    src/Blam/Math/RealColorARGB.hpp
+    src/Blam/Math/RealColorRGB.cpp
+    src/Blam/Math/RealColorRGB.hpp
+    src/Blam/Math/RealEulerAngles2D.cpp
+    src/Blam/Math/RealEulerAngles2D.hpp
+    src/Blam/Math/RealEulerAngles3D.cpp
+    src/Blam/Math/RealEulerAngles3D.hpp
+    src/Blam/Math/RealMatrix3x3.cpp
+    src/Blam/Math/RealMatrix3x3.hpp
+    src/Blam/Math/RealMatrix4x3.cpp
+    src/Blam/Math/RealMatrix4x3.hpp
+    src/Blam/Math/RealOrientation3D.cpp
+    src/Blam/Math/RealOrientation3D.hpp
+    src/Blam/Math/RealPlane2D.cpp
+    src/Blam/Math/RealPlane2D.hpp
+    src/Blam/Math/RealPlane3D.cpp
+    src/Blam/Math/RealPlane3D.hpp
+    src/Blam/Math/RealPoint2D.cpp
+    src/Blam/Math/RealPoint2D.hpp
+    src/Blam/Math/RealPoint3D.cpp
+    src/Blam/Math/RealPoint3D.hpp
+    src/Blam/Math/RealQuaternion.cpp
+    src/Blam/Math/RealQuaternion.hpp
+    src/Blam/Math/RealRectangle2D.cpp
+    src/Blam/Math/RealRectangle2D.hpp
+    src/Blam/Math/RealRectangle3D.cpp
+    src/Blam/Math/RealRectangle3D.hpp
+    src/Blam/Math/RealVector2D.cpp
+    src/Blam/Math/RealVector2D.hpp
+    src/Blam/Math/RealVector3D.cpp
+    src/Blam/Math/RealVector3D.hpp
+    src/Blam/Math/Rectangle2D.cpp
+    src/Blam/Math/Rectangle2D.hpp
+    src/Blam/Tags/Tag.cpp
+    src/Blam/Tags/Tag.hpp
+    src/Blam/Tags/TagBlock.cpp
+    src/Blam/Tags/TagBlock.hpp
+    src/Blam/Tags/TagData.cpp
+    src/Blam/Tags/TagData.hpp
+    src/Blam/Tags/TagGroup.cpp
+    src/Blam/Tags/TagGroup.hpp
     src/Blam/Tags/TagInstance.cpp
     src/Blam/Tags/TagInstance.hpp
+    src/Blam/Tags/TagReference.cpp
+    src/Blam/Tags/TagReference.hpp
     src/Blam/Tags/Tags.hpp
+    src/Blam/Tags/Game/AssaultVariant.hpp
+    src/Blam/Tags/Game/CTFVariant.hpp
+    src/Blam/Tags/Game/GameEngineSettings.hpp
+    src/Blam/Tags/Game/GameVariant.hpp
+    src/Blam/Tags/Game/Globals.hpp
+    src/Blam/Tags/Game/InfectionVariant.hpp
+    src/Blam/Tags/Game/JuggernautVariant.hpp
+    src/Blam/Tags/Game/KOTHVariant.hpp
+    src/Blam/Tags/Game/MultiplayerGlobals.hpp
+    src/Blam/Tags/Game/OddballVariant.hpp
+    src/Blam/Tags/Game/SandboxVariant.hpp
+    src/Blam/Tags/Game/TerritoriesVariant.hpp
+    src/Blam/Tags/Game/TraitsProfile.hpp
+    src/Blam/Tags/Game/VIPVariant.hpp
+    src/Blam/Tags/Items/Item.hpp
+    src/Blam/Tags/Items/Weapon.hpp
+    src/Blam/Tags/Objects/Damage.hpp
+    src/Blam/Tags/Objects/Object.hpp
+    src/Blam/Tags/Scenario/Scenario.hpp
+    src/Blam/Tags/Sounds/Noise.hpp
+    src/Blam/Tags/UI/ChudDefinition.hpp
+    src/Blam/Tags/UI/ChudGlobalsDefinition.hpp
+    src/Console.cpp
+    src/Console.hpp
     src/DirectXHook.cpp
     src/DirectXHook.hpp
-    src/Console/GameConsole.cpp
-    src/Console/GameConsole.hpp
-    src/Console/Queue.hpp
-    src/Console/Queue.cpp
     src/Modules/ModuleBase.cpp
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
@@ -105,13 +176,15 @@ add_library(ElDorito SHARED
     src/Modules/ModulePlayer.cpp
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
-    src/Modules/ModuleServer.hpp    
+    src/Modules/ModuleServer.hpp
     src/Modules/ModuleVoIP.cpp
     src/Modules/ModuleVoIP.hpp
     src/Modules/ModuleTime.cpp
     src/Modules/ModuleTime.hpp
     src/Modules/ModuleGraphics.cpp
     src/Modules/ModuleGraphics.hpp
+    src/Modules/ModuleUPnP.cpp
+    src/Modules/ModuleUPnP.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
     src/Patches/Assassination.cpp
@@ -122,10 +195,14 @@ add_library(ElDorito SHARED
     src/Patches/CustomPackets.hpp
     src/Patches/Core.cpp
     src/Patches/Core.hpp
+    src/Patches/Events.cpp
+    src/Patches/Events.hpp
     src/Patches/Forge.cpp
     src/Patches/Forge.hpp
     src/Patches/Input.cpp
     src/Patches/Input.hpp
+    src/Patches/LoadingScreen.cpp
+    src/Patches/LoadingScreen.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
     src/Patches/Mouse.cpp
@@ -168,10 +245,13 @@ add_library(ElDorito SHARED
     src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
     src/Utils/NameValueTable.hpp
+    src/Utils/Rectangle.cpp
+    src/Utils/Rectangle.hpp
     src/Utils/Singleton.hpp
     src/Utils/String.cpp
     src/Utils/String.hpp
     src/Utils/Utils.hpp
+    src/Utils/UPnP.hpp
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
     src/VoIP/MemberList.cpp
@@ -180,8 +260,32 @@ add_library(ElDorito SHARED
     src/VoIP/TeamspeakClient.hpp
     src/VoIP/TeamspeakServer.cpp
     src/VoIP/TeamspeakServer.hpp
-    src/Menu.cpp
-    src/Menu.hpp
+    src/Web/Bridge/Client/ClientFunctions.cpp
+    src/Web/Bridge/Client/ClientFunctions.hpp
+    src/Web/Bridge/WebRendererQuery.hpp
+    src/Web/Bridge/WebRendererQueryHandler.cpp
+    src/Web/Bridge/WebRendererQueryHandler.hpp
+    src/Web/Logger.hpp
+    src/Web/Ui/MpEventDispatcher.cpp
+    src/Web/Ui/MpEventDispatcher.hpp
+    src/Web/Ui/ScreenLayer.cpp
+    src/Web/Ui/ScreenLayer.hpp
+    src/Web/Ui/WebConsole.cpp
+    src/Web/Ui/WebConsole.hpp
+    src/Web/Ui/WebChat.cpp
+    src/Web/Ui/WebChat.hpp
+    src/Web/Ui/WebLoadingScreen.cpp
+    src/Web/Ui/WebLoadingScreen.hpp
+    src/Web/WebRenderer.cpp
+    src/Web/WebRenderer.hpp
+    src/Web/WebRendererApp.cpp
+    src/Web/WebRendererApp.hpp
+    src/Web/WebRendererHandler.cpp
+    src/Web/WebRendererHandler.hpp
+    src/Web/WebRendererSchemeHandler.cpp
+    src/Web/WebRendererSchemeHandler.hpp
+    src/Web/WebRendererSchemeHandlerFactory.cpp
+    src/Web/WebRendererSchemeHandlerFactory.hpp
     src/Settings.hpp
     src/CommandMap.cpp
     src/CommandMap.hpp
@@ -203,13 +307,97 @@ add_library(ElDorito SHARED
 
 create_source_groups(ElDorito)
 
+# Web files
+set (WEB_SOURCES
+    web/lib/dew.js
+    web/lib/jquery-2.2.1.min.js
+    web/lib/jquery-ui.css
+    web/lib/jquery-ui.js
+    web/screens/chat/chat.css
+    web/screens/chat/chat.js
+    web/screens/chat/index.html
+    web/screens/console/console.css
+    web/screens/console/console.js
+    web/screens/console/index.html
+    web/screens/error/error.css
+    web/screens/error/error.js
+    web/screens/error/index.html
+    web/screens/loading/Conduit-ITC.woff
+    web/screens/loading/images/cloud_back.png
+    web/screens/loading/images/cloud_front.png
+    web/screens/loading/images/EldoritoLogoFinalBlueSmall.png
+    web/screens/loading/images/EldoritoLogoFinalSmall.png
+    web/screens/loading/images/gametypes/assault.png
+    web/screens/loading/images/gametypes/ctf.png
+    web/screens/loading/images/gametypes/forge.png
+    web/screens/loading/images/gametypes/infection.png
+    web/screens/loading/images/gametypes/juggernaut.png
+    web/screens/loading/images/gametypes/koth.png
+    web/screens/loading/images/gametypes/none.png
+    web/screens/loading/images/gametypes/oddball.png
+    web/screens/loading/images/gametypes/slayer.png
+    web/screens/loading/images/gametypes/territories.png
+    web/screens/loading/images/gametypes/vip.png
+    web/screens/loading/images/gametypes/zombiez.png
+    web/screens/loading/images/logo.png
+    web/screens/loading/images/maps/bunkerworld.png
+    web/screens/loading/images/maps/chill.png
+    web/screens/loading/images/maps/cyberdyne.png
+    web/screens/loading/images/maps/deadlock.png
+    web/screens/loading/images/maps/guardian.png
+    web/screens/loading/images/maps/riverworld.png
+    web/screens/loading/images/maps/s3d_avalanche.png
+    web/screens/loading/images/maps/s3d_edge.png
+    web/screens/loading/images/maps/s3d_reactor.png
+    web/screens/loading/images/maps/s3d_turf.png
+    web/screens/loading/images/maps/shrine.png
+    web/screens/loading/images/maps/zanzibar.png
+    web/screens/loading/images/ring.png
+    web/screens/loading/images/stars.jpg
+    web/screens/loading/index.html
+    web/screens/loading/loading.css
+    web/screens/loading/loading.js
+    web/screens/medals/index.html
+    web/screens/medals/medals.css
+    web/screens/medals/medals.js
+    web/screens/screens.json
+    web/ui/index.html
+    web/ui/ui.css
+    web/ui/ui.js)
+add_custom_target(web
+    DEPENDS ${WEB_SOURCES}
+    SOURCES ${WEB_SOURCES})
+
+create_source_groups(web)
+add_dependencies(ElDorito web)
+
 # Include directories
 target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
   ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
-  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include)
+  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include
+  ${CMAKE_SOURCE_DIR}/libs/cef
+  ${CMAKE_SOURCE_DIR}/libs/cef/include
+  ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include
+  ${CMAKE_SOURCE_DIR}/libs/boost-1.60/include
+  ${CMAKE_SOURCE_DIR}/libs/miniupnpc/include)
+
+# CEF Process
+add_executable(CefProcess WIN32
+    src/CefProcess/App.cpp
+    src/CefProcess/App.hpp
+    src/CefProcess/main.cpp)
+
+target_include_directories(CefProcess PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/cef
+    ${CMAKE_SOURCE_DIR}/libs/cef/include)
+
+target_link_libraries(CefProcess
+    libcef
+    debug libcef_dll_wrapperd
+    optimized libcef_dll_wrapper)
 
 # Copy DLL to HALO_ROOT
 if(IS_DIRECTORY ${HALO_ROOT})
@@ -217,10 +405,18 @@ if(IS_DIRECTORY ${HALO_ROOT})
                      COMMAND ${CMAKE_COMMAND} -E
                          copy $<TARGET_FILE:ElDorito>
                               ${HALO_ROOT}/$<TARGET_FILE_NAME:ElDorito>)
+  add_custom_command(TARGET CefProcess POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy $<TARGET_FILE:CefProcess>
+                              ${HALO_ROOT}/custom_menu.exe)
   add_custom_command(TARGET ElDorito POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E
-                         copy ${CMAKE_CURRENT_SOURCE_DIR}/artifact_extras/custom_menu.exe
-                              ${HALO_ROOT}/custom_menu.exe)
+                         copy_directory ${CMAKE_SOURCE_DIR}/libs/cef/artifact_extras
+                              ${HALO_ROOT})
+  add_custom_command(TARGET web POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E
+                         copy_directory ${CMAKE_SOURCE_DIR}/web
+                              ${HALO_ROOT}/mods/ui/web)
 endif(IS_DIRECTORY ${HALO_ROOT})
 
 # Link lib files
@@ -232,16 +428,22 @@ target_link_libraries(ElDorito
   detours
   libeay32MT
   ts3client_win32
-  ts3client_win64
   ts3server_win32
-  ts3server_win64
   ZLib
   libwebsocketswin32
-  MedalJunk
-  psapi)
+  psapi
+  winmm
+  libcef
+  debug libcef_dll_wrapperd
+  optimized libcef_dll_wrapper
+  debug cppnetlib-uri-d
+  optimized cppnetlib-uri
+  iphlpapi
+  miniupnpc)
 
 target_compile_definitions(ElDorito PRIVATE NOMINMAX) # Prevent windows.h from defining min() and max()
 target_compile_definitions(ElDorito PRIVATE PSAPI_VERSION=1)
+target_compile_definitions(ElDorito PRIVATE MINIUPNP_STATICLIB)
 
 # Rename output to mtndew
 set_target_properties(ElDorito PROPERTIES OUTPUT_NAME "mtndew")

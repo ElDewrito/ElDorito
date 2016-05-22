@@ -2,6 +2,16 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include "Modules/ModuleGame.hpp"
+#include "Modules/ModulePlayer.hpp"
+#include "Modules/ModuleServer.hpp"
+#include "Modules/ModuleCamera.hpp"
+#include "Modules/ModuleInput.hpp"
+#include "Modules/ModuleVoIP.hpp"
+#include "Modules/ModuleTime.hpp"
+#include "Modules/ModuleGraphics.hpp"
+#include "Modules/ModuleUPnP.hpp"
+
 namespace
 {
 	bool CommandHelp(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -91,6 +101,7 @@ namespace Modules
 		ModuleVoIP::Instance();
 		ModuleTime::Instance();
 		ModuleGraphics::Instance();
+		ModuleUPnP::Instance();
 
 		AddCommand("Help", "help", "Displays this help text", eCommandFlagsNone, CommandHelp);
 		AddCommand("Execute", "exec", "Executes a list of commands", eCommandFlagsNone, CommandExecute, { "filename(string) The list of commands to execute" });

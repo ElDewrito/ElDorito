@@ -17,14 +17,12 @@ namespace Blam
 			template <typename T>
 			inline T *GetDefinition()
 			{
-				static_assert(IsTagType<T>::Value, "Cannot call TagInstance::GetDefinition() on a non-tag type");
-
 				if (Index != 0xFFFF)
 				{
 					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
 					auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
 
-					return reinterpret_cast<T *>(GetTagAddressImpl(T::GroupTag, Index));
+					return reinterpret_cast<T *>(GetTagAddressImpl(GetGroupTag(), Index));
 				}
 
 				return nullptr;

@@ -1,6 +1,8 @@
+#include <ctime>
 #include "ModulePlayer.hpp"
 #include "../ElDorito.hpp"
 #include "../Patches/Armor.hpp"
+#include "../Patches/PlayerUid.hpp"
 
 namespace
 {
@@ -22,14 +24,7 @@ namespace
 
 	bool CommandPlayerPrintUID(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		bool uidIsValid = Pointer::Base(0x15AB728).Read<bool>();
-		if (!uidIsValid)
-		{
-			returnInfo = "Player UID not set";
-			return true;
-		}
-
-		uint64_t uid = Pointer::Base(0x15AB730).Read<uint64_t>();
+		auto uid = Patches::PlayerUid::Get();
 		std::string uidStr;
 		Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
 		returnInfo = "Player UID: 0x" + uidStr;

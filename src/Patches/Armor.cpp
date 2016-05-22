@@ -1,5 +1,6 @@
 
 #include <unordered_map>
+#include <map>
 
 #include "Armor.hpp"
 #include "PlayerPropertiesExtension.hpp"
@@ -9,8 +10,8 @@
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Blam/Tags/Tags.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/Globals.hpp"
-#include "../Blam/Tags/MultiplayerGlobals.hpp"
+#include "../Blam/Tags/Game/Globals.hpp"
+#include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
 
 using namespace Blam::Players;
 
@@ -27,7 +28,7 @@ namespace
 	extern std::unordered_map<std::string, uint8_t> legsIndexes;
 	extern std::unordered_map<std::string, uint8_t> accIndexes;
 	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
-	extern std::unordered_map<std::string, uint16_t> weaponIndices;
+	extern std::map<std::string, uint16_t> weaponIndices;
 
 	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
 	{
@@ -152,13 +153,17 @@ namespace Patches
 
 		void ApplyAfterTagsLoaded()
 		{
-			auto *matg = Blam::Tags::TagInstance(0x0016).GetDefinition<Blam::Tags::Globals>();
-			auto *mulg = Blam::Tags::TagInstance(matg->MultiplayerGlobals.Index).GetDefinition<Blam::Tags::MultiplayerGlobals>();
+			using Blam::Tags::TagInstance;
+			using Blam::Tags::Game::Globals;
+			using Blam::Tags::Game::MultiplayerGlobals;
 
-			for (auto &element : mulg->Universal2[0].GameVariantWeapons)
+			auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
+			auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+
+			for (auto &element : mulg->Universal[0].GameVariantWeapons)
 			{
-				auto string = std::string(Blam::Cache::StringIdCache::Instance.GetString(element.Name));
-				auto index = (uint16_t)element.Weapon.Index;
+				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
+				auto index = (uint16_t)element.Weapon.TagIndex;
 
 				if (index != 0xFFFF)
 				{
@@ -438,7 +443,7 @@ namespace
 		{ "tankmode_human", 4 },
 	};
 
-	std::unordered_map<std::string, uint16_t> weaponIndices = {
+	std::map<std::string, uint16_t> weaponIndices = {
 
 	};
 }

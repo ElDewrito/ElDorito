@@ -2,14 +2,17 @@
 #include <sstream>
 #include <fstream>
 #include <type_traits>
+#include <algorithm>
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Blam/Tags/GameEngineSettingsDefinition.hpp"
-#include "../Menu.hpp"
+#include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Patches/Forge.hpp"
+#include "../Web/Ui/ScreenLayer.hpp"
+#include "ModuleServer.hpp"
+#include "../Patch.hpp"
 
 namespace
 {
@@ -538,7 +541,7 @@ namespace
 	template<class T>
 	int FindDefaultGameVariant(const Blam::Tags::TagBlock<T> &variants, const std::string &name)
 	{
-		static_assert(std::is_base_of<Blam::Tags::GameVariantDefinition, T>::value, "T must be a GameVariantDefinition");
+		static_assert(std::is_base_of<Blam::Tags::Game::GameVariant, T>::value, "T must be a GameVariantDefinition");
 		if (!variants)
 			return -1;
 		for (auto i = 0; i < variants.Count; i++)
@@ -549,20 +552,20 @@ namespace
 		return -1;
 	}
 
-	int FindDefaultGameVariant(Blam::Tags::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
+	int FindDefaultGameVariant(Blam::Tags::Game::GameEngineSettingsDefinition *wezr, Blam::GameType type, const std::string &name)
 	{
 		switch (type)
 		{
 		case Blam::GameType::CTF:
-			return FindDefaultGameVariant(wezr->CtfVariants, name);
+			return FindDefaultGameVariant(wezr->CTFVariants, name);
 		case Blam::GameType::Slayer:
 			return FindDefaultGameVariant(wezr->SlayerVariants, name);
 		case Blam::GameType::Oddball:
 			return FindDefaultGameVariant(wezr->OddballVariants, name);
 		case Blam::GameType::KOTH:
-			return FindDefaultGameVariant(wezr->KothVariants, name);
+			return FindDefaultGameVariant(wezr->KOTHVariants, name);
 		case Blam::GameType::VIP:
-			return FindDefaultGameVariant(wezr->VipVariants, name);
+			return FindDefaultGameVariant(wezr->VIPVariants, name);
 		case Blam::GameType::Juggernaut:
 			return FindDefaultGameVariant(wezr->JuggernautVariants, name);
 		case Blam::GameType::Territories:
@@ -579,9 +582,9 @@ namespace
 	bool LoadDefaultGameVariant(const std::string &name, uint8_t *out)
 	{
 		// Get a handle to the wezr tag
-		typedef Blam::Tags::GameEngineSettingsDefinition* (*GetWezrTagPtr)();
+		typedef Blam::Tags::Game::GameEngineSettingsDefinition *(*GetWezrTagPtr)();
 		auto GetWezrTag = reinterpret_cast<GetWezrTagPtr>(0x719290);
-		auto wezr = GetWezrTag();
+		auto *wezr = GetWezrTag();
 		if (!wezr)
 			return false;
 
@@ -713,7 +716,10 @@ namespace
 			std::transform(arguments[0].begin(), arguments[0].end(), e.begin(), ::tolower);
 			enabled = e != "0" && e != "false";
 		}
-		Menu::Instance().setEnabled(enabled);
+		if (enabled)
+			Web::Ui::ScreenLayer::Show("browser", "{}");
+		else
+			Web::Ui::ScreenLayer::Hide("browser");
 		returnInfo = (enabled) ? "Enabling menu..." : "Disabling menu...";
 		return true;
 	}
@@ -793,7 +799,7 @@ namespace Modules
 
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
-		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the menu is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
+		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the server browser is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
 
 		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
 
@@ -807,11 +813,13 @@ namespace Modules
 
 		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", eCommandFlagsArchived, 0);
 		VarSkipLauncher->ValueIntMin = 0;
-		VarSkipLauncher->ValueIntMax = 0;
+		VarSkipLauncher->ValueIntMax = 1;
 
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 
 		VarRconPort = AddVariableInt("RconPort", "rcon_port", "The port to use for rcon in this instance of the game", eCommandFlagsArchived, 11776);
+
+		VarMedalPack = AddVariableString("MedalPack", "medals", "The name of the medal pack to use", eCommandFlagsArchived, "default");
 
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);

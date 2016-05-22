@@ -1,15 +1,9 @@
 #pragma once
 
-#include <chrono>
 #include <map>
-#include <vector>
-#include <stdint.h>
-#include <memory>
 
 #include "Utils/Utils.hpp"
-#include "ElModules.hpp"
 #include "Pointer.hpp"
-#include "Patch.hpp"
 
 class ElDorito : public Utils::Singleton < ElDorito >
 {
@@ -33,16 +27,17 @@ public:
 	std::string GetDirectory();
 
 	void Initialize();
-	void Tick(const std::chrono::duration<double>& DeltaTile);
+	void Tick();
 	void OnMainMenuShown();
-	bool IsHostPlayer();
 	std::string GetMapsFolder() const { return mapsFolder; }
+	bool IsWebDebuggingEnabled() const { return webDebugging; }
 
 private:
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;
 	std::string mapsFolder;
+	bool webDebugging = false;
 	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);

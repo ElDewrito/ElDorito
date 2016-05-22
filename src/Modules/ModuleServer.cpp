@@ -16,25 +16,17 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Console/GameConsole.hpp"
+#include "../Console.hpp"
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
+#include "ModulePlayer.hpp"
+#include "ModuleVoIP.hpp"
 
 namespace
 {
-	std::string IpToString(const Blam::Network::NetworkAddress &addr)
-	{
-		struct in_addr inAddr;
-		inAddr.S_un.S_addr = addr.ToInAddr();
-		char ipStr[INET_ADDRSTRLEN];
-		if (!inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
-			return "";
-		return std::string(ipStr);
-	}
-
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
@@ -525,7 +517,7 @@ namespace
 			returnInfo = "Player \"" + kickPlayerName + "\" not found.";
 			return false;
 		}
-		auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
+		auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)).ToString();
 		if (!Blam::Network::BootPlayer(playerIdx, 4))
 		{
 			returnInfo = "Failed to kick player " + kickPlayerName;
@@ -568,7 +560,7 @@ namespace
 		auto success = false;
 		for (auto playerIdx : indices)
 		{
-			auto ip = IpToString(session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)));
+			auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)).ToString();
 			auto kickPlayerName = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[playerIdx].Properties.DisplayName);
 			if (!Blam::Network::BootPlayer(playerIdx, 4))
 			{
@@ -615,7 +607,7 @@ namespace
 		}
 		auto player = &session->MembershipInfo.PlayerSessions[index];
 		auto kickPlayerName = Utils::String::ThinString(player->Properties.DisplayName);
-		auto ip = IpToString(session->GetPeerAddress(player->PeerIndex));
+		auto ip = session->GetPeerAddress(player->PeerIndex).ToString();
 		if (!Blam::Network::BootPlayer(index, 4))
 		{
 			returnInfo = "Failed to kick player " + kickPlayerName;
@@ -732,7 +724,7 @@ namespace
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 				auto name = Utils::String::ThinString(player->Properties.DisplayName);
 				auto ip = session->GetPeerAddress(peerIdx);
-				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid << ", ip: " << IpToString(ip) << ")" << std::endl;
+				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid << ", ip: " << ip.ToString() << ")" << std::endl;
 			}
 
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
@@ -770,7 +762,7 @@ namespace
 		return false;
 	}
 
-	const uint16_t PingId = 0xF00D;
+	uint16_t PingId;
 	bool CommandServerPing(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() > 1)
@@ -789,14 +781,12 @@ namespace
 		// If an IP address was passed, send to that address
 		if (Arguments.size() == 1)
 		{
-			struct in_addr inAddr;
-			if (!inet_pton(AF_INET, Arguments[0].c_str(), &inAddr))
+			Blam::Network::NetworkAddress blamAddress;
+			if (!Blam::Network::NetworkAddress::Parse(Arguments[0], 11774, &blamAddress))
 			{
 				returnInfo = "Invalid IPv4 address";
 				return false;
 			}
-
-			auto blamAddress = Blam::Network::NetworkAddress::FromInAddr(inAddr.S_un.S_addr, 11774);
 			if (!session->Gateway->Ping(blamAddress, PingId))
 			{
 				returnInfo = "Failed to send ping packet";
@@ -880,25 +870,9 @@ namespace
 			return; // Only show pings sent by the ping command
 
 		// PONG <ip> <timestamp> <latency>
-		auto ipStr = IpToString(from);
+		auto ipStr = from.ToString();
 		auto message = "PONG " + ipStr + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
-		GameConsole::Instance().consoleQueue.pushLineFromGameToUI(message);
-	}
-
-	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
-	{
-		switch (newState)
-		{
-		case Blam::Network::eLifeCycleStateNone:
-			// Disable game chat on the main menu
-			GameConsole::Instance().gameChatQueue.visible = false;
-			break;
-		case Blam::Network::eLifeCycleStatePreGame:
-		case Blam::Network::eLifeCycleStateInGame:
-			// Enable to game chat when joining a game
-			GameConsole::Instance().gameChatQueue.visible = true;
-			break;
-		}
+		Console::WriteLine(message);
 	}
 
 	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -930,7 +904,13 @@ namespace Modules
 {
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
-		VarServerName = AddVariableString("Name", "server_name", "The name of the server", eCommandFlagsArchived, "HaloOnline Server");
+		VarServerName = AddVariableString("Name", "server_name", "The name of the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), "HaloOnline Server");
+		VarServerNameClient = AddVariableString("NameClient", "server_name_client", "", eCommandFlagsInternal);
+		Server::VariableSynchronization::Synchronize(VarServerName, VarServerNameClient);
+
+		VarServerMessage = AddVariableString("Message", "server_msg", "Text to display on the loading screen (limited to 512 chars)", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), "");
+		VarServerMessageClient = AddVariableString("MessageClient", "server_msg_client", "", eCommandFlagsInternal);
+		Server::VariableSynchronization::Synchronize(VarServerMessage, VarServerMessageClient);
 
 		VarServerPassword = AddVariableString("Password", "password", "The server password", eCommandFlagsArchived, "");
 
@@ -1016,7 +996,6 @@ namespace Modules
 		Server::VariableSynchronization::Synchronize(syncTestServer, syncTestClient);
 #endif
 
-		Patches::Network::OnPong(PongReceived);
-		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
+		PingId = Patches::Network::OnPong(PongReceived);
 	}
 }

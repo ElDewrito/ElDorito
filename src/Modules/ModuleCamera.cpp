@@ -1,8 +1,6 @@
 #include "ModuleCamera.hpp"
 #include <sstream>
 #include "../ElDorito.hpp"
-#include "../Patches/Ui.hpp"
-#include "../Console/GameConsole.hpp"
 
 namespace
 {
@@ -345,8 +343,8 @@ namespace Modules
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
 
-		// only allow camera input while flying outside of cli/chat
-		if (mode.compare("flying") || GameConsole::Instance().showConsole || GameConsole::Instance().showChat)
+		// only allow camera input while flying
+		if (mode.compare("flying"))
 			return;
 
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];

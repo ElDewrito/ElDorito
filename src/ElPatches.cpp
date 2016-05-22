@@ -16,13 +16,14 @@
 #include "Patches\CustomPackets.hpp"
 #include "Patches\Logging.hpp"
 #include "Patches\Sprint.hpp"
-#include "Patches\Assassination.hpp"
-#include "Modules\ModuleCamera.hpp"
+#include "Patches\Events.hpp"
+#include "Patches\LoadingScreen.hpp"
+#include "DirectXHook.hpp"
 
 #include "Blam\Cache\StringIdCache.hpp"
 #include "Blam\Tags\TagInstance.hpp"
-#include "Blam\Tags\Globals.hpp"
-#include "Blam\Tags\MultiplayerGlobals.hpp"
+#include "Blam\Tags\Game\Globals.hpp"
+#include "Blam\Tags\Game\MultiplayerGlobals.hpp"
 
 namespace
 {
@@ -48,6 +49,9 @@ namespace Patches
 		Forge::ApplyAll();
 		CustomPackets::ApplyAll();
 		Logging::ApplyAll();
+		Events::ApplyAll();
+		LoadingScreen::ApplyAll();
+		DirectXHook::applyPatches();
 	}
 	
 	void ApplyOnFirstTick()

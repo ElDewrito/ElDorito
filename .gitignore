@@ -231,3 +231,4 @@ FakesAssemblies/
 !SDL2main.lib
 !SDL2test.lib
 !custom_menu.exe
+!libs/boost-1.60/include/boost/**
