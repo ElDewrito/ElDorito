@@ -12,6 +12,7 @@ namespace Modules
 		Command* VarServerCountdown;
 		Command* VarServerMaxPlayers;
 		Command* VarServerPort;
+		Command* VarServerGamePort;
 		Command* VarServerShouldAnnounce;
 		Command* VarServerMode;
 		Command* VarServerLobbyType;

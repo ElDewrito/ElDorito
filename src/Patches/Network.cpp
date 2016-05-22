@@ -27,6 +27,7 @@ namespace
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason);
 	bool __fastcall Network_session_handle_join_requestHook(Blam::Network::Session *thisPtr, void *unused, const Blam::Network::NetworkAddress &address, void *request);
 	int Network_GetMaxPlayersHook();
+	bool __fastcall Network_GetEndpointHook(char *thisPtr, void *unused);
 
 	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *data, uint32_t arg10);
@@ -386,6 +387,8 @@ namespace Patches
 
 			// Set the max player count to Server.MaxPlayers when hosting a lobby
 			Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
+
+			Hook(0x3BAFB, Network_GetEndpointHook, HookFlags::IsCall).Apply();
 		}
 
 		void ForceDedicated()
@@ -591,6 +594,7 @@ namespace
 			uint8_t* xnkidPtr = entryPtr + 0x9E;
 			uint8_t* xnaddrPtr = entryPtr + 0xAE;
 			uint8_t* ipPtr = entryPtr + 0x170;
+			uint8_t* portPtr = entryPtr + 0x174;
 
 			if (memcmp(pxna, xnaddrPtr, 0x10) == 0 && memcmp(pxnkid, xnkidPtr, 0x10) == 0)
 			{
@@ -601,8 +605,8 @@ namespace
 
 				memset(in_addr, 0, 0x14);
 				memcpy(in_addr, ipPtr, 4);
+				memcpy((uint8_t*)in_addr + 0x10, portPtr, 2);
 
-				*(uint16_t*)((uint8_t*)in_addr + 0x10) = 11774;
 				*(uint16_t*)((uint8_t*)in_addr + 0x12) = 4;
 
 				return 1;
@@ -958,5 +962,43 @@ namespace
 			push	0A6E988h
 			ret
 		}
+	}
+
+	// __thiscall
+	bool __fastcall Network_GetEndpointHook(char *thisPtr, void *unused)
+	{
+		char* socket = thisPtr + 12;
+		uint32_t port = Modules::ModuleServer::Instance().VarServerGamePort->ValueInt;
+		bool success = false;
+
+		//bool __cdecl Network_c_network_link::create_endpoint(int a1, __int16 GamePort, char a3, _DWORD *a4)
+		typedef bool(__cdecl *Network_link_create_endpointFunc)(int a1, __int16 GamePort, char a3, void *a4);
+		Network_link_create_endpointFunc Network_link_create_endpoint = reinterpret_cast<Network_link_create_endpointFunc>(0x43B6F0);
+
+		//LPVOID __cdecl sub_43FED0(SOCKET socket)
+		typedef LPVOID(__cdecl *sub_43FED0Func)(SOCKET socket);
+		sub_43FED0Func sub_43FED0 = reinterpret_cast<sub_43FED0Func>(0x43FED0);
+
+		while (true)
+		{
+			Pointer(0x1860454).Write<uint32_t>(port);
+			success = Network_link_create_endpoint(0, (short)port, 1, socket);
+
+			if (success)
+				break;
+
+			if (*socket)
+			{
+				sub_43FED0(*socket);
+				*socket = 0;
+			}
+
+			if (++port - Modules::ModuleServer::Instance().VarServerGamePort->ValueInt >= 1000)
+			{
+				Pointer(0x1860454).Write<uint32_t>(Modules::ModuleServer::Instance().VarServerGamePort->ValueInt);
+				return success;
+			}
+		}
+		return success;
 	}
 }
