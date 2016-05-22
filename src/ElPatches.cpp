@@ -16,6 +16,7 @@
 #include "Patches\CustomPackets.hpp"
 #include "Patches\Logging.hpp"
 #include "Patches\Sprint.hpp"
+#include "Patches\Gravity.hpp"
 #include "Patches\Assassination.hpp"
 #include "Modules\ModuleCamera.hpp"
 
