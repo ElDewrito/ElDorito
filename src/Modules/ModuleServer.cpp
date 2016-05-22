@@ -60,6 +60,12 @@ namespace
 		return true;
 	}
 
+	bool VariableServerGamePortUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		returnInfo = "Requires a game restart to apply.";
+		return true;
+	}
+
 	// retrieves master server endpoints from dewrito.json
 	void GetEndpoints(std::vector<std::string>& destVect, std::string endpointType)
 	{
@@ -940,7 +946,7 @@ namespace Modules
 		VarServerPort->ValueIntMin = 1;
 		VarServerPort->ValueIntMax = 0xFFFF;
 
-		VarServerGamePort = AddVariableInt("GamePort", "server_gameport", "The port number used by Halo Online", eCommandFlagsArchived, 11774);
+		VarServerGamePort = AddVariableInt("GamePort", "server_gameport", "The port number used by Halo Online", eCommandFlagsArchived, 11774, VariableServerGamePortUpdate);
 		VarServerGamePort->ValueIntMin = 1;
 		VarServerGamePort->ValueIntMax = 0xFFFF;
 
