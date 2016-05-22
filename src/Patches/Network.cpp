@@ -594,6 +594,7 @@ namespace
 			uint8_t* xnkidPtr = entryPtr + 0x9E;
 			uint8_t* xnaddrPtr = entryPtr + 0xAE;
 			uint8_t* ipPtr = entryPtr + 0x170;
+			uint8_t* portPtr = entryPtr + 0x174;
 
 			if (memcmp(pxna, xnaddrPtr, 0x10) == 0 && memcmp(pxnkid, xnkidPtr, 0x10) == 0)
 			{
@@ -604,8 +605,8 @@ namespace
 
 				memset(in_addr, 0, 0x14);
 				memcpy(in_addr, ipPtr, 4);
+				memcpy((uint8_t*)in_addr + 0x10, portPtr, 2);
 
-				*(uint16_t*)((uint8_t*)in_addr + 0x10) = 11774;
 				*(uint16_t*)((uint8_t*)in_addr + 0x12) = 4;
 
 				return 1;
