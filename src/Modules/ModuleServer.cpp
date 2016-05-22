@@ -20,6 +20,7 @@
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
+#include "../Patches/Gravity.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
 
@@ -910,6 +911,14 @@ namespace
 		Patches::Sprint::SetUnlimited(unlimited);
 		return true;
 	}
+	
+	bool GravityEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerGravityEnabledClient->ValueInt != 0;
+		Patches::Gravity::Enable(enabled);
+		return true;
+	}
 
 	bool AssassinationDisabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
@@ -981,6 +990,10 @@ namespace Modules
 		VarServerSprintUnlimited = AddVariableInt("UnlimitedSprint", "unlimited_sprint", "Controls whether unlimited sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
 		VarServerSprintUnlimitedClient = AddVariableInt("UnlimitedSprintClient", "unlimited_sprint_client", "", eCommandFlagsInternal, 0, UnlimitedSprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintUnlimited, VarServerSprintUnlimitedClient);
+		
+		VarServerGravityEnabled = AddVariableInt("GravityEnabled", "gravity", "Controls whether gravity is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerGravityEnabledClient = AddVariableInt("GravityEnabledClient", "gravity_client", "", eCommandFlagsInternal, 1, GravityEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarServerGravityEnabled, VarServerGravityEnabledClient);
 
 		VarServerDualWieldEnabled = AddVariableInt("DualWieldEnabled", "dualwield", "Controls whether dual wielding is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerDualWieldEnabledClient = AddVariableInt("DualWieldEnabledClient", "dualwield_client", "", eCommandFlagsInternal, 0);
