@@ -142,6 +142,8 @@ add_library(ElDorito SHARED
     src/Patches/Scoreboard.hpp
     src/Patches/Sprint.cpp
     src/Patches/Sprint.hpp
+    src/Patches/Gravity.cpp
+    src/Patches/Gravity.hpp
     src/Patches/Ui.cpp
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp

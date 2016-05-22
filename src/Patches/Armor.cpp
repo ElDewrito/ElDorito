@@ -431,6 +431,33 @@ namespace
 	};
 
 	std::unordered_map<std::string, uint8_t> accIndexes = {
+		/* I know these are null variants but this helps with adding effect mods.
+		Using these by default in no way effects the game. */
+		{ "base", 0 },
+		{ "katana", 1 },
+		{ "antenna_01", 2 },
+		{ "knife_02", 3 },
+		{ "tools_bag_01", 4 },
+		{ "knife_01", 5 },
+		{ "throwing_knives", 6 },
+		{ "bullet_shield", 7 },
+		{ "medkit", 8 },
+		{ "ammo_pack", 9 },
+		{ "target_painter", 10 },
+		{ "grenade_01", 11 },
+		{ "reactive_armor_arm", 12 },
+		{ "reactive_armor_leg", 13 },
+		{ "dog_tag_01", 14 },
+		{ "chest_battery", 15 },
+		{ "ammo_belt", 16 },
+		{ "flashlight", 17 },
+		{ "shotgun_ammo", 18 },
+		{ "holo_scope", 19 },
+		{ "hud_screen", 20 },
+		{ "antenna_02", 21 },
+		{ "generator_device", 22 },
+		{ "reactive_armor_plate", 23 },
+		{ "electronic_tool", 24 },
 	};
 
 	std::unordered_map<std::string, uint8_t> pelvisIndexes = {

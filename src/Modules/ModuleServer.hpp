@@ -19,6 +19,8 @@ namespace Modules
 		Command* VarServerSprintEnabledClient;
 		Command* VarServerSprintUnlimited;
 		Command* VarServerSprintUnlimitedClient;
+		Command* VarServerGravityEnabled;
+		Command* VarServerGravityEnabledClient;
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
 		Command* VarServerAssassinationEnabled;
