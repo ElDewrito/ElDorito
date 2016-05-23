@@ -7,6 +7,7 @@
 #include <fstream>
 #include <algorithm>
 #include <random>
+#include <iomanip>
 #include "../ElDorito.hpp"
 #include "../Patches/Network.hpp"
 #include "../Patches/PlayerUid.hpp"
@@ -14,6 +15,8 @@
 
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
+#include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console.hpp"
@@ -705,13 +708,7 @@ namespace
 		auto* session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
 		{
-			returnInfo = "No session found, are you hosting a game?";
-			return false;
-		}
-
-		if (!session->IsHost())
-		{
-			returnInfo = "You must be hosting a game to use this command";
+			returnInfo = "No session found, are you in a game?";
 			return false;
 		}
 
@@ -724,13 +721,63 @@ namespace
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 				auto name = Utils::String::ThinString(player->Properties.DisplayName);
 				auto ip = session->GetPeerAddress(peerIdx);
-				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid << ", ip: " << ip.ToString() << ")" << std::endl;
+				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid;
+				if (session->IsHost())
+					ss << ", ip: " << ip.ToString();
+				ss << ")" << std::endl;
 			}
 
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
 
 		returnInfo = ss.str();
+		return true;
+	}
+
+	bool CommandServerListPlayersJSON(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		auto* session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+		{
+			returnInfo = "No session found, are you in a game?";
+			return false;
+		}
+
+		writer.StartArray();
+
+		int peerIdx = session->MembershipInfo.FindFirstPeer();
+		while (peerIdx != -1)
+		{
+			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+			if (playerIdx != -1)
+			{
+				auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+				writer.StartObject();
+				writer.Key("name");
+				writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+
+				writer.Key("teamIndex");
+				writer.Int(player.Properties.TeamIndex);
+
+				std::string uidStr;
+				Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
+				writer.Key("UID");
+				writer.String(uidStr.c_str());
+
+				std::stringstream color;
+				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+				writer.Key("color");
+				writer.String(color.str().c_str());
+				writer.EndObject();
+			}
+			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+		}
+
+		writer.EndArray();
+		returnInfo = buffer.GetString();
 		return true;
 	}
 
@@ -950,7 +997,8 @@ namespace Modules
 		AddCommand("AddBan", "addban", "Adds to the ban list (does NOT kick anyone)", eCommandFlagsNone, CommandServerBan, { "type The ban type (only \"ip\" is supported for now)", "val The value to add to the ban list" });
 		AddCommand("Unban", "unban", "Removes from the ban list", eCommandFlagsNone, CommandServerUnban, { "type The ban type (only \"ip\" is supported for now)", "val The value to remove from the ban list" });
 
-		AddCommand("ListPlayers", "list", "Lists players in the game (currently host only)", eCommandFlagsHostOnly, CommandServerListPlayers);
+		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
+		AddCommand("ListPlayersJSON", "listjson", "Returns JSON with data about the players in the game. Intended for server browser use only.", eCommandFlagsHidden, CommandServerListPlayersJSON);
 
 		AddCommand("Ping", "ping", "Ping a server", eCommandFlagsNone, CommandServerPing, { "[ip] The IP address of the server to ping. Omit to ping the host." });
 
