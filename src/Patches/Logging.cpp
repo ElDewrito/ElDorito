@@ -18,6 +18,7 @@ namespace
 	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut);
 	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize);
 	void ExceptionHook(char* msg);
+	void* __cdecl globalDataAllocateArrayHook(const char* name, int entryCount, int entrySize, int alignment, void** allocator);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -28,6 +29,7 @@ namespace
 	Hook DebugLogStringHook(0x218A30, debuglog_string);
 	Hook PacketReceiveHook(0x7FF88, packetRecvHook, HookFlags::IsCall);
 	Hook PacketSendHook(0x800A4, packetSendHook, HookFlags::IsCall);
+	Hook MemoryGlobalAllocateArrayHook(0x15AFA0, globalDataAllocateArrayHook);
 }
 
 namespace Patches
@@ -72,6 +74,11 @@ namespace Patches
 		{
 			PacketReceiveHook.Apply(!enable);
 			PacketSendHook.Apply(!enable);
+		}
+
+		void EnableMemoryLog(bool enable)
+		{
+			MemoryGlobalAllocateArrayHook.Apply(!enable);
 		}
 	}
 }
@@ -262,5 +269,26 @@ namespace
 		}
 
 		std::exit(0);
+	}
+
+	void* __cdecl globalDataAllocateArrayHook(const char* name, int entryCount, int entrySize, int alignment, void** allocator)
+	{
+		// needs to be a power of two
+		int padding = alignment ? 1 << alignment - 1 : 0;
+
+		// call entity-specific allocator
+		void* address = (**reinterpret_cast<void*(__thiscall***)(void**, int, const char*)>(allocator))
+			(allocator, padding + entrySize * entryCount + 4 * ((entryCount + 31) >> 5) + 84, name);
+
+		Utils::DebugLog::Instance().Log("Memory", "AllocateGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, EntryCount: %d, EntrySize: %d", 
+			address, **reinterpret_cast<uint32_t**>(allocator), name, entryCount, entrySize);
+
+		if (address)
+		{
+			typedef void*(__cdecl *GlobalDataInitializeArray)(void*, const char*, int, int, int, void**);
+			reinterpret_cast<GlobalDataInitializeArray>(0x55ACF0)(address, name, entryCount, entrySize, padding, allocator);
+		}
+
+		return address;
 	}
 }

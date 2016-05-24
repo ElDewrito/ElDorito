@@ -11,5 +11,6 @@ namespace Patches
 		void EnableGame1Log(bool enable);
 		void EnableGame2Log(bool enable);
 		void EnablePacketsLog(bool enable);
+		void EnableMemoryLog(bool enable);
 	}
 }

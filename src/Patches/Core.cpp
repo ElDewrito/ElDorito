@@ -49,8 +49,73 @@ namespace Patches
 {
 	namespace Core
 	{
+		void MemoryExpansionTests()
+		{
+			const uint32_t origResourceSize = 0x24B00000;
+			const uint32_t origGlobalsSize = 0xAE00000;
+			const uint32_t origTotalSize = origResourceSize + origGlobalsSize;
+
+			uint32_t extraGlobalsSize = 0;
+
+			// expand runtime state allocation globals and disable soft size limits
+			*reinterpret_cast<uint32_t*>(0x509F30 + 1) = 0x380000 * 2;
+			Patch::NopFill(0x509CD6, 7);
+			Patch::NopFill(0x509D69, 7);
+			Patch::NopFill(0x509E62, 7);
+			Patch::NopFill(0x509EC6, 7);
+
+			// expand havok components
+			*reinterpret_cast<uint32_t*>(0x5EA89D + 1) = 2048;
+			extraGlobalsSize += (2048 - 1500) * 0x80;
+
+			// expand object looping sounds
+			//*reinterpret_cast<uint32_t*>(0x5D932B + 1) = 4096;
+			//extraGlobalsSize += (4096 - 1024) * 0x20;
+
+			// expand textures array
+			*reinterpret_cast<uint32_t*>(0xA6E9CA + 1) = 16384;
+			extraGlobalsSize += (16384 - 8192) * 8;
+
+			// expand sound sources
+			*reinterpret_cast<uint32_t*>(0x517AEC + 1) = 384*2;
+			extraGlobalsSize += (384 * 2 - 384) * 0xC8;
+
+			// expand xbox sound
+			*reinterpret_cast<uint32_t*>(0x66009A + 1) = 16384;
+			extraGlobalsSize += (16384 - 8192) * 0xC;
+
+			// expand object array
+			*reinterpret_cast<uint32_t*>(0xB35F84 + 1) = 4096;
+			*reinterpret_cast<uint32_t*>(0xB35F8E + 6) = 4096;	// needed?
+			extraGlobalsSize += (4096 - 2048) * 0x10;
+
+			// sound tracker data
+			*reinterpret_cast<uint32_t*>(0x66A312 + 1) = 512;
+			extraGlobalsSize += (512 - 384) * 0x40;
+
+			//// expand objects pool
+			//*reinterpret_cast<uint32_t*>(0xB35FA4 + 1) = 0x180000 * 2;
+			//extraGlobalsSize += 0x180000;
+
+			// still working out how the globals are sub-divided, structs appear to be located elsewhere and cause issues expanding currently
+			extraGlobalsSize += 0x380000;
+
+			// give resources some additional room to breathe
+			uint32_t extraResourceSize = 0; // 1024 * 1024 * 100;
+	
+			uint32_t newGlobalsSize = origGlobalsSize + ((extraGlobalsSize + 0xFFFF) & 0xFFFF0000);
+			uint32_t newResourceSize = origResourceSize + extraResourceSize;
+			uint32_t newTotalSize = newResourceSize + newGlobalsSize;
+
+			*reinterpret_cast<uint32_t*>(0x51D6AF + 2) = newGlobalsSize;
+			*reinterpret_cast<uint32_t*>(0x51DB64 + 3) = newResourceSize;
+			*reinterpret_cast<uint32_t*>(0x51D699 + 1) = newTotalSize;
+		}
+
 		void ApplyAll()
 		{
+			//MemoryExpansionTests();
+
 			// Enable tag edits
 			Patch(0x101A5B, { 0xEB }).Apply();
 			Patch::NopFill(Pointer::Base(0x102874), 2);
