@@ -13,6 +13,7 @@
 #include "Web/Ui/WebChat.hpp"
 #include "Web/Ui/WebConsole.hpp"
 #include "Web/Ui/WebLoadingScreen.hpp"
+#include "Web/Ui/WebScoreboard.hpp"
 #include "Web/Ui/MpEventDispatcher.hpp"
 #include "ElModules.hpp"
 #include "Modules/ModuleGame.hpp"
@@ -156,6 +157,7 @@ void ElDorito::Initialize()
 		Web::Ui::WebChat::Init();
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
+		Web::Ui::WebScoreboard::Init();
 	}
 
 	// Language patch
