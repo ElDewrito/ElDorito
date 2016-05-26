@@ -7,6 +7,7 @@
 #include "../../Pointer.hpp"
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../ThirdParty/rapidjson/stringbuffer.h"
+#include "../../Utils/String.hpp"
 
 #include <iomanip>
 
@@ -74,6 +75,88 @@ namespace Web
 					}
 				}
 			}
+
+			std::string getScoreboard()
+			{
+				rapidjson::StringBuffer buffer;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+				writer.StartObject();
+
+				auto session = Blam::Network::GetActiveSession();
+				if (!session || !session->IsEstablished())
+				{
+					writer.EndObject();
+					return buffer.GetString();
+				}
+
+				if (session->HasTeams())
+				{
+					writer.Key("hasTeams");
+					writer.Bool(true);
+					writer.Key("redScore");
+					writer.Int(Pointer(0x01879DA8).Read<uint32_t>());
+					writer.Key("blueScore");
+					writer.Int(Pointer(0x01879DAC).Read<uint32_t>());
+				}
+				else
+				{
+					writer.Key("hasTeams");
+					writer.Bool(false);
+					writer.Key("redScore");
+					writer.Int(0);
+					writer.Key("blueScore");
+					writer.Int(0);
+				}
+
+				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+				if (variantType >= 0 && variantType < Blam::GameTypeCount)
+				{
+					writer.Key("gameType");
+					writer.String(Blam::GameTypeNames[variantType].c_str());
+				}
+
+				writer.Key("players");
+				writer.StartArray();
+				int peerIdx = session->MembershipInfo.FindFirstPeer();
+				while (peerIdx != -1)
+				{
+					int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+					if (playerIdx != -1)
+					{
+						auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+						auto playerStats = Blam::Players::GetStats(playerIdx);
+						writer.StartObject();
+						// Player information
+						writer.Key("name");
+						writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+						writer.Key("team");
+						writer.Int(player.Properties.TeamIndex);
+						std::stringstream color;
+						color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+						writer.Key("color");
+						writer.String(color.str().c_str());
+						writer.Key("index");
+						writer.Int(playerIdx);
+						// Generic score information
+						writer.Key("kills");
+						writer.Int(playerStats.Kills);
+						writer.Key("assists");
+						writer.Int(playerStats.Assists);
+						writer.Key("deaths");
+						writer.Int(playerStats.Deaths);
+						writer.Key("score");
+						writer.Int(playerStats.Score);
+
+						writer.EndObject();
+					}
+					peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+				}
+				writer.EndArray();
+				writer.EndObject();
+
+				return buffer.GetString();
+			}
 		}
 	}
 }
@@ -82,6 +165,9 @@ namespace
 {
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition)
 	{
+		//Update the scoreboard whenever an event occurs
+		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
+
 		if (event->NameStringId == 0x4004D)// "general_event_game_over"
 		{
 			time(&postgameDisplayed);

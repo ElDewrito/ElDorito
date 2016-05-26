@@ -502,8 +502,44 @@ CommandType = {
      * @property {boolean} hasTeams - `true` if the current session has teams.
      * @property {boolean} isHost - `true` if the player is the host of the session.
      * @property {string} mapName - Name of the currently loaded map.
-     * @see dew.sessionInfo
+     * @see dew.getSessionInfo
      */
+
+     /**
+      * (ASYNCHRONOUS) Gets information about the current game's scoreboard.
+      *
+      * @returns {DewPromise<ScoreboardInfo>} A promise for the scoreboard information.
+      */
+     dew.getScoreboard = function () {
+         return dew.callMethod("scoreboard", {}, jsonResultMapping);
+     }
+
+     /**
+      * Contains information about the scoreboard.
+      *
+      * @typedef {object} ScoreboardInfo
+      * @property {boolean} hasTeams - `true` if the current session has teams.
+      * @property {number} redScore - The score of the red team.
+      * @property {number} blueScore - The score of the blue team.
+      * @property {string} gameType - The gamemode type.
+      * @property {ScoreboardPlayer[]} players - Players listed on the scoreboard.
+      * @see dew.getScoreboard
+      */
+
+     /**
+      * Contains information about a player on the scoreboard.
+      *
+      * @typedef {object} ScoreboardPlayer
+      * @property {string} name - The player's name.
+      * @property {number} team - The player's team index.
+      * @property {string} color - The player's primary armor color.
+      * @property {number} index - The player's player index.
+      * @property {number} kills - The number of kills.
+      * @property {number} assists - The number of assists.
+      * @property {number} deaths - The number of deaths.
+      * @property {number} score - The player's score.
+      * @see ScoreboardInfo
+      */
 
     /**
      * Registers a callback to be run when an event occurs.
@@ -599,5 +635,12 @@ CommandType = {
      * @property {number} teamIndex - The team index of the player. Not included when chatType is "SERVER".
      * @property {string} UID - The UID of the player. Not included when chatType is "SERVER".
      * @property {string} color - The hex color of the player's primary armor color. Not included when chatType is "SERVER".
+     */
+
+    /**
+     * Fires when the scoreboard is updated
+     *
+     * @event scoreboard
+     * @type {ScoreboardInfo}
      */
 })();

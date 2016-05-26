@@ -1,5 +1,6 @@
 #include "BlamPlayers.hpp"
 #include "../ElDorito.hpp"
+#include "BlamTypes.hpp"
 
 namespace
 {
@@ -41,6 +42,11 @@ namespace Blam
 			typedef int(*GetPlayerAssistsPtr)(DatumIndex player);
 			auto GetPlayerAssists = reinterpret_cast<GetPlayerAssistsPtr>(0x5504E0);
 			return GetPlayerAssists(player);
+		}
+
+		PLAYER_STATS GetStats(int playerIndex)
+		{
+			return Pointer(0x023F1718 + (playerIndex * GameGlobals::GlobalStats::PlayerLength)).Read<PLAYER_STATS>();
 		}
 	}
 }

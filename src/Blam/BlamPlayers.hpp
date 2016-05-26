@@ -103,6 +103,167 @@ namespace Blam
 		};
 		static_assert(sizeof(PlayerDatum) == 0x2F08, "Invalid PlayerDatum size");
 
+		typedef struct _PLAYER_MEDALS
+		{
+			uint16_t Exterminations; //0x5A
+			uint16_t Perfections; //0x5C
+			uint16_t DoubleKills; //0x5E
+			uint16_t TripleKills; //0x60
+			uint16_t OverKills; //0x62
+			uint16_t Killtaculars; //0x64
+			uint16_t Killtrocities; //0x66
+			uint16_t Killimanjaros; //0x68
+			uint16_t Killtastrophes; //0x6A
+			uint16_t Killpocalypses; //0x6C
+			uint16_t Killionaires; //0x6E
+			uint16_t KillingSprees; //0x70
+			uint16_t KillingFrenzies; //0x72
+			uint16_t RunningRiots; //0x74
+			uint16_t Rampages; //0x76
+			uint16_t Untouchables; //0x78
+			uint16_t Invincibles; //0x7A
+			uint16_t SniperSprees; //0x7C
+			uint16_t Sharpshooters; //0x7E
+			uint16_t ShotgunSprees; //0x80
+			uint16_t OpenSeasons; //0x82
+			uint16_t SplatterSprees; //0x84
+			uint16_t VehicularManslaughters; //0x86
+			uint16_t SwordSprees; //0x88
+			uint16_t SliceNDices; //0x8A
+			uint16_t JuggernautSprees; //0x8C
+			uint16_t Unstoppables; //0x8E
+			uint16_t InfectionSprees; //0x90
+			uint16_t MMMBrains; //0x92
+			uint16_t ZombieKillingSprees; //0x94
+			uint16_t HellsJanitors; //0x96
+			uint16_t Unknown6; //0x98
+
+			uint16_t HailToTheKings; //0x9A
+			uint16_t Bulltrue; //0x9C
+			uint16_t Splatters; //0x9E
+			uint16_t HiJacks; //0xA0
+			uint16_t Skyjacks; //0xA2
+			uint16_t Unknown9; //0xA4
+
+			uint16_t Killjoys; //0xA6
+			uint16_t Unknown7; //0xA8
+			uint16_t Sticks; //0xAA
+			uint16_t Headshots; //0xAC
+			uint16_t Assasinations; //0xAE
+			uint16_t Beatdowns; //0xB0
+			uint16_t Incinerations; //0xB2
+			uint16_t Wheelmans; //0xB4
+			uint16_t BombPlanteds; //0xB6
+			uint16_t KilledBombCarriers; //0xB8
+			uint16_t KilledVIPs; //0xBA
+			uint16_t KilledJuggernauts; //0xBC
+			uint16_t Unknown10; //0xBE
+
+			uint16_t FlagScores; //0xC0
+			uint16_t KilledFlagCarriers; //0xBC
+		} PLAYER_MEDALS;
+
+		typedef struct _WEAPON_STATS
+		{
+			uint16_t Initialized;
+			uint16_t Kills;
+			uint16_t KilledBy;
+			uint16_t BetrayalsWith;
+			uint16_t SuicidesWith;
+			uint16_t HeadshotsWith;
+		} WEAPON_STATS;
+
+		typedef struct _BLAM_PLAYER_STATS
+		{
+			uint8_t Unknown0[0xC];
+			int16_t Score;
+			uint16_t Unknown1;
+
+			int16_t Kills; //0x04
+			uint16_t Assists; //0x06
+			uint16_t Deaths; //0x08
+			uint16_t Betrayals; //0x0A
+			uint16_t Suicides; //0x0C
+			uint16_t BestStreak; //0x0E
+			uint16_t TimeSpentAlive; //0x10
+			uint8_t Unknown3[0x1A]; //0x12
+			uint16_t KingsKilled; //0x2C
+			uint16_t TimeInHill; //0x2E
+			uint16_t TimeControllingHill; //0x30
+			uint8_t Unknown4[0x22]; //0x32
+			uint16_t ZombiesKilled; //0x54
+			uint16_t HumansInfected; //0x56
+			uint16_t Unknown5; //0x58
+
+			PLAYER_MEDALS Medals;
+			uint8_t Unknown6[0x6C];
+
+			WEAPON_STATS GuardiansUnknown;
+			WEAPON_STATS Guardians;
+			WEAPON_STATS FallingDamage;
+			WEAPON_STATS GenericCollision;
+			WEAPON_STATS ArmorLockCrush;
+			WEAPON_STATS GenericMelee;
+			WEAPON_STATS GenericExplosion;
+			WEAPON_STATS Magnum;
+			WEAPON_STATS PlasmaPistol;
+			WEAPON_STATS Needler;
+			WEAPON_STATS Mauler;
+			WEAPON_STATS SMG;
+			WEAPON_STATS PlasmaRifle;
+			WEAPON_STATS BattleRifle;
+			WEAPON_STATS CovenantCarbine;
+			WEAPON_STATS Shotgun;
+			WEAPON_STATS SniperRifle;
+			WEAPON_STATS BeamRifle;
+			WEAPON_STATS AssaultRifle;
+			WEAPON_STATS Spiker;
+			WEAPON_STATS FuelRodCannon;
+			WEAPON_STATS MissilePod;
+			WEAPON_STATS RocketLauncher;
+			WEAPON_STATS SpartanLaser;
+			WEAPON_STATS BruteShot;
+			WEAPON_STATS Flamethrower;
+			WEAPON_STATS SentinelGun;
+			WEAPON_STATS EnergySword;
+			WEAPON_STATS GravityHammer;
+			WEAPON_STATS FragGrenade;
+			WEAPON_STATS PlasmaGrenade;
+			WEAPON_STATS SpikeGrenade;
+			WEAPON_STATS FirebombGrenade;
+			WEAPON_STATS Flag;
+			WEAPON_STATS Bomb;
+			WEAPON_STATS BombExplosion;
+			WEAPON_STATS Ball;
+			WEAPON_STATS MachinegunTurret;
+			WEAPON_STATS PlasmaCannon;
+			WEAPON_STATS PlasmaMortar;
+			WEAPON_STATS PlasmaTurret;
+			WEAPON_STATS ShadeTurret;
+			WEAPON_STATS Banshee;
+			WEAPON_STATS Ghost;
+			WEAPON_STATS Mongoose;
+			WEAPON_STATS Scorpion;
+			WEAPON_STATS ScorpionGunner;
+			WEAPON_STATS Spectre;
+			WEAPON_STATS SpectreGunner;
+			WEAPON_STATS Warthog;
+			WEAPON_STATS WarthogGunner;
+			WEAPON_STATS WarthogGaussTurret;
+			WEAPON_STATS Wraith;
+			WEAPON_STATS WraithGunner;
+			WEAPON_STATS Tank;
+			WEAPON_STATS Chopper;
+			WEAPON_STATS Hornet;
+			WEAPON_STATS Mantis;
+			WEAPON_STATS Prowler;
+			WEAPON_STATS SentinelBeam;
+			WEAPON_STATS SentinelRPG;
+			WEAPON_STATS Teleporter;
+			WEAPON_STATS Tripmine;
+			WEAPON_STATS DMR;
+		} PLAYER_STATS, *PPLAYER_STATS;
+
 		// Gets the global players data array.
 		DataArray<PlayerDatum>& GetPlayers();
 
@@ -117,5 +278,8 @@ namespace Blam
 
 		// Gets a player's assist count.
 		int GetAssists(DatumIndex player);
+
+		// Gets a player's stats.
+		PLAYER_STATS GetStats(int playerIndex);
 	}
 }

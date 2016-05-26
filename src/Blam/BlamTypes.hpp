@@ -274,6 +274,18 @@ namespace GameGlobals
 		const size_t VehicleXAxisSensitivity = 0x83C84;
 	}
 
+	namespace GlobalStats
+	{
+		const size_t PlayerLength = 0x438;
+		const size_t Kills = 0x04;
+		const size_t Assists = 0x06;
+		const size_t Deaths = 0x08;
+		const size_t Suicides = 0x0C;
+		const size_t Betrayals = 0xA;
+		const size_t TimeSpentAlive = 0x10;
+		const size_t BestStreak = 0x0E;
+	}
+
 	namespace PlayerAlt // todo: find out what this global is actually for
 	{
 		const size_t TLSOffset = 0xe8;

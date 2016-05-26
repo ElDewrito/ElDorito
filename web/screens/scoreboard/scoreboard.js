@@ -10,4 +10,8 @@ $(window).load(function(){
         locked = e.data.locked;
         dew.captureInput(locked);
     });
+
+    dew.on("scoreboard", function(e){
+        console.log(e.data);
+    });
 });
