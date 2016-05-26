@@ -10,6 +10,7 @@ enum DebugLoggingModes
 	eDebugLoggingModeGame1 = 8,
 	eDebugLoggingModeGame2 = 16,
 	eDebugLoggingModePackets = 32,
+	eDebugLoggingModeMemory = 64
 };
 
 namespace Modules
