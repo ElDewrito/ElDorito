@@ -193,6 +193,7 @@ void ElDorito::Tick()
 	Server::Chat::Tick();
 	Patches::Tick();
 	Web::Ui::ScreenLayer::Tick();
+	Web::Ui::WebScoreboard::Tick();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();

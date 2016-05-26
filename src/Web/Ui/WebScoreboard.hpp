@@ -7,8 +7,9 @@ namespace Web
 		namespace WebScoreboard
 		{
 			void Init();
-			void Show(bool locked);
+			void Show(bool locked, bool postgame);
 			void Hide();
+			void Tick();
 		}
 	}
 }
