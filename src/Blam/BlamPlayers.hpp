@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BlamData.hpp"
+#include "Tags/Objects/Damage.hpp"
 #include <cstdint>
 
 namespace Blam
@@ -198,70 +199,7 @@ namespace Blam
 			PLAYER_MEDALS Medals;
 			uint8_t Unknown6[0x6C];
 
-			WEAPON_STATS GuardiansUnknown;
-			WEAPON_STATS Guardians;
-			WEAPON_STATS FallingDamage;
-			WEAPON_STATS GenericCollision;
-			WEAPON_STATS ArmorLockCrush;
-			WEAPON_STATS GenericMelee;
-			WEAPON_STATS GenericExplosion;
-			WEAPON_STATS Magnum;
-			WEAPON_STATS PlasmaPistol;
-			WEAPON_STATS Needler;
-			WEAPON_STATS Mauler;
-			WEAPON_STATS SMG;
-			WEAPON_STATS PlasmaRifle;
-			WEAPON_STATS BattleRifle;
-			WEAPON_STATS CovenantCarbine;
-			WEAPON_STATS Shotgun;
-			WEAPON_STATS SniperRifle;
-			WEAPON_STATS BeamRifle;
-			WEAPON_STATS AssaultRifle;
-			WEAPON_STATS Spiker;
-			WEAPON_STATS FuelRodCannon;
-			WEAPON_STATS MissilePod;
-			WEAPON_STATS RocketLauncher;
-			WEAPON_STATS SpartanLaser;
-			WEAPON_STATS BruteShot;
-			WEAPON_STATS Flamethrower;
-			WEAPON_STATS SentinelGun;
-			WEAPON_STATS EnergySword;
-			WEAPON_STATS GravityHammer;
-			WEAPON_STATS FragGrenade;
-			WEAPON_STATS PlasmaGrenade;
-			WEAPON_STATS SpikeGrenade;
-			WEAPON_STATS FirebombGrenade;
-			WEAPON_STATS Flag;
-			WEAPON_STATS Bomb;
-			WEAPON_STATS BombExplosion;
-			WEAPON_STATS Ball;
-			WEAPON_STATS MachinegunTurret;
-			WEAPON_STATS PlasmaCannon;
-			WEAPON_STATS PlasmaMortar;
-			WEAPON_STATS PlasmaTurret;
-			WEAPON_STATS ShadeTurret;
-			WEAPON_STATS Banshee;
-			WEAPON_STATS Ghost;
-			WEAPON_STATS Mongoose;
-			WEAPON_STATS Scorpion;
-			WEAPON_STATS ScorpionGunner;
-			WEAPON_STATS Spectre;
-			WEAPON_STATS SpectreGunner;
-			WEAPON_STATS Warthog;
-			WEAPON_STATS WarthogGunner;
-			WEAPON_STATS WarthogGaussTurret;
-			WEAPON_STATS Wraith;
-			WEAPON_STATS WraithGunner;
-			WEAPON_STATS Tank;
-			WEAPON_STATS Chopper;
-			WEAPON_STATS Hornet;
-			WEAPON_STATS Mantis;
-			WEAPON_STATS Prowler;
-			WEAPON_STATS SentinelBeam;
-			WEAPON_STATS SentinelRPG;
-			WEAPON_STATS Teleporter;
-			WEAPON_STATS Tripmine;
-			WEAPON_STATS DMR;
+			WEAPON_STATS WeaponStats[Blam::Tags::Objects::DamageReportingType::Count];
 		} PLAYER_STATS, *PPLAYER_STATS;
 
 		// Gets the global players data array.

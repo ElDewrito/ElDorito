@@ -7,7 +7,7 @@ namespace Blam
 	{
 		namespace Objects
 		{
-			enum class DamageReportingType : int8_t
+			enum DamageReportingType : uint8_t
 			{
 				GuardiansUnknown,
 				Guardians,
@@ -72,7 +72,76 @@ namespace Blam
 				SentinelRPG,
 				Teleporter,
 				Tripmine,
-				DMR
+				DMR,
+				Count
+			};
+
+			const std::string DamageReportingTypeNames[DamageReportingType::Count] =
+			{
+				"GuardiansUnknown",
+				"Guardians",
+				"FallingDamage",
+				"GenericCollision",
+				"ArmorLockCrush",
+				"GenericMelee",
+				"GenericExplosion",
+				"Magnum",
+				"PlasmaPistol",
+				"Needler",
+				"Mauler",
+				"SMG",
+				"PlasmaRifle",
+				"BattleRifle",
+				"CovenantCarbine",
+				"Shotgun",
+				"SniperRifle",
+				"BeamRifle",
+				"AssaultRifle",
+				"Spiker",
+				"FuelRodCannon",
+				"MissilePod",
+				"RocketLauncher",
+				"SpartanLaser",
+				"BruteShot",
+				"Flamethrower",
+				"SentinelGun",
+				"EnergySword",
+				"GravityHammer",
+				"FragGrenade",
+				"PlasmaGrenade",
+				"SpikeGrenade",
+				"FirebombGrenade",
+				"Flag",
+				"Bomb",
+				"BombExplosion",
+				"Ball",
+				"MachinegunTurret",
+				"PlasmaCannon",
+				"PlasmaMortar",
+				"PlasmaTurret",
+				"ShadeTurret",
+				"Banshee",
+				"Ghost",
+				"Mongoose",
+				"Scorpion",
+				"ScorpionGunner",
+				"Spectre",
+				"SpectreGunner",
+				"Warthog",
+				"WarthogGunner",
+				"WarthogGaussTurret",
+				"Wraith",
+				"WraithGunner",
+				"Tank",
+				"Chopper",
+				"Hornet",
+				"Mantis",
+				"Prowler",
+				"SentinelBeam",
+				"SentinelRPG",
+				"Teleporter",
+				"Tripmine",
+				"DMR"
 			};
 		}
 	}
