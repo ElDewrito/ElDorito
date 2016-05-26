@@ -519,8 +519,7 @@ CommandType = {
       *
       * @typedef {object} ScoreboardInfo
       * @property {boolean} hasTeams - `true` if the current session has teams.
-      * @property {number} redScore - The score of the red team.
-      * @property {number} blueScore - The score of the blue team.
+      * @property {number[]} teamScores - The scores of all of the teams in the game.
       * @property {string} gameType - The gamemode type.
       * @property {ScoreboardPlayer[]} players - Players listed on the scoreboard.
       * @see dew.getScoreboard

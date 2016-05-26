@@ -90,24 +90,17 @@ namespace Web
 					return buffer.GetString();
 				}
 
-				if (session->HasTeams())
+				writer.Key("hasTeams");
+				writer.Bool(session->HasTeams());
+				writer.Key("teamScores");
+				writer.StartArray();
+				uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
+				//TODO: Add a check to see how many teams are in the game. Currently hardcoded to the limit of 10 teams.
+				for (int t = 0; t < 10; t++)
 				{
-					writer.Key("hasTeams");
-					writer.Bool(true);
-					writer.Key("redScore");
-					writer.Int(Pointer(0x01879DA8).Read<uint32_t>());
-					writer.Key("blueScore");
-					writer.Int(Pointer(0x01879DAC).Read<uint32_t>());
+					writer.Int(scores[t]);
 				}
-				else
-				{
-					writer.Key("hasTeams");
-					writer.Bool(false);
-					writer.Key("redScore");
-					writer.Int(0);
-					writer.Key("blueScore");
-					writer.Int(0);
-				}
+				writer.EndArray();
 
 				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
 				if (variantType >= 0 && variantType < Blam::GameTypeCount)
