@@ -129,8 +129,10 @@ namespace Web
 						color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 						writer.Key("color");
 						writer.String(color.str().c_str());
-						writer.Key("index");
-						writer.Int(playerIdx);
+						std::string uidStr;
+						Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
+						writer.Key("UID");
+						writer.String(uidStr.c_str());
 						// Generic score information
 						writer.Key("kills");
 						writer.Int(playerStats.Kills);

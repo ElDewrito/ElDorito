@@ -532,7 +532,7 @@ CommandType = {
       * @property {string} name - The player's name.
       * @property {number} team - The player's team index.
       * @property {string} color - The player's primary armor color.
-      * @property {number} index - The player's player index.
+      * @property {string} UID - The player's UID.
       * @property {number} kills - The number of kills.
       * @property {number} assists - The number of assists.
       * @property {number} deaths - The number of deaths.
