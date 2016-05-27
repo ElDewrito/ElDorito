@@ -10,6 +10,7 @@ $(window).load(function(){
         if(e.keyCode === 27) { //ESC
             chatboxHide();
         }else if (e.keyCode === 13){ //Enter
+            if(isTeamChat == null){ isTeamChat = false; };
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
             chatboxHide();
