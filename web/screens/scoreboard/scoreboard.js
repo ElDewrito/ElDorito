@@ -46,11 +46,11 @@ dew.on("show", function(e){
     } 
     dew.getScoreboard().then(function (e) { 
         $('#header').empty();
-        if(e.gameType=="slayer"){
+        //if(e.gameType=="slayer"){
             $('#header').append(
                 '<th></th><th>Players</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>Score</th>'
             );
-        }
+        //}
         buildScoreboard(e.players, e.hasTeams, e.teamScores);
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name) {
@@ -73,7 +73,7 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0) {
-                    $('#window table').append('<tbody id="'+teamArray[lobby[i].team].name+'"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td></td><td>'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td></td><td></td><td></td><td>'+scoreArray[lobby[i].team]+'</td></tr></tbody>');    
+                    $('#window table').append('<tbody id="'+teamArray[lobby[i].team].name+'"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td></td><td>'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td></td><td></td><td></td><td></td></tr></tbody>');    
                 }        
                 $(where+' td:eq(2)').text(parseInt($(where+' td:eq(2)').text() || 0)+lobby[i].kills); //kills
                 $(where+' td:eq(3)').text(parseInt($(where+' td:eq(3)').text() || 0)+lobby[i].deaths); //deaths
