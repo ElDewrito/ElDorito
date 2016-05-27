@@ -1,0 +1,75 @@
+@font-face {
+    font-family: "Conduit ITC";
+    src: url(Conduit-ITC.woff);
+}
+html {
+    color: #FFF;
+    font-family: "Conduit ITC", sans-serif;
+    background:rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+#window{
+    position: absolute;
+    left: 32%;
+    top: 15%;
+    min-width: 35%;
+}
+
+#window table{
+    width: 100%;
+}
+
+#window table thead{
+   background-color: rgba(0, 0, 0, 0.8);
+   font-size: 2.5vh;
+}
+
+.player{
+    text-align: center;
+    height: 3.05vh;
+    font-size: 2.5vh;
+    line-height: 3.05vh;
+    padding: 0.5vw;
+    margin: 0.1vw;
+    z-index: 1;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.02vw;
+    cursor: default;
+    display:table-row;
+}
+
+#closeButton{
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(122,175,209, 0.8);
+    color: rgba(122,175,209, 0.8);
+    width: 7%;
+    height: 3%;
+    padding-top: 0.5%;
+    right: 2%;
+    bottom: 2%;
+    text-align: center;
+    display: none;
+}
+
+#closeButton:hover{
+    background-color: rgba(255, 255, 255, 0.45);   
+    border: 1px solid rgba(122,175,209, 0.9);
+    color: rgba(122,175,209, 0.9);
+}
+
+#serverName{
+    position: absolute;
+    width: 100%;
+    bottom: 2%;
+    text-align: center;
+    font-size: 2.5vh;
+    color: rgba(122,175,209, 0.8);
+    margin-left: -0.5%;
+    padding: 0;
+}
