@@ -2,13 +2,22 @@
 <html>
     <head>
         <title>ElDewrito Scoreboard</title>
+        <link rel="stylesheet" type="text/css" href="scoreboard.css"/>
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="dew://lib/jquery-ui.js"></script>
         <script src="scoreboard.js"></script>
     </head>
     <body>
-    <div id="scoreboard">
-        <h1>SCOREBOARD</h1>
+    <div id="window">
+        <table>
+            <thead>
+                <tr id="header"></tr>
+            </thead>
+            <tbody id="scoreboard"></tbody>
+        </table>
     </div>
+    <div id="serverName"></div>
+    <div id="closeButton" onClick="dew.hide();">Close</div>
     </body>
 </html>

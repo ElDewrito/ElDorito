@@ -19,6 +19,7 @@ namespace
 	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize);
 	void ExceptionHook(char* msg);
 	void* __cdecl globalDataAllocateArrayHook(const char* name, int entryCount, int entrySize, int alignment, void** allocator);
+	int __cdecl globalDataAllocateStructHook(int unk1, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -30,6 +31,7 @@ namespace
 	Hook PacketReceiveHook(0x7FF88, packetRecvHook, HookFlags::IsCall);
 	Hook PacketSendHook(0x800A4, packetSendHook, HookFlags::IsCall);
 	Hook MemoryGlobalAllocateArrayHook(0x15AFA0, globalDataAllocateArrayHook);
+	Hook MemoryGlobalAllocateStructHook(0x1A0010, globalDataAllocateStructHook);
 }
 
 namespace Patches
@@ -79,6 +81,7 @@ namespace Patches
 		void EnableMemoryLog(bool enable)
 		{
 			MemoryGlobalAllocateArrayHook.Apply(!enable);
+			MemoryGlobalAllocateStructHook.Apply(!enable);
 		}
 	}
 }
@@ -277,7 +280,7 @@ namespace
 		int padding = alignment ? 1 << alignment - 1 : 0;
 
 		// call entity-specific allocator
-		void* address = (**reinterpret_cast<void*(__thiscall***)(void**, int, const char*)>(allocator))
+		char* address = (**reinterpret_cast<char*(__thiscall***)(void**, int, const char*)>(allocator))
 			(allocator, padding + entrySize * entryCount + 4 * ((entryCount + 31) >> 5) + 84, name);
 
 		Utils::DebugLog::Instance().Log("Memory", "AllocateGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, EntryCount: %d, EntrySize: %d", 
@@ -286,9 +289,26 @@ namespace
 		if (address)
 		{
 			typedef void*(__cdecl *GlobalDataInitializeArray)(void*, const char*, int, int, int, void**);
-			reinterpret_cast<GlobalDataInitializeArray>(0x55ACF0)(address, name, entryCount, entrySize, padding, allocator);
+			reinterpret_cast<GlobalDataInitializeArray>(0x55ACF0)(address, name, entryCount, entrySize, alignment, allocator);
+			*reinterpret_cast<uint16_t*>(address + 0x2A) |= 4;
 		}
 
 		return address;
+	}
+
+	int __cdecl globalDataAllocateStructHook(int type, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4)
+	{
+		uint32_t* unkPtr = reinterpret_cast<uint32_t*>(0x2406494 + type * 0xC88);
+		typedef int(__thiscall *GlobalDataInitializeStruct)(void*, const char*, const char*, int, int, void*, int, int);
+		int unk = reinterpret_cast<GlobalDataInitializeStruct>(0x65DF00)(unkPtr, name1, name2, size, unk2, allocator, unk3, unk4);
+
+		// call entity-specific allocator
+		void* address = reinterpret_cast<void*(__cdecl*)(int)>(allocator)
+			(*reinterpret_cast<uint32_t*>(*reinterpret_cast<uint32_t*>(__readfsdword(44)) + 4 * type + 128) + unkPtr[6 * unk + 31]);
+
+		Utils::DebugLog::Instance().Log("Memory", "AllocateGlobalStruct - Address: 0x%08X, Allocator: 0x%08X, Type: %d, Unk2: %d, Unk3: %d, Unk4: %d, Name1: %s, Name2: %s, Size: %d",
+			address, allocator, type, unk2, unk3, unk4, name1, name2, size);
+
+		return unk;
 	}
 }
