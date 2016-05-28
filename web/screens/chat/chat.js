@@ -10,7 +10,6 @@ $(window).load(function(){
         if(e.keyCode === 27) { //ESC
             chatboxHide();
         }else if (e.keyCode === 13){ //Enter
-            if(isTeamChat == null){ isTeamChat = false; };
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
             chatboxHide();
@@ -25,7 +24,9 @@ $(window).load(function(){
 
     dew.on("show", function(e){
         clearTimeout(hideTimer);
-        isTeamChat = e.data.teamChat;
+        if(e.data.hasOwnProperty('teamChat')){
+            isTeamChat = e.data.teamChat;
+        }
         dew.getSessionInfo().then(function(i){
             if(i.established){
                 if(isTeamChat && !i.hasTeams){

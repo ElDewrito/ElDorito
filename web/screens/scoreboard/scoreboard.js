@@ -1,4 +1,5 @@
 var locked = false;
+var isHost = false;
 var cardOpacity = 0.75;
 
 var teamArray = [
@@ -16,24 +17,52 @@ var teamArray = [
 
 $(window).load(function(){
     $(document).keydown(function(e) {
-        if((locked && e.keyCode == 9)||(locked && e.keyCode == 27))
+        if((locked && e.keyCode == 9)||(locked && e.keyCode == 27)){
             dew.hide();
+        } 
+        if (e.keyCode == 84 || e.keyCode == 89){
+            var teamChat = false;
+            if(e.keyCode == 89){ teamChat = true };
+            dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+        }
+    });
+    $.contextMenu({
+        selector: '.clickable', 
+        callback: function(key, options) {
+            switch(key) {
+                case "mute":
+                    dew.command("VoIP.MutePlayer " + flipUID($(this).attr('data-uid')));
+                    break;
+                case "kick":
+                    dew.command("Server.KickUid " + flipUID($(this).attr('data-uid')));
+                    break;
+                case "ban":
+                    dew.command("Server.KickBanUid " + flipUID($(this).attr('data-uid')));
+                    break;
+                default:
+                    console.log(key + " " + $(this).attr('data-name') + " " + $(this).attr('data-uid'));
+            }
+        },
+        items: {
+            "mute": {  name: "Mute" },
+            "kick": {
+                name: "Kick",                
+                disabled: function(key, options) { 
+                    return !isHost; 
+                }
+            },
+            "ban": {
+                name: "Ban",                
+                disabled: function(key, options) {
+                    return !isHost; 
+                }
+            }
+        }
     });
 });
 
 dew.on("scoreboard", function(e){
-    dew.getScoreboard().then(function (e) { 
-        $('#header').empty();
-        if(e.gameType=="slayer"){
-            $('#header').append(
-                '<th></th><th>Players</th><th>Kills</th><th>Deaths</th><th>Assists</th><th>Score</th>'
-            );
-        }
-        buildScoreboard(e.players, e.hasTeams, e.teamScores);
-    });
-    dew.command("Server.NameClient", { internal: true }).then(function (name) {
-        $("#serverName").text(name);
-    });
+    displayScoreboard();
 });
 
 dew.on("show", function(e){
@@ -44,6 +73,13 @@ dew.on("show", function(e){
     }else{
         $('#closeButton').hide();
     } 
+    displayScoreboard();
+});
+
+function displayScoreboard(){
+    dew.getSessionInfo().then(function(i){
+        isHost = i.isHost;
+    });
     dew.getScoreboard().then(function (e) { 
         $('#header').empty();
         //if(e.gameType=="slayer"){
@@ -55,8 +91,8 @@ dew.on("show", function(e){
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name) {
         $("#serverName").text(name);
-    });
-});
+    });    
+}
 
 function buildScoreboard(lobby, teamGame, scoreArray){
     var tempArray = [];
@@ -87,8 +123,22 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                     css: {
                         backgroundColor: hexToRgb(bgColor,cardOpacity)
                     },
-                    class: 'player',
-                    'data-uid': lobby[i].UID
+                    class: 'player clickable',
+                    'data-uid': lobby[i].UID,
+                    'data-name': lobby[i].name,
+                    'data-color': bgColor
+                }).click(function() {
+                    console.log($(this).attr('data-name') + " " +$(this).attr('data-uid'));
+                    dew.getStats($(this).attr('data-name')).then(function (e) {
+                        console.log(e);
+                    })
+                }).mouseover(function() {
+                    col = $(this).attr('data-color'),
+                    bright = brighter(col);
+                    $(this).css("background-color", hexToRgb(bright, cardOpacity));
+                }).mouseout(function() {
+                    col = $(this).attr('data-color');
+                    $(this).css("background-color", hexToRgb(col, cardOpacity));
                 })
                 .append($('<td>'))
                 .append($('<td>').text(lobby[i].name)) //name
@@ -130,4 +180,23 @@ function sortTable(where, score){
     $.each(rows, function(index, row) {
         $(where).append(row);
     });
+}
+
+function brighter(color) {
+	var colorhex = (color.split("#")[1]).match(/.{2}/g);
+	for (var i = 0; i < 3; i++) {
+		var e = parseInt(colorhex[i], 16);
+		e += 30;
+		colorhex[i] = ((e > 255) ? 255 : e).toString(16);
+	}
+	return "#" + colorhex[0] + colorhex[1] + colorhex[2];
+}
+
+function flipUID(uid){
+    var bits = uid.match(/.{1,2}/g);
+    var newUID = "";
+    for (var i = 0; i < bits.length; i++){
+        newUID = bits[i] + newUID;
+    }
+    return newUID;
 }
