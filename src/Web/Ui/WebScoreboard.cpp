@@ -111,41 +111,37 @@ namespace Web
 
 				writer.Key("players");
 				writer.StartArray();
-				int peerIdx = session->MembershipInfo.FindFirstPeer();
-				while (peerIdx != -1)
+				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				while (playerIdx != -1)
 				{
-					int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-					if (playerIdx != -1)
-					{
-						auto player = session->MembershipInfo.PlayerSessions[playerIdx];
-						auto playerStats = Blam::Players::GetStats(playerIdx);
-						writer.StartObject();
-						// Player information
-						writer.Key("name");
-						writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
-						writer.Key("team");
-						writer.Int(player.Properties.TeamIndex);
-						std::stringstream color;
-						color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-						writer.Key("color");
-						writer.String(color.str().c_str());
-						std::string uidStr;
-						Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
-						writer.Key("UID");
-						writer.String(uidStr.c_str());
-						// Generic score information
-						writer.Key("kills");
-						writer.Int(playerStats.Kills);
-						writer.Key("assists");
-						writer.Int(playerStats.Assists);
-						writer.Key("deaths");
-						writer.Int(playerStats.Deaths);
-						writer.Key("score");
-						writer.Int(playerStats.Score);
+					auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+					auto playerStats = Blam::Players::GetStats(playerIdx);
+					writer.StartObject();
+					// Player information
+					writer.Key("name");
+					writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+					writer.Key("team");
+					writer.Int(player.Properties.TeamIndex);
+					std::stringstream color;
+					color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+					writer.Key("color");
+					writer.String(color.str().c_str());
+					std::string uidStr;
+					Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
+					writer.Key("UID");
+					writer.String(uidStr.c_str());
+					// Generic score information
+					writer.Key("kills");
+					writer.Int(playerStats.Kills);
+					writer.Key("assists");
+					writer.Int(playerStats.Assists);
+					writer.Key("deaths");
+					writer.Int(playerStats.Deaths);
+					writer.Key("score");
+					writer.Int(playerStats.Score);
 
-						writer.EndObject();
-					}
-					peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+					writer.EndObject();
+					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 				}
 				writer.EndArray();
 				writer.EndObject();
