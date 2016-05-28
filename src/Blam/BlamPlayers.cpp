@@ -1,6 +1,5 @@
 #include "BlamPlayers.hpp"
 #include "../ElDorito.hpp"
-#include "BlamTypes.hpp"
 
 namespace
 {

@@ -392,6 +392,78 @@ namespace Anvil
 						*p_Result = Web::Ui::WebScoreboard::getScoreboard();
 						return QueryError_Ok;
 					}
+
+
+					QueryError OnStats(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						auto name = p_Args.FindMember("playerName");
+						if (name == p_Args.MemberEnd() || !name->value.IsString())
+						{
+							*p_Result = "Bad query: A \"playerName\" argument is required and must be a string";
+							return QueryError_BadQuery;
+						}
+
+						auto session = Blam::Network::GetActiveSession();
+						if (!session || !session->IsEstablished())
+						{
+							*p_Result = "Cannot get stat data when there is not an active session.";
+							return QueryError_BadQuery;
+						}
+
+						int playerIdx = session->MembershipInfo.FindFirstPlayer();
+						while (playerIdx != -1)
+						{
+							auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+							if (strcmp(Utils::String::ThinString(player.Properties.DisplayName).c_str(), name->value.GetString()) == 0)
+							{
+								rapidjson::StringBuffer buffer;
+								rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+								auto playerStats = Blam::Players::GetStats(playerIdx);
+
+								writer.StartObject();
+
+								writer.Key("medals");
+								writer.StartObject();
+								for (int medal = 0; medal < Blam::Tags::Objects::MedalType::MedalCount; medal++)
+								{
+									writer.Key(Blam::Tags::Objects::MedalTypeNames[medal].c_str());
+									writer.Int(playerStats.Medals[medal]);
+								}
+								writer.EndObject();
+								writer.Key("weapons");
+								writer.StartObject();
+								for (int weapon = 0; weapon < Blam::Tags::Objects::DamageReportingType::DamageCount; weapon++)
+								{
+									writer.Key(Blam::Tags::Objects::DamageReportingTypeNames[weapon].c_str());
+									writer.StartObject();
+
+									auto wep = playerStats.WeaponStats[weapon];
+									writer.Key("BetrayalsWith");
+									writer.Int(wep.BetrayalsWith);
+									writer.Key("HeadshotsWith");
+									writer.Int(wep.HeadshotsWith);
+									writer.Key("KilledBy");
+									writer.Int(wep.KilledBy);
+									writer.Key("Kills");
+									writer.Int(wep.Kills);
+									writer.Key("SuicidesWith");
+									writer.Int(wep.SuicidesWith);
+
+									writer.EndObject();
+								}
+								writer.EndObject();
+
+								writer.EndObject();
+
+								*p_Result = buffer.GetString();
+								return QueryError_Ok;
+							}
+							playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+						}
+
+						*p_Result = "Could not find player.";
+						return QueryError_BadQuery;
+					}
 				}
 			}
 		}

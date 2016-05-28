@@ -541,6 +541,37 @@ CommandType = {
       */
 
     /**
+     * (ASYNCHRONOUS) Gets information about a player's stats.
+     *
+     * @param {string} playerName - The name of the player.
+     * @returns {DewPromise<StatsInfo>} A promise for the player's stats.
+     */
+     dew.getStats = function (playerName) {
+         return dew.callMethod("stats", { playerName: playerName }, jsonResultMapping);
+     }
+
+    /**
+     * Contains information about the player's stats
+     *
+     * @typedef {object} StatsInfo
+     * @property {number[]} medals - The medals earned during this game.
+     * @property {WeaponStats[]} weapons - Information about the weapons used during this game.
+     * @see dew.getStats
+     */
+
+    /**
+     * nformation about a weapon's use in the current game
+     *
+     * @typedef {object} WeaponStats
+     * @property {number} BetrayalsWith - How many times the player used this weapon to betray their teammates.
+     * @property {number} HeadshotsWith - How many headshots the player got with this weapon.
+     * @property {number} KilledBy - How many times the player was killed by this weapon.
+     * @property {number} Kills - How many kills the player got with this weapon.
+     * @property {number} SuicidesWith - How many times the player killed themselves with this weapon.
+     * @see StatsInfo
+     */
+
+    /**
      * Registers a callback to be run when an event occurs.
      *
      * @name dew.on

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "BlamData.hpp"
+#include "BlamTypes.hpp"
 #include "Tags/Objects/Damage.hpp"
+#include "Tags/Objects/Medal.hpp"
 #include <cstdint>
 
 namespace Blam
@@ -104,66 +106,6 @@ namespace Blam
 		};
 		static_assert(sizeof(PlayerDatum) == 0x2F08, "Invalid PlayerDatum size");
 
-		typedef struct _PLAYER_MEDALS
-		{
-			uint16_t Exterminations; //0x5A
-			uint16_t Perfections; //0x5C
-			uint16_t DoubleKills; //0x5E
-			uint16_t TripleKills; //0x60
-			uint16_t OverKills; //0x62
-			uint16_t Killtaculars; //0x64
-			uint16_t Killtrocities; //0x66
-			uint16_t Killimanjaros; //0x68
-			uint16_t Killtastrophes; //0x6A
-			uint16_t Killpocalypses; //0x6C
-			uint16_t Killionaires; //0x6E
-			uint16_t KillingSprees; //0x70
-			uint16_t KillingFrenzies; //0x72
-			uint16_t RunningRiots; //0x74
-			uint16_t Rampages; //0x76
-			uint16_t Untouchables; //0x78
-			uint16_t Invincibles; //0x7A
-			uint16_t SniperSprees; //0x7C
-			uint16_t Sharpshooters; //0x7E
-			uint16_t ShotgunSprees; //0x80
-			uint16_t OpenSeasons; //0x82
-			uint16_t SplatterSprees; //0x84
-			uint16_t VehicularManslaughters; //0x86
-			uint16_t SwordSprees; //0x88
-			uint16_t SliceNDices; //0x8A
-			uint16_t JuggernautSprees; //0x8C
-			uint16_t Unstoppables; //0x8E
-			uint16_t InfectionSprees; //0x90
-			uint16_t MMMBrains; //0x92
-			uint16_t ZombieKillingSprees; //0x94
-			uint16_t HellsJanitors; //0x96
-			uint16_t Unknown6; //0x98
-
-			uint16_t HailToTheKings; //0x9A
-			uint16_t Bulltrue; //0x9C
-			uint16_t Splatters; //0x9E
-			uint16_t HiJacks; //0xA0
-			uint16_t Skyjacks; //0xA2
-			uint16_t Unknown9; //0xA4
-
-			uint16_t Killjoys; //0xA6
-			uint16_t Unknown7; //0xA8
-			uint16_t Sticks; //0xAA
-			uint16_t Headshots; //0xAC
-			uint16_t Assasinations; //0xAE
-			uint16_t Beatdowns; //0xB0
-			uint16_t Incinerations; //0xB2
-			uint16_t Wheelmans; //0xB4
-			uint16_t BombPlanteds; //0xB6
-			uint16_t KilledBombCarriers; //0xB8
-			uint16_t KilledVIPs; //0xBA
-			uint16_t KilledJuggernauts; //0xBC
-			uint16_t Unknown10; //0xBE
-
-			uint16_t FlagScores; //0xC0
-			uint16_t KilledFlagCarriers; //0xBC
-		} PLAYER_MEDALS;
-
 		typedef struct _WEAPON_STATS
 		{
 			uint16_t Initialized;
@@ -196,11 +138,12 @@ namespace Blam
 			uint16_t HumansInfected; //0x56
 			uint16_t Unknown5; //0x58
 
-			PLAYER_MEDALS Medals;
-			uint8_t Unknown6[0x6C];
+			uint16_t Medals[Blam::Tags::Objects::MedalType::MedalCount];
+			uint8_t Unknown6[0x68];
 
-			WEAPON_STATS WeaponStats[Blam::Tags::Objects::DamageReportingType::Count];
+			WEAPON_STATS WeaponStats[Blam::Tags::Objects::DamageReportingType::DamageCount];
 		} PLAYER_STATS, *PPLAYER_STATS;
+		static_assert(sizeof(PLAYER_STATS) == GameGlobals::GlobalStats::PlayerLength, "Invalid PlayerStats size");
 
 		// Gets the global players data array.
 		DataArray<PlayerDatum>& GetPlayers();

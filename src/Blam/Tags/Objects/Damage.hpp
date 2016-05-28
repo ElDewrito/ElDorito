@@ -73,10 +73,10 @@ namespace Blam
 				Teleporter,
 				Tripmine,
 				DMR,
-				Count
+				DamageCount
 			};
 
-			const std::string DamageReportingTypeNames[DamageReportingType::Count] =
+			const std::string DamageReportingTypeNames[DamageReportingType::DamageCount] =
 			{
 				"GuardiansUnknown",
 				"Guardians",

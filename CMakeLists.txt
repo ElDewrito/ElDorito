@@ -156,6 +156,7 @@ add_library(ElDorito SHARED
     src/Blam/Tags/Items/Item.hpp
     src/Blam/Tags/Items/Weapon.hpp
     src/Blam/Tags/Objects/Damage.hpp
+    src/Blam/Tags/Objects/Medal.hpp
     src/Blam/Tags/Objects/Object.hpp
     src/Blam/Tags/Scenario/Scenario.hpp
     src/Blam/Tags/Sounds/Noise.hpp
