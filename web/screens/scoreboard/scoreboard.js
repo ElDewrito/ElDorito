@@ -1,18 +1,18 @@
 var locked = false;
 var isHost = false;
-var cardOpacity = 0.75;
+var cardOpacity = 0.9;
 
 var teamArray = [
-    {name: 'red', color: '#952323'},
-    {name: 'blue', color: '#235695'},
-    {name: 'green', color: '#4e6e07'},
-    {name: 'orange', color: '#d68400'},
-    {name: 'purple', color: '#4a3187'},
-    {name: 'gold', color: '#c9a71a'},   
-    {name: 'brown', color: '#492907'}, 
-    {name: 'pink', color: '#ff84b5'}, 
-    {name: 'white', color: '#e8e8e8'}, 
-    {name: 'black', color: '#232323'}           
+    {name: 'red', color: '#620B0B'},
+    {name: 'blue', color: '#0B2362'},
+    {name: 'green', color: '#1F3602'},
+    {name: 'orange', color: '#BC4D00'},
+    {name: 'purple', color: '#1D1052'},
+    {name: 'gold', color: '#A77708'},   
+    {name: 'brown', color: '#1C0D02'}, 
+    {name: 'pink', color: '#FF4D8A'}, 
+    {name: 'white', color: '#D8D8D8'}, 
+    {name: 'black', color: '#0B0B0B'}           
 ];
 
 $(window).load(function(){
@@ -24,6 +24,9 @@ $(window).load(function(){
             var teamChat = false;
             if(e.keyCode == 89){ teamChat = true };
             dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+        }
+        if (e.keyCode == 192 || e.keyCode == 112){
+            dew.show("console");
         }
     });
     $.contextMenu({
@@ -72,8 +75,12 @@ dew.on("show", function(e){
         $('#closeButton').show();
     }else{
         $('#closeButton').hide();
-    } 
-    displayScoreboard();
+    }
+    if(e.data.postgame){
+        $('#winnerText').show();
+    }else{
+        $('#winnerText').hide();
+    }
 });
 
 function displayScoreboard(){
@@ -134,7 +141,7 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                     })
                 }).mouseover(function() {
                     col = $(this).attr('data-color'),
-                    bright = brighter(col);
+                    bright = adjustColor(col, 30);
                     $(this).css("background-color", hexToRgb(bright, cardOpacity));
                 }).mouseout(function() {
                     col = $(this).attr('data-color');
@@ -153,6 +160,14 @@ function buildScoreboard(lobby, teamGame, scoreArray){
             for (i = 0; i< $(where+' tr').length; i++){
                 $(where+' tr:eq('+i+') td:eq(0)').text(i+1);  
             }
+            lobby.sort(function(b, a) {
+                return parseFloat(a.score) - parseFloat(b.score);
+            });
+            if(lobby[0].score == lobby[1].score) {
+                $('#winnerText').text('Tie!');
+            } else {
+                $('#winnerText').text(lobby[0].name+' Team wins!');
+            }
         }  
     }  
 }
@@ -166,9 +181,14 @@ function orderTeams(list){
     list.sort(function(b, a) {
         return parseFloat(a.score) - parseFloat(b.score);
     });
+    if(list[0].score == list[1].score) {
+        $('#winnerText').text('Tie!');
+    } else {
+        $('#winnerText').text(list[0].name.substr(0,1).toUpperCase() + list[0].name.substr(1)+' Team wins!');
+    }
     for (i = 0; i < list.length; i++) { 
-        $('#'+list[i].name+' td:eq(0)').text(parseInt(i) + 1);
-        $('#window table').append($('#'+list[i].name));
+        $('#'+list[i].name+' td:eq(0)').text(parseInt(i)+1);
+         $('#window table').append($('#'+list[i].name));
     }
 }
 
@@ -182,15 +202,20 @@ function sortTable(where, score){
     });
 }
 
-function brighter(color) {
+function adjustColor(color, amount) {
 	var colorhex = (color.split("#")[1]).match(/.{2}/g);
 	for (var i = 0; i < 3; i++) {
 		var e = parseInt(colorhex[i], 16);
-		e += 30;
-		colorhex[i] = ((e > 255) ? 255 : e).toString(16);
+		e += amount;
+        if(amount > 0){
+            colorhex[i] = ((e > 255) ? 255 : e).toString(16);
+        } else {
+            colorhex[i] = ((e < 0) ? 0 : e).toString(16);           
+        }
 	}
 	return "#" + colorhex[0] + colorhex[1] + colorhex[2];
 }
+
 
 function flipUID(uid){
     var bits = uid.match(/.{1,2}/g);

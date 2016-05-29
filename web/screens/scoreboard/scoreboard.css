@@ -20,9 +20,19 @@ html {
     width: 100%;
 }
 
+#window table tbody tr td:not(:last-child){
+    background-color: rgba(250, 250, 250, 0.12);
+}
+
 #window table thead{
    background-color: rgba(0, 0, 0, 0.8);
    font-size: 2.5vh;
+}
+
+#winnerText{
+    font-size: 2.5vh;   
+    padding-left: 0.2vw;
+    display: none;
 }
 
 .player{
