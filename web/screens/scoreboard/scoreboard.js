@@ -123,13 +123,14 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 $(where+' td:eq(4)').text(parseInt($(where+' td:eq(4)').text() || 0)+lobby[i].assists); //assists  
                 $(where+' td:eq(5)').text(parseInt($(where+' td:eq(5)').text() || 0)+lobby[i].score); //score                  
                 tempArray[tempArray.findIndex(x => x.name == teamArray[lobby[i].team].name)].score = $(where+' td:eq(5)').text();              
-                orderTeams(tempArray);
+                sortScoreboard(tempArray, teamGame, 'teams');
             }
             $(where).append(
                 $('<tr>', {
                     css: {
                         backgroundColor: hexToRgb(bgColor,cardOpacity)
                     },
+                    id: lobby[i].name,
                     class: 'player clickable',
                     'data-uid': lobby[i].UID,
                     'data-name': lobby[i].name,
@@ -153,22 +154,9 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 .append($('<td>').text(lobby[i].deaths)) //deaths
                 .append($('<td>').text(lobby[i].assists)) //assists
                 .append($('<td>').text(lobby[i].score)) //score
-            );            
-        }
-        sortTable(where, 5);   
-        if(!teamGame){ //add rank numbers
-            for (i = 0; i< $(where+' tr').length; i++){
-                $(where+' tr:eq('+i+') td:eq(0)').text(i+1);  
-            }
-            lobby.sort(function(b, a) {
-                return parseFloat(a.score) - parseFloat(b.score);
-            });
-            if(lobby[0].score == lobby[1].score) {
-                $('#winnerText').text('Tie!');
-            } else {
-                $('#winnerText').text(lobby[0].name+' Team wins!');
-            }
-        }  
+            );                     
+        }      
+        sortScoreboard(lobby, teamGame, 'players');  
     }  
 }
 
@@ -177,29 +165,38 @@ function hexToRgb(hex, opacity) {
 	return "rgba(" + parseInt(result[1], 16) + "," + parseInt(result[2], 16) + "," + parseInt(result[3], 16) + "," + opacity + ")";
 }
 
-function orderTeams(list){
+function sortScoreboard(list, teamGame, sortWhat){
     list.sort(function(b, a) {
         return parseFloat(a.score) - parseFloat(b.score);
     });
-    if(list[0].score == list[1].score) {
-        $('#winnerText').text('Tie!');
-    } else {
-        $('#winnerText').text(list[0].name.substr(0,1).toUpperCase() + list[0].name.substr(1)+' Team wins!');
+    if(list.length > 1){
+        if(list[0].score == list[1].score) {
+            $('#winnerText').text('Tie!');
+        } else {
+            if(teamGame){
+                $('#winnerText').text(list[0].name.substr(0,1).toUpperCase() + list[0].name.substr(1)+' Team wins!');
+            }else{
+                $('#winnerText').text(list[0].name+' wins!');           
+            }
+        }
     }
+    var lastScore = list[0].score;
+    var x = 1;
     for (i = 0; i < list.length; i++) { 
-        $('#'+list[i].name+' td:eq(0)').text(parseInt(i)+1);
-         $('#window table').append($('#'+list[i].name));
+        if((teamGame && sortWhat == 'teams')||(!teamGame && sortWhat == 'players')){
+            if(list[i].score != lastScore){x+=1;}
+            $('#'+list[i].name+' td:eq(0)').text(x);
+            lastScore = list[i].score;
+        }
+        if(teamGame && sortWhat =='players'){
+            where = '#'+teamArray[list[i].team].name;
+        }else if(!teamGame && sortWhat =='players'){
+            where = '#scoreboard';
+        }else{
+            where = '#window table';
+        } 
+        $(where).append($('#'+list[i].name));     
     }
-}
-
-function sortTable(where, score){
-    var rows = $(where+' tr:not(.teamHeader)').get();
-    rows.sort(function(b, a) {
-        return parseInt($(a).children('td').eq(score).text(),10) - parseInt($(b).children('td').eq(score).text(),10);
-    });
-    $.each(rows, function(index, row) {
-        $(where).append(row);
-    });
 }
 
 function adjustColor(color, amount) {
