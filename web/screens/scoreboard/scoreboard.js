@@ -104,7 +104,7 @@ function displayScoreboard(){
 function buildScoreboard(lobby, teamGame, scoreArray){
     var tempArray = [];
     for(var i=0; i < scoreArray.length; i++) {
-        tempArray.push({name: teamArray[i].name, score: 0});
+        tempArray.push({name: teamArray[i].name, score: -999});
     }
     var where = '#scoreboard';
     if(lobby.length > 0) {

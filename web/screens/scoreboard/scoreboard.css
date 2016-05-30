@@ -11,22 +11,24 @@ html {
 
 #window{
     position: absolute;
-    left: 32%;
+    left: 32.35%;
     top: 15%;
-    min-width: 35%;
+    width: 35%;
 }
 
 #window table{
     width: 100%;
 }
 
-#window table tbody tr td:not(:last-child){
+#window table tbody tr td{
     background-color: rgba(250, 250, 250, 0.12);
 }
 
-#window table thead{
-   background-color: rgba(0, 0, 0, 0.8);
-   font-size: 2.5vh;
+#header{
+    background-color: rgba(0, 0, 0, 0.8);
+    height: 3.25vh;
+    font-size: 2.15vh;
+    line-height: 3.25vh;
 }
 
 #winnerText{
