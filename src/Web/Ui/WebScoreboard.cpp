@@ -8,6 +8,7 @@
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../ThirdParty/rapidjson/stringbuffer.h"
 #include "../../Utils/String.hpp"
+#include "../../ElDorito.hpp"
 
 #include <iomanip>
 
@@ -109,6 +110,8 @@ namespace Web
 					writer.String(Blam::GameTypeNames[variantType].c_str());
 				}
 
+				auto& playersGlobal = ElDorito::GetMainTls(0x40)[0];
+
 				writer.Key("players");
 				writer.StartArray();
 				int playerIdx = session->MembershipInfo.FindFirstPlayer();
@@ -116,6 +119,8 @@ namespace Web
 				{
 					auto player = session->MembershipInfo.PlayerSessions[playerIdx];
 					auto playerStats = Blam::Players::GetStats(playerIdx);
+					int16_t score = playersGlobal(0x54 + 0x4046C + (playerIdx * 0x34)).Read<int16_t>();
+					int16_t kills = playersGlobal(0x54 + 0x40470 + (playerIdx * 0x34)).Read<int16_t>();
 					writer.StartObject();
 					// Player information
 					writer.Key("name");
@@ -132,13 +137,13 @@ namespace Web
 					writer.String(uidStr.c_str());
 					// Generic score information
 					writer.Key("kills");
-					writer.Int(playerStats.Kills);
+					writer.Int(kills);
 					writer.Key("assists");
 					writer.Int(playerStats.Assists);
 					writer.Key("deaths");
 					writer.Int(playerStats.Deaths);
 					writer.Key("score");
-					writer.Int(playerStats.Score);
+					writer.Int(score);
 
 					writer.EndObject();
 					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
