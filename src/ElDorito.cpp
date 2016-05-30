@@ -198,7 +198,7 @@ void ElDorito::Tick()
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
 
-	Utils::AntiSpeedHack::OnTickCheck();
+	Utils::AntiCheat::OnTickCheck();
 
 	if (executeCommandQueue)
 	{

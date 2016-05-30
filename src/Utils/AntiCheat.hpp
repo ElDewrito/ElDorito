@@ -2,7 +2,7 @@
 
 namespace Utils
 {
-	namespace AntiSpeedHack
+	namespace AntiCheat
 	{
 		void AntiSpeed();
 		void OnTickCheck();
