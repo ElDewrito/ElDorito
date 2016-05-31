@@ -26,5 +26,150 @@ namespace Blam
 		{
 			return !(*this == other);
 		}
+
+		RealQuaternion::operator const float *() const
+		{
+			return &I;
+		}
+
+		RealQuaternion &RealQuaternion::operator+=(const RealQuaternion &other)
+		{
+			I += other.I;
+			J += other.J;
+			K += other.K;
+			W += other.W;
+
+			return *this;
+		}
+
+		RealQuaternion &RealQuaternion::operator+=(const float other)
+		{
+			I += other;
+			J += other;
+			K += other;
+			W += other;
+
+			return *this;
+		}
+
+		RealQuaternion RealQuaternion::operator+(const RealQuaternion &other) const
+		{
+			return RealQuaternion(I + other.I, J + other.J, K + other.K, W + other.W);
+		}
+
+		RealQuaternion RealQuaternion::operator+(const float other) const
+		{
+			return RealQuaternion(I + other, J + other, K + other, W + other);
+		}
+
+		RealQuaternion operator+(const float a, const RealQuaternion &b)
+		{
+			return RealQuaternion(a + b.I, a + b.J, a + b.K, a + b.W);
+		}
+
+		RealQuaternion &RealQuaternion::operator-=(const RealQuaternion &other)
+		{
+			I -= other.I;
+			J -= other.J;
+			K -= other.K;
+			W -= other.W;
+
+			return *this;
+		}
+
+		RealQuaternion &RealQuaternion::operator-=(const float other)
+		{
+			I -= other;
+			J -= other;
+			K -= other;
+			W -= other;
+
+			return *this;
+		}
+
+		RealQuaternion RealQuaternion::operator-(const RealQuaternion &other) const
+		{
+			return RealQuaternion(I - other.I, J - other.J, K - other.K, W - other.W);
+		}
+
+		RealQuaternion RealQuaternion::operator-(const float other) const
+		{
+			return RealQuaternion(I - other, J - other, K - other, W - other);
+		}
+
+		RealQuaternion operator-(const float a, const RealQuaternion &b)
+		{
+			return RealQuaternion(a - b.I, a - b.J, a - b.K, a - b.W);
+		}
+
+		RealQuaternion &RealQuaternion::operator*=(const RealQuaternion &other)
+		{
+			I *= other.I;
+			J *= other.J;
+			K *= other.K;
+			W *= other.W;
+
+			return *this;
+		}
+
+		RealQuaternion &RealQuaternion::operator*=(const float other)
+		{
+			I *= other;
+			J *= other;
+			K *= other;
+			W *= other;
+
+			return *this;
+		}
+
+		RealQuaternion RealQuaternion::operator*(const RealQuaternion &other) const
+		{
+			return RealQuaternion(I * other.I, J * other.J, K * other.K, W * other.W);
+		}
+
+		RealQuaternion RealQuaternion::operator*(const float other) const
+		{
+			return RealQuaternion(I * other, J * other, K * other, W * other);
+		}
+
+		RealQuaternion operator*(const float a, const RealQuaternion &b)
+		{
+			return RealQuaternion(a * b.I, a * b.J, a * b.K, a * b.W);
+		}
+
+		RealQuaternion &RealQuaternion::operator/=(const RealQuaternion &other)
+		{
+			I /= other.I;
+			J /= other.J;
+			K /= other.K;
+			W /= other.W;
+
+			return *this;
+		}
+
+		RealQuaternion &RealQuaternion::operator/=(const float other)
+		{
+			I /= other;
+			J /= other;
+			K /= other;
+			W /= other;
+
+			return *this;
+		}
+
+		RealQuaternion RealQuaternion::operator/(const RealQuaternion &other) const
+		{
+			return RealQuaternion(I / other.I, J / other.J, K / other.K, W / other.W);
+		}
+
+		RealQuaternion RealQuaternion::operator/(const float other) const
+		{
+			return RealQuaternion(I / other, J / other, K / other, W / other);
+		}
+
+		RealQuaternion operator/(const float a, const RealQuaternion &b)
+		{
+			return RealQuaternion(a / b.I, a / b.J, a / b.K, a / b.W);
+		}
 	}
 }

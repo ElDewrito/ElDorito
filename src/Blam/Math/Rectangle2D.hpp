@@ -17,6 +17,32 @@ namespace Blam
 
 			bool operator==(const Rectangle2D &other) const;
 			bool operator!=(const Rectangle2D &other) const;
+
+			explicit operator const int16_t *() const;
+
+			Rectangle2D &operator+=(const Rectangle2D &other);
+			Rectangle2D &operator+=(const int16_t other);
+			Rectangle2D operator+(const Rectangle2D &other) const;
+			Rectangle2D operator+(const int16_t other) const;
+			friend Rectangle2D operator+(const int16_t a, const Rectangle2D &b);
+
+			Rectangle2D &operator-=(const Rectangle2D &other);
+			Rectangle2D &operator-=(const int16_t other);
+			Rectangle2D operator-(const Rectangle2D &other) const;
+			Rectangle2D operator-(const int16_t other) const;
+			friend Rectangle2D operator-(const int16_t a, const Rectangle2D &b);
+
+			Rectangle2D &operator*=(const Rectangle2D &other);
+			Rectangle2D &operator*=(const int16_t other);
+			Rectangle2D operator*(const Rectangle2D &other) const;
+			Rectangle2D operator*(const int16_t other) const;
+			friend Rectangle2D operator*(const int16_t a, const Rectangle2D &b);
+
+			Rectangle2D &operator/=(const Rectangle2D &other);
+			Rectangle2D &operator/=(const int16_t other);
+			Rectangle2D operator/(const Rectangle2D &other) const;
+			Rectangle2D operator/(const int16_t other) const;
+			friend Rectangle2D operator/(const int16_t a, const Rectangle2D &b);
 		};
 	}
 }

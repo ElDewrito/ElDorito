@@ -25,5 +25,10 @@ namespace Blam
 		{
 			return !(*this == other);
 		}
+
+		RealColorRGB::operator const float *() const
+		{
+			return &Red;
+		}
 	}
 }

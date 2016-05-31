@@ -26,5 +26,10 @@ namespace Blam
 		{
 			return !(*this == other);
 		}
+
+		RealColorARGB::operator const float *() const
+		{
+			return &Alpha;
+		}
 	}
 }

@@ -15,6 +15,8 @@ namespace Blam
 
 			bool operator==(const RealColorRGB &other) const;
 			bool operator!=(const RealColorRGB &other) const;
+
+			explicit operator const float *() const;
 		};
 	}
 }

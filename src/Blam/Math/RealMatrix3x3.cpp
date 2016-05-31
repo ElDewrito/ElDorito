@@ -25,5 +25,10 @@ namespace Blam
 		{
 			return !(*this == other);
 		}
+
+		RealMatrix3x3::operator const float *() const
+		{
+			return Forward.operator const float *();
+		}
 	}
 }

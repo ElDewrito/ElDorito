@@ -27,5 +27,10 @@ namespace Blam
 		{
 			return !(*this == other);
 		}
+
+		RealMatrix4x3::operator const float *() const
+		{
+			return &Scale;
+		}
 	}
 }

@@ -19,6 +19,8 @@ namespace Blam
 
 			bool operator==(const RealMatrix4x3 &other) const;
 			bool operator!=(const RealMatrix4x3 &other) const;
+
+			explicit operator const float *() const;
 		};
 	}
 }
