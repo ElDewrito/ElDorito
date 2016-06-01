@@ -8,6 +8,7 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Items/Weapon.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 
 namespace
@@ -268,6 +269,9 @@ namespace Patches
 
 			Pointer::Base(0x149D358).Write(FontsPath.c_str());
 			Pointer::Base(0x149D35C).Write(FontsPath.c_str());
+
+			//Update the list of maps
+			Modules::ModuleGame::Instance().UpdateMapList();
 		}
 	}
 }

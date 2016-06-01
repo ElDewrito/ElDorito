@@ -742,25 +742,8 @@ namespace
 
 	bool CommandListMaps(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
-		auto searchPath = ElDorito::Instance().GetMapsFolder() + "*.map";
-		WIN32_FIND_DATA find;
-		auto handle = FindFirstFile(searchPath.c_str(), &find);
-		if (handle == INVALID_HANDLE_VALUE)
-			return true;
-
-		// Get a list of all map names and sort them alphabetically
-		std::vector<std::string> mapNames;
-		do
-		{
-			std::string name = find.cFileName;
-			name = name.substr(0, name.length() - 4); // Remove .map extension
-			mapNames.push_back(name);
-		} while (FindNextFile(handle, &find));
-		FindClose(handle);
-		std::sort(mapNames.begin(), mapNames.end());
-
 		// Return a comma-separated list
-		for (auto&& name : mapNames)
+		for (auto&& name : Modules::ModuleGame::Instance().MapList)
 		{
 			if (returnInfo.length() > 0)
 				returnInfo += ',';
@@ -834,22 +817,6 @@ namespace Modules
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
-		//populate map list on load
-		WIN32_FIND_DATA Finder;
-		HANDLE hFind = FindFirstFile((ElDorito::Instance().GetDirectory() + "\\" + ElDorito::Instance().GetMapsFolder() + "*.map").c_str(), &Finder);
-		if (hFind != INVALID_HANDLE_VALUE)
-		{
-			do
-			{
-				if (!(Finder.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				{
-					std::string MapName(Finder.cFileName);
-					//remove extension
-					MapList.push_back(MapName.substr(0, MapName.find_last_of('.')));
-				}
-			} while (FindNextFile(hFind, &Finder) != 0);
-		}
-
 		/*EXAMPLES: adds a variable "Game.Name", default value ElDewrito, calls VariableGameNameUpdate when value is updated
 		AddVariableString("Name", "gamename", "Title of the game", "ElDewrito", VariableGameNameUpdate);
 
@@ -860,5 +827,25 @@ namespace Modules
 
 		// adds a variable "Game.Money", default value 1.86
 		AddVariableFloat("Money", "gamemoney", "Your mothers hourly rate", 1.86f);*/
+	}
+
+	void ModuleGame::UpdateMapList()
+	{
+		auto searchPath = ElDorito::Instance().GetMapsFolder() + "*.map";
+		WIN32_FIND_DATA find;
+		auto handle = FindFirstFile(searchPath.c_str(), &find);
+		if (handle != INVALID_HANDLE_VALUE)
+		{
+			// Get a list of all map names and sort them alphabetically
+			MapList.clear();
+			do
+			{
+				std::string name = find.cFileName;
+				name = name.substr(0, name.length() - 4); // Remove .map extension
+				MapList.push_back(name);
+			} while (FindNextFile(handle, &find));
+			FindClose(handle);
+			std::sort(MapList.begin(), MapList.end());
+		}
 	}
 }

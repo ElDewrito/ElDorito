@@ -31,5 +31,6 @@ namespace Modules
 		std::vector<std::string> FiltersInclude;
 
 		ModuleGame();
+		void UpdateMapList();
 	};
 }
