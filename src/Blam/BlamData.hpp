@@ -97,6 +97,23 @@ namespace Blam
 	};
 	static_assert(sizeof(DataArrayBase) == 0x54, "Invalid DataArrayBase size");
 
+	struct DataPoolBase
+	{
+		int Signature;			// 'pool'
+		char Name[0x20];		// Name given to the pool when it was allocated
+		void** Allocator;
+		int Size;
+		int FreeSize;
+		int Padding;
+		int Unk52;
+		int Unk56;
+		uint16_t Unk60;
+		uint8_t Unk62;
+		uint8_t Unk63;			// likely IsValid
+		int Unk64;
+	};
+	static_assert(sizeof(DataPoolBase) == 0x44, "Invalid DataPoolBase size");
+
 	// Base struct for an iterator which iterates over the values in a data array.
 	// Consider using DataIterator instead of this for type safety.
 	struct DataIteratorBase

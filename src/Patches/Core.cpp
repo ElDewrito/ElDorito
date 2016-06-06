@@ -58,54 +58,125 @@ namespace Patches
 
 			uint32_t extraGlobalsSize = 0;
 
-			// expand runtime state allocation globals and disable soft size limits
-			*reinterpret_cast<uint32_t*>(0x509F30 + 1) = 0x380000 * 2;
-			Patch::NopFill(0x509CD6, 7);
-			Patch::NopFill(0x509D69, 7);
-			Patch::NopFill(0x509E62, 7);
-			Patch::NopFill(0x509EC6, 7);
+			// expand runtime state globals
+			const uint32_t origRuntimeAllocationSize = 0x380000;
+			const uint32_t newRuntimeAllocationSize = origRuntimeAllocationSize * 2;
+			*reinterpret_cast<uint32_t*>(0x509F30 + 1) = newRuntimeAllocationSize;
+			*reinterpret_cast<uint32_t*>(0x509CD6 + 1) = newRuntimeAllocationSize;
+			*reinterpret_cast<uint32_t*>(0x509D69 + 1) = newRuntimeAllocationSize;
+			*reinterpret_cast<uint32_t*>(0x509E62 + 1) = newRuntimeAllocationSize;
+			*reinterpret_cast<uint32_t*>(0x509EC6 + 1) = newRuntimeAllocationSize;
+			extraGlobalsSize += newRuntimeAllocationSize - origRuntimeAllocationSize;
 
-			// expand havok components
-			*reinterpret_cast<uint32_t*>(0x5EA89D + 1) = 2048;
-			extraGlobalsSize += (2048 - 1500) * 0x80;
+			// expand game state globals
+			// TODO: .text:00510A15                 push    980000h
+			const uint32_t origGameStateGlobalsSize = 0x1280000;
+			const uint32_t newGameStateGlobalsSize = origGameStateGlobalsSize * 2;
+			*reinterpret_cast<uint32_t*>(0x50FDC6 + 1) = newGameStateGlobalsSize;
+			*reinterpret_cast<uint32_t*>(0x510336 + 1) = newGameStateGlobalsSize;
+			*reinterpret_cast<uint32_t*>(0x510A1A + 1) = newGameStateGlobalsSize;
+			*reinterpret_cast<uint32_t*>(0x510A2A + 2) = newGameStateGlobalsSize;
+			extraGlobalsSize += newGameStateGlobalsSize - origGameStateGlobalsSize;
 
-			// expand object looping sounds
-			//*reinterpret_cast<uint32_t*>(0x5D932B + 1) = 4096;
-			//extraGlobalsSize += (4096 - 1024) * 0x20;
+			// expand unknown game state sub-allocations
+			uint32_t origUnknownSubAllocationSize = 0x4B000;
+			uint32_t newUnknownSubAllocationSize = origUnknownSubAllocationSize * 2;
+			*reinterpret_cast<uint32_t*>(0x510A6D + 1) = newUnknownSubAllocationSize;
+			*reinterpret_cast<uint32_t*>(0x510A80 + 6) = newUnknownSubAllocationSize;
+			extraGlobalsSize += newUnknownSubAllocationSize - origUnknownSubAllocationSize;
+			uint32_t origUnknownSubAllocation2Size = 0x30000;
+			uint32_t newUnknownSubAllocation2Size = origUnknownSubAllocation2Size * 2;
+			*reinterpret_cast<uint32_t*>(0x510AD5 + 1) = newUnknownSubAllocation2Size;
+			*reinterpret_cast<uint32_t*>(0x510AF1 + 2) = newUnknownSubAllocation2Size;
+			extraGlobalsSize += newUnknownSubAllocation2Size - origUnknownSubAllocation2Size;
+			uint32_t origUnknownSubAllocation3Size = 0x200000;
+			uint32_t newUnknownSubAllocation3Size = origUnknownSubAllocation3Size * 2;
+			*reinterpret_cast<uint32_t*>(0x510AEC + 1) = newUnknownSubAllocation3Size;
+			*reinterpret_cast<uint32_t*>(0x510B09 + 2) = newUnknownSubAllocation3Size;
+			extraGlobalsSize += newUnknownSubAllocation3Size - origUnknownSubAllocation3Size;
+			uint32_t origUnknownSubAllocation4Size = 0x2D0000;
+			uint32_t newUnknownSubAllocation4Size = origUnknownSubAllocation4Size * 2;
+			*reinterpret_cast<uint32_t*>(0x510B04 + 1) = newUnknownSubAllocation4Size;
+			*reinterpret_cast<uint32_t*>(0x510B21 + 2) = newUnknownSubAllocation4Size;
+			extraGlobalsSize += newUnknownSubAllocation4Size - origUnknownSubAllocation4Size;
+			uint32_t origUnknownSubAllocation5Size = 0x480000;
+			uint32_t newUnknownSubAllocation5Size = origUnknownSubAllocation5Size * 2;
+			*reinterpret_cast<uint32_t*>(0x510B1C + 1) = newUnknownSubAllocation5Size;
+			*reinterpret_cast<uint32_t*>(0x510B34 + 1) = newUnknownSubAllocation5Size;
+			*reinterpret_cast<uint32_t*>(0x510B39 + 2) = newUnknownSubAllocation5Size;
+			*reinterpret_cast<uint32_t*>(0x510B4C + 1) = newUnknownSubAllocation5Size;
+			*reinterpret_cast<uint32_t*>(0x510B51 + 2) = newUnknownSubAllocation5Size;
+			extraGlobalsSize += newUnknownSubAllocation5Size - origUnknownSubAllocation5Size;
 
-			// expand textures array
-			*reinterpret_cast<uint32_t*>(0xA6E9CA + 1) = 16384;
-			extraGlobalsSize += (16384 - 8192) * 8;
+			// expand tag cache
+			const uint32_t origTagCacheSize = 0x4B00000;
+			const uint32_t newTagCacheSize = origTagCacheSize * 2;
+			*reinterpret_cast<uint32_t*>(0x502ED0 + 1) = newTagCacheSize;
+			*reinterpret_cast<uint32_t*>(0x502EE3 + 6) = newTagCacheSize;
+			extraGlobalsSize += newTagCacheSize - origTagCacheSize;
+
+			//// shrink script node global array
+			//*reinterpret_cast<uint32_t*>(0x679341 + 1) = 61440 / 4;	// orig 61440 @ 24 bytes each = ~1.4MB
+			////extraGlobalsSize += (2048 - 1500) * 0x80;
 
 			// expand sound sources
-			*reinterpret_cast<uint32_t*>(0x517AEC + 1) = 384*2;
-			extraGlobalsSize += (384 * 2 - 384) * 0xC8;
-
-			// expand xbox sound
-			*reinterpret_cast<uint32_t*>(0x66009A + 1) = 16384;
-			extraGlobalsSize += (16384 - 8192) * 0xC;
-
-			// expand object array
-			*reinterpret_cast<uint32_t*>(0xB35F84 + 1) = 4096;
-			*reinterpret_cast<uint32_t*>(0xB35F8E + 6) = 4096;	// needed?
-			extraGlobalsSize += (4096 - 2048) * 0x10;
+			uint32_t oldSoundSourceArrayCount = 384;
+			uint32_t newSoundSourceArrayCount = oldSoundSourceArrayCount * 10;
+			*reinterpret_cast<uint32_t*>(0x517AEC + 1) = newSoundSourceArrayCount;
+			extraGlobalsSize += (newSoundSourceArrayCount - oldSoundSourceArrayCount) * 0xC8;
 
 			// sound tracker data
-			*reinterpret_cast<uint32_t*>(0x66A312 + 1) = 512;
-			extraGlobalsSize += (512 - 384) * 0x40;
+			uint32_t oldSoundTrackerDataArrayCount = 384;
+			uint32_t newSoundTrackerDataArrayCount = oldSoundTrackerDataArrayCount * 10;
+			*reinterpret_cast<uint32_t*>(0x66A312 + 1) = newSoundTrackerDataArrayCount;
+			extraGlobalsSize += (newSoundTrackerDataArrayCount - oldSoundTrackerDataArrayCount) * 0x40;
+
+			// sound playback controllers
+			uint8_t oldSoundPlaybackControllersDataArrayCount = 64;
+			uint8_t newSoundPlaybackControllersDataArrayCount = oldSoundPlaybackControllersDataArrayCount * 4;
+			*reinterpret_cast<uint8_t*>(0x669712 + 1) = newSoundPlaybackControllersDataArrayCount;
+			extraGlobalsSize += (newSoundPlaybackControllersDataArrayCount - oldSoundPlaybackControllersDataArrayCount) * 0x1C;
+
+			// expand xbox sound
+			uint32_t oldXboxSoundArrayCount = 8192;
+			uint32_t newXboxSoundArrayCount = oldXboxSoundArrayCount * 4;
+			*reinterpret_cast<uint32_t*>(0x66009A + 1) = newXboxSoundArrayCount;
+			extraGlobalsSize += (newXboxSoundArrayCount - oldXboxSoundArrayCount) * 0xC;
+
+			// expand object looping sounds
+			uint32_t oldLoopingSoundArrayCount = 1024;
+			uint32_t newLoopingSoundArrayCount = oldLoopingSoundArrayCount * 4;
+			*reinterpret_cast<uint32_t*>(0x5D932B + 1) = newLoopingSoundArrayCount;
+			extraGlobalsSize += (newLoopingSoundArrayCount - oldLoopingSoundArrayCount) * 0x20;
+
+			// expand textures array
+			uint32_t oldTextureArrayCount = 8192;
+			uint32_t newTextureArrayCount = oldTextureArrayCount * 4;
+			*reinterpret_cast<uint32_t*>(0xA6E9CA + 1) = newTextureArrayCount;
+			extraGlobalsSize += (newTextureArrayCount - oldTextureArrayCount) * 8;
+
+			//// expand havok components
+			//*reinterpret_cast<uint32_t*>(0x5EA89D + 1) = 2048;
+			//extraGlobalsSize += (2048 - 1500) * 0x80;
+
+			//// expand vocalization records (seemed ok at 3)
+			//*reinterpret_cast<uint8_t*>(0x1438253 + 1) = 3;
+			//extraGlobalsSize += (64 - 15) * 92;
+
+			//// expand object array
+			//*reinterpret_cast<uint32_t*>(0xB35F84 + 1) = 4096;
+			//*reinterpret_cast<uint32_t*>(0xB35F8E + 6) = 4096;	// needed?
+			//extraGlobalsSize += (4096 - 2048) * 0x10;
 
 			//// expand objects pool
 			//*reinterpret_cast<uint32_t*>(0xB35FA4 + 1) = 0x180000 * 2;
 			//extraGlobalsSize += 0x180000;
 
-			// still working out how the globals are sub-divided, structs appear to be located elsewhere and cause issues expanding currently
-			extraGlobalsSize += 0x380000;
-
 			// give resources some additional room to breathe
-			uint32_t extraResourceSize = 0; // 1024 * 1024 * 100;
-	
-			uint32_t newGlobalsSize = origGlobalsSize + ((extraGlobalsSize + 0xFFFF) & 0xFFFF0000);
-			uint32_t newResourceSize = origResourceSize + extraResourceSize;
+			uint32_t extraResourceSize = 1024 * 1024 * 100;
+
+			uint32_t newGlobalsSize = origGlobalsSize + ((extraGlobalsSize + 0xFFFFF) & 0xFFF00000);
+			uint32_t newResourceSize = origResourceSize + ((extraResourceSize + 0xFFFFF) & 0xFFF00000);
 			uint32_t newTotalSize = newResourceSize + newGlobalsSize;
 
 			*reinterpret_cast<uint32_t*>(0x51D6AF + 2) = newGlobalsSize;

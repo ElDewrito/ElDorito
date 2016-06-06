@@ -18,8 +18,9 @@ namespace
 	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut);
 	void __fastcall packetSendHook(void *thisPtr, int unused, Blam::BitStream *stream, int packetId, int packetSize);
 	void ExceptionHook(char* msg);
-	void* __cdecl globalDataAllocateArrayHook(const char* name, int entryCount, int entrySize, int alignment, void** allocator);
 	int __cdecl globalDataAllocateStructHook(int unk1, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4);
+	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator);
+	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -30,8 +31,9 @@ namespace
 	Hook DebugLogStringHook(0x218A30, debuglog_string);
 	Hook PacketReceiveHook(0x7FF88, packetRecvHook, HookFlags::IsCall);
 	Hook PacketSendHook(0x800A4, packetSendHook, HookFlags::IsCall);
-	Hook MemoryGlobalAllocateArrayHook(0x15AFA0, globalDataAllocateArrayHook);
 	Hook MemoryGlobalAllocateStructHook(0x1A0010, globalDataAllocateStructHook);
+	Hook MemoryGlobalInitializeArrayHook(0x15ACF0, globalDataInitializeArrayHook);
+	Hook MemoryGlobalInitializePoolHook(0x56A5E0, globalDataInitializePoolHook);
 }
 
 namespace Patches
@@ -80,8 +82,9 @@ namespace Patches
 
 		void EnableMemoryLog(bool enable)
 		{
-			MemoryGlobalAllocateArrayHook.Apply(!enable);
 			MemoryGlobalAllocateStructHook.Apply(!enable);
+			MemoryGlobalInitializeArrayHook.Apply(!enable);
+			MemoryGlobalInitializePoolHook.Apply(!enable);
 		}
 	}
 }
@@ -274,28 +277,6 @@ namespace
 		std::exit(0);
 	}
 
-	void* __cdecl globalDataAllocateArrayHook(const char* name, int entryCount, int entrySize, int alignment, void** allocator)
-	{
-		// needs to be a power of two
-		int padding = alignment ? 1 << alignment - 1 : 0;
-
-		// call entity-specific allocator
-		char* address = (**reinterpret_cast<char*(__thiscall***)(void**, int, const char*)>(allocator))
-			(allocator, padding + entrySize * entryCount + 4 * ((entryCount + 31) >> 5) + 84, name);
-
-		Utils::DebugLog::Instance().Log("Memory", "AllocateGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, EntryCount: %d, EntrySize: %d", 
-			address, **reinterpret_cast<uint32_t**>(allocator), name, entryCount, entrySize);
-
-		if (address)
-		{
-			typedef void*(__cdecl *GlobalDataInitializeArray)(void*, const char*, int, int, int, void**);
-			reinterpret_cast<GlobalDataInitializeArray>(0x55ACF0)(address, name, entryCount, entrySize, alignment, allocator);
-			*reinterpret_cast<uint16_t*>(address + 0x2A) |= 4;
-		}
-
-		return address;
-	}
-
 	int __cdecl globalDataAllocateStructHook(int type, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4)
 	{
 		uint32_t* unkPtr = reinterpret_cast<uint32_t*>(0x2406494 + type * 0xC88);
@@ -310,5 +291,53 @@ namespace
 			address, allocator, type, unk2, unk3, unk4, name1, name2, size);
 
 		return unk;
+	}
+
+	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator)
+	{
+		Utils::DebugLog::Instance().Log("Memory", "InitGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Count: %d, Size: %d, Alignment: %d",
+			dataArray, allocator, name, maxCount, datumSize, alignmentBits);
+
+		int padding = alignmentBits >= 0x20 ? 1 << alignmentBits : 0;
+		char* data = reinterpret_cast<char*>(~((padding ^ (1 << alignmentBits)) - 1) & 
+			reinterpret_cast<unsigned int>(&reinterpret_cast<char*>(dataArray)[(padding ^ (1 << alignmentBits)) + 83]));
+		char* activeIndies = reinterpret_cast<char*>(data + datumSize * maxCount);
+
+		memset(dataArray, 0, sizeof(Blam::DataArrayBase));
+		strncpy(dataArray->Name, name, sizeof(dataArray->Name));
+		dataArray->Alignment = alignmentBits;
+		dataArray->TotalSize = activeIndies - reinterpret_cast<char*>(dataArray);
+		dataArray->Allocator = allocator;
+		dataArray->Flags = 0xFFFC;
+		dataArray->Data = data;
+		dataArray->MaxCount = maxCount;
+		dataArray->DatumSize = datumSize;
+		dataArray->Signature = 'd@t@';
+		dataArray->IsValid = false;
+		dataArray->ActiveIndices = reinterpret_cast<uint32_t*>(activeIndies);
+		dataArray->HeaderSize = data - reinterpret_cast<char*>(dataArray);
+		return memset(activeIndies, 0, 4 * ((maxCount + 31) >> 5));
+	}
+
+	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator)
+	{
+		Utils::DebugLog::Instance().Log("Memory", "InitGlobalPool - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Size: %d",
+			dataPool, allocator, name, size);
+		
+		memset(dataPool, 0, sizeof(Blam::DataPoolBase));
+		dataPool->Signature = 'pool';
+		strncpy(dataPool->Name, name, sizeof(dataPool->Name));
+		dataPool->Allocator = allocator;
+		dataPool->Unk64 = unk;
+		int temp = (reinterpret_cast<int>(dataPool) + 83) & 0xFFFFFFF0;
+		dataPool->Padding = temp ? temp - reinterpret_cast<int>(dataPool) : 0;
+		dataPool->Size = size;
+		dataPool->FreeSize = size;
+		dataPool->Unk52 = 0;
+		dataPool->Unk56 = 0;
+		dataPool->Unk60 = 0;
+		dataPool->Unk63 = 0;
+
+		return size;
 	}
 }
