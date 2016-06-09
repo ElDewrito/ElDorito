@@ -73,6 +73,7 @@ add_library(ElDorito SHARED
     src/Blam/BlamEvents.hpp
     src/Blam/BlamInput.cpp
     src/Blam/BlamInput.hpp
+	src/Blam/BlamMemory.hpp
     src/Blam/BlamNetwork.cpp
     src/Blam/BlamNetwork.hpp
     src/Blam/BlamObjects.hpp
@@ -206,6 +207,8 @@ add_library(ElDorito SHARED
     src/Patches/LoadingScreen.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
+	src/Patches/Memory.cpp
+	src/Patches/Memory.hpp
     src/Patches/Mouse.cpp
     src/Patches/Mouse.hpp
     src/Patches/Network.cpp
@@ -242,6 +245,8 @@ add_library(ElDorito SHARED
     src/Utils/Bits.hpp
     src/Utils/Cryptography.cpp
     src/Utils/Cryptography.hpp
+	src/Utils/Debug.cpp
+	src/Utils/Debug.hpp
     src/Utils/DebugLog.cpp
     src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
