@@ -4,7 +4,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include <Psapi.h>
 #include <fstream>
-#include <iostream>
+#include "../Blam/BlamMemory.hpp"
 
 namespace
 {
@@ -21,6 +21,8 @@ namespace
 	int __cdecl globalDataAllocateStructHook(int unk1, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4);
 	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator);
 	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator);
+	void* __stdcall virtualAllocHook(void* address, size_t size, uint32_t allocationType, uint32_t protect);
+	void* __cdecl allocatePhysicalMemoryHook(uint32_t stage, uint32_t unknown, uint32_t size, uint32_t flags);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -34,6 +36,9 @@ namespace
 	Hook MemoryGlobalAllocateStructHook(0x1A0010, globalDataAllocateStructHook);
 	Hook MemoryGlobalInitializeArrayHook(0x15ACF0, globalDataInitializeArrayHook);
 	Hook MemoryGlobalInitializePoolHook(0x56A5E0, globalDataInitializePoolHook);
+	Hook MemoryPhysicalAllocateHook(0x11D180, allocatePhysicalMemoryHook);
+
+	uint32_t origVirtualAllocAddress;
 }
 
 namespace Patches
@@ -80,11 +85,20 @@ namespace Patches
 			PacketSendHook.Apply(!enable);
 		}
 
+
 		void EnableMemoryLog(bool enable)
 		{
 			MemoryGlobalAllocateStructHook.Apply(!enable);
 			MemoryGlobalInitializeArrayHook.Apply(!enable);
 			MemoryGlobalInitializePoolHook.Apply(!enable);
+
+			// hook VirtualAlloc
+			DWORD temp;
+			VirtualProtect((void*)0x1600194, 4, PAGE_READWRITE, &temp);
+			origVirtualAllocAddress = *(uint32_t*)0x1600194;
+			*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
+
+			MemoryPhysicalAllocateHook.Apply(!enable);
 		}
 	}
 }
@@ -295,8 +309,8 @@ namespace
 
 	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator)
 	{
-		Utils::DebugLog::Instance().Log("Memory", "InitGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Count: %d, Size: %d, Alignment: %d",
-			dataArray, allocator, name, maxCount, datumSize, alignmentBits);
+		Utils::DebugLog::Instance().Log("Memory", "InitGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Count: %d, Size: %d, Alignment: %d, TotalSize: %d",
+			dataArray, allocator, name, maxCount, datumSize, alignmentBits, Blam::CalculateDatumArraySize(maxCount, datumSize, alignmentBits));
 
 		int padding = alignmentBits >= 0x20 ? 1 << alignmentBits : 0;
 		char* data = reinterpret_cast<char*>(~((padding ^ (1 << alignmentBits)) - 1) & 
@@ -339,5 +353,77 @@ namespace
 		dataPool->Unk63 = 0;
 
 		return size;
+	}
+
+	void* __stdcall virtualAllocHook(void* address, size_t size, uint32_t allocationType, uint32_t protect)
+	{
+		void* addr = reinterpret_cast<void*(__stdcall*)(void*, size_t, uint32_t, uint32_t)>(origVirtualAllocAddress)
+			(address, size, allocationType, protect);
+
+		Utils::DebugLog::Instance().Log("Memory", "VirtualAlloc - Address: 0x%08X, Size: 0x%08X, Type: 0x%08X, Protect: 0x%08X, CallStack: %s",
+			addr, size, allocationType, protect, Utils::GetStackTraceString(1, 5).c_str());
+
+		return addr;
+	}
+
+	void* __cdecl allocatePhysicalMemoryHook(uint32_t stage, uint32_t unknown, uint32_t size, uint32_t flags)
+	{
+		Blam::GlobalMemoryMap* map = Blam::GetGlobalMemoryMap();
+		uint32_t origStage = map->CurrentStageIndex;
+		char* currentDataPtr = map->Stages[map->CurrentStageIndex].DataAddress;
+
+		uint32_t paddedSize = size + 0xFFFF & 0xFFFF0000;
+		if (paddedSize)
+		{
+			uint32_t origDataFreeSpace = map->Stages[map->CurrentStageIndex].CacheAddress - map->Stages[map->CurrentStageIndex].DataAddress;
+			char* origDataAddress = map->Stages[map->CurrentStageIndex].DataAddress;
+			
+			if ((flags & 4) == 0)
+			{
+				if (currentDataPtr + paddedSize > map->Stages[map->CurrentStageIndex].CacheAddress)
+					return nullptr;
+
+				map->Stages[map->CurrentStageIndex].DataAddress += paddedSize;
+			}
+			else
+			{
+				char* v9 = map->Stages[map->CurrentStageIndex].CacheAddress - paddedSize;
+				if (v9 < map->Stages[map->CurrentStageIndex].DataAddress)
+					return nullptr;
+
+				map->Stages[map->CurrentStageIndex].CacheAddress = v9;
+				currentDataPtr = v9;
+			}
+
+			if (currentDataPtr)
+			{
+				if (static_cast<uint32_t>(map->CurrentStageIndex - 3) <= 2 && map->Allocator)
+				{
+					(*reinterpret_cast<void(__stdcall **)(char*, int, char*, int)>(*reinterpret_cast<uint32_t*>(map->Allocator) + 4))
+						(origDataAddress, origDataFreeSpace, map->Stages[map->CurrentStageIndex].DataAddress, map->Stages[map->CurrentStageIndex].CacheAddress - map->Stages[map->CurrentStageIndex].DataAddress);
+				}
+				goto unklabel;
+			}
+			return nullptr;
+		}
+
+		currentDataPtr = reinterpret_cast<char*>(map->Stages[map->CurrentStageIndex].IsInitialized);
+		map->Stages[map->CurrentStageIndex].IsInitialized++;
+
+	unklabel:
+
+		if (currentDataPtr)
+		{
+			++map->Stages[origStage].DataAllocationCount;
+			if (flags & 4)
+			{
+				++map->Stages[origStage].CacheAllocationCount;
+			}
+		}
+
+		Utils::DebugLog::Instance().Log("Memory", "PhysicalMapAlloc - Address: 0x%08X, Size: 0x%08X, Flags: %d, Stage: %d, CallStack: %s",
+			currentDataPtr, size, flags, stage, Utils::GetStackTraceString(1, 5).c_str());
+
+		return currentDataPtr;
 	}
 }

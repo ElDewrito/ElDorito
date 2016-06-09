@@ -17,4 +17,9 @@ namespace Blam
 		auto DataIteratorNext = reinterpret_cast<DataIteratorNextPtr>(0x55AE30);
 		return DataIteratorNext(this);
 	}
+
+	int CalculateDatumArraySize(int datumCount, int datumSize, int alignmentBits)
+	{
+		return reinterpret_cast<int(__cdecl*)(int, int, int)>(0x55AAB0)(datumCount, datumSize, alignmentBits);
+	}
 }

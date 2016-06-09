@@ -18,8 +18,8 @@
 #include "Patches\Sprint.hpp"
 #include "Patches\Events.hpp"
 #include "Patches\LoadingScreen.hpp"
+#include "Patches\Memory.hpp"
 #include "DirectXHook.hpp"
-
 #include "Blam\Cache\StringIdCache.hpp"
 #include "Blam\Tags\TagInstance.hpp"
 #include "Blam\Tags\Game\Globals.hpp"
@@ -36,6 +36,7 @@ namespace Patches
 	{
 		UnprotectMemory();
 		Core::ApplyAll();
+		Memory::ApplyAll();
 		Mouse::ApplyAll();
 		Network::ApplyAll();
 		Scoreboard::ApplyAll();

@@ -6,6 +6,8 @@
 
 namespace Blam
 {
+	int CalculateDatumArraySize(int datumSize, int datumCount, int alignmentBits);
+
 	// A unique handle used to refer to data.
 	struct DatumIndex
 	{
