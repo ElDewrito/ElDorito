@@ -1,4 +1,3 @@
-var loadingCount = 0;
 var mapName = "";
 var gameModes = ["slayer","ctf","slayer","oddball","koth","forge","vip","juggernaut","territories","assault","infection"];
 
@@ -84,14 +83,10 @@ dew.on("show", function (event) {
         loadGeneric();
     }
     updateProgress(0);
-    loadingCount++;
 });
 
 dew.on("hide", function (e) {
     resetLoader();
-    if (loadingCount == 1 && mapName == "mainmenu"){
-        dew.show("title");
-    }
 });
 
 dew.on("loadprogress", function (event) {

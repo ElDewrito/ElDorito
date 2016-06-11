@@ -86,6 +86,8 @@ void ElDorito::Initialize()
 	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
 	mapsFolder = "maps\\";
 
+	skipTitleSplash = Modules::ModuleGame::Instance().VarSkipTitleSplash->ValueInt == 1;
+
 	if( szArgList && numArgs > 1 )
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
@@ -116,6 +118,15 @@ void ElDorito::Initialize()
 
 			if (arg.compare(L"-webdebug") == 0)
 				webDebugging = true;
+
+			if (arg.compare(L"-connect") == 0 && i < numArgs - 1)
+			{
+				serverAddress = Utils::String::ThinString(szArgList[i + 1]);
+				connectToServer = true;
+			}
+
+			if (arg.compare(L"-password") == 0 && i < numArgs - 1)
+				serverPassword = Utils::String::ThinString(szArgList[i + 1]);
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
@@ -158,6 +169,16 @@ void ElDorito::Initialize()
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
 		Web::Ui::WebScoreboard::Init();
+
+		if (connectToServer)
+		{
+			//Skip the title splash screen if we're trying to connect to a server.
+			skipTitleSplash = true;
+
+			std::stringstream connectString;
+			connectString << "connect " << serverAddress << " " << serverPassword;
+			Modules::CommandMap::Instance().ExecuteCommand(connectString.str());
+		}
 	}
 
 	// Language patch
@@ -235,6 +256,9 @@ void ElDorito::OnMainMenuShown()
 		return;
 	GameHasMenuShown = true;
 	executeCommandQueue = true;
+
+	if (!skipTitleSplash)
+		Web::Ui::ScreenLayer::Show("title", "{}");
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

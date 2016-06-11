@@ -73,7 +73,7 @@ add_library(ElDorito SHARED
     src/Blam/BlamEvents.hpp
     src/Blam/BlamInput.cpp
     src/Blam/BlamInput.hpp
-	src/Blam/BlamMemory.hpp
+    src/Blam/BlamMemory.hpp
     src/Blam/BlamNetwork.cpp
     src/Blam/BlamNetwork.hpp
     src/Blam/BlamObjects.hpp
@@ -207,8 +207,8 @@ add_library(ElDorito SHARED
     src/Patches/LoadingScreen.hpp
     src/Patches/Logging.cpp
     src/Patches/Logging.hpp
-	src/Patches/Memory.cpp
-	src/Patches/Memory.hpp
+    src/Patches/Memory.cpp
+    src/Patches/Memory.hpp
     src/Patches/Mouse.cpp
     src/Patches/Mouse.hpp
     src/Patches/Network.cpp
@@ -245,8 +245,8 @@ add_library(ElDorito SHARED
     src/Utils/Bits.hpp
     src/Utils/Cryptography.cpp
     src/Utils/Cryptography.hpp
-	src/Utils/Debug.cpp
-	src/Utils/Debug.hpp
+    src/Utils/Debug.cpp
+    src/Utils/Debug.hpp
     src/Utils/DebugLog.cpp
     src/Utils/DebugLog.hpp
     src/Utils/Macros.hpp
@@ -370,6 +370,21 @@ set (WEB_SOURCES
     web/screens/medals/medals.js
     web/screens/scoreboard/index.html
     web/screens/scoreboard/scoreboard.js
+    web/screens/title/images/cloud_back.png
+    web/screens/title/images/cloud_front.png
+    web/screens/title/images/EldoritoLogoFinalSmall.png
+    web/screens/title/images/Keyboard_White_Arrow_Down.png
+    web/screens/title/images/Keyboard_White_Arrow_Left.png
+    web/screens/title/images/Keyboard_White_Arrow_Right.png
+    web/screens/title/images/Keyboard_White_Arrow_Up.png
+    web/screens/title/images/Keyboard_White_Enter.png
+    web/screens/title/images/Keyboard_White_Arrow_Esc.png
+    web/screens/title/images/ring.png
+    web/screens/title/images/stars.jpg
+    web/screens/title/Conduit-ITC.woff
+    web/screens/title/index.html
+    web/screens/title/title.css
+    web/screens/title/title.js
     web/screens/screens.json
     web/ui/index.html
     web/ui/ui.css

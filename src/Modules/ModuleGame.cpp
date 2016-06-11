@@ -808,6 +808,10 @@ namespace Modules
 		VarSkipLauncher->ValueIntMin = 0;
 		VarSkipLauncher->ValueIntMax = 1;
 
+		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
+		VarSkipTitleSplash->ValueIntMin = 0;
+		VarSkipTitleSplash->ValueIntMax = 1;
+
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 
 		VarRconPort = AddVariableInt("RconPort", "rcon_port", "The port to use for rcon in this instance of the game", eCommandFlagsArchived, 11776);

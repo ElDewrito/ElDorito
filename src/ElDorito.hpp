@@ -38,6 +38,10 @@ private:
 	bool isDedicated = false;
 	std::string mapsFolder;
 	bool webDebugging = false;
+	bool connectToServer = false;
+	std::string serverAddress = "";
+	std::string serverPassword = "";
+	bool skipTitleSplash = false;
 	//static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);
