@@ -378,7 +378,7 @@ set (WEB_SOURCES
     web/screens/title/images/Keyboard_White_Arrow_Right.png
     web/screens/title/images/Keyboard_White_Arrow_Up.png
     web/screens/title/images/Keyboard_White_Enter.png
-    web/screens/title/images/Keyboard_White_Arrow_Esc.png
+    web/screens/title/images/Keyboard_White_Esc.png
     web/screens/title/images/ring.png
     web/screens/title/images/stars.jpg
     web/screens/title/Conduit-ITC.woff
