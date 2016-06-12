@@ -227,6 +227,10 @@ add_library(ElDorito SHARED
     src/Patches/Ui.hpp
     src/Patches/VirtualKeyboard.cpp
     src/Patches/VirtualKeyboard.hpp
+    src/Server/VotingSystem.cpp
+    src/Server/VotingSystem.hpp
+    src/Server/VotingPackets.cpp
+    src/Server/VotingPackets.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
     src/Server/ServerChat.cpp
@@ -276,6 +280,8 @@ add_library(ElDorito SHARED
     src/Web/Ui/MpEventDispatcher.hpp
     src/Web/Ui/ScreenLayer.cpp
     src/Web/Ui/ScreenLayer.hpp
+    src/Web/Ui/VotingScreen.hpp
+    src/Web/Ui/VotingScreen.cpp
     src/Web/Ui/WebConsole.cpp
     src/Web/Ui/WebConsole.hpp
     src/Web/Ui/WebChat.cpp

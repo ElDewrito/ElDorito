@@ -27,6 +27,7 @@
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
 #include "ModuleVoIP.hpp"
+#include "../Server/VotingSystem.hpp"
 
 namespace
 {
@@ -945,6 +946,46 @@ namespace
 		Patches::Assassination::Enable(enabled);
 		return true;
 	}
+	bool VariableServerVotingEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (!Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt)
+		{
+			Server::Voting::Disable();
+			returnInfo = "Voting System Disabled";
+		}
+		if (Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt)
+		{
+			Server::Voting::Enable();
+			returnInfo = "Voting System Enabled";
+		}
+		return true;
+	}
+	bool CommandServerSubmitVote(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+
+		if (Arguments.size() <= 0)
+		{
+			returnInfo = "You must supply a vote.";
+			return false;
+		}
+		auto vote = -1;
+		size_t pos = 0;
+		try
+		{
+			vote = std::stoi(Arguments[0], &pos);
+		}
+		catch (std::logic_error&)
+		{
+		}
+		if (pos != Arguments[0].length() || vote < 1 || vote > 5)
+		{
+			returnInfo = "Invalid Vote";
+			return false;
+		}
+		Server::Voting::SendVoteToHost(vote);
+
+		return true;
+	}
 }
 
 namespace Modules
@@ -1003,7 +1044,8 @@ namespace Modules
 		AddCommand("Ping", "ping", "Ping a server", eCommandFlagsNone, CommandServerPing, { "[ip] The IP address of the server to ping. Omit to ping the host." });
 
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
-		
+		AddCommand("SubmitVote", "submitvote", "Sumbits a vote", eCommandFlagsNone, CommandServerSubmitVote, { "The vote to send to the host" });
+
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
 		VarServerMode->ValueIntMin = 0;
 		VarServerMode->ValueIntMax = 4;
@@ -1037,6 +1079,21 @@ namespace Modules
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
 
+		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", eCommandFlagsHostOnly, 1, VariableServerVotingEnabledUpdate);
+		VarServerVotingEnabled->ValueIntMin = 0;
+		VarServerVotingEnabled->ValueIntMax = 1;
+
+		VarServerMapVotingTime = AddVariableInt("MapVotingTime", "map_voting_time", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 30);
+		VarServerMapVotingTime->ValueIntMin = 0;
+		VarServerMapVotingTime->ValueIntMax = 100;
+
+		VarServerNumberOfRevotesAllowed = AddVariableInt("NumberOfRevotesAllowed", "number_of_revotes_allowed", "Controls how many revotes are allowed in the voting system ", eCommandFlagsHostOnly, 3);
+		VarServerNumberOfRevotesAllowed->ValueIntMin = 0;
+		VarServerNumberOfRevotesAllowed->ValueIntMax = 1000;
+
+		VarServerNumberOfVotingOptions = AddVariableInt("NumberOfVotingOptions", "number_of_voting_options", "Controls how many voting options are displayed ", eCommandFlagsHostOnly, 3);
+		VarServerNumberOfVotingOptions->ValueIntMin = 1;
+		VarServerNumberOfVotingOptions->ValueIntMax = 4;
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);

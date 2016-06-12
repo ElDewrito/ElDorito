@@ -208,6 +208,7 @@ namespace Patches
 
 			//Update the list of maps
 			Modules::ModuleGame::Instance().UpdateMapList();
+			Modules::ModuleGame::Instance().UpdateCustomMapList();
 		}
 	}
 }

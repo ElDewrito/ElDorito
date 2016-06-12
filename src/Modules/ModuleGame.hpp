@@ -27,11 +27,14 @@ namespace Modules
 		Command* VarMedalPack;
 
 		int DebugFlags;
+
+		std::vector<std::string> CustomMapList;
 		std::vector<std::string> MapList;
 		std::vector<std::string> FiltersExclude;
 		std::vector<std::string> FiltersInclude;
 
 		ModuleGame();
 		void UpdateMapList();
+		void UpdateCustomMapList();
 	};
 }

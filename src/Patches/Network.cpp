@@ -20,6 +20,7 @@
 #include "../Modules/ModulePlayer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Modules/ModuleVoIP.hpp"
+#include "../Server/VotingSystem.hpp"
 
 namespace
 {
@@ -460,6 +461,7 @@ namespace Patches
 			if (infoSocketOpen)
 				return true;
 
+			Server::Voting::StartNewVote();
 			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
 			if (hwnd == 0)
 				return false;
@@ -754,6 +756,8 @@ namespace
 
 		// Apply the extended properties
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
+		Server::Voting::PlayerJoinedVoteInProgress(playerIndex); //TODO find somewhere else to put this.
+
 	}
 
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason)

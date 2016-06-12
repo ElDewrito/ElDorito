@@ -35,7 +35,10 @@ namespace Modules
 		Command* VarFloodTimeoutResetSeconds;
 		Command* VarChatLogEnabled;
 		Command* VarChatLogPath;
-
+		Command* VarServerMapVotingTime;
+		Command* VarServerVotingEnabled;
+		Command* VarServerNumberOfRevotesAllowed;
+		Command* VarServerNumberOfVotingOptions;
 		uint8_t SyslinkData[0x176];
 
 		ModuleServer();

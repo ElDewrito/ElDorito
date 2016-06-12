@@ -1,0 +1,177 @@
+{  
+   "Maps":[  
+     {  
+         "displayName":"Standoff",
+         "mapName":"Standoff (TS)"
+      },
+      {  
+         "displayName":"Sandtrap",
+         "mapName":"Sandtrap (TS)"
+      },
+	  {  
+         "displayName":"Icebox",
+         "mapName":"Turf (TS)"
+      },
+      {  
+         "displayName":"Narrows",
+         "mapName":"Narrows (TS)"
+      },
+      {  
+         "displayName":"High Ground",
+         "mapName":"HighGroundTS"
+      },
+      {  
+         "displayName":"Last Resort",
+         "mapName":"LastResortTS"
+      },
+      {  
+         "displayName":"Valhalla",
+         "mapName":"Valhalla (FS)"
+      },
+	  {  
+         "displayName":"The Pit",
+         "mapName":"The Pit (TS)"
+      },
+	  {  
+         "displayName":"Guardian",
+         "mapName":"Guardian (TS)"
+      },
+      {  
+         "displayName":"Diamondback",
+         "mapName":"DiamondbackFS"
+      }
+   ],
+   "Types":[  
+      {  
+         "displayName":"Team King",
+         "typeName":"Team Crazy King",
+         "SprintEnabled":"0"
+      },
+	  {  
+         "displayName":"Team SWAT",
+         "typeName":"Team SWAT",
+         "SprintEnabled":"0",
+		  "SpecificMaps":[  
+            {  
+               "displayName":"Valhalla",
+               "mapName":"Valhalla (Swat)"
+            },
+            { 
+               "displayName":"Standoff",
+               "mapName":"Standoff (Swat)"
+            },
+            {  
+               "displayName":"Last Resort",
+               "mapName":"LastResortSwat"
+            },
+            {  
+               "displayName":"Diamondback",
+               "mapName":"Diamondback (S)"
+            },
+			{  
+               "displayName":"High Ground",
+               "mapName":"HighGroundSwat"
+            }
+         ]
+      },
+      {  
+         "displayName":"Team Snipers",
+         "typeName":"Team Snipers",
+         "SprintEnabled":"0" 
+      },
+      {
+         "displayName":"Team BRs",
+         "typeName":"Team BRs",
+         "SprintEnabled":"0"
+      },
+      {  
+         "displayName":"Team BRs",
+         "typeName":"Team BRs",
+         "SprintEnabled":"0"
+      },
+      {  
+         "displayName":"Team DMRs",
+         "typeName":"Team DMRs",
+         "SprintEnabled":"0"
+      },
+      {  
+         "displayName":"Team Fiesta",
+         "typeName":"Team Fiesta",
+         "SprintEnabled":"0"
+      },
+      {  
+         "displayName":"Multi Flag",
+         "typeName":"Team CTF",
+         "SprintEnabled":"0",
+		 "SpecificMaps":[  
+            {  
+               "displayName":"Sandtrap",
+               "mapName":"Sandtrap (Obj)"
+            },
+            {  
+               "displayName":"Valhalla",
+               "mapName":"Valhalla (FS)"
+            },
+            {  
+               "displayName":"Standoff",
+               "mapName":"Standoff (Obj)"
+            },
+            {  
+               "displayName":"Last Resort",
+               "mapName":"LastResortCTF"
+            },
+            {  
+               "displayName":"Diamondback",
+               "mapName":"DiamondbackFS"
+            },
+			{  
+               "displayName":"High Ground",
+               "mapName":"HighGroundCTF"
+            }
+         ]
+      },
+      {  
+         "displayName":"FFA Oddball",
+         "typeName":"FFA Oddball",
+         "SprintEnabled":"0",
+		 "SpecificMaps": [  
+		  {  
+			 "displayName":"Standoff",
+			 "mapName":"Standoff (H3)"
+		  },
+		  {  
+			 "displayName":"The Pit",
+			 "mapName":"The Pit (H3)"
+		  },
+		  {  
+			 "displayName":"Sandtrap",
+			 "mapName":"Sandtrap (H3)"
+		  },
+		  {  
+			 "displayName":"Narrows",
+			 "mapName":"Narrows(H3)"
+		  },
+		  {  
+			 "displayName":"High Ground",
+			 "mapName":"High Ground(H3)"
+		  },
+		  {  
+			 "displayName":"Last Resort",
+			 "mapName":"Last Resort(H3)"
+		  },
+		  {  
+			 "displayName":"Valhalla",
+			 "mapName":"Valhalla (H3)"
+		  },
+		  {  
+			 "displayName":"Diamondback",
+			 "mapName":"Avalanche"
+		  },
+		  {  
+			 "displayName":"Guardian",
+			 "mapName":"Guardian (H3)"
+		  }
+	   ]
+      }
+   ]
+}

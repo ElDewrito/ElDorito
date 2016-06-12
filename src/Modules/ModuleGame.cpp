@@ -13,6 +13,7 @@
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
 #include "../Patch.hpp"
+#include "boost/filesystem.hpp"
 
 namespace
 {
@@ -833,6 +834,19 @@ namespace Modules
 		AddVariableFloat("Money", "gamemoney", "Your mothers hourly rate", 1.86f);*/
 	}
 
+	void ModuleGame::UpdateCustomMapList()
+	{
+		CustomMapList.clear();
+		boost::filesystem::path p("mods/maps/");
+		boost::filesystem::directory_iterator end_itr;
+
+		// cycle through the directory
+		for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
+		{
+			if (!is_regular_file(itr->path())) 
+				CustomMapList.push_back(itr->path().filename().string());
+		}
+	}
 	void ModuleGame::UpdateMapList()
 	{
 		auto searchPath = ElDorito::Instance().GetMapsFolder() + "*.map";
