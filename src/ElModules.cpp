@@ -5,6 +5,7 @@
 #include "Modules/ModuleGame.hpp"
 #include "Modules/ModulePlayer.hpp"
 #include "Modules/ModuleServer.hpp"
+#include "Modules/ModuleSettings.hpp"
 #include "Modules/ModuleCamera.hpp"
 #include "Modules/ModuleInput.hpp"
 #include "Modules/ModuleVoIP.hpp"
@@ -96,6 +97,7 @@ namespace Modules
 		ModuleGame::Instance();
 		ModulePlayer::Instance();
 		ModuleServer::Instance();
+		ModuleSettings::Instance();
 		ModuleCamera::Instance();
 		ModuleInput::Instance();
 		ModuleVoIP::Instance();

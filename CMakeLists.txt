@@ -179,6 +179,8 @@ add_library(ElDorito SHARED
     src/Modules/ModulePlayer.hpp
     src/Modules/ModuleServer.cpp
     src/Modules/ModuleServer.hpp
+    src/Modules/ModuleSettings.cpp
+    src/Modules/ModuleSettings.hpp
     src/Modules/ModuleVoIP.cpp
     src/Modules/ModuleVoIP.hpp
     src/Modules/ModuleTime.cpp
