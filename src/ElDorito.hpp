@@ -33,6 +33,7 @@ public:
 	bool IsWebDebuggingEnabled() const { return webDebugging; }
 
 private:
+	bool isHeadless = false;
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;
@@ -42,9 +43,9 @@ private:
 	std::string serverAddress = "";
 	std::string serverPassword = "";
 	bool skipTitleSplash = false;
-	//static bool(__cdecl * Video_InitD3D)(bool, bool);
+	static bool(__cdecl * Video_InitD3D)(bool, bool);
 
 	void setWatermarkText(const std::string& Message);
 	void killProcessByName(const char *filename, int ourProcessID);
-	//static bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice);
+	static bool __cdecl hooked_Video_InitD3D(bool windowless, bool nullRefDevice);
 };

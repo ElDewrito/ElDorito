@@ -52,7 +52,20 @@ namespace Patches
 		Logging::ApplyAll();
 		Events::ApplyAll();
 		LoadingScreen::ApplyAll();
-		DirectXHook::applyPatches();
+		
+		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not. 
+		bool isdedicated = false;
+		int numArgs = 0;
+		LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
+		for (int i = 1; i < numArgs; i++)
+		{
+			std::wstring arg = std::wstring(szArgList[i]);
+			if (arg.compare(L"-headless") == 0)
+				isdedicated = true;
+		}
+
+		if (!isdedicated)
+			DirectXHook::applyPatches();
 	}
 	
 	void ApplyOnFirstTick()

@@ -27,6 +27,7 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <codecvt>
+#include <detours.h>
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -34,12 +35,12 @@ ElDorito::ElDorito()
 {
 }
 
-//bool(__cdecl * ElDorito::Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
-//
-//bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
-//	// TEMP: leave window enabled for now so async networkWndProc stuff still works
-//	return (*Video_InitD3D)(false, true);
-//}
+bool(__cdecl * ElDorito::Video_InitD3D)(bool, bool) = (bool(__cdecl *) (bool, bool)) 0xA21B40;
+
+bool __cdecl ElDorito::hooked_Video_InitD3D(bool windowless, bool nullRefDevice) {
+	// TEMP: leave window enabled for now so async networkWndProc stuff still works
+	return (*Video_InitD3D)(false, nullRefDevice);
+}
 
 void ElDorito::killProcessByName(const char *filename, int ourProcessID)
 {
@@ -100,10 +101,14 @@ void ElDorito::Initialize()
 			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
 
-#ifndef _DEBUG
 			if (arg.compare(L"-launcher") == 0)
 				usingLauncher = true;
-#endif
+
+			if (arg.compare(L"-headless") == 0)
+			{
+				isDedicated = true;
+				isHeadless = true;
+			}
 
 			if (arg.compare(L"-dedicated") == 0)
 			{
@@ -152,15 +157,20 @@ void ElDorito::Initialize()
 	{
 		Patches::Network::ForceDedicated();
 
-		//// Commenting this out for now because it makes testing difficult
-		//DetourRestoreAfterWith();
-		//DetourTransactionBegin();
-		//DetourUpdateThread(GetCurrentThread());
-		//DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
+		if (isHeadless)
+		{
+			Patches::Network::ForceHeadless();
+			//// Commenting this out for now because it makes testing difficult
+			DetourRestoreAfterWith();
+			DetourTransactionBegin();
+			DetourUpdateThread(GetCurrentThread());
+			DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
 
-		//if (DetourTransactionCommit() != NO_ERROR) {
-		//return;
-		//}
+			if (DetourTransactionCommit() != NO_ERROR) {
+				return;
+			}
+		}
+		
 
 	}
 	else
@@ -217,8 +227,12 @@ void ElDorito::Tick()
 	Server::VariableSynchronization::Tick();
 	Server::Chat::Tick();
 	Patches::Tick();
-	Web::Ui::ScreenLayer::Tick();
-	Web::Ui::WebScoreboard::Tick();
+	if (!isDedicated)
+	{
+		Web::Ui::ScreenLayer::Tick();
+		Web::Ui::WebScoreboard::Tick();
+	}
+
 	Server::Voting::Tick();
 
 	// TODO: refactor this elsewhere
@@ -262,7 +276,7 @@ void ElDorito::OnMainMenuShown()
 	GameHasMenuShown = true;
 	executeCommandQueue = true;
 
-	if (!skipTitleSplash)
+	if (!skipTitleSplash && !isDedicated)
 		Web::Ui::ScreenLayer::Show("title", "{}");
 }
 

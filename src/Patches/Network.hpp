@@ -12,6 +12,7 @@ namespace Patches
 	{
 		void ApplyAll();
 		void ForceDedicated();
+		void ForceHeadless();
 
 		bool StartRemoteConsole();
 
