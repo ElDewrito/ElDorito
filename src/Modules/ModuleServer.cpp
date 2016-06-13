@@ -1079,19 +1079,19 @@ namespace Modules
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
 
-		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", eCommandFlagsHostOnly, 1, VariableServerVotingEnabledUpdate);
+		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1, VariableServerVotingEnabledUpdate);
 		VarServerVotingEnabled->ValueIntMin = 0;
 		VarServerVotingEnabled->ValueIntMax = 1;
 
-		VarServerMapVotingTime = AddVariableInt("MapVotingTime", "map_voting_time", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 30);
+		VarServerMapVotingTime = AddVariableInt("MapVotingTime", "map_voting_time", "Controls how long the vote lasts for Map Voting. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 30);
 		VarServerMapVotingTime->ValueIntMin = 0;
 		VarServerMapVotingTime->ValueIntMax = 100;
 
-		VarServerNumberOfRevotesAllowed = AddVariableInt("NumberOfRevotesAllowed", "number_of_revotes_allowed", "Controls how many revotes are allowed in the voting system ", eCommandFlagsHostOnly, 3);
+		VarServerNumberOfRevotesAllowed = AddVariableInt("NumberOfRevotesAllowed", "number_of_revotes_allowed", "Controls how many revotes are allowed in the voting system ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 3);
 		VarServerNumberOfRevotesAllowed->ValueIntMin = 0;
 		VarServerNumberOfRevotesAllowed->ValueIntMax = 1000;
 
-		VarServerNumberOfVotingOptions = AddVariableInt("NumberOfVotingOptions", "number_of_voting_options", "Controls how many voting options are displayed ", eCommandFlagsHostOnly, 3);
+		VarServerNumberOfVotingOptions = AddVariableInt("NumberOfVotingOptions", "number_of_voting_options", "Controls how many voting options are displayed ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 3);
 		VarServerNumberOfVotingOptions->ValueIntMin = 1;
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
 #ifdef _DEBUG
