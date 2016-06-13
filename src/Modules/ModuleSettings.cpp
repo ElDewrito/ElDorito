@@ -31,7 +31,6 @@ namespace
 			status = "enabled.";
 
 		SetFullscreen(statusBool ? 1 : 0);
-		SetTextureResolution(0);
 
 		returnInfo = "Fullscreen " + status;
 		return true;
