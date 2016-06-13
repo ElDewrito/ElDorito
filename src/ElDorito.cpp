@@ -14,11 +14,13 @@
 #include "Web/Ui/WebConsole.hpp"
 #include "Web/Ui/WebLoadingScreen.hpp"
 #include "Web/Ui/WebScoreboard.hpp"
+#include "Web/Ui/VotingScreen.hpp"
 #include "Web/Ui/MpEventDispatcher.hpp"
 #include "ElModules.hpp"
 #include "Modules/ModuleGame.hpp"
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
+#include "Server/VotingSystem.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -169,6 +171,7 @@ void ElDorito::Initialize()
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
 		Web::Ui::WebScoreboard::Init();
+		Web::Ui::Voting::Init();
 
 		if (connectToServer)
 		{
@@ -199,6 +202,7 @@ void ElDorito::Initialize()
 
 	// Initialize server modules
 	Server::Chat::Initialize();
+	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 
@@ -215,6 +219,7 @@ void ElDorito::Tick()
 	Patches::Tick();
 	Web::Ui::ScreenLayer::Tick();
 	Web::Ui::WebScoreboard::Tick();
+	Server::Voting::Tick();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
