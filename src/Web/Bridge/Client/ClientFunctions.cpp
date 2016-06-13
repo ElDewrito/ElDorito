@@ -419,8 +419,45 @@ namespace Anvil
 								rapidjson::StringBuffer buffer;
 								rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 								auto playerStats = Blam::Players::GetStats(playerIdx);
-
+								auto pvpStats = Blam::Players::GetPVPStats(playerIdx);
 								writer.StartObject();
+
+								writer.Key("playerkilledplayer");
+								writer.StartArray();
+								for (int i = 0; i < 16; i++)
+								{
+									if (pvpStats.StatsAgainstEachPlayer[i].Kills > 0)
+									{
+										auto p = session->MembershipInfo.PlayerSessions[i];
+
+										writer.Key("PlayerName");
+										writer.String(Utils::String::ThinString(p.Properties.DisplayName).c_str());
+										writer.Key("Kills");
+										writer.Int(pvpStats.StatsAgainstEachPlayer[i].Kills);
+									}
+									
+
+								}
+								writer.EndArray();
+
+								writer.Key("playerkilledby");
+								writer.StartArray();
+								for (int i = 0; i < 16; i++)
+								{
+									if (pvpStats.StatsAgainstEachPlayer[i].KilledBy > 0)
+									{
+										auto p = session->MembershipInfo.PlayerSessions[i];
+
+										writer.Key("PlayerName");
+										writer.String(Utils::String::ThinString(p.Properties.DisplayName).c_str());
+										writer.Key("Kills");
+										writer.Int(pvpStats.StatsAgainstEachPlayer[i].KilledBy);
+									}
+									
+
+								}
+								writer.EndArray();
+
 
 								writer.Key("medals");
 								writer.StartObject();

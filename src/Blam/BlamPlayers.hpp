@@ -106,6 +106,18 @@ namespace Blam
 		};
 		static_assert(sizeof(PlayerDatum) == 0x2F08, "Invalid PlayerDatum size");
 
+		typedef struct _PLAYER_VS_STATS
+		{
+			uint16_t Kills;
+			uint16_t KilledBy;
+		} PLAYER_VS_STATS;
+
+		typedef struct _PLAYER_KILLED_PLAYER_STATS
+		{
+			PLAYER_VS_STATS StatsAgainstEachPlayer[16];
+
+		} PLAYER_KILLED_PLAYER_STATS;
+
 		typedef struct _WEAPON_STATS
 		{
 			uint16_t Initialized;
@@ -162,5 +174,7 @@ namespace Blam
 
 		// Gets a player's stats.
 		PLAYER_STATS GetStats(int playerIndex);
+
+		PLAYER_KILLED_PLAYER_STATS GetPVPStats(int playerIndex);
 	}
 }

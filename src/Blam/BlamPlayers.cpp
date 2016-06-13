@@ -47,5 +47,11 @@ namespace Blam
 		{
 			return Pointer(0x023F1718 + (playerIndex * GameGlobals::GlobalStats::PlayerLength)).Read<PLAYER_STATS>();
 		}
+
+		PLAYER_KILLED_PLAYER_STATS GetPVPStats(int playerIndex)
+		{
+			return Pointer(0x23F5A98 + (playerIndex * 0x40)).Read<PLAYER_KILLED_PLAYER_STATS>();
+		}
+
 	}
 }
