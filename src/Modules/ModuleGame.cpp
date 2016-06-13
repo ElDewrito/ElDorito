@@ -839,13 +839,16 @@ namespace Modules
 		CustomMapList.clear();
 		boost::filesystem::path p("mods/maps/");
 		boost::filesystem::directory_iterator end_itr;
-
-		// cycle through the directory
-		for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
+		if (boost::filesystem::exists(p))
 		{
-			if (!is_regular_file(itr->path())) 
-				CustomMapList.push_back(itr->path().filename().string());
+			// cycle through the directory
+			for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
+			{
+				if (!is_regular_file(itr->path()))
+					CustomMapList.push_back(itr->path().filename().string());
+			}
 		}
+		
 	}
 	void ModuleGame::UpdateMapList()
 	{
