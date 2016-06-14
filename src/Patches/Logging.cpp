@@ -5,6 +5,7 @@
 #include <Psapi.h>
 #include <fstream>
 #include "../Blam/BlamMemory.hpp"
+#include "../Utils/Logger.hpp"
 
 namespace
 {
@@ -50,6 +51,18 @@ namespace Patches
 			Patch(0x11C158, { 0x8D, 0x85, 0x00, 0xFC, 0xFF, 0xFF, 0x50 }).Apply();
 			Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
 			Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
+
+			MemoryGlobalAllocateStructHook.Apply();
+			MemoryGlobalInitializeArrayHook.Apply();
+			MemoryGlobalInitializePoolHook.Apply();
+
+			// hook VirtualAlloc
+			DWORD temp;
+			VirtualProtect((void*)0x1600194, 4, PAGE_READWRITE, &temp);
+			origVirtualAllocAddress = *(uint32_t*)0x1600194;
+			*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
+
+			MemoryPhysicalAllocateHook.Apply();
 		}
 
 		void EnableNetworkLog(bool enable)
@@ -83,22 +96,6 @@ namespace Patches
 		{
 			PacketReceiveHook.Apply(!enable);
 			PacketSendHook.Apply(!enable);
-		}
-
-
-		void EnableMemoryLog(bool enable)
-		{
-			MemoryGlobalAllocateStructHook.Apply(!enable);
-			MemoryGlobalInitializeArrayHook.Apply(!enable);
-			MemoryGlobalInitializePoolHook.Apply(!enable);
-
-			// hook VirtualAlloc
-			DWORD temp;
-			VirtualProtect((void*)0x1600194, 4, PAGE_READWRITE, &temp);
-			origVirtualAllocAddress = *(uint32_t*)0x1600194;
-			*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
-
-			MemoryPhysicalAllocateHook.Apply(!enable);
 		}
 	}
 }
@@ -301,7 +298,7 @@ namespace
 		void* address = reinterpret_cast<void*(__cdecl*)(int)>(allocator)
 			(*reinterpret_cast<uint32_t*>(*reinterpret_cast<uint32_t*>(__readfsdword(44)) + 4 * type + 128) + unkPtr[6 * unk + 31]);
 
-		Utils::DebugLog::Instance().Log("Memory", "AllocateGlobalStruct - Address: 0x%08X, Allocator: 0x%08X, Type: %d, Unk2: %d, Unk3: %d, Unk4: %d, Name1: %s, Name2: %s, Size: %d",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "AllocateGlobalStruct - Address: 0x%08X, Allocator: 0x%08X, Type: %d, Unk2: %d, Unk3: %d, Unk4: %d, Name1: %s, Name2: %s, Size: %d",
 			address, allocator, type, unk2, unk3, unk4, name1, name2, size);
 
 		return unk;
@@ -309,7 +306,7 @@ namespace
 
 	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator)
 	{
-		Utils::DebugLog::Instance().Log("Memory", "InitGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Count: %d, Size: %d, Alignment: %d, TotalSize: %d",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "InitGlobalArray - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Count: %d, Size: %d, Alignment: %d, TotalSize: %d",
 			dataArray, allocator, name, maxCount, datumSize, alignmentBits, Blam::CalculateDatumArraySize(maxCount, datumSize, alignmentBits));
 
 		int padding = alignmentBits >= 0x20 ? 1 << alignmentBits : 0;
@@ -335,7 +332,7 @@ namespace
 
 	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator)
 	{
-		Utils::DebugLog::Instance().Log("Memory", "InitGlobalPool - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Size: %d",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "InitGlobalPool - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Size: %d",
 			dataPool, allocator, name, size);
 		
 		memset(dataPool, 0, sizeof(Blam::DataPoolBase));
@@ -360,7 +357,7 @@ namespace
 		void* addr = reinterpret_cast<void*(__stdcall*)(void*, size_t, uint32_t, uint32_t)>(origVirtualAllocAddress)
 			(address, size, allocationType, protect);
 
-		Utils::DebugLog::Instance().Log("Memory", "VirtualAlloc - Address: 0x%08X, Size: 0x%08X, Type: 0x%08X, Protect: 0x%08X, CallStack: %s",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "VirtualAlloc - Address: 0x%08X, Size: 0x%08X, Type: 0x%08X, Protect: 0x%08X, CallStack: %s",
 			addr, size, allocationType, protect, Utils::GetStackTraceString(1, 5).c_str());
 
 		return addr;
@@ -421,7 +418,7 @@ namespace
 			}
 		}
 
-		Utils::DebugLog::Instance().Log("Memory", "PhysicalMapAlloc - Address: 0x%08X, Size: 0x%08X, Flags: %d, Stage: %d, CallStack: %s",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "PhysicalMapAlloc - Address: 0x%08X, Size: 0x%08X, Flags: %d, Stage: %d, CallStack: %s",
 			currentDataPtr, size, flags, stage, Utils::GetStackTraceString(1, 5).c_str());
 
 		return currentDataPtr;

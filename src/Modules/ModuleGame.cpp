@@ -14,6 +14,7 @@
 #include "ModuleServer.hpp"
 #include "../Patch.hpp"
 #include "boost/filesystem.hpp"
+#include "../Utils/Logger.hpp"
 
 namespace
 {
@@ -36,7 +37,6 @@ namespace
 					Patches::Logging::EnableGame1Log(false);
 					Patches::Logging::EnableGame2Log(false);
 					Patches::Logging::EnablePacketsLog(false);
-					Patches::Logging::EnableMemoryLog(false);
 				}
 				else
 				{
@@ -46,9 +46,8 @@ namespace
 					auto hookGame1 = arg.compare("game1") == 0;
 					auto hookGame2 = arg.compare("game2") == 0;
 					auto hookPackets = arg.compare("packets") == 0;
-					auto hookMemory = arg.compare("memory") == 0;
 					if (arg.compare("all") == 0 || arg.compare("on") == 0)
-						hookNetwork = hookSSL = hookUI = hookGame1 = hookGame2 = hookPackets = hookMemory = true;
+						hookNetwork = hookSSL = hookUI = hookGame1 = hookGame2 = hookPackets = true;
 
 					if (hookNetwork)
 					{
@@ -85,12 +84,6 @@ namespace
 						newFlags |= DebugLoggingModes::eDebugLoggingModePackets;
 						Patches::Logging::EnablePacketsLog(true);
 					}
-
-					if (hookMemory)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeMemory;
-						Patches::Logging::EnableMemoryLog(true);
-					}
 				}
 			}
 		}
@@ -116,14 +109,98 @@ namespace
 				ss << "Game2 ";
 			if (newFlags & DebugLoggingModes::eDebugLoggingModePackets)
 				ss << "Packets ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeMemory)
-				ss << "Memory ";
 		}
 		if (Arguments.size() <= 0)
 		{
-			ss << std::endl << "Usage: Game.LogMode <network | ssl | ui | game1 | game2 | packets | memory | all | off>";
+			ss << std::endl << "Usage: Game.LogMode <network | ssl | ui | game1 | game2 | packets | all | off>";
 		}
 		returnInfo = ss.str();
+		return true;
+	}
+
+	bool CommandGameLogLevel(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		for (auto arg : Arguments)
+		{
+			if (arg.compare("none") == 0)
+			{
+				Utils::Logger::Instance().Level = Utils::LogLevel::None;
+				break;
+			}
+			else if (arg.compare("trace") == 0)
+			{
+				Utils::Logger::Instance().Level = Utils::LogLevel::Trace;
+				break;
+			}
+			else if (arg.compare("info") == 0)
+			{
+				Utils::Logger::Instance().Level = Utils::LogLevel::Info;
+				break;
+			}
+			else if (arg.compare("warning") == 0)
+			{
+				Utils::Logger::Instance().Level = Utils::LogLevel::Warning;
+				break;
+			}
+			else if (arg.compare("error") == 0)
+			{
+				Utils::Logger::Instance().Level = Utils::LogLevel::Error;
+				break;
+			}
+		}
+
+		returnInfo = "Log Level: " + Utils::LogLevelToString(Utils::Logger::Instance().Level);
+
+		return true;
+	}
+
+	bool CommandGameLogTypes(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		uint32_t types = Utils::Logger::Instance().Types;
+
+		for (auto arg : Arguments)
+		{
+			if (arg.find("all") != std::string::npos)
+			{
+				types = Utils::All;
+				break;
+			}
+			else if (arg.find("none") != std::string::npos)
+			{
+				types = Utils::None;
+				break;
+			}
+			else types = Utils::None;
+
+			if (arg.find("game") != std::string::npos)
+			{
+				types |= Utils::Game;
+			}
+			if (arg.find("network") != std::string::npos)
+			{
+				types |= Utils::Network;
+			}
+			if (arg.find("graphics") != std::string::npos)
+			{
+				types |= Utils::Graphics;
+			}
+			if (arg.find("memory") != std::string::npos)
+			{
+				types |= Utils::Memory;
+			}
+			if (arg.find("sound") != std::string::npos)
+			{
+				types |= Utils::Sound;
+			}
+			if (arg.find("input") != std::string::npos)
+			{
+				types |= Utils::Input;
+			}
+		}
+
+		Utils::Logger::Instance().Types = static_cast<Utils::LogTypes>(types);
+		returnInfo = "Log Types: " + Utils::LogTypesToString(Utils::Logger::Instance().Types);
+
 		return true;
 	}
 
@@ -771,7 +848,12 @@ namespace Modules
 {
 	ModuleGame::ModuleGame() : ModuleBase("Game")
 	{
-		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", eCommandFlagsNone, CommandGameLogMode, { "network|ssl|ui|game1|game2|packets|memory|all|off The log mode to enable" });
+		// TODO: deprecated, remove and migrate any dependencies to new logger
+		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", eCommandFlagsNone, CommandGameLogMode, { "network|ssl|ui|game1|game2|packets|all|off The log mode to enable" });
+		
+		AddCommand("LogLevel", "loglevel", "Debug log verbosity level", eCommandFlagsNone, CommandGameLogLevel, { "trace|info|warning|error|none The log verbosity level" });
+
+		AddCommand("LogTypes", "logtypes", "Chooses which kinds of debug messages to print to the log file", eCommandFlagsNone, CommandGameLogTypes, { "game|network|graphics|memory|sound|input|all|none The message types to log" });
 
 		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", eCommandFlagsNone, CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
 
