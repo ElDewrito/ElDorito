@@ -429,11 +429,12 @@ namespace Anvil
 									if (pvpStats.StatsAgainstEachPlayer[i].Kills > 0)
 									{
 										auto p = session->MembershipInfo.PlayerSessions[i];
-
+										writer.StartObject();
 										writer.Key("PlayerName");
 										writer.String(Utils::String::ThinString(p.Properties.DisplayName).c_str());
 										writer.Key("Kills");
 										writer.Int(pvpStats.StatsAgainstEachPlayer[i].Kills);
+										writer.EndObject();
 									}
 									
 
@@ -447,11 +448,12 @@ namespace Anvil
 									if (pvpStats.StatsAgainstEachPlayer[i].KilledBy > 0)
 									{
 										auto p = session->MembershipInfo.PlayerSessions[i];
-
+										writer.StartObject();
 										writer.Key("PlayerName");
 										writer.String(Utils::String::ThinString(p.Properties.DisplayName).c_str());
 										writer.Key("Kills");
 										writer.Int(pvpStats.StatsAgainstEachPlayer[i].KilledBy);
+										writer.EndObject();
 									}
 									
 
