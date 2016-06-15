@@ -5,7 +5,7 @@ namespace Blam
 	namespace Math
 	{
 		ColorARGB::ColorARGB()
-			: ColorARGB(1.0f, 0.0f, 0.0f, 0.0f)
+			: ColorARGB(255, 0, 0, 0)
 		{
 		}
 
