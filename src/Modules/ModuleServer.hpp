@@ -39,6 +39,7 @@ namespace Modules
 		Command* VarServerVotingEnabled;
 		Command* VarServerNumberOfRevotesAllowed;
 		Command* VarServerNumberOfVotingOptions;
+		Command* VarServerAutoHost;
 		uint8_t SyslinkData[0x176];
 
 		ModuleServer();

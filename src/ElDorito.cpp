@@ -4,6 +4,7 @@
 #include "ElPatches.hpp"
 #include "Patches/Network.hpp"
 #include "ThirdParty/WebSockets.hpp"
+#include "Server/DedicatedServer.hpp"
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
@@ -232,6 +233,8 @@ void ElDorito::Tick()
 		Web::Ui::ScreenLayer::Tick();
 		Web::Ui::WebScoreboard::Tick();
 	}
+	else
+		Server::DedicatedServer::Tick();
 
 	Server::Voting::Tick();
 
@@ -275,6 +278,8 @@ void ElDorito::OnMainMenuShown()
 		return;
 	GameHasMenuShown = true;
 	executeCommandQueue = true;
+	if (isDedicated)
+		Server::DedicatedServer::Init();
 
 	if (!skipTitleSplash && !isDedicated)
 		Web::Ui::ScreenLayer::Show("title", "{}");

@@ -233,6 +233,8 @@ add_library(ElDorito SHARED
     src/Server/VotingSystem.hpp
     src/Server/VotingPackets.cpp
     src/Server/VotingPackets.hpp
+    src/Server/DedicatedServer.cpp
+    src/Server/DedicatedServer.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
     src/Server/ServerChat.cpp

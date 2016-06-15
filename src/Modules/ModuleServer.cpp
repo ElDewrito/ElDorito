@@ -1084,7 +1084,7 @@ namespace Modules
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
 
-		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1, VariableServerVotingEnabledUpdate);
+		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 0, VariableServerVotingEnabledUpdate);
 		VarServerVotingEnabled->ValueIntMin = 0;
 		VarServerVotingEnabled->ValueIntMax = 1;
 
@@ -1099,6 +1099,11 @@ namespace Modules
 		VarServerNumberOfVotingOptions = AddVariableInt("NumberOfVotingOptions", "number_of_voting_options", "Controls how many voting options are displayed ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 3);
 		VarServerNumberOfVotingOptions->ValueIntMin = 1;
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
+
+		VarServerAutoHost = AddVariableInt("AutoHost", "autohost", "Whether or not the game will automatically host a game on launch. Only works in dedi mode.", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1);
+		VarServerAutoHost->ValueIntMin = 0;
+		VarServerAutoHost->ValueIntMax = 1;
+
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG
 		// Synchronization system testing
