@@ -22,8 +22,13 @@ dew.on("Winner", function(event) {
 
 dew.on("VotingOptionsUpdated", function(event) {
     clearInterval(interval);
-
+	
     $(".container").html("");
+	   $("<a></a>", {
+		  "class": "boxclose",
+            "id": "boxclose"
+        })
+        .appendTo($(".container"));
     $("<h5></h5>", {
             "id": "title"
         })
@@ -59,7 +64,11 @@ dew.on("VotingOptionsUpdated", function(event) {
             clearInterval(interval);
         }
     }, 1000);
+    $('#boxclose').click(function(){
+           dew.command("server.CancelVote").then(function(output) {}).catch(function(error) {});
 
+          dew.hide();
+   });
     $(".votingOption").click(function() {
 
         $(".votingOption").removeClass("selected");

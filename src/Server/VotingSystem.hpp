@@ -19,6 +19,7 @@ namespace Server
 		void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
 		void StartNewVote();
 		bool LoadVotingJson();
+		void CancelVoteInProgress();
 
 		/*
 		 * - These are the structs used to hold Map/Variant information. 

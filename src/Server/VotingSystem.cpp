@@ -149,6 +149,9 @@ namespace Server
 				case Blam::Network::eLifeCycleStateStartGame:
 					Reset();
 					break;
+				case Blam::Network::eLifeCycleStateNone:
+					Reset();
+					break;
 			}
 		}
 
@@ -378,6 +381,10 @@ namespace Server
 
 			Reset();
 			StartVoting();
+		}
+		void CancelVoteInProgress()
+		{
+			Reset();
 		}
 
 		void LogVote(const VotingMessage &message, std::string name)

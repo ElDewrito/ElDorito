@@ -986,6 +986,11 @@ namespace
 
 		return true;
 	}
+	bool CommandServerCancelVote(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Server::Voting::CancelVoteInProgress();
+		return true;
+	}
 }
 
 namespace Modules
@@ -1094,6 +1099,7 @@ namespace Modules
 		VarServerNumberOfVotingOptions = AddVariableInt("NumberOfVotingOptions", "number_of_voting_options", "Controls how many voting options are displayed ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 3);
 		VarServerNumberOfVotingOptions->ValueIntMin = 1;
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
+		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);
