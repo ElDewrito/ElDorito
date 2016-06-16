@@ -10,6 +10,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Patches/Forge.hpp"
+#include "../Web/WebRenderer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
 #include "../Patch.hpp"
@@ -297,6 +298,7 @@ namespace
 
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		Anvil::Client::Rendering::WebRenderer::GetInstance()->Shutdown();
 		std::exit(0);
 		return true;
 	}
