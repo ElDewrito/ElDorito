@@ -35,7 +35,7 @@
 			"id": "voting",
 			"url": "dew://screens/voting/",
 			"captureInput": true,
-			"zIndex": 5
+			"zIndex": -1
 		},
 		{
 			"id": "scoreboard",
