@@ -298,7 +298,8 @@ namespace
 
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Anvil::Client::Rendering::WebRenderer::GetInstance()->Shutdown();
+		if(!ElDorito::Instance().IsDedicated())
+			Anvil::Client::Rendering::WebRenderer::GetInstance()->Shutdown();
 		std::exit(0);
 		return true;
 	}

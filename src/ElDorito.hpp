@@ -40,6 +40,7 @@ public:
 	void OnMainMenuShown();
 	std::string GetMapsFolder() const { return mapsFolder; }
 	bool IsWebDebuggingEnabled() const { return webDebugging; }
+	bool IsDedicated() const { return isDedicated; }
 
 private:
 	bool isHeadless = false;
