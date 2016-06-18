@@ -171,6 +171,8 @@ add_library(ElDorito SHARED
     src/Modules/ModuleBase.hpp
     src/Modules/ModuleCamera.cpp
     src/Modules/ModuleCamera.hpp
+	src/Modules/ModuleDebug.cpp
+    src/Modules/ModuleDebug.hpp
     src/Modules/ModuleGame.cpp
     src/Modules/ModuleGame.hpp
     src/Modules/ModuleInput.cpp

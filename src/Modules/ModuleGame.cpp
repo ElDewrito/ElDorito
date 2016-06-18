@@ -197,6 +197,10 @@ namespace
 			{
 				types |= Utils::Input;
 			}
+			if (arg.find("debug") != std::string::npos)
+			{
+				types |= Utils::Debug;
+			}
 		}
 
 		Utils::Logger::Instance().Types = static_cast<Utils::LogTypes>(types);
@@ -856,7 +860,7 @@ namespace Modules
 		
 		AddCommand("LogLevel", "loglevel", "Debug log verbosity level", eCommandFlagsNone, CommandGameLogLevel, { "trace|info|warning|error|none The log verbosity level" });
 
-		AddCommand("LogTypes", "logtypes", "Chooses which kinds of debug messages to print to the log file", eCommandFlagsNone, CommandGameLogTypes, { "game|network|graphics|memory|sound|input|all|none The message types to log" });
+		AddCommand("LogTypes", "logtypes", "Chooses which kinds of debug messages to print to the log file", eCommandFlagsNone, CommandGameLogTypes, { "game|network|graphics|memory|sound|input|debug|all|none The message types to log" });
 
 		AddCommand("LogFilter", "debug_filter", "Allows you to set filters to apply to the debug messages", eCommandFlagsNone, CommandGameLogFilter, { "include/exclude The type of filter", "add/remove Add or remove the filter", "string The filter to add" });
 

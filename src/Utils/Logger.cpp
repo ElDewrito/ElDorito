@@ -50,6 +50,7 @@ namespace Utils
 						case Memory: bits.push_back("Memory"); break;
 						case Sound: bits.push_back("Sound"); break;
 						case Input: bits.push_back("Input"); break;
+						case Debug: bits.push_back("Debug"); break;
 						default: bits.push_back(std::string("UnknownBit") + std::to_string(bit)); break;
 					}
 				}
@@ -91,14 +92,17 @@ namespace Utils
 
 	void Logger::Log(LogTypes type, LogLevel level, std::string message, ...)
 	{
-		if (Level == LogLevel::None || level < Level)
+		if (level != LogLevel::Error)
 		{
-			return;
-		}
+			if (Level == LogLevel::None || level < Level)
+			{
+				return;
+			}
 
-		if ((Types & type) == 0)
-		{
-			return;
+			if ((Types & type) == 0)
+			{
+				return;
+			}
 		}
 
 		// construct formatted message

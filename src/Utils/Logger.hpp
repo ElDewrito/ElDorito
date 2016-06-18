@@ -27,6 +27,7 @@ namespace Utils
 		Memory = 1 << 3,
 		Sound = 1 << 4,
 		Input = 1 << 5,
+		Debug = 1 << 31,
 		All = 0xFFFFFFFF
 	};
 

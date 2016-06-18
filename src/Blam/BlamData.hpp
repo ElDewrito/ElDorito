@@ -116,6 +116,37 @@ namespace Blam
 	};
 	static_assert(sizeof(DataPoolBase) == 0x44, "Invalid DataPoolBase size");
 
+	struct LruvCacheBase
+	{
+		char Name[0x20];		// Name given to the cache when it was allocated
+		void* Unk32;
+		void* Unk36;
+		void* Unk40;
+		void* Unk44;
+		int Unk48;
+		int Unk52;
+		int Unk56;
+		int Unk60;
+		int Unk64;
+		int Unk68;
+		int Unk72;
+		int Unk76;
+		int Unk80;
+		int Unk84;
+		int Unk88;
+		int Unk92;
+		int Unk96;
+		int Unk100;
+		int Unk104;
+		int Unk108;
+		int Unk112;
+		int Signature;			// 'weee'
+		void** Allocator;
+		int Unk124;
+		int Unk128;
+	};
+	static_assert(sizeof(LruvCacheBase) == 0x84, "Invalid LruvCacheBase size");
+
 	// Base struct for an iterator which iterates over the values in a data array.
 	// Consider using DataIterator instead of this for type safety.
 	struct DataIteratorBase

@@ -22,8 +22,14 @@ namespace
 	int __cdecl globalDataAllocateStructHook(int unk1, const char* name1, const char* name2, int size, int unk2, void* allocator, int unk3, int unk4);
 	void* __cdecl globalDataInitializeArrayHook(Blam::DataArrayBase* dataArray, const char* name, int maxCount, int datumSize, uint8_t alignmentBits, void** allocator);
 	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator);
+	void** __cdecl globalDataInitializeCacheHook(Blam::LruvCacheBase* lruvCache, const char* name, int unk1, void* unk2, void* unk3, void* unk4, void* unk5, void** allocator, int unk7);
 	void* __stdcall virtualAllocHook(void* address, size_t size, uint32_t allocationType, uint32_t protect);
-	void* __cdecl allocatePhysicalMemoryHook(uint32_t stage, uint32_t unknown, uint32_t size, uint32_t flags);
+
+	void LogPhysicalMemoryAllocationRequestHook();
+	void LogSuccessfulPhysicalMemoryAllocationResultHook();
+	void LogFailedPhysicalMemoryAllocationResultHook();
+	void __stdcall LogPhysicalMemoryAllocationRequest(uint32_t size, uint32_t flags, uint32_t stage);
+	void __stdcall LogPhysicalMemoryAllocationResult(uint32_t address, uint32_t endAddress);
 
 	Hook NetworkLogHook(0x9858D0, networkLogHook);
 	Hook SSLHook(0xA7FE10, sslLogHook);
@@ -37,7 +43,7 @@ namespace
 	Hook MemoryGlobalAllocateStructHook(0x1A0010, globalDataAllocateStructHook);
 	Hook MemoryGlobalInitializeArrayHook(0x15ACF0, globalDataInitializeArrayHook);
 	Hook MemoryGlobalInitializePoolHook(0x56A5E0, globalDataInitializePoolHook);
-	Hook MemoryPhysicalAllocateHook(0x11D180, allocatePhysicalMemoryHook);
+	Hook MemoryGlobalInitializeCacheHook(0x567AD0, globalDataInitializeCacheHook);
 
 	uint32_t origVirtualAllocAddress;
 }
@@ -55,6 +61,7 @@ namespace Patches
 			MemoryGlobalAllocateStructHook.Apply();
 			MemoryGlobalInitializeArrayHook.Apply();
 			MemoryGlobalInitializePoolHook.Apply();
+			MemoryGlobalInitializeCacheHook.Apply();
 
 			// hook VirtualAlloc
 			DWORD temp;
@@ -62,7 +69,9 @@ namespace Patches
 			origVirtualAllocAddress = *(uint32_t*)0x1600194;
 			*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
 
-			MemoryPhysicalAllocateHook.Apply();
+			Hook(0x11D186, LogPhysicalMemoryAllocationRequestHook).Apply();
+			Hook(0x11D1E0, LogFailedPhysicalMemoryAllocationResultHook).Apply();
+			Hook(0x11D266, LogSuccessfulPhysicalMemoryAllocationResultHook).Apply();
 		}
 
 		void EnableNetworkLog(bool enable)
@@ -261,9 +270,9 @@ namespace
 	{
 		auto* except = *Pointer::Base(0x1F8E880).Read<EXCEPTION_RECORD**>();
 
-		Utils::DebugLog::Instance().Log("GameCrash", std::string(msg));
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, std::string(msg));
 
-		Utils::DebugLog::Instance().Log("GameCrash", "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
 			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, except->ExceptionAddress, except->NumberParameters);
 
 		// identify problematic module, log the location and dump its contents
@@ -273,7 +282,7 @@ namespace
 			if (reinterpret_cast<uint32_t>(except->ExceptionAddress) >= module.second.Address && 
 				reinterpret_cast<uint32_t>(except->ExceptionAddress) < module.second.Address + module.second.Size)
 			{
-				Utils::DebugLog::Instance().Log("CrashModule", "0x%08X - 0x%08X | 0x%08X | %s",
+				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, "0x%08X - 0x%08X | 0x%08X | %s",
 					module.second.Address, module.second.Address + module.second.Size, module.second.EntryPoint, module.second.Path.c_str());
 
 				// copy the module from the filesystem rather than in-memory for easier disassembly pre-relocation
@@ -284,6 +293,8 @@ namespace
 				break;
 			}
 		}
+
+		Utils::Logger::Instance().Flush();
 
 		std::exit(0);
 	}
@@ -352,6 +363,30 @@ namespace
 		return size;
 	}
 
+	void** __cdecl globalDataInitializeCacheHook(Blam::LruvCacheBase* lruvCache, const char* name, int unk1, void* unk2, void* unk3, void* unk4, void* unk5, void** allocator, int unk7)
+	{
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "InitLruvCache - Address: 0x%08X, Name: %s, Allocator: 0x%X, Unknowns: %d,0x%X,0x%X,0x%X,0x%X,%d",
+			lruvCache, name, allocator, unk1, unk2, unk3, unk4, unk5, unk7);
+
+		ZeroMemory(lruvCache, sizeof(Blam::LruvCacheBase));
+		lruvCache->Unk124 = unk7;
+		lruvCache->Unk32 = unk2;
+		lruvCache->Unk36 = unk3;
+		lruvCache->Unk40 = unk4;
+		lruvCache->Unk44 = unk5;
+		lruvCache->Unk60 = unk1;
+		lruvCache->Unk56 = 0;
+		lruvCache->Unk64 = -1;
+		lruvCache->Unk112 = 0;
+		lruvCache->Signature = 'weee';
+		lruvCache->Unk72 = -1;
+		lruvCache->Unk76 = -1;
+		lruvCache->Unk68 = 1;
+		lruvCache->Unk52 = 0;
+		lruvCache->Allocator = allocator;
+		return allocator;
+	}
+
 	void* __stdcall virtualAllocHook(void* address, size_t size, uint32_t allocationType, uint32_t protect)
 	{
 		void* addr = reinterpret_cast<void*(__stdcall*)(void*, size_t, uint32_t, uint32_t)>(origVirtualAllocAddress)
@@ -363,64 +398,71 @@ namespace
 		return addr;
 	}
 
-	void* __cdecl allocatePhysicalMemoryHook(uint32_t stage, uint32_t unknown, uint32_t size, uint32_t flags)
+	__declspec (naked) void LogPhysicalMemoryAllocationRequestHook()
 	{
-		Blam::GlobalMemoryMap* map = Blam::GetGlobalMemoryMap();
-		uint32_t origStage = map->CurrentStageIndex;
-		char* currentDataPtr = map->Stages[map->CurrentStageIndex].DataAddress;
-
-		uint32_t paddedSize = size + 0xFFFF & 0xFFFF0000;
-		if (paddedSize)
+		__asm
 		{
-			uint32_t origDataFreeSpace = map->Stages[map->CurrentStageIndex].CacheAddress - map->Stages[map->CurrentStageIndex].DataAddress;
-			char* origDataAddress = map->Stages[map->CurrentStageIndex].DataAddress;
-			
-			if ((flags & 4) == 0)
-			{
-				if (currentDataPtr + paddedSize > map->Stages[map->CurrentStageIndex].CacheAddress)
-					return nullptr;
+			mov		eax, dword ptr ds:[0238EC54h]
 
-				map->Stages[map->CurrentStageIndex].DataAddress += paddedSize;
-			}
-			else
-			{
-				char* v9 = map->Stages[map->CurrentStageIndex].CacheAddress - paddedSize;
-				if (v9 < map->Stages[map->CurrentStageIndex].DataAddress)
-					return nullptr;
+			pushad
+			push	eax ; stage
+			push	dword ptr [ebp+14h]	; flags
+			push	dword ptr [ebp+10h]	; size
+			call	LogPhysicalMemoryAllocationRequest
+			popad
 
-				map->Stages[map->CurrentStageIndex].CacheAddress = v9;
-				currentDataPtr = v9;
-			}
-
-			if (currentDataPtr)
-			{
-				if (static_cast<uint32_t>(map->CurrentStageIndex - 3) <= 2 && map->Allocator)
-				{
-					(*reinterpret_cast<void(__stdcall **)(char*, int, char*, int)>(*reinterpret_cast<uint32_t*>(map->Allocator) + 4))
-						(origDataAddress, origDataFreeSpace, map->Stages[map->CurrentStageIndex].DataAddress, map->Stages[map->CurrentStageIndex].CacheAddress - map->Stages[map->CurrentStageIndex].DataAddress);
-				}
-				goto unklabel;
-			}
-			return nullptr;
+			push	051D18Bh
+			ret
 		}
-
-		currentDataPtr = reinterpret_cast<char*>(map->Stages[map->CurrentStageIndex].IsInitialized);
-		map->Stages[map->CurrentStageIndex].IsInitialized++;
-
-	unklabel:
-
-		if (currentDataPtr)
+	}
+	
+	__declspec (naked) void LogSuccessfulPhysicalMemoryAllocationResultHook()
+	{
+		__asm
 		{
-			++map->Stages[origStage].DataAllocationCount;
-			if (flags & 4)
-			{
-				++map->Stages[origStage].CacheAllocationCount;
-			}
+			pushad
+			push	dword ptr [ebp+10h]	; end address
+			push	eax			; address
+			call	LogPhysicalMemoryAllocationResult
+			popad
+
+			pop		edi
+			pop		esi
+			mov		esp, ebp
+			pop		ebp
+			push	051D26Bh
+			ret
 		}
+	}
 
-		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "PhysicalMapAlloc - Address: 0x%08X, Size: 0x%08X, Flags: %d, Stage: %d, CallStack: %s",
-			currentDataPtr, size, flags, stage, Utils::GetStackTraceString(1, 5).c_str());
+	__declspec (naked) void LogFailedPhysicalMemoryAllocationResultHook()
+	{
+		__asm
+		{
+			pushad
+			push	dword ptr [ebp+10h]	; end address
+			push	eax			; address
+			call	LogPhysicalMemoryAllocationResult
+			popad
 
-		return currentDataPtr;
+			pop		edi
+			xor		eax, eax
+			pop		esi
+			mov		esp, ebp
+			push	051D1E6h
+			ret
+		}
+	}
+
+	void __stdcall LogPhysicalMemoryAllocationRequest(uint32_t size, uint32_t flags, uint32_t stage)
+	{
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "PhysicalMapAllocRequest - Size: 0x%08X, Flags: %d, Stage: %d, CallStack: %s",
+			size, flags, stage, Utils::GetStackTraceString(2, 5).c_str());
+	}
+
+	void __stdcall LogPhysicalMemoryAllocationResult(uint32_t address, uint32_t endAddress)
+	{
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "PhysicalMapAllocResult - Address: 0x%08X, Size: 0x%08X",
+			address, endAddress - address);
 	}
 }

@@ -22,7 +22,7 @@ namespace Blam
 	};
 	static_assert(sizeof(GlobalMemoryMap) == 0xB4, "Invalid GlobalMemoryMap size");
 
-	GlobalMemoryMap* GetGlobalMemoryMap()
+	inline GlobalMemoryMap* GetGlobalMemoryMap()
 	{
 		return reinterpret_cast<GlobalMemoryMap*>(0x238EC50);
 	}
