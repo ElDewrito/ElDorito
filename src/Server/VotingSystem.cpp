@@ -75,7 +75,7 @@ namespace Server
 
 		unsigned int numberOfRevotesUsed = 0;
 		bool revoteFlag = false;
-
+		bool idle = false;
 		//The current voting options being voted on.
 		std::vector<MapAndType> currentVotingOptions = std::vector<MapAndType> {};
 
@@ -191,7 +191,15 @@ namespace Server
 
 			return MapAndType(map, gametype);
 		}
+		int numberOfPlayersInGame()
+		{
+			int numPlayers = 0;
+			auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
+			for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
+				numPlayers++;
+			return numPlayers;
 
+		}
 		//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
 		VotingMessage GenerateVotingOptionsMessage()
 		{
@@ -256,6 +264,9 @@ namespace Server
 		//Starts a new vote
 		void StartVoting()
 		{
+			if (idle) 
+				return; 
+	
 			currentVotingOptions.clear();
 
 			for (unsigned int i = 0; i < Modules::ModuleServer::Instance().VarServerNumberOfVotingOptions->ValueInt; i++)
@@ -320,6 +331,26 @@ namespace Server
 
 			time_t curTime1;
 			time(&curTime1);
+
+			if (idle)
+			{
+				if (numberOfPlayersInGame() > 0)
+				{
+					idle = false;
+					//only start voting if we are in the lobby. Sometimes everyone will leave a game in progress, causing it to go idle, then someone will join before it gets back to the lobby.
+					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+					if (mapName == "mainmenu")
+						StartVoting();
+				}
+
+				return;
+			}
+			else if (numberOfPlayersInGame() == 0)
+			{
+				idle = true;
+				Reset();
+				return;
+			}
 
 			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason. 
 			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded 
@@ -509,6 +540,5 @@ namespace Server
 			return true;
 		}
 	}
-	
 
 }
