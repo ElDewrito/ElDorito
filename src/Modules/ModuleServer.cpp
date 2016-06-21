@@ -713,22 +713,20 @@ namespace
 			return false;
 		}
 
-		int peerIdx = session->MembershipInfo.FindFirstPeer();
-		while (peerIdx != -1)
+		int playerIdx = session->MembershipInfo.FindFirstPlayer();
+		while (playerIdx != -1)
 		{
-			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-			if (playerIdx != -1)
+			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+			auto name = Utils::String::ThinString(player.Properties.DisplayName);
+			ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player.Properties.Uid;
+			if (session->IsHost())
 			{
-				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-				auto name = Utils::String::ThinString(player->Properties.DisplayName);
-				auto ip = session->GetPeerAddress(peerIdx);
-				ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player->Properties.Uid;
-				if (session->IsHost())
-					ss << ", ip: " << ip.ToString();
-				ss << ")" << std::endl;
+				auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx));
+				ss << ", ip: " << ip.ToString();
 			}
+			ss << ")" << std::endl;
 
-			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 		}
 
 		returnInfo = ss.str();
@@ -749,32 +747,29 @@ namespace
 
 		writer.StartArray();
 
-		int peerIdx = session->MembershipInfo.FindFirstPeer();
-		while (peerIdx != -1)
+		int playerIdx = session->MembershipInfo.FindFirstPlayer();
+		while (playerIdx != -1)
 		{
-			int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-			if (playerIdx != -1)
-			{
-				auto player = session->MembershipInfo.PlayerSessions[playerIdx];
-				writer.StartObject();
-				writer.Key("name");
-				writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+			writer.StartObject();
+			writer.Key("name");
+			writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
 
-				writer.Key("teamIndex");
-				writer.Int(player.Properties.TeamIndex);
+			writer.Key("teamIndex");
+			writer.Int(player.Properties.TeamIndex);
 
-				std::string uidStr;
-				Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
-				writer.Key("UID");
-				writer.String(uidStr.c_str());
+			std::string uidStr;
+			Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
+			writer.Key("UID");
+			writer.String(uidStr.c_str());
 
-				std::stringstream color;
-				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-				writer.Key("color");
-				writer.String(color.str().c_str());
-				writer.EndObject();
-			}
-			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+			std::stringstream color;
+			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+			writer.Key("color");
+			writer.String(color.str().c_str());
+			writer.EndObject();
+
+			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 		}
 
 		writer.EndArray();
