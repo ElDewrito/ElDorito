@@ -173,6 +173,12 @@ namespace Patches
 			shutdownCallbacks.push_back(callback);
 		}
 
+		void ExecuteShutdownCallbacks()
+		{
+			for (auto &&callback : shutdownCallbacks)
+				callback();
+		}
+
 		void OnMapLoaded(MapLoadedCallback callback)
 		{
 			mapLoadedCallbacks.push_back(callback);
@@ -544,8 +550,7 @@ namespace
 
 	void ShutdownHook()
 	{
-		for (auto &&callback : shutdownCallbacks)
-			callback();
+		Patches::Core::ExecuteShutdownCallbacks();
 
 		typedef void(*EngineShutdownPtr)();
 		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);

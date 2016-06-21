@@ -9,6 +9,7 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
+#include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Web/WebRenderer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -302,8 +303,7 @@ namespace
 
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if(!ElDorito::Instance().IsDedicated())
-			Anvil::Client::Rendering::WebRenderer::GetInstance()->Shutdown();
+		Patches::Core::ExecuteShutdownCallbacks();
 		std::exit(0);
 		return true;
 	}

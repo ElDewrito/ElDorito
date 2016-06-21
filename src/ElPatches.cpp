@@ -60,7 +60,7 @@ namespace Patches
 		for (int i = 1; i < numArgs; i++)
 		{
 			std::wstring arg = std::wstring(szArgList[i]);
-			if (arg.compare(L"-headless") == 0)
+			if (arg.compare(L"-headless") == 0 || arg.compare(L"-dedicated") == 0)
 				isdedicated = true;
 		}
 
