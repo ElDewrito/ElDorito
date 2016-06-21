@@ -6,9 +6,6 @@
 // Disable warnings about signed/unsigned comparisons
 #pragma warning (disable : 4018)
 
-// Disable warnings from boost
-#pragma warning (disable : 4348)
-
 #include <map>
 
 #include "Utils/Utils.hpp"

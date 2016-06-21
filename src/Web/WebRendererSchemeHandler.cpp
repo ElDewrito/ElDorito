@@ -8,6 +8,11 @@ Code was used from NoFaTe (http://nofate.me)
 #define _WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 
+#pragma warning (push)
+
+// Disable warnings from boost
+#pragma warning (disable : 4348)
+
 #include <boost/network/uri.hpp>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -18,6 +23,8 @@ Code was used from NoFaTe (http://nofate.me)
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/filesystem.hpp>
+
+#pragma warning (pop)
 
 #pragma comment(lib, "cppnetlib-uri")
 #include "WebRenderer.hpp"
