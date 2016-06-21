@@ -77,9 +77,59 @@
 	return EXCEPTION_CONTINUE_SEARCH;
 }*/
 
+bool CanAccessFolder(LPCTSTR folderName, DWORD genericAccessRights)
+{
+	bool bRet = false;
+	DWORD length = 0;
+	if (!::GetFileSecurity(folderName, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION
+		| DACL_SECURITY_INFORMATION, NULL, NULL, &length) &&
+		ERROR_INSUFFICIENT_BUFFER == ::GetLastError()) {
+		PSECURITY_DESCRIPTOR security = static_cast< PSECURITY_DESCRIPTOR >(::malloc(length));
+		if (security && ::GetFileSecurity(folderName, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION
+			| DACL_SECURITY_INFORMATION, security, length, &length)) {
+			HANDLE hToken = NULL;
+			if (::OpenProcessToken(::GetCurrentProcess(), TOKEN_IMPERSONATE | TOKEN_QUERY |
+				TOKEN_DUPLICATE | STANDARD_RIGHTS_READ, &hToken)) {
+				HANDLE hImpersonatedToken = NULL;
+				if (::DuplicateToken(hToken, SecurityImpersonation, &hImpersonatedToken)) {
+					GENERIC_MAPPING mapping = { 0xFFFFFFFF };
+					PRIVILEGE_SET privileges = { 0 };
+					DWORD grantedAccess = 0, privilegesLength = sizeof(privileges);
+					BOOL result = FALSE;
+
+					mapping.GenericRead = FILE_GENERIC_READ;
+					mapping.GenericWrite = FILE_GENERIC_WRITE;
+					mapping.GenericExecute = FILE_GENERIC_EXECUTE;
+					mapping.GenericAll = FILE_ALL_ACCESS;
+
+					::MapGenericMask(&genericAccessRights, &mapping);
+					if (::AccessCheck(security, hImpersonatedToken, genericAccessRights,
+						&mapping, &privileges, &privilegesLength, &grantedAccess, &result)) {
+						bRet = (result == TRUE);
+					}
+					::CloseHandle(hImpersonatedToken);
+				}
+				::CloseHandle(hToken);
+			}
+			::free(security);
+		}
+	}
+
+	return bRet;
+}
+
+bool relaunch = false;
 
 BOOL InitInstance(HINSTANCE hModule)
 {
+	//Check for read/write priveledges in the current directory
+	if (!CanAccessFolder(".", GENERIC_READ | GENERIC_WRITE))
+	{
+		MessageBox(NULL, "Invalid permissions for the current directory, your game will be relaunched as Administrator.\nPlease set eldorado.exe to run as administrator or move your game to a different directory to avoid this message in the future.", "Invalid Directory Permissions", MB_OK | MB_ICONERROR);
+		relaunch = true;
+		return true;
+	}
+
 	DisableThreadLibraryCalls(hModule);
 
 	ElDorito::SetMainThreadID(GetCurrentThreadId());
@@ -113,7 +163,14 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD Reason, LPVOID Misc)
 	case DLL_PROCESS_ATTACH: return InitInstance(hModule);
 	case DLL_PROCESS_DETACH: return ExitInstance();
 	case DLL_THREAD_ATTACH:
+		return true;
 	case DLL_THREAD_DETACH:
+		//Relaunch here to avoid the loader lock
+		if (relaunch)
+		{
+			ShellExecuteA(NULL, "runas", "eldorado.exe", ((std::string) GetCommandLine()).substr(13).c_str(), NULL, SW_SHOWNORMAL);
+			std::exit(1);
+		}
 		return true;
 	}
 
