@@ -5,7 +5,7 @@
 			"var": "Game.MenuURL",
 			"fallbackUrl": "dew://screens/error/",
 			"captureInput": true,
-			"zIndex": 0
+			"zIndex": 1
 		},
 		{
 			"id": "console",
@@ -35,7 +35,7 @@
 			"id": "voting",
 			"url": "dew://screens/voting/",
 			"captureInput": true,
-			"zIndex": -1
+			"zIndex": 0
 		},
 		{
 			"id": "scoreboard",
