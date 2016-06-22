@@ -59,7 +59,7 @@ namespace Blam
 				KilledBombCarriers,
 				KilledVIPs,
 				KilledJuggernauts,
-				Unknown4,
+				OddballKills,
 				FlagScores,
 				KilledFlagCarriers,
 				MedalCount
@@ -117,7 +117,7 @@ namespace Blam
 				"bomb_carrier_kill",
 				"vip_kill",
 				"juggernaut_kill",
-				"Unknown4",
+				"oddball_kill",
 				"flag_captured",
 				"flag_carrier_kill",
 			};
