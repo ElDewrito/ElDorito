@@ -237,6 +237,8 @@ add_library(ElDorito SHARED
     src/Server/DedicatedServer.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
+    src/Server/HaloStats.cpp
+    src/Server/HaloStats.hpp
     src/Server/ServerChat.cpp
     src/Server/ServerChat.hpp
     src/Server/VariableSynchronization.cpp

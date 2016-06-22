@@ -44,6 +44,12 @@
 			"zIndex": 1
 		},
 		{
+			"id": "halostats",
+			"url": "dew://screens/halostats/",
+			"captureInput": false,
+			"zIndex": 1
+		},
+		{
 			"id": "title",
 			"url": "dew://screens/title/",
 			"captureInput": true,

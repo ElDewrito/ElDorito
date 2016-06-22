@@ -1,0 +1,158 @@
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	font-family: "Tahoma", sans-serif;
+}
+
+
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1em;
+}
+.button:hover
+{
+	 background-color: #5dbe83;
+    color: #ffffff;
+}
+.button {
+  display: block;
+  width: 200px;
+  text-align: center;
+  margin: 10px auto 0;
+  border: 1px solid #5dbe83;
+  color: #5dbe83;
+  padding: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all .25s ease;
+  position: relative;
+  z-index: 3;
+  background-color: white;
+
+}
+
+.overlay {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0,0,0,0.05);
+  top:0;
+  left:0;
+  z-index: 3;
+}
+.notification.show{
+	visibility: visible;
+}
+.notification > div
+{
+	 display: table-cell;
+}
+.notification .impact
+{
+	 z-index:2;
+    position: relative;
+    width: 50px;
+    background-color: #404040;
+    vertical-align: top;
+    display: table-cell;
+}
+.notification .impact .icon{
+	margin-left: 3px;
+	margin-top: 3px;
+	vertical-align:bottom;
+      height: 57px;
+      display: table;
+}
+.notification .impact .fa{
+	 color: #ffffff;;
+      text-align: center;
+      vertical-align: middle;
+      display: table-cell;
+      font-size: 46px;
+}
+.notification .message-container{
+	 width: 0;
+    overflow: hidden;
+    display: block;
+    transition: width .5s ease;
+    position: relative;
+}
+.notification .message-container .close{
+	color: #404040;
+      font-size: 1.5em;
+      position: absolute;
+      display: block;
+      top: 0;
+      right: 5px;
+      cursor: pointer;
+}
+.notification .message
+{
+	  width: 260px;
+    background-color: #ABABAB;
+    padding: 4px 10px 4px;
+    position: relative;
+}
+.notification .message p
+{
+	 font-size: 12px;
+      line-height: 145%;
+      margin-bottom: 0;
+      color: #404040;
+}
+.notification .message strong
+{
+	 display: block;
+      margin-bottom: 9px;
+}
+
+.notification {
+  z-index: 4;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .5s ease, transform .75s ease;
+  margin: 20px auto 50px;
+  min-height: 32px;
+  box-shadow: 0 0 2px rgba(0,0,0, .3);
+  position: relative;
+  display: table;
+ 
+
+  }
+  
+}
+.notification.positive  {
+	 transition: transform .5 ease;
+    transform: translate3d(0,0,0) rotateY(45deg);
+}
+.notification.positive .fa{
+}
+.notification.positive strong{
+	display: table-cell;
+      vertical-align: middle;
+      margin-bottom: 0;
+      color: black;
+      height: 60px;
+}
+.notification.open--rot 
+{
+	 opacity: 1;
+    transform: translate3d(0,0,0) rotateY(0deg);
+}
+.notification.open--rot.open--width .message-container
+{
+	  width: 260px;
+}
+
+
+
+.notification-hidden {
+  display: none;
+}
