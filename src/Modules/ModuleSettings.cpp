@@ -51,7 +51,7 @@ namespace
 		if (value > 1)
 			return false;
 
-		SSL_SetAutoCentering(statusBool);
+		SSL_SetAntialiasing(statusBool);
 
 		std::stringstream ss;
 		ss << "Antialiasing " << (statusBool ? "enabled." : "disabled.");
