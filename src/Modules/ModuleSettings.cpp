@@ -461,7 +461,7 @@ namespace Modules
 		VarLightingQuality = AddVariableString("LightingQuality", "lighting", "Controls whether the lighting quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsLightingQualityUpdate);
 		VarLookSensitivity = AddVariableInt("LookSensitivity", "look_sensitivity", "Controls the controller look sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsLookSensitivityUpdate);
 		VarMotionBlur = AddVariableInt("MotionBlur", "motion_blur", "Controls whether motion blur is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsMotionBlurUpdate);
-		VarMouseAcceleration = AddVariableInt("MouseAcceleration", "mouse_accel", "Controls whether mouse-acceleration is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsMouseAccelerationUpdate);
+		VarMouseAcceleration = AddVariableInt("MouseAcceleration", "mouse_accel", "Controls the level of mouse acceleration (0 - 100)", eCommandFlagsArchived, 0, VariableSettingsMouseAccelerationUpdate);
 		VarMouseFilter = AddVariableInt("MouseFilter", "mouse_filter", "Controls whether mouse-filtering is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsMouseFilterUpdate);
 		VarMouseSensitivityHorizontal = AddVariableInt("MouseSensitivityHorizontal", "mouse_sensitivity_hor", "Controls the horizontal mouse sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityHorizontalUpdate);
 		VarMouseSensitivityVertical = AddVariableInt("MouseSensitivityVertical", "mouse_sensitivity_vert", "Controls the vertical mouse sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVerticalUpdate);
