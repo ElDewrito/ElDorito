@@ -343,6 +343,23 @@ namespace
 		return true;
 	}
 
+	bool VariableSettingsPlayerMarkerColorsUpdate(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarPlayerMarkerColors->ValueString;
+
+		if (!(value == "default" || value == "blue" || value == "armor"))
+			return false;
+
+		auto intValue = value == "default" ? 0 : value == "blue" ? 1 : 2;
+
+		SSL_SetTeamColor(intValue);
+
+		std::stringstream ss;
+		ss << "Player Marker Colors set to " << value << ".";
+		returnInfo = ss.str();
+		return true;
+	}
+
 	bool VariableSettingsPostprocessingQualityUpdate(const std::vector<std::string> &args, std::string &returnInfo)
 	{
 		auto value = Modules::ModuleSettings::Instance().VarPostprocessingQuality->ValueString;
@@ -467,6 +484,7 @@ namespace Modules
 		VarMouseSensitivityVertical = AddVariableInt("MouseSensitivityVertical", "mouse_sensitivity_vert", "Controls the vertical mouse sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVerticalUpdate);
 		VarMouseSensitivityVehicleHorizontal = AddVariableInt("MouseSensitivityVehicleHorizontal", "mouse_sensitivity_vehicle_hor", "Controls the horizontal mouse sensitivity for vehicles (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVehicleHorizontalUpdate);
 		VarMouseSensitivityVehicleVertical = AddVariableInt("MouseSensitivityVehicleVertical", "mouse_sensitivity_vehicle_vert", "Controls the vertical mouse sensitivity for vehicles (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVehicleVerticalUpdate);
+		VarPlayerMarkerColors = AddVariableString("PlayerMarkerColors", "markers", "Controls whether the player marker colors are default, ally or armor", eCommandFlagsArchived, "default", VariableSettingsPlayerMarkerColorsUpdate);
 		VarPostprocessingQuality = AddVariableString("PostprocessingQuality", "postprocessing", "Controls whether the postprocessing quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsPostprocessingQualityUpdate);
 		VarShadowQuality = AddVariableString("ShadowQuality", "shadows", "Controls whether the shadow quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsShadowQualityUpdate);
 		VarTextureFilteringQuality = AddVariableString("TextureFilteringQuality", "texture_filtering", "Controls whether the texture-filtering quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsTextureFilteringQualityUpdate);

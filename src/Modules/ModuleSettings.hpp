@@ -26,6 +26,7 @@ namespace Modules
 		Command *VarMouseSensitivityVertical;
 		Command *VarMouseSensitivityVehicleHorizontal;
 		Command *VarMouseSensitivityVehicleVertical;
+		Command *VarPlayerMarkerColors;
 		Command *VarPostprocessingQuality;
 		Command *VarShadowQuality;
 		Command *VarTextureFilteringQuality;
