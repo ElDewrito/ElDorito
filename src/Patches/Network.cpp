@@ -21,6 +21,7 @@
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Modules/ModuleVoIP.hpp"
 #include "../Server/VotingSystem.hpp"
+#include "../Web/Ui/ScreenLayer.hpp"
 
 namespace
 {
@@ -42,6 +43,9 @@ namespace
 
 	char __fastcall Network_state_end_game_write_stats_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4);
+	char __fastcall Network_session_join_remote_sessionHook(void* thisPtr, int unused, char a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, void *a12, int a13, int a14);
+	int __fastcall Network_session_initiate_leave_protocolHook(void* thisPtr, int unused, char forceClose);
+	int __fastcall Network_session_parameters_clearHook(void* thisPtr, int unused);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	void PongReceivedHook();
@@ -394,6 +398,17 @@ namespace Patches
 			Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
 
 			Hook(0x3BAFB, Network_GetEndpointHook, HookFlags::IsCall).Apply();
+
+			Hook(0x7F5B9, Network_session_join_remote_sessionHook, HookFlags::IsCall).Apply();
+
+			// Hook Network_session_initiate_leave_protocol in Network_session_idle_peer_joining's error states
+			// "peer join timed out waiting for secure connection to become established"
+			Hook(0x9BFCA, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
+			// "peer join timed out waiting for initial updates"
+			Hook(0x9C0BE, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
+
+			// "received initial update, clearing"
+			Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
 		}
 
 		void ForceHeadless()
@@ -1031,5 +1046,62 @@ namespace
 			}
 		}
 		return success;
+	}
+
+
+	char __fastcall Network_session_join_remote_sessionHook(void* thisPtr, int unused, char a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, void *a12, int a13, int a14)
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		jsonWriter.StartObject();
+		jsonWriter.Key("connecting");
+		jsonWriter.Bool(true);
+		jsonWriter.Key("success");
+		jsonWriter.Bool(false);
+		jsonWriter.EndObject();
+
+		Web::Ui::ScreenLayer::Notify("serverconnect", jsonBuffer.GetString(), true);
+
+		typedef char(__fastcall *Network_session_join_remote_sessionFunc)(void* thisPtr, int unused, char a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, void *a12, int a13, int a14);
+		Network_session_join_remote_sessionFunc Network_session_join_remote_session = reinterpret_cast<Network_session_join_remote_sessionFunc>(0x45D1E0);
+		return Network_session_join_remote_session(thisPtr, unused, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);;
+	}
+
+	// This is only hooked on error states
+	int __fastcall Network_session_initiate_leave_protocolHook(void* thisPtr, int unused, char forceClose)
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		jsonWriter.StartObject();
+		jsonWriter.Key("connecting");
+		jsonWriter.Bool(false);
+		jsonWriter.Key("success");
+		jsonWriter.Bool(false);
+		jsonWriter.EndObject();
+
+		Web::Ui::ScreenLayer::Notify("serverconnect", jsonBuffer.GetString(), true);
+
+		typedef int(__fastcall *Network_session_initiate_leave_protocolFunc)(void* thisPtr, int unused, char forceClose);
+		Network_session_initiate_leave_protocolFunc Network_session_initiate_leave_protocol = reinterpret_cast<Network_session_initiate_leave_protocolFunc>(0x45CB80);
+		return Network_session_initiate_leave_protocol(thisPtr, unused, forceClose);
+	}
+
+	// Hooked on the initial update that fires on server connect
+	int __fastcall Network_session_parameters_clearHook(void* thisPtr, int unused)
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		jsonWriter.StartObject();
+		jsonWriter.Key("connecting");
+		jsonWriter.Bool(false);
+		jsonWriter.Key("success");
+		jsonWriter.Bool(true);
+		jsonWriter.EndObject();
+
+		Web::Ui::ScreenLayer::Notify("serverconnect", jsonBuffer.GetString(), true);
+
+		typedef int(__fastcall *Network_session_parameters_clearFunc)(void* thisPtr, int unused);
+		Network_session_parameters_clearFunc Network_session_parameters_clear = reinterpret_cast<Network_session_parameters_clearFunc>(0x486580);
+		return Network_session_parameters_clear(thisPtr, unused);
 	}
 }

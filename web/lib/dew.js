@@ -673,4 +673,13 @@ CommandType = {
      * @event scoreboard
      * @type {ScoreboardInfo}
      */
+
+     /**
+      * Fired when attempting to connect to a server and when the connection succeeds or fails.
+      *
+      * @event serverconnect
+      * @type {object}
+      * @property {boolean} connecting - True if the client is currently trying to connect to the server.
+      * @property {boolean} success - True if the client successfully connected to the server. Will always be false if connecting is true.
+      */
 })();
