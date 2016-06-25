@@ -11,7 +11,6 @@
 #include "../ElDorito.hpp"
 #include "../Patches/Network.hpp"
 #include "../Patches/PlayerUid.hpp"
-#include "../Utils/DebugLog.hpp"
 
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
@@ -28,6 +27,7 @@
 #include "ModulePlayer.hpp"
 #include "ModuleVoIP.hpp"
 #include "../Server/VotingSystem.hpp"
+#include "../Utils/Logger.hpp"
 
 namespace
 {
@@ -155,7 +155,7 @@ namespace
 
 		std::string errors = ss.str();
 		if (errors.length() > 0)
-			Utils::DebugLog::Instance().Log("Announce", ss.str());
+			Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Announce: " + ss.str());
 
 		return true;
 	}
@@ -225,7 +225,7 @@ namespace
 
 		std::string errors = ss.str();
 		if (errors.length() > 0)
-			Utils::DebugLog::Instance().Log("Unannounce", ss.str());
+			Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Unannounce: " + ss.str());
 
 		return true;
 	}

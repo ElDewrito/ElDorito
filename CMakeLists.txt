@@ -257,8 +257,6 @@ add_library(ElDorito SHARED
     src/Utils/Cryptography.hpp
     src/Utils/Debug.cpp
     src/Utils/Debug.hpp
-    src/Utils/DebugLog.cpp
-    src/Utils/DebugLog.hpp
     src/Utils/Logger.cpp
     src/Utils/Logger.hpp
     src/Utils/Macros.hpp

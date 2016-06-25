@@ -1,7 +1,7 @@
 #include "Console.hpp"
-#include "Utils/DebugLog.hpp"
 #include "Utils/String.hpp"
 #include <vector>
+#include "Utils/Logger.hpp"
 
 using namespace Console;
 
@@ -46,6 +46,6 @@ namespace
 {
 	void LogConsoleOutputHandler::WriteLine(const std::string &line)
 	{
-		Utils::DebugLog::Instance().Log("Console", "%s", line.c_str());
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Info, "%s", line.c_str());
 	}
 }

@@ -20,106 +20,6 @@
 
 namespace
 {
-	bool CommandGameLogMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		auto newFlags = Modules::ModuleGame::Instance().DebugFlags;
-
-		if (Arguments.size() > 0)
-		{
-			for (auto arg : Arguments)
-			{
-				if (arg.compare("off") == 0)
-				{
-					// Disable it.
-					newFlags = 0;
-
-					Patches::Logging::EnableNetworkLog(false);
-					Patches::Logging::EnableSslLog(false);
-					Patches::Logging::EnableUiLog(false);
-					Patches::Logging::EnableGame1Log(false);
-					Patches::Logging::EnableGame2Log(false);
-					Patches::Logging::EnablePacketsLog(false);
-				}
-				else
-				{
-					auto hookNetwork = arg.compare("network") == 0;
-					auto hookSSL = arg.compare("ssl") == 0;
-					auto hookUI = arg.compare("ui") == 0;
-					auto hookGame1 = arg.compare("game1") == 0;
-					auto hookGame2 = arg.compare("game2") == 0;
-					auto hookPackets = arg.compare("packets") == 0;
-					if (arg.compare("all") == 0 || arg.compare("on") == 0)
-						hookNetwork = hookSSL = hookUI = hookGame1 = hookGame2 = hookPackets = true;
-
-					if (hookNetwork)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeNetwork;
-						Patches::Logging::EnableNetworkLog(true);
-					}
-
-					if (hookSSL)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeSSL;
-						Patches::Logging::EnableSslLog(true);
-					}
-
-					if (hookUI)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeUI;
-						Patches::Logging::EnableUiLog(true);
-					}
-
-					if (hookGame1)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeGame1;
-						Patches::Logging::EnableGame1Log(true);
-					}
-
-					if (hookGame2)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModeGame2;
-						Patches::Logging::EnableGame2Log(true);
-					}
-
-					if (hookPackets)
-					{
-						newFlags |= DebugLoggingModes::eDebugLoggingModePackets;
-						Patches::Logging::EnablePacketsLog(true);
-					}
-				}
-			}
-		}
-
-		Modules::ModuleGame::Instance().DebugFlags = newFlags;
-
-		std::stringstream ss;
-		ss << "Debug logging: ";
-		if (newFlags == 0)
-			ss << "disabled";
-		else
-		{
-			ss << "enabled: ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeNetwork)
-				ss << "Network ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeSSL)
-				ss << "SSL ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeUI)
-				ss << "UI ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeGame1)
-				ss << "Game1 ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModeGame2)
-				ss << "Game2 ";
-			if (newFlags & DebugLoggingModes::eDebugLoggingModePackets)
-				ss << "Packets ";
-		}
-		if (Arguments.size() <= 0)
-		{
-			ss << std::endl << "Usage: Game.LogMode <network | ssl | ui | game1 | game2 | packets | all | off>";
-		}
-		returnInfo = ss.str();
-		return true;
-	}
-
 	bool CommandGameLogLevel(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		for (auto arg : Arguments)
@@ -855,9 +755,6 @@ namespace Modules
 {
 	ModuleGame::ModuleGame() : ModuleBase("Game")
 	{
-		// TODO: deprecated, remove and migrate any dependencies to new logger
-		AddCommand("LogMode", "debug", "Chooses which debug messages to print to the log file", eCommandFlagsNone, CommandGameLogMode, { "network|ssl|ui|game1|game2|packets|all|off The log mode to enable" });
-		
 		AddCommand("LogLevel", "loglevel", "Debug log verbosity level", eCommandFlagsNone, CommandGameLogLevel, { "trace|info|warning|error|none The log verbosity level" });
 
 		AddCommand("LogTypes", "logtypes", "Chooses which kinds of debug messages to print to the log file", eCommandFlagsNone, CommandGameLogTypes, { "game|network|graphics|memory|sound|input|debug|all|none The message types to log" });
