@@ -2,17 +2,6 @@
 
 #include "ModuleBase.hpp"
 
-enum DebugLoggingModes
-{
-	eDebugLoggingModeNetwork = 1,
-	eDebugLoggingModeSSL = 2,
-	eDebugLoggingModeUI = 4,
-	eDebugLoggingModeGame1 = 8,
-	eDebugLoggingModeGame2 = 16,
-	eDebugLoggingModePackets = 32,
-	eDebugLoggingModeMemory = 64
-};
-
 namespace Modules
 {
 	class ModuleGame : public Utils::Singleton<ModuleGame>, public ModuleBase

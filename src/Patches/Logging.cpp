@@ -10,9 +10,9 @@
 namespace
 {
 	void dbglog(const char* module, char* format, ...);
-	void debuglog_string(char* name, char* value);
-	void debuglog_int(char* name, int value);
-	void debuglog_float(char* name, float value);
+	void __stdcall debuglog_string(char* name, char* value);
+	void __stdcall debuglog_int(char* name, int value);
+	void __stdcall debuglog_float(char* name, float value);
 	int networkLogHook(char* format, ...);
 	void __cdecl sslLogHook(char a1, int a2, void* a3, void* a4, char a5);
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5);
@@ -58,6 +58,16 @@ namespace Patches
 			Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
 			Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
 
+			NetworkLogHook.Apply();
+			SSLHook.Apply();
+			UIHook.Apply();
+			Game1Hook.Apply();
+			DebugLogFloatHook.Apply();
+			DebugLogIntHook.Apply();
+			DebugLogStringHook.Apply();
+			PacketReceiveHook.Apply();
+			PacketSendHook.Apply();
+
 			MemoryGlobalAllocateStructHook.Apply();
 			MemoryGlobalInitializeArrayHook.Apply();
 			MemoryGlobalInitializePoolHook.Apply();
@@ -72,39 +82,6 @@ namespace Patches
 			Hook(0x11D186, LogPhysicalMemoryAllocationRequestHook).Apply();
 			Hook(0x11D1E0, LogFailedPhysicalMemoryAllocationResultHook).Apply();
 			Hook(0x11D266, LogSuccessfulPhysicalMemoryAllocationResultHook).Apply();
-		}
-
-		void EnableNetworkLog(bool enable)
-		{
-			NetworkLogHook.Apply(!enable);
-		}
-
-		void EnableSslLog(bool enable)
-		{
-			SSLHook.Apply(!enable);
-		}
-
-		void EnableUiLog(bool enable)
-		{
-			UIHook.Apply(!enable);
-		}
-
-		void EnableGame1Log(bool enable)
-		{
-			Game1Hook.Apply(!enable);
-		}
-
-		void EnableGame2Log(bool enable)
-		{
-			DebugLogFloatHook.Apply(!enable);
-			DebugLogIntHook.Apply(!enable);
-			DebugLogStringHook.Apply(!enable);
-		}
-
-		void EnablePacketsLog(bool enable)
-		{
-			PacketReceiveHook.Apply(!enable);
-			PacketSendHook.Apply(!enable);
 		}
 	}
 }
@@ -127,22 +104,22 @@ namespace
 		vsprintf_s(buff, 4096, format, ap);
 		va_end(ap);
 
-		Utils::DebugLog::Instance().Log(module, "%s", buff);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Info, "%s: %s", module, buff);
 	}
 
-	void debuglog_string(char* name, char* value)
+	void __stdcall debuglog_string(char* name, char* value)
 	{
-		Utils::DebugLog::Instance().Log("Debug", "%s: %s", name, value);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Info, "%s: %s", name, value);
 	}
 
-	void debuglog_int(char* name, int value)
+	void __stdcall debuglog_int(char* name, int value)
 	{
-		Utils::DebugLog::Instance().Log("Debug", "%s: %d", name, value);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Info, "%s: %d", name, value);
 	}
 
-	void debuglog_float(char* name, float value)
+	void __stdcall debuglog_float(char* name, float value)
 	{
-		Utils::DebugLog::Instance().Log("Debug", "%s: %f", name, value);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Info, "%s: %f", name, value);
 	}
 
 	int networkLogHook(char* format, ...)
@@ -159,7 +136,7 @@ namespace
 		vsnprintf_s(dstBuf, 4096, 4096, formatStr.c_str(), args);
 		va_end(args);
 
-		Utils::DebugLog::Instance().Log("Network", "%s", dstBuf);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "%s", dstBuf);
 
 		return 1;
 	}
@@ -178,8 +155,7 @@ namespace
 		else
 			logData2 += 0xC;
 
-		Utils::DebugLog::Instance().Log((const char*)logData1, (char*)logData2);
-		return;
+		Utils::Logger::Instance().Log(Utils::LogTypes::Graphics, Utils::LogLevel::Info, "%s - %s", (const char*)logData1, (char*)logData2);
 	}
 
 	void __cdecl uiLogHook(char a1, int a2, void* a3, void* a4, char a5)
@@ -190,8 +166,7 @@ namespace
 		else
 			logData1 += 0xC;
 
-		Utils::DebugLog::Instance().Log("UiLog", (char*)logData1);
-		return;
+		Utils::Logger::Instance().Log(Utils::LogTypes::Graphics, Utils::LogLevel::Info, (char*)logData1);
 	}
 
 	bool __fastcall packetRecvHook(void *thisPtr, int unused, Blam::BitStream *stream, int *packetIdOut, int *packetSizeOut)
@@ -205,7 +180,7 @@ namespace
 		if (!packetTable)
 			return true;
 		auto packet = &packetTable->Packets[*packetIdOut];
-		Utils::DebugLog::Instance().Log("Packets", "RECV %s (size=0x%X)", packet->Name, *packetSizeOut);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "RECV %s (size=0x%X)", packet->Name, *packetSizeOut);
 		return true;
 	}
 
@@ -219,7 +194,7 @@ namespace
 		if (!packetTable)
 			return;
 		auto packet = &packetTable->Packets[packetId];
-		Utils::DebugLog::Instance().Log("Packets", "SEND %s (size=0x%X)", packet->Name, packetSize);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "SEND %s (size=0x%X)", packet->Name, packetSize);
 	}
 
 	struct ModuleInfo
@@ -392,7 +367,7 @@ namespace
 		void* addr = reinterpret_cast<void*(__stdcall*)(void*, size_t, uint32_t, uint32_t)>(origVirtualAllocAddress)
 			(address, size, allocationType, protect);
 
-		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "VirtualAlloc - Address: 0x%08X, Size: 0x%08X, Type: 0x%08X, Protect: 0x%08X, CallStack: %s",
+		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Trace, "VirtualAlloc - Address: 0x%08X, Size: 0x%08X, Type: 0x%08X, Protect: 0x%08X, CallStack: %s",
 			addr, size, allocationType, protect, Utils::GetStackTraceString(1, 5).c_str());
 
 		return addr;

@@ -21,6 +21,7 @@
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Modules/ModuleVoIP.hpp"
 #include "../Server/VotingSystem.hpp"
+#include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 
 namespace
@@ -825,7 +826,7 @@ namespace
 				auto Network_session_acknowledge_join_request = reinterpret_cast<Network_session_acknowledge_join_requestFunc>(0x45A230);
 				Network_session_acknowledge_join_request(thisPtr, address, 0); // TODO: Use a special code for bans and hook the join refusal handler so we can display a message to the player
 
-				Utils::DebugLog::Instance().Log("Network", "Refused join request from banned IP %s", ipStr);
+				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Refused join request from banned IP %s", ipStr);
 				return true;
 			}
 		}
