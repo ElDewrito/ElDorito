@@ -137,6 +137,8 @@ BOOL InitInstance(HINSTANCE hModule)
 	Patches::ApplyRequired();
 	ElDorito::Instance().Initialize();
 
+	Utils::LogEthernetAdapterInfo();
+
 	return true;
 }
 

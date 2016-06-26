@@ -81,7 +81,8 @@ namespace Utils
 
 	Logger::Logger()
 	{
-		// defaults
+		// these will apply until the ElDorito instance is initialized (the patch stage mostly) and the config values are read
+		// TODO: decouple the preferences from the module system since patches need to be applied before the modules are loaded
 		Level = LogLevel::Warning;
 		Types = All;
 

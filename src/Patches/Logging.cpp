@@ -54,6 +54,9 @@ namespace Patches
 	{
 		void ApplyAll()
 		{
+			// increase BackEnd::IEndpointsDispatcherService::GetAuthorizationEndpointsAndDate::Execute request buffer size
+			*reinterpret_cast<uint32_t*>(0x9053C6 + 1) = 2048 - 1;
+
 			Patch(0x11C158, { 0x8D, 0x85, 0x00, 0xFC, 0xFF, 0xFF, 0x50 }).Apply();
 			Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
 			Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
