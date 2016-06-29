@@ -211,6 +211,13 @@ namespace Patches
 			}
 		}
 
+		int HUDResolutionWidth = 0;
+		int HUDResolutionHeight = 0;
+		float HUDResolutionScaleX = 0;
+		float HUDResolutionScaleY = 0;
+		float HUDMotionSensorOffsetX = 0;
+		float HUDBottomVisorOffsetY = 0;
+		bool firstResolutionChange = true;
 
 		void ApplyUIResolution()
 		{
@@ -221,19 +228,39 @@ namespace Patches
 
 				auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
 				auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
+				auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+
+				// Store initial HUD resolution values the first time the resolution is changed.
+				if (firstResolutionChange)
+				{
+					HUDResolutionWidth = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth;
+					HUDResolutionHeight = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight;
+					HUDResolutionScaleX = globals->HudGlobals[0].HudAttributes[0].HorizontalScale;
+					HUDResolutionScaleY = globals->HudGlobals[0].HudAttributes[0].VerticalScale;
+					HUDMotionSensorOffsetX = globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX;
+					// Store bottom visor offset
+					for (auto &widget : chud->HudWidgets)
+					{
+						if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
+						{
+							HUDBottomVisorOffsetY = widget.PlacementData[0].OffsetY;
+						}
+					}
+					firstResolutionChange = false;
+				}
 
 				// Make UI match it's original width of 1920 pixels on non-widescreen monitors.
 				// Fixes the visor getting cut off.
-				globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = 1920;
+				globals->HudGlobals[0].HudAttributes[0].ResolutionWidth = HUDResolutionWidth;
 
 				// H3UI Resolution
 				int* UIResolution = reinterpret_cast<int*>(0x19106C8);
 
 				if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
 					// On aspect ratios with a greater width than 16:9 center the UI on the screen
-					globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = 1080;
-					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0];
-					globals->HudGlobals[0].HudAttributes[0].VerticalScale = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1];
+					globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = HUDResolutionHeight;
+					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = (globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0]) * HUDResolutionScaleX;
+					globals->HudGlobals[0].HudAttributes[0].VerticalScale = (globals->HudGlobals[0].HudAttributes[0].ResolutionHeight / (float)gameResolution[1]) * HUDResolutionScaleY;
 
 					UIResolution[0] = (int)(((float)gameResolution[0] / (float)gameResolution[1]) * 640);;
 					UIResolution[1] = 640;
@@ -241,24 +268,23 @@ namespace Patches
 				else
 				{
 					globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * globals->HudGlobals[0].HudAttributes[0].ResolutionWidth);
-					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = 0;
-					globals->HudGlobals[0].HudAttributes[0].VerticalScale = 0;
+					globals->HudGlobals[0].HudAttributes[0].HorizontalScale = HUDResolutionScaleX;
+					globals->HudGlobals[0].HudAttributes[0].VerticalScale = HUDResolutionScaleY;
 
 					UIResolution[0] = 1152;//1152 x 640 resolution
 					UIResolution[1] = (int)(((float)gameResolution[1] / (float)gameResolution[0]) * 1152);
 				}
 
 				// Adjust motion sensor blip to match the UI resolution
-				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = 122.0f;
-				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 84);
+				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX = HUDMotionSensorOffsetX;
+				globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - (globals->HudGlobals[0].HudAttributes[0].MotionSensorRadius - globals->HudGlobals[0].HudAttributes[0].MotionSensorScale));
 
 				// Search for the visor bottom and fix it if found
-				auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<ChudDefinition>();
 				for (auto &widget : chud->HudWidgets)
 				{
 					if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
 					{
-						widget.PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - 1080) / 2) + 12;
+						widget.PlacementData[0].OffsetY = (((float)globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - HUDResolutionHeight) / 2) + HUDBottomVisorOffsetY;
 						break;
 					}
 				}
