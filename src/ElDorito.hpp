@@ -38,6 +38,7 @@ public:
 	std::string GetMapsFolder() const { return mapsFolder; }
 	bool IsWebDebuggingEnabled() const { return webDebugging; }
 	bool IsDedicated() const { return isDedicated; }
+	std::string GetInstanceName() const { return instanceName; }
 
 private:
 	bool isHeadless = false;
@@ -49,6 +50,7 @@ private:
 	bool connectToServer = false;
 	std::string serverAddress = "";
 	std::string serverPassword = "";
+	std::string instanceName = "";
 	bool skipTitleSplash = false;
 	static bool(__cdecl * Video_InitD3D)(bool, bool);
 
