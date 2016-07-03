@@ -55,6 +55,7 @@ function loadMap(mapName) {
     });
     dew.command("Server.MessageClient", { internal: true }).then(function (message) {
         if(message.length > 0){
+            message = message.substr(0, 512);
             $(".serverMessage").show();
             $(".serverMessage").html(textWithNewLines(message));
         } else {
