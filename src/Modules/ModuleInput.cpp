@@ -512,6 +512,10 @@ namespace Modules
 		VarInputRawInput->ValueIntMin = 0;
 		VarInputRawInput->ValueIntMax = 1;
 
+		VarInputControllerPort = AddVariableInt("ControllerPort", "controllerport", "The port number of the player's controller.", eCommandFlagsArchived, 0);
+		VarInputControllerPort->ValueIntMin = 0;
+		VarInputControllerPort->ValueIntMax = 3;
+
 		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsNone, CommandBind, { "key", "[+]command", "arguments" });
 		Patches::Input::RegisterDefaultInputHandler(KeyboardUpdated);
 

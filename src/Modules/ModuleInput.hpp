@@ -16,6 +16,7 @@ namespace Modules
 	{
 	public:
 		Command* VarInputRawInput;
+		Command* VarInputControllerPort;
 		Command* VarControllerSensitivityX;
 		Command* VarControllerSensitivityY;
 

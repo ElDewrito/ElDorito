@@ -23,6 +23,8 @@ namespace
 	void GetKeyboardActionTypeHook();
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
 	void UpdateUiControllerInputHook(int a0);
+	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
+	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
 	 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -53,6 +55,8 @@ namespace Patches
 			Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
 			Hook(0x20C040, GetDefaultBindingsHook).Apply();
 			Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
+			Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
+			Hook(0x11298B, SetControllerVibrationHook, HookFlags::IsCall).Apply();
 			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 			Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
 			Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
@@ -346,6 +350,23 @@ namespace
 		{
 			UpdateCharPlatform();
 		}
+	}
+
+	char GetControllerStateHook(int dwUserIndex, int a2, void *a3)
+	{
+		typedef char(*GetControllerStatePtr)(int dwUserIndex, int a2, void *a3);
+		auto GetControllerState = reinterpret_cast<GetControllerStatePtr>(0x65EF60);
+
+		return GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+	}
+
+
+	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3)
+	{
+		typedef char(*SetControllerVibrationPtr)(int dwUserIndex, int a2, char a3);
+		auto SetControllerVibration = reinterpret_cast<SetControllerVibrationPtr>(0x65F220);
+
+		return SetControllerVibration(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
 	}
 }
 
