@@ -17,6 +17,7 @@ namespace Modules
 		Command* VarCameraSpeed;
 		Command* VarCameraSave;
 		Command* VarCameraLoad;
+		Command* VarCameraPosition;
 
 		// patches to stop camera mode from changing
 		Patch Debug1CameraPatch;
