@@ -241,6 +241,8 @@ add_library(ElDorito SHARED
     src/Server/BanList.hpp
     src/Server/ServerChat.cpp
     src/Server/ServerChat.hpp
+    src/Server/TagSync.cpp
+    src/Server/TagSync.hpp
     src/Server/VariableSynchronization.cpp
     src/Server/VariableSynchronization.hpp
     src/ThirdParty/dirent.h

@@ -22,6 +22,7 @@
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
 #include "Server/VotingSystem.hpp"
+#include "Server/TagSync.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -244,6 +245,7 @@ void ElDorito::Initialize()
 
 	// Initialize server modules
 	Server::Chat::Initialize();
+	Server::TagSync::Initialize();
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
@@ -258,6 +260,7 @@ void ElDorito::Tick()
 {
 	Server::VariableSynchronization::Tick();
 	Server::Chat::Tick();
+	Server::TagSync::Tick();
 	Patches::Tick();
 	if (!isDedicated)
 	{
