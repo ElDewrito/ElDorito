@@ -163,6 +163,7 @@ add_library(ElDorito SHARED
     src/Blam/Tags/Sounds/Noise.hpp
     src/Blam/Tags/UI/ChudDefinition.hpp
     src/Blam/Tags/UI/ChudGlobalsDefinition.hpp
+    src/Blam/Tags/UI/MultilingualUnicodeStringList.hpp
     src/Console.cpp
     src/Console.hpp
     src/DirectXHook.cpp
