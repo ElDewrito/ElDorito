@@ -34,10 +34,10 @@ namespace Patches
 			Speaking
 		};
 
-		void ToggleSpeaker(bool);
-		void SetSpeakingPlayer(std::string);
+		void ToggleSpeaker(bool newSomeoneSpeaking);
+		void SetSpeakingPlayer(std::string speakingPlayer);
 
-		void SetVoIPIcon(Patches::Ui::VoIPIcon);
+		void SetVoIPIcon(VoIPIcon newIcon);
 		void UpdateVoIPIcons();
 	}
 }

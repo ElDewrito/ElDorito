@@ -616,26 +616,22 @@ namespace
 		return hwnd;
 	}
 
-
-	void SetVoIPIcon(Patches::Ui::VoIPIcon _micState)
+	void SetVoIPIcon(VoIPIcon newIcon)
 	{
-		micState = _micState;
+		micState = newIcon;
 		UpdateVoIPIcons();
 	}
 
-	void ToggleSpeaker(bool _enabled)
+	void ToggleSpeaker(bool newSomeoneSpeaking)
 	{
-		someoneSpeaking = _enabled;
+		newSomeoneSpeaking = newSomeoneSpeaking;
 		UpdateVoIPIcons();
 	}
 
 	bool firstStringUpdate = true;
 	int speakingPlayerOffset; //The offset of speaker_name in memory.
 	static const char* const hex = "0123456789ABCDEF";
-	std::string hudMessagesStrings;
 	std::stringstream hexStringStream;
-	std::string hudMessagesStringsLeft;
-	std::string hudMessagesStringsRight;
 
 	void SetSpeakingPlayer(std::string speakingPlayer)
 	{
@@ -643,7 +639,7 @@ namespace
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::UI::MultilingualUnicodeStringList;
 
-		if (speakingPlayer.length() > 15)
+		if (speakingPlayer.length() > 15) // player names are limited to 15 anyway.
 			return;
 
 		auto *unic = Blam::Tags::TagInstance(0x12c2).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
@@ -661,22 +657,6 @@ namespace
 			//If the speaking_player string cannot be found, RIP. This shouldn't happen unless tags don't have correct modifications.
 			if (speakingPlayerOffset == NULL)
 				throw nullptr;
-
-			//Only grab the beginning and end strings once, as these should not change.
-			//If in the future other patches manipulate strings, this should be moved to unic tag definition.
-			unsigned char *byteData = reinterpret_cast<unsigned char*>(unic->Data.Elements);
-
-			hexStringStream << std::hex << std::setfill('0');
-			for (size_t index = 0; index < unic->Data.Size; ++index)
-				hexStringStream << std::setw(2) << static_cast<int>(byteData[index]);
-
-			hudMessagesStrings = hexStringStream.str();
-
-			//Strings before and after speaking_player.
-			hudMessagesStringsLeft = hudMessagesStrings;
-			hudMessagesStringsRight = hudMessagesStrings;
-			hudMessagesStringsLeft = hudMessagesStringsLeft.erase(speakingPlayerOffset * 2, hudMessagesStringsLeft.npos);
-			hudMessagesStringsRight = hudMessagesStringsRight.erase(0, (speakingPlayerOffset * 2) + 30);
 
 			firstStringUpdate = false;
 		}
@@ -696,10 +676,6 @@ namespace
 			for (int i = speakingPlayer.length() * 2; i < 30; ++i)
 				newHudMessagesStrings.push_back('0');
 
-		//Add the strings before speaking_player, the new speaking_player string and the strings after speaking_player together.
-		newHudMessagesStrings.reserve(hudMessagesStrings.length());
-		newHudMessagesStrings = hudMessagesStringsLeft + newHudMessagesStrings + hudMessagesStringsRight;
-
 		//Now convert the hex string to a byte array and poke!
 		hexStringStream >> std::hex;
 		for (size_t strIndex = 0, dataIndex = 0; strIndex < (size_t)newHudMessagesStrings.length(); ++dataIndex)
@@ -714,7 +690,7 @@ namespace
 			// Do the conversion
 			int tmpValue = 0;
 			hexStringStream >> tmpValue;
-			unic->Data.Elements[dataIndex] = static_cast<unsigned char>(tmpValue);
+			unic->Data.Elements[dataIndex + speakingPlayerOffset] = static_cast<unsigned char>(tmpValue);
 		}
 	}
 
