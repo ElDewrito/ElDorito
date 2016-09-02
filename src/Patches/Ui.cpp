@@ -12,8 +12,6 @@
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include <iostream>
 #include <string>
-#include <locale>
-#include <codecvt>
 #include <iomanip>
 
 using namespace Patches::Ui;
@@ -84,13 +82,13 @@ namespace Patches
 			createWindowCallbacks.push_back(callback);
 		}
 
-		void SetVoIPIcon(VoiceChatIcon newIcon)
+		void SetVoiceChatIcon(VoiceChatIcon newIcon)
 		{
 			micState = newIcon;
 			UpdateVoiceChatHUD();
 		}
 
-		void ToggleSpeaker(bool newSomeoneSpeaking)
+		void ToggleSpeakingPlayer(bool newSomeoneSpeaking)
 		{
 			someoneSpeaking = newSomeoneSpeaking;
 			UpdateVoiceChatHUD();
@@ -108,6 +106,14 @@ namespace Patches
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::MultilingualUnicodeStringList;
 			using Blam::Tags::UI::ChudDefinition;
+
+			//If the client is speaking, hide the text and let icons display.
+			//Really this method shouldn't be called with the client's username, but here's a half working fix for that if necessary.
+			//if (speakingPlayer == username)
+			//{
+			//	ToggleSpeakingPlayer(false);
+			//	return;
+			//}
 
 			if (speakingPlayer.length() > 15) // player names are limited to 15 anyway.
 				return;
@@ -174,21 +180,20 @@ namespace Patches
 		}
 
 		bool firstHudUpdate = true;
-		int teamBroadcastIndicatorIndex = 0; //Hud Widget containing Icons.
-		int broadcastAvailableIndex = 0; //Can Talk Icon
-		int broadcastIndex = 0; //Talking Icon.
-		int broadcastPTTIndex = 0; //Push To Talk Icon
-		int broadcastNoIndex = 0; //Can't Talk Icon
+		unsigned short teamBroadcastIndicatorIndex = 0; //Hud Widget containing Icons.
+		unsigned short broadcastAvailableIndex = 0; //Can Talk Icon
+		unsigned short broadcastIndex = 0; //Talking Icon.
+		unsigned short broadcastPTTIndex = 0; //Push To Talk Icon
+		unsigned short broadcastNoIndex = 0; //Can't Talk Icon
+		unsigned short spartanMotionTrackerIndex = 0; //motion_tracker hud widget.
+		unsigned short spartanVoiceBroadcast1Index = 0; //Speaking radar icon 1.
+		unsigned short spartanVoiceBroadcast2Index = 0; //Speaking radar icon 2.
+		//Support for the elite HUD, just in case any mods need it.
+		unsigned short eliteMotionTrackerIndex = 0;
+		unsigned short eliteVoiceBroadcast1Index = 0; //Speaking radar icon 1.
+		unsigned short eliteVoiceBroadcast2Index = 0; //Speaking radar icon 2.
 
-		//Store the original values of the icon scale, in case they have to be 0'd to hide them.
-		float broadcastAvailableScaleX;
-		float broadcastScaleX;
-		float broadcastPTTScaleX;
-		float broadcastNoScaleX;
-		float speakingPlayerScaleX;
-
-		enum IconToggleMode { Disabled, PlacementData, StateData };
-		IconToggleMode iconToggleMode = IconToggleMode::Disabled;
+		bool voiceChatIconValidTags = false;
 
 		void UpdateVoiceChatHUD()
 		{
@@ -196,29 +201,76 @@ namespace Patches
 			using Blam::Tags::UI::ChudDefinition;
 
 			//If there's no data to toggle (due to modded tags), do nothing.
-			if (!firstHudUpdate && iconToggleMode == IconToggleMode::Disabled)
+			if (!firstHudUpdate && !voiceChatIconValidTags)
 				return;
 
-			auto *chud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			auto *scoreboardChud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			auto *spartanChud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			auto *eliteChud = Blam::Tags::TagInstance(0x0E5F).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 
 			//If it's the first time updating the HUD, find the tagblock indexes.
 			if (firstHudUpdate)
 			{
-				for (int hudWidgetBlock = 0; hudWidgetBlock < chud->HudWidgets.Count; hudWidgetBlock = hudWidgetBlock + 1)//New to the syntax, increment operator might be better. -Alex.
+				//Find widgets in spartan.
+				for (int hudWidgetBlock = 0; hudWidgetBlock < spartanChud->HudWidgets.Count; hudWidgetBlock++)
 				{
-					if (chud->HudWidgets[hudWidgetBlock].NameStringID == 0x45C2) // team_broadcast_indicator
+					if (spartanChud->HudWidgets[hudWidgetBlock].NameStringID == 0x2A76) //motion_tracker
+					{
+						spartanMotionTrackerIndex = hudWidgetBlock;
+
+						for (int bitmapWidgetBlock = 0; bitmapWidgetBlock < spartanChud->HudWidgets[hudWidgetBlock].BitmapWidgets.Count; bitmapWidgetBlock++)
+						{
+							if (spartanChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x2A77) //voice_broadcast1
+								spartanVoiceBroadcast1Index = bitmapWidgetBlock;
+							else if (spartanChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x2A78) //voice_broadcast2
+								spartanVoiceBroadcast2Index = bitmapWidgetBlock;
+
+							if (spartanVoiceBroadcast1Index != NULL && spartanVoiceBroadcast2Index != NULL)
+								break;
+						}
+					}
+					if (spartanMotionTrackerIndex != NULL)
+						break;
+				}
+
+				//Find widgets in elite.
+				for (int hudWidgetBlock = 0; hudWidgetBlock < eliteChud->HudWidgets.Count; hudWidgetBlock++)
+				{
+					if (eliteChud->HudWidgets[hudWidgetBlock].NameStringID == 0x2A76) //motion_tracker
+					{
+						eliteMotionTrackerIndex = hudWidgetBlock;
+
+						for (int bitmapWidgetBlock = 0; bitmapWidgetBlock < eliteChud->HudWidgets[hudWidgetBlock].BitmapWidgets.Count; bitmapWidgetBlock++)
+						{
+							if (eliteChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x2A77) //voice_broadcast1
+								eliteVoiceBroadcast1Index = bitmapWidgetBlock;
+							else if (eliteChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x2A78) //voice_broadcast2
+								eliteVoiceBroadcast2Index = bitmapWidgetBlock;
+
+							if (eliteVoiceBroadcast1Index != NULL && eliteVoiceBroadcast2Index != NULL)
+								break;
+						}
+					}
+					if (eliteMotionTrackerIndex != NULL)
+						break;
+				}
+
+				//Find widgets in scoreboard.
+				for (int hudWidgetBlock = 0; hudWidgetBlock < scoreboardChud->HudWidgets.Count; hudWidgetBlock++)
+				{
+					if (scoreboardChud->HudWidgets[hudWidgetBlock].NameStringID == 0x45C2) // team_broadcast_indicator
 					{
 						teamBroadcastIndicatorIndex = hudWidgetBlock;
 
-						for (int bitmapWidgetBlock = 0; bitmapWidgetBlock < chud->HudWidgets[hudWidgetBlock].BitmapWidgets.Count; bitmapWidgetBlock = bitmapWidgetBlock + 1)
+						for (int bitmapWidgetBlock = 0; bitmapWidgetBlock < scoreboardChud->HudWidgets[hudWidgetBlock].BitmapWidgets.Count; bitmapWidgetBlock++)
 						{
-							if (chud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C3) // broadcast
+							if (scoreboardChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C3) // broadcast
 								broadcastIndex = bitmapWidgetBlock;
-							if (chud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C4) // broadcast_available
+							else if (scoreboardChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C4) // broadcast_available
 								broadcastAvailableIndex = bitmapWidgetBlock;
-							if (chud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C5) // broadcast_ptt_sybmol
+							else if (scoreboardChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C5) // broadcast_ptt_sybmol
 								broadcastPTTIndex = bitmapWidgetBlock;
-							if (chud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C6) // broadcast_no
+							else if (scoreboardChud->HudWidgets[hudWidgetBlock].BitmapWidgets[bitmapWidgetBlock].NameStringID == 0x45C6) // broadcast_no
 								broadcastNoIndex = bitmapWidgetBlock;
 
 							//if everything is found, break early.
@@ -226,7 +278,7 @@ namespace Patches
 								break;
 						}
 					}
-					if (chud->HudWidgets[hudWidgetBlock].NameStringID == 0x45BF) // speaker_name
+					if (scoreboardChud->HudWidgets[hudWidgetBlock].NameStringID == 0x45BF) // speaker_name
 					{
 						speakingPlayerIndex = hudWidgetBlock;
 					}
@@ -235,93 +287,62 @@ namespace Patches
 				}
 
 				//Check the availability of statedata, positiondata.
-				if (chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData.Count > 0 &&
-					chud->HudWidgets[speakingPlayerIndex].StateData.Count > 0)
-					iconToggleMode = IconToggleMode::StateData;
-
-				else if (chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData.Count > 0 &&
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData.Count > 0 &&
-					chud->HudWidgets[speakingPlayerIndex].PlacementData.Count > 0)
-				{
-					iconToggleMode = IconToggleMode::PlacementData;
-					broadcastScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX;
-					broadcastAvailableScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX;
-					broadcastNoScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX;
-					broadcastPTTScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX;
-					speakingPlayerScaleX = chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX;
-				}
+				if (scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData.Count > 0 &&
+					scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData.Count > 0 &&
+					scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData.Count > 0 &&
+					scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData.Count > 0 &&
+					scoreboardChud->HudWidgets[speakingPlayerIndex].StateData.Count > 0 &&
+					spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData.Count > 0 &&
+					spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData.Count > 0 &&
+					eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData.Count > 0 &&
+					eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData.Count > 0)
+					voiceChatIconValidTags = true;
 
 				firstHudUpdate = false;
 			}
 
-			if (iconToggleMode == IconToggleMode::StateData)
+			//Hide all Icons.
+			//Bit 7 is the broken "Tap to Talk" state used in halo 3. 
+			//Disabling the icon using a broken state triggers the close animation. Then removing this state triggers the open animation.
+			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+
+			scoreboardChud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = ChudDefinition::StateDataScoreboardFlags1::Bit3;
+
+			spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+			spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+
+			eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+			eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+
+			//Show the correct Icon.
+			//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
+			switch (micState)
 			{
-				//Hide all Icons.
-				//Bit 7 is the broken "Tap to Talk" state used in halo 3. 
-				//Disabling the icon using a broken state triggers the close animation. Then removing this state triggers the open animation.
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
-
-				chud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = ChudDefinition::StateDataScoreboardFlags1::Bit3;
-
-				//Show the correct Icon.
-				//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
-				switch (micState)
-				{
-				case VoiceChatIcon::Speaking:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
-					break;
-				case VoiceChatIcon::Available:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
-					break;
-				case VoiceChatIcon::Unavailable:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
-					break;
-				case VoiceChatIcon::PushToTalk:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
-					break;
-				case VoiceChatIcon::None: //Not sure if this is even needed.
-					break;
-				}
-
-				if (someoneSpeaking)
-					chud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = (ChudDefinition::StateDataScoreboardFlags1)0;
+			case VoiceChatIcon::Speaking:
+				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+				spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				break;
+			case VoiceChatIcon::Available:
+				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+				break;
+			case VoiceChatIcon::Unavailable:
+				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+				break;
+			case VoiceChatIcon::PushToTalk:
+				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+				break;
+			case VoiceChatIcon::None: //Not sure if this is even needed.
+				break;
 			}
-			else if (iconToggleMode == IconToggleMode::PlacementData)
-			{
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = 0;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = 0;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = 0;
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = 0;
 
-				switch (micState)
-				{
-				case VoiceChatIcon::Available:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = broadcastAvailableScaleX;
-					break;
-				case VoiceChatIcon::Speaking:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = broadcastScaleX;
-					break;
-				case VoiceChatIcon::Unavailable:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = broadcastNoScaleX;
-					break;
-				case VoiceChatIcon::PushToTalk:
-					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = broadcastPTTScaleX;
-					break;
-				case VoiceChatIcon::None:
-					break;
-				}
-
-				if (someoneSpeaking)
-					chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX = speakingPlayerScaleX;
-			}
+			if (someoneSpeaking)
+				scoreboardChud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = (ChudDefinition::StateDataScoreboardFlags1)0;
 		}
 
 		void ApplyAll()

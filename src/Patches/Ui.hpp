@@ -35,10 +35,10 @@ namespace Patches
 			PushToTalk
 		};
 
-		void ToggleSpeaker(bool newSomeoneSpeaking);
+		void ToggleSpeakingPlayer(bool newSomeoneSpeaking);
 		void SetSpeakingPlayer(std::string speakingPlayer);
 
-		void SetVoIPIcon(VoiceChatIcon newIcon);
+		void SetVoiceChatIcon(VoiceChatIcon newIcon);
 		void UpdateVoiceChatHUD();
 	}
 }
