@@ -26,7 +26,7 @@ namespace Blam
 				struct LocalizedString
 				{
 					StringID StringID;
-					int32_t Unknown[8]; //This stuff is actually known, just not mapped out. There's a string in here.
+					char StringIDStr[32]; //This should really be stored as a string.
 					int32_t Offsets[12];
 				};
 				TAG_STRUCT_SIZE_ASSERT(LocalizedString, 0x54);

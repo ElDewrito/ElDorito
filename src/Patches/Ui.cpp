@@ -37,8 +37,10 @@ namespace
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 
-	VoIPIcon micState = VoIPIcon::Unavailable;
-	bool someoneSpeaking;
+	VoiceChatIcon micState = VoiceChatIcon::Unavailable;
+	bool someoneSpeaking = false;
+	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
+	int32_t speakingPlayerStringID;
 }
 
 namespace Patches
@@ -82,20 +84,21 @@ namespace Patches
 			createWindowCallbacks.push_back(callback);
 		}
 
-		void SetVoIPIcon(VoIPIcon newIcon)
+		void SetVoIPIcon(VoiceChatIcon newIcon)
 		{
 			micState = newIcon;
-			UpdateVoIPIcons();
+			UpdateVoiceChatHUD();
 		}
 
 		void ToggleSpeaker(bool newSomeoneSpeaking)
 		{
 			someoneSpeaking = newSomeoneSpeaking;
-			UpdateVoIPIcons();
+			UpdateVoiceChatHUD();
 		}
 
 		bool firstStringUpdate = true;
 		int speakingPlayerOffset; //The offset of speaker_name in memory.
+		int speakingPlayerIndex = 0; //Hud Widget Containing Speaker.
 		static const char* const hex = "0123456789ABCDEF";
 		std::stringstream hexStringStream;
 
@@ -104,6 +107,7 @@ namespace Patches
 			//This method could use some refactoring, and performance could be improved I think.
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::MultilingualUnicodeStringList;
+			using Blam::Tags::UI::ChudDefinition;
 
 			if (speakingPlayer.length() > 15) // player names are limited to 15 anyway.
 				return;
@@ -114,9 +118,10 @@ namespace Patches
 			{
 				//go through string blocks backwards to find speaking_player, as it should be at the end.
 				for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; --stringBlockIndex)
-					if (unic->Strings[stringBlockIndex].StringID == 0x9202) // speaking_player
+					if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
 					{
 						speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
+						speakingPlayerStringID = unic->Strings[stringBlockIndex].StringID;
 						break;
 					}
 
@@ -158,6 +163,14 @@ namespace Patches
 				hexStringStream >> tmpValue;
 				unic->Data.Elements[dataIndex + speakingPlayerOffset] = static_cast<unsigned char>(tmpValue);
 			}
+
+			if (speakingPlayerIndex != NULL)
+			{
+				auto *chud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+				//Make sure that the speaking player HUD widget has the correct string.
+				chud->HudWidgets[speakingPlayerIndex].TextWidgets[0].TextStringID = speakingPlayerStringID;
+			}
+
 		}
 
 		bool firstHudUpdate = true;
@@ -166,12 +179,25 @@ namespace Patches
 		int broadcastIndex = 0; //Talking Icon.
 		int broadcastPTTIndex = 0; //Push To Talk Icon
 		int broadcastNoIndex = 0; //Can't Talk Icon
-		int speakingPlayerIndex = 0; //Hud Widget Containing Speaker.
 
-		void UpdateVoIPIcons()
+		//Store the original values of the icon scale, in case they have to be 0'd to hide them.
+		float broadcastAvailableScaleX;
+		float broadcastScaleX;
+		float broadcastPTTScaleX;
+		float broadcastNoScaleX;
+		float speakingPlayerScaleX;
+
+		enum IconToggleMode { Disabled, PlacementData, StateData };
+		IconToggleMode iconToggleMode = IconToggleMode::Disabled;
+
+		void UpdateVoiceChatHUD()
 		{
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::ChudDefinition;
+
+			//If there's no data to toggle (due to modded tags), do nothing.
+			if (!firstHudUpdate && iconToggleMode == IconToggleMode::Disabled)
+				return;
 
 			auto *chud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 
@@ -196,7 +222,7 @@ namespace Patches
 								broadcastNoIndex = bitmapWidgetBlock;
 
 							//if everything is found, break early.
-							if (((broadcastIndex != NULL) & (broadcastAvailableIndex != NULL)) & ((broadcastPTTIndex != NULL) & (broadcastNoIndex != NULL)))
+							if (((broadcastIndex != NULL) && (broadcastAvailableIndex != NULL)) && ((broadcastPTTIndex != NULL) && (broadcastNoIndex != NULL)))
 								break;
 						}
 					}
@@ -204,39 +230,98 @@ namespace Patches
 					{
 						speakingPlayerIndex = hudWidgetBlock;
 					}
-					if ((teamBroadcastIndicatorIndex != NULL) & (speakingPlayerIndex != NULL))
+					if ((teamBroadcastIndicatorIndex != NULL) && (speakingPlayerIndex != NULL))
 						break;
 				}
+
+				//Check the availability of statedata, positiondata.
+				if (chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData.Count > 0 &&
+					chud->HudWidgets[speakingPlayerIndex].StateData.Count > 0)
+					iconToggleMode = IconToggleMode::StateData;
+
+				else if (chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData.Count > 0 &&
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData.Count > 0 &&
+					chud->HudWidgets[speakingPlayerIndex].PlacementData.Count > 0)
+				{
+					iconToggleMode = IconToggleMode::PlacementData;
+					broadcastScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX;
+					broadcastAvailableScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX;
+					broadcastNoScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX;
+					broadcastPTTScaleX = chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX;
+					speakingPlayerScaleX = chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX;
+				}
+
 				firstHudUpdate = false;
 			}
-			//Hide all Icons.
-			chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = 0;
-			chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = 0;
-			chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = 0;
-			chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = 0;
 
-			chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX = 0;
-
-			//Show the correct Icon.
-			//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
-			switch (micState)
+			if (iconToggleMode == IconToggleMode::StateData)
 			{
-			case VoIPIcon::Available:
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = 1;
-				break;
-			case VoIPIcon::Speaking:
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = 0.75; //I think saber gave this one a new icon and scaled it down...
-				break;
-			case VoIPIcon::Unavailable:
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = 1;
-				break;
-			case VoIPIcon::PushToTalk:
-				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = 1;
-				break;
-			}
+				//Hide all Icons.
+				//Bit 7 is the broken "Tap to Talk" state used in halo 3. 
+				//Disabling the icon using a broken state triggers the close animation. Then removing this state triggers the open animation.
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
 
-			if (someoneSpeaking)
-				chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX = 1;
+				chud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = ChudDefinition::StateDataScoreboardFlags1::Bit3;
+
+				//Show the correct Icon.
+				//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
+				switch (micState)
+				{
+				case VoiceChatIcon::Speaking:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+					break;
+				case VoiceChatIcon::Available:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+					break;
+				case VoiceChatIcon::Unavailable:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+					break;
+				case VoiceChatIcon::PushToTalk:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+					break;
+				case VoiceChatIcon::None: //Not sure if this is even needed.
+					break;
+				}
+
+				if (someoneSpeaking)
+					chud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = (ChudDefinition::StateDataScoreboardFlags1)0;
+			}
+			else if (iconToggleMode == IconToggleMode::PlacementData)
+			{
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = 0;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = 0;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = 0;
+				chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = 0;
+
+				switch (micState)
+				{
+				case VoiceChatIcon::Available:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].PlacementData[0].ScaleX = broadcastAvailableScaleX;
+					break;
+				case VoiceChatIcon::Speaking:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].PlacementData[0].ScaleX = broadcastScaleX;
+					break;
+				case VoiceChatIcon::Unavailable:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastNoIndex].PlacementData[0].ScaleX = broadcastNoScaleX;
+					break;
+				case VoiceChatIcon::PushToTalk:
+					chud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].PlacementData[0].ScaleX = broadcastPTTScaleX;
+					break;
+				case VoiceChatIcon::None:
+					break;
+				}
+
+				if (someoneSpeaking)
+					chud->HudWidgets[speakingPlayerIndex].PlacementData[0].ScaleX = speakingPlayerScaleX;
+			}
 		}
 
 		void ApplyAll()

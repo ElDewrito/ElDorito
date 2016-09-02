@@ -26,18 +26,19 @@ namespace Patches
 		extern unsigned int DialogParentStringId;
 		extern void* UIData;
 
-		enum VoIPIcon
+		enum VoiceChatIcon
 		{
-			Unavailable,
+			None,
+			Speaking,
 			Available,
-			PushToTalk,
-			Speaking
+			Unavailable,
+			PushToTalk
 		};
 
 		void ToggleSpeaker(bool newSomeoneSpeaking);
 		void SetSpeakingPlayer(std::string speakingPlayer);
 
-		void SetVoIPIcon(VoIPIcon newIcon);
-		void UpdateVoIPIcons();
+		void SetVoIPIcon(VoiceChatIcon newIcon);
+		void UpdateVoiceChatHUD();
 	}
 }
