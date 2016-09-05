@@ -35,6 +35,7 @@ namespace
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 
+	bool tagsInitiallyLoaded = false;
 	VoiceChatIcon micState = VoiceChatIcon::Unavailable;
 	bool someoneSpeaking = false;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
@@ -51,6 +52,11 @@ namespace Patches
 		int DialogFlags;
 		unsigned int DialogParentStringId;
 		void* UIData = 0;
+
+		void ApplyAfterTagsLoaded()
+		{
+			tagsInitiallyLoaded = true;
+		}
 
 		void Tick()
 		{
@@ -102,6 +108,10 @@ namespace Patches
 
 		void SetSpeakingPlayer(std::string speakingPlayer)
 		{
+			if (!tagsInitiallyLoaded) //Commands might call methods a little early.
+				return;
+
+
 			//This method could use some refactoring, and performance could be improved I think.
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::MultilingualUnicodeStringList;
@@ -123,7 +133,7 @@ namespace Patches
 			if (firstStringUpdate)
 			{
 				//go through string blocks backwards to find speaking_player, as it should be at the end.
-				for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; --stringBlockIndex)
+				for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--) 
 					if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
 					{
 						speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
@@ -197,6 +207,9 @@ namespace Patches
 
 		void UpdateVoiceChatHUD()
 		{
+			if (!tagsInitiallyLoaded)
+				return;
+
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::ChudDefinition;
 

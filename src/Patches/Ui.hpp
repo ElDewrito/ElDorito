@@ -40,5 +40,6 @@ namespace Patches
 
 		void SetVoiceChatIcon(VoiceChatIcon newIcon);
 		void UpdateVoiceChatHUD();
+		void ApplyAfterTagsLoaded();
 	}
 }
