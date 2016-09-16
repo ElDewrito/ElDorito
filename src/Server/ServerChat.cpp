@@ -113,7 +113,7 @@ namespace
 	}
 
 	// Broadcasts a message to a set of peers.
-	bool BroadcastMessage(Blam::Network::Session *session, int senderPeer, ChatMessage *message, PeerBitSet peers)
+	bool BroadcastMessage(Blam::Network::Session *session, int senderPeer, ChatMessage *message, Blam::Network::PeerBitSet peers)
 	{
 		if (senderPeer < 0)
 			return false;
@@ -141,7 +141,7 @@ namespace
 	}
 
 	// Gets a bitset of peers on the same team as a peer.
-	bool GetTeamPeers(Blam::Network::Session *session, int senderPeer, PeerBitSet *result)
+	bool GetTeamPeers(Blam::Network::Session *session, int senderPeer, Blam::Network::PeerBitSet *result)
 	{
 		result->reset();
 
@@ -163,7 +163,7 @@ namespace
 	}
 
 	// Gets a bitset of peers to send a message to.
-	bool GetMessagePeers(Blam::Network::Session *session, int senderPeer, const ChatMessage &message, PeerBitSet *result)
+	bool GetMessagePeers(Blam::Network::Session *session, int senderPeer, const ChatMessage &message, Blam::Network::PeerBitSet *result)
 	{
 		switch (message.Type)
 		{
@@ -233,7 +233,7 @@ namespace
 		// If the IP is in a timeout state, send an error and return
 		if (spamIt->second.TimeoutSeconds > 0)
 		{
-			PeerBitSet targetPeers;
+			Blam::Network::PeerBitSet targetPeers;
 			targetPeers.set(peer);
 			SendServerMessage("You have exceeded the server's spam limit. You can chat again in " + std::to_string(spamIt->second.TimeoutSeconds) + " second(s).", targetPeers);
 			return true;
@@ -305,7 +305,7 @@ namespace
 
 		LogMessage(session, peer, broadcastMessage);
 
-		PeerBitSet targetPeers;
+		Blam::Network::PeerBitSet targetPeers;
 		if (!GetMessagePeers(session, peer, message, &targetPeers))
 			return false;
 		return BroadcastMessage(session, peer, &broadcastMessage, targetPeers);
@@ -405,7 +405,7 @@ namespace Server
 			return SendClientMessage(session, message);
 		}
 
-		bool SendServerMessage(const std::string &body, PeerBitSet peers)
+		bool SendServerMessage(const std::string &body, Blam::Network::PeerBitSet peers)
 		{
 			auto session = Blam::Network::GetActiveSession();
 			if (!session || !session->IsEstablished() || !session->IsHost())

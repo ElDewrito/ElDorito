@@ -13,11 +13,10 @@
 #include "../ElDorito.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../VoIP/TeamspeakServer.hpp"
-#include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Server/BanList.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "../Voip/VoipServer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Modules/ModuleVoIP.hpp"
 #include "../Server/VotingSystem.hpp"
@@ -203,7 +202,7 @@ namespace Patches
 						writer.Key("assassinationEnabled");
 						writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
 						writer.Key("VoIP");
-						writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
+						writer.Bool(Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt != 0);
 
 						auto session = Blam::Network::GetActiveSession();
 						if (session && session->IsEstablished()){
@@ -579,27 +578,16 @@ namespace
 		if (isOnline == 1)
 		{
 			auto& voipvars = Modules::ModuleVoIP::Instance();
-			if (voipvars.VarVoIPServerEnabled->ValueInt == 1){
-				//Start the Teamspeak VoIP Server since this is the host
-				CreateThread(0, 0, StartTeamspeakServer, 0, 0, 0);
+			if (voipvars.VarVoIPServerEnabled->ValueInt)
+				Voip::Server::Start();
 
-				if (voipvars.VarVoIPEnabled->ValueInt == 1)
-				{
-					//Make sure teamspeak is stopped before we try to start it.
-					StopTeamspeakClient();
-					//Join the Teamspeak VoIP Server so the host can talk
-					CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
-				}
-			}
 			// TODO: give output if StartInfoServer fails
 			Patches::Network::StartInfoServer();
 		}
 		else
 		{
 			Patches::Network::StopInfoServer();
-			//Stop the VoIP Server and client
-			StopTeamspeakClient();
-			StopTeamspeakServer();
+			Voip::Server::Stop();
 		}
 		return retval;
 	}
@@ -804,8 +792,8 @@ namespace
 			return false;
 		
 		// Boot the player from VoIP
-		if (playerIndex >= 0)
-			kickTeamspeakClient(playerName);
+		/*if (playerIndex >= 0)
+			kickTeamspeakClient(playerName);*/
 		return true;
 	}
 
@@ -937,9 +925,6 @@ namespace
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
 	{
 		Patches::Network::StopInfoServer();
-
-		StopTeamspeakClient();
-		StopTeamspeakServer();
 
 		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);

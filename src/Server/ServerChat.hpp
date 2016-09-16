@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <bitset>
 #include <memory>
 #include "../Blam/BlamNetwork.hpp"
 
@@ -70,9 +69,6 @@ namespace Server
 			virtual void MessageReceived(const ChatMessage &message) = 0;
 		};
 
-		// A std::bitset of peers.
-		typedef std::bitset<Blam::Network::MaxPeers> PeerBitSet;
-
 		// Initializes the server chat system.
 		void Initialize();
 
@@ -88,7 +84,7 @@ namespace Server
 
 		// Sends a server message to specific peers. Only works if you are
 		// host. Returns true if successful.
-		bool SendServerMessage(const std::string &body, PeerBitSet peers);
+		bool SendServerMessage(const std::string &body, Blam::Network::PeerBitSet peers);
 
 		// Registers a chat handler object.
 		void AddHandler(std::shared_ptr<ChatHandler> handler);

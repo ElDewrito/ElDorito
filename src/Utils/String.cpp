@@ -163,28 +163,33 @@ namespace Utils
 
 		void HexStringToBytes(const std::string &in, void *const data, size_t length)
 		{
-			unsigned char   *byteData = reinterpret_cast<unsigned char*>(data);
-
-			std::stringstream hexStringStream; hexStringStream >> std::hex;
-			for (size_t strIndex = 0, dataIndex = 0; strIndex < (length * 2); ++dataIndex)
+			unsigned char *byteData = reinterpret_cast<unsigned char*>(data);
+			unsigned char byte = 0;
+			for (auto i = 0; i < in.length() && i < length * 2; i++)
 			{
-				// Read out and convert the string two characters at a time
-				const char tmpStr[3] = { in[strIndex++], in[strIndex++], 0 };
-
-				// Reset and fill the string stream
-				hexStringStream.clear();
-				hexStringStream.str(tmpStr);
-
-				// Do the conversion
-				int tmpValue = 0;
-				hexStringStream >> tmpValue;
-				byteData[dataIndex] = static_cast<unsigned char>(tmpValue);
+				char ch = in[i];
+				unsigned char nybble = 0;
+				if (ch >= 'A' && ch <= 'F')
+					nybble = ch - 'A' + 0xA;
+				else if (ch >= 'a' && ch <= 'f')
+					nybble = ch - 'a' + 0xA;
+				else if (ch >= '0' && ch <= '9')
+					nybble = ch - '0';
+				if (i % 2 == 0)
+				{
+					byte = nybble << 4;
+				}
+				else
+				{
+					byte |= nybble;
+					byteData[i / 2] = byte;
+				}
 			}
 		}
 
-		void BytesToHexString(void *const data, const size_t dataLength, std::string &dest)
+		void BytesToHexString(const void * data, const size_t dataLength, std::string &dest)
 		{
-			unsigned char       *byteData = reinterpret_cast<unsigned char*>(data);
+			const unsigned char *byteData = reinterpret_cast<const unsigned char*>(data);
 			std::stringstream   hexStringStream;
 
 			hexStringStream << std::hex << std::setfill('0');

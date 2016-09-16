@@ -4,6 +4,7 @@
 #include "BlamTypes.hpp"
 #include "BlamPlayers.hpp"
 #include "BitStream.hpp"
+#include <bitset>
 
 namespace Blam
 {
@@ -14,6 +15,9 @@ namespace Blam
 
 		// The maximum number of players in a network session.
 		const int MaxPlayers = 16;
+
+		// A std::bitset of peers.
+		typedef std::bitset<Blam::Network::MaxPeers> PeerBitSet;
 
 		enum PeerConnectionState
 		{

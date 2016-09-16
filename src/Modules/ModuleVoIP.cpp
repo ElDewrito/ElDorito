@@ -1,17 +1,10 @@
 #include "ModuleVoIP.hpp"
-#include <sstream>
-#include "../ElDorito.hpp"
-#include "../VoIP/TeamspeakClient.hpp"
-#include "../VoIP/TeamspeakServer.hpp"
-#include <teamspeak/public_definitions.h>
-#include <teamspeak/public_errors.h>
-#include <teamspeak/clientlib_publicdefinitions.h>
-#include <teamspeak/clientlib.h>
+#include "../Voip/VoipServer.hpp"
 #include "../Blam/BlamNetwork.hpp"
 
 bool VariablePushToTalkUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	unsigned int error;
+	/*unsigned int error;
 	uint64 scHandlerID = VoIPGetscHandlerID();
 	if (scHandlerID != NULL){
 		if (Modules::ModuleVoIP::Instance().VarVoIPPushToTalk->ValueInt == 0){
@@ -49,13 +42,13 @@ bool VariablePushToTalkUpdate(const std::vector<std::string>& Arguments, std::st
 			}
 		}
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPPushToTalk->ValueInt ? "Enabled VoIP PushToTalk and Disabled Voice Activation Detection" : "Disabled VoIP PushToTalk and Enabled Voice Acitivation Detection.";
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPPushToTalk->ValueInt ? "Enabled VoIP PushToTalk and Disabled Voice Activation Detection" : "Disabled VoIP PushToTalk and Enabled Voice Acitivation Detection.";*/
 	return true;
 }
 
 bool VariableVolumeModifierUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	unsigned int error;
+	/*unsigned int error;
 	uint64 scHandlerID = VoIPGetscHandlerID();
 	if (scHandlerID != NULL){
 		if ((error = ts3client_setPlaybackConfigValue(scHandlerID, "volume_modifier", Modules::ModuleVoIP::Instance().VarVoIPVolumeModifier->ValueString.c_str())) != ERROR_ok) {
@@ -63,12 +56,13 @@ bool VariableVolumeModifierUpdate(const std::vector<std::string>& Arguments, std
 			return false;
 		}
 	}
-	returnInfo = "Set VoIP Volume Modifier to " + Modules::ModuleVoIP::Instance().VarVoIPVolumeModifier->ValueString;
+	returnInfo = "Set VoIP Volume Modifier to " + Modules::ModuleVoIP::Instance().VarVoIPVolumeModifier->ValueString;*/
 	return true;
 }
+
 bool VariableAGCUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	unsigned int error;
+	/*unsigned int error;
 	uint64 scHandlerID = VoIPGetscHandlerID();
 	if (scHandlerID != NULL){
 		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "agc", Modules::ModuleVoIP::Instance().VarVoIPAGC->ValueInt ? "true" : "false")) != ERROR_ok) {
@@ -76,12 +70,13 @@ bool VariableAGCUpdate(const std::vector<std::string>& Arguments, std::string& r
 			return false;
 		}
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPAGC->ValueInt ? "Enabled VoIP Automatic Gain Control" : "Disabled VoIP Automatic Gain Control";
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPAGC->ValueInt ? "Enabled VoIP Automatic Gain Control" : "Disabled VoIP Automatic Gain Control";*/
 	return true;
 }
+
 bool VariableEchoCancellationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	unsigned int error;
+	/*unsigned int error;
 	uint64 scHandlerID = VoIPGetscHandlerID();
 	if (scHandlerID != NULL){
 		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "echo_canceling", Modules::ModuleVoIP::Instance().VarVoIPEchoCancellation->ValueInt ? "true" : "false")) != ERROR_ok) {
@@ -89,12 +84,13 @@ bool VariableEchoCancellationUpdate(const std::vector<std::string>& Arguments, s
 			return false;
 		}
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEchoCancellation->ValueInt ? "Enabled VoIP Echo Cancellation" : "Disabled VoIP Echo Cancellation";
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEchoCancellation->ValueInt ? "Enabled VoIP Echo Cancellation" : "Disabled VoIP Echo Cancellation";*/
 	return true;
 }
+
 bool VariableVADLevelUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	unsigned int error;
+	/*unsigned int error;
 	uint64 scHandlerID = VoIPGetscHandlerID();
 	if (scHandlerID != NULL){
 		if ((error = ts3client_setPreProcessorConfigValue(scHandlerID, "voiceactivation_level", Modules::ModuleVoIP::Instance().VarVoIPVADLevel->ValueString.c_str())) != ERROR_ok) {
@@ -102,34 +98,44 @@ bool VariableVADLevelUpdate(const std::vector<std::string>& Arguments, std::stri
 			return false;
 		}
 	}
-	returnInfo = "Set Voice Activation Level to " + Modules::ModuleVoIP::Instance().VarVoIPVADLevel->ValueString;
+	returnInfo = "Set Voice Activation Level to " + Modules::ModuleVoIP::Instance().VarVoIPVADLevel->ValueString;*/
 	return true;
 }
+
 bool VariableServerEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	//TODO: Check if host, kill client too. StopTeamspeakClient();
-	//TODO: Figure out why this doesn't stop the teamspeak server when setting to 0....
-	if (Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt == 0){
-		StopTeamspeakClient();
-		StopTeamspeakServer();
+	if (Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt == 1)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+		{
+			returnInfo = "VoIP server enabled.";
+			return true;
+		}
+		Voip::Server::Start();
+		returnInfo = "VoIP server started. Players may not connect until the next game is started.";
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPServerEnabled->ValueInt ? "VoIP Server will start when a new lobby is created" : "Disabled VoIP Auto Startup.";
+	else
+	{
+		Voip::Server::Stop();
+		returnInfo = "VoIP server stopped.";
+	}
 	return true;
 }
 
 bool VariableEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
 	//TODO: Connect to lobby VOIP if changing to 1, for now this is fine because it will join next time they connet to a lobby
-	if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 0){
+	/*if (Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt == 0){
 		StopTeamspeakClient();
 	}
-	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt ? "VoIP client will start when joining a lobby" : "Disabled VoIP.";
+	returnInfo = Modules::ModuleVoIP::Instance().VarVoIPEnabled->ValueInt ? "VoIP client will start when joining a lobby" : "Disabled VoIP.";*/
 	return true;
 }
 
 bool CommandVoIPMutePlayer(const std::vector<std::string>& Arguments, std::string& returnInfo)
 {
-	if (Arguments.size() <= 0)
+	/*if (Arguments.size() <= 0)
 	{
 		returnInfo = "Invalid arguments";
 		return false;
@@ -169,7 +175,8 @@ bool CommandVoIPMutePlayer(const std::vector<std::string>& Arguments, std::strin
 	}
 
 	returnInfo = "Player " + mutePlayerName + " not found in game?";
-	return false;
+	return false;*/
+	return true;
 }
 
 namespace Modules

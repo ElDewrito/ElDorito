@@ -10,6 +10,7 @@
 #include "Server/BanList.hpp"
 #include "Patches/Core.hpp"
 #include "Console.hpp"
+#include "Voip/Voip.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
 #include "Web/Ui/WebChat.hpp"
 #include "Web/Ui/WebConsole.hpp"
@@ -246,6 +247,7 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
+	Voip::Initialize();
 	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
 
 	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))

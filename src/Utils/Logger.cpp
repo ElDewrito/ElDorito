@@ -51,6 +51,7 @@ namespace Utils
 						case Sound: bits.push_back("Sound"); break;
 						case Input: bits.push_back("Input"); break;
 						case Debug: bits.push_back("Debug"); break;
+						case Voice: bits.push_back("Voice"); break;
 						default: bits.push_back(std::string("UnknownBit") + std::to_string(bit)); break;
 					}
 				}
@@ -83,7 +84,7 @@ namespace Utils
 	{
 		// these will apply until the ElDorito instance is initialized (the patch stage mostly) and the config values are read
 		// TODO: decouple the preferences from the module system since patches need to be applied before the modules are loaded
-		Level = LogLevel::Warning;
+		Level = LogLevel::Info;
 		Types = All;
 
 		// spin up separate thread to periodically flush the log
