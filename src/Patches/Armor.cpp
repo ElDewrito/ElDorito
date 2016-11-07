@@ -19,21 +19,20 @@ namespace
 {
 	// Used during bitstream operations to automatically calculate the size of each armor component
 	const uint8_t MaxArmorIndices[] = { 81, 82, 82, 50, 52, 24, 4 };
+	
+	std::map<std::string, uint8_t> helmetIndices;
+	std::map<std::string, uint8_t> chestIndices;
+	std::map<std::string, uint8_t> shouldersIndices;
+	std::map<std::string, uint8_t> armsIndices;
+	std::map<std::string, uint8_t> legsIndices;
+	std::map<std::string, uint8_t> accIndices;
+	std::map<std::string, uint8_t> pelvisIndices;
+	std::map<std::string, uint16_t> weaponIndices;
 
-	// TODO: These are defined at the bottom of the file...should probably move them elsewhere
-	extern std::unordered_map<std::string, uint8_t> helmetIndexes;
-	extern std::unordered_map<std::string, uint8_t> chestIndexes;
-	extern std::unordered_map<std::string, uint8_t> shouldersIndexes;
-	extern std::unordered_map<std::string, uint8_t> armsIndexes;
-	extern std::unordered_map<std::string, uint8_t> legsIndexes;
-	extern std::unordered_map<std::string, uint8_t> accIndexes;
-	extern std::unordered_map<std::string, uint8_t> pelvisIndexes;
-	extern std::map<std::string, uint16_t> weaponIndices;
-
-	uint8_t GetArmorIndex(const std::string &name, const std::unordered_map<std::string, uint8_t> &indexes)
+	uint8_t GetArmorIndex(const std::string &name, const std::map<std::string, uint8_t> &Indices)
 	{
-		auto it = indexes.find(name);
-		return (it != indexes.end()) ? it->second : 0;
+		auto it = Indices.find(name);
+		return (it != Indices.end()) ? it->second : 0;
 	}
 
 	void BuildPlayerCustomization(Modules::ModulePlayer &playerVars, PlayerCustomization *out)
@@ -54,24 +53,25 @@ namespace
 		if (playerVars.VarColorsHolo->ValueString.length() > 0 && playerVars.VarColorsHolo->ValueString.substr(0, 1) == "#")
 			out->Colors[ColorIndices::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
 
-		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndexes);
-		out->Armor[ArmorIndices::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndexes);
-		out->Armor[ArmorIndices::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndexes);
-		out->Armor[ArmorIndices::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndexes);
-		out->Armor[ArmorIndices::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndexes);
-		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndexes);
-		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndexes);
+		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndices);
+		out->Armor[ArmorIndices::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndices);
+		out->Armor[ArmorIndices::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndices);
+		out->Armor[ArmorIndices::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndices);
+		out->Armor[ArmorIndices::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndices);
+		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndices);
+		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndices);
 	}
 
-	uint8_t ValidateArmorPiece(std::unordered_map<std::string, uint8_t> indexes, uint8_t index)
+	uint8_t ValidateArmorPiece(std::map<std::string, uint8_t> indices, uint8_t index)
 	{
 		// Just do a quick check to see if the index has a key associated with it,
 		// and force it to 0 if not
-		for (auto pair : indexes)
+		for (auto pair : indices)
 		{
 			if (pair.second == index)
 				return index;
 		}
+
 		return 0;
 	}
 
@@ -86,13 +86,13 @@ namespace
 		void ApplyData(int playerIndex, PlayerProperties *properties, const PlayerCustomization &data) override
 		{
 			auto armorSessionData = &properties->Customization;
-			armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndexes, data.Armor[ArmorIndices::Helmet]);
-			armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndexes, data.Armor[ArmorIndices::Chest]);
-			armorSessionData->Armor[ArmorIndices::Shoulders] = ValidateArmorPiece(shouldersIndexes, data.Armor[ArmorIndices::Shoulders]);
-			armorSessionData->Armor[ArmorIndices::Arms] = ValidateArmorPiece(armsIndexes, data.Armor[ArmorIndices::Arms]);
-			armorSessionData->Armor[ArmorIndices::Legs] = ValidateArmorPiece(legsIndexes, data.Armor[ArmorIndices::Legs]);
-			armorSessionData->Armor[ArmorIndices::Acc] = ValidateArmorPiece(accIndexes, data.Armor[ArmorIndices::Acc]);
-			armorSessionData->Armor[ArmorIndices::Pelvis] = ValidateArmorPiece(pelvisIndexes, data.Armor[ArmorIndices::Pelvis]);
+			armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndices, data.Armor[ArmorIndices::Helmet]);
+			armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndices, data.Armor[ArmorIndices::Chest]);
+			armorSessionData->Armor[ArmorIndices::Shoulders] = ValidateArmorPiece(shouldersIndices, data.Armor[ArmorIndices::Shoulders]);
+			armorSessionData->Armor[ArmorIndices::Arms] = ValidateArmorPiece(armsIndices, data.Armor[ArmorIndices::Arms]);
+			armorSessionData->Armor[ArmorIndices::Legs] = ValidateArmorPiece(legsIndices, data.Armor[ArmorIndices::Legs]);
+			armorSessionData->Armor[ArmorIndices::Acc] = ValidateArmorPiece(accIndices, data.Armor[ArmorIndices::Acc]);
+			armorSessionData->Armor[ArmorIndices::Pelvis] = ValidateArmorPiece(pelvisIndices, data.Armor[ArmorIndices::Pelvis]);
 			memcpy(armorSessionData->Colors, data.Colors, sizeof(data.Colors));
 		}
 
@@ -151,6 +151,23 @@ namespace Patches
 			updateUiPlayerArmor = true;
 		}
 
+		void AddArmorPermutations(const Blam::Tags::Game::MultiplayerGlobals::Universal::ArmorCustomization &element, std::map<std::string, uint8_t> &map)
+		{
+			for (auto i = 0; i < element.Permutations.Count; i++)
+			{
+				auto &perm = element.Permutations[i];
+
+				if (!perm.FirstPersonArmorModel && !perm.ThirdPersonArmorObject)
+				{
+					continue;
+				}
+
+				auto permName = std::string(Blam::Cache::StringIDCache::Instance.GetString(perm.Name));
+
+				map.emplace(permName, i);
+			}
+		}
+
 		void ApplyAfterTagsLoaded()
 		{
 			using Blam::Tags::TagInstance;
@@ -160,7 +177,45 @@ namespace Patches
 			auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
 			auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
 
-			for (auto &element : mulg->Universal[0].GameVariantWeapons)
+			for (auto &element : mulg->Universal->SpartanArmorCustomization)
+			{
+				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.PieceRegion));
+
+				if (string == "helmet")
+				{
+					AddArmorPermutations(element, helmetIndices);
+				}
+				else if (string == "chest")
+				{
+					AddArmorPermutations(element, chestIndices);
+				}
+				else if (string == "shoulders")
+				{
+					AddArmorPermutations(element, shouldersIndices);
+				}
+				else if (string == "arms")
+				{
+					AddArmorPermutations(element, armsIndices);
+				}
+				else if (string == "legs")
+				{
+					AddArmorPermutations(element, legsIndices);
+				}
+				else if (string == "acc")
+				{
+					AddArmorPermutations(element, accIndices);
+				}
+				else if (string == "pelvis")
+				{
+					AddArmorPermutations(element, pelvisIndices);
+				}
+				else
+				{
+					throw std::exception("Invalid armor section");
+				}
+			}
+
+			for (auto &element : mulg->Universal->GameVariantWeapons)
 			{
 				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
 				auto index = (uint16_t)element.Weapon.TagIndex;
@@ -274,176 +329,4 @@ namespace
 		if (scoreboardBiped != 0xFFFFFFFF)
 			CustomizeBiped(scoreboardBiped);
 	}
-}
-
-namespace
-{
-	std::unordered_map<std::string, uint8_t> helmetIndexes = {
-		{ "base", 0 },
-		{ "stealth", 2 },
-		{ "air_assault", 3 },
-		{ "renegade", 12 },
-		{ "nihard", 13 },
-		{ "gladiator", 16 },
-		{ "mac", 17 },
-		{ "shark", 18 },
-		{ "juggernaut", 20 },
-		{ "dutch", 23 },
-		{ "chameleon", 27 },
-		{ "halberd", 29 },
-		{ "cyclops", 30 },
-		{ "scanner", 34 },
-		{ "mercenary", 36 },
-		{ "hoplite", 41 },
-		{ "ballista", 47 },
-		{ "strider", 54 },
-		{ "demo", 56 },
-		{ "orbital", 57 },
-		{ "spectrum", 58 },
-		{ "gungnir", 63 },
-		{ "hammerhead", 67 },
-		{ "omni", 68 },
-		{ "oracle", 69 },
-		{ "silverback", 79 },
-		{ "widow_maker", 80 },
-	};
-
-	std::unordered_map<std::string, uint8_t> chestIndexes = {
-		{ "base", 0 },
-		{ "stealth", 2 },
-		{ "air_assault", 3 },
-		{ "renegade", 12 },
-		{ "nihard", 13 },
-		{ "gladiator", 16 },
-		{ "mac", 17 },
-		{ "shark", 18 },
-		{ "juggernaut", 20 },
-		{ "dutch", 23 },
-		{ "chameleon", 27 },
-		{ "halberd", 29 },
-		{ "cyclops", 30 },
-		{ "scanner", 34 },
-		{ "mercenary", 36 },
-		{ "hoplite", 41 },
-		{ "ballista", 47 },
-		{ "strider", 54 },
-		{ "demo", 56 },
-		{ "spectrum", 57 },
-		{ "gungnir", 62 },
-		{ "orbital", 63 },
-		{ "hammerhead", 67 },
-		{ "omni", 68 },
-		{ "oracle", 69 },
-		{ "silverback", 79 },
-		{ "widow_maker", 80 },
-		{ "tankmode_human", 82 },
-	};
-
-	std::unordered_map<std::string, uint8_t> shouldersIndexes = {
-		{ "base", 0 },
-		{ "stealth", 2 },
-		{ "air_assault", 3 },
-		{ "renegade", 12 },
-		{ "nihard", 13 },
-		{ "gladiator", 16 },
-		{ "mac", 17 },
-		{ "shark", 18 },
-		{ "juggernaut", 20 },
-		{ "dutch", 23 },
-		{ "chameleon", 27 },
-		{ "halberd", 29 },
-		{ "cyclops", 30 },
-		{ "scanner", 34 },
-		{ "mercenary", 36 },
-		{ "hoplite", 41 },
-		{ "ballista", 47 },
-		{ "strider", 54 },
-		{ "demo", 56 },
-		{ "spectrum", 57 },
-		{ "gungnir", 61 },
-		{ "orbital", 62 },
-		{ "hammerhead", 67 },
-		{ "omni", 68 },
-		{ "oracle", 69 },
-		{ "silverback", 79 },
-		{ "widow_maker", 80 },
-		{ "tankmode_human", 82 },
-	};
-
-	std::unordered_map<std::string, uint8_t> armsIndexes = {
-		{ "base", 0 },
-		{ "stealth", 1 },
-		{ "renegade", 6 },
-		{ "nihard", 7 },
-		{ "gladiator", 10 },
-		{ "mac", 11 },
-		{ "shark", 12 },
-		{ "juggernaut", 14 },
-		{ "dutch", 17 },
-		{ "chameleon", 21 },
-		{ "scanner", 25 },
-		{ "mercenary", 26 },
-		{ "hoplite", 29 },
-		{ "ballista", 30 },
-		{ "strider", 33 },
-		{ "demo", 34 },
-		{ "spectrum", 35 },
-		{ "gungnir", 38 },
-		{ "orbital", 39 },
-		{ "oracle", 41 },
-		{ "widow_maker", 43 },
-		{ "tankmode_human", 44 },
-		{ "air_assault", 45 },
-		{ "hammerhead", 46 },
-		{ "omni", 47 },
-		{ "silverback", 48 },
-		{ "cyclops", 49 },
-		{ "halberd", 50 },
-	};
-
-	std::unordered_map<std::string, uint8_t> legsIndexes = {
-		{ "base", 0 },
-		{ "stealth", 1 },
-		{ "renegade", 5 },
-		{ "nihard", 6 },
-		{ "gladiator", 9 },
-		{ "mac", 10 },
-		{ "shark", 11 },
-		{ "juggernaut", 13 },
-		{ "dutch", 16 },
-		{ "chameleon", 20 },
-		{ "scanner", 24 },
-		{ "mercenary", 25 },
-		{ "hoplite", 29 },
-		{ "ballista", 30 },
-		{ "strider", 33 },
-		{ "spectrum", 34 },
-		{ "oracle", 37 },
-		{ "widow_maker", 39 },
-		{ "tankmode_human", 40 },
-		{ "gungnir", 41 },
-		{ "orbital", 42 },
-		{ "demo", 43 },
-		{ "air_assault", 44 },
-		{ "hammerhead", 45 },
-		{ "omni", 46 },
-		{ "silverback", 47 },
-		{ "cyclops", 48 },
-		{ "halberd", 49 },
-		{ "hammerhead", 50 },
-		{ "omni", 51 },
-		{ "silverback", 52 },
-	};
-
-	std::unordered_map<std::string, uint8_t> accIndexes = {
-	};
-
-	std::unordered_map<std::string, uint8_t> pelvisIndexes = {
-		{ "base", 0 },
-		{ "tankmode_human", 4 },
-	};
-
-	std::map<std::string, uint16_t> weaponIndices = {
-
-	};
 }

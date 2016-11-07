@@ -23,6 +23,11 @@ namespace Blam
 			{
 			}
 
+			inline Element *operator->() const
+			{
+				return Elements;
+			}
+
 			inline Element &operator[](const size_t index) const
 			{
 				return Elements[index];
@@ -30,7 +35,7 @@ namespace Blam
 
 			inline Element *begin() const
 			{
-				return &Elements[0];
+				return Elements;
 			}
 
 			inline Element *end() const
