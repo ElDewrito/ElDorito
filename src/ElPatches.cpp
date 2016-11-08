@@ -79,6 +79,7 @@ namespace Patches
 		Armor::ApplyAfterTagsLoaded();
 		Armor::RefreshUiPlayer();
 		Ui::ApplyUIResolution();
+		Ui::ApplyAfterTagsLoaded();
 	}
 
 	void Tick()
