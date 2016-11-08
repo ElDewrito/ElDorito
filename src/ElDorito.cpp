@@ -118,7 +118,6 @@ void ElDorito::Initialize()
 	//This should be removed when we can save binds
 	Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
 
-	bool usingLauncher = Modules::ModuleGame::Instance().VarSkipLauncher->ValueInt == 1;
 	mapsFolder = "maps\\";
 
 	skipTitleSplash = Modules::ModuleGame::Instance().VarSkipTitleSplash->ValueInt == 1;
@@ -133,9 +132,6 @@ void ElDorito::Initialize()
 			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
 				continue;
 
-			if (arg.compare(L"-launcher") == 0)
-				usingLauncher = true;
-
 			if (arg.compare(L"-headless") == 0)
 			{
 				isDedicated = true;
@@ -145,7 +141,6 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-dedicated") == 0)
 			{
 				isDedicated = true;
-				usingLauncher = true;
 			}
 
 			if (arg.compare(L"-maps") == 0 && i < numArgs - 1)
@@ -230,14 +225,6 @@ void ElDorito::Initialize()
 	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
 
 	setWatermarkText("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
-
-#ifndef _DEBUG
-	if (!usingLauncher) // force release builds to use launcher, simple check so its easy to get around if needed
-	{
-		MessageBox(GetConsoleWindow(), "Please run Halo Online using the ElDewrito launcher.\nIt should be named DewritoUpdater.exe.", "ElDewrito", MB_OK | MB_ICONINFORMATION);
-		TerminateProcess(GetCurrentProcess(), 0);
-	}
-#endif
 
 	// Ensure a ban list file exists
 	Server::SaveDefaultBanList(Server::LoadDefaultBanList());

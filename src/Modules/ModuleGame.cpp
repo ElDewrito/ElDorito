@@ -791,10 +791,6 @@ namespace Modules
 		VarLanguageID->ValueIntMin = 0;
 		VarLanguageID->ValueIntMax = 11;
 
-		VarSkipLauncher = AddVariableInt("SkipLauncher", "launcher", "Skip requiring the launcher", eCommandFlagsArchived, 0);
-		VarSkipLauncher->ValueIntMin = 0;
-		VarSkipLauncher->ValueIntMax = 1;
-
 		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
 		VarSkipTitleSplash->ValueIntMin = 0;
 		VarSkipTitleSplash->ValueIntMax = 1;
