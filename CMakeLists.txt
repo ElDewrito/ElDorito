@@ -192,6 +192,8 @@ add_library(ElDorito SHARED
     src/Modules/ModuleGraphics.hpp
     src/Modules/ModuleUPnP.cpp
     src/Modules/ModuleUPnP.hpp
+    src/Modules/ModuleWeb.cpp
+    src/Modules/ModuleWeb.hpp
     src/Patches/Armor.cpp
     src/Patches/Armor.hpp
     src/Patches/Assassination.cpp
