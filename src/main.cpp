@@ -122,6 +122,8 @@ bool relaunch = false;
 
 BOOL InitInstance(HINSTANCE hModule)
 {
+	//Disable Windows DPI scaling
+	SetProcessDPIAware();
 	//Check for read/write priveledges in the current directory
 	if (!CanAccessFolder(".", GENERIC_READ | GENERIC_WRITE))
 	{
