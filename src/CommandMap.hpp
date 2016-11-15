@@ -24,7 +24,8 @@ enum CommandFlags
 	eCommandFlagsRunOnMainMenu     = 1 << 5, // if run at startup queue the command until the main menu is shown
 	eCommandFlagsHostOnly          = 1 << 6, // only execute the command if the user is host
 	eCommandFlagsOmitValueInList   = 1 << 7, // omit the variables value in help listing
-	eCommandFlagsInternal          = 1 << 8  // disallow the user from using this command, only internal ExecuteCommand calls can use it
+	eCommandFlagsInternal          = 1 << 8,  // disallow the user from using this command, only internal ExecuteCommand calls can use it
+	eCommandFlagsArgsNoParse       = 1 << 9  // arguments are not parsed and full string after command reside in arguments[0]
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);

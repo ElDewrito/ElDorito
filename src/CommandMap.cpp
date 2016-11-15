@@ -150,6 +150,14 @@ namespace Modules
 			for (int i = 1; i < numArgs; i++)
 				argsVect.push_back(args[i]);
 
+		if (cmd->Type == eCommandTypeCommand && cmd->Flags == eCommandFlagsArgsNoParse)
+		{
+			argsVect.clear();
+			if (numArgs >= 2)
+				argsVect.push_back(command.substr(std::strlen(args[0]) + 1)); //push unparsed arguments after the command
+			return cmd->UpdateEvent(argsVect, *output);
+		}
+
 		if (cmd->Type == eCommandTypeCommand)
 			return cmd->UpdateEvent(argsVect, *output); // if it's a command call it and return
 
