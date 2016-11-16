@@ -14,7 +14,6 @@
 #include "Modules/ModuleGraphics.hpp"
 #include "Modules/ModuleUPnP.hpp"
 #include "Modules/ModuleDebug.hpp"
-#include "Modules/ModuleWeb.hpp"
 
 namespace
 {
@@ -114,7 +113,6 @@ namespace Modules
 		ModuleGraphics::Instance();
 		ModuleUPnP::Instance();
 		ModuleDebug::Instance();
-		ModuleWeb::Instance();
 
 		AddCommand("Help", "help", "Displays this help text", eCommandFlagsNone, CommandHelp);
 		AddCommand("Execute", "exec", "Executes a list of commands", eCommandFlagsNone, CommandExecute, { "filename(string) The list of commands to execute" });

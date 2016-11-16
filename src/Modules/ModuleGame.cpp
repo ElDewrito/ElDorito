@@ -17,6 +17,10 @@
 #include "../Patch.hpp"
 #include "boost/filesystem.hpp"
 #include "../Utils/Logger.hpp"
+#include "../ThirdParty/rapidjson/rapidjson.h"
+#include "../ThirdParty/rapidjson/document.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../ThirdParty/rapidjson/writer.h"
 
 namespace
 {
@@ -737,6 +741,36 @@ namespace
 		return true;
 	}
 
+	bool CommandShowScreen(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		if (arguments.size() == 0)
+		{
+			returnInfo = "Usage: Game.ShowScreen <screen name> <opt json>";
+			return false;
+		}
+		if (arguments[0].find(" ") == std::string::npos)
+		{
+			Web::Ui::ScreenLayer::Show(arguments[0], "{}");
+			return true;
+		}
+
+		int pos = arguments[0].find(" ") + 1;
+		std::string jsonArg = arguments[0].substr(pos);
+		rapidjson::Document doc;
+		doc.Parse(jsonArg.c_str());
+		if (doc.HasParseError())
+		{
+			returnInfo = "The passed json argument was invalid: " + jsonArg;
+			return false;
+		}
+		rapidjson::StringBuffer buff;
+		buff.Clear();
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buff);
+		doc.Accept(writer);
+		Web::Ui::ScreenLayer::Show(arguments[0].substr(0, pos - 1), buff.GetString());
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -784,6 +818,8 @@ namespace Modules
 		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
 
 		AddCommand("ListMaps", "maps", "List all available map files", eCommandFlagsNone, CommandListMaps);
+
+		AddCommand("ShowScreen", "showscreen", "Displays the specified screen", eCommandFlagsArgsNoParse, CommandShowScreen);
 		
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
