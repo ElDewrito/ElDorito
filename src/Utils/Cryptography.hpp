@@ -12,5 +12,6 @@ namespace Utils
 		bool VerifyRSASignature(std::string pubKey, std::string signature, void* data, size_t dataSize);
 		bool GenerateRSAKeyPair(int numBits, std::string& privKey, std::string& pubKey);
 		bool Hash32(const std::string& str, uint32_t *out);
+		bool RandomBytes(int num, uint8_t *out);
 	}
 }

@@ -1099,6 +1099,8 @@ namespace Modules
 		VarServerAutoHost->ValueIntMin = 0;
 		VarServerAutoHost->ValueIntMax = 1;
 
+		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
+
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG
 		// Synchronization system testing
