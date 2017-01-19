@@ -41,5 +41,10 @@
         "list": "http://eldewrito.red-m.net/list",
         "announce": "http://eldewrito.red-m.net/announce",
         "stats": "http://eldewrito.red-m.net/stats"
-    }]
+    }, {
+        "list": "https://dev.fractalcore.net/edms/list",
+        "announce": "https://dev.fractalcore.net/edms/announce",
+        "stats":"https://dev.fractalcore.net/edms/stats"
+    }
+ ]
 }
