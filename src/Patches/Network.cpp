@@ -5,6 +5,7 @@
 #include <WS2tcpip.h>
 #include <cstdio>
 #include <ctime>
+#include <fstream>
 
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
@@ -225,6 +226,15 @@ namespace Patches
 						writer.String(status.c_str());
 						writer.Key("numPlayers");
 						writer.Int(GetNumPlayers());
+						
+						std::ifstream file("fmmRequired.dat");
+						std::string temp;
+
+						writer.Key("mods");
+						writer.StartArray();
+						while (std::getline(file, temp))
+							writer.String(temp.c_str());
+						writer.EndArray();
 
 						// TODO: find how to get actual max players from the game, since our variable might be wrong
 						writer.Key("maxPlayers");
