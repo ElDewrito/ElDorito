@@ -14,7 +14,6 @@
 #include "Web/Ui/WebChat.hpp"
 #include "Web/Ui/WebConsole.hpp"
 #include "Web/Ui/WebLoadingScreen.hpp"
-#include "Web/Ui/WebScoreboard.hpp"
 #include "Web/Ui/VotingScreen.hpp"
 #include "Web/Ui/MpEventDispatcher.hpp"
 #include "ElModules.hpp"
@@ -207,7 +206,6 @@ void ElDorito::Initialize()
 		Web::Ui::WebChat::Init();
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
-		Web::Ui::WebScoreboard::Init();
 		Web::Ui::Voting::Init();
 
 		if (connectToServer)
@@ -247,10 +245,7 @@ void ElDorito::Tick()
 	Server::Chat::Tick();
 	Patches::Tick();
 	if (!isDedicated)
-	{
 		Web::Ui::ScreenLayer::Tick();
-		Web::Ui::WebScoreboard::Tick();
-	}
 	else
 		Server::DedicatedServer::Tick();
 

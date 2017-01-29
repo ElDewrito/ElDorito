@@ -295,8 +295,6 @@ add_library(ElDorito SHARED
     src/Web/Ui/WebChat.hpp
     src/Web/Ui/WebLoadingScreen.cpp
     src/Web/Ui/WebLoadingScreen.hpp
-    src/Web/Ui/WebScoreboard.cpp
-    src/Web/Ui/WebScoreboard.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
     src/Web/WebRendererApp.cpp
@@ -381,8 +379,6 @@ set (WEB_SOURCES
     web/screens/medals/index.html
     web/screens/medals/medals.css
     web/screens/medals/medals.js
-    web/screens/scoreboard/index.html
-    web/screens/scoreboard/scoreboard.js
     web/screens/title/images/cloud_back.png
     web/screens/title/images/cloud_front.png
     web/screens/title/images/EldoritoLogoFinalSmall.png

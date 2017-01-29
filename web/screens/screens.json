@@ -38,12 +38,6 @@
 			"zIndex": 0
 		},
 		{
-			"id": "scoreboard",
-			"url": "dew://screens/scoreboard/",
-			"captureInput": false,
-			"zIndex": 1
-		},
-		{
 			"id": "title",
 			"url": "dew://screens/title/",
 			"captureInput": true,
