@@ -801,6 +801,10 @@ namespace Modules
 
 		VarMedalPack = AddVariableString("MedalPack", "medals", "The name of the medal pack to use", eCommandFlagsArchived, "default");
 
+		VarFirstRun = AddVariableInt("FirstRun", "first_run", "Show the first run setup next time the game starts", eCommandFlagsArchived, 1);
+		VarFirstRun->ValueIntMin = 0;
+		VarFirstRun->ValueIntMax = 1;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

@@ -13,6 +13,7 @@ namespace Modules
 		Command* VarMenuURL;
 		Command* VarRconPort;
 		Command* VarMedalPack;
+		Command* VarFirstRun;
 
 		int DebugFlags;
 
