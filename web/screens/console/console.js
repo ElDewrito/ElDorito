@@ -613,6 +613,8 @@ $(window).load(function () {
         .draggable({ handle: ".titlebar", containment: "body", snap: "body", snapMode: "inner", snapTolerance: 10, disabled: true })
         .resizable({ containment: "body", minWidth: 400, minHeight: 300, handles: "n, e, s, w, se", disabled: true });
 
+    dockConsole(1, true); // HACK: Fix default positioning of the console
+
     $(document).keydown(function (e) {
         if (e.keyCode === 27) {
             // Hide when escape is pressed
