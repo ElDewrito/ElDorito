@@ -20,10 +20,6 @@
 #include "Patches\LoadingScreen.hpp"
 #include "Patches\Memory.hpp"
 #include "DirectXHook.hpp"
-#include "Blam\Cache\StringIdCache.hpp"
-#include "Blam\Tags\TagInstance.hpp"
-#include "Blam\Tags\Game\Globals.hpp"
-#include "Blam\Tags\Game\MultiplayerGlobals.hpp"
 
 namespace
 {
@@ -71,7 +67,6 @@ namespace Patches
 	void ApplyOnFirstTick()
 	{
 		Ui::ApplyMapNameFixes();
-		Network::StartRemoteConsole();
 	}
 
 	void ApplyAfterTagsLoaded()

@@ -3,8 +3,7 @@
 #include <functional>
 #include "../Blam/BlamNetwork.hpp"
 
-#define WM_RCON WM_USER + 1337
-#define WM_INFOSERVER WM_RCON + 1
+#define WM_INFOSERVER WM_USER + 1337
 
 namespace Patches
 {
@@ -13,8 +12,6 @@ namespace Patches
 		void ApplyAll();
 		void ForceDedicated();
 		void ForceHeadless();
-
-		bool StartRemoteConsole();
 
 		bool StartInfoServer();
 		bool StopInfoServer();

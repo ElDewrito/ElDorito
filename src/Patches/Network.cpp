@@ -62,10 +62,7 @@ namespace Patches
 {
 	namespace Network
 	{
-		SOCKET rconSocket;
 		SOCKET infoSocket;
-		bool rconSocketOpen = false;
-		bool rconAuthenticated = false;
 		bool infoSocketOpen = false;
 		time_t lastAnnounce = 0;
 		const time_t serverContactTimeLimit = 30 + (2 * 60);
@@ -101,7 +98,7 @@ namespace Patches
 				}
 			}
 
-			if (msg != WM_RCON && msg != WM_INFOSERVER)
+			if (msg != WM_INFOSERVER)
 			{
 				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
@@ -116,235 +113,189 @@ namespace Patches
 
 			SOCKET clientSocket;
 			int inDataLength;
-			char inDataBuffer[1024];
-			bool isValidAscii = true;
+			char inDataBuffer[4096];
 
 			switch (WSAGETSELECTEVENT(lParam))
 			{
 			case FD_ACCEPT:
-				// accept the connection and send our motd
 				clientSocket = accept(wParam, NULL, NULL);
 				WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
-				if (msg == WM_RCON)
-				{
-					std::string motd = "ElDewrito " + Utils::Version::GetVersionString() + " Remote Console\r\n";
-					send(clientSocket, motd.c_str(), motd.length(), 0);
-				}
 				break;
 			case FD_READ:
 				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
 				inDataLength = recv((SOCKET)wParam, (char*)inDataBuffer, sizeof(inDataBuffer) / sizeof(inDataBuffer[0]), 0);
 
-				// check if text is proper ascii, because sometimes it's not
-				for (int i = 0; i < inDataLength; i++)
+				if (msg == WM_INFOSERVER)
 				{
-					char buf = inDataBuffer[i];
-					if ((buf < 0x20 || buf > 0x7F) && buf != 0xD && buf != 0xA)
+					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+					std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
+					std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+					std::string xnkid;
+					std::string xnaddr;
+					std::string gameVersion((char*)Pointer(0x199C0F0));
+					std::string status = "InGame";
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+					Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+					uint32_t gameMode = gameModePtr.Read<uint32_t>();
+					int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+					if (gameMode == 3)
 					{
-						isValidAscii = false;
-						break;
+						if (mapName == "mainmenu")
+						{
+							status = "InLobby";
+							// on mainmenu so we'll have to read other data
+							mapName = std::string((char*)Pointer(0x19A5E49));
+							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantType = Pointer(0x179250).Read<uint32_t>();
+						}
+						else // TODO: find how to get the variant name/type while it's on the loading screen
+							status = "Loading";
 					}
-				}
 
-				if (isValidAscii)
-				{
-					if (msg == WM_RCON)
-					{
-						if (!rconAuthenticated)
-						{
-							if (std::string(inDataBuffer) == Modules::ModuleServer::Instance().VarRconPassword->ValueString)
-							{
-								rconAuthenticated = true;
-								break;
-							}
-							else
-							{
-								closesocket((SOCKET)wParam);
-								rconAuthenticated = false;
-								break;
-							}
-						}
-						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer, true);
-						if (ret.length() > 0)
-						{
-							Utils::String::ReplaceString(ret, "\n", "\r\n");
-							ret = ret + "\r\n";
-							send((SOCKET)wParam, ret.c_str(), ret.length(), 0);
-						}
+					rapidjson::StringBuffer s;
+					rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+					writer.StartObject();
+					writer.Key("name");
+					writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+					writer.Key("port");
+					writer.Int(Pointer(0x1860454).Read<uint32_t>());
+					writer.Key("hostPlayer");
+					writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+					writer.Key("sprintEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
+					writer.Key("sprintUnlimitedEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+					writer.Key("dualWielding");
+					writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
+					writer.Key("assassinationEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
+					writer.Key("VoIP");
+					writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
+
+					auto session = Blam::Network::GetActiveSession();
+					if (session && session->IsEstablished()){
+						writer.Key("teams");
+						writer.Bool(session->HasTeams());
 					}
-					else if (msg == WM_INFOSERVER)
+					writer.Key("map");
+					writer.String(Utils::String::ThinString(mapVariantName).c_str());
+					writer.Key("mapFile");
+					writer.String(mapName.c_str());
+					writer.Key("variant");
+					writer.String(Utils::String::ThinString(variantName).c_str());
+					if (variantType >= 0 && variantType < Blam::GameTypeCount)
 					{
-						std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-						std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
-						std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
-						std::string xnkid;
-						std::string xnaddr;
-						std::string gameVersion((char*)Pointer(0x199C0F0));
-						std::string status = "InGame";
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-						Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
-
-						Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
-						uint32_t gameMode = gameModePtr.Read<uint32_t>();
-						int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
-						if (gameMode == 3)
-						{
-							if (mapName == "mainmenu")
-							{
-								status = "InLobby";
-								// on mainmenu so we'll have to read other data
-								mapName = std::string((char*)Pointer(0x19A5E49));
-								variantName = std::wstring((wchar_t*)Pointer(0x179254));
-								variantType = Pointer(0x179250).Read<uint32_t>();
-							}
-							else // TODO: find how to get the variant name/type while it's on the loading screen
-								status = "Loading";
-						}
-
-						rapidjson::StringBuffer s;
-						rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-						writer.StartObject();
-						writer.Key("name");
-						writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
-						writer.Key("port");
-						writer.Int(Pointer(0x1860454).Read<uint32_t>());
-						writer.Key("hostPlayer");
-						writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
-						writer.Key("sprintEnabled");
-						writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
-						writer.Key("sprintUnlimitedEnabled");
-						writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
-						writer.Key("dualWielding");
-						writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
-						writer.Key("assassinationEnabled");
-						writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
-						writer.Key("VoIP");
-						writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
-
-						auto session = Blam::Network::GetActiveSession();
-						if (session && session->IsEstablished()){
-							writer.Key("teams");
-							writer.Bool(session->HasTeams());
-						}
-						writer.Key("map");
-						writer.String(Utils::String::ThinString(mapVariantName).c_str());
-						writer.Key("mapFile");
-						writer.String(mapName.c_str());
-						writer.Key("variant");
-						writer.String(Utils::String::ThinString(variantName).c_str());
-						if (variantType >= 0 && variantType < Blam::GameTypeCount)
-						{
-							writer.Key("variantType");
-							writer.String(Blam::GameTypeNames[variantType].c_str());
-						}
-						writer.Key("status");
-						writer.String(status.c_str());
-						writer.Key("numPlayers");
-						writer.Int(GetNumPlayers());
+						writer.Key("variantType");
+						writer.String(Blam::GameTypeNames[variantType].c_str());
+					}
+					writer.Key("status");
+					writer.String(status.c_str());
+					writer.Key("numPlayers");
+					writer.Int(GetNumPlayers());
 						
-						std::ifstream file("fmmRequired.dat");
-						std::string temp;
+					std::ifstream file("fmmRequired.dat");
+					std::string temp;
 
-						writer.Key("mods");
-						writer.StartArray();
-						while (std::getline(file, temp))
-							writer.String(temp.c_str());
-						writer.EndArray();
+					writer.Key("mods");
+					writer.StartArray();
+					while (std::getline(file, temp))
+						writer.String(temp.c_str());
+					writer.EndArray();
 
-						// TODO: find how to get actual max players from the game, since our variable might be wrong
-						writer.Key("maxPlayers");
-						writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+					// TODO: find how to get actual max players from the game, since our variable might be wrong
+					writer.Key("maxPlayers");
+					writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
 
-						bool authenticated = true;
-						if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
-						{
-							std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
-							authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
-							authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
-						}
-
-						if(authenticated)
-						{
-							writer.Key("xnkid");
-							writer.String(xnkid.c_str());
-							writer.Key("xnaddr");
-							writer.String(xnaddr.c_str());
-							writer.Key("players");
-
-							writer.StartArray();
-							uint32_t playerScoresBase = 0x23F1724;
-							//uint32_t playerInfoBase = 0x2162DD0;
-							uint32_t playerInfoBase = 0x2162E08;
-							uint32_t menuPlayerInfoBase = 0x1863B58;
-							uint32_t playerStatusBase = 0x2161808;
-							for (int i = 0; i < 16; i++)
-							{
-								uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
-								uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
-								uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
-								uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
-
-								wchar_t* name = Pointer(playerInfoBase + (5696 * i));
-								std::string nameStr = Utils::String::ThinString(name);
-
-								wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
-								std::string menuNameStr = Utils::String::ThinString(menuName);
-
-								uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
-								uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
-								uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
-
-								uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
-
-								uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
-								std::string uidStr;
-								Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
-
-								if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
-									continue;
-
-								writer.StartObject();
-								writer.Key("name");
-								writer.String(menuNameStr.c_str());
-								writer.Key("score");
-								writer.Int(score);
-								writer.Key("kills");
-								writer.Int(kills);
-								writer.Key("assists");
-								writer.Int(assists);
-								writer.Key("deaths");
-								writer.Int(deaths);
-								writer.Key("team");
-								writer.Int(team);
-								writer.Key("isAlive");
-								writer.Bool(alive == 1);
-								writer.Key("uid");
-								writer.String(uidStr.c_str());
-								writer.EndObject();
-							}
-							writer.EndArray();
-						}
-						else
-						{
-							writer.Key("passworded");
-							writer.Bool(true);
-						}
-
-						writer.Key("gameVersion");
-						writer.String(gameVersion.c_str());
-						writer.Key("eldewritoVersion");
-						writer.String(Utils::Version::GetVersionString().c_str());
-						writer.EndObject();
-
-						std::string replyData = s.GetString();
-						std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
-						send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
+					bool authenticated = true;
+					if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+					{
+						std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+						authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+						authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
 					}
+
+					if(authenticated)
+					{
+						writer.Key("xnkid");
+						writer.String(xnkid.c_str());
+						writer.Key("xnaddr");
+						writer.String(xnaddr.c_str());
+						writer.Key("players");
+
+						writer.StartArray();
+						uint32_t playerScoresBase = 0x23F1724;
+						//uint32_t playerInfoBase = 0x2162DD0;
+						uint32_t playerInfoBase = 0x2162E08;
+						uint32_t menuPlayerInfoBase = 0x1863B58;
+						uint32_t playerStatusBase = 0x2161808;
+						for (int i = 0; i < 16; i++)
+						{
+							uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
+							uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
+							uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
+							uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
+
+							wchar_t* name = Pointer(playerInfoBase + (5696 * i));
+							std::string nameStr = Utils::String::ThinString(name);
+
+							wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
+							std::string menuNameStr = Utils::String::ThinString(menuName);
+
+							uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
+							uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
+							uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
+
+							uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
+
+							uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
+							std::string uidStr;
+							Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
+
+							if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
+								continue;
+
+							writer.StartObject();
+							writer.Key("name");
+							writer.String(menuNameStr.c_str());
+							writer.Key("score");
+							writer.Int(score);
+							writer.Key("kills");
+							writer.Int(kills);
+							writer.Key("assists");
+							writer.Int(assists);
+							writer.Key("deaths");
+							writer.Int(deaths);
+							writer.Key("team");
+							writer.Int(team);
+							writer.Key("isAlive");
+							writer.Bool(alive == 1);
+							writer.Key("uid");
+							writer.String(uidStr.c_str());
+							writer.EndObject();
+						}
+						writer.EndArray();
+					}
+					else
+					{
+						writer.Key("passworded");
+						writer.Bool(true);
+					}
+
+					writer.Key("gameVersion");
+					writer.String(gameVersion.c_str());
+					writer.Key("eldewritoVersion");
+					writer.String(Utils::Version::GetVersionString().c_str());
+					writer.EndObject();
+
+					std::string replyData = s.GetString();
+					std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+					send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 				}
 
 				break;
 			case FD_CLOSE:
-				rconAuthenticated = false;
 				closesocket((SOCKET)wParam);
 				break;
 			}
@@ -484,46 +435,6 @@ namespace Patches
 			Patch(0x62E636, { 0x33, 0xFF }).Apply();
 			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
 			Hook(0x66E982, GetTextureDimensionsHook).Apply();
-		}
-
-		bool StartRemoteConsole()
-		{
-			if (Modules::ModuleServer::Instance().VarRconPassword->ValueString.length() == 0)
-			{
-				uint8_t num[16];
-				Utils::Cryptography::RandomBytes(16, num);
-				std::string ss;
-				for (uint8_t b : num)
-				{
-					while (((byte)b < 0x20 || (byte)b > 0x7F) && (byte)b != 0xD && (byte)b != 0xA && (byte)b != 0x10 && (byte)b != 0x13)
-					{
-						Utils::Cryptography::RandomBytes(1, &b);
-					}
-					ss += (byte)b;
-				}
-				Modules::ModuleServer::Instance().VarRconPassword->ValueString = ss;
-				Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
-			}
-			if (rconSocketOpen)
-				return true;
-
-			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
-			if (hwnd == 0)
-				return false;
-
-			rconSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			SOCKADDR_IN bindAddr;
-			bindAddr.sin_family = AF_INET;
-			bindAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-			bindAddr.sin_port = htons(2448);
-
-			// open our listener socket
-			bind(rconSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr));
-			WSAAsyncSelect(rconSocket, hwnd, WM_RCON, FD_ACCEPT | FD_CLOSE);
-			listen(rconSocket, 5);
-			rconSocketOpen = true;
-
-			return true;
 		}
 
 		bool StartInfoServer()
