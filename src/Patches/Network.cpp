@@ -65,6 +65,7 @@ namespace Patches
 		SOCKET rconSocket;
 		SOCKET infoSocket;
 		bool rconSocketOpen = false;
+		bool rconAuthenticated = false;
 		bool infoSocketOpen = false;
 		time_t lastAnnounce = 0;
 		const time_t serverContactTimeLimit = 30 + (2 * 60);
@@ -149,6 +150,20 @@ namespace Patches
 				{
 					if (msg == WM_RCON)
 					{
+						if (!rconAuthenticated)
+						{
+							if (std::string(inDataBuffer) == Modules::ModuleServer::Instance().VarRconPassword->ValueString)
+							{
+								rconAuthenticated = true;
+								break;
+							}
+							else
+							{
+								closesocket((SOCKET)wParam);
+								rconAuthenticated = false;
+								break;
+							}
+						}
 						auto ret = Modules::CommandMap::Instance().ExecuteCommand(inDataBuffer, true);
 						if (ret.length() > 0)
 						{
@@ -329,6 +344,7 @@ namespace Patches
 
 				break;
 			case FD_CLOSE:
+				rconAuthenticated = false;
 				closesocket((SOCKET)wParam);
 				break;
 			}
@@ -472,6 +488,22 @@ namespace Patches
 
 		bool StartRemoteConsole()
 		{
+			if (Modules::ModuleServer::Instance().VarRconPassword->ValueString.length() == 0)
+			{
+				uint8_t num[16];
+				Utils::Cryptography::RandomBytes(16, num);
+				std::string ss;
+				for (uint8_t b : num)
+				{
+					while (((byte)b < 0x20 || (byte)b > 0x7F) && (byte)b != 0xD && (byte)b != 0xA && (byte)b != 0x10 && (byte)b != 0x13)
+					{
+						Utils::Cryptography::RandomBytes(1, &b);
+					}
+					ss += (byte)b;
+				}
+				Modules::ModuleServer::Instance().VarRconPassword->ValueString = ss;
+				Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
+			}
 			if (rconSocketOpen)
 				return true;
 

@@ -5,6 +5,7 @@
 #include "../ElModules.hpp"
 #include "WebSockets.hpp"
 #include "../Modules/ModuleGame.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 static int callback_http(struct libwebsocket_context *context,
 struct libwebsocket *wsi,
@@ -13,6 +14,8 @@ enum libwebsocket_callback_reasons reason, void *user,
 {
 	return 0;
 }
+
+bool rconAuthenticated = false;
 
 static int callback_dew_rcon(struct libwebsocket_context *context,
 struct libwebsocket *wsi,
@@ -28,6 +31,17 @@ enum libwebsocket_callback_reasons reason,
 	case LWS_CALLBACK_RECEIVE: { 
 		//console.consoleQueue.pushLineFromGameToUI("received data:" + std::string((char *)in));
 		
+		if (!rconAuthenticated)
+		{
+			if (std::string((char*)in) == Modules::ModuleServer::Instance().VarRconPassword->ValueString)
+				rconAuthenticated = true;
+			else
+			{
+				libwebsocket_close_and_free_session(context, wsi, LWS_CLOSE_STATUS_GOINGAWAY);
+				break;
+			}
+		}
+
 		std::string send = Modules::CommandMap::Instance().ExecuteCommand(std::string((char *)in), true);
 
 		//console.consoleQueue.pushLineFromGameToUI("Got this shit:" + send);
@@ -43,6 +57,9 @@ enum libwebsocket_callback_reasons reason,
 		// release memory back into the wild
 		free(sendChar);
 		break;
+	}
+	case LWS_CALLBACK_CLOSED: {
+		rconAuthenticated = false;
 	}
 	default:
 		break;

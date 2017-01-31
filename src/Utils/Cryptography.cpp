@@ -11,6 +11,14 @@
 #include <openssl\pem.h>
 #include <openssl\sha.h>
 
+#include <Windows.h>
+#include <wincrypt.h>
+
+namespace
+{
+	HCRYPTPROV AcquireProvider();
+}
+
 namespace Utils
 {
 	namespace Cryptography
@@ -141,7 +149,7 @@ namespace Utils
 
 			privKey = std::string(privKeyData, privKeySize);
 			pubKey = std::string(pubKeyData, pubKeySize);
-			
+
 			BIO_free_all(privKeyBuff);
 			BIO_free_all(pubKeyBuff);
 			BN_free(bn);
@@ -163,5 +171,24 @@ namespace Utils
 			*out = digest[0] << 24 | digest[1] << 16 | digest[2] << 8 | digest[3];
 			return true;
 		}
+
+		bool RandomBytes(int num, uint8_t *out)
+		{
+			auto provider = AcquireProvider();
+			if (!provider)
+				return false;
+			return CryptGenRandom(provider, num, out) == TRUE;
+		}
+	}
+}
+
+namespace
+{
+	HCRYPTPROV AcquireProvider()
+	{
+		static HCRYPTPROV handle;
+		if (handle || CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+			return handle;
+		return 0;
 	}
 }
