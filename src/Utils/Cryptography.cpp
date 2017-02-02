@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <cstdint>
+#include <memory>
 
 // people will hate me for this, but PHP/node/etc RSA funcs all use openssl, so we'll use it as well to make it easier on us
 #include <openssl\rsa.h>
@@ -178,6 +179,27 @@ namespace Utils
 			if (!provider)
 				return false;
 			return CryptGenRandom(provider, num, out) == TRUE;
+		}
+
+		bool RandomString(int length, const std::string& chars, std::string& out)
+		{
+			auto bytes = std::make_unique<uint8_t[]>(length);
+			if (!RandomBytes(length, &bytes[0]))
+				return false;
+			out.reserve(length);
+			for (auto i = 0; i < length; i++)
+			{
+				auto charIndex = bytes[i] * chars.length() / 256;
+				out += chars[charIndex];
+			}
+			return true;
+		}
+
+		const char* const PasswordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890!@#$%^&*";
+
+		bool RandomPassword(int length, std::string& out)
+		{
+			return RandomString(length, PasswordChars, out);
 		}
 	}
 }

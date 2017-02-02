@@ -57,7 +57,6 @@ link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/libwebsockets/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/boost-1.60/lib)
@@ -240,6 +239,8 @@ add_library(ElDorito SHARED
     src/Server/DedicatedServer.hpp
     src/Server/BanList.cpp
     src/Server/BanList.hpp
+    src/Server/Rcon.cpp
+    src/Server/Rcon.hpp
     src/Server/ServerChat.cpp
     src/Server/ServerChat.hpp
     src/Server/VariableSynchronization.cpp
@@ -247,8 +248,6 @@ add_library(ElDorito SHARED
     src/ThirdParty/dirent.h
     src/ThirdParty/HttpRequest.cpp
     src/ThirdParty/HttpRequest.hpp
-    src/ThirdParty/WebSockets.cpp
-    src/ThirdParty/WebSockets.hpp
     src/Utils/AntiCheat.cpp
     src/Utils/AntiCheat.hpp
     src/Utils/Assert.cpp
@@ -271,6 +270,7 @@ add_library(ElDorito SHARED
     src/Utils/UPnP.hpp
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
+    src/Utils/WebSocket.hpp
     src/VoIP/MemberList.cpp
     src/VoIP/MemberList.hpp
     src/VoIP/TeamspeakClient.cpp
@@ -411,7 +411,7 @@ target_include_directories(ElDorito PRIVATE
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
   ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
-  ${CMAKE_SOURCE_DIR}/libs/libwebsockets/include
+  ${CMAKE_SOURCE_DIR}/libs/websocketpp/include
   ${CMAKE_SOURCE_DIR}/libs/cef
   ${CMAKE_SOURCE_DIR}/libs/cef/include
   ${CMAKE_SOURCE_DIR}/libs/cppnetlib/include
@@ -463,8 +463,6 @@ target_link_libraries(ElDorito
   libeay32MT
   ts3client_win32
   ts3server_win32
-  ZLib
-  libwebsocketswin32
   psapi
   winmm
   libcef

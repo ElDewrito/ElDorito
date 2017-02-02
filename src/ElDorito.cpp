@@ -3,11 +3,11 @@
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
 #include "Patches/Network.hpp"
-#include "ThirdParty/WebSockets.hpp"
 #include "Server/DedicatedServer.hpp"
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
+#include "Server/Rcon.hpp"
 #include "Patches/Core.hpp"
 #include "Console.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
@@ -231,7 +231,7 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
-	CreateThread(0, 0, StartRconWebSocketServer, 0, 0, 0);
+	Server::Rcon::Initialize();
 
 	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{

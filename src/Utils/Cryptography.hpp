@@ -13,5 +13,7 @@ namespace Utils
 		bool GenerateRSAKeyPair(int numBits, std::string& privKey, std::string& pubKey);
 		bool Hash32(const std::string& str, uint32_t *out);
 		bool RandomBytes(int num, uint8_t *out);
+		bool RandomString(int length, const std::string& chars, std::string& out);
+		bool RandomPassword(int length, std::string& out);
 	}
 }
