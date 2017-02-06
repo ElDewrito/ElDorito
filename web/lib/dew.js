@@ -537,6 +537,29 @@ CommandType = {
      */
 
     /**
+     * (ASYNCHRONOUS) Requests to submit the currently-active virtual keyboard.
+     * 
+     * @param {string} value - The value to submit.
+     * @returns {DewPromise} A promise that will be resolved once the keyboard is submitted.
+     */
+    dew.submitVirtualKeyboard = function (value) {
+        return dew.callMethod("submitVirtualKeyboard", function () {
+            return {
+                value: value.toString(),
+            };
+        });
+    }
+
+    /**
+     * (ASYNCHRONOUS) Requests to cancel the currently-active virtual keyboard.
+     * 
+     * @returns {DewPromise} A promise that will be resolved once the keyboard is cancelled.
+     */
+    dew.cancelVirtualKeyboard = function (value) {
+        return dew.callMethod("cancelVirtualKeyboard");
+    }
+
+    /**
      * Registers a callback to be run when an event occurs.
      *
      * @name dew.on

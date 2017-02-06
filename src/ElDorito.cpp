@@ -16,6 +16,7 @@
 #include "Web/Ui/WebLoadingScreen.hpp"
 #include "Web/Ui/VotingScreen.hpp"
 #include "Web/Ui/MpEventDispatcher.hpp"
+#include "Web/Ui/WebVirtualKeyboard.hpp"
 #include "ElModules.hpp"
 #include "Modules/ModuleGame.hpp"
 #include "Patch.hpp"
@@ -207,6 +208,7 @@ void ElDorito::Initialize()
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
 		Web::Ui::Voting::Init();
+		Web::Ui::WebVirtualKeyboard::Init();
 
 		if (connectToServer)
 		{

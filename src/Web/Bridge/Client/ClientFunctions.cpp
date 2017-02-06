@@ -1,6 +1,7 @@
 #pragma once
 #include "ClientFunctions.hpp"
 #include "../../Ui/ScreenLayer.hpp"
+#include "../../Ui/WebVirtualKeyboard.hpp"
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
@@ -487,6 +488,24 @@ namespace Anvil
 
 						*p_Result = "Could not find player.";
 						return QueryError_BadQuery;
+					}
+
+					QueryError OnSubmitVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						auto value = p_Args.FindMember("value");
+						if (value == p_Args.MemberEnd() || !value->value.IsString())
+						{
+							*p_Result = "Bad query: A \"message\" argument is required and must be a string";
+							return QueryError_BadQuery;
+						}
+						Web::Ui::WebVirtualKeyboard::Submit(Utils::String::WidenString(value->value.GetString()));
+						return QueryError_Ok;
+					}
+
+					QueryError OnCancelVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						Web::Ui::WebVirtualKeyboard::Cancel();
+						return QueryError_Ok;
 					}
 				}
 			}

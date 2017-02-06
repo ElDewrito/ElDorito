@@ -42,6 +42,12 @@
 			"url": "dew://screens/title/",
 			"captureInput": true,
 			"zIndex": 9
+		},
+		{
+			"id": "keyboard",
+			"url": "dew://screens/keyboard/",
+			"captureInput": true,
+			"zIndex": 100
 		}
 	]
 }

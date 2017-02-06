@@ -365,6 +365,52 @@ namespace Blam
 		};
 		static_assert(sizeof(ConfigurableAction) == 0x10, "Invalid ConfigurableAction size");
 
+		enum VirtualKeyboardState : uint16_t
+		{
+			eVirtualKeyboardStateClosed,
+			eVirtualKeyboardStateBusy1,
+			eVirtualKeyboardStateBusy2,
+			eVirtualKeyboardStateBusy3,
+			eVirtualKeyboardStateFinished,
+		};
+
+		class VirtualKeyboard
+		{
+		public:
+			VirtualKeyboard(const char *file, int line, int arg2, int arg3, int arg4, int arg5, int maxLength, int arg7, int arg8);
+
+			virtual int Stub0();
+			virtual int Stub4();
+			virtual int Stub8();
+			virtual int StubC();
+			virtual int Stub10();
+			virtual int Stub14();
+			virtual int Stub18();
+			virtual void Reset();
+			virtual int Stub20();
+
+			void SetTitle(const wchar_t *newTitle);
+			void SetDescription(const wchar_t *newDescription);
+			void SetValue(const wchar_t *newValue);
+			void SetDefaultValue(const wchar_t *newDefaultValue);
+
+			void Start();
+			void Finish();
+
+			int16_t Unknown4;
+			VirtualKeyboardState State;
+			int Unknown8;
+			int UnknownC;
+			int Unknown10;
+			int Unknown14;
+			wchar_t Value[0x100];
+			wchar_t DefaultValue[0x100];
+			wchar_t Title[0x40];
+			wchar_t Description[0x100];
+			int MaxLength;
+		};
+		static_assert(sizeof(VirtualKeyboard) == 0x69C, "Invalid VirtualKeyboard size");
+
 		// Gets the number of ticks that a key has been held down for.
 		// Will always be nonzero if the key is down.
 		uint8_t GetKeyTicks(KeyCode key, InputType type);

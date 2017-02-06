@@ -295,6 +295,8 @@ add_library(ElDorito SHARED
     src/Web/Ui/WebChat.hpp
     src/Web/Ui/WebLoadingScreen.cpp
     src/Web/Ui/WebLoadingScreen.hpp
+    src/Web/Ui/WebVirtualKeyboard.cpp
+    src/Web/Ui/WebVirtualKeyboard.hpp
     src/Web/WebRenderer.cpp
     src/Web/WebRenderer.hpp
     src/Web/WebRendererApp.cpp
@@ -321,7 +323,6 @@ add_library(ElDorito SHARED
     src/Pointer.hpp
     src/resource.h
     src/ElDorito.rc
-    src/ForgeSavingDialog.rc
     src/ElDorito.def)
 
 create_source_groups(ElDorito)
@@ -341,6 +342,9 @@ set (WEB_SOURCES
     web/screens/error/error.css
     web/screens/error/error.js
     web/screens/error/index.html
+    web/screens/keyboard/index.html
+    web/screens/keyboard/keyboard.css
+    web/screens/keyboard/keyboard.js
     web/screens/loading/Conduit-ITC.woff
     web/screens/loading/images/cloud_back.png
     web/screens/loading/images/cloud_front.png
