@@ -1,0 +1,152 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Settings</title>
+    <script src="dew://lib/dew.js"></script>
+    <script src="js/jquery-2.2.1.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+    <script src="js/jqColorPicker.min.js"></script>
+    <script src="js/jquery.mousewheel.min.js"></script>
+    <script src="js/settings.js"></script>
+    <link rel="stylesheet" href="settings.css">
+    <script>
+        $(function() {
+            $( "#settingsWindow" ).draggable();
+            $( "#controllerSettings" ).draggable();
+        });
+    </script>
+</head>
+<body>
+<div id="settingsWindow">
+
+        <div id="windowHeader">Eldewrito Settings<button id="closeButton" onclick="closeBrowser();">X</button></div>
+        <div id="serverSettings">
+            <label for="sName">Server Name</label><input class="setting" type="text" id="sName" name="sName"><br />
+            <label for="sPass">Password</label><input class="setting" type="text" id="sPass" name="sPass"><br />
+            <label for="sMessage">Join Message (\n for new line)</label><textarea class="setting" style="height:5.487vh;" type="text" id="sMessage" name="sMessage"></textarea><br /><br />
+            <label for="sCountdown">Round Start Countdown</label><input class="setting" type="text" id="sCountdown" name="sCountdown"><br />
+            <label for="sMaxPlayers">Maximum Players</label>
+            <input type="text" class="tinySetting" id="sMaxPlayersText" name="sMaxPlayers" onchange="updateSetting('sMaxPlayers', this.value);">
+            <input type="range" min="1" max="16" id="sMaxPlayers" name="sMaxPlayers" oninput="document.querySelector('#sMaxPlayersText').value = this.value;">
+            <br />
+            <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce" name="sShouldAnnounce"><br />
+            <label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
+            <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />
+            <label for="sDualWieldEnabled">Allow Dual Wielding</label><input class="setting" type="checkbox" id="sDualWieldEnabled" name="sDualWieldEnabled"><br />
+            <label for="sAssassinationEnabled">Allow Assassination</label><input class="setting" type="checkbox" id="sAssassinationEnabled" name="sAssassinationEnabled"><br />
+            <label for="voipServerEnable">Enable VoIP Server</label><input class="setting" type="checkbox" id="voipServerEnable" name="voipServerEnable"><br />
+        </div>
+            
+        <div id="advancedSettings">
+            <label for="cCenteredCrosshair">Centered Crosshair</label><input class="setting" type="checkbox" id="cCenteredCrosshair" name="cCenteredCrosshair"><br />
+            <label for="cFOV">Screen FOV</label>
+            <input type="text" class="tinySetting" id="cFOVText" name="cFOV" onchange="updateSetting('cFOV', this.value);">
+            <input type="range" min="65" max="150" id="cFOV" name="cFOV" oninput="document.querySelector('#cFOVText').value = this.value;">
+            <br />
+            <label for="cHideHUD">Hide HUD</label><input class="setting" type="checkbox" id="cHideHUD" name="cHideHUD"><br />
+            <label for="cSpeed">Camera Speed</label><input class="setting" type="text" id="cSpeed" name="cSpeed"><br />
+            <label for="inputRaw">Use Raw Input</label><input class="setting" type="checkbox" id="inputRaw" name="inputRaw"><br />
+            <center>VOIP</center>
+            <label for="voipPTT">Enable Push To Talk</label><input class="setting" type="checkbox" id="voipPTT" name="voipPTT"><br />
+            <label for="voipVolMod">Volume Modifier</label><input class="setting" type="text" id="voipVolMod" name="voipVolMod"><br />
+            <label for="voipAGC">Auto Gain Control</label><input class="setting" type="checkbox" id="voipAGC" name="voipAGC"><br />
+            <label for="voipEchoCancel">Echo Cancellation</label><input class="setting" type="checkbox" id="voipEchoCancel" name="voipEchoCancel"><br />
+            <label for="voipVAL">Voice Activation Level</label><input class="setting" type="text" id="voipVAL" name="voipVAL"><br />
+            <label for="voipEnabled">VoIP Enabled</label><input class="setting" type="checkbox" id="voipEnabled" name="voipEnabled"><br />
+            <center>Graphics</center>
+            <label for="gfxSaturation">Saturation</label><input class="setting" type="text" id="gfxSaturation" name="gfxSaturation"><br />
+            <label for="gfxBloom">Bloom</label><input class="setting" type="text" id="gfxBloom"  name="gfxBloom"><br />
+        </div>    
+
+        <div id="playerSettings">
+            <label for="pName">Player Name</label><input class="setting" type="text" id="pName" name="pName"><br />
+            <label for="renderWeapon">Podium Weapon</label><select id="renderWeapon" name="renderWeapon" class="setting wheelable"></select><br />
+            <center>Armor</center>
+            <label for="helmet">Helmet</label><select id="helmet" name="armorHelmet" class="setting wheelable"></select><br />
+            <label for="chest">Chest</label><select id="chest" class="setting wheelable" name="armorChest"></select><br />
+            <label for="shoulders">Shoulders</label><select id="shoulders" class="setting wheelable" name="armorShoulders"></select><br />
+            <label for="arms">Arms</label><select id="arms" class="setting wheelable" name="armorArms"></select><br />
+            <label for="legs">Legs</label><select id="legs" class="setting wheelable" name="armorLegs"></select><br />
+            <center>Colors</center>
+            <label for="colorsPrimary">Primary</label><input class="setting color no-alpha" id="colorsPrimary" value="#FFFFFF" name="colorsPrimary"><br />
+            <label for="colorsSecondary">Secondary</label><input class="setting color no-alpha" id="colorsSecondary" value="#FFFFFF" name="colorsSecondary"><br />
+            <label for="colorsVisor">Visor</label><input class="setting color no-alpha" id="colorsVisor" value="#FFFFFF" name="colorsVisor"><br />
+            <label for="colorsLights">Lights</label><input class="setting color no-alpha" id="colorsLights" value="#FFFFFF" name="colorsLights"><br />
+            <label for="colorsHolo">Holo</label><input class="setting color no-alpha" id="colorsHolo" value="#FFFFFF" name="colorsHolo"><br />
+        </div>
+        
+        <ul class="tabs">
+            <li><a href="#playerSettings">Player</a></li>
+            <li><a href="#serverSettings">Server</a></li>
+            <li><a href="#advancedSettings">Advanced</a></li>
+            <li><a onclick="showController();">Controller</a></li>
+        </ul>
+
+</div>
+
+<div id="controllerSettings">
+	<div id="controllerWindowHeader">Controller Settings<button id="closeButton" onclick="showController();">X</button></div>
+	<div id="presets"><label for="presetMenu">Presets:</label><select id="presetMenu" onchange="applyBindString(this.value);"></select><br /></div>
+    <div id="controls">
+        <label for="Jump">Jump</label><select class="bind" id="Jump"></select><br />
+        <label for="Melee">Melee</label><select class="bind" id="Melee"></select><br />        
+        <label for="Reload">Reload</label><select class="bind" id="Reload"></select><br />
+        <label for="Use">Use</label><select class="bind" id="Use"></select><br />
+        <label for="SwitchWeapons">SwitchWeapons</label><select class="bind" id="SwitchWeapons"></select><br />
+        <label for="Crouch">Crouch</label><select class="bind" id="Crouch"></select><br />
+        <label for="Zoom">Zoom</label><select class="bind" id="Zoom"></select><br />
+        <label for="Fire">Fire</label><select class="bind" id="Fire"></select><br />
+        <label for="Grenade">Grenade</label><select class="bind" id="Grenade"></select><br />
+        <label for="SwitchGrenades">SwitchGrenades</label><select class="bind" id="SwitchGrenades"></select><br />
+        <label for="Sprint">Sprint</label><select class="bind" id="Sprint"></select><br />
+        <label for="DualWield">DualWield</label><select class="bind" id="DualWield"></select><br />
+        <label for="FireLeft">FireLeft</label><select class="bind" id="FireLeft"></select><br />
+        <label for="ReloadLeft">ReloadLeft</label><select class="bind" id="ReloadLeft"></select><br />
+    </div>
+    <div id="controllerGraphic">
+        <img id="controllerPic" src="controller.png">
+        <div id="A"></div>
+        <div id="B"></div>
+        <div id="X"></div>
+        <div id="Y"></div>
+        <div id="RB"></div>
+        <div id="LB"></div>
+        <div id="LT"></div>
+        <div id="RT"></div>
+        <div id="Start"></div>
+        <div id="Back"></div>
+        <div id="LS"></div>
+        <div id="RS"></div>
+        <div id="Left"></div>
+        <div id="Right"></div>
+        <div id="Up"></div>
+        <div id="Down"></div>
+    </div>
+    <div id="extendedControls">
+        <div id="vehicle">
+        <label for="VehicleAccelerate">VehicleAccelerate</label><select class="bind" id="VehicleAccelerate"></select><br />        
+        <label for="VehicleBrake">VehicleBrake</label><select class="bind" id="VehicleBrake"></select><br />
+        <label for="VehicleBoost">VehicleBoost</label><select class="bind" id="VehicleBoost"></select><br />
+        <label for="VehicleRaise">VehicleRaise</label><select class="bind" id="VehicleRaise"></select><br />
+        <label for="VehicleDive">VehicleDive</label><select class="bind" id="VehicleDive"></select><br />
+        <label for="VehicleFire">VehicleFire</label><select class="bind" id="VehicleFire"></select><br />
+        <label for="VehicleAltFire">VehicleAltFire</label><select class="bind" id="VehicleAltFire"></select><br />
+        <label for="BansheeBomb">BansheeBomb</label><select class="bind" id="BansheeBomb"></select><br />
+        </div><div id="other">
+        <label for="ForgeDelete">ForgeDelete</label><select class="bind" id="ForgeDelete"></select><br />
+        <label for="Chat">Chat</label><select class="bind" id="Chat"></select><br />
+        <label for="TeamChat">TeamChat</label><select class="bind" id="TeamChat"></select><br />
+        <label for="Menu">Menu</label><select class="bind" id="Menu"></select><br />
+        <label for="Scoreboard">Scoreboard</label><select class="bind" id="Scoreboard"></select><br />
+        </div>
+        <div id="advanced">
+        <label for="lookSensitivity">Look Sensitivity (Default is 6)</label>
+        <input type="text" value=12 class="tinySetting" id="lookSensitivityText" class="setting" name="lookSensitivity" onchange="updateSensitivity(this.value);">
+        <input value="6" type="range" min="1" max="25" id="lookSensitivity" class="setting" name="lookSensitivity" oninput="document.querySelector('#lookSensitivityText').value = this.value;updateSensitivity(this.value);">
+        </div>
+    </div>
+    <button id="expandCollapse" onClick="showExtended();">&#8226;&#8226;&#8226;</button>
+</div>
+
+</body>
+</html>

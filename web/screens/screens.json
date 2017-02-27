@@ -48,6 +48,12 @@
 			"url": "dew://screens/keyboard/",
 			"captureInput": true,
 			"zIndex": 100
+		},
+        {
+			"id": "settings",
+			"url": "dew://screens/settings/",
+			"captureInput": true,
+			"zIndex": 9
 		}
 	]
 }
