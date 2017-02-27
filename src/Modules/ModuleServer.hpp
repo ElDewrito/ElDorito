@@ -40,6 +40,7 @@ namespace Modules
 		Command* VarServerNumberOfRevotesAllowed;
 		Command* VarServerNumberOfVotingOptions;
 		Command* VarServerAutoHost;
+		Command* VarStatsServer;
 		Command* VarRconPassword;
 		uint8_t SyslinkData[0x176];
 
