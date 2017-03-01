@@ -6,6 +6,7 @@
 #include "../Utils/Utils.hpp"
 #include "../Server/VotingPackets.hpp"
 #include <chrono>
+#include "../Modules/ModuleServer.hpp"
 
 namespace Server
 {
@@ -80,10 +81,16 @@ namespace Server
 				return Count < val.Count;
 			}
 			
-			//Tests equality, which lets us generate completely unique options
+			//This is used for comparing voting options to see if they are unique. 
 			bool operator==(const MapAndType& val) const
 			{
-				return ((haloMap.mapDisplayName == val.haloMap.mapDisplayName) || (haloType.typeDisplayName == val.haloType.typeDisplayName));
+				auto serverModule = Modules::ModuleServer::Instance();
+				if (serverModule.VarServerVotingDuplicationLevel->ValueInt == 0)
+					return ((haloMap.mapDisplayName == val.haloMap.mapDisplayName) || (haloType.typeDisplayName == val.haloType.typeDisplayName));
+				else if (serverModule.VarServerVotingDuplicationLevel->ValueInt == 1)
+					return ((haloMap.mapDisplayName == val.haloMap.mapDisplayName) && (haloType.typeDisplayName == val.haloType.typeDisplayName));
+				else
+					return false;
 			}
 		};
 

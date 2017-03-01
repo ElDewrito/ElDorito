@@ -256,6 +256,8 @@ namespace Server
 			Modules::CommandMap::Instance().ExecuteCommand("Game.Map \"" + winningOption.haloMap.mapName + "\"");
 			Modules::CommandMap::Instance().ExecuteCommand("Server.SprintEnabled " + winningOption.haloType.SprintEnabled);
 
+			if (Modules::ModuleServer::Instance().VarServerTeamShuffleEnabled->ValueInt == 1)
+				Modules::CommandMap::Instance().ExecuteCommand("Server.ShuffleTeams");
 			time(&winnerChosenTime);
 			voteStartedTime = 0;
 			mapVotes.clear();
@@ -315,7 +317,8 @@ namespace Server
 		void Enable()
 		{
 			Reset();
-			LoadVotingJson();
+			if (!LoadVotingJson())
+				loadDefaultMapsAndTypes();
 		}
 
 		void Disable()
@@ -356,8 +359,9 @@ namespace Server
 			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded 
 			if (winnerChosenTime != 0)
 			{
+
 				auto elapsed = curTime1 - winnerChosenTime;
-				if (elapsed > 4)
+				if (elapsed >  Modules::ModuleServer::Instance().VarServerTimeBetweenVoteEndAndGameStart->ValueInt)
 				{
 					Modules::CommandMap::Instance().ExecuteCommand("Game.Start");
 					Reset();
@@ -533,7 +537,7 @@ namespace Server
 				}
 			}
 			
-			if (haloMaps.size() < 2 || gameTypes.size() < 2)
+			if ( gameTypes.size() < 2)
 				return false;
 
 			

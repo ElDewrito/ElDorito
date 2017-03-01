@@ -1152,6 +1152,19 @@ namespace Modules
 		VarChatCommandVoteTime->ValueIntMin = 1;
 		VarChatCommandVoteTime->ValueIntMax = 200;
 
+		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 4);
+		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMin = 1;
+		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMax = 100;
+
+		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsHostOnly, 1);
+		VarServerVotingDuplicationLevel->ValueIntMin = 0;
+		VarServerVotingDuplicationLevel->ValueIntMax = 2;
+
+		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", eCommandFlagsHostOnly, 1);
+		VarServerTeamShuffleEnabled->ValueIntMin = 0;
+		VarServerTeamShuffleEnabled->ValueIntMax = 1;
+
+
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG
 		// Synchronization system testing

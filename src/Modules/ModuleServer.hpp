@@ -42,6 +42,9 @@ namespace Modules
 		Command* VarServerAutoHost;
 		Command* VarStatsServer;
 		Command* VarRconPassword;
+		Command* VarServerTeamShuffleEnabled;
+		Command* VarServerTimeBetweenVoteEndAndGameStart;
+		Command* VarServerVotingDuplicationLevel;
 		Command* VarServerVotePassPercentage;
 		Command* VarTempBanDuration;
 		Command* VarChatCommandKickPlayerEnabled;
