@@ -22,6 +22,7 @@
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
 #include "Server/VotingSystem.hpp"
+#include "ChatCommands/ChatCommandMap.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -100,6 +101,7 @@ void ElDorito::Initialize()
 	// init our command modules
 	Console::Init();
 	Modules::ElModules::Instance();
+	Server::TempBanList::Instance();
 
 	// load variables/commands from cfg file
 	// If instancing is enabled then load the instanced dewrito_prefs.cfg
@@ -231,6 +233,7 @@ void ElDorito::Initialize()
 
 	// Initialize server modules
 	Server::Chat::Initialize();
+	ChatCommands::Init();
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
@@ -252,6 +255,7 @@ void ElDorito::Tick()
 		Server::DedicatedServer::Tick();
 
 	Server::Voting::Tick();
+	ChatCommands::Tick();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();

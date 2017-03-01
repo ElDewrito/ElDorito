@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <deque>
+#include <Windows.h>
 
 #include "Utils/Singleton.hpp"
 
@@ -32,6 +33,8 @@ typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std
 
 namespace Modules
 {
+	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
+
 	enum CommandType
 	{
 		eCommandTypeCommand,

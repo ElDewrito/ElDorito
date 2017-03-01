@@ -4,10 +4,6 @@
 #include "ElDorito.hpp"
 #include "Blam\BlamNetwork.hpp"
 
-namespace
-{
-	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
-}
 
 namespace Modules
 {
@@ -401,7 +397,7 @@ namespace Modules
 	}
 }
 
-namespace
+namespace Modules
 {
 	PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc)
 	{

@@ -42,6 +42,12 @@ namespace Modules
 		Command* VarServerAutoHost;
 		Command* VarStatsServer;
 		Command* VarRconPassword;
+		Command* VarServerVotePassPercentage;
+		Command* VarTempBanDuration;
+		Command* VarChatCommandKickPlayerEnabled;
+		Command* VarChatCommandEndGameEnabled;
+		Command* VarChatCommandVoteTime;
+
 		uint8_t SyslinkData[0x176];
 
 		ModuleServer();

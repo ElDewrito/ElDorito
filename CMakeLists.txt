@@ -95,6 +95,10 @@ add_library(ElDorito SHARED
     src/Blam/Math/RealColorARGB.cpp
     src/Blam/Math/RealColorARGB.hpp
     src/Blam/Math/RealColorRGB.cpp
+    src/ChatCommands/ChatCommand.hpp
+    src/ChatCommands/ChatCommand.cpp
+    src/ChatCommands/ChatCommandMap.hpp
+    src/ChatCommands/ChatCommandMap.cpp
     src/Blam/Math/RealColorRGB.hpp
     src/Blam/Math/RealEulerAngles2D.cpp
     src/Blam/Math/RealEulerAngles2D.hpp

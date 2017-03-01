@@ -772,7 +772,7 @@ namespace
 		{
 			// Check if the IP is in the ban list
 			auto banList = Server::LoadDefaultBanList();
-			if (banList.ContainsIp(ipStr))
+			if (banList.ContainsIp(ipStr) || Server::TempBanList::Instance().ContainsIp(ipStr))
 			{
 				// Send a join refusal
 				typedef void(__thiscall *Network_session_acknowledge_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, int reason);

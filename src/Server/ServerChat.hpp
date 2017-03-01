@@ -85,10 +85,12 @@ namespace Server
 		// Sends a message to every player on the local player's team. Returns
 		// true if successful.
 		bool SendTeamMessage(const std::string &body);
+		bool SendServerMessage(const std::string &body);
 
 		// Sends a server message to specific peers. Only works if you are
 		// host. Returns true if successful.
 		bool SendServerMessage(const std::string &body, PeerBitSet peers);
+		bool SendServerMessage(const std::string &body, int peer);
 
 		// Registers a chat handler object.
 		void AddHandler(std::shared_ptr<ChatHandler> handler);

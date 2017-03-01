@@ -4,9 +4,41 @@
 #include <iomanip>
 #include "../Utils/String.hpp"
 #include "../Patches/PlayerUid.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 namespace Server
 {
+	//Adds an ip to the list if it's not already in it. If it is already in it, then it extends the ban duration. 
+	void TempBanList::AddIp(const std::string ip)
+	{
+		std::map<std::string, int>::iterator it = ipAddresses.find(ip);
+		if (it != ipAddresses.end())
+		{
+			//Now we know that the user is currently banned. Extend the ban duration.
+			it->second += Modules::ModuleServer::Instance().VarTempBanDuration->ValueInt;
+		}
+		else
+			ipAddresses.insert(std::make_pair(ip, Modules::ModuleServer::Instance().VarTempBanDuration->ValueInt));
+	}
+	
+	//Decrements the ban duration of everyone in the list by 1 game
+	void TempBanList::decrementDuration(){
+		auto it = ipAddresses.begin();
+		while (it != ipAddresses.end())
+		{
+			if (it->second < 2)
+			{
+				//remove this Ip if its duration has finished.
+				it = ipAddresses.erase(it);
+			}
+			else
+			{
+				it->second--;
+				++it;
+			}
+		}
+
+	}
 	BanList::BanList(const std::string &path)
 	{
 		std::ifstream stream(path);

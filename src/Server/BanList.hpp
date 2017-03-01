@@ -4,9 +4,44 @@
 #include <unordered_set>
 #include <cstdint>
 #include <istream>
+#include <map>
+#include "../Utils/Utils.hpp"
 
 namespace Server
 {
+
+
+	/*
+	* - Temporary Ban List
+	*
+	* - This is a temporary ban list that ban players for a specified amount of games. 
+	* - The amound of games is configurable via server variable.
+	*/
+	class TempBanList : public Utils::Singleton<TempBanList>
+	{
+	public:
+		TempBanList() { }
+		// Adds an IP address to the ban list.
+		void AddIp(const std::string ip);
+		// Returns whether an IP address is in the ban list.
+		inline bool ContainsIp(std::string ip)
+		{
+			return ipAddresses.find(ip) != ipAddresses.end();
+		}
+		inline bool RemoveIp(const std::string &ip)
+		{
+			return ipAddresses.erase(ip) == 1;
+		}
+		void decrementDuration();
+		// Clears ban list. Returns true if successful.
+		inline void ClearList()
+		{
+			ipAddresses.clear();
+		}
+	private:
+		std::map<std::string, int> ipAddresses = std::map<std::string, int>{};
+	};
+
 	class BanList
 	{
 	public:

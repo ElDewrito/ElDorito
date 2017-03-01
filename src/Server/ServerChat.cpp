@@ -9,7 +9,7 @@
 #include <chrono>
 #include <iomanip>
 #include <Windows.h>
-
+#include "../ChatCommands/ChatCommandMap.hpp"
 namespace
 {
 	using namespace Server::Chat;
@@ -305,6 +305,15 @@ namespace
 
 		LogMessage(session, peer, broadcastMessage);
 
+
+		//Intercept the message. Don't forward the message on if it's a chat command
+		if (message.Type != Server::Chat::ChatMessageType::Team)
+		{
+			if (ChatCommands::handleChatMessage(message, peer)){
+				return true;
+			}
+		}
+
 		PeerBitSet targetPeers;
 		if (!GetMessagePeers(session, peer, message, &targetPeers))
 			return false;
@@ -394,7 +403,18 @@ namespace Server
 			ChatMessage message(ChatMessageType::Global, body);
 			return SendClientMessage(session, message);
 		}
+		//Sends a server message to all peers. 
+		bool SendServerMessage(const std::string &body)
+		{
+			auto session = Blam::Network::GetActiveSession();
+			if (!session || !session->IsEstablished() || !session->IsHost())
+				return false;
 
+			PeerBitSet p;
+			p.set();
+			ChatMessage message(ChatMessageType::Server, body);
+			return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, p);
+		}
 		bool SendTeamMessage(const std::string &body)
 		{
 			auto session = Blam::Network::GetActiveSession();
@@ -404,7 +424,18 @@ namespace Server
 			ChatMessage message(ChatMessageType::Team, body);
 			return SendClientMessage(session, message);
 		}
+		//So I dont have to create a new PeerBitSet all the time when sending it to just one peer
+		bool SendServerMessage(const std::string &body, int peer)
+		{
+			auto session = Blam::Network::GetActiveSession();
+			if (!session || !session->IsEstablished() || !session->IsHost())
+				return false;
 
+			PeerBitSet peers;
+			peers.set(peer);
+			ChatMessage message(ChatMessageType::Server, body);
+			return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, peers);
+		}
 		bool SendServerMessage(const std::string &body, PeerBitSet peers)
 		{
 			auto session = Blam::Network::GetActiveSession();

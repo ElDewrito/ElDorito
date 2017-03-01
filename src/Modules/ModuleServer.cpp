@@ -485,7 +485,11 @@ namespace
 		banList.AddIp(ip);
 		Server::SaveDefaultBanList(banList);
 	}
-
+	void TempBanIP(const std::string &ip)
+	{
+		Server::TempBanList::Instance().AddIp(ip);
+	}
+	
 	bool UnbanIp(const std::string &ip)
 	{
 		auto banList = Server::LoadDefaultBanList();
@@ -498,7 +502,8 @@ namespace
 	enum class KickType
 	{
 		Kick,
-		Ban
+		Ban,
+		TempBan
 	};
 
 	bool DoKickPlayerCommand(KickType type, const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -531,6 +536,11 @@ namespace
 		{
 			BanIp(ip);
 			returnInfo = "Added IP " + ip + " to the ban list\n";
+		}
+		else if (type == KickType::TempBan)
+		{
+			TempBanIP(ip);
+			returnInfo = "Added IP " + ip + " to the temp ban list\n";
 		}
 		returnInfo += "Issued kick request for player " + kickPlayerName + " (" + std::to_string(playerIdx) + ")";
 		return true;
@@ -575,6 +585,11 @@ namespace
 			{
 				BanIp(ip);
 				returnInfo += "Added IP " + ip + " to the ban list\n";
+			}
+			else if (type == KickType::TempBan)
+			{
+				TempBanIP(ip);
+				returnInfo = "Added IP " + ip + " to the temp ban list\n";
 			}
 			returnInfo += "Issued kick request for player " + kickPlayerName + " (" + std::to_string(playerIdx) + ")\n";
 			success = true;
@@ -622,6 +637,11 @@ namespace
 			BanIp(ip);
 			returnInfo = "Added IP " + ip + " to the ban list\n";
 		}
+		else if (type == KickType::TempBan)
+		{
+			TempBanIP(ip);
+			returnInfo = "Added IP " + ip + " to the temp ban list\n";
+		}
 		returnInfo += "Issued kick request for player " + kickPlayerName + " (" + std::to_string(index) + ")";
 		return true;
 	}
@@ -635,10 +655,19 @@ namespace
 	{
 		return DoKickPlayerCommand(KickType::Ban, Arguments, returnInfo);
 	}
-
+	
 	bool CommandServerKickPlayerUid(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		return DoKickUidCommand(KickType::Kick, Arguments, returnInfo);
+	}
+	bool CommandServerTempBanPlayer(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		return DoKickPlayerCommand(KickType::TempBan, Arguments, returnInfo);
+	}
+
+	bool CommandServerTempBanPlayerUid(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		return DoKickUidCommand(KickType::TempBan, Arguments, returnInfo);
 	}
 
 	bool CommandServerBanPlayerUid(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -1028,9 +1057,11 @@ namespace Modules
 
 		AddCommand("KickPlayer", "k", "Kicks a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerKickPlayer, { "playername The name of the player to kick" });
 		AddCommand("KickBanPlayer", "kb", "Kicks and IP bans a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerBanPlayer, { "playername The name of the player to ban" });
+		AddCommand("KickTempBanPlayer", "ktb", "Kicks and temporarily IP bans a player from the game by name (host only)", eCommandFlagsHostOnly, CommandServerTempBanPlayer, { "playername The name of the player to ban" });
 
 		AddCommand("KickUid", "ku", "Kicks players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerUid, { "uid The UID of the players to kick" });
 		AddCommand("KickBanUid", "kbu", "Kicks and IP bans players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerUid, { "uid The UID of the players to ban" });
+		AddCommand("KickTempBanUid", "ktbu", "Kicks and temporarily IP bans players from the game by UID (host only)", eCommandFlagsHostOnly, CommandServerTempBanPlayerUid, { "uid The UID of the players to ban" });
 
 		AddCommand("KickIndex", "ki", "Kicks a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerKickPlayerIndex, { "index The index of the player to kick" });
 		AddCommand("KickBanIndex", "kbi", "Kicks and IP bans a player from the game by index (host only)", eCommandFlagsHostOnly, CommandServerBanPlayerIndex, { "index The index of the player to ban" });
@@ -1101,7 +1132,25 @@ namespace Modules
 
 		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
 		VarStatsServer = AddVariableString("StatsServer", "stats_server", "URL to send the stats to", eCommandFlagsArchived, "");
+		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
+		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;
+		VarChatCommandKickPlayerEnabled->ValueIntMax = 1;
 
+		VarChatCommandEndGameEnabled = AddVariableInt("ChatCommandEndGameEnabled", "chat_command_end_game_enabled", "Controls whether or not players can vote to end the game. ", eCommandFlagsArchived, 1);
+		VarChatCommandEndGameEnabled->ValueIntMin = 0;
+		VarChatCommandEndGameEnabled->ValueIntMax = 1;
+
+		VarServerVotePassPercentage = AddVariableInt("VotePassPercentage", "vote_pass_percentage", "Percentage of players required to vote yes for a chat command vote to pass ", eCommandFlagsArchived, 50);
+		VarServerVotePassPercentage->ValueIntMin = 0;
+		VarServerVotePassPercentage->ValueIntMax = 100;
+
+		VarTempBanDuration = AddVariableInt("TempBanDuration", "temp_ban_duration", "Duration of a temporary ban (in games)", eCommandFlagsArchived, 2);
+		VarTempBanDuration->ValueIntMin = 1;
+		VarTempBanDuration->ValueIntMax = 10;
+
+		VarChatCommandVoteTime = AddVariableInt("ChatCommandVoteTime", "chat_command_vote_time", "The number of seconds a chat command vote lasts", eCommandFlagsArchived, 45);
+		VarChatCommandVoteTime->ValueIntMin = 1;
+		VarChatCommandVoteTime->ValueIntMax = 200;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG
