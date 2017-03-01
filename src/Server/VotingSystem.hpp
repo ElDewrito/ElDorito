@@ -84,7 +84,7 @@ namespace Server
 			//This is used for comparing voting options to see if they are unique. 
 			bool operator==(const MapAndType& val) const
 			{
-				auto serverModule = Modules::ModuleServer::Instance();
+				auto &serverModule = Modules::ModuleServer::Instance();
 				if (serverModule.VarServerVotingDuplicationLevel->ValueInt == 0)
 					return ((haloMap.mapDisplayName == val.haloMap.mapDisplayName) || (haloType.typeDisplayName == val.haloType.typeDisplayName));
 				else if (serverModule.VarServerVotingDuplicationLevel->ValueInt == 1)
