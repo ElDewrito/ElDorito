@@ -41,7 +41,7 @@ namespace Server
 			{ 380, "Narrows" },
 			{ 310, "High Ground" },
 			{ 410, "Standoff" },
-			{ 400, "Narrows" },
+			{ 400, "Sandtrap" },
 			{ 30, "Last Resort" },
 		};
 
