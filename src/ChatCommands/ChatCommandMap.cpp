@@ -24,6 +24,8 @@ namespace ChatCommands
 	KickPlayerCommand kickPlayerCommand;
 	KickIndexCommand kickIndexCommand;
 	EndGameCommand endGameCommand;
+	ShuffleTeamsCommand shuffleTeamsCommand;
+
 
 	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 	{
@@ -66,6 +68,7 @@ namespace ChatCommands
 		Commands.push_back((AbstractChatCommand*) &kickPlayerCommand);
 		Commands.push_back((AbstractChatCommand*) &kickIndexCommand);
 		Commands.push_back((AbstractChatCommand*) &endGameCommand);
+		Commands.push_back((AbstractChatCommand*) &shuffleTeamsCommand);
 
 		for (auto elem : Commands)
 		{

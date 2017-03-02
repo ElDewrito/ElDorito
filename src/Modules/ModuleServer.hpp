@@ -50,6 +50,7 @@ namespace Modules
 		Command* VarChatCommandKickPlayerEnabled;
 		Command* VarChatCommandEndGameEnabled;
 		Command* VarChatCommandVoteTime;
+		Command* VarChatCommandShuffleTeamsEnabled;
 
 		uint8_t SyslinkData[0x176];
 

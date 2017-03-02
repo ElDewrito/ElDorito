@@ -52,6 +52,17 @@ namespace ChatCommands
 		EndGameCommand();
 
 	};
+	class ShuffleTeamsCommand : public AbstractChatCommand
+	{
+	public:
+		virtual void doOnVoteStart();
+		virtual void doOnVotePass();
+		virtual void doOnVoteFail();
+		virtual bool isValidArgument(std::string s, std::string& returnInfo);
+		virtual bool isEnabled();
+		ShuffleTeamsCommand();
+
+	};
 
 	class KickPlayerCommand : public AbstractChatCommand
 	{

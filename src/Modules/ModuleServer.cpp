@@ -1135,6 +1135,10 @@ namespace Modules
 		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
 		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;
 		VarChatCommandKickPlayerEnabled->ValueIntMax = 1;
+		
+		VarChatCommandShuffleTeamsEnabled = AddVariableInt("ChatCommandShuffleTeamsEnabled", "chat_command_shuffle_teams_enabled", "Controls whether or not players can vote to shuffle the teams. ", eCommandFlagsArchived, 1);
+		VarChatCommandShuffleTeamsEnabled->ValueIntMin = 0;
+		VarChatCommandShuffleTeamsEnabled->ValueIntMax = 1;
 
 		VarChatCommandEndGameEnabled = AddVariableInt("ChatCommandEndGameEnabled", "chat_command_end_game_enabled", "Controls whether or not players can vote to end the game. ", eCommandFlagsArchived, 1);
 		VarChatCommandEndGameEnabled->ValueIntMin = 0;

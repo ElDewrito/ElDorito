@@ -29,6 +29,28 @@ namespace ChatCommands
 		return numberOfPlayers;
 	}
 
+	ShuffleTeamsCommand::ShuffleTeamsCommand() : AbstractChatCommand("shuffleTeams", "Starts a vote to shuffle the teams. Type !yes to vote."){}
+
+	void ShuffleTeamsCommand::doOnVotePass()
+	{
+		Server::Chat::SendServerMessage("Vote Has Passed.");
+		Modules::CommandMap::Instance().ExecuteCommand("server.shuffleteams");
+	}
+	bool ShuffleTeamsCommand::isEnabled()
+	{
+		return (Modules::ModuleServer::Instance().VarChatCommandShuffleTeamsEnabled->ValueInt == 1);
+	}
+	void ShuffleTeamsCommand::doOnVoteFail()
+	{
+		Server::Chat::SendServerMessage("Vote Has Not Passed.");
+	}
+	void ShuffleTeamsCommand::doOnVoteStart()
+	{
+		Server::Chat::SendServerMessage("Vote started to shuffle the teams. " + std::to_string(votesNeeded) + " votes needed to pass. Type !yes to vote");
+	}
+
+	bool ShuffleTeamsCommand::isValidArgument(std::string s, std::string& returnInfo){ return true; }
+
 	EndGameCommand::EndGameCommand() : AbstractChatCommand("endGame", "Starts a vote to end the current game. Type !yes to vote."){}
 
 	void EndGameCommand::doOnVotePass()
