@@ -337,6 +337,7 @@ set (WEB_SOURCES
     web/lib/jquery-2.2.1.min.js
     web/lib/jquery-ui.css
     web/lib/jquery-ui.js
+    web/lib/Conduit-ITC.woff
     web/screens/chat/chat.css
     web/screens/chat/chat.js
     web/screens/chat/index.html
@@ -349,7 +350,6 @@ set (WEB_SOURCES
     web/screens/keyboard/index.html
     web/screens/keyboard/keyboard.css
     web/screens/keyboard/keyboard.js
-    web/screens/loading/Conduit-ITC.woff
     web/screens/loading/images/cloud_back.png
     web/screens/loading/images/cloud_front.png
     web/screens/loading/images/EldoritoLogoFinalBlueSmall.png
@@ -398,7 +398,6 @@ set (WEB_SOURCES
     web/screens/title/images/Keyboard_White_Esc.png
     web/screens/title/images/ring.png
     web/screens/title/images/stars.jpg
-    web/screens/title/Conduit-ITC.woff
     web/screens/title/index.html
     web/screens/title/title.css
     web/screens/title/title.js
