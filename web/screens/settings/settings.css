@@ -1,7 +1,5 @@
-@font-face {
-    font-family: "Conduit ITC";
-    src: url(Conduit-ITC.woff);
-}
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
 html {
     color: #FFF;
     font-family: "Conduit ITC", sans-serif;

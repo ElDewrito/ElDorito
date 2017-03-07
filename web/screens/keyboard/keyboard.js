@@ -29,4 +29,12 @@ $(window).load(function () {
             dew.cancelVirtualKeyboard().then(() => dew.hide());
         }
     });
+    
+    $("#ok").on("click", function (){
+        $("form").submit();
+    });
+    
+    $("#cancel").on("click", function (){
+        dew.cancelVirtualKeyboard().then(() => dew.hide());
+    });
 });

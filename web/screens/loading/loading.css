@@ -1,4 +1,4 @@
-@font-face{font-family:"Conduit ITC";src:url(Conduit-ITC.woff);}
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
 
 html, body {
     width: 100%;
