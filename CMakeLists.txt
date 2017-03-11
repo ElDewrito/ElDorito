@@ -408,7 +408,6 @@ target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
-  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
   ${CMAKE_SOURCE_DIR}/libs/websocketpp/include
   ${CMAKE_SOURCE_DIR}/libs/cef
   ${CMAKE_SOURCE_DIR}/libs/cef/include
