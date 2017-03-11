@@ -9,7 +9,6 @@
 #include "Modules/ModuleSettings.hpp"
 #include "Modules/ModuleCamera.hpp"
 #include "Modules/ModuleInput.hpp"
-#include "Modules/ModuleVoIP.hpp"
 #include "Modules/ModuleTime.hpp"
 #include "Modules/ModuleGraphics.hpp"
 #include "Modules/ModuleUPnP.hpp"
@@ -108,7 +107,6 @@ namespace Modules
 		ModuleSettings::Instance();
 		ModuleCamera::Instance();
 		ModuleInput::Instance();
-		ModuleVoIP::Instance();
 		ModuleTime::Instance();
 		ModuleGraphics::Instance();
 		ModuleUPnP::Instance();
