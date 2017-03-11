@@ -187,8 +187,6 @@ add_library(ElDorito SHARED
     src/Modules/ModuleServer.hpp
     src/Modules/ModuleSettings.cpp
     src/Modules/ModuleSettings.hpp
-    src/Modules/ModuleVoIP.cpp
-    src/Modules/ModuleVoIP.hpp
     src/Modules/ModuleTime.cpp
     src/Modules/ModuleTime.hpp
     src/Modules/ModuleGraphics.cpp
@@ -275,12 +273,6 @@ add_library(ElDorito SHARED
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
     src/Utils/WebSocket.hpp
-    src/VoIP/MemberList.cpp
-    src/VoIP/MemberList.hpp
-    src/VoIP/TeamspeakClient.cpp
-    src/VoIP/TeamspeakClient.hpp
-    src/VoIP/TeamspeakServer.cpp
-    src/VoIP/TeamspeakServer.hpp
     src/Web/Bridge/Client/ClientFunctions.cpp
     src/Web/Bridge/Client/ClientFunctions.hpp
     src/Web/Bridge/WebRendererQuery.hpp
