@@ -458,8 +458,6 @@ target_link_libraries(ElDorito
   ws2_32
   detours
   libeay32MT
-  ts3client_win32
-  ts3server_win32
   psapi
   winmm
   libcef
