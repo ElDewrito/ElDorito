@@ -1,6 +1,5 @@
 #include "ChatCommand.hpp"
 #include "ChatCommandMap.hpp"
-#include <boost/algorithm/string.hpp> 
 #include "../Server/ServerChat.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Utils/Utils.hpp"
@@ -264,7 +263,7 @@ namespace ChatCommands
 		if (!isEnabled())
 			return;
 
-		boost::algorithm::to_lower(message);
+		std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 		if (message == "yes")
 		{
 			

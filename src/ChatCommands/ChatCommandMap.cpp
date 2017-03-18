@@ -1,7 +1,6 @@
 #include "ChatCommandMap.hpp"
 #include <sstream>
 #include <iostream>
-#include <boost/algorithm/string.hpp> 
 
 #include "ChatCommand.hpp"
 #include "../Server/BanList.hpp"
@@ -171,13 +170,14 @@ namespace ChatCommands
 		int numArgs = 0;
 		auto args = Modules::CommandLineToArgvA((PCHAR)line.c_str(), &numArgs);
 		std::string cmd = args[0];
-		boost::algorithm::to_lower(cmd);
+		std::transform(cmd.begin(), cmd.end(), cmd.begin(), ::tolower);
 
 		//If we are not already voting, check if the command is initiating one
 		for (auto elem : Commands)
 		{
 			std::string name = elem->getName();
-			boost::algorithm::to_lower(name);
+			std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
 			if (cmd == (name))
 			{
 				//Now that we know this is the command being invoked, lets prep the argument (if there is one) and pass it in
