@@ -6,6 +6,8 @@
 #include "../Blam/BlamInput.hpp"
 #include "../Utils/NameValueTable.hpp"
 
+#include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
 using namespace Blam::Input;
 
 namespace
@@ -474,6 +476,64 @@ namespace
 		Modules::ModuleInput::UpdateBindings();
 		return true;
 	}
+	bool CommandDumpBindingsJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		returnInfo = "";
+		BindingsTable currentBindings;
+		GetBindings(0, &currentBindings);
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.StartArray();
+		for (auto i = 0; i < eGameAction_KeyboardMouseCount; i++)
+		{
+			std::string names[6] = { "none", "n/a", "none", "none", "none", "none" };
+			if (i < eGameAction_ControllerCount)
+			{
+				controllerButtons.FindName(currentBindings.ControllerButtons[i], &names[0]);
+				names[1] = currentBindings.ControllerHoldButtons[i] ? "true" : "false";
+			}
+			keyCodes.FindName(currentBindings.PrimaryKeys[i], &names[2]);
+			keyCodes.FindName(currentBindings.SecondaryKeys[i], &names[3]);
+			mouseButtons.FindName(currentBindings.PrimaryMouseButtons[i], &names[4]);
+			mouseButtons.FindName(currentBindings.SecondaryMouseButtons[i], &names[5]);
+			writer.StartObject();
+
+			std::string actionName;
+			if (gameActions.FindName(static_cast<GameAction>(i), &actionName))
+			{
+				writer.Key("actionName");
+				writer.String(actionName.c_str());
+			}
+			else{
+				writer.Key("actionName");
+				writer.String(std::to_string(i).c_str());
+			}
+			writer.Key("controllerButton");
+			writer.String(names[0].c_str());
+
+			writer.Key("controllerHoldButton");
+			writer.String(names[1].c_str());
+
+			writer.Key("primaryKey");
+			writer.String(names[2].c_str());
+
+			writer.Key("secondaryKey");
+			writer.String(names[3].c_str());
+
+			writer.Key("primaryMouseButton");
+			writer.String(names[4].c_str());
+
+			writer.Key("secondaryMouseButton");
+			writer.String(names[5].c_str());
+			writer.EndObject();
+
+		}
+		writer.EndArray();
+		returnInfo += buffer.GetString();
+
+		return true;
+	
+	}
 
 #ifdef _DEBUG
 	bool CommandDumpBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -528,6 +588,7 @@ namespace Modules
 		AddCommand("DebugBindings", "debugbindings", "Dumps the input bindings table", eCommandFlagsNone, CommandDumpBindings);
 #endif
 
+		AddCommand("DumpBindingsJson", "dumpbindingsjson", "Dumps the input bindings table in json", eCommandFlagsNone, CommandDumpBindingsJson);
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 
