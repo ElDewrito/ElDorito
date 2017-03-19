@@ -64,7 +64,7 @@ namespace Server
 			"CTF",
 			"Oddball",
 			"FFA Oddball",
-			"Team King",
+			"Crazy King",
 		};
 
 		//The time the vote started. Used to calculate how much time remains and to check if a vote is in progress.
