@@ -139,6 +139,7 @@ $(document).ready(function() {
         }
     });
     loadSettings(0);
+    initializeBindings();
 });
 
 function loadSettings(i) {
@@ -209,6 +210,19 @@ function applyBindString(bindString){
         updateBinding(binds[i], bindArray[0][i]);
     }
     updateBindLabels();
+}
+
+function initializeBindings(){
+    dew.command("Input.DumpBindingsJson", {}).then(function(response){
+        var controllerBinds = JSON.parse(response);
+        for (i = 0; i < controllerBinds.length; i++){
+            if(controllerBinds[i].controllerButton=="Select"){
+                controllerBinds[i].controllerButton="Back";
+            }
+            $('#'+controllerBinds[i].actionName).val(controllerBinds[i].controllerButton);
+        }
+        updateBindLabels();
+    });
 }
 
 function updateBinding(action, bind){
