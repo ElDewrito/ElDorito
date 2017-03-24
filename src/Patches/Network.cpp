@@ -14,13 +14,10 @@
 #include "../ElDorito.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../VoIP/TeamspeakServer.hpp"
-#include "../VoIP/TeamspeakClient.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Server/BanList.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
-#include "../Modules/ModuleVoIP.hpp"
 #include "../Server/VotingSystem.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -171,8 +168,6 @@ namespace Patches
 					writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
 					writer.Key("assassinationEnabled");
 					writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
-					writer.Key("VoIP");
-					writer.Bool(IsVoIPServerRunning() ? TRUE : FALSE);
 
 					auto session = Blam::Network::GetActiveSession();
 					if (session && session->IsEstablished()){
@@ -474,7 +469,6 @@ namespace Patches
 			{
 				Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "ElDewrito InfoServer");
 				Modules::ModuleUPnP::Instance().UPnPForwardPort(false, Pointer(0x1860454).Read<uint32_t>(), Pointer(0x1860454).Read<uint32_t>(), "ElDewrito Game");
-				Modules::ModuleUPnP::Instance().UPnPForwardPort(false, 9987, 9987, "ElDewrito VoIP");
 			}
 
 			WSAAsyncSelect(infoSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
@@ -529,31 +523,6 @@ namespace
 		if (!isHost)
 			return retval;
 
-		if (isOnline == 1)
-		{
-			auto& voipvars = Modules::ModuleVoIP::Instance();
-			if (voipvars.VarVoIPServerEnabled->ValueInt == 1){
-				//Start the Teamspeak VoIP Server since this is the host
-				CreateThread(0, 0, StartTeamspeakServer, 0, 0, 0);
-
-				if (voipvars.VarVoIPEnabled->ValueInt == 1)
-				{
-					//Make sure teamspeak is stopped before we try to start it.
-					StopTeamspeakClient();
-					//Join the Teamspeak VoIP Server so the host can talk
-					CreateThread(0, 0, StartTeamspeakClient, 0, 0, 0);
-				}
-			}
-			// TODO: give output if StartInfoServer fails
-			Patches::Network::StartInfoServer();
-		}
-		else
-		{
-			Patches::Network::StopInfoServer();
-			//Stop the VoIP Server and client
-			StopTeamspeakClient();
-			StopTeamspeakServer();
-		}
 		return retval;
 	}
 
@@ -756,9 +725,6 @@ namespace
 		if (!Network_leader_request_boot_machine(thisPtr, peer, reason))
 			return false;
 		
-		// Boot the player from VoIP
-		if (playerIndex >= 0)
-			kickTeamspeakClient(playerName);
 		return true;
 	}
 
@@ -890,9 +856,6 @@ namespace
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
 	{
 		Patches::Network::StopInfoServer();
-
-		StopTeamspeakClient();
-		StopTeamspeakServer();
 
 		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);

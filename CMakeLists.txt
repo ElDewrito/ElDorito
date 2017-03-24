@@ -56,7 +56,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 link_directories($ENV{DXSDK_DIR}/Lib/x86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/detours/lib.X86)
 link_directories(${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/lib)
-link_directories(${CMAKE_SOURCE_DIR}/libs/teamspeak/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cef/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/cppnetlib/lib)
 link_directories(${CMAKE_SOURCE_DIR}/libs/boost-1.60/lib)
@@ -187,8 +186,6 @@ add_library(ElDorito SHARED
     src/Modules/ModuleServer.hpp
     src/Modules/ModuleSettings.cpp
     src/Modules/ModuleSettings.hpp
-    src/Modules/ModuleVoIP.cpp
-    src/Modules/ModuleVoIP.hpp
     src/Modules/ModuleTime.cpp
     src/Modules/ModuleTime.hpp
     src/Modules/ModuleGraphics.cpp
@@ -275,12 +272,6 @@ add_library(ElDorito SHARED
     src/Utils/VersionInfo.cpp
     src/Utils/VersionInfo.hpp
     src/Utils/WebSocket.hpp
-    src/VoIP/MemberList.cpp
-    src/VoIP/MemberList.hpp
-    src/VoIP/TeamspeakClient.cpp
-    src/VoIP/TeamspeakClient.hpp
-    src/VoIP/TeamspeakServer.cpp
-    src/VoIP/TeamspeakServer.hpp
     src/Web/Bridge/Client/ClientFunctions.cpp
     src/Web/Bridge/Client/ClientFunctions.hpp
     src/Web/Bridge/WebRendererQuery.hpp
@@ -417,7 +408,6 @@ target_include_directories(ElDorito PRIVATE
   $ENV{DXSDK_DIR}/Include
   ${CMAKE_SOURCE_DIR}/libs/detours/include
   ${CMAKE_SOURCE_DIR}/libs/openssl-1.0.2c/include
-  ${CMAKE_SOURCE_DIR}/libs/teamspeak/include
   ${CMAKE_SOURCE_DIR}/libs/websocketpp/include
   ${CMAKE_SOURCE_DIR}/libs/cef
   ${CMAKE_SOURCE_DIR}/libs/cef/include
@@ -468,8 +458,6 @@ target_link_libraries(ElDorito
   ws2_32
   detours
   libeay32MT
-  ts3client_win32
-  ts3server_win32
   psapi
   winmm
   libcef

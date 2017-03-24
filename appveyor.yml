@@ -38,8 +38,6 @@ build_script:
 
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json C:\ed
 
-    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\teamspeak\bin C:\ed
-
     echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras C:\ed
 
     echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web C:\ed\mods\ui\web
