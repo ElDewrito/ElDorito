@@ -1,15 +1,15 @@
 var loadedSettings = false;
-var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'],['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['voipPTT', 'VoIP.PushToTalk'], ['voipVolMod', 'VoIP.VolumeModifier'], ['voipAGC', 'VoIP.AGC'], ['voipEchoCancel', 'VoIP.EchoCancellation'], ['voipVAL', 'VoIP.VoiceActivationLevel'], ['voipServerEnable', 'VoIP.ServerEnabled'], ['voipEnabled', 'VoIP.Enabled'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityY'], ['controllerPort','Input.ControllerPort']];
+var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'],['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityY'], ['controllerPort','Input.ControllerPort']];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 var renderWeapons = [
 	["Assault Rifle","assault_rifle"],
-	["Assault Rifle DMG","ar_variant_2"],
+	/*["Assault Rifle DMG","ar_variant_2"],
 	["Assault Rifle ROF","ar_variant_3"],
 	["Assault Rifle ACC","ar_variant_5"],
-	["Assault Rifle PWR","ar_variant_6"],
+	["Assault Rifle PWR","ar_variant_6"],*/
 	["Battle Rifle","battle_rifle"],
-	["Battle Rifle ROF","br_variant_1"],
+	/*["Battle Rifle ROF","br_variant_1"],
 	["Battle Rifle ACC","br_variant_2"],
 	["Battle Rifle MAG","br_variant_3"],
 	["Battle Rifle DMG","br_variant_4"],
@@ -21,21 +21,21 @@ var renderWeapons = [
 	["Covenant Carbine ACC","covenant_carbine_variant_3"],
 	["Covenant Carbine ROF","covenant_carbine_variant_4"],
 	["Covenant Carbine RNG","covenant_carbine_variant_5"],
-	["Covenant Carbine PWR","covenant_carbine_variant_6"],
+	["Covenant Carbine PWR","covenant_carbine_variant_6"],*/
 	["DMR","dmr"],
-	["DMR MAG","dmr_variant_1"],
+	/*["DMR MAG","dmr_variant_1"],
 	["DMR ACC","dmr_variant_2"],
 	["DMR ROF","dmr_variant_3"],
 	["DMR DMG","dmr_variant_4"],
 	["DMR RNG","dmr_variant_5"],
-	["DMR PWR","dmr_variant_6"],
+	["DMR PWR","dmr_variant_6"],*/
 	["Plasma Rifle","plasma_rifle"],
-	["Plasma Rifle PWR","plasma_rifle_variant_6"],
+	/*["Plasma Rifle PWR","plasma_rifle_variant_6"],*/
 	["SMG","smg"],
-	["SMG ROF","smg_variant_1"],
+	/*["SMG ROF","smg_variant_1"],
 	["SMG ACC","smg_variant_2"],
 	["SMG DMG","smg_variant_4"],
-	["SMG PWR","smg_variant_6"]
+	["SMG PWR","smg_variant_6"]*/
 ];
 var armorList = [
 	["Air Assault","air_assault"],
