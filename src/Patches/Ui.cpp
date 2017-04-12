@@ -756,6 +756,7 @@ namespace
 		case 4: // Theater (rip)
 			ShowLanBrowser();
 			return true;
+		case 0: // Campaign
 			Web::Ui::ScreenLayer::Show("settings", "{}");
 			return true;
 		default:
