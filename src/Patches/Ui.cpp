@@ -756,6 +756,8 @@ namespace
 		case 4: // Theater (rip)
 			ShowLanBrowser();
 			return true;
+			Web::Ui::ScreenLayer::Show("settings", "{}");
+			return true;
 		default:
 			typedef bool(*CreateLobbyPtr)(int lobbyType);
 			auto CreateLobby = reinterpret_cast<CreateLobbyPtr>(0xA7EE70);
