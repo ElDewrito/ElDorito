@@ -153,3 +153,11 @@ body {
     left: 75%;
     top: 40%;  
 }
+
+#dpad{
+    display:none;
+    position: absolute;
+    left: 15%;
+    top: 30%;
+    height: 5vw;
+}
