@@ -29,6 +29,8 @@ namespace
 	void ShutdownHook();
 	const char *GetMapsFolderHook();
 	bool LoadMapHook(void *data);
+	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
+	void GameStartHook();
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -166,6 +168,9 @@ namespace Patches
 			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
 			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
 			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
+
+			Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
+			Hook(0x133069, GameStartHook, HookFlags::IsCall).Apply();
 		}
 
 		void OnShutdown(ShutdownCallback callback)
@@ -573,5 +578,34 @@ namespace
 			callback(static_cast<const char*>(data) + 0x24); // hax
 
 		return true;
+	}
+
+	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4)
+	{
+		typedef int(__cdecl *LoadLevelPtr)(uint8_t* data, char n2, int n3, int n4);
+		auto LoadLevel = reinterpret_cast<LoadLevelPtr>(0x0054A6C0);
+
+		*reinterpret_cast<uint32_t*>(data + 0x111C) = 0x08081002;
+		*reinterpret_cast<uint32_t*>(data + 0x1120) = 0x08080808;
+		*reinterpret_cast<uint32_t*>(data + 0x1124) = 0x08080808;
+
+		LoadLevel(data, n2, n3, n4);
+	}
+
+	void GameStartHook()
+	{
+		typedef void(*GameStartPtr)();
+		auto GameStart = reinterpret_cast<GameStartPtr>(0x0054EA60);
+
+		GameStart();
+
+		auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
+		if (!engineGlobalsPtr)
+			return;
+
+		auto engineGobals = engineGlobalsPtr[0];
+
+		// fix in-game team switching for engines that support it
+		engineGobals(0x8).Write(engineGobals(0x4).Read<uint32_t>());
 	}
 }
