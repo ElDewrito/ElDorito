@@ -137,6 +137,9 @@ namespace Patches
 			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
 			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
 
+			// fix spectating
+			Patch::NopFill(Pointer::Base(0x192FFD), 6);
+
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
 			Patch::NopFill(Pointer::Base(0x2EC10), 6);
