@@ -4,6 +4,19 @@ var hideTimer;
 var hideDelay = 4500;
 var fadeTime = 800;
 var nameCardOpacity = 0.7;
+var teamArray = [
+    {name: 'red', color: '#620B0B'},
+    {name: 'blue', color: '#0B2362'},
+    {name: 'green', color: '#1F3602'},
+    {name: 'orange', color: '#BC4D00'},
+    {name: 'purple', color: '#1D1052'},
+    {name: 'gold', color: '#A77708'},   
+    {name: 'brown', color: '#1C0D02'}, 
+    {name: 'pink', color: '#FF4D8A'}, 
+    {name: 'white', color: '#D8D8D8'}, 
+    {name: 'black', color: '#0B0B0B'}           
+];
+
 
 $(window).load(function(){
     $(document).keydown(function(e){
@@ -71,11 +84,7 @@ $(window).load(function(){
                 var bgColor =  e.data.color;
                 if (i.hasTeams){
                     if(e.data.hasOwnProperty('teamIndex')){
-                        if(e.data.teamIndex == 0){
-                            bgColor = "#c02020";
-                        }else if(e.data.teamIndex == 1){
-                            bgColor = "#214EC0";
-                        }
+                        bgColor = teamArray[e.data.teamIndex].color;
                     }
                 }
                 bgColor = hexToRgba(bgColor, nameCardOpacity);
@@ -86,6 +95,9 @@ $(window).load(function(){
                 messageClass += ' emote';
                 chatClass += ' emote';
                 e.data.message = e.data.message.substring(4, e.data.message.length);
+            }
+            if(e.data.message.startsWith('/shrug')){
+                e.data.message = '¯\_(ツ)_/¯';
             }
             $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").text(e.data.message).html()));
             dew.show();
