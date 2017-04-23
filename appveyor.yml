@@ -1,49 +1,52 @@
 version: 0.6.0.{build}
-clone_folder: C:\Projects\ElDorito
-init:
-- cmd: git config --global core.autocrlf input
+
+skip_tags: true
+
+skip_branch_with_pr: true
+
+
 environment:
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
-  _release: '"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" "ElDorito.sln" /m /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:Configuration=Release /p:Platform="Win32"'
-install:
+
+os: Windows Server 2012 R2
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: c:\projects\ElDorito
+
+platform: Win32
+configuration: Release
+
+build:
+  project: '%APPVEYOR_BUILD_FOLDER%\ElDorito.sln'
+
+
+before_build:
+  - CD %APPVEYOR_BUILD_FOLDER%
+  - MD ZIPPED
+  - git clone https://github.com/scooterpsu/medalPack.git .\ZIPPED\mods\medals\default
+  - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web .\ZIPPED\mods\ui\web
+  - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras .\ZIPPED
+  - echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json .\ZIPPED
+
+after_build:
 - cmd: >-
-    cinst cmake -version 3.3.1 -y
-
-    cmake --version
-
-    CD %APPVEYOR_BUILD_FOLDER%\
-
-    mkdir build
-
-    cd build
-
-    cmake -G "Visual Studio 12" --build ..
-
-build_script:
-- cmd: >-
-    CD %APPVEYOR_BUILD_FOLDER%\build\
-
-    %_release%
-
     appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll
 
-    mkdir C:\ed
+    CD %APPVEYOR_BUILD_FOLDER%
 
-    git clone https://github.com/scooterpsu/medalPack.git C:\ed\mods\medals\default
+    echo F|xcopy /y '%APPVEYOR_BUILD_FOLDER%\build\Release\CefProcess.exe' .\ZIPPED\custom_menu.exe
 
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll C:\ed
+    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\ZIPPED
 
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\build\Release\CefProcess.exe C:\ed\custom_menu.exe
+    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\
 
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json C:\ed
-
-    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras C:\ed
-
-    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web C:\ed\mods\ui\web
-
-    cd C:\ed
+    CD .\ZIPPED\
 
     %_7z% *
+
+    CD ..
 
     appveyor PushArtifact %_zip%
