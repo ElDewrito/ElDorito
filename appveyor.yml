@@ -33,11 +33,11 @@ before_build:
 
 after_build:
 - cmd: >-
-    appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Release\mtndew.dll
+    appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll
 
     CD %APPVEYOR_BUILD_FOLDER%
 
-    echo F|xcopy /y '%APPVEYOR_BUILD_FOLDER%\build\Release\CefProcess.exe' .\ZIPPED\custom_menu.exe
+    echo F|xcopy /y '%APPVEYOR_BUILD_FOLDER%\Release\CefProcess.exe' .\ZIPPED\custom_menu.exe
 
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\ZIPPED
 
