@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -39,6 +39,7 @@
 #pragma once
 
 #include "include/capi/cef_base_capi.h"
+#include "include/capi/cef_ssl_status_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +53,7 @@ typedef struct _cef_navigation_entry_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is valid. Do not call any other functions
@@ -115,6 +116,12 @@ typedef struct _cef_navigation_entry_t {
   // navigation has not yet completed.
   ///
   int (CEF_CALLBACK *get_http_status_code)(
+      struct _cef_navigation_entry_t* self);
+
+  ///
+  // Returns the SSL information for this navigation entry.
+  ///
+  struct _cef_sslstatus_t* (CEF_CALLBACK *get_sslstatus)(
       struct _cef_navigation_entry_t* self);
 } cef_navigation_entry_t;
 

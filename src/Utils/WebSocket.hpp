@@ -56,7 +56,7 @@ namespace Utils
 				return (staticChannels_ & channel) != 0;
 			}
 
-			bool dynamic_test(_WEBSOCKETPP_CONSTEXPR_TOKEN_ websocketpp::log::level channel)
+			bool dynamic_test(const websocketpp::log::level channel)
 			{
 				return (dynamicChannels_ & channel) != 0;
 			}

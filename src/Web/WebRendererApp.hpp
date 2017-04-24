@@ -14,7 +14,7 @@ namespace Anvil
 			{
 			public:
 				virtual ~WebRendererApp() { }
-				virtual void OnRegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> p_Registrar) override;
+				virtual void OnRegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> p_Registrar);
 
 				virtual CefRefPtr< CefBrowserProcessHandler > GetBrowserProcessHandler() override;
 				virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override;

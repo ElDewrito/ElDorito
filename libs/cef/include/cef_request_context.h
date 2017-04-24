@@ -52,7 +52,7 @@ class CefSchemeHandlerFactory;
 // Callback interface for CefRequestContext::ResolveHost.
 ///
 /*--cef(source=client)--*/
-class CefResolveCallback : public virtual CefBase {
+class CefResolveCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Called after the ResolveHost request has completed. |result| will be the
@@ -83,7 +83,7 @@ class CefResolveCallback : public virtual CefBase {
 // all other request context objects will be ignored.
 ///
 /*--cef(source=library,no_debugct_check)--*/
-class CefRequestContext : public virtual CefBase {
+class CefRequestContext : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns the global context object.
@@ -104,7 +104,7 @@ class CefRequestContext : public virtual CefBase {
   // Creates a new context object that shares storage with |other| and uses an
   // optional |handler|.
   ///
-  /*--cef(capi_name=create_context_shared,optional_param=handler)--*/
+  /*--cef(capi_name=cef_create_context_shared,optional_param=handler)--*/
   static CefRefPtr<CefRequestContext> CreateContext(
       CefRefPtr<CefRequestContext> other,
       CefRefPtr<CefRequestContextHandler> handler);
