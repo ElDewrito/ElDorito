@@ -18,9 +18,7 @@ Pull requests are welcomed from anyone who wants to contribute to us. We recomme
 You should always check for the latest builds of ElDewrito on our [subreddit](https://www.reddit.com/r/HaloOnline/).
 
 ## Building
-To build ElDewrito you'll need Visual Studio 2013, DirectX June 2010 SDK and CMake installed.
-
-Once they're installed just run the generate_vs2013_sln_files.bat, then open up build/ElDorito.sln and you should be able to build the dll fine.
+To build ElDewrito you'll need Visual Studio 2013 and DirectX June 2010 SDK installed.
 
 ## Donations
 We don't accept donations, donate money to your favorite charity instead.
