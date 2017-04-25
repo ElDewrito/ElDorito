@@ -72,6 +72,7 @@
     <ClCompile Include="Source\Patches\ContentItems.cpp" />
     <ClCompile Include="Source\Patches\Core.cpp" />
     <ClCompile Include="Source\Patches\CustomPackets.cpp" />
+    <ClCompile Include="Source\Patches\Equipment.cpp" />
     <ClCompile Include="Source\Patches\Events.cpp" />
     <ClCompile Include="Source\Patches\Forge.cpp" />
     <ClCompile Include="Source\Patches\Input.cpp" />
@@ -128,6 +129,7 @@
     <ClInclude Include="Source\Blam\BlamNetwork.hpp" />
     <ClInclude Include="Source\Blam\BlamObjects.hpp" />
     <ClInclude Include="Source\Blam\BlamPlayers.hpp" />
+    <ClInclude Include="Source\Blam\BlamTime.hpp" />
     <ClInclude Include="Source\Blam\BlamTypes.hpp" />
     <ClInclude Include="Source\Blam\Cache\StringIdCache.hpp" />
     <ClInclude Include="Source\Blam\Math\Angle.hpp" />
@@ -211,6 +213,7 @@
     <ClInclude Include="Source\Patches\ContentItems.hpp" />
     <ClInclude Include="Source\Patches\Core.hpp" />
     <ClInclude Include="Source\Patches\CustomPackets.hpp" />
+    <ClInclude Include="Source\Patches\Equipment.hpp" />
     <ClInclude Include="Source\Patches\Events.hpp" />
     <ClInclude Include="Source\Patches\Forge.hpp" />
     <ClInclude Include="Source\Patches\Input.hpp" />

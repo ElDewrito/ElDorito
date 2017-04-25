@@ -104,6 +104,7 @@ namespace
 		bindings.ControllerButtons[eGameActionUnk56]          = eControllerButtonDpadDown;
 		bindings.ControllerButtons[eGameActionUnk57]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
+		bindings.ControllerButtons[eGameActionUseConsumable1] = eControllerButtonLeftBumper;
 
 		bindings.ControllerHoldButtons[eGameActionUnk19]      = true;
 		bindings.ControllerHoldButtons[eGameActionUse]        = true;
@@ -170,6 +171,7 @@ namespace
 		bindings.SecondaryKeys[eGameActionMoveLeft]              = eKeyCodeLeft;
 		bindings.PrimaryKeys[eGameActionMoveRight]               = eKeyCodeD;
 		bindings.SecondaryKeys[eGameActionMoveRight]             = eKeyCodeRight;
+		bindings.SecondaryKeys[eGameActionUseConsumable1]		 = eKeyCode1;
 
 		Modules::ModuleInput::UpdateBindings();
 	}
