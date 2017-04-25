@@ -1,0 +1,445 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Blam\BitStream.cpp" />
+    <ClCompile Include="Source\Blam\BlamData.cpp" />
+    <ClCompile Include="Source\Blam\BlamInput.cpp" />
+    <ClCompile Include="Source\Blam\BlamNetwork.cpp" />
+    <ClCompile Include="Source\Blam\BlamPlayers.cpp" />
+    <ClCompile Include="Source\Blam\Cache\StringIdCache.cpp" />
+    <ClCompile Include="Source\Blam\Math\Angle.cpp" />
+    <ClCompile Include="Source\Blam\Math\Bounds.cpp" />
+    <ClCompile Include="Source\Blam\Math\ColorARGB.cpp" />
+    <ClCompile Include="Source\Blam\Math\ColorRGB.cpp" />
+    <ClCompile Include="Source\Blam\Math\Point2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealColorARGB.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealColorRGB.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealEulerAngles2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealEulerAngles3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealMatrix3x3.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealMatrix4x3.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealOrientation3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealPlane2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealPlane3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealPoint2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealPoint3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealQuaternion.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealRectangle2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealRectangle3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealVector2D.cpp" />
+    <ClCompile Include="Source\Blam\Math\RealVector3D.cpp" />
+    <ClCompile Include="Source\Blam\Math\Rectangle2D.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Tag.cpp" />
+    <ClCompile Include="Source\Blam\Tags\TagBlock.cpp" />
+    <ClCompile Include="Source\Blam\Tags\TagData.cpp" />
+    <ClCompile Include="Source\Blam\Tags\TagGroup.cpp" />
+    <ClCompile Include="Source\Blam\Tags\TagInstance.cpp" />
+    <ClCompile Include="Source\Blam\Tags\TagReference.cpp" />
+    <ClCompile Include="Source\Blam\Text\StringID.cpp" />
+    <ClCompile Include="Source\ChatCommands\ChatCommand.cpp" />
+    <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp" />
+    <ClCompile Include="Source\CommandMap.cpp" />
+    <ClCompile Include="Source\Console.cpp" />
+    <ClCompile Include="Source\DirectXHook.cpp" />
+    <ClCompile Include="Source\ElDorito.cpp" />
+    <ClCompile Include="Source\ElModules.cpp" />
+    <ClCompile Include="Source\ElPatches.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Modules\ModuleBase.cpp" />
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
+    <ClCompile Include="Source\Modules\ModuleDebug.cpp" />
+    <ClCompile Include="Source\Modules\ModuleGame.cpp" />
+    <ClCompile Include="Source\Modules\ModuleGraphics.cpp" />
+    <ClCompile Include="Source\Modules\ModuleInput.cpp" />
+    <ClCompile Include="Source\Modules\ModulePlayer.cpp" />
+    <ClCompile Include="Source\Modules\ModuleServer.cpp" />
+    <ClCompile Include="Source\Modules\ModuleSettings.cpp" />
+    <ClCompile Include="Source\Modules\ModuleTime.cpp" />
+    <ClCompile Include="Source\Modules\ModuleUPnP.cpp" />
+    <ClCompile Include="Source\Patch.cpp" />
+    <ClCompile Include="Source\Patches\Armor.cpp" />
+    <ClCompile Include="Source\Patches\Assassination.cpp" />
+    <ClCompile Include="Source\Patches\ContentItems.cpp" />
+    <ClCompile Include="Source\Patches\Core.cpp" />
+    <ClCompile Include="Source\Patches\CustomPackets.cpp" />
+    <ClCompile Include="Source\Patches\Events.cpp" />
+    <ClCompile Include="Source\Patches\Forge.cpp" />
+    <ClCompile Include="Source\Patches\Input.cpp" />
+    <ClCompile Include="Source\Patches\LoadingScreen.cpp" />
+    <ClCompile Include="Source\Patches\Logging.cpp" />
+    <ClCompile Include="Source\Patches\Memory.cpp" />
+    <ClCompile Include="Source\Patches\Mouse.cpp" />
+    <ClCompile Include="Source\Patches\Network.cpp" />
+    <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp" />
+    <ClCompile Include="Source\Patches\PlayerUid.cpp" />
+    <ClCompile Include="Source\Patches\RawInputPatch.cpp" />
+    <ClCompile Include="Source\Patches\Scoreboard.cpp" />
+    <ClCompile Include="Source\Patches\Sprint.cpp" />
+    <ClCompile Include="Source\Patches\Ui.cpp" />
+    <ClCompile Include="Source\Patches\VirtualKeyboard.cpp" />
+    <ClCompile Include="Source\Pointer.cpp" />
+    <ClCompile Include="Source\Server\BanList.cpp" />
+    <ClCompile Include="Source\Server\DedicatedServer.cpp" />
+    <ClCompile Include="Source\Server\Rcon.cpp" />
+    <ClCompile Include="Source\Server\ServerChat.cpp" />
+    <ClCompile Include="Source\Server\VariableSynchronization.cpp" />
+    <ClCompile Include="Source\Server\VotingPackets.cpp" />
+    <ClCompile Include="Source\Server\VotingSystem.cpp" />
+    <ClCompile Include="Source\ThirdParty\HttpRequest.cpp" />
+    <ClCompile Include="Source\Utils\AntiCheat.cpp" />
+    <ClCompile Include="Source\Utils\Assert.cpp" />
+    <ClCompile Include="Source\Utils\Cryptography.cpp" />
+    <ClCompile Include="Source\Utils\Debug.cpp" />
+    <ClCompile Include="Source\Utils\Logger.cpp" />
+    <ClCompile Include="Source\Utils\Rectangle.cpp" />
+    <ClCompile Include="Source\Utils\String.cpp" />
+    <ClCompile Include="Source\Utils\VersionInfo.cpp" />
+    <ClCompile Include="Source\Web\Bridge\Client\ClientFunctions.cpp" />
+    <ClCompile Include="Source\Web\Bridge\WebRendererQueryHandler.cpp" />
+    <ClCompile Include="Source\Web\Ui\MpEventDispatcher.cpp" />
+    <ClCompile Include="Source\Web\Ui\ScreenLayer.cpp" />
+    <ClCompile Include="Source\Web\Ui\VotingScreen.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebChat.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebConsole.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebLoadingScreen.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebVirtualKeyboard.cpp" />
+    <ClCompile Include="Source\Web\WebRenderer.cpp" />
+    <ClCompile Include="Source\Web\WebRendererApp.cpp" />
+    <ClCompile Include="Source\Web\WebRendererHandler.cpp" />
+    <ClCompile Include="Source\Web\WebRendererSchemeHandler.cpp" />
+    <ClCompile Include="Source\Web\WebRendererSchemeHandlerFactory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Blam\BitStream.hpp" />
+    <ClInclude Include="Source\Blam\BlamData.hpp" />
+    <ClInclude Include="Source\Blam\BlamEvents.hpp" />
+    <ClInclude Include="Source\Blam\BlamInput.hpp" />
+    <ClInclude Include="Source\Blam\BlamMemory.hpp" />
+    <ClInclude Include="Source\Blam\BlamNetwork.hpp" />
+    <ClInclude Include="Source\Blam\BlamObjects.hpp" />
+    <ClInclude Include="Source\Blam\BlamPlayers.hpp" />
+    <ClInclude Include="Source\Blam\BlamTypes.hpp" />
+    <ClInclude Include="Source\Blam\Cache\StringIdCache.hpp" />
+    <ClInclude Include="Source\Blam\Math\Angle.hpp" />
+    <ClInclude Include="Source\Blam\Math\Bounds.hpp" />
+    <ClInclude Include="Source\Blam\Math\ColorARGB.hpp" />
+    <ClInclude Include="Source\Blam\Math\ColorRGB.hpp" />
+    <ClInclude Include="Source\Blam\Math\Point2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealColorARGB.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealColorRGB.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealEulerAngles2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealEulerAngles3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealMatrix3x3.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealMatrix4x3.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealOrientation3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealPlane2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealPlane3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealPoint2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealPoint3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealQuaternion.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealRectangle2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealRectangle3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealVector2D.hpp" />
+    <ClInclude Include="Source\Blam\Math\RealVector3D.hpp" />
+    <ClInclude Include="Source\Blam\Math\Rectangle2D.hpp" />
+    <ClInclude Include="Source\Blam\Padding.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\AssaultVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\CTFVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\GameEngineSettings.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\GameVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\Globals.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\InfectionVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\JuggernautVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\KOTHVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\MultiplayerGlobals.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\OddballVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\SandboxVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\SlayerVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\TerritoriesVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Sounds\Noise.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Tag.hpp" />
+    <ClInclude Include="Source\Blam\Tags\TagBlock.hpp" />
+    <ClInclude Include="Source\Blam\Tags\TagData.hpp" />
+    <ClInclude Include="Source\Blam\Tags\TagGroup.hpp" />
+    <ClInclude Include="Source\Blam\Tags\TagInstance.hpp" />
+    <ClInclude Include="Source\Blam\Tags\TagReference.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Tags.hpp" />
+    <ClInclude Include="Source\Blam\Tags\UI\ChudDefinition.hpp" />
+    <ClInclude Include="Source\Blam\Tags\UI\ChudGlobalsDefinition.hpp" />
+    <ClInclude Include="Source\Blam\Tags\UI\MultilingualUnicodeStringList.hpp" />
+    <ClInclude Include="Source\Blam\Text\StringID.hpp" />
+    <ClInclude Include="Source\ChatCommands\ChatCommand.hpp" />
+    <ClInclude Include="Source\ChatCommands\ChatCommandMap.hpp" />
+    <ClInclude Include="Source\CommandMap.hpp" />
+    <ClInclude Include="Source\Console.hpp" />
+    <ClInclude Include="Source\DirectXHook.hpp" />
+    <ClInclude Include="Source\ElDorito.hpp" />
+    <ClInclude Include="Source\ElModules.hpp" />
+    <ClInclude Include="Source\ElPatches.hpp" />
+    <ClInclude Include="Source\Modules\ModuleBase.hpp" />
+    <ClInclude Include="Source\Modules\ModuleCamera.hpp" />
+    <ClInclude Include="Source\Modules\ModuleDebug.hpp" />
+    <ClInclude Include="Source\Modules\ModuleGame.hpp" />
+    <ClInclude Include="Source\Modules\ModuleGraphics.hpp" />
+    <ClInclude Include="Source\Modules\ModuleInput.hpp" />
+    <ClInclude Include="Source\Modules\ModulePlayer.hpp" />
+    <ClInclude Include="Source\Modules\ModuleServer.hpp" />
+    <ClInclude Include="Source\Modules\ModuleSettings.hpp" />
+    <ClInclude Include="Source\Modules\ModuleTime.hpp" />
+    <ClInclude Include="Source\Modules\ModuleUPnP.hpp" />
+    <ClInclude Include="Source\Patch.hpp" />
+    <ClInclude Include="Source\Patches\Armor.hpp" />
+    <ClInclude Include="Source\Patches\Assassination.hpp" />
+    <ClInclude Include="Source\Patches\ContentItems.hpp" />
+    <ClInclude Include="Source\Patches\Core.hpp" />
+    <ClInclude Include="Source\Patches\CustomPackets.hpp" />
+    <ClInclude Include="Source\Patches\Events.hpp" />
+    <ClInclude Include="Source\Patches\Forge.hpp" />
+    <ClInclude Include="Source\Patches\Input.hpp" />
+    <ClInclude Include="Source\Patches\LoadingScreen.hpp" />
+    <ClInclude Include="Source\Patches\Logging.hpp" />
+    <ClInclude Include="Source\Patches\Memory.hpp" />
+    <ClInclude Include="Source\Patches\Mouse.hpp" />
+    <ClInclude Include="Source\Patches\Network.hpp" />
+    <ClInclude Include="Source\Patches\PlayerPropertiesExtension.hpp" />
+    <ClInclude Include="Source\Patches\PlayerUid.hpp" />
+    <ClInclude Include="Source\Patches\RawInput.hpp" />
+    <ClInclude Include="Source\Patches\Scoreboard.hpp" />
+    <ClInclude Include="Source\Patches\Sprint.hpp" />
+    <ClInclude Include="Source\Patches\Ui.hpp" />
+    <ClInclude Include="Source\Patches\VirtualKeyboard.hpp" />
+    <ClInclude Include="Source\Pointer.hpp" />
+    <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\Server\BanList.hpp" />
+    <ClInclude Include="Source\Server\DedicatedServer.hpp" />
+    <ClInclude Include="Source\Server\Rcon.hpp" />
+    <ClInclude Include="Source\Server\ServerChat.hpp" />
+    <ClInclude Include="Source\Server\VariableSynchronization.hpp" />
+    <ClInclude Include="Source\Server\VotingPackets.hpp" />
+    <ClInclude Include="Source\Server\VotingSystem.hpp" />
+    <ClInclude Include="Source\Settings.hpp" />
+    <ClInclude Include="Source\ThirdParty\dirent.h" />
+    <ClInclude Include="Source\ThirdParty\HttpRequest.hpp" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\allocators.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\document.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\encodedstream.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\encodings.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\error\en.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\error\error.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\filereadstream.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\filewritestream.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\itoa.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\meta.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\pow10.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\stack.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\strtod.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\memorybuffer.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\memorystream.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\pointer.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\prettywriter.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\rapidjson.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\reader.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\writer.h" />
+    <ClInclude Include="Source\Utils\AntiCheat.hpp" />
+    <ClInclude Include="Source\Utils\Assert.hpp" />
+    <ClInclude Include="Source\Utils\Bits.hpp" />
+    <ClInclude Include="Source\Utils\Cryptography.hpp" />
+    <ClInclude Include="Source\Utils\Debug.hpp" />
+    <ClInclude Include="Source\Utils\Logger.hpp" />
+    <ClInclude Include="Source\Utils\Macros.hpp" />
+    <ClInclude Include="Source\Utils\NameValueTable.hpp" />
+    <ClInclude Include="Source\Utils\Rectangle.hpp" />
+    <ClInclude Include="Source\Utils\Singleton.hpp" />
+    <ClInclude Include="Source\Utils\String.hpp" />
+    <ClInclude Include="Source\Utils\UPnP.hpp" />
+    <ClInclude Include="Source\Utils\Utils.hpp" />
+    <ClInclude Include="Source\Utils\VersionInfo.hpp" />
+    <ClInclude Include="Source\Utils\WebSocket.hpp" />
+    <ClInclude Include="Source\Web\Bridge\Client\ClientFunctions.hpp" />
+    <ClInclude Include="Source\Web\Bridge\WebRendererQuery.hpp" />
+    <ClInclude Include="Source\Web\Bridge\WebRendererQueryHandler.hpp" />
+    <ClInclude Include="Source\Web\Logger.hpp" />
+    <ClInclude Include="Source\Web\Ui\MpEventDispatcher.hpp" />
+    <ClInclude Include="Source\Web\Ui\ScreenLayer.hpp" />
+    <ClInclude Include="Source\Web\Ui\VotingScreen.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebChat.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebConsole.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebLoadingScreen.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebVirtualKeyboard.hpp" />
+    <ClInclude Include="Source\Web\WebRenderer.hpp" />
+    <ClInclude Include="Source\Web\WebRendererApp.hpp" />
+    <ClInclude Include="Source\Web\WebRendererHandler.hpp" />
+    <ClInclude Include="Source\Web\WebRendererSchemeHandler.hpp" />
+    <ClInclude Include="Source\Web\WebRendererSchemeHandlerFactory.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\ElDorito.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Source\ElDorito.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGUID>{715A189F-024C-3E8E-8462-9036BF583FA1}</ProjectGUID>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>ElDorito</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">mtndew</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">mtndew</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_ENABLE_ATOMIC_ALIGNMENT_FIX;_DEBUG;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.0.2c\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.0.2c\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)  /machine:X86</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;libcef_dll_wrapperd.lib;cppnetlib-uri-d.lib;iphlpapi.lib;miniupnpc.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)//Lib/x86;C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)//Lib/x86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>$(SolutionDir)/Debug/mtndew.lib</ImportLibrary>
+      <ModuleDefinitionFile>$(ProjectDir)Source/ElDorito.def</ModuleDefinitionFile>
+      <ProgramDataBaseFile>$(SolutionDir)/Debug/mtndew.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_ENABLE_ATOMIC_ALIGNMENT_FIX;NDEBUG;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.0.2c\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.0.2c\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions>%(AdditionalOptions)  /machine:X86</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;libcef_dll_wrapper.lib;cppnetlib-uri.lib;iphlpapi.lib;miniupnpc.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)//Lib/x86;C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)//Lib/x86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>$(SolutionDir)/Release/mtndew.lib</ImportLibrary>
+      <ModuleDefinitionFile>$(ProjectDir)Source/ElDorito.def</ModuleDefinitionFile>
+      <ProgramDataBaseFile>$(SolutionDir)/Release/mtndew.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
