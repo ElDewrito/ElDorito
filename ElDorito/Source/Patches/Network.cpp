@@ -523,6 +523,15 @@ namespace
 		if (!isHost)
 			return retval;
 
+		if (isOnline == 1)
+		{
+			Patches::Network::StartInfoServer();
+		}
+		else
+		{
+			Patches::Network::StopInfoServer();
+		}
+
 		return retval;
 	}
 
