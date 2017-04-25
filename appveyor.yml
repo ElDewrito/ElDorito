@@ -1,14 +1,13 @@
-os: Windows Server 2016
 image: Visual Studio 2017
 
 version: 0.6.0.{build}
 
 skip_tags: true
 
-skip_branch_with_pr: true
-
+skip_branch_with_pr: false
 
 environment:
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
 
@@ -17,12 +16,9 @@ init:
 
 clone_folder: c:\projects\ElDorito
 
-platform: Win32
-configuration: Release
-
-build:
-  project: '%APPVEYOR_BUILD_FOLDER%\ElDorito.sln'
-
+build_script:
+- cmd: >-
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Release" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
 
 before_build:
   - CD %APPVEYOR_BUILD_FOLDER%
