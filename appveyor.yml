@@ -1,3 +1,6 @@
+os: Windows Server 2016
+image: Visual Studio 2017
+
 version: 0.6.0.{build}
 
 skip_tags: true
@@ -8,8 +11,6 @@ skip_branch_with_pr: true
 environment:
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
-
-os: Windows Server 2012 R2
 
 init:
   - git config --global core.autocrlf input
