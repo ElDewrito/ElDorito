@@ -27,7 +27,7 @@ Patch::Patch(size_t Offset, size_t byteValue, size_t numBytes, Pointer base /*= 
 {
 	// Fill with NOPs
 	Data.resize(numBytes);
-	std::fill(Data.begin(), Data.end(), byteValue);
+	std::fill(Data.begin(), Data.end(), (unsigned char)byteValue);
 
 	Orig.resize(Data.size());
 	base(Offset).Read(Orig.data(), Orig.size());

@@ -60,7 +60,7 @@ namespace Utils
 
 				if (bits.size() > 1)
 				{
-					for (auto i = 1; i < bits.size(); i++)
+					for (size_t i = 1; i < bits.size(); i++)
 					{
 						ss << " | " << bits[i];
 					}

@@ -238,7 +238,6 @@ namespace Server
 					writer.Key("playerVersusPlayerKills");
 					writer.StartArray();
 
-
 					int pvpIndex = 0x00;
 					for (int loc = 0; loc < 16; loc++)
 					{
@@ -265,10 +264,6 @@ namespace Server
 					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Unable to connect to stats server");
 				}
 			}
-			catch (std::exception const& e) {
-
-				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Exception while sending stats to server");
-			}
 			catch (...)
 			{
 				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Exception while sending stats to server");
@@ -279,13 +274,11 @@ namespace Server
 
 		void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 		{
-
 			if (event->NameStringId == 262221) //Game Ended event
 			{
 				time(&sendStatsTime);
 			}
 		}
-		
 	}
 }
 

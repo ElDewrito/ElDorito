@@ -377,7 +377,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalOptions>%(AdditionalOptions)  /machine:X86</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)  /machine:X86 /NODEFAULTLIB:libcmtd.lib</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;libcef_dll_wrapperd.lib;cppnetlib-uri-d.lib;iphlpapi.lib;miniupnpc.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -423,7 +423,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalOptions>%(AdditionalOptions)  /machine:X86</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)  /machine:X86 /NODEFAULTLIB:libcmtd.lib</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;libcef_dll_wrapper.lib;cppnetlib-uri.lib;iphlpapi.lib;miniupnpc.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
