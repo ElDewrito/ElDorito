@@ -1,10 +1,12 @@
-﻿html, body {
+﻿@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html, body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	font-family: "Tahoma", sans-serif;
+	font-family: "Conduit ITC";
 }
 .container {
 	color: white;
@@ -25,14 +27,21 @@ a.boxclose{
     margin-right:-15px;
     cursor:pointer;
     color: #fff;
-    border: 1px solid #AEAEAE;
-    border-radius: 30px;
+	border: 3px solid rgba(112, 128, 144, 0.9);
+    border-radius: 15px;
     background: #605F61;
-    font-size: 31px;
-    font-weight: bold;
+    font-size: 35px;
+    font-weight: 600;
     display: inline-block;
-    line-height: 0px;
-    padding: 11px 3px;       
+    line-height: 18px;
+    text-align: center;    
+    height:26px;   
+    width: 25px;
+    padding-left:1px;
+}
+
+a.boxclose:hover{
+    background-color: #B1572A;
 }
 
 .boxclose:before {
@@ -49,6 +58,7 @@ a.boxclose{
 	border-left: 2px solid rgba(112, 128, 144, 0.0);
 	border-right: 2px solid rgba(112, 128, 144, 0.0);
 	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
+
 }
 #title
 {
@@ -85,7 +95,7 @@ a.boxclose{
 	border: 2px solid rgba(0, 255, 0, 1);
 }
 h5,p{
-	font-size: 1vw;
+	font-size: 1.25vw;
 	margin: 0;
 	padding: .3em;
 }
