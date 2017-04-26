@@ -9,17 +9,23 @@ html, body {
 	font-family: "Conduit ITC";
 }
 .container {
-	color: white;
+    color: #afbed5;
 	margin: 0.1vw;
 	width: 20vw;
 	border: 2px solid rgba(112, 128, 144, 0.7);
-	background: rgba(112, 128, 144, 0.5);
+
 	position: absolute;
 	top: 13vh;
 	left: 48vw;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
+}
+.votingOption{
+	background-color: rgba(64, 88, 128, 0.75);
+}
+#title,.revoteOption{
+	background-color: rgba(0, 0, 0, 0.53);
 }
 a.boxclose{
     float:right;
@@ -29,7 +35,7 @@ a.boxclose{
     color: #fff;
 	border: 3px solid rgba(112, 128, 144, 0.9);
     border-radius: 15px;
-    background: #605F61;
+	background-color: rgba(19,35,61,0.6);
     font-size: 35px;
     font-weight: 600;
     display: inline-block;
@@ -39,17 +45,13 @@ a.boxclose{
     width: 25px;
     padding-left:1px;
 }
-
-a.boxclose:hover{
-    background-color: #B1572A;
+a.boxclose:hover
+{
+	background-color:rgba(199, 109, 41, 0.95);
 }
 
 .boxclose:before {
     content: "×";
-
-}
-.votingOption:hover {
-	background: rgba(112, 128, 144, 0.7);
 }
 .votingOption
 {
@@ -62,6 +64,7 @@ a.boxclose:hover{
 }
 #title
 {
+	color:white;
 	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
 }
 .voteTally
@@ -85,10 +88,11 @@ a.boxclose:hover{
 	padding:2%;	
 	
 }
-.selected
+.votingOption:hover,.selected
 {
+	color:white;
 	border: 2px solid rgba(255, 255, 255, 0.9);
-	background: rgba(112, 128, 144, 0.7);
+	background-color:rgba(210, 132, 74, 0.79);
 }
 .winner
 {
