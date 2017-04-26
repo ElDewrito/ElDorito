@@ -323,8 +323,8 @@ class scoped_refptr {
   }
 
   ~scoped_refptr() {
-    //if (ptr_)
-      //ptr_->Release();
+    if (ptr_)
+      ptr_->Release();
   }
 
   T* get() const { return ptr_; }

@@ -146,6 +146,8 @@ class CefSchemeRegistrar : public CefBaseScoped {
                                bool is_display_isolated,
                                bool is_secure,
                                bool is_cors_enabled) =0;
+
+  inline virtual void Release() {} // sigh...
 };
 
 
@@ -170,6 +172,8 @@ class CefSchemeHandlerFactory : public virtual CefBaseRefCounted {
       CefRefPtr<CefFrame> frame,
       const CefString& scheme_name,
       CefRefPtr<CefRequest> request) =0;
+
+  inline void Release() {} // sigh...
 };
 
 #endif  // CEF_INCLUDE_CEF_SCHEME_H_
