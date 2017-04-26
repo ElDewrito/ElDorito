@@ -13,7 +13,8 @@ html, body {
 	margin: 0.1vw;
 	width: 20vw;
 	border: 2px solid rgba(112, 128, 144, 0.7);
-
+	border-left: 0;
+	border-right:0;
 	position: absolute;
 	top: 13vh;
 	left: 48vw;
@@ -24,7 +25,7 @@ html, body {
 .votingOption{
 	background-color: rgba(64, 88, 128, 0.75);
 }
-#title,.revoteOption{
+#title{
 	background-color: rgba(0, 0, 0, 0.53);
 }
 a.boxclose{
@@ -86,6 +87,7 @@ a.boxclose:hover
 .revoteOption
 {
 	padding:2%;	
+	border-bottom: 0;
 	
 }
 .votingOption:hover,.selected
