@@ -1,14 +1,31 @@
 $("html").on("keydown", function(e) {
-    if (e.which == 113)
+    if (e.which == 113){
         dew.hide();
+    }
+    if(e.which == 84 || e.which == 89){
+        var teamChat = false;
+        if(e.which == 89){ teamChat = true };
+        dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+    }
+    if(e.which == 192 || e.which == 112){
+        dew.show("console");
+    }
 });
 
 var interval = 0;
 var seconds_left;
+var isHost;
 
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
 }
+
+dew.on("show", function(event) {
+    dew.captureInput(true);
+    dew.getSessionInfo().then(function(i){
+        isHost = i.isHost;
+    });
+});
 
 dew.on("hide", function(event) {
     clearInterval(interval);
@@ -49,7 +66,7 @@ dew.on("VotingOptionsUpdated", function(event) {
                     "class": "votingOption",
                     "id": entry.index
                 })
-                .html("<p>" + entry.index + ". " + entry.typename + " on " + entry.mapname + "</p><img src='images/" + entry.image + ".jpg'><span id='voteTally" + entry.index + "'  class='voteTally'></span>  ")
+                .html("<p>" + entry.index + ". " + entry.typename + " on " + entry.mapname + "</p><img src='dew://assets/maps/small/" + entry.image + ".png'><span id='voteTally" + entry.index + "'  class='voteTally'></span>  ")
                 .appendTo($(".container"));
 
         }
@@ -65,9 +82,13 @@ dew.on("VotingOptionsUpdated", function(event) {
         }
     }, 1000);
     $('#boxclose').click(function(){
-           dew.command("server.CancelVote").then(function(output) {}).catch(function(error) {});
-
-          dew.hide();
+        if(isHost){
+            dew.command("server.CancelVote").then(function() {});
+            dew.hide();
+        } else {
+            dew.captureInput(false);
+            $("#boxclose").remove();
+        }
    });
     $(".votingOption").click(function() {
 
@@ -75,6 +96,11 @@ dew.on("VotingOptionsUpdated", function(event) {
         $(this).addClass("selected");
         vote($(this).attr('id'));
     });
+    $(".clickCatcher").click(function(){
+            dew.captureInput(false);
+            $("#boxclose").remove();        
+    });
+    
 });
 
 dew.on("VoteCountsUpdated", function(event) {

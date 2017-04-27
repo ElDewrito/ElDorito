@@ -16,8 +16,8 @@ body {
     width: 100%;
     height: 100%;
     background-image:
-        url(images/cloud_front.png),
-        url(images/cloud_back.png);
+        url(dew://assets/ed/cloud_front.png),
+        url(dew://assets/ed/cloud_back.png);
     background-size: calc(100% + 200px) 55%, calc(100% + 200px) 70%;
     background-position: 100% 100%, 0% 100%;
     background-repeat: no-repeat;
@@ -34,7 +34,7 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    background-image: url(images/ring.png);
+    background-image: url(dew://assets/ed/ring.png);
     background-size: cover;
     background-position: 50% 0%;
     background-repeat: no-repeat;
@@ -45,7 +45,7 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    background-image: url(images/stars.jpg);
+    background-image: url(dew://assets/ed/stars.jpg);
     background-size: cover;
     background-position: 50% 0%;
     background-repeat: repeat;
@@ -63,7 +63,7 @@ body {
     bottom: 42%;
     width: 100%;
     height: 15%;
-    background-image: url(images/EldoritoLogoFinalSmall.png);
+    background-image: url(dew://assets/ed/EldoritoLogoFinalSmall.png);
     background-size: auto 100%;
     background-position: 50%;
     background-repeat: no-repeat;

@@ -3,6 +3,7 @@ $(document).ready(function() {
        var key = e.which;
        if (key == 13){
             $( ".genericLoader" ).fadeOut( 500, function() {
+                dew.show('menu');
                 dew.hide();
             });
        } else if (key ==192){
@@ -16,9 +17,9 @@ $(document).ready(function() {
             //console.log("Gamepad connected");
             $("#dpad").show();
             $( "#up, #down, #left, #right" ).hide();
-            $(".instructionText img").attr("src","images/XboxOne_Menu.png");
-            $("#esc").attr("src","images/XboxOne_B.png");
-            $("#enter").attr("src","images/XboxOne_A.png");
+            $(".instructionText img").attr("src","dew://assets/buttons/XboxOne_Menu.png");
+            $("#esc").attr("src","dew://assets/buttons/XboxOne_B.png");
+            $("#enter").attr("src","dew://assets/buttons/XboxOne_A.png");
             repGP = window.setInterval(checkGamepad,100);
         });
         $(window).on("gamepaddisconnected", function(){
@@ -26,9 +27,9 @@ $(document).ready(function() {
             //console.log("Gamepad disconnected");
             $("#dpad").hide();
             $( "#up, #down, #left, #right" ).show();
-            $(".instructionText img").attr("src","images/Keyboard_White_Enter.png");
-            $("#esc").attr("src","images/Keyboard_White_Esc.png");
-            $("#enter").attr("src","images/Keyboard_White_Enter.png");
+            $(".instructionText img").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
+            $("#esc").attr("src","dew://assets/buttons/Keyboard_White_Esc.png");
+            $("#enter").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
             window.clearInterval(repGP);
         });
         var checkGP = window.setInterval(function(){
@@ -89,6 +90,6 @@ function buttonAction(i){
                 dew.hide();
             break;
         default:
-            //console.log("nothing associated with " + i);
+            console.log("nothing associated with " + i);
     }  
 }

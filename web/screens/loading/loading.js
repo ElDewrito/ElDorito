@@ -25,14 +25,14 @@ function updateProgress(progress) {
 
 function loadMap(mapName) {
     $(".mapLoader").show();
-    $(".mapLoader").css({backgroundImage: "url('images/maps/" + mapName + ".png')"});
+    $(".mapLoader").css({backgroundImage: "url('dew://assets/maps/large/" + mapName + ".png')"});
     $(".genericLoader").hide();
     dew.getMapVariantInfo().then(function (info) {
         $("#title").text(info.name);
         $("#desc").text(info.description);
     });
     dew.getGameVariantInfo().then(function (info) {
-        $("#gametypeicon").attr("src", "images/gametypes/" + gameModes[info.mode] + ".png");
+        $("#gametypeicon").attr("src", "dew://assets/gametypes/" + gameModes[info.mode] + ".png");
         $("#gametype").text(info.name);  
         if(info.rounds > 0){
             $("#gamerounds").text(info.rounds);  
