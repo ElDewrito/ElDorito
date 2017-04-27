@@ -18,7 +18,7 @@ Pull requests are welcomed from anyone who wants to contribute to us. We recomme
 You should always check for the latest builds of ElDewrito on our [subreddit](https://www.reddit.com/r/HaloOnline/).
 
 ## Building
-To build ElDewrito you'll need Visual Studio 2017 installed.
+To build ElDewrito you'll need Visual Studio 2017 installed with the Windows 8.1 SDK.
 
 ## Donations
 We don't accept donations, donate money to your favorite charity instead.
