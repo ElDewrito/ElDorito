@@ -24,6 +24,7 @@ before_build:
   - CD %APPVEYOR_BUILD_FOLDER%
   - MD ZIPPED
   - git clone https://github.com/scooterpsu/medalPack.git .\ZIPPED\mods\medals\default
+  - rm -rf .\ZIPPED\mods\medals\default\.git
   - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web .\ZIPPED\mods\ui\web
   - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras .\ZIPPED
   - echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json .\ZIPPED
