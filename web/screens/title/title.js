@@ -3,7 +3,6 @@ $(document).ready(function() {
        var key = e.which;
        if (key == 13){
             $( ".genericLoader" ).fadeOut( 500, function() {
-                dew.show('menu');
                 dew.hide();
             });
        } else if (key ==192){
@@ -90,6 +89,6 @@ function buttonAction(i){
                 dew.hide();
             break;
         default:
-            console.log("nothing associated with " + i);
+            // console.log("nothing associated with " + i);
     }  
 }
