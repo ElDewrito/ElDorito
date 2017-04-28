@@ -357,7 +357,15 @@ namespace
 		typedef char(*GetControllerStatePtr)(int dwUserIndex, int a2, void *a3);
 		auto GetControllerState = reinterpret_cast<GetControllerStatePtr>(0x65EF60);
 
-		return GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+		auto val = GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+		if (contextStack.empty())
+		{
+			return val;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 
