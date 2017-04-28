@@ -21,6 +21,8 @@ namespace Modules
 		Command* VarColorsLights;
 		Command* VarColorsHolo;
 
+		Command *VarRepresentation;
+
 		Command* VarRenderWeapon;
 
 		Command* VarPlayerName;

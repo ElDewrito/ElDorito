@@ -87,7 +87,11 @@ namespace Blam
 			uint64_t Uid;
 			wchar_t DisplayName[16];
 			int TeamIndex;
-			uint8_t Unknown5C[0x66C];
+			uint32_t Unknown5C;
+			uint16_t Unknown60;
+			uint8_t Unknown62;
+			uint8_t PlayerRepresentation;
+			uint8_t Unknown64[0x664];
 			PlayerCustomization Customization;
 			uint8_t Unknown6E4[0xF38];
 		};

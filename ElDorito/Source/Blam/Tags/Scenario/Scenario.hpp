@@ -3,6 +3,8 @@
 #include "../Tags.hpp"
 #include "../../Text/StringID.hpp"
 #include "../../../Pointer.hpp"
+#include "../../Math/RealEulerAngles2D.hpp"
+#include "../../Math/RealPoint3D.hpp"
 
 namespace Blam
 {
@@ -59,7 +61,7 @@ namespace Blam
 				struct TagBlock49;
 				struct TagBlock50;
 				struct PlayerStartingProfile;
-				struct TagBlock52;
+				struct PlayerStartingLocation;
 				struct TagBlock53;
 				struct TagBlock55;
 				struct TagBlock56;
@@ -183,7 +185,7 @@ namespace Blam
 				TagBlock<TagBlock49> Unknown254;
 				TagBlock<TagBlock50> Unknown260;
 				TagBlock<PlayerStartingProfile> StartingProfile;
-				TagBlock<TagBlock52> Unknown278;
+				TagBlock<PlayerStartingLocation> PlayerStartingLocations;
 				TagBlock<TagBlock53> Unknown284;
 				int Unknown290;
 				int Unknown294;
@@ -1317,17 +1319,16 @@ namespace Blam
 				};
 				TAG_STRUCT_SIZE_ASSERT(PlayerStartingProfile, 0x60);
 
-				struct TagBlock52
+				struct PlayerStartingLocation
 				{
-					int Unknown0;
-					int Unknown4;
-					int Unknown8;
-					int UnknownC;
-					int Unknown10;
-					int Unknown14;
-					int Unknown18;
+					Blam::Math::RealPoint3D Position;
+					Blam::Math::RealEulerAngles2D Facing;
+					short Unknown14;
+					short Unknown16;
+					short EditorFolderIndex;
+					short Unknown1A;
 				};
-				TAG_STRUCT_SIZE_ASSERT(TagBlock52, 0x1C);
+				TAG_STRUCT_SIZE_ASSERT(PlayerStartingLocation, 0x1C);
 
 				struct TagBlock53
 				{
