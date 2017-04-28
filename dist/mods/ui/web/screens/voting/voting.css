@@ -55,10 +55,19 @@ a.boxclose:hover
 {
 	background-color:rgba(199, 109, 41, 0.95);
 }
-
-.boxclose:before {
-    content: "×";
+.button{
+	position:absolute;
+	right:-1.65vw;
+	top: 0;
+    width: 3vw;
 }
+
+a.boxclose img.button{
+	top:-1.55vw;
+	right:-1.55vw;
+	width:3.25vw
+}
+
 .votingOption
 {
 	position:relative;
@@ -113,7 +122,6 @@ img
 	width: 85%;
 	margin-bottom:1em;
 }
-
 h1 {
 	margin: 0;
 	padding: 0;
