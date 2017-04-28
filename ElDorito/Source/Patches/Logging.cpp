@@ -130,6 +130,7 @@ namespace
 		// fix strings using broken printf statements
 		std::string formatStr(format);
 		Utils::String::ReplaceString(formatStr, "%LX", "%llX");
+		Utils::String::ReplaceString(formatStr, "%Lx", "%llx");
 
 		char dstBuf[4096];
 		memset(dstBuf, 0, 4096);
