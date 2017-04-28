@@ -63,10 +63,10 @@ namespace
 		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndices);
 		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndices);
 
-		out->Unknown1C = (strcmp(playerVars.VarRepresentation->ValueString.c_str(), "elite") == 0) ? 0xCC : 0x129;
+		out->Unknown1C = (playerVars.VarRepresentation->ValueString == "elite") ? 0xCC : 0x129;
 	}
 
-	uint8_t ValidateArmorPiece(std::map<std::string, uint8_t> indices, uint8_t index)
+	uint8_t ValidateArmorPiece(const std::map<std::string, uint8_t> &indices, const uint8_t index)
 	{
 		// Just do a quick check to see if the index has a key associated with it,
 		// and force it to 0 if not
