@@ -30,7 +30,7 @@ before_build:
 
     rm -rf .\ZIPPED\mods\medals\default\.git
 
-    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\dist\ .\ZIPPED
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\dist .\ZIPPED
 
 after_build:
 - cmd: >-
