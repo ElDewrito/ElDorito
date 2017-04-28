@@ -62,6 +62,9 @@ namespace Patches
 			Patch(0x43731A, { 0xEB, 0x0E }).Apply();
 			Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
 
+			// prevent hf2p services from being registered
+			Patch(0x003B8810, { 0xC3 }).Apply();
+
 			// Remove preferences.dat hash check
 			Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
 
