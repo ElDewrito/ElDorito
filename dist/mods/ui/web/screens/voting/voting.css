@@ -43,10 +43,9 @@ a.boxclose{
 	border: 3px solid rgba(112, 128, 144, 0.9);
     border-radius: 15px;
 	background-color: rgba(19,35,61,0.6);
-    font-size: 35px;
-    font-weight: 600;
+    font-size: 30px;
     display: inline-block;
-    line-height: 18px;
+    line-height: 19px;
     text-align: center;    
     height:26px;   
     width: 25px;
@@ -114,7 +113,6 @@ img
 	width: 85%;
 	margin-bottom:1em;
 }
-
 
 h1 {
 	margin: 0;

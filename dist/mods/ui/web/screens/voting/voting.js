@@ -1,3 +1,5 @@
+var buttons = ["A","B","X","Y"];
+
 $("html").on("keydown", function(e) {
     if (e.which == 113){
         dew.hide();
@@ -31,7 +33,6 @@ dew.on("hide", function(event) {
     clearInterval(interval);
 });
 
-
 dew.on("Winner", function(event) {
     clearInterval(interval);
     $("#" + event.data.Winner).addClass('winner');
@@ -43,7 +44,8 @@ dew.on("VotingOptionsUpdated", function(event) {
     $(".container").html("");
 	   $("<a></a>", {
 		  "class": "boxclose",
-            "id": "boxclose"
+            "id": "boxclose",
+            text: "x"
         })
         .appendTo($(".container"));
     $("<h5></h5>", {
@@ -59,18 +61,21 @@ dew.on("VotingOptionsUpdated", function(event) {
                     "class": "revoteOption votingOption",
                     "id": entry.index
                 })
-                .html("<h5> NONE OF THE ABOVE </h5><span id='voteTally" + entry.index + "'  class='voteTally'></span>  ")
+                .html("<h5> NONE OF THE ABOVE </h5><span id='voteTally" + entry.index + "'  class='voteTally'></span> ")
                 .appendTo($(".container"));
         } else if (entry.mapname != '') {
             $("<div></div>", {
                     "class": "votingOption",
                     "id": entry.index
                 })
-                .html("<p>" + entry.index + ". " + entry.typename + " on " + entry.mapname + "</p><img src='dew://assets/maps/small/" + entry.image + ".png'><span id='voteTally" + entry.index + "'  class='voteTally'></span>  ")
+                .html("<p>" + entry.index + ". " + entry.typename + " on " + entry.mapname + "</p><img src='dew://assets/maps/small/" + entry.image + ".png'><span id='voteTally" + entry.index + "'  class='voteTally'></span> ")
                 .appendTo($(".container"));
 
         }
     });
+    if(hasGP){
+        onControllerConnect(); 
+    }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
     interval = setInterval(function() {
@@ -82,6 +87,7 @@ dew.on("VotingOptionsUpdated", function(event) {
         }
     }, 1000);
     $('#boxclose').click(function(){
+        capturedInput = false;
         if(isHost){
             dew.command("server.CancelVote").then(function() {});
             dew.hide();
@@ -98,7 +104,8 @@ dew.on("VotingOptionsUpdated", function(event) {
     });
     $(".clickCatcher").click(function(){
             dew.captureInput(false);
-            $("#boxclose").remove();        
+            $("#boxclose").remove();     
+            capturedInput = false;            
     });
     
 });
@@ -112,3 +119,30 @@ dew.on("VoteCountsUpdated", function(event) {
 
     });
 });
+
+function onControllerConnect(){
+    $(".votingOption").each(function(index){
+        $(this).append("<img class='button' src='dew://assets/buttons/XboxOne_"+buttons[index]+".png'>");
+    });
+    $("#boxclose").html("<img class='button' src='dew://assets/buttons/XboxOne_Menu.png'>");    
+}
+
+function buttonAction(i){
+    switch (i) {
+        case 0: // A
+        case 1: // B
+        case 2: // X
+        case 3: // Y
+            vote(i+1);
+            $(".votingOption").removeClass("selected");
+            $('.votingOption').eq(i).addClass("selected");
+            break;
+        case 8: // Back
+            dew.captureInput(false);
+            capturedInput = false;
+            $("#boxclose").remove();           
+            break;
+        default:
+            //console.log("nothing associated with " + i);
+    }  
+}
