@@ -9,12 +9,14 @@ skip_branch_with_pr: false
 environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
-  _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.pdb -x!*.config
+  _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.config -x!*.exp -x!*.lib -x!*.pdb
 
 init:
   - git config --global core.autocrlf input
 
 clone_folder: c:\projects\ElDorito
+
+shallow_clone: true
 
 build_script:
 - cmd: >-
@@ -24,26 +26,18 @@ before_build:
 - cmd: >-
     CD %APPVEYOR_BUILD_FOLDER%
 
-    MD ZIPPED
+    git clone https://github.com/scooterpsu/medalPack.git .\dist\mods\medals\default
 
-    git clone https://github.com/scooterpsu/medalPack.git .\ZIPPED\mods\medals\default
-
-    rm -rf .\ZIPPED\mods\medals\default\.git
-
-    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\dist .\ZIPPED
+    RM -rf .\dist\mods\medals\default\.git
 
 after_build:
 - cmd: >-
-    appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll
+    CD %APPVEYOR_BUILD_FOLDER%\dist\
+    
+    echo D|xcopy /e /y ..\Release\* .\
 
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\CefProcess.exe .\ZIPPED\custom_menu.exe
-
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\ZIPPED
-
-    CD .\ZIPPED\
+    appveyor PushArtifact .\mtndew.dll
 
     %_7z% *
-
-    CD ..
 
     appveyor PushArtifact %_zip%
