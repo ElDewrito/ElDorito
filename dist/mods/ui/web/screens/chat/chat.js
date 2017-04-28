@@ -16,7 +16,7 @@ var teamArray = [
     {name: 'white', color: '#D8D8D8'}, 
     {name: 'black', color: '#0B0B0B'}           
 ];
-
+var playerName;
 
 $(window).load(function(){
     $(document).keydown(function(e){
@@ -34,8 +34,11 @@ $(window).load(function(){
     $("body").click(function(){
         $("#chatBox").focus();
     });
-
+    
     dew.on("show", function(e){
+        dew.command('Player.Name').then(function(res) {
+            playerName = new RegExp("@"+res, "ig");
+        });
         clearTimeout(hideTimer);
         if(e.data.hasOwnProperty('teamChat')){
             isTeamChat = e.data.teamChat;
@@ -91,13 +94,13 @@ $(window).load(function(){
             }
             var messageClass = 'nameCard';
             var chatClass = e.data.chatType;
+            if((e.data.message).match(playerName)){
+                chatClass += ' mention';                
+            }
             if(e.data.message.startsWith('/me ')){
                 messageClass += ' emote';
                 chatClass += ' emote';
                 e.data.message = e.data.message.substring(4, e.data.message.length);
-            }
-            if(e.data.message.startsWith('/shrug')){
-                e.data.message = '¯\_(ツ)_/¯';
             }
             $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").text(e.data.message).html()));
             dew.show();

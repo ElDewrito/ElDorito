@@ -112,6 +112,10 @@ body {
     color: white !important;
 }
 
+.mention{
+    color: #33c11e;
+}
+
 .nameCard.emote{
     margin-right: 0;
 }
