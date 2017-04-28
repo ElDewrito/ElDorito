@@ -12,6 +12,7 @@ body {
     letter-spacing: 0.02vw;
     color: white;
     overflow:hidden;
+    zoom: 75%;
 }
 
 .inGame #chat{
