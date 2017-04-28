@@ -21,13 +21,16 @@ build_script:
     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Release" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
 
 before_build:
-  - CD %APPVEYOR_BUILD_FOLDER%
-  - MD ZIPPED
-  - git clone https://github.com/scooterpsu/medalPack.git .\ZIPPED\mods\medals\default
-  - rm -rf .\ZIPPED\mods\medals\default\.git
-  - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\web .\ZIPPED\mods\ui\web
-  - echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\libs\cef\artifact_extras .\ZIPPED
-  - echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\dewrito.json .\ZIPPED
+- cmd: >-
+    CD %APPVEYOR_BUILD_FOLDER%
+
+    MD ZIPPED
+
+    git clone https://github.com/scooterpsu/medalPack.git .\ZIPPED\mods\medals\default
+
+    rm -rf .\ZIPPED\mods\medals\default\.git
+
+    echo D|xcopy /e /y %APPVEYOR_BUILD_FOLDER%\dist\ .\ZIPPED
 
 after_build:
 - cmd: >-
@@ -36,8 +39,6 @@ after_build:
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\CefProcess.exe .\ZIPPED\custom_menu.exe
 
     echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\ZIPPED
-
-    echo F|xcopy /y %APPVEYOR_BUILD_FOLDER%\Release\mtndew.dll .\
 
     CD .\ZIPPED\
 
