@@ -23,7 +23,6 @@ function vote(number) {
 }
 
 dew.on("show", function(event) {
-    dew.captureInput(true);
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
     });
@@ -90,24 +89,15 @@ dew.on("VotingOptionsUpdated", function(event) {
         capturedInput = false;
         if(isHost){
             dew.command("server.CancelVote").then(function() {});
-            dew.hide();
-        } else {
-            dew.captureInput(false);
-            $("#boxclose").remove();
         }
+        dew.hide();
    });
     $(".votingOption").click(function() {
 
         $(".votingOption").removeClass("selected");
         $(this).addClass("selected");
         vote($(this).attr('id'));
-    });
-    $(".clickCatcher").click(function(){
-            dew.captureInput(false);
-            $("#boxclose").remove();     
-            capturedInput = false;            
-    });
-    
+    });    
 });
 
 dew.on("VoteCountsUpdated", function(event) {
@@ -138,9 +128,7 @@ function buttonAction(i){
             $('.votingOption').eq(i).addClass("selected");
             break;
         case 8: // Back
-            dew.captureInput(false);
-            capturedInput = false;
-            $("#boxclose").remove();           
+            dew.hide();         
             break;
         default:
             //console.log("nothing associated with " + i);
