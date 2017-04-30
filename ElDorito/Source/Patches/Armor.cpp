@@ -13,6 +13,8 @@
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Modules/ModulePlayer.hpp"
+#include "../Blam/BlamObjects.hpp"
 
 using namespace Blam::Players;
 
@@ -62,8 +64,6 @@ namespace
 		out->Armor[ArmorIndices::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndices);
 		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndices);
 		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndices);
-
-		out->Unknown1C = (playerVars.VarRepresentation->ValueString == "elite") ? 0xCC : 0x129;
 	}
 
 	uint8_t ValidateArmorPiece(const std::map<std::string, uint8_t> &indices, const uint8_t index)
@@ -89,11 +89,6 @@ namespace
 
 		void ApplyData(int playerIndex, PlayerProperties *properties, const PlayerCustomization &data) override
 		{
-			if (data.Unknown1C == 0xCC /* "dervish" stringid */)
-				properties->PlayerRepresentation = 1; // elite
-			else if (data.Unknown1C == 0x129)
-				properties->PlayerRepresentation = 0; // spartan
-
 			auto armorSessionData = &properties->Customization;
 			armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndices, data.Armor[ArmorIndices::Helmet]);
 			armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndices, data.Armor[ArmorIndices::Chest]);
@@ -143,80 +138,6 @@ namespace Patches
 {
 	namespace Armor
 	{
-		const auto sub_59A6F0 = reinterpret_cast<bool(__cdecl *)(Blam::DatumIndex, uint32_t *, uint32_t *)>(0x59A6F0);
-
-		int32_t __cdecl Player_GetRepresentationIndex(Blam::DatumIndex p_PlayerDatumHandle)
-		{
-			auto *s_GlobalsDefinition = *reinterpret_cast<Blam::Tags::Game::Globals **>(0x22AAEB8);
-			auto &s_PlayerDatum = Blam::Players::GetPlayers()[p_PlayerDatumHandle];
-
-			// TODO: Make this proper
-			if (sub_59A6F0(p_PlayerDatumHandle, nullptr, nullptr))
-				return 5; // monitor
-			else if (s_PlayerDatum.Properties.PlayerRepresentation == 1)
-				return 3; // elite
-			else
-				return 2; // spartan
-		}
-
-		struct Blam::Tags::Game::Globals::PlayerRepresentation *__cdecl Player_GetRepresentation(Blam::DatumIndex p_PlayerDatumHandle)
-		{
-			auto *s_GlobalsDefinition = *reinterpret_cast<Blam::Tags::Game::Globals **>(0x22AAEB8);
-			auto s_PlayerRepresentationIndex = Player_GetRepresentationIndex(p_PlayerDatumHandle);
-
-			return &s_GlobalsDefinition->PlayerRepresentation[s_PlayerRepresentationIndex];
-		}
-
-		const auto sub_6D9900 = reinterpret_cast<int(__cdecl *)(int, int)>(0x6D9900);
-
-		int __cdecl Player_GetThirdPersonUnitVariant(Blam::DatumIndex p_PlayerDatumHandle)
-		{
-			if (!p_PlayerDatumHandle)
-				return 0;
-
-			auto *s_GlobalsDefinition = *reinterpret_cast<Blam::Tags::Game::Globals **>(0x22AAEB8);
-			auto s_PlayerRepresentationIndex = Player_GetRepresentationIndex(p_PlayerDatumHandle);
-
-			if (s_PlayerRepresentationIndex >= s_GlobalsDefinition->PlayerRepresentation.Count)
-				return 0;
-
-			auto s_UnitIndex = s_GlobalsDefinition->PlayerRepresentation[s_PlayerRepresentationIndex].ThirdPersonUnit.TagIndex;
-			auto *s_Biped = Blam::Tags::TagInstance(s_UnitIndex).GetDefinition<uint8_t>();
-			auto *s_BipedModel = Blam::Tags::TagInstance(*(uint32_t *)(s_Biped + 64)).GetDefinition<uint8_t>();
-
-			// TODO: Make this proper
-			auto s_ModelVariantIndex = sub_6D9900(*(uint32_t *)(s_Biped + 64), *(uint32_t *)((uint8_t *)&s_GlobalsDefinition->PlayerRepresentation[s_PlayerRepresentationIndex] + 56));
-
-			if (s_ModelVariantIndex == -1)
-				return 0;
-
-			// TODO: Make this proper
-			return *(uint32_t *)(s_BipedModel + 104) + 80 * s_ModelVariantIndex;
-		}
-
-		int *__cdecl Player_GetThirdPersonRepresentation(Blam::DatumIndex p_PlayerDatumHandle, int *p_ThirdPersonTagIndex, int *p_ThirdPersonVariant)
-		{
-			auto *s_GlobalsDefinition = *reinterpret_cast<Blam::Tags::Game::Globals **>(0x22AAEB8);
-			auto s_PlayerRepresentationIndex = Player_GetRepresentationIndex(p_PlayerDatumHandle);
-
-			auto s_ThirdPersonTagIndex = -1;
-			auto s_ThirdPersonVariant = -1;
-
-			if (s_PlayerRepresentationIndex < s_GlobalsDefinition->PlayerRepresentation.Count)
-			{
-				auto &s_ThirdPersonRepresentation = s_GlobalsDefinition->PlayerRepresentation[s_PlayerRepresentationIndex];
-				s_ThirdPersonTagIndex = s_ThirdPersonRepresentation.ThirdPersonUnit.TagIndex;
-				s_ThirdPersonVariant = s_ThirdPersonRepresentation.ThirdPersonVariant;
-			}
-
-			if (p_ThirdPersonTagIndex)
-				*p_ThirdPersonTagIndex = s_ThirdPersonTagIndex;
-
-			if (p_ThirdPersonVariant)
-				*p_ThirdPersonVariant = s_ThirdPersonVariant;
-
-			return p_ThirdPersonVariant;
-		}
 
 		void ApplyAll()
 		{
@@ -232,12 +153,6 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x4360DE), 0x1A9);
 			Pointer::Base(0x43628A).Write<uint8_t>(0x1C);
 			Patch::NopFill(Pointer::Base(0x43628B), 0x3);
-
-			// Player representation crap
-			Hook(0x13A6F0, Player_GetRepresentation).Apply();
-			Hook(0x13A770, Player_GetRepresentationIndex).Apply();
-			Hook(0x137430, Player_GetThirdPersonUnitVariant).Apply();
-			Hook(0x139F70, Player_GetThirdPersonRepresentation).Apply();
 		}
 
 		void RefreshUiPlayer()
@@ -413,6 +328,21 @@ namespace
 		uint32_t uiPlayerBiped = Pointer::Base(0x4BE67A0).Read<uint32_t>();
 		if (uiPlayerBiped == 0xFFFFFFFF)
 			return;
+
+		const auto& representation = Modules::ModulePlayer::Instance().VarRepresentation->ValueString;
+
+		// switch hangar to match the player representation
+		static auto UI_Globals = *(void**)0x05260F34;
+		static auto UI_ExecuteScenarioScript = (signed int(__thiscall*)(void* thisptr, int scriptIndex))(0xAACE40);
+	
+		if (representation == std::string("elite"))
+		{
+			UI_ExecuteScenarioScript(UI_Globals, 73); // elite
+		}
+		else
+		{
+			UI_ExecuteScenarioScript(UI_Globals, 72);  // human
+		}
 
 		CustomizeBiped(uiPlayerBiped);
 		updateUiPlayerArmor = false;

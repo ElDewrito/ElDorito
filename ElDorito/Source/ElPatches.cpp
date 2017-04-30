@@ -20,7 +20,9 @@
 #include "Patches\LoadingScreen.hpp"
 #include "Patches\Memory.hpp"
 #include "Patches\Equipment.hpp"
+#include "Patches\PlayerRepresentation.hpp"
 #include "DirectXHook.hpp"
+
 
 namespace
 {
@@ -50,6 +52,7 @@ namespace Patches
 		Events::ApplyAll();
 		LoadingScreen::ApplyAll();
 		Equipment::ApplyAll();
+		PlayerRepresentation::ApplyAll();
 		
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not. 
 		bool isdedicated = false;

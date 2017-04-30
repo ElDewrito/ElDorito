@@ -2,6 +2,7 @@
 #include "ModulePlayer.hpp"
 #include "../ElDorito.hpp"
 #include "../Patches/Armor.hpp"
+#include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
 
 namespace
@@ -19,6 +20,13 @@ namespace
 		auto nameW = Utils::String::WidenString(name);
 		wcsncpy_s(modulePlayer.UserName, nameW.c_str(), 16);
 		modulePlayer.UserName[15] = 0;
+		return true;
+	}
+
+	bool VariablePlayerRepresentationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+		Patches::Armor::RefreshUiPlayer();
 		return true;
 	}
 
@@ -50,7 +58,7 @@ namespace Modules
 		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
 		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
 
-		VarRepresentation = AddVariableString("Representation", "player_race", "The representation to display for the player's render mannequin", eCommandFlagsArchived, "spartan", VariablePlayerArmorUpdate);
+		VarRepresentation = AddVariableString("Representation", "player_race", "The representation to display for the player's render mannequin", eCommandFlagsArchived, "spartan", VariablePlayerRepresentationUpdate);
 
 		VarRenderWeapon = AddVariableString("RenderWeapon", "render_weapon", "The weapon to display on the player's render mannequin", eCommandFlagsArchived, "assault_rifle", VariablePlayerArmorUpdate);
 
