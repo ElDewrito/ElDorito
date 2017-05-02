@@ -14,7 +14,6 @@ namespace Modules
 		Command* VarRconPort;
 		Command* VarMedalPack;
 		Command* VarFirstRun;
-		Command* VarPancamEnabled;
 
 		int DebugFlags;
 

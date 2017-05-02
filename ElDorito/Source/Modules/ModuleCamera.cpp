@@ -1,6 +1,7 @@
 #include "ModuleCamera.hpp"
 #include <sstream>
 #include "../ElDorito.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 namespace
 {
@@ -315,11 +316,36 @@ namespace
 
 		return true;
 	}
+
+	bool VariableCameraShowCoordinatesUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session)
+		{
+			returnInfo = "Unable to enable debug coordinates!";
+			return false;
+		}
+
+		std::string status = "disabled.";
+		
+		if (Modules::ModuleCamera::Instance().VarCameraShowCoordinates->ValueInt != 0) {
+			Modules::ModuleCamera::Instance().ShowCoordinatesPatch.Apply();
+			status = "enabled.";
+		}
+		else {
+			Modules::ModuleCamera::Instance().ShowCoordinatesPatch.Reset();
+			status = "disabled.";
+		}
+
+
+		returnInfo = "Debug coordinates " + status;
+		return true;
+	}
 }
 
 namespace Modules
 {
-	ModuleCamera::ModuleCamera() : ModuleBase("Camera"), 
+	ModuleCamera::ModuleCamera() : ModuleBase("Camera"),
 		CameraPermissionHook(0x21440D, UpdateCameraDefinitions),
 		CameraPermissionHookAlt1(0x214818, UpdateCameraDefinitionsAlt1),
 		CameraPermissionHookAlt2(0x2148BE, UpdateCameraDefinitionsAlt2),
@@ -332,7 +358,8 @@ namespace Modules
 		StaticILookVectorPatch(0x211433, 0x90, 8),
 		StaticKLookVectorPatch(0x21143E, 0x90, 6),
 		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }), // 3.14f in hex form
-		CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 })
+		CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 }),
+		ShowCoordinatesPatch(0x192064, { 0x00 })
 	{
 		// TODO: commands for setting camera speed, positions, save/restore etc.
 
@@ -356,6 +383,10 @@ namespace Modules
 
 		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", 
 			(CommandFlags)(eCommandFlagsDontUpdateInitial | eCommandFlagsCheat), "default", VariableCameraModeUpdate);
+
+		VarCameraShowCoordinates = AddVariableInt("ShowCoordinates", "coords", "The cameras field of view", eCommandFlagsArchived, 0, VariableCameraShowCoordinatesUpdate);
+		VarCameraShowCoordinates->ValueIntMin = 0;
+		VarCameraShowCoordinates->ValueIntMax = 1;
 	}
 
 	void ModuleCamera::UpdatePosition()

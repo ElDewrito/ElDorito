@@ -11,7 +11,6 @@
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
-#include "../Patches/Pancam.hpp"
 #include "../Web/WebRenderer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
@@ -772,22 +771,6 @@ namespace
 		return true;
 	}
 
-	bool PancamEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		auto session = Blam::Network::GetActiveSession();
-		if (!session)
-		{
-			returnInfo = "Unable to enable pancam!";
-			return false;
-		}
-		returnInfo = "Enabling pancam...";
-
-		auto &gameModule = Modules::ModuleGame::Instance();
-		auto enabled = gameModule.VarPancamEnabled->ValueInt != 0;
-		Patches::Pancam::Enable(enabled);
-		return true;
-	}
-
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -857,10 +840,6 @@ namespace Modules
 		VarFirstRun = AddVariableInt("FirstRun", "first_run", "Show the first run setup next time the game starts", eCommandFlagsArchived, 1);
 		VarFirstRun->ValueIntMin = 0;
 		VarFirstRun->ValueIntMax = 1;
-
-		VarPancamEnabled = AddVariableInt("PancamEnabled", "pancam", "Controls whether pancam is enabled", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0, PancamEnabledChanged);
-		VarPancamEnabled->ValueIntMin = 0;
-		VarPancamEnabled->ValueIntMax = 1;
 
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
