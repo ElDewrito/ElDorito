@@ -18,6 +18,7 @@ namespace Modules
 		Command* VarCameraSave;
 		Command* VarCameraLoad;
 		Command* VarCameraPosition;
+		Command* VarCameraShowCoordinates;
 
 		// patches to stop camera mode from changing
 		Patch Debug1CameraPatch;
@@ -31,6 +32,8 @@ namespace Modules
 
 		Patch HideHudPatch;
 		Patch CenteredCrosshairPatch;
+
+		Patch ShowCoordinatesPatch;
 
 		Hook CameraPermissionHook;
 		Hook CameraPermissionHookAlt1;

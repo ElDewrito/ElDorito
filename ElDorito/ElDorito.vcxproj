@@ -81,7 +81,6 @@
     <ClCompile Include="Source\Patches\Memory.cpp" />
     <ClCompile Include="Source\Patches\Mouse.cpp" />
     <ClCompile Include="Source\Patches\Network.cpp" />
-    <ClCompile Include="Source\Patches\Pancam.cpp" />
     <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp" />
     <ClCompile Include="Source\Patches\PlayerRepresentation.cpp" />
     <ClCompile Include="Source\Patches\PlayerUid.cpp" />
@@ -224,7 +223,6 @@
     <ClInclude Include="Source\Patches\Memory.hpp" />
     <ClInclude Include="Source\Patches\Mouse.hpp" />
     <ClInclude Include="Source\Patches\Network.hpp" />
-    <ClInclude Include="Source\Patches\Pancam.hpp" />
     <ClInclude Include="Source\Patches\PlayerPropertiesExtension.hpp" />
     <ClInclude Include="Source\Patches\PlayerRepresentation.hpp" />
     <ClInclude Include="Source\Patches\PlayerUid.hpp" />
