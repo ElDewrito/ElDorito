@@ -827,6 +827,7 @@ namespace
 		{ "Crouch", eGameActionCrouch },
 		{ "Use", eGameActionUse },
 		{ "DualWield", eGameActionPickUpLeft },
+		{ "UseEquipment", eGameActionUseConsumable1 },
 
 		// Combat
 		{ "Fire", eGameActionFireRight },

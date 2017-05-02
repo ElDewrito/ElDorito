@@ -206,6 +206,11 @@ input[type=range]:focus, input[type=checkbox]:focus {
     position: relative;
     width: 20.355vh;
 }
+#controls{
+    top:-0.5vw;
+    padding-top:0.3vw;
+    padding-bottom:0.3vw;
+}
 #controls select,#extendedControls select {
     float: right;
 }
