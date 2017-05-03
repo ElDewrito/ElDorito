@@ -217,6 +217,18 @@ namespace Patches
 						writer.String(xnkid.c_str());
 						writer.Key("xnaddr");
 						writer.String(xnaddr.c_str());
+						if (session->HasTeams())
+						{
+							writer.Key("teamScores");
+							writer.StartArray();
+							uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
+							for (int t = 0; t < 10; t++)
+							{
+								writer.Int(scores[t]);
+							}
+							writer.EndArray();
+						}
+						
 						writer.Key("players");
 
 						writer.StartArray();
