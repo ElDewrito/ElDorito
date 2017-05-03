@@ -222,7 +222,7 @@ namespace Patches
 							writer.Key("teamScores");
 							writer.StartArray();
 							uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
-							for (int t = 0; t < 10; t++)
+							for (int t = 0; t < 8; t++)
 							{
 								writer.Int(scores[t]);
 							}
