@@ -80,8 +80,9 @@ body {
     height: 1.1vw;
 }
 
-.GLOBAL, .TEAM{ 
+.GLOBAL, .TEAM, a{ 
     color: #95bde1; 
+    text-decoration: none;
 }
 
 .TEAM{

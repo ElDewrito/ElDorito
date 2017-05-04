@@ -19,6 +19,9 @@ var teamArray = [
 var playerName;
 
 $(window).load(function(){
+    dew.command('Player.Name').then(function(res) {
+        playerName = new RegExp("@"+res, "ig");
+    });
     $(document).keydown(function(e){
         if(e.keyCode === 27) { //ESC
             chatboxHide();
@@ -102,7 +105,7 @@ $(window).load(function(){
                 chatClass += ' emote';
                 e.data.message = e.data.message.substring(4, e.data.message.length);
             }
-            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").text(e.data.message).html()));
+            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").html(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap)));
             dew.show();
         });
     });
@@ -128,3 +131,7 @@ function hexToRgba(hex,opacity){
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return 'rgba('+parseInt(result[1], 16)+","+parseInt(result[2], 16)+","+parseInt(result[3], 16)+","+opacity+")";
 }
+
+function aWrap(link) {
+    return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
+};
