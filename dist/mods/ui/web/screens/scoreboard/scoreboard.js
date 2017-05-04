@@ -164,9 +164,6 @@ $(window).load(function(){
         selector: '.clickable', 
         callback: function(key, options){
             switch(key){
-                case "mute":
-                    dew.command("VoIP.MutePlayer " + flipUID($(this).attr('data-uid')));
-                    break;
                 case "kick":
                     dew.command("Server.KickUid " + flipUID($(this).attr('data-uid')));
                     break;
@@ -178,7 +175,6 @@ $(window).load(function(){
             }
         },
         items: {
-            "mute": {  name: "Mute" },
             "kick": {
                 name: "Kick",                
                 disabled: function(key, options){ 
@@ -193,7 +189,6 @@ $(window).load(function(){
             }
         }
     });
-    displayScoreboard();
 });
 
 dew.command('Game.MedalPack', {}).then(function(response){
@@ -241,7 +236,6 @@ function buildScoreboard(lobby, teamGame, scoreArray){
     var tempArray = [];
     for(var i=0; i < scoreArray.length; i++){
         tempArray.push({name: teamArray[i].name, score: scoreArray[i]});
-
     }
     var where = '#scoreboard';
     if(lobby.length > 0){
