@@ -1,0 +1,285 @@
+@font-face {
+    font-family: "Conduit ITC";
+    src: url(Conduit-ITC.woff);
+}
+html {
+    color: #FFF;
+    font-family: "Conduit ITC", sans-serif;
+    background:rgba(0,0,0,0.6);
+    overflow: hidden;
+}
+
+#window{
+    position: absolute;
+    left: 32.35%;
+    top: 15%;
+    width: 35%;
+}
+
+#window table{
+    width: 100%;
+}
+
+#window table tbody tr td{
+    background-color: rgba(250, 250, 250, 0.12);
+}
+
+#header{
+    background-color: rgba(0, 0, 0, 0.8);
+    height: 3.5vh;
+    font-size: 2.15vh;
+    line-height: 3.25vh;
+}
+
+#winnerText{
+    font-size: 2.5vh;   
+    padding-left: 0.2vw;
+    display: none;
+}
+
+.player{
+    text-align: center;
+    height: 3.05vh;
+    font-size: 2.5vh;
+    line-height: 3.05vh;
+    padding: 0.5vw;
+    margin: 0.1vw;
+    z-index: 1;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.02vw;
+    cursor: default;
+    display:table-row;
+}
+
+#closeButton{
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(122,175,209, 0.8);
+    color: rgba(122,175,209, 0.8);
+    width: 7%;
+    height: 3%;
+    padding-top: 0.5%;
+    right: 2%;
+    bottom: 2%;
+    text-align: center;
+    display: none
+}
+
+#closeButton:hover{
+    background-color: rgba(255, 255, 255, 0.45);   
+    border: 1px solid rgba(122,175,209, 0.9);
+    color: rgba(122,175,209, 0.9);
+}
+
+#serverName{
+    position: absolute;
+    width: 100%;
+    bottom: 2%;
+    text-align: center;
+    font-size: 2.5vh;
+    color: rgba(122,175,209, 0.8);
+    margin-left: -0.5%;
+    padding: 0;
+}
+
+#playerBreakdown{
+    position: absolute;
+    left: 20%;
+    top: 20%;
+    width: 60%;
+    height: 58%;
+    background: #14234a;
+    border: 1px solid #000;
+    display: none;
+    padding-left: 1.5vw;
+}
+
+.statsHeader{
+    width: calc(100%+1vw);
+    height: 4.5vh;
+    background-color: #000;
+    color: #FFF;
+    line-height: 4.5vh;   
+    font-size: 2.478vh;
+    padding-left: 1.0vw;
+    margin-left: -1.5vw;
+}
+
+#playerBreakdown:first-child div{
+    background-color: rgba(250, 250, 250, 0.12);
+}
+
+#playerName{
+    font-size: 5vh;
+    font-weight: 500;
+    height: 7.5vh;
+    line-height: 7.5vh;
+    width: 50%;
+    margin-top: 1vh;
+    margin-left: -1.5vw;
+    margin-bottom: 0.5vh;
+    padding-left: 1.5vw;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    border: 1px solid #000;
+    border-left: 0;
+}
+
+.medal{
+    position: relative;
+    text-align: right;
+    width: 5vw;
+    height: 5vw;
+    margin: 0.125vw;
+    background-size: 3.5vw 3.5vw;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: rgba(0, 0, 0, 0.6);
+    float: left;
+}
+
+.medal .medalCount{
+    position: absolute;
+    bottom: 0;
+    right: 0.2vw;
+}
+
+#bigMedal{
+    position: absolute;
+    top: 9.5%;
+    right: 1.15vw;
+    height: 56%;
+    width: 26vw;
+    background-size: 68% 68%;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+#bigMedal .medalName{
+    position: absolute;
+    text-align: center;
+    bottom: 6.25vh;
+    width: 100%;
+    height: 3vh;
+    font-size: 3vh;
+    border-top: 3px solid #14234a;
+}
+
+#bigMedal .medalDesc{
+    position: absolute;
+    text-align: center;
+    bottom: 0.75vh;
+    width: 90%;
+    margin-left: 5%;
+    margin-right: auto;
+    font-size: 2.25vh;
+}
+
+#medalBox{
+    position: absolute;
+    top: 66%;
+    right: 1vw;
+    float: right;
+    width: 26.3vw;
+    height: 18.35vh;
+}
+
+#windowClose {
+    background-color: #000;
+    border: 1px solid #FFF;
+    border-radius: 0.531vh;
+    color: #FFF;
+    padding: 0;
+    padding-left: 0.0177vh;
+    font-size: 1.5vh;
+    font-weight: 700;
+    position: absolute;
+    right: 0.75vh;
+    top: 0.708vh;
+    width: 2.85vh;
+    height: 3.1vh;
+    z-index: 10;
+}
+#windowClose #closeButton{
+    padding: 0;
+}
+#windowClose:hover,#expandCollapse:hover, #previousPlayer:hover, #nextPlayer:hover {
+    background-color: #B1572A;
+    color: white;
+    border: 1px solid white;
+}
+#windowClose:focus,#expandCollapse:focus {
+    outline: 0;
+}
+
+#previousPlayer, #nextPlayer{
+    position: relative;
+    float: left;
+    bottom: 1.5vh;
+    background-color: #14234a;
+    border: 1px solid white;
+    color: white;
+    font-family: "Conduit ITC", sans-serif;
+    font-size: 2.25vh;
+    height: 3.25vh;
+    border-radius: 0.531vh;
+    margin-left: 0.5vw;
+}
+
+#previousPlayer:disabled, #nextPlayer:disabled{
+    color: rgba(255, 255, 255, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    background-color: #14234a !important;
+}
+
+.bottomButtons{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding-left: 1vw;
+}
+
+#killedMost, #killedMostBy{
+    width: 40%;
+    border-collapse: collapse;
+}
+
+#killedMost tbody tr, #killedMostBy tbody tr{
+    border: 1px solid black;
+}
+
+#killedMost tbody tr td:first-of-type, #killedMostBy tbody tr td:first-of-type{
+    padding-left: 1.5vw;
+    text-align: left;
+}
+
+#killedMost tbody tr td:last-of-type, #killedMostBy tbody tr td:last-of-type, #killedMost thead tr td:last-of-type, #killedMostBy thead tr td:last-of-type{
+	width: 20%;
+}
+
+@media screen and (min-aspect-ratio: 20/9) {
+    #playerBreakdown{
+        left: 29%;
+        height: 55%;
+        width: 40%;
+    }
+    #bigMedal{
+        width: 16vw;
+    }
+    .medal{
+        width: 3vw;
+        height: 3vw;
+        background-size: 2vw 2vw;
+    }
+    #medalBox{
+        width: 16.25vw;
+    }
+}

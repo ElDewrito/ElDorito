@@ -536,6 +536,42 @@ CommandType = {
      * @see StatsInfo
      */
 
+	/**		
+     * (ASYNCHRONOUS) Gets information about the current game's scoreboard.		
+     *		
+     * @returns {DewPromise<ScoreboardInfo>} A promise for the scoreboard information.		
+     */	
+	 
+    dew.getScoreboard = function () {		
+       return dew.callMethod("scoreboard", {}, jsonResultMapping);		
+    }		
+	
+   /**		
+    * Contains information about the scoreboard.		
+    *		
+    * @typedef {object} ScoreboardInfo		
+    * @property {boolean} hasTeams - `true` if the current session has teams.		
+    * @property {number[]} teamScores - The scores of all of the teams in the game.		
+    * @property {string} gameType - The gamemode type.		
+    * @property {ScoreboardPlayer[]} players - Players listed on the scoreboard.		
+    * @see dew.getScoreboard		
+    */		
+	
+   /**		
+    * Contains information about a player on the scoreboard.		
+    *		
+    * @typedef {object} ScoreboardPlayer		
+    * @property {string} name - The player's name.		
+    * @property {number} team - The player's team index.		
+    * @property {string} color - The player's primary armor color.		
+    * @property {string} UID - The player's UID.		
+    * @property {number} kills - The number of kills.		
+    * @property {number} assists - The number of assists.		
+    * @property {number} deaths - The number of deaths.		
+    * @property {number} score - The player's score.		
+    * @see ScoreboardInfo		
+    */
+	
     /**
      * (ASYNCHRONOUS) Requests to submit the currently-active virtual keyboard.
      * 
@@ -621,6 +657,13 @@ CommandType = {
      * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
      */
 
+	/**		
+     * Fires when the scoreboard is updated		
+     *		
+     * @event scoreboard		
+     * @type {ScoreboardInfo}		
+     */
+ 
     /**
      * Fired when a multiplayer event occurs that affects the local player.
      *

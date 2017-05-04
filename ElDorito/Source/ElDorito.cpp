@@ -10,6 +10,7 @@
 #include "Server/Rcon.hpp"
 #include "Patches/Core.hpp"
 #include "Console.hpp"
+#include "Web/Ui/WebScoreboard.hpp"
 #include "Web/Ui/ScreenLayer.hpp"
 #include "Web/Ui/WebChat.hpp"
 #include "Web/Ui/WebConsole.hpp"
@@ -207,6 +208,7 @@ void ElDorito::Initialize()
 		Web::Ui::ScreenLayer::Init();
 		Web::Ui::MpEventDispatcher::Init();
 		Web::Ui::WebChat::Init();
+		Web::Ui::WebScoreboard::Init();
 		Web::Ui::WebConsole::Init();
 		Web::Ui::WebLoadingScreen::Init();
 		Web::Ui::Voting::Init();
@@ -249,8 +251,12 @@ void ElDorito::Tick()
 	Server::VariableSynchronization::Tick();
 	Server::Chat::Tick();
 	Patches::Tick();
-	if (!isDedicated)
+	if (!isDedicated) {
 		Web::Ui::ScreenLayer::Tick();
+		Web::Ui::WebScoreboard::Tick();
+		
+
+	}
 	else
 		Server::DedicatedServer::Tick();
 

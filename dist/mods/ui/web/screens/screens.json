@@ -44,6 +44,12 @@
 			"zIndex": 9
 		},
 		{
+			"id": "scoreboard",
+			"url": "dew://screens/scoreboard/",
+			"captureInput": false,
+			"zIndex": 1
+		},
+		{
 			"id": "keyboard",
 			"url": "dew://screens/keyboard/",
 			"captureInput": true,

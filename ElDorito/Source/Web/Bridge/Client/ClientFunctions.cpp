@@ -2,6 +2,7 @@
 #include "ClientFunctions.hpp"
 #include "../../Ui/ScreenLayer.hpp"
 #include "../../Ui/WebVirtualKeyboard.hpp"
+#include "../../Ui/WebScoreboard.hpp"
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
@@ -156,6 +157,21 @@ namespace Anvil
 						*p_Result = buffer.GetString();
 						return QueryError_Ok;
 					}
+
+					QueryError OnScoreboard(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						auto session = Blam::Network::GetActiveSession();
+						if (!session || !session->IsEstablished())
+						{
+							*p_Result = "Cannot get scoreboard data when there is not an active session.";
+							return QueryError_BadQuery;
+						}
+
+						*p_Result = Web::Ui::WebScoreboard::getScoreboard();
+						return QueryError_Ok;
+					}
+
+
 
 					QueryError OnGameVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result)
 					{

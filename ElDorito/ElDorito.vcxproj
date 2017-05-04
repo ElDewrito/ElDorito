@@ -114,6 +114,7 @@
     <ClCompile Include="Source\Web\Ui\WebChat.cpp" />
     <ClCompile Include="Source\Web\Ui\WebConsole.cpp" />
     <ClCompile Include="Source\Web\Ui\WebLoadingScreen.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebScoreboard.cpp" />
     <ClCompile Include="Source\Web\Ui\WebVirtualKeyboard.cpp" />
     <ClCompile Include="Source\Web\WebRenderer.cpp" />
     <ClCompile Include="Source\Web\WebRendererApp.cpp" />
@@ -296,6 +297,7 @@
     <ClInclude Include="Source\Web\Ui\WebChat.hpp" />
     <ClInclude Include="Source\Web\Ui\WebConsole.hpp" />
     <ClInclude Include="Source\Web\Ui\WebLoadingScreen.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebScoreboard.hpp" />
     <ClInclude Include="Source\Web\Ui\WebVirtualKeyboard.hpp" />
     <ClInclude Include="Source\Web\WebRenderer.hpp" />
     <ClInclude Include="Source\Web\WebRendererApp.hpp" />

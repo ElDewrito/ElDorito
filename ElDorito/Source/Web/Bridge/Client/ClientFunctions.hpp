@@ -22,6 +22,7 @@ namespace Anvil
 					QueryError OnCommands(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnSendChat(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnSessionInfo(const rapidjson::Value &p_Args, std::string *p_Result);
+					QueryError OnScoreboard(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnStats(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnSubmitVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnCancelVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result);
