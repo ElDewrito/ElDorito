@@ -105,6 +105,8 @@ namespace
 		bindings.ControllerButtons[eGameActionUnk57]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionUseConsumable1] = eControllerButtonLeftBumper;
+		bindings.ControllerButtons[eGameActionUiStart]        = eControllerButtonStart;
+		bindings.ControllerButtons[eGameActionUiSelect]       = eControllerButtonSelect;
 
 		bindings.ControllerHoldButtons[eGameActionUnk19]      = true;
 		bindings.ControllerHoldButtons[eGameActionUse]        = true;
