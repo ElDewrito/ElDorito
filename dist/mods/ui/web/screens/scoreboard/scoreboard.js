@@ -212,7 +212,7 @@ dew.on("show", function(e){
     }else{
         $('#winnerText').hide();
     }
-    //displayScoreboard(); Shouldn't be needed
+    displayScoreboard();
 });
 
 function displayScoreboard(){
