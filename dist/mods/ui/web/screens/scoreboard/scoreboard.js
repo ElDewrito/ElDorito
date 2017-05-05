@@ -2,6 +2,7 @@ var locked = false;
 var isHost = false;
 var cardOpacity = 0.9;
 var medalsPath = 'medals://';
+capturedInput = false;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -202,6 +203,7 @@ dew.on("scoreboard", function(e){
 dew.on("show", function(e){
     locked = e.data.locked;
     dew.captureInput(locked);
+    capturedInput = locked;
     if(locked){
         $('#closeButton').show();
     }else{
@@ -220,12 +222,6 @@ function displayScoreboard(){
         isHost = i.isHost;
     });
     dew.getScoreboard().then(function (e){ 
-        $('#header').empty();
-        //if(e.gameType=="slayer"){ //remove if if this header works for all gametypes
-            $('#header').append(
-                '<th></th><th>Players</th><th>Kills</th><th>Assists</th><th>Deaths</th><th>Score</th>'
-            );
-        //}
         buildScoreboard(e.players, e.hasTeams, e.teamScores);
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name){
@@ -521,4 +517,20 @@ function flipUID(uid){
         newUID = bits[i] + newUID;
     }
     return newUID;
+}
+
+
+function onControllerConnect(){
+   $('#closeButton').html("Close   <img class='button' src='dew://assets/buttons/XboxOne_Menu.png'>"); 
+}
+
+function buttonAction(i){
+    switch (i) {
+        case 9: // Start    
+            dew.hide();
+            $('#playerBreakdown').hide();
+            break;
+        default:
+            console.log("nothing associated with " + i);
+    }  
 }

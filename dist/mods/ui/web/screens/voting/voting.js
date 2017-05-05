@@ -114,7 +114,7 @@ function onControllerConnect(){
     $(".votingOption").each(function(index){
         $(this).append("<img class='button' src='dew://assets/buttons/XboxOne_"+buttons[index]+".png'>");
     });
-    $("#boxclose").html("<img class='button' src='dew://assets/buttons/XboxOne_Menu.png'>");    
+    $("#boxclose").html("<img class='button' src='dew://assets/buttons/XboxOne_Windows.png'>");    
 }
 
 function buttonAction(i){

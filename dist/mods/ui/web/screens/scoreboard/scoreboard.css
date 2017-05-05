@@ -67,6 +67,14 @@ html {
     display: none
 }
 
+#closeButton .button{
+    width: 40%;
+    position:relative;
+    top: 50%;
+    margin-right: -10%;
+    margin-top:-40%;
+}
+
 #closeButton:hover{
     background-color: rgba(255, 255, 255, 0.45);   
     border: 1px solid rgba(122,175,209, 0.9);
