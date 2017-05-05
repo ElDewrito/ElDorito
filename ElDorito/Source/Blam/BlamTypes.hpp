@@ -90,6 +90,16 @@ namespace Blam
 		wchar_t FilePath[0x99];
 	} BLAM_CONTENT_ITEM, *PBLAM_CONTENT_ITEM;
 
+	typedef struct _TEAM_SCORE
+	{
+		int16_t Score;
+		int16_t Unkn;
+		int16_t Kills;
+		int16_t Deaths;
+		int16_t Assists;
+		int8_t Unknown0[0x10];
+	} TEAM_SCORE;
+
 	// todo: safely make this into a C++ struct without any padding/packing etc
 	typedef struct _BLAM_GAME_VARIANT
 	{

@@ -32,16 +32,6 @@ namespace Web
 	{
 		namespace WebScoreboard
 		{
-			typedef struct _TEAM_SCORE
-			{
-				int16_t Score;
-				int16_t Unkn;
-				int16_t Kills;
-				int16_t Deaths;
-				int16_t Assists;
-				int8_t Unknown0[0x10];
-			} TEAM_SCORE;
-
 			void Init()
 			{
 				Patches::Events::OnEvent(OnEvent);
@@ -112,7 +102,7 @@ namespace Web
 					auto engineGobals = engineGlobalsPtr[0](0x101F4);
 					for (int t = 0; t < 10; t++)
 					{
-						auto teamscore = engineGobals(t * 0x1A).Read<TEAM_SCORE>();
+						auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
 						writer.Int(teamscore.Score);
 					}
 					

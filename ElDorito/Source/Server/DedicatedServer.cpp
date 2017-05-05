@@ -84,10 +84,21 @@ namespace Server
 			writer.Bool(TeamMode != 0);
 
 			if (TeamMode == 1){
-				writer.Key("redScore");
-				writer.Int(Pointer(0x01879DA8).Read<uint32_t>());
-				writer.Key("blueScore");
-				writer.Int(Pointer(0x01879DAC).Read<uint32_t>());
+				writer.Key("teamScores");
+				writer.StartArray();
+
+				auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
+				if (engineGlobalsPtr)
+				{
+					auto engineGobals = engineGlobalsPtr[0](0x101F4);
+					for (int t = 0; t < 8; t++)
+					{
+						auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
+						writer.Int(teamscore.Score);
+					}
+
+				}
+				writer.EndArray();
 			}
 			writer.EndObject();
 			uint32_t playerInfoBase = 0x2162E08;
