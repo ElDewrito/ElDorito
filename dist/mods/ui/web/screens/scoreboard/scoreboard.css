@@ -71,11 +71,9 @@ html {
 }
 
 .emblem{
-    top:9%;
-    height:2.6%;
-    margin-left:-0.1%;
-    margin-bottom:-0.3vw;
-    margin-right:1%;
+    height:1.25vw;
+    margin-bottom:-0.15vw;
+    margin-right:0.5vw;
 }
 
 #closeButton{

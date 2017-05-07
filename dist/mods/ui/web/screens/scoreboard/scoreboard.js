@@ -1,5 +1,6 @@
 var locked = false;
 var isHost = false;
+var forceBig = false;
 var cardOpacity = 0.9;
 var medalsPath = 'medals://';
 capturedInput = false;
@@ -223,7 +224,7 @@ function displayScoreboard(){
     });
     dew.getScoreboard().then(function (e){ 
         var scoreboardheader = '<th></th><th class="name">Players</th>';
-        if(locked){
+        if(locked || forceBig){
             switch(e.gameType){
                 case "ctf":
                 case "oddball":
@@ -263,7 +264,7 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
                     var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td>';
-                    if(locked){
+                    if(locked || forceBig){
                         teamHeader += '<td class="name" colspan="4">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
                     } else {
                         teamHeader += '<td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
@@ -297,7 +298,7 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
             $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="dew://assets/ed/logo.png">');
-            if(locked){
+            if(locked || forceBig){
                 $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
                     .append($('<td class="stat">').text(lobby[i].assists)) //assists
                     .append($('<td class="stat">').text(lobby[i].deaths)) //deaths
