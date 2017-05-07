@@ -259,7 +259,7 @@ function buildScoreboard(lobby, teamGame, scoreArray){
         for(var i=0; i < lobby.length; i++){
             var bgColor = lobby[i].color;
             if(teamGame){
-                $('#singlePlayers').remove();
+                $('#singlePlayers').empty();
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
