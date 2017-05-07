@@ -35,6 +35,10 @@ html {
     display: none;
 }
 
+.rank{
+    width:2.5vw;
+}
+
 .player{
     text-align: center;
     height: 3.05vh;
@@ -51,6 +55,27 @@ html {
     letter-spacing: 0.02vw;
     cursor: default;
     display:table-row;
+}
+
+.score{
+    background-color:rgba(0, 0, 0, 0) !important;
+}
+
+.stat{
+    width:5vw;
+}
+
+.name{
+    text-align:left;
+    padding-left:1.5%;
+}
+
+.emblem{
+    top:9%;
+    height:2.6%;
+    margin-left:-0.1%;
+    margin-bottom:-0.3vw;
+    margin-right:1%;
 }
 
 #closeButton{

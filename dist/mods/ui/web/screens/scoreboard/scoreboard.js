@@ -222,6 +222,27 @@ function displayScoreboard(){
         isHost = i.isHost;
     });
     dew.getScoreboard().then(function (e){ 
+        var scoreboardheader = '<th></th><th class="name">Players</th>';
+        if(locked){
+            switch(e.gameType){
+                case "ctf":
+                case "oddball":
+                case "koth":
+                case "forge":
+                case "vip":
+                case "juggernaut":
+                case "territories":
+                case "assault":
+                case "infection":
+                default:
+                    scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th>';          
+            }
+            $('#window').css({'width':'50%','left':'25%'});
+        } else {
+            $('#window').css({'width':'35%','left':'32.35%'});
+        }
+        scoreboardheader += '<th>Score</th>'; 
+        $('#header').html(scoreboardheader);
         buildScoreboard(e.players, e.hasTeams, e.teamScores);
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name){
@@ -230,10 +251,6 @@ function displayScoreboard(){
 }
 
 function buildScoreboard(lobby, teamGame, scoreArray){
-    var tempArray = [];
-    for(var i=0; i < scoreArray.length; i++){
-        tempArray.push({name: teamArray[i].name, score: scoreArray[i], players: 0});
-    }
     var where = '#singlePlayers';
     if(lobby.length > 0){
         $('#singlePlayers').empty();
@@ -245,7 +262,14 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    $('#window table').append('<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td>'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td></td><td></td><td></td><td>'+scoreArray[lobby[i].team]+'</td></tr></tbody>');    
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td>';
+                    if(locked){
+                        teamHeader += '<td class="name" colspan="4">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    } else {
+                        teamHeader += '<td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    }                    
+                    teamHeader += '<td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
+                    $('#window table').append(teamHeader);    
                 }    
             } 
             $(where).append(
@@ -270,12 +294,15 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                     $(this).css("background-color", hexToRgb(col, cardOpacity));
                 })
                 .append($('<td class="rank">'))
-                .append($('<td>').text(lobby[i].name)) //name
-                .append($('<td>').text(lobby[i].kills)) //kills
-                .append($('<td>').text(lobby[i].assists)) //assists
-                .append($('<td>').text(lobby[i].deaths)) //deaths
-                .append($('<td class="score">').text(lobby[i].score)) //score
-            );                     
+                .append($('<td class="name">').text(lobby[i].name)) //name
+            );   
+            $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="dew://assets/ed/logo.png">');
+            if(locked){
+                $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                    .append($('<td class="stat">').text(lobby[i].assists)) //assists
+                    .append($('<td class="stat">').text(lobby[i].deaths)) //deaths
+            }
+            $('#' + lobby[i].name).append($('<td class="stat score">').text(lobby[i].score)) //score                   
             if(teamGame){
                 sortMe('scoreboard','tbody');
                 sortMe(teamArray[lobby[i].team].name,'tr');
