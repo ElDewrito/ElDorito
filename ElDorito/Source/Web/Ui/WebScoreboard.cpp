@@ -123,6 +123,7 @@ namespace Web
 				}
 
 				auto& playersGlobal = ElDorito::GetMainTls(0x40)[0];
+				uint32_t playerStatusBase = 0x2161808;
 
 				writer.Key("players");
 				writer.StartArray();
@@ -147,6 +148,9 @@ namespace Web
 					Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
 					writer.Key("UID");
 					writer.String(uidStr.c_str());
+					uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
+					writer.Key("isAlive");
+					writer.Bool(alive == 1);
 					// Generic score information
 					writer.Key("kills");
 					writer.Int(kills);
