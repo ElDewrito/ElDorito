@@ -15,7 +15,7 @@ namespace
 	using namespace Modules;
 
 	typedef uint32_t SyncID;
-	const size_t MaxStringLength = 512;
+	const size_t MaxStringLength = 2048;
 
 	// Binds a server variable to a client variable.
 	struct SynchronizationBinding

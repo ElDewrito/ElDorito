@@ -9,6 +9,8 @@
 #include "../ElDorito.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/HttpRequest.hpp"
+#include "../ThirdParty/rapidjson/document.h"
+#include "../Patches/Network.hpp"
 
 
 namespace Server
@@ -21,6 +23,88 @@ namespace Server
 		//If we send stats right when the game ends, some of the team scores arent updated yet. 
 		//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0. 
 		time_t sendStatsTime = 0;
+
+		//Endpoint for getting information about players in the game. Data retrieved is set as a 
+		//variable that is synchronized to clients, and sent to the scoreboard (or any other screen layer) as json. 
+		DWORD WINAPI GetPlayersInfo_Thread(LPVOID lpParam)
+		{
+
+			auto* session = Blam::Network::GetActiveSession();
+			if (!session || !session->IsEstablished() || !session->IsHost() || Modules::ModuleServer::Instance().VarPlayerInfoEndpoint->ValueString.empty())
+				return false;
+
+			rapidjson::StringBuffer s;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+			uint32_t playerInfoBase = 0x2162E08;
+			writer.StartObject();
+			writer.Key("players");
+			writer.StartArray();
+			int peerIdx = session->MembershipInfo.FindFirstPeer();
+			while (peerIdx != -1)
+			{
+				int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+				if (playerIdx != -1)
+				{
+					writer.StartObject();
+					auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+					std::string name = Utils::String::ThinString(player->Properties.DisplayName);
+
+					
+					std::stringstream uid;
+					uid << std::hex << player->Properties.Uid;
+					uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
+
+					Pointer pvpBase(0x23F5A98);
+
+					writer.Key("name");
+					writer.String(name.c_str());
+					writer.Key("playerIndex");
+					writer.Int(playerIdx);
+					writer.Key("uid");
+					writer.String(uid.str().c_str());
+					writer.EndObject();
+				}
+				peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+			}
+			writer.EndArray();
+			writer.EndObject();
+
+			std::string server = Modules::ModuleServer::Instance().VarPlayerInfoEndpoint->ValueString;
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+
+			try
+			{
+				std::string sendObject = s.GetString();
+				if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+				{
+					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Unable to connect to player info endpoint");
+				}
+				// make sure the server replied with 200 OK
+				std::wstring expected = L"HTTP/1.1 200 OK";
+				if (req.responseHeader.length() < expected.length())
+				{
+					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Invalid server query response.");
+					return false;
+				}
+
+				// parse the json response
+				std::string resp = std::string(req.responseBody.begin(), req.responseBody.end());
+				rapidjson::Document json;
+				if (json.Parse<0>(resp.c_str()).HasParseError() || !json.IsObject())
+				{
+					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Invalid json returned from player info endpoint.");
+					return false;
+				}
+				Modules::ModuleServer::Instance().VarPlayersInfo->ValueString = resp;
+
+			}
+			catch (...)
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Exception while getting player info");
+			}
+
+			return true;
+		}  
 
 		DWORD WINAPI CommandServerAnnounceStats_Thread(LPVOID lpParam)
 		{
@@ -282,12 +366,27 @@ namespace Server
 
 			return true;
 		}
-
+		void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
+		{
+			switch (newState)
+			{
+				case Blam::Network::eLifeCycleStateStartGame:
+				{
+					auto thread = CreateThread(NULL, 0, GetPlayersInfo_Thread, (LPVOID)"", 0, NULL);
+					break;
+				}
+			
+			}
+		}
 		void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 		{
 			if (event->NameStringId == 262221) //Game Ended event
 			{
 				time(&sendStatsTime);
+			}
+			if (event->NameStringId == 262214) //player joined
+			{
+				auto thread = CreateThread(NULL, 0, GetPlayersInfo_Thread, (LPVOID)"", 0, NULL);
 			}
 		}
 	}
@@ -301,6 +400,7 @@ namespace Server
 
 		void Init()
 		{
+			Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 			Patches::Events::OnEvent(OnEvent);
 			if (Modules::ModuleServer::Instance().VarServerAutoHost->ValueInt == 1)
 			{

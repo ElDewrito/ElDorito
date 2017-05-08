@@ -1087,6 +1087,10 @@ namespace Modules
 		VarServerDualWieldEnabledClient = AddVariableInt("DualWieldEnabledClient", "dualwield_client", "", eCommandFlagsInternal, 0);
 		Server::VariableSynchronization::Synchronize(VarServerDualWieldEnabled, VarServerDualWieldEnabledClient);
 
+		VarPlayersInfo = AddVariableString("PlayersInfo", "players_info", "Emblem and Rank info for each player", eCommandFlagsReplicated, "{}");
+		VarPlayersInfoClient = AddVariableString("PlayersInfoClient", "players_info_client", "Emblem and Rank info for each player", eCommandFlagsInternal, "{}" );
+		Server::VariableSynchronization::Synchronize(VarPlayersInfo, VarPlayersInfoClient);
+
 		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1, AssassinationDisabledChanged);
 
 		// TODO: Fine-tune these default values
@@ -1122,6 +1126,7 @@ namespace Modules
 
 		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
 		VarStatsServer = AddVariableString("StatsServer", "stats_server", "URL to send the stats to", eCommandFlagsArchived, "");
+		VarPlayerInfoEndpoint = AddVariableString("PlayerInfoEndpoint", "player_info_endpoint", "URL to request player info from", eCommandFlagsArchived, "");
 		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
 		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;
 		VarChatCommandKickPlayerEnabled->ValueIntMax = 1;

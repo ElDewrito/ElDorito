@@ -2,9 +2,11 @@
 #include "ScreenLayer.hpp"
 #include "../../Blam/BlamNetwork.hpp"
 #include "../../Blam/BlamEvents.hpp"
+#include "../../Blam/Tags/Objects/Damage.hpp"
 #include "../../Patches/Events.hpp"
 #include "../../Patches/Input.hpp"
 #include "../../Pointer.hpp"
+#include "../../Modules/ModuleServer.hpp"
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../ThirdParty/rapidjson/stringbuffer.h"
 #include "../../Utils/String.hpp"
@@ -90,6 +92,8 @@ namespace Web
 					writer.EndObject();
 					return buffer.GetString();
 				}
+				writer.Key("playersInfo");
+				writer.String(Modules::ModuleServer::Instance().VarPlayersInfoClient->ValueString.c_str());
 
 				writer.Key("hasTeams");
 				writer.Bool(session->HasTeams());
@@ -111,6 +115,7 @@ namespace Web
 				
 
 				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+
 				if (variantType >= 0 && variantType < Blam::GameTypeCount)
 				{
 					writer.Key("gameType");
@@ -151,6 +156,30 @@ namespace Web
 					writer.Int(playerStats.Deaths);
 					writer.Key("score");
 					writer.Int(score);
+					writer.Key("playerIndex");
+					writer.Int(playerIdx);
+					writer.Key("timeSpentAlive");
+					writer.Int(playerStats.TimeSpentAlive);
+					writer.Key("bestStreak");
+					writer.Int(playerStats.BestStreak);
+
+					//gametype specific stats
+					writer.Key("flagKills");
+					writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Flag].Kills);
+					writer.Key("ballKills");
+					writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Ball].Kills);
+
+					writer.Key("kingsKilled");
+					writer.Int(playerStats.KingsKilled);
+					writer.Key("timeInHill");
+					writer.Int(playerStats.TimeInHill);
+					writer.Key("timeControllingHill");
+					writer.Int(playerStats.TimeControllingHill);
+					
+					writer.Key("humansInfected");
+					writer.Int(playerStats.HumansInfected);
+					writer.Key("zombiesKilled");
+					writer.Int(playerStats.ZombiesKilled);
 
 					writer.EndObject();
 					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
