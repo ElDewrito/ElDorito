@@ -147,6 +147,7 @@ function loadSettings(i) {
 		dew.command(settingsToLoad[i][1], {}).then(function(response) {
             if(settingsToLoad[i][1].startsWith("Player.Colors")){
                 $("input[name='"+settingsToLoad[i][0]+"']").css("background-color",response);   
+                $("input[name='"+settingsToLoad[i][0]+"']").val(response); 
                 if(getLuminance(response)> 0.22){
                     $("input[name='"+settingsToLoad[i][0]+"']").css("color","#222");
                 }else{
