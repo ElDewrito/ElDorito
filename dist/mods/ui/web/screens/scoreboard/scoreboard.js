@@ -227,31 +227,37 @@ function displayScoreboard(){
         if(locked || forceBig){
             switch(e.gameType){
                 case "ctf":
+                    scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
+                    break;
                 case "oddball":
+                    scoreboardheader += '<th>Kills</th><th>Ball Kills</th>';    
+                    break;
+                case "infection":
+                    scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
+                    break;
                 case "koth":
-                case "forge":
+                    scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
+                    break;
                 case "vip":
                 case "juggernaut":
-                case "territories":
                 case "assault":
-                case "infection":
                 default:
-                    scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th>';          
+                    scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
             }
-            $('#window').css({'width':'50%','left':'25%'});
+            $('#window').css({'width':'54%','left':'23%'});
         } else {
-            $('#window').css({'width':'35%','left':'32.35%'});
+            $('#window').css({'width':'38%','left':'31%'});
         }
         scoreboardheader += '<th>Score</th>'; 
         $('#header').html(scoreboardheader);
-        buildScoreboard(e.players, e.hasTeams, e.teamScores);
+        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo));
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo){
     var where = '#singlePlayers';
     if(lobby.length > 0){
         $('#singlePlayers').empty();
@@ -259,7 +265,6 @@ function buildScoreboard(lobby, teamGame, scoreArray){
         for(var i=0; i < lobby.length; i++){
             var bgColor = lobby[i].color;
             if(teamGame){
-                $('#singlePlayers').empty();
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
@@ -297,11 +302,44 @@ function buildScoreboard(lobby, teamGame, scoreArray){
                 .append($('<td class="rank">'))
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
-            $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="dew://assets/ed/logo.png">');
+            var emblemPath = 'dew://assets/emblems/ed.png';
+            if(lobby[i].isAlive){
+                if(playersInfo[lobby[i].playerIndex]){
+                    emblemPath = playersInfo[lobby[i].playerIndex].e;
+                }
+            } else {
+                emblemPath = 'dew://assets/emblems/dead.png';   
+            }
+            $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="'+emblemPath+'">');
             if(locked || forceBig){
-                $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
-                    .append($('<td class="stat">').text(lobby[i].assists)) //assists
-                    .append($('<td class="stat">').text(lobby[i].deaths)) //deaths
+                switch(gameType){
+                    case "oddball":
+                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
+                         break;
+                    case "infection":
+                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
+                        .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
+                         break;
+                    case "ctf":
+                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
+                         break;
+                    case "koth":
+                     $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
+                        .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
+                        .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
+                         break;                   
+                    case "vip":
+                    case "juggernaut":
+                    case "assault":
+                    default:
+                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        .append($('<td class="stat">').text(lobby[i].assists)) //assists
+                        .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
+                        .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
+                }
             }
             $('#' + lobby[i].name).append($('<td class="stat score">').text(lobby[i].score)) //score                   
             if(teamGame){
@@ -335,17 +373,17 @@ function rankMe(teamGame){
         var inner = '.teamHeader';
     }        
     var x = 1;
-    if($(outer).length > 1){
-        if($(outer+':eq(0)').attr('data-score') == $(outer+':eq(1)').attr('data-score')){
-            $('#winnerText').text('Tie!');
-        } else {
-            if(teamGame){
-                $('#winnerText').text($(outer+':eq(0)').attr('id').substr(0,1).toUpperCase() + $(outer+':eq(0)').attr('id').substr(1)+' Team wins!');
-            } else {
-                $('#winnerText').text($(outer+':eq(0)').attr('id')+' wins!');
-            }
-        }
+    var winnerText;
+    if(teamGame){
+        winnerText = $(outer+':eq(0)').attr('id').substr(0,1).toUpperCase() + $(outer+':eq(0)').attr('id').substr(1)+' Team wins!';
+    } else {
+        winnerText = $(outer+':eq(0)').attr('id')+' wins!';
     }
+    if($(outer).length > 1 && ($(outer+':eq(0)').attr('data-score') == $(outer+':eq(1)').attr('data-score'))){
+        winnerText = 'Tie!';
+    }
+    $('#winnerText').text(winnerText);
+
     var lastScore = $(outer+':eq(0)').attr('data-score');
     for (i = 0; i < $(outer).length; i++){ 
         if($(outer+':eq('+i+')').attr('data-score') != lastScore){
@@ -384,7 +422,6 @@ function playerBreakdown(name){
         }
 
         dew.getStats(name).then(function (stats){
-            console.log(stats);
             $('#playerBreakdown').show();
             $('#playerName').text(name);  
             $('#playerName').css({'background-color': color});  

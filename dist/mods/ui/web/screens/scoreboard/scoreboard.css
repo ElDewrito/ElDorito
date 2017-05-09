@@ -62,7 +62,7 @@ html {
 }
 
 .stat{
-    width:5vw;
+    width:6.25vw;
 }
 
 .name{
@@ -71,8 +71,8 @@ html {
 }
 
 .emblem{
-    height:1.25vw;
-    margin-bottom:-0.15vw;
+    height:1.7vw;
+    margin-bottom:-0.35vw;
     margin-right:0.5vw;
 }
 
