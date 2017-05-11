@@ -268,13 +268,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo){
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td>';
-                    if(locked || forceBig){
-                        teamHeader += '<td class="name" colspan="4">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
-                    } else {
-                        teamHeader += '<td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
-                    }                    
-                    teamHeader += '<td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
                     $('#window table').append(teamHeader);    
                 }    
             } 
@@ -315,30 +309,35 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo){
                 switch(gameType){
                     case "oddball":
                         $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
-                        .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
-                         break;
+                            .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
+                        $('.teamHeader .name').attr('colspan',3);
+                        break;
                     case "infection":
-                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
-                        .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
-                        .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
-                         break;
+                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                            .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
+                            .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
+                        $('.teamHeader .name').attr('colspan',4);
+                        break;
                     case "ctf":
-                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
-                        .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
-                         break;
+                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                            .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
+                        $('.teamHeader .name').attr('colspan',3);
+                        break;
                     case "koth":
-                     $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
-                        .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
-                        .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
-                         break;                   
+                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
+                            .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
+                            .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
+                        $('.teamHeader .name').attr('colspan',4);
+                        break;                   
                     case "vip":
                     case "juggernaut":
                     case "assault":
                     default:
-                    $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
-                        .append($('<td class="stat">').text(lobby[i].assists)) //assists
-                        .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
-                        .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
+                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                            .append($('<td class="stat">').text(lobby[i].assists)) //assists
+                            .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
+                            .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
+                        $('.teamHeader .name').attr('colspan',5);
                 }
             }
             $('#' + lobby[i].name).append($('<td class="stat score">').text(lobby[i].score)) //score                   
