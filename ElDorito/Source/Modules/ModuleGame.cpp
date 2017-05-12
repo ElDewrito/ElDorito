@@ -841,6 +841,7 @@ namespace Modules
 		VarFirstRun->ValueIntMin = 0;
 		VarFirstRun->ValueIntMax = 1;
 
+		VarAnnouncerVol = AddVariableInt("AnnouncerVolume", "announcer_volume", "Set the volume percentage for announcer playback", eCommandFlagsArchived, 50);
 		VarAnnouncerVol->ValueIntMin = 0;
 		VarAnnouncerVol->ValueIntMax = 100;
 
