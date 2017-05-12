@@ -218,7 +218,7 @@ namespace
 		BindingsTable bindings;
 		GetBindings(0, &bindings);
 
-		if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 1 || GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 1)
+		if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 1 || GetActionState(eGameActionUiSelect)->Ticks == 1 || GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 1)
 		{
 			if (strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") != 0)
 			{
@@ -234,7 +234,7 @@ namespace
 		if (!locked && !postgame)
 		{
 			//Hide the scoreboard when you release tab. Only check when the scoreboard isn't locked.
-			if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 0 && GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 0)
+			if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 0 && GetActionState(eGameActionUiSelect)->Ticks == 0 && GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 0)
 			{
 				Web::Ui::WebScoreboard::Hide();
 				locked = false;
