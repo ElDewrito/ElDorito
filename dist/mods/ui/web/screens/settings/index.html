@@ -36,6 +36,10 @@
         </div>
             
         <div id="advancedSettings">
+            <label for="gAnnouncerVol">Announcer Volume</label>
+            <input type="text" class="tinySetting" id="gAnnouncerVolText" name="gAnnouncerVol" onchange="updateSetting('gAnnouncerVol', this.value);">
+            <input type="range" min="0" max="100" id="gAnnouncerVol" name="gAnnouncerVol" oninput="document.querySelector('#gAnnouncerVolText').value = this.value;">
+            <br />
             <label for="cCenteredCrosshair">Centered Crosshair</label><input class="setting" type="checkbox" id="cCenteredCrosshair" name="cCenteredCrosshair"><br />
             <label for="cFOV">Screen FOV</label>
             <input type="text" class="tinySetting" id="cFOVText" name="cFOV" onchange="updateSetting('cFOV', this.value);">

@@ -4,6 +4,7 @@ var removeTime = 4500;
 var medalsPath = 'medals://';
 var playQueue = [];
 var eventJson;
+var announcerVolume;
 
 $(document).ready(function() {
     dew.command('Game.MedalPack', {}).then(function(response) {
@@ -15,7 +16,10 @@ $(document).ready(function() {
 });
 
 dew.on("mpevent", function (event) {
-    doMedal(event.data.name, event.data.audience);
+    dew.command('Game.AnnouncerVolume', {}).then(function(response) {
+        announcerVolume = response/100;
+        doMedal(event.data.name, event.data.audience);
+    });
 });
 
 $.fn.pulse = function() { 
@@ -49,7 +53,7 @@ function play(audio){
     isPlaying = true;
     var audioElement = new Audio(audio);
     audioElement.play();
-    audioElement.volume = 0.5;
+    audioElement.volume = announcerVolume;
     audioElement.onended = function(){
         isPlaying = false;
         playQueue.splice(0, 1);

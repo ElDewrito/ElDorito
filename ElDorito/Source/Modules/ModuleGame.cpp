@@ -841,6 +841,9 @@ namespace Modules
 		VarFirstRun->ValueIntMin = 0;
 		VarFirstRun->ValueIntMax = 1;
 
+		VarAnnouncerVol->ValueIntMin = 0;
+		VarAnnouncerVol->ValueIntMax = 100;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
