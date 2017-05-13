@@ -537,7 +537,7 @@ namespace Server
 				}
 			}
 			
-			if ( gameTypes.size() < 2)
+			if ( gameTypes.size() < 2 || haloMaps.size() < 2 )
 				return false;
 
 			
