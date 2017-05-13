@@ -4,6 +4,7 @@
 #include "../../Blam/BlamEvents.hpp"
 #include "../../Blam/Tags/Objects/Damage.hpp"
 #include "../../Patches/Events.hpp"
+#include "../../Patches/Scoreboard.hpp"
 #include "../../Patches/Input.hpp"
 #include "../../Pointer.hpp"
 #include "../../Modules/ModuleServer.hpp"
@@ -26,6 +27,7 @@ namespace
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
+	void OnScoreUpdate();
 }
 
 namespace Web
@@ -38,6 +40,7 @@ namespace Web
 			{
 				Patches::Events::OnEvent(OnEvent);
 				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
+				Patches::Scoreboard::OnScoreUpdate(OnScoreUpdate);
 			}
 
 			void Show(bool locked, bool postgame)
@@ -213,6 +216,11 @@ namespace
 		}
 	}
 
+	void OnScoreUpdate()
+	{
+		//Update the scoreboard whenever an event occurs
+		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
+	}
 	void OnGameInputUpdated()
 	{
 		BindingsTable bindings;
