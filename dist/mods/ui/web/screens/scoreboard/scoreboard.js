@@ -197,7 +197,9 @@ dew.command('Game.MedalPack', {}).then(function(response){
 });
 
 dew.on("scoreboard", function(e){
-    displayScoreboard();
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+        displayScoreboard(response);
+    });
 });
 
 dew.on("show", function(e){
