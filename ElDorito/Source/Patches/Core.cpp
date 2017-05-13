@@ -44,6 +44,7 @@ namespace
 	std::string FontsPath;
 
 	std::vector<Patches::Core::MapLoadedCallback> mapLoadedCallbacks;
+	std::vector<Patches::Core::GameStartCallback> gameStartCallbacks;
 }
 
 namespace Patches
@@ -168,7 +169,10 @@ namespace Patches
 			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
 
 			Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
-			Hook(0x133069, GameStartHook, HookFlags::IsCall).Apply();
+
+			Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
+			Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
+			Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
 		}
 
 		void OnShutdown(ShutdownCallback callback)
@@ -218,6 +222,11 @@ namespace Patches
 			//Update the list of maps
 			Modules::ModuleGame::Instance().UpdateMapList();
 			Modules::ModuleGame::Instance().UpdateCustomMapList();
+		}
+
+		void OnGameStart(GameStartCallback callback)
+		{
+			gameStartCallbacks.push_back(callback);
 		}
 	}
 }
@@ -508,7 +517,7 @@ namespace
 	void GameStartHook()
 	{
 		typedef void(*GameStartPtr)();
-		auto GameStart = reinterpret_cast<GameStartPtr>(0x0054EA60);
+		auto GameStart = reinterpret_cast<GameStartPtr>(0x551590);
 
 		GameStart();
 
@@ -520,5 +529,8 @@ namespace
 
 		// fix in-game team switching for engines that support it
 		engineGobals(0x8).Write(engineGobals(0x4).Read<uint32_t>());
+
+		for (auto& callback : gameStartCallbacks)
+			callback();
 	}
 }

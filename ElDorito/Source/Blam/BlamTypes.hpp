@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include "Math\RealVector3D.hpp"
 
 namespace Blam
 {
@@ -67,12 +68,11 @@ namespace Blam
 		uint32_t Unknown3; // 0
 		uint32_t Size; // 0xE1F0 for maps, 0x3BC for variants
 		uint32_t Unknown4; // 0
-		uint32_t UnknownUnique1; // changes for each item
-		uint32_t Unknown5; // 0
+		uint64_t Timestamp;
 		uint32_t Unknown6; // 0
 		uint32_t Unknown7; // -1
 		uint32_t Unknown8; // 0x140 for maps, -1 for variants, 
-		uint64_t Unknown9; // 0 for maps, 4 for variants
+		uint32_t Unknown9; // 0 for maps, 4 for variants
 		uint32_t Unknown10; // -1;
 		uint32_t Unknown11; // 0;
 		uint32_t Unknown12; // 0;
@@ -179,6 +179,75 @@ namespace Blam
 		uint8_t Unknown65; // default 0xFE
 		// theres a lot more bytes too
 	} BLAM_GAME_VARIANT, *PBLAM_GAME_VARIANT;
+
+
+	struct MapVariant
+	{
+		using Vector3 = Blam::Math::RealVector3D;
+
+		struct BudgetEntry
+		{
+			uint32_t TagIndex;
+			uint8_t RuntimeMin;
+			uint8_t RuntimeMax;
+			uint8_t CountOnMap;
+			uint8_t DesignTimeMax;
+			float Cost;
+		};
+
+		struct VariantProperties
+		{
+			uint16_t EngineFlags;
+			uint16_t ObjectFlags;
+			uint8_t SharedStorage;
+			uint8_t RespawnTime;
+			uint8_t ObjectType;
+			uint8_t ZoneShape;
+			float ZoneRadiusWidth;
+			float ZoneDepth;
+			float ZoneTop;
+			float ZoneBottom;
+		};
+
+		struct VariantPlacement
+		{
+			uint16_t PlacementFlags;
+			uint16_t Unknown02;
+			uint32_t ObjectIndex;
+			uint32_t EditorObjectIndex;
+			uint32_t BudgetIndex;
+			Vector3 Position;
+			Vector3 RightVector;
+			Vector3 UpVector;
+			uint32_t Unknown34;
+			uint32_t Unknown38;
+			VariantProperties Properties;
+		};
+
+		BLAM_CONTENT_HEADER ContentHeader;
+		uint16_t UnknownF8;
+		uint16_t ScnrPlacementsCount;
+		uint16_t UsedPlacementsCount;
+		uint16_t BudgetEntryCount;
+		uint32_t MapId;
+		float WorldBoundsXMin;
+		float WorldBoundsXMax;
+		float WorldBoundsYMin;
+		float WorldBoundsYMax;
+		float WorldBoundsZMin;
+		float WorldBoundsZMax;
+		uint32_t Unknown11C;
+		float MaxBudget;
+		float CurrentBudget;
+		uint32_t Unknown128;
+		uint32_t Unknown12C;
+		VariantPlacement Placements[640];
+		uint16_t ScnrIndices[16];
+		BudgetEntry Budget[256];
+		char PaddingDF50[320];
+	};
+
+	static_assert(sizeof(MapVariant) == 0xE090, "Invalid MapVariant size");
 }
 
 enum class CameraType : uint8_t
