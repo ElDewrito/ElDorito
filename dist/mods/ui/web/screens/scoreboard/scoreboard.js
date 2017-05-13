@@ -1,6 +1,5 @@
 var locked = false;
 var isHost = false;
-var forceBig = false;
 var cardOpacity = 0.9;
 var medalsPath = 'medals://';
 capturedInput = false;
@@ -215,16 +214,18 @@ dew.on("show", function(e){
     }else{
         $('#winnerText').hide();
     }
-    displayScoreboard();
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+        displayScoreboard(response);
+    });
 });
 
-function displayScoreboard(){
+function displayScoreboard(expandedScoreboard){
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
     });
     dew.getScoreboard().then(function (e){ 
         var scoreboardheader = '<th></th><th class="name">Players</th>';
-        if(locked || forceBig){
+        if(locked || (expandedScoreboard == 1)){
             switch(e.gameType){
                 case "ctf":
                     scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
@@ -250,14 +251,14 @@ function displayScoreboard(){
         }
         scoreboardheader += '<th>Score</th>'; 
         $('#header').html(scoreboardheader);
-        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo));
+        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard);
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard){
     var where = '#singlePlayers';
     if(lobby.length > 0){
         $('#singlePlayers').empty();
@@ -305,7 +306,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo){
                 emblemPath = 'dew://assets/emblems/dead.png';   
             }
             $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="'+emblemPath+'">');
-            if(locked || forceBig){
+            if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
                     case "oddball":
                         $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills

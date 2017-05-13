@@ -845,6 +845,10 @@ namespace Modules
 		VarAnnouncerVol->ValueIntMin = 0;
 		VarAnnouncerVol->ValueIntMax = 100;
 
+		VarExpandedScoreboard = AddVariableInt("ExpandedScoreboard", "expanded_scoreboard", "Always show full scoreboard, instead of just while locked/postgame", eCommandFlagsArchived, 0);
+		VarExpandedScoreboard->ValueIntMin = 0;
+		VarExpandedScoreboard->ValueIntMax = 1;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

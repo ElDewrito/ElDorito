@@ -15,6 +15,7 @@ namespace Modules
 		Command* VarMedalPack;
 		Command* VarFirstRun;
 		Command* VarAnnouncerVol;
+		Command* VarExpandedScoreboard;
 
 		int DebugFlags;
 
