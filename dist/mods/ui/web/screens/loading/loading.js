@@ -11,13 +11,6 @@ function textWithNewLines(text) {
     return htmls.join("<br>");
 }
 
-function timeConvert(mins){
-    var hours = Math.trunc(mins/60);
-    var minutes = mins % 60;
-    if (minutes <= 9) { minutes = "0" + minutes; };
-    return hours +":"+ minutes;
-}
-
 function updateProgress(progress) {
     $("#progressbar").attr('value', progress);
     $(".loading").css({"-webkit-clip-path": "inset(" + progress + "% 0 0 0)"});
@@ -45,7 +38,7 @@ function loadMap(mapName) {
             $("#gamescore").text("Unlimited");  
         }
         if(info.timeLimit > 0){
-            $("#timelimit").text(timeConvert(info.timeLimit)); 
+            $("#timelimit").text(info.timeLimit+":00"); 
         } else {
             $("#timelimit").text("Unlimited");  
         }                
