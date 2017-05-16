@@ -149,7 +149,8 @@ var medalDetails = [
 
 $(window).load(function(){
     $(document).keydown(function(e){
-        if((locked && e.keyCode == 9)||(locked && e.keyCode == 27)){
+        if(e.keyCode == 9 || e.keyCode == 27 || e.keyCode == 13){
+            $('#playerBreakdown').hide();
             dew.hide();
         } 
         if(e.keyCode == 84 || e.keyCode == 89){
@@ -594,8 +595,8 @@ function onControllerConnect(){
 function buttonAction(i){
     switch (i) {
         case 9: // Start    
-            dew.hide();
             $('#playerBreakdown').hide();
+            dew.hide();
             break;
         default:
             console.log("nothing associated with " + i);
