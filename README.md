@@ -1,7 +1,3 @@
-
-# NOTICE!
-ElDewrito is no longer under active development! Please refer to our successor project, [Anvil: Online](https://github.com/AnvilOnline).
-
 <img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" align="right"/>
 
 # ElDewrito
