@@ -294,6 +294,19 @@ input[type=range]:focus, input[type=checkbox]:focus {
     right: 0;
     width: 7.08vh;
 }
+
+#controllerPort{
+    height: 2.2125vh;
+    margin-top: 0.354vh;
+    margin-right: 2.55vh;
+    width:5.25vh;
+    right:0;
+    position:absolute;
+    font-size: 1.5vh;
+    font-weight: 700;
+    text-align:center;
+}
+
 #A {
     left: 40.71vh;
     top: 15.93vh;

@@ -5,24 +5,26 @@ var timestamp;
 var lastButtons = [];
 var lastAxes = [];
 var axisThreshold = .5;
+var controllerPort;
 
 dew.on("show", function(event) {
     capturedInput = true;
     if(controllerSupport()){
+        dew.command('Input.ControllerPort', {}).then(function(response){
+            controllerPort = response;
+        });
         $(window).on("gamepadconnected", function(){
             hasGP = true;
-            //console.log("Gamepad connected");
             repGP = window.setInterval(checkGamepad,100);
             onControllerConnect();
         });
         $(window).on("gamepaddisconnected", function(){
             hasGP = false;
-            //console.log("Gamepad disconnected");
             window.clearInterval(repGP);
             onControllerDisconnect();
         });
         var checkGP = window.setInterval(function(){
-            if(navigator.getGamepads()[0]){
+            if(navigator.getGamepads()[controllerPort]){
                 if(!hasGP) $(window).trigger("gamepadconnected");
                 window.clearInterval(checkGP);
             }
@@ -39,42 +41,49 @@ function controllerSupport(){
 }
 
 function checkGamepad(){
-    var gamepad = navigator.getGamepads()[0];
-    if(gamepad.timestamp != timestamp){
-        if(capturedInput){
-            for( var i = 0; i < gamepad.buttons.length; i++ ) {
-                currentState = gamepad.buttons[i].pressed
-                var prevState = lastButtons[i];
-                if( !prevState && currentState ){ //Button i Pressed    
-                    buttonAction(i);                
-                }else if( prevState && !currentState ){//Button i Released
+    var gamepad = navigator.getGamepads()[controllerPort];
+    if(gamepad){
+        if(!hasGP){ //if controller disconnects and reconnects
+            $(window).trigger("gamepadconnected");
+        }            
+        if(gamepad.timestamp != timestamp){
+            if(capturedInput){
+                for( var i = 0; i < gamepad.buttons.length; i++ ) {
+                    currentState = gamepad.buttons[i].pressed
+                    var prevState = lastButtons[i];
+                    if( !prevState && currentState ){ //Button i Pressed    
+                        buttonAction(i);                
+                    }else if( prevState && !currentState ){//Button i Released
 
-                }
-                lastButtons[i] = currentState;
-            }
-            for( var x = 0; x < gamepad.axes.length; x++ ) {
-                currentState = 0
-                if(gamepad.axes[x] > 0){
-                    if(gamepad.axes[x] > axisThreshold){
-                        currentState = 1;
                     }
-                }else if(gamepad.axes[x] < 0){
-                    if(gamepad.axes[x] < -axisThreshold){
-                        currentState = -1;
-                    }           
+                    lastButtons[i] = currentState;
                 }
-                var prevState = lastAxes[x];
-                if( prevState != 1 && currentState == 1 ){
-                    stickAction("+", x);
-                }else if( prevState != -1 && currentState == -1 ){
-                    stickAction("-", x);
-                }else if( prevState != 0 && currentState == 0 ){  
-                    stickAction("0", x);       
+                for( var x = 0; x < gamepad.axes.length; x++ ) {
+                    currentState = 0
+                    if(gamepad.axes[x] > 0){
+                        if(gamepad.axes[x] > axisThreshold){
+                            currentState = 1;
+                        }
+                    }else if(gamepad.axes[x] < 0){
+                        if(gamepad.axes[x] < -axisThreshold){
+                            currentState = -1;
+                        }           
+                    }
+                    var prevState = lastAxes[x];
+                    if( prevState != 1 && currentState == 1 ){
+                        stickAction("+", x);
+                    }else if( prevState != -1 && currentState == -1 ){
+                        stickAction("-", x);
+                    }else if( prevState != 0 && currentState == 0 ){  
+                        stickAction("0", x);       
+                    }
+                    lastAxes[x] = currentState;
                 }
-                lastAxes[x] = currentState;
             }
+            timestamp = gamepad.timestamp;
         }
-        timestamp = gamepad.timestamp;
+    }else{ //controller not reporting, must be disconnected
+        $(window).trigger("gamepaddisconnected");               
     }
 }
 
@@ -84,7 +93,6 @@ function onControllerConnect(){
 }
 
 function onControllerDisconnect(){
-    
 }
 
 function stickAction(direction, x){

@@ -140,7 +140,7 @@
         <label for="lookSensitivity">Look Sensitivity (Default is 6)</label>
         <input type="text" value=12 class="tinySetting" id="lookSensitivityText" class="setting" name="lookSensitivity" onchange="updateSensitivity(this.value);">
         <input value="6" type="range" min="1" max="25" id="lookSensitivity" class="setting" name="lookSensitivity" oninput="document.querySelector('#lookSensitivityText').value = this.value;updateSensitivity(this.value);"><br />
-        <label for="controllerPort">Port Number of Controller (Default is 0)</label><select class="bind" name="controllerPort"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+        <label for="controllerPort">Port Number of Controller (Default is 0)</label><select name="controllerPort" id="controllerPort"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
         </div>
     </div>
     <button id="expandCollapse" onClick="showExtended();">&#8226;&#8226;&#8226;</button>

@@ -108,10 +108,13 @@ $(document).ready(function() {
     $('#settingsWindow textarea').on('change', function(){
         updateSetting(this.name, "\"" + this.value + "\"");
     });
-    $('#controllerSettings select[id!=\"presetMenu\"]').on('change', function(){
+    $('#controllerSettings select .bind').on('change', function(){
         updateBinding(this.id, this.value);
         updateBindLabels();
     });    
+    $('#controllerPort').on('change', function(){
+        updateSetting(this.name, "\"" + this.value + "\"");         
+    });
     setButtonLists();
 	setOptionList('presetMenu', controllerPresets);
 	setOptionList('renderWeapon', renderWeapons);
