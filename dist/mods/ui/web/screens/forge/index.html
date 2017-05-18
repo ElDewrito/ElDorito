@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Forge</title>
+        <link rel="stylesheet" type="text/css" href="forge.css" />
+        <script src="dew://lib/dew.js"></script>
+        <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="dew://lib/jquery-ui.js"></script>
+        <script src="forge.js"></script>
+        <script>
+            $(function() {
+                $( "#forgeControls" ).draggable();
+            });
+        </script>
+    </head>
+    <body>
+        <div id="forgeControls">
+            <div class="header">Advanced Forge Controls<button id="closeButton" onclick="closeBrowser();">X</button></div>
+            <label for="fCloneDepth">Clone Depth</label>
+            <input type="text" class="tinySetting" id="fCloneDepthText" name="fCloneDepth" onchange="updateSetting('fCloneDepth', this.value);">
+            <input type="range" min="0" max="5" step="0.1" id="fCloneDepth" name="fCloneDepth" oninput="document.querySelector('#fCloneDepthText').value = this.value;">
+            <br />
+            <label for="fCloneMultiplier">Clone Multiplier</label>
+            <input type="text" class="tinySetting" id="fCloneMultiplierText" name="fCloneMultiplier" onchange="updateSetting('fCloneMultiplier', this.value);">
+            <input type="range" min="1" max="64" step="1" id="fCloneMultiplier" name="fCloneMultiplier" oninput="document.querySelector('#fCloneMultiplierText').value = this.value;">
+            <br />
+        </div>
+    </body>
+</html>

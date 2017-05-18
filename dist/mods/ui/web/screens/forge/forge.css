@@ -1,0 +1,115 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html {
+    position: relative;
+    color: #FFF;
+    font-family: "Conduit ITC", sans-serif;
+    font-weight: 500;
+}
+
+#forgeControls {
+    width: 59.7375vh;
+    margin-bottom: 0;
+    opacity: 0.85;
+    position: absolute;
+    font-size: 2.655vh;
+    line-height: 3.0975vh;  
+    left:5%;
+    top:84%;
+    background: rgba(20, 35, 74, 0.69);
+    padding: 1.5vh;
+}
+
+.header {
+    font-size: 18pt;
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.56);
+    margin: -12px;
+    margin-bottom: 0.75vw;
+    padding: 4px;
+    padding-left: 1vw;
+    border-bottom: 3px solid #404f70;
+    font-size: 2.5vh;
+}
+
+
+.setting {
+    float: right;
+    font-size: 1.947vh;
+    height: 2.655vh;
+    line-height: 2.655vh;
+    margin-right: 20px;
+    margin-bottom: 1vh;
+    margin-top: 0.354vh;
+    position: absolute;
+    right: 0;
+    width: 26.55vh;
+    font-family: "Conduit ITC", sans-serif;
+    border: 1px solid grey;
+    color: #474747;
+}
+.tinySetting {
+    width: 7vh; 
+    position: absolute;
+    right: 1vw;
+    margin-top: 0.354vh; 
+    height: 2.25vh;
+    line-height: 2.655vh;
+    font-size: 1.947vh;
+    font-weight: 700;
+    font-family: "Conduit ITC", sans-serif;
+    text-align: center;
+    border: 1px solid grey;
+    color: #474747;
+}
+input.setting {
+    padding-left: 5px;
+}
+input[type=range] {
+    -webkit-appearance: none;
+    position: absolute;
+    right: 10vh;
+    width: 20.355vh;
+    margin-right: 0.885vh;
+    margin-top: 1.45vh;
+    height: 0.4425vh;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  border: 1px solid grey;
+  height: 2.2125vh;
+  width: 2.2125vh;
+  border-radius: 1.77vh;
+  background: #efefef;
+}
+input[type=range]:focus, input[type=checkbox]:focus {
+  outline: none;
+}
+
+br {
+  content: "";
+  margin: 0;
+  display: block;
+  line-height: 1.75vw;
+}
+
+button {
+    color: white;
+    font-size: 10pt;
+    font-weight: bold;
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 24px;
+    width: 1.75vw;
+    height: 1.75vw;
+    line-height: 1.5vw;
+    position: absolute;
+    right: 0.25vw;
+    top: 0.2vw;
+}
+
+button:hover{
+    background-color: #B1572A;    
+}

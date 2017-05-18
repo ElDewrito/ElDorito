@@ -60,6 +60,12 @@
 			"url": "dew://screens/settings/",
 			"captureInput": true,
 			"zIndex": 9
+		},
+        {
+			"id": "forge",
+			"url": "dew://screens/forge/",
+			"captureInput": true,
+			"zIndex": 8
 		}
 	]
 }
