@@ -26,6 +26,7 @@ namespace
 	bool CheckKillTriggersHook(int a0, void *a1);
 	bool ObjectSafeZoneHook(void *a0);
 	void* PushBarriersGetStructureDesignHook(int index);
+	void UpdateForgeInputHook();
 
 	void FixRespawnZones();
 
@@ -46,6 +47,7 @@ namespace Patches
 		void ApplyAll()
 		{
 			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
+			Hook(0x19D482, UpdateForgeInputHook, HookFlags::IsCall).Apply();
 			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x19EBA1, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
@@ -78,17 +80,44 @@ namespace Patches
 
 namespace
 {
+	__declspec(naked) void UpdateForgeInputHook()
+	{
+		__asm
+		{
+			mov al, shouldDelete
+			test al, al
+			jnz del
+
+			// Not deleting - just call the original function
+			push esi
+			mov eax, 0x59F0E0
+			call eax
+			retn 4
+
+			del:
+			mov shouldDelete, 0
+
+				// Simulate a Y button press
+				mov eax, 0x244D1F0              // Controller data
+				mov byte ptr[eax + 0x9E], 1    // Ticks = 1
+				and byte ptr[eax + 0x9F], 0xFE // Clear the "handled" flag
+
+											   // Call the original function
+				push esi
+				mov eax, 0x59F0E0
+				call eax
+
+				// Make sure nothing else gets the fake press
+				mov eax, 0x244D1F0          // Controller data
+				or byte ptr[eax + 0x9F], 1 // Set the "handled" flag
+				retn 4
+		}
+	}
+
 	void SandboxEngineTickHook()
 	{
 		static auto SandboxEngine_Tick = (void(*)())(0x0059ED70);
 		SandboxEngine_Tick();
-
-		if (shouldDelete)
-		{
-			auto actionState = Input::GetActionState(Blam::Input::eGameActionUiY);
-			actionState->Ticks = 1;
-			actionState->Flags &= 0xFE;
-		}
 
 		if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
 		{
