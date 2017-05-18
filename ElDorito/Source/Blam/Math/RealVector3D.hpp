@@ -41,6 +41,11 @@ namespace Blam
 			RealVector3D operator/(const RealVector3D &other) const;
 			RealVector3D operator/(const float other) const;
 			friend RealVector3D operator/(const float a, const RealVector3D &b);
+
+			float Length2() const;
+			float Length() const;
+			static RealVector3D Normalize(const RealVector3D& v);
+			static RealVector3D Cross(const RealVector3D& a, const RealVector3D& b);
 		};
 	}
 }

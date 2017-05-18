@@ -58,6 +58,7 @@
     <ClCompile Include="Source\Modules\ModuleBase.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
     <ClCompile Include="Source\Modules\ModuleDebug.cpp" />
+    <ClCompile Include="Source\Modules\ModuleForge.cpp" />
     <ClCompile Include="Source\Modules\ModuleGame.cpp" />
     <ClCompile Include="Source\Modules\ModuleGraphics.cpp" />
     <ClCompile Include="Source\Modules\ModuleInput.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="Source\Modules\ModuleBase.hpp" />
     <ClInclude Include="Source\Modules\ModuleCamera.hpp" />
     <ClInclude Include="Source\Modules\ModuleDebug.hpp" />
+    <ClInclude Include="Source\Modules\ModuleForge.hpp" />
     <ClInclude Include="Source\Modules\ModuleGame.hpp" />
     <ClInclude Include="Source\Modules\ModuleGraphics.hpp" />
     <ClInclude Include="Source\Modules\ModuleInput.hpp" />

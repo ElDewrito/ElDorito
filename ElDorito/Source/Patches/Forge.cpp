@@ -3,8 +3,13 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamInput.hpp"
+#include "../Blam/BlamPlayers.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/TagBlock.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
+#include "../Modules/ModuleForge.hpp"
 
 using namespace Blam;
 using namespace Blam::Objects;
@@ -17,12 +22,21 @@ namespace
 	bool killBarriersEnabled = true;
 	bool pushBarriersEnabled = true;
 
-	void UpdateForgeInputHook();
 	void UpdateBarriersEnabled();
 	bool CheckKillTriggersHook(int a0, void *a1);
 	bool ObjectSafeZoneHook(void *a0);
 	void* PushBarriersGetStructureDesignHook(int index);
+
 	void FixRespawnZones();
+
+	void SandboxEngineTickHook();
+
+	MapVariant* GetMapVariant();
+	struct AABB { float MinX, MaxX, MinY, MaxY, MinZ, MaxZ; };
+	bool CalculateObjectBoundingBox(DatumIndex objectTagIndex, AABB* outBoundingBox);
+	DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex);
+	bool GetObjectUnderCrosshairIntersectNormal(DatumIndex playerIndex, Math::RealVector3D* outNormalVec);
+	DatumIndex CloneObject(DatumIndex playerIndex, DatumIndex objectIndex, float depth);
 }
 
 namespace Patches
@@ -31,7 +45,7 @@ namespace Patches
 	{
 		void ApplyAll()
 		{
-			Hook(0x19D482, UpdateForgeInputHook, HookFlags::IsCall).Apply();
+			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
 			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x19EBA1, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
@@ -64,38 +78,38 @@ namespace Patches
 
 namespace
 {
-	__declspec(naked) void UpdateForgeInputHook()
+	void SandboxEngineTickHook()
 	{
-		__asm
+		static auto SandboxEngine_Tick = (void(*)())(0x0059ED70);
+		SandboxEngine_Tick();
+
+		if (shouldDelete)
 		{
-			mov al, shouldDelete
-			test al, al
-			jnz del
-
-			// Not deleting - just call the original function
-			push esi
-			mov eax, 0x59F0E0
-			call eax
-			retn 4
-
-		del:
-			mov shouldDelete, 0
-
-			// Simulate a Y button press
-			mov eax, 0x244D1F0              // Controller data
-			mov byte ptr [eax + 0x9E], 1    // Ticks = 1
-			and byte ptr [eax + 0x9F], 0xFE // Clear the "handled" flag
-
-			// Call the original function
-			push esi
-			mov eax, 0x59F0E0
-			call eax
-
-			// Make sure nothing else gets the fake press
-			mov eax, 0x244D1F0          // Controller data
-			or byte ptr [eax + 0x9F], 1 // Set the "handled" flag
-			retn 4
+			auto actionState = Input::GetActionState(Blam::Input::eGameActionUiY);
+			actionState->Ticks = 1;
+			actionState->Flags &= 0xFE;
 		}
+
+		if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
+		{
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			auto objectIndexUnderCrosshair = GetObjectIndexUnderCrosshair(playerIndex);
+			if (objectIndexUnderCrosshair != DatumIndex::Null)
+			{
+				auto& forgeModule = Modules::ModuleForge::Instance();
+				auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+				auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+
+				auto objectIndexToClone = objectIndexUnderCrosshair;
+				for (auto i = 0; i < cloneMultiplier; i++)
+				{
+					objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
+					if (objectIndexToClone == DatumIndex::Null)
+						break;
+				}
+			}
+		}
+
 	}
 
 	void UpdateBarriersEnabled()
@@ -190,10 +204,7 @@ namespace
 
 		auto& objects = *objectsPtr;
 
-		static auto GetMapVariant = (Blam::MapVariant* (__cdecl*)())(0x00583230);
 		auto mapv = GetMapVariant();
-		if (!mapv)
-			return;
 
 
 		// loop throught mapv placements
@@ -281,5 +292,127 @@ namespace
 				mpPropertiesPtr(0xA).Write<uint8_t>(zoneTeamIndex);
 			}
 		}
+	}
+
+	DatumIndex CloneObject(DatumIndex playerIndex, DatumIndex objectIndex, float depth)
+	{
+		using Vector3 = Math::RealVector3D;
+
+		auto& objects = ElDorito::GetMainTls(0x448).Read<DataArray<ObjectHeader>*>();
+		auto mapv = GetMapVariant();
+
+		if (!mapv || playerIndex == DatumIndex::Null || objectIndex == DatumIndex::Null)
+			return DatumIndex::Null;
+
+		auto objectDatum = objects->Get(objectIndex);
+		if (!objectDatum)
+			return DatumIndex::Null;
+
+		auto objectPtr = Pointer(objectDatum->Data);
+		auto tagIndex = objectPtr.Read<uint32_t>();
+		auto placementIndex = objectPtr(0x1c).Read<uint16_t>();
+		auto position = objectPtr(0x54).Read<Vector3>();
+		auto& rightVec = objectPtr(0x60).Read<Vector3>();
+		auto& upVec = objectPtr(0x6c).Read<Vector3>();
+		auto& forwardVec = Vector3::Normalize(Vector3::Cross(upVec, rightVec));
+		auto& variantProperties = mapv->Placements[placementIndex].Properties;
+
+		if (placementIndex == -1)
+			return DatumIndex::Null;
+
+		Vector3 intersectNormal;
+		if (!GetObjectUnderCrosshairIntersectNormal(playerIndex, &intersectNormal))
+			return DatumIndex::Null;
+
+		static auto Matrix3x3_CreateAxes = (void(__cdecl*)(float *matrix, Vector3 *position, Vector3 *rightVec, Vector3 *upVec))(0x005B20C0);
+		static auto Matrix3x3_TransformVec = (void(__cdecl*)(float *matrix, Vector3 *vec, Vector3 *outVector))(0x005B2710);
+
+		float m0[13];
+		Matrix3x3_CreateAxes(m0, &position, &rightVec, &upVec);
+		Matrix3x3_TransformVec(m0, &intersectNormal, &intersectNormal);
+
+		AABB bounds;
+		if (!CalculateObjectBoundingBox(tagIndex, &bounds))
+			return DatumIndex::Null;
+
+		Vector3 displacement(0, 0, 0);
+
+		if (abs(intersectNormal.K) > abs(intersectNormal.J) && abs(intersectNormal.K) > abs(intersectNormal.I))
+		{
+			auto dz = (bounds.MaxZ - bounds.MinZ);
+			displacement = intersectNormal.K > 0 ? upVec * dz : upVec * -dz;
+		}
+		else if (abs(intersectNormal.J) > abs(intersectNormal.K) && abs(intersectNormal.J) > abs(intersectNormal.I))
+		{
+			auto dy = (bounds.MaxY - bounds.MinY);
+			displacement = intersectNormal.J > 0 ? forwardVec * dy : forwardVec * -dy;
+		}
+		else if (abs(intersectNormal.I) > abs(intersectNormal.J) && abs(intersectNormal.I) > abs(intersectNormal.K))
+		{
+			auto dx = (bounds.MaxX - bounds.MinX);
+			displacement = intersectNormal.I > 0 ? rightVec * dx : rightVec * -dx;
+		}
+
+		auto displacedPosition = position + displacement * depth;
+
+		auto SpawnObject = (uint32_t(__thiscall *)(MapVariant* thisptr, uint32_t tagIndex, int a3, int16_t placementIndex, const Vector3 *position,
+			const Vector3 *rightVec, const Vector3 *upVec, int16_t scnrPlacementBlockIndex, int objectType,
+			MapVariant::VariantProperties* variantProperties, uint16_t placementFlags))(0x00582110);
+
+		return SpawnObject(mapv, tagIndex, 0, -1, &displacedPosition, &rightVec, &upVec, -1, -1, &variantProperties, 0);
+	}
+
+	inline MapVariant* GetMapVariant()
+	{
+		static auto GetMapVariant = (Blam::MapVariant* (__cdecl*)())(0x00583230);
+		return GetMapVariant();
+	}
+
+	inline DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex)
+	{
+		auto gameEngineGlobalsPtr = ElDorito::GetMainTls(0x48);
+		if (!gameEngineGlobalsPtr)
+			return DatumIndex::Null;
+
+		return gameEngineGlobalsPtr[0](0xe45c + 4 * playerIndex.Index()).Read<DatumIndex>();
+	}
+
+	inline bool GetObjectUnderCrosshairIntersectNormal(DatumIndex playerIndex, Math::RealVector3D* outNormalVec)
+	{
+		auto gameEngineGlobalsPtr = ElDorito::GetMainTls(0x48);
+		if (!gameEngineGlobalsPtr)
+			return false;
+
+		*outNormalVec = gameEngineGlobalsPtr[0](0xE2DC + 0xC * playerIndex.Index()).Read<Math::RealVector3D>();
+		return true;
+	}
+
+	bool CalculateObjectBoundingBox(DatumIndex objectTagIndex, AABB* outBoundingBox)
+	{
+		using namespace Blam::Tags;
+
+		auto objectDefPtr = Pointer(TagInstance(objectTagIndex.Index()).GetDefinition<void>());
+		if (!objectDefPtr)
+			return false;
+
+		auto hlmtTagIndex = objectDefPtr(0x40).Read<uint32_t>();
+
+		auto hlmtDefPtr = Pointer(TagInstance(hlmtTagIndex).GetDefinition<void>());
+		if (!hlmtDefPtr)
+			return false;
+
+		auto modeTagIndex = hlmtDefPtr(0xC).Read<uint32_t>();
+
+		auto modeDefPtr = Pointer(TagInstance(modeTagIndex).GetDefinition<void>());
+		if (!modeDefPtr)
+			return false;
+
+		auto compressionInfoBlock = modeDefPtr(0x74).Read<Blam::Tags::TagBlock<uint8_t>>();
+		if (compressionInfoBlock.Count < 1)
+			return false;
+
+		*outBoundingBox = Pointer(compressionInfoBlock.Elements)(0x4).Read<AABB>();
+
+		return true;
 	}
 }
