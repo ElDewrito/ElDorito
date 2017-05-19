@@ -108,7 +108,7 @@ $(document).ready(function() {
     $('#settingsWindow textarea').on('change', function(){
         updateSetting(this.name, "\"" + this.value + "\"");
     });
-    $('#controllerSettings select .bind').on('change', function(){
+    $('#controllerSettings .bind').on('change', function(){
         updateBinding(this.id, this.value);
         updateBindLabels();
     });    
