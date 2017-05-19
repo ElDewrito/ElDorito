@@ -10,6 +10,7 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Modules/ModulePlayer.hpp"
 
 namespace
 {
@@ -29,6 +30,7 @@ namespace
 	bool LoadMapHook(void *data);
 	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
 	void GameStartHook();
+	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -173,6 +175,8 @@ namespace Patches
 			Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
 			Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
 			Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
+
+			Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 		}
 
 		void OnShutdown(ShutdownCallback callback)
@@ -532,5 +536,15 @@ namespace
 
 		for (auto& callback : gameStartCallbacks)
 			callback();
+	}
+
+	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5)
+	{
+		static auto& modulePlayer = Modules::ModulePlayer::Instance();
+
+		Pointer(a3)(0xAC).Write<float>(modulePlayer.VarEdgeDrop->ValueFloat);
+
+		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
+		sub_724BB0(thisptr, a2, a3, a4, a5);
 	}
 }
