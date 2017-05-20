@@ -19,6 +19,7 @@ namespace Modules
 		Command* VarInputControllerPort;
 		Command* VarControllerSensitivityX;
 		Command* VarControllerSensitivityY;
+		Command* VarControllerInvertY;
 
 		Command* CommandBindControllerAction;
 		Command* CommandBindKeyboardAction;
