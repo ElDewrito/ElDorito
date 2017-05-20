@@ -19,7 +19,7 @@ function closeBrowser() {
 }
 
 $(document).ready(function() {
-        loadSettings(0);        
+    loadSettings(0);        
 });
 
 function loadSettings(i) {
@@ -34,7 +34,6 @@ function loadSettings(i) {
             }
             $("select[name='"+settingsToLoad[i][0]+"']").val(response);
             $("textarea[name='"+settingsToLoad[i][0]+"']").val(response);
-
 			i++;
 			loadSettings(i);
 		});
