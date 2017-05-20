@@ -332,3 +332,14 @@ function updateSensitivity(value){
         dew.command("writeconfig");
     });
 }
+
+function buttonAction(i){
+    switch (i) {
+        case 1: // B
+        case 9: // Start
+            closeBrowser();
+            break;
+        default:
+            // console.log("nothing associated with " + i);
+    }  
+}
