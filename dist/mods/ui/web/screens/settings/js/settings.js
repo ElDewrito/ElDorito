@@ -89,6 +89,19 @@ var controllerPresets = [
 ];
 
 $(document).ready(function() {
+    $(document).keydown(function(e){
+        if(e.keyCode == 9 || e.keyCode == 27 || e.keyCode == 13){
+            closeBrowser();
+        } 
+        if(e.keyCode == 84 || e.keyCode == 89){
+            var teamChat = false;
+            if(e.keyCode == 89){ teamChat = true };
+            dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+        }
+        if(e.keyCode == 192 || e.keyCode == 112){
+            dew.show("console");
+        }
+    });
     if(window.location.href.indexOf("#") == -1) {
        window.location.replace("#playerSettings");
     }
