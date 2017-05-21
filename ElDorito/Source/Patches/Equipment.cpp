@@ -25,6 +25,7 @@ namespace
 	void* __cdecl Player_GetArmorAbilitiesCHUDHook(Blam::Players::PlayerDatum* playerDatum);
 	bool __cdecl UnitUpdateHook(uint32_t unitObjectIndex);
 	void __cdecl EquipmentUseHook(int unitObjectIndex, int slotIndex, unsigned int isClient);
+	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType);
 }
 
 namespace Patches
@@ -69,6 +70,9 @@ namespace Patches
 			VirtualProtect(pEquipmentJumpTableCase, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
 			*(uintptr_t*)pEquipmentJumpTableCase = (uintptr_t)&EquipmentActionStateHook;
 			VirtualProtect(pEquipmentJumpTableCase, 4, oldProtect, &tmp);
+
+			// drop grenades on unit death
+			Hook(0x74C746, UnitDeathDropHook, HookFlags::IsCall).Apply();
 		}
 	}
 }
@@ -478,6 +482,76 @@ namespace
 			POWERUPS :
 			mov edx, 0x0053988E
 				jmp edx
+		}
+	}
+
+	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType)
+	{
+		using namespace Blam::Tags;
+
+		struct GrenadeBlock
+		{
+			int16_t MaximumCount;
+			uint16_t Unknown02;
+			TagReference ThrowingEffect;
+			uint32_t Unknown14;
+			uint32_t Unknown18;
+			uint32_t Unknown1C;
+			uint32_t Unknown20;
+			TagReference Equipment;
+			TagReference Projectile;
+		};
+
+		static auto UnitDeathDrop = (void(__cdecl*)(uint32_t unitObjectIndex, int a2))(0x00B69CF0);
+		UnitDeathDrop(unitObjectIndex, eventType);
+	
+		// only continue if we're host
+		static auto IsClient = (bool(*)())(0x00531D70);
+		if (IsClient())
+			return;
+
+		auto objects = GetObjects();
+		assert(objects);
+
+		auto unitObjectDatum = objects->Get(unitObjectIndex);
+		if (!unitObjectDatum || !unitObjectDatum->Data)
+			return;
+
+		auto unitObjectPtr = Pointer(unitObjectDatum->Data);
+		auto& unitPosition = unitObjectPtr(0x20).Read<Vector3D>();
+
+		auto matchGlobalsPtr = Pointer(0x022AAEB8)[0];
+		assert(matchGlobalsPtr);
+
+		auto grenadeBlock = matchGlobalsPtr(0x12c).Read<TagBlock<GrenadeBlock>>();
+
+		for (auto i = 0; i < 4; i++)
+		{	
+			auto& blockElem = grenadeBlock.Elements[i];
+			if (blockElem.Equipment.TagIndex == -1)
+				continue;
+
+			auto nadeCount = unitObjectPtr(0x320 + i).Read<uint8_t>();
+
+			uint8_t objectData[0x18Cu];
+
+			// spawn a new grenade object for each grenade the unit had
+			for (auto j = 0; j < nadeCount; j++)
+			{		
+				static auto Objects_InitializeNewObject = (void (__cdecl *)(void* objectData, int tagIndex, int objectIndex, int a4))(0x00B31590);
+				static auto Objects_SpawnObject = (uint32_t(__cdecl*)(void* objectData))(0x00B30440);
+				static auto Simulation_SpawnObject = (char(__cdecl *)(unsigned __int32 unitObjectIndex))(0x4B2CD0);
+
+				Objects_InitializeNewObject(objectData, blockElem.Equipment.TagIndex, -1, 0);
+
+				// TODO: also take into account the unit's velocity
+				Pointer(objectData)(0x1c).Write(unitPosition);
+
+				auto grenadeObjectIndex = Objects_SpawnObject(objectData);
+
+				// notify clients that an object has been spawned
+				Simulation_SpawnObject(grenadeObjectIndex);
+			}
 		}
 	}
 }
