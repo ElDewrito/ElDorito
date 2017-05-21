@@ -297,7 +297,7 @@ namespace
 					command.push_back("0");
 				binding->active = (keyTicks > 0);
 			}
-			
+
 			// Execute the command and print its result
 			auto result = Modules::CommandMap::Instance().ExecuteCommand(command, true);
 			Console::WriteLine(result);
@@ -536,7 +536,7 @@ namespace
 		returnInfo += buffer.GetString();
 
 		return true;
-	
+
 	}
 
 #ifdef _DEBUG
@@ -596,6 +596,10 @@ namespace Modules
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 
+		VarControllerInvertY = AddVariableInt("ControllerInvertY", "yinvert", "Invert the controller Y look axis", eCommandFlagsArchived, 0);
+		VarControllerInvertY->ValueIntMin = 0;
+		VarControllerInvertY->ValueIntMax = 1;
+
 		LoadDefaultBindings();
 		BuildSettingsMenu();
 
@@ -621,7 +625,7 @@ namespace Modules
 	std::string ModuleInput::ExportBindings() const
 	{
 		std::string result;
-		
+
 		// Save controller bindings
 		for (auto &&action : gameActions)
 		{
@@ -677,7 +681,7 @@ namespace Modules
 
 namespace
 {
-	Utils::NameValueTable<ControllerButton> controllerButtons = 
+	Utils::NameValueTable<ControllerButton> controllerButtons =
 	{
 		{ "LT", eControllerButtonLeftTrigger },
 		{ "RT", eControllerButtonRightTrigger },

@@ -6,6 +6,7 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Modules/ModuleInput.hpp"
+#include "../Console.hpp"
 
 using namespace Patches::Input;
 using namespace Blam::Input;
@@ -25,7 +26,7 @@ namespace
 	void UpdateUiControllerInputHook(int a0);
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
-	 
+
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
 	void QuickUnblockInput();
@@ -90,7 +91,7 @@ namespace Patches
 				// Deactivate the current context
 				contextStack.top()->Deactivated();
 			}
-			
+
 			// Push and activate the new context
 			contextStack.push(context);
 			context->Activated();
@@ -356,16 +357,19 @@ namespace
 	{
 		typedef char(*GetControllerStatePtr)(int dwUserIndex, int a2, void *a3);
 		auto GetControllerState = reinterpret_cast<GetControllerStatePtr>(0x65EF60);
-
 		auto val = GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
-		if (contextStack.empty())
+
+		//Invert right joystick
+		if (Modules::ModuleInput::Instance().VarControllerInvertY->ValueInt)
 		{
-			return val;
+			auto rY = Pointer(a3)(0x3A).Read<short>();
+			//Prevent an overflow
+			if (rY == -32768)
+				rY++;
+			Pointer(a3)(0x3A).Write<short>(rY * -1);
 		}
-		else
-		{
-			return 0;
-		}
+
+		return contextStack.empty() ? val : 0;
 	}
 
 

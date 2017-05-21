@@ -1,5 +1,5 @@
 var loadedSettings = false;
-var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'],['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityY'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard']];
+var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'],['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityY'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard'], ['invertLook','Input.ControllerInvertY']];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 var renderWeapons = [
@@ -89,6 +89,19 @@ var controllerPresets = [
 ];
 
 $(document).ready(function() {
+    $(document).keydown(function(e){
+        if(e.keyCode == 9 || e.keyCode == 27 || e.keyCode == 13){
+            closeBrowser();
+        } 
+        if(e.keyCode == 84 || e.keyCode == 89){
+            var teamChat = false;
+            if(e.keyCode == 89){ teamChat = true };
+            dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+        }
+        if(e.keyCode == 192 || e.keyCode == 112){
+            dew.show("console");
+        }
+    });
     if(window.location.href.indexOf("#") == -1) {
        window.location.replace("#playerSettings");
     }
@@ -108,11 +121,11 @@ $(document).ready(function() {
     $('#settingsWindow textarea').on('change', function(){
         updateSetting(this.name, "\"" + this.value + "\"");
     });
-    $('#controllerSettings select .bind').on('change', function(){
+    $('#controllerSettings .bind').on('change', function(){
         updateBinding(this.id, this.value);
         updateBindLabels();
     });    
-    $('#controllerPort').on('change', function(){
+    $('#controllerPort, #invertLook').on('change', function(){
         updateSetting(this.name, "\"" + this.value + "\"");         
     });
     setButtonLists();
@@ -318,4 +331,15 @@ function updateSensitivity(value){
     dew.command("Input.ControllerSensitivityX " + xVal, {}).then(function(){
         dew.command("writeconfig");
     });
+}
+
+function buttonAction(i){
+    switch (i) {
+        case 1: // B
+        case 9: // Start
+            closeBrowser();
+            break;
+        default:
+            // console.log("nothing associated with " + i);
+    }  
 }

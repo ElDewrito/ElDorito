@@ -307,6 +307,14 @@ input[type=range]:focus, input[type=checkbox]:focus {
     text-align:center;
 }
 
+#invertLook{
+    position: absolute;
+    right:0.75vw;
+    height: 1.25vw;
+    padding: 0;
+    width: 1.25vw;
+}
+
 #A {
     left: 40.71vh;
     top: 15.93vh;
