@@ -13,16 +13,28 @@ namespace
 
 	bool CommandWeaponOffset(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if (Arguments.size() < 1) 
+		if (Arguments.size() < 1) {
+			returnInfo = "Invalid argument, for a list of weapon name use the 'Player.ListRenderWeapons' command";
 			return false;
+		}
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		auto selected = Arguments[0];
-		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto weaponName = Arguments[0];
+
+		uint16_t weaponIndex;
+		if (Patches::Weapon::Get_WeaponIndex(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::Get_WeaponIndex(weaponName);
+		}
+		else {
+			returnInfo = "Invalid weapon name";
+			return false;
+		}
+
+		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		if (Arguments.size() <= 1 || Arguments.size() > 4) {
 			std::stringstream ss;
-			ss << "Weapon: " << selected << ", I: " << weapon->FirstPersonWeaponOffset.I << ", J: " << weapon->FirstPersonWeaponOffset.J << ", K: " << weapon->FirstPersonWeaponOffset.K;
+			ss << "Weapon: " << weaponName << ", I: " << weapon->FirstPersonWeaponOffset.I << ", J: " << weapon->FirstPersonWeaponOffset.J << ", K: " << weapon->FirstPersonWeaponOffset.K;
 			returnInfo = ss.str();
 			return false;
 		}
@@ -31,10 +43,10 @@ namespace
 
 		// update offset
 		weapon->FirstPersonWeaponOffset = offset;
-		Patches::Weapon::Update_WeaponOffsetsModified(selected, offset);
+		Patches::Weapon::Update_WeaponOffsetsModified(weaponName, offset);
 
 		std::stringstream ss;
-		ss << "Weapon: " << selected << ", I: " << std::stof(Arguments[1]) << ", J: " << std::stof(Arguments[2]) << ", K: " << std::stof(Arguments[3]);
+		ss << "Weapon: " << weaponName << ", I: " << std::stof(Arguments[1]) << ", J: " << std::stof(Arguments[2]) << ", K: " << std::stof(Arguments[3]);
 		returnInfo = ss.str();
 
 		return true;
@@ -42,19 +54,31 @@ namespace
 
 	bool CommandWeaponOffsetReset(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if (Arguments.size() < 1)
+		if (Arguments.size() < 1) {
+			returnInfo = "Invalid argument, for a list of weapon name use the 'Player.ListRenderWeapons' command";
 			return false;
+		}
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		auto selected = Arguments[0];
-		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto weaponName = Arguments[0];
+
+		uint16_t weaponIndex;
+		if (Patches::Weapon::Get_WeaponIndex(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::Get_WeaponIndex(weaponName);
+		}
+		else {
+			returnInfo = "Invalid weapon name";
+			return false;
+		}
+
+		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		// update offset
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get_WeaponOffset(selected, true);
-		Patches::Weapon::Update_WeaponOffsetsModified(selected, Patches::Weapon::Get_WeaponOffset(selected, true));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get_WeaponOffset(weaponName, true);
+		Patches::Weapon::Update_WeaponOffsetsModified(weaponName, Patches::Weapon::Get_WeaponOffset(weaponName, true));
 
 		std::stringstream ss;
-		ss << "Weapon: " << selected << " offset reset to default";
+		ss << "Weapon: " << weaponName << " offset reset to default";
 		returnInfo = ss.str();
 
 		return true;

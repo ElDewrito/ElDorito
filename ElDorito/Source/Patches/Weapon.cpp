@@ -120,7 +120,7 @@ namespace Patches
 		uint16_t Get_WeaponIndex(std::string &weaponName)
 		{
 			if (weaponIndices.find(weaponName) == weaponIndices.end())
-				weaponName = "assault_rifle";
+				return 0xFFFF;
 
 			return weaponIndices.find(weaponName)->second;
 		}
