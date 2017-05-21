@@ -23,6 +23,8 @@ using namespace Blam::Math;
 
 namespace
 {
+	std::string ConfigPath = Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString;
+
 	std::map<std::string, uint16_t> weaponIndices;
 	std::map<std::string, RealVector3D> weaponOffsetsDefault;
 	std::map<std::string, RealVector3D> weaponOffsetsModified;
@@ -52,7 +54,7 @@ namespace Patches
 						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
 					}
 				}
-				
+
 				if (!weaponOffsetsModified.empty()) {
 					std::ofstream outFile(ConfigPath, std::ios::trunc);
 
