@@ -514,7 +514,7 @@ namespace
 		assert(objects);
 
 		auto unitObjectDatum = objects->Get(unitObjectIndex);
-		if (!unitObjectDatum || !unitObjectDatum->Data)
+		if (!unitObjectDatum || !unitObjectDatum->Data || unitObjectDatum->Type != Blam::Objects::eObjectTypeBiped)
 			return;
 
 		auto unitObjectPtr = Pointer(unitObjectDatum->Data);
