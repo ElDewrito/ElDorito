@@ -21,6 +21,7 @@
 #include "Patches\Memory.hpp"
 #include "Patches\Equipment.hpp"
 #include "Patches\PlayerRepresentation.hpp"
+#include "Patches\Weapon.hpp"
 #include "DirectXHook.hpp"
 
 
@@ -80,6 +81,7 @@ namespace Patches
 		Armor::RefreshUiPlayer();
 		Ui::ApplyUIResolution();
 		Ui::ApplyAfterTagsLoaded();
+		Weapon::ApplyAfterTagsLoaded();
 	}
 
 	void Tick()

@@ -316,6 +316,12 @@
     <ClCompile Include="Source\ThirdParty\HttpRequest.cpp">
       <Filter>ThirdParty</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Patches\Weapon.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleWeapon.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -843,6 +849,12 @@
     </ClInclude>
     <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h">
       <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Weapon.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleWeapon.hpp">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

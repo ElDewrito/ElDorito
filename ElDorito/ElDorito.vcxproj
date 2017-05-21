@@ -67,6 +67,7 @@
     <ClCompile Include="Source\Modules\ModuleSettings.cpp" />
     <ClCompile Include="Source\Modules\ModuleTime.cpp" />
     <ClCompile Include="Source\Modules\ModuleUPnP.cpp" />
+    <ClCompile Include="Source\Modules\ModuleWeapon.cpp" />
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Patches\Armor.cpp" />
     <ClCompile Include="Source\Patches\Assassination.cpp" />
@@ -90,6 +91,7 @@
     <ClCompile Include="Source\Patches\Sprint.cpp" />
     <ClCompile Include="Source\Patches\Ui.cpp" />
     <ClCompile Include="Source\Patches\VirtualKeyboard.cpp" />
+    <ClCompile Include="Source\Patches\Weapon.cpp" />
     <ClCompile Include="Source\Pointer.cpp" />
     <ClCompile Include="Source\Server\BanList.cpp" />
     <ClCompile Include="Source\Server\DedicatedServer.cpp" />
@@ -211,6 +213,7 @@
     <ClInclude Include="Source\Modules\ModuleSettings.hpp" />
     <ClInclude Include="Source\Modules\ModuleTime.hpp" />
     <ClInclude Include="Source\Modules\ModuleUPnP.hpp" />
+    <ClInclude Include="Source\Modules\ModuleWeapon.hpp" />
     <ClInclude Include="Source\Patch.hpp" />
     <ClInclude Include="Source\Patches\Armor.hpp" />
     <ClInclude Include="Source\Patches\Assassination.hpp" />
@@ -234,6 +237,7 @@
     <ClInclude Include="Source\Patches\Sprint.hpp" />
     <ClInclude Include="Source\Patches\Ui.hpp" />
     <ClInclude Include="Source\Patches\VirtualKeyboard.hpp" />
+    <ClInclude Include="Source\Patches\Weapon.hpp" />
     <ClInclude Include="Source\Pointer.hpp" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\Server\BanList.hpp" />
