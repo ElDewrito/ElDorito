@@ -23,8 +23,7 @@ using namespace Blam::Math;
 
 namespace
 {
-	std::string ConfigPath = Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString;
-
+	std::string ConfigPath;
 	std::map<std::string, uint16_t> weaponIndices;
 	std::map<std::string, RealVector3D> weaponOffsetsDefault;
 	std::map<std::string, RealVector3D> weaponOffsetsModified;
@@ -95,6 +94,7 @@ namespace Patches
 
 		void Init()
 		{
+			ConfigPath = Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString;
 			Patches::Core::OnMapLoaded(MapLoadedCallback);
 		}
 
