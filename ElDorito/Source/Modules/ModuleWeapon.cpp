@@ -18,7 +18,7 @@ namespace
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
 		auto selected = Arguments[0];
-		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndice(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		if (Arguments.size() <= 1 || Arguments.size() > 4) {
 			std::stringstream ss;
@@ -47,7 +47,7 @@ namespace
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
 		auto selected = Arguments[0];
-		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndice(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		// update offset
 		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get_WeaponOffset(selected, true);

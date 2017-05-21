@@ -48,7 +48,7 @@ namespace Patches
 				if (!weaponOffsetsDefault.empty()) {
 					for (auto &element : weaponIndices) {
 						std::string selected = element.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndice(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
 						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
 					}
 				}
@@ -58,7 +58,7 @@ namespace Patches
 
 					for (auto &weaponParams : weaponOffsetsModified) {
 						std::string weaponName = weaponParams.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndice(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
 						weapon->FirstPersonWeaponOffset = weaponParams.second;
 						outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
 					}
@@ -84,7 +84,7 @@ namespace Patches
 
 					for (auto &weaponParams : weaponOffsetsModified) {
 						std::string weaponName = weaponParams.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndice(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
 						weapon->FirstPersonWeaponOffset = weaponParams.second;
 					}
 				}
@@ -115,7 +115,7 @@ namespace Patches
 			}
 		}
 
-		uint16_t Get_WeaponIndice(std::string &weaponName)
+		uint16_t Get_WeaponIndex(std::string &weaponName)
 		{
 			if (weaponIndices.find(weaponName) == weaponIndices.end())
 				weaponName = "assault_rifle";

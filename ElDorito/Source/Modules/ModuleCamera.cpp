@@ -320,7 +320,7 @@ namespace
 	bool VariableCameraShowCoordinatesUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto session = Blam::Network::GetActiveSession();
-		if (!session)
+		if (!session || Arguments.size() != 1)
 		{
 			returnInfo = "Unable to enable debug coordinates!";
 			return false;
