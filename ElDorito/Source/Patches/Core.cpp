@@ -19,6 +19,7 @@ namespace
 	void FovHook();
 	void FmodSystemInitHook();
 	void FmodSystemInitHook2();
+	int FmodChannelCountHook();
 	int __cdecl DualWieldHook(unsigned short objectIndex);
 	void SprintInputHook();
 	double GetAspectRatio();
@@ -114,6 +115,7 @@ namespace Patches
 			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
 			Hook(0x4E9C, FmodSystemInitHook).Apply();
 			Hook(0x4EC0, FmodSystemInitHook2).Apply();
+			Hook(0x25076B, FmodChannelCountHook, HookFlags::IsCall).Apply();
 
 			// increase software channels from 192 to 256
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
@@ -298,6 +300,11 @@ namespace
 			push	0x404EC8
 			ret
 		}
+	}
+
+	int FmodChannelCountHook()
+	{
+		return 256;
 	}
 
 	void GrenadeLoadoutHookImpl(uint8_t* unit)
