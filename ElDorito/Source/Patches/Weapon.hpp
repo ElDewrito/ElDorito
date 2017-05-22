@@ -14,15 +14,15 @@ namespace Patches
 		void Init();
 		void ApplyAfterTagsLoaded();
 
-		void Save_Config(std::string configPath);
-		void Load_Config(std::string configPath);
+		void ConfigLoad(std::string configPath);
+		void ConfigSave(std::string configPath);
 
-		uint16_t Get_Index(std::string &weaponName);
+		uint16_t GetIndex(std::string &weaponName);
 
-		RealVector3D Get_Offset(std::string &weaponName);
-		RealVector3D Get_OffsetDefault(std::string &weaponName);
+		RealVector3D GetOffset(std::string &weaponName);
+		RealVector3D GetOffsetDefault(std::string &weaponName);
 
-		void Update_OffsetsModified(std::string &weaponName, RealVector3D &weaponOffset);
-		bool Is_OffsetModified(const std::string &weapon);
+		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset);
+		bool IsOffsetModified(const std::string &weapon);
 	}
 }
