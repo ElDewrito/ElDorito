@@ -22,8 +22,8 @@ namespace
 		auto weaponName = Arguments[0];
 
 		uint16_t weaponIndex;
-		if (Patches::Weapon::Get_WeaponIndex(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::Get_WeaponIndex(weaponName);
+		if (Patches::Weapon::Get_Index(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::Get_Index(weaponName);
 		}
 		else {
 			returnInfo = "Invalid weapon name";
@@ -43,7 +43,7 @@ namespace
 
 		// update offset
 		weapon->FirstPersonWeaponOffset = offset;
-		Patches::Weapon::Update_WeaponOffsetsModified(weaponName, offset);
+		Patches::Weapon::Update_OffsetsModified(weaponName, offset);
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << ", I: " << std::stof(Arguments[1]) << ", J: " << std::stof(Arguments[2]) << ", K: " << std::stof(Arguments[3]);
@@ -63,8 +63,8 @@ namespace
 		auto weaponName = Arguments[0];
 
 		uint16_t weaponIndex;
-		if (Patches::Weapon::Get_WeaponIndex(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::Get_WeaponIndex(weaponName);
+		if (Patches::Weapon::Get_Index(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::Get_Index(weaponName);
 		}
 		else {
 			returnInfo = "Invalid weapon name";
@@ -74,8 +74,8 @@ namespace
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		// update offset
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get_WeaponOffset(weaponName, true);
-		Patches::Weapon::Update_WeaponOffsetsModified(weaponName, Patches::Weapon::Get_WeaponOffset(weaponName, true));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get_OffsetDefault(weaponName);
+		Patches::Weapon::Update_OffsetsModified(weaponName, Patches::Weapon::Get_OffsetDefault(weaponName));
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << " offset reset to default";
@@ -84,14 +84,19 @@ namespace
 		return true;
 	}
 
-	bool CommandUpdateWeaponsConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandSaveWeaponsConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		//Patches::Weapon::Config(Patches::Weapon::ConfigPath, false);
+		Patches::Weapon::Save_Config(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
 
-		std::stringstream ss;
-		ss << "Weapons config updated";
-		returnInfo = ss.str();
+		returnInfo = "Weapons config saved successfully";
+		return true;
+	}
 
+	bool VariableWeaponConfigUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::Weapon::Load_Config(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
+
+		returnInfo = "Weapons config file udaped successfully";
 		return true;
 	}
 }
@@ -102,7 +107,7 @@ namespace Modules
 	{
 		AddCommand("Offset", "weap_off", "This changes weapon offset", eCommandFlagsNone, CommandWeaponOffset, { "Weapon Name", "I Offset", "J Offset", "K Offset" });
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
-		//AddCommand("Update.Config", "weap_up_conf", "This resets weapon offset to default", eCommandFlagsNone, CommandUpdateWeaponsConfig);
-		VarWeaponConfig = AddVariableString("Config", "weap_cfg", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.cfg");
+		AddCommand("Config.Save", "weap_cfg_sv", "This resets weapon offset to default", eCommandFlagsNone, CommandSaveWeaponsConfig);
+		VarWeaponConfig = AddVariableString("Config", "weap_cfg", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.cfg", VariableWeaponConfigUpdate);
 	}
 }

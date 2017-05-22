@@ -13,8 +13,16 @@ namespace Patches
 	{
 		void Init();
 		void ApplyAfterTagsLoaded();
-		uint16_t Get_WeaponIndex(std::string &weaponName);
-		RealVector3D Get_WeaponOffset(std::string &weaponName, bool isDefault);
-		void Update_WeaponOffsetsModified(std::string &weaponName, RealVector3D &weaponOffset);
+
+		void Save_Config(std::string configPath);
+		void Load_Config(std::string configPath);
+
+		uint16_t Get_Index(std::string &weaponName);
+
+		RealVector3D Get_Offset(std::string &weaponName);
+		RealVector3D Get_OffsetDefault(std::string &weaponName);
+
+		void Update_OffsetsModified(std::string &weaponName, RealVector3D &weaponOffset);
+		bool Is_OffsetModified(const std::string &weapon);
 	}
 }

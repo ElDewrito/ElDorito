@@ -49,43 +49,18 @@ namespace Patches
 				if (!weaponOffsetsDefault.empty()) {
 					for (auto &element : weaponIndices) {
 						std::string selected = element.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+						auto *weapon = TagInstance(Patches::Weapon::Get_Index(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
 						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
 					}
 				}
 
 				if (!weaponOffsetsModified.empty()) {
-					std::ofstream outFile(ConfigPath, std::ios::trunc);
-
-					for (auto &weaponParams : weaponOffsetsModified) {
-						std::string weaponName = weaponParams.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-						weapon->FirstPersonWeaponOffset = weaponParams.second;
-						outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
-					}
+					Save_Config(ConfigPath);
 				}
 				else {
-					std::ifstream inFile(ConfigPath);
-					std::vector <std::string> lines;
-
-					std::string str;
-					while (std::getline(inFile, str))
-						lines.push_back(str);
-
-					for(std::string line : lines) {
-						auto weaponParams = Utils::String::SplitString(line, ' ');
-
-						std::string weaponName = weaponParams[0];
-						RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
-
-						Update_WeaponOffsetsModified(weaponName, offset);
-
-						Console::WriteLine(line);
-					}
-
 					for (auto &weaponParams : weaponOffsetsModified) {
 						std::string weaponName = weaponParams.first;
-						auto *weapon = TagInstance(Patches::Weapon::Get_WeaponIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+						auto *weapon = TagInstance(Patches::Weapon::Get_Index(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
 						weapon->FirstPersonWeaponOffset = weaponParams.second;
 					}
 				}
@@ -95,6 +70,7 @@ namespace Patches
 		void Init()
 		{
 			ConfigPath = Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString;
+			Load_Config(ConfigPath);
 			Patches::Core::OnMapLoaded(MapLoadedCallback);
 		}
 
@@ -117,7 +93,42 @@ namespace Patches
 			}
 		}
 
-		uint16_t Get_WeaponIndex(std::string &weaponName)
+		void Save_Config(std::string configPath)
+		{
+			using Blam::Math::RealVector3D;
+			using Blam::Tags::TagInstance;
+			using Blam::Tags::Items::Weapon;
+
+			std::ofstream outFile(configPath, std::ios::trunc);
+
+			for (auto &weaponParams : weaponOffsetsModified) {
+				std::string weaponName = weaponParams.first;
+				auto *weapon = TagInstance(Patches::Weapon::Get_Index(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+				weapon->FirstPersonWeaponOffset = weaponParams.second;
+				outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
+			}
+		}
+
+		void Load_Config(std::string configPath)
+		{
+			std::ifstream inFile(configPath);
+			std::vector <std::string> lines;
+
+			std::string str;
+			while (std::getline(inFile, str))
+				lines.push_back(str);
+
+			for (std::string line : lines) {
+				auto weaponParams = Utils::String::SplitString(line, ' ');
+
+				std::string weaponName = weaponParams[0];
+				RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
+
+				Update_OffsetsModified(weaponName, offset);
+			}
+		}
+
+		uint16_t Get_Index(std::string &weaponName)
 		{
 			if (weaponIndices.find(weaponName) == weaponIndices.end())
 				return 0xFFFF;
@@ -125,17 +136,17 @@ namespace Patches
 			return weaponIndices.find(weaponName)->second;
 		}
 
-		RealVector3D Get_WeaponOffset(std::string &weaponName, bool isDefault)
+		RealVector3D Get_Offset(std::string &weaponName)
 		{
-			if (isDefault) {
-				return weaponOffsetsDefault.find(weaponName)->second;
-			}
-			else {
-				return weaponOffsetsModified.find(weaponName)->second;
-			}
+			return weaponOffsetsModified.find(weaponName)->second;
 		}
 
-		void Update_WeaponOffsetsModified(std::string &weaponName, RealVector3D &weaponOffset)
+		RealVector3D Get_OffsetDefault(std::string &weaponName)
+		{
+			return weaponOffsetsDefault.find(weaponName)->second;
+		}
+
+		void Update_OffsetsModified(std::string &weaponName, RealVector3D &weaponOffset)
 		{
 			if (weaponOffsetsDefault.find(weaponName)->second == weaponOffset) {
 				weaponOffsetsModified.erase(weaponName);
