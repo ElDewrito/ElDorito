@@ -97,18 +97,28 @@ namespace Patches
 		{
 			std::ifstream inFile(configPath);
 			std::vector <std::string> lines;
-
 			std::string str;
+
 			while (std::getline(inFile, str))
 				lines.push_back(str);
 
 			for (std::string line : lines) {
 				auto weaponParams = Utils::String::SplitString(line, ' ');
 
-				std::string weaponName = weaponParams[0];
-				RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
+				if ((weaponParams.size() < 4 || weaponParams.size() > 4))
+					Console::WriteLine(line);
+				else if (line[0] != '#')
+				{
+					std::string weaponName = weaponParams[0];
+					RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
 
-				SetOffsetModified(weaponName, offset);
+					SetOffsetModified(weaponName, offset);
+				}
+#if _DEBUG
+				else {
+					Console::WriteLine(line);
+				}
+#endif
 			}
 		}
 
