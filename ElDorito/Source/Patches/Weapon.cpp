@@ -108,7 +108,7 @@ namespace Patches
 				std::string weaponName = weaponParams[0];
 				RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
 
-				SetOffsetsModified(weaponName, offset);
+				SetOffsetModified(weaponName, offset);
 			}
 		}
 
