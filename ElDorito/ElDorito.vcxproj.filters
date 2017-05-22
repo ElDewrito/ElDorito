@@ -1,0 +1,943 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source\CommandMap.cpp" />
+    <ClCompile Include="Source\Console.cpp" />
+    <ClCompile Include="Source\DirectXHook.cpp" />
+    <ClCompile Include="Source\ElDorito.cpp" />
+    <ClCompile Include="Source\ElModules.cpp" />
+    <ClCompile Include="Source\ElPatches.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Patch.cpp" />
+    <ClCompile Include="Source\Pointer.cpp" />
+    <ClCompile Include="Source\Blam\Math\Angle.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamData.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamInput.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamNetwork.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamPlayers.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Tag.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\TagBlock.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\TagData.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\TagGroup.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\TagInstance.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\TagReference.cpp">
+      <Filter>Blam\Tags</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealColorARGB.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealColorRGB.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealEulerAngles2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealEulerAngles3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealMatrix3x3.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealMatrix4x3.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealOrientation3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealPlane2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealPlane3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealPoint2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealPoint3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealQuaternion.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealRectangle2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealRectangle3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealVector2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\RealVector3D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\Rectangle2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\Bounds.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\ColorARGB.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\ColorRGB.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Math\Point2D.cpp">
+      <Filter>Blam\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Cache\StringIdCache.cpp">
+      <Filter>Blam\Cache</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Text\StringID.cpp">
+      <Filter>Blam\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleBase.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleCamera.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleDebug.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleForge.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleGame.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleGraphics.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleInput.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModulePlayer.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleServer.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleSettings.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleTime.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleUPnP.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Armor.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Assassination.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\ContentItems.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Core.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\CustomPackets.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Ui.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\VirtualKeyboard.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Sprint.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Scoreboard.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\RawInputPatch.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\PlayerUid.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\PlayerRepresentation.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Network.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Mouse.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Memory.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Logging.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Input.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Forge.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Events.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Equipment.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\VotingSystem.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\VotingPackets.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\VariableSynchronization.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\ServerChat.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\Rcon.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\DedicatedServer.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\BanList.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\VersionInfo.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\String.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Logger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Debug.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Cryptography.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Assert.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\AntiCheat.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utils\Rectangle.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Bridge\Client\ClientFunctions.cpp">
+      <Filter>Web\Bridge\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\WebRenderer.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\WebRendererApp.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\WebRendererHandler.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\WebRendererSchemeHandler.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\WebRendererSchemeHandlerFactory.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Bridge\WebRendererQueryHandler.cpp">
+      <Filter>Web\Bridge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebVirtualKeyboard.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebScoreboard.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebLoadingScreen.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebConsole.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebChat.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\MpEventDispatcher.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\ScreenLayer.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\VotingScreen.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\LoadingScreen.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ChatCommands\ChatCommand.cpp">
+      <Filter>ChatCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp">
+      <Filter>ChatCommands</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BitStream.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ThirdParty\HttpRequest.cpp">
+      <Filter>ThirdParty</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Weapon.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleWeapon.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\CommandMap.hpp" />
+    <ClInclude Include="Source\Console.hpp" />
+    <ClInclude Include="Source\DirectXHook.hpp" />
+    <ClInclude Include="Source\ElDorito.hpp" />
+    <ClInclude Include="Source\ElModules.hpp" />
+    <ClInclude Include="Source\ElPatches.hpp" />
+    <ClInclude Include="Source\Patch.hpp" />
+    <ClInclude Include="Source\Pointer.hpp" />
+    <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\Settings.hpp" />
+    <ClInclude Include="Source\Blam\Math\Angle.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamData.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamEvents.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamInput.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamMemory.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamNetwork.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamObjects.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamPlayers.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamTime.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BlamTypes.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Tags.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Tag.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\TagBlock.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\TagData.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\TagGroup.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\TagInstance.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\TagReference.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\Rectangle2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealColorARGB.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealColorRGB.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealEulerAngles2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealEulerAngles3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealMatrix3x3.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealMatrix4x3.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealOrientation3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealPlane2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealPlane3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealPoint2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealPoint3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealQuaternion.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealRectangle2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealRectangle3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealVector2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\RealVector3D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\Bounds.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\ColorARGB.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\ColorRGB.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\Point2D.hpp">
+      <Filter>Blam\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Cache\StringIdCache.hpp">
+      <Filter>Blam\Cache</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Text\StringID.hpp">
+      <Filter>Blam\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\ChudGlobalsDefinition.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\ChudDefinition.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\MultilingualUnicodeStringList.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\AssaultVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\CTFVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\GameEngineSettings.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\GameVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\Globals.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\InfectionVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\JuggernautVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\KOTHVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\MultiplayerGlobals.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\OddballVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\SandboxVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\SlayerVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\TerritoriesVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp">
+      <Filter>Blam\Tags\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleUPnP.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleBase.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleCamera.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleDebug.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleForge.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleGame.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleGraphics.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleInput.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModulePlayer.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleServer.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleSettings.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleTime.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Armor.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Assassination.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\ContentItems.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Core.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\CustomPackets.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Ui.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\VirtualKeyboard.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Sprint.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Scoreboard.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\RawInput.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\PlayerUid.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\PlayerRepresentation.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\PlayerPropertiesExtension.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Network.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Mouse.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Memory.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Logging.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Input.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Forge.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Events.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Equipment.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\VotingSystem.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\VotingPackets.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\VariableSynchronization.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\ServerChat.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\Rcon.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\DedicatedServer.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\BanList.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\WebSocket.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\VersionInfo.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\UPnP.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\String.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Singleton.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\NameValueTable.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Macros.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Debug.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Cryptography.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Bits.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Assert.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\AntiCheat.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Logger.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Rectangle.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Bridge\Client\ClientFunctions.hpp">
+      <Filter>Web\Bridge\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\WebRenderer.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\WebRendererApp.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\WebRendererHandler.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\WebRendererSchemeHandler.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\WebRendererSchemeHandlerFactory.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Bridge\WebRendererQuery.hpp">
+      <Filter>Web\Bridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Bridge\WebRendererQueryHandler.hpp">
+      <Filter>Web\Bridge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebVirtualKeyboard.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebScoreboard.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebLoadingScreen.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebConsole.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebChat.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Logger.hpp">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\MpEventDispatcher.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\ScreenLayer.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\VotingScreen.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\LoadingScreen.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ChatCommands\ChatCommand.hpp">
+      <Filter>ChatCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ChatCommands\ChatCommandMap.hpp">
+      <Filter>ChatCommands</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Utils\Utils.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\Item.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Sounds\Noise.hpp">
+      <Filter>Blam\Tags\Sounds</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp">
+      <Filter>Blam\Tags\Scenario</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\BitStream.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\dirent.h">
+      <Filter>ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\HttpRequest.hpp">
+      <Filter>ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Padding.hpp">
+      <Filter>Blam</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\error\en.h">
+      <Filter>ThirdParty\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\error\error.h">
+      <Filter>ThirdParty\rapidjson\error</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\strtod.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\strfunc.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\stack.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\pow10.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\meta.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\itoa.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\ieee754.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\dtoa.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\diyfp.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\biginteger.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\inttypes.h">
+      <Filter>ThirdParty\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\stdint.h">
+      <Filter>ThirdParty\rapidjson\msinttypes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\writer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\allocators.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\document.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\encodedstream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\encodings.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\filereadstream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\filewritestream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\memorybuffer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\memorystream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\pointer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\prettywriter.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\rapidjson.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\reader.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Weapon.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleWeapon.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Source\ElDorito.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\ElDorito.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Blam">
+      <UniqueIdentifier>{defb920c-2cc9-41af-a57b-f1ab2143c56b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Math">
+      <UniqueIdentifier>{a3585958-8416-421e-ba43-55f8dc92d929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags">
+      <UniqueIdentifier>{c268cac8-f326-4cee-9c97-2986f924f535}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Cache">
+      <UniqueIdentifier>{7f1fd91a-3363-4c55-8ec7-dff25e634f1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Text">
+      <UniqueIdentifier>{a1738ab4-8160-4fd8-b984-a69fb6417846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Game">
+      <UniqueIdentifier>{a47a8af1-f270-4f58-8cb4-a0ad45c8d69f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Items">
+      <UniqueIdentifier>{11c2b4f7-ab96-4245-b3da-36854b061607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Objects">
+      <UniqueIdentifier>{22403737-bcd0-42cc-99b2-4266d7f0b720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Scenario">
+      <UniqueIdentifier>{c7caece5-4dc3-435a-988f-fe3c43fa98a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Sounds">
+      <UniqueIdentifier>{0432fea7-737a-4be5-ad07-f6187e13ffe7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\UI">
+      <UniqueIdentifier>{6e8a51ab-7534-4e35-9aa3-edb2b903df80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules">
+      <UniqueIdentifier>{ea2876cb-46ed-4f55-8294-469749a3f314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Patches">
+      <UniqueIdentifier>{fd28805a-5f04-4a96-9706-9f85cb711155}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Server">
+      <UniqueIdentifier>{0cd78b88-b581-4cad-9530-d0fe4778e53f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{1ff3cea6-a6b5-4aa2-8f7d-2bc698d083c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web">
+      <UniqueIdentifier>{1beb089d-3222-4927-88ce-e96e27d89347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web\Bridge">
+      <UniqueIdentifier>{e04de81b-663d-4964-b82d-4b150c0c0fdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web\Bridge\Client">
+      <UniqueIdentifier>{c4784fc4-9b7c-44a9-8612-d2d04502dda2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web\Ui">
+      <UniqueIdentifier>{3378c6b8-fd92-4120-b6cb-19a9d5b23fa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ChatCommands">
+      <UniqueIdentifier>{0db81c21-1f83-427a-aa78-f02610cf134b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{234563c1-ddb9-4807-80f1-fd11f1955c5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson">
+      <UniqueIdentifier>{7ca775e1-2b30-4f44-8992-aebdf5b4cb6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\msinttypes">
+      <UniqueIdentifier>{239cf2ce-ab09-4385-913d-66391cfe5ce7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\internal">
+      <UniqueIdentifier>{cf2d5553-87ea-4983-9571-804702061dd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\rapidjson\error">
+      <UniqueIdentifier>{a600f92e-758d-4c78-be92-8c8665168356}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

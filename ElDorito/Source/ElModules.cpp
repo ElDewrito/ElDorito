@@ -5,6 +5,7 @@
 #include "ElDorito.hpp"
 #include "Modules/ModuleGame.hpp"
 #include "Modules/ModulePlayer.hpp"
+#include "Modules/ModuleWeapon.hpp"
 #include "Modules/ModuleServer.hpp"
 #include "Modules/ModuleSettings.hpp"
 #include "Modules/ModuleCamera.hpp"
@@ -104,6 +105,7 @@ namespace Modules
 	{
 		ModuleGame::Instance();
 		ModulePlayer::Instance();
+		ModuleWeapon::Instance();
 		ModuleServer::Instance();
 		ModuleSettings::Instance();
 		ModuleCamera::Instance();

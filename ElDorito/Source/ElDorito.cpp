@@ -24,6 +24,7 @@
 #include "Modules/ModuleCamera.hpp"
 #include "Server/VotingSystem.hpp"
 #include "ChatCommands/ChatCommandMap.hpp"
+#include "Patches/Weapon.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -239,6 +240,9 @@ void ElDorito::Initialize()
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
+
+	// WeaponOffset
+	Patches::Weapon::Init();
 
 	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{
