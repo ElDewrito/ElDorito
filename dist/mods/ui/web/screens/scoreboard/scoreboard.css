@@ -82,8 +82,8 @@ html {
     border: 1px solid rgba(122,175,209, 0.8);
     color: rgba(122,175,209, 0.8);
     width: 7%;
-    height: 3%;
-    padding-top: 0.5%;
+    height: 2.75vw;
+    line-height: 2.75vw;
     right: 2%;
     bottom: 2%;
     text-align: center;
@@ -91,11 +91,12 @@ html {
 }
 
 #closeButton .button{
-    width: 40%;
-    position:relative;
-    top: 50%;
-    margin-right: -10%;
-    margin-top:-40%;
+    display:none;
+    width: 2.75vw;
+    position:absolute;
+    margin-left: 0.2vw;
+    top:0;
+    right:0.75vw;
 }
 
 #closeButton:hover{
