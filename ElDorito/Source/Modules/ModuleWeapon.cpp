@@ -32,7 +32,7 @@ namespace
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		if (Arguments.size() <= 1 || Arguments.size() > 4) {
+		if (Arguments.size() != 4) {
 			std::stringstream ss;
 			ss << "Weapon: " << weaponName << ", I: " << weapon->FirstPersonWeaponOffset.I << ", J: " << weapon->FirstPersonWeaponOffset.J << ", K: " << weapon->FirstPersonWeaponOffset.K;
 			returnInfo = ss.str();
