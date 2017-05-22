@@ -119,7 +119,7 @@ namespace Patches
 
 			// increase software channels from 192 to 256
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
-			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = 256;
+			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = FmodChannelCountHook();
 
 			// Enable dual-wielding
 			Hook(0x761550, DualWieldHook).Apply();
