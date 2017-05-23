@@ -95,7 +95,7 @@ namespace
 	{
 		Patches::Weapon::Config::Load(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
 
-		returnInfo = "Weapons config file udaped successfully";
+		returnInfo = "Weapons config file updated successfully";
 		return true;
 	}
 

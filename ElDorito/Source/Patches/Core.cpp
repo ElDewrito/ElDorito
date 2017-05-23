@@ -119,7 +119,7 @@ namespace Patches
 
 			// increase software channels from 192 to 256
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
-			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = 0x400;
+			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = FmodChannelCountHook();
 
 			// Enable dual-wielding
 			Hook(0x761550, DualWieldHook).Apply();
@@ -294,7 +294,7 @@ namespace
 		{
 			push	0; extradriverdata
 			push	ebx; flags
-			push	400h; maxchannels
+			push	100h; maxchannels
 			push	eax; FMOD_SYSTEM
 			call	dword ptr[ecx]; FMOD::System::init
 			push	0x404EC8
@@ -304,7 +304,7 @@ namespace
 
 	int FmodChannelCountHook()
 	{
-		return 0x400;
+		return 256;
 	}
 
 	void GrenadeLoadoutHookImpl(uint8_t* unit)

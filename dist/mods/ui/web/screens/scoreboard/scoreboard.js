@@ -286,6 +286,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     'data-uid': lobby[i].UID,
                     'data-color': bgColor,
                     'data-score':lobby[i].score,
+                    'data-playerIndex':lobby[i].playerIndex,
                 }).click(function(){
                     var playerName = $(this).attr('id');
                     playerBreakdown(playerName);
@@ -308,27 +309,27 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             } else {
                 emblemPath = 'dew://assets/emblems/dead.png';   
             }
-            $('#'+lobby[i].name+' .name').prepend('<img class="emblem" src="'+emblemPath+'">');
+            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
             if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
                     case "oddball":
-                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
                         $('.teamHeader .name').attr('colspan',3);
                         break;
                     case "infection":
-                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
                             .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
                         $('.teamHeader .name').attr('colspan',4);
                         break;
                     case "ctf":
-                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
                         $('.teamHeader .name').attr('colspan',3);
                         break;
                     case "koth":
-                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
+                        $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
                             .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
                             .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
                         $('.teamHeader .name').attr('colspan',4);
@@ -337,18 +338,17 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     case "juggernaut":
                     case "assault":
                     default:
-                        $('#' + lobby[i].name).append($('<td class="stat">').text(lobby[i].kills)) //kills
+                        $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].assists)) //assists
                             .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
                             .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
                         $('.teamHeader .name').attr('colspan',5);
                 }
             }
-            $('#' + lobby[i].name).append($('<td class="stat score">').text(lobby[i].score)) //score                   
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score                   
             if(teamGame){
                 sortMe('scoreboard','tbody');
                 sortMe(teamArray[lobby[i].team].name,'tr');
-                
             } else {
                 sortMe('singlePlayers','tr');
             }
@@ -587,9 +587,14 @@ function flipUID(uid){
     return newUID;
 }
 
-
 function onControllerConnect(){
-   $('#closeButton').html("Close   <img class='button' src='dew://assets/buttons/XboxOne_Menu.png'>"); 
+    $('#closeButton').css('padding-right', '1.75vw');
+    $('#closeButton .button').show();
+}
+
+function onControllerDisconnect(){
+    $('#closeButton').css('padding-right', '0');  
+    $('#closeButton .button').hide();    
 }
 
 function buttonAction(i){
