@@ -22,8 +22,8 @@ namespace
 		auto weaponName = Arguments[0];
 
 		uint16_t weaponIndex;
-		if (Patches::Weapon::Get::Index(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::Get::Index(weaponName);
+		if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::GetIndex(weaponName);
 		}
 		else {
 			returnInfo = "Invalid weapon name";
@@ -43,7 +43,7 @@ namespace
 
 		// update offset
 		weapon->FirstPersonWeaponOffset = offset;
-		Patches::Weapon::Set::OffsetModified(weaponName, offset);
+		Patches::Weapon::SetOffsetModified(weaponName, offset);
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << ", I: " << std::stof(Arguments[1]) << ", J: " << std::stof(Arguments[2]) << ", K: " << std::stof(Arguments[3]);
@@ -63,8 +63,8 @@ namespace
 		auto weaponName = Arguments[0];
 
 		uint16_t weaponIndex;
-		if (Patches::Weapon::Get::Index(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::Get::Index(weaponName);
+		if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
+			weaponIndex = Patches::Weapon::GetIndex(weaponName);
 		}
 		else {
 			returnInfo = "Invalid weapon name";
@@ -73,8 +73,8 @@ namespace
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::Get::Offset("default", weaponName);
-		Patches::Weapon::Set::OffsetModified(weaponName, Patches::Weapon::Get::Offset("default", weaponName));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffset("default", weaponName);
+		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffset("default", weaponName));
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << " offset reset to default";
@@ -85,7 +85,7 @@ namespace
 
 	bool CommandSaveWeaponsConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Weapon::Config::Save(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
+		Patches::Weapon::ConfigSave(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
 
 		returnInfo = "Weapons config saved successfully";
 		return true;
@@ -93,7 +93,7 @@ namespace
 
 	bool VariableWeaponConfigUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Weapon::Config::Load(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
+		Patches::Weapon::ConfigLoad(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
 
 		returnInfo = "Weapons config file updated successfully";
 		return true;
@@ -103,7 +103,7 @@ namespace
 	{
 		std::stringstream ss;
 
-		for (auto &entry : Patches::Weapon::Get::Indices())
+		for (auto &entry : Patches::Weapon::GetIndices())
 			ss << "Index: 0x" << std::hex << entry.second << ", Name: " << entry.first << std::endl;
 
 		returnInfo = ss.str();
