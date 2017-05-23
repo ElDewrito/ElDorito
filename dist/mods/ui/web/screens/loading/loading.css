@@ -145,6 +145,15 @@ progress::-webkit-progress-value {
     display: none;
 }
 
+.serverMessage a {
+    color: white;
+    text-decoration: none;
+}
+
+.serverMessage a:hover {
+    text-decoration: underline;
+}
+
 .footer{
     position: absolute;
     left: 0;
