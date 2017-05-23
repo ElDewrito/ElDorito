@@ -102,7 +102,8 @@ namespace Blam
 		{
 			uint8_t Unknown2[0x2E];
 			DatumIndex SlaveUnit;
-			uint8_t Unknown34[0x3C];
+			DatumIndex DeadSlaveUnit;
+			uint8_t Unknown34[0x38];
 			PlayerProperties Properties;
 			uint8_t Unknown1690[0x1724];
 			int16_t SpawnGrenadeSetting;

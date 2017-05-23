@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamPlayers.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Modules/ModuleCamera.hpp"
 
@@ -25,6 +26,15 @@ namespace Patches
 
 namespace
 {
+	bool ShouldDisableRawInput()
+	{
+		auto& players = Blam::Players::GetPlayers();	
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		auto player = players.Get(playerIndex);
+
+		return player && player->DeadSlaveUnit != Blam::DatumIndex::Null;
+	}
+
 	bool RawInputHookImpl(RAWINPUT *rwInput)
 	{
 		auto camMode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
@@ -39,6 +49,9 @@ namespace
 			return false;
 		if (rwInput->header.dwType != RIM_TYPEMOUSE)
 			return true;
+
+		if (ShouldDisableRawInput())
+			return false;
 
 		Pointer InputPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
 		if (!InputPtr)
