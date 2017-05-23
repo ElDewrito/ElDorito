@@ -130,8 +130,7 @@ namespace Patches
 
 		void ApplyOffset(std::string &weaponName, RealVector3D &weaponOffset)
 		{
-			if (IsNotMainMenu)
-			{
+			if (IsNotMainMenu) {
 				auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
 				weapon->FirstPersonWeaponOffset = weaponOffset;
 			}
@@ -150,6 +149,8 @@ namespace Patches
 
 			while (std::getline(inFile, str))
 				lines.push_back(str);
+
+			weaponOffsetsModified.clear();
 
 			for (std::string line : lines) {
 				auto weaponParams = Utils::String::SplitString(line, ' ');
