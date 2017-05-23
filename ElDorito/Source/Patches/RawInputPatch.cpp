@@ -28,9 +28,22 @@ namespace
 {
 	bool ShouldDisableRawInput()
 	{
+		using namespace Blam;
+
 		auto& players = Blam::Players::GetPlayers();	
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
 		auto player = players.Get(playerIndex);
+
+		static auto Forge_GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x0059A6F0);
+
+		// if the left mouse button is down
+		if (*(uint8_t*)0x238E6AC > 0)
+		{
+			DatumIndex heldObjectIndex;
+
+			// if we're holding an object
+			return Forge_GetEditorModeState(playerIndex, (uint32_t*)&heldObjectIndex, nullptr) && heldObjectIndex != DatumIndex::Null;
+		}
 
 		return player && player->DeadSlaveUnit != Blam::DatumIndex::Null;
 	}
