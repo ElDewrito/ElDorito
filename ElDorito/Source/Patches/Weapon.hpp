@@ -20,6 +20,8 @@ namespace Patches
 
 		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset);
 
+		void ApplyOffset(std::string &weaponName, RealVector3D &weaponOffset);
+
 		bool IsOffsetModified(const std::string &weapon);
 
 		void ConfigLoad(std::string configPath);

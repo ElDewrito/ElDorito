@@ -18,9 +18,6 @@
 #include "Weapon.hpp"
 #include <iomanip>
 
-using namespace Blam::Objects;
-using namespace Blam::Math;
-
 using Blam::Math::RealVector3D;
 using Blam::Tags::TagInstance;
 using Blam::Tags::Game::Globals;
@@ -29,6 +26,7 @@ using Blam::Tags::Items::Weapon;
 
 namespace
 {
+	bool IsNotMainMenu;
 	std::string ConfigPath;
 	std::map<std::string, uint16_t> weaponIndices;
 	std::map<std::string, RealVector3D> weaponOffsetsDefault;
@@ -46,8 +44,12 @@ namespace Patches
 			auto separatorIndex = currentMap.find_first_of("\\/");
 			auto mapName = currentMap.substr(separatorIndex + 1);
 
-			if (mapName != "mainmenu")
-			{
+			if (mapName == "mainmenu") {
+				IsNotMainMenu = false;
+			}
+			else {
+				IsNotMainMenu = true;
+
 				if (!weaponOffsetsDefault.empty()) {
 					for (auto &element : weaponIndices) {
 						std::string selected = element.first;
@@ -62,8 +64,8 @@ namespace Patches
 				else {
 					for (auto &weaponParams : weaponOffsetsModified) {
 						std::string weaponName = weaponParams.first;
-						auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-						weapon->FirstPersonWeaponOffset = weaponParams.second;
+						RealVector3D weaponOffset = weaponParams.second;
+						ApplyOffset(weaponName, weaponOffset);
 					}
 				}
 			}
@@ -104,7 +106,7 @@ namespace Patches
 			return weaponIndices;
 		}
 
-		RealVector3D GetOffset(std::string mapped, std::string & weaponName)
+		RealVector3D GetOffset(std::string mapped, std::string &weaponName)
 		{
 			if (mapped == "default")
 				return weaponOffsetsDefault.find(weaponName)->second;
@@ -114,13 +116,24 @@ namespace Patches
 			return { 0, 0, 0 };
 		}
 
-		void SetOffsetModified(std::string & weaponName, RealVector3D & weaponOffset)
+		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 		{
 			if (weaponOffsetsDefault.find(weaponName)->second == weaponOffset) {
 				weaponOffsetsModified.erase(weaponName);
+				ApplyOffset(weaponName, weaponOffset);
 			}
 			else {
 				weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
+				ApplyOffset(weaponName, weaponOffset);
+			}
+		}
+
+		void ApplyOffset(std::string &weaponName, RealVector3D &weaponOffset)
+		{
+			if (IsNotMainMenu)
+			{
+				auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+				weapon->FirstPersonWeaponOffset = weaponOffset;
 			}
 		}
 
