@@ -1,5 +1,17 @@
 var mapName = "";
 var gameModes = ["slayer","ctf","slayer","oddball","koth","forge","vip","juggernaut","territories","assault","infection"];
+var safeDomains = ["discord.gg"];
+
+$("html").on("keydown", function(e) {
+    if(e.which == 84 || e.which == 89){
+        var teamChat = false;
+        if(e.which == 89){ teamChat = true };
+        dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+    }
+    if(e.which == 192 || e.which == 112){
+        dew.show("console");
+    }
+});
 
 function textWithNewLines(text) {
     var htmls = [];
@@ -10,6 +22,16 @@ function textWithNewLines(text) {
     }
     return htmls.join("<br>");
 }
+
+function aWrap(link) {
+    var parser = document.createElement('a');
+    parser.href = link;
+    if(safeDomains.indexOf(parser.hostname) > -1){
+        return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
+    } else {
+        return '';
+    }
+};
 
 function updateProgress(progress) {
     $("#progressbar").attr('value', progress);
@@ -50,7 +72,7 @@ function loadMap(mapName) {
         if(message.length > 0){
             message = message.substr(0, 512);
             $(".serverMessage").show();
-            $(".serverMessage").html(textWithNewLines(message));
+            $(".serverMessage").html(textWithNewLines(message).replace(/\bhttp[^ ]+/ig, aWrap));
         } else {
             $(".serverMessage").hide();
         }
@@ -73,8 +95,10 @@ dew.on("show", function (event) {
     mapName = event.data.map || "";
     if (mapName != "mainmenu") {
         loadMap(mapName);
+        dew.captureInput(true);
     } else {
         loadGeneric();
+        dew.captureInput(false);
     }
     updateProgress(0);
 });
