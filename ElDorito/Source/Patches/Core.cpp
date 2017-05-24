@@ -549,7 +549,7 @@ namespace
 	{
 		static auto& modulePlayer = Modules::ModulePlayer::Instance();
 
-		Pointer(a3)(0xAC).Write<float>(modulePlayer.VarEdgeDrop->ValueFloat);
+		Pointer(a3)(0xAC).Write<float>(0.5f);
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);

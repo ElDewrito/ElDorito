@@ -29,8 +29,6 @@ namespace Modules
 		Command* VarPlayerPrivKey;
 		Command* VarPlayerPubKey;
 
-		Command* VarEdgeDrop;
-
 		wchar_t UserName[17];
 
 		ModulePlayer();

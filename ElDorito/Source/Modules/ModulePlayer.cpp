@@ -69,8 +69,6 @@ namespace Modules
 		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
-		VarEdgeDrop = AddVariableFloat("EdgeDrop", "edge_drop", "Edge Drop", eCommandFlagsArchived, 0.5f);
-
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 
 		AddCommand("ListRenderWeapons", "list_render_weapons", "Lists available weapons to display on the player's render mannequin", eCommandFlagsNone, Patches::Armor::CommandPlayerListRenderWeapons);
