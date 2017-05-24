@@ -22,8 +22,10 @@ namespace
 {
 	bool locked = false;
 	bool postgame = false;
+	bool postgameScoreShown = false;
 	time_t postgameDisplayed;
-	const time_t postgameDisplayTime = 10;
+	const time_t postgameDisplayTime = 5;
+	const time_t postgameDelayTime = 4.7;
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
@@ -72,12 +74,22 @@ namespace Web
 				{
 					time_t curTime;
 					time(&curTime);
-					if (curTime - postgameDisplayed > postgameDisplayTime)
+					
+					if (!postgameScoreShown && ((curTime - postgameDisplayed) > postgameDelayTime))
+					{
+						Web::Ui::WebScoreboard::Show(locked, postgame);
+						postgameScoreShown = true;
+					}
+
+					if ((curTime - postgameDisplayed) > (postgameDisplayTime + postgameDelayTime))
 					{
 						auto session = Blam::Network::GetActiveSession();
+
 						if (session)
 							session->Parameters.SetSessionMode(1);
+
 						postgame = false;
+						postgameScoreShown = false;
 					}
 				}
 			}
@@ -212,7 +224,6 @@ namespace
 			time(&postgameDisplayed);
 			locked = true;
 			postgame = true;
-			Web::Ui::WebScoreboard::Show(locked, postgame);
 		}
 	}
 
@@ -221,6 +232,7 @@ namespace
 		//Update the scoreboard whenever an event occurs
 		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
 	}
+
 	void OnGameInputUpdated()
 	{
 		BindingsTable bindings;

@@ -69,7 +69,7 @@ namespace Modules
 		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
-		VarEdgeDrop = AddVariableFloat("EdgeDrop", "edge_drop", "Edge Drop", eCommandFlagsArchived, 0.0f);
+		VarEdgeDrop = AddVariableFloat("EdgeDrop", "edge_drop", "Edge Drop", eCommandFlagsArchived, 0.5f);
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 
