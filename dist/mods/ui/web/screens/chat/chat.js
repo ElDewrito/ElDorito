@@ -136,6 +136,7 @@ function chatboxHide(){
     dew.captureInput(false);
     fadeAway();
     stayOpen = false;
+    $("#chatBox").val('');
     $("#chatBox").hide();
     $("#chatWindow").css("bottom", "0");
     $("#chatWindow").addClass("hide-scrollbar");
