@@ -68,6 +68,7 @@ $(window).load(function(){
                         } 
                         $("#chat").stop();
                         $("#chat").show(true, true);
+                        $('body').removeClass();
                         if(i.mapName != "mainmenu"){
                             $("body").addClass("inGame");
                         }else{
