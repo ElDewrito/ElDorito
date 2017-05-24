@@ -14,6 +14,7 @@
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include <queue>
 
 using namespace Blam;
 using namespace Blam::Objects;
@@ -43,6 +44,7 @@ namespace
 	DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex);
 	bool GetObjectUnderCrosshairIntersectNormal(DatumIndex playerIndex, Math::RealVector3D* outNormalVec);
 	DatumIndex CloneObject(DatumIndex playerIndex, DatumIndex objectIndex, float depth);
+	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex);
 }
 
 namespace Patches
@@ -81,6 +83,59 @@ namespace Patches
 		{
 			shouldDelete = true;
 		}
+
+		void DeleteAll()
+		{
+			auto mapv = GetMapVariant();
+			if (!mapv)
+				return;
+
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			auto objectIndex = GetObjectIndexUnderCrosshair(playerIndex);
+
+			auto& objects = ElDorito::GetMainTls(0x448).Read<DataArray<ObjectHeader>*>();
+			auto objectDatum = objects->Get(objectIndex);
+			if (!objectDatum || !objectDatum->Data)
+				return;
+
+			auto tagIndex = *(uint32_t*)objectDatum->Data;
+
+			for (auto i = 0; i < 640; i++)
+			{
+				auto& placement = mapv->Placements[i];
+				if (!(placement.PlacementFlags & 1))
+					continue;
+
+				auto& budget = mapv->Budget[placement.BudgetIndex];
+				if (budget.TagIndex != tagIndex)
+					continue;
+
+				DeletePlacementObject(playerIndex, i);
+			}
+		}
+
+		void CanvasMap()
+		{
+			auto mapv = GetMapVariant();
+			if (!mapv)
+				return;
+
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+			for (auto i = 0; i < 640; i++)
+			{
+				auto& placement = mapv->Placements[i];
+				if (!(placement.PlacementFlags & 1))
+					continue;
+
+				auto& budget = mapv->Budget[placement.BudgetIndex];
+				if (budget.TagIndex == -1 || budget.Cost == -1)
+					continue;
+
+				DeletePlacementObject(playerIndex, i);
+			}
+		}
+
 	}
 }
 
@@ -135,7 +190,7 @@ namespace
 		Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair);
 
 		if (heldObjectIndex != -1)
-		{		
+		{
 			static auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& rotationSnap = moduleForge.VarRotationSnap->ValueFloat;
 
@@ -150,7 +205,7 @@ namespace
 					rotationSnap = 0;
 
 				wchar_t buff[256];
-				if(rotationSnap > 0)
+				if (rotationSnap > 0)
 					swprintf(buff, L"Rotation Snap: %.2f\n", rotationSnap);
 				else
 					swprintf(buff, L"Rotation Snap: OFF");
@@ -582,5 +637,11 @@ namespace
 
 		static auto Object_Transform = (void(__cdecl*)(float a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
 		Object_Transform(0.0f, objectIndex, nullptr, &rightVec, &upVec);
+	}
+
+	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex)
+	{
+		static auto Forge_DeleteObject = (void(__cdecl*)(int placementIndex, int playerIndex))(0x0059A920);
+		Forge_DeleteObject(placementIndex, playerIndex);
 	}
 }
