@@ -33,6 +33,15 @@ $(window).load(function(){
             $("#chatBox").focus();
         }
     });
+    
+    $("#chatBox").keydown(function(e){
+        if(e.keyCode === 33) {
+            $("#chatWindow").scrollTop($("#chatWindow").scrollTop()-($('#chatWindow p').height() * 6));   
+        }
+        if(e.keyCode === 34) {
+            $("#chatWindow").scrollTop($("#chatWindow").scrollTop()+($('#chatWindow p').height() * 6));        
+        }
+    });
 
     $("body").click(function(){
         $("#chatBox").focus();
@@ -71,13 +80,16 @@ $(window).load(function(){
                         $("#chatBox").show(0, "linear", function(){
                             $("#chatBox").focus();
                             $("#chatWindow").css("bottom", "3.54vh");
+                            $("#chatWindow").removeClass("hide-scrollbar");
                         });
                     }else{
                         $("#chatBox").hide();
                         $("#chatWindow").css("bottom", "0");
+                        $("#chatWindow").addClass("hide-scrollbar");
                         fadeAway();
                     }
                 }
+                $("#chatWindow").scrollTop($('#chatWindow')[0].scrollHeight);
             }else{
                 dew.hide();
             }
@@ -105,7 +117,7 @@ $(window).load(function(){
                 chatClass += ' emote';
                 e.data.message = e.data.message.substring(4, e.data.message.length);
             }
-            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").html(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap)));
+            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").html(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap))); 
             dew.show();
         });
     });
@@ -125,6 +137,8 @@ function chatboxHide(){
     fadeAway();
     stayOpen = false;
     $("#chatBox").hide();
+    $("#chatWindow").css("bottom", "0");
+    $("#chatWindow").addClass("hide-scrollbar");
 }
 
 function hexToRgba(hex,opacity){

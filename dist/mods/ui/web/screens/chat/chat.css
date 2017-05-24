@@ -13,20 +13,19 @@ body {
     color: white;
     overflow:hidden;
     zoom: 75%;
+    height: 37.5%;
 }
 
 .inGame #chat{
     bottom: 41%;
     left: 7%;  
     width: 27%;
-    height: 39.5%;
 }
 
 .inLobby #chat{
     bottom: 0%;
     left: 32%; 
     width: 35%;
-    height: 39.5%;
 }
 
 #chatWindow{
@@ -40,6 +39,8 @@ body {
          1px 1px 0 #000;
     letter-spacing: 0.02vw;
     word-wrap: break-word;
+    overflow-y:auto;
+    max-height:92.3%;
 }
 
 .inGame #chatWindow{
@@ -133,4 +134,16 @@ a:hover{
     .inGame #chat{
         width: 18%;
     }
+}
+
+#chatWindow::-webkit-scrollbar {
+    width: 1.25em;
+}
+
+#chatWindow::-webkit-scrollbar-thumb {
+  background-color: #95bde1;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+    visibility : hidden !important;
 }
