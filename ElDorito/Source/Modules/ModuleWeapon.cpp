@@ -14,7 +14,7 @@ namespace
 	bool CommandWeaponOffset(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() < 1) {
-			returnInfo = "Invalid argument, for a list of weapon name use the 'Player.ListRenderWeapons' command";
+			returnInfo = "Invalid argument, for a list of weapon name use the 'Weapon.List' command";
 			return false;
 		}
 
