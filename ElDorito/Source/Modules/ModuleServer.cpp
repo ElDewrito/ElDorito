@@ -903,17 +903,32 @@ namespace
 			numPlayers++;
 		}
 
+		if (numPlayers == 0)
+		{
+			returnInfo = "No players connected";
+			return false;
+		}
+
 		// Shuffle it
 		static std::random_device rng;
 		static std::mt19937 urng(rng());
 		std::shuffle(&players[0], &players[numPlayers], urng);
 
-		// Assign the first half to blue and the second half to red
-		// If there are an odd number of players, the extra player will be assigned to red
-		for (auto i = 0; i < numPlayers; i++)
+
+		int playerIndex = 0;
+		int numTeams = ceil((double)numPlayers / Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt);
+		if (numTeams == 1)
+			numTeams = 2;
+		int playersPerTeam = ceil((double)numPlayers / numTeams);
+		if (playersPerTeam < 1) // Can't fill each team, put one on each team
+			playersPerTeam = 1;
+		for (int team = 0; team < numTeams; team++)
 		{
-			auto team = (i < numPlayers / 2) ? 1 : 0;
-			membership.PlayerSessions[players[i]].Properties.ClientProperties.TeamIndex = team;
+			for (int numTeamPlayers = 0; numTeamPlayers < playersPerTeam && playerIndex < numPlayers; numTeamPlayers++)
+			{
+				membership.PlayerSessions[players[playerIndex]].Properties.ClientProperties.TeamIndex = team;
+				playerIndex++;
+			}
 		}
 		membership.Update();
 
@@ -1065,6 +1080,11 @@ namespace Modules
 		AddCommand("Ping", "ping", "Ping a server", eCommandFlagsNone, CommandServerPing, { "[ip] The IP address of the server to ping. Omit to ping the host." });
 
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
+
+		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8);
+		VarMaxTeamSize->ValueIntMin = 1;
+		VarMaxTeamSize->ValueIntMax = 16;
+
 		AddCommand("SubmitVote", "submitvote", "Sumbits a vote", eCommandFlagsNone, CommandServerSubmitVote, { "The vote to send to the host" });
 
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
