@@ -16,6 +16,7 @@ namespace Modules
 		Command* VarFirstRun;
 		Command* VarAnnouncerVol;
 		Command* VarExpandedScoreboard;
+		Command* VarHideChat;
 
 		int DebugFlags;
 

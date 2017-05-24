@@ -17,6 +17,7 @@ var teamArray = [
     {name: 'black', color: '#0B0B0B'}           
 ];
 var playerName;
+var hideChat;
 
 $(window).load(function(){
     dew.command('Player.Name').then(function(res) {
@@ -48,55 +49,68 @@ $(window).load(function(){
     });
     
     dew.on("show", function(e){
-        dew.command('Player.Name').then(function(res) {
-            playerName = new RegExp("@"+res, "ig");
-        });
-        clearTimeout(hideTimer);
-        if(e.data.hasOwnProperty('teamChat')){
-            isTeamChat = e.data.teamChat;
-        }
-        dew.getSessionInfo().then(function(i){
-            if(i.established){
-                if(isTeamChat && !i.hasTeams){
-                    isTeamChat = false;
-                } 
-                $("#chat").stop();
-                $("#chat").show(true, true);
-                $('body').removeClass();
-                if(i.mapName != "mainmenu"){
-                    $("body").addClass("inGame");
-                }else{
-                    $("body").addClass("inLobby");
+        dew.command('Game.HideChat').then(function(res) {
+            if(res == 1){
+                hideChat = true;
+            } else {
+                hideChat = false;
+                dew.command('Player.Name').then(function(res) {
+                    playerName = new RegExp("@"+res, "ig");
+                });
+                clearTimeout(hideTimer);
+                if(e.data.hasOwnProperty('teamChat')){
+                    isTeamChat = e.data.teamChat;
                 }
-                if(isTeamChat && i.hasTeams){
-                    $("#chatBox").attr("placeholder", "TEAM");
-                }else{
-                    $("#chatBox").attr("placeholder", "GLOBAL");
-                }
-                if(!stayOpen){
-                    dew.captureInput(e.data.captureInput);
-                    if (e.data.captureInput) {
-                        stayOpen = true;
-                        $("#chatBox").show(0, "linear", function(){
-                            $("#chatBox").focus();
-                            $("#chatWindow").css("bottom", "3.54vh");
-                            $("#chatWindow").removeClass("hide-scrollbar");
-                        });
+                dew.getSessionInfo().then(function(i){
+                    if(i.established){
+                        if(isTeamChat && !i.hasTeams){
+                            isTeamChat = false;
+                        } 
+                        $("#chat").stop();
+                        $("#chat").show(true, true);
+                        if(i.mapName != "mainmenu"){
+                            $("body").addClass("inGame");
+                        }else{
+                            $("body").addClass("inLobby");
+                        }
+                        if(isTeamChat && i.hasTeams){
+                            $("#chatBox").attr("placeholder", "TEAM");
+                        }else{
+                            $("#chatBox").attr("placeholder", "GLOBAL");
+                        }
+                        if(!stayOpen){
+                            dew.captureInput(e.data.captureInput);
+                            if (e.data.captureInput) {
+                                stayOpen = true;
+                                $("#chatBox").show(0, "linear", function(){
+                                    $("#chatBox").focus();
+                                    $("#chatWindow").css("bottom", "3.54vh");
+                                    $("#chatWindow").removeClass("hide-scrollbar");
+                                });
+                            }else{
+                                $("#chatBox").hide();
+                                $("#chatWindow").css("bottom", "0");
+                                $("#chatWindow").addClass("hide-scrollbar");
+                                fadeAway();
+                            }
+                        }
+                        $("#chatWindow").scrollTop($('#chatWindow')[0].scrollHeight);
                     }else{
-                        $("#chatBox").hide();
-                        $("#chatWindow").css("bottom", "0");
-                        $("#chatWindow").addClass("hide-scrollbar");
-                        fadeAway();
+                        dew.hide();
                     }
-                }
-                $("#chatWindow").scrollTop($('#chatWindow')[0].scrollHeight);
-            }else{
-                dew.hide();
+                });
             }
         });
     });
 
     dew.on("chat", function(e){
+        dew.command('Game.HideChat').then(function(res) {
+            if(res == 1){
+                hideChat = true;
+            }else{
+                hideChat = false;
+            }
+        });
         dew.getSessionInfo().then(function(i){
             if(e.data.hasOwnProperty('color')){
                 var bgColor =  e.data.color;
@@ -118,7 +132,9 @@ $(window).load(function(){
                 e.data.message = e.data.message.substring(4, e.data.message.length);
             }
             $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").html(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap))); 
-            dew.show();
+            if(!hideChat){
+                dew.show();
+            }
         });
     });
 });

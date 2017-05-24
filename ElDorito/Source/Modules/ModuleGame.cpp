@@ -849,6 +849,10 @@ namespace Modules
 		VarExpandedScoreboard->ValueIntMin = 0;
 		VarExpandedScoreboard->ValueIntMax = 1;
 
+		VarHideChat = AddVariableInt("HideChat", "hide_chat", "Hide in-game chat screen", eCommandFlagsArchived, 0);
+		VarHideChat->ValueIntMin = 0;
+		VarHideChat->ValueIntMax = 1;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
