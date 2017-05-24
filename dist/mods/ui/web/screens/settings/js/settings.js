@@ -85,7 +85,9 @@ var controllerPresets = [
     ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,Y,,,LB"],
     ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,Y,,,X"],
     ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB"],
-    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,Y,,,LB"]
+    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,Y,,,LB"],
+    ["Halo 5 Default","LS,A,RS,X,LB,RT,LT,X,LB,LT,Y,RB,LB,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,B"],
+    ["Halo 5 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB"]
 ];
 
 $(document).ready(function() {
@@ -234,6 +236,7 @@ function initializeBindings(){
             $('#'+controllerBinds[i].actionName).val(controllerBinds[i].controllerButton);
         }
         updateBindLabels();
+        //getCurrentBindString();
     });
 }
 
@@ -337,4 +340,16 @@ function buttonAction(i){
         default:
             // console.log("nothing associated with " + i);
     }  
+}
+
+function getCurrentBindString(){
+    var currentBinds = "";
+    for(var i = 0; i < binds.length; i++) {
+        if($('#'+binds[i]).val()){
+            currentBinds += $('#'+binds[i]).val() + ",";
+        }else{
+            currentBinds += ",";
+        }
+    }
+    console.log(currentBinds.slice(0, -1));
 }
