@@ -141,6 +141,7 @@
     <ClInclude Include="Source\Blam\Math\Bounds.hpp" />
     <ClInclude Include="Source\Blam\Math\ColorARGB.hpp" />
     <ClInclude Include="Source\Blam\Math\ColorRGB.hpp" />
+    <ClInclude Include="Source\Blam\Math\MathUtil.hpp" />
     <ClInclude Include="Source\Blam\Math\Point2D.hpp" />
     <ClInclude Include="Source\Blam\Math\RealColorARGB.hpp" />
     <ClInclude Include="Source\Blam\Math\RealColorRGB.hpp" />

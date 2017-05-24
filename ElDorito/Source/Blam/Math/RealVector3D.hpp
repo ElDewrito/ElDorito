@@ -4,6 +4,7 @@ namespace Blam
 {
 	namespace Math
 	{
+		struct RealQuaternion;
 		struct RealVector3D
 		{
 			float I;
@@ -46,6 +47,7 @@ namespace Blam
 			float Length() const;
 			static RealVector3D Normalize(const RealVector3D& v);
 			static RealVector3D Cross(const RealVector3D& a, const RealVector3D& b);
+			static RealVector3D Transform(const RealVector3D& value, const RealQuaternion& rotation);
 		};
 	}
 }

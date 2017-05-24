@@ -9,6 +9,7 @@ namespace Modules
 	public:
 		Command* VarCloneDepth;
 		Command* VarCloneMultiplier;
+		Command* VarRotationSnap;
 
 		ModuleForge();
 	};

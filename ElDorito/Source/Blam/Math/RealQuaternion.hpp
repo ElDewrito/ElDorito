@@ -4,6 +4,7 @@ namespace Blam
 {
 	namespace Math
 	{
+		struct RealMatrix4x3;
 		struct RealQuaternion
 		{
 			float I;
@@ -42,6 +43,10 @@ namespace Blam
 			RealQuaternion operator/(const RealQuaternion &other) const;
 			RealQuaternion operator/(const float other) const;
 			friend RealQuaternion operator/(const float a, const RealQuaternion &b);
+
+			static RealQuaternion CreateFromRotationMatrix(const RealMatrix4x3& matrix);
+			static RealQuaternion CreateFromYawPitchRoll(float yaw, float pitch, float roll);
+			static RealQuaternion Slerp(const RealQuaternion& a, const RealQuaternion& b, float t);
 		};
 	}
 }
