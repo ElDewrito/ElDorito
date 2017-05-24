@@ -106,14 +106,12 @@ namespace Patches
 			return weaponIndices;
 		}
 
-		RealVector3D GetOffset(std::string mapped, std::string &weaponName)
+		RealVector3D GetOffset(bool default, std::string &weaponName)
 		{
-			if (mapped == "default")
+			if (default)
 				return weaponOffsetsDefault.find(weaponName)->second;
-			if (mapped == "modified")
+			else
 				return weaponOffsetsModified.find(weaponName)->second;
-
-			return { 0, 0, 0 };
 		}
 
 		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)

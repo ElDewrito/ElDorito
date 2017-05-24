@@ -73,8 +73,8 @@ namespace
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffset("default", weaponName);
-		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffset("default", weaponName));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffset(true, weaponName);
+		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffset(true, weaponName));
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << " offset reset to default";

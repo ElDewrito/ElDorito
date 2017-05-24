@@ -16,7 +16,7 @@ namespace Patches
 
 		uint16_t GetIndex(std::string &weaponName);
 		std::map<std::string, uint16_t> GetIndices();
-		RealVector3D GetOffset(std::string mapped, std::string &weaponName);
+		RealVector3D GetOffset(bool default, std::string &weaponName);
 
 		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset);
 
