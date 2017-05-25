@@ -26,6 +26,7 @@ namespace
 	bool __cdecl UnitUpdateHook(uint32_t unitObjectIndex);
 	void __cdecl EquipmentUseHook(int unitObjectIndex, int slotIndex, unsigned int isClient);
 	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType);
+	void DespawnEquipmentHook();
 }
 
 namespace Patches
@@ -73,6 +74,7 @@ namespace Patches
 
 			// drop grenades on unit death
 			Hook(0x74C746, UnitDeathDropHook, HookFlags::IsCall).Apply();
+			Hook(0x14EE29, DespawnEquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
 		}
 	}
 }
@@ -485,6 +487,38 @@ namespace
 		}
 	}
 
+	void DespawnEquipment(uint32_t objectIndex, void* object)
+	{
+		auto tagIndex = *(uint32_t*)object;
+
+		static auto Equipment_GetEquipmentType = (signed int(__cdecl*) (uint32_t eqipTagIndex, int a2))(0x00BA0260);
+		static auto Object_Wake = (void(__cdecl *)(uint32_t objectIndex, bool a2))(0x00B327F0);
+		static auto Object_Despawn = (void(__cdecl *)(uint32_t objectIndex))(0x00B2CD10);
+
+		auto equipType = Equipment_GetEquipmentType(tagIndex, 0);
+
+		// only despawn grenades
+		if (equipType > 1)
+			return;
+
+		Object_Wake(objectIndex, 0);
+		Object_Despawn(objectIndex);
+	}
+
+	__declspec(naked) void DespawnEquipmentHook()
+	{
+		__asm
+		{
+			lea eax, [ebp-0x40]
+			push [eax] // object
+			push [eax+0x14] // object index
+			call DespawnEquipment
+			add esp, 8
+			mov eax, 0x0054EF6D
+			jmp eax
+		}
+	}
+
 	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType)
 	{
 		using namespace Blam::Tags;
@@ -542,12 +576,21 @@ namespace
 				static auto Objects_SpawnObject = (uint32_t(__cdecl*)(void* objectData))(0x00B30440);
 				static auto Simulation_SpawnObject = (char(__cdecl *)(unsigned __int32 unitObjectIndex))(0x4B2CD0);
 
-				Objects_InitializeNewObject(objectData, blockElem.Equipment.TagIndex, -1, 0);
+				Objects_InitializeNewObject(objectData, blockElem.Equipment.TagIndex, unitObjectIndex, 0);
 
 				// TODO: also take into account the unit's velocity
 				Pointer(objectData)(0x1c).Write(unitPosition);
 
 				auto grenadeObjectIndex = Objects_SpawnObject(objectData);
+				auto grenadeObjectDatum = objects->Get(grenadeObjectIndex);
+				if (grenadeObjectDatum && grenadeObjectDatum->Data)
+				{
+					auto grenadeObject = (uint8_t*)grenadeObjectDatum->Data;
+					*(uint32_t*)(grenadeObject + 0x180) = Blam::Time::GetGameTicks();
+					*(uint8_t*)(grenadeObject + 0x178) &= 0xFDu;
+					*(uint8_t*)(grenadeObject + 0x179) = 0;
+					*(uint32_t*)(grenadeObject + 0x184) = -1;
+				}
 
 				// notify clients that an object has been spawned
 				Simulation_SpawnObject(grenadeObjectIndex);
