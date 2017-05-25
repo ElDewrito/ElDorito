@@ -6,6 +6,8 @@
 #include <memory>
 #include <boost/filesystem.hpp>
 
+#include "WebRendererApp.hpp"
+
 namespace Anvil
 {
 	namespace Client
@@ -29,7 +31,7 @@ namespace Anvil
 			class WebRenderer
 			{
 				CefRefPtr<WebRendererHandler> m_RenderHandler;
-				CefRefPtr<CefApp> m_App;
+				CefRefPtr<WebRendererApp> m_App;
 				
 				RendererState m_State;
 

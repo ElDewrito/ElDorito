@@ -10,7 +10,7 @@ class App :
 
 public:
 	App();
-
+	virtual void OnRegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) override;
 	CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override;
 
 	void OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override;

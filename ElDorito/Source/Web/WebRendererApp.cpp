@@ -5,8 +5,10 @@ Code was used from NoFaTe (http://nofate.me)
 
 using namespace Anvil::Client::Rendering;
 
-void WebRendererApp::OnRegisterCustomSchemes(CefRefPtr<CefSchemeRegistrar> p_Registrar)
+void WebRendererApp::OnRegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> p_Registrar)
 {
+	p_Registrar->AddCustomScheme("dew", true, false, false, true, true);
+	p_Registrar->AddCustomScheme("medals", true, false, false, true, true);
 }
 
 CefRefPtr<CefBrowserProcessHandler> WebRendererApp::GetBrowserProcessHandler()
@@ -43,4 +45,5 @@ void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type
 	command_line->AppendSwitch("disable-gpu-compositing");
 	command_line->AppendSwitch("enable-begin-frame-scheduling");
 	command_line->AppendSwitch("enable-experimental-web-platform-features");
+	command_line->AppendSwitch("enable-media-stream");
 }

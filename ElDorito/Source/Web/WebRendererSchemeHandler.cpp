@@ -359,6 +359,15 @@ bool WebRendererSchemeHandler::ReadLocalFile(std::string p_Host, std::string p_P
 
 bool WebRendererSchemeHandler::ProcessRequest(CefRefPtr<CefRequest> p_Request, CefRefPtr<CefCallback> p_Callback)
 {
+	CefResponse::HeaderMap s_Headers;
+	p_Request->GetHeaderMap(s_Headers);
+	m_Origin = "";
+	for (CefResponse::HeaderMap::iterator it = s_Headers.begin(); it != s_Headers.end(); it++)
+	{
+		if (it->first == "Origin")
+			m_Origin = it->second;
+	}
+	
 	// TODO: We shouldn't spawn a thread every single time, but do this on a single thread.
 	boost::thread s_Thread(&WebRendererSchemeHandler::ProcessRequestInternal, this, p_Request, p_Callback);
 
@@ -377,6 +386,10 @@ void WebRendererSchemeHandler::GetResponseHeaders(CefRefPtr<CefResponse> p_Respo
 		s_Headers.insert(std::make_pair("Cache-Control", "public, max-age=0"));
 	else
 		s_Headers.insert(std::make_pair("Cache-Control", "private, max-age=0, no-cache"));
+	
+	s_Headers.insert(std::make_pair("Access-Control-Allow-Origin", m_Origin));
+
+	s_Headers.insert(std::make_pair("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept"));
 
 	s_Headers.insert(std::make_pair("Content-Length", boost::lexical_cast<std::string>(m_RequestedLength).c_str()));
 

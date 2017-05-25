@@ -56,6 +56,8 @@ namespace Anvil
 				static std::unordered_map<int64_t, std::unordered_map<std::string, std::string>> m_CachedData;
 				static std::mutex m_CachedDataMutex;
 
+				std::string m_Origin;
+
 				IMPLEMENT_REFCOUNTING(WebRendererSchemeHandler);
 			};
 		}

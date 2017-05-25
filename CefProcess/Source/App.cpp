@@ -15,6 +15,12 @@ CefRefPtr<CefRenderProcessHandler> App::GetRenderProcessHandler()
 	return this;
 }
 
+void App::OnRegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar)
+{
+	registrar->AddCustomScheme("dew", true, false, false, true, true);
+	registrar->AddCustomScheme("medals", true, false, false, true, true);
+}
+
 void App::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
 	router->OnContextCreated(browser, frame, context);
