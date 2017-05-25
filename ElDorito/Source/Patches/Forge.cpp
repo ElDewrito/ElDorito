@@ -14,6 +14,7 @@
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include <cassert>
 #include <queue>
 
 using namespace Blam;
@@ -21,6 +22,10 @@ using namespace Blam::Objects;
 
 namespace
 {
+	using RealVector3D = Blam::Math::RealVector3D;
+	using RealQuaternion = Blam::Math::RealQuaternion;
+	using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
+
 	bool shouldDelete = false;
 
 	bool barriersEnabledValid = false;
@@ -45,6 +50,25 @@ namespace
 	bool GetObjectUnderCrosshairIntersectNormal(DatumIndex playerIndex, Math::RealVector3D* outNormalVec);
 	DatumIndex CloneObject(DatumIndex playerIndex, DatumIndex objectIndex, float depth);
 	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex);
+	void UpdateRotationSnap(DatumIndex playerIndex, DatumIndex objectIndex);
+
+	struct
+	{
+		using RealQuaternion3D = Blam::Math::RealQuaternion;
+		using RealVector3D = Blam::Math::RealVector3D;
+
+		uint32_t Flags;
+		DatumIndex ObjectIndex;
+		uint32_t StartTime;
+		float Current;
+		float InputXTicks;
+		float InputYTicks;
+		float InputZTicks;
+		float SnapAngle;
+		RealQuaternion3D StartRotation;
+		RealQuaternion3D EndRotation;
+
+	} s_RotationSnapState = { 0 };
 }
 
 namespace Patches
@@ -141,6 +165,8 @@ namespace Patches
 
 namespace
 {
+	using RealVector3D = Blam::Math::RealVector3D;
+
 	__declspec(naked) void UpdateForgeInputHook()
 	{
 		__asm
@@ -186,53 +212,32 @@ namespace
 		if (playerIndex == DatumIndex::Null)
 			return;
 
-		uint32_t heldObjectIndex, objectIndexUnderCrosshair;
-		Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair);
-
-		if (heldObjectIndex != -1)
+		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
+		if (Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
-			static auto& moduleForge = Modules::ModuleForge::Instance();
-			auto& rotationSnap = moduleForge.VarRotationSnap->ValueFloat;
-
-			auto uiLeftTicks = Input::GetActionState(Blam::Input::eGameActionUiLeft)->Ticks;
-			auto uiRightTicks = Input::GetActionState(Blam::Input::eGameActionUiRight)->Ticks;
-
-			if (uiLeftTicks == 1 || uiRightTicks == 1)
+			if (heldObjectIndex != -1)
 			{
-				rotationSnap += 3 * (uiLeftTicks == 1 ? -1 : 1);
-
-				if (rotationSnap < 0 || rotationSnap > 360)
-					rotationSnap = 0;
-
-				wchar_t buff[256];
-				if (rotationSnap > 0)
-					swprintf(buff, L"Rotation Snap: %.2f\n", rotationSnap);
-				else
-					swprintf(buff, L"Rotation Snap: OFF");
-
-				static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
-				PrintKillFeedText(0, buff, 0);
+				UpdateRotationSnap(playerIndex, heldObjectIndex);
 			}
-		}
-		else
-		{
-
-			if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1 && objectIndexUnderCrosshair != -1)
+			else
 			{
-				auto& forgeModule = Modules::ModuleForge::Instance();
-				auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
-				auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
 
-				auto objectIndexToClone = objectIndexUnderCrosshair;
-				for (auto i = 0; i < cloneMultiplier; i++)
+				if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1 && objectIndexUnderCrosshair != -1)
 				{
-					objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
-					if (objectIndexToClone == -1)
-						break;
+					auto& forgeModule = Modules::ModuleForge::Instance();
+					auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+					auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+
+					auto objectIndexToClone = objectIndexUnderCrosshair;
+					for (auto i = 0; i < cloneMultiplier; i++)
+					{
+						objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
+						if (objectIndexToClone == -1)
+							break;
+					}
 				}
 			}
 		}
-
 	}
 
 	void UpdateBarriersEnabled()
@@ -296,6 +301,13 @@ namespace
 		typedef void*(*GetStructureDesignPtr)(int index);
 		auto GetStructureDesign = reinterpret_cast<GetStructureDesignPtr>(0x4E97D0);
 		return GetStructureDesign(index);
+	}
+
+
+	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex)
+	{
+		static auto Forge_DeleteObject = (void(__cdecl*)(int placementIndex, int playerIndex))(0x0059A920);
+		Forge_DeleteObject(placementIndex, playerIndex);
 	}
 
 	void FixRespawnZones()
@@ -539,16 +551,41 @@ namespace
 		return true;
 	}
 
+	RealVector3D GetClosestCardianalAxix(const RealVector3D& v)
+	{
+		auto xn = abs(v.I);
+		auto yn = abs(v.J);
+		auto zn = abs(v.K);
+
+
+		if (xn >= yn && xn >= zn)
+			return v.I > 0 ? RealVector3D(1, 0, 0) : RealVector3D(-1, 0, 0);
+		else if (yn > xn && yn > zn)
+			return v.J > 0 ? RealVector3D(0, 1, 0) : RealVector3D(0, -1, 0);
+		else if (zn > xn && zn > yn)
+			return v.K > 0 ? RealVector3D(0, 0, 1) : RealVector3D(0, 0, -1);
+
+		return RealVector3D(0, 0, 0);
+	}
+
+	void RotateSnapped(uint32_t objectIndex, RealQuaternion rotation)
+	{
+		static auto Object_GetTransformationMatrix = (void(__cdecl*)(uint32_t objectIndex, RealMatrix4x3* outMatrix))(0x00B2EC60);
+
+		RealMatrix4x3 objectTransform;
+		Object_GetTransformationMatrix(objectIndex, &objectTransform);
+
+		s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
+		s_RotationSnapState.StartRotation = RealQuaternion::Normalize(RealQuaternion::CreateFromRotationMatrix(objectTransform));
+		s_RotationSnapState.EndRotation = RealQuaternion::Normalize(rotation * s_RotationSnapState.StartRotation);
+		s_RotationSnapState.Current = 0;
+		s_RotationSnapState.ObjectIndex = objectIndex;
+	}
+
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot)
 	{
-		// TODO: use the unit's coordinate system instead of object's
-
-		using RealVector3D = Blam::Math::RealVector3D;
-		using RealQuaternion = Blam::Math::RealQuaternion;
-		using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
-
-		static auto& moduleForge = Modules::ModuleForge::Instance();
-		auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		auto snapAngleDegrees = s_RotationSnapState.SnapAngle;
+	
 		if (snapAngleDegrees < 1)
 		{
 			static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
@@ -556,92 +593,144 @@ namespace
 			return;
 		}
 
-		const auto snapAngleRadians = moduleForge.VarRotationSnap->ValueFloat / 180.0f * Blam::Math::PI;
+		if (s_RotationSnapState.Current < 1)
+			return;
 
-		auto xn = std::abs(xRot);
-		auto yn = std::abs(yRot);
-		auto zn = std::abs(zRot);
+		const auto snapAngleRadians = snapAngleDegrees / 180.0f * Blam::Math::PI;
 
-		static auto rotationStartTime = Blam::Time::GetGameTicks();
-		static auto rotationStart = RealQuaternion::CreateFromYawPitchRoll(0, 0, 0);
-		static auto rotationEnd = rotationStart;
-		static auto factor = 0.0f;
-		static uint32_t lastObjectIndex = -1;
+		const auto xn = std::abs(xRot);
+		const auto yn = std::abs(yRot);
+		const auto zn = std::abs(zRot);
 
+		if (xn > 0.5f) s_RotationSnapState.InputXTicks++; else s_RotationSnapState.InputXTicks = 0;
+		if (yn > 0.5f) s_RotationSnapState.InputYTicks++; else s_RotationSnapState.InputYTicks = 0;
+		if (zn > 0.5f) s_RotationSnapState.InputZTicks++; else s_RotationSnapState.InputZTicks = 0;
 
-		static int32_t xTicks, yTicks, zTicks;
-		if (xn > 0.5f) xTicks++; else xTicks = 0;
-		if (yn > 0.5f) yTicks++; else yTicks = 0;
-		if (zn > 0.5f) zTicks++; else zTicks = 0;
+		auto& players = Blam::Players::GetPlayers();
+		auto& objects = Blam::Objects::GetObjects();
 
-		RealMatrix4x3 objectTransform;
+		auto player = players.Get(playerIndex);
 
-		static auto Object_GetTransformationMatrix = (void(__cdecl*)(uint32_t objectIndex, RealMatrix4x3* outMatrix))(0x00B2EC60);
-		Object_GetTransformationMatrix(objectIndex, &objectTransform);
+		auto unitObjectDatum = objects.Get(player->SlaveUnit);
+		if (!unitObjectDatum || !unitObjectDatum->Data)
+			return;
 
-		if (objectIndex != lastObjectIndex)
-		{
-			lastObjectIndex = objectIndex;
-			rotationStartTime = Blam::Time::GetGameTicks();
-			rotationStart = RealQuaternion::CreateFromRotationMatrix(objectTransform);
-			rotationEnd = rotationStart;
-			factor = 1;
-		}
+		auto unitObjectPtr = Pointer(unitObjectDatum->Data);
 
-		const auto ROTATION_DURATION_SECONDS = 0.3f;
-		factor += Blam::Time::GetSecondsPerTick() / ROTATION_DURATION_SECONDS;
-
-		if (factor > 1) factor = 1;
+		const auto& unitRightVec = RealVector3D::Normalize(unitObjectPtr(0x60).Read<RealVector3D>());
+		const auto& unitUpVec = RealVector3D::Normalize(unitObjectPtr(0x6C).Read<RealVector3D>());
+		const auto& unitForwardVec = RealVector3D::Normalize(RealVector3D::Cross(unitUpVec, unitRightVec));
 
 		if (zn > 0.5f)
 		{
-			if (zTicks == 1)
+			if (s_RotationSnapState.InputZTicks == 1)
 			{
 				auto theta = snapAngleRadians  * (zRot > 0 ? 1 : -1);
-				rotationStartTime = Blam::Time::GetGameTicks();
-				rotationStart = RealQuaternion::CreateFromRotationMatrix(objectTransform);
-				rotationEnd = rotationStart * RealQuaternion::CreateFromYawPitchRoll(0, theta, 0);
-				factor = 0;
+				RotateSnapped(objectIndex, RealQuaternion::CreateFromAxisAngle(GetClosestCardianalAxix(unitRightVec), theta));
 			}
 		}
 		else if (xn > yn)
 		{
-			if (xTicks == 1)
+			if (s_RotationSnapState.InputXTicks == 1)
 			{
 				auto theta = snapAngleRadians  * (xRot > 0 ? -1 : 1);
-				rotationStartTime = Blam::Time::GetGameTicks();
-				rotationStart = RealQuaternion::CreateFromRotationMatrix(objectTransform);
-				rotationEnd = rotationStart * RealQuaternion::CreateFromYawPitchRoll(0, 0, theta);
-				factor = 0;
+				RotateSnapped(objectIndex, RealQuaternion::CreateFromAxisAngle(GetClosestCardianalAxix(unitUpVec), theta));
 			}
 		}
 		else
 		{
-
-			if (yTicks == 1)
+			if (s_RotationSnapState.InputYTicks == 1)
 			{
 				auto theta = snapAngleRadians  * (yRot > 0 ? 1 : -1);
-				rotationStartTime = Blam::Time::GetGameTicks();
-				rotationStart = RealQuaternion::CreateFromRotationMatrix(objectTransform);
-				rotationEnd = rotationStart * RealQuaternion::CreateFromYawPitchRoll(theta, 0, 0);
-				factor = 0;
+				RotateSnapped(objectIndex, RealQuaternion::CreateFromAxisAngle(GetClosestCardianalAxix(unitForwardVec), theta));
 			}
+		}
+	}
+
+	void SetRotationSnapAngle(float angle)
+	{
+		if (angle < 0 || angle > 360)
+			angle = 0;
+
+		wchar_t buff[256];
+		if (angle > 0)
+			swprintf(buff, L"Rotation Snap: %.2f\n", angle);
+		else
+			swprintf(buff, L"Rotation Snap: OFF");
+
+		static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
+		PrintKillFeedText(0, buff, 0);
+
+		s_RotationSnapState.SnapAngle = angle;
+	}
+
+	void UpdateRotationSnap(DatumIndex playerIndex, DatumIndex objectIndex)
+	{
+		using RealVector3D = Blam::Math::RealVector3D;
+		using RealQuaternion = Blam::Math::RealQuaternion;
+		using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
+
+		static auto& moduleForge = Modules::ModuleForge::Instance();
+
+		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+
+		auto uiLeftTicks = Input::GetActionState(Blam::Input::eGameActionUiLeft)->Ticks;
+		auto uiRightTicks = Input::GetActionState(Blam::Input::eGameActionUiRight)->Ticks;
+
+		if (uiLeftTicks == 1 || uiRightTicks == 1)
+		{
+			auto snapAngle = snapAngleDegrees + 5 * (uiLeftTicks == 1 ? -1 : 1);
+			SetRotationSnapAngle(snapAngle);
+			moduleForge.VarRotationSnap->ValueFloat = snapAngle;
+		}
+
+		if (s_RotationSnapState.SnapAngle > 0 && Blam::Time::TicksToSeconds(uiLeftTicks) > 1)
+		{
+			SetRotationSnapAngle(0);
+			moduleForge.VarRotationSnap->ValueFloat = 0;
+		}
+
+		if (snapAngleDegrees < 1)
+			return;
+
+		if (!(s_RotationSnapState.Flags & 1))
+		{
+			s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
+			s_RotationSnapState.StartRotation = RealQuaternion::CreateFromYawPitchRoll(0, 0, 0);
+			s_RotationSnapState.EndRotation = s_RotationSnapState.StartRotation;
+			s_RotationSnapState.Current = 1.0f;
+			s_RotationSnapState.ObjectIndex = -1;
+			s_RotationSnapState.SnapAngle = 0;
+			s_RotationSnapState.Flags |= 1;
+		}
+
+		if (s_RotationSnapState.ObjectIndex == DatumIndex::Null)
+			return;
+
+		const auto ROTATION_DURATION_SECONDS = 0.3f;
+		s_RotationSnapState.Current += Blam::Time::GetSecondsPerTick() / ROTATION_DURATION_SECONDS;
+		if (s_RotationSnapState.Current > 1) s_RotationSnapState.Current = 1;
+
+		if (s_RotationSnapState.ObjectIndex != objectIndex)
+		{
+			RealMatrix4x3 objectTransform;
+			static auto Object_GetTransformationMatrix = (void(__cdecl*)(uint32_t objectIndex, RealMatrix4x3* outMatrix))(0x00B2EC60);
+			Object_GetTransformationMatrix(objectIndex, &objectTransform);
+
+			s_RotationSnapState.ObjectIndex = objectIndex;
+			s_RotationSnapState.StartRotation = RealQuaternion::CreateFromRotationMatrix(objectTransform);
+			s_RotationSnapState.EndRotation = s_RotationSnapState.StartRotation;
+			s_RotationSnapState.Current = 1.0f;
 		}
 
 		RealVector3D rightVec(1, 0, 0), upVec(0, 0, 1);
 
-		auto interpolatedRotation = RealQuaternion::Slerp(rotationStart, rotationEnd, factor);
+		auto interpolatedRotation = RealQuaternion::Slerp(s_RotationSnapState.StartRotation, s_RotationSnapState.EndRotation, s_RotationSnapState.Current);
 
-		rightVec = RealVector3D::Transform(rightVec, interpolatedRotation);
-		upVec = RealVector3D::Transform(upVec, interpolatedRotation);
+		rightVec = RealVector3D::Normalize(RealVector3D::Transform(rightVec, interpolatedRotation));
+		upVec = RealVector3D::Normalize(RealVector3D::Transform(upVec, interpolatedRotation));
 
-		static auto Object_Transform = (void(__cdecl*)(float a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
-		Object_Transform(0.0f, objectIndex, nullptr, &rightVec, &upVec);
-	}
-
-	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex)
-	{
-		static auto Forge_DeleteObject = (void(__cdecl*)(int placementIndex, int playerIndex))(0x0059A920);
-		Forge_DeleteObject(placementIndex, playerIndex);
+		static auto Object_Transform = (void(__cdecl*)(bool a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
+		Object_Transform(0, objectIndex, nullptr, &rightVec, &upVec);
 	}
 }

@@ -15,6 +15,7 @@
     <ClCompile Include="Source\Blam\BlamData.cpp" />
     <ClCompile Include="Source\Blam\BlamInput.cpp" />
     <ClCompile Include="Source\Blam\BlamNetwork.cpp" />
+    <ClCompile Include="Source\Blam\BlamObjects.cpp" />
     <ClCompile Include="Source\Blam\BlamPlayers.cpp" />
     <ClCompile Include="Source\Blam\Cache\StringIdCache.cpp" />
     <ClCompile Include="Source\Blam\Math\Angle.cpp" />

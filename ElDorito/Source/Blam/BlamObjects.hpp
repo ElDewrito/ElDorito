@@ -48,5 +48,8 @@ namespace Blam
 			}
 		};
 		static_assert(sizeof(ObjectHeader) == 0x10, "Invalid ObjectHeader size");
+
+		// Gets the global objects data array.
+		DataArray<ObjectHeader>& GetObjects();
 	}
 }

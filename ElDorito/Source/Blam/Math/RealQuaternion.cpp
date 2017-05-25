@@ -272,6 +272,21 @@ namespace Blam
 			};
 		}
 
+		RealQuaternion RealQuaternion::CreateFromAxisAngle(const RealVector3D& axis, float angle)
+		{
+			float halfAngle = angle * 0.5f;
+			float s = (float)std::sin(halfAngle);
+			float c = (float)std::cos(halfAngle);
+
+			return RealQuaternion
+			{
+				axis.I * s,
+				axis.J * s,
+				axis.K * s,
+				c
+			};
+		}
+
 		RealQuaternion RealQuaternion::Slerp(const RealQuaternion& a, const RealQuaternion& b, float t)
 		{
 			const float epsilon = 1e-6f;
@@ -312,6 +327,21 @@ namespace Blam
 				s1 * a.J + s2 * b.J,
 				s1 * a.K + s2 * b.K,
 				s1 * a.W + s2 * b.W
+			};
+		}
+
+		RealQuaternion RealQuaternion::Normalize(const RealQuaternion& q)
+		{
+			float ls = q.I * q.I + q.J * q.J + q.K * q.K + q.W * q.W;
+
+			float invNorm = 1.0f / (float)std::sqrt((double)ls);
+
+			return RealQuaternion
+			{
+				q.I * invNorm,
+				q.J * invNorm,
+				q.K * invNorm,
+				q.W * invNorm
 			};
 		}
 

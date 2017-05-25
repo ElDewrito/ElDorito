@@ -5,6 +5,7 @@ namespace Blam
 	namespace Math
 	{
 		struct RealMatrix4x3;
+		struct RealVector3D;
 		struct RealQuaternion
 		{
 			float I;
@@ -46,7 +47,11 @@ namespace Blam
 
 			static RealQuaternion CreateFromRotationMatrix(const RealMatrix4x3& matrix);
 			static RealQuaternion CreateFromYawPitchRoll(float yaw, float pitch, float roll);
+			static RealQuaternion CreateFromAxisAngle(const RealVector3D& axis, float angle);
+
 			static RealQuaternion Slerp(const RealQuaternion& a, const RealQuaternion& b, float t);
+			static RealQuaternion Normalize(const RealQuaternion& q);
+			
 		};
 	}
 }
