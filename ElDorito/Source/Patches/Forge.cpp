@@ -64,7 +64,6 @@ namespace
 		float InputXTicks;
 		float InputYTicks;
 		float InputZTicks;
-		float SnapAngle;
 		RealQuaternion3D StartRotation;
 		RealQuaternion3D EndRotation;
 
@@ -215,13 +214,11 @@ namespace
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 		if (Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
-			if (heldObjectIndex != -1)
-			{
-				UpdateRotationSnap(playerIndex, heldObjectIndex);
-			}
-			else
-			{
 
+			UpdateRotationSnap(playerIndex, heldObjectIndex);
+
+			if (heldObjectIndex == -1)
+			{
 				if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1 && objectIndexUnderCrosshair != -1)
 				{
 					auto& forgeModule = Modules::ModuleForge::Instance();
@@ -584,8 +581,15 @@ namespace
 
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot)
 	{
-		auto snapAngleDegrees = s_RotationSnapState.SnapAngle;
-	
+		static auto& moduleForge = Modules::ModuleForge::Instance();
+
+		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
+
+		xRot *= rotationSensitvity;
+		yRot *= rotationSensitvity;
+		zRot *= rotationSensitvity;
+
 		if (snapAngleDegrees < 1)
 		{
 			static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
@@ -602,9 +606,11 @@ namespace
 		const auto yn = std::abs(yRot);
 		const auto zn = std::abs(zRot);
 
-		if (xn > 0.5f) s_RotationSnapState.InputXTicks++; else s_RotationSnapState.InputXTicks = 0;
-		if (yn > 0.5f) s_RotationSnapState.InputYTicks++; else s_RotationSnapState.InputYTicks = 0;
-		if (zn > 0.5f) s_RotationSnapState.InputZTicks++; else s_RotationSnapState.InputZTicks = 0;
+		const float DEAD_ZONE = 0.5f;
+
+		if (xn > DEAD_ZONE) s_RotationSnapState.InputXTicks++; else s_RotationSnapState.InputXTicks = 0;
+		if (yn > DEAD_ZONE) s_RotationSnapState.InputYTicks++; else s_RotationSnapState.InputYTicks = 0;
+		if (zn > DEAD_ZONE) s_RotationSnapState.InputZTicks++; else s_RotationSnapState.InputZTicks = 0;
 
 		auto& players = Blam::Players::GetPlayers();
 		auto& objects = Blam::Objects::GetObjects();
@@ -649,7 +655,9 @@ namespace
 
 	void SetRotationSnapAngle(float angle)
 	{
-		if (angle < 0 || angle > 360)
+		static auto& moduleForge = Modules::ModuleForge::Instance();
+
+		if (angle < 0 || angle >= 360)
 			angle = 0;
 
 		wchar_t buff[256];
@@ -661,48 +669,45 @@ namespace
 		static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
 		PrintKillFeedText(0, buff, 0);
 
-		s_RotationSnapState.SnapAngle = angle;
+		moduleForge.VarRotationSnap->ValueFloat = angle;
 	}
 
 	void UpdateRotationSnap(DatumIndex playerIndex, DatumIndex objectIndex)
 	{
-		using RealVector3D = Blam::Math::RealVector3D;
-		using RealQuaternion = Blam::Math::RealQuaternion;
-		using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
-
 		static auto& moduleForge = Modules::ModuleForge::Instance();
 
 		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
-
-		auto uiLeftTicks = Input::GetActionState(Blam::Input::eGameActionUiLeft)->Ticks;
-		auto uiRightTicks = Input::GetActionState(Blam::Input::eGameActionUiRight)->Ticks;
-
-		if (uiLeftTicks == 1 || uiRightTicks == 1)
+	
+		if (objectIndex != DatumIndex::Null)
 		{
-			auto snapAngle = snapAngleDegrees + 5 * (uiLeftTicks == 1 ? -1 : 1);
-			SetRotationSnapAngle(snapAngle);
-			moduleForge.VarRotationSnap->ValueFloat = snapAngle;
-		}
+			auto uiLeftTicks = Input::GetActionState(Blam::Input::eGameActionUiLeft)->Ticks;
+			auto uiRightTicks = Input::GetActionState(Blam::Input::eGameActionUiRight)->Ticks;
 
-		if (s_RotationSnapState.SnapAngle > 0 && Blam::Time::TicksToSeconds(uiLeftTicks) > 1)
-		{
-			SetRotationSnapAngle(0);
-			moduleForge.VarRotationSnap->ValueFloat = 0;
+			if (uiLeftTicks == 1 || uiRightTicks == 1)
+			{
+				auto snapAngle = snapAngleDegrees + 5 * (uiLeftTicks == 1 ? -1 : 1);
+				SetRotationSnapAngle(snapAngle);
+			}
+
+			if (snapAngleDegrees > 0 && Blam::Time::TicksToSeconds(uiLeftTicks) > 1)
+			{
+				SetRotationSnapAngle(0);
+			}
 		}
 
 		if (snapAngleDegrees < 1)
 			return;
 
-		if (!(s_RotationSnapState.Flags & 1))
+		if (!(s_RotationSnapState.Flags & 1) || objectIndex == DatumIndex::Null)
 		{
 			s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
-			s_RotationSnapState.StartRotation = RealQuaternion::CreateFromYawPitchRoll(0, 0, 0);
+			s_RotationSnapState.StartRotation = RealQuaternion();
 			s_RotationSnapState.EndRotation = s_RotationSnapState.StartRotation;
 			s_RotationSnapState.Current = 1.0f;
-			s_RotationSnapState.ObjectIndex = -1;
-			s_RotationSnapState.SnapAngle = 0;
+			s_RotationSnapState.ObjectIndex = DatumIndex::Null;
 			s_RotationSnapState.Flags |= 1;
 		}
+
 
 		if (s_RotationSnapState.ObjectIndex == DatumIndex::Null)
 			return;

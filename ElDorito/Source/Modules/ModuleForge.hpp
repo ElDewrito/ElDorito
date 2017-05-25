@@ -10,6 +10,7 @@ namespace Modules
 		Command* VarCloneDepth;
 		Command* VarCloneMultiplier;
 		Command* VarRotationSnap;
+		Command* VarRotationSensitivity;
 
 		ModuleForge();
 	};
