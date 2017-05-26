@@ -14,7 +14,7 @@ namespace
 	bool CommandWeaponOffset(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() < 1) {
-			returnInfo = "Invalid argument, for a list of weapon name use the 'Player.ListRenderWeapons' command";
+			returnInfo = "Invalid argument, for a list of weapon name use the 'Weapon.List' command";
 			return false;
 		}
 
@@ -73,9 +73,8 @@ namespace
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		// update offset
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetDefault(weaponName);
-		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffsetDefault(weaponName));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffset(true, weaponName);
+		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffset(true, weaponName));
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << " offset reset to default";
@@ -99,6 +98,17 @@ namespace
 		returnInfo = "Weapons config file updated successfully";
 		return true;
 	}
+
+	bool CommandWeaponList(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::stringstream ss;
+
+		for (auto &entry : Patches::Weapon::GetIndices())
+			ss << "Index: 0x" << std::hex << entry.second << ", Name: " << entry.first << std::endl;
+
+		returnInfo = ss.str();
+		return true;
+	}
 }
 
 namespace Modules
@@ -109,5 +119,6 @@ namespace Modules
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
 		AddCommand("Config.Save", "weap_cfg_sv", "This resets weapon offset to default", eCommandFlagsNone, CommandSaveWeaponsConfig);
 		VarWeaponConfig = AddVariableString("Config", "weap_cfg", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.cfg", VariableWeaponConfigUpdate);
+		AddCommand("List", "weap_list", "Lists weapons", eCommandFlagsNone, CommandWeaponList);
 	}
 }
