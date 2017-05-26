@@ -513,7 +513,7 @@ namespace
 			push [eax] // object
 			push [eax+0x14] // object index
 			call DespawnEquipment
-			mov eax, 0x0054EF6D
+			mov eax, 0x54EF97
 			jmp eax
 		}
 	}
