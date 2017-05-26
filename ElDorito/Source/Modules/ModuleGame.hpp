@@ -17,6 +17,7 @@ namespace Modules
 		Command* VarAnnouncerVol;
 		Command* VarExpandedScoreboard;
 		Command* VarHideChat;
+		Command* VarSuppressJuggling;
 
 		int DebugFlags;
 

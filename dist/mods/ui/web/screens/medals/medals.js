@@ -5,6 +5,7 @@ var medalsPath = 'medals://';
 var playQueue = [];
 var eventJson;
 var announcerVolume;
+var suppressRepeat = false;
 
 $(document).ready(function() {
     dew.command('Game.MedalPack', {}).then(function(response) {
@@ -15,9 +16,28 @@ $(document).ready(function() {
     });
 });
 
+var juggleEvent = 0;
+var juggleDelay = 3000;
 dew.on("mpevent", function (event) {
+    dew.command('Game.SuppressJuggling', {}).then(function(response) {
+        if(response == 1){
+            suppressRepeat = true;
+        } else {
+            suppressRepeat = false;
+        }
+    });
     dew.command('Game.AnnouncerVolume', {}).then(function(response) {
         announcerVolume = response/100;
+        var medal = event.data.name;
+        if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_'))){
+            juggleEvent++;
+            setTimeout(function(){
+                if(juggleEvent > 0){ juggleEvent--; }
+            }, juggleDelay);
+        } 
+        if(juggleEvent > 2 && ((medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
+            return
+        }
         doMedal(event.data.name, event.data.audience);
     });
 });

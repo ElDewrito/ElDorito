@@ -853,6 +853,10 @@ namespace Modules
 		VarHideChat->ValueIntMin = 0;
 		VarHideChat->ValueIntMax = 1;
 
+		VarSuppressJuggling = AddVariableInt("SuppressJuggling", "Suppress_Juggling", "Suppress spam caused by flag/bomb juggling", eCommandFlagsArchived, 0);
+		VarSuppressJuggling->ValueIntMin = 0;
+		VarSuppressJuggling->ValueIntMax = 1;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
