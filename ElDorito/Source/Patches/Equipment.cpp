@@ -487,7 +487,7 @@ namespace
 		}
 	}
 
-	void DespawnEquipment(uint32_t objectIndex, void* object)
+	void __stdcall DespawnEquipment(uint32_t objectIndex, void* object)
 	{
 		auto tagIndex = *(uint32_t*)object;
 
@@ -513,7 +513,6 @@ namespace
 			push [eax] // object
 			push [eax+0x14] // object index
 			call DespawnEquipment
-			add esp, 8
 			mov eax, 0x0054EF6D
 			jmp eax
 		}
