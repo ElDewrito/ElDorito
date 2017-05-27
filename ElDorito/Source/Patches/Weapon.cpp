@@ -25,6 +25,14 @@
 #include "../Patches/Core.hpp"
 #include "../Patches/Weapon.hpp"
 
+namespace
+{
+	int __cdecl DualWieldHook(unsigned short objectIndex);
+	void DualWieldSprintInputHook();
+	void DualWieldScopeLevelHook();
+	int DualWieldEquipmentCountHook(uint32_t unitIndex, short equipmentIndex);
+}
+
 namespace Patches
 {
 	namespace Weapon
