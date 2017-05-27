@@ -241,9 +241,6 @@ void ElDorito::Initialize()
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
 
-	// WeaponOffset
-	Patches::Weapon::Init();
-
 	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{
 		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);

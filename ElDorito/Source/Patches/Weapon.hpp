@@ -7,20 +7,18 @@
 
 namespace Patches
 {
-	using namespace Blam::Math;
-
 	namespace Weapon
 	{
-		void Init();
+		void ApplyAll();
 		void ApplyAfterTagsLoaded();
 
 		uint16_t GetIndex(std::string &weaponName);
 		std::map<std::string, uint16_t> GetIndices();
-		RealVector3D GetOffset(bool isDefault, std::string &weaponName);
+		Blam::Math::RealVector3D GetOffset(bool isDefault, std::string &weaponName);
 
-		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset);
+		void SetOffsetModified(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 
-		void ApplyOffset(std::string &weaponName, RealVector3D &weaponOffset);
+		void ApplyOffset(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 
 		bool IsOffsetModified(const std::string &weapon);
 

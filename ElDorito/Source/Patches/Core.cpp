@@ -20,12 +20,9 @@ namespace
 	void FmodSystemInitHook();
 	void FmodSystemInitHook2();
 	int FmodChannelCountHook();
-	int __cdecl DualWieldHook(unsigned short objectIndex);
-	void SprintInputHook();
-	double GetAspectRatio();
+	double AspectRatioHook();
 	int GetEquipmentCountHook(uint32_t unitIndex, short equipmentIndex);
 	void GrenadeLoadoutHook();
-	void ScopeLevelHook();
 	void ShutdownHook();
 	const char *GetMapsFolderHook();
 	bool LoadMapHook(void *data);
@@ -54,7 +51,6 @@ namespace Patches
 {
 	namespace Core
 	{
-
 		void ApplyAll()
 		{
 			// Enable tag edits
@@ -78,6 +74,24 @@ namespace Patches
 			// Fix random colored lighting
 			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
+			// Maps folder override
+			Hook(0x101FC0, GetMapsFolderHook).Apply();
+			SetMapsFolder("maps\\");
+
+			// Run callbacks on engine shutdown
+			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
+
+			// Map loading
+			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
+			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
+
+			Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
+
+			Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
+			Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
+			Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
+
 			// Hook game ticks
 			Hook(0x105ABA, GameTickHook, HookFlags::IsCall).Apply();
 			Hook(0x105AD7, GameTickHook, HookFlags::IsCall).Apply();
@@ -91,8 +105,17 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x25FA86), 5);
 			Hook(0x10CA02, FovHook).Apply();
 
-			// Force descoping for all weapons
-			Pointer::Base(0x73F1E6).Write<uint8_t>(0);
+			//Fix aspect ratio not matching resolution
+			Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
+			Hook(0x216487, AspectRatioHook, HookFlags::IsCall).Apply();
+
+			//Disable converting the game's resolution to 16:9
+			Patch::NopFill(Pointer::Base(0x62217D), 2);
+			Patch::NopFill(Pointer::Base(0x622183), 6);
+
+			//Allow the user to select any resolution that Windows supports in the settings screen.
+			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
+			Patch::NopFill(Pointer::Base(0x10BF21), 6);
 
 			// Adds the FMOD WASAPI output fix from FMODEx 4.44.56, which stops weird popping sound at startup
 			// TODO: maybe find a way to update HO's FMOD, HO is using 4.26.6 which is ancient
@@ -121,24 +144,10 @@ namespace Patches
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
 			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = FmodChannelCountHook();
 
-			// Enable dual-wielding
-			Hook(0x761550, DualWieldHook).Apply();
-
-			// Hook sprint input for dual-wielding
-			Hook(0x6DFBB, SprintInputHook).Apply();
-
-			// Hook scope level for dual-wielding
-			Hook(0x1D50CB, ScopeLevelHook).Apply();
-
-			Hook(0x7A21D4, GetEquipmentCountHook, HookFlags::IsCall).Apply();
-
 			// Prevent game variant weapons from being overridden
 			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
 			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
 			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
-
-			// fix spectating
-			Patch::NopFill(Pointer::Base(0x192FFD), 6);
 
 			// Remove exception handlers
 			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
@@ -148,35 +157,8 @@ namespace Patches
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
-			//Fix aspect ratio not matching resolution
-			Hook(0x6648C9, GetAspectRatio, HookFlags::IsCall).Apply();
-			Hook(0x216487, GetAspectRatio, HookFlags::IsCall).Apply();
-
-			//Disable converting the game's resolution to 16:9
-			Patch::NopFill(Pointer::Base(0x62217D), 2);
-			Patch::NopFill(Pointer::Base(0x622183), 6);
-
-			//Allow the user to select any resolution that Windows supports in the settings screen.
-			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
-			Patch::NopFill(Pointer::Base(0x10BF21), 6);
-			
-			// Maps folder override
-			Hook(0x101FC0, GetMapsFolderHook).Apply();
-			SetMapsFolder("maps\\");
-
-			// Run callbacks on engine shutdown
-			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
-
-			// Map loading
-			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
-			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
-			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
-
-			Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
-
-			Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
-			Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
-			Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
+			// fix spectating
+			Patch::NopFill(Pointer::Base(0x192FFD), 6);
 
 			Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 		}
@@ -248,6 +230,65 @@ namespace
 		typedef void(*sub_5547F0_Ptr)();
 		auto sub_5547F0 = reinterpret_cast<sub_5547F0_Ptr>(0x5547F0);
 		sub_5547F0();
+	}
+
+	void ShutdownHook()
+	{
+		Patches::Core::ExecuteShutdownCallbacks();
+
+		typedef void(*EngineShutdownPtr)();
+		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);
+		EngineShutdown();
+	}
+
+	const char* GetMapsFolderHook()
+	{
+		return MapsFolder.c_str();
+	}
+
+	bool LoadMapHook(void *data)
+	{
+		typedef bool(*LoadMapPtr)(void *data);
+		auto LoadMap = reinterpret_cast<LoadMapPtr>(0x566EF0);
+		if (!LoadMap(data))
+			return false;
+
+		for (auto &&callback : mapLoadedCallbacks)
+			callback(static_cast<const char*>(data) + 0x24); // hax
+
+		return true;
+	}
+
+	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4)
+	{
+		typedef int(__cdecl *LoadLevelPtr)(uint8_t* data, char n2, int n3, int n4);
+		auto LoadLevel = reinterpret_cast<LoadLevelPtr>(0x0054A6C0);
+
+		*reinterpret_cast<uint32_t*>(data + 0x111C) = 0x08081002;
+		*reinterpret_cast<uint32_t*>(data + 0x1120) = 0x08080808;
+		*reinterpret_cast<uint32_t*>(data + 0x1124) = 0x08080808;
+
+		LoadLevel(data, n2, n3, n4);
+	}
+
+	void GameStartHook()
+	{
+		typedef void(*GameStartPtr)();
+		auto GameStart = reinterpret_cast<GameStartPtr>(0x551590);
+
+		GameStart();
+
+		auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
+		if (!engineGlobalsPtr)
+			return;
+
+		auto engineGobals = engineGlobalsPtr[0];
+
+		// fix in-game team switching for engines that support it
+		engineGobals(0x8).Write(engineGobals(0x4).Read<uint32_t>());
+
+		for (auto& callback : gameStartCallbacks)
+			callback();
 	}
 
 	__declspec(naked) void TagsLoadedHook()
@@ -345,93 +386,6 @@ namespace
 		grenadeCounts[3] = profile->FirebombGrenades;
 	}
 
-	bool UnitIsDualWielding(Blam::DatumIndex unitIndex)
-	{
-		if (!unitIndex)
-			return false;
-		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
-		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
-
-		if (!unitDatumPtr)
-			return false;
-
-		auto dualWieldWeaponIndex = unitDatumPtr(0x2CB).Read<int8_t>();
-
-		if (dualWieldWeaponIndex < 0 || dualWieldWeaponIndex >= 4)
-			return false;
-
-		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
-		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
-
-		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
-	}
-
-	bool PlayerIsDualWielding(Blam::DatumIndex playerIndex)
-	{
-		auto &players = Blam::Players::GetPlayers();
-		return UnitIsDualWielding(players[playerIndex].SlaveUnit);
-	}
-
-	bool LocalPlayerIsDualWielding()
-	{
-		auto localPlayer = Blam::Players::GetLocalPlayer(0);
-		if (localPlayer == Blam::DatumIndex::Null)
-			return false;
-		return PlayerIsDualWielding(localPlayer);
-	}
-
-	uint32_t GetObjectDataAddress(uint32_t objectDatum)
-	{
-		uint32_t objectIndex = objectDatum & UINT16_MAX;
-		Pointer objectHeaderPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
-		uint32_t objectAddress = objectHeaderPtr(0x44).Read<uint32_t>() + 0xC + objectIndex * 0x10;
-		return *(uint32_t*)(objectAddress);
-	}
-
-	int __cdecl DualWieldHook(unsigned short objectIndex)
-	{
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::Items::Weapon;
-
-		if (!Modules::ModuleServer::Instance().VarServerDualWieldEnabledClient->ValueInt)
-			return 0;
-
-		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		auto *weapon = TagInstance(index).GetDefinition<Weapon>();
-
-		return ((int32_t)weapon->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
-	}
-
-	__declspec(naked) void SprintInputHook()
-	{
-		__asm
-		{
-			push	eax 
-			call	LocalPlayerIsDualWielding
-			test	al, al
-			pop		eax
-			jz		enable                          ; leave sprint enabled(for now) if not dual wielding
-			and		ax, 0FEFFh                      ; disable by removing the 8th bit indicating no sprint input press
-		enable :
-			mov		dword ptr ds : [esi + 8], eax
-			mov		ecx, edi
-			push	046DFC0h
-			ret
-		}
-	}
-
-	int GetEquipmentCountHook(uint32_t unitIndex, short equipmentIndex)
-	{
-		// Disable equipment use if dual wielding
-		if (UnitIsDualWielding(unitIndex))
-			return 0;
-
-		// Call the original function if not dual wielding
-		typedef int(__cdecl* GetEquipmentCountFunc)(uint32_t unitIndex, short equipmentIndex);
-		GetEquipmentCountFunc GetEquipmentCount = reinterpret_cast<GetEquipmentCountFunc>(0xB440F0);
-		return GetEquipmentCount(unitIndex, equipmentIndex);
-	}
-
 	__declspec(naked) void GrenadeLoadoutHook()
 	{
 		__asm
@@ -444,105 +398,10 @@ namespace
 		}
 	}
 
-	// replaces some check that always fails and allows you to throw equipment, as long as it still has a use remaining
-	// if you've used up all the uses and try throwing again it'll still destroy your first thrown equipment though
-	// H3E likely has this check somewhere closer to the top of the hooked func, but I couldn't find it
-	__declspec(naked) void EquipmentTestHook()
-	{
-		__asm
-		{
-			push dword ptr[ebp + 8]
-			mov edx, 0xB89190 // Equipment_GetNumRemainingUses(int16 objectIdx)
-			call edx
-			add esp, 4
-			push 0xB86CFD
-			ret
-		}
-	}
-
-	double GetAspectRatio()
+	double AspectRatioHook()
 	{
 		int* gameResolution = reinterpret_cast<int*>(0x19106C0);
 		return ((double)gameResolution[0] / (double)gameResolution[1]);
-	}
-
-	// scope level is an int16 with -1 indicating no scope, 0 indicating first level, 1 indicating second level etc.
-	__declspec(naked) void ScopeLevelHook()
-	{
-		__asm
-		{
-			mov		word ptr ds : [edi + esi + 32Ah], 0FFFFh	; no scope by default
-			push	eax
-			push	ecx
-			call	LocalPlayerIsDualWielding
-			test	al, al
-			pop		ecx
-			pop		eax
-			jnz		noscope                                     ; prevent scoping when dual wielding
-			mov		word ptr ds : [edi + esi + 32Ah], ax        ; otherwise use intended scope level
-		noscope:
-			push	05D50D3h
-			ret
-		}
-	}
-
-	void ShutdownHook()
-	{
-		Patches::Core::ExecuteShutdownCallbacks();
-
-		typedef void(*EngineShutdownPtr)();
-		auto EngineShutdown = reinterpret_cast<EngineShutdownPtr>(0x42E410);
-		EngineShutdown();
-	}
-	
-	const char* GetMapsFolderHook()
-	{
-		return MapsFolder.c_str();
-	}
-
-	bool LoadMapHook(void *data)
-	{
-		typedef bool(*LoadMapPtr)(void *data);
-		auto LoadMap = reinterpret_cast<LoadMapPtr>(0x566EF0);
-		if (!LoadMap(data))
-			return false;
-
-		for (auto &&callback : mapLoadedCallbacks)
-			callback(static_cast<const char*>(data) + 0x24); // hax
-
-		return true;
-	}
-
-	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4)
-	{
-		typedef int(__cdecl *LoadLevelPtr)(uint8_t* data, char n2, int n3, int n4);
-		auto LoadLevel = reinterpret_cast<LoadLevelPtr>(0x0054A6C0);
-
-		*reinterpret_cast<uint32_t*>(data + 0x111C) = 0x08081002;
-		*reinterpret_cast<uint32_t*>(data + 0x1120) = 0x08080808;
-		*reinterpret_cast<uint32_t*>(data + 0x1124) = 0x08080808;
-
-		LoadLevel(data, n2, n3, n4);
-	}
-
-	void GameStartHook()
-	{
-		typedef void(*GameStartPtr)();
-		auto GameStart = reinterpret_cast<GameStartPtr>(0x551590);
-
-		GameStart();
-
-		auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
-		if (!engineGlobalsPtr)
-			return;
-
-		auto engineGobals = engineGlobalsPtr[0];
-
-		// fix in-game team switching for engines that support it
-		engineGobals(0x8).Write(engineGobals(0x4).Read<uint32_t>());
-
-		for (auto& callback : gameStartCallbacks)
-			callback();
 	}
 
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5)

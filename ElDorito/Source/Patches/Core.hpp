@@ -23,7 +23,6 @@ namespace Patches
 		// Registers a function to be called when a map finishes loading.
 		void OnMapLoaded(MapLoadedCallback callback);
 
-
 		typedef std::function<void()> GameStartCallback;
 
 		// Registers a function to be called when a game/round is about to start.

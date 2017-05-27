@@ -54,6 +54,7 @@ namespace Patches
 		LoadingScreen::ApplyAll();
 		Equipment::ApplyAll();
 		PlayerRepresentation::ApplyAll();
+		Weapon::ApplyAll();
 		
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not. 
 		bool isdedicated = false;
