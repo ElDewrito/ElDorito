@@ -1020,6 +1020,23 @@ namespace
 		Server::Voting::CancelVoteInProgress();
 		return true;
 	}
+	bool CommandServerSay(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+		{
+			returnInfo = "No session available";
+			return false;
+		}
+		if (Arguments.size() <= 0)
+		{
+			returnInfo = "No message to send";
+			return false;
+		}
+		std::string message = Arguments[0];
+		Server::Chat::SendServerMessage(message);
+		return true;
+	}
 }
 
 namespace Modules
@@ -1085,6 +1102,7 @@ namespace Modules
 		VarMaxTeamSize->ValueIntMin = 1;
 		VarMaxTeamSize->ValueIntMax = 16;
 
+		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
 		AddCommand("SubmitVote", "submitvote", "Sumbits a vote", eCommandFlagsNone, CommandServerSubmitVote, { "The vote to send to the host" });
 
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
