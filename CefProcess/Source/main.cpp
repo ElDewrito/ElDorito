@@ -2,6 +2,9 @@
 #include <include/cef_app.h>
 #include "App.hpp"
 
+// Disable warnings about missing PDB files
+#pragma warning(disable:4099)
+
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	// Enable High-DPI support on Windows 7 or newer.

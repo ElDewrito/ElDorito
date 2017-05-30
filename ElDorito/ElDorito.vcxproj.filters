@@ -175,9 +175,6 @@
     <ClCompile Include="Source\Patches\Scoreboard.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Patches\RawInputPatch.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Patches\PlayerUid.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -321,6 +318,11 @@
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamObjects.cpp" />
+    <ClCompile Include="Source\Patches\Audio.cpp" />
+    <ClCompile Include="Source\Patches\RawInput.cpp">
+      <Filter>Patches</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -856,6 +858,8 @@
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp">
       <Filter>Modules</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Blam\Math\MathUtil.hpp" />
+    <ClInclude Include="Source\Patches\Audio.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

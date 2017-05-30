@@ -288,13 +288,13 @@ namespace
 			call	LocalPlayerIsDualWielding
 			test	al, al
 			pop		eax
-			jz		enable; leave sprint enabled(for now) if not dual wielding
-			and		ax, 0FEFFh; disable by removing the 8th bit indicating no sprint input press
-			enable :
+			jz		enable // leave sprint enabled(for now) if not dual wielding
+			and		ax, 0FEFFh // disable by removing the 8th bit indicating no sprint input press
+		enable:
 			mov		dword ptr ds : [esi + 8], eax
-				mov		ecx, edi
-				push	046DFC0h
-				ret
+			mov		ecx, edi
+			push	046DFC0h
+			ret
 		}
 	}
 
@@ -303,15 +303,15 @@ namespace
 	{
 		__asm
 		{
-			mov		word ptr ds : [edi + esi + 32Ah], 0FFFFh; no scope by default
+			mov		word ptr ds : [edi + esi + 32Ah], 0FFFFh // no scope by default
 			push	eax
 			push	ecx
 			call	LocalPlayerIsDualWielding
 			test	al, al
 			pop		ecx
 			pop		eax
-			jnz		noscope; prevent scoping when dual wielding
-			mov		word ptr ds : [edi + esi + 32Ah], ax; otherwise use intended scope level
+			jnz		noscope // prevent scoping when dual wielding
+			mov		word ptr ds : [edi + esi + 32Ah], ax // otherwise use intended scope level
 		noscope:
 			push	05D50D3h
 			ret

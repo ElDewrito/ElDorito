@@ -72,6 +72,7 @@
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Patches\Armor.cpp" />
     <ClCompile Include="Source\Patches\Assassination.cpp" />
+    <ClCompile Include="Source\Patches\Audio.cpp" />
     <ClCompile Include="Source\Patches\ContentItems.cpp" />
     <ClCompile Include="Source\Patches\Core.cpp" />
     <ClCompile Include="Source\Patches\CustomPackets.cpp" />
@@ -87,7 +88,7 @@
     <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp" />
     <ClCompile Include="Source\Patches\PlayerRepresentation.cpp" />
     <ClCompile Include="Source\Patches\PlayerUid.cpp" />
-    <ClCompile Include="Source\Patches\RawInputPatch.cpp" />
+    <ClCompile Include="Source\Patches\RawInput.cpp" />
     <ClCompile Include="Source\Patches\Scoreboard.cpp" />
     <ClCompile Include="Source\Patches\Sprint.cpp" />
     <ClCompile Include="Source\Patches\Ui.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="Source\Patch.hpp" />
     <ClInclude Include="Source\Patches\Armor.hpp" />
     <ClInclude Include="Source\Patches\Assassination.hpp" />
+    <ClInclude Include="Source\Patches\Audio.hpp" />
     <ClInclude Include="Source\Patches\ContentItems.hpp" />
     <ClInclude Include="Source\Patches\Core.hpp" />
     <ClInclude Include="Source\Patches\CustomPackets.hpp" />

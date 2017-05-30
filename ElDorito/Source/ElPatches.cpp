@@ -2,6 +2,7 @@
 
 #include "ElDorito.hpp"
 #include "Patches\Core.hpp"
+#include "Patches\Audio.hpp"
 #include "Patches\Mouse.hpp"
 #include "Patches\Network.hpp"
 #include "Patches\Scoreboard.hpp"
@@ -36,6 +37,7 @@ namespace Patches
 	{
 		UnprotectMemory();
 		Core::ApplyAll();
+		Audio::ApplyAll();
 		Memory::ApplyAll();
 		Mouse::ApplyAll();
 		Network::ApplyAll();
