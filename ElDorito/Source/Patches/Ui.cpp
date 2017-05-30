@@ -937,19 +937,22 @@ namespace
 			{
 				auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
 
-				if (equippedWeaponIndex != -1 && actionObjectIndex != -1)
+				if (equippedWeaponObjectIndex != -1 && actionObjectIndex != -1)
 				{
-					auto equippedWeaponTagIndex = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC].Read<uint32_t>();
-					auto actionWeaponTagIndex = Pointer(objects.Get(actionObjectIndex))[0xC].Read<uint32_t>();
+					auto equippedWeaponObjectPtr = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC];
+					auto actionWeaponObjectPtr = Pointer(objects.Get(actionObjectIndex))[0xC];
 
-					auto equippedWeapDef = TagInstance(equippedWeaponTagIndex).GetDefinition<WeaponDefinition>();
-					auto actionWeapDef = TagInstance(actionWeaponTagIndex).GetDefinition<WeaponDefinition>();
-
-					if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
-						uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
+					if (equippedWeaponObjectPtr && actionWeaponObjectPtr)
 					{
-						DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
-						return;
+						auto equippedWeapDef = TagInstance(equippedWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
+						auto actionWeapDef = TagInstance(actionWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
+
+						if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
+							uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
+						{
+							DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
+							return;
+						}
 					}
 				}
 			}

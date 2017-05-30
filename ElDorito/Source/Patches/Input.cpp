@@ -5,8 +5,10 @@
 
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Console.hpp"
+#include "../ElDorito.hpp"
 
 using namespace Patches::Input;
 using namespace Blam::Input;
@@ -26,6 +28,7 @@ namespace
 	void UpdateUiControllerInputHook(int a0);
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
+	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -76,6 +79,7 @@ namespace Patches
 				Patch::NopFill(Pointer::Base(pointer), 2);
 			Patch(0x20C69F, { 0xEB }).Apply();
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
+			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
 		}
 
 		void PushContext(std::shared_ptr<InputContext> context)
@@ -379,6 +383,39 @@ namespace
 		auto SetControllerVibration = reinterpret_cast<SetControllerVibrationPtr>(0x65F220);
 
 		return SetControllerVibration(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+	}
+
+	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state)
+	{
+		static auto LocalPlayerInputHook = (void(__cdecl*)(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state))(0x5D0C90);
+
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto unitObjectIndex = ElDorito::GetMainTls(0xC4)[0](0x300 + 0xF8 * localPlayerIndex).Read<uint32_t>();
+		if (unitObjectIndex != -1)
+		{
+			auto unitObjectPtr = Pointer(objects.Get(unitObjectIndex))[0xC];
+			if (unitObjectPtr)
+			{
+				auto isDualWielding = unitObjectPtr(0x2CB).Read<uint8_t>() != 0xFF;
+				auto isUsingController = *(bool*)0x0244DE98;
+
+				if (!isUsingController && isDualWielding)
+				{
+					auto fireLeftAction = GetActionState(eGameActionFireLeft);
+					auto fireRightAction = GetActionState(eGameActionFireRight);
+
+					if (fireLeftAction->Ticks != 0 || fireRightAction->Ticks != 0)
+					{
+						ActionState tmp = *fireLeftAction;
+						*fireLeftAction = *fireRightAction;
+						*fireRightAction = tmp;
+					}
+				}
+			}
+		}
+
+		LocalPlayerInputHook(localPlayerIndex, playerIndex, a3, a4, a5, state);
 	}
 }
 
