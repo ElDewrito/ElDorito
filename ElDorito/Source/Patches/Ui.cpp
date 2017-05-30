@@ -34,6 +34,7 @@ namespace
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 	HWND CreateGameWindowHook();
 	void __cdecl UI_UpdateHUDHook(int playerMappingIndex);
+	void UI_SaberWeaponHUDMessageHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -450,6 +451,8 @@ namespace Patches
 
 			// fix press <button> to dual wield message
 			Hook(0x006970BB, UI_UpdateHUDHook, HookFlags::IsCall).Apply();
+			// prevent saber's HUD from showing a pickup/swap message if the weapon is the same as the equipped
+			Hook(0x0068676D, UI_SaberWeaponHUDMessageHook, HookFlags::None).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -915,8 +918,9 @@ namespace
 		auto actionStatePtr = Pointer(GetPlayerControlsAction(playerMappingIndex));
 		auto actionType = actionStatePtr.Read<uint16_t>();
 		auto actionObjectIndex = actionStatePtr(0x4).Read<uint32_t>();
+		auto actionFlags = actionStatePtr(0x2).Read<uint16_t>();
 
-		if (actionType == 1) // weapon pickup/swap
+		if (actionType == 1 && actionFlags != 2u) // weapon pickup/swap
 		{
 			auto& players = Blam::Players::GetPlayers();
 			auto& objects = Blam::Objects::GetObjects();
@@ -952,5 +956,28 @@ namespace
 		}
 
 		UI_UpdateHUD(playerMappingIndex);
+	}
+
+	__declspec(naked) void UI_SaberWeaponHUDMessageHook()
+	{
+		__asm
+		{
+			cmp esi, 0xFFFFFFFF
+			jz NO_MESSAGE
+			mov eax, 0x5D0BD0
+			push[ebp + 8]
+			call eax
+			add esp, 4
+			mov al, byte ptr[eax + 2]
+			cmp al, 4
+			jz NO_MESSAGE
+			cmp al, 8
+			jz NO_MESSAGE
+			mov eax, 0x00A86773
+			jmp eax
+			NO_MESSAGE:
+			mov eax, 0xA86B32
+			jmp eax
+		}
 	}
 }
