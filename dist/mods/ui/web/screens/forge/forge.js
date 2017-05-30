@@ -1,4 +1,4 @@
-var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier']];
+var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap']];
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -19,7 +19,10 @@ function closeBrowser() {
 }
 
 $(document).ready(function() {
-    loadSettings(0);        
+    loadSettings(0);     
+    $('#forgeControls input').on('change', function(){
+        updateSetting(this.name, this.value);
+    });    
 });
 
 function loadSettings(i) {
@@ -40,4 +43,25 @@ function loadSettings(i) {
 	} else {
 		loadedSettings = true;
 	}
+}
+
+function updateSetting(setting, value){
+    if ($("input[name='"+setting+"']").is(':checkbox')){
+        if ($("input[name='"+setting+"']").is(':checked')){
+            value = "1";
+        } else {
+            value = "0";
+        }
+    }
+    dew.command(settingsToLoad[arrayInArray(setting, settingsToLoad)][1] + " \"" + value + "\"", {}).then(function(response){
+        //dew.command("writeconfig");
+    });
+}
+
+function arrayInArray(needle, haystack) {
+    for(i=0; i<haystack.length; i++) {
+        if (haystack[i].indexOf(needle) > -1){
+            return i
+        }
+    }
 }
