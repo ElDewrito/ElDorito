@@ -6,13 +6,16 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
+#include "../Blam/Tags/Items/Weapon.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <cassert>
 
 using namespace Patches::Ui;
 
@@ -30,6 +33,7 @@ namespace
 	void ResolutionChangeHook();
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 	HWND CreateGameWindowHook();
+	void __cdecl UI_UpdateHUDHook(int playerMappingIndex);
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -443,6 +447,9 @@ namespace Patches
 
 			// Game window creation callbacks
 			Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
+
+			// fix press <button> to dual wield message
+			Hook(0x006970BB, UI_UpdateHUDHook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -893,5 +900,57 @@ namespace
 			callback(hwnd);
 
 		return hwnd;
+	}
+
+	void __cdecl UI_UpdateHUDHook(int playerMappingIndex)
+	{
+		using TagInstance = Blam::Tags::TagInstance;
+		using WeaponDefinition = Blam::Tags::Items::Weapon;
+
+		static auto UI_UpdateHUD = (void(__cdecl*)(int playerMappingIndex))(0xA95D10);
+		static auto GetPlayerIndexFromPlayerMappingIndex = (uint32_t(__cdecl*)(int playerMappingIndex))(0x00589C60);
+		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
+		static auto DisplayHUDMessage = (void(__cdecl *)(int playerMappingIndex, uint32_t stringId, int a3, int a4))(0x00A964E0);
+
+		auto actionStatePtr = Pointer(GetPlayerControlsAction(playerMappingIndex));
+		auto actionType = actionStatePtr.Read<uint16_t>();
+		auto actionObjectIndex = actionStatePtr(0x4).Read<uint32_t>();
+
+		if (actionType == 1) // weapon pickup/swap
+		{
+			auto& players = Blam::Players::GetPlayers();
+			auto& objects = Blam::Objects::GetObjects();
+
+			auto playerIndex = GetPlayerIndexFromPlayerMappingIndex(playerMappingIndex);
+			auto player = players.Get(playerIndex);
+			assert(player);
+
+			auto unitObjectPtr = Pointer(objects.Get(player->SlaveUnit))[0xC];
+			assert(unitObjectPtr);
+
+			auto equippedWeaponIndex = unitObjectPtr(0x2CA).Read<uint8_t>();
+			if (equippedWeaponIndex != -1)
+			{
+				auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
+
+				if (equippedWeaponIndex != -1 && actionObjectIndex != -1)
+				{
+					auto equippedWeaponTagIndex = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC].Read<uint32_t>();
+					auto actionWeaponTagIndex = Pointer(objects.Get(actionObjectIndex))[0xC].Read<uint32_t>();
+
+					auto equippedWeapDef = TagInstance(equippedWeaponTagIndex).GetDefinition<WeaponDefinition>();
+					auto actionWeapDef = TagInstance(actionWeaponTagIndex).GetDefinition<WeaponDefinition>();
+
+					if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
+						uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
+					{
+						DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
+						return;
+					}
+				}
+			}
+		}
+
+		UI_UpdateHUD(playerMappingIndex);
 	}
 }
