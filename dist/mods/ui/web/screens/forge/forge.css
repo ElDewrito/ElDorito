@@ -31,8 +31,6 @@ html {
     border-bottom: 3px solid #404f70;
     font-size: 2.5vh;
 }
-
-
 .setting {
     float: right;
     font-size: 1.947vh;
@@ -102,6 +100,19 @@ button {
     border-radius: 5px;
     text-align: center;
     line-height: 24px;
+    height: 1.75vw;
+    line-height: 1.5vw;
+
+}
+button.close {
+    color: white;
+    font-size: 10pt;
+    font-weight: bold;
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 24px;
     width: 1.75vw;
     height: 1.75vw;
     line-height: 1.5vw;
@@ -109,7 +120,6 @@ button {
     right: 0.25vw;
     top: 0.2vw;
 }
-
 button:hover{
     background-color: #B1572A;    
 }
