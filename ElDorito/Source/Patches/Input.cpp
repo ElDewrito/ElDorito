@@ -385,37 +385,73 @@ namespace
 		return SetControllerVibration(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
 	}
 
+	bool IsDualWielding()
+	{
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto unitObjectIndex = ElDorito::GetMainTls(0xC4)[0](0x300).Read<uint32_t>();
+		if (unitObjectIndex == -1)
+			return false;
+
+		auto unitObjectPtr = Pointer(objects.Get(unitObjectIndex))[0xC];
+		if (!unitObjectPtr)
+			return false;
+
+		return unitObjectPtr(0x2CB).Read<uint8_t>() != 0xFF;
+	}
+
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state)
 	{
 		static auto LocalPlayerInputHook = (void(__cdecl*)(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state))(0x5D0C90);
+		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
 
-		auto& objects = Blam::Objects::GetObjects();
+		auto bindings = Modules::ModuleInput::Instance().GetBindings();
 
-		auto unitObjectIndex = ElDorito::GetMainTls(0xC4)[0](0x300 + 0xF8 * localPlayerIndex).Read<uint32_t>();
-		if (unitObjectIndex != -1)
+		auto isDualWielding = IsDualWielding();
+		auto isUsingController = *(bool*)0x0244DE98;
+
+		if (!isUsingController && isDualWielding)
 		{
-			auto unitObjectPtr = Pointer(objects.Get(unitObjectIndex))[0xC];
-			if (unitObjectPtr)
+			auto fireLeftAction = GetActionState(eGameActionFireLeft);
+			auto fireRightAction = GetActionState(eGameActionFireRight);
+
+			if (fireLeftAction->Ticks != 0 || fireRightAction->Ticks != 0)
 			{
-				auto isDualWielding = unitObjectPtr(0x2CB).Read<uint8_t>() != 0xFF;
-				auto isUsingController = *(bool*)0x0244DE98;
-
-				if (!isUsingController && isDualWielding)
-				{
-					auto fireLeftAction = GetActionState(eGameActionFireLeft);
-					auto fireRightAction = GetActionState(eGameActionFireRight);
-
-					if (fireLeftAction->Ticks != 0 || fireRightAction->Ticks != 0)
-					{
-						ActionState tmp = *fireLeftAction;
-						*fireLeftAction = *fireRightAction;
-						*fireRightAction = tmp;
-					}
-				}
+				ActionState tmp = *fireLeftAction;
+				*fireLeftAction = *fireRightAction;
+				*fireRightAction = tmp;
 			}
 		}
 
 		LocalPlayerInputHook(localPlayerIndex, playerIndex, a3, a4, a5, state);
+
+		static bool s_ConsumablesLocked = false;
+
+		if (*(uint32_t*)(state + 0x18) & 0x10)
+		{
+			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
+			if (*(uint16_t*)GetPlayerControlsAction(localPlayerIndex) == 1)
+				s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft];
+		}
+		else
+		{
+			s_ConsumablesLocked = false;
+		}
+
+		if (isDualWielding)
+		{
+			if (bindings->ControllerButtons[eGameActionReloadLeft] == bindings->ControllerButtons[eGameActionUseConsumable1])
+				s_ConsumablesLocked = true;
+
+			if (bindings->ControllerButtons[eGameActionMelee] == bindings->ControllerButtons[eGameActionFireLeft])
+				*(uint32_t *)(state + 0x18) &= ~0x20u;
+
+			if (bindings->ControllerButtons[eGameActionThrowGrenade] == bindings->ControllerButtons[eGameActionFireLeft])
+				*(uint32_t *)(state + 0x18) &= ~0x10000000u;
+		}
+
+		if (s_ConsumablesLocked)
+			*(uint32_t *)(state + 0x18) &= ~0x10;
 	}
 }
 
