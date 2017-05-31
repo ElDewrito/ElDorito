@@ -25,7 +25,7 @@ namespace
 	void* __cdecl Player_GetArmorAbilitiesCHUDHook(Blam::Players::PlayerDatum* playerDatum);
 	bool __cdecl UnitUpdateHook(uint32_t unitObjectIndex);
 	void __cdecl EquipmentUseHook(int unitObjectIndex, int slotIndex, unsigned int isClient);
-	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType);
+	void __cdecl UnitDeathHook(int unitObjectIndex, int a2, int a3);
 	void DespawnEquipmentHook();
 }
 
@@ -73,7 +73,7 @@ namespace Patches
 			VirtualProtect(pEquipmentJumpTableCase, 4, oldProtect, &tmp);
 
 			// drop grenades on unit death
-			Hook(0x74C746, UnitDeathDropHook, HookFlags::IsCall).Apply();
+			Hook(0x73F562, UnitDeathHook, HookFlags::IsCall).Apply();
 			Hook(0x14EE29, DespawnEquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
 		}
 	}
@@ -522,7 +522,7 @@ namespace
 		}
 	}
 
-	void __cdecl UnitDeathDropHook(int unitObjectIndex, int eventType)
+	void __cdecl UnitDeathHook(int unitObjectIndex, int a2, int a3)
 	{
 		using namespace Blam::Tags;
 
@@ -539,8 +539,8 @@ namespace
 			TagReference Projectile;
 		};
 
-		static auto UnitDeathDrop = (void(__cdecl*)(uint32_t unitObjectIndex, int a2))(0x00B69CF0);
-		UnitDeathDrop(unitObjectIndex, eventType);
+		static auto UnitDeath = (void(__cdecl *)(int unitObjectIndex, char a2, char a3))(0xB40410);
+		UnitDeath(unitObjectIndex, a2, a3);
 	
 		// only continue if we're host
 		static auto IsClient = (bool(*)())(0x00531D70);
@@ -578,10 +578,10 @@ namespace
 				static auto Objects_InitializeNewObject = (void (__cdecl *)(void* objectData, int tagIndex, int objectIndex, int a4))(0x00B31590);
 				static auto Objects_SpawnObject = (uint32_t(__cdecl*)(void* objectData))(0x00B30440);
 				static auto Simulation_SpawnObject = (char(__cdecl *)(unsigned __int32 unitObjectIndex))(0x4B2CD0);
+				static auto ItemDrop = (void(__cdecl*)(uint32_t unitObjectIndex, uint32_t itemObjectIndex, int a3, float a4, int a5))(0xB49580);
 
 				Objects_InitializeNewObject(objectData, blockElem.Equipment.TagIndex, unitObjectIndex, 0);
 
-				// TODO: also take into account the unit's velocity
 				Pointer(objectData)(0x1c).Write(unitPosition);
 
 				auto grenadeObjectIndex = Objects_SpawnObject(objectData);
@@ -594,6 +594,8 @@ namespace
 					*(uint8_t*)(grenadeObject + 0x179) = 0;
 					*(uint32_t*)(grenadeObject + 0x184) = -1;
 				}
+
+				ItemDrop(unitObjectIndex, grenadeObjectIndex, 0, 1.0f, 1);
 
 				// notify clients that an object has been spawned
 				Simulation_SpawnObject(grenadeObjectIndex);
