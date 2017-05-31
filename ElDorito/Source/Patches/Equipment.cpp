@@ -341,6 +341,10 @@ namespace
 		if (primaryEquipmentTagIndex == itemTagIndex)
 			return;
 
+		auto itemDef = Blam::Tags::TagInstance(itemTagIndex).GetDefinition<Blam::Tags::Items::Item>();
+		if (itemDef->SwapMessage == -1)
+			return;
+
 		auto dx = itemPosition.I - unitPosition.I;
 		auto dy = itemPosition.J - unitPosition.J;
 		auto dz = itemPosition.K - unitPosition.K;

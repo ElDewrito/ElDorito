@@ -453,6 +453,9 @@ namespace Patches
 			Hook(0x006970BB, UI_UpdateHUDHook, HookFlags::IsCall).Apply();
 			// prevent saber's HUD from showing a pickup/swap message if the weapon is the same as the equipped
 			Hook(0x0068676D, UI_SaberWeaponHUDMessageHook, HookFlags::None).Apply();
+
+			// fix equipment swap message
+			Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
 		}
 
 		void ApplyMapNameFixes()
