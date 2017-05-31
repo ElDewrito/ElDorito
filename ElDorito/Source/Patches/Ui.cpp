@@ -10,6 +10,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
+#include "../Modules/ModuleInput.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include <iostream>
@@ -35,6 +36,7 @@ namespace
 	HWND CreateGameWindowHook();
 	void __cdecl UI_UpdateHUDHook(int playerMappingIndex);
 	void UI_SaberWeaponHUDMessageHook();
+	void GetActionButtonNameHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -456,6 +458,8 @@ namespace Patches
 
 			// fix equipment swap message
 			Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
+			// add support for mouse buttons in HUD messages
+			Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -983,6 +987,58 @@ namespace
 			jmp eax
 			NO_MESSAGE:
 			mov eax, 0xA86B32
+			jmp eax
+		}
+	}
+
+	bool __cdecl GetBoundMouseButtonName(int code, wchar_t* buff)
+	{
+		using namespace Blam::Input;
+
+		static auto GameActionFromUnicodeCode = (GameAction(__cdecl *)(int code))(0xABD240);
+
+		auto bindings = Modules::ModuleInput::Instance().GetBindings();
+
+		auto action = GameActionFromUnicodeCode(code);
+		auto mouseButton = bindings->PrimaryMouseButtons[action];
+		switch (mouseButton)
+		{
+		case eMouseButtonWheelDown:
+			swprintf(buff, L"<WHEEL DOWN>");
+			return true;
+		case eMouseButtonWheelUp:
+			swprintf(buff, L"<WHEEL UP>");
+			return true;
+		case eMouseButtonLeft:
+			swprintf(buff, L"<LMB>");
+			return true;
+		case eMouseButtonRight:
+			swprintf(buff, L"<RMB>");
+			return true;
+		case eMouseButtonMiddle:
+			swprintf(buff, L"<MMB>");
+			return true;
+		}
+
+		return false;
+	}
+
+	__declspec(naked) void GetActionButtonNameHook()
+	{
+		__asm
+		{
+			push[ebp + 0x14]
+			push[ebp + 0x10]
+			call GetBoundMouseButtonName
+			add esp, 8
+			test al, al
+			jz DEFAULT
+			pop ebx
+			mov esp, ebp
+			pop ebp
+			retn
+			DEFAULT:
+			mov eax, 0xABCA79
 			jmp eax
 		}
 	}
