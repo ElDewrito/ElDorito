@@ -320,11 +320,6 @@ namespace
 
 	int DualWieldEquipmentCountHook(uint32_t unitIndex, short equipmentIndex)
 	{
-		// Disable equipment use if dual wielding
-		if (UnitIsDualWielding(unitIndex))
-			return 0;
-
-		// Call the original function if not dual wielding
 		typedef int(__cdecl* GetEquipmentCountFunc)(uint32_t unitIndex, short equipmentIndex);
 		GetEquipmentCountFunc GetEquipmentCount = reinterpret_cast<GetEquipmentCountFunc>(0xB440F0);
 		return GetEquipmentCount(unitIndex, equipmentIndex);
