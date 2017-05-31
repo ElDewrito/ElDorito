@@ -1,4 +1,4 @@
-var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap']];
+var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity']];
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -28,6 +28,7 @@ $(document).ready(function() {
 function loadSettings(i) {
 	if (i != settingsToLoad.length) {
 		dew.command(settingsToLoad[i][1], {}).then(function(response) {
+            response = parseFloat(response);
             if ($("input[name='"+settingsToLoad[i][0]+"']").is(':checkbox')){
                 if (response == "1"){
                     $("input[name='"+settingsToLoad[i][0]+"']").prop('checked', true);

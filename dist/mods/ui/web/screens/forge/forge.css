@@ -47,7 +47,7 @@ html {
     color: #474747;
 }
 .tinySetting {
-    width: 7vh; 
+    width: 9vh; 
     position: absolute;
     right: 1vw;
     margin-top: 0.354vh; 
@@ -66,7 +66,7 @@ input.setting {
 input[type=range] {
     -webkit-appearance: none;
     position: absolute;
-    right: 10vh;
+    right: 12vh;
     width: 20.355vh;
     margin-right: 0.885vh;
     margin-top: 1.45vh;

@@ -30,6 +30,10 @@
             <input type="text" class="tinySetting" id="fRotationSnapText" name="fRotationSnap">
             <input type="range" min="0" max="355" step="1" id="fRotationSnap" name="fRotationSnap" oninput="document.querySelector('#fRotationSnapText').value = this.value;">
             <br />
+            <label for="fRotationSens">Rotation Sensitivity</label>
+            <input type="text" class="tinySetting" id="fRotationSensText" name="fRotationSens">
+            <input type="range" min="1" max="5" step="0.1" id="fRotationSens" name="fRotationSens" oninput="document.querySelector('#fRotationSensText').value = this.value;">
+            <br />
 			<p></p>
 			<div class="header">Object Deletion</div>
 			<div><button onclick="dew.command('Forge.Canvas')">Clear Canvas</button> <button onclick="dew.command('Forge.DeleteAll')">Delete All</button></div>
