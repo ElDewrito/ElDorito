@@ -16,6 +16,8 @@
 #include "../Modules/ModuleForge.hpp"
 #include <cassert>
 #include <queue>
+#include <bitset>
+#include <stack>
 
 using namespace Blam;
 using namespace Blam::Objects;
@@ -38,10 +40,16 @@ namespace
 	void* PushBarriersGetStructureDesignHook(int index);
 	void UpdateForgeInputHook();
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot);
+	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes);
+	void ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex);
+	void ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3);
+	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
+	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 
 	void FixRespawnZones();
 
 	void SandboxEngineTickHook();
+	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex);
 
 	MapVariant* GetMapVariant();
 	struct AABB { float MinX, MaxX, MinY, MaxY, MinZ, MaxZ; };
@@ -49,14 +57,12 @@ namespace
 	DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex);
 	bool GetObjectUnderCrosshairIntersectNormal(DatumIndex playerIndex, Math::RealVector3D* outNormalVec);
 	DatumIndex CloneObject(DatumIndex playerIndex, DatumIndex objectIndex, float depth);
+	void CloneSelection(DatumIndex playerIndex);
 	void DeletePlacementObject(DatumIndex playerIndex, uint16_t placementIndex);
 	void UpdateRotationSnap(DatumIndex playerIndex, DatumIndex objectIndex);
 
 	struct
 	{
-		using RealQuaternion3D = Blam::Math::RealQuaternion;
-		using RealVector3D = Blam::Math::RealVector3D;
-
 		uint32_t Flags;
 		DatumIndex ObjectIndex;
 		uint32_t StartTime;
@@ -64,10 +70,44 @@ namespace
 		float InputXTicks;
 		float InputYTicks;
 		float InputZTicks;
-		RealQuaternion3D StartRotation;
-		RealQuaternion3D EndRotation;
+		RealQuaternion StartRotation;
+		RealQuaternion EndRotation;
 
 	} s_RotationSnapState = { 0 };
+
+	class ObjectSet
+	{
+	public:
+		bool Contains(uint32_t objectIndex) const
+		{
+			return objectIndex != -1 && m_Bits.test(objectIndex & 0xFFFF);
+		}
+
+		bool Any() const
+		{
+			return m_Bits.any();
+		}
+
+		void Add(uint32_t objectIndex)
+		{
+			m_Bits.set(objectIndex & 0xFFFF);
+		}
+
+		void Remove(uint32_t objectIndex)
+		{
+			m_Bits.set(objectIndex & 0xFFFF, false);
+		}
+
+		void Clear()
+		{
+			m_Bits.reset();
+		}
+
+	private:
+		std::bitset<2048> m_Bits = { 0 };
+	};
+
+	ObjectSet s_SelectedObjects;
 }
 
 namespace Patches
@@ -77,6 +117,8 @@ namespace Patches
 		void ApplyAll()
 		{
 			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
+			Pointer(0x0165AB94).Write((uint32_t)&SandboxEngineObjectDisposeHook);
+
 			Hook(0x19D482, UpdateForgeInputHook, HookFlags::IsCall).Apply();
 			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
@@ -89,6 +131,11 @@ namespace Patches
 			Hook(0x2750F8, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
 			Hook(0x275655, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
 			Hook(0x19FA69, RotateHeldObjectHook, HookFlags::IsCall).Apply();
+			Hook(0x62E760, SpecialWeaponHUDHook, HookFlags::IsCall).Apply();
+			Hook(0x7350A, ObjectGrabbedHook, HookFlags::IsCall).Apply();
+			Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
+			Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
+			Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
 
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
@@ -207,30 +254,50 @@ namespace
 
 		SandboxEngine_Tick();
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null)
-			return;
-
-		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
-		if (Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
+		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
+		if (activeScreenCount == 0)
 		{
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			if (playerIndex == DatumIndex::Null)
+				return;
 
-			UpdateRotationSnap(playerIndex, heldObjectIndex);
-
-			if (heldObjectIndex == -1)
+			uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
+			if (Forge_GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 			{
-				if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1 && objectIndexUnderCrosshair != -1)
-				{
-					auto& forgeModule = Modules::ModuleForge::Instance();
-					auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
-					auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
 
-					auto objectIndexToClone = objectIndexUnderCrosshair;
-					for (auto i = 0; i < cloneMultiplier; i++)
+				UpdateRotationSnap(playerIndex, heldObjectIndex);
+
+				if (heldObjectIndex == -1)
+				{
+					if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
 					{
-						objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
-						if (objectIndexToClone == -1)
-							break;
+						if (objectIndexUnderCrosshair != -1)
+						{
+							auto& forgeModule = Modules::ModuleForge::Instance();
+							auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+							auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+
+							auto objectIndexToClone = objectIndexUnderCrosshair;
+							for (auto i = 0; i < cloneMultiplier; i++)
+							{
+								objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
+								if (objectIndexToClone == -1)
+									break;
+							}
+						}
+						else
+						{
+							if(s_SelectedObjects.Any())
+								CloneSelection(playerIndex);
+						}
+					}
+
+					if (Input::GetActionState(Blam::Input::eGameActionFireRight)->Ticks == 1 && objectIndexUnderCrosshair != -1)
+					{
+						if (s_SelectedObjects.Contains(objectIndexUnderCrosshair))
+							s_SelectedObjects.Remove(objectIndexUnderCrosshair);
+						else
+							s_SelectedObjects.Add(objectIndexUnderCrosshair);
 					}
 				}
 			}
@@ -737,5 +804,352 @@ namespace
 
 		static auto Object_Transform = (void(__cdecl*)(bool a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
 		Object_Transform(0, objectIndex, nullptr, &rightVec, &upVec);
+	}
+
+	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex)
+	{
+		s_SelectedObjects.Remove(objectIndex);
+
+		static auto SandboxEngineObjectDispose = (void(__thiscall*)(void* thisptr, uint32_t objectIndex))(0x0059BC70);
+		SandboxEngineObjectDispose(thisptr, objectIndex);
+	}
+
+	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes)
+	{
+		static auto sub_A2CAA0 = (void(__cdecl*)(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objects, int16_t objectCount, BYTE *result))(0xA2CAA0);
+
+		sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
+
+		static auto sub_686FD0 = (void(__cdecl*)())(0x686FD0);
+		static auto sub_A78230 = (void(__cdecl*)())(0xA78230);
+		static auto sub_A53160 = (void(__cdecl*)(int a1, int a2, char a3, char a4))(0xA53160);
+		static auto sub_A7A510 = (void(__cdecl*)(int a1))(0xA7A510);
+		static auto sub_A242E0 = (unsigned __int8(__cdecl*)(int a1, int a2))(0xA242E0);
+		static auto sub_A48E40 = (int(__cdecl*)(int a1, int a2, int a3))(0xA48E40);
+		static auto sub_A78F00 = (int(__cdecl*)(int a1, int a2))(0xA78F00);
+		static auto sub_A781F0 = (int(*)())(0xA781F0);
+		static auto sub_686DE0 = (int(*)())(0x686DE0);
+
+		auto mapv = GetMapVariant();
+		if (!mapv)
+			return;
+
+		if (!s_SelectedObjects.Any())
+			return;
+
+		for (auto i = 0; i < mapv->UsedPlacementsCount; i++)
+		{
+			auto& placement = mapv->Placements[i];
+
+			if (s_SelectedObjects.Contains(placement.ObjectIndex))
+			{
+				const int specialHudType = 6;
+				activeSpecialChudTypes[specialHudType] = 1;
+
+				sub_686FD0();
+				sub_A78230();
+				sub_A53160(placement.ObjectIndex, a1, 0, 1);
+				sub_A7A510(0);
+				sub_A242E0(
+					18,
+					(unsigned __int8)(signed int)floor((float)((float)(signed int)specialHudType * 255.0) * 0.125));
+				sub_A48E40(2, 23, -1);
+				sub_A78F00(0, 1);
+				sub_A48E40(1, 0, 0);
+				sub_A48E40(2, 0, 0);
+				sub_A781F0();
+				sub_686DE0();
+			}
+		}
+	}
+
+	void __cdecl ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex)
+	{
+		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
+		ObjectGrabbed(playerIndex, placementIndex);
+
+		static auto FreePlacement = (void(__thiscall *)(MapVariant* mapv, int16_t placementIndex, int a3))(0x585C00);
+		static auto ObjectAttach = (void(__cdecl*)(uint32_t parentobjectIndex, uint32_t objectIndex, int a3))(0x00B2A250);
+		static auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
+
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto mapv = GetMapVariant();
+
+		auto objectIndex = mapv->Placements[placementIndex].ObjectIndex;
+
+		if (!s_SelectedObjects.Contains(objectIndex))
+			return;
+
+		for (auto i = 0; i < 640; i++)
+		{
+			auto& placement = mapv->Placements[i];
+			if (!(placement.PlacementFlags & 1) ||
+				placement.ObjectIndex == -1 ||
+				placement.ObjectIndex == objectIndex)
+				continue;
+
+			auto placementObjectIndex = placement.ObjectIndex;
+
+			if (s_SelectedObjects.Contains(placement.ObjectIndex))
+			{
+				FreePlacement(mapv, i, 2);
+				ObjectAttach(objectIndex, placementObjectIndex, 0);
+				sub_59A620(placementObjectIndex, 1);
+			}
+		}
+	}
+
+	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float objectThrowForce)
+	{
+		static auto Update_ObjectTransform = (void(__cdecl *)(bool a1, int objectIndex))(0x0059E340);
+		static auto Object_Wake = (void(__cdecl *)(uint32_t objectIndex, bool a2))(0x00B327F0);
+		static auto Unit_GetPosition = (void(__cdecl*)(uint32_t unitObjectIndex, RealVector3D *position))(0x00B439D0);
+		static auto Object_GetVelocity = (void(__cdecl *)(uint32_t objectIndex, RealVector3D* a2, RealVector3D *a3))(0x00B2EB30);
+		static auto sub_B34040 = (void(__cdecl*)(uint32_t objectIndex, RealVector3D* v1, RealVector3D* v2))(0xB34040);
+		static auto sub_580AD0 = (void(__cdecl*)(uint32_t unitObjectIndex, int a2))(0x580AD0);
+		static auto sub_59EA10 = (void(__cdecl*)(uint32_t objectIndex))(0x59EA10);
+		static auto Object_GetRotation = (void(__cdecl*) (uint16_t objectIndex, RealVector3D *right, RealVector3D *up))(0x00B2E490);
+		static auto Object_GetPosition = (void(__cdecl*) (uint16_t objectIndex, RealVector3D *position))(0x00B2E5A0);
+
+		RealVector3D right, up, position;
+		Object_GetRotation(objectIndex, &right, &up);
+		Object_GetPosition(objectIndex, &position);
+
+		auto& players = Blam::Players::GetPlayers();
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto player = players.Get(playerIndex);
+
+		Object_Wake(objectIndex, 0);
+
+		if (objectThrowForce > 0.000099999997f)
+		{
+			auto unitObjectPtr = Pointer(objects.Get(player->SlaveUnit))[0xC];
+			if (!unitObjectPtr)
+				return;
+
+			RealVector3D unitPosition;
+			Unit_GetPosition(player->SlaveUnit, &unitPosition);
+
+			auto vec = position - unitPosition;
+			RealVector3D::Normalize(vec);
+
+			vec.I = objectThrowForce * 15.0f * vec.I;
+			vec.J = objectThrowForce * 15.0f * vec.J;
+			vec.K = objectThrowForce * 15.0f * vec.K;
+
+			RealVector3D v2, v3;
+			Object_GetVelocity(objectIndex, &v2, &v3);
+			sub_B34040(objectIndex, &v2, &v3);
+			sub_580AD0(objectIndex, 4);
+
+		}
+		sub_59EA10(objectIndex);
+	}
+
+	void __cdecl ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3)
+	{
+		static auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
+		static auto ObjectDropped = (void(__cdecl*)(uint16_t placementIndex, float throwForce, int a3))(0x0059B250);
+
+		auto mapv = GetMapVariant();
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto droppedObjectIndex = mapv->Placements[placementIndex].ObjectIndex;
+		if (droppedObjectIndex == -1)
+			return;
+
+		auto playerIndex = GetPlayerHoldingObject(droppedObjectIndex);
+
+		ObjectDropped(placementIndex, throwForce, a3);
+
+		if (!s_SelectedObjects.Contains(droppedObjectIndex))
+			return;
+
+		auto droppedObjectPtr = Pointer(objects.Get(droppedObjectIndex))[0xC];
+		if (!droppedObjectPtr)
+			return;
+
+		std::stack<uint32_t> detachStack;
+		for (auto objectIndex = droppedObjectPtr(0x10).Read<uint32_t>(); objectIndex != -1;)
+		{
+			auto objectPtr = Pointer(objects.Get(objectIndex))[0xC];
+			if (!objectPtr)
+				continue;
+
+			if (s_SelectedObjects.Contains(objectIndex))
+				detachStack.push(objectIndex);
+
+			objectIndex = objectPtr(0xC).Read<uint32_t>();
+		}
+
+		while (!detachStack.empty())
+		{
+			auto objectIndex = detachStack.top();
+			detachStack.pop();
+
+			static auto ObjectDetach = (void(__cdecl*)(uint32_t objectIndex))(0x00B2D180);
+			static auto AssignPlacement = (int(__thiscall *)(void *thisptr, uint32_t objectIndex, int16_t placementIndex))(0x5855E0);
+			static auto Object_GetRotation = (void(__cdecl*) (uint32_t objectIndex, RealVector3D *right, RealVector3D *up))(0x00B2E490);
+			static auto Object_GetPosition = (void(__cdecl*) (uint32_t objectIndex, RealVector3D *position))(0x00B2E5A0);
+			static auto Object_Transform = (void(__cdecl *)(bool a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
+			static auto Update_ObjectTransform = (void(__cdecl *)(float a1, uint32_t objectIndex))(0x0059E9C0);
+			static auto Object_SetVelocity_0 = (void(__cdecl *)(uint32_t objectIndex, RealVector3D *movementVec, RealVector3D *vec))(0x00B34040);
+			static auto sub_B313E0 = (void(__cdecl *)(int objectIndex, bool arg_4))(0xB313E0);
+
+
+			ObjectDetach(objectIndex);
+			AssignPlacement(mapv, objectIndex, -1);
+
+			RealVector3D right, up, position;
+			Object_GetRotation(objectIndex, &right, &up);
+			Object_GetPosition(objectIndex, &position);
+			Object_Transform(0, objectIndex, &position, &right, &up);
+			Update_ObjectTransform(0, objectIndex);
+
+			sub_B313E0(objectIndex, true);
+
+			ThrowObject(playerIndex, objectIndex, throwForce);
+		}
+	}
+
+	void __cdecl ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex)
+	{
+		static auto ObjectDelete = (void(__cdecl*)(uint16_t placementIndex, uint32_t playerIndex))(0x0059A920);
+
+		auto mapv = GetMapVariant();
+		auto deletedObjectIndex = mapv->Placements[placementIndex].ObjectIndex;
+
+		if (s_SelectedObjects.Contains(deletedObjectIndex))
+		{
+			for (auto i = 0; i < 640; i++)
+			{
+				auto& placement = mapv->Placements[i];
+				if (placement.PlacementFlags & 1 == 0 ||
+					placement.ObjectIndex == -1 ||
+					placement.ObjectIndex == deletedObjectIndex)
+					continue;
+
+				auto placementObjectIndex = placement.ObjectIndex;
+
+				if (s_SelectedObjects.Contains(placement.ObjectIndex))
+				{
+					ObjectDelete(i, playerIndex);
+				}
+			}
+		}
+	
+		ObjectDelete(placementIndex, playerIndex);
+
+		Pointer(ElDorito::GetMainTls(0x48))[0](0xE1DC).Write(*(float*)0x018A157C);
+	}
+
+	void __cdecl ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties)
+	{
+		static auto ObjectPropertiesChange = (void(__cdecl*)(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties))(0x0059B5F0);
+		ObjectPropertiesChange(playerIndex, placementIndex, properties);
+
+		auto mapv = GetMapVariant();
+		auto changedObjectIndex = mapv->Placements[placementIndex].ObjectIndex;
+
+		if (s_SelectedObjects.Contains(changedObjectIndex))
+		{
+			for (auto i = 0; i < 640; i++)
+			{
+				auto& placement = mapv->Placements[i];
+				if (placement.PlacementFlags & 1 == 0 ||
+					placement.ObjectIndex == -1 ||
+					placement.ObjectIndex == changedObjectIndex)
+					continue;
+
+				auto placementObjectIndex = placement.ObjectIndex;
+
+				if (s_SelectedObjects.Contains(placement.ObjectIndex))
+				{
+					ObjectPropertiesChange(playerIndex, i, properties);
+				}
+			}
+		}
+	}
+
+	void CloneSelection(DatumIndex playerIndex)
+	{
+		auto mapv = GetMapVariant();
+		auto objects = Blam::Objects::GetObjects();
+
+		std::stack<uint32_t> cloneStack;
+
+		for (auto i = 0; i < 640; i++)
+		{
+			auto& placement = mapv->Placements[i];
+			if (placement.PlacementFlags & 1 == 0 ||
+				placement.ObjectIndex == -1)
+				continue;
+
+			auto placementObjectIndex = placement.ObjectIndex;
+
+			if (s_SelectedObjects.Contains(placement.ObjectIndex))
+				cloneStack.push(placement.ObjectIndex);
+		}
+
+		if (cloneStack.empty())
+			return;
+
+		auto referenceObjectIndex = cloneStack.top();
+		auto referenceObjectPtr = Pointer(objects.Get(referenceObjectIndex))[0xC];
+		if (!referenceObjectPtr)
+			return;
+
+		s_SelectedObjects.Clear();
+
+		const auto& crosshairPoint = Pointer(ElDorito::GetMainTls(0x48))[0](0xE21C).Read<RealVector3D>();
+		const auto& referencePoint = referenceObjectPtr(0x54).Read<RealVector3D>();
+
+		auto grabObjectIndex = -1;
+
+		while (!cloneStack.empty())
+		{
+			auto objectIndex = cloneStack.top();
+			cloneStack.pop();
+
+			auto objectPtr = Pointer(objects.Get(objectIndex))[0xC];
+			if (!objectPtr)
+				continue;
+
+			auto objectTagIndex = objectPtr.Read<uint32_t>();
+			auto objectPosition = objectPtr(0x54).Read<RealVector3D>();
+			auto objectRightVec = objectPtr(0x60).Read<RealVector3D>();
+			auto objectUpVec = objectPtr(0x6c).Read<RealVector3D>();
+			auto placementIndex = objectPtr(0x1c).Read<uint16_t>();
+
+			MapVariant::VariantProperties* variantProperties = nullptr;
+
+			if (placementIndex != -1)
+			{
+				auto& placement = mapv->Placements[placementIndex];
+				variantProperties = &placement.Properties;
+			}
+
+			static auto SpawnObject = (uint32_t(__thiscall *)(MapVariant* thisptr, uint32_t tagIndex, int a3, int16_t placementIndex, const RealVector3D* position,
+				const RealVector3D *rightVec, const RealVector3D *upVec, int16_t scnrPlacementBlockIndex, int objectType,
+				MapVariant::VariantProperties* variantProperties, uint16_t placementFlags))(0x00582110);
+
+			auto displacement = crosshairPoint - objectPosition;
+			auto pos = objectPosition + displacement - (referencePoint - objectPosition);
+
+			auto newObjectIndex = SpawnObject(mapv, objectTagIndex, 0, -1, &pos, &objectRightVec, &objectUpVec, -1, -1, variantProperties, 0);
+			if (newObjectIndex != -1)
+			{
+				grabObjectIndex = newObjectIndex;
+				s_SelectedObjects.Add(newObjectIndex);
+			}
+		}
+
+		auto grabObjectPtr = Pointer(objects.Get(grabObjectIndex))[0xC];
+		if (!grabObjectPtr)
+			return;
+
+		ObjectGrabbedHook(playerIndex, grabObjectPtr(0x1c).Read<int16_t>());
 	}
 }
