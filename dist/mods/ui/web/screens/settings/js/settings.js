@@ -119,7 +119,7 @@ var controllerPresets = [
 
 $(document).ready(function() {
     $(document).keydown(function(e){
-        if(e.keyCode == 9 || e.keyCode == 27){
+        if(e.keyCode == 27){
             closeBrowser();
         } 
         if(e.keyCode == 192 || e.keyCode == 112){
@@ -143,7 +143,8 @@ $(document).ready(function() {
         updateSetting(this.name, this.value);
     });
     $('#settingsWindow textarea').on('change', function(){
-        updateSetting(this.name, "\"" + this.value + "\"");
+        var newDesc = this.value.replace("\"","'");
+        updateSetting(this.name, "\"\"" + newDesc + "\"\"");
     });
     $('#controllerSettings .bind').on('change', function(){
         updateBinding(this.id, this.value);
