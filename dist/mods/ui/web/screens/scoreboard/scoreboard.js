@@ -3,6 +3,7 @@ var isHost = false;
 var cardOpacity = 0.9;
 var medalsPath = 'medals://';
 capturedInput = false;
+var imageFormat = 'svg';
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -195,6 +196,14 @@ $(window).load(function(){
 
 dew.command('Game.MedalPack', {}).then(function(response){
     medalsPath = medalsPath + response + "/";
+    $.getJSON(medalsPath+'events.json', function(json) {
+        eventJson = json;
+        if(eventJson['settings']){
+            if(eventJson['settings'].hasOwnProperty('imageFormat')){
+                imageFormat = eventJson['settings'].imageFormat;
+            }
+        }            
+    });
 });
 
 dew.on("scoreboard", function(e){
@@ -528,7 +537,7 @@ function playerBreakdown(name){
             }); 
             
             if(medalArray[0].count!=0){
-                $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + medalArray[0].name +".svg)");    
+                $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + medalArray[0].name +"."+ imageFormat +")");    
                 $('.medalName').text(medalDetails[medalDetails.findIndex(x => x.string == medalArray[0].name)].name);
                 $('.medalDesc').text(medalDetails[medalDetails.findIndex(x => x.string == medalArray[0].name)].desc);
             }else{
@@ -544,11 +553,11 @@ function playerBreakdown(name){
                             class: 'medal',
                             id: medalArray[i].name,
                             css: {
-                                'background-image': "url("+ medalsPath + "images/" + medalArray[i].name +".svg)"
+                                'background-image': "url("+ medalsPath + "images/" + medalArray[i].name +"."+ imageFormat +")"
                             },
                             html: "<span class='medalCount'>x "+medalArray[i].count+"</span>"
                         }).mouseover(function(){
-                            $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + $(this).attr('id') +".svg)");
+                            $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + $(this).attr('id') +"."+ imageFormat +")");
                             $('.medalName').text(medalDetails[medalDetails.findIndex(x => x.string == $(this).attr('id'))].name);
                             $('.medalDesc').text(medalDetails[medalDetails.findIndex(x => x.string == $(this).attr('id'))].desc);
                         })

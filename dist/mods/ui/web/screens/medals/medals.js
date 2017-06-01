@@ -6,14 +6,36 @@ var playQueue = [];
 var eventJson;
 var announcerVolume;
 var suppressRepeat = false;
+var medalWidth = '3.5vw';
+var leftPos = '6.78vw';
+var bottomPos = '32vh';
+var transform = 'skew(0,-2.75deg)'; 
 
 $(document).ready(function() {
     dew.command('Game.MedalPack', {}).then(function(response) {
         medalsPath = medalsPath + response + "/";
         $.getJSON(medalsPath+'events.json', function(json) {
             eventJson = json;
+            if(eventJson['settings']){
+                if(eventJson['settings'].hasOwnProperty('medalWidth')){
+                    medalWidth = eventJson['settings'].medalWidth;
+                }
+                if(eventJson['settings'].hasOwnProperty('leftPos')){            
+                    leftPos = eventJson['settings'].leftPos;
+                }
+                if(eventJson['settings'].hasOwnProperty('bottomPos')){
+                    bottomPos = eventJson['settings'].bottomPos;
+                }   
+                if(eventJson['settings'].hasOwnProperty('transform')){
+                    transform = eventJson['settings'].transform;
+                } 
+            }            
         });
     });
+});
+
+dew.on("show", function(e){
+    
 });
 
 var juggleEvent = 0;
@@ -86,10 +108,18 @@ function play(audio){
 var medalNum = 0;
 function display_medal(medal){
     dew.show();
+    $('#medalBox').css({
+        left:leftPos,
+        bottom: bottomPos, 
+        transform: transform
+    });
     var currentMedalNum = medalNum;
     $('<img />', { 
         id: currentMedalNum,
-        src: medalsPath + 'images/' + medal
+        src: medalsPath + 'images/' + medal,
+        css: {
+            width: medalWidth
+        }
     }).prependTo($('#medalBox'));
     $("#"+currentMedalNum).pulse();
     setTimeout(function(){
@@ -104,6 +134,7 @@ function display_medal(medal){
 }
 
 function doMedal(eventString, audience){
+    //console.log(eventString+', '+audience);
     if(eventJson[eventString]){
         switch(audience){
             case 0:
