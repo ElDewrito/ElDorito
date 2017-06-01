@@ -71,7 +71,7 @@ var accessoryList = [
     ["Ammo Pack", "ammo_pack"],
     ["Antenna 1", "antenna_01"],
     ["Antenna 2", "antenna_02"],
-    ["Bullest Shield", "bullet_shield"],
+    ["Bullet Shield", "bullet_shield"],
     ["Chest Battery", "chest_battery"],
     ["Dog Tag", "dog_tag_01"],
     ["Electronic Tool", "electronic_tool"],
