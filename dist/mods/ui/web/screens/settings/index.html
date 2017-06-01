@@ -27,8 +27,10 @@
             <label for="sCountdown">Round Start Countdown</label><input class="setting" type="text" id="sCountdown" name="sCountdown"><br />
             <label for="sMaxPlayers">Maximum Players</label>
             <input type="text" class="tinySetting" id="sMaxPlayersText" name="sMaxPlayers" onchange="updateSetting('sMaxPlayers', this.value);">
-            <input type="range" min="1" max="16" id="sMaxPlayers" name="sMaxPlayers" oninput="document.querySelector('#sMaxPlayersText').value = this.value;">
-            <br />
+            <input type="range" min="1" max="16" id="sMaxPlayers" name="sMaxPlayers" oninput="document.querySelector('#sMaxPlayersText').value = this.value;"><br />
+			<label for="sMaxTeamSize">Maximum Team Size</label>
+            <input type="text" class="tinySetting" id="sMaxTeamSizeText" name="sMaxTeamSize" onchange="updateSetting('sMaxTeamSize', this.value);">
+            <input type="range" min="1" max="8" id="sMaxTeamSize" name="sMaxTeamSize" oninput="document.querySelector('#sMaxTeamSizeText').value = this.value;"><br />		
             <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce" name="sShouldAnnounce"><br />
             <label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
             <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />
