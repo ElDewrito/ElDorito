@@ -15,7 +15,7 @@ var juggleDelay = 3000;
 
 dew.on("mpevent", function (event) {
     dew.command('Game.MedalPack', {}).then(function(response) {
-        medalsPath = medalsPath + response + "/";
+        medalsPath = "medals://" + response + "/";
         $.getJSON(medalsPath+'events.json', function(json) {
             eventJson = json;
             if(eventJson['settings']){
