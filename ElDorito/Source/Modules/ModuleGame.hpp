@@ -23,6 +23,7 @@ namespace Modules
 
 		std::vector<std::string> CustomMapList;
 		std::vector<std::string> MapList;
+		std::vector<std::string> MedalPackList;
 		std::vector<std::string> FiltersExclude;
 		std::vector<std::string> FiltersInclude;
 

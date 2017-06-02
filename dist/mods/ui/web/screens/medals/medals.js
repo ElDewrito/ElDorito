@@ -12,9 +12,17 @@ var bottomPos = '32vh';
 var transform = 'skew(0,-2.75deg)'; 
 
 $(document).ready(function() {
+    loadMedalPack();
+});
+
+dew.on("show", function(e){
+    loadMedalPack();    
+});
+
+function loadMedalPack(){
     dew.command('Game.MedalPack', {}).then(function(response) {
-        medalsPath = medalsPath + response + "/";
-        $.getJSON(medalsPath+'events.json', function(json) {
+        medalsPath += response + '/events.json';
+        $.getJSON(encodeURI(medalsPath), function(json) {
             eventJson = json;
             if(eventJson['settings']){
                 if(eventJson['settings'].hasOwnProperty('medalWidth')){
@@ -32,11 +40,7 @@ $(document).ready(function() {
             }            
         });
     });
-});
-
-dew.on("show", function(e){
-    
-});
+}
 
 var juggleEvent = 0;
 var juggleDelay = 3000;

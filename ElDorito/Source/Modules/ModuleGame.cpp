@@ -771,6 +771,30 @@ namespace
 		return true;
 	}
 
+	bool CommandListMedalPacks(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		Modules::ModuleGame::Instance().MedalPackList.clear();
+		boost::filesystem::path p("mods/medals/");
+		boost::filesystem::directory_iterator end_itr;
+		if (boost::filesystem::exists(p))
+		{
+			// cycle through the directory
+			for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
+			{
+				if (!is_regular_file(itr->path()))
+					Modules::ModuleGame::Instance().MedalPackList.push_back(itr->path().filename().string());
+			}
+		}
+		// Return a comma-separated list
+		for (auto&& name : Modules::ModuleGame::Instance().MedalPackList)
+		{
+			if (returnInfo.length() > 0)
+				returnInfo += ',';
+			returnInfo += name;
+		}
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -820,6 +844,8 @@ namespace Modules
 		AddCommand("ListMaps", "maps", "List all available map files", eCommandFlagsNone, CommandListMaps);
 
 		AddCommand("ShowScreen", "showscreen", "Displays the specified screen", eCommandFlagsArgsNoParse, CommandShowScreen);
+
+		AddCommand("ListMedalPacks", "list_medals", "List all available medal packs", eCommandFlagsNone, CommandListMedalPacks);
 		
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
