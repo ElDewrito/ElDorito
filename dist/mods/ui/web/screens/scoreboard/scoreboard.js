@@ -194,18 +194,6 @@ $(window).load(function(){
     });
 });
 
-dew.command('Game.MedalPack', {}).then(function(response){
-    medalsPath = medalsPath + response + "/";
-    $.getJSON(medalsPath+'events.json', function(json) {
-        eventJson = json;
-        if(eventJson['settings']){
-            if(eventJson['settings'].hasOwnProperty('imageFormat')){
-                imageFormat = eventJson['settings'].imageFormat;
-            }
-        }            
-    });
-});
-
 dew.on("scoreboard", function(e){
     dew.command('Game.ExpandedScoreboard', {}).then(function(response){
         displayScoreboard(response);
@@ -411,6 +399,17 @@ function rankMe(teamGame){
 }
 
 function playerBreakdown(name){
+    dew.command('Game.MedalPack', {}).then(function(response){
+        medalsPath = "medals://" + response + "/";
+        $.getJSON(medalsPath+'events.json', function(json) {
+            eventJson = json;
+            if(eventJson['settings']){
+                if(eventJson['settings'].hasOwnProperty('imageFormat')){
+                    imageFormat = eventJson['settings'].imageFormat;
+                }
+            }            
+        });
+    });
     dew.command('Server.ListPlayersJSON').then(function(res){
         var lobby = JSON.parse(res);
         var playerIndex = lobby.findIndex(x => x.name == name)
