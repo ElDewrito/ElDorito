@@ -1,0 +1,58 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html {
+    color: #FFF;
+    font-family: "Conduit ITC", sans-serif;
+    overflow: hidden;
+}
+
+.player{
+    text-align: center;
+    font-size: 2.5vh;
+    line-height: 3.5vh;
+    padding: 0.5vw;
+    margin: 0.1vw;
+    z-index: 1;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.02vw;
+    cursor: default;
+    display:table-row;
+    width:100%;
+}
+
+.stat{
+    width:6.25vw;
+}
+
+.name{
+    text-align:left;
+    padding-left:1.5%;
+    border-top:1px solid grey;
+    border-bottom: 1px solid grey;
+}
+
+.emblem{
+    height:1.7vw;
+    margin-bottom:-0.35vw;
+    margin-right:0.5vw;
+}
+
+#spectatingOverlay{
+    width:24vw;
+    margin-left:auto;
+    margin-right:auto;
+    position: relative;
+    top:80vh;
+    left: -2.5vw;
+}
+
+.arrows{
+    height:1.7vw;
+    margin-bottom:-0.5vw;
+    margin-right:0vw;
+    float:right;
+}

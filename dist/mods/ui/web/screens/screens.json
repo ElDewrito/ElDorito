@@ -66,6 +66,12 @@
 			"url": "dew://screens/forge/",
 			"captureInput": true,
 			"zIndex": 8
+		},
+        {
+			"id": "spectate",
+			"url": "dew://screens/spectate/",
+			"captureInput": false,
+			"zIndex": -5
 		}
 	]
 }
