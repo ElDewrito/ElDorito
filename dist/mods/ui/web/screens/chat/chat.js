@@ -167,3 +167,13 @@ function hexToRgba(hex,opacity){
 function aWrap(link) {
     return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
 };
+
+function buttonAction(i){
+    switch (i) {
+        case 1: // B  
+            chatboxHide();
+            break;
+        default:
+            //console.log("nothing associated with " + i);
+    }  
+}

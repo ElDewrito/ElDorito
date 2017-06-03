@@ -1,7 +1,7 @@
 var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity']];
 
 $("html").on("keydown", function(e) {
-    if (e.which == 113){
+    if (e.which == 27){ //ESC
         dew.hide();
     }
     if(e.which == 84 || e.which == 89){
