@@ -45,12 +45,14 @@
       {  
          "displayName":"Team King",
          "typeName":"Team Crazy King",
-         "SprintEnabled":"0"
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
 	  {  
          "displayName":"Team SWAT",
          "typeName":"Team SWAT",
          "SprintEnabled":"0",
+		 "MaxTeamSize":"8",
 		  "SpecificMaps":[  
             {  
                "displayName":"Valhalla",
@@ -77,32 +79,38 @@
       {  
          "displayName":"Team Snipers",
          "typeName":"Team Snipers",
-         "SprintEnabled":"0" 
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
       {
          "displayName":"Team BRs",
          "typeName":"Team BRs",
-         "SprintEnabled":"0"
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
       {  
          "displayName":"Team BRs",
          "typeName":"Team BRs",
-         "SprintEnabled":"0"
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
       {  
          "displayName":"Team DMRs",
          "typeName":"Team DMRs",
-         "SprintEnabled":"0"
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
       {  
          "displayName":"Team Fiesta",
          "typeName":"Team Fiesta",
-         "SprintEnabled":"0"
+         "SprintEnabled":"0",
+		 "MaxTeamSize":"8"
       },
       {  
          "displayName":"Multi Flag",
          "typeName":"Team CTF",
          "SprintEnabled":"0",
+		 "MaxTeamSize":"8",
 		 "SpecificMaps":[  
             {  
                "displayName":"Sandtrap",
@@ -134,6 +142,7 @@
          "displayName":"FFA Oddball",
          "typeName":"FFA Oddball",
          "SprintEnabled":"0",
+		 "MaxTeamSize":"8",
 		 "SpecificMaps": [  
 		  {  
 			 "displayName":"Standoff",

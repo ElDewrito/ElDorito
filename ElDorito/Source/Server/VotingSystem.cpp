@@ -255,6 +255,7 @@ namespace Server
 			Modules::CommandMap::Instance().ExecuteCommand("Game.GameType \"" + winningOption.haloType.typeName + "\"");
 			Modules::CommandMap::Instance().ExecuteCommand("Game.Map \"" + winningOption.haloMap.mapName + "\"");
 			Modules::CommandMap::Instance().ExecuteCommand("Server.SprintEnabled " + winningOption.haloType.SprintEnabled);
+			Modules::CommandMap::Instance().ExecuteCommand("Server.MaxTeamSize " + winningOption.haloType.MaxTeamSize);
 
 			if (Modules::ModuleServer::Instance().VarServerTeamShuffleEnabled->ValueInt == 1)
 				Modules::CommandMap::Instance().ExecuteCommand("Server.ShuffleTeams");
@@ -512,6 +513,8 @@ namespace Server
 					HaloType ht(c["typeName"].GetString(), c["displayName"].GetString());
 					if (c.HasMember("SprintEnabled"))
 						ht.SprintEnabled = c["SprintEnabled"].GetString();
+					if (c.HasMember("MaxTeamSize"))
+						ht.MaxTeamSize = c["MaxTeamSize"].GetString();
 					if (c.HasMember("SpecificMaps"))
 					{
 						const rapidjson::Value& smaps = c["SpecificMaps"];
