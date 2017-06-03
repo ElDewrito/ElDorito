@@ -23,6 +23,7 @@
 #include "Patches\Equipment.hpp"
 #include "Patches\PlayerRepresentation.hpp"
 #include "Patches\Weapon.hpp"
+#include "Patches\Spectate.hpp"
 #include "DirectXHook.hpp"
 
 
@@ -57,6 +58,7 @@ namespace Patches
 		Equipment::ApplyAll();
 		PlayerRepresentation::ApplyAll();
 		Weapon::ApplyAll();
+		Spectate::ApplyAll();
 		
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not. 
 		bool isdedicated = false;
@@ -92,6 +94,7 @@ namespace Patches
 		Ui::Tick();
 		Sprint::Tick();
 		Forge::Tick();
+		Spectate::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

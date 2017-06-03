@@ -126,9 +126,6 @@ namespace Patches
 			Patch(0x7FC42E, { 0xC3 }).Apply();
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
-			// fix spectating
-			Patch::NopFill(Pointer::Base(0x192FFD), 6);
-
 			Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 		}
 
