@@ -238,7 +238,7 @@ namespace ChatCommands
 		
 		//GET UID
 		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-		uint64_t uid = membership.PlayerSessions[sender].Properties.Uid;
+		uint64_t uid = membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.Uid;
 
 		//check if this player has recently started a vote
 		if (ChatCommands::addToVoteTimes(uid))
@@ -268,7 +268,7 @@ namespace ChatCommands
 		{
 			
 			auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-			uint64_t uid = membership.PlayerSessions[sender].Properties.Uid;
+			uint64_t uid = membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.Uid;
 
 			if (uid == 0)
 				return;
