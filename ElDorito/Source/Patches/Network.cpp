@@ -669,9 +669,6 @@ namespace
 		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
 	}
 
-	// ASCII chars that can't appear in names
-	const wchar_t DisallowedNameChars[] = { '\'', '\"', '<', '>', '/', '\\' };
-
 	void SanitizePlayerName(wchar_t *name)
 	{
 		int i, dest = 0;
@@ -679,19 +676,8 @@ namespace
 		for (i = 0; i < 15 && dest < 15 && name[i]; i++)
 		{
 			auto allowed = false;
-			if (name[i] > 32 && name[i] < 127)
-			{
-				// ASCII characters are allowed if they aren't in the disallowed list
+			if ((name[i] > 39 && name[i] < 42) || (name[i] > 47 && name[i] < 58) || (name[i] > 64 && name[i] < 92) || (name[i] == 93) || (name[i] > 96 && name[i] < 123))
 				allowed = true;
-				for (auto ch : DisallowedNameChars)
-				{
-					if (name[i] == ch)
-					{
-						allowed = false;
-						break;
-					}
-				}
-			}
 			else if (name[i] == ' ' && dest > 0)
 			{
 				// If this isn't at the beginning of the string, indicate that
