@@ -58,9 +58,9 @@
             <label for="cHideHUD">Hide HUD</label><input class="setting" type="checkbox" id="cHideHUD" name="cHideHUD"><br />
             <label for="cSpeed">Camera Speed</label><input class="setting" type="text" id="cSpeed" name="cSpeed"><br />
             <label for="inputRaw">Use Raw Input</label><input class="setting" type="checkbox" id="inputRaw" name="inputRaw"><br />
-            <center>Graphics</center>
-            <label for="gfxSaturation">Saturation</label><input class="setting" type="text" id="gfxSaturation" name="gfxSaturation"><br />
-            <label for="gfxBloom">Bloom</label><input class="setting" type="text" id="gfxBloom"  name="gfxBloom"><br />
+            <label for="iSpectateSens">Spectator Camera Senstivity</label>
+            <input type="text" class="tinySetting" id="iSpectateSensText" name="iSpectateSens" onchange="updateSetting('iSpectateSens', this.value);">
+            <input type="range" min="0" max="2" step="0.1" id="iSpectateSens" name="iSpectateSens" oninput="document.querySelector('#iSpectateSensText').value = this.value;"><br />
         </div>    
 
         <div id="playerSettings">
