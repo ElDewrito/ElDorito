@@ -328,6 +328,8 @@ namespace Blam
 
 			// Gets the network address of a peer.
 			NetworkAddress GetPeerAddress(int peerIndex) const;
+
+			NetworkAddress GetServerIPAddress() const;
 		};
 		static_assert(sizeof(Session) == 0x25BC40, "Invalid c_network_session size");
 

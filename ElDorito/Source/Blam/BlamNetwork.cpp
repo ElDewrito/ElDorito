@@ -148,6 +148,11 @@ namespace Blam
 			return NetworkAddress::FromInAddr(0x0100007F, 11774);
 		}
 
+		NetworkAddress Session::GetServerIPAddress() const
+		{
+			return Observer->Channels[MembershipInfo.PeerChannels[MembershipInfo.HostPeerIndex].ChannelIndex].Address;
+		}
+
 		bool SessionParameters::SetSessionMode(int mode)
 		{
 			typedef bool(__thiscall *SetSessionModePtr)(SessionParameters *thisPtr, int mode);
