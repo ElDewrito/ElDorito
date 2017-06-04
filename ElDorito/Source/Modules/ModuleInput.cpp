@@ -595,6 +595,7 @@ namespace Modules
 		AddCommand("DumpBindingsJson", "dumpbindingsjson", "Dumps the input bindings table in json", eCommandFlagsNone, CommandDumpBindingsJson);
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
+		VarSpectateSensitivity = AddVariableFloat("SpectateSensitivityY", "specsens", "Spectator camera sensitivity", eCommandFlagsArchived, 1.0f);
 
 		VarControllerInvertY = AddVariableInt("ControllerInvertY", "yinvert", "Invert the controller Y look axis", eCommandFlagsArchived, 0);
 		VarControllerInvertY->ValueIntMin = 0;

@@ -20,6 +20,7 @@ namespace Modules
 		Command* VarControllerSensitivityX;
 		Command* VarControllerSensitivityY;
 		Command* VarControllerInvertY;
+		Command* VarSpectateSensitivity;
 
 		Command* CommandBindControllerAction;
 		Command* CommandBindKeyboardAction;

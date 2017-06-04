@@ -1,5 +1,6 @@
 #include "Spectate.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamInput.hpp"
 #include "../Pointer.hpp"
 #include "../Patch.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -7,6 +8,7 @@
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../Utils/String.hpp"
 #include "../ElDorito.hpp"
+#include "../Modules/ModuleInput.hpp"
 #include <cstdint>
 
 namespace
@@ -19,6 +21,7 @@ namespace
 	s_SpectateState;
 
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2);
+	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity);
 
 	void NotifyEnded();
 	void NotifyPlayerChanged(Blam::DatumIndex newPlayerIndex);
@@ -34,6 +37,7 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x192FFD), 6);
 
 			Pointer(0x01671F5C).Write((uint32_t)GameDirectorUpdateHook);
+			Hook(0x32A8D6, GetObserverCameraSensitivityHook, HookFlags::IsCall).Apply();
 		}
 
 		void Tick()
@@ -130,5 +134,21 @@ namespace
 		}
 
 		s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
+	}
+
+	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity)
+	{
+		auto& moduleInput = Modules::ModuleInput::Instance();
+		auto bindings = moduleInput.GetBindings();
+
+		float sens = moduleInput.VarSpectateSensitivity->ValueFloat;
+
+		// the controller defaults are unreasonably sensitive
+		const auto isUsingController = bool(*(uint32_t*)0x0244DE98);
+		if (isUsingController)
+			sens *= 0.05f;
+
+		sensitivity[0] = bindings->ControllerSensitivityX * 0.017453292f * sens;
+		sensitivity[1] = bindings->ControllerSensitivityY * 0.017453292f * sens;
 	}
 }
