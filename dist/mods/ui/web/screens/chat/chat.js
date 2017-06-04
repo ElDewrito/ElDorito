@@ -23,10 +23,13 @@ $(window).load(function(){
     dew.command('Player.Name').then(function(res) {
         playerName = new RegExp("@"+res, "ig");
     });
-    $(document).keydown(function(e){
-        if(e.keyCode === 27) { //ESC
+    $(document).keyup(function (e) {
+        if (e.keyCode === 27) {
             chatboxHide();
-        }else if (e.keyCode === 13){ //Enter
+        }
+    });
+    $(document).keydown(function(e){
+        if (e.keyCode === 13){ //Enter
             dew.sendChat($("#chatBox").val(), isTeamChat);
             $("#chatBox").val("");
             chatboxHide();
