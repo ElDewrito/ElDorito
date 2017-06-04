@@ -14,7 +14,6 @@ namespace
 	struct SpectateState
 	{
 		uint32_t Flags = 0;
-		Blam::DatumIndex LocalUnitObjectIndex;
 		Blam::DatumIndex DirectedPlayerIndex;
 	}
 	s_SpectateState;
@@ -39,7 +38,11 @@ namespace Patches
 
 		void Tick()
 		{
-			auto isMapLoaded = ElDorito::GetMainTls(0x3c)[0](1).Read<uint8_t>();
+			auto gameGlobals = ElDorito::GetMainTls(0x3c)[0];
+			if (!gameGlobals)
+				return;
+
+			auto isMapLoaded = gameGlobals(1).Read<uint8_t>();
 			if (s_SpectateState.Flags & 1 && !isMapLoaded)
 			{
 				s_SpectateState.Flags = 0;
@@ -51,22 +54,23 @@ namespace Patches
 
 namespace
 {
-	void NotifyPlayerChanged(Blam::DatumIndex newPlayerIndex)
+	void NotifyPlayerChanged(Blam::DatumIndex playerDatumIndex)
 	{
 		auto& players = Blam::Players::GetPlayers();
-		auto player = players.Get(newPlayerIndex);
+		auto player = players.Get(playerDatumIndex);
 		if (!player)
 			return;
 
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
+		const auto playerIndex = Pointer(player)(0x24).Read<uint16_t>();
 		const auto playerDisplayName = Utils::String::ThinString(player->Properties.DisplayName);
 		const auto teamIndex = player->Properties.TeamIndex;
 
 		jsonWriter.StartObject();
 		jsonWriter.Key("playerIndex");
-		jsonWriter.Uint(newPlayerIndex);
+		jsonWriter.Uint(playerIndex);
 		jsonWriter.Key("teamIndex");
 		jsonWriter.Uint(teamIndex);
 		jsonWriter.Key("displayName");
@@ -85,7 +89,6 @@ namespace
 	{
 		static auto GameDirectorUpdate = (void(__thiscall*)(void* thisptr, int a2))(0x007219A0);
 		static auto GetLocalPlayerUnitObjectIndex = (uint32_t(__cdecl*)(int localPlayerIndex))(0x00589CC0);
-		static auto GameGetEngine = (void*(__cdecl*)())(0x005CE150);
 
 		GameDirectorUpdate(thisptr, a2);
 
@@ -94,30 +97,38 @@ namespace
 		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
 		auto unitObjectIndex = Blam::DatumIndex(GetLocalPlayerUnitObjectIndex(localPlayerIndex));
 
-		if (GameGetEngine())
+		auto& players = Blam::Players::GetPlayers();
+		auto player = players.Get(playerIndex);
+
+		auto engineGlobals = ElDorito::GetMainTls(0x48)[0];
+
+		if (player && engineGlobals)
 		{
-			if (s_SpectateState.LocalUnitObjectIndex != unitObjectIndex)
+			auto engineState = engineGlobals(0xE108).Read<uint8_t>();
+			auto roundInProgress = engineState == 1;
+
+			if (!s_SpectateState.Flags && unitObjectIndex == Blam::DatumIndex::Null
+				&& player->DeadSlaveUnit != Blam::DatumIndex::Null)
 			{
-				if (unitObjectIndex == Blam::DatumIndex::Null)
-				{
-					s_SpectateState.Flags |= 1;
-					NotifyPlayerChanged(directedPlayerIndex);
-				}
-				else
-				{
-					s_SpectateState.Flags = 0;
-					NotifyEnded();
-				}
+				s_SpectateState.Flags |= 1;
+				NotifyPlayerChanged(directedPlayerIndex);
 			}
 
 			if (s_SpectateState.Flags & 1)
 			{
 				if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
+				{
 					NotifyPlayerChanged(directedPlayerIndex);
-			}
+				}
 
-			s_SpectateState.LocalUnitObjectIndex = unitObjectIndex;
-			s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
+				if (unitObjectIndex != Blam::DatumIndex::Null || !roundInProgress)
+				{
+					s_SpectateState.Flags = 0;
+					NotifyEnded();
+				}
+			}
 		}
+
+		s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
 	}
 }
