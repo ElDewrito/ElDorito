@@ -615,10 +615,18 @@ $(window).load(function () {
 
     dockConsole(1, true); // HACK: Fix default positioning of the console
 
-    $(document).keydown(function (e) {
+    $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            // Hide when escape is pressed
+            // Hide when escape is released (keeps from triggering pause menu)
             dew.hide();
+        }
+    });
+    $(document).keydown(function (e) {
+        if (e.keyCode === 192) {
+            // Hide when tilde is pressed (and text is empty)
+            if($('#command').val().length === 0){
+                dew.hide();
+            }
         }
     });
 

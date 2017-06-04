@@ -149,8 +149,14 @@ var medalDetails = [
 ];
 
 $(window).load(function(){
+    $(document).keyup(function (e) {
+        if (e.keyCode === 27) {
+            $('#playerBreakdown').hide();
+            dew.hide();
+        }
+    });
     $(document).keydown(function(e){
-        if(e.keyCode == 9 || e.keyCode == 27 || e.keyCode == 13){
+        if(e.keyCode == 9|| e.keyCode == 13){
             $('#playerBreakdown').hide();
             dew.hide();
         } 

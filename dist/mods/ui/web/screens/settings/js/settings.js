@@ -118,10 +118,12 @@ var controllerPresets = [
 ];
 
 $(document).ready(function() {
-    $(document).keydown(function(e){
-        if(e.keyCode == 27){
+    $(document).keyup(function (e) {
+        if (e.keyCode === 27) {
             closeBrowser();
-        } 
+        }
+    });
+    $(document).keydown(function(e){
         if(e.keyCode == 192 || e.keyCode == 112){
             dew.show("console");
         }

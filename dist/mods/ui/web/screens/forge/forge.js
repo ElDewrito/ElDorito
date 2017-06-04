@@ -1,15 +1,18 @@
 var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity']];
 
-$("html").on("keydown", function(e) {
-    if (e.which == 27){ //ESC
+$(document).keyup(function (e) {
+    if (e.keyCode === 27) {
+        $('#playerBreakdown').hide();
         dew.hide();
     }
-    if(e.which == 84 || e.which == 89){
+});
+$(document).keydown(function (e) {
+    if(e.keyCode == 84 || e.keyCode == 89){
         var teamChat = false;
-        if(e.which == 89){ teamChat = true };
+        if(e.keyCode == 89){ teamChat = true };
         dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
     }
-    if(e.which == 192 || e.which == 112){
+    if(e.keyCode == 192 || e.keyCode == 112){
         dew.show("console");
     }
 });
