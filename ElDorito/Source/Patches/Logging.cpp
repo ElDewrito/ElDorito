@@ -6,6 +6,7 @@
 #include <fstream>
 #include "../Blam/BlamMemory.hpp"
 #include "../Utils/Logger.hpp"
+#include "Core.hpp"
 
 namespace
 {
@@ -179,7 +180,7 @@ namespace
 		auto DeserializePacketInfo = reinterpret_cast<DeserializePacketInfoPtr>(0x47FFE0);
 		if (!DeserializePacketInfo(thisPtr, stream, packetIdOut, packetSizeOut))
 			return false;
-		
+
 		auto packetTable = Blam::Network::GetPacketTable();
 		if (!packetTable)
 			return true;
@@ -258,7 +259,7 @@ namespace
 		auto modules = GetLoadedModules();
 		for (auto&& module : modules)
 		{
-			if (reinterpret_cast<uint32_t>(except->ExceptionAddress) >= module.second.Address && 
+			if (reinterpret_cast<uint32_t>(except->ExceptionAddress) >= module.second.Address &&
 				reinterpret_cast<uint32_t>(except->ExceptionAddress) < module.second.Address + module.second.Size)
 			{
 				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, "0x%08X - 0x%08X | 0x%08X | %s",
@@ -275,6 +276,8 @@ namespace
 
 		Utils::Logger::Instance().Flush();
 
+		//Attempt to cleanly shutdown subsystems before killing the process
+		Patches::Core::ExecuteShutdownCallbacks();
 		std::exit(0);
 	}
 
@@ -300,7 +303,7 @@ namespace
 			dataArray, allocator, name, maxCount, datumSize, alignmentBits, Blam::CalculateDatumArraySize(maxCount, datumSize, alignmentBits));
 
 		int padding = alignmentBits >= 0x20 ? 1 << alignmentBits : 0;
-		char* data = reinterpret_cast<char*>(~((padding ^ (1 << alignmentBits)) - 1) & 
+		char* data = reinterpret_cast<char*>(~((padding ^ (1 << alignmentBits)) - 1) &
 			reinterpret_cast<unsigned int>(&reinterpret_cast<char*>(dataArray)[(padding ^ (1 << alignmentBits)) + 83]));
 		char* activeIndies = reinterpret_cast<char*>(data + datumSize * maxCount);
 
@@ -324,7 +327,7 @@ namespace
 	{
 		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "InitGlobalPool - Address: 0x%08X, Allocator: 0x%08X, Name: %s, Size: %d",
 			dataPool, allocator, name, size);
-		
+
 		memset(dataPool, 0, sizeof(Blam::DataPoolBase));
 		dataPool->Signature = 'pool';
 		strncpy(dataPool->Name, name, sizeof(dataPool->Name));
@@ -394,7 +397,7 @@ namespace
 			ret
 		}
 	}
-	
+
 	__declspec (naked) void LogSuccessfulPhysicalMemoryAllocationResultHook()
 	{
 		__asm
