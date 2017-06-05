@@ -8,6 +8,7 @@
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
 #include "Server/Rcon.hpp"
+#include "Server/Signaling.hpp"
 #include "Patches/Core.hpp"
 #include "Console.hpp"
 #include "Web/Ui/WebScoreboard.hpp"
@@ -240,6 +241,7 @@ void ElDorito::Initialize()
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
+	Server::Signaling::Initialize();
 
 	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
 	{

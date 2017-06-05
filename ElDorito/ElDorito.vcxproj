@@ -100,6 +100,7 @@
     <ClCompile Include="Source\Server\DedicatedServer.cpp" />
     <ClCompile Include="Source\Server\Rcon.cpp" />
     <ClCompile Include="Source\Server\ServerChat.cpp" />
+    <ClCompile Include="Source\Server\Signaling.cpp" />
     <ClCompile Include="Source\Server\VariableSynchronization.cpp" />
     <ClCompile Include="Source\Server\VotingPackets.cpp" />
     <ClCompile Include="Source\Server\VotingSystem.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Source\Server\DedicatedServer.hpp" />
     <ClInclude Include="Source\Server\Rcon.hpp" />
     <ClInclude Include="Source\Server\ServerChat.hpp" />
+    <ClInclude Include="Source\Server\Signaling.hpp" />
     <ClInclude Include="Source\Server\VariableSynchronization.hpp" />
     <ClInclude Include="Source\Server\VotingPackets.hpp" />
     <ClInclude Include="Source\Server\VotingSystem.hpp" />

@@ -324,6 +324,9 @@
     <ClCompile Include="Source\Patches\RawInput.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Server\Signaling.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -860,6 +863,9 @@
     </ClInclude>
     <ClInclude Include="Source\Blam\Math\MathUtil.hpp" />
     <ClInclude Include="Source\Patches\Audio.hpp" />
+    <ClInclude Include="Source\Server\Signaling.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

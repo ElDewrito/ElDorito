@@ -18,6 +18,7 @@
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Console.hpp"
+#include "../Server/Signaling.hpp"
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
@@ -1037,6 +1038,35 @@ namespace
 		Server::Chat::SendServerMessage(message);
 		return true;
 	}
+
+	bool CommandWebsocketInfo(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto *session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+		{
+			returnInfo = "No session available";
+			return false;
+		}
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		
+		writer.StartObject();
+		writer.Key("server");
+		std::string ip = "";
+		if (!session->GetServerIPAddress().ToString().compare("0.0.0.0"))
+			ip = "127.0.0.1:" + std::to_string(Server::Signaling::GetPort());
+		else
+			ip = session->GetServerIPAddress().ToString() + ":" + std::to_string(Server::Signaling::GetPort());
+		writer.String(ip.c_str());
+
+		writer.Key("password");
+		writer.String(Server::Signaling::GetPassword().c_str());
+		writer.EndObject();
+		
+		returnInfo = buffer.GetString();
+		return true;
+	}
 }
 
 namespace Modules
@@ -1201,6 +1231,11 @@ namespace Modules
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
 
+		AddCommand("WebsocketInfo", "websocketinfo", "Display the websocket password for the current server", eCommandFlagsNone, CommandWebsocketInfo);
+
+		VarSignalServerPort = AddVariableInt("SignalServerPort", "signalserverport", "The port the signaling server will listen on", eCommandFlagsNone, 9090);
+		VarSignalServerPort->ValueIntMin = 0;
+		VarSignalServerPort->ValueIntMax = 65535;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG

@@ -55,6 +55,7 @@ namespace Modules
 		Command* VarPlayersInfoClient;
 		Command* VarPlayerInfoEndpoint;
 		Command* VarMaxTeamSize;
+		Command* VarSignalServerPort;
 		uint8_t SyslinkData[0x176];
 
 		ModuleServer();

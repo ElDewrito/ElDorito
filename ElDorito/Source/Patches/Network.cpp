@@ -21,6 +21,9 @@
 #include "../Server/VotingSystem.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
+#include "../Server/Signaling.hpp"
+
+#include "../Console.hpp"
 
 namespace
 {
@@ -45,6 +48,7 @@ namespace
 	char __fastcall Network_session_join_remote_sessionHook(void* thisPtr, int unused, char a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, void *a12, int a13, int a14);
 	int __fastcall Network_session_initiate_leave_protocolHook(void* thisPtr, int unused, char forceClose);
 	int __fastcall Network_session_parameters_clearHook(void* thisPtr, int unused);
+	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	void PongReceivedHook();
@@ -400,6 +404,9 @@ namespace Patches
 
 			Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
 			Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
+
+			//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
+			Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
 		}
 
 		void ForceHeadless()
@@ -544,10 +551,12 @@ namespace
 		if (isOnline == 1)
 		{
 			Patches::Network::StartInfoServer();
+			Server::Signaling::StartServer();
 		}
 		else
 		{
 			Patches::Network::StopInfoServer();
+			Server::Signaling::StopServer();
 		}
 
 		return retval;
@@ -710,7 +719,10 @@ namespace
 		if (properties->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
 			memcpy(reinterpret_cast<wchar_t*>(data), properties->DisplayName, sizeof(properties->DisplayName));
 		else
+		{
 			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
+			Server::Signaling::SendPeerPassword(playerIndex);
+		}
 
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
@@ -869,6 +881,7 @@ namespace
 	char __fastcall Network_state_leaving_enterHook(void* thisPtr, int unused, int a2, int a3, int a4)
 	{
 		Patches::Network::StopInfoServer();
+		Server::Signaling::StopServer();
 
 		typedef char(__thiscall *Network_state_leaving_enterFunc)(void* thisPtr, int a2, int a3, int a4);
 		Network_state_leaving_enterFunc Network_state_leaving_enter = reinterpret_cast<Network_state_leaving_enterFunc>(0x4933E0);
@@ -1057,5 +1070,17 @@ namespace
 		}
 
 		return acc;
+	}
+
+	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex)
+	{
+		if (membership->HostPeerIndex == membership->LocalPeerIndex)
+		{
+			Server::Signaling::RemovePeer(peerIndex);
+		}
+
+		typedef int(__thiscall *Network_session_remove_peerFunc)(Blam::Network::SessionMembership *membership, int peerIndex);
+		Network_session_remove_peerFunc Network_session_remove_peer = reinterpret_cast<Network_session_remove_peerFunc>(0x4500D0);
+		return Network_session_remove_peer(membership, peerIndex);
 	}
 }
