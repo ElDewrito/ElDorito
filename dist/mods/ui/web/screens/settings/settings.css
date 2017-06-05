@@ -60,6 +60,7 @@ label {
     position: absolute;
     top: 4.3365vh;
     height: 45.135vh;
+    overflow:hidden;
 }
 #windowHeader {
     padding: 0.885vh 27px 20px 15px;
@@ -401,11 +402,20 @@ input[type=range]:focus, input[type=checkbox]:focus {
 
 .selected{
     background-color:#B1572A;
-    width:35.2vw;
+    width:36vw;
     z-index:-5;
     position:absolute;
-    margin-left:-1.5vw;
-    padding-left:1.5vw;
+    margin-left:-2vw;
+    padding-left:2vw;
     margin-top:0vw;
     height:1.9vw;
+}
+
+#presets .selected{
+    position:relative;
+    width:inherit;
+    top:-0.3vw;
+    padding-top:0.2vw;
+    padding-right:21vw;
+    margin-right:-21vw;
 }

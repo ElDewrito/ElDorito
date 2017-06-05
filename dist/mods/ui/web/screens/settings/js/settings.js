@@ -333,9 +333,18 @@ function showController(){
     if (!controllerShown){
         $("#controllerSettings").css("display", "block");
         controllerShown = true;
+        if(hasGP){
+            $('.selected').removeClass();
+            $('#presets label').addClass('selected');
+            selectedItem = "presetMenu";
+            selectedItemType = $('#'+selectedItem).getInputType();
+        }
     } else {
         $("#controllerSettings").css("display", "none");
         controllerShown = false;
+        if(hasGP){
+            updateSelection(0);
+        }
     }
 }
 
@@ -497,10 +506,14 @@ function leftToggle(){
         if(elementIndex > 0){
             var newElement = elementIndex - 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
-            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+            if(selectedItem == 'presetMenu'){
+                applyBindString($('#'+selectedItem).val());
+            } else {
+                updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+            }
         }
     }
-    if(selectedItemType = "range"){
+    if(selectedItemType = "range" && selectedItem != "presetMenu"){
         document.getElementById(selectedItem).stepDown();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
     }        
@@ -513,24 +526,28 @@ function rightToggle(){
         if(elementIndex < elementLength){
             var newElement = elementIndex + 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
-            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+            if(selectedItem == 'presetMenu'){
+                applyBindString($('#'+selectedItem).val());
+            } else {
+                updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+            }
         }
     }
-    if(selectedItemType = "range"){
+    if(selectedItemType = "range" && selectedItem != "presetMenu"){
         document.getElementById(selectedItem).stepUp();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
     }        
 }
 
 function prevPage(){
-    var tabLength = $('.tabs li').length-2;
+    var tabLength = $('.tabs li').length-1;
     if(tabIndex > 0){
         $('.tabs li a').eq(tabIndex-1).click();
     }        
 }
 
 function nextPage(){
-    var tabLength = $('.tabs li').length-2;
+    var tabLength = $('.tabs li').length-1;
     if(tabIndex < tabLength){
         $('.tabs li a').eq(tabIndex+1).click();
     }        
