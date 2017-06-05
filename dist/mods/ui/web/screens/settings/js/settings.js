@@ -117,10 +117,16 @@ var controllerPresets = [
     ["Halo 5 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB"]
 ];
 
+var activePage;
+var selectedItem;
+var selectedItemType;
+var itemNumber = 0;
+var tabIndex = 0;
+
 $(document).ready(function() {
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            closeBrowser();
+            closeSettings();
         }
     });
     $(document).keydown(function(e){
@@ -194,6 +200,21 @@ $(document).ready(function() {
     });
     loadSettings(0);
     initializeBindings();
+    activePage = window.location.hash;
+    if(hasGP){
+        updateSelection(itemNumber);
+    }
+    $('.tabs li a:not(:eq(3))').click(function(e){
+        window.location.href = e.target.href;
+        activePage = e.target.hash;
+        itemNumber = 0;
+        $(e).ready(function(){
+            if(hasGP){
+                updateSelection(0);
+            }
+            tabIndex = $('.tabs li a').index($("a[href='"+activePage+"']"));
+        });
+    });
 });
 
 function loadSettings(i) {
@@ -242,7 +263,10 @@ function updateSetting(setting, value){
     });
 }
 
-function closeBrowser() {
+function closeSettings() {
+    if(controllerShown){
+        showController();
+    }
     dew.hide();
 }
 
@@ -372,17 +396,6 @@ function updateSensitivity(value){
     });
 }
 
-function buttonAction(i){
-    switch (i) {
-        case 1: // B
-        case 9: // Start
-            closeBrowser();
-            break;
-        default:
-            // console.log("nothing associated with " + i);
-    }  
-}
-
 function getCurrentBindString(){
     var currentBinds = "";
     for(var i = 0; i < binds.length; i++) {
@@ -393,4 +406,143 @@ function getCurrentBindString(){
         }
     }
     console.log(currentBinds.slice(0, -1));
+}
+
+function updateSelection(item){
+    $('.selected').removeClass();
+    $(activePage + " label").eq(item).addClass('selected');
+    selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
+    selectedItemType = $('#'+selectedItem).getInputType();
+}
+
+$.fn.getInputType = function () {
+    return this[0].tagName.toString().toLowerCase() === "input" ?
+        $(this[0]).attr("type").toLowerCase() : this[0].tagName.toLowerCase();
+};
+
+function buttonAction(i){
+    switch (i) {
+        case 0: // A
+            toggleSetting();
+            break;
+        case 1: // B
+            if(controllerShown){
+                showController();
+            }else{
+                closeSettings();
+            }
+            break;
+        case 12: // Up
+            upNav();
+            break;
+        case 13: // Down
+            downNav();
+            break;
+        case 14: // Left
+            leftToggle();
+            break;
+        case 15: // Right
+            rightToggle();
+            break;
+        case 4: // LB
+            prevPage();
+            break;
+        case 5: // RB
+            nextPage();
+            break;
+        default:
+            console.log("nothing associated with " + i);
+    }  
+}
+
+function stickAction(direction, x){
+    if(x<2){//left stick
+        if(x==0 && direction=="+"){//LS Right
+            rightToggle();
+        }else if(x==0 && direction=="-"){//LS Left
+            leftToggle();
+        }else if(x==1 && direction=="+"){//LS Down
+            downNav();
+        }else if(x==1 && direction=="-"){//LS Up
+            upNav();
+        }
+    }
+}
+
+function onControllerConnect(){
+    updateSelection(itemNumber);
+}
+
+function onControllerDisconnect(){
+    $('.selected').removeClass(); 
+}
+
+function upNav(){
+    if(itemNumber > 0){
+        itemNumber--;
+        updateSelection(itemNumber);
+    }
+}
+
+function downNav(){
+    if(itemNumber < $(activePage + ' label').length-1){
+        itemNumber++;
+        updateSelection(itemNumber);
+    }           
+}
+
+function leftToggle(){
+    if(selectedItemType = "select"){
+        var elementIndex = $('#'+selectedItem+' option:selected').index();
+        if(elementIndex > 0){
+            var newElement = elementIndex - 1;
+            $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
+            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        }
+    }
+    if(selectedItemType = "range"){
+        document.getElementById(selectedItem).stepDown();
+        document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
+    }        
+}
+
+function rightToggle(){
+    if(selectedItemType = "select"){
+        var elementIndex = $('#'+selectedItem+' option:selected').index();
+        var elementLength = $('#'+selectedItem).children('option').length;
+        if(elementIndex < elementLength){
+            var newElement = elementIndex + 1;
+            $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
+            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        }
+    }
+    if(selectedItemType = "range"){
+        document.getElementById(selectedItem).stepUp();
+        document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
+    }        
+}
+
+function prevPage(){
+    var tabLength = $('.tabs li').length-2;
+    if(tabIndex > 0){
+        $('.tabs li a').eq(tabIndex-1).click();
+    }        
+}
+
+function nextPage(){
+    var tabLength = $('.tabs li').length-2;
+    if(tabIndex < tabLength){
+        $('.tabs li a').eq(tabIndex+1).click();
+    }        
+}
+
+function toggleSetting(){
+    if(selectedItemType = 'checkbox'){
+        if(document.getElementById(selectedItem).checked){
+            document.getElementById(selectedItem).checked = false;
+        }else{
+            document.getElementById(selectedItem).checked = true;
+        }
+        updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+    }        
 }

@@ -398,3 +398,14 @@ input[type=range]:focus, input[type=checkbox]:focus {
         zoom: 80%;
     }
 }
+
+.selected{
+    background-color:#B1572A;
+    width:35.2vw;
+    z-index:-5;
+    position:absolute;
+    margin-left:-1.5vw;
+    padding-left:1.5vw;
+    margin-top:0vw;
+    height:1.9vw;
+}
