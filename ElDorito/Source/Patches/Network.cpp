@@ -23,8 +23,6 @@
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Server/Signaling.hpp"
 
-#include "../Console.hpp"
-
 namespace
 {
 	char* Network_GetIPStringFromInAddr(void* inaddr);
