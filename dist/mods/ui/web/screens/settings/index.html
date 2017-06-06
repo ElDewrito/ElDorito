@@ -49,6 +49,7 @@
             <label for="gExpandScoreboard">Always Expand Scoreboard</label><input class="setting" type="checkbox" id="gExpandScoreboard" name="gExpandScoreboard"><br />
             <label for="gHideChat">Hide Chat</label><input class="setting" type="checkbox" id="gHideChat" name="gHideChat"><br />
             <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label><input class="setting" type="checkbox" id="gSuppressJuggling" name="gSuppressJuggling"><br />
+            <center>Visuals</center>
             <label for="cCenteredCrosshair">Centered Crosshair</label><input class="setting" type="checkbox" id="cCenteredCrosshair" name="cCenteredCrosshair"><br />
             <label for="cFOV">Screen FOV</label>
             <input type="text" class="tinySetting" id="cFOVText" name="cFOV" onchange="updateSetting('cFOV', this.value);">
@@ -56,8 +57,9 @@
             <br />
 			<label for="wOffsetConfig">Viewmodel Config</label><input class="setting" type="text" id="wOffsetConfig" name="wOffsetConfig"><br />
             <label for="cHideHUD">Hide HUD</label><input class="setting" type="checkbox" id="cHideHUD" name="cHideHUD"><br />
-            <label for="cSpeed">Camera Speed</label><input class="setting" type="text" id="cSpeed" name="cSpeed"><br />
+            <center>Input</center>
             <label for="inputRaw">Use Raw Input</label><input class="setting" type="checkbox" id="inputRaw" name="inputRaw"><br />
+            <label for="inputRaw">Disable Sprint (for just you)</label><input class="setting" type="checkbox" id="iDisableSprint" name="iDisableSprint"><br />
             <label for="iSpectateSens">Spectator Camera Senstivity</label>
             <input type="text" class="tinySetting" id="iSpectateSensText" name="iSpectateSens" onchange="updateSetting('iSpectateSens', this.value);">
             <input type="range" min="0" max="2" step="0.1" id="iSpectateSens" name="iSpectateSens" oninput="document.querySelector('#iSpectateSensText').value = this.value;"><br />

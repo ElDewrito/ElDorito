@@ -419,3 +419,9 @@ input[type=range]:focus, input[type=checkbox]:focus {
     padding-right:21vw;
     margin-right:-21vw;
 }
+
+center{
+    font-size: 2vh;
+    margin-top:0.25vw;
+    text-transform: uppercase;
+}
