@@ -601,6 +601,8 @@ namespace Modules
 		VarControllerInvertY->ValueIntMin = 0;
 		VarControllerInvertY->ValueIntMax = 1;
 
+		VarToggleSprint = AddVariableInt("ToggleSprint", "toggle_sprint", "Sprint toggle enabled (1) or disabled (0)", eCommandFlagsArchived, 0);
+
 		LoadDefaultBindings();
 		BuildSettingsMenu();
 

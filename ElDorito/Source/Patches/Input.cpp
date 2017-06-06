@@ -6,6 +6,7 @@
 #include "../Patch.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/BlamObjects.hpp"
+#include "../Blam/BlamPlayers.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Console.hpp"
 #include "../ElDorito.hpp"
@@ -405,7 +406,11 @@ namespace
 		static auto LocalPlayerInputHook = (void(__cdecl*)(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state))(0x5D0C90);
 		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
 
-		auto bindings = Modules::ModuleInput::Instance().GetBindings();
+		static bool s_SprintToggled = false;
+		static bool s_ConsumablesLocked = false;
+
+		auto& moduleInput = Modules::ModuleInput::Instance();
+		auto bindings = moduleInput.GetBindings();
 
 		auto isDualWielding = IsDualWielding();
 		auto isUsingController = *(bool*)0x0244DE98;
@@ -425,8 +430,28 @@ namespace
 
 		LocalPlayerInputHook(localPlayerIndex, playerIndex, a3, a4, a5, state);
 
-		static bool s_ConsumablesLocked = false;
+		if (moduleInput.VarToggleSprint->ValueInt)
+		{		
+			if (s_SprintToggled)
+			{
+				auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+				auto& players = Blam::Players::GetPlayers();
+				auto player = players.Get(playerIndex);
+				if (player)
+				{
+					auto ticksSprinting = Pointer(player)(0x2CE4).Read<uint16_t>();
+					if (ticksSprinting == 0)
+						s_SprintToggled = false;
+				}
+			}
 
+			if (GetActionState(eGameActionSprint)->Ticks == 1)
+				s_SprintToggled = !s_SprintToggled;
+
+			if (s_SprintToggled)
+				*(uint32_t *)(state + 0x18) |= 0x100u;
+		}
+	
 		if (*(uint32_t*)(state + 0x18) & 0x10)
 		{
 			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
