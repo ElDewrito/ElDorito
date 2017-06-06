@@ -6,11 +6,11 @@ html {
 }
 label {
     float: left;
-    font-size: 2.478vh;
+    font-size: 2.5vh;
 }
 .tabs {
     float: right;
-    left: 27.8775vh;
+    left: 28vh;
     top: 0.708vh;
     list-style: none;
     padding: 0;
@@ -46,7 +46,7 @@ label {
     font-size: 2.655vh;
     line-height: 3.0975vh;  
     right:5%;
-    top:44%
+    top:38%
 }
 #settingsWindow div{
     width: 100%;
@@ -59,7 +59,7 @@ label {
     padding-top: 15px;
     position: absolute;
     top: 4.3365vh;
-    height: 45.135vh;
+    height: 50vh;
     overflow:hidden;
 }
 #windowHeader {

@@ -234,6 +234,9 @@ function loadSettings(i) {
                         $("input[name='"+settingsToLoad[i][0]+"']").prop('checked', true);
                     }                
                 }else{
+                    if($("input[name='"+settingsToLoad[i][0]+"']").hasClass('tinySetting')){
+                        response = parseFloat(response);
+                    }
                     $("input[name='"+settingsToLoad[i][0]+"']").val(response);
                 }
                 $("select[name='"+settingsToLoad[i][0]+"']").val(response);
