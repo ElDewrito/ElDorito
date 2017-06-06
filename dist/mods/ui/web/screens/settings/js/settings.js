@@ -119,7 +119,6 @@ var controllerPresets = [
 
 var activePage;
 var selectedItem;
-var selectedItemType;
 var itemNumber = 0;
 var tabIndex = 0;
 
@@ -337,7 +336,6 @@ function showController(){
             $('.selected').removeClass();
             $('#presets label').addClass('selected');
             selectedItem = "presetMenu";
-            selectedItemType = $('#'+selectedItem).getInputType();
         }
     } else {
         $("#controllerSettings").css("display", "none");
@@ -421,7 +419,6 @@ function updateSelection(item){
     $('.selected').removeClass();
     $(activePage + " label").eq(item).addClass('selected');
     selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
-    selectedItemType = $('#'+selectedItem).getInputType();
 }
 
 $.fn.getInputType = function () {
@@ -501,7 +498,7 @@ function downNav(){
 }
 
 function leftToggle(){
-    if(selectedItemType = "select"){
+    if($('#'+selectedItem).getInputType() == "select"){
         var elementIndex = $('#'+selectedItem+' option:selected').index();
         if(elementIndex > 0){
             var newElement = elementIndex - 1;
@@ -513,14 +510,15 @@ function leftToggle(){
             }
         }
     }
-    if(selectedItemType = "range" && selectedItem != "presetMenu"){
+    if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepDown();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
+        updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
     }        
 }
 
 function rightToggle(){
-    if(selectedItemType = "select"){
+    if($('#'+selectedItem).getInputType() == "select"){
         var elementIndex = $('#'+selectedItem+' option:selected').index();
         var elementLength = $('#'+selectedItem).children('option').length;
         if(elementIndex < elementLength){
@@ -533,9 +531,10 @@ function rightToggle(){
             }
         }
     }
-    if(selectedItemType = "range" && selectedItem != "presetMenu"){
+    if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepUp();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
+        updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
     }        
 }
 
@@ -554,7 +553,7 @@ function nextPage(){
 }
 
 function toggleSetting(){
-    if(selectedItemType = 'checkbox'){
+    if($('#'+selectedItem).getInputType() == 'checkbox'){
         if(document.getElementById(selectedItem).checked){
             document.getElementById(selectedItem).checked = false;
         }else{
