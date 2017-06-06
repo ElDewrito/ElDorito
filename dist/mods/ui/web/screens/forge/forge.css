@@ -8,7 +8,7 @@ html {
 }
 
 #forgeControls {
-    width: 59.7375vh;
+    width: 50vh;
     margin-bottom: 0;
     opacity: 0.85;
     position: absolute;
@@ -18,6 +18,7 @@ html {
     top:84%;
     background: rgba(20, 35, 74, 0.69);
     padding: 1.5vh;
+    overflow:hidden;
 }
 
 .header {
@@ -47,7 +48,7 @@ html {
     color: #474747;
 }
 .tinySetting {
-    width: 9vh; 
+    width: 8vh; 
     position: absolute;
     right: 1vw;
     margin-top: 0.354vh; 
@@ -66,8 +67,8 @@ input.setting {
 input[type=range] {
     -webkit-appearance: none;
     position: absolute;
-    right: 12vh;
-    width: 20.355vh;
+    right: 10vh;
+    width: 18vh;
     margin-right: 0.885vh;
     margin-top: 1.45vh;
     height: 0.4425vh;
@@ -122,4 +123,32 @@ button.close {
 }
 button:hover{
     background-color: #B1572A;    
+}
+
+
+.selected{
+    background-color:#B1572A;
+    width:40vw;
+    z-index:-5;
+    position:relative;
+    margin-left:-2vw;
+    padding-left:2vw;
+    height:2.2vw;
+    padding-right:40vw;
+    margin-right:-40vw;
+}
+
+button img{
+    display:none;
+    width: 1.75vw;
+    margin-top:-2vw;
+    position:relative;
+    top:0.5vw;
+    margin-right:-0.25vw;
+}
+
+center{
+    font-size: 2vh;
+    margin-top:0.25vw;
+    text-transform: uppercase;
 }

@@ -4,6 +4,7 @@
         <title>Forge</title>
         <link rel="stylesheet" type="text/css" href="forge.css" />
         <script src="dew://lib/dew.js"></script>
+        <script src="dew://lib/gamepad.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
         <script src="dew://lib/jquery-ui.js"></script>
         <script src="forge.js"></script>
@@ -15,28 +16,23 @@
     </head>
     <body>
         <div id="forgeControls">
-            <div class="header">Advanced Forge Controls<br />Object Cloning<button class="close" onclick="closeBrowser();">X</button></div>
+            <div class="header">Advanced Forge Controls<button class="close" onclick="closeBrowser();">X</button></div>
+            <center>Object Cloning</center>
             <label for="fCloneDepth">Clone Depth</label>
             <input type="text" class="tinySetting" id="fCloneDepthText" name="fCloneDepth">
-            <input type="range" min="0" max="5" step="0.1" id="fCloneDepth" name="fCloneDepth" oninput="document.querySelector('#fCloneDepthText').value = this.value;">
-            <br />
+            <input type="range" min="0" max="5" step="0.1" id="fCloneDepth" name="fCloneDepth" oninput="document.querySelector('#fCloneDepthText').value = this.value;"><br />
             <label for="fCloneMultiplier">Clone Multiplier</label>
             <input type="text" class="tinySetting" id="fCloneMultiplierText" name="fCloneMultiplier">
-            <input type="range" min="1" max="64" step="1" id="fCloneMultiplier" name="fCloneMultiplier" oninput="document.querySelector('#fCloneMultiplierText').value = this.value;">
-            <br />
-			<p></p>
-			<div class="header">Object Rotation</div>
+            <input type="range" min="1" max="64" step="1" id="fCloneMultiplier" name="fCloneMultiplier" oninput="document.querySelector('#fCloneMultiplierText').value = this.value;"><br />
+			<center>Object Rotation</center>
             <label for="fRotationSnap">Rotation Snap</label>
             <input type="text" class="tinySetting" id="fRotationSnapText" name="fRotationSnap">
-            <input type="range" min="0" max="355" step="1" id="fRotationSnap" name="fRotationSnap" oninput="document.querySelector('#fRotationSnapText').value = this.value;">
-            <br />
+            <input type="range" min="0" max="355" step="1" id="fRotationSnap" name="fRotationSnap" oninput="document.querySelector('#fRotationSnapText').value = this.value;"><br />
             <label for="fRotationSens">Rotation Sensitivity</label>
             <input type="text" class="tinySetting" id="fRotationSensText" name="fRotationSens">
-            <input type="range" min="1" max="5" step="0.1" id="fRotationSens" name="fRotationSens" oninput="document.querySelector('#fRotationSensText').value = this.value;">
-            <br />
-			<p></p>
-			<div class="header">Object Deletion</div>
-			<div><button onclick="dew.command('Forge.Canvas')">Clear Canvas</button> <button onclick="dew.command('Forge.DeleteAll')">Delete All</button></div>
+            <input type="range" min="1" max="5" step="0.1" id="fRotationSens" name="fRotationSens" oninput="document.querySelector('#fRotationSensText').value = this.value;"><br />
+			<center>Object Deletion</center>
+			<div><button onclick="">Clear Canvas<img src="dew://assets/buttons/XboxOne_X.png"></button> <button onclick="dew.command('Forge.DeleteAll')">Delete All<img src="dew://assets/buttons/XboxOne_Y.png"></button></div>
         </div>
     </body>
 </html>
