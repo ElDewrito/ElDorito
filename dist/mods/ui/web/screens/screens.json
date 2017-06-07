@@ -72,6 +72,12 @@
 			"url": "dew://screens/spectate/",
 			"captureInput": false,
 			"zIndex": -5
+		},
+		{
+			"id": "voip",
+			"url": "dew://screens/voip/",
+			"captureInput": false,
+			"zIndex": 2
 		}
 	]
 }

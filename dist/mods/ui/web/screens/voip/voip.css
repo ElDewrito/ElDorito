@@ -1,0 +1,14 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html {
+    font-family: "Conduit ITC", sans-serif;
+    overflow: hidden;
+	color: white;
+	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+	font-size: 150%;
+}
+
+video {
+	height: 0%;
+	width: 0%;
+}
