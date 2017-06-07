@@ -622,7 +622,7 @@ $(window).load(function () {
         }
     });
     $(document).keydown(function (e) {
-        if (e.keyCode === 192) {
+        if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
             // Hide when tilde is pressed (and text is empty)
             if($('#command').val().length === 0){
                 dew.hide();

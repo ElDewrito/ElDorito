@@ -9,7 +9,7 @@ $("html").on("keydown", function(e) {
         if(e.which == 89){ teamChat = true };
         dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
     }
-    if(e.which == 192 || e.which == 112){
+    if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
     }
 });

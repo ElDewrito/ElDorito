@@ -16,7 +16,7 @@ $(document).keydown(function (e) {
         if(e.keyCode == 89){ teamChat = true };
         dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
     }
-    if(e.keyCode == 192 || e.keyCode == 112){
+    if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
     }
 });
