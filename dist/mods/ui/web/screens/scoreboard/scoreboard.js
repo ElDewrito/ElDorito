@@ -4,6 +4,7 @@ var cardOpacity = 0.9;
 var medalsPath = 'medals://';
 capturedInput = false;
 var imageFormat = 'svg';
+var itemNumber = 0;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -262,6 +263,9 @@ function displayScoreboard(expandedScoreboard){
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
+    if(hasGP){
+        updateSelection(itemNumber);
+    }
 }
 
 function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard){
@@ -608,16 +612,88 @@ function onControllerConnect(){
 
 function onControllerDisconnect(){
     $('#closeButton').css('padding-right', '0');  
-    $('#closeButton .button').hide();    
+    $('#closeButton .button').hide();   
+    if($('.clickable').length){
+        for(var i = 0; i < $('.clickable').length; i++) {
+            $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
+        }
+    }    
 }
 
 function buttonAction(i){
     switch (i) {
+        case 0: // A
+            if(!$('#playerBreakdown').is(":visible")){
+                $('.clickable').eq(itemNumber).click();
+            }
+            break;
+        case 1: // B
+            if($('#playerBreakdown').is(":visible")){
+                $('#playerBreakdown').hide();
+            } else {
+               dew.hide(); 
+            }
+            break;
+        case 4: // LB
+            if($('#playerBreakdown').is(":visible")){
+                $('#previousPlayer').click();
+            }
+            break;
+        case 5: // RB
+            if($('#playerBreakdown').is(":visible")){
+                $('#nextPlayer').click();
+            }
+            break;
         case 9: // Start    
             $('#playerBreakdown').hide();
             dew.hide();
             break;
+        case 12: // Up
+            upNav();
+            break;
+        case 13: // Down
+            downNav();
+            break;
         default:
-            console.log("nothing associated with " + i);
+            //console.log("nothing associated with " + i);
     }  
+}
+
+function stickAction(direction, x){
+    if(x<2){//left stick
+        if(x==0 && direction=="+"){//LS Right
+
+        }else if(x==0 && direction=="-"){//LS Left
+
+        }else if(x==1 && direction=="+"){//LS Down
+            downNav();
+        }else if(x==1 && direction=="-"){//LS Up
+            upNav();
+        }
+    }
+}
+
+function updateSelection(item){
+    if($('.clickable').length){
+        for(var i = 0; i < $('.clickable').length; i++) {
+            $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
+        }
+    }
+    col = $("[data-playerIndex='" + item+ "']").attr('data-color'),
+    bright = adjustColor(col, 30);
+    $("[data-playerIndex='" + item + "']").css("background-color", hexToRgb(bright, cardOpacity));
+}
+
+function upNav(){
+    if(itemNumber > 0){
+        itemNumber--;
+        updateSelection(itemNumber);
+    }
+}
+
+function downNav(){
+    if(itemNumber < $('.clickable').length-1){
+        itemNumber++;
+        updateSelection(itemNumber);
+    }           
 }
