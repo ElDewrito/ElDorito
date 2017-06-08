@@ -1129,7 +1129,7 @@ namespace Modules
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
 
 		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8);
-		VarMaxTeamSize->ValueIntMin = 1;
+		VarMaxTeamSize->ValueIntMin = 2;
 		VarMaxTeamSize->ValueIntMax = 16;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);

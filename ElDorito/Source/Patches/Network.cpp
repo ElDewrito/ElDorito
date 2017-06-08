@@ -710,6 +710,7 @@ namespace
 	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *data, uint32_t arg10)
 	{
 		auto properties = &thisPtr->PlayerSessions[playerIndex].Properties;
+		bool isNewMember = false;
 
 		// If the player already has a name and isn't host, then use that instead of the one in the packet
 		// This prevents people from changing their name mid-game by forcing a player properties update
@@ -720,12 +721,62 @@ namespace
 		{
 			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
 			Server::Signaling::SendPeerPassword(playerIndex);
+			isNewMember = true;
 		}
 
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
 		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
 		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
+
+		if (isNewMember)
+		{
+			//team balancing
+			auto session = Blam::Network::GetActiveSession();
+			auto prop = &session->MembershipInfo.PlayerSessions[playerIndex].Properties;
+			if (session->HasTeams())
+			{
+				int teamSizes[8] = { 0 };
+				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				std::stringstream ss;
+				while (playerIdx > -1)
+				{
+					teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+				}
+				teamSizes[prop->TeamIndex]--; //ignore one place for the default team they were placed on
+
+				//check joining teams size
+				if (teamSizes[prop->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+				{
+					int smallest = Blam::Network::MaxPlayers + 1;
+					int smallIndex = 0;
+					for (int i = 0; i < 8; i++)
+					{
+						if (teamSizes[i] != 0 && teamSizes[i] < smallest)
+						{
+							smallest = teamSizes[i];
+							smallIndex = i;
+						}
+					}
+
+					//put us on a new team since others are full
+					if (smallest >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+					{
+						for (int i = 0; i < 8; i++)
+						{
+							if (teamSizes[i] == 0)
+							{
+								smallIndex = i;
+								break;
+							}
+						}
+					}
+					prop->ClientProperties.TeamIndex = smallIndex;
+					session->MembershipInfo.Update();
+				}
+			}
+		}
 
 		// Apply the extended properties
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
