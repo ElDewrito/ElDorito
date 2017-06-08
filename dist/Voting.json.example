@@ -45,12 +45,12 @@
       {  
          "displayName":"Team King",
          "typeName":"Team Crazy King",
-         "SprintEnabled":"0"
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
 	  {  
          "displayName":"Team SWAT",
          "typeName":"Team SWAT",
-         "SprintEnabled":"0",
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"],
 		  "SpecificMaps":[  
             {  
                "displayName":"Valhalla",
@@ -77,32 +77,32 @@
       {  
          "displayName":"Team Snipers",
          "typeName":"Team Snipers",
-         "SprintEnabled":"0" 
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
       {
          "displayName":"Team BRs",
          "typeName":"Team BRs",
-         "SprintEnabled":"0"
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
       {  
          "displayName":"Team BRs",
          "typeName":"Team BRs",
-         "SprintEnabled":"0"
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
       {  
          "displayName":"Team DMRs",
          "typeName":"Team DMRs",
-         "SprintEnabled":"0"
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
       {  
          "displayName":"Team Fiesta",
          "typeName":"Team Fiesta",
-         "SprintEnabled":"0"
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"]
       },
       {  
          "displayName":"Multi Flag",
          "typeName":"Team CTF",
-         "SprintEnabled":"0",
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"],
 		 "SpecificMaps":[  
             {  
                "displayName":"Sandtrap",
@@ -133,7 +133,7 @@
       {  
          "displayName":"FFA Oddball",
          "typeName":"FFA Oddball",
-         "SprintEnabled":"0",
+         "commands": ["Server.SprintEnabled 0","Server.AssassinationEnabled 0"],
 		 "SpecificMaps": [  
 		  {  
 			 "displayName":"Standoff",
