@@ -327,6 +327,10 @@
     <ClCompile Include="Source\Server\Signaling.cpp">
       <Filter>Server</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Patches\Spectate.cpp" />
+    <ClCompile Include="Source\Server\Voting.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -864,6 +868,10 @@
     <ClInclude Include="Source\Blam\Math\MathUtil.hpp" />
     <ClInclude Include="Source\Patches\Audio.hpp" />
     <ClInclude Include="Source\Server\Signaling.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Spectate.hpp" />
+    <ClInclude Include="Source\Server\Voting.hpp">
       <Filter>Server</Filter>
     </ClInclude>
   </ItemGroup>

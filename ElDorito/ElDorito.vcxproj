@@ -102,6 +102,7 @@
     <ClCompile Include="Source\Server\ServerChat.cpp" />
     <ClCompile Include="Source\Server\Signaling.cpp" />
     <ClCompile Include="Source\Server\VariableSynchronization.cpp" />
+    <ClCompile Include="Source\Server\Voting.cpp" />
     <ClCompile Include="Source\Server\VotingPackets.cpp" />
     <ClCompile Include="Source\Server\VotingSystem.cpp" />
     <ClCompile Include="Source\ThirdParty\HttpRequest.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="Source\Server\ServerChat.hpp" />
     <ClInclude Include="Source\Server\Signaling.hpp" />
     <ClInclude Include="Source\Server\VariableSynchronization.hpp" />
+    <ClInclude Include="Source\Server\Voting.hpp" />
     <ClInclude Include="Source\Server\VotingPackets.hpp" />
     <ClInclude Include="Source\Server\VotingSystem.hpp" />
     <ClInclude Include="Source\Settings.hpp" />

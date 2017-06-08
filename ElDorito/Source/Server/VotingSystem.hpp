@@ -1,47 +1,35 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <d3dx9core.h>
 #include <map>
-#include "../Utils/Utils.hpp"
 #include "../Server/VotingPackets.hpp"
-#include <chrono>
 #include "../Modules/ModuleServer.hpp"
 
 namespace Server
 {
 	namespace Voting
 	{
-		void PlayerJoinedVoteInProgress(int playerIndex);
-		void Init();
-		void Tick();
-		void Enable();
-		void Disable();
-		void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
-		void StartNewVote();
-		bool LoadVotingJson();
-		void CancelVoteInProgress();
 
 		/*
-		 * - These are the structs used to hold Map/Variant information. 
-		 *
-		 * - Each has a DisplayName field, so they can display a string other than the actual mapName. 
-		 *   For example, they might want to just display 'Narrows' instead of 'Narrowsv2Fixed'. Same goes for gametypes
-		 * 
-		 * - Maps contain the mapId so the clients can know which image to display in the UI
-		 *
-		 * - Each gametype has an optional list of specific maps for that gametype. 
-		 *   For example, you may want CTF to only be run on large maps, ect. 
-		 *
-		 * - You can also specify whether sprint should be enabled or disabled for any given gametype
-		 *
+		
+		* - These are the structs used to hold Map/Variant information.
+		*
+		* - Each has a DisplayName field, so they can display a string other than the actual mapName.
+		*   For example, they might want to just display 'Narrows' instead of 'Narrowsv2Fixed'. Same goes for gametypes
+		*
+		* - Maps contain the mapId so the clients can know which image to display in the UI
+		*
+		* - Each gametype has an optional list of specific maps for that gametype.
+		*   For example, you may want CTF to only be run on large maps, ect.
+		*
+		* - You can also specify whether sprint should be enabled or disabled for any given gametype
+		*
 		*/
-
 		struct HaloMap {
 			std::string mapName;
 			std::string mapDisplayName;
 			int mapId;
-			HaloMap(){}
+			HaloMap() {}
 			HaloMap(std::string m, std::string dn, int id) {
 				mapName = m;
 				mapDisplayName = dn;
@@ -50,28 +38,28 @@ namespace Server
 		};
 
 		struct HaloType {
-			std::vector<HaloMap> specificMaps = std::vector <HaloMap> {}; //Some gametypes only work with specific maps
+			std::vector<HaloMap> specificMaps = std::vector <HaloMap>{};
 			std::string typeName;
 			std::string typeDisplayName;
-			std::string SprintEnabled;
-			std::string MaxTeamSize;
-			HaloType(){}
+			std::vector<std::string> commands = std::vector<std::string>{};
+			HaloType() {}
 			HaloType(std::string t, std::string dn) {
 				typeName = t;
 				typeDisplayName = dn;
-				SprintEnabled = "0";
-				MaxTeamSize = "8";
 			}
 
 		};
+
+
 
 		struct MapAndType {
 			HaloMap haloMap;
 			HaloType haloType;
 			int Count; //number of votes
 			int index = -1;
+			bool canveto = false;
 			bool isRevoteOption = false;
-			MapAndType(){ Count = 0; }
+			MapAndType() { Count = 0; }
 			MapAndType(HaloMap hm, HaloType ht) {
 				haloMap = hm;
 				haloType = ht;
@@ -82,7 +70,7 @@ namespace Server
 			bool operator<(const MapAndType& val) const {
 				return Count < val.Count;
 			}
-			
+
 			//This is used for comparing voting options to see if they are unique. 
 			bool operator==(const MapAndType& val) const
 			{
@@ -96,9 +84,102 @@ namespace Server
 			}
 		};
 
+
+		class AbstractVotingSystem
+		{
+		public:
+
+			virtual bool LoadJson() = 0;
+			virtual void NewVote() = 0;
+			virtual void Tick() = 0;
+			virtual void Reset() = 0;
+			virtual void StartVoting() = 0;
+			virtual bool isEnabled() = 0;
+			virtual void loadDefaultMapsAndTypes() = 0;
+			virtual MapAndType GenerateVotingOption() = 0;
+			virtual VotingMessage GenerateVotingOptionsMessage() = 0;
+			virtual void LogVote(const VotingMessage &message, std::string name) = 0; //TODO abstract VotingMessage out of VotingSystem
+			void GenerateVotingOptionsMessage(int peer);
+			AbstractVotingSystem();
+		protected:
+			
+			//Map of playerNames and their vote. We can use the playerName safely since mid-session name changes are no longer allowed.
+			std::map<std::string, int> mapVotes = std::map<std::string, int>{};
+			time_t voteStartedTime = 0;
+			bool revoteFlag = false;
+			bool idle = false;
+
+		
+
+		};
+
+		class VotingSystem : public AbstractVotingSystem
+		{
+		public:
+			virtual bool LoadJson();
+			virtual void NewVote();
+			virtual void Tick();
+			virtual void Reset();
+			virtual void StartVoting();
+			virtual VotingMessage GenerateVotingOptionsMessage();
+			virtual bool isEnabled();
+			virtual void loadDefaultMapsAndTypes();
+			virtual MapAndType GenerateVotingOption();
+			virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
+			VotingSystem();
+
+		private:
+			
+			void countVotes();
+			void FindWinner();
+			//The time the winner was chosen. Used to determine when to start the game ( 5 seconds after the winner is chosen )
+			time_t winnerChosenTime = 0;
+
+			unsigned int numberOfRevotesUsed = 0;
+			//The current voting options being voted on.
+			std::vector<MapAndType> currentVotingOptions = std::vector<MapAndType>{};
+
+
+			//The pool of maps and gametypes to choose from
+			std::vector<HaloType> gameTypes = std::vector <HaloType>{};
+			std::vector<HaloMap> haloMaps = std::vector <HaloMap>{};
+
+
+		};
+
+		class VetoSystem : public AbstractVotingSystem
+		{
+		public:
+			virtual bool LoadJson();
+			virtual void NewVote();
+			virtual void Tick();
+			virtual void Reset();
+			virtual void StartVoting();
+			virtual VotingMessage GenerateVotingOptionsMessage();
+			virtual void loadDefaultMapsAndTypes();
+			virtual bool isEnabled();
+			virtual MapAndType GenerateVotingOption();
+			virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
+			VetoSystem();
+
+		private:
+			void SetGameAndMapAndStartTimer();
+			void countVotes();
+			void FindWinner();
+
+
+			bool loadedJson = true;
+			//The time the vote started. Used to calculate how much time remains and to check if a vote is in progress.
+			time_t startime = 0;
+			//The time the vote started. Used to calculate how much time remains and to check if a vote is in progress.
+			std::vector<MapAndType> currentPlaylist = std::vector<MapAndType>{};
+			std::vector<MapAndType> entirePlaylist = std::vector<MapAndType>{};
+			MapAndType currentVetoOption;
+			int numberOfVetosUsed = 0;
+			int currentNumberOfVotes = 0;
+		};
 	}
 }
-
 
 	
 

@@ -23,7 +23,7 @@
 #include "Modules/ModuleGame.hpp"
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
-#include "Server/VotingSystem.hpp"
+#include "Server/Voting.hpp"
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 

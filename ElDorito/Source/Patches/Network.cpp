@@ -18,7 +18,7 @@
 #include "../Server/BanList.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
-#include "../Server/VotingSystem.hpp"
+#include "../Server/Voting.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Server/Signaling.hpp"

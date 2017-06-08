@@ -56,6 +56,15 @@ namespace Modules
 		Command* VarPlayerInfoEndpoint;
 		Command* VarMaxTeamSize;
 		Command* VarSignalServerPort;
+
+		//Veto System Commands
+		Command* VarNumberOfVetosVotes;
+		Command* VarVetoSystemEnabled;
+		Command* VarVetoSystemSelectionType;
+		Command* VarVetoVoteTime;
+		Command* VarVetoWinningOptionShownTime;
+		Command* VarVetoVotePassPercentage;
+
 		uint8_t SyslinkData[0x176];
 
 		ModuleServer();

@@ -10,6 +10,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include "../Utils/Logger.hpp"
+#include "../Utils/Utils.hpp"
 #include "VotingSystem.hpp"
 #include "boost/filesystem.hpp"
 #include "../patch.hpp"
@@ -66,47 +68,15 @@ namespace Server
 			"FFA Oddball",
 			"Crazy King",
 		};
-
-		//The time the vote started. Used to calculate how much time remains and to check if a vote is in progress.
-		time_t voteStartedTime = 0;
-
-		//The time the winner was chosen. Used to determine when to start the game ( 5 seconds after the winner is chosen )
-		time_t winnerChosenTime = 0;
-
-		unsigned int numberOfRevotesUsed = 0;
-		bool revoteFlag = false;
-		bool idle = false;
-		//The current voting options being voted on.
-		std::vector<MapAndType> currentVotingOptions = std::vector<MapAndType> {};
-
-		//Map of playerNames and their vote. We can use the playerName safely since mid-session name changes are no longer allowed.
-		std::map<std::string, int> mapVotes = std::map<std::string, int>{};
-
-		//The pool of maps and gametypes to choose from
-		std::vector<HaloType> gameTypes = std::vector <HaloType> {};
-		std::vector<HaloMap> haloMaps = std::vector <HaloMap> {};
-
-		//Callback for when the loading screen back to the main menu finishes. We use this to determine when to start a new vote.
-		void MapLoadedCallback(const char *mapPath)
+		
+		int numberOfPlayersInGame()
 		{
-			std::string currentMap = mapPath;
-			auto separatorIndex = currentMap.find_first_of("\\/");
-			auto mapName = currentMap.substr(separatorIndex + 1);
+			int numPlayers = 0;
+			auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
+			for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
+				numPlayers++;
+			return numPlayers;
 
-			if (mapName == "mainmenu")
-			{
-				// Checking if the info socket is open so it doesnt try to start a vote after the initial load. 
-				if (Patches::Network::IsInfoSocketOpen())
-					StartNewVote();
-			}
-		}
-
-		void Reset()
-		{
-			numberOfRevotesUsed = 0;
-			winnerChosenTime = 0;
-			voteStartedTime = 0;
-			mapVotes.clear();
 		}
 
 		//Gets the mapId for the given forge map
@@ -141,22 +111,63 @@ namespace Server
 			return mapId;
 		}
 
-		//Reset the state of voting in case people start a game manually. 
-		void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
-		{
-			switch (newState)
-			{
-				case Blam::Network::eLifeCycleStateStartGame:
-					Reset();
-					break;
-				case Blam::Network::eLifeCycleStateNone:
-					Reset();
-					break;
-			}
+		AbstractVotingSystem::AbstractVotingSystem(){}
+		VotingSystem::VotingSystem() : AbstractVotingSystem() {}
+
+		bool VotingSystem::isEnabled() {
+			return Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1;
 		}
 
+		void VotingSystem::Reset()
+		{
+			numberOfRevotesUsed = 0;
+			winnerChosenTime = 0;
+			voteStartedTime = 0;
+			mapVotes.clear();
+		}
+
+		void VotingSystem::NewVote() {
+			Reset();
+			StartVoting();
+		}
+
+
+		void VotingSystem::LogVote(const VotingMessage &message, std::string name)
+		{
+
+			// If we aren't in a vote or if voting is not enabled, exit
+			if (!(voteStartedTime != 0 && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
+				return;
+
+			unsigned int vote = message.Vote;
+
+			//unlikely to happen unless someone messes with the JS
+			if (vote < 0 || vote >(Modules::ModuleServer::Instance().VarServerNumberOfVotingOptions->ValueInt + 1))
+				return;
+
+			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair 
+			std::map<std::string, int>::iterator it = mapVotes.find(name);
+			if (it != mapVotes.end())
+				it->second = vote;
+			else
+				mapVotes.insert(std::make_pair(name, vote));
+
+			countVotes();
+
+			//create a message to send to all of the players with the new vote counts
+			VotingMessage newmessage(VotingMessageType::VoteTally);
+			int optionIndex = 0;
+			for (auto &option : currentVotingOptions) {
+				newmessage.votes[optionIndex] = option.Count;
+				optionIndex++;
+				option.Count = 0;
+			}
+			BroadcastVotingMessage(newmessage);
+
+		}
+		
 		//Populate the Maps and Gametypes with default ones if no valid json was supplied
-		void loadDefaultMapsAndTypes()
+		void VotingSystem::loadDefaultMapsAndTypes()
 		{
 			for (auto m : Modules::ModuleGame::Instance().MapList)
 			{
@@ -177,9 +188,31 @@ namespace Server
 				index++;
 			}
 		}
+		
+		MapAndType VetoSystem::GenerateVotingOption()
+		{
+			MapAndType m;
+			if (Modules::ModuleServer::Instance().VarVetoSystemSelectionType->ValueInt == 0) {
+				//randomly pick one out of the playlist and remove it.
+				int optionIndex = rand() % currentPlaylist.size();
 
+				m = currentPlaylist[optionIndex];
+				currentPlaylist.erase(currentPlaylist.begin() + optionIndex);
+
+			}
+			else {
+				m = currentPlaylist.front();
+				currentPlaylist.erase(currentPlaylist.begin());
+			}
+
+			if (currentPlaylist.size() == 0) {
+				currentPlaylist = entirePlaylist;
+			}
+			return m;
+
+		}
 		//Randomly picks a voting option. If the gametype it picks has maps that are specific to that gametype, then it picks a map from those. 
-		MapAndType GenerateVotingOption()
+		MapAndType VotingSystem::GenerateVotingOption()
 		{
 			HaloType gametype = gameTypes[rand() % gameTypes.size()];
 			HaloMap map;
@@ -191,17 +224,37 @@ namespace Server
 
 			return MapAndType(map, gametype);
 		}
-		int numberOfPlayersInGame()
-		{
-			int numPlayers = 0;
-			auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-			for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
-				numPlayers++;
-			return numPlayers;
 
+		//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
+		VotingMessage VetoSystem::GenerateVotingOptionsMessage()
+		{
+			VotingMessage newmessage(VotingMessageType::VetoOption);
+
+			strncpy_s(newmessage.votingOptions[0].mapName, currentVetoOption.haloMap.mapDisplayName.c_str(), sizeof(newmessage.votingOptions[0].mapName));
+			strncpy_s(newmessage.votingOptions[0].typeName, currentVetoOption.haloType.typeDisplayName.c_str(), sizeof(newmessage.votingOptions[0].typeName));
+			newmessage.votingOptions[0].mapId = currentVetoOption.haloMap.mapId;
+			newmessage.votingOptions[0].canVeto = currentVetoOption.canveto;
+
+			if (currentVetoOption.canveto)
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
+			else
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
+
+			return newmessage;
+		}
+
+		//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
+		void AbstractVotingSystem::GenerateVotingOptionsMessage(int peer)
+		{
+			auto* session = Blam::Network::GetActiveSession();
+			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
+				return;
+
+			VotingMessage newmessage = GenerateVotingOptionsMessage();
+			SendVotingMessageToPeer(newmessage, peer);
 		}
 		//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
-		VotingMessage GenerateVotingOptionsMessage()
+		VotingMessage VotingSystem::GenerateVotingOptionsMessage()
 		{
 			VotingMessage newmessage(VotingMessageType::VotingOptions);
 			int i = 0;
@@ -216,7 +269,7 @@ namespace Server
 		}
 
 		//Counds the votes
-		void countVotes()
+		void VotingSystem::countVotes()
 		{
 			for (auto const &vote : mapVotes)
 			{
@@ -226,14 +279,26 @@ namespace Server
 				currentVotingOptions.at(vote.second - 1).Count++;
 			}
 		}
-		
+		//Counds the votes
+		void VetoSystem::countVotes()
+		{
+			currentNumberOfVotes = 0;
+			for (auto const &vote : mapVotes)
+			{
+				//in case someone modifies the js and sends something other than a valid vote.
+				if (vote.second != 1)
+					continue;
+				currentNumberOfVotes++;
+			}
+		}
+
 		/*
 		* Counts the votes, sorts the options by vote tally. 
 		*
 		* - Ties are handled like Halo Reach: Ties will be awarded to the latter option. 
 		*   So if option 3 has 2 votes and option 4 has 2 votes, option 4 will win.
 		*/
-		void findWinner()
+		void VotingSystem::FindWinner()
 		{
 			countVotes();
 			std::sort(currentVotingOptions.begin(), currentVotingOptions.end());
@@ -254,18 +319,21 @@ namespace Server
 
 			Modules::CommandMap::Instance().ExecuteCommand("Game.GameType \"" + winningOption.haloType.typeName + "\"");
 			Modules::CommandMap::Instance().ExecuteCommand("Game.Map \"" + winningOption.haloMap.mapName + "\"");
-			Modules::CommandMap::Instance().ExecuteCommand("Server.SprintEnabled " + winningOption.haloType.SprintEnabled);
-			Modules::CommandMap::Instance().ExecuteCommand("Server.MaxTeamSize " + winningOption.haloType.MaxTeamSize);
+
+			for (auto command : winningOption.haloType.commands) {
+				Modules::CommandMap::Instance().ExecuteCommand(command);
+			}
 
 			if (Modules::ModuleServer::Instance().VarServerTeamShuffleEnabled->ValueInt == 1)
 				Modules::CommandMap::Instance().ExecuteCommand("Server.ShuffleTeams");
+
 			time(&winnerChosenTime);
 			voteStartedTime = 0;
 			mapVotes.clear();
 		}
 
 		//Starts a new vote
-		void StartVoting()
+		void VotingSystem::StartVoting()
 		{
 			if (idle) 
 				return; 
@@ -295,43 +363,8 @@ namespace Server
 			auto message = GenerateVotingOptionsMessage();
 			BroadcastVotingMessage(message);
 		}
-
-		
-	}
-}
-
-
-namespace Server 
-{
-	namespace Voting
-	{
-		void Init()
+		void VotingSystem::Tick()
 		{
-			InitializePackets();
-			Patches::Core::OnMapLoaded(MapLoadedCallback);
-			Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
-			
-			if(!LoadVotingJson())
-				loadDefaultMapsAndTypes();
-		}
-
-		void Enable()
-		{
-			Reset();
-			if (!LoadVotingJson())
-				loadDefaultMapsAndTypes();
-		}
-
-		void Disable()
-		{
-			Reset();
-		}
-
-		void Tick() 
-		{
-			auto* session = Blam::Network::GetActiveSession();
-			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
-				return;
 
 			time_t curTime1;
 			time(&curTime1);
@@ -387,78 +420,11 @@ namespace Server
 			if (elapsed < Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt)
 				return;
 
-			findWinner();
+			FindWinner();
 
 		}
-		
-		//This allows players who join a vote in progress to be able to see the options and vote
-		void PlayerJoinedVoteInProgress(int playerIndex)
-		{
-			//if we aren't in a vote or voting isn't enabled, then do nothing
-			auto* session = Blam::Network::GetActiveSession();
-			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt && voteStartedTime != 0))
-				return;
-
-			auto peerIdx = session->MembershipInfo.GetPlayerPeer(playerIndex);
-			if (peerIdx != session->MembershipInfo.LocalPeerIndex)
-			{
-				auto message = GenerateVotingOptionsMessage();
-				SendVotingMessageToPeer(message, peerIdx);
-			}
-			
-		}
-
-		//Starts a new vote
-		void StartNewVote() 
-		{
-			auto* session = Blam::Network::GetActiveSession();
-			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
-				return;
-
-			Reset();
-			StartVoting();
-		}
-		void CancelVoteInProgress()
-		{
-			Reset();
-		}
-
-		void LogVote(const VotingMessage &message, std::string name)
-		{
-			// If we aren't in a vote or if voting is not enabled, exit
-			auto* session = Blam::Network::GetActiveSession();
-			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt && voteStartedTime != 0))
-				return;
-
-			unsigned int vote = message.Vote;
-
-			//unlikely to happen unless someone messes with the JS
-			if (vote < 0 || vote >(Modules::ModuleServer::Instance().VarServerNumberOfVotingOptions->ValueInt + 1))
-				return;
-
-			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair 
-			std::map<std::string, int>::iterator it = mapVotes.find(name);
-			if (it != mapVotes.end())
-				it->second = vote;
-			else
-				mapVotes.insert(std::make_pair(name, vote));
-
-			countVotes();
-
-			//create a message to send to all of the players with the new vote counts
-			VotingMessage newmessage(VotingMessageType::VoteTally);
-			int optionIndex = 0;
-			for (auto &option : currentVotingOptions) {
-				newmessage.votes[optionIndex] = option.Count;
-				optionIndex++;
-				option.Count = 0;
-			}
-			BroadcastVotingMessage(newmessage);
-
-		}
-
 		//Loads the voting json. If there is an easier way to serialize into structs, let me know. 
-		bool LoadVotingJson()
+		bool VotingSystem::LoadJson()
 		{
 			//clear the current contents
 			haloMaps.clear();
@@ -495,11 +461,14 @@ namespace Server
 					std::string mapName = mapObject["mapName"].GetString();
 					if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
 						haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getDefaultMapId(mapName)));
-					
+
 					else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
 						haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getCustomMapID(mapName)));
-					
-					
+
+					else
+						Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+
+
 				}
 
 				const rapidjson::Value& types = document["Types"];
@@ -511,10 +480,17 @@ namespace Server
 
 					//TODO verify the gametypes
 					HaloType ht(c["typeName"].GetString(), c["displayName"].GetString());
-					if (c.HasMember("SprintEnabled"))
-						ht.SprintEnabled = c["SprintEnabled"].GetString();
-					if (c.HasMember("MaxTeamSize"))
-						ht.MaxTeamSize = c["MaxTeamSize"].GetString();
+
+
+					if (c.HasMember("commands"))
+					{
+						const rapidjson::Value& commands = c["commands"];
+						for (rapidjson::SizeType i = 0; i < commands.Size(); i++)
+						{
+							ht.commands.push_back(commands[i].GetString());
+						}
+					}
+
 					if (c.HasMember("SpecificMaps"))
 					{
 						const rapidjson::Value& smaps = c["SpecificMaps"];
@@ -529,23 +505,315 @@ namespace Server
 								std::string mapName = map["mapName"].GetString();
 								if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
 									ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getDefaultMapId(mapName)));
-								
+
 								else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
 									ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getCustomMapID(mapName)));
+								else
+									Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
 							}
 						}
 					}
 					gameTypes.push_back(ht);
-					
+
 				}
 			}
-			
-			if ( gameTypes.size() < 2 || haloMaps.size() < 2 )
+
+			if (gameTypes.size() < 2 || haloMaps.size() < 2)
 				return false;
 
-			
+
 			return true;
 		}
-	}
 
+
+		VetoSystem::VetoSystem() : AbstractVotingSystem() {}
+		bool VetoSystem::isEnabled() {
+			return Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt == 1 && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 0;
+		}
+
+		void VetoSystem::Reset()
+		{
+			voteStartedTime = 0;
+			numberOfVetosUsed = 0;
+			startime = 0;
+			currentNumberOfVotes = 0;
+			mapVotes.clear();
+		}
+
+
+		//Starts a new vote
+		void VetoSystem::StartVoting()
+		{
+			if (idle)
+				return;
+
+			numberOfVetosUsed++;
+			currentVetoOption = GenerateVotingOption();
+			currentVetoOption.canveto = true;
+
+			auto message = GenerateVotingOptionsMessage();
+			BroadcastVotingMessage(message);
+
+			time(&voteStartedTime);
+
+		}
+
+
+		/*
+		* Counts the votes, sorts the options by vote tally.
+		*
+		* - Ties are handled like Halo Reach: Ties will be awarded to the latter option.
+		*   So if option 3 has 2 votes and option 4 has 2 votes, option 4 will win.
+		*/
+		void VetoSystem::FindWinner()
+		{
+			countVotes();
+
+			auto numPlayers = numberOfPlayersInGame();
+			if (currentNumberOfVotes >= (1 + (((numPlayers - 1) * Modules::ModuleServer::Instance().VarVetoVotePassPercentage->ValueInt) / 100))) {
+				revoteFlag = true;
+			}
+			else {
+				currentVetoOption.canveto = false;
+				SetGameAndMapAndStartTimer();
+			}
+
+			voteStartedTime = 0;
+			mapVotes.clear();
+		}
+
+		void VetoSystem::SetGameAndMapAndStartTimer()
+		{
+			Modules::CommandMap::Instance().ExecuteCommand("Game.GameType \"" + currentVetoOption.haloType.typeName + "\"");
+			Modules::CommandMap::Instance().ExecuteCommand("Game.Map \"" + currentVetoOption.haloMap.mapName + "\"");
+
+			for (auto command : currentVetoOption.haloType.commands) {
+				Modules::CommandMap::Instance().ExecuteCommand(command);
+			}
+
+			auto message = GenerateVotingOptionsMessage();
+			BroadcastVotingMessage(message);
+			time(&startime);
+		}
+
+		bool VetoSystem::LoadJson()
+		{
+			//clear the current contents
+			entirePlaylist.clear();
+
+			std::ifstream in("Veto.json", std::ios::in | std::ios::binary);
+			if (!in || !in.is_open())
+				return false;
+
+			std::string contents;
+			in.seekg(0, std::ios::end);
+			contents.resize((unsigned int)in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&contents[0], contents.size());
+			in.close();
+
+			rapidjson::Document document;
+			if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
+			{
+				if (!document.HasMember("playlist"))
+					return false;
+
+				const rapidjson::Value& mapAndTypes = document["playlist"];
+				// rapidjson uses SizeType instead of size_t :/
+				for (rapidjson::SizeType i = 0; i < mapAndTypes.Size(); i++)
+				{
+					const rapidjson::Value& mapAndTypeObject = mapAndTypes[i];
+					if (!mapAndTypeObject.HasMember("map") || !mapAndTypeObject.HasMember("gametype")) {
+						Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid playlist entry, skipping..");
+						continue;
+
+					}
+					
+
+					const rapidjson::Value& map = mapAndTypeObject["map"];
+					const rapidjson::Value& gametype = mapAndTypeObject["gametype"];
+
+					if (!gametype.HasMember("typeName") || !gametype.HasMember("displayName") || !map.HasMember("mapName") || !map.HasMember("displayName"))
+						continue;
+					std::string mapName = map["mapName"].GetString();
+					auto mapID = getDefaultMapId(mapName);
+					if (mapID < 0)
+						mapID = getCustomMapID(mapName);
+
+					if (mapID < 0){
+						Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+						continue;
+					}
+
+					HaloMap m = HaloMap(mapName, map["displayName"].GetString(), mapID);
+					HaloType t = HaloType(gametype["typeName"].GetString(), gametype["displayName"].GetString());
+
+					if (gametype.HasMember("commands"))
+					{
+						const rapidjson::Value& commands = gametype["commands"];
+						for (rapidjson::SizeType i = 0; i < commands.Size(); i++)
+						{
+							t.commands.push_back(commands[i].GetString());
+						}
+					}
+					entirePlaylist.push_back(MapAndType(m, t));
+				}
+			}
+
+			if (entirePlaylist.size() < 1)
+				return false;
+
+			currentPlaylist = entirePlaylist;
+			return true;
+		}
+
+		
+
+		void VetoSystem::Tick()
+		{
+			auto* session = Blam::Network::GetActiveSession();
+			if (!(session && session->IsEstablished() && session->IsHost() && loadedJson && Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt && !Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
+				return;
+
+			time_t curTime1;
+			time(&curTime1);
+
+			if (idle)
+			{
+				if (numberOfPlayersInGame() > 0)
+				{
+					idle = false;
+					//only start voting if we are in the lobby. Sometimes everyone will leave a game in progress, causing it to go idle, then someone will join before it gets back to the lobby.
+					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+					if (mapName == "mainmenu" && Patches::Network::IsInfoSocketOpen())
+						NewVote();
+				}
+
+				return;
+			}
+			else if (numberOfPlayersInGame() == 0)
+			{
+
+				idle = true;
+				Reset();
+				return;
+			}
+			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason. 
+			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded 
+			if (startime != 0)
+			{
+
+				auto elapsed = curTime1 - startime;
+				if (elapsed > Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt)
+				{
+					Modules::CommandMap::Instance().ExecuteCommand("Game.Start");
+					Reset();
+				}
+			}
+			if (revoteFlag)
+			{
+				NewVote();
+				revoteFlag = false;
+				return;
+			}
+			//if we aren't in a vote, return
+			if (voteStartedTime == 0)
+				return;
+
+			auto elapsed = curTime1 - voteStartedTime;
+
+			//Exit if we haven't used up the time yet.
+			if (elapsed < Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt)
+				return;
+
+			FindWinner();
+
+
+		}
+
+		void VetoSystem::LogVote(const VotingMessage &message, std::string name)
+		{
+			// If we aren't in a vote or if voting is not enabled, exit
+			auto* session = Blam::Network::GetActiveSession();
+			if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt && !Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt && voteStartedTime != 0))
+				return;
+
+			unsigned int vote = message.Vote;
+
+
+			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair 
+			std::map<std::string, int>::iterator it = mapVotes.find(name);
+			if (it != mapVotes.end()) {
+				mapVotes.erase(it);
+			}
+
+			else
+				mapVotes.insert(std::make_pair(name, vote));
+
+			countVotes();
+
+			//create a message to send to all of the players with the new vote counts
+			VotingMessage newmessage(VotingMessageType::VoteTally);
+			newmessage.votes[0] = currentNumberOfVotes;
+			newmessage.votes[1] = currentNumberOfVotes;
+			BroadcastVotingMessage(newmessage);
+
+		}
+		void VetoSystem::NewVote() {
+			if (numberOfVetosUsed < Modules::ModuleServer::Instance().VarNumberOfVetosVotes->ValueInt) {
+
+				//we want to start a new veto vote
+				mapVotes.clear();
+				voteStartedTime = 0;
+				StartVoting();
+			}
+
+			else {
+
+				//we want to send a voting option that can not be voted on, and then start the game.
+				currentVetoOption = GenerateVotingOption();
+				currentVetoOption.canveto = false;
+				SetGameAndMapAndStartTimer();
+			}
+		}
+			
+		//Populate the Maps and Gametypes with default ones if no valid json was supplied
+		void VetoSystem::loadDefaultMapsAndTypes()
+		{
+			//The pool of maps and gametypes to choose from
+			std::vector<HaloType> gameTypes = std::vector <HaloType>{};
+			std::vector<HaloMap> haloMaps = std::vector <HaloMap>{};
+
+			for (auto m : Modules::ModuleGame::Instance().MapList)
+			{
+				auto id = getDefaultMapId(m);
+				auto it = MapNames.find(id);
+				if (it != MapNames.end())
+				{
+					HaloMap map(m, it->second, id);
+					haloMaps.push_back(map);
+				}
+			}
+
+			int index = 0;
+			for (auto t : DefaultTypes)
+			{
+				HaloType type(t, DefaultTypeNames[index]);
+				gameTypes.push_back(type);
+				index++;
+			}
+
+			//Add 10 items to the playlist
+			for (int i = 0; i < 10; i++) {
+				HaloType gametype = gameTypes[rand() % gameTypes.size()];
+				HaloMap map = haloMaps[rand() % haloMaps.size()];
+				entirePlaylist.push_back(MapAndType(map, gametype));
+			}
+			currentPlaylist = entirePlaylist;
+		}
+		
+		
+	}
+	
 }
+

@@ -1,6 +1,5 @@
 #include "VotingScreen.hpp"
 #include "ScreenLayer.hpp"
-#include "../../Server/VotingSystem.hpp"
 #include "../../Server/VotingPackets.hpp"
 #include "../../Patches/Network.hpp"
 #include "../../ThirdParty/rapidjson/writer.h"
@@ -74,8 +73,39 @@ public:
 			Web::Ui::Voting::Show();
 			Web::Ui::ScreenLayer::Notify("VotingOptionsUpdated", jsonBuffer.GetString(), true);
 		}
+		else if (message.Type == VotingMessageType::VetoOption) {
 
-		else if (message.Type == Server::Voting::VotingMessageType::Winner)
+			rapidjson::StringBuffer jsonBuffer;
+			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+			jsonWriter.StartObject();
+
+			jsonWriter.Key("timeRemaining");
+			jsonWriter.Int(message.voteTime);
+			jsonWriter.Key("vetoOption");
+			jsonWriter.StartObject();
+
+
+			std::string imageName;
+			auto it = MapNames.find(message.votingOptions[0].mapId);
+			if (it != MapNames.end())
+				imageName = it->second;
+
+
+			jsonWriter.Key("image");
+			jsonWriter.String(imageName.c_str());
+			jsonWriter.Key("mapname");
+			jsonWriter.String(message.votingOptions[0].mapName);
+			jsonWriter.Key("typename");
+			jsonWriter.String(message.votingOptions[0].typeName);
+			jsonWriter.Key("canveto");
+			jsonWriter.Bool(message.votingOptions[0].canVeto);
+
+			jsonWriter.EndObject();
+			jsonWriter.EndObject();
+			Web::Ui::Voting::Show();
+			Web::Ui::ScreenLayer::Notify("VetoOptionsUpdated", jsonBuffer.GetString(), true);
+		}
+		else if (message.Type == VotingMessageType::Winner)
 		{
 			rapidjson::StringBuffer jsonBuffer;
 			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
@@ -86,7 +116,7 @@ public:
 			Web::Ui::ScreenLayer::Notify("Winner", jsonBuffer.GetString(), true);
 
 		}
-		else if (message.Type == Server::Voting::VotingMessageType::VoteTally)
+		else if (message.Type == VotingMessageType::VoteTally)
 		{
 			rapidjson::StringBuffer jsonBuffer;
 			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);

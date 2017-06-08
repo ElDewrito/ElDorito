@@ -25,7 +25,7 @@
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
-#include "../Server/VotingSystem.hpp"
+#include "../Server/Voting.hpp"
 #include "../Utils/Logger.hpp"
 
 namespace
@@ -976,20 +976,6 @@ namespace
 		Patches::Assassination::Enable(enabled);
 		return true;
 	}
-	bool VariableServerVotingEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		if (!Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt)
-		{
-			Server::Voting::Disable();
-			returnInfo = "Voting System Disabled";
-		}
-		if (Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt)
-		{
-			Server::Voting::Enable();
-			returnInfo = "Voting System Enabled";
-		}
-		return true;
-	}
 	bool CommandServerSubmitVote(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 
@@ -1172,7 +1158,7 @@ namespace Modules
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
 		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
 
-		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 0, VariableServerVotingEnabledUpdate);
+		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 0);
 		VarServerVotingEnabled->ValueIntMin = 0;
 		VarServerVotingEnabled->ValueIntMax = 1;
 
@@ -1236,6 +1222,31 @@ namespace Modules
 		VarSignalServerPort = AddVariableInt("SignalServerPort", "signalserverport", "The port the signaling server will listen on", eCommandFlagsNone, 9090);
 		VarSignalServerPort->ValueIntMin = 0;
 		VarSignalServerPort->ValueIntMax = 65535;
+
+		//Veto System Commands 
+		VarVetoSystemEnabled = AddVariableInt("VetoSystemEnabled", "veto_enabled", "Controls whether the veto system is enabled on this server. ", eCommandFlagsArchived, 1);
+		VarVetoSystemEnabled->ValueIntMin = 0;
+		VarVetoSystemEnabled->ValueIntMax = 1;
+
+		VarNumberOfVetosVotes = AddVariableInt("NumberOfVetosVotes", "number_of_veto_votes", "Controls how many veto votes are allowed ", eCommandFlagsArchived, 1);
+		VarNumberOfVetosVotes->ValueIntMin = 0;
+		VarNumberOfVetosVotes->ValueIntMax = 10;
+
+		VarVetoVoteTime = AddVariableInt("VetoVoteTime", "veto_vote_time", "The time a veto vote takes", eCommandFlagsArchived, 20);
+		VarVetoVoteTime->ValueIntMin = 1;
+		VarVetoVoteTime->ValueIntMax = 200;
+
+		VarVetoWinningOptionShownTime = AddVariableInt("VetoWinningOptionShownTime", "vwost", "The length of time the winning option is show", eCommandFlagsArchived, 10);
+		VarVetoWinningOptionShownTime->ValueIntMin = 1;
+		VarVetoWinningOptionShownTime->ValueIntMax = 200;
+
+		VarVetoVotePassPercentage = AddVariableInt("VetoVotePassPercentage", "vvpp", "Percentage of players that need to vote for it to pass", eCommandFlagsArchived, 50);
+		VarVetoVotePassPercentage->ValueIntMin = 1;
+		VarVetoVotePassPercentage->ValueIntMax = 100;
+
+		VarVetoSystemSelectionType = AddVariableInt("VetoSystemSelectionType", "veto_system_selection_type", "0 for ordered, 1 for random ", eCommandFlagsArchived, 1);
+		VarVetoSystemSelectionType->ValueIntMin = 0;
+		VarVetoSystemSelectionType->ValueIntMax = 1;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
 #ifdef _DEBUG

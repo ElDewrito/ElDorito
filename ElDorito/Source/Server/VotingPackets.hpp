@@ -11,6 +11,10 @@ namespace Server
 		// Chat message types.
 		enum class VotingMessageType : uint32_t
 		{
+			VetoVote,
+
+			VetoOption,
+
 			// A user's vote, to be sent to the host.
 			Vote,
 
@@ -31,6 +35,7 @@ namespace Server
 		{
 			char mapName[16];  // The Display Name of the map to show in the UI
 			char typeName[16]; // The Display Name of the gametype to show in the UI
+			bool canVeto;
 			int mapId;		   // mapId, used to determine which image to show
 		};
 

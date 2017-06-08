@@ -1,7 +1,8 @@
 #include "VotingPackets.hpp"
 #include "../Patches/CustomPackets.hpp"
-#include "../Server/VotingSystem.hpp"
+#include "../Server/Voting.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Utils/Utils.hpp"
 
 
 using namespace Server::Voting;
@@ -24,19 +25,20 @@ namespace
 			// Message type
 			stream->WriteUnsigned(static_cast<uint32_t>(data->Type), 0U, static_cast<uint32_t>(VotingMessageType::Count));
 
-			if (data->Type == VotingMessageType::VotingOptions)
+			if (data->Type == VotingMessageType::VotingOptions || data->Type == VotingMessageType::VetoOption)
 			{
 				for (int i = 0; i < 5; i++)
 				{
 					stream->WriteString(data->votingOptions[i].mapName);
 					stream->WriteString(data->votingOptions[i].typeName);
+					stream->WriteBool(data->votingOptions[i].canVeto);
 					stream->WriteUnsigned<uint16_t>(data->votingOptions[i].mapId, 0, 10000);
 				}
 
 				stream->WriteUnsigned<uint8_t>(data->voteTime, 0, 120);
 			}
 
-			if (data->Type == VotingMessageType::Vote)
+			if (data->Type == VotingMessageType::Vote || data->Type == VotingMessageType::VetoVote)
 				stream->WriteUnsigned<uint8_t>(data->Vote, 0, 5);
 
 			if (data->Type == VotingMessageType::VoteTally)
@@ -60,19 +62,20 @@ namespace
 			if (static_cast<uint32_t>(data->Type) >= static_cast<uint32_t>(VotingMessageType::Count))
 				return false;
 
-			if (data->Type == VotingMessageType::VotingOptions)
+			if (data->Type == VotingMessageType::VotingOptions || data->Type == VotingMessageType::VetoOption)
 			{
 				for (int i = 0; i < 5; i++)
 				{
 					stream->ReadString(data->votingOptions[i].mapName);
 					stream->ReadString(data->votingOptions[i].typeName);
+					data->votingOptions[i].canVeto = stream->ReadBool();
 					data->votingOptions[i].mapId = stream->ReadUnsigned<uint16_t>(0, 10000);
 				}
 
 				data->voteTime = stream->ReadUnsigned<uint8_t>(0, 120);
 			}
 
-			if (data->Type == VotingMessageType::Vote)
+			if (data->Type == VotingMessageType::Vote || data->Type == VotingMessageType::VetoVote)
 				data->Vote = stream->ReadUnsigned<uint8_t>(0, 5);
 
 			if (data->Type == VotingMessageType::VoteTally)
@@ -140,7 +143,7 @@ namespace
 		packet.Data = message;
 		VotingPacketSender->Send(peer, packet);
 		return true;
-	}		
+	}
 
 
 }
