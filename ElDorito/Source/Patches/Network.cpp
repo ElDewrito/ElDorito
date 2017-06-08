@@ -738,7 +738,6 @@ namespace
 			{
 				int teamSizes[8] = { 0 };
 				int playerIdx = session->MembershipInfo.FindFirstPlayer();
-				std::stringstream ss;
 				while (playerIdx > -1)
 				{
 					teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
