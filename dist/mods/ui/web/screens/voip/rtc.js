@@ -27,13 +27,13 @@ function OnMessage(msg)
 			{
 				peerCons[data.uid].setLocalDescription(description).then(function()
 				{
+					console.log("sent offer to:" + data.uid);
 					serverCon.send(JSON.stringify({
 						'sdp': peerCons[data.uid].localDescription,
 						'sendTo': data.uid
 					}));
 				});
 			});
-			
 		}
 	}
 	else if(data.sendTo) //message direct to us
@@ -129,7 +129,7 @@ function sendicecandidate(event)
 {
 	if(event.candidate != null)
 	{
-		console.log('uid from: ' + this.uid);
+		console.log('ice from: ' + this.uid);
 		
 		serverCon.send(JSON.stringify({
 			'ice': event.candidate,
@@ -185,6 +185,7 @@ function updateDisplay()
 function clearConnection()
 {
 	try{
+		
 		serverCon.close();
 	}
 	catch(e){
@@ -204,33 +205,28 @@ function clearConnection()
 
 function startConnection(info)
 {
-	clearConnection();//make sure
-	
-	serverCon = new WebSocket("ws://" + info.server, "dew-voip");
-	serverCon.onmessage = OnMessage;
-	serverCon.onclose = function()
-	{
-		console.log("disconnected from signal server");
-		clearConnection();
-	}
-	serverCon.onopen = function()
-	{
-		//must send the password before the server will accept anything from us
-		serverCon.send(info.password);
-		console.log("sent password");
-		serverCon.send(JSON.stringify(
-		{
-			"broadcast": "garbage"
-		}));
-	}
-	
-	var constraints = {
-		video: false,
-		audio: true
-	};
-	
-	navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+	clearConnection();
+	navigator.mediaDevices.getUserMedia({video:false,audio:true}).then(function(stream){
 		localStream = stream;
+		
+		
+		serverCon = new WebSocket("ws://" + info.server, "dew-voip");
+		serverCon.onmessage = OnMessage;
+		serverCon.onclose = function()
+		{
+			console.log("disconnected from signal server");
+			clearConnection();
+		}
+		serverCon.onopen = function()
+		{
+			//must send the password before the server will accept anything from us
+			serverCon.send(info.password);
+			console.log("sent password");
+			serverCon.send(JSON.stringify(
+			{
+				"broadcast": "garbage"
+			}));
+		}
 	});
 }
 
