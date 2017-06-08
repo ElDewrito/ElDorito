@@ -299,7 +299,7 @@ function getSuggestedCommands(partial) {
             suggestions.push(value.name);
         });
         var match = findPartialsMatch(suggestions);
-        if (match && ((match.toLowerCase() != partial.toLowerCase() && $.inArray(match, suggestions) == -1) || partial.length <= 1 || match.toLowerCase().indexOf(partial.toLowerCase()) == 0)){
+        if (suggestions.length > 0){
             var suggestionsString = "";
             $.each(suggestions, function (key, value) {
                 suggestionsString += htmlEncode(value) + "</span>       <span class=\"command\"><b>";
