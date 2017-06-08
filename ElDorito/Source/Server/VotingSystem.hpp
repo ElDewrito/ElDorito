@@ -54,11 +54,13 @@ namespace Server
 			std::string typeName;
 			std::string typeDisplayName;
 			std::string SprintEnabled;
+			std::string MaxTeamSize;
 			HaloType(){}
 			HaloType(std::string t, std::string dn) {
 				typeName = t;
 				typeDisplayName = dn;
 				SprintEnabled = "0";
+				MaxTeamSize = "8";
 			}
 
 		};
