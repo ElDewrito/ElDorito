@@ -1,4 +1,5 @@
 var peerCons = [];
+var peerIds = [];
 var localStream = null;
 var serverCon;
 var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
@@ -95,6 +96,7 @@ function createPeer(data)
 	peerCons[data.uid].uid = data.uid;
 	peerCons[data.uid].user = data.uid.split("|")[0];
 	peerCons[data.uid].onclose = removePeer;
+	peerIds.push(data.uid);
 }
 
 function removePeer(uid)
@@ -105,6 +107,9 @@ function removePeer(uid)
 	removeElement(document.getElementById(uid));
 	
 	stopSpeak(uid.split("|")[0]);
+	
+	var index = peerIds.indexOf(uid);
+	peerIds.splice(index, 1);
 	
 	delete peerCons[uid];
 	
@@ -193,9 +198,10 @@ function clearConnection()
 	}
 	try
 	{
-		peerCons.forEach(function(peer){
-			peer.close(); //our onclose handler should clean the video elements
+		peerIds.forEach(function(id){
+			peerCons[id].close();
 		});
+		peerIds = [];
 		peerCons = [];
 	}
 	catch(e){
