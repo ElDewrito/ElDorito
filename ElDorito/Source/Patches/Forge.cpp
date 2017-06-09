@@ -1029,7 +1029,7 @@ namespace
 			for (auto i = 0; i < 640; i++)
 			{
 				auto& placement = mapv->Placements[i];
-				if (placement.PlacementFlags & 1 == 0 ||
+				if (!(placement.PlacementFlags & 1) ||
 					placement.ObjectIndex == -1 ||
 					placement.ObjectIndex == deletedObjectIndex)
 					continue;
@@ -1061,7 +1061,7 @@ namespace
 			for (auto i = 0; i < 640; i++)
 			{
 				auto& placement = mapv->Placements[i];
-				if (placement.PlacementFlags & 1 == 0 ||
+				if (!(placement.PlacementFlags & 1) ||
 					placement.ObjectIndex == -1 ||
 					placement.ObjectIndex == changedObjectIndex)
 					continue;
@@ -1086,7 +1086,7 @@ namespace
 		for (auto i = 0; i < 640; i++)
 		{
 			auto& placement = mapv->Placements[i];
-			if (placement.PlacementFlags & 1 == 0 ||
+			if (!(placement.PlacementFlags & 1) ||
 				placement.ObjectIndex == -1)
 				continue;
 
