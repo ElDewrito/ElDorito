@@ -24,6 +24,7 @@ namespace Modules
 		VarCloneMultiplier = AddVariableInt("CloneMultiplier", "clone_multiplier", "Number of consecutive times the object will be cloned", eCommandFlagsNone, 1);
 		VarRotationSnap = AddVariableFloat("RotationSnap", "rotation_snap", "Angle in degrees at which object rotation will be snapped", eCommandFlagsNone, 0);
 		VarRotationSensitivity = AddVariableFloat("RotationSensitivity", "rotation_sensitivity", "Controls the sensitivity of object rotation", eCommandFlagsArchived, 1.0f);
+		VarMonitorSpeed = AddVariableFloat("MonitorSpeed", "monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 1.0f);
 
 		AddCommand("DeleteAll", "delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
 		AddCommand("Canvas", "canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);

@@ -45,6 +45,7 @@ namespace
 	void ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3);
 	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
+	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 
 	void FixRespawnZones();
 
@@ -136,6 +137,7 @@ namespace Patches
 			Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
 			Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
 			Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
+			Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
 
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
@@ -269,7 +271,8 @@ namespace
 
 				if (heldObjectIndex == -1)
 				{
-					if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
+					if (Input::GetActionState(Blam::Input::eGameActionUiB)->Ticks == 1 || 
+						Input::GetKeyTicks(Blam::Input::eKeyCode1, Blam::Input::eInputTypeUi) == 1)
 					{
 						if (objectIndexUnderCrosshair != -1)
 						{
@@ -1151,5 +1154,60 @@ namespace
 			return;
 
 		ObjectGrabbedHook(playerIndex, grabObjectPtr(0x1c).Read<int16_t>());
+	}
+
+
+	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7)
+	{
+		static auto UnitFlying = (void(__cdecl *)(int a1, int a2, int a3, int a4, int a5, int a6, int a7))(0x7205D0);
+		static auto Forge_GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x59A6F0);
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		auto& players = Blam::Players::GetPlayers();
+		auto player = players.Get(playerIndex);
+
+		if (player && player->SlaveUnit == DatumIndex(unitObjectIndex) 
+			&& Forge_GetEditorModeState(playerIndex, nullptr, nullptr))
+		{
+			auto& moduleForge = Modules::ModuleForge::Instance();
+			auto& monitorSpeed = *(float*)(a2 + 0x150);
+			monitorSpeed *= moduleForge.VarMonitorSpeed->ValueFloat;
+
+			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
+
+			auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
+			if (activeScreenCount != 0)
+				return;
+
+			auto& objects = Blam::Objects::GetObjects();
+			auto unitObjectPtr = Pointer(objects.Get(unitObjectIndex))[0xC];
+			if (!unitObjectPtr)
+				return;
+
+			auto unitDefPtr = Pointer(Blam::Tags::TagInstance(unitObjectPtr.Read<uint32_t>()).GetDefinition<void>());
+			auto maxVelocity = *(float*)unitDefPtr(0x564) * monitorSpeed;
+			auto acceleration = *(float*)unitDefPtr(0x56C);
+			auto deceleration = *(float*)unitDefPtr(0x570);
+
+			auto direction = 0;
+			if (Blam::Input::GetActionState(Blam::Input::eGameActionUiRightBumper)->Ticks > 0)
+				direction = 1;
+			if (Blam::Input::GetActionState(Blam::Input::eGameActionUiLeftBumper)->Ticks > 0)
+				direction = -1;
+
+			static float s_Velocity = 0;
+
+			auto t = Blam::Time::GetSecondsPerTick();
+			auto destination = direction * maxVelocity;
+			s_Velocity = s_Velocity * (1.0f - t * acceleration) + destination * (t * deceleration);
+
+			auto v = (RealVector3D*)(a2 + 0x134);
+			if (direction != 0)
+				v->K = s_Velocity;
+		}
+		else
+		{
+			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
+		}
 	}
 }

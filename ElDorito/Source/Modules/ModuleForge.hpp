@@ -11,6 +11,7 @@ namespace Modules
 		Command* VarCloneMultiplier;
 		Command* VarRotationSnap;
 		Command* VarRotationSensitivity;
+		Command* VarMonitorSpeed;
 
 		ModuleForge();
 	};
