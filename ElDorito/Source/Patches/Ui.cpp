@@ -458,6 +458,8 @@ namespace Patches
 
 			// fix equipment swap message
 			Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
+			// fix dual-wield message
+			Pointer(0xABD388).Write<uint32_t>(0xABD300);
 			// add support for mouse buttons in HUD messages
 			Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
 		}
