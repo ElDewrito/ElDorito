@@ -47,8 +47,8 @@ namespace
 	{
 		memset(&bindings, 0, sizeof(bindings));
 
-		bindings.ControllerSensitivityX = 120.f;
-		bindings.ControllerSensitivityY = 60.f;
+		bindings.ControllerSensitivityX = 150.f;
+		bindings.ControllerSensitivityY = 90.f;
 		bindings.Unknown200 = .8f;
 		bindings.Unknown204 = 1.f;
 

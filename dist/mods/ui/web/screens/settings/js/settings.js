@@ -1,5 +1,5 @@
 var loadedSettings = false;
-var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['armorAcc', 'Player.Armor.Accessory'], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'], ['sMaxTeamSize', 'Server.MaxTeamSize'], ['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityY'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard'], ['invertLook','Input.ControllerInvertY'], ['gHideChat','Game.HideChat'], ['gSuppressJuggling','Game.SuppressJuggling'], ['sTeamShufflingEnabled','Server.TeamShuffleEnabled'], ['sVotingEnabled','Server.VotingEnabled'], ['wOffsetConfig','Weapon.Config'], ['gMedalPack','Game.MedalPack'], ['iSpectateSens','Input.SpectateSensitivity'],['iDisableSprint','Input.ToggleSprint']];
+var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['armorAcc', 'Player.Armor.Accessory'], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'], ['sMaxTeamSize', 'Server.MaxTeamSize'], ['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityX'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard'], ['invertLook','Input.ControllerInvertY'], ['gHideChat','Game.HideChat'], ['gSuppressJuggling','Game.SuppressJuggling'], ['sTeamShufflingEnabled','Server.TeamShuffleEnabled'], ['sVotingEnabled','Server.VotingEnabled'], ['wOffsetConfig','Weapon.Config'], ['gMedalPack','Game.MedalPack'], ['iSpectateSens','Input.SpectateSensitivity'],['iDisableSprint','Input.ToggleSprint']];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 var renderWeapons = [
@@ -127,7 +127,7 @@ $(document).ready(function() {
         }
     });
     $(document).keydown(function(e){
-        if(e.keyCode == 192 || e.keyCode == 112){
+        if(e.keyCode == 192 || e.keyCode == 223){
             dew.show("console");
         }
     });
@@ -225,9 +225,9 @@ function loadSettings(i) {
                 }else{
                     $("input[name='"+settingsToLoad[i][0]+"']").css("color","#ddd");
                 }
-            }else if(settingsToLoad[i][1].startsWith("Input.ControllerSensitivity")){ 
-                    var yVal = response/10;
-                    $("input[name='"+settingsToLoad[i][0]+"']").val(yVal);
+            }else if(settingsToLoad[i][1].startsWith("Input.ControllerSensitivityX")){ 
+                    var xVal = (response-90)/20;
+                    $("input[name='"+settingsToLoad[i][0]+"']").val(xVal);
             }else{
                 if ($("input[name='"+settingsToLoad[i][0]+"']").is(':checkbox')){
                     if (response == "1"){
@@ -394,11 +394,7 @@ function getLuminance(hex) {
 }
 
 function updateSensitivity(value){
-    var xVal = value * 20;
-    var yVal = value * 10;
-    dew.command("Input.ControllerSensitivityY " + yVal, {}).then(function(){
-        dew.command("writeconfig");
-    });
+    var xVal = 90 + (value * 20);
     dew.command("Input.ControllerSensitivityX " + xVal, {}).then(function(){
         dew.command("writeconfig");
     });
