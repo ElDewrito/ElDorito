@@ -1,4 +1,5 @@
 var buttons = ["A","B","X","Y"];
+var votingType = "voting";
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -38,13 +39,15 @@ dew.on("Winner", function(event) {
 });
 dew.on("VetoOptionsUpdated", function(event) {
     clearInterval(interval);
-	console.log(event.data);
+	//console.log(event.data);
 	var message = "";
 	if(event.data.vetoOption.canveto){
 		message = "VETO COUNTDOWN " 
+        votingType = "veto";
 	}
 	else{
 		message = "GAME STARTING IN: " 
+        votingType = "ended";
 	}
 	$(".container").html("");
 	   $("<a></a>", {
@@ -72,7 +75,7 @@ dew.on("VetoOptionsUpdated", function(event) {
         }
     
     if(hasGP){
-        onControllerConnect(); 
+        onControllerConnect(votingType); 
     }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
@@ -90,15 +93,24 @@ dew.on("VetoOptionsUpdated", function(event) {
             dew.command("server.CancelVote").then(function() {});
         }
         dew.hide();
-   });
-    $(".votingOption").click(function() {
-
-        $(".votingOption").removeClass("selected");
-        $(this).addClass("selected");
-        vote($(this).attr('id'));
-    });  
+    });
+    if(votingType == "veto"){
+        $(".votingOption").click(function() {
+            $(".votingOption").removeClass("selected");
+            $(this).addClass("selected");
+            vote($(this).attr('id'));
+        });  
+        $(".votingOption").hover(
+            function() {
+                $( this ).addClass( "selected" );
+            }, function() {
+                $( this ).removeClass("selected");
+            }
+        );
+    }
 });
 dew.on("VotingOptionsUpdated", function(event) {
+    votingType = "voting";
     clearInterval(interval);
 	
     $(".container").html("");
@@ -134,7 +146,7 @@ dew.on("VotingOptionsUpdated", function(event) {
         }
     });
     if(hasGP){
-        onControllerConnect(); 
+        onControllerConnect(votingType); 
     }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
@@ -154,11 +166,17 @@ dew.on("VotingOptionsUpdated", function(event) {
         dew.hide();
    });
     $(".votingOption").click(function() {
-
         $(".votingOption").removeClass("selected");
         $(this).addClass("selected");
         vote($(this).attr('id'));
     });    
+    $(".votingOption").hover(
+        function() {
+            $( this ).addClass( "selected" );
+        }, function() {
+            $( this ).removeClass("selected");
+        }
+    );
 });
 
 dew.on("VoteCountsUpdated", function(event) {
@@ -167,14 +185,17 @@ dew.on("VoteCountsUpdated", function(event) {
             $("#voteTally" + entry.OptionIndex).text("");
         else
             $("#voteTally" + entry.OptionIndex).text(entry.Count);
-
     });
 });
 
-function onControllerConnect(){
-    $(".votingOption").each(function(index){
-        $(this).append("<img class='button' src='dew://assets/buttons/XboxOne_"+buttons[index]+".png'>");
-    });
+function onControllerConnect(votingType){
+    if(votingType == 'voting'){
+        $(".votingOption").each(function(index){
+            $(this).append("<img class='button' src='dew://assets/buttons/XboxOne_"+buttons[index]+".png'>");
+        });
+    }else if(votingType == 'veto'){
+        $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/XboxOne_X.png'>");
+    }
     $("#boxclose").html("<img class='button' src='dew://assets/buttons/XboxOne_Windows.png'>");    
 }
 
@@ -183,6 +204,12 @@ function buttonAction(i){
         case 0: // A
         case 1: // B
         case 2: // X
+            if(votingType == 'veto'){
+                vote(1);
+                $(".votingOption").removeClass("selected");
+                $('.votingOption').eq(0).addClass("selected");
+                break;
+            }
         case 3: // Y
             vote(i+1);
             $(".votingOption").removeClass("selected");

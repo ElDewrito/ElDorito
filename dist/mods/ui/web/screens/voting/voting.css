@@ -102,7 +102,7 @@ a.boxclose img.button{
 	border-bottom: 0;
 	
 }
-.votingOption:hover,.selected
+.selected
 {
 	color:white;
 	border: 2px solid rgba(255, 255, 255, 0.9);
