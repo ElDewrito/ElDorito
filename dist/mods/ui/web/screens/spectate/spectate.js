@@ -16,7 +16,8 @@ var teamArray = [
 dew.on("spectate_change", function(e){
     dew.show();
     dew.getScoreboard().then(function (x){ 
-        showSpectateOverlay(e.data.playerIndex, x.players, x.hasTeams, JSON.parse(x.playersInfo));
+        var playerIndex = x.players.findIndex(i => i.name == e.data.displayName);
+        showSpectateOverlay(playerIndex, x.players, x.hasTeams, JSON.parse(x.playersInfo));
     });
 });
 
