@@ -299,8 +299,11 @@ namespace
 			}
 
 			// Execute the command and print its result
+			std::string copy(binding->command[0]);
+			std::transform(copy.begin(), copy.end(), copy.begin(), tolower);
 			auto result = Modules::CommandMap::Instance().ExecuteCommand(command, true);
-			Console::WriteLine(result);
+			if(copy.find("voip.talk") == std::string::npos) //voip exception
+				Console::WriteLine(result);
 		}
 	}
 
