@@ -331,6 +331,9 @@
     <ClCompile Include="Source\Server\Voting.cpp">
       <Filter>Server</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleVoIP.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -873,6 +876,9 @@
     <ClInclude Include="Source\Patches\Spectate.hpp" />
     <ClInclude Include="Source\Server\Voting.hpp">
       <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleVoIP.hpp">
+      <Filter>Modules</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

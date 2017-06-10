@@ -68,6 +68,7 @@
     <ClCompile Include="Source\Modules\ModuleSettings.cpp" />
     <ClCompile Include="Source\Modules\ModuleTime.cpp" />
     <ClCompile Include="Source\Modules\ModuleUPnP.cpp" />
+    <ClCompile Include="Source\Modules\ModuleVoIP.cpp" />
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp" />
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Patches\Armor.cpp" />
@@ -219,6 +220,7 @@
     <ClInclude Include="Source\Modules\ModuleSettings.hpp" />
     <ClInclude Include="Source\Modules\ModuleTime.hpp" />
     <ClInclude Include="Source\Modules\ModuleUPnP.hpp" />
+    <ClInclude Include="Source\Modules\ModuleVoIP.hpp" />
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp" />
     <ClInclude Include="Source\Patch.hpp" />
     <ClInclude Include="Source\Patches\Armor.hpp" />

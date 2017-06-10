@@ -233,6 +233,11 @@ function startConnection(info)
 				"broadcast": "garbage"
 			}));
 		}
+		
+		dew.command("voip.ptt_enabled", {}).then(function(ptt_enabled){
+			console.log("PTT setting:" + !ptt_enabled);
+			localStream.getAudioTracks()[0].enabled = !ptt_enabled;
+		});
 	});
 }
 
@@ -249,11 +254,32 @@ function retry()
 	});
 }
 
+function PTT(toggle)
+{
+	localStream.getAudioTracks()[0].enabled = toggle.talk;
+}
+
+function updateSettings(settings)
+{
+	if(settings.PTT_Enabled == 1)
+	{
+		PTT(1);
+	}
+}
+
 $(document).ready(function(){
 	console.log("waiting for signal server");
 	dew.on("signal-ready", function(info){
 		console.log("signal ready");
 		startConnection(info.data);
+	});
+	
+	dew.on("voip-ptt", function(state){
+		PTT(state.data);
+	});
+	
+	dew.on("voip-settings", function(response){
+		updateSettings(response.data);
 	});
 	
 	dew.on("show", function(args){
