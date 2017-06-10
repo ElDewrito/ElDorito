@@ -34,8 +34,7 @@ namespace
 	void ResolutionChangeHook();
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 	HWND CreateGameWindowHook();
-	void __cdecl UI_UpdateHUDHook(int playerMappingIndex);
-	void UI_SaberWeaponHUDMessageHook();
+	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex);
 	void GetActionButtonNameHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
@@ -451,17 +450,18 @@ namespace Patches
 			// Game window creation callbacks
 			Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
 
-			// fix press <button> to dual wield message
-			Hook(0x006970BB, UI_UpdateHUDHook, HookFlags::IsCall).Apply();
-			// prevent saber's HUD from showing a pickup/swap message if the weapon is the same as the equipped
-			Hook(0x0068676D, UI_SaberWeaponHUDMessageHook, HookFlags::None).Apply();
-
+			// disable saber's weapon hud
+			Patch(0x6866F2, { 0xEB }).Apply();
+			// restore h3 weapon hud
+			Hook(0x006970BB, UI_UpdateH3HUDHook, HookFlags::IsCall).Apply();
 			// fix equipment swap message
 			Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
 			// fix dual-wield message
 			Pointer(0xABD388).Write<uint32_t>(0xABD300);
 			// add support for mouse buttons in HUD messages
 			Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
+			// enable controller buttons in HUD messages
+			Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -914,12 +914,11 @@ namespace
 		return hwnd;
 	}
 
-	void __cdecl UI_UpdateHUDHook(int playerMappingIndex)
+	bool UpdateH3HUDImpl(int playerMappingIndex)
 	{
 		using TagInstance = Blam::Tags::TagInstance;
 		using WeaponDefinition = Blam::Tags::Items::Weapon;
 
-		static auto UI_UpdateHUD = (void(__cdecl*)(int playerMappingIndex))(0xA95D10);
 		static auto GetPlayerIndexFromPlayerMappingIndex = (uint32_t(__cdecl*)(int playerMappingIndex))(0x00589C60);
 		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
 		static auto DisplayHUDMessage = (void(__cdecl *)(int playerMappingIndex, uint32_t stringId, int a3, int a4))(0x00A964E0);
@@ -929,68 +928,72 @@ namespace
 		auto actionObjectIndex = actionStatePtr(0x4).Read<uint32_t>();
 		auto actionFlags = actionStatePtr(0x2).Read<uint16_t>();
 
-		if (actionType == 1 && actionFlags != 2u) // weapon pickup/swap
+		if (actionType != 1) // weapon pickup/swap
+			return false;
+
+		auto& players = Blam::Players::GetPlayers();
+		auto& objects = Blam::Objects::GetObjects();
+
+		auto playerIndex = GetPlayerIndexFromPlayerMappingIndex(playerMappingIndex);
+		auto player = players.Get(playerIndex);
+		assert(player);
+
+		auto unitObjectPtr = Pointer(objects.Get(player->SlaveUnit))[0xC];
+		assert(unitObjectPtr);
+
+		auto actionWeaponObjectPtr = Pointer(objects.Get(actionObjectIndex))[0xC];
+		if (!actionWeaponObjectPtr)
+			return false;
+
+		auto equippedWeaponIndex = unitObjectPtr(0x2CA).Read<uint8_t>();
+		auto actionWeapDef = TagInstance(actionWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
+		if (!actionWeapDef)
+			return false;
+
+		auto secondaryWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * 1).Read<uint32_t>();
+		auto primaryWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * 0).Read<uint32_t>();
+		auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
+
+		if (primaryWeaponObjectIndex == -1 || secondaryWeaponObjectIndex == -1)
 		{
-			auto& players = Blam::Players::GetPlayers();
-			auto& objects = Blam::Objects::GetObjects();
-
-			auto playerIndex = GetPlayerIndexFromPlayerMappingIndex(playerMappingIndex);
-			auto player = players.Get(playerIndex);
-			assert(player);
-
-			auto unitObjectPtr = Pointer(objects.Get(player->SlaveUnit))[0xC];
-			assert(unitObjectPtr);
-
-			auto equippedWeaponIndex = unitObjectPtr(0x2CA).Read<uint8_t>();
-			if (equippedWeaponIndex != -1)
-			{
-				auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
-
-				if (equippedWeaponObjectIndex != -1 && actionObjectIndex != -1)
-				{
-					auto equippedWeaponObjectPtr = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC];
-					auto actionWeaponObjectPtr = Pointer(objects.Get(actionObjectIndex))[0xC];
-
-					if (equippedWeaponObjectPtr && actionWeaponObjectPtr)
-					{
-						auto equippedWeapDef = TagInstance(equippedWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
-						auto actionWeapDef = TagInstance(actionWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
-
-						if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
-							uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
-						{
-							DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
-							return;
-						}
-					}
-				}
-			}
+			DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupMessage, -1, 0);
+			return true;
 		}
 
-		UI_UpdateHUD(playerMappingIndex);
+		if (equippedWeaponIndex == -1)
+			return false;
+
+		auto equippedWeaponObjectPtr = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC];
+		if (!equippedWeaponObjectPtr)
+			return false;
+
+		auto equippedWeapDef = TagInstance(equippedWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
+		if (!equippedWeapDef)
+			return false;
+
+		if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
+			uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
+		{
+			if (actionFlags != (1 << 1))
+				DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
+			if (actionFlags != (1 << 3) && actionFlags != (1 << 2))
+				DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
+			return true;
+		}
+		else
+		{
+			DisplayHUDMessage(playerMappingIndex, -1, -1, 1);
+			DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
+			return true;
+		}
 	}
 
-	__declspec(naked) void UI_SaberWeaponHUDMessageHook()
+	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex)
 	{
-		__asm
-		{
-			cmp esi, 0xFFFFFFFF
-			jz NO_MESSAGE
-			mov eax, 0x5D0BD0
-			push[ebp + 8]
-			call eax
-			add esp, 4
-			mov al, byte ptr[eax + 2]
-			cmp al, 4
-			jz NO_MESSAGE
-			cmp al, 8
-			jz NO_MESSAGE
-			mov eax, 0x00A86773
-			jmp eax
-			NO_MESSAGE:
-			mov eax, 0xA86B32
-			jmp eax
-		}
+		static auto UI_UpdateHUD = (void(__cdecl*)(int playerMappingIndex))(0xA95D10);
+
+		if (!UpdateH3HUDImpl(playerMappingIndex))
+			UI_UpdateHUD(playerMappingIndex);
 	}
 
 	bool __cdecl GetBoundMouseButtonName(int code, wchar_t* buff)
