@@ -111,7 +111,21 @@
         <label for="FireLeft">FireLeft</label><select class="bind" id="FireLeft"></select><br />
         <label for="ReloadLeft">ReloadLeft</label><select class="bind" id="ReloadLeft"></select><br />
         <label for="UseEquipment">UseEquipment</label><select class="bind" id="UseEquipment"></select><br />
+        <label for="VehicleAccelerate">VehicleAccelerate</label><select class="bind" id="VehicleAccelerate"></select><br />        
+        <label for="VehicleBrake">VehicleBrake</label><select class="bind" id="VehicleBrake"></select><br />
+        <label for="VehicleBoost">VehicleBoost</label><select class="bind" id="VehicleBoost"></select><br />
+        <label for="VehicleRaise">VehicleRaise</label><select class="bind" id="VehicleRaise"></select><br />
+        <label for="VehicleDive">VehicleDive</label><select class="bind" id="VehicleDive"></select><br />
+        <label for="VehicleFire">VehicleFire</label><select class="bind" id="VehicleFire"></select><br />
+        <label for="VehicleAltFire">VehicleAltFire</label><select class="bind" id="VehicleAltFire"></select><br />
+        <label for="BansheeBomb">BansheeBomb</label><select class="bind" id="BansheeBomb"></select><br />
+        <label for="ForgeDelete">ForgeDelete</label><select class="bind" id="ForgeDelete"></select><br />
+        <label for="Chat">Chat</label><select class="bind" id="Chat"></select><br />
+        <label for="TeamChat">TeamChat</label><select class="bind" id="TeamChat"></select><br />
+        <label for="Menu">Menu</label><select class="bind" id="Menu"></select><br />
+        <label for="Scoreboard">Scoreboard</label><select class="bind" id="Scoreboard"></select><br />
     </div>
+
     <div id="controllerGraphic">
         <img id="controllerPic" src="controller.png">
         <div id="A"></div>
@@ -131,32 +145,14 @@
         <div id="Up"></div>
         <div id="Down"></div>
     </div>
-    <div id="extendedControls">
-        <div id="vehicle">
-        <label for="VehicleAccelerate">VehicleAccelerate</label><select class="bind" id="VehicleAccelerate"></select><br />        
-        <label for="VehicleBrake">VehicleBrake</label><select class="bind" id="VehicleBrake"></select><br />
-        <label for="VehicleBoost">VehicleBoost</label><select class="bind" id="VehicleBoost"></select><br />
-        <label for="VehicleRaise">VehicleRaise</label><select class="bind" id="VehicleRaise"></select><br />
-        <label for="VehicleDive">VehicleDive</label><select class="bind" id="VehicleDive"></select><br />
-        <label for="VehicleFire">VehicleFire</label><select class="bind" id="VehicleFire"></select><br />
-        <label for="VehicleAltFire">VehicleAltFire</label><select class="bind" id="VehicleAltFire"></select><br />
-        <label for="BansheeBomb">BansheeBomb</label><select class="bind" id="BansheeBomb"></select><br />
-        </div><div id="other">
-        <label for="ForgeDelete">ForgeDelete</label><select class="bind" id="ForgeDelete"></select><br />
-        <label for="Chat">Chat</label><select class="bind" id="Chat"></select><br />
-        <label for="TeamChat">TeamChat</label><select class="bind" id="TeamChat"></select><br />
-        <label for="Menu">Menu</label><select class="bind" id="Menu"></select><br />
-        <label for="Scoreboard">Scoreboard</label><select class="bind" id="Scoreboard"></select><br />
-        </div>
-        <div id="advanced">
+    <div id="advanced">
         <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
         <input type="text" value=12 class="tinySetting" id="lookSensitivityText" class="setting" name="lookSensitivity" onchange="updateSensitivity(this.value);">
         <input value="3" type="range" min="1" max="15" id="lookSensitivity" class="setting" name="lookSensitivity" oninput="document.querySelector('#lookSensitivityText').value = this.value;updateSensitivity(this.value);"><br />
         <label for="invertLook">Invert Look</label><input class="setting" type="checkbox" id="invertLook" name="invertLook"><br />
         <label for="controllerPort">Port Number of Controller (Default is 0)</label><select name="controllerPort" id="controllerPort"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
-        </div>
     </div>
-    <button id="expandCollapse" onClick="showExtended();">&#8226;&#8226;&#8226;</button>
+
 </div>
 
 </body>

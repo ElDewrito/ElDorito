@@ -334,29 +334,16 @@ function showController(){
         $("#controllerSettings").css("display", "block");
         controllerShown = true;
         if(hasGP){
-            $('.selected').removeClass();
-            $('#presets label').addClass('selected');
-            selectedItem = "presetMenu";
+            activePage = "#presets, #advanced";
+            updateSelection(0);
         }
     } else {
         $("#controllerSettings").css("display", "none");
         controllerShown = false;
         if(hasGP){
+            activePage = window.location.hash;
             updateSelection(0);
         }
-    }
-}
-
-var extendedShown = false;
-function showExtended(){
-    if (!extendedShown){
-        $("#extendedControls").css("display", "block");
-        $("#expandCollapse").css("bottom", "-24.957vh");     
-        extendedShown = true;
-    } else {
-        $("#extendedControls").css("display", "none");
-        $("#expandCollapse").css("bottom", "-1.3275vh");
-        extendedShown = false;
     }
 }
 
@@ -415,8 +402,13 @@ function getCurrentBindString(){
 
 function updateSelection(item){
     $('.selected').removeClass();
-    $(activePage + " label").eq(item).addClass('selected');
-    selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
+    if(activePage == "#presets, #advanced"){
+        $(activePage).find('label').eq(item).addClass('selected');
+        selectedItem = $(activePage).not('#controls').children().not('.bind,label,center,br,.tinySetting').eq(itemNumber).attr('id');       
+    }else{
+        $(activePage).find('label').eq(item).addClass('selected');
+        selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
+    }
 }
 
 $.fn.getInputType = function () {
@@ -455,7 +447,7 @@ function buttonAction(i){
             nextPage();
             break;
         default:
-            console.log("nothing associated with " + i);
+            //console.log("nothing associated with " + i);
     }  
 }
 
@@ -511,7 +503,11 @@ function leftToggle(){
     if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepDown();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
-        updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        if(selectedItem == 'lookSensitivity'){
+            updateSensitivity($('#lookSensitivityText').val());
+        }else{
+            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        }
     }        
 }
 
@@ -532,7 +528,11 @@ function rightToggle(){
     if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepUp();
         document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;
-        updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        if(selectedItem == 'lookSensitivity'){
+            updateSensitivity($('#lookSensitivityText').val());
+        }else{
+            updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
+        }
     }        
 }
 

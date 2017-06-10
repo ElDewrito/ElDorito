@@ -171,12 +171,12 @@ input[type=range]:focus, input[type=checkbox]:focus {
     display: none;
     font-size: 1.77vh;
     font-weight: 700;
-    height: 43.719vh;
+    height: 74vh;
     opacity: 0.8;
     position: absolute;
     top: 1.77vh;
     left: 1.77vh;
-    width: 110.979vh;
+    width: 105vh;
 }
 #controllerSettings label{
     font-size: 1.77vh;
@@ -184,7 +184,7 @@ input[type=range]:focus, input[type=checkbox]:focus {
 
 #presets {
     float: right;
-    margin-right: 25.665vh;
+    margin-right: 22vh;
 }
 #presets label {
     font-size: 2.2125vh;
@@ -197,7 +197,7 @@ input[type=range]:focus, input[type=checkbox]:focus {
     width: 31.86vh;
     font-family: "Conduit ITC", sans-serif;
 }
-#controls,#vehicle,#other,#advanced {
+#controls,#advanced {
     border: 1px solid #FFF;
     float: left;
     line-height: 2.478vh;
@@ -210,16 +210,14 @@ input[type=range]:focus, input[type=checkbox]:focus {
 #controls{
     top:-0.5vw;
     padding-top:0.3vw;
-    padding-bottom:0.3vw;
 }
 #controls select,#extendedControls select {
     float: right;
 }
 #controllerGraphic {
-    float: right;
-    position: relative;
-    right: 23.01vh;
-    top: 5.487vh;
+    position: absolute;
+    right: 20vh;
+    top: 16.25vh;
 }
 #controllerGraphic div {
     height: 3.009vh;
@@ -234,33 +232,14 @@ input[type=range]:focus, input[type=checkbox]:focus {
     width: 40.533vh;
     height: 23.541vh;
 }
-#extendedControls {
-    background-color: #14234a;
-    border: 1px solid #000;
-    border-top: 0;
-    display: none;
-    height: 23.895vh;
-    left: -1px;
-    position: absolute;
-    top: 43.719vh;
-    width: 110.979vh;
-}
-#expandCollapse {
-    background-color: #14234a;
-    border: 2px solid #000;
-    border-radius: 0.885vh;
-    bottom: -1.3275vh;
-    color: #FFF;
-    font-size: 1.3275vh;
-    height: 2.478vh;
-    left: 49.737vh;
-    letter-spacing: 0.2655vh;
-    padding-left: 2.0355vh;
-    padding-right: 2.0355vh;
-    position: absolute;
-}
+
 #advanced {
-    width: 53.985vh;
+    position:absolute;
+    bottom:1.5vh;
+    right:1.5vh;
+    width: 74vh;
+    min-height: 22vh;
+    overflow:hidden;
 }
 
 #advanced input[!type=range], #advanced select {
@@ -281,6 +260,11 @@ input[type=range]:focus, input[type=checkbox]:focus {
 #advanced input[type=range] {
     margin-right: 8.85vh;
     line-height: 1.947vh;
+}
+
+#advanced .selected{
+    width:77vh;
+    height:2.75vh;
 }
 
 .bind {
