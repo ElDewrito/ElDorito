@@ -721,6 +721,7 @@ namespace
 		{
 			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
 			Server::Signaling::SendPeerPassword(playerIndex);
+			Server::Voting::PlayerJoinedVoteInProgress(playerIndex);
 			isNewMember = true;
 		}
 
@@ -779,7 +780,6 @@ namespace
 
 		// Apply the extended properties
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
-		Server::Voting::PlayerJoinedVoteInProgress(playerIndex); //TODO find somewhere else to put this.
 
 	}
 
