@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "ServerChat.hpp"
+#include "Rcon.hpp"
 #include "../Patches/CustomPackets.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Utils/String.hpp"
@@ -242,18 +243,9 @@ namespace
 	}
 
 	// Writes a message to the log file.
-	void LogMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
+	std::string GetLogString(Blam::Network::Session *session, int peer, const ChatMessage &message)
 	{
-		auto &serverModule = Modules::ModuleServer::Instance();
-		if (!serverModule.VarChatLogEnabled->ValueInt)
-			return;
-
-		// Try to open the log file for appending
-		auto logPath = Modules::ModuleServer::Instance().VarChatLogPath->ValueString;
-		std::ofstream logFile(logPath, std::ios::app);
-		if (!logFile)
-			return;
-
+		
 		// Get the UTC time
 		auto now = std::chrono::system_clock::now();
 		auto time = std::chrono::system_clock::to_time_t(now);
@@ -269,12 +261,32 @@ namespace
 		auto playerIndex = session->MembershipInfo.GetPeerPlayer(peer);
 		if (playerIndex >= 0)
 			uid = session->MembershipInfo.PlayerSessions[playerIndex].Properties.Uid;
+		std::ostringstream ss;
 
-		logFile << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
-		logFile << "<" << sender << "/"; // Sender name
-		logFile << std::setw(16) << std::setfill('0') << std::hex << uid << std::dec << std::setw(0) << "/"; // UID
-		logFile << (ip >> 24) << "." << ((ip >> 16) & 0xFF) << "." << ((ip >> 8) & 0xFF) << "." << (ip & 0xFF) << "> "; // IP address
-		logFile << message.Body << "\n"; // Message body
+
+		ss << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
+		ss << "<" << sender << "/"; // Sender name
+		ss << std::setw(16) << std::setfill('0') << std::hex << uid << std::dec << std::setw(0) << "/"; // UID
+		ss << (ip >> 24) << "." << ((ip >> 16) & 0xFF) << "." << ((ip >> 8) & 0xFF) << "." << (ip & 0xFF) << "> "; // IP address
+		ss << message.Body; // Message body
+		return ss.str();
+	}
+
+	// Writes a message to the log file.
+	void LogMessage(Blam::Network::Session *session, int peer, const ChatMessage &message)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		if (!serverModule.VarChatLogEnabled->ValueInt)
+			return;
+
+		// Try to open the log file for appending
+		auto logPath = Modules::ModuleServer::Instance().VarChatLogPath->ValueString;
+		std::ofstream logFile(logPath, std::ios::app);
+		if (!logFile)
+			return;
+
+		logFile << GetLogString(session,peer, message) << "\n";
+	
 	}
 
 	// Callback for when a message is received as the host.
@@ -302,6 +314,9 @@ namespace
 					return true; // Message was thrown out
 			}
 		}
+
+		if (Modules::ModuleServer::Instance().VarSendChatToRconClients->ValueInt == 1)
+			Server::Rcon::SendMessageToClients(GetLogString(session, peer, broadcastMessage));
 
 		LogMessage(session, peer, broadcastMessage);
 

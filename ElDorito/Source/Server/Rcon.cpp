@@ -23,8 +23,10 @@ namespace
 	void ProcessCommand(server* rconServer, websocketpp::connection_hdl hdl, server::message_ptr msg);
 	void ProcessPassword(server* rconServer, websocketpp::connection_hdl hdl, server::message_ptr msg);
 	void OnClose(server* rconServer, websocketpp::connection_hdl hdl);
-
+	void OnTimer(server* rconServer, websocketpp::lib::error_code const & ec);
 	std::set<websocketpp::connection_hdl, std::owner_less<websocketpp::connection_hdl>> authenticatedConnections;
+	std::vector<std::string> sendThroughWebsocket = std::vector <std::string>{};
+
 
 	const int DefaultPasswordLength = 32;
 	const char* ProtocolName = "dew-rcon";
@@ -45,6 +47,9 @@ namespace Server
 				Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
 			}
 			CreateThread(nullptr, 0, RconThread, nullptr, 0, nullptr);
+		}
+		void SendMessageToClients(std::string message) {
+			sendThroughWebsocket.push_back(message);
 		}
 	}
 }
@@ -68,6 +73,7 @@ namespace
 			rconServer.set_validate_handler(websocketpp::lib::bind(OnValidate, &rconServer, _1));
 			rconServer.set_message_handler(websocketpp::lib::bind(OnMessage, &rconServer, _1, _2));
 			rconServer.set_close_handler(websocketpp::lib::bind(OnClose, &rconServer, _1));
+			rconServer.set_timer(1000, websocketpp::lib::bind(OnTimer, &rconServer, _1));
 
 			auto port = Modules::ModuleGame::Instance().VarRconPort->ValueInt;
 			rconServer.listen(static_cast<uint16_t>(port));
@@ -107,7 +113,18 @@ namespace
 			Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Error, "websocketpp: %s", e.message());
 		}
 	}
+	void OnTimer(server* rconServer, websocketpp::lib::error_code const & ec)
+	{
 
+		for (auto it : authenticatedConnections) {
+			for (auto m : sendThroughWebsocket) {
+				rconServer->send(it, m, websocketpp::frame::opcode::text);
+			}
+		}
+		sendThroughWebsocket.clear();
+		
+		rconServer->set_timer(1000, websocketpp::lib::bind(OnTimer, rconServer, _1));
+	}
 	void ProcessCommand(server* rconServer, websocketpp::connection_hdl hdl, server::message_ptr msg)
 	{
 		auto output = Modules::CommandMap::Instance().ExecuteCommand(msg->get_payload(), true);

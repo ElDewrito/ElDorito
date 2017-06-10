@@ -1193,6 +1193,10 @@ namespace Modules
 		VarChatCommandEndGameEnabled->ValueIntMin = 0;
 		VarChatCommandEndGameEnabled->ValueIntMax = 1;
 
+		VarSendChatToRconClients = AddVariableInt("SendChatToRconClients", "send_chat_to_rcon", "Controls whether or not chat should be sent through rcon", eCommandFlagsArchived, 0);
+		VarSendChatToRconClients->ValueIntMin = 0;
+		VarSendChatToRconClients->ValueIntMax = 1;
+		
 		VarServerVotePassPercentage = AddVariableInt("VotePassPercentage", "vote_pass_percentage", "Percentage of players required to vote yes for a chat command vote to pass ", eCommandFlagsArchived, 50);
 		VarServerVotePassPercentage->ValueIntMin = 0;
 		VarServerVotePassPercentage->ValueIntMax = 100;
