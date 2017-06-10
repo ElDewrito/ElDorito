@@ -1,5 +1,6 @@
 var buttons = ["A","B","X","Y"];
 var votingType = "voting";
+var controllerType = "360";
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -75,7 +76,7 @@ dew.on("VetoOptionsUpdated", function(event) {
         }
     
     if(hasGP){
-        onControllerConnect(votingType); 
+        onControllerConnect(); 
     }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
@@ -146,7 +147,7 @@ dew.on("VotingOptionsUpdated", function(event) {
         }
     });
     if(hasGP){
-        onControllerConnect(votingType); 
+        onControllerConnect(); 
     }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
@@ -188,15 +189,15 @@ dew.on("VoteCountsUpdated", function(event) {
     });
 });
 
-function onControllerConnect(votingType){
+function onControllerConnect(){
     if(votingType == 'voting'){
         $(".votingOption").each(function(index){
-            $(this).append("<img class='button' src='dew://assets/buttons/XboxOne_"+buttons[index]+".png'>");
+            $(this).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_"+buttons[index]+".png'>");
         });
     }else if(votingType == 'veto'){
-        $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/XboxOne_X.png'>");
+        $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_X.png'>");
     }
-    $("#boxclose").html("<img class='button' src='dew://assets/buttons/XboxOne_Windows.png'>");    
+    $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Back.png'>");    
 }
 
 function buttonAction(i){

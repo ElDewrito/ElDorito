@@ -1,22 +1,29 @@
-$(document).ready(function() {
-   $(window).keypress(function(e) {
-       var key = e.which;
-       if (key == 13){
-            $( ".genericLoader" ).fadeOut( 500, function() {
-                dew.hide();
-            });
-       } else if (key ==192){
-            dew.show("console");
-       }
-   });
+var controllerType = "360";
+
+$("html").on("keydown", function(e) {
+    if (e.which == 13){
+        hideScreen();
+    } 
+    if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
+        dew.show("console");
+    }
+});
+
+dew.on("show", function(e){
+    //dew.command('Game.FirstRun', {}).then(function(response){
+    //    if(response == 1){
+    //        $("#initialInstructions").show();         
+    //    };
+    //});
 });
 
 function onControllerConnect(){
+    $('#dpad').attr('src','dew://assets/buttons/'+controllerType+'_Dpad.png');
     $("#dpad").show();
     $( "#up, #down, #left, #right" ).hide();
-    $(".instructionText img").attr("src","dew://assets/buttons/XboxOne_Menu.png");
-    $("#esc").attr("src","dew://assets/buttons/XboxOne_B.png");
-    $("#enter").attr("src","dew://assets/buttons/XboxOne_A.png");
+    $(".instructionText img").attr("src","dew://assets/buttons/"+controllerType+"_Start.png");
+    $("#esc").attr("src","dew://assets/buttons/"+controllerType+"_B.png");
+    $("#enter").attr("src","dew://assets/buttons/"+controllerType+"_A.png");
 }
 
 function onControllerDisconnect(){
@@ -30,11 +37,18 @@ function onControllerDisconnect(){
 function buttonAction(i){
     switch (i) {
         case 9: // Start
-            $( ".genericLoader" ).fadeOut( 500, function() {
-                dew.hide();
-            });
+            hideScreen();
             break;
         default:
             // console.log("nothing associated with " + i);
     }  
+}
+
+function hideScreen(){
+    $( "body" ).fadeOut( 500, function() {
+        dew.hide();
+        dew.command('Game.FirstRun 0', {}).then(function(e){
+            dew.command('writeconfig', {}).then(function(e){});
+        });
+    });
 }

@@ -5,6 +5,7 @@ var medalsPath = 'medals://';
 capturedInput = false;
 var imageFormat = 'svg';
 var itemNumber = 0;
+var controllerType = "360";
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -263,7 +264,7 @@ function displayScoreboard(expandedScoreboard){
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
-    if(hasGP){
+    if(hasGP && locked){
         updateSelection(itemNumber);
     }
 }
@@ -607,6 +608,7 @@ function flipUID(uid){
 
 function onControllerConnect(){
     $('#closeButton').css('padding-right', '1.75vw');
+    $('#closeButton .button').attr('src','dew://assets/buttons/'+controllerType+'_Start.png');
     $('#closeButton .button').show();
 }
 

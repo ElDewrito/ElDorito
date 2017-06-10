@@ -102,7 +102,7 @@ body {
     top: 1vw;
     left: 1vw;
     border: 2px solid white;
-    background:rgba(255,255,255, 0.2);
+    background:rgba(0, 0, 0, 0.5);
 }
 
 .legend img{
@@ -160,4 +160,23 @@ body {
     left: 15%;
     top: 30%;
     height: 5vw;
+}
+
+#initialInstructions{
+    display:none;
+    position: absolute;
+    top:20%;
+    left:23.5%;
+    width: 50%;
+    height: 55%;
+    color: white;
+    background:rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    padding:2vw;
+    padding-top:0;
+    border: 2px solid white;
+}
+
+#initialInstructions a{
+    color: #95bde1; 
 }
