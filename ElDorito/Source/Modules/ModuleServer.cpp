@@ -1024,7 +1024,22 @@ namespace
 		Server::Chat::SendServerMessage(message);
 		return true;
 	}
+	bool ReloadVotingJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 1)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
 
+		auto jsonName = Arguments[0];
+		if (Server::Voting::ReloadVotingJson(jsonName))
+			returnInfo = "Success";
+		else
+			returnInfo = "Failure. Using default maps instead";
+
+		return true;
+	}
 	bool CommandWebsocketInfo(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto *session = Blam::Network::GetActiveSession();
@@ -1220,6 +1235,8 @@ namespace Modules
 		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", eCommandFlagsHostOnly, 1);
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
+
+		AddCommand("ReloadVotingJson", "reload_voting_json", "Reloads the voting options with the given json", eCommandFlagsNone, ReloadVotingJson);
 
 		AddCommand("WebsocketInfo", "websocketinfo", "Display the websocket password for the current server", eCommandFlagsNone, CommandWebsocketInfo);
 

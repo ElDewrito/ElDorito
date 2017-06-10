@@ -117,6 +117,32 @@ namespace Server
 		bool VotingSystem::isEnabled() {
 			return Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1;
 		}
+		void VotingSystem::Init()
+		{
+			if (!LoadJson("Voting.json"))
+				loadDefaultMapsAndTypes();
+		}
+		void VetoSystem::Init()
+		{
+			if (!LoadJson("Veto.json"))
+				loadDefaultMapsAndTypes();
+		}
+
+		bool AbstractVotingSystem::ReloadVotingJson(std::string fileName) {
+
+			bool success = true;
+			if (!LoadJson(fileName)) {
+				loadDefaultMapsAndTypes();
+				success = false;
+			}
+
+
+			if (voteStartedTime != 0) {
+				Reset();
+				StartVoting();
+			}
+			return success;
+		}
 
 		void VotingSystem::Reset()
 		{
@@ -424,7 +450,7 @@ namespace Server
 
 		}
 		//Loads the voting json. If there is an easier way to serialize into structs, let me know. 
-		bool VotingSystem::LoadJson()
+		bool VotingSystem::LoadJson(std::string filename)
 		{
 			//clear the current contents
 			haloMaps.clear();
@@ -432,7 +458,7 @@ namespace Server
 			auto &customMaps = Modules::ModuleGame::Instance().CustomMapList;
 			auto &defaultMaps = Modules::ModuleGame::Instance().MapList;
 
-			std::ifstream in("Voting.json", std::ios::in | std::ios::binary);
+			std::ifstream in(filename, std::ios::in | std::ios::binary);
 			if (!in || !in.is_open())
 				return false;
 
@@ -596,12 +622,12 @@ namespace Server
 			time(&startime);
 		}
 
-		bool VetoSystem::LoadJson()
+		bool VetoSystem::LoadJson(std::string filename)
 		{
 			//clear the current contents
 			entirePlaylist.clear();
 
-			std::ifstream in("Veto.json", std::ios::in | std::ios::binary);
+			std::ifstream in(filename, std::ios::in | std::ios::binary);
 			if (!in || !in.is_open())
 				return false;
 

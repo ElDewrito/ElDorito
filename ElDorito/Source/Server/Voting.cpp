@@ -79,11 +79,18 @@ namespace Server
 			
 			for (auto elem : VotingSystems)
 			{
-				if (!elem->LoadJson())
-					elem->loadDefaultMapsAndTypes();
+				elem->Init();
 			}
 		}
-
+		bool ReloadVotingJson(std::string filename) {
+			for (auto elem : VotingSystems)
+			{
+				if (elem->isEnabled()) {
+					return elem->ReloadVotingJson(filename);
+				}
+			}
+			return false;
+		}
 		void Tick() 
 		{	
 			auto* session = Blam::Network::GetActiveSession();

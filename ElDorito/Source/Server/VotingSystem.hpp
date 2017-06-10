@@ -89,19 +89,21 @@ namespace Server
 		{
 		public:
 
-			virtual bool LoadJson() = 0;
+			virtual void Init() = 0;
 			virtual void NewVote() = 0;
 			virtual void Tick() = 0;
 			virtual void Reset() = 0;
 			virtual void StartVoting() = 0;
 			virtual bool isEnabled() = 0;
-			virtual void loadDefaultMapsAndTypes() = 0;
-			virtual MapAndType GenerateVotingOption() = 0;
+			
+			
 			virtual VotingMessage GenerateVotingOptionsMessage() = 0;
 			virtual void LogVote(const VotingMessage &message, std::string name) = 0; //TODO abstract VotingMessage out of VotingSystem
 			void GenerateVotingOptionsMessage(int peer);
+			bool ReloadVotingJson(std::string filename);
 			AbstractVotingSystem();
 		protected:
+			
 			
 			//Map of playerNames and their vote. We can use the playerName safely since mid-session name changes are no longer allowed.
 			std::map<std::string, int> mapVotes = std::map<std::string, int>{};
@@ -109,27 +111,33 @@ namespace Server
 			bool revoteFlag = false;
 			bool idle = false;
 
-		
+		private:
+			virtual bool LoadJson(std::string filename) = 0;
+			virtual MapAndType GenerateVotingOption() = 0;
+			virtual void loadDefaultMapsAndTypes() = 0;
 
 		};
 
 		class VotingSystem : public AbstractVotingSystem
 		{
 		public:
-			virtual bool LoadJson();
+			virtual void Init();
 			virtual void NewVote();
 			virtual void Tick();
 			virtual void Reset();
 			virtual void StartVoting();
 			virtual VotingMessage GenerateVotingOptionsMessage();
 			virtual bool isEnabled();
-			virtual void loadDefaultMapsAndTypes();
-			virtual MapAndType GenerateVotingOption();
+			
+			
 			virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
 			VotingSystem();
 
 		private:
-			
+			virtual bool LoadJson(std::string filename);
+			virtual void loadDefaultMapsAndTypes();
+			virtual MapAndType GenerateVotingOption();
+
 			void countVotes();
 			void FindWinner();
 			//The time the winner was chosen. Used to determine when to start the game ( 5 seconds after the winner is chosen )
@@ -150,23 +158,23 @@ namespace Server
 		class VetoSystem : public AbstractVotingSystem
 		{
 		public:
-			virtual bool LoadJson();
+			virtual void Init();
 			virtual void NewVote();
 			virtual void Tick();
 			virtual void Reset();
 			virtual void StartVoting();
 			virtual VotingMessage GenerateVotingOptionsMessage();
-			virtual void loadDefaultMapsAndTypes();
 			virtual bool isEnabled();
-			virtual MapAndType GenerateVotingOption();
 			virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
 			VetoSystem();
 
 		private:
+			virtual bool LoadJson(std::string filename);
+			virtual MapAndType GenerateVotingOption();
 			void SetGameAndMapAndStartTimer();
 			void countVotes();
 			void FindWinner();
-
+			virtual void loadDefaultMapsAndTypes();
 
 			bool loadedJson = true;
 			//The time the vote started. Used to calculate how much time remains and to check if a vote is in progress.
