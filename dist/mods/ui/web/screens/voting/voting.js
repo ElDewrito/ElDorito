@@ -1,6 +1,6 @@
 var buttons = ["A","B","X","Y"];
 var votingType = "voting";
-var controllerType = "360";
+var controllerType;
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -190,14 +190,17 @@ dew.on("VoteCountsUpdated", function(event) {
 });
 
 function onControllerConnect(){
-    if(votingType == 'voting'){
-        $(".votingOption").each(function(index){
-            $(this).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_"+buttons[index]+".png'>");
-        });
-    }else if(votingType == 'veto'){
-        $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_X.png'>");
-    }
-    $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Back.png'>");    
+    dew.command('Game.IconSet', {}).then(function(response){
+        controllerType = response;
+        if(votingType == 'voting'){
+            $(".votingOption").each(function(index){
+                $(this).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_"+buttons[index]+".png'>");
+            });
+        }else if(votingType == 'veto'){
+            $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_X.png'>");
+        }
+        $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Back.png'>");  
+    });    
 }
 
 function buttonAction(i){

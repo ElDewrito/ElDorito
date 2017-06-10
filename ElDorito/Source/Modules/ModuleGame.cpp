@@ -863,6 +863,8 @@ namespace Modules
 
 		VarMedalPack = AddVariableString("MedalPack", "medals", "The name of the medal pack to use", eCommandFlagsArchived, "default");
 
+		VarIconSet = AddVariableString("IconSet", "icons", "The name of the controller button icon set to use", eCommandFlagsArchived, "360");
+
 		VarFirstRun = AddVariableInt("FirstRun", "first_run", "Show the first run setup next time the game starts", eCommandFlagsArchived, 1);
 		VarFirstRun->ValueIntMin = 0;
 		VarFirstRun->ValueIntMax = 1;

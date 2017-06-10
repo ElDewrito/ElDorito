@@ -1,4 +1,4 @@
-var controllerType = "360";
+var controllerType;
 
 $("html").on("keydown", function(e) {
     if (e.which == 13){
@@ -18,12 +18,15 @@ dew.on("show", function(e){
 });
 
 function onControllerConnect(){
-    $('#dpad').attr('src','dew://assets/buttons/'+controllerType+'_Dpad.png');
-    $("#dpad").show();
-    $( "#up, #down, #left, #right" ).hide();
-    $(".instructionText img").attr("src","dew://assets/buttons/"+controllerType+"_Start.png");
-    $("#esc").attr("src","dew://assets/buttons/"+controllerType+"_B.png");
-    $("#enter").attr("src","dew://assets/buttons/"+controllerType+"_A.png");
+    dew.command('Game.IconSet', {}).then(function(response){
+        controllerType = response;
+        $('#dpad').attr('src','dew://assets/buttons/'+controllerType+'_Dpad.png');
+        $("#dpad").show();
+        $( "#up, #down, #left, #right" ).hide();
+        $(".instructionText img").attr("src","dew://assets/buttons/"+controllerType+"_Start.png");
+        $("#esc").attr("src","dew://assets/buttons/"+controllerType+"_B.png");
+        $("#enter").attr("src","dew://assets/buttons/"+controllerType+"_A.png");
+    });
 }
 
 function onControllerDisconnect(){
