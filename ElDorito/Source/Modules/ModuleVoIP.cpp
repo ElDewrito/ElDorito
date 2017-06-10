@@ -1,6 +1,7 @@
 #include "ModuleVoIP.hpp"
 #include <sstream>
 #include "../Patches/Core.hpp"
+#include "../Patches/Ui.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
@@ -8,6 +9,7 @@
 namespace
 {
 	static bool ready = false;
+	static bool isMainMenu = false;
 	bool PttToggle(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (!ready)
@@ -19,6 +21,15 @@ namespace
 		else
 			ss << "{\"talk\":" << 1 << "}";
 		Web::Ui::ScreenLayer::Notify("voip-ptt", ss.str(), true);
+
+		if (!isMainMenu && Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
+		{
+			if (Modules::ModuleVoIP::Instance().VarPTT->ValueInt == 1)
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+			else
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+		}
+
 		returnInfo = "";
 		return true;
 	}
@@ -46,12 +57,35 @@ namespace
 		else
 			ss << "{\"talk\":" << 1 << "}";
 		Web::Ui::ScreenLayer::Notify("voip-ptt", ss.str(), true);
+
+		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+		else
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+
 		returnInfo = "";
 		return true;
 	}
 
 	void RendererStarted(const char* map)
 	{
+		if (std::string(map).find("mainmenu") == std::string::npos)
+		{
+			isMainMenu = false;
+
+			//initial voip icons when maps loads
+			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+			else
+			{
+				if (Modules::ModuleVoIP::Instance().VarPTT->ValueInt == 1)
+					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+				else
+					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			}
+		}
+		else
+			isMainMenu = true;
 		ready = true;
 	}
 }

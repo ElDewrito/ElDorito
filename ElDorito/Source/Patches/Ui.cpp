@@ -225,7 +225,7 @@ namespace Patches
 
 			auto *scoreboardChud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 			auto *spartanChud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-			auto *eliteChud = Blam::Tags::TagInstance(0x0E5F).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			//auto *eliteChud = Blam::Tags::TagInstance(0x0E5F).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 
 			//If it's the first time updating the HUD, find the tagblock indexes.
 			if (firstHudUpdate)
@@ -252,6 +252,7 @@ namespace Patches
 						break;
 				}
 
+				/*
 				//Find widgets in elite.
 				for (int hudWidgetBlock = 0; hudWidgetBlock < eliteChud->HudWidgets.Count; hudWidgetBlock++)
 				{
@@ -273,6 +274,7 @@ namespace Patches
 					if (eliteMotionTrackerIndex != NULL)
 						break;
 				}
+				*/
 
 				//Find widgets in scoreboard.
 				for (int hudWidgetBlock = 0; hudWidgetBlock < scoreboardChud->HudWidgets.Count; hudWidgetBlock++)
@@ -312,9 +314,9 @@ namespace Patches
 					scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData.Count > 0 &&
 					scoreboardChud->HudWidgets[speakingPlayerIndex].StateData.Count > 0 &&
 					spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData.Count > 0 &&
-					spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData.Count > 0 &&
+					spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData.Count > 0)/* &&
 					eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData.Count > 0 &&
-					eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData.Count > 0)
+					eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData.Count > 0)*/
 					voiceChatIconValidTags = true;
 
 				firstHudUpdate = false;
@@ -333,8 +335,8 @@ namespace Patches
 			spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
 			spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
 
-			eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
-			eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+			//eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
+			//eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = ChudDefinition::StateDataUnknownFlags::Bit10;
 
 			//Show the correct Icon.
 			//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
@@ -344,8 +346,8 @@ namespace Patches
 				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
 				spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast1Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
 				spartanChud->HudWidgets[spartanMotionTrackerIndex].BitmapWidgets[spartanVoiceBroadcast2Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
-				eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
-				eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				//eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast1Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
+				//eliteChud->HudWidgets[eliteMotionTrackerIndex].BitmapWidgets[eliteVoiceBroadcast2Index].StateData[0].UnknownFlags13 = (ChudDefinition::StateDataUnknownFlags)0;
 				break;
 			case VoiceChatIcon::Available:
 				scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
