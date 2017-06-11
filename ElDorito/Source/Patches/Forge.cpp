@@ -13,17 +13,23 @@
 #include "../Blam/Math/MathUtil.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
+#include "../Forge/Prefab.hpp"
+#include "../Forge/ObjectSet.hpp"
+#include "../Forge/ForgeUtil.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include <cassert>
 #include <queue>
 #include <bitset>
 #include <stack>
+#include <fstream>
+#include "boost/filesystem.hpp"
 
 using namespace Blam;
 using namespace Blam::Objects;
 
 namespace
 {
+	using namespace ::Forge;
 	using RealVector3D = Blam::Math::RealVector3D;
 	using RealQuaternion = Blam::Math::RealQuaternion;
 	using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
@@ -52,7 +58,6 @@ namespace
 	void SandboxEngineTickHook();
 	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex);
 
-	MapVariant* GetMapVariant();
 	struct AABB { float MinX, MaxX, MinY, MaxY, MinZ, MaxZ; };
 	bool CalculateObjectBoundingBox(DatumIndex objectTagIndex, AABB* outBoundingBox);
 	DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex);
@@ -76,39 +81,8 @@ namespace
 
 	} s_RotationSnapState = { 0 };
 
-	class ObjectSet
-	{
-	public:
-		bool Contains(uint32_t objectIndex) const
-		{
-			return objectIndex != -1 && m_Bits.test(objectIndex & 0xFFFF);
-		}
-
-		bool Any() const
-		{
-			return m_Bits.any();
-		}
-
-		void Add(uint32_t objectIndex)
-		{
-			m_Bits.set(objectIndex & 0xFFFF);
-		}
-
-		void Remove(uint32_t objectIndex)
-		{
-			m_Bits.set(objectIndex & 0xFFFF, false);
-		}
-
-		void Clear()
-		{
-			m_Bits.reset();
-		}
-
-	private:
-		std::bitset<2048> m_Bits = { 0 };
-	};
-
-	ObjectSet s_SelectedObjects;
+	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
+	Forge::ObjectSet s_SelectedObjects;
 }
 
 namespace Patches
@@ -208,6 +182,46 @@ namespace Patches
 			}
 		}
 
+		void DeselectAll()
+		{
+			s_SelectedObjects.Clear();
+		}
+
+		void SelectAll()
+		{
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			auto& objectUnderCrosshairPtr = Pointer(Blam::Objects::GetObjects().Get(GetObjectIndexUnderCrosshair(playerIndex)))[0xC];
+			if (!objectUnderCrosshairPtr)
+				return;
+
+			const auto mapv = GetMapVariant();
+			auto tagIndex = objectUnderCrosshairPtr.Read<uint32_t>();
+
+			for (auto i = 0; i < 640; i++)
+			{
+				auto& placement = mapv->Placements[i];
+				if (placement.ObjectIndex == -1 || placement.BudgetIndex == -1)
+					continue;
+
+				if (mapv->Budget[placement.BudgetIndex].TagIndex == tagIndex)
+					s_SelectedObjects.Add(placement.ObjectIndex);
+			}
+		}
+
+		bool SavePrefab(const std::string& name, const std::string& path)
+		{
+			return ::Forge::Prefabs::Save(s_SelectedObjects, name, path);
+		}
+
+		bool LoadPrefab(const std::string& path)
+		{
+			s_SandboxTickCommandQueue.push([=]()
+			{
+				::Forge::Prefabs::Load(s_SelectedObjects, path);
+			});
+
+			return true;
+		}
 	}
 }
 
@@ -256,6 +270,13 @@ namespace
 
 		SandboxEngine_Tick();
 
+		while (!s_SandboxTickCommandQueue.empty())
+		{
+			auto cmd = s_SandboxTickCommandQueue.front();
+			cmd();
+			s_SandboxTickCommandQueue.pop();
+		}
+
 		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
 		if (activeScreenCount == 0)
 		{
@@ -295,12 +316,27 @@ namespace
 						}
 					}
 
-					if (Input::GetActionState(Blam::Input::eGameActionFireRight)->Ticks == 1 && objectIndexUnderCrosshair != -1)
+					static bool s_IsPaintSelecting = false;
+		
+					if (Input::GetActionState(Blam::Input::eGameActionFireRight)->Ticks > 0)
 					{
-						if (s_SelectedObjects.Contains(objectIndexUnderCrosshair))
-							s_SelectedObjects.Remove(objectIndexUnderCrosshair);
-						else
-							s_SelectedObjects.Add(objectIndexUnderCrosshair);
+						if (Input::GetActionState(Blam::Input::eGameActionFireRight)->Ticks == 1 && objectIndexUnderCrosshair == -1)
+						{
+							s_IsPaintSelecting = true;
+						}
+
+						if (objectIndexUnderCrosshair != -1 &&
+							(Input::GetActionState(Blam::Input::eGameActionFireRight)->Ticks == 1 || s_IsPaintSelecting))
+						{
+							if (s_SelectedObjects.Contains(objectIndexUnderCrosshair) && !s_IsPaintSelecting)
+								s_SelectedObjects.Remove(objectIndexUnderCrosshair);
+							else
+								s_SelectedObjects.Add(objectIndexUnderCrosshair);
+						}
+					}
+					else
+					{
+						s_IsPaintSelecting = false;
 					}
 				}
 			}
@@ -562,12 +598,6 @@ namespace
 			MapVariant::VariantProperties* variantProperties, uint16_t placementFlags))(0x00582110);
 
 		return SpawnObject(mapv, tagIndex, 0, -1, &displacedPosition, &rightVec, &upVec, -1, -1, &variantProperties, 0);
-	}
-
-	inline MapVariant* GetMapVariant()
-	{
-		static auto GetMapVariant = (Blam::MapVariant* (__cdecl*)())(0x00583230);
-		return GetMapVariant();
 	}
 
 	inline DatumIndex GetObjectIndexUnderCrosshair(DatumIndex playerIndex)

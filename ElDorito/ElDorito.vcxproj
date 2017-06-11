@@ -55,6 +55,8 @@
     <ClCompile Include="Source\ElDorito.cpp" />
     <ClCompile Include="Source\ElModules.cpp" />
     <ClCompile Include="Source\ElPatches.cpp" />
+    <ClCompile Include="Source\Forge\ForgeUtil.cpp" />
+    <ClCompile Include="Source\Forge\Prefab.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Modules\ModuleBase.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
@@ -208,6 +210,9 @@
     <ClInclude Include="Source\ElDorito.hpp" />
     <ClInclude Include="Source\ElModules.hpp" />
     <ClInclude Include="Source\ElPatches.hpp" />
+    <ClInclude Include="Source\Forge\ForgeUtil.hpp" />
+    <ClInclude Include="Source\Forge\ObjectSet.hpp" />
+    <ClInclude Include="Source\Forge\Prefab.hpp" />
     <ClInclude Include="Source\Modules\ModuleBase.hpp" />
     <ClInclude Include="Source\Modules\ModuleCamera.hpp" />
     <ClInclude Include="Source\Modules\ModuleDebug.hpp" />
