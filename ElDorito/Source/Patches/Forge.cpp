@@ -34,8 +34,6 @@ namespace
 	using RealQuaternion = Blam::Math::RealQuaternion;
 	using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
 
-	bool shouldDelete = false;
-
 	bool barriersEnabledValid = false;
 	bool killBarriersEnabled = true;
 	bool pushBarriersEnabled = true;
@@ -44,7 +42,6 @@ namespace
 	bool CheckKillTriggersHook(int a0, void *a1);
 	bool ObjectSafeZoneHook(void *a0);
 	void* PushBarriersGetStructureDesignHook(int index);
-	void UpdateForgeInputHook();
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot);
 	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes);
 	void ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex);
@@ -94,7 +91,6 @@ namespace Patches
 			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
 			Pointer(0x0165AB94).Write((uint32_t)&SandboxEngineObjectDisposeHook);
 
-			Hook(0x19D482, UpdateForgeInputHook, HookFlags::IsCall).Apply();
 			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x19EBA1, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
@@ -123,11 +119,6 @@ namespace Patches
 		{
 			// Require a rescan for barrier disabler objects each tick
 			barriersEnabledValid = false;
-		}
-
-		void SignalDelete()
-		{
-			shouldDelete = true;
 		}
 
 		void DeleteAll()
@@ -229,40 +220,6 @@ namespace
 {
 	using RealVector3D = Blam::Math::RealVector3D;
 
-	__declspec(naked) void UpdateForgeInputHook()
-	{
-		__asm
-		{
-			mov al, shouldDelete
-			test al, al
-			jnz del
-
-			// Not deleting - just call the original function
-			push esi
-			mov eax, 0x59F0E0
-			call eax
-			retn 4
-
-			del:
-			mov shouldDelete, 0
-
-				// Simulate a Y button press
-				mov eax, 0x244D1F0              // Controller data
-				mov byte ptr[eax + 0x9E], 1    // Ticks = 1
-				and byte ptr[eax + 0x9F], 0xFE // Clear the "handled" flag
-
-											   // Call the original function
-				push esi
-				mov eax, 0x59F0E0
-				call eax
-
-				// Make sure nothing else gets the fake press
-				mov eax, 0x244D1F0          // Controller data
-				or byte ptr[eax + 0x9F], 1 // Set the "handled" flag
-				retn 4
-		}
-	}
-
 	void SandboxEngineTickHook()
 	{
 		static auto SandboxEngine_Tick = (void(*)())(0x0059ED70);
@@ -292,8 +249,7 @@ namespace
 
 				if (heldObjectIndex == -1)
 				{
-					if (Input::GetActionState(Blam::Input::eGameActionUiB)->Ticks == 1 || 
-						Input::GetKeyTicks(Blam::Input::eKeyCode1, Blam::Input::eInputTypeUi) == 1)
+					if (Input::GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
 					{
 						if (objectIndexUnderCrosshair != -1)
 						{

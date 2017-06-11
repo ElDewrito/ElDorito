@@ -26,6 +26,7 @@ namespace
 	void GetDefaultBindingsHook(int type, BindingsTable *result);
 	void GetKeyboardActionTypeHook();
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions);
+	void ProcessMouseBindingsHook(const BindingsTable &bindings, ActionState *actions);
 	void UpdateUiControllerInputHook(int a0);
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
@@ -43,6 +44,8 @@ namespace
 	std::vector<ConfigurableAction> settings;
 
 	extern InputType actionInputTypes[eGameAction_KeyboardMouseCount];
+
+	BindingsTable s_ForgeMonitorModeBindings;
 }
 
 namespace Patches
@@ -80,6 +83,7 @@ namespace Patches
 				Patch::NopFill(Pointer::Base(pointer), 2);
 			Patch(0x20C69F, { 0xEB }).Apply();
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
+			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
 		}
 
@@ -238,6 +242,20 @@ namespace
 	void InitBindingsHook(BindingsTable *bindings)
 	{
 		*bindings = *Modules::ModuleInput::GetBindings();
+
+		// TODO: move these into ModuleInput and possibly add them to the config
+		s_ForgeMonitorModeBindings = *bindings;
+
+		// prevent moving while using rotation snap
+		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveLeft] = eKeyCode_None;
+		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveRight] = eKeyCode_None;
+		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveForward] = eKeyCode_None;
+		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;	
+		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionMelee] = eKeyCodeC; // clone
+		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionZoom] = eKeyCodeZ;
+		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionUiY] = eKeyCodeDelete;
+		s_ForgeMonitorModeBindings.PrimaryMouseButtons[eGameActionZoom] = eMouseButton_None;
+		s_ForgeMonitorModeBindings.PrimaryMouseButtons[eGameActionUiY] = eMouseButtonMiddle;
 	}
 
 	// Hook to redirect keybind preference reads to ModuleInput
@@ -285,11 +303,21 @@ namespace
 		}
 	}
 
+	bool InMonitorMode()
+	{
+		static auto Forge_GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x0059A6F0);
+		return Forge_GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr);
+	}
+
 	void ProcessKeyBindingsHook(const BindingsTable &bindings, ActionState *actions)
 	{
 		typedef void(*EngineProcessKeyBindingsPtr)(const BindingsTable &bindings, ActionState *actions);
 		auto EngineProcessKeyBindings = reinterpret_cast<EngineProcessKeyBindingsPtr>(0x60C4A0);
-		EngineProcessKeyBindings(bindings, actions);
+
+		if(InMonitorMode())
+			EngineProcessKeyBindings(s_ForgeMonitorModeBindings, actions);
+		else
+			EngineProcessKeyBindings(bindings, actions);
 
 		// Unset the "handled" flag for inactive actions
 		for (auto i = 0; i < eGameAction_KeyboardMouseCount; i++)
@@ -297,6 +325,15 @@ namespace
 			if (actions[i].Ticks == 0)
 				actions[i].Flags &= ~eActionStateFlagsHandled;
 		}
+	}
+
+	void ProcessMouseBindingsHook(const BindingsTable &bindings, ActionState *actions)
+	{
+		static auto ProcessMouseBindings = (void(*)(const BindingsTable &bindings, ActionState *actions))(0x60CE70);
+		if (InMonitorMode())
+			ProcessMouseBindings(s_ForgeMonitorModeBindings, actions);
+		else
+			ProcessMouseBindings(bindings, actions);
 	}
 
 	void UpdateUiControllerInputHook(int a0)

@@ -9,9 +9,6 @@ namespace Patches
 		void ApplyAll();
 		void Tick();
 
-		// Signal to delete the current item, if any
-		void SignalDelete();
-
 		void DeleteAll();
 		void CanvasMap();
 

@@ -723,12 +723,6 @@ namespace
 		return true;
 	}
 
-	bool CommandDeleteForgeItem(const std::vector<std::string>& arguments, std::string& returnInfo)
-	{
-		Patches::Forge::SignalDelete();
-		return true;
-	}
-
 	bool CommandListMaps(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
 		// Return a comma-separated list
@@ -838,8 +832,6 @@ namespace Modules
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
 		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the server browser is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
-
-		AddCommand("DeleteForgeItem", "forge_delete", "Delete the Forge item under the crosshairs", eCommandFlagsNone, CommandDeleteForgeItem);
 
 		AddCommand("ListMaps", "maps", "List all available map files", eCommandFlagsNone, CommandListMaps);
 
