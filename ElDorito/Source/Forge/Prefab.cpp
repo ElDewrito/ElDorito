@@ -7,6 +7,7 @@
 #include "ForgeUtil.hpp"
 #include "ObjectSet.hpp"
 #include <fstream>
+#include <chrono>
 
 namespace
 {
@@ -15,8 +16,10 @@ namespace
 
 	struct PrefabHeader
 	{
+		uint32_t Magic;
 		uint16_t Flags;
 		uint16_t Version;
+		uint64_t DateCreated;
 		char Name[16];
 		char Author[16];
 		uint16_t ObjectCount;
@@ -48,6 +51,8 @@ namespace Forge
 			auto& playerName = modulePlayer.VarPlayerName->ValueString;
 
 			PrefabHeader header = { 0 };
+			header.Magic = 'prfb';
+			header.DateCreated = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
 			strcpy_s(header.Name, 16, name.c_str());
 			strcpy_s(header.Author, 16, playerName.c_str());
 
