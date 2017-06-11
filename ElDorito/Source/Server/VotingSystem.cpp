@@ -786,7 +786,7 @@ namespace Server
 
 		}
 		void VetoSystem::NewVote() {
-			if (numberOfVetosUsed < Modules::ModuleServer::Instance().VarNumberOfVetosVotes->ValueInt) {
+			if (numberOfVetosUsed < Modules::ModuleServer::Instance().VarNumberOfVetoVotes->ValueInt) {
 
 				//we want to start a new veto vote
 				mapVotes.clear();

@@ -1249,9 +1249,9 @@ namespace Modules
 		VarVetoSystemEnabled->ValueIntMin = 0;
 		VarVetoSystemEnabled->ValueIntMax = 1;
 
-		VarNumberOfVetosVotes = AddVariableInt("NumberOfVetosVotes", "number_of_veto_votes", "Controls how many veto votes are allowed ", eCommandFlagsArchived, 1);
-		VarNumberOfVetosVotes->ValueIntMin = 0;
-		VarNumberOfVetosVotes->ValueIntMax = 10;
+		VarNumberOfVetoVotes = AddVariableInt("NumberOfVetoVotes", "number_of_veto_votes", "Controls how many veto votes are allowed ", eCommandFlagsArchived, 1);
+		VarNumberOfVetoVotes->ValueIntMin = 0;
+		VarNumberOfVetoVotes->ValueIntMax = 10;
 
 		VarVetoVoteTime = AddVariableInt("VetoVoteTime", "veto_vote_time", "The time a veto vote takes", eCommandFlagsArchived, 20);
 		VarVetoVoteTime->ValueIntMin = 1;

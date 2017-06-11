@@ -59,7 +59,7 @@ namespace Modules
 		Command* VarSendChatToRconClients;
 
 		//Veto System Commands
-		Command* VarNumberOfVetosVotes;
+		Command* VarNumberOfVetoVotes;
 		Command* VarVetoSystemEnabled;
 		Command* VarVetoSystemSelectionType;
 		Command* VarVetoVoteTime;
