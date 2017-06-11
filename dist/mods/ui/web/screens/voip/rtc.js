@@ -56,7 +56,6 @@ function OnMessage(msg)
 					{
 						peerCons[data.uid].setLocalDescription(description).then(function()
 						{
-							//respond with our answer
 							serverCon.send(JSON.stringify({
 								'sdp': peerCons[data.uid].localDescription,
 								'sendTo': data.uid
@@ -135,16 +134,33 @@ function sendicecandidate(event)
 	if(event.candidate != null)
 	{
 		console.log('ice from: ' + this.uid);
-		
 		serverCon.send(JSON.stringify({
 			'ice': event.candidate,
 			'sendTo': this.uid
 		}));
 	}
+	else //spec: null candidate means end of candidates
+	{
+		if(this.connectedState == false){ //something went wrong
+			//restart ice
+			var uid = this.uid;
+			this.createOffer().then(function(description)
+			{
+				peerCons[data.uid].setLocalDescription(description).then(function()
+				{
+					serverCon.send(JSON.stringify({
+						'sdp': peerCons[data.uid].localDescription,
+						'sendTo': uid
+					}));
+				});
+			});
+		}
+	}
 }
 
 function remotestream(event)
 {
+	this.connectedState = true;
 	console.log('got stream from: ' + this.uid);
 	$("#remoteVideos").append("<video id=\"" + this.uid + "\" autoplay=\"true\"></video>");
 	document.getElementById(this.uid).src = window.URL.createObjectURL(event.stream);
