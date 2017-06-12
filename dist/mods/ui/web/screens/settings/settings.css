@@ -10,7 +10,7 @@ label {
 }
 .tabs {
     float: right;
-    left: 28vh;
+    left: 23vh;
     top: 0.708vh;
     list-style: none;
     padding: 0;
@@ -46,7 +46,7 @@ label {
     font-size: 2.655vh;
     line-height: 3.0975vh;  
     right:5%;
-    top:38%
+    top:30%
 }
 #settingsWindow div{
     width: 100%;
@@ -59,7 +59,7 @@ label {
     padding-top: 15px;
     position: absolute;
     top: 4.3365vh;
-    height: 50vh;
+    height: 60vh;
     overflow:hidden;
 }
 #windowHeader {
@@ -120,10 +120,10 @@ input[type=range]::-webkit-slider-thumb {
 input[type=range]:focus, input[type=checkbox]:focus {
   outline: none;
 }
-#playerSettings:target,#serverSettings:target,#advancedSettings:target {
+#playerSettings:target,#serverSettings:target,#advancedSettings:target,#voipSettings:target {
     z-index: 2;
 }
-#playerSettings:target ~ .tabs a[href='#playerSettings'],#serverSettings:target ~ .tabs a[href='#serverSettings'],#advancedSettings:target ~ .tabs a[href='#advancedSettings'] {
+#playerSettings:target ~ .tabs a[href='#playerSettings'],#serverSettings:target ~ .tabs a[href='#serverSettings'],#advancedSettings:target ~ .tabs a[href='#advancedSettings'],#voipSettings:target ~ .tabs a[href='#voipSettings'] {
     background-color: #14234a;
     border-bottom: 1px solid #14234a;
     padding-bottom: 10px;
@@ -393,6 +393,11 @@ input[type=range]:focus, input[type=checkbox]:focus {
     padding-left:2vw;
     margin-top:0vw;
     height:1.9vw;
+}
+
+select.selectedElement{
+    -webkit-appearance: none;   
+    text-indent: 4px;
 }
 
 #presets .selected{

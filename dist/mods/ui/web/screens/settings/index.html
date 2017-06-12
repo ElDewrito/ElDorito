@@ -24,7 +24,9 @@
             <label for="sName">Server Name</label><input class="setting" type="text" id="sName" name="sName"><br />
             <label for="sPass">Password</label><input class="setting" type="text" id="sPass" name="sPass"><br />
             <label for="sMessage">Join Message (\n for new line)</label><textarea class="setting" style="height:5.487vh;" type="text" id="sMessage" name="sMessage"></textarea><br /><br />
-            <label for="sCountdown">Round Start Countdown</label><input class="setting" type="text" id="sCountdown" name="sCountdown"><br />
+            <label for="sCountdown">Round Start Countdown</label>
+            <input type="text" class="tinySetting" id="sCountdownText" name="sCountdown" onchange="updateSetting('sCountdown', this.value);">
+            <input type="range" min="0" max="20" id="sCountdown" name="sCountdown" oninput="document.querySelector('#sCountdownText').value = this.value;"><br />
             <label for="sMaxPlayers">Maximum Players</label>
             <input type="text" class="tinySetting" id="sMaxPlayersText" name="sMaxPlayers" onchange="updateSetting('sMaxPlayers', this.value);">
             <input type="range" min="1" max="16" id="sMaxPlayers" name="sMaxPlayers" oninput="document.querySelector('#sMaxPlayersText').value = this.value;"><br />
@@ -32,12 +34,54 @@
             <input type="text" class="tinySetting" id="sMaxTeamSizeText" name="sMaxTeamSize" onchange="updateSetting('sMaxTeamSize', this.value);">
             <input type="range" min="1" max="8" id="sMaxTeamSize" name="sMaxTeamSize" oninput="document.querySelector('#sMaxTeamSizeText').value = this.value;"><br />		
             <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce" name="sShouldAnnounce"><br />
-			<label for="sTeamShufflingEnabled">Team Shuffling Enabled</label><input class="setting" type="checkbox" id="sTeamShufflingEnabled" name="sTeamShufflingEnabled"><br />
-			<label for="sVotingEnabled">Voting Enabled</label><input class="setting" type="checkbox" id="sVotingEnabled" name="sVotingEnabled"><br />
-            <label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
-            <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />
+            <label for="sSprint">Sprint</label><select id="sSprint" name="sSprint" class="setting wheelable">
+                <option value="0">Disabled</option> 
+                <option value="1">Enabled</option>
+                <option value="2">Unlimited</option>
+            </select><br />            
+            <!--<label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
+            <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />-->
             <label for="sDualWieldEnabled">Allow Dual Wielding</label><input class="setting" type="checkbox" id="sDualWieldEnabled" name="sDualWieldEnabled"><br />
             <label for="sAssassinationEnabled">Allow Assassination</label><input class="setting" type="checkbox" id="sAssassinationEnabled" name="sAssassinationEnabled"><br />
+            <label for="sVotingStyle">Map Voting Style</label><select id="sVotingStyle" name="sVotingStyle" class="setting wheelable">
+                <option value="0">Disabled</option> 
+                <option value="1">Voting</option>
+                <option value="2">Vetoing</option>               
+            </select><br />
+			<!--<label class="voting" for="sVotingEnabled">Voting Enabled</label><input class="setting" type="checkbox" id="sVotingEnabled" name="sVotingEnabled"><br class="voting" />-->
+            <center class="voting">Map Voting Options</center>
+            <label class="voting" for="sMapVotingTime">Map Voting Time</label>
+            <input type="text" class="tinySetting voting" id="sMapVotingTimeText" name="sMapVotingTime" onchange="updateSetting('sMapVotingTime', this.value);">
+            <input type="range" class="voting" min="0" max="100" id="sMapVotingTime" name="sMapVotingTime" oninput="document.querySelector('#sMapVotingTimeText').value = this.value;"><br class="voting" />
+            <label class="voting" for="sNumOfRevotes">Number of Revotes Allowed</label>
+            <input type="text" class="tinySetting voting" id="sNumOfRevotesText" name="sNumOfRevotes" onchange="updateSetting('sNumOfRevotes', this.value);">
+            <input type="range" class="voting" min="0" max="100" id="sNumOfRevotes" name="sNumOfRevotes" oninput="document.querySelector('#sNumOfRevotesText').value = this.value;"><br class="voting" />
+            <label class="voting" for="sNumberOfVotingOptions">Number of Voting Options</label>
+            <input type="text" class="tinySetting voting" id="sNumberOfVotingOptionsText" name="sNumberOfVotingOptions" onchange="updateSetting('sNumberOfVotingOptions', this.value);">
+            <input type="range" class="voting" min="1" max="4" id="sNumberOfVotingOptions" name="sNumberOfVotingOptions" oninput="document.querySelector('#sNumberOfVotingOptionsText').value = this.value;"><br class="voting" />
+            <label class="voting" for="sVotingDuplicationLevel">Voting Duplication Level</label><select id="sVotingDuplicationLevel" name="sVotingDuplicationLevel" class="setting wheelable voting">
+                <option value="0">Everything Unique</option>
+                <option value="1">Gametype or Map Can Repeat</option>
+                <option value="2">Anything Can Repeat</option>
+            </select><br class="voting" />
+            <label class="voting" for="sTeamShufflingEnabled">Team Shuffle Enabled</label><input class="setting voting" type="checkbox" id="sTeamShufflingEnabled" name="sTeamShufflingEnabled"><br class="voting" />
+            <label class="voting" for="sTimeBetweenVoteEndAndGameStart">Time Between Winner And Start</label>
+            <input type="text" class="tinySetting voting" id="sTimeBetweenVoteEndAndGameStartText" name="sTimeBetweenVoteEndAndGameStart" onchange="updateSetting('sTimeBetweenVoteEndAndGameStart', this.value);">
+            <input type="range" class="voting" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart" name="sTimeBetweenVoteEndAndGameStart" oninput="document.querySelector('#sTimeBetweenVoteEndAndGameStartText').value = this.value;"><br class="voting" />
+            <!--<label for="sVetoEnabled">Veto Enabled</label><input class="setting" type="checkbox" id="sVetoEnabled" name="sVetoEnabled"><br />-->
+            <center class="veto">Map Veto Options</center>
+            <label class="veto" for="sNumOfVetoes">Maximum Veto Votes Per Round</label>
+            <input type="text" class="tinySetting veto" id="sNumOfVetoesText" name="sNumOfVetoes" onchange="updateSetting('sNumOfVetoes', this.value);">
+            <input type="range" class="veto" min="0" max="10" id="sNumOfVetoes" name="sNumOfVetoes" oninput="document.querySelector('#sNumOfVetoesText').value = this.value;"><br class="veto" />        
+            <label class="veto" for="sVetoVoteTime">Veto Vote Time</label>
+            <input type="text" class="tinySetting veto" id="sVetoVoteTimeText" name="sVetoVoteTime" onchange="updateSetting('sVetoVoteTime', this.value);">
+            <input type="range" class="veto" min="0" max="200" id="sVetoVoteTime" name="sVetoVoteTime" oninput="document.querySelector('#sVetoVoteTimeText').value = this.value;"><br class="veto" />   
+            <label class="veto" for="sVetoWinningShowTime">Winning Option Shown Time</label>
+            <input type="text" class="tinySetting veto" id="sVetoWinningShowTimeText" name="sVetoWinningShowTime" onchange="updateSetting('sVetoWinningShowTime', this.value);">
+            <input type="range" class="veto" min="0" max="100" id="sVetoWinningShowTime" name="sVetoWinningShowTime" oninput="document.querySelector('#sVetoWinningShowTimeText').value = this.value;"><br class="veto" />              
+            <label class="veto" for="sVetoPassPercentage">Vote Pass Percentage</label>
+            <input type="text" class="tinySetting veto" id="sVetoPassPercentageText" name="sVetoPassPercentage" onchange="updateSetting('sVetoPassPercentage', this.value);">
+            <input type="range" class="veto" min="0" max="100" id="sVetoPassPercentage" name="sVetoPassPercentage" oninput="document.querySelector('#sVetoPassPercentageText').value = this.value;"><br class="veto" />
         </div>
             
         <div id="advancedSettings">
@@ -84,11 +128,16 @@
             <label for="colorsHolo">Holo</label><input class="setting color no-alpha" id="colorsHolo" value="#FFFFFF" name="colorsHolo"><br />
         </div>
         
+        <div id="voipSettings">
+            <label for="audioDevice">Audio Device</label><select id="audioDevice" name="audioDevice" class="setting wheelable"></select><br />
+        </div>
+        
         <ul class="tabs">
             <li><a href="#playerSettings">Player</a></li>
             <li><a href="#serverSettings">Server</a></li>
             <li><a href="#advancedSettings">Advanced</a></li>
-            <li><a onclick="showController();">Controller</a></li>
+            <!--<li><a href="#voipSettings">VOIP</a></li>-->
+            <li><a id="controllerButton" onclick="showController();">Controller</a></li>
         </ul>
 
 </div>
