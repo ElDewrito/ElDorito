@@ -252,10 +252,6 @@ namespace
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveForward] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;	
 		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionMelee] = eKeyCodeC; // clone
-		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionZoom] = eKeyCodeZ;
-		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionUiY] = eKeyCodeDelete;
-		s_ForgeMonitorModeBindings.PrimaryMouseButtons[eGameActionZoom] = eMouseButton_None;
-		s_ForgeMonitorModeBindings.PrimaryMouseButtons[eGameActionUiY] = eMouseButtonMiddle;
 	}
 
 	// Hook to redirect keybind preference reads to ModuleInput
