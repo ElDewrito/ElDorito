@@ -230,41 +230,71 @@ namespace
 			return false;
 		}
 
+		const auto& rawArguments = Arguments[0];
+		auto partStart = rawArguments.begin();
+
+		std::string keyName, command;
 		KeyCode keyCode;
-		if (!keyCodes.FindValueIgnoreCase(Arguments[0], &keyCode))
+		bool isHold = false;
+
+		enum { KEYNAME_PART, COMMAND_HOLD_PART, COMMAND_PART, } state = KEYNAME_PART;
+
+		for (auto it = rawArguments.begin(); it != rawArguments.end(); ++it)
 		{
-			returnInfo = "Unrecognized key name: " + Arguments[0];
-			return false;
+			auto isEnd = it == rawArguments.end() - 1;
+			auto ch = *it;
+
+			switch (state)
+			{
+			case KEYNAME_PART:
+				if (ch == ' ' || isEnd)
+				{
+					keyName = std::string(partStart, isEnd ? it + 1 : it);
+					if (keyName.length() == 0 || !keyCodes.FindValueIgnoreCase(keyName, &keyCode))
+					{
+						returnInfo = "Unrecognized key name: " + keyName;
+						return false;
+					}
+					state = COMMAND_HOLD_PART;
+					partStart = it + 1;
+					break;
+				}
+				break;
+			case COMMAND_HOLD_PART:
+				partStart = it--;
+				isHold = ch == '+';
+				if (isHold)
+					partStart++;
+				state = COMMAND_PART;
+				break;
+			case COMMAND_PART:
+				if (ch == ' ' || isEnd)
+				{
+					auto partEnd = isEnd ? it + 1 : it;
+					command = std::string(partStart, partEnd);
+					partStart = it + 1;
+					it = rawArguments.end() - 1;
+				}
+				break;
+			}
 		}
+
 		auto binding = &commandBindings[keyCode];
 
 		// If no command was specified, unset the binding
-		if (Arguments.size() == 1)
+		if (command.length() == 0)
 		{
 			binding->command.clear();
 			returnInfo = "Binding cleared.";
 			return true;
 		}
 
-		// Get command information
-		auto command = Arguments[1];
-		if (command.length() == 0)
-		{
-			returnInfo = "Invalid command";
-			return false;
-		}
-		auto isHold = false;
-		if (command[0] == '+')
-		{
-			command.erase(0, 1);
-			isHold = true;
-		}
-
 		// Set the binding
 		binding->isHold = isHold;
 		binding->command.clear();
 		binding->command.push_back(command);
-		binding->command.insert(binding->command.end(), Arguments.begin() + 2, Arguments.end());
+		binding->command.push_back(std::string(partStart, rawArguments.end()));
+
 		returnInfo = "Binding set.";
 		return true;
 	}
@@ -583,7 +613,7 @@ namespace Modules
 		VarInputControllerPort->ValueIntMin = 0;
 		VarInputControllerPort->ValueIntMax = 3;
 
-		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsNone, CommandBind, { "key", "[+]command", "arguments" });
+		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsArgsNoParse, CommandBind, { "key", "[+]command", "arguments" });
 		Patches::Input::RegisterDefaultInputHandler(KeyboardUpdated);
 
 		AddCommand("UIButtonPress", "ui_btn_press", "Emulates a gamepad button press on UI menus", eCommandFlagsNone, CommandUIButtonPress, { "btnCode The code of the button to press" });

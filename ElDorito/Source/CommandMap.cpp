@@ -96,11 +96,17 @@ namespace Modules
 
 	std::string CommandMap::ExecuteCommand(std::vector<std::string> command, bool isUserInput)
 	{
-		std::string commandStr = "";
-		for (auto cmd : command)
-			commandStr += "\"" + cmd + "\" ";
+		auto commandEnd = command.end();
 
-		return ExecuteCommand(commandStr, isUserInput);
+		std::stringstream buff;
+		for (auto it = command.begin(); it != commandEnd; ++it)
+		{
+			buff << *it;
+			if (it != (commandEnd - 1))
+				buff << " ";
+		}
+
+		return ExecuteCommand(buff.str(), isUserInput);
 	}
 
 	bool CommandMap::ExecuteCommandWithStatus(std::string command, bool isUserInput, std::string *output)
