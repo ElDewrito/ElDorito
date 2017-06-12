@@ -5,8 +5,13 @@ namespace Modules
 	class ModuleVoIP : public Utils::Singleton<ModuleVoIP>, public ModuleBase
 	{
 	public:
+		Command* VarVoipEnabled;
 		Command* VarPTTEnabled;
 		Command* VarPTT;
+		Command* VarMicrophone;
+		Command* VarEchoCancellation;
+		Command* VarAGC;
+		Command* VarNoiseSupress;
 
 		ModuleVoIP();
 	};

@@ -4,6 +4,7 @@ var localStream = null;
 var serverCon;
 var peerConnectionConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'}, {'url': 'stun:stun.l.google.com:19302'}]};
 var speaking = [];
+var Microphone, EchoCancellation, AGC, NoiseSupress;
 
 function OnMessage(msg)
 {
@@ -206,8 +207,8 @@ function updateDisplay()
 function clearConnection()
 {
 	try{
-		
 		serverCon.close();
+		serverCon = undefined;
 	}
 	catch(e){
 		console.log(e);
@@ -228,31 +229,79 @@ function clearConnection()
 function startConnection(info)
 {
 	clearConnection();
-	navigator.mediaDevices.getUserMedia({video:false,audio:true}).then(function(stream){
-		localStream = stream;
-		
-		
-		serverCon = new WebSocket("ws://" + info.server, "dew-voip");
-		serverCon.onmessage = OnMessage;
-		serverCon.onclose = function()
-		{
-			console.log("disconnected from signal server");
-			clearConnection();
-		}
-		serverCon.onopen = function()
-		{
-			//must send the password before the server will accept anything from us
-			serverCon.send(info.password);
-			console.log("sent password");
-			serverCon.send(JSON.stringify(
+	
+	if(info.password == "") //not-connected
+		return;
+	
+	dew.command("voip.microphoneid", {}).then(function(val){
+		navigator.mediaDevices.enumerateDevices().then(function(dev){
+			Microphone = val;
+			console.log("Microphone: " + val);
+			
+			var constraints;
+			if(Microphone == "" || Microphone == "default"){
+				constraints = {
+					video:false,
+					audio:{
+						echoCancellation: EchoCancellation,
+						autoGainControl: AGC,
+						noiseSuppression: NoiseSupress
+				}};
+			}
+			else
 			{
-				"broadcast": "garbage"
-			}));
-		}
-		
-		dew.command("voip.ptt_enabled", {}).then(function(ptt_enabled){
-			console.log("PTT setting:" + !ptt_enabled);
-			localStream.getAudioTracks()[0].enabled = !ptt_enabled;
+				var id;
+				dev.forEach(function(d){
+					if(d.label == Microphone)
+						id = d.deviceId;
+				});
+				console.log("used id: " + id);
+				if(id == undefined){ //fallback to default
+					constraints = {
+						video:false,
+						audio:{
+							echoCancellation: EchoCancellation,
+							autoGainControl: AGC,
+							noiseSuppression: NoiseSupress
+					}};
+				}
+				else{
+					constraints = {
+						video:false,
+						audio:{
+							deviceId: id,
+							echoCancellation: EchoCancellation,
+							autoGainControl: AGC,
+							noiseSuppression: NoiseSupress
+					}};
+				}
+			}
+			
+			navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+				localStream = stream;
+				
+				serverCon = new WebSocket("ws://" + info.server, "dew-voip");
+				serverCon.onmessage = OnMessage;
+				serverCon.onclose = function()
+				{
+					console.log("disconnected from signal server");
+					clearConnection();
+				}
+				serverCon.onopen = function()
+				{
+					//must send the password before the server will accept anything from us
+					serverCon.send(info.password);
+					console.log("sent password");
+					serverCon.send(JSON.stringify(
+					{
+						"broadcast": "garbage"
+					}));
+				}
+				
+				dew.command("voip.ptt_enabled", {}).then(function(ptt_enabled){
+					localStream.getAudioTracks()[0].enabled = !ptt_enabled;
+				});
+			});
 		});
 	});
 }
@@ -281,6 +330,26 @@ function updateSettings(settings)
 	{
 		PTT(1);
 	}
+	
+	Microphone = settings.MicrophoneID;
+	EchoCancellation = settings.EchoCancellation;
+	AGC = settings.AGC;
+	NoiseSupress = settings.NoiseSupress;
+	
+	if(settings.Enabled == 0)
+	{
+		clearConnection();
+	}
+	else
+	{
+		if(serverCon == undefined)
+		{
+			dew.command("server.websocketinfo", {}).then(function(resp){
+				var info = JSON.parse(resp);
+				startConnection(info);
+			});
+		}
+	}
 }
 
 $(document).ready(function(){
@@ -303,5 +372,6 @@ $(document).ready(function(){
 			setVolume(args.data.volume.uid, args.data.volume.vol);
 		}
 	});
+	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
 	dew.show();
 });
