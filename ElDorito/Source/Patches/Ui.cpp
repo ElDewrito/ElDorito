@@ -930,7 +930,7 @@ namespace
 		auto actionObjectIndex = actionStatePtr(0x4).Read<uint32_t>();
 		auto actionFlags = actionStatePtr(0x2).Read<uint16_t>();
 
-		if (actionType != 1) // weapon pickup/swap
+		if (actionType != 1 && actionType != 9) // weapon pickup/swap
 			return false;
 
 		auto& players = Blam::Players::GetPlayers();
@@ -956,7 +956,7 @@ namespace
 		auto primaryWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * 0).Read<uint32_t>();
 		auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
 
-		if (primaryWeaponObjectIndex == -1 || secondaryWeaponObjectIndex == -1)
+		if (primaryWeaponObjectIndex == -1 || secondaryWeaponObjectIndex == -1 || actionType == 9)
 		{
 			DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupMessage, -1, 0);
 			return true;
