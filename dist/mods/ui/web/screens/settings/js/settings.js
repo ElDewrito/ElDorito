@@ -1,5 +1,5 @@
 var loadedSettings = false;
-var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['armorAcc', 'Player.Armor.Accessory'], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'], ['sMaxTeamSize', 'Server.MaxTeamSize'], ['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityX'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard'], ['invertLook','Input.ControllerInvertY'], ['gHideChat','Game.HideChat'], ['gSuppressJuggling','Game.SuppressJuggling'], ['sTeamShufflingEnabled','Server.TeamShuffleEnabled'],['sVetoEnabled','Server.VetoSystemEnabled'], ['sVotingEnabled','Server.VotingEnabled'], ['wOffsetConfig','Weapon.Config'], ['gMedalPack','Game.MedalPack'], ['iSpectateSens','Input.SpectateSensitivity'],['iDisableSprint','Input.ToggleSprint'],['gIconSet','Game.IconSet'],['sMapVotingTime','Server.MapVotingTime'],['sNumOfRevotes','Server.NumberOfRevotesAllowed'],['sNumberOfVotingOptions','Server.NumberOfVotingOptions'],['sVotingDuplicationLevel','Server.VotingDuplicationLevel'],['sTimeBetweenVoteEndAndGameStart','Server.TimeBetweenVoteEndAndGameStart'],['sNumOfVetoes','Server.NumberOfVetosVotes'],['sVetoVoteTime','Server.VetoVoteTime'],['sVetoWinningShowTime','Server.VetoWinningOptionShownTime'],['sVetoPassPercentage','Server.VetoVotePassPercentage']];
+var settingsToLoad = [['pName', 'Player.Name'], ['renderWeapon', 'Player.RenderWeapon'], ['armorHelmet', 'Player.Armor.Helmet'], ['armorChest', 'Player.Armor.Chest'], ['armorShoulders', 'Player.Armor.Shoulders'], ['armorArms', 'Player.Armor.Arms'], ['armorLegs', 'Player.Armor.Legs '], ['armorAcc', 'Player.Armor.Accessory'], ['colorsPrimary', 'Player.Colors.Primary'], ['colorsSecondary', 'Player.Colors.Secondary'], ['colorsVisor', 'Player.Colors.Visor'], ['colorsLights', 'Player.Colors.Lights'], ['colorsHolo', 'Player.Colors.Holo'],['sName', 'Server.Name'],['sCountdown', 'Server.Countdown'], ['sMaxPlayers', 'Server.MaxPlayers'], ['sMaxTeamSize', 'Server.MaxTeamSize'], ['sShouldAnnounce', 'Server.ShouldAnnounce'],['sSprintEnabled', 'Server.SprintEnabled'], ['sUnlimitedSprint', 'Server.UnlimitedSprint'], ['sDualWieldEnabled', 'Server.DualWieldEnabled'], ['sAssassinationEnabled', 'Server.AssassinationEnabled'], ['cCenteredCrosshair' , 'Camera.Crosshair'], ['cFOV', 'Camera.FOV'], ['cHideHUD', 'Camera.HideHUD'], ['cSpeed', 'Camera.Speed'],['inputRaw','Input.RawInput'], ['gfxSaturation', 'Graphics.Saturation'], ['gfxBloom', 'Graphics.Bloom'], ['sPass', 'Server.Password'], ['sMessage', 'Server.Message'], ['lookSensitivity', 'Input.ControllerSensitivityX'], ['controllerPort','Input.ControllerPort'], ['gAnnouncerVol','Game.AnnouncerVolume'], ['gExpandScoreboard','Game.ExpandedScoreboard'], ['invertLook','Input.ControllerInvertY'], ['gHideChat','Game.HideChat'], ['gSuppressJuggling','Game.SuppressJuggling'], ['sTeamShufflingEnabled','Server.TeamShuffleEnabled'],['sVetoEnabled','Server.VetoSystemEnabled'], ['sVotingEnabled','Server.VotingEnabled'], ['wOffsetConfig','Weapon.Config'], ['gMedalPack','Game.MedalPack'], ['iSpectateSens','Input.SpectateSensitivity'],['iDisableSprint','Input.ToggleSprint'],['gIconSet','Game.IconSet'],['sMapVotingTime','Server.MapVotingTime'],['sNumOfRevotes','Server.NumberOfRevotesAllowed'],['sNumberOfVotingOptions','Server.NumberOfVotingOptions'],['sVotingDuplicationLevel','Server.VotingDuplicationLevel'],['sTimeBetweenVoteEndAndGameStart','Server.TimeBetweenVoteEndAndGameStart'],['sNumOfVetoes','Server.NumberOfVetoVotes'],['sVetoVoteTime','Server.VetoVoteTime'],['sVetoWinningShowTime','Server.VetoWinningOptionShownTime'],['sVetoPassPercentage','Server.VetoVotePassPercentage'],['vEnabled','VoIP.Enabled'],['vMicrophoneID','VoIP.MicrophoneID'],['vPTTEnable','VoIP.PTT_Enabled'],['vAGC','VoIP.AGC'],['vNoiseSupress','VoIP.NoiseSupress'],['vEchoCancelation','VoIP.EchoCancelation']];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 var renderWeapons = [
@@ -223,6 +223,15 @@ $(document).ready(function() {
             tabIndex = $('.tabs li a').index($("a[href='"+activePage+"']"));
         });
     });
+    navigator.mediaDevices.enumerateDevices().then(function(devices){
+        var deviceArray = [['Default','']];
+        for (i = 0; i < devices.length; i++){
+            if(devices[i].kind == "audioinput" && devices[i].label){
+                deviceArray.push([devices[i].label,devices[i].deviceId]);
+            }
+        }
+        setOptionList('vMicrophoneID', deviceArray);
+    });
 });
 
 function loadSettings(i) {
@@ -252,8 +261,8 @@ function loadSettings(i) {
             }else if(settingsToLoad[i][1].startsWith("Server.VetoSystemEnabled")){ 
                 if(response == "1"){
                     $("select[name='sVotingStyle']").val('2');
-                    $('.veto').show();
                     $('.voting').hide();
+                    $('.veto').show();
                 }else{
                     $("select[name='sVotingStyle']").val('0');
                     $('.veto').hide();
@@ -438,6 +447,7 @@ function getCurrentBindString(){
 }
 
 function updateSelection(item){
+    var initialSelection = $('.selected').next('input').attr('id');
     $('.selected').removeClass();
     $('.selectedElement').removeClass('selectedElement');
     if(activePage == "#presets, #advanced"){
@@ -448,6 +458,9 @@ function updateSelection(item){
         selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
     }
     $('#'+selectedItem).addClass('selectedElement');
+    if(initialSelection != selectedItem){
+        play('dew://assets/move.wav');
+    }
 }
 
 $.fn.getInputType = function () {
@@ -542,6 +555,7 @@ function leftToggle(){
                 updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
             }
         }
+        play('dew://assets/toggle.wav');  
     }
     if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepDown();
@@ -551,7 +565,8 @@ function leftToggle(){
         }else{
             updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
         }
-    }        
+        play('dew://assets/toggle.wav');  
+    }      
 }
 
 function rightToggle(){
@@ -571,6 +586,7 @@ function rightToggle(){
                 updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
             }
         }
+        play('dew://assets/toggle.wav');    
     }
     if($('#'+selectedItem).getInputType() == "range"){
         document.getElementById(selectedItem).stepUp();
@@ -580,7 +596,8 @@ function rightToggle(){
         }else{
             updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
         }
-    }        
+        play('dew://assets/toggle.wav');    
+    }         
 }
 
 function prevPage(){
@@ -604,7 +621,8 @@ function toggleSetting(){
             document.getElementById(selectedItem).checked = true;
         }
         updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
-    }        
+        play('dew://assets/toggle.wav');  
+    }       
 }
 
 function updateSprint(value){
@@ -644,8 +662,8 @@ function updateVotingStyle(value){
                 dew.command("writeconfig");
             });
         });
-        $('.voting').show();
         $('.veto').hide();
+        $('.voting').show();
     }else{
         dew.command("Server.VotingEnabled 0", {}).then(function(){
             dew.command("Server.VetoSystemEnabled 1", {}).then(function(){
@@ -654,5 +672,21 @@ function updateVotingStyle(value){
         });
         $('.voting').hide();
         $('.veto').show();
+    }
+}
+
+var playQueue = [];
+var isPlaying = false;
+function play(audio){
+    isPlaying = true;
+    var audioElement = new Audio(audio);
+    audioElement.play();
+    audioElement.volume = 0.25;
+    audioElement.onended = function(){
+        isPlaying = false;
+        playQueue.splice(0, 1);
+        if(playQueue.length > 0){
+            play(playQueue[0]);	
+        }
     }
 }
