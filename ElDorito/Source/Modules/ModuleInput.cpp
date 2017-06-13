@@ -585,7 +585,7 @@ namespace
 		writer.StartArray();
 		for (int i = 0; i < eKeyCode_Count; i++)
 		{
-			for (int k = 0; k < commandBindings[i].command.size(); i++)
+			for (int k = 0; k < commandBindings[i].command.size(); k++)
 			{
 				if (commandBindings[i].command[k].compare(Arguments[0]) == 0)
 				{
