@@ -232,6 +232,11 @@ $(document).ready(function() {
         }
         setOptionList('vMicrophoneID', deviceArray);
     });
+    $('#randomArmor img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_X.png');
+    $('#randomColors img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_Y.png');
+    if(hasGP){
+        $('#playerSettings button img').show();
+    }
 });
 
 function loadSettings(i) {
@@ -519,10 +524,12 @@ function stickAction(direction, x){
 
 function onControllerConnect(){
     updateSelection(itemNumber);
+    $('#playerSettings button img').show();
 }
 
 function onControllerDisconnect(){
     $('.selected').removeClass(); 
+    $('#playerSettings button img').hide();
 }
 
 function upNav(){
@@ -689,4 +696,31 @@ function play(audio){
             play(playQueue[0]);	
         }
     }
+}
+
+function randomArmor(){
+    var armorArray = ['helmet','chest','shoulders','arms','legs'];
+    for(var i = 0; i < armorArray.length; i++) {
+        var $options = $('#'+armorArray[i]).find('option'),
+            random = ~~(Math.random() * $options.length);
+        $options.eq(random).prop('selected', true);    
+        updateSetting($('#'+armorArray[i]).attr('name'), $('#'+armorArray[i]).val());
+    }
+    play('dew://assets/toggle.wav'); 
+}
+
+function randomColors(){
+    var colorArray = ['colorsPrimary','colorsSecondary','colorsVisor','colorsLights','colorsHolo'];
+    for(var i = 0; i < colorArray.length; i++) {
+        var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16).toUpperCase();
+        $('#'+colorArray[i]).css("background-color",randomColor);
+        if(getLuminance(randomColor)> 0.22){
+            $('#'+colorArray[i]).css("color","#222");
+        }else{
+            $('#'+colorArray[i]).css("color","#ddd");
+        }
+        $('#'+colorArray[i]).val(randomColor);
+        updateSetting($('#'+colorArray[i]).attr('name'), randomColor);
+    }  
+    play('dew://assets/toggle.wav');     
 }

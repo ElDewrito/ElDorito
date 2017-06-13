@@ -414,3 +414,25 @@ center{
     margin-top:0.25vw;
     text-transform: uppercase;
 }
+
+#playerSettings button{
+    position: relative;
+    background-color: black;  
+    color: white;    
+    border: 1px solid white;
+    border-radius: 5px;
+    height: 4.25vh;
+}
+
+#playerSettings button:hover{
+   background-color: #B1572A; 
+}
+
+#playerSettings button img{
+    display:none;
+    position:relative;
+    width: 4vh;
+    top:1.1vh;
+    margin-top:-2vh;
+    margin-right:-0.5vh;
+}
