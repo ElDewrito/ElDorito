@@ -572,6 +572,34 @@ namespace
 
 	}
 
+	bool CommandFindKeybdBinding(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 1)
+		{
+			returnInfo = "Not enough arguments";
+			return false;
+		}
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartArray();
+		for (int i = 0; i < eKeyCode_Count; i++)
+		{
+			for (int k = 0; k < commandBindings[i].command.size(); i++)
+			{
+				if (commandBindings[i].command[k].compare(Arguments[0]) == 0)
+				{
+					std::string key;
+					keyCodes.FindName((Blam::Input::KeyCode)i, &key);
+					writer.String(key.c_str());
+				}
+			}
+		}
+		writer.EndArray();
+		returnInfo = buffer.GetString();
+		return true;
+	}
+
 #ifdef _DEBUG
 	bool CommandDumpBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
@@ -626,6 +654,7 @@ namespace Modules
 #endif
 
 		AddCommand("DumpBindingsJson", "dumpbindingsjson", "Dumps the input bindings table in json", eCommandFlagsNone, CommandDumpBindingsJson);
+		AddCommand("FindBind", "findbind", "Finds the key bound to a command passed", eCommandFlagsNone, CommandFindKeybdBinding);
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 		VarSpectateSensitivity = AddVariableFloat("SpectateSensitivity", "specsens", "Spectator camera sensitivity", eCommandFlagsArchived, 1.0f);
