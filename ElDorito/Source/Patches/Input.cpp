@@ -489,7 +489,7 @@ namespace
 		{
 			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
 			if (*(uint16_t*)GetPlayerControlsAction(localPlayerIndex) == 1)
-				s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft];
+				s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft] && GetKeyTicks(bindings->PrimaryKeys[eGameActionUseConsumable1], eInputTypeGame) == 0 && GetKeyTicks(bindings->SecondaryKeys[eGameActionUseConsumable1], eInputTypeGame) == 0;
 		}
 		else
 		{
