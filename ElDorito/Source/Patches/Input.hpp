@@ -46,10 +46,12 @@ namespace Patches
 		void PushContext(std::shared_ptr<InputContext> context);
 
 		typedef std::function<void()> DefaultInputHandler;
+		typedef std::function<void()> MenuUIInputHandler;
 		
 		// Registers a function to be called when the default input handler is
 		// ticked.
 		void RegisterDefaultInputHandler(DefaultInputHandler func);
+		void RegisterMenuUIInputHandler(MenuUIInputHandler func);
 
 		// Sets what controls can be configured in the keyboard settings menu.
 		void SetKeyboardSettingsMenu(

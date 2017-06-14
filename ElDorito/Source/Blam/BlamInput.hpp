@@ -277,7 +277,7 @@ namespace Blam
 			eGameActionUnk38,
 			eGameActionGeneralChat,
 			eGameActionTeamChat,
-			eGameActionUnk41,
+			eGameActionVoiceChat,
 			eGameActionUnk42,
 			eGameActionUnk43,
 			eGameActionUseConsumable1,

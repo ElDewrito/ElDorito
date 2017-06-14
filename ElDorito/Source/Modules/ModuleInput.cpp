@@ -93,7 +93,7 @@ namespace
 		bindings.ControllerButtons[eGameActionUnk36]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk37]          = eControllerButtonDpadLeft;
 		bindings.ControllerButtons[eGameActionUnk38]          = eControllerButtonDpadRight;
-		bindings.ControllerButtons[eGameActionUnk41]          = eControllerButtonDpadUp;
+		bindings.ControllerButtons[eGameActionVoiceChat]      = eControllerButtonDpadDown;
 		bindings.ControllerButtons[eGameActionUnk42]          = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionVehicleBoost]   = eControllerButtonLeftTrigger;
 		bindings.ControllerButtons[eGameActionVehicleDive]    = eControllerButtonX;
@@ -147,7 +147,7 @@ namespace
 		bindings.PrimaryKeys[eGameActionSprint]                  = eKeyCodeLShift;
 		bindings.PrimaryKeys[eGameActionGeneralChat]             = eKeyCodeT;
 		bindings.PrimaryKeys[eGameActionTeamChat]                = eKeyCodeY;
-		bindings.PrimaryKeys[eGameActionUnk41]                   = eKeyCodeCapital;
+		bindings.PrimaryKeys[eGameActionVoiceChat]               = eKeyCodeCapital;
 		bindings.PrimaryKeys[eGameActionUnk42]                   = eKeyCodeSpace;
 		bindings.PrimaryKeys[eGameActionVehicleBoost]            = eKeyCodeLShift;
 		bindings.PrimaryKeys[eGameActionVehicleDive]             = eKeyCodeLControl;
@@ -329,11 +329,8 @@ namespace
 			}
 
 			// Execute the command and print its result
-			std::string copy(binding->command[0]);
-			std::transform(copy.begin(), copy.end(), copy.begin(), tolower);
 			auto result = Modules::CommandMap::Instance().ExecuteCommand(command, true);
-			if(copy.find("voip.talk") == std::string::npos) //voip exception
-				Console::WriteLine(result);
+			Console::WriteLine(result);
 		}
 	}
 
@@ -927,6 +924,7 @@ namespace
 		{ "ForgeDelete", eGameActionUiY },
 		{ "Chat", eGameActionGeneralChat },
 		{ "TeamChat", eGameActionTeamChat },
+		{ "VoiceChat", eGameActionVoiceChat },
 	};
 
 	// Macro to prefix a string with "settings_" because the actual string_ids don't include that prefix
@@ -959,6 +957,7 @@ namespace
 		{ S("actions_forge_delete"),        -1, -1, eGameActionUiY },
 		{ S("actions_chat_all"),            -1, -1, eGameActionGeneralChat },
 		{ S("actions_chat_team"),           -1, -1, eGameActionTeamChat },
+		{ S("actions_chat_voice"),          -1, -1, eGameActionVoiceChat },
 	};
 
 	// Vehicle controls settings menu

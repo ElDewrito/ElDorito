@@ -38,6 +38,7 @@ namespace
 
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
+	std::vector<MenuUIInputHandler> uiHandlers;
 	bool contextDone = false;
 	bool blockStates[eInputType_Count];
 
@@ -109,6 +110,11 @@ namespace Patches
 		void RegisterDefaultInputHandler(DefaultInputHandler func)
 		{
 			defaultHandlers.push_back(func);
+		}
+
+		void RegisterMenuUIInputHandler(MenuUIInputHandler func)
+		{
+			uiHandlers.push_back(func);
 		}
 
 		void SetKeyboardSettingsMenu(
@@ -389,6 +395,10 @@ namespace
 		{
 			UpdateCharPlatform();
 		}
+
+		//main menu ui handlers
+		for (auto &&handler : uiHandlers)
+			handler();
 	}
 
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3)
@@ -562,7 +572,7 @@ namespace
 		eInputTypeGame,    // eGameActionUnk38
 		eInputTypeUi,      // eGameActionGeneralChat
 		eInputTypeUi,      // eGameActionTeamChat
-		eInputTypeGame,    // eGameActionUnk41
+		eInputTypeSpecial, // eGameActionVoiceChat
 		eInputTypeGame,    // eGameActionUnk42
 		eInputTypeGame,    // eGameActionUnk43
 		eInputTypeGame,    // eGameActionUseConsumable1
