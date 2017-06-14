@@ -34,7 +34,6 @@ namespace
 	DWORD WINAPI SignalingThread(LPVOID);
 	bool OnValidate(server* signalServer, websocketpp::connection_hdl hdl);
 	void OnMessage(server* signalServer, websocketpp::connection_hdl hdl, server::message_ptr msg);
-	void OnSocketInit(server* signalServer, websocketpp::connection_hdl hdl, boost::asio::ip::tcp::socket &socket);
 	void OnClose(server* signalServer, websocketpp::connection_hdl hdl);
 
 	std::string ServerPortJson();
@@ -104,6 +103,10 @@ namespace Server
 			currentPassword = authStrings[session->MembershipInfo.HostPeerIndex];
 			port = Modules::ModuleServer::Instance().VarSignalServerPort->ValueInt; 
 			Web::Ui::ScreenLayer::Notify("signal-ready", ServerPortJson(), true);
+			if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
+			{
+				Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "Eldewrito Signal Server");
+			}
 			if (!is_listening)
 				CreateThread(nullptr, 0, SignalingThread, nullptr, 0, nullptr);
 		}
@@ -277,7 +280,6 @@ namespace
 			signalServer.set_validate_handler(websocketpp::lib::bind(OnValidate, &signalServer, _1));
 			signalServer.set_message_handler(websocketpp::lib::bind(OnMessage, &signalServer, _1, _2));
 			signalServer.set_close_handler(websocketpp::lib::bind(OnClose, &signalServer, _1));
-			signalServer.set_socket_init_handler(websocketpp::lib::bind(OnSocketInit, &signalServer, _1, _2));
 
 
 			signalServer.listen(port);
@@ -294,14 +296,6 @@ namespace
 			Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Error, "SignalServer: %s", e.what());
 		}
 		return 0;
-	}
-
-	void OnSocketInit(server* signalServer, websocketpp::connection_hdl hdl, boost::asio::ip::tcp::socket &socket)
-	{
-		if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
-		{
-			Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "Eldewrito Signal Server");
-		}
 	}
 
 	bool OnValidate(server* signalServer, websocketpp::connection_hdl hdl)
