@@ -1240,7 +1240,7 @@ namespace Modules
 
 		AddCommand("WebsocketInfo", "websocketinfo", "Display the websocket password for the current server", eCommandFlagsNone, CommandWebsocketInfo);
 
-		VarSignalServerPort = AddVariableInt("SignalServerPort", "signalserverport", "The port the signaling server will listen on", eCommandFlagsNone, 9090);
+		VarSignalServerPort = AddVariableInt("SignalServerPort", "signalserverport", "The port the signaling server will listen on", eCommandFlagsArchived, 9090);
 		VarSignalServerPort->ValueIntMin = 0;
 		VarSignalServerPort->ValueIntMax = 65535;
 
