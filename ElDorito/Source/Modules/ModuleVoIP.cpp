@@ -74,11 +74,14 @@ namespace
 
 	void OnGameInputUpdated()
 	{
+		auto isUsingController = *(bool*)0x0244DE98;
 		Blam::Input::BindingsTable bindings;
 		GetBindings(0, &bindings);
 		
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
 		{
+			if (isMainMenu && isUsingController)
+				return;
 			//keyboard/controller in-game
 			if (isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionVoiceChat)->Ticks == 0)
 			{
@@ -94,24 +97,24 @@ namespace
 					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);
 			}
-
-			
 		}
 	}
 
 	void OnUiInputUpdated()
 	{
 		auto isUsingController = *(bool*)0x0244DE98;
+		Blam::Input::BindingsTable bindings;
+		GetBindings(0, &bindings);
 
 		//controller in lobby
-		if (isMainMenu && isUsingController)
+		if (isMainMenu && isUsingController && Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
 		{
-			if (isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionUiY)->Ticks == 0) //hard code Y since its unused in main menu
+			if (isChatting && Blam::Input::GetActionState((Blam::Input::GameAction)bindings.ControllerButtons[Blam::Input::eGameActionVoiceChat])->Ticks == 0)
 			{
 				isChatting = false;
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
-			else if (!isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionUiY)->Ticks == 1)
+			else if (!isChatting && Blam::Input::GetActionState((Blam::Input::GameAction)bindings.ControllerButtons[Blam::Input::eGameActionVoiceChat])->Ticks == 1)
 			{
 				isChatting = true;
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);
