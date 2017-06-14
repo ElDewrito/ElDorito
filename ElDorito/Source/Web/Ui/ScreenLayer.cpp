@@ -1,6 +1,7 @@
 #include "ScreenLayer.hpp"
 #include "../WebRenderer.hpp"
 #include "../WebRendererSchemeHandler.hpp"
+#include "../../Modules/ModuleServer.hpp"
 #include "../../Patches/Input.hpp"
 #include "../../Patches/Core.hpp"
 #include "../../Blam/BlamInput.hpp"
@@ -74,6 +75,8 @@ namespace Web
 
 			void Show(bool show)
 			{
+				if (ElDorito::Instance().IsDedicated())
+					return;
 				auto webRenderer = WebRenderer::GetInstance();
 				if (show == webRenderer->IsRendering())
 					return;
@@ -82,6 +85,8 @@ namespace Web
 
 			void Show(const std::string &screenId, const std::string &data)
 			{
+				if (ElDorito::Instance().IsDedicated())
+					return;
 				// ui.requestScreen(id, data)
 				auto js = "if (window.ui) ui.requestScreen('" + screenId + "', " + data + ");";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
@@ -89,6 +94,8 @@ namespace Web
 
 			void Hide(const std::string &screenId)
 			{
+				if (ElDorito::Instance().IsDedicated())
+					return;
 				// ui.hideScreen(id)
 				auto js = "if (window.ui) ui.hideScreen('" + screenId + "');";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
@@ -96,6 +103,8 @@ namespace Web
 
 			void Notify(const std::string &event, const std::string &data, bool broadcast)
 			{
+				if (ElDorito::Instance().IsDedicated())
+					return;
 				// ui.notify(event, data, broadcast, fromDew)
 				auto js = "if (window.ui) ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
 				WebRenderer::GetInstance()->ExecuteJavascript(js);
