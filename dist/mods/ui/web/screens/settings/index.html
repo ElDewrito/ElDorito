@@ -34,20 +34,20 @@
             <input type="text" class="tinySetting" id="sMaxTeamSizeText" name="sMaxTeamSize" onchange="updateSetting('sMaxTeamSize', this.value);">
             <input type="range" min="1" max="8" id="sMaxTeamSize" name="sMaxTeamSize" oninput="document.querySelector('#sMaxTeamSizeText').value = this.value;"><br />		
             <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce" name="sShouldAnnounce"><br />
-            <label for="sSprint">Sprint</label><select id="sSprint" name="sSprint" class="setting wheelable">
+            <label for="sSprint">Sprint</label><div id="leftArrow">&#9664;</div><select id="sSprint" name="sSprint" class="setting wheelable">
                 <option value="0">Disabled</option> 
                 <option value="1">Enabled</option>
                 <option value="2">Unlimited</option>
-            </select><br />            
+            </select><div id="rightArrow">&#9654;</div><br />            
             <!--<label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
             <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />-->
             <label for="sDualWieldEnabled">Allow Dual Wielding</label><input class="setting" type="checkbox" id="sDualWieldEnabled" name="sDualWieldEnabled"><br />
             <label for="sAssassinationEnabled">Allow Assassination</label><input class="setting" type="checkbox" id="sAssassinationEnabled" name="sAssassinationEnabled"><br />
-            <label for="sVotingStyle">Map Voting Style</label><select id="sVotingStyle" name="sVotingStyle" class="setting wheelable">
+            <label for="sVotingStyle">Map Voting Style</label><div id="leftArrow">&#9664;</div><select id="sVotingStyle" name="sVotingStyle" class="setting wheelable">
                 <option value="0">Disabled</option> 
                 <option value="1">Voting</option>
                 <option value="2">Vetoing</option>               
-            </select><br />
+            </select><div id="rightArrow">&#9654;</div><br />
 			<!--<label class="voting" for="sVotingEnabled">Voting Enabled</label><input class="setting" type="checkbox" id="sVotingEnabled" name="sVotingEnabled"><br class="voting" />-->
             <center class="voting">Map Voting Options</center>
             <label class="voting" for="sMapVotingTime">Map Voting Time</label>
@@ -59,11 +59,11 @@
             <label class="voting" for="sNumberOfVotingOptions">Number of Voting Options</label>
             <input type="text" class="tinySetting voting" id="sNumberOfVotingOptionsText" name="sNumberOfVotingOptions" onchange="updateSetting('sNumberOfVotingOptions', this.value);">
             <input type="range" class="voting" min="1" max="4" id="sNumberOfVotingOptions" name="sNumberOfVotingOptions" oninput="document.querySelector('#sNumberOfVotingOptionsText').value = this.value;"><br class="voting" />
-            <label class="voting" for="sVotingDuplicationLevel">Voting Duplication Level</label><select id="sVotingDuplicationLevel" name="sVotingDuplicationLevel" class="setting wheelable voting">
+            <label class="voting" for="sVotingDuplicationLevel">Voting Duplication Level</label><div id="leftArrow">&#9664;</div><select id="sVotingDuplicationLevel" name="sVotingDuplicationLevel" class="setting wheelable voting">
                 <option value="0">Everything Unique</option>
                 <option value="1">Gametype or Map Can Repeat</option>
                 <option value="2">Anything Can Repeat</option>
-            </select><br class="voting" />
+            </select><div id="rightArrow">&#9654;</div><br class="voting" />
             <label class="voting" for="sTimeBetweenVoteEndAndGameStart">Time Between Winner And Start</label>
             <input type="text" class="tinySetting voting" id="sTimeBetweenVoteEndAndGameStartText" name="sTimeBetweenVoteEndAndGameStart" onchange="updateSetting('sTimeBetweenVoteEndAndGameStart', this.value);">
             <input type="range" class="voting" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart" name="sTimeBetweenVoteEndAndGameStart" oninput="document.querySelector('#sTimeBetweenVoteEndAndGameStartText').value = this.value;"><br class="voting" />
@@ -89,12 +89,12 @@
             <input type="text" class="tinySetting" id="gAnnouncerVolText" name="gAnnouncerVol" onchange="updateSetting('gAnnouncerVol', this.value);">
             <input type="range" min="0" max="100" id="gAnnouncerVol" name="gAnnouncerVol" oninput="document.querySelector('#gAnnouncerVolText').value = this.value;">
             <br />
-            <label for="gMedalPack">Medal Pack</label><select id="gMedalPack" name="gMedalPack" class="setting wheelable"></select><br />
+            <label for="gMedalPack">Medal Pack</label><div id="leftArrow">&#9664;</div><select id="gMedalPack" name="gMedalPack" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
             <label for="gExpandScoreboard">Always Expand Scoreboard</label><input class="setting" type="checkbox" id="gExpandScoreboard" name="gExpandScoreboard"><br />
             <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label><input class="setting" type="checkbox" id="gSuppressJuggling" name="gSuppressJuggling"><br />
             <label for="gHideChat">Hide Chat</label><input class="setting" type="checkbox" id="gHideChat" name="gHideChat"><br />
             <center>Visuals</center>
-            <label for="gIconSet">Controller Button Icon Set</label><select id="gIconSet" name="gIconSet" class="setting wheelable"></select><br />
+            <label for="gIconSet">Controller Button Icon Set</label><div id="leftArrow">&#9664;</div><select id="gIconSet" name="gIconSet" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
             <label for="cCenteredCrosshair">Centered Crosshair</label><input class="setting" type="checkbox" id="cCenteredCrosshair" name="cCenteredCrosshair"><br />
             <label for="cFOV">Screen FOV</label>
             <input type="text" class="tinySetting" id="cFOVText" name="cFOV" onchange="updateSetting('cFOV', this.value);">
@@ -112,14 +112,14 @@
 
         <div id="playerSettings">
             <label for="pName">Player Name</label><input class="setting" type="text" id="pName" name="pName"><br />
-            <label for="renderWeapon">Podium Weapon</label><select id="renderWeapon" name="renderWeapon" class="setting wheelable"></select><br />
+            <label for="renderWeapon">Podium Weapon</label><div id="leftArrow">&#9664;</div><select id="renderWeapon" name="renderWeapon" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
             <center>Armor</center>
-            <label for="helmet">Helmet</label><select id="helmet" name="armorHelmet" class="setting wheelable"></select><br />
-            <label for="chest">Chest</label><select id="chest" class="setting wheelable" name="armorChest"></select><br />
-            <label for="shoulders">Shoulders</label><select id="shoulders" class="setting wheelable" name="armorShoulders"></select><br />
-            <label for="arms">Arms</label><select id="arms" class="setting wheelable" name="armorArms"></select><br />
-            <label for="legs">Legs</label><select id="legs" class="setting wheelable" name="armorLegs"></select><br />
-            <label for="accesory">Accessory</label><select id="accessory" class="setting wheelable" name="armorAcc"></select><br />
+            <label for="helmet">Helmet</label><div id="leftArrow">&#9664;</div><select id="helmet" name="armorHelmet" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
+            <label for="chest">Chest</label><div id="leftArrow">&#9664;</div><select id="chest" class="setting wheelable" name="armorChest"></select><div id="rightArrow">&#9654;</div><br />
+            <label for="shoulders">Shoulders</label><div id="leftArrow">&#9664;</div><select id="shoulders" class="setting wheelable" name="armorShoulders"></select><div id="rightArrow">&#9654;</div><br />
+            <label for="arms">Arms</label><div id="leftArrow">&#9664;</div><select id="arms" class="setting wheelable" name="armorArms"></select><div id="rightArrow">&#9654;</div><br />
+            <label for="legs">Legs</label><div id="leftArrow">&#9664;</div><select id="legs" class="setting wheelable" name="armorLegs"></select><div id="rightArrow">&#9654;</div><br />
+            <label for="accesory">Accessory</label><div id="leftArrow">&#9664;</div><select id="accessory" class="setting wheelable" name="armorAcc"></select><div id="rightArrow">&#9654;</div><br />
             <center>Colors</center>
             <label for="colorsPrimary">Primary</label><input class="setting color no-alpha" id="colorsPrimary" value="#FFFFFF" name="colorsPrimary"><br />
             <label for="colorsSecondary">Secondary</label><input class="setting color no-alpha" id="colorsSecondary" value="#FFFFFF" name="colorsSecondary"><br />
@@ -132,7 +132,7 @@
         
         <div id="voipSettings">
             <label for="vEnabled">VOIP Enabled</label><input class="setting" type="checkbox" id="vEnabled" name="vEnabled"><br />
-            <label for="vMicrophoneID">Microphone ID</label><select id="vMicrophoneID" name="vMicrophoneID" class="setting wheelable"></select><br />
+            <label for="vMicrophoneID">Microphone ID</label><div id="leftArrow">&#9664;</div><select id="vMicrophoneID" name="vMicrophoneID" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
             <label for="vPTTEnable">Push To Talk</label><input class="setting" type="checkbox" id="vPTTEnable" name="vPTTEnable"><br />
             <label for="vEchoCancelation">Echo Cancelation</label><input class="setting" type="checkbox" id="vEchoCancelation" name="vEchoCancelation"><br />
             <label for="vAGC">Automatic Gain Control</label><input class="setting" type="checkbox" id="vAGC" name="vAGC"><br />    

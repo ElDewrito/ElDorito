@@ -460,11 +460,24 @@ function updateSelection(item){
         selectedItem = $(activePage).not('#controls').children().not('.bind,label,center,br,.tinySetting').eq(itemNumber).attr('id');       
     }else{
         $(activePage).find('label').eq(item).addClass('selected');
-        selectedItem = $(activePage).children().not('label,center,br,.tinySetting').eq(itemNumber).attr('id');
+        selectedItem = $(activePage).children().not('label,center,br,.tinySetting,#leftArrow,#rightArrow').eq(itemNumber).attr('id');
     }
     $('#'+selectedItem).addClass('selectedElement');
     if(initialSelection != selectedItem){
         play('dew://assets/move.wav');
+    }
+    showArrows();
+}
+
+function showArrows(){
+    $('#leftArrow,#rightArrow').hide();
+    if($('#'+selectedItem).getInputType() == "select"){
+        if($('#'+selectedItem).prop('selectedIndex') > 0){
+            $('.selected + #leftArrow').show();
+        }
+        if($('#'+selectedItem).prop('selectedIndex') < $('#'+selectedItem).find('option').length-1){
+            $('.selectedElement + #rightArrow').show();
+        }
     }
 }
 
@@ -562,6 +575,7 @@ function leftToggle(){
                 updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
             }
         }
+        showArrows();
         play('dew://assets/toggle.wav');  
     }
     if($('#'+selectedItem).getInputType() == "range"){
@@ -593,6 +607,7 @@ function rightToggle(){
                 updateSetting($('#'+selectedItem).attr('name'), $('#'+selectedItem).val());
             }
         }
+        showArrows();
         play('dew://assets/toggle.wav');    
     }
     if($('#'+selectedItem).getInputType() == "range"){

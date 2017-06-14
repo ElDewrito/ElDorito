@@ -51,7 +51,7 @@ label {
 #settingsWindow div{
     width: 100%;
 }
-#settingsWindow div:not( #windowHeader) {
+#settingsWindow div:not(#windowHeader):not(#leftArrow):not(#rightArrow) {
     background: #14234a;
     border: 1px solid #000;
     left: 0;
@@ -435,4 +435,19 @@ center{
     top:1.1vh;
     margin-top:-2vh;
     margin-right:-0.5vh;
+}
+
+#leftArrow,#rightArrow{
+    display:none;
+    position:absolute; 
+    font-size:2.5vh; 
+    margin-top:0.15vh;
+}
+
+#leftArrow{
+    left:33.5vh;
+}
+
+#rightArrow{
+    left:62.75vh;
 }
