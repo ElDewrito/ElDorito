@@ -42,13 +42,13 @@ dew.on("mpevent", function (event) {
             dew.command('Game.AnnouncerVolume', {}).then(function(response) {
                 announcerVolume = response/100;
                 var medal = event.data.name;
-                if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_'))){
+                if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
                     juggleEvent++;
                     setTimeout(function(){
                         if(juggleEvent > 0){ juggleEvent--; }
                     }, juggleDelay);
                 } 
-                if(juggleEvent > 2 && ((medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
+                if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
                     return
                 }
                 doMedal(event.data.name, event.data.audience);
@@ -78,7 +78,7 @@ $.fn.pulse = function() {
 
 function queue_audio(audio){
     playQueue.push(medalsPath + 'audio/' + audio);
-	playQueue.splice(2, Infinity);
+    playQueue.splice(2, Infinity);
     if(!isPlaying){
         play(playQueue[0]);	
     }
