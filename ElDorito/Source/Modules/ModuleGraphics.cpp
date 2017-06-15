@@ -1,8 +1,12 @@
 #include "ModuleGraphics.hpp"
 #include <sstream>
+#include <unordered_set>
+#include <algorithm>
 #include "../ElDorito.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Patches/Ui.hpp"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../ThirdParty/rapidjson/writer.h"
 
 namespace
 {
@@ -114,6 +118,41 @@ namespace
 			Patches::Ui::ApplyUIResolution();
 		return true;
 	}
+
+	bool CommandSupportedResolutions(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		DEVMODE devmode = { 0 };
+		devmode.dmSize = sizeof(devmode);
+		std::vector<DEVMODE> supportedDevModes;
+		std::unordered_set<uint64_t> seen;
+
+		for (auto i = 0; EnumDisplaySettings(NULL, i, &devmode); i++)
+		{
+			auto key = (uint64_t)devmode.dmPelsWidth << 32 | devmode.dmPelsHeight;
+			if (seen.find(key) == seen.end())
+			{
+				seen.insert(key);
+				supportedDevModes.emplace_back(devmode);
+			}
+		}
+
+		std::sort(supportedDevModes.begin(), supportedDevModes.end(),
+			[](const DEVMODE& a, const DEVMODE& b) { return a.dmPelsWidth < b.dmPelsWidth; });
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartArray();
+		for (const auto& d : supportedDevModes)
+		{
+			auto resolutionStr = std::to_string(d.dmPelsWidth) + "x" + std::to_string(d.dmPelsHeight);
+			writer.String(resolutionStr.c_str());
+		}
+		writer.EndArray();
+
+		returnInfo = buffer.GetString();
+		return true;
+	}
 }
 
 namespace Modules
@@ -153,5 +192,7 @@ namespace Modules
 		VarUIScaling = AddVariableInt("UIScaling", "uiscaling", "Enables proper UI scaling to match your monitor's resolution.", eCommandFlagsArchived, 1, VariableUIScalingUpdate);
 		VarUIScaling->ValueIntMin = 0;
 		VarUIScaling->ValueIntMax = 1;
+
+		AddCommand("SupportedResolutions", "supported_resolutions", "List the supported screen resolutions", eCommandFlagsNone, CommandSupportedResolutions);
 	}
 }
