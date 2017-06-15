@@ -14,6 +14,7 @@ namespace Modules
 		Command *VarDisplayHints;
 		Command *VarEffectsQuality;
 		Command *VarFullscreen;
+		Command *VarScreenResolution;
 		Command *VarHUDShake;
 		Command *VarInvertLook;
 		Command *VarInvertMouse;
@@ -22,6 +23,7 @@ namespace Modules
 		Command *VarMotionBlur;
 		Command *VarMouseAcceleration;
 		Command *VarMouseFilter;
+		Command *VarGamepadEnabled;
 		Command *VarMouseSensitivityHorizontal;
 		Command *VarMouseSensitivityVertical;
 		Command *VarMouseSensitivityVehicleHorizontal;
@@ -33,6 +35,10 @@ namespace Modules
 		Command *VarTextureResolution;
 		Command *VarToggleCrouch;
 		Command *VarVSync;
+		Command *VarMasterVolume;
+		Command *VarSfxVolume;
+		Command* VarMusicVolume;
+		
 
 		ModuleSettings();
 	};

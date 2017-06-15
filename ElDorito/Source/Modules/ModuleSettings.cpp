@@ -459,6 +459,96 @@ namespace
 		returnInfo = ss.str();
 		return true;
 	}
+
+	bool VariableSettingsGamepadEnabledUpdate(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarGamepadEnabled->ValueInt;
+		auto statusBool = (value != 0);
+
+		if (value < 0 || value > 1)
+			return false;
+
+		SSL_SetControlsMethod(value);
+
+		std::stringstream ss;
+		ss << "Gamepad " << (statusBool ? "enabled." : "disabled.");
+		returnInfo = ss.str();
+		return true;
+	}
+
+	bool VariableSettingsScreenResolutionUpdate(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarScreenResolution->ValueString;
+
+		auto separatorPos = value.find("x");
+		if (separatorPos == std::string::npos)
+			return value == "default";
+
+		if (separatorPos + 1 >= value.length())
+			return false;
+
+		auto widthString = value.substr(0, separatorPos);
+		auto heightString = value.substr(separatorPos + 1);
+
+		if (widthString.length() == 0 || heightString.length() == 0)
+			return false;
+
+		auto width = std::atoi(widthString.c_str());
+		auto height = std::atoi(heightString.c_str());
+
+		SSL_SetScreenResolution(width, height);
+
+		std::stringstream ss;
+		ss << "Screen Resolution set to " << value << ".";
+		returnInfo = ss.str();
+
+		return true;
+	}
+
+	bool VariableSettingsMasterVolumeUpdated(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarMasterVolume->ValueInt;
+		if (value < 0 || value > 100)
+			return false;
+
+		SSL_SetMasterVolume(value, true);
+
+		std::stringstream ss;
+		ss << "Master Volume set to " << value << ".";
+		returnInfo = ss.str();
+
+		return true;
+	}
+
+	bool VariableSettingsSfxVolumeUpdated(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarSfxVolume->ValueInt;
+		if (value < 0 || value > 100)
+			return false;
+
+		SSL_SetSFXVolume(value, true);
+
+		std::stringstream ss;
+		ss << "Sfx Volume set to " << value << ".";
+		returnInfo = ss.str();
+
+		return true;
+	}
+
+	bool VariableSettingsMusicVolumeUpdated(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarMusicVolume->ValueInt;
+		if (value < 0 || value > 100)
+			return false;
+
+		SSL_SetMusicVolume(value, true);
+
+		std::stringstream ss;
+		ss << "Music Volume set to " << value << ".";
+		returnInfo = ss.str();
+
+		return true;
+	}
 }
 
 namespace Modules
@@ -472,6 +562,7 @@ namespace Modules
 		VarDisplayHints = AddVariableInt("DisplayHints", "hints", "Controls whether displaying of hints is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsDisplayHintsUpdate);
 		VarEffectsQuality = AddVariableString("EffectsQuality", "effects", "Controls whether the effects Quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsEffectsQualityUpdate);
 		VarFullscreen = AddVariableInt("Fullscreen", "fullscreen", "Controls whether the game is windowed (0) or fullscreen (1)", eCommandFlagsArchived, 1, VariableSettingsFullscreenUpdate);
+		VarScreenResolution = AddVariableString("ScreenResolution", "resolution", "Controls the screen resolution", eCommandFlagsArchived, "default", VariableSettingsScreenResolutionUpdate);
 		VarHUDShake = AddVariableInt("HUDShake", "hud_shake", "Controls whether hud shake is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsHUDShakeUpdate);
 		VarInvertLook = AddVariableInt("InvertLook", "invert_look", "Controls whether look-inversion is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsInvertLookUpdate);
 		VarInvertMouse = AddVariableInt("InvertMouse", "invert_mouse", "Controls whether mouse-inversion is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsInvertMouseUpdate);
@@ -480,6 +571,7 @@ namespace Modules
 		VarMotionBlur = AddVariableInt("MotionBlur", "motion_blur", "Controls whether motion blur is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsMotionBlurUpdate);
 		VarMouseAcceleration = AddVariableInt("MouseAcceleration", "mouse_accel", "Controls the level of mouse acceleration (0 - 100)", eCommandFlagsArchived, 0, VariableSettingsMouseAccelerationUpdate);
 		VarMouseFilter = AddVariableInt("MouseFilter", "mouse_filter", "Controls whether mouse-filtering is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsMouseFilterUpdate);
+		VarGamepadEnabled = AddVariableInt("Gamepad", "gamepad", "Controls whether gamepad is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsGamepadEnabledUpdate);
 		VarMouseSensitivityHorizontal = AddVariableInt("MouseSensitivityHorizontal", "mouse_sensitivity_hor", "Controls the horizontal mouse sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityHorizontalUpdate);
 		VarMouseSensitivityVertical = AddVariableInt("MouseSensitivityVertical", "mouse_sensitivity_vert", "Controls the vertical mouse sensitivity (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVerticalUpdate);
 		VarMouseSensitivityVehicleHorizontal = AddVariableInt("MouseSensitivityVehicleHorizontal", "mouse_sensitivity_vehicle_hor", "Controls the horizontal mouse sensitivity for vehicles (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsMouseSensitivityVehicleHorizontalUpdate);
@@ -491,5 +583,8 @@ namespace Modules
 		VarTextureResolution = AddVariableString("TextureResolution", "textures", "Controls whether the texture resolution level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsTextureResolutionUpdate);
 		VarToggleCrouch = AddVariableInt("ToggleCrouch", "toggle_crouch", "Controls whether crouch-toggling is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsToggleCrouchUpdate);
 		VarVSync = AddVariableInt("VSync", "vsync", "Controls whether vertical sync is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsVSyncUpdate);
+		VarMasterVolume = AddVariableInt("MasterVolume", "volume", "Controls the master volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsMasterVolumeUpdated);
+		VarSfxVolume = AddVariableInt("SfxVolume", "volume_sfx", "Controls the sfx volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsSfxVolumeUpdated);
+		VarMusicVolume = AddVariableInt("MusicVolume", "volume_music", "Controls the music volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsMusicVolumeUpdated);
 	}
 }
