@@ -1,8 +1,11 @@
 #pragma once
+#include <cstdint>
 #include <functional>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
+#include "../Blam/Text/StringID.hpp"
 
 namespace Patches
 {
@@ -12,19 +15,12 @@ namespace Patches
 		void ApplyMapNameFixes();
 		void ApplyUIResolution();
 
-		void Tick();
-
 		typedef std::function<void(HWND window)> CreateWindowCallback;
 
 		// Registers a function to be called when the game window is created.
 		void OnCreateWindow(CreateWindowCallback callback);
 
-		extern bool DialogShow; // todo: put this somewhere better
-		extern unsigned int DialogStringId;
-		extern int DialogArg1; // todo: figure out a better name for this
-		extern int DialogFlags;
-		extern unsigned int DialogParentStringId;
-		extern void* UIData;
+		void *ShowDialog(const Blam::Text::StringID p_DialogID, const int32_t p_Arg1 = 0, const int32_t p_Flags = 4, const Blam::Text::StringID p_ParentID = 0);
 
 		enum VoiceChatIcon
 		{

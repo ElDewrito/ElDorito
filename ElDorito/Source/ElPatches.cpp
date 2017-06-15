@@ -91,7 +91,6 @@ namespace Patches
 
 	void Tick()
 	{
-		Ui::Tick();
 		Sprint::Tick();
 		Forge::Tick();
 		Spectate::Tick();

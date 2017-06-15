@@ -76,6 +76,6 @@ namespace
 
 	int FmodChannelCountHook()
 	{
-		return 256;
+		return 1024;
 	}
 }

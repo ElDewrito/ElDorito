@@ -341,11 +341,7 @@ namespace
 			return false;
 		}
 
-		Patches::Ui::DialogStringId = dialogStringId;
-		Patches::Ui::DialogArg1 = dialogArg1;
-		Patches::Ui::DialogFlags = dialogFlags;
-		Patches::Ui::DialogParentStringId = dialogParentStringId;
-		Patches::Ui::DialogShow = true;
+		Patches::Ui::ShowDialog(dialogStringId, dialogArg1, dialogFlags, dialogParentStringId);
 
 		returnInfo = "Sent Show_UI notification to game.";
 		return true;

@@ -52,41 +52,26 @@ namespace Patches
 {
 	namespace Ui
 	{
-		bool DialogShow; // todo: put this somewhere better
-		unsigned int DialogStringId;
-		int DialogArg1; // todo: figure out a better name for this
-		int DialogFlags;
-		unsigned int DialogParentStringId;
-		void* UIData = 0;
-
 		void ApplyAfterTagsLoaded()
 		{
 			tagsInitiallyLoaded = true;
 		}
 
-		void Tick()
+		const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
+		const auto UI_OpenDialogById = reinterpret_cast<void *(__thiscall *)(void *, Blam::Text::StringID, int32_t, int32_t, Blam::Text::StringID)>(0xA92780);
+		const auto UI_PostMessage = reinterpret_cast<int(*)(void *)>(0xA93450);
+
+		void *ShowDialog(const Blam::Text::StringID p_DialogID, const int32_t p_Arg1, const int32_t p_Flags, const Blam::Text::StringID p_ParentID)
 		{
-			if (DialogShow)
-			{
-				if (!UIData) // the game can also free this mem at any time afaik, but it also looks like it resets this ptr to 0, so we can just alloc it again
-				{
-					typedef void*(__cdecl * UI_AllocPtr)(int size);
-					auto UI_Alloc = reinterpret_cast<UI_AllocPtr>(0xAB4ED0);
-					UIData = UI_Alloc(0x40);
-				}
+			auto *s_UIData = UI_Alloc(0x40);
 
-				// fill UIData with proper data
-				typedef void*(__thiscall * UI_OpenDialogByIdPtr)(void* a1, unsigned int dialogStringId, int a3, int dialogFlags, unsigned int parentDialogStringId);
-				auto UI_OpenDialogById = reinterpret_cast<UI_OpenDialogByIdPtr>(0xA92780);
-				UI_OpenDialogById(UIData, DialogStringId, DialogArg1, DialogFlags, DialogParentStringId);
+			if (!s_UIData)
+				return nullptr;
 
-				// post UI message
-				typedef int(*UI_PostMessagePtr)(void* uiDataStruct);
-				auto UI_PostMessage = reinterpret_cast<UI_PostMessagePtr>(0xA93450);
-				UI_PostMessage(UIData);
+			UI_OpenDialogById(s_UIData, p_DialogID, p_Arg1, p_Flags, p_ParentID);
+			UI_PostMessage(s_UIData);
 
-				DialogShow = false;
-			}
+			return s_UIData;
 		}
 
 		void OnCreateWindow(CreateWindowCallback callback)
@@ -638,16 +623,7 @@ namespace
 
 	int UI_ShowHalo3PauseMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5)
 	{
-		Patches::Ui::UIData = 0; // hacky fix for h3 pause menu, i think each different DialogParentStringId should have it's own UIData ptr in a std::map or something
-								 // so that the games ptr to the UIData ptr is always the same for that dialog parent id
-
-		Patches::Ui::DialogStringId = 0x10084;
-		Patches::Ui::DialogArg1 = 0;
-		Patches::Ui::DialogFlags = 4;
-		Patches::Ui::DialogParentStringId = 0x1000C;
-		Patches::Ui::DialogShow = true;
-
-		return 1;
+		return Patches::Ui::ShowDialog(0x10084, 0, 4, 0x1000C) != nullptr;
 	}
 
 	void UI_EndGame()
