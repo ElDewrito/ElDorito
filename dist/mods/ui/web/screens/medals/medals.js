@@ -78,6 +78,7 @@ $.fn.pulse = function() {
 
 function queue_audio(audio){
     playQueue.push(medalsPath + 'audio/' + audio);
+	playQueue.splice(2, Infinity);
     if(!isPlaying){
         play(playQueue[0]);	
     }
