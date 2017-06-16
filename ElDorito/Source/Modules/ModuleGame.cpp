@@ -840,7 +840,7 @@ namespace Modules
 		AddCommand("ShowScreen", "showscreen", "Displays the specified screen", eCommandFlagsArgsNoParse, CommandShowScreen);
 
 		AddCommand("ListMedalPacks", "list_medals", "List all available medal packs", eCommandFlagsNone, CommandListMedalPacks);
-		
+
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
 		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
@@ -850,6 +850,10 @@ namespace Modules
 		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
 		VarSkipTitleSplash->ValueIntMin = 0;
 		VarSkipTitleSplash->ValueIntMax = 1;
+
+		VarSkipIntroVideos = AddVariableInt("SkipIntroVideos", "skipintro", "Skip the game's intro videos.", eCommandFlagsArchived, 0);
+		VarSkipIntroVideos->ValueIntMin = 0;
+		VarSkipIntroVideos->ValueIntMax = 1;
 
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 
@@ -908,7 +912,7 @@ namespace Modules
 					CustomMapList.push_back(itr->path().filename().string());
 			}
 		}
-		
+
 	}
 	void ModuleGame::UpdateMapList()
 	{

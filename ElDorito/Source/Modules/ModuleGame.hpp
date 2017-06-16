@@ -9,6 +9,7 @@ namespace Modules
 	public:
 		Command* VarLanguageID;
 		Command* VarSkipTitleSplash;
+		Command* VarSkipIntroVideos;
 		Command* VarLogName;
 		Command* VarMenuURL;
 		Command* VarRconPort;

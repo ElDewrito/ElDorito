@@ -25,6 +25,7 @@ namespace
 	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
+	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -127,6 +128,8 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
 			Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
+
+			Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
 		}
 
 		void OnShutdown(ShutdownCallback callback)
@@ -144,7 +147,7 @@ namespace Patches
 		{
 			mapLoadedCallbacks.push_back(callback);
 		}
-		
+
 		void SetMapsFolder(const std::string &path)
 		{
 			MapsFolder = path;
@@ -345,5 +348,16 @@ namespace
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);
+	}
+
+	const auto GetBinkVideoPath = reinterpret_cast<char(*)(int, char*)>(0xA99120);
+
+	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf)
+	{
+		if (Modules::ModuleGame::Instance().VarSkipIntroVideos->ValueInt == 1)
+			// Tell the game that there is no video with that ID
+			return 0;
+
+		return GetBinkVideoPath(p_VideoID, p_DestBuf);
 	}
 }
