@@ -3,7 +3,7 @@ var stayOpen = false;
 var hideTimer;
 var hideDelay = 4500;
 var fadeTime = 800;
-var nameCardOpacity = 0.7;
+var nameCardOpacity = 0.8;
 var teamArray = [
     {name: 'red', color: '#620B0B'},
     {name: 'blue', color: '#0B2362'},
@@ -123,7 +123,7 @@ $(window).load(function(){
                         bgColor = teamArray[e.data.teamIndex].color;
                     }
                 }
-                bgColor = hexToRgba(bgColor, nameCardOpacity);
+                bgColor = hexToRgba(adjustColor(bgColor,20), nameCardOpacity);
             }
             var messageClass = 'nameCard';
             var chatClass = e.data.chatType;
@@ -179,4 +179,18 @@ function buttonAction(i){
         default:
             //console.log("nothing associated with " + i);
     }  
+}
+
+function adjustColor(color, amount){
+    var colorhex = (color.split("#")[1]).match(/.{2}/g);
+    for (var i = 0; i < 3; i++){
+        var e = parseInt(colorhex[i], 16);
+        e += amount;
+        if(amount > 0){
+            colorhex[i] = ((e > 255) ? 255 : e).toString(16);
+        }else{
+            colorhex[i] = ((e < 0) ? 0 : e).toString(16);           
+        }
+    }
+    return "#" + colorhex[0] + colorhex[1] + colorhex[2];
 }
