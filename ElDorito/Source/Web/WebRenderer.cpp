@@ -15,7 +15,7 @@
 
 using Anvil::Client::Rendering::WebRenderer;
 
-WebRenderer::WebRenderer() : 
+WebRenderer::WebRenderer() :
 	m_RenderHandler(nullptr),
 	m_App(nullptr),
 	m_State(RendererState_Disabled),
@@ -94,6 +94,8 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 	s_Settings.ignore_certificate_errors = true;
 	s_Settings.single_process = false;
 	s_Settings.persist_user_preferences = true;
+	CefString(&s_Settings.resources_dir_path) = boost::filesystem::canonical("mods/ui/resources").c_str(); // resources-dir-patch requires an absolute path
+	CefString(&s_Settings.locales_dir_path) = "mods/ui/resources/locales";
 	CefString(&s_Settings.user_data_path) = "mods/ui/cache";
 	CefString(&s_Settings.cache_path) = "mods/ui/cache";
 	if (p_EnableDebugging)

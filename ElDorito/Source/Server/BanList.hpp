@@ -14,7 +14,7 @@ namespace Server
 	/*
 	* - Temporary Ban List
 	*
-	* - This is a temporary ban list that ban players for a specified amount of games. 
+	* - This is a temporary ban list that ban players for a specified amount of games.
 	* - The amound of games is configurable via server variable.
 	*/
 	class TempBanList : public Utils::Singleton<TempBanList>
@@ -105,7 +105,7 @@ namespace Server
 		std::unordered_set<uint64_t> uids;
 	};
 
-	const std::string DefaultBanListPath = "banlist.txt";
+	const std::string DefaultBanListPath = "mods/server/banlist.txt";
 
 	// Loads the default ban list file.
 	// If it does not exist, an empty ban list will be returned.

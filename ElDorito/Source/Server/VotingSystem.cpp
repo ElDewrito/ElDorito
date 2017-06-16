@@ -68,7 +68,7 @@ namespace Server
 			"FFA Oddball",
 			"Crazy King",
 		};
-		
+
 		int numberOfPlayersInGame()
 		{
 			int numPlayers = 0;
@@ -119,12 +119,12 @@ namespace Server
 		}
 		void VotingSystem::Init()
 		{
-			if (!LoadJson("Voting.json"))
+			if (!LoadJson("mods/server/voting.json"))
 				loadDefaultMapsAndTypes();
 		}
 		void VetoSystem::Init()
 		{
-			if (!LoadJson("Veto.json"))
+			if (!LoadJson("mods/server/veto.json"))
 				loadDefaultMapsAndTypes();
 		}
 
@@ -171,7 +171,7 @@ namespace Server
 			if (vote < 0 || vote >(Modules::ModuleServer::Instance().VarServerNumberOfVotingOptions->ValueInt + 1))
 				return;
 
-			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair 
+			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair
 			std::map<std::string, int>::iterator it = mapVotes.find(name);
 			if (it != mapVotes.end())
 				it->second = vote;
@@ -191,7 +191,7 @@ namespace Server
 			BroadcastVotingMessage(newmessage);
 
 		}
-		
+
 		//Populate the Maps and Gametypes with default ones if no valid json was supplied
 		void VotingSystem::loadDefaultMapsAndTypes()
 		{
@@ -214,7 +214,7 @@ namespace Server
 				index++;
 			}
 		}
-		
+
 		MapAndType VetoSystem::GenerateVotingOption()
 		{
 			MapAndType m;
@@ -237,7 +237,7 @@ namespace Server
 			return m;
 
 		}
-		//Randomly picks a voting option. If the gametype it picks has maps that are specific to that gametype, then it picks a map from those. 
+		//Randomly picks a voting option. If the gametype it picks has maps that are specific to that gametype, then it picks a map from those.
 		MapAndType VotingSystem::GenerateVotingOption()
 		{
 			HaloType gametype = gameTypes[rand() % gameTypes.size()];
@@ -319,9 +319,9 @@ namespace Server
 		}
 
 		/*
-		* Counts the votes, sorts the options by vote tally. 
+		* Counts the votes, sorts the options by vote tally.
 		*
-		* - Ties are handled like Halo Reach: Ties will be awarded to the latter option. 
+		* - Ties are handled like Halo Reach: Ties will be awarded to the latter option.
 		*   So if option 3 has 2 votes and option 4 has 2 votes, option 4 will win.
 		*/
 		void VotingSystem::FindWinner()
@@ -361,9 +361,9 @@ namespace Server
 		//Starts a new vote
 		void VotingSystem::StartVoting()
 		{
-			if (idle) 
-				return; 
-	
+			if (idle)
+				return;
+
 			currentVotingOptions.clear();
 
 			for (unsigned int i = 0; i < Modules::ModuleServer::Instance().VarServerNumberOfVotingOptions->ValueInt; i++)
@@ -376,7 +376,7 @@ namespace Server
 				Option.index = i + 1;
 				currentVotingOptions.push_back(Option);
 			}
-			//check how many revotes we have done. 
+			//check how many revotes we have done.
 			if (numberOfRevotesUsed < Modules::ModuleServer::Instance().VarServerNumberOfRevotesAllowed->ValueInt)
 			{
 				auto revote = MapAndType();
@@ -415,8 +415,8 @@ namespace Server
 				return;
 			}
 
-			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason. 
-			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded 
+			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason.
+			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded
 			if (winnerChosenTime != 0)
 			{
 
@@ -428,7 +428,7 @@ namespace Server
 				}
 			}
 
-			//Calling from Tick() to avoid a circular loop. 
+			//Calling from Tick() to avoid a circular loop.
 			if (revoteFlag)
 			{
 				StartVoting();
@@ -449,7 +449,7 @@ namespace Server
 			FindWinner();
 
 		}
-		//Loads the voting json. If there is an easier way to serialize into structs, let me know. 
+		//Loads the voting json. If there is an easier way to serialize into structs, let me know.
 		bool VotingSystem::LoadJson(std::string filename)
 		{
 			//clear the current contents
@@ -654,7 +654,7 @@ namespace Server
 						continue;
 
 					}
-					
+
 
 					const rapidjson::Value& map = mapAndTypeObject["map"];
 					const rapidjson::Value& gametype = mapAndTypeObject["gametype"];
@@ -693,7 +693,7 @@ namespace Server
 			return true;
 		}
 
-		
+
 
 		void VetoSystem::Tick()
 		{
@@ -724,8 +724,8 @@ namespace Server
 				Reset();
 				return;
 			}
-			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason. 
-			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded 
+			//if game.start is called immediately after the winning option is chosen, this causes a number of players to be kicked from the game for some reason.
+			//So what we are doing here is waiting 4 seconds to allow everyone to get the map and gametype loaded
 			if (startime != 0)
 			{
 
@@ -767,7 +767,7 @@ namespace Server
 			unsigned int vote = message.Vote;
 
 
-			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair 
+			// If this person has already voted, then we replace his vote. If not, then we add a new name-vote pair
 			std::map<std::string, int>::iterator it = mapVotes.find(name);
 			if (it != mapVotes.end()) {
 				mapVotes.erase(it);
@@ -802,7 +802,7 @@ namespace Server
 				SetGameAndMapAndStartTimer();
 			}
 		}
-			
+
 		//Populate the Maps and Gametypes with default ones if no valid json was supplied
 		void VetoSystem::loadDefaultMapsAndTypes()
 		{
@@ -837,9 +837,9 @@ namespace Server
 			}
 			currentPlaylist = entirePlaylist;
 		}
-		
-		
+
+
 	}
-	
+
 }
 
