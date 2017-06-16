@@ -117,7 +117,7 @@ namespace Modules
 	{
 		AddCommand("Offset", "weap_off", "This changes weapon offset", eCommandFlagsNone, CommandWeaponOffset, { "Weapon Name", "I Offset", "J Offset", "K Offset" });
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
-		AddCommand("Config.Save", "weap_cfg_sv", "This resets weapon offset to default", eCommandFlagsNone, CommandSaveWeaponsConfig);
+		AddCommand("Config.Save", "weap_cfg_sv", "This saves weapon offset", eCommandFlagsNone, CommandSaveWeaponsConfig);
 		VarWeaponConfig = AddVariableString("Config", "weap_cfg", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.cfg", VariableWeaponConfigUpdate);
 		AddCommand("List", "weap_list", "Lists weapons", eCommandFlagsNone, CommandWeaponList);
 	}
