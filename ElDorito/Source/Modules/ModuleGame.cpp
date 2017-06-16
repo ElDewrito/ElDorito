@@ -772,7 +772,13 @@ namespace
 			for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
 			{
 				if (!is_regular_file(itr->path()))
-					Modules::ModuleGame::Instance().MedalPackList.push_back(itr->path().filename().string());
+				{
+					std::string file = std::string(itr->path().generic_string());
+					file.append("\\events.json");
+					auto path = boost::filesystem::path(file);
+					if(boost::filesystem::exists(path))
+						Modules::ModuleGame::Instance().MedalPackList.push_back(itr->path().filename().string());
+				}
 			}
 		}
 		// Return a comma-separated list
