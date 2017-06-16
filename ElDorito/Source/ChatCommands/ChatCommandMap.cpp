@@ -125,6 +125,8 @@ namespace ChatCommands
 
 		line.erase(0, 1);
 
+		if (line.empty())
+			return true;
 		//TODO move the logic for !help and !listPlayers into a new non-voting chat command type
 		if (line == "help")
 		{
