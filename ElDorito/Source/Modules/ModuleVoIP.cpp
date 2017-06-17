@@ -38,14 +38,6 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		//notify ptt state in case ptt was enabled or disabled
-		std::stringstream ss;
-		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
-			ss << "{\"talk\":" << Modules::ModuleVoIP::Instance().VarPTT->ValueInt << "}";
-		else
-			ss << "{\"talk\":" << 1 << "}";
-		Web::Ui::ScreenLayer::Notify("voip-ptt", ss.str(), true);
-
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
 			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
 		else
