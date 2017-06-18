@@ -96,6 +96,7 @@ function createPeer(data)
 	peerCons[data.uid].uid = data.uid;
 	peerCons[data.uid].user = data.uid.split("|")[0];
 	peerCons[data.uid].onclose = removePeer;
+	peerCons[data.uid].speakingVolume = -Infinity;
 	peerIds.push(data.uid);
 }
 
@@ -106,12 +107,11 @@ function removePeer(uid)
 	
 	removeElement(document.getElementById(uid));
 	
-	stopSpeak(uid.split("|")[0]);
-	
 	var index = peerIds.indexOf(uid);
 	peerIds.splice(index, 1);
 	
 	delete peerCons[uid];
+	stopSpeak(uid.split("|")[0]);
 	
 	console.log("rtc peers listing");
 	console.log(peerCons);
@@ -168,16 +168,23 @@ function remotestream(event)
 	this.speech = window.hark(event.stream, {"threshold":"-60"});
 	var username = this.user;
 	this.speech.on("speaking", function(){
-		speak(username);
+		speak(username, this);
 	});
 	this.speech.on("stopped_speaking", function(){
-		stopSpeak(username);
+		stopSpeak(username, this);
+	});
+	this.speech.on("volume_change", function(volume){
+		this.speakingVolume = volume;
 	});
 }
 
-function speak(user)
+function speak(user, hark)
 {
-	console.log(user + " speaking");
+	var speaker = JSON.stringify({
+		"user": user,
+		"volume": hark.speakingVolume,
+		"isSpeaking": true
+	});
 	if($.inArray(user, speaking) == -1)
 	{
 		speaking.push(user);
@@ -185,9 +192,13 @@ function speak(user)
 	updateDisplay();
 }
 
-function stopSpeak(user)
+function stopSpeak(user, hark)
 {
-	console.log(user + " stopped speaking");
+	var speaker = JSON.stringify({
+		"user": user,
+		"volume": hark.speakingVolume,
+		"isSpeaking": false
+	});
 	var index = $.inArray(user, speaking);
 	if(index != -1)
 		speaking.splice(index, 1);
@@ -252,7 +263,7 @@ function startConnection(info)
 			{
 				var id;
 				dev.forEach(function(d){
-					if(d.label == Microphone)
+					if(d.deviceId == Microphone)
 						id = d.deviceId;
 				});
 				console.log("used id: " + id);
@@ -299,7 +310,12 @@ function startConnection(info)
 				}
 				
 				dew.command("voip.ptt_enabled", {}).then(function(ptt_enabled){
-					localStream.getAudioTracks()[0].enabled = !ptt_enabled;
+					if(ptt_enabled == 1){
+						localStream.getAudioTracks()[0].enabled = false;
+					}
+					else{
+						localStream.getAudioTracks()[0].enabled = true;
+					}
 				});
 			});
 		});
@@ -326,9 +342,11 @@ function PTT(toggle)
 
 function updateSettings(settings)
 {
-	if(settings.PTT_Enabled == 1)
-	{
-		PTT(1);
+	if(settings.PTT_Enabled == 1){
+		localStream.getAudioTracks()[0].enabled = false;
+	}
+	else{
+		localStream.getAudioTracks()[0].enabled = true;
 	}
 	
 	Microphone = settings.MicrophoneID;
@@ -374,4 +392,10 @@ $(document).ready(function(){
 	});
 	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
 	dew.show();
+	dew.getSessionInfo().then(function(info){
+		console.log(info);
+		if(info.established == true){
+			retry();
+		}
+	});
 });
