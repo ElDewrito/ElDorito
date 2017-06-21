@@ -174,45 +174,39 @@ function remotestream(event)
 		stopSpeak(username, this);
 	});
 	this.speech.on("volume_change", function(volume){
-		this.speakingVolume = volume;
+		var speaker = JSON.stringify({
+			"user": username,
+			"volume": this.speakingVolume,
+			"isSpeaking": true
+		});
+		dew.show("scoreboard", speaker);
 	});
 }
 
 function speak(user, hark)
 {
-	var speaker = JSON.stringify({
-		"user": user,
-		"volume": hark.speakingVolume,
-		"isSpeaking": true
-	});
-	if($.inArray(user, speaking) == -1)
-	{
+	if($.inArray(user, speaking) == -1)	{
 		speaking.push(user);
+		$("<p id=\"" + user + "\">" + user + "</p>").hide().prependTo("#speaking").slideDown();
 	}
-	updateDisplay();
 }
 
 function stopSpeak(user, hark)
 {
-	var speaker = JSON.stringify({
-		"user": user,
-		"volume": hark.speakingVolume,
-		"isSpeaking": false
-	});
 	var index = $.inArray(user, speaking);
 	if(index != -1)
 		speaking.splice(index, 1);
-	updateDisplay();
-}
-
-function updateDisplay()
-{
-	speaking.sort();
-	$("#speaking").html('');
-	for(var i = 0; i < speaking.length; i++)
-	{
-		$("#speaking").append("<p>" + speaking[i] + "</p>");
-	}
+	var speed = 500;
+	$("#" + user).animate({ 
+		width: "hide", 
+		paddingLeft: "hide", 
+		paddingRight: "hide", 
+		marginLeft: "hide", 
+		marginRight: "hide",
+		direction: "left"
+	}, speed, function(){
+		$("#" + user).remove();
+	});
 }
 
 function clearConnection()

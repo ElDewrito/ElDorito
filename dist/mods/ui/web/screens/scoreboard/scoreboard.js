@@ -200,6 +200,7 @@ $(window).load(function(){
             }
         }
     });
+	dew.hide();
 });
 
 dew.on("scoreboard", function(e){
@@ -208,23 +209,32 @@ dew.on("scoreboard", function(e){
     });
 });
 
+dew.on("hide", function(){
+	$('html').hide();
+});
+
 dew.on("show", function(e){
-    locked = e.data.locked;
-    dew.captureInput(locked);
-    capturedInput = locked;
-    if(locked){
-        $('#closeButton').show();
-    }else{
-        $('#closeButton').hide();
-    }
-    if(e.data.postgame){
-        $('#winnerText').show();
-    }else{
-        $('#winnerText').hide();
-    }
-    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
-        displayScoreboard(response);
-    });
+	if(e.data.hasOwnProperty('locked')){
+		$('html').show();
+		locked = e.data.locked;
+		dew.captureInput(locked);
+		capturedInput = locked;
+		if(locked){
+			$('#closeButton').show();
+		}else{
+			$('#closeButton').hide();
+		}
+		if(e.data.postgame){
+			$('#winnerText').show();
+		}else{
+			$('#winnerText').hide();
+		}
+		dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+			displayScoreboard(response);
+		});
+	}
+	else{
+	}
 });
 
 function displayScoreboard(expandedScoreboard){
