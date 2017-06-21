@@ -102,6 +102,21 @@ namespace Patches
 
 			if (msg != WM_INFOSERVER)
 			{
+				//TODO: Move WndProc logic out of Network.cpp
+				if (msg == WM_XBUTTONDOWN && !ElDorito::Instance().IsDedicated())
+				{
+					int mouseXButton = GET_XBUTTON_WPARAM(wParam);
+
+					rapidjson::StringBuffer jsonBuffer;
+					rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+					jsonWriter.StartObject();
+					jsonWriter.Key("xbutton");
+					jsonWriter.Int(mouseXButton);
+					jsonWriter.EndObject();
+
+					Web::Ui::ScreenLayer::Notify("mouse-xbutton-event", jsonBuffer.GetString(), true);
+				}
+
 				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
 				return Game_WndProc(hWnd, msg, wParam, lParam);
@@ -194,7 +209,7 @@ namespace Patches
 					writer.String(status.c_str());
 					writer.Key("numPlayers");
 					writer.Int(GetNumPlayers());
-						
+
 					std::ifstream file("fmmRequired.dat");
 					std::string temp;
 
@@ -233,7 +248,7 @@ namespace Patches
 							}
 							writer.EndArray();
 						}
-						
+
 						writer.Key("players");
 
 						writer.StartArray();
@@ -433,7 +448,7 @@ namespace Patches
 		{
 
 			//pit
-			Hook(0x2D0EAC, reinterpret_cast<void*>(0x6D0EBC)).Apply();			
+			Hook(0x2D0EAC, reinterpret_cast<void*>(0x6D0EBC)).Apply();
 
 			// Put the game into dedicated server mode
 			Patch(0x2E600, { 0xB0, 0x01 }).Apply();
@@ -448,7 +463,7 @@ namespace Patches
 
 			//Allows for switching of teams
 			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
-		
+
 			// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
 			Patch(0x62E636, { 0x33, 0xFF }).Apply();
 			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
@@ -792,12 +807,12 @@ namespace
 		std::string playerName;
 		if (playerIndex >= 0)
 			playerName = Utils::String::ThinString(membership->PlayerSessions[playerIndex].Properties.DisplayName);
-		
+
 		typedef bool(__thiscall *Network_leader_request_boot_machineFunc)(void *thisPtr, void* peerAddr, int reason);
 		auto Network_leader_request_boot_machine = reinterpret_cast<Network_leader_request_boot_machineFunc>(0x45D4A0);
 		if (!Network_leader_request_boot_machine(thisPtr, peer, reason))
 			return false;
-		
+
 		return true;
 	}
 
@@ -978,7 +993,7 @@ namespace
 			jmp esi
 		}
 	}
-	
+
 	// hook @ 0xA6E982 - http://pastebin.com/ZcsHYsiD
 	__declspec(naked) void GetTextureDimensionsHook()
 	{
