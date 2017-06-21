@@ -89,10 +89,10 @@ namespace Patches
 		void ExpandMainGlobalMemoryMap()
 		{
 			size_t dataSizeIncrease = 0;
-			size_t cacheSizeIncrease = 0;
+			size_t cacheSizeIncrease = 1024 * 1024 * 100;
 
-			dataSizeIncrease += ExpandGameStateGlobals();
-			dataSizeIncrease += ExpandRuntimeStateGlobals();
+			//dataSizeIncrease += ExpandGameStateGlobals();
+			//dataSizeIncrease += ExpandRuntimeStateGlobals();
 			// TODO: other allocations
 
 			size_t newDataSize = origGlobalDataSize + dataSizeIncrease + 0xFFFFF & 0xFFF00000;
@@ -105,7 +105,7 @@ namespace Patches
 		void ApplyAll()
 		{
 			// TODO: more mapping and testing is required before this is ready for prime time
-			//ExpandMainGlobalMemoryMap();
+			ExpandMainGlobalMemoryMap();
 		}
 	}
 }
