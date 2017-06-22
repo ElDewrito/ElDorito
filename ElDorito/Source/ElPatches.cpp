@@ -22,6 +22,7 @@
 #include "Patches\Memory.hpp"
 #include "Patches\Equipment.hpp"
 #include "Patches\PlayerRepresentation.hpp"
+#include "Patches\Hf2pExperimental.hpp"
 #include "Patches\Weapon.hpp"
 #include "Patches\Spectate.hpp"
 #include "DirectXHook.hpp"
@@ -37,7 +38,8 @@ namespace Patches
 	void ApplyRequired()
 	{
 		UnprotectMemory();
-		Core::ApplyAll();
+		Hf2pExperimental::ApplyAll();
+		Core::ApplyAll();	
 		Audio::ApplyAll();
 		Memory::ApplyAll();
 		Mouse::ApplyAll();

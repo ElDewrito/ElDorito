@@ -37,7 +37,7 @@ namespace Modules
 		Command *VarVSync;
 		Command *VarMasterVolume;
 		Command *VarSfxVolume;
-		Command* VarMusicVolume;
+		Command *VarMusicVolume;
 		
 
 		ModuleSettings();

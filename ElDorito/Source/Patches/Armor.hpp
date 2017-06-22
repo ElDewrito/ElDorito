@@ -10,5 +10,6 @@ namespace Patches
 		void RefreshUiPlayer();
 		void ApplyAfterTagsLoaded();
 		bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo);
+		void UpdateUiPlayerModelArmor();
 	}
 }

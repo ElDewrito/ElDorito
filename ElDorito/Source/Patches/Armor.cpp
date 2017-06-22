@@ -144,7 +144,7 @@ namespace Patches
 			Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<ArmorExtension>());
 
 			// Fix the player model on the main menu
-			Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
+			// Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
 
 			// Fix rendering the scoreboard player model
 			// (todo: figure out why your biped doesn't show on the postgame screen...there's probably something missing here)
@@ -247,6 +247,11 @@ namespace Patches
 
 			returnInfo = ss.str();
 			return true;
+		}
+
+		void UpdateUiPlayerModelArmor()
+		{
+			UiPlayerModelArmorHook();
 		}
 	}
 }

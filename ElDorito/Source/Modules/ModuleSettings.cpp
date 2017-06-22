@@ -140,6 +140,11 @@ namespace
 		return true;
 	}
 
+	bool GameWindowCreated()
+	{
+		return *(uint32_t*)0x0199C014;
+	}
+
 	bool VariableSettingsFullscreenUpdate(const std::vector<std::string> &args, std::string &returnInfo)
 	{
 		auto value = Modules::ModuleSettings::Instance().VarFullscreen->ValueInt;
@@ -148,7 +153,11 @@ namespace
 		if (value < 0 || value > 1)
 			return false;
 
-		SSL_SetFullscreen(statusBool);
+		if (GameWindowCreated())
+		{
+			SSL_SetFullscreen(statusBool);
+			SSL_SetScreenResolution(*(int*)0x19106C8, *(int*)0x19106CC);
+		}
 
 		std::stringstream ss;
 		ss << "Fullscreen " << (statusBool ? "enabled." : "disabled.");
@@ -496,7 +505,8 @@ namespace
 		auto width = std::atoi(widthString.c_str());
 		auto height = std::atoi(heightString.c_str());
 
-		SSL_SetScreenResolution(width, height);
+		if (GameWindowCreated())
+			SSL_SetScreenResolution(width, height);
 
 		std::stringstream ss;
 		ss << "Screen Resolution set to " << value << ".";
@@ -583,8 +593,8 @@ namespace Modules
 		VarTextureResolution = AddVariableString("TextureResolution", "textures", "Controls whether the texture resolution level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsTextureResolutionUpdate);
 		VarToggleCrouch = AddVariableInt("ToggleCrouch", "toggle_crouch", "Controls whether crouch-toggling is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsToggleCrouchUpdate);
 		VarVSync = AddVariableInt("VSync", "vsync", "Controls whether vertical sync is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsVSyncUpdate);
-		VarMasterVolume = AddVariableInt("MasterVolume", "volume", "Controls the master volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsMasterVolumeUpdated);
-		VarSfxVolume = AddVariableInt("SfxVolume", "volume_sfx", "Controls the sfx volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsSfxVolumeUpdated);
-		VarMusicVolume = AddVariableInt("MusicVolume", "volume_music", "Controls the music volume", CommandFlags(eCommandFlagsArchived|eCommandFlagsDontUpdateInitial|eCommandFlagsRunOnMainMenu), 100, VariableSettingsMusicVolumeUpdated);
+		VarMasterVolume = AddVariableInt("MasterVolume", "volume", "Controls the master volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsMasterVolumeUpdated);
+		VarSfxVolume = AddVariableInt("SfxVolume", "volume_sfx", "Controls the sfx volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsSfxVolumeUpdated);
+		VarMusicVolume = AddVariableInt("MusicVolume", "volume_music", "Controls the music volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsMusicVolumeUpdated);
 	}
 }
