@@ -214,27 +214,31 @@ dew.on("hide", function(){
 });
 
 dew.on("show", function(e){
-	if(e.data.hasOwnProperty('locked')){
-		$('html').show();
-		locked = e.data.locked;
-		dew.captureInput(locked);
-		capturedInput = locked;
-		if(locked){
-			$('#closeButton').show();
-		}else{
-			$('#closeButton').hide();
+	try{
+		if(JSON.parse(e.data).hasOwnProperty('isSpeaking')){
+			//voip
+			
+			return;
 		}
-		if(e.data.postgame){
-			$('#winnerText').show();
-		}else{
-			$('#winnerText').hide();
-		}
-		dew.command('Game.ExpandedScoreboard', {}).then(function(response){
-			displayScoreboard(response);
-		});
+	}catch(ex){}
+	
+	$('html').show();
+	locked = e.data.locked;
+	dew.captureInput(locked);
+	capturedInput = locked;
+	if(locked){
+		$('#closeButton').show();
+	}else{
+		$('#closeButton').hide();
 	}
-	else{
+	if(e.data.postgame){
+		$('#winnerText').show();
+	}else{
+		$('#winnerText').hide();
 	}
+	dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+		displayScoreboard(response);
+	});
 });
 
 function displayScoreboard(expandedScoreboard){
