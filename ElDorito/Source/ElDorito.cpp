@@ -134,16 +134,10 @@ void ElDorito::Initialize()
 		for( int i = 1; i < numArgs; i++ )
 		{
 			std::wstring arg = std::wstring(szArgList[i]);
-			if( arg.compare(0, 1, L"-") != 0 ) // if it doesn't start with -
+			if (arg.compare(0, 1, L"-") != 0) // if it doesn't start with -
 				continue;
 
-			if (arg.compare(L"-headless") == 0)
-			{
-				isDedicated = true;
-				isHeadless = true;
-			}
-
-			if (arg.compare(L"-dedicated") == 0)
+			if (arg.compare(L"-dedicated") == 0 || arg.compare(L"-headless") == 0)
 			{
 				isDedicated = true;
 			}
@@ -188,22 +182,15 @@ void ElDorito::Initialize()
 	if (isDedicated)
 	{
 		Patches::Network::ForceDedicated();
+		//// Commenting this out for now because it makes testing difficult
+		DetourRestoreAfterWith();
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
 
-		if (isHeadless)
-		{
-			Patches::Network::ForceHeadless();
-			//// Commenting this out for now because it makes testing difficult
-			DetourRestoreAfterWith();
-			DetourTransactionBegin();
-			DetourUpdateThread(GetCurrentThread());
-			DetourAttach((PVOID*)&Video_InitD3D, &hooked_Video_InitD3D);
-
-			if (DetourTransactionCommit() != NO_ERROR) {
-				return;
-			}
+		if (DetourTransactionCommit() != NO_ERROR) {
+			return;
 		}
-		
-
 	}
 	else
 	{

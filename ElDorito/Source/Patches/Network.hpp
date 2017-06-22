@@ -11,7 +11,6 @@ namespace Patches
 	{
 		void ApplyAll();
 		void ForceDedicated();
-		void ForceHeadless();
 
 		bool StartInfoServer();
 		bool StopInfoServer();

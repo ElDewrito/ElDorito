@@ -41,7 +41,6 @@ public:
 	std::string GetInstanceName() const { return instanceName; }
 
 private:
-	bool isHeadless = false;
 	static size_t MainThreadID; // Thread
 	bool executeCommandQueue = false;
 	bool isDedicated = false;

@@ -422,27 +422,6 @@ namespace Patches
 			Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
 		}
 
-		void ForceHeadless()
-		{
-			// force windowed (temporarily for now) with null d3d reference device
-			Patch(0x620380, { 0x6A, 0x01, 0x6A, 0x00, 0x90, 0x90 }).Apply();
-			// Fixes the game being stuck in some d3d-related while loop
-			Patch(0x622290, { 0xC3 }).Apply();
-
-			*reinterpret_cast<uint8_t*>(0x1917CED) = 0;	// fix dedi crash @ 0xA22325 (pairs with patch above)
-
-			// Fixes an exception that happens with null d3d
-			Patch(0x675E30, { 0xC3 }).Apply();
-
-			//Fixes Host crash on pit, may no longer be necessary
-			//Hook(0x2D0EAC, reinterpret_cast<void*>(0x6D0EBC)).Apply();
-
-			//// fixed a UI crash that should no longer be necessary
-			//Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
-
-			//// Stops D3DDevice->EndScene from being called
-		//	Patch(0x621796, 0x90, 6).Apply(); // TODO: set eax?
-		}
 
 		void ForceDedicated()
 		{
@@ -468,6 +447,18 @@ namespace Patches
 			Patch(0x62E636, { 0x33, 0xFF }).Apply();
 			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
 			Hook(0x66E982, GetTextureDimensionsHook).Apply();
+
+			// force windowed (temporarily for now) with null d3d reference device
+			Patch(0x620380, { 0x6A, 0x01, 0x6A, 0x00, 0x90, 0x90 }).Apply();
+			// Fixes the game being stuck in some d3d-related while loop
+			Patch(0x622290, { 0xC3 }).Apply();
+
+			*reinterpret_cast<uint8_t*>(0x1917CED) = 0;	// fix dedi crash @ 0xA22325 (pairs with patch above)
+
+														// Fixes an exception that happens with null d3d
+			Patch(0x675E30, { 0xC3 }).Apply();
+
+
 		}
 
 		bool StartInfoServer()
