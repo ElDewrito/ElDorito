@@ -1,216 +1,468 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Settings</title>
-    <script src="dew://lib/dew.js"></script>
+    <title></title>
+    <script type="text/javascript" src="dew://lib/dew.js"></script>
     <script src="dew://lib/gamepad.js"></script>
-    <script src="dew://lib/jquery-2.2.1.min.js"></script>
-    <script src="dew://lib/jquery-ui.js"></script>
-    <script src="js/jqColorPicker.min.js"></script>
-    <script src="js/settings.js"></script>
+    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="jqColorPicker.min.js"></script>
+    <script type="text/javascript" src="settings.js"></script>
     <link rel="stylesheet" href="settings.css">
-    <script>
-        $(function() {
-            $( "#settingsWindow" ).draggable();
-            $( "#controllerSettings" ).draggable();
-        });
-    </script>
 </head>
 <body>
-<div id="settingsWindow">
-
-        <div id="windowHeader">Eldewrito Settings<button id="closeButton" onclick="closeSettings();">X</button></div>
-        <div id="serverSettings">
-            <label for="sName">Server Name</label><input class="setting" type="text" id="sName" name="sName"><br />
-            <label for="sPass">Password</label><input class="setting" type="text" id="sPass" name="sPass"><br />
-            <label for="sMessage">Join Message (\n for new line)</label><textarea class="setting" style="height:5.487vh;" type="text" id="sMessage" name="sMessage"></textarea><br /><br />
+    <div id="settingsWindow">
+        <ul class="tabs">
+            <img class="button">
+            <li><a href="#page7">Customization</a></li>
+            <li><a href="#page6">Server</a></li>
+            <li><a href="#page1">Gameplay</a></li>
+            <li><a href="#page2">Controls</a></li>
+            <li><a href="#page3">Audio/Video</a></li>
+            <img class="button">
+        </ul>
+        <h1 class="header">Settings</h1>
+        <div id="page7">
+            <label for="pName">Player Name</label>
+            <input class="setting" type="text" id="pName">
+            <br>
+            <label for="renderWeapon">Podium Weapon</label>
+            <select id="renderWeapon" class="setting wheelable instant"></select>
+            <br>
+            <h3 class="subHeader">Armor</h3>
+            <label for="armorHelmet">Helmet</label>
+            <select id="armorHelmet" class="setting wheelable instant"></select>
+            <br>
+            <label for="armorChest">Chest</label>
+            <select id="armorChest" class="setting wheelable instant"></select>
+            <br>
+            <label for="armorShoulders">Shoulders</label>
+            <select id="armorShoulders" class="setting wheelable instant"></select>
+            <br>
+            <label for="armorArms">Arms</label>
+            <select id="armorArms" class="setting wheelable instant"></select>
+            <br>
+            <label for="armorLegs">Legs</label>
+            <select id="armorLegs" class="setting wheelable instant"></select>
+            <br>
+            <label for="armorAcc">Accessory</label>
+            <select id="armorAcc" class="setting wheelable instant"></select>
+            <br>
+            <h3 class="subHeader">Colors</h3>
+            <label for="colorsPrimary">Primary</label>
+            <input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF">
+            <br>
+            <label for="colorsSecondary">Secondary</label>
+            <input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF">
+            <br>
+            <label for="colorsVisor">Visor</label>
+            <input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF">
+            <br>
+            <label for="colorsLights">Lights</label>
+            <input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF">
+            <br>
+            <label for="colorsHolo">Holo</label>
+            <input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF">
+            <br><br>
+            <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
+            <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
+            <div id="leftSide"></div>
+            <div id="rightSide"></div>
+            <div id="bottom"></div>
+        </div>
+        
+        <div id="page6"> 
+            <label for="sName">Server Name</label><input class="setting" type="text" id="sName">
+            <br>
+            <label for="sPass">Password</label>
+            <input class="setting" type="text" id="sPass">
+            <br>
+            <label for="sUPNP">Enable UPnP</label><input class="setting" type="checkbox" id="sUPNP">
+            <br>
+            <label for="sMessage">Join Message (\n for new line)</label><textarea class="setting" type="text" id="sMessage"></textarea>
+            <br>
+            <span class="setting"> </span><br>
+            <br>
             <label for="sCountdown">Round Start Countdown</label>
-            <input type="text" class="tinySetting" id="sCountdownText" name="sCountdown" onchange="updateSetting('sCountdown', this.value);">
-            <input type="range" min="0" max="20" id="sCountdown" name="sCountdown" oninput="document.querySelector('#sCountdownText').value = this.value;"><br />
+            <input type="text" class="tinySetting" id="sCountdownText">
+            <input type="range" class="setting hasTiny" min="0" max="20" id="sCountdown">
+            <br>
             <label for="sMaxPlayers">Maximum Players</label>
-            <input type="text" class="tinySetting" id="sMaxPlayersText" name="sMaxPlayers" onchange="updateSetting('sMaxPlayers', this.value);">
-            <input type="range" min="1" max="16" id="sMaxPlayers" name="sMaxPlayers" oninput="document.querySelector('#sMaxPlayersText').value = this.value;"><br />
+            <input type="text" class="tinySetting" id="sMaxPlayersText">
+            <input type="range" class="setting hasTiny" min="1" max="16" id="sMaxPlayers">
+            <br>
 			<label for="sMaxTeamSize">Maximum Team Size</label>
-            <input type="text" class="tinySetting" id="sMaxTeamSizeText" name="sMaxTeamSize" onchange="updateSetting('sMaxTeamSize', this.value);">
-            <input type="range" min="1" max="8" id="sMaxTeamSize" name="sMaxTeamSize" oninput="document.querySelector('#sMaxTeamSizeText').value = this.value;"><br />		
-            <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce" name="sShouldAnnounce"><br />
-            <label for="sSprint">Sprint</label><div id="leftArrow">&#9664;</div><select id="sSprint" name="sSprint" class="setting wheelable">
+            <input type="text" class="tinySetting" id="sMaxTeamSizeText">
+            <input type="range"class="setting hasTiny" min="1" max="8" id="sMaxTeamSize">
+            <br>		
+            <label for="sShouldAnnounce">Announce to Server Lists</label><input class="setting" type="checkbox" id="sShouldAnnounce">
+            <br>
+            <label for="sSprint">Sprint</label><select id="sSprint" class="setting wheelable">
                 <option value="0">Disabled</option> 
                 <option value="1">Enabled</option>
                 <option value="2">Unlimited</option>
-            </select><div id="rightArrow">&#9654;</div><br />            
-            <!--<label for="sSprintEnabled">Sprint Enabled</label><input class="setting" type="checkbox" id="sSprintEnabled" name="sSprintEnabled"><br />
-            <label for="sUnlimitedSprint">Unlimited Sprint</label><input class="setting" type="checkbox" id="sUnlimitedSprint" name="sUnlimitedSprint"><br />-->
-            <label for="sDualWieldEnabled">Allow Dual Wielding</label><input class="setting" type="checkbox" id="sDualWieldEnabled" name="sDualWieldEnabled"><br />
-            <label for="sAssassinationEnabled">Allow Assassination</label><input class="setting" type="checkbox" id="sAssassinationEnabled" name="sAssassinationEnabled"><br />
-            <label for="sVotingStyle">Map Voting Style</label><div id="leftArrow">&#9664;</div><select id="sVotingStyle" name="sVotingStyle" class="setting wheelable">
+            </select>
+            <br>            
+            <label for="sDualWieldEnabled">Allow Dual Wielding</label><input class="setting" type="checkbox" id="sDualWieldEnabled">
+            <br>
+            <label for="sAssassinationEnabled">Allow Assassination</label><input class="setting" type="checkbox" id="sAssassinationEnabled">
+            <br>
+            <label for="sVotingStyle">Map Voting Style</label><select id="sVotingStyle" class="setting wheelable">
                 <option value="0">Disabled</option> 
                 <option value="1">Voting</option>
                 <option value="2">Vetoing</option>               
-            </select><div id="rightArrow">&#9654;</div><br />
-			<!--<label class="voting" for="sVotingEnabled">Voting Enabled</label><input class="setting" type="checkbox" id="sVotingEnabled" name="sVotingEnabled"><br class="voting" />-->
-            <center class="voting">Map Voting Options</center>
-            <label class="voting" for="sMapVotingTime">Map Voting Time</label>
-            <input type="text" class="tinySetting voting" id="sMapVotingTimeText" name="sMapVotingTime" onchange="updateSetting('sMapVotingTime', this.value);">
-            <input type="range" class="voting" min="0" max="100" id="sMapVotingTime" name="sMapVotingTime" oninput="document.querySelector('#sMapVotingTimeText').value = this.value;"><br class="voting" />
-            <label class="voting" for="sNumOfRevotes">Number of Revotes Allowed</label>
-            <input type="text" class="tinySetting voting" id="sNumOfRevotesText" name="sNumOfRevotes" onchange="updateSetting('sNumOfRevotes', this.value);">
-            <input type="range" class="voting" min="0" max="100" id="sNumOfRevotes" name="sNumOfRevotes" oninput="document.querySelector('#sNumOfRevotesText').value = this.value;"><br class="voting" />
-            <label class="voting" for="sNumberOfVotingOptions">Number of Voting Options</label>
-            <input type="text" class="tinySetting voting" id="sNumberOfVotingOptionsText" name="sNumberOfVotingOptions" onchange="updateSetting('sNumberOfVotingOptions', this.value);">
-            <input type="range" class="voting" min="1" max="4" id="sNumberOfVotingOptions" name="sNumberOfVotingOptions" oninput="document.querySelector('#sNumberOfVotingOptionsText').value = this.value;"><br class="voting" />
-            <label class="voting" for="sVotingDuplicationLevel">Voting Duplication Level</label><div id="leftArrow">&#9664;</div><select id="sVotingDuplicationLevel" name="sVotingDuplicationLevel" class="setting wheelable voting">
+            </select>
+            <div id="voting">
+                <h3 class="subHeader voting">Map Voting Options</h3>
+                <label for="sMapVotingTime">Map Voting Time</label>
+                <input type="text" class="tinySetting" id="sMapVotingTimeText">
+                <input type="range" class="setting hasTiny" min="0" max="100" id="sMapVotingTime">
+                <br>
+                <label for="sNumOfRevotes">Number of Revotes Allowed</label>
+                <input type="text" class="tinySetting" id="sNumOfRevotesText">
+                <input type="range" class="setting hasTiny" min="0" max="100" id="sNumOfRevotes">
+                <br>
+                <label for="sNumberOfVotingOptions">Number of Voting Options</label>
+                <input type="text" class="tinySetting" id="sNumberOfVotingOptionsText">
+                <input type="range" class="setting hasTiny" min="1" max="4" id="sNumberOfVotingOptions">
+                <br>
+                <label for="sVotingDuplicationLevel">Voting Duplication Level</label>
+                <select id="sVotingDuplicationLevel" class="setting wheelable voting">
                 <option value="0">Everything Unique</option>
                 <option value="1">Gametype or Map Can Repeat</option>
                 <option value="2">Anything Can Repeat</option>
-            </select><div id="rightArrow">&#9654;</div><br class="voting" />
-            <label class="voting" for="sTimeBetweenVoteEndAndGameStart">Time Between Winner And Start</label>
-            <input type="text" class="tinySetting voting" id="sTimeBetweenVoteEndAndGameStartText" name="sTimeBetweenVoteEndAndGameStart" onchange="updateSetting('sTimeBetweenVoteEndAndGameStart', this.value);">
-            <input type="range" class="voting" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart" name="sTimeBetweenVoteEndAndGameStart" oninput="document.querySelector('#sTimeBetweenVoteEndAndGameStartText').value = this.value;"><br class="voting" />
-            <!--<label for="sVetoEnabled">Veto Enabled</label><input class="setting" type="checkbox" id="sVetoEnabled" name="sVetoEnabled"><br />-->
-            <center class="veto">Map Veto Options</center>
-            <label class="veto" for="sNumOfVetoes">Maximum Veto Votes Per Round</label>
-            <input type="text" class="tinySetting veto" id="sNumOfVetoesText" name="sNumOfVetoes" onchange="updateSetting('sNumOfVetoes', this.value);">
-            <input type="range" class="veto" min="0" max="10" id="sNumOfVetoes" name="sNumOfVetoes" oninput="document.querySelector('#sNumOfVetoesText').value = this.value;"><br class="veto" />        
-            <label class="veto" for="sVetoVoteTime">Veto Vote Time</label>
-            <input type="text" class="tinySetting veto" id="sVetoVoteTimeText" name="sVetoVoteTime" onchange="updateSetting('sVetoVoteTime', this.value);">
-            <input type="range" class="veto" min="0" max="200" id="sVetoVoteTime" name="sVetoVoteTime" oninput="document.querySelector('#sVetoVoteTimeText').value = this.value;"><br class="veto" />   
-            <label class="veto" for="sVetoWinningShowTime">Winning Option Shown Time</label>
-            <input type="text" class="tinySetting veto" id="sVetoWinningShowTimeText" name="sVetoWinningShowTime" onchange="updateSetting('sVetoWinningShowTime', this.value);">
-            <input type="range" class="veto" min="0" max="100" id="sVetoWinningShowTime" name="sVetoWinningShowTime" oninput="document.querySelector('#sVetoWinningShowTimeText').value = this.value;"><br class="veto" />              
-            <label class="veto" for="sVetoPassPercentage">Vote Pass Percentage</label>
-            <input type="text" class="tinySetting veto" id="sVetoPassPercentageText" name="sVetoPassPercentage" onchange="updateSetting('sVetoPassPercentage', this.value);">
-            <input type="range" class="veto" min="0" max="100" id="sVetoPassPercentage" name="sVetoPassPercentage" oninput="document.querySelector('#sVetoPassPercentageText').value = this.value;"><br class="veto" />
-            <label class="voting veto" for="sTeamShufflingEnabled">Team Shuffle Enabled</label><input class="setting voting veto" type="checkbox" id="sTeamShufflingEnabled" name="sTeamShufflingEnabled"><br class="voting veto" />
+                </select>
+                <br>
+                <label for="sTimeBetweenVoteEndAndGameStart">Time Between Winner And Start</label>
+                <input type="text" class="tinySetting" id="sTimeBetweenVoteEndAndGameStartText">
+                <input type="range" class="setting hasTiny" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart">
+                <br>
+            </div>
+            <div id="veto">
+                <h3 class="subHeader veto">Map Veto Options</h3>
+                <label for="sNumOfVetoes">Maximum Veto Votes Per Round</label>
+                <input type="text" class="tinySetting" id="sNumOfVetoesText">
+                <input type="range" class="setting hasTiny" min="0" max="10" id="sNumOfVetoes">
+                <br>    
+                <label for="sVetoVoteTime">Veto Vote Time</label>
+                <input type="text" class="tinySetting" id="sVetoVoteTimeText">
+                <input type="range" class="setting hasTiny" min="0" max="200" id="sVetoVoteTime">
+                <br>  
+                <label for="sVetoWinningShowTime">Winning Option Shown Time</label>
+                <input type="text" class="tinySetting" id="sVetoWinningShowTimeText">
+                <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoWinningShowTime">
+                <br>       
+                <label for="sVetoPassPercentage">Vote Pass Percentage</label>
+                <input type="text" class="tinySetting" id="sVetoPassPercentageText">
+                <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoPassPercentage">
+                <br>
+            </div>
+            <div id="both">
+                <label for="sTeamShufflingEnabled">Team Shuffle Enabled</label>
+                <input class="setting voting veto" type="checkbox" id="sTeamShufflingEnabled">
+                <br >
+            </div>
+        </div>     
+        
+        <div id="page1">    
+            <label for="sHudShake">Hud Shake</label>
+            <input class="setting" type="checkbox" id="sHudShake">
+            <br>
+            <label for="sPlayerMarkerColors">Player Marker Colors</label>
+            <select id="sPlayerMarkerColors" class="setting wheelable">
+                <option value="default">Default</option>
+                <option value="ally">Ally Blue</option>
+                <option value="armor">Armor Colors</option>
+            </select>
+            <br>
+            <label for="sCameraFOV">Camera FOV</label>
+            <input type="text" class="tinySetting" id="sCameraFOVText">
+            <input type="range" class="setting hasTiny" min="55" max="155" id="sCameraFOV">
+            <br>
+            <label for="cCenteredCrosshair">Centered Crosshair</label>
+            <input class="setting" type="checkbox" id="cCenteredCrosshair">
+            <br>
+			<label for="wOffsetConfig">Viewmodel Config</label>
+            <input class="setting" type="text" id="wOffsetConfig">
+            <br>
+            <label for="cHideHUD">Hide HUD</label>
+            <input class="setting" type="checkbox" id="cHideHUD">
+            <br>
+            <label for="gMedalPack">Medal Pack</label>
+            <select id="gMedalPack" class="setting wheelable"></select>
+            <br>
+            <label for="gExpandScoreboard">Always Expand Scoreboard</label>
+            <input class="setting" type="checkbox" id="gExpandScoreboard">
+            <br>
+            <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label>
+            <input class="setting" type="checkbox" id="gSuppressJuggling">
+            <br>
+            <label for="gHideChat">Hide Chat</label>
+            <input class="setting" type="checkbox" id="gHideChat">
+            <br>
+            <label for="gIconSet">Controller Button Icon Set</label>
+            <select id="gIconSet" class="setting wheelable"></select>
+            <br>
         </div>
-            
-        <div id="advancedSettings">
-            <label for="gAnnouncerVol">Announcer Volume</label>
-            <input type="text" class="tinySetting" id="gAnnouncerVolText" name="gAnnouncerVol" onchange="updateSetting('gAnnouncerVol', this.value);">
-            <input type="range" min="0" max="100" id="gAnnouncerVol" name="gAnnouncerVol" oninput="document.querySelector('#gAnnouncerVolText').value = this.value;">
-            <br />
-            <label for="gMedalPack">Medal Pack</label><div id="leftArrow">&#9664;</div><select id="gMedalPack" name="gMedalPack" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="gExpandScoreboard">Always Expand Scoreboard</label><input class="setting" type="checkbox" id="gExpandScoreboard" name="gExpandScoreboard"><br />
-            <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label><input class="setting" type="checkbox" id="gSuppressJuggling" name="gSuppressJuggling"><br />
-            <label for="gHideChat">Hide Chat</label><input class="setting" type="checkbox" id="gHideChat" name="gHideChat"><br />
-            <center>Visuals</center>
-            <label for="gIconSet">Controller Button Icon Set</label><div id="leftArrow">&#9664;</div><select id="gIconSet" name="gIconSet" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="cCenteredCrosshair">Centered Crosshair</label><input class="setting" type="checkbox" id="cCenteredCrosshair" name="cCenteredCrosshair"><br />
-            <label for="cFOV">Screen FOV</label>
-            <input type="text" class="tinySetting" id="cFOVText" name="cFOV" onchange="updateSetting('cFOV', this.value);">
-            <input type="range" min="65" max="150" id="cFOV" name="cFOV" oninput="document.querySelector('#cFOVText').value = this.value;">
-            <br />
-			<label for="wOffsetConfig">Viewmodel Config</label><input class="setting" type="text" id="wOffsetConfig" name="wOffsetConfig"><br />
-            <label for="cHideHUD">Hide HUD</label><input class="setting" type="checkbox" id="cHideHUD" name="cHideHUD"><br />
-            <center>Input</center>
-            <label for="inputRaw">Use Raw Input</label><input class="setting" type="checkbox" id="inputRaw" name="inputRaw"><br />
-            <label for="inputRaw">Enable Sprint Toggle</label><input class="setting" type="checkbox" id="iDisableSprint" name="iDisableSprint"><br />
+        
+        <div id="page2">
+            <label for="sControlsMethod">Controls Method</label>
+            <button class="tinySetting" onclick="editControls($('#sControlsMethod').val())">EDIT</button>
+            <select id="sControlsMethod" class="setting hasTiny wheelable">
+                <option value="0">Keyboard</option>
+                <option value="1">Gamepad</option>
+            </select>
+            <br>            
+            <h3 class="subHeader">Infantry Mouse Sensitivity</h3>
+            <label for="sInfantryMouseSensV">Vertical</label>
+            <input type="text" class="tinySetting" id="sInfantryMouseSensVText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensV">
+            <br>
+            <label for="sInfantryMouseSensH">Horizontal</label>
+            <input type="text" class="tinySetting" id="sInfantryMouseSensHText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensH">
+            <br>
+            <h3 class="subHeader">Vehicle Mouse Sensitivity</h3>
+            <label for="sVehicleMouseSensV">Vertical</label>
+            <input type="text" class="tinySetting" id="sVehicleMouseSensVText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensV">
+            <br>
+            <label for="sVehicleMouseSensH">Horizontal</label>
+            <input type="text" class="tinySetting" id="sVehicleMouseSensHText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensH">
+            <br>
+            <label for="sMouseAcceleration">Mouse Acceleration</label>
+            <input type="text" class="tinySetting" id="sMouseAccelerationText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sMouseAcceleration">
+            <br>
+            <label for="sMouseFilter">Mouse Filter</label>
+            <input class="setting" type="checkbox" id="sMouseFilter">
+            <br>
+            <label for="sInvertMouse">Invert Mouse</label>
+            <input class="setting" type="checkbox" id="sInvertMouse">
+            <br>
+            <label for="sToggleCrouch">Toggle Crouch</label>
+            <input class="setting" type="checkbox" id="sToggleCrouch">
+            <br>
+            <label for="inputRaw">Use Raw Input</label>
+            <input class="setting" type="checkbox" id="inputRaw">
+            <br>
             <label for="iSpectateSens">Spectator Camera Senstivity</label>
-            <input type="text" class="tinySetting" id="iSpectateSensText" name="iSpectateSens" onchange="updateSetting('iSpectateSens', this.value);">
-            <input type="range" min="0" max="2" step="0.1" id="iSpectateSens" name="iSpectateSens" oninput="document.querySelector('#iSpectateSensText').value = this.value;"><br />
-        </div>    
-
-        <div id="playerSettings">
-            <label for="pName">Player Name</label><input class="setting" type="text" id="pName" name="pName"><br />
-            <label for="renderWeapon">Podium Weapon</label><div id="leftArrow">&#9664;</div><select id="renderWeapon" name="renderWeapon" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
-            <center>Armor</center>
-            <label for="helmet">Helmet</label><div id="leftArrow">&#9664;</div><select id="helmet" name="armorHelmet" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="chest">Chest</label><div id="leftArrow">&#9664;</div><select id="chest" class="setting wheelable" name="armorChest"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="shoulders">Shoulders</label><div id="leftArrow">&#9664;</div><select id="shoulders" class="setting wheelable" name="armorShoulders"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="arms">Arms</label><div id="leftArrow">&#9664;</div><select id="arms" class="setting wheelable" name="armorArms"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="legs">Legs</label><div id="leftArrow">&#9664;</div><select id="legs" class="setting wheelable" name="armorLegs"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="accesory">Accessory</label><div id="leftArrow">&#9664;</div><select id="accessory" class="setting wheelable" name="armorAcc"></select><div id="rightArrow">&#9654;</div><br />
-            <center>Colors</center>
-            <label for="colorsPrimary">Primary</label><input class="setting color no-alpha" id="colorsPrimary" value="#FFFFFF" name="colorsPrimary"><br />
-            <label for="colorsSecondary">Secondary</label><input class="setting color no-alpha" id="colorsSecondary" value="#FFFFFF" name="colorsSecondary"><br />
-            <label for="colorsVisor">Visor</label><input class="setting color no-alpha" id="colorsVisor" value="#FFFFFF" name="colorsVisor"><br />
-            <label for="colorsLights">Lights</label><input class="setting color no-alpha" id="colorsLights" value="#FFFFFF" name="colorsLights"><br />
-            <label for="colorsHolo">Holo</label><input class="setting color no-alpha" id="colorsHolo" value="#FFFFFF" name="colorsHolo"><br /><br />
-            <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
-            <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
+            <input type="text" class="tinySetting" id="iSpectateSensText">
+            <input type="range" class="setting hasTiny" min="0" max="2" step="0.1" id="iSpectateSens">
+            <br>
+            <label for="inputRaw">Enable Sprint Toggle</label>
+            <input class="setting" type="checkbox" id="iDisableSprint">
+            <br>
         </div>
         
-        <div id="voipSettings">
-            <label for="vEnabled">VOIP Enabled</label><input class="setting" type="checkbox" id="vEnabled" name="vEnabled"><br />
-            <label for="vMicrophoneID">Microphone ID</label><div id="leftArrow">&#9664;</div><select id="vMicrophoneID" name="vMicrophoneID" class="setting wheelable"></select><div id="rightArrow">&#9654;</div><br />
-            <label for="vPTTEnable">Push To Talk</label><input class="setting" type="checkbox" id="vPTTEnable" name="vPTTEnable"><br />
-            <label for="vEchoCancelation">Echo Cancelation</label><input class="setting" type="checkbox" id="vEchoCancelation" name="vEchoCancelation"><br />
-            <label for="vAGC">Automatic Gain Control</label><input class="setting" type="checkbox" id="vAGC" name="vAGC"><br />    
-            <label for="vNoiseSupress">Noise Supress</label><input class="setting" type="checkbox" id="vNoiseSupress" name="vNoiseSupress"><br />              
+        <div id="page5">
+            <table id="bindBox">
+            <thead>
+                <tr><th>Action</th><th>Primary Bind</th><th>Secondary Bind</th></tr>
+            </thead>
+            <tbody>
+            </tbody>
+            </table>
         </div>
         
-        <ul class="tabs">
-            <li><a href="#playerSettings">Player</a></li>
-            <li><a href="#serverSettings">Server</a></li>
-            <li><a href="#advancedSettings">Advanced</a></li>
-            <li><a href="#voipSettings">VOIP</a></li>
-            <li><a id="controllerButton" onclick="showController();">Controller</a></li>
-        </ul>
+        <div id="page3">
+            <label for="sMasterVolume">Master Volume</label>
+            <input type="text" class="tinySetting" id="sMasterVolumeText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
+            <br>
+            <label for="sSFXVolume">SFX Volume</label>
+            <input type="text" class="tinySetting" id="sSFXVolumeText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sSFXVolume">
+            <br>
+            <label for="sMusicVolume">Music Volume</label>
+            <input type="text" class="tinySetting" id="sMusicVolumeText">
+            <input type="range" class="setting hasTiny" min="0" max="100" id="sMusicVolume">
+            <br>     
+            <h3 class="subHeader">Video</h3>
+            <label for="sScreenResolution">Screen Resolution</label>
+            <select id="sScreenResolution" class="setting wheelable">
+            </select>
+            <br>
+            <label for="sBrightness">Brightness</label>
+            <input type="text" class="tinySetting" id="sBrightnessText">
+            <input type="range" class="setting hasTiny" min="1" max="100" id="sBrightness">
+            <br>
+            <label for="sFullscreen">Fullscreen</label>
+            <input class="setting" type="checkbox" id="sFullscreen">
+            <br>
+            <label for="sVsync">Vsync</label>
+            <input class="setting" type="checkbox" id="sVsync">
+            <br>
+            <label for="sAntiAliasing">Anti-Aliasing</label>
+            <input class="setting" type="checkbox" id="sAntiAliasing">
+            <br>    
+            <label for="sQualityPreset">Quality Preset</label>
+            <button class="tinySetting" onclick="switchPage('#page4')">EDIT</button>
+            <select id="sQualityPreset" class="setting hasTiny wheelable">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="custom">Custom</option>
+            </select>
+            <br>   
+            <h3 class="subHeader">VOIP</h3>
+            <label for="vEnabled">VOIP Enabled</label><input class="setting" type="checkbox" id="vEnabled">
+            <br>
+            <label for="vMicrophoneID">Microphone ID</label><select id="vMicrophoneID"class="setting wheelable"></select>
+            <br>
+            <label for="vPTTEnable">Push To Talk</label><input class="setting" type="checkbox" id="vPTTEnable">
+            <br>
+            <label for="vEchoCancelation">Echo Cancelation</label><input class="setting" type="checkbox" id="vEchoCancelation">
+            <br>
+            <label for="vAGC">Automatic Gain Control</label><input class="setting" type="checkbox" id="vAGC">
+            <br>    
+            <label for="vNoiseSupress">Noise Supress</label><input class="setting" type="checkbox" id="vNoiseSupress"
+            ><br>            
+        </div>
+        
+        <div id="page4">
+            <h3 class="subHeader">Advanced Video</h3>
+            <label for="sTextureResolution">Texture Resolution</label>
+            <select id="sTextureResolution" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sTextureFiltering">Texture Filtering</label>
+            <select id="sTextureFiltering" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br>      
+            <label for="sLightningQuality">Lightning Quality</label>
+            <select id="sLightningQuality" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sEffectsQuality">Effects Quality</label>
+            <select id="sEffectsQuality" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sShadowQuality">Shadow Quality</label>
+            <select id="sShadowQuality" class="setting wheelable video">
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sDetailsLevel">Details Level</label>
+            <select id="sDetailsLevel" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sPostprocessing">Postprocessing</label>
+            <select id="sPostprocessing" class="setting wheelable video">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <br> 
+            <label for="sMotionBlur">Motion Blur</label>
+            <input class="setting video" type="checkbox" id="sMotionBlur">
+            <br> 
+        </div>
+        
+        <div id="page8">
+            <label for="presetMenu">Button Layout</label>
+            <button class="tinySetting" onclick="switchPage('#page9')">EDIT</button>
+            <select id="presetMenu" class="setting"></select>
+            <br>
+            <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
+            <input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
+            <input type="range" min="1" max="15" id="lookSensitivity" class="setting hasTiny">
+            <br>
+            <label for="invertLook">Invert Look</label>
+            <input class="setting" type="checkbox" id="invertLook">
+            <br>
+            <label for="controllerPort">Port Number (Default is 0)</label>
+            <select id="controllerPort" class="setting">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
 
-</div>
-
-<div id="controllerSettings">
-	<div id="controllerWindowHeader">Controller Settings<button id="closeButton" onclick="showController();">X</button></div>
-	<div id="presets"><label for="presetMenu">Presets:</label><select id="presetMenu" onchange="applyBindString(this.value);"></select><br /></div>
-    <div id="controls">
-        <label for="Jump">Jump</label><select class="bind" id="Jump"></select><br />
-        <label for="Melee">Melee</label><select class="bind" id="Melee"></select><br />        
-        <label for="Reload">Reload</label><select class="bind" id="Reload"></select><br />
-        <label for="Use">Use</label><select class="bind" id="Use"></select><br />
-        <label for="SwitchWeapons">SwitchWeapons</label><select class="bind" id="SwitchWeapons"></select><br />
-        <label for="Crouch">Crouch</label><select class="bind" id="Crouch"></select><br />
-        <label for="Zoom">Zoom</label><select class="bind" id="Zoom"></select><br />
-        <label for="Fire">Fire</label><select class="bind" id="Fire"></select><br />
-        <label for="Grenade">Grenade</label><select class="bind" id="Grenade"></select><br />
-        <label for="SwitchGrenades">SwitchGrenades</label><select class="bind" id="SwitchGrenades"></select><br />
-        <label for="Sprint">Sprint</label><select class="bind" id="Sprint"></select><br />
-        <label for="DualWield">DualWield</label><select class="bind" id="DualWield"></select><br />
-        <label for="FireLeft">FireLeft</label><select class="bind" id="FireLeft"></select><br />
-        <label for="ReloadLeft">ReloadLeft</label><select class="bind" id="ReloadLeft"></select><br />
-        <label for="UseEquipment">UseEquipment</label><select class="bind" id="UseEquipment"></select><br />
-        <label for="VehicleAccelerate">VehicleAccelerate</label><select class="bind" id="VehicleAccelerate"></select><br />        
-        <label for="VehicleBrake">VehicleBrake</label><select class="bind" id="VehicleBrake"></select><br />
-        <label for="VehicleBoost">VehicleBoost</label><select class="bind" id="VehicleBoost"></select><br />
-        <label for="VehicleRaise">VehicleRaise</label><select class="bind" id="VehicleRaise"></select><br />
-        <label for="VehicleDive">VehicleDive</label><select class="bind" id="VehicleDive"></select><br />
-        <label for="VehicleFire">VehicleFire</label><select class="bind" id="VehicleFire"></select><br />
-        <label for="VehicleAltFire">VehicleAltFire</label><select class="bind" id="VehicleAltFire"></select><br />
-        <label for="BansheeBomb">BansheeBomb</label><select class="bind" id="BansheeBomb"></select><br />
-        <label for="ForgeDelete">ForgeDelete</label><select class="bind" id="ForgeDelete"></select><br />
-        <label for="Chat">Chat</label><select class="bind" id="Chat"></select><br />
-        <label for="TeamChat">TeamChat</label><select class="bind" id="TeamChat"></select><br />
-        <label for="Menu">Menu</label><select class="bind" id="Menu"></select><br />
-        <label for="Scoreboard">Scoreboard</label><select class="bind" id="Scoreboard"></select><br />
+            <div id="controllerGraphic">
+                <img id="controllerPic" src="controller.png">
+                <div id="A"></div>
+                <div id="B"></div>
+                <div id="X"></div>
+                <div id="Y"></div>
+                <div id="RB"></div>
+                <div id="LB"></div>
+                <div id="LT"></div>
+                <div id="RT"></div>
+                <div id="Start"></div>
+                <div id="Back"></div>
+                <div id="LS"></div>
+                <div id="RS"></div>
+                <div id="Left"></div>
+                <div id="Right"></div>
+                <div id="Up"></div>
+                <div id="Down"></div>
+            </div>
+        </div>
+        
+        <div id="page9">
+            <label for="Jump">Jump</label><select class="bind setting" id="Jump"></select><br>
+            <label for="Melee">Melee</label><select class="bind setting" id="Melee"></select><br>        
+            <label for="Reload">Reload</label><select class="bind setting" id="Reload"></select><br>
+            <label for="Use">Use</label><select class="bind setting" id="Use"></select><br>
+            <label for="SwitchWeapons">SwitchWeapons</label><select class="bind setting" id="SwitchWeapons"></select><br>
+            <label for="Crouch">Crouch</label><select class="bind setting" id="Crouch"></select><br>
+            <label for="Zoom">Zoom</label><select class="bind setting" id="Zoom"></select><br>
+            <label for="Fire">Fire</label><select class="bind setting" id="Fire"></select><br>
+            <label for="Grenade">Grenade</label><select class="bind setting" id="Grenade"></select><br>
+            <label for="SwitchGrenades">SwitchGrenades</label><select class="bind setting" id="SwitchGrenades"></select><br>
+            <label for="Sprint">Sprint</label><select class="bind setting" id="Sprint"></select><br>
+            <label for="DualWield">DualWield</label><select class="bind setting" id="DualWield"></select><br>
+            <label for="FireLeft">FireLeft</label><select class="bind setting" id="FireLeft"></select><br>
+            <label for="ReloadLeft">ReloadLeft</label><select class="bind setting" id="ReloadLeft"></select><br>
+            <label for="UseEquipment">UseEquipment</label><select class="bind setting" id="UseEquipment"></select><br>
+            <label for="VehicleAccelerate">VehicleAccelerate</label><select class="bind setting" id="VehicleAccelerate"></select><br>        
+            <label for="VehicleBrake">VehicleBrake</label><select class="bind setting" id="VehicleBrake"></select><br>
+            <label for="VehicleBoost">VehicleBoost</label><select class="bind setting" id="VehicleBoost"></select><br>
+            <label for="VehicleRaise">VehicleRaise</label><select class="bind setting" id="VehicleRaise"></select><br>
+            <label for="VehicleDive">VehicleDive</label><select class="bind setting" id="VehicleDive"></select><br>
+            <label for="VehicleFire">VehicleFire</label><select class="bind setting" id="VehicleFire"></select><br>
+            <label for="VehicleAltFire">VehicleAltFire</label><select class="bind setting" id="VehicleAltFire"></select><br>
+            <label for="BansheeBomb">BansheeBomb</label><select class="bind setting" id="BansheeBomb"></select><br>
+            <label for="ForgeDelete">ForgeDelete</label><select class="bind setting" id="ForgeDelete"></select><br>
+            <label for="Chat">Chat</label><select class="bind setting" id="Chat"></select><br>
+            <label for="TeamChat">TeamChat</label><select class="bind setting" id="TeamChat"></select><br>
+            <label for="Menu">Menu</label><select class="bind setting" id="Menu"></select><br>
+            <label for="Scoreboard">Scoreboard</label><select class="bind setting" id="Scoreboard"></select><br>
+            <label for="VoiceChat">VoiceChat</label><select class="bind setting" id="VoiceChat"></select><br>
+        </div>
+        
+        <button id="applyButton">Apply<img class="button"></button><button id="cancelButton">Cancel<img class="button"></button>
     </div>
-
-    <div id="controllerGraphic">
-        <img id="controllerPic" src="controller.png">
-        <div id="A"></div>
-        <div id="B"></div>
-        <div id="X"></div>
-        <div id="Y"></div>
-        <div id="RB"></div>
-        <div id="LB"></div>
-        <div id="LT"></div>
-        <div id="RT"></div>
-        <div id="Start"></div>
-        <div id="Back"></div>
-        <div id="LS"></div>
-        <div id="RS"></div>
-        <div id="Left"></div>
-        <div id="Right"></div>
-        <div id="Up"></div>
-        <div id="Down"></div>
-    </div>
-    <div id="advanced">
-        <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
-        <input type="text" value=12 class="tinySetting" id="lookSensitivityText" class="setting" name="lookSensitivity" onchange="updateSensitivity(this.value);">
-        <input value="3" type="range" min="1" max="15" id="lookSensitivity" class="setting" name="lookSensitivity" oninput="document.querySelector('#lookSensitivityText').value = this.value;updateSensitivity(this.value);"><br />
-        <label for="invertLook">Invert Look</label><input class="setting" type="checkbox" id="invertLook" name="invertLook"><br />
-        <label for="controllerPort">Port Number of Controller (Default is 0)</label><select name="controllerPort" id="controllerPort"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
-    </div>
-
-</div>
-
 </body>
 </html>
+
+<!--        Template for other control methods
+            <label for="sBlah">Spinner</label>
+            <input type="number" class="setting" id="sBlah" min="5" max="30" step="5">
+            <br>
+            
+            <label for="yText">Text</label>
+            <input class="setting" type="text" id="yText">
+            <br>
+
+            <label for="yTextArea">Text Area</label>
+            <textarea class="setting" type="text" id="yTextArea"></textarea>
+            <br>
+-->

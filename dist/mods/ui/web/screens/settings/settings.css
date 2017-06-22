@@ -3,221 +3,203 @@
 html {
     color: #FFF;
     font-family: "Conduit ITC", sans-serif;
+    font-weight: 500;
 }
-label {
-    float: left;
-    font-size: 2.5vh;
-}
-.tabs {
-    float: right;
-    left: 23vh;
-    top: 0.708vh;
-    list-style: none;
+
+body{
     padding: 0;
     margin: 0;
+    overflow:hidden;
     position: absolute;
-    font-size: 1.77vh;
-    z-index: 3;
-    width: 37.17vh;
+    width: 100%;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    margin-top:-3.15vw;
 }
+
+.tabs {
+    position: absolute;
+    top: 2.8vh;
+    left: 0;
+    list-style: none;
+    z-index: 3;
+    padding:0;
+    width: 97.6vh;
+    background: #14234a;
+}
+
 .tabs li {
     display: inline;
 }
-.tabs li a {
-    background: #14234a;
-    color: #FFF;
-    display: block;
-    float: left;
-    padding: 0.2655vh 1.062vh;
-    position: relative;
-    text-decoration: none;
-    border-top-left-radius:0.885vh;
-    border-top-right-radius:0.885vh;
-    margin-right: 2px;
+
+.tabs li.selected a{
+    color: #B1572A;
+    font-weight: 700;
 }
+
+.tabs li a{
+    display: block;
+    color: grey;
+    text-decoration: none;
+    float: left;
+    margin: 0;
+    margin-right: 1px;
+    padding: 5px;
+    font-size: 3.25vh;
+}
+
 .tabs li a:hover {
     background: #B1572A;
-}
-#settingsWindow {
-    width: 59.7375vh;
-    margin-bottom: 0;
-    opacity: 0.85;
-    position: absolute;
-    font-size: 2.655vh;
-    line-height: 3.0975vh;  
-    right:5%;
-    top:30%
-}
-#settingsWindow div{
-    width: 100%;
-}
-#settingsWindow div:not(#windowHeader):not(#leftArrow):not(#rightArrow) {
-    background: #14234a;
-    border: 1px solid #000;
-    left: 0;
-    padding: 20px;
-    padding-top: 15px;
-    position: absolute;
-    top: 4.3365vh;
-    height: 60vh;
-    overflow:hidden;
-}
-#windowHeader {
-    padding: 0.885vh 27px 20px 15px;
-    height: 3.54vh;
-    background-color: #000;
-    color: #FFF;
-    line-height: 3.0975vh;
-    position: relative;
-}
-.setting {
-    float: right;
-    font-size: 1.947vh;
-    height: 2.655vh;
-    line-height: 2.655vh;
-    margin-right: 20px;
-    margin-bottom: 0.885vh;
-    margin-top: 0.354vh;
-    position: absolute;
-    right: 0;
-    width: 26.55vh;
-    font-family: "Conduit ITC", sans-serif;
-    border: 1px solid grey;
-    color: #474747;
-}
-.tinySetting {
-    width: 5.31vh; 
-    float: right; 
-    margin-top: 0.354vh; 
-    height: 2.655vh;
-    line-height: 2.655vh;
-    font-size: 1.947vh;
-    font-weight: 700;
-    font-family: "Conduit ITC", sans-serif;
-    text-align: center;
-    border: 1px solid grey;
-    color: #474747;
-}
-input.setting {
-    padding-left: 5px;
-}
-input[type=range] {
-    -webkit-appearance: none;
-    float: right;
-    width: 20.355vh;
-    margin-right: 0.885vh;
-    margin-top: 1.45vh;
-    height: 0.4425vh;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  border: 1px solid grey;
-  height: 2.2125vh;
-  width: 2.2125vh;
-  border-radius: 1.77vh;
-  background: #efefef;
-}
-input[type=range]:focus, input[type=checkbox]:focus {
-  outline: none;
-}
-#playerSettings:target,#serverSettings:target,#advancedSettings:target,#voipSettings:target {
-    z-index: 2;
-}
-#playerSettings:target ~ .tabs a[href='#playerSettings'],#serverSettings:target ~ .tabs a[href='#serverSettings'],#advancedSettings:target ~ .tabs a[href='#advancedSettings'],#voipSettings:target ~ .tabs a[href='#voipSettings'] {
-    background-color: #14234a;
-    border-bottom: 1px solid #14234a;
-    padding-bottom: 10px;
+    color: white;
 }
 
-#controllerWindowHeader {
-    padding: 1.3275vh 2.478vh 1.3275vh 1.239vh;
-    background-color: #000;
-    color: #FFF;
-    line-height: 1.77vh;
-    position: relative;
-    margin-bottom: 0.885vh;
-    font-size: 2.478vh;
+#settingsWindow{
+    position:relative;
+    margin-top:10vh;
+    width: 100vh;
+    height: 73vh;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.95;
 }
-#closeButton {
-    background-color: #000;
-    border: 1px solid #FFF;
-    border-radius: 0.531vh;
-    color: #FFF;
-    padding: 0;
-    padding-left: 0.0177vh;
-    font-size: 1.77vh;
-    font-weight: 700;
-    line-height: 3.0975vh;
+
+div[id^='page']{
     position: absolute;
-    right: 0.708vh;
-    top: 0.708vh;
-    width: 3.0975vh;
-    height: 3.0975vh;
-    z-index: 10;
+    left: 0;
+    width:60vh;
+    margin-top:5vh;
+    height: 60vh;
+    background: #14234a;
+    padding: 2vh;
+    padding-top: 6vh;
+    padding-left:20vh;
+    padding-right:20vh;
+    overflow-y:auto;
+    opacity:0;
 }
-#controllerWindowHeader #closeButton{
-    padding: 0;
+
+div[id^='page']:target{
+    z-index: 2;
+    opacity: 1;
 }
-#closeButton:hover,#expandCollapse:hover {
-    background-color: #B1572A;
+
+.header{
+    position:absolute;
+    top:0;
+    width: 100%;
+    background-color:black;
+    color:white;
+    padding:0;
+    margin:0;
+    text-align: center;
+    font-weight:500;
+    z-index:3;
+    height:5vh;
 }
-#closeButton:focus,#expandCollapse:focus {
+
+.subHeader{
+    font-size: 3vh;
+    margin:1vh 0;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+label{
+    font-size: 2.5vh;
+    font-weight: 800;
+}
+
+.tabs img{
+    float:left;
+}
+
+.setting{
+    position:absolute;
+    width: 25.5vh;
+    right:20vh;
+    margin-top:0.25vh;
+    height:2.5vh;
+    margin-bottom:0vh;
+}
+
+textarea{
+    max-height:6.5vh;
+    min-height:6.5vh;
+    resize: none;
+}
+
+#page7 .setting{
+    right:45vh;
+}
+
+#presetMenu{
+    right: 25.5vh;    
+}
+
+input[type=range].setting {
+    margin-top:0.5vh;
+}
+
+.hasTiny{
+    width:19.75vh;
+    right: 25.5vh;
+}
+
+.tinySetting{
+    float:right;
+    width: 5.5vh;
+    height:2.5vh;
+    z-index:-2;
+    margin-top:0.5vh;
+    margin-bottom: -0.25vh;
+}
+
+button.tinySetting{
+    margin-top: 0.25vh;
+    background-color:black;
+    color:white;
+    border:1px solid white;
+    padding-left:3px;
+}
+
+#bindBox{
+    margin-left:-2vh;
+}
+
+#applyButton,#cancelButton{
+    position: absolute;
+    width: 12vh;
+    height: 4vh;
+    font-size: 2vh;
+    color: white;
+    background-color:black;
+    border:1px solid white;
+    z-index: 3;
+}
+
+#applyButton:hover,#cancelButton:hover,button.tinySetting:hover{
+    background: #B1572A;    
+}
+
+#applyButton:focus,#cancelButton:focus,button.tinySetting:focus{
     outline: 0;
 }
-#controllerSettings {
-    background-color: #14234a;
-    border: 1px solid #000;
-    color: #FFF;
-    display: none;
-    font-size: 1.77vh;
-    font-weight: 700;
-    height: 74vh;
-    opacity: 0.8;
-    position: absolute;
-    top: 1.77vh;
-    left: 1.77vh;
-    width: 105vh;
-}
-#controllerSettings label{
-    font-size: 1.77vh;
+
+#applyButton{
+    right:2.5vh;
+    bottom:1vh;
 }
 
-#presets {
-    float: right;
-    margin-right: 22vh;
+#cancelButton{
+    left:2.5vh;
+    bottom:1vh;
 }
-#presets label {
-    font-size: 2.2125vh;
-}
-#presetMenu {
-    font-size: 1.947vh;
-    height: 2.655vh;
-    line-height: 1.593vh;
-    margin-left: 0.885vh;
-    width: 31.86vh;
-    font-family: "Conduit ITC", sans-serif;
-}
-#controls,#advanced {
-    border: 1px solid #FFF;
-    float: left;
-    line-height: 2.478vh;
-    margin-left: 1.77vh;
-    min-height: 19.47vh;
-    padding: 1.3275vh;
-    position: relative;
-    width: 20.355vh;
-}
-#controls{
-    top:-0.5vw;
-    padding-top:0.3vw;
-}
-#controls select,#extendedControls select {
-    float: right;
-}
+
 #controllerGraphic {
     position: absolute;
-    right: 20vh;
-    top: 16.25vh;
+    left: 30vh;
+    top: 26.5vh;
 }
 #controllerGraphic div {
     height: 3.009vh;
@@ -232,74 +214,6 @@ input[type=range]:focus, input[type=checkbox]:focus {
     width: 40.533vh;
     height: 23.541vh;
 }
-
-#advanced {
-    position:absolute;
-    bottom:1.5vh;
-    right:1.5vh;
-    width: 74vh;
-    min-height: 22vh;
-    overflow:hidden;
-}
-
-#advanced input[!type=range], #advanced select {
-    float: right;
-    margin-right: 1.77vh;
-    height: 1.593vh;
-    line-height: 2.124vh;
-    margin-bottom: 0.354vh;
-}
-
-#advanced .tinySetting{
-    height: 2.2125vh;
-    font-size: 1.593vh;
-    line-height: 1.77vh;
-    margin-right: 1.1505vh;
-}
-
-#advanced input[type=range] {
-    margin-right: 8.85vh;
-    line-height: 1.947vh;
-}
-
-#advanced .selected{
-    width:77vh;
-    height:2.75vh;
-}
-
-.bind {
-    float: right;
-    font-size: 1.3275vh;
-    font-weight: 700;
-    height: 2.2125vh;
-    margin-right: 1.77vh;
-    margin-bottom: 0.885vh;
-    margin-top: 0.354vh;
-    position: absolute;
-    right: 0;
-    width: 7.08vh;
-}
-
-#controllerPort{
-    height: 2.2125vh;
-    margin-top: 0.354vh;
-    margin-right: 2.55vh;
-    width:5.25vh;
-    right:0;
-    position:absolute;
-    font-size: 1.5vh;
-    font-weight: 700;
-    text-align:center;
-}
-
-#invertLook{
-    position: absolute;
-    right:0.75vw;
-    height: 1.25vw;
-    padding: 0;
-    width: 1.25vw;
-}
-
 #A {
     left: 40.71vh;
     top: 15.93vh;
@@ -375,79 +289,134 @@ input[type=range]:focus, input[type=checkbox]:focus {
     top: 21.594vh;
 }
 
-@media screen and (aspect-ratio: 4/3), screen and (aspect-ratio: 5/4) {
-    #settingsWindow {
-        zoom: 80%;
-    }
-    #controllerSettings {
-        zoom: 80%;
-    }
+.bind{
+    float:right;
+    width: 10vh;
 }
 
-.selected{
-    background-color:#B1572A;
-    width:36vw;
-    z-index:-5;
+#page7{
+    background:none;
+    padding-left:4vh;
+    padding-right:45vh;
+    width:51vh;
+    overflow:hidden;
+}
+
+#rightSide, #leftSide{
     position:absolute;
-    margin-left:-2vw;
-    padding-left:2vw;
-    margin-top:0vw;
-    height:1.9vw;
+    background: #14234a;
+    height: 68vh;
+    z-index:-2;
 }
 
-select.selectedElement{
-    -webkit-appearance: none;   
-    text-indent: 4px;
+#rightSide{
+    top:0;
+    right:0;
+    width:4vh;
 }
 
-#presets .selected{
-    position:relative;
-    width:inherit;
-    top:-0.3vw;
-    padding-top:0.2vw;
-    padding-right:21vw;
-    margin-right:-21vw;
+#leftSide{
+    top:0;
+    left:0;
+    width:58vh
 }
 
-center{
-    font-size: 2vh;
-    margin-top:0.25vw;
-    text-transform: uppercase;
+#bottom{
+    position: absolute;
+    width: 45vh;
+    background: #14234a;
+    height:8vh;
+    bottom:0;
+    right:0;
 }
 
-#playerSettings button{
-    position: relative;
+#randomArmor,#randomColors{
+    position: absolute;
+    bottom: 1vh;
+    left: 19vh;
+}
+
+#randomColors{
+    left: 37vh;
+}
+    
+
+.selectedElement{
+    color:#B1572A;
+    font-weight:700;
+}
+
+#page7 button{
     background-color: black;  
     color: white;    
     border: 1px solid white;
-    border-radius: 5px;
-    height: 4.25vh;
+    height: 4vh;
+    line-height:4vh;
 }
 
-#playerSettings button:hover{
+#page7 button:hover{
    background-color: #B1572A; 
 }
 
-#playerSettings button img{
+button img,.tabs img{
     display:none;
     position:relative;
-    width: 4vh;
-    top:1.1vh;
+    width: 3.75vh;
+    top:1.2vh;
     margin-top:-2vh;
     margin-right:-0.5vh;
 }
 
-#leftArrow,#rightArrow{
+.tabs img{
+    margin-top:-0.5vh;
+}
+
+.color{
+    border: 1px solid grey;
+}
+
+#bindBox thead th{
+    font-weight: 700;
+    font-size:3vh;
+    color: grey;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  background:none;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  height: 1vh;
+  background: grey;
+  border: 1px solid #010101;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  border: 1px solid #000000;
+  height: 2.5vh;
+  width: 1vh;
+  background: #ffffff;
+  -webkit-appearance: none;
+  margin-top:-0.8vh;
+}
+
+#voting,#veto,#both{
     display:none;
-    position:absolute; 
-    font-size:2.5vh; 
-    margin-top:0.15vh;
 }
 
-#leftArrow{
-    left:33.5vh;
+::-webkit-scrollbar {
+    width: 1vh;
 }
-
-#rightArrow{
-    left:62.75vh;
+ 
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: grey;
 }
