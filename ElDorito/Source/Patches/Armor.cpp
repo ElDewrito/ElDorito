@@ -15,11 +15,27 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/BlamObjects.hpp"
+#include "../Blam/Math/RealQuaternion.hpp"
 
 using namespace Blam::Players;
 
 namespace
 {
+	struct UiPlayerModelState
+	{
+		enum StateFlags
+		{
+			eStateFlagsNone = 0,
+			eStateFlagsRotation = 1 << 0,
+			eStateFlagsTranslation = 1 << 1 
+		};
+
+		uint16_t Flags;
+		Blam::Math::RealVector3D Position;
+		float RotationAngle;
+
+	} s_UiPlayerModelState;
+
 	// Used during bitstream operations to automatically calculate the size of each armor component
 	const uint8_t MaxArmorIndices[] = { 81, 82, 82, 50, 52, 24, 4 };
 	
@@ -253,6 +269,21 @@ namespace Patches
 		{
 			UiPlayerModelArmorHook();
 		}
+
+		void SetUiPlayewrModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle)
+		{
+			if (newPosition)
+			{
+				s_UiPlayerModelState.Position = *newPosition;
+				s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsTranslation;
+			}
+
+			if (rotationAngle)
+			{
+				s_UiPlayerModelState.RotationAngle = *rotationAngle;
+				s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsRotation;
+			}
+		}
 	}
 }
 
@@ -321,25 +352,37 @@ namespace
 
 	void UiPlayerModelArmorHook()
 	{
-		//
-		// TODO: Fix this for elites/other races
-		//
+		using namespace Blam::Math;
 
-		// This function runs every tick, so only update if necessary
-		if (!updateUiPlayerArmor)
-			return;
+		static auto UI_Globals = *(void**)0x05260F34;
+		static auto UI_ExecuteScenarioScript = (signed int(__thiscall*)(void* thisptr, int scriptIndex))(0xAACE40);
+		static auto Object_SetTransform = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up, int a5))(0x00B33530);
 
 		// Try to get the UI player biped
 		uint32_t uiPlayerBiped = Pointer::Base(0x4BE67A0).Read<uint32_t>();
 		if (uiPlayerBiped == 0xFFFFFFFF)
 			return;
 
+		if (s_UiPlayerModelState.Flags & UiPlayerModelState::eStateFlagsRotation)
+		{
+			*(float*)0x194A66C = s_UiPlayerModelState.RotationAngle;
+			*(uint8_t*)0x5287C3C = 1; // mark dirty
+			s_UiPlayerModelState.Flags &= ~UiPlayerModelState::eStateFlagsRotation;
+		}
+
+		if (s_UiPlayerModelState.Flags & UiPlayerModelState::eStateFlagsTranslation)
+		{
+			Object_SetTransform(uiPlayerBiped, &s_UiPlayerModelState.Position, nullptr, nullptr, 0);
+			s_UiPlayerModelState.Flags &= ~UiPlayerModelState::eStateFlagsTranslation;
+		}
+
+		// This function runs every tick, so only update if necessary
+		if (!updateUiPlayerArmor)
+			return;
+
 		const auto& representation = Modules::ModulePlayer::Instance().VarRepresentation->ValueString;
 
 		// switch hangar to match the player representation
-		static auto UI_Globals = *(void**)0x05260F34;
-		static auto UI_ExecuteScenarioScript = (signed int(__thiscall*)(void* thisptr, int scriptIndex))(0xAACE40);
-	
 		if (representation == std::string("elite"))
 		{
 			UI_ExecuteScenarioScript(UI_Globals, 73); // elite

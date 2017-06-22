@@ -360,12 +360,10 @@ namespace
 		// manually rotates it.
 
 		static auto firstRotate = true;
-		static auto autoRotate = true;
 		if (!IsMainMenu())
 		{
 			// char_platform is only on the main menu
 			firstRotate = true;
-			autoRotate = true;
 			return;
 		}
 		if (firstRotate)
@@ -384,12 +382,6 @@ namespace
 		if (rotateAmount)
 		{
 			RotateCharPlatform(UiGetTimeDelta(), rotateAmount * 1.0f);
-			autoRotate = false;
-		}
-		else if (autoRotate)
-		{
-			// Slowly rotate counterclockwise
-			RotateCharPlatform(UiGetTimeDelta(), 0.025f);
 		}
 		else
 		{

@@ -4,6 +4,7 @@
 #include "../Patches/Armor.hpp"
 #include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
+#include "../Patches/Armor.hpp"
 
 namespace
 {
@@ -38,6 +39,45 @@ namespace
 		returnInfo = "Player UID: 0x" + uidStr;
 		return true;
 	}
+
+	bool TryParseFloat(const std::string& str, float* value)
+	{
+		const auto c_str = str.c_str();
+		char* endp;
+		*value = static_cast<float>(std::strtod(c_str, &endp));
+		return c_str != endp;
+	}
+
+	bool CommandSetUiPlayerModelPosition(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Blam::Math::RealVector3D position;
+		if (Arguments.size() < 3 ||
+			!TryParseFloat(Arguments[0], &position.I) ||
+			!TryParseFloat(Arguments[1], &position.J) ||
+			!TryParseFloat(Arguments[2], &position.K))
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		Patches::Armor::SetUiPlayewrModelTransform(&position, nullptr);
+
+		return true;
+	}
+
+	bool CommandSetUiPlayerModelRotation(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		float rotationAngle;
+		if (Arguments.size() < 1 || !TryParseFloat(Arguments[0], &rotationAngle))
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		Patches::Armor::SetUiPlayewrModelTransform(nullptr, &rotationAngle);
+
+		return true;
+	}
 }
 
 namespace Modules
@@ -51,6 +91,8 @@ namespace Modules
 		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
 		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
 		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		AddCommand("Armor.SetUiModelPosition", "armor_ui_player_model_position", "Set the position of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelPosition);
+		AddCommand("Armor.SetUiModelRotation", "armor_ui_player_model_rotation", "Set the rotation of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelRotation);
 
 		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
 		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", eCommandFlagsArchived, "#000000", VariablePlayerArmorUpdate);
