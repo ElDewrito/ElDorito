@@ -132,10 +132,6 @@ namespace
 		{
 		case 0x4055: // control_settings
 			CloseScreen(UI_GetScreenManager(), 0x10084);
-			Web::Ui::ScreenLayer::Show("settings2", "{}");
-			return true;
-		case 0x1012d: // appearance
-			CloseScreen(UI_GetScreenManager(), 0x10084);
 			Web::Ui::ScreenLayer::Show("settings", "{}");
 			return true;
 		}
