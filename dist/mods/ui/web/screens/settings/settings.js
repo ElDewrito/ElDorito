@@ -287,14 +287,14 @@ $(document).ready(function(){
         }
         $.grep(settingsToLoad, function(result){
             if(result[0] == elementID){
-                changeArray.push([result[1], newValue]);
+                queueChange([result[1], newValue]);
             };
         });
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
         var xVal = 90 + (e.target.value * 20);
-        changeArray.push(['Input.ControllerSensitivityX', xVal]);
-        changeArray.push(['Input.ControllerSensitivityY', 90]);
+        queueChange(['Input.ControllerSensitivityX', xVal]);
+        queueChange(['Input.ControllerSensitivityY', 90]);
     });
     $('.instant').on('change', function(e){
         $.grep(settingsToLoad, function(result){
@@ -638,17 +638,17 @@ function setOptionList(ElementID, ArrayVar){
 
 function updateVotingStyle(value){
     if(value == "0"){
-        changeArray.push(['Server.VotingEnabled', '0']);
-        changeArray.push(['Server.VetoSystemEnabled', '0']);
+        queueChange(['Server.VotingEnabled', '0']);
+        queueChange(['Server.VetoSystemEnabled', '0']);
         $('#voting, #veto, #both').hide();
     }else if(value == "1"){
-        changeArray.push(['Server.VotingEnabled', '1']);
-        changeArray.push(['Server.VetoSystemEnabled', '0']);
+        queueChange(['Server.VotingEnabled', '1']);
+        queueChange(['Server.VetoSystemEnabled', '0']);
         $('#veto').hide();
         $('#voting, #both').show();
     }else{
-        changeArray.push(['Server.VotingEnabled', '0']);
-        changeArray.push(['Server.VetoSystemEnabled', '1']);
+        queueChange(['Server.VotingEnabled', '0']);
+        queueChange(['Server.VetoSystemEnabled', '1']);
         $('#voting').hide();
         $('#veto, #both').show();
     }
@@ -656,14 +656,14 @@ function updateVotingStyle(value){
 
 function updateSprint(value){
     if(value == "0"){
-        changeArray.push(['Server.SprintEnabled', '0']);
-        changeArray.push(['Server.UnlimitedSprint', '0']);
+        queueChange(['Server.SprintEnabled', '0']);
+        queueChange(['Server.UnlimitedSprint', '0']);
     }else if(value == "1"){
-        changeArray.push(['Server.SprintEnabled', '1']);
-        changeArray.push(['Server.UnlimitedSprint', '0']);
+        queueChange(['Server.SprintEnabled', '1']);
+        queueChange(['Server.UnlimitedSprint', '0']);
     }else{
-        changeArray.push(['Server.SprintEnabled', '1']);
-        changeArray.push(['Server.UnlimitedSprint', '1']);
+        queueChange(['Server.SprintEnabled', '1']);
+        queueChange(['Server.UnlimitedSprint', '1']);
     }
 }
 
@@ -1121,4 +1121,15 @@ function updateSensitivity(value){
     dew.command("Input.ControllerSensitivityX " + xVal, {}).then(function(){
         dew.command("writeconfig");
     });
+}
+
+function queueChange(changeBlock){
+    $.grep(changeArray, function(result, index){
+        if(result){
+            if(result[0] == changeBlock[0]){
+                changeArray.splice(index,1);
+            };
+        }
+    });
+    changeArray.push(changeBlock);
 }
