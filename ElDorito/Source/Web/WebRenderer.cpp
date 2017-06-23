@@ -404,6 +404,8 @@ bool WebRenderer::Resize(uint32_t p_Width, uint32_t p_Height)
 	{
 		s_Browser->GetHost()->NotifyScreenInfoChanged();
 		s_Browser->GetHost()->WasResized();
+		s_Browser->GetHost()->Invalidate(PET_VIEW);
+		s_Browser->GetHost()->Invalidate(PET_POPUP);
 	}
 	return true;
 }
