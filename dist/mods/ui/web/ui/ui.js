@@ -301,6 +301,12 @@
                     setCaptureState(screen, !!data.capture);
                 }
                 break;
+			default:
+				var message = (typeof eventData.message === "string") ? eventData.message : (screen ? screen.id : null);
+				if(message){
+					ui.notify(message, data.data, true, false);
+				}
+				break;
         }
     }, false);
 

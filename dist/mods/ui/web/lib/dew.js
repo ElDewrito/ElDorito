@@ -336,6 +336,18 @@ CommandType = {
             screen: id || null
         });
     }
+	
+	/**
+     * Sends a dew event to another screen
+     *
+	 * @param {string} [eventName] - The name of the event for another screen to receive.
+	 * @param {object} [data] - Data to pass to the screen.
+     */
+	dew.notify = function(eventName, data){
+		postUiMessage(eventName, {
+			data: data || {}
+		});
+	}
 
     /**
      * Requests to change this screen's input capture state.

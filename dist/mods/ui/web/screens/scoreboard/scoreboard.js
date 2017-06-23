@@ -201,7 +201,6 @@ $(window).load(function(){
             }
         }
     });
-	dew.hide();
 });
 
 dew.on("scoreboard", function(e){
@@ -210,37 +209,32 @@ dew.on("scoreboard", function(e){
     });
 });
 
-dew.on("hide", function(){
-	dew.captureInput(false);
-	$('html').hide();
+dew.on("voip-user-volume", function(data){
+    
+});
+
+dew.on("voip-speaking", function(data){
+    
 });
 
 dew.on("show", function(e){
-	try{
-		if(JSON.parse(e.data).hasOwnProperty('isSpeaking')){
-			//voip
-			
-			return;
-		}
-	}catch(ex){}
-	
-	$('html').show();
-	locked = e.data.locked;
-	dew.captureInput(locked);
-	capturedInput = locked;
-	if(locked){
-		$('#closeButton').show();
-	}else{
-		$('#closeButton').hide();
-	}
-	if(e.data.postgame){
-		$('#winnerText').show();
-	}else{
-		$('#winnerText').hide();
-	}
-	dew.command('Game.ExpandedScoreboard', {}).then(function(response){
-		displayScoreboard(response);
-	});
+    $('html').show();
+    locked = e.data.locked;
+    dew.captureInput(locked);
+    capturedInput = locked;
+    if(locked){
+        $('#closeButton').show();
+    }else{
+        $('#closeButton').hide();
+    }
+    if(e.data.postgame){
+        $('#winnerText').show();
+    }else{
+        $('#winnerText').hide();
+    }
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+        displayScoreboard(response);
+    });
 });
 
 function displayScoreboard(expandedScoreboard){

@@ -167,37 +167,51 @@ function remotestream(event)
 	document.getElementById(this.uid).src = window.URL.createObjectURL(event.stream);
 	this.speech = window.hark(event.stream, {"threshold":"-60"});
 	var username = this.user;
+	var peer = this;
 	this.speech.on("speaking", function(){
-		speak(username, this);
+		speak(username, peer);
 	});
 	this.speech.on("stopped_speaking", function(){
-		stopSpeak(username, this);
+		stopSpeak(username, peer);
 	});
 	this.speech.on("volume_change", function(volume){
-		var speaker = JSON.stringify({
-			"user": username,
-			"volume": this.speakingVolume,
-			"isSpeaking": true
-		});
-		dew.show("scoreboard", speaker);
+		peer.speakingVolume = volume;
+		var speaker = {
+			user: username,
+			volume: volume
+		}
+		dew.notify("voip-user-volume", speaker);
 	});
 }
 
-function speak(user, hark)
+function speak(user, peer)
 {
+	var speaker = {
+		user: user,
+		volume: peer.speakingVolume,
+		isSpeaking: true
+	}
+	dew.notify("voip-speaking", speaker);
 	if($.inArray(user, speaking) == -1)	{
 		speaking.push(user);
 		$("<p id=\"" + user + "\">" + user + "</p>").hide().prependTo("#speaking").slideDown();
 	}
 }
 
-function stopSpeak(user, hark)
+function stopSpeak(user, peer)
 {
+	var speaker = {
+		user: user,
+		volume: peer.speakingVolume,
+		isSpeaking: false
+	}
+	dew.notify("voip-speaking", speaker);
 	var index = $.inArray(user, speaking);
 	if(index != -1)
 		speaking.splice(index, 1);
 	var speed = 500;
-	$("#" + user).animate({ 
+	var thisUser = $("#" + user);
+	thisUser.animate({
 		width: "hide", 
 		paddingLeft: "hide", 
 		paddingRight: "hide", 
@@ -205,7 +219,7 @@ function stopSpeak(user, hark)
 		marginRight: "hide",
 		direction: "left"
 	}, speed, function(){
-		$("#" + user).remove();
+		thisUser.remove();
 	});
 }
 
@@ -227,7 +241,6 @@ function clearConnection()
 		peerCons = [];
 	}
 	catch(e){
-		console.log(e);
 	}
 }
 
@@ -387,7 +400,6 @@ $(document).ready(function(){
 	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
 	dew.show();
 	dew.getSessionInfo().then(function(info){
-		console.log(info);
 		if(info.established == true){
 			retry();
 		}
