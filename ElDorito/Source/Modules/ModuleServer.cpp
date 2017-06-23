@@ -1245,7 +1245,7 @@ namespace Modules
 		VarSignalServerPort->ValueIntMax = 65535;
 
 		//Veto System Commands 
-		VarVetoSystemEnabled = AddVariableInt("VetoSystemEnabled", "veto_enabled", "Controls whether the veto system is enabled on this server. ", eCommandFlagsArchived, 1);
+		VarVetoSystemEnabled = AddVariableInt("VetoSystemEnabled", "veto_enabled", "Controls whether the veto system is enabled on this server. ", eCommandFlagsArchived, 0);
 		VarVetoSystemEnabled->ValueIntMin = 0;
 		VarVetoSystemEnabled->ValueIntMax = 1;
 
