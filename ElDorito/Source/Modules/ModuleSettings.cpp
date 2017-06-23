@@ -43,6 +43,10 @@ namespace
 	auto SSL_SetVoiceChatVolume = reinterpret_cast<int(__stdcall *)(int, bool)>(0x79BBB0);
 	auto SSL_SetVoiceVolume = reinterpret_cast<int(__stdcall *)(int, bool)>(0x79BBE0);
 
+	bool TryParseInt(const std::string& str, int* value);
+	bool TryParseResolutionString(const std::string& str, int* width, int* height);
+	void UpdateScreenResolution();
+
 	bool VariableSettingsAntialiasingUpdate(const std::vector<std::string> &args, std::string &returnInfo)
 	{
 		auto value = Modules::ModuleSettings::Instance().VarAntialiasing->ValueInt;
@@ -140,25 +144,18 @@ namespace
 		return true;
 	}
 
-	bool GameWindowCreated()
-	{
-		return *(uint32_t*)0x0199C014;
-	}
-
 	bool VariableSettingsFullscreenUpdate(const std::vector<std::string> &args, std::string &returnInfo)
 	{
-		auto value = Modules::ModuleSettings::Instance().VarFullscreen->ValueInt;
+		const auto& moduleSettings = Modules::ModuleSettings::Instance();
+		auto value = moduleSettings.VarFullscreen->ValueInt;
 		auto statusBool = (value != 0);
 
 		if (value < 0 || value > 1)
 			return false;
 
-		if (GameWindowCreated())
-		{
-			SSL_SetFullscreen(statusBool);
-			SSL_SetScreenResolution(*(int*)0x19106C8, *(int*)0x19106CC);
-		}
-
+		SSL_SetFullscreen(statusBool);
+		UpdateScreenResolution();
+	
 		std::stringstream ss;
 		ss << "Fullscreen " << (statusBool ? "enabled." : "disabled.");
 		returnInfo = ss.str();
@@ -487,26 +484,14 @@ namespace
 
 	bool VariableSettingsScreenResolutionUpdate(const std::vector<std::string> &args, std::string &returnInfo)
 	{
-		auto value = Modules::ModuleSettings::Instance().VarScreenResolution->ValueString;
+		const auto& moduleSettings = Modules::ModuleSettings::Instance();
+		auto value = moduleSettings.VarScreenResolution->ValueString;
 
-		auto separatorPos = value.find("x");
-		if (separatorPos == std::string::npos)
-			return value == "default";
-
-		if (separatorPos + 1 >= value.length())
+		int width, height;
+		if (!TryParseResolutionString(value, &width, &height) && value != "default")
 			return false;
 
-		auto widthString = value.substr(0, separatorPos);
-		auto heightString = value.substr(separatorPos + 1);
-
-		if (widthString.length() == 0 || heightString.length() == 0)
-			return false;
-
-		auto width = std::atoi(widthString.c_str());
-		auto height = std::atoi(heightString.c_str());
-
-		if (GameWindowCreated())
-			SSL_SetScreenResolution(width, height);
+		UpdateScreenResolution();
 
 		std::stringstream ss;
 		ss << "Screen Resolution set to " << value << ".";
@@ -596,5 +581,77 @@ namespace Modules
 		VarMasterVolume = AddVariableInt("MasterVolume", "volume", "Controls the master volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsMasterVolumeUpdated);
 		VarSfxVolume = AddVariableInt("SfxVolume", "volume_sfx", "Controls the sfx volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsSfxVolumeUpdated);
 		VarMusicVolume = AddVariableInt("MusicVolume", "volume_music", "Controls the music volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial | eCommandFlagsRunOnMainMenu), 100, VariableSettingsMusicVolumeUpdated);
+	}
+
+	void ModuleSettings::GetScreenResolution(int* width, int* height) const
+	{
+		const auto& moduleSettings = Modules::ModuleSettings::Instance();
+		const auto& resolutionStr = moduleSettings.VarScreenResolution->ValueString;
+
+		if (!TryParseResolutionString(resolutionStr, width, height))
+		{
+			auto fullScreen = Modules::ModuleSettings::Instance().VarFullscreen->ValueInt;
+			if (fullScreen)
+			{
+				*width = GetSystemMetrics(SM_CXSCREEN);
+				*height = GetSystemMetrics(SM_CYSCREEN);
+			}
+			else
+			{
+				*width = 1280;
+				*height = 720;
+			}
+		}
+	}
+}
+
+namespace
+{
+	void UpdateScreenResolution()
+	{
+		auto gameWindow = *(uint32_t*)0x0199C014;
+		if (!gameWindow)
+			return;
+
+		const auto& moduleSettings = Modules::ModuleSettings::Instance();
+
+		int width, height;
+		moduleSettings.GetScreenResolution(&width, &height);
+
+		static auto GetNewDisplayPreferences = (void*(*)())(0xA1FC60);
+		static auto GetDisplayPreferences = (void*(*)())(0x00A1FC50);
+		auto newPrefs = GetNewDisplayPreferences();
+		memcpy(newPrefs, GetDisplayPreferences(), 0x38u);
+
+		*(int32_t *)newPrefs = width;
+		*((int32_t*)newPrefs + 1) = height;
+		*(uint8_t*)0x050DD9D1 = 1; // dirty
+	}
+
+	bool TryParseInt(const std::string& str, int* value)
+	{
+		if (str.length() == 0)
+			return false;
+
+		auto c_str = str.c_str();
+		char* endp;
+
+		*value = std::strtol(c_str, &endp, 10);
+
+		return endp != c_str;
+	}
+
+	bool TryParseResolutionString(const std::string& str, int* width, int* height)
+	{
+		auto separatorPos = str.find("x");
+		if (separatorPos != std::string::npos && separatorPos + 1 < str.length())
+		{
+			auto widthString = str.substr(0, separatorPos);
+			auto heightString = str.substr(separatorPos + 1);
+
+			return TryParseInt(widthString, width) && TryParseInt(heightString, height);
+		}
+
+		return false;
 	}
 }

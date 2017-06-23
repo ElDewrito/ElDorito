@@ -41,5 +41,7 @@ namespace Modules
 		
 
 		ModuleSettings();
+
+		void GetScreenResolution(int* width, int* height) const;
 	};
 }

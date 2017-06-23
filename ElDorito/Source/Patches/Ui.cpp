@@ -520,6 +520,8 @@ namespace Patches
 				auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
 				auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
 				auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+				if (!globals || !chud || globals->HudGlobals.Count == 0 || globals->HudGlobals[0].HudAttributes.Count == 0)
+					return;
 
 				// Store initial HUD resolution values the first time the resolution is changed.
 				if (firstResolutionChange)

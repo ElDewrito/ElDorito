@@ -181,50 +181,6 @@ namespace
 		}
 	}
 
-	bool TryParseInt(const std::string& str, int* value)
-	{
-		if (str.length() == 0)
-			return false;
-
-		auto c_str = str.c_str();
-		char* endp;
-
-		*value = std::strtol(c_str, &endp, 10);
-
-		return endp != c_str;
-	}
-
-	void GetScreenResolution(int* width, int* height)
-	{
-		const auto& resolutionStr = Modules::ModuleSettings::Instance().VarScreenResolution->ValueString;
-
-		auto separatorPos = resolutionStr.find("x");
-		if (separatorPos != std::string::npos || resolutionStr != "default"
-			&& separatorPos + 1 < resolutionStr.length())
-		{
-			auto widthString = resolutionStr.substr(0, separatorPos);
-			auto heightString = resolutionStr.substr(separatorPos + 1);
-
-			if (TryParseInt(widthString, width) && TryParseInt(heightString, height)
-				&& width > 0 && height > 0)
-			{
-				return;
-			}
-		}
-
-		auto fullScreen = Modules::ModuleSettings::Instance().VarFullscreen->ValueInt;
-		if (fullScreen)
-		{
-			*width = GetSystemMetrics(SM_CXSCREEN);
-			*height = GetSystemMetrics(SM_CYSCREEN);
-		}
-		else
-		{
-			*width = 1280;
-			*height = 720;
-		}
-	}
-
 	uint32_t LevelStringToInt(const std::string& value)
 	{
 		return value == "low" ? 0 : value == "medium" ? 1 : 2;
@@ -242,7 +198,7 @@ namespace
 		auto& moduleSettings = Modules::ModuleSettings::Instance();
 
 		int screenResolutionWidth, screenResolutionHeight;
-		GetScreenResolution(&screenResolutionWidth, &screenResolutionHeight);
+		moduleSettings.GetScreenResolution(&screenResolutionWidth, &screenResolutionHeight);
 
 		// a step towards eliminating the need preferences.dat at least for settings
 		preferencesPtr(0x41BCC).Write<uint32_t>(moduleSettings.VarFullscreen->ValueInt);
