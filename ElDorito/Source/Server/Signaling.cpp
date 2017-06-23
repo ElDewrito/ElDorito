@@ -224,7 +224,7 @@ namespace
 		writer.StartObject();
 		writer.Key("server");
 		std::string ip = "";
-		if (!session->GetServerIPAddress().ToString().compare("0.0.0.0"))
+		if (!session->GetServerIPAddress().ToString().compare("0.0.0.0") || !session->GetServerIPAddress().ToString().compare("1.0.0.0"))
 			ip = "127.0.0.1:" + std::to_string(Server::Signaling::GetPort());
 		else
 			ip = session->GetServerIPAddress().ToString() + ":" + std::to_string(Server::Signaling::GetPort());
