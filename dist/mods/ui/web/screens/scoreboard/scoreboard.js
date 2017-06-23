@@ -211,6 +211,7 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("hide", function(){
+	dew.captureInput(false);
 	$('html').hide();
 });
 
