@@ -350,9 +350,6 @@ namespace Server
 				Modules::CommandMap::Instance().ExecuteCommand(command);
 			}
 
-			if (Modules::ModuleServer::Instance().VarServerTeamShuffleEnabled->ValueInt == 1)
-				Modules::CommandMap::Instance().ExecuteCommand("Server.ShuffleTeams");
-
 			time(&winnerChosenTime);
 			voteStartedTime = 0;
 			mapVotes.clear();
