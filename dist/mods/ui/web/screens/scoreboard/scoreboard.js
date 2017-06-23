@@ -160,6 +160,7 @@ $(window).load(function(){
     $(document).keydown(function(e){
         if(e.keyCode == 9|| e.keyCode == 13){
             $('#playerBreakdown').hide();
+            dew.captureInput(false);
             dew.hide();
         } 
         if(e.keyCode == 84 || e.keyCode == 89){
