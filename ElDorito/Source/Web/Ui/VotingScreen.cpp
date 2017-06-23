@@ -150,6 +150,12 @@ namespace
 		case Blam::Network::eLifeCycleStateStartGame:
 			Web::Ui::Voting::Hide();
 			break;
+		case Blam::Network::eLifeCycleStateNone:
+			Web::Ui::Voting::Hide();
+			break;
+		case Blam::Network::eLifeCycleStateLeaving:
+			Web::Ui::Voting::Hide();
+			break;
 		}
 	}
 }
