@@ -18,9 +18,11 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	pDevice = device;
 
 	//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
+	auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
 	D3DVIEWPORT9 viewport;
 	pDevice->GetViewport(&viewport);
-	viewport.X = 0;
+	viewport.Width = windowResolution[0];
+	viewport.Height = windowResolution[1];
 	pDevice->SetViewport(&viewport);
 
 	// Update the web renderer
