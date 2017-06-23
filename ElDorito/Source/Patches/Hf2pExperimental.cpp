@@ -2,11 +2,16 @@
 #include "Hf2pExperimental.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Modules/ModuleSettings.hpp"
+#include "../Modules/ModuleServer.hpp"
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Armor.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
+#include "../Web/Ui/WebTimer.hpp"
+#include "../ElDorito.hpp"
+#include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamTime.hpp"
 
 namespace
 {
@@ -98,10 +103,27 @@ namespace
 		static auto UpdatePreMatchCamera = (bool(*)())(0x72D580);
 		static auto InitMpDirector = (void(*)())(0x0072D560);
 		static auto s_MatchStarted = false;
+		static auto s_TimerStarted = false;
 
 		// update pre-match camera
 		if (InPrematchState(4))
-		{
+		{	
+			if (!s_TimerStarted)
+			{
+				const auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+				if (player)
+				{
+					auto secondsUntilPlayerSpawn = Pointer(player)(0x2CBC).Read<int32_t>();
+					if (secondsUntilPlayerSpawn > 0)
+					{
+						s_TimerStarted = true;
+
+						// using the seconds here is not accurate and may need to be looked into further
+						Web::Ui::WebTimer::Start("start", static_cast<float>(secondsUntilPlayerSpawn + 1));		
+					}
+				}
+			}
+
 			s_MatchStarted = UpdatePreMatchCamera();
 		}
 		else if (s_MatchStarted)
@@ -109,6 +131,7 @@ namespace
 
 			InitMpDirector();
 			s_MatchStarted = false;
+			s_TimerStarted = false;
 		}
 
 		// armour customizations on mainmenu
