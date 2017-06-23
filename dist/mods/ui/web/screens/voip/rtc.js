@@ -147,10 +147,10 @@ function sendicecandidate(event)
 			var uid = this.uid;
 			this.createOffer().then(function(description)
 			{
-				peerCons[data.uid].setLocalDescription(description).then(function()
+				peerCons[uid].setLocalDescription(description).then(function()
 				{
 					serverCon.send(JSON.stringify({
-						'sdp': peerCons[data.uid].localDescription,
+						'sdp': peerCons[uid].localDescription,
 						'sendTo': uid
 					}));
 				});
