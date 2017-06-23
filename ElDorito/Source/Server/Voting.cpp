@@ -41,6 +41,10 @@ namespace Server
 			{
 			case Blam::Network::eLifeCycleStateStartGame:
 			{
+
+				if (Modules::ModuleServer::Instance().VarServerTeamShuffleEnabled->ValueInt == 1)
+					Modules::CommandMap::Instance().ExecuteCommand("Server.ShuffleTeams");
+
 				for (auto elem : VotingSystems)
 				{
 					if (elem->isEnabled()) {
