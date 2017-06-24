@@ -194,12 +194,8 @@ function handleActions(actions) {
     }
 }
 
-dew.on("show", function(e) {
-    if(e.data.hasOwnProperty('locked')){
-        capturedInput = e.data.locked;
-    }else{
-        capturedInput = true;
-    }
+dew.on("show", function(event) {
+    capturedInput = true;
     if(controllerSupport()){
         dew.command('Input.ControllerPort', {}).then(function(response){
             controllerPort = response;
@@ -223,7 +219,7 @@ dew.on("show", function(e) {
     }
 });
 
-dew.on("hide", function(e) {
+dew.on("hide", function(event) {
     capturedInput = false;
 });
 
