@@ -45,6 +45,7 @@ namespace
 	std::vector<ConfigurableAction> settings;
 
 	extern InputType actionInputTypes[eGameAction_KeyboardMouseCount];
+	bool queuedGameAction[eGameAction_KeyboardMouseCount] = {};
 
 	BindingsTable s_ForgeMonitorModeBindings;
 }
@@ -86,6 +87,16 @@ namespace Patches
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
+		}
+
+		bool QueueGameAction(int index)
+		{
+			if (index > -1 && index < eGameAction_KeyboardMouseCount) 
+			{
+				queuedGameAction[index] = true;
+				return true;
+			}
+			return false;
 		}
 
 		void PushContext(std::shared_ptr<InputContext> context)
@@ -326,6 +337,11 @@ namespace
 		{
 			if (actions[i].Ticks == 0)
 				actions[i].Flags &= ~eActionStateFlagsHandled;
+			if (queuedGameAction[i])
+			{
+				actions[i].Ticks = 1;
+				queuedGameAction[i] = false;
+			}
 		}
 	}
 

@@ -6,6 +6,7 @@
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
+#include "../../../Patches/Input.hpp"
 #include "../../../Pointer.hpp"
 #include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
@@ -521,6 +522,22 @@ namespace Anvil
 					QueryError OnCancelVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result)
 					{
 						Web::Ui::WebVirtualKeyboard::Cancel();
+						return QueryError_Ok;
+					}
+
+					QueryError OnGameAction(const rapidjson::Value &p_Args, std::string *p_Result)
+					{
+						auto value = p_Args.FindMember("key");
+						if (value == p_Args.MemberEnd() || !value->value.IsNumber())
+						{
+							*p_Result = "Bad query : A \"key\" argument is required and must be a number";
+							return QueryError_BadQuery;
+						}
+						if (!Patches::Input::QueueGameAction(value->value.GetInt()))
+						{
+							*p_Result = "Bad query : \"key\" argument was out of bounds.";
+							return QueryError_BadQuery;
+						}
 						return QueryError_Ok;
 					}
 				}

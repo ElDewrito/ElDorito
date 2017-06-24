@@ -26,6 +26,7 @@ namespace Anvil
 					QueryError OnStats(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnSubmitVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result);
 					QueryError OnCancelVirtualKeyboard(const rapidjson::Value &p_Args, std::string *p_Result);
+					QueryError OnGameAction(const rapidjson::Value &p_Args, std::string *p_Result);
 				}
 			}
 		}

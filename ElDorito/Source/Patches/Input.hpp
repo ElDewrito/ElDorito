@@ -10,7 +10,7 @@ namespace Patches
 	namespace Input
 	{
 		void ApplyAll();
-
+		bool QueueGameAction(int);
 		// Base class for objects which override game input.
 		// While a context is active, all game input is blocked.
 		class InputContext

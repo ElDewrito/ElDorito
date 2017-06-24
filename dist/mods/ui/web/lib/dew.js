@@ -624,6 +624,17 @@ CommandType = {
     dew.on = function (event, callback) {
         registerEvent(event, callback);
     }
+	
+	/**
+     * (ASYNCHRONOUS) Queues a game action to be pressed in-game
+     *
+     * @param {integer} actionIndex - The index of the game action to be pressed.
+     */
+	dew.gameaction = function(actionIndex) {
+		return dew.callMethod("gameaction", {
+			key: actionIndex
+		});
+	}
 
     /**
      * A callback function for responding to events.
