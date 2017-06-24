@@ -791,6 +791,35 @@ namespace
 		return true;
 	}
 
+	bool TryParseTagIndex(const std::string& str, uint32_t* value)
+	{
+		if (str.length() == 0)
+			return false;
+
+		auto c_str = str.c_str();
+		char* endp;
+
+		*value = std::strtol(c_str, &endp, 16);
+
+		return endp != c_str;
+	}
+
+	bool CommandPlaySound(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, float volume))(0x5DE300);
+
+		uint32_t tagIndex;
+		if (arguments.size() < 1 || !TryParseTagIndex(arguments[0], &tagIndex)) 
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		Sound_PlaySoundEffect(tagIndex, 1.0f);
+
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -840,6 +869,8 @@ namespace Modules
 		AddCommand("ShowScreen", "showscreen", "Displays the specified screen", eCommandFlagsArgsNoParse, CommandShowScreen);
 
 		AddCommand("ListMedalPacks", "list_medals", "List all available medal packs", eCommandFlagsNone, CommandListMedalPacks);
+
+		AddCommand("PlaySound", "play_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlaySound);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
