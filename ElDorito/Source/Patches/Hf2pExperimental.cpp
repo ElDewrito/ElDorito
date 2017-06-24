@@ -21,7 +21,7 @@ namespace
 	void Hf2pLoadPreferencesHook();
 
 	void UI_StartMenuScreenWidget_OnDataItemSelectedHook();
-	
+
 	void OnMapLoaded(const char *mapPath);
 }
 
@@ -44,7 +44,7 @@ namespace Patches
 		Hook(0x10CB01, Hf2pLoadPreferencesHook, HookFlags::IsCall).Apply();
 
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
-		
+
 		Patches::Core::OnMapLoaded(OnMapLoaded);
 	}
 }
@@ -97,6 +97,13 @@ namespace
 		}
 	}
 
+	int GetSecondsRemainingUntilPlayerSpawn()
+	{
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		const auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+		return player ? Pointer(player)(0x2CBC).Read<int32_t>() : 0;
+	}
+
 	void Hf2pTickHook()
 	{
 		static auto InPrematchState = (bool(*)(char state))(0x005523A0);
@@ -104,34 +111,54 @@ namespace
 		static auto InitMpDirector = (void(*)())(0x0072D560);
 		static auto s_MatchStarted = false;
 		static auto s_TimerStarted = false;
+		static auto s_TimerLastTicked = 0;
+
+		auto secondsUntilPlayerSpawn = GetSecondsRemainingUntilPlayerSpawn();
 
 		// update pre-match camera
 		if (InPrematchState(4))
-		{	
-			if (!s_TimerStarted)
+		{
+			if (!s_TimerStarted && secondsUntilPlayerSpawn > 0)
 			{
-				const auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
-				if (player)
-				{
-					auto secondsUntilPlayerSpawn = Pointer(player)(0x2CBC).Read<int32_t>();
-					if (secondsUntilPlayerSpawn > 0)
-					{
-						s_TimerStarted = true;
-
-						// using the seconds here is not accurate and may need to be looked into further
-						Web::Ui::WebTimer::Start("start", static_cast<float>(secondsUntilPlayerSpawn + 1));		
-					}
-				}
+				s_TimerStarted = true;
+				s_TimerLastTicked = Blam::Time::GetGameTicks();
+				Web::Ui::WebTimer::Start("startTimer", secondsUntilPlayerSpawn);
 			}
 
 			s_MatchStarted = UpdatePreMatchCamera();
 		}
 		else if (s_MatchStarted)
 		{
-
 			InitMpDirector();
 			s_MatchStarted = false;
-			s_TimerStarted = false;
+		}
+		else
+		{
+			if (!s_TimerStarted && secondsUntilPlayerSpawn > 0)
+			{
+				s_TimerStarted = true;
+				s_TimerLastTicked = Blam::Time::GetGameTicks();
+				Web::Ui::WebTimer::Start("respawnTimer", secondsUntilPlayerSpawn);
+			}
+		}
+
+		if (s_TimerStarted)
+		{
+			static auto s_LastTimerValue = 0;
+			auto secondsUntilSpawn = GetSecondsRemainingUntilPlayerSpawn();
+
+			if (secondsUntilSpawn != s_LastTimerValue)
+			{
+				s_LastTimerValue = secondsUntilSpawn;
+				s_TimerLastTicked = Blam::Time::GetGameTicks();
+				Web::Ui::WebTimer::Update(secondsUntilSpawn);
+
+				if (secondsUntilSpawn <= 0)
+				{
+					s_TimerStarted = false;
+					Web::Ui::WebTimer::End();
+				}
+			}
 		}
 
 		// armour customizations on mainmenu

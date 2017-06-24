@@ -7,7 +7,9 @@ namespace Web
 	{
 		namespace WebTimer
 		{
-			void Start(const std::string& name, float durationSeconds);
+			void Start(const std::string& type, int initialValue);
+			void Update(int value);
+			void End();
 		}
 	}
 }

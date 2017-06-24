@@ -91,16 +91,6 @@ namespace
 		Web::Ui::ScreenLayer::Notify("spectate_end", "{}", true);
 	}
 
-	void ShowRespawnTimer()
-	{
-		const auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
-		if (!player)
-			return;
-
-		auto secondsUntilPlayerSpawn = Pointer(player)(0x2CBC).Read<int32_t>();
-		Web::Ui::WebTimer::Start("respawn", secondsUntilPlayerSpawn);
-	}
-
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2)
 	{
 		static auto GameDirectorUpdate = (void(__thiscall*)(void* thisptr, int a2))(0x007219A0);
@@ -128,7 +118,6 @@ namespace
 			{
 				s_SpectateState.Flags |= 1;
 				NotifyPlayerChanged(directedPlayerIndex);
-				ShowRespawnTimer();
 			}
 
 			if (s_SpectateState.Flags & 1)
