@@ -31,6 +31,7 @@ void WebRendererApp::OnContextInitialized()
 void WebRendererApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
 	//WriteLog("OnContextCreated.");
+	context->GetGlobal()->AdjustExternallyAllocatedMemory(268435456); //256mb
 }
 
 void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line)
