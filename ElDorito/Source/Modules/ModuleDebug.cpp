@@ -88,11 +88,13 @@ namespace Modules
 {
 	ModuleDebug::ModuleDebug() : ModuleBase("Debug")
 	{
+#ifdef _DEBUG
 		VarMemcpySrc = AddVariableInt("MemcpySrc", "memcpy_src", "Allows breakpointing memcpy based on specified source address filter.", eCommandFlagsHidden, 0, MemcpySrcFilterUpdate);
 		VarMemcpyDst = AddVariableInt("MemcpyDst", "memcpy_dst", "Allows breakpointing memcpy based on specified destination address filter.", eCommandFlagsHidden, 0, MemcpyDstFilterUpdate);
 		VarMemsetDst = AddVariableInt("MemsetDst", "memset_dst", "Allows breakpointing memset based on specified destination address filter.", eCommandFlagsHidden, 0, MemsetDstFilterUpdate);
 
 		Hook(0x7EF260, Debug_MemcpyHook).Apply();
 		Hook(0x7EF2E0, Debug_MemsetHook).Apply();
+#endif
 	}
 }
