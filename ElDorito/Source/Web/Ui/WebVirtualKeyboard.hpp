@@ -9,7 +9,7 @@ namespace Web
 		namespace WebVirtualKeyboard
 		{
 			void Init();
-			void Submit(const std::wstring& value);
+			void Submit(std::wstring& value);
 			void Cancel();
 		}
 	}

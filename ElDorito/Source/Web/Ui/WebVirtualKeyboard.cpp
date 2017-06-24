@@ -25,10 +25,17 @@ namespace Web
 				Patches::VirtualKeyboard::SetKeyboardHandler(WebVirtualKeyboardHandler);
 			}
 
-			void Submit(const std::wstring& value)
+			void Submit(std::wstring& value)
 			{
 				if (!CurrentKeyboard)
 					return;
+
+				//Strip illegal characters
+				std::string illegal = "\\/:?\"<>|";
+				for (auto it = value.begin(); it < value.end(); ++it)
+					if (illegal.find(*it) != std::wstring::npos)
+						*it = ' ';
+
 				CurrentKeyboard->SetValue(value.c_str());
 				CurrentKeyboard->Finish();
 				CurrentKeyboard = nullptr;
