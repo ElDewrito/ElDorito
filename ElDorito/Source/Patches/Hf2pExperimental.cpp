@@ -86,7 +86,7 @@ namespace
 			return;
 
 		auto uiStartAction = Blam::Input::GetActionState(eGameActionUiStart);
-		if (!(uiStartAction->Flags & eActionStateFlagsHandled) && uiStartAction->Ticks >= 1)
+		if (!(uiStartAction->Flags & eActionStateFlagsHandled) && uiStartAction->Ticks == 1)
 		{
 			auto screenManager = (void*)0x05260F34;
 			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0))
