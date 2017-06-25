@@ -42,6 +42,7 @@ var settingsToLoad = [
     ['sPlayerMarkerColors','Settings.PlayerMarkerColors'],
     ['sCameraFOV','Camera.FOV'],
     ['sName', 'Server.Name'],
+	['sMatchCountdown', 'Server.CountdownLobby'], 
     ['sCountdown', 'Server.Countdown'], 
     ['sMaxPlayers', 'Server.MaxPlayers'], 
     ['sMaxTeamSize', 'Server.MaxTeamSize'], 
