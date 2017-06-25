@@ -78,6 +78,12 @@
 			"url": "dew://screens/voip/",
 			"captureInput": false,
 			"zIndex": 2
+		},
+        {
+			"id": "timer",
+			"url": "dew://screens/timer/",
+			"captureInput": false,
+			"zIndex": 0
 		}
 	]
 }
