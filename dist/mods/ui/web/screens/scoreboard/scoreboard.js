@@ -441,6 +441,7 @@ function playerBreakdown(name){
         }else{
             $('#previousPlayer').prop("disabled",false);      
             $('#previousPlayer').on('click', function(){
+                $('#previousPlayer').off('click');
                 playerBreakdown(lobby[playerIndex-1].name); 
             });            
         }
@@ -449,6 +450,7 @@ function playerBreakdown(name){
         }else{
             $('#nextPlayer').prop("disabled",false);   
             $('#nextPlayer').on('click', function(){ 
+                $('#nextPlayer').off('click');
                 playerBreakdown(lobby[playerIndex+1].name); 
             });            
         }
