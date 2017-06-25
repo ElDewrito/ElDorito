@@ -14,6 +14,7 @@ namespace Modules
 		Command* VarServerMessageClient;
 		Command* VarServerPassword;
 		Command* VarServerCountdown;
+		Command* VarServerCountdownLobby;
 		Command* VarServerMaxPlayers;
 		Command* VarServerPort;
 		Command* VarServerGamePort;

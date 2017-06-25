@@ -17,6 +17,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Server/BanList.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Server/Voting.hpp"
 #include "../Utils/Logger.hpp"
@@ -47,6 +48,7 @@ namespace
 	int __fastcall Network_session_initiate_leave_protocolHook(void* thisPtr, int unused, char forceClose);
 	int __fastcall Network_session_parameters_clearHook(void* thisPtr, int unused);
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex);
+	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	void PongReceivedHook();
@@ -414,6 +416,7 @@ namespace Patches
 
 			// "received initial update, clearing"
 			Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
+			Hook(0x683D45, Network_session_parameter_countdown_timer_request_change_hook, HookFlags::IsCall).Apply();
 
 			Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
 			Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
@@ -1136,5 +1139,14 @@ namespace
 		typedef int(__thiscall *Network_session_remove_peerFunc)(Blam::Network::SessionMembership *membership, int peerIndex);
 		Network_session_remove_peerFunc Network_session_remove_peer = reinterpret_cast<Network_session_remove_peerFunc>(0x4500D0);
 		return Network_session_remove_peer(membership, peerIndex);
+	}
+
+	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value)
+	{
+		if (state == 2) // start
+			value = Modules::ModuleServer::Instance().VarServerCountdownLobby->ValueInt;
+
+		static auto Network_session_parameter_countdown_timer_request_change = (bool(__thiscall*)(void *thisPtr, int state, int newValue))(0x00453740);
+		return Network_session_parameter_countdown_timer_request_change(thisPtr, state, value);
 	}
 }

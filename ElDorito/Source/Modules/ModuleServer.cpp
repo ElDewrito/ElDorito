@@ -1088,6 +1088,10 @@ namespace Modules
 		VarServerCountdown->ValueIntMin = 0;
 		VarServerCountdown->ValueIntMax = 20;
 
+		VarServerCountdownLobby = AddVariableInt("CountdownLobby", "countdown_lobby", "The number of seconds to wait in the lobby before the game starts", eCommandFlagsArchived, 3);
+		VarServerCountdownLobby->ValueIntMin = 0;
+		VarServerCountdownLobby->ValueIntMax = 20;
+
 		VarServerMaxPlayers = AddVariableInt("MaxPlayers", "maxplayers", "Maximum number of connected players", eCommandFlagsArchived, 16, VariableServerMaxPlayersUpdate);
 		VarServerMaxPlayers->ValueIntMin = 1;
 		VarServerMaxPlayers->ValueIntMax = 16;
