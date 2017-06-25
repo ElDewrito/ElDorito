@@ -30,7 +30,7 @@ html {
 .circle {
     width: 11vh;
     height: 11vh;
-    border: 1.4vh solid white;
+    border: 1.4vh solid rgba(122,175,209, 1);
     border-radius: 7vh;
     position: absolute;
     transition: -webkit-transform 1s ease-in-out;  
@@ -55,5 +55,5 @@ html {
     text-align: center;
     font-size: 7vh;
     font-weight: 700;
-    color: white;
+    color: rgba(122,175,209, 1);
 }
