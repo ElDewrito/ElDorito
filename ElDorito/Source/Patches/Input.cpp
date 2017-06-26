@@ -91,7 +91,7 @@ namespace Patches
 
 		bool QueueGameAction(int index)
 		{
-			if (index > -1 && index < eGameAction_KeyboardMouseCount) 
+			if (index > -1 && index < eGameAction_KeyboardMouseCount)
 			{
 				queuedGameAction[index] = true;
 				return true;
@@ -267,7 +267,7 @@ namespace
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveLeft] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveRight] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveForward] = eKeyCode_None;
-		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;	
+		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionMelee] = eKeyCodeC; // clone
 	}
 
@@ -425,7 +425,11 @@ namespace
 			Pointer(a3)(0x3A).Write<short>(rY * -1);
 		}
 
-		return contextStack.empty() ? val : 0;
+		// Clear the controller state
+		if(!contextStack.empty())
+			memset(a3, 0, 0x3Cu);
+
+		return val;
 	}
 
 
@@ -482,7 +486,7 @@ namespace
 		LocalPlayerInputHook(localPlayerIndex, playerIndex, a3, a4, a5, state);
 
 		if (moduleInput.VarToggleSprint->ValueInt)
-		{		
+		{
 			if (s_SprintToggled)
 			{
 				auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
@@ -502,7 +506,7 @@ namespace
 			if (s_SprintToggled)
 				*(uint32_t *)(state + 0x18) |= 0x100u;
 		}
-	
+
 		if (*(uint32_t*)(state + 0x18) & 0x10)
 		{
 			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
