@@ -417,14 +417,13 @@ $(document).ready(function(){
             if(x == '1' && y == '1'){
                 $('#sVotingStyle').val('2');
                 $('#voting').hide();
-                $('#veto, #both').show();
             }else if(x == '1' && y == '0'){
                 $('#sVotingStyle').val('1');
-                $('#voting, #both').show();
+                $('#voting').show();
                 $('#veto').hide();
             }else{
                 $('#sVotingStyle').val('0');
-                $('#voting, #veto, #both').hide();
+                $('#voting, #veto').hide();
             }
         });       
     });
@@ -641,17 +640,17 @@ function updateVotingStyle(value){
     if(value == "0"){
         queueChange(['Server.VotingEnabled', '0']);
         queueChange(['Server.VetoSystemEnabled', '0']);
-        $('#voting, #veto, #both').hide();
+        $('#voting, #veto').hide();
     }else if(value == "1"){
         queueChange(['Server.VotingEnabled', '1']);
         queueChange(['Server.VetoSystemEnabled', '0']);
         $('#veto').hide();
-        $('#voting, #both').show();
+        $('#voting').show();
     }else{
         queueChange(['Server.VotingEnabled', '0']);
         queueChange(['Server.VetoSystemEnabled', '1']);
         $('#voting').hide();
-        $('#veto, #both').show();
+        $('#veto').show();
     }
 }
 
