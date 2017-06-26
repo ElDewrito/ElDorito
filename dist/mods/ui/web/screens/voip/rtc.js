@@ -194,7 +194,31 @@ function speak(user, peer)
 	dew.notify("voip-speaking", speaker);
 	if($.inArray(user, speaking) == -1)	{
 		speaking.push(user);
-		$("<p id=\"" + user + "\">" + user + "</p>").hide().prependTo("#speaking").slideDown();
+		
+		//push everyone down
+		if($("#speaking > p").length > 0)
+		{
+			$("#speaking > p").each(function(){
+				y = $(this).height() * ($(this).index() + 1);
+				$(this).css({
+					'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+					'transition': 'all 300ms ease'
+				});
+				
+			});
+		}
+		
+		$("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
+			'transform': 'translate(0px, -100px)', //offscreen
+			'transition': 'all 300ms ease'
+		});
+		
+		setTimeout(function(){//drag in from offscreen
+			$("#" + user).css({
+				'transform': 'translate(0px, 0px)',
+				'transition': 'all 300ms ease'
+			});
+		}, 25);
 	}
 }
 
@@ -209,18 +233,31 @@ function stopSpeak(user, peer)
 	var index = $.inArray(user, speaking);
 	if(index != -1)
 		speaking.splice(index, 1);
-	var speed = 500;
+	
 	var thisUser = $("#" + user);
-	thisUser.animate({
-		width: "hide", 
-		paddingLeft: "hide", 
-		paddingRight: "hide", 
-		marginLeft: "hide", 
-		marginRight: "hide",
-		direction: "left"
-	}, speed, function(){
-		thisUser.remove();
+	var index = thisUser.index();
+	if($("#speaking > p").length > 0)
+	{
+		$("#speaking > p").each(function(){
+			if($(this).index() < index)
+				return; //this user does not need to move
+			
+			y = $(this).height() * $(this).index() - $(this).height();
+			$(this).css({
+				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+				'transition': 'all 300ms ease'
+			});
+		});
+	}
+	var unParsed = thisUser.prop('style').transform.substring(10);
+	var y = parseInt(unParsed.split(",")[1].split("px")[0]);
+	thisUser.css({
+		'transform': 'translate(-200px, ' + y + 'px)', //offscreen
+		'transition': 'all 300ms ease'
 	});
+	setTimeout(function(){
+		thisUser.remove();
+	}, 300);
 }
 
 function clearConnection()
