@@ -480,7 +480,7 @@ namespace
 	{
 		Server::TempBanList::Instance().AddIp(ip);
 	}
-	
+
 	bool UnbanIp(const std::string &ip)
 	{
 		auto banList = Server::LoadDefaultBanList();
@@ -646,7 +646,7 @@ namespace
 	{
 		return DoKickPlayerCommand(KickType::Ban, Arguments, returnInfo);
 	}
-	
+
 	bool CommandServerKickPlayerUid(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		return DoKickUidCommand(KickType::Kick, Arguments, returnInfo);
@@ -787,6 +787,9 @@ namespace
 			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 			writer.Key("color");
 			writer.String(color.str().c_str());
+
+			writer.Key("isHost");
+			writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
 			writer.EndObject();
 
 			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
@@ -857,7 +860,7 @@ namespace
 			}
 			return true;
 		}
-		
+
 		// Otherwise, send to the host
 		if (!session->IsEstablished())
 		{
@@ -1051,7 +1054,7 @@ namespace
 
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		
+
 		writer.StartObject();
 		writer.Key("server");
 		std::string ip = "";
@@ -1064,7 +1067,7 @@ namespace
 		writer.Key("password");
 		writer.String(Server::Signaling::GetPassword().c_str());
 		writer.EndObject();
-		
+
 		returnInfo = buffer.GetString();
 		return true;
 	}
@@ -1203,7 +1206,7 @@ namespace Modules
 		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
 		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;
 		VarChatCommandKickPlayerEnabled->ValueIntMax = 1;
-		
+
 		VarChatCommandShuffleTeamsEnabled = AddVariableInt("ChatCommandShuffleTeamsEnabled", "chat_command_shuffle_teams_enabled", "Controls whether or not players can vote to shuffle the teams. ", eCommandFlagsArchived, 1);
 		VarChatCommandShuffleTeamsEnabled->ValueIntMin = 0;
 		VarChatCommandShuffleTeamsEnabled->ValueIntMax = 1;
@@ -1215,7 +1218,7 @@ namespace Modules
 		VarSendChatToRconClients = AddVariableInt("SendChatToRconClients", "send_chat_to_rcon", "Controls whether or not chat should be sent through rcon", eCommandFlagsArchived, 0);
 		VarSendChatToRconClients->ValueIntMin = 0;
 		VarSendChatToRconClients->ValueIntMax = 1;
-		
+
 		VarServerVotePassPercentage = AddVariableInt("VotePassPercentage", "vote_pass_percentage", "Percentage of players required to vote yes for a chat command vote to pass ", eCommandFlagsArchived, 50);
 		VarServerVotePassPercentage->ValueIntMin = 0;
 		VarServerVotePassPercentage->ValueIntMax = 100;
@@ -1248,7 +1251,7 @@ namespace Modules
 		VarSignalServerPort->ValueIntMin = 0;
 		VarSignalServerPort->ValueIntMax = 65535;
 
-		//Veto System Commands 
+		//Veto System Commands
 		VarVetoSystemEnabled = AddVariableInt("VetoSystemEnabled", "veto_enabled", "Controls whether the veto system is enabled on this server. ", eCommandFlagsArchived, 0);
 		VarVetoSystemEnabled->ValueIntMin = 0;
 		VarVetoSystemEnabled->ValueIntMax = 1;
