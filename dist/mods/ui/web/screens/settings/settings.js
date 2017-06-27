@@ -8,8 +8,6 @@ var changeArray = [];
 var commandValues = [];
 var vetoEnabled;
 var unlimitedSprint;
-var playQueue = [];
-var isPlaying = false;
 
 var h3ColorArray = ['#626262','#B0B0B0','#DEDEDE','#9B3332','#DB6766','#EE807F','#DB8B00','#F8AE58','#FECB9C','#CCAE2C','#F3BC2B','#FDD879','#57741A','#90A560','#D8EFA7','#31787E','#4ABBC1','#91EDEC','#325992','#5588DB','#97B5F5','#553E8F','#9175E3','#C4B4FD','#830147','#D23C83','#FC8BB9','#513714 ','#AC8A6E','#E0BEA2'];
 var settingsToLoad = [
@@ -537,7 +535,7 @@ function setControlValues(){
 }
 
 function adjustBiped(){
-    console.log(getAspectRatio());
+    //console.log(getAspectRatio());
     if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
         dew.command('Player.Armor.SetUiModelPosition 0.048312 -13.6018 25.5232');
     }else{
@@ -906,7 +904,7 @@ function updateSelection(item){
     $('.selectedElement').removeClass('selectedElement');
     $(activePage + ' label:visible').eq(item).addClass('selectedElement');
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
-    play('dew://assets/move.wav');
+    dew.command('Game.PlaySound 0xAFE');
 }
 
 function prevPage(){
@@ -979,13 +977,13 @@ function buttonAction(i){
             nextPage();
             break;
         case 8: // Back
-            cancelButton();
+
             break;
         case 9: // Start
             applyButton();
             break;
         default:
-            console.log("nothing associated with " + i);
+            //console.log("nothing associated with " + i);
     }  
 }
 
@@ -1044,7 +1042,7 @@ function leftToggle(){
     }
     if(document.getElementById(selectedItem).computedRole == "combobox" || document.getElementById(selectedItem).computedRole == "slider" || $('#'+selectedItem).hasClass('color')){
         $('#'+selectedItem).trigger('change');
-        play('dew://assets/toggle.wav');  
+        dew.command('Game.PlaySound 0x0B00');  
     }
 }
 
@@ -1073,7 +1071,7 @@ function rightToggle(){
     }
     if(document.getElementById(selectedItem).computedRole == "combobox" || document.getElementById(selectedItem).computedRole == "slider" || $('#'+selectedItem).hasClass('color')){
         $('#'+selectedItem).trigger('change');
-        play('dew://assets/toggle.wav');  
+        dew.command('Game.PlaySound 0x0B00');  
     }
 }
 
@@ -1095,25 +1093,8 @@ function toggleSetting(){
             document.getElementById(selectedItem).checked = true;
         }
         $('#'+selectedItem).trigger('change');
-        play('dew://assets/toggle.wav');  
+        dew.command('Game.PlaySound 0x0B00');  
     }       
-}
-
-function play(audio){
-    var sfxVol = $('#sSFXVolume').val()/100;
-    var mstrVol = $('#sMasterVolume').val()/100;
-    var playVol = sfxVol * mstrVol * 0.3;
-    isPlaying = true;
-    var audioElement = new Audio(audio);
-    audioElement.play();
-    audioElement.volume = playVol;
-    audioElement.onended = function(){
-        isPlaying = false;
-        playQueue.splice(0, 1);
-        if(playQueue.length > 0){
-            play(playQueue[0]);	
-        }
-    }
 }
 
 function updateSensitivity(value){
