@@ -76,6 +76,15 @@ html {
     margin-right:0.5vw;
 }
 
+.speaker{
+    position: absolute;
+    opacity: 0;
+}
+
+.speaker:hover{
+    opacity: 1;
+}
+
 #closeButton{
     position: absolute;
     background-color: rgba(255, 255, 255, 0.25);
