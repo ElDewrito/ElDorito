@@ -110,12 +110,14 @@ namespace ChatCommands
 			returnInfo = "Invalid Index";
 			return false;
 		}
-		if (indexToKick == 0 && !ElDorito::Instance().IsDedicated())
+
+		auto* session = Blam::Network::GetActiveSession();
+		if (indexToKick == session->MembershipInfo.HostPeerIndex && !ElDorito::Instance().IsDedicated())
 		{
 			returnInfo = "You cannot kick the host";
 			return false;
 		}
-		auto* session = Blam::Network::GetActiveSession();
+
 		auto player = &session->MembershipInfo.PlayerSessions[indexToKick];
 		std::string kickPlayerName = Utils::String::ThinString(player->Properties.DisplayName);
 
@@ -182,8 +184,8 @@ namespace ChatCommands
 			returnInfo = "You cannot kick the host";
 			return false;
 		}
-		
-		 
+
+
 		playerName = s;
 		return true;
 	}
@@ -235,7 +237,7 @@ namespace ChatCommands
 			Server::Chat::SendServerMessage(returnInfo, sender);
 			return;
 		}
-		
+
 		//GET UID
 		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
 		uint64_t uid = membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.Uid;
@@ -257,7 +259,7 @@ namespace ChatCommands
 		}
 	}
 
-	
+
 	void AbstractChatCommand::processVote(uint8_t sender, std::string message)
 	{
 		if (!isEnabled())
@@ -266,7 +268,7 @@ namespace ChatCommands
 		std::transform(message.begin(), message.end(), message.begin(), ::tolower);
 		if (message == "yes")
 		{
-			
+
 			auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
 			uint64_t uid = membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.Uid;
 
