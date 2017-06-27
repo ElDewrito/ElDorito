@@ -40,7 +40,7 @@ body {
     letter-spacing: 0.02vw;
     word-wrap: break-word;
     overflow-y:auto;
-    max-height:92.3%;
+    max-height:65%;
 }
 
 .inGame #chatWindow{
