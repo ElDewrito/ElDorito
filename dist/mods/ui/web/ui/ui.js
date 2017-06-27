@@ -259,6 +259,18 @@
         });
     }
 
+    ui.sendControllerInput = function (input) {
+        var topmostScreen;
+        $.each(screens, function (id, screen) {
+            if (screen.state === ScreenState.VISIBLE && screen.captureInput)
+                if (!topmostScreen || screen.zIndex > topmostScreen.zIndex)
+                    topmostScreen = screen;
+        });
+
+        if(topmostScreen)
+            notifyScreen(topmostScreen, "controllerinput", input);
+    }
+
     // Register the message handler.
     window.addEventListener("message", function (event) {
         // Get the screen that sent the event

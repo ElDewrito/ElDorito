@@ -9,6 +9,8 @@
 #include "../../ElDorito.hpp"
 #include <Windows.h>
 #include <shellapi.h>
+#include "../../ThirdParty/rapidjson/stringbuffer.h"
+#include "../../ThirdParty/rapidjson/writer.h"
 
 using namespace Blam::Input;
 using namespace Anvil::Client::Rendering;
@@ -23,6 +25,7 @@ namespace
 
 	void ShutdownRenderer();
 	void OnGameInputUpdated();
+	void OnUIInputUpdated();
 
 	class WebOverlayInputContext : public Patches::Input::InputContext
 	{
@@ -42,6 +45,10 @@ namespace
 		{
 			if (!WebRenderer::GetInstance()->IsRendering())
 				InputCaptured = false;
+
+			if(InputCaptured)
+				OnUIInputUpdated();
+
 			return InputCaptured;
 		}
 	};
@@ -435,5 +442,50 @@ namespace
 		// If F7 is pressed, open the remote debugger in Chrome
 		if (GetKeyTicks(eKeyCodeF7, eInputTypeUi) == 1)
 			ShellExecute(nullptr, nullptr, "chrome.exe", "http://localhost:8884/", nullptr, SW_SHOWNORMAL);
+	}
+
+
+	void OnUIInputUpdated()
+	{
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartObject();
+		writer.Key("LeftTrigger");
+		writer.Int(GetActionState(eGameActionUiLeftTrigger)->Ticks);
+		writer.Key("RightTrigger");
+		writer.Int(GetActionState(eGameActionUiRightTrigger)->Ticks);
+		writer.Key("Up");
+		writer.Int(GetActionState(eGameActionUiUp)->Ticks);
+		writer.Key("Down");
+		writer.Int(GetActionState(eGameActionUiDown)->Ticks);
+		writer.Key("Left");
+		writer.Int(GetActionState(eGameActionUiLeft)->Ticks);
+		writer.Key("Right");
+		writer.Int(GetActionState(eGameActionUiRight)->Ticks);
+		writer.Key("Start");
+		writer.Int(GetActionState(eGameActionUiStart)->Ticks);
+		writer.Key("Select");
+		writer.Int(GetActionState(eGameActionUiSelect)->Ticks);
+		writer.Key("LeftStick");
+		writer.Int(GetActionState(eGameActionUiLeftStick)->Ticks);
+		writer.Key("RightStick");
+		writer.Int(GetActionState(eGameActionUiRightStick)->Ticks);
+		writer.Key("A");
+		writer.Int(GetActionState(eGameActionUiA)->Ticks);
+		writer.Key("B");
+		writer.Int(GetActionState(eGameActionUiB)->Ticks);
+		writer.Key("X");
+		writer.Int(GetActionState(eGameActionUiX)->Ticks);
+		writer.Key("Y");
+		writer.Int(GetActionState(eGameActionUiY)->Ticks);
+		writer.Key("LeftBumper");
+		writer.Int(GetActionState(eGameActionUiLeftBumper)->Ticks);
+		writer.Key("RightBumper");
+		writer.Int(GetActionState(eGameActionUiRightBumper)->Ticks);
+		writer.EndObject();
+
+		auto js = "if (window.ui) ui.sendControllerInput(" + std::string(buffer.GetString()) + ");";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
 	}
 }
