@@ -96,6 +96,8 @@ div[id^='page']:target{
     font-weight:500;
     z-index:3;
     height:5vh;
+    font-size:3.5vh;
+    line-height:5vh;
 }
 
 .subHeader{
