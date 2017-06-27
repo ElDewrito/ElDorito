@@ -87,6 +87,8 @@ namespace Patches
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
+
+			Patch(0x695008, { 0x80, 0x3D, 0xEB, 0xDB, 0x38, 0x02, 0x00 }).Apply(); // Disable H3UI on UI input locks
 		}
 
 		bool QueueGameAction(int index)
@@ -409,25 +411,21 @@ namespace
 			handler();
 	}
 
-	char GetControllerStateHook(int dwUserIndex, int a2, void *a3)
+	char GetControllerStateHook(int dwUserIndex, int a2, void *controllerState)
 	{
-		typedef char(*GetControllerStatePtr)(int dwUserIndex, int a2, void *a3);
+		typedef char(*GetControllerStatePtr)(int dwUserIndex, int a2, void *controllerState);
 		auto GetControllerState = reinterpret_cast<GetControllerStatePtr>(0x65EF60);
-		auto val = GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+		auto val = GetControllerState(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, controllerState);
 
 		//Invert right joystick
 		if (Modules::ModuleInput::Instance().VarControllerInvertY->ValueInt)
 		{
-			auto rY = Pointer(a3)(0x3A).Read<short>();
+			auto rY = Pointer(controllerState)(0x3A).Read<short>();
 			//Prevent an overflow
 			if (rY == -32768)
 				rY++;
-			Pointer(a3)(0x3A).Write<short>(rY * -1);
+			Pointer(controllerState)(0x3A).Write<short>(rY * -1);
 		}
-
-		// Clear the controller state
-		if(!contextStack.empty())
-			memset(a3, 0, 0x3Cu);
 
 		return val;
 	}
