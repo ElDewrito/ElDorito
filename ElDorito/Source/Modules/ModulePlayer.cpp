@@ -131,7 +131,7 @@ namespace Modules
             "Yodler", "Geronimo", "Darkman", "Snoozy", "Shaggy", "Banana", "Shiz", "Giant", "Slinky", "Pretzel",
             "Brutus", "Pinky", "Milo", "Monkey", "Bozo", "Grunty", "Bower", "Floss", "Nappy", "Gerbil",
             "Goose", "Scruffy", "Soap", "Polo", "Muffin", "Beast", "Clubby", "Surly", "Balin", "Poodle",
-            "Snaz", "Jungle Jim", "Spork", "Grub", "Snook", "Spleen", "Goose", "Pumpkin", "Monkey", "Custard",
+            "Snaz", "Jungle Jim", "Spork", "Grub", "Snook", "Spleen", "Pumpkin", "Custard",
             "Cracky", "Pickle", "Slim", "Lucky", "Pudding"
 		};
 
