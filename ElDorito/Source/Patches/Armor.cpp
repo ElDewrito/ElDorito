@@ -357,9 +357,10 @@ namespace
 		static auto UI_Globals = *(void**)0x05260F34;
 		static auto UI_ExecuteScenarioScript = (signed int(__thiscall*)(void* thisptr, int scriptIndex))(0xAACE40);
 		static auto Object_SetTransform = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up, int a5))(0x00B33530);
+		static auto GetCharPlatformBiped = (int(*)(int playerRepresentationIndex))(0x00BB5BD0);
 
 		// Try to get the UI player biped
-		uint32_t uiPlayerBiped = Pointer::Base(0x4BE67A0).Read<uint32_t>();
+		uint32_t uiPlayerBiped = GetCharPlatformBiped(2);
 		if (uiPlayerBiped == 0xFFFFFFFF)
 			return;
 

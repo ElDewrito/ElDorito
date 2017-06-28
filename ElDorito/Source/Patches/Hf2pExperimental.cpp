@@ -30,8 +30,6 @@ namespace Patches
 	void Hf2pExperimental::ApplyAll()
 	{
 		Hook(0x200630, Hf2pInitHook).Apply();
-		// need to look into this one further, disable for now
-		Patch::NopFill(Pointer::Base(0x234E5F), 5);
 		// we no longer have sound_config.ps
 		Patch(0x04858, { 0x90, 0x90 }).Apply();
 		// skip over vfiles_plugin load
@@ -60,14 +58,8 @@ namespace
 
 	void Hf2pInitHook()
 	{
-		// need to look into these further
-		((void(*)())(0xDE4F10))();
-		//((void(*)())(0xE806B0))();
-		((void(*)())(0x634DD0))();
-
 		*(uint32_t*)0x50CCB3C = 0;
 		*(uint32_t*)0x244ED28 = 0;
-
 		// InitSoundSystem
 		((void(*)())(0x64E190))();
 	}
@@ -161,11 +153,18 @@ namespace
 			}
 		}
 
-		// armour customizations on mainmenu
-		Patches::Armor::UpdateUiPlayerModelArmor();
+		static auto IsMainMenu = (bool(*)())(0x00531E90);
 
-		// pause menu
-		SystemMenu();
+		if (IsMainMenu())
+		{
+			// armour customizations on mainmenu
+			Patches::Armor::UpdateUiPlayerModelArmor();
+		}
+		else
+		{
+			// pause menu
+			SystemMenu();
+		}
 	}
 
 
