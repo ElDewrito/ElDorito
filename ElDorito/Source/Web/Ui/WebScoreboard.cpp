@@ -163,6 +163,8 @@ namespace Web
 					Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
 					writer.Key("UID");
 					writer.String(uidStr.c_str());
+					writer.Key("isHost");
+					writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
 					uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
 					writer.Key("isAlive");
 					writer.Bool(alive == 1);

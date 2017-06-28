@@ -6,6 +6,7 @@ capturedInput = false;
 var imageFormat = 'svg';
 var itemNumber = 0;
 var controllerType;
+var hasGP = false;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -210,6 +211,42 @@ $(window).load(function(){
             }
         }
     });
+    dew.on('controllerinput', function(e){       
+        if(hasGP){
+            if(e.data.A == 1){
+                if(!$('#playerBreakdown').is(":visible")){
+                    $('.clickable').eq(itemNumber).click();
+                }
+            }
+            if(e.data.B == 1){
+                if($('#playerBreakdown').is(":visible")){
+                    $('#playerBreakdown').hide();
+                } else {
+                   dew.hide(); 
+                }
+            }
+            if(e.data.Up == 1){
+                upNav();
+            }
+            if(e.data.Down == 1){
+                downNav();
+            }
+            if(e.data.LeftBumper == 1){
+                if($('#playerBreakdown').is(":visible")){
+                    $('#previousPlayer').click();
+                }
+            }
+            if(e.data.RightBumper == 1){
+                if($('#playerBreakdown').is(":visible")){
+                    $('#nextPlayer').click();
+                }
+            }
+            if(e.data.Start == 1){
+                $('#playerBreakdown').hide();
+                dew.hide();
+            }
+        }
+    });
 });
 
 dew.on("scoreboard", function(e){
@@ -252,6 +289,15 @@ dew.on("show", function(e){
                 }
             }            
         });
+    });
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
     });
 });
 
@@ -298,6 +344,7 @@ function displayScoreboard(expandedScoreboard){
 }
 
 function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard){
+    var emblemPath;
     var where = '#singlePlayers';
     if(lobby.length > 0){
         $('#singlePlayers').empty();
@@ -334,10 +381,15 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 .append($('<td class="rank">'))
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
-            var emblemPath = 'dew://assets/emblems/ed.png';
             if(lobby[i].isAlive){
-                if(playersInfo[lobby[i].playerIndex]){
-                    emblemPath = playersInfo[lobby[i].playerIndex].e;
+                if(lobby[i].isHost){
+                    emblemPath = 'dew://assets/emblems/crown.png';
+                }else{
+                    if(playersInfo[lobby[i].playerIndex]){
+                        emblemPath = playersInfo[lobby[i].playerIndex].e;
+                    }else{
+                        emblemPath = 'dew://assets/emblems/generic.png'; 
+                    }                
                 }
             } else {
                 emblemPath = 'dew://assets/emblems/dead.png';   
@@ -649,59 +701,6 @@ function onControllerDisconnect(){
             $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
         }
     }    
-}
-
-function buttonAction(i){
-    switch (i) {
-        case 0: // A
-            if(!$('#playerBreakdown').is(":visible")){
-                $('.clickable').eq(itemNumber).click();
-            }
-            break;
-        case 1: // B
-            if($('#playerBreakdown').is(":visible")){
-                $('#playerBreakdown').hide();
-            } else {
-               dew.hide(); 
-            }
-            break;
-        case 4: // LB
-            if($('#playerBreakdown').is(":visible")){
-                $('#previousPlayer').click();
-            }
-            break;
-        case 5: // RB
-            if($('#playerBreakdown').is(":visible")){
-                $('#nextPlayer').click();
-            }
-            break;
-        case 9: // Start    
-            $('#playerBreakdown').hide();
-            dew.hide();
-            break;
-        case 12: // Up
-            upNav();
-            break;
-        case 13: // Down
-            downNav();
-            break;
-        default:
-            //console.log("nothing associated with " + i);
-    }  
-}
-
-function stickAction(direction, x){
-    if(x<2){//left stick
-        if(x==0 && direction=="+"){//LS Right
-
-        }else if(x==0 && direction=="-"){//LS Left
-
-        }else if(x==1 && direction=="+"){//LS Down
-            downNav();
-        }else if(x==1 && direction=="-"){//LS Up
-            upNav();
-        }
-    }
 }
 
 function updateSelection(item){
