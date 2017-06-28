@@ -437,49 +437,51 @@ $(document).ready(function(){
             }
         });       
     });
-    dew.on('controllerinput', function(e){       
-        if(e.data.A == 1){
-            if($('#'+selectedItem).prev()[0].computedRole == 'button'){
-                $('#'+selectedItem).prev().click();
-            }else{
-                toggleSetting();
+    dew.on('controllerinput', function(e){    
+        if(hasGP){    
+            if(e.data.A == 1){
+                if($('#'+selectedItem).prev()[0].computedRole == 'button'){
+                    $('#'+selectedItem).prev().click();
+                }else{
+                    toggleSetting();
+                }
             }
-        }
-        if(e.data.B == 1){
-            cancelButton();
-        }
-        if(e.data.X == 1){
-            if(activePage=='#page7'){
-                randomArmor();
-            }else if(selectedItem=='presetMenu'){
-                location.href='#page9';
+            if(e.data.B == 1){
+                cancelButton();
             }
-        }
-        if(e.data.Y == 1){
-            if(activePage=='#page7'){
-                randomColors();
+            if(e.data.X == 1){
+                if(activePage=='#page7'){
+                    randomArmor();
+                }else if(selectedItem=='presetMenu'){
+                    location.href='#page9';
+                }
             }
-        }
-        if(e.data.Up == 1){
-            upNav();
-        }
-        if(e.data.Down == 1){
-            downNav();
-        }
-        if(e.data.Left == 1){
-            leftToggle();
-        }
-        if(e.data.Right == 1){
-            rightToggle();
-        }
-        if(e.data.LeftBumper == 1){
-            prevPage();
-        }
-        if(e.data.RightBumper == 1){
-            nextPage();
-        }
-        if(e.data.Start == 1){
-            applyButton();
+            if(e.data.Y == 1){
+                if(activePage=='#page7'){
+                    randomColors();
+                }
+            }
+            if(e.data.Up == 1){
+                upNav();
+            }
+            if(e.data.Down == 1){
+                downNav();
+            }
+            if(e.data.Left == 1){
+                leftToggle();
+            }
+            if(e.data.Right == 1){
+                rightToggle();
+            }
+            if(e.data.LeftBumper == 1){
+                prevPage();
+            }
+            if(e.data.RightBumper == 1){
+                nextPage();
+            }
+            if(e.data.Start == 1){
+                applyButton();
+            }
         }
     });
 });
