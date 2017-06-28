@@ -8,6 +8,7 @@ var changeArray = [];
 var commandValues = [];
 var vetoEnabled;
 var unlimitedSprint;
+var hasGP = false;
 
 var h3ColorArray = ['#626262','#B0B0B0','#DEDEDE','#9B3332','#DB6766','#EE807F','#DB8B00','#F8AE58','#FECB9C','#CCAE2C','#F3BC2B','#FDD879','#57741A','#90A560','#D8EFA7','#31787E','#4ABBC1','#91EDEC','#325992','#5588DB','#97B5F5','#553E8F','#9175E3','#C4B4FD','#830147','#D23C83','#FC8BB9','#513714 ','#AC8A6E','#E0BEA2'];
 var settingsToLoad = [
@@ -436,6 +437,51 @@ $(document).ready(function(){
             }
         });       
     });
+    dew.on('controllerinput', function(e){       
+        if(e.data.A == 1){
+            if($('#'+selectedItem).prev()[0].computedRole == 'button'){
+                $('#'+selectedItem).prev().click();
+            }else{
+                toggleSetting();
+            }
+        }
+        if(e.data.B == 1){
+            cancelButton();
+        }
+        if(e.data.X == 1){
+            if(activePage=='#page7'){
+                randomArmor();
+            }else if(selectedItem=='presetMenu'){
+                location.href='#page9';
+            }
+        }
+        if(e.data.Y == 1){
+            if(activePage=='#page7'){
+                randomColors();
+            }
+        }
+        if(e.data.Up == 1){
+            upNav();
+        }
+        if(e.data.Down == 1){
+            downNav();
+        }
+        if(e.data.Left == 1){
+            leftToggle();
+        }
+        if(e.data.Right == 1){
+            rightToggle();
+        }
+        if(e.data.LeftBumper == 1){
+            prevPage();
+        }
+        if(e.data.RightBumper == 1){
+            nextPage();
+        }
+        if(e.data.Start == 1){
+            applyButton();
+        }
+    });
 });
 
 function setButtons(){
@@ -468,6 +514,15 @@ dew.on('show', function(e){
     });
     setControlValues();
     adjustBiped();
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
+    });
 });
 
 dew.on('hide', function(e){
@@ -480,9 +535,6 @@ function initActive(){
     $('.tabs li:visible').eq(0).addClass('selected');
     window.location.replace($('.tabs li:visible').eq(0).find('a')[0].hash);
     activePage = window.location.hash;
-    if(hasGP){
-        updateSelection(itemNumber);
-    }
 }
 
 function setControlValues(){
@@ -932,59 +984,6 @@ function downNav(){
         itemNumber++;
         updateSelection(itemNumber);
     }           
-}
-
-function buttonAction(i){
-    switch (i) {
-        case 0: // A
-            if($('#'+selectedItem).prev()[0].computedRole == 'button'){
-                $('#'+selectedItem).prev().click();
-            }else{
-                toggleSetting();
-            }
-            break;
-        case 1: // B
-            cancelButton();
-            break;
-        case 2: // X
-            if(activePage=='#page7'){
-                randomArmor();
-            }else if(selectedItem=='presetMenu'){
-                location.href='#page9';
-            }
-            break;
-        case 3: // Y
-            if(activePage=='#page7'){
-                randomColors();
-            }
-            break;
-        case 12: // Up
-            upNav();
-            break;
-        case 13: // Down
-            downNav();
-            break;
-        case 14: // Left
-            leftToggle();
-            break;
-        case 15: // Right
-            rightToggle();
-            break;
-        case 4: // LB
-            prevPage();
-            break;
-        case 5: // RB
-            nextPage();
-            break;
-        case 8: // Back
-
-            break;
-        case 9: // Start
-            applyButton();
-            break;
-        default:
-            //console.log("nothing associated with " + i);
-    }  
 }
 
 function onControllerConnect(){
