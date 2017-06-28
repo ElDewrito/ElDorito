@@ -101,6 +101,8 @@ namespace
 		static auto InPrematchState = (bool(*)(char state))(0x005523A0);
 		static auto UpdatePreMatchCamera = (bool(*)())(0x72D580);
 		static auto InitMpDirector = (void(*)())(0x0072D560);
+		static auto IsMapLoading = (bool(*)())(0x005670E0);
+		static auto IsMainMenu = (bool(*)())(0x00531E90);
 		static auto s_MatchStarted = false;
 		static auto s_TimerStarted = false;
 		static auto s_TimerLastTicked = 0;
@@ -151,19 +153,27 @@ namespace
 					Web::Ui::WebTimer::End();
 				}
 			}
+
+			// TODO: find a better game ended indication
+			if (IsMapLoading())
+			{
+				s_TimerStarted = false;
+				Web::Ui::WebTimer::End();
+			}
 		}
 
-		static auto IsMainMenu = (bool(*)())(0x00531E90);
-
-		if (IsMainMenu())
+		if (!IsMapLoading())
 		{
-			// armour customizations on mainmenu
-			Patches::Armor::UpdateUiPlayerModelArmor();
-		}
-		else
-		{
-			// pause menu
-			SystemMenu();
+			if (IsMainMenu())
+			{
+				// armour customizations on mainmenu
+				Patches::Armor::UpdateUiPlayerModelArmor();
+			}
+			else
+			{
+				// pause menu
+				SystemMenu();
+			}
 		}
 	}
 
