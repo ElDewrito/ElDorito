@@ -720,6 +720,7 @@ namespace
 	{
 		auto properties = &thisPtr->PlayerSessions[playerIndex].Properties;
 		bool isNewMember = false;
+		auto session = Blam::Network::GetActiveSession();
 
 		// If the player already has a name and isn't host, then use that instead of the one in the packet
 		// This prevents people from changing their name mid-game by forcing a player properties update
@@ -733,6 +734,22 @@ namespace
 			Server::Voting::PlayerJoinedVoteInProgress(playerIndex);
 			isNewMember = true;
 		}
+		
+		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
+		if (session->HasTeams() && playerIndex != session->MembershipInfo.HostPeerIndex && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
+		{
+			int teamSizes[8] = { 0 };
+			int playerIdx = session->MembershipInfo.FindFirstPlayer();
+			while (playerIdx > -1)
+			{
+				teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+			}
+			if (teamSizes[packetProperties->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+			{
+				packetProperties->TeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
+			}
+		}
 
 		// Apply the base properties
 		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
@@ -742,7 +759,6 @@ namespace
 		if (isNewMember)
 		{
 			//team balancing
-			auto session = Blam::Network::GetActiveSession();
 			auto prop = &session->MembershipInfo.PlayerSessions[playerIndex].Properties;
 			if (session->HasTeams())
 			{
