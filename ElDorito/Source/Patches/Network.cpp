@@ -736,7 +736,7 @@ namespace
 		}
 		
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
-		if (session->HasTeams() && playerIndex != session->MembershipInfo.HostPeerIndex && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
+		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{
 			int teamSizes[8] = { 0 };
 			int playerIdx = session->MembershipInfo.FindFirstPlayer();
