@@ -18,6 +18,7 @@ var teamArray = [
 ];
 var playerName;
 var hideChat;
+var hasGP = false;
 
 $(window).load(function(){
     dew.command('Player.Name').then(function(res) {
@@ -105,6 +106,13 @@ $(window).load(function(){
                 });
             }
         });
+        dew.command('Settings.Gamepad', {}).then(function(result){
+            if(result == 1){
+                hasGP = true;
+            }else{
+                hasGP = false;
+            }
+        });
     });
 
     dew.on("chat", function(e){
@@ -171,15 +179,14 @@ function aWrap(link) {
     return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
 };
 
-function buttonAction(i){
-    switch (i) {
-        case 1: // B  
-            chatboxHide();
-            break;
-        default:
-            //console.log("nothing associated with " + i);
-    }  
-}
+
+dew.on('controllerinput', function(e){       
+    if(hasGP){
+        if(e.data.B == 1){
+            chatboxHide();  
+        }
+    }
+});
 
 function adjustColor(color, amount){
     var colorhex = (color.split("#")[1]).match(/.{2}/g);

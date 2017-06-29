@@ -1,4 +1,4 @@
-var controllerType;
+var hasGP = false;
 
 $("html").on("keydown", function(e) {
     if (e.which == 13){
@@ -15,11 +15,19 @@ dew.on("show", function(e){
     //        $("#initialInstructions").show();         
     //    };
     //});
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
+    });
 });
 
 function onControllerConnect(){
-    dew.command('Game.IconSet', {}).then(function(response){
-        controllerType = response;
+    dew.command('Game.IconSet', {}).then(function(controllerType){
         $('#dpad').attr('src','dew://assets/buttons/'+controllerType+'_Dpad.png');
         $("#dpad").show();
         $( "#up, #down, #left, #right" ).hide();
@@ -37,15 +45,13 @@ function onControllerDisconnect(){
     $("#enter").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
 }
 
-function buttonAction(i){
-    switch (i) {
-        case 9: // Start
-            hideScreen();
-            break;
-        default:
-            // console.log("nothing associated with " + i);
-    }  
-}
+dew.on('controllerinput', function(e){       
+    if(hasGP){
+        if(e.data.Start == 1){
+            hideScreen();   
+        }
+    }
+});
 
 function hideScreen(){
     $( "body" ).fadeOut( 500, function() {
