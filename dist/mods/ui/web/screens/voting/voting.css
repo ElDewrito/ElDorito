@@ -14,7 +14,9 @@ body{
     top:50%;
     left:50%;
     transform: translate(-50%,-50%);
-    margin-top:-3.15vw;
+    margin-top:-2.5vw;
+	height:58vw;
+
 }
 .container {
     position:relative;
@@ -101,7 +103,6 @@ a.boxclose img.button{
 .revoteOption
 {
 	padding:2%;	
-	border-bottom: 0;
 	
 }
 .selected
@@ -127,4 +128,26 @@ img
 h1 {
 	margin: 0;
 	padding: 0;
+}
+.playerStats{
+	position:absolute;
+	bottom:0vh;
+	right:2vh;
+	color:white;
+	font-size:2.5vh;
+	width:25vh;
+    text-align:center;
+}
+
+.playerStats .button{
+	position:absolute;
+	top:-0.6vw;
+}
+
+.playerStats .button:first-of-type{
+	left:0;
+}
+
+.playerStats .button:last-of-type{
+	right:0;
 }

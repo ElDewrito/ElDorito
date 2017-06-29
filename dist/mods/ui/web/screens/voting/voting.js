@@ -1,6 +1,10 @@
-var buttons = ["A","B","X","Y"];
+var buttons = ["A","B","X","Y","Back"];
 var votingType = "voting";
 var controllerType;
+var hasGP = false;
+var interval = 0;
+var seconds_left;
+var isHost;
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -16,17 +20,26 @@ $("html").on("keydown", function(e) {
     }
 });
 
-var interval = 0;
-var seconds_left;
-var isHost;
-
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
+    if(hasGP){
+        $(".votingOption").removeClass("selected");
+        $('.votingOption').eq(number-1).addClass("selected");
+    }
 }
 
 dew.on("show", function(event) {
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
+    });
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
     });
 });
 
@@ -199,30 +212,37 @@ function onControllerConnect(){
         }else if(votingType == 'veto'){
             $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_X.png'>");
         }
-        $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Back.png'>");  
+        $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Start.png'>");  
+        $('.playerStats img').eq(0).attr('src','dew://assets/buttons/' + controllerType + '_LB.png');
+        $('.playerStats img').eq(1).attr('src','dew://assets/buttons/' + controllerType + '_RB.png');
     });    
 }
 
-function buttonAction(i){
-    switch (i) {
-        case 0: // A
-        case 1: // B
-        case 2: // X
+dew.on('controllerinput', function(e){       
+    if(hasGP){
+        if(votingType != 'veto'){
+            if(e.data.A == 1){
+                vote(1);
+            }
+            if(e.data.B == 1){
+                vote(2);
+            }
+            if(e.data.Y == 1){
+                vote(4);
+            }
+            if(e.data.Select == 1){
+                vote(5);
+            }
+        }
+        if(e.data.X == 1){
             if(votingType == 'veto'){
                 vote(1);
-                $(".votingOption").removeClass("selected");
-                $('.votingOption').eq(0).addClass("selected");
-                break;
+            }else{
+                vote(3);
             }
-        case 3: // Y
-            vote(i+1);
-            $(".votingOption").removeClass("selected");
-            $('.votingOption').eq(i).addClass("selected");
-            break;
-        case 8: // Back
-            dew.hide();         
-            break;
-        default:
-            //console.log("nothing associated with " + i);
-    }  
-}
+        }
+        if(e.data.Start == 1){
+            dew.hide();   
+        }
+    }
+});
