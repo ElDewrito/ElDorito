@@ -297,6 +297,12 @@ $(document).ready(function(){
         queueChange(['Input.ControllerSensitivityY', 90]);
     });
     $('.instant').on('change', function(e){
+        if($(this).hasClass('color')){
+            if(!/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(e.target.value)){
+                $(this).val('#FFFFFF');
+                return;
+            }
+        }
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.id){
                 dew.command(result[1] + ' ' + e.target.value);
