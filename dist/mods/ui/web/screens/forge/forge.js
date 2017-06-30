@@ -48,12 +48,12 @@ $(document).ready(function() {
         $('#'+newID).trigger('change');
     });
     $('#savePrefab').on('click', function(){
-        dew.command('Forge.SavePrefab '+$('#fPrefabName').val());
+        dew.command('Forge.SavePrefab "'+$('#fPrefabName').val()+'"');
         document.getElementById('fPrefabName').value= '';
         updatePrefabs();
     });
     $('#spawnPrefab').on('click', function(){
-        dew.command('Forge.LoadPrefab '+$('#forgePrefabs').val());
+        dew.command('Forge.LoadPrefab "'+$('#forgePrefabs').val()+'"');
     });
     $('#clearCanvas').on('click', function(){
         dew.command('Forge.Canvas'); 
