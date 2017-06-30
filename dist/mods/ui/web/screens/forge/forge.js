@@ -1,8 +1,9 @@
-var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity']];
+var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity'],['fMonitorSpeed', 'Forge.RotationSensitivity']];
 
 var selectedItem;
 var itemNumber = 0;
 var tabIndex = 0;
+var hasGP = false;
 
 $(document).keyup(function (e) {
     if (e.keyCode === 27) {
@@ -33,21 +34,32 @@ $(document).ready(function() {
     if(hasGP){
         updateSelection(itemNumber);
     }    
+    dew.command('Forge.DumpPrefabs', {}).then(function(response){
+        var forgeSelect = document.getElementById('forgePrefabs');
+        var prefabList = JSON.parse(response);
+        for(i=0; i<prefabList.length; i++){
+            var opt = document.createElement('option');
+            opt.innerHTML = prefabList[i];
+            opt.value = prefabList[i];
+            forgeSelect.appendChild(opt);
+        }
+    });
 });
 
 function loadSettings(i) {
 	if (i != settingsToLoad.length) {
 		dew.command(settingsToLoad[i][1], {}).then(function(response) {
             response = parseFloat(response);
-            if ($("input[name='"+settingsToLoad[i][0]+"']").is(':checkbox')){
+            if ($("#"+settingsToLoad[i][0]).is(':checkbox')){
                 if (response == "1"){
-                    $("input[name='"+settingsToLoad[i][0]+"']").prop('checked', true);
+                    $("#"+settingsToLoad[i][0]).prop('checked', true);
                 }                
             }else{
-                $("input[name='"+settingsToLoad[i][0]+"']").val(response);
+                $("#"+settingsToLoad[i][0]).val(response);
             }
-            $("select[name='"+settingsToLoad[i][0]+"']").val(response);
-            $("textarea[name='"+settingsToLoad[i][0]+"']").val(response);
+            if($('#'+settingsToLoad[i][0]).hasClass('hasTiny')){
+                $('#'+settingsToLoad[i][0]+'Text').val(response);
+            }
 			i++;
 			loadSettings(i);
 		});
@@ -145,7 +157,11 @@ $.fn.getInputType = function () {
 
 function onControllerConnect(){
     updateSelection(itemNumber); 
-    $('button img').show();
+    dew.command('Game.IconSet', {}).then(function(controllerType){
+        $("#buttonBar img").eq(0).attr("src","dew://assets/buttons/"+controllerType+"_X.png");
+        $("#buttonBar img").eq(1).attr("src","dew://assets/buttons/"+controllerType+"_Y.png");
+        $('#buttonBar img').show();
+    });
 }
 
 function onControllerDisconnect(){
@@ -153,51 +169,46 @@ function onControllerDisconnect(){
     $('button img').hide();    
 }
 
-function buttonAction(i){
-    switch (i) {
-        case 1: // B
-            $('#playerBreakdown').hide();
-            dew.hide();
-            break;
-        case 2: // X
-            dew.command('Forge.Canvas');
-            break;
-        case 3: // Y
-            dew.command('Forge.DeleteAll');
-            break;
-        case 12: // Up
-            upNav();
-            break;
-        case 13: // Down
-            downNav();
-            break;
-        case 14: // Left
-            leftToggle();
-            break;
-        case 15: // Right
-            rightToggle();
-            break;
-        case 4: // LB
-            prevPage();
-            break;
-        case 5: // RB
-            nextPage();
-            break;
-        default:
-            //console.log("nothing associated with " + i);
-    }  
-}
+dew.on("show", function(e){
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
+    });
+});
 
-function stickAction(direction, x){
-    if(x<2){//left stick
-        if(x==0 && direction=="+"){//LS Right
-            rightToggle();
-        }else if(x==0 && direction=="-"){//LS Left
-            leftToggle();
-        }else if(x==1 && direction=="+"){//LS Down
+
+dew.on('controllerinput', function(e){       
+    if(hasGP){
+        if(e.data.A == 1){
+            if(selectedItem == 'forgePrefabs'){
+                $('#spawnPrefab').click();
+            }
+        }
+        if(e.data.B == 1){
+            dew.hide();  
+        }
+        if(e.data.X == 1){
+            dew.command('Forge.Canvas');  
+        }
+        if(e.data.Y == 1){
+            dew.command('Forge.DeleteAll');  
+        }
+        if(e.data.Up == 1){
+            upNav();  
+        }
+        if(e.data.Down == 1){
             downNav();
-        }else if(x==1 && direction=="-"){//LS Up
-            upNav();
+        }
+        if(e.data.Left == 1){
+            leftToggle()
+        }
+        if(e.data.Right == 1){
+            rightToggle(); 
         }
     }
-};
+});

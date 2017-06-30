@@ -29,68 +29,46 @@ html {
     margin-bottom: 0.75vw;
     padding: 4px;
     padding-left: 1vw;
-    border-bottom: 3px solid #404f70;
+    border-bottom: 2px solid #404f70;
     font-size: 2.5vh;
 }
-.setting {
-    float: right;
-    font-size: 1.947vh;
-    height: 2.655vh;
-    line-height: 2.655vh;
-    margin-right: 20px;
-    margin-bottom: 1vh;
-    margin-top: 0.354vh;
-    position: absolute;
-    right: 0;
-    width: 26.55vh;
-    font-family: "Conduit ITC", sans-serif;
-    border: 1px solid grey;
-    color: #474747;
-}
-.tinySetting {
-    width: 8vh; 
-    position: absolute;
-    right: 1vw;
-    margin-top: 0.354vh; 
-    height: 2.25vh;
-    line-height: 2.655vh;
-    font-size: 1.947vh;
-    font-weight: 700;
-    font-family: "Conduit ITC", sans-serif;
-    text-align: center;
-    border: 1px solid grey;
-    color: #474747;
-}
-input.setting {
-    padding-left: 5px;
-}
-input[type=range] {
-    -webkit-appearance: none;
-    position: absolute;
-    right: 10vh;
-    width: 18vh;
-    margin-right: 0.885vh;
-    margin-top: 1.45vh;
-    height: 0.4425vh;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  border: 1px solid grey;
-  height: 2.2125vh;
-  width: 2.2125vh;
-  border-radius: 1.77vh;
-  background: #efefef;
-}
-input[type=range]:focus, input[type=checkbox]:focus {
-  outline: none;
+
+input[type=range].setting {
+    margin-top:0.5vh;
 }
 
-br {
-  content: "";
-  margin: 0;
-  display: block;
-  line-height: 1.75vw;
+.subHeader{
+    font-size: 2.5vh;
+    margin:1vh 0;
+    text-transform: uppercase;
+    text-align: center;
 }
+
+.setting{
+
+    width: 25.5vh;
+
+    margin-top:0.5vh;
+    height:2.5vh;
+    margin-bottom:0vh;
+    float:right;
+}
+
+.hasTiny{
+    width:19.75vh;
+    float:right;
+}
+
+.tinySetting{
+
+    float:right;
+    width: 5.5vh;
+    height:1.9vh;
+    z-index:-2;
+    margin-top:0.5vh;
+    margin-bottom: -0.25vh;
+}
+
 
 button {
     color: white;
@@ -98,44 +76,49 @@ button {
     font-weight: bold;
     background-color: black;
     border: 1px solid white;
-    border-radius: 5px;
+
     text-align: center;
     line-height: 24px;
     height: 1.75vw;
     line-height: 1.5vw;
-
 }
+
+button.tinySetting{
+    margin-top: 0.5vh;
+    background-color:black;
+    color:white;
+    border:1px solid white;
+    width:6vh;
+    height:2.5vh;
+    line-height:2.1vh;
+    margin-left:0.25vh;
+    font-size:1.5vh;
+    padding:0;
+}
+
 button.close {
     color: white;
-    font-size: 10pt;
+    font-size: 1.75vh;
     font-weight: bold;
     background-color: black;
     border: 1px solid white;
     border-radius: 5px;
     text-align: center;
     line-height: 24px;
-    width: 1.75vw;
-    height: 1.75vw;
+    width: 3vh;
+    height: 3vh;
     line-height: 1.5vw;
     position: absolute;
-    right: 0.25vw;
-    top: 0.2vw;
+    right: 0.5vw;
+    top: 0.3vw;
 }
 button:hover{
     background-color: #B1572A;    
 }
 
-
 .selected{
-    background-color:#B1572A;
-    width:40vw;
-    z-index:-5;
-    position:relative;
-    margin-left:-2vw;
-    padding-left:2vw;
-    height:2.2vw;
-    padding-right:40vw;
-    margin-right:-40vw;
+    color:#B1572A;
+    font-weight:700;
 }
 
 button img{
@@ -147,8 +130,26 @@ button img{
     margin-right:-0.25vw;
 }
 
-center{
-    font-size: 2vh;
-    margin-top:0.25vw;
-    text-transform: uppercase;
+input[type=range] {
+  -webkit-appearance: none;
+  background:none;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  height: 1vh;
+  background: grey;
+  border: 1px solid #010101;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  border: 1px solid #000000;
+  height: 2.5vh;
+  width: 1vh;
+  background: #ffffff;
+  -webkit-appearance: none;
+  margin-top:-0.8vh;
 }
