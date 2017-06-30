@@ -1,11 +1,11 @@
-var showDelay = 0, 
+var showDelay = 1, 
     hideDelay = 1,
     initialValue = 0,
     lastTimerBeeped = -1;
 
 dew.on('timerStart', function(e) {
     initialValue = e.data.value;
-    showDelay = e.data.type == 'startTimer' ? 3 : 0;
+    showDelay = e.data.type == 'startTimer' ? 4 : 1;
     counterOffset = e.data.type == 'startTimer' ? 2 : 0;
 });
 
@@ -23,8 +23,8 @@ dew.on('timerUpdate', function(e) {
             dew.command('Game.PlaySound 0x0305');
         }
     }
-
-    $('.counter').text(e.data.value);
+    
+    $('.counter').text(e.data.value+1);
 });
 
 dew.on('timerEnd', function(e) {
