@@ -12,11 +12,6 @@ $(document).keyup(function (e) {
     }
 });
 $(document).keydown(function (e) {
-    if(e.keyCode == 84 || e.keyCode == 89){
-        var teamChat = false;
-        if(e.keyCode == 89){ teamChat = true };
-        dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
-    }
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
     }
@@ -159,16 +154,7 @@ function onControllerDisconnect(){
     $('button img').hide();    
 }
 
-dew.on("show", function(e){
-    dew.command('Settings.Gamepad', {}).then(function(result){
-        if(result == 1){
-            onControllerConnect();
-            hasGP = true;
-        }else{
-            onControllerDisconnect();
-            hasGP = false;
-        }
-    });
+function updatePrefabs(){
     dew.command('Forge.DumpPrefabs', {}).then(function(response){
         $("#forgePrefabs").empty();
         var forgeSelect = document.getElementById('forgePrefabs');
@@ -179,7 +165,20 @@ dew.on("show", function(e){
             opt.value = prefabList[i];
             forgeSelect.appendChild(opt);
         }
+    });   
+}
+
+dew.on("show", function(e){
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+        }
     });
+    updatePrefabs();
 });
 
 
