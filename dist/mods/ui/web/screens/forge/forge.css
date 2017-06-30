@@ -54,6 +54,17 @@ input[type=range].setting {
     float:right;
 }
 
+.largeInput{
+
+    width:19.50vh;
+
+    margin-top:0.5vh;
+    height:1.9vh;
+    margin-bottom:0vh;
+    float:right;
+}
+
+
 .hasTiny{
     width:19.75vh;
     float:right;
