@@ -1,4 +1,4 @@
-var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity'],['fMonitorSpeed', 'Forge.RotationSensitivity']];
+var settingsToLoad = [['fCloneDepth', 'Forge.CloneDepth'], ['fCloneMultiplier', 'Forge.CloneMultiplier'], ['fRotationSnap', 'Forge.RotationSnap'], ['fRotationSens', 'Forge.RotationSensitivity'],['fMonitorSpeed', 'Forge.MonitorSpeed']];
 
 var selectedItem;
 var itemNumber = 0;
@@ -24,11 +24,43 @@ function closeBrowser() {
 $(document).ready(function() {
     loadSettings(0);     
     $('#forgeControls input').on('change', function(){
-        updateSetting(this.name, this.value);
+        var changeID = this.id;
+        if($(this).hasClass('tinySetting')){
+            if(changeID.endsWith('Text')){
+                changeID = changeID.slice(0, -4);
+            }
+        }
+        updateSetting(changeID, this.value);
     }); 
     if(hasGP){
         updateSelection(itemNumber);
-    }    
+    }   
+    $('input[type=range]').on('input', function(){
+        var newID = $(this).attr('id') + 'Text';
+        $('#'+newID).val($(this).val());
+    });
+    $('.tinySetting').on('change', function(){
+        var newID = $(this).attr('id');
+        if(newID.endsWith('Text')){
+            newID = newID.slice(0, -4);
+        }
+        $('#'+newID).val($(this).val());
+        $('#'+newID).trigger('change');
+    });
+    $('#savePrefab').on('click', function(){
+        dew.command('Forge.SavePrefab '+$('#fPrefabName').val());
+        document.getElementById('fPrefabName').value= '';
+        updatePrefabs();
+    });
+    $('#spawnPrefab').on('click', function(){
+        dew.command('Forge.LoadPrefab '+$('#forgePrefabs').val());
+    });
+    $('#clearCanvas').on('click', function(){
+        dew.command('Forge.Canvas'); 
+    });
+    $('#deleteAll').on('click', function(){
+        dew.command('Forge.DeleteAll');
+    });
 });
 
 function loadSettings(i) {
@@ -54,24 +86,18 @@ function loadSettings(i) {
 }
 
 function updateSetting(setting, value){
-    if ($("input[name='"+setting+"']").is(':checkbox')){
-        if ($("input[name='"+setting+"']").is(':checked')){
+    if ($("#"+setting).is(':checkbox')){
+        if ($("#"+setting).is(':checked')){
             value = "1";
         } else {
             value = "0";
         }
     }
-    dew.command(settingsToLoad[arrayInArray(setting, settingsToLoad)][1] + " \"" + value + "\"", {}).then(function(response){
-        //dew.command("writeconfig");
-    });
-}
-
-function arrayInArray(needle, haystack) {
-    for(i=0; i<haystack.length; i++) {
-        if (haystack[i].indexOf(needle) > -1){
-            return i
+    $.grep(settingsToLoad, function(result, index){
+        if(result[0] == setting){
+            dew.command(result[1] + " \"" + value + "\"");
         }
-    }
+    });
 }
 
 function updateSelection(item){

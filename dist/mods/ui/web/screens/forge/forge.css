@@ -33,8 +33,23 @@ html {
     font-size: 2.5vh;
 }
 
+.setting{
+    width: 25.5vh;
+    margin-top:0.5vh;
+    height:2.5vh;
+    margin-bottom:0vh;
+    float:right;
+    max-height:2.5vh;
+}
+
 input[type=range].setting {
     margin-top:0.5vh;
+}
+
+input[type=text].setting{
+    height: 1.7vh;
+    margin-bottom:0;
+    width:19.2vh;
 }
 
 .subHeader{
@@ -44,34 +59,12 @@ input[type=range].setting {
     text-align: center;
 }
 
-.setting{
-
-    width: 25.5vh;
-
-    margin-top:0.5vh;
-    height:2.5vh;
-    margin-bottom:0vh;
-    float:right;
-}
-
-.largeInput{
-
-    width:19.50vh;
-
-    margin-top:0.5vh;
-    height:1.9vh;
-    margin-bottom:0vh;
-    float:right;
-}
-
-
 .hasTiny{
     width:19.75vh;
     float:right;
 }
 
 .tinySetting{
-
     float:right;
     width: 5.5vh;
     height:1.9vh;
@@ -80,14 +73,12 @@ input[type=range].setting {
     margin-bottom: -0.25vh;
 }
 
-
 button {
     color: white;
     font-size: 10pt;
     font-weight: bold;
     background-color: black;
     border: 1px solid white;
-
     text-align: center;
     line-height: 24px;
     height: 1.75vw;
@@ -142,25 +133,25 @@ button img{
 }
 
 input[type=range] {
-  -webkit-appearance: none;
-  background:none;
+    -webkit-appearance: none;
+    background:none;
 }
 
 input[type=range]:focus {
-  outline: none;
+    outline: none;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
-  height: 1vh;
-  background: grey;
-  border: 1px solid #010101;
+    height: 1vh;
+    background: grey;
+    border: 1px solid #010101;
 }
 
 input[type=range]::-webkit-slider-thumb {
-  border: 1px solid #000000;
-  height: 2.5vh;
-  width: 1vh;
-  background: #ffffff;
-  -webkit-appearance: none;
-  margin-top:-0.8vh;
+    border: 1px solid #000000;
+    height: 2.5vh;
+    width: 1vh;
+    background: #ffffff;
+    -webkit-appearance: none;
+    margin-top:-0.8vh;
 }
