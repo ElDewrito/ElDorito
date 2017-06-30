@@ -34,16 +34,6 @@ $(document).ready(function() {
     if(hasGP){
         updateSelection(itemNumber);
     }    
-    dew.command('Forge.DumpPrefabs', {}).then(function(response){
-        var forgeSelect = document.getElementById('forgePrefabs');
-        var prefabList = JSON.parse(response);
-        for(i=0; i<prefabList.length; i++){
-            var opt = document.createElement('option');
-            opt.innerHTML = prefabList[i];
-            opt.value = prefabList[i];
-            forgeSelect.appendChild(opt);
-        }
-    });
 });
 
 function loadSettings(i) {
@@ -177,6 +167,17 @@ dew.on("show", function(e){
         }else{
             onControllerDisconnect();
             hasGP = false;
+        }
+    });
+    dew.command('Forge.DumpPrefabs', {}).then(function(response){
+        $("#forgePrefabs").empty();
+        var forgeSelect = document.getElementById('forgePrefabs');
+        var prefabList = JSON.parse(response);
+        for(i=0; i<prefabList.length; i++){
+            var opt = document.createElement('option');
+            opt.innerHTML = prefabList[i];
+            opt.value = prefabList[i];
+            forgeSelect.appendChild(opt);
         }
     });
 });
