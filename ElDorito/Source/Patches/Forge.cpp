@@ -34,6 +34,8 @@ namespace
 	using RealQuaternion = Blam::Math::RealQuaternion;
 	using RealMatrix4x3 = Blam::Math::RealMatrix4x3;
 
+	const auto Objects_GetPosition = (void(*)(uint32_t objectIndex, RealVector3D *position))(0xB2E5A0);
+
 	bool barriersEnabledValid = false;
 	bool killBarriersEnabled = true;
 	bool pushBarriersEnabled = true;
@@ -49,6 +51,7 @@ namespace
 	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
+	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* rightVec, RealVector3D* upVec);
 
 	void FixRespawnZones();
 
@@ -80,6 +83,7 @@ namespace
 
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	Forge::ObjectSet s_SelectedObjects;
+	RealVector3D s_GrabOffset;
 }
 
 namespace Patches
@@ -108,6 +112,7 @@ namespace Patches
 			Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
 			Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
 			Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
+			Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
 
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
@@ -868,6 +873,26 @@ namespace
 		}
 	}
 
+	void ApplyGrabOffset(uint32_t playerIndex, uint32_t objectIndex)
+	{	
+		s_GrabOffset = RealVector3D(0, 0, 0);
+
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		auto objectPtr = Pointer(Blam::Objects::GetObjects().Get(objectIndex))[0xC];
+		auto unitObjectPtr = Blam::Objects::GetObjects().Get(player->SlaveUnit);
+		if (!player || !unitObjectPtr || !objectPtr)
+			return;
+
+		RealVector3D unitPos;
+		Objects_GetPosition(player->SlaveUnit, &unitPos);
+
+		const auto crosshairPoint = ElDorito::GetMainTls(0x48)[0](0xe21c).Read<RealVector3D>();
+		auto& heldObjectDistance = ElDorito::GetMainTls(0x48)[0](0xE1DC).Read<float>();
+
+		s_GrabOffset = objectPtr(0x20).Read<RealVector3D>() - crosshairPoint;
+		heldObjectDistance = (unitPos - crosshairPoint).Length();
+	}
+
 	void __cdecl ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex)
 	{
 		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
@@ -903,6 +928,8 @@ namespace
 				sub_59A620(placementObjectIndex, 1);
 			}
 		}
+
+		ApplyGrabOffset(playerIndex, objectIndex);
 	}
 
 	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float objectThrowForce)
@@ -1151,11 +1178,14 @@ namespace
 			}
 		}
 
-		auto grabObjectPtr = Pointer(objects.Get(grabObjectIndex))[0xC];
-		if (!grabObjectPtr)
-			return;
+		s_SandboxTickCommandQueue.push([=]()
+		{
+			auto grabObjectPtr = Pointer(objects.Get(grabObjectIndex))[0xC];
+			if (!grabObjectPtr)
+				return;
 
-		ObjectGrabbedHook(playerIndex, grabObjectPtr(0x1c).Read<int16_t>());
+			ObjectGrabbedHook(playerIndex, grabObjectPtr(0x1c).Read<int16_t>());
+		});
 	}
 
 
@@ -1168,7 +1198,7 @@ namespace
 		auto& players = Blam::Players::GetPlayers();
 		auto player = players.Get(playerIndex);
 
-		if (player && player->SlaveUnit == DatumIndex(unitObjectIndex) 
+		if (player && player->SlaveUnit == DatumIndex(unitObjectIndex)
 			&& Forge_GetEditorModeState(playerIndex, nullptr, nullptr))
 		{
 			auto& moduleForge = Modules::ModuleForge::Instance();
@@ -1210,6 +1240,31 @@ namespace
 		else
 		{
 			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
+		}
+	}
+
+	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* rightVec, RealVector3D* upVec)
+	{
+		static auto Object_Transform = (void(*)(bool a1, int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
+
+		auto heldObjectPtr = Pointer(Blam::Objects::GetObjects().Get(objectIndex))[0xC];
+		if (!heldObjectPtr)
+			return;
+
+		if (s_SelectedObjects.Contains(objectIndex))
+		{
+			const auto& centerPos = heldObjectPtr(0x20).Read<RealVector3D>();
+			const auto& objectPos = heldObjectPtr(0x54).Read<RealVector3D>();
+			const auto& crosshairPoint = ElDorito::GetMainTls(0x48)[0](0xe21c).Read<RealVector3D>();
+
+			auto offset = centerPos - objectPos - s_GrabOffset;
+			auto newPos = crosshairPoint - offset;
+
+			Object_Transform(a1, objectIndex, &newPos, rightVec, upVec);
+		}
+		else
+		{
+			Object_Transform(a1, objectIndex, position, rightVec, upVec);
 		}
 	}
 }
