@@ -810,13 +810,19 @@ namespace
 		static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, float volume))(0x5DE300);
 
 		uint32_t tagIndex;
-		if (arguments.size() < 1 || !TryParseTagIndex(arguments[0], &tagIndex)) 
+		if (arguments.size() < 1 || !TryParseTagIndex(arguments[0], &tagIndex))
 		{
 			returnInfo = "Invalid arguments";
 			return false;
 		}
 
-		Sound_PlaySoundEffect(tagIndex, 1.0f);
+		//Make sure the sound exists before playing
+		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+		if(GetTagAddressImpl('snd!', tagIndex) != nullptr)
+			Sound_PlaySoundEffect(tagIndex, 1.0f);
+		else
+			returnInfo = "Invalid sound index: " + arguments[0];
 
 		return true;
 	}
