@@ -31,7 +31,8 @@ namespace Modules
 		Patch StaticKLookVectorPatch;
 
 		Patch HideHudPatch;
-		Patch CenteredCrosshairPatch;
+		Patch CenteredCrosshairFirstPersonPatch;
+		Patch CenteredCrosshairThirdPersonPatch;
 
 		Patch ShowCoordinatesPatch;
 

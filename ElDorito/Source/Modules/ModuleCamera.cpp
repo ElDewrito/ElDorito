@@ -122,7 +122,8 @@ namespace
 		if (statusBool)
 			status = "enabled.";
 
-		Modules::ModuleCamera::Instance().CenteredCrosshairPatch.Apply(!statusBool);
+		Modules::ModuleCamera::Instance().CenteredCrosshairFirstPersonPatch.Apply(!statusBool);
+		Modules::ModuleCamera::Instance().CenteredCrosshairThirdPersonPatch.Apply(!statusBool);
 
 		returnInfo = "Centered crosshair " + status;
 		return true;
@@ -239,7 +240,7 @@ namespace
 
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 
-		// get new camera perspective function offset 
+		// get new camera perspective function offset
 		size_t offset = 0x166ACB0;
 		if (!mode.compare("first")) // c_first_person_camera
 		{
@@ -327,7 +328,7 @@ namespace
 		}
 
 		std::string status = "disabled.";
-		
+
 		if (Modules::ModuleCamera::Instance().VarCameraShowCoordinates->ValueInt != 0) {
 			Modules::ModuleCamera::Instance().ShowCoordinatesPatch.Apply();
 			status = "enabled.";
@@ -358,7 +359,8 @@ namespace Modules
 		StaticILookVectorPatch(0x211433, 0x90, 8),
 		StaticKLookVectorPatch(0x21143E, 0x90, 6),
 		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }), // 3.14f in hex form
-		CenteredCrosshairPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 }),
+		CenteredCrosshairFirstPersonPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 }),
+		CenteredCrosshairThirdPersonPatch(0x32989C, { 0x31, 0xC0, 0x90, 0x90 }),
 		ShowCoordinatesPatch(0x192064, { 0x00 })
 	{
 		// TODO: commands for setting camera speed, positions, save/restore etc.
@@ -381,7 +383,7 @@ namespace Modules
 
 		VarCameraPosition = AddCommand("Position", "camera_position", "The cameras position, Doesn't work when camera mode is set to default", eCommandFlagsNone, VariableCameraPositionUpdate, { "X Coordinate", "Y Coordinate", "Z Coordinate" });
 
-		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static", 
+		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static",
 			(CommandFlags)(eCommandFlagsDontUpdateInitial | eCommandFlagsCheat), "default", VariableCameraModeUpdate);
 
 		VarCameraShowCoordinates = AddVariableInt("ShowCoordinates", "coords", "The cameras field of view", eCommandFlagsArchived, 0, VariableCameraShowCoordinatesUpdate);

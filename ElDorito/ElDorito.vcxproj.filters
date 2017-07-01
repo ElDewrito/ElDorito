@@ -319,20 +319,38 @@
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Blam\BlamObjects.cpp" />
-    <ClCompile Include="Source\Patches\Audio.cpp" />
     <ClCompile Include="Source\Patches\RawInput.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Source\Server\Signaling.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Patches\Spectate.cpp" />
     <ClCompile Include="Source\Server\Voting.cpp">
       <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="Source\Modules\ModuleVoIP.cpp">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Audio.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Spectate.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Hf2pExperimental.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\Prefab.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\ForgeUtil.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebTimer.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\BlamObjects.cpp">
+      <Filter>Blam</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -868,17 +886,38 @@
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp">
       <Filter>Modules</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Blam\Math\MathUtil.hpp" />
-    <ClInclude Include="Source\Patches\Audio.hpp" />
     <ClInclude Include="Source\Server\Signaling.hpp">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Patches\Spectate.hpp" />
     <ClInclude Include="Source\Server\Voting.hpp">
       <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="Source\Modules\ModuleVoIP.hpp">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Audio.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Spectate.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Hf2pExperimental.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Prefab.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\ObjectSet.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\ForgeUtil.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebTimer.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Math\MathUtil.hpp">
+      <Filter>Blam\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -962,6 +1001,9 @@
     </Filter>
     <Filter Include="ThirdParty\rapidjson\error">
       <UniqueIdentifier>{a600f92e-758d-4c78-be92-8c8665168356}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Forge">
+      <UniqueIdentifier>{bf4417b5-3953-43c4-9a47-d2af8f7aa92a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
