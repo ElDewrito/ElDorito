@@ -215,7 +215,8 @@ $(window).load(function(){
         if(hasGP){
             if(e.data.A == 1){
                 if(!$('#playerBreakdown').is(":visible")){
-                    $('.clickable').eq(itemNumber).click();
+                    var playerName = $('.clickable').eq(itemNumber).attr('id');
+                    playerBreakdown(playerName);
                 }
             }
             if(e.data.B == 1){
@@ -431,7 +432,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score    
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem speaker" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator              
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem speaker" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator          
+            /*if(lobby[i].hasObjective){
+                $("[data-playerIndex='" + lobby[i].playerIndex + "']").parent().prepend($('<img class="emblem objective">')) //objective (flag/oddball) indicator
+            }*/
             if(teamGame){
                 sortMe('scoreboard','tbody');
                 sortMe(teamArray[lobby[i].team].name,'tr');
@@ -441,7 +445,6 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             rankMe(teamGame);
         }     
         $('.clickable').find('td').on('click',function(){
-            $('.clickable td').off('click');
             var playerName = $(this).parent().attr('id');
             playerBreakdown(playerName);
         });

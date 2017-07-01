@@ -85,6 +85,11 @@ html {
     opacity: 1;
 }
 
+.objective{
+    position: absolute;
+    margin-left: -2vw;
+}
+
 #closeButton{
     position: absolute;
     background-color: rgba(255, 255, 255, 0.25);
