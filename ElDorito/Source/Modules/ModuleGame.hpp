@@ -20,6 +20,7 @@ namespace Modules
 		Command* VarHideChat;
 		Command* VarSuppressJuggling;
 		Command* VarIconSet;
+		Command* VarFixHudGlobals;
 
 		int DebugFlags;
 

@@ -11,6 +11,7 @@
 #include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
 #include "../Modules/ModuleInput.hpp"
+#include "../Modules/ModuleGame.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include <iostream>
@@ -36,6 +37,7 @@ namespace
 	HWND CreateGameWindowHook();
 	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex);
 	void GetActionButtonNameHook();
+	void UI_GetHUDGlobalsIndexHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -54,7 +56,14 @@ namespace Patches
 	{
 		void ApplyAfterTagsLoaded()
 		{
-			tagsInitiallyLoaded = true;
+			if (!tagsInitiallyLoaded)
+			{
+				// use the correct hud globals for the player representation
+				if (Modules::ModuleGame::Instance().VarFixHudGlobals->ValueInt)
+					Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
+			}
+
+			tagsInitiallyLoaded = true;		
 		}
 
 		const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1025,6 +1034,37 @@ namespace
 			DEFAULT:
 			mov eax, 0xABCA79
 			jmp eax
+		}
+	}
+
+	int GetHUDGlobalsIndexForRepresentation(void* playerRepresentation)
+	{
+		if (!playerRepresentation)
+			return 0;
+
+		auto nameId = *(uint32_t*)playerRepresentation;
+		switch (nameId)
+		{
+		case 0x111B: // monitor
+			return 2;
+		case 0x1119: //mp_elite
+		case 0xCC: // dervish
+			return 1;
+		default:
+			return 0;
+		}
+	}
+
+	__declspec(naked) void UI_GetHUDGlobalsIndexHook()
+	{
+		__asm
+		{
+			push ecx
+			call GetHUDGlobalsIndexForRepresentation
+			add esp, 4
+			pop esi
+			pop ebp
+			retn
 		}
 	}
 }

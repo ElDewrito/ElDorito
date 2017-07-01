@@ -941,6 +941,8 @@ namespace Modules
 		VarSuppressJuggling->ValueIntMin = 0;
 		VarSuppressJuggling->ValueIntMax = 1;
 
+		VarFixHudGlobals = AddVariableInt("FixHudGlobals", "fix_hud_globals", "Use the correct hud globals for the player representation", eCommandFlagsArchived, 0);
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 
