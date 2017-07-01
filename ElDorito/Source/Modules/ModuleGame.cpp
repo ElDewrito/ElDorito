@@ -21,6 +21,7 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include <unordered_map>
 
 namespace
 {
@@ -820,6 +821,34 @@ namespace
 		return true;
 	}
 
+	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		if (arguments.size() < 1)
+			return false;
+
+		static const std::unordered_map<std::string, int> languageIds =
+		{
+			{ "english", 0 },
+			{ "japanese", 1 },
+			{ "german", 2 },
+			{ "french", 3 },
+			{ "spanish", 4 },
+			{ "mexican", 5 },
+			{ "italian", 6 },
+			{ "korean", 7 },
+			{ "chinese", 9 },
+			{ "portuguese", 10 },
+			{ "russian", 11 }
+		};
+
+		auto it = languageIds.find(Utils::String::ToLower(arguments[0]));
+		if (it == languageIds.end())
+			return false;
+
+		*(uint32_t*)0x189DEE4 = it->second;
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -874,9 +903,7 @@ namespace Modules
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
-		VarLanguageID = AddVariableInt("LanguageID", "languageid", "The index of the language to use", eCommandFlagsArchived, 0);
-		VarLanguageID->ValueIntMin = 0;
-		VarLanguageID->ValueIntMax = 11;
+		VarLanguage = AddVariableString("Language", "language", "The language to use", eCommandFlagsArchived, "english", VariableLanguageUpdated);
 
 		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
 		VarSkipTitleSplash->ValueIntMin = 0;

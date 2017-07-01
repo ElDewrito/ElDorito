@@ -214,9 +214,6 @@ void ElDorito::Initialize()
 		}
 	}
 
-	// Language patch
-	Patch(0x2333FD, { (uint8_t)Modules::ModuleGame::Instance().VarLanguageID->ValueInt }).Apply();
-
 	setWatermarkText("ElDewrito | Version: " + Utils::Version::GetVersionString() + " | Build Date: " __DATE__);
 
 	// Ensure a ban list file exists
