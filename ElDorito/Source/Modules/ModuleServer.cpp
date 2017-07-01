@@ -1071,6 +1071,51 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
+	bool CommandMaxTeamSize(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+		{
+			returnInfo = "Session not established";
+			return false;
+		}
+
+		int teamSizes[8] = { 0 };
+		int playerIdx = session->MembershipInfo.FindFirstPlayer();
+		while (playerIdx > -1)
+		{
+			teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+		}
+
+		//loop again but now we know team sizes
+		playerIdx = session->MembershipInfo.FindFirstPlayer();
+		while (playerIdx > -1)
+		{
+			if (teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex] > Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+			{
+				//find next available team
+				for (int i = 0; i < 8; i++)
+				{
+					if (teamSizes[i] < Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+					{
+						teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]--;
+						session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex = i;
+						teamSizes[i]++;
+						break;
+					}
+				}
+			}
+			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+		}
+		session->MembershipInfo.Update();
+
+		std::stringstream ss;
+		ss << "Max team size has been changed to: " << Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt;
+
+		returnInfo = ss.str();
+		return true;
+	}
 }
 
 namespace Modules
@@ -1136,7 +1181,7 @@ namespace Modules
 
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
 
-		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8);
+		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8, CommandMaxTeamSize);
 		VarMaxTeamSize->ValueIntMin = 2;
 		VarMaxTeamSize->ValueIntMax = 16;
 
