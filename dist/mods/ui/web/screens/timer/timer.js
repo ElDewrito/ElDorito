@@ -20,7 +20,7 @@ dew.on('timerUpdate', function(e) {
     if(lastTimerBeeped != e.data.value) {
         lastTimerBeeped = e.data.value;
         if(e.data.value > -1 && e.data.value <= 2) {
-            dew.command('Game.PlaySound 0x0305');
+            dew.command('Game.PlaySound 0x0B07');
         }
     }
     
