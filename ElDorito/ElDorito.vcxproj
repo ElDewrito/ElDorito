@@ -57,6 +57,9 @@
     <ClCompile Include="Source\ElPatches.cpp" />
     <ClCompile Include="Source\Forge\ForgeUtil.cpp" />
     <ClCompile Include="Source\Forge\Prefab.cpp" />
+    <ClCompile Include="Source\Forge\RotationSnap.cpp" />
+    <ClCompile Include="Source\Forge\Selection.cpp" />
+    <ClCompile Include="Source\Forge\SelectionRenderer.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Modules\ModuleBase.cpp" />
     <ClCompile Include="Source\Modules\ModuleCamera.cpp" />
@@ -221,6 +224,9 @@
     <ClInclude Include="Source\Forge\ForgeUtil.hpp" />
     <ClInclude Include="Source\Forge\ObjectSet.hpp" />
     <ClInclude Include="Source\Forge\Prefab.hpp" />
+    <ClInclude Include="Source\Forge\RotationSnap.hpp" />
+    <ClInclude Include="Source\Forge\Selection.hpp" />
+    <ClInclude Include="Source\Forge\SelectionRenderer.hpp" />
     <ClInclude Include="Source\Modules\ModuleBase.hpp" />
     <ClInclude Include="Source\Modules\ModuleCamera.hpp" />
     <ClInclude Include="Source\Modules\ModuleDebug.hpp" />

@@ -8,7 +8,7 @@ namespace Forge
 
 	namespace Prefabs
 	{
-		bool Save(const ObjectSet& objectSet, const std::string& name, const std::string& path);
-		bool Load(ObjectSet& objectSet, const std::string& path);
+		bool Save(const std::string& name, const std::string& path);
+		bool Load(const std::string& path);
 	}
 }

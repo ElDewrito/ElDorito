@@ -5,11 +5,11 @@ namespace Blam
 	namespace Math
 	{
 		RealMatrix4x3::RealMatrix4x3()
-			: RealMatrix4x3(0.0f, RealVector3D(), RealVector3D(), RealVector3D(), RealPoint3D())
+			: RealMatrix4x3(0.0f, RealVector3D(), RealVector3D(), RealVector3D(), RealVector3D())
 		{
 		}
 
-		RealMatrix4x3::RealMatrix4x3(const float scale, const RealVector3D &forward, const RealVector3D &left, const RealVector3D &up, const RealPoint3D &position)
+		RealMatrix4x3::RealMatrix4x3(const float scale, const RealVector3D &forward, const RealVector3D &left, const RealVector3D &up, const RealVector3D &position)
 			: Scale(scale), Forward(forward), Left(left), Up(up), Position(position)
 		{
 		}

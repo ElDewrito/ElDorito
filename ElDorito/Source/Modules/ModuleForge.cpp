@@ -3,6 +3,8 @@
 #include "boost\filesystem.hpp"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include "../Forge/Selection.hpp"
+#include "../Forge/ForgeUtil.hpp"
 
 namespace
 {
@@ -11,25 +13,25 @@ namespace
 
 	bool CommandDeleteAll(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Forge::DeleteAll();
+		Forge::Selection::Delete();
 		return true;
 	}
 
 	bool CommandCanvas(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Forge::CanvasMap();
+		Forge::CanvasMap();
 		return true;
 	}
 
 	bool CommandDeselectAll(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Forge::DeselectAll();
+		Forge::Selection::Clear();
 		return true;
 	}
 
 	bool CommandSelectAll(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Forge::SelectAll();
+		Forge::Selection::SelectAll();
 		return true;
 	}
 

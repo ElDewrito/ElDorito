@@ -39,6 +39,6 @@ namespace Forge
 		}
 
 	private:
-		std::bitset<2048> m_Bits = { 0 };
+		std::bitset<2048> m_Bits;
 	};
 }

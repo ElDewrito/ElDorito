@@ -183,8 +183,6 @@ namespace Blam
 
 	struct MapVariant
 	{
-		using Vector3 = Blam::Math::RealVector3D;
-
 		struct BudgetEntry
 		{
 			uint32_t TagIndex;
@@ -216,12 +214,14 @@ namespace Blam
 			uint32_t ObjectIndex;
 			uint32_t EditorObjectIndex;
 			uint32_t BudgetIndex;
-			Vector3 Position;
-			Vector3 RightVector;
-			Vector3 UpVector;
+			Blam::Math::RealVector3D Position;
+			Blam::Math::RealVector3D RightVector;
+			Blam::Math::RealVector3D UpVector;
 			uint32_t Unknown34;
 			uint32_t Unknown38;
 			VariantProperties Properties;
+
+			bool InUse() const { return PlacementFlags & 1; };
 		};
 
 		BLAM_CONTENT_HEADER ContentHeader;
