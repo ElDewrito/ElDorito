@@ -14,6 +14,8 @@
 #include "../../ElDorito.hpp"
 
 #include <iomanip>
+#include "../../Blam/BlamObjects.hpp"
+#include "../../Blam/Tags/Items/Weapon.hpp"
 
 using namespace Blam::Input;
 using namespace Blam::Events;
@@ -74,7 +76,7 @@ namespace Web
 				{
 					time_t curTime;
 					time(&curTime);
-					
+
 					if (!postgameScoreShown && ((curTime - postgameDisplayed) > postgameDelayTime))
 					{
 						Web::Ui::WebScoreboard::Show(locked, postgame);
@@ -124,10 +126,8 @@ namespace Web
 						auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
 						writer.Int(teamscore.Score);
 					}
-					
 				}
 				writer.EndArray();
-				
 
 				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
 
@@ -184,6 +184,27 @@ namespace Web
 					writer.Key("bestStreak");
 					writer.Int(playerStats.BestStreak);
 
+					bool hasObjective = false;
+					auto playerDatum = &Blam::Players::GetPlayers()[playerIdx];
+					auto playerObject = Pointer(Blam::Objects::GetObjects()[playerDatum->SlaveUnit].Data);
+					if(playerObject)
+					{
+						auto equippedWeaponIndex = playerObject(0x2CA).Read<uint8_t>();
+						if (equippedWeaponIndex != -1)
+						{
+							auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
+							auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
+							if (equippedWeaponObjectPtr)
+							{
+								auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
+								hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+							}
+						}
+					}
+
+					writer.Key("hasObjective");
+					writer.Bool(hasObjective);
+
 					//gametype specific stats
 					writer.Key("flagKills");
 					writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Flag].Kills);
@@ -196,7 +217,7 @@ namespace Web
 					writer.Int(playerStats.TimeInHill);
 					writer.Key("timeControllingHill");
 					writer.Int(playerStats.TimeControllingHill);
-					
+
 					writer.Key("humansInfected");
 					writer.Int(playerStats.HumansInfected);
 					writer.Key("zombiesKilled");
