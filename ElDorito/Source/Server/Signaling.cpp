@@ -53,7 +53,7 @@ namespace
 
 	void LifeCycleChanged(Blam::Network::LifeCycleState state);
 
-	std::string authStrings[Blam::Network::MaxPlayers];
+	std::string authStrings[Blam::Network::MaxPeers];
 	std::map<websocketpp::connection_hdl, coninfo, std::owner_less<websocketpp::connection_hdl>> connectedSockets; //std::owner_less doesn't work with std::unordered_map
 
 	static std::string currentPassword = "not-connected";
@@ -127,7 +127,7 @@ namespace Server
 		void SendPeerPassword(int playerIndex)
 		{
 			auto packet = wspsender->New();
-			auto session = Blam::Network::GetActiveSession();
+			auto *session = Blam::Network::GetActiveSession();
 			auto peerIdx = session->MembershipInfo.GetPlayerPeer(playerIndex);
 			ResetPassword(peerIdx);
 			strncpy_s(packet.Data.echoString, authStrings[peerIdx].c_str(), PASSWORD_LENGTH + 1);
@@ -200,7 +200,7 @@ namespace
 
 	void WebSocketPacketHandler::HandlePacket(Blam::Network::ObserverChannel *sender, const WebSocketPacket *packet)
 	{
-		auto session = Blam::Network::GetActiveSession();
+		auto *session = Blam::Network::GetActiveSession();
 		auto sendingPeer = session->GetChannelPeer(sender);
 		if (sendingPeer < 0)
 			return;
@@ -388,12 +388,12 @@ namespace
 	
 	bool ProcessEcho(const char* echo, coninfo &info)
 	{
-		for (int i = 0; i < Blam::Network::MaxPlayers; i++)
+		auto *session = Blam::Network::GetActiveSession();
+		int peerIdx = session->MembershipInfo.FindFirstPeer();
+		while(peerIdx > -1)
 		{
-			if(std::strcmp(echo, authStrings[i].c_str()) == 0)
+			if(std::strcmp(echo, authStrings[peerIdx].c_str()) == 0)
 			{
-				auto session = Blam::Network::GetActiveSession();
-				int peerIdx = session->MembershipInfo.GetPeerPlayer(i);
 				std::stringstream ss;
 				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << std::hex << session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid; //unique
 				info.uid = ss.str();
@@ -401,22 +401,23 @@ namespace
 				info.peerIdx = peerIdx;
 				return true;
 			}
+			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
 		return false;
 	}
 
 	void CreatePasswords()
 	{
-		for (int i = 0; i < Blam::Network::MaxPlayers; i++)
+		for (int i = 0; i < Blam::Network::MaxPeers; i++)
 		{
 			authStrings[i] = "";
 			Utils::Cryptography::RandomPassword(PASSWORD_LENGTH, authStrings[i]);
 		}
 	}
 
-	void ResetPassword(int playerIndex)
+	void ResetPassword(int peerIndex)
 	{
-		authStrings[playerIndex] = "";
-		Utils::Cryptography::RandomPassword(PASSWORD_LENGTH, authStrings[playerIndex]);
+		authStrings[peerIndex] = "";
+		Utils::Cryptography::RandomPassword(PASSWORD_LENGTH, authStrings[peerIndex]);
 	}
 }
