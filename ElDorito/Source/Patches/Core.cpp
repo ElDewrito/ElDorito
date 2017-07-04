@@ -308,18 +308,18 @@ namespace
 
 		// If the setting is none (2) or the scenario has invalid starting
 		// profile data, set the grenade counts to 0 and return
-		if (grenadeSetting == 2 || !scenario->StartingProfile)
+		if (grenadeSetting == 2 || !scenario->PlayerStartingProfile)
 		{
 			memset(grenadeCounts, 0, 4);
 			return;
 		}
 
 		// Load the grenade counts from the scenario tag
-		auto profile = &scenario->StartingProfile[0];
-		grenadeCounts[0] = profile->FragGrenades;
-		grenadeCounts[1] = profile->PlasmaGrenades;
-		grenadeCounts[2] = profile->SpikeGrenades;
-		grenadeCounts[3] = profile->FirebombGrenades;
+		auto profile = &scenario->PlayerStartingProfile[0];
+		grenadeCounts[0] = profile->StartingFragGrenadeCount;
+		grenadeCounts[1] = profile->StartingPlasmaGrenadeCount;
+		grenadeCounts[2] = profile->StartingSpikeGrenadeCount;
+		grenadeCounts[3] = profile->StartingFirebombGrenadeCount;
 	}
 
 	__declspec(naked) void GrenadeLoadoutHook()

@@ -25,6 +25,7 @@
 #include "Patches\Hf2pExperimental.hpp"
 #include "Patches\Weapon.hpp"
 #include "Patches\Spectate.hpp"
+#include "Patches\Tweaks.hpp"
 #include "DirectXHook.hpp"
 
 
@@ -39,7 +40,7 @@ namespace Patches
 	{
 		UnprotectMemory();
 		Hf2pExperimental::ApplyAll();
-		Core::ApplyAll();	
+		Core::ApplyAll();
 		Audio::ApplyAll();
 		Memory::ApplyAll();
 		Mouse::ApplyAll();
@@ -61,8 +62,8 @@ namespace Patches
 		PlayerRepresentation::ApplyAll();
 		Weapon::ApplyAll();
 		Spectate::ApplyAll();
-		
-		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not. 
+
+		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not.
 		bool isdedicated = false;
 		int numArgs = 0;
 		LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
@@ -76,7 +77,7 @@ namespace Patches
 		if (!isdedicated)
 			DirectXHook::applyPatches();
 	}
-	
+
 	void ApplyOnFirstTick()
 	{
 		Ui::ApplyMapNameFixes();
@@ -89,6 +90,7 @@ namespace Patches
 		Ui::ApplyUIResolution();
 		Ui::ApplyAfterTagsLoaded();
 		Weapon::ApplyAfterTagsLoaded();
+		Tweaks::ApplyAfterTagsLoaded();
 	}
 
 	void Tick()

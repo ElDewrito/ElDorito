@@ -270,8 +270,8 @@ namespace Blam
 
 				enum class Weapon::SpecialHUDType : int32_t
 				{
-					NoOutline,
-					Default,
+					NoOutline = -28,
+					Default = 0,
 					Ammo,
 					Damage,
 					Accuracy,

@@ -352,6 +352,8 @@
     <ClCompile Include="Source\Blam\BlamObjects.cpp">
       <Filter>Blam</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleTweaks.cpp" />
+    <ClCompile Include="Source\Patches\Tweaks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -919,6 +921,12 @@
     <ClInclude Include="Source\Blam\Math\MathUtil.hpp">
       <Filter>Blam\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleTweaks.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Camera\CameraFxSettings.hpp" />
+    <ClInclude Include="Source\Patches\Tweaks.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

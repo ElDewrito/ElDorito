@@ -17,12 +17,19 @@ namespace Blam
 			template <typename T>
 			inline T *GetDefinition()
 			{
+				return GetDefinition<T>(GetGroupTag());
+			}
+
+			// For use when GetGroupTag may fail due to a tag not being loaded yet
+			template <typename T>
+			inline T *GetDefinition(int groupTag)
+			{
 				if (Index != 0xFFFF)
 				{
 					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
 					auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
 
-					return reinterpret_cast<T *>(GetTagAddressImpl(GetGroupTag(), Index));
+					return reinterpret_cast<T *>(GetTagAddressImpl(groupTag, Index));
 				}
 
 				return nullptr;

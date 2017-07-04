@@ -69,6 +69,7 @@
     <ClCompile Include="Source\Modules\ModuleServer.cpp" />
     <ClCompile Include="Source\Modules\ModuleSettings.cpp" />
     <ClCompile Include="Source\Modules\ModuleTime.cpp" />
+    <ClCompile Include="Source\Modules\ModuleTweaks.cpp" />
     <ClCompile Include="Source\Modules\ModuleUPnP.cpp" />
     <ClCompile Include="Source\Modules\ModuleVoIP.cpp" />
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="Source\Patches\Scoreboard.cpp" />
     <ClCompile Include="Source\Patches\Spectate.cpp" />
     <ClCompile Include="Source\Patches\Sprint.cpp" />
+    <ClCompile Include="Source\Patches\Tweaks.cpp" />
     <ClCompile Include="Source\Patches\Ui.cpp" />
     <ClCompile Include="Source\Patches\VirtualKeyboard.cpp" />
     <ClCompile Include="Source\Patches\Weapon.cpp" />
@@ -171,6 +173,7 @@
     <ClInclude Include="Source\Blam\Math\RealVector3D.hpp" />
     <ClInclude Include="Source\Blam\Math\Rectangle2D.hpp" />
     <ClInclude Include="Source\Blam\Padding.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Camera\CameraFxSettings.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\AssaultVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\CTFVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\GameEngineSettings.hpp" />
@@ -190,9 +193,12 @@
     <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp" />
     <ClInclude Include="Source\Blam\Tags\Sounds\Noise.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp" />
     <ClInclude Include="Source\Blam\Tags\Tag.hpp" />
     <ClInclude Include="Source\Blam\Tags\TagBlock.hpp" />
     <ClInclude Include="Source\Blam\Tags\TagData.hpp" />
@@ -226,6 +232,7 @@
     <ClInclude Include="Source\Modules\ModuleServer.hpp" />
     <ClInclude Include="Source\Modules\ModuleSettings.hpp" />
     <ClInclude Include="Source\Modules\ModuleTime.hpp" />
+    <ClInclude Include="Source\Modules\ModuleTweaks.hpp" />
     <ClInclude Include="Source\Modules\ModuleUPnP.hpp" />
     <ClInclude Include="Source\Modules\ModuleVoIP.hpp" />
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp" />
@@ -253,6 +260,7 @@
     <ClInclude Include="Source\Patches\Scoreboard.hpp" />
     <ClInclude Include="Source\Patches\Spectate.hpp" />
     <ClInclude Include="Source\Patches\Sprint.hpp" />
+    <ClInclude Include="Source\Patches\Tweaks.hpp" />
     <ClInclude Include="Source\Patches\Ui.hpp" />
     <ClInclude Include="Source\Patches\VirtualKeyboard.hpp" />
     <ClInclude Include="Source\Patches\Weapon.hpp" />
