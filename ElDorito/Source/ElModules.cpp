@@ -16,6 +16,7 @@
 #include "Modules/ModuleDebug.hpp"
 #include "Modules/ModuleForge.hpp"
 #include "Modules/ModuleVoIP.hpp"
+#include "Modules/ModuleTweaks.hpp"
 
 namespace
 {
@@ -117,6 +118,7 @@ namespace Modules
 		ModuleDebug::Instance();
 		ModuleForge::Instance();
 		ModuleVoIP::Instance();
+		ModuleTweaks::Instance();
 
 		AddCommand("Help", "help", "Displays this help text", eCommandFlagsNone, CommandHelp);
 		AddCommand("Execute", "exec", "Executes a list of commands", eCommandFlagsNone, CommandExecute, { "filename(string) The list of commands to execute" });
