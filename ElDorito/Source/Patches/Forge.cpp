@@ -502,11 +502,21 @@ namespace
 			auto acceleration = *(float*)unitDefPtr(0x56C);
 			auto deceleration = *(float*)unitDefPtr(0x570);
 
+			auto uiRightBumper = Blam::Input::GetActionState(Blam::Input::eGameActionUiRightBumper);
+			auto uiLeftBumper = Blam::Input::GetActionState(Blam::Input::eGameActionUiLeftBumper);
+
 			auto direction = 0;
-			if (Blam::Input::GetActionState(Blam::Input::eGameActionUiRightBumper)->Ticks > 0)
+			if (!(uiRightBumper->Flags & 1) && uiRightBumper->Ticks > 0)
+			{
+				uiRightBumper->Flags &= Blam::Input::eActionStateFlagsHandled;
 				direction = 1;
-			if (Blam::Input::GetActionState(Blam::Input::eGameActionUiLeftBumper)->Ticks > 0)
+			}
+
+			if (!(uiLeftBumper->Flags & 1) && uiLeftBumper->Ticks > 0)
+			{
+				uiLeftBumper->Flags &= Blam::Input::eActionStateFlagsHandled;
 				direction = -1;
+			}
 
 			static float s_Velocity = 0;
 

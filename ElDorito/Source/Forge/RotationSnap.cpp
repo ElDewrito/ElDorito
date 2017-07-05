@@ -125,31 +125,28 @@ namespace
 
 	void HandleInput()
 	{
-		auto uiLeftAction = Blam::Input::GetActionState(Blam::Input::eGameActionUiLeft);
-		auto uiRightAction = Blam::Input::GetActionState(Blam::Input::eGameActionUiRight);
+		using namespace Blam::Input;
+
+		auto uiLeftAction = GetActionState(eGameActionUiLeft);
+		auto uiRightAction = GetActionState(eGameActionUiRight);
 
 		int snapAngleCount = sizeof(SNAP_ANGLES) / sizeof(SNAP_ANGLES[0]);
 
-		if (uiLeftAction->Ticks == 1)
+		if (!(uiLeftAction->Flags & eActionStateFlagsHandled) && uiLeftAction->Ticks == 1)
 		{
 			if (--s_SnapAngleIndex < 0)
 				s_SnapAngleIndex = snapAngleCount - 1;
 
-			uiLeftAction->Flags |= Blam::Input::eActionStateFlagsHandled;
+			uiLeftAction->Flags |= eActionStateFlagsHandled;
 			SetSnapAngle(SNAP_ANGLES[s_SnapAngleIndex]);
 		}
-		if (uiRightAction->Ticks == 1)
+		if (!(uiRightAction->Flags & eActionStateFlagsHandled) &&  uiRightAction->Ticks == 1)
 		{
 			if (++s_SnapAngleIndex >= snapAngleCount)
 				s_SnapAngleIndex = 0;
 
-			uiRightAction->Flags |= Blam::Input::eActionStateFlagsHandled;
+			uiRightAction->Flags |= eActionStateFlagsHandled;
 			SetSnapAngle(SNAP_ANGLES[s_SnapAngleIndex]);
-		}
-
-		if (uiRightAction->Ticks > 0 && uiRightAction->Msec > 150)
-		{
-			SetSnapAngle(SNAP_ANGLES[s_SnapAngleIndex = 0]);
 		}
 	}
 }

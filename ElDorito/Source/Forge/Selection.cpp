@@ -148,13 +148,14 @@ namespace Forge
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
 		auto objectIndexUnderCrosshair = Forge::GetSandboxGlobals().CrosshairObjects[playerIndex.Index()];
 
-		if (GetActionState(eGameActionFireRight)->Ticks > 0)
+		auto fireRight = GetActionState(eGameActionFireRight);
+
+		if (!(fireRight->Flags & eActionStateFlagsHandled) && fireRight->Ticks > 0)
 		{
-			if (GetActionState(eGameActionFireRight)->Ticks == 1 && objectIndexUnderCrosshair == -1)
+			if (fireRight->Ticks == 1 && objectIndexUnderCrosshair == -1)
 				s_IsPaintSelecting = true;
 
-			if (objectIndexUnderCrosshair != -1 &&
-				(GetActionState(eGameActionFireRight)->Ticks == 1 || s_IsPaintSelecting))
+			if (objectIndexUnderCrosshair != -1 && (fireRight->Ticks == 1 || s_IsPaintSelecting))
 			{
 				auto& selection = Forge::Selection::GetSelection();
 				if (selection.Contains(objectIndexUnderCrosshair) && !s_IsPaintSelecting)
