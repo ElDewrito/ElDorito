@@ -143,7 +143,7 @@ $(window).load(function(){
                 chatClass += ' emote';
                 e.data.message = e.data.message.substring(4, e.data.message.length);
             }
-            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").html(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap))); 
+            $("#chatWindow").append($('<span>', { class: messageClass, css: { backgroundColor: bgColor}, text: e.data.sender }).wrap($('<p>', { class: chatClass })).parent().append($("<div>").text(e.data.message).text().replace(/\bhttp[^ ]+/ig, aWrap))); 
             if(!hideChat){
                 dew.show();
             }
