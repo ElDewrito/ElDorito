@@ -92,7 +92,14 @@ var settingsToLoad = [
     ['colorsVisor', 'Player.Colors.Visor'],
     ['colorsLights', 'Player.Colors.Lights'], 
     ['colorsHolo', 'Player.Colors.Holo'],
-    ['sUPNP','UPnP.Enabled']
+    ['sUPNP','UPnP.Enabled'], 
+    ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding'], 
+    ['tDisableFog', 'Tweaks.DisableReactorFog'], 
+    ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline'], 
+    ['tDisableHeadshotEffect', 'Tweaks.DisableHeadshotEffect'],
+    ['tDisableHitmarkers', 'Tweaks.DisableHitMarkers'], 
+    ['tGruntBirthdayParty', 'Tweaks.GruntBirthdayParty'],
+    ['tReachFrags','Tweaks.ReachStyleFrags']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
@@ -511,12 +518,15 @@ dew.on('show', function(e){
                 }else{
                     $('.tabs li').eq(1).hide();
                 }
+                $('.tabs li').eq(5).hide();
             }else{
                 $('.tabs li').eq(0).show();
+                $('.tabs li').eq(5).show();  
             }
         }else{
             $('.tabs li').eq(0).show();
-            $('.tabs li').eq(1).show();                
+            $('.tabs li').eq(1).show();   
+            $('.tabs li').eq(5).show();            
         }
         initActive();
     });
@@ -576,7 +586,9 @@ function setControlValues(){
                         if($('#'+result[0]).is(':checkbox')){
                             if(setValue == '1'){
                                 $('#'+result[0]).prop('checked', true);
-                            }                
+                            }else{
+                                $('#'+result[0]).prop('checked', false);                               
+                            }
                         }else{
                             if($('#'+result[0]).hasClass('tinySetting')){
                                 setValue = parseFloat(setValue);

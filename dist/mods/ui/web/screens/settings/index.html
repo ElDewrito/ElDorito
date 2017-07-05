@@ -17,6 +17,7 @@
             <li><a href="#page1">Gameplay</a></li>
             <li><a href="#page2">Controls</a></li>
             <li><a href="#page3">Audio/Video</a></li>
+            <li><a href="#page10">Tweaks</a></li>
             <img class="button">
         </ul>
         <h1 class="header">Settings</h1>
@@ -48,19 +49,19 @@
             <br>
             <h3 class="subHeader">Colors</h3>
             <label for="colorsPrimary">Primary</label>
-            <input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF">
+            <input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             <br>
             <label for="colorsSecondary">Secondary</label>
-            <input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF">
+            <input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             <br>
             <label for="colorsVisor">Visor</label>
-            <input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF">
+            <input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             <br>
             <label for="colorsLights">Lights</label>
-            <input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF">
+            <input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             <br>
             <label for="colorsHolo">Holo</label>
-            <input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF">
+            <input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             <br><br>
             <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
             <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
@@ -308,18 +309,24 @@
             </select>
             <br>   
             <h3 class="subHeader">VOIP</h3>
-            <label for="vEnabled">VOIP Enabled</label><input class="setting" type="checkbox" id="vEnabled">
+            <label for="vEnabled">VOIP Enabled</label>
+            <input class="setting" type="checkbox" id="vEnabled">
             <br>
-            <label for="vMicrophoneID">Microphone ID</label><select id="vMicrophoneID"class="setting wheelable"></select>
+            <label for="vMicrophoneID">Microphone ID</label>
+            <select id="vMicrophoneID"class="setting wheelable"></select>
             <br>
-            <label for="vPTTEnable">Push To Talk</label><input class="setting" type="checkbox" id="vPTTEnable">
+            <label for="vPTTEnable">Push To Talk</label>
+            <input class="setting" type="checkbox" id="vPTTEnable">
             <br>
-            <label for="vEchoCancelation">Echo Cancelation</label><input class="setting" type="checkbox" id="vEchoCancelation">
+            <label for="vEchoCancelation">Echo Cancelation</label>
+            <input class="setting" type="checkbox" id="vEchoCancelation">
             <br>
-            <label for="vAGC">Automatic Gain Control</label><input class="setting" type="checkbox" id="vAGC">
+            <label for="vAGC">Automatic Gain Control</label>
+            <input class="setting" type="checkbox" id="vAGC">
             <br>    
-            <label for="vNoiseSupress">Noise Supress</label><input class="setting" type="checkbox" id="vNoiseSupress"
-            ><br>            
+            <label for="vNoiseSupress">Noise Supress</label>
+            <input class="setting" type="checkbox" id="vNoiseSupress">
+            <br>            
         </div>
         
         <div id="page4">
@@ -448,6 +455,37 @@
             <label for="Menu">Menu</label><select class="bind setting" id="Menu"></select><br>
             <label for="Scoreboard">Scoreboard</label><select class="bind setting" id="Scoreboard"></select><br>
             <label for="VoiceChat">VoiceChat</label><select class="bind setting" id="VoiceChat"></select><br>
+        </div>
+        
+        <div id="page10">
+            <label for="tAgressiveAudioDiscard">Aggressive Audio Discarding (by Dany)</label>
+            <input class="setting" type="checkbox" id="tAgressiveAudioDiscard"><br>
+            <p class="desc">Prioritizes gun sounds over others to make audio cutoff less notable</p>
+            <br>  
+            <label for="tDisableFog">Reacthor (by Dany)</label>
+            <input class="setting" type="checkbox" id="tDisableFog"><br>
+            <p class="desc">Removes some of the fog on Reactor which causes FPS drops indoors</p>
+            <br>  
+            <label for="tDisableWeapOutline">Weapon Outline Removal (by Dany)</label>
+            <input class="setting" type="checkbox" id="tDisableWeapOutline"><br>
+            <p class="desc">Remove outlines from weapons on the ground</p>
+            <br>  
+            <label for="tDisableHeadshotEffect">Disable headshot "ping" sound</label>
+            <input class="setting" type="checkbox" id="tDisableHeadshotEffect"><br>
+            <p class="desc">Remove the ping sound you hear when killed by a headshot</p>
+            <br> 
+            <label for="tDisableHitmarkers">Disable weapon hitmarkers</label>
+            <input class="setting" type="checkbox" id="tDisableHitmarkers"><br>
+            <p class="desc">Stop red indicators when any of your weapons cause damage</p>
+            <br> 
+            <label for="tGruntBirthdayParty">Grunt Birthday Party (by Bivi) </label>
+            <input class="setting" type="checkbox" id="tGruntBirthdayParty"><br>
+            <p class="desc">Confetti flies from heatshots as the children cheer</p>
+            <br> 
+            <label for="tReachFrags">Reach Style Frags (by Bivi)</label>
+            <input class="setting" type="checkbox" id="tReachFrags"><br>
+            <p class="desc">Give tossed grenades the orangey-yellow tail ala Halo: Reach</p>
+            <br> 
         </div>
         
         <button id="applyButton">Apply<img class="button"></button><button id="cancelButton">Cancel<img class="button"></button>

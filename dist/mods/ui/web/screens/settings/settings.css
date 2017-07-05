@@ -422,3 +422,11 @@ input[type=range]::-webkit-slider-thumb {
 ::-webkit-scrollbar-thumb {
     background-color: grey;
 }
+
+.desc{
+    margin: 0;
+    margin-bottom: -1vh;
+    padding:0;    
+    font-size: 2.25vh;
+    color: grey;
+}
