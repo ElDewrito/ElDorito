@@ -6,7 +6,7 @@ namespace Modules
 	class ModuleTweaks : public Utils::Singleton<ModuleTweaks>, public ModuleBase
 	{
 	public:
-		//Command *VarIntelBloomPatch;
+		Command *VarIntelBloomPatch;
 		Command *VarAggressiveAudioDiscarding;
 		Command *VarDisableReactorFog;
 		Command *VarDisableWeaponOutline;

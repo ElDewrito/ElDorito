@@ -98,7 +98,7 @@ namespace Blam
 				struct BackgroundSoundEnvironmentPalette;
 				struct Unknown108;
 				struct Fog;
-				struct CameraFx;
+				struct CameraFxBlock;
 				struct ScenarioClusterDatum;
 				struct SpawnDatum;
 				struct Crate;
@@ -302,7 +302,7 @@ namespace Blam
 				uint32_t Unknown107;
 				TagBlock<Unknown108> Unknown109;
 				TagBlock<Fog> Fog2;
-				TagBlock<CameraFx> CameraFx2;
+				TagBlock<CameraFxBlock> CameraFx;
 				uint32_t Unknown110;
 				uint32_t Unknown111;
 				uint32_t Unknown112;
@@ -3153,7 +3153,7 @@ namespace Blam
 				};
 				TAG_STRUCT_SIZE_ASSERT(Fog, 0x8);
 
-				struct CameraFx
+				struct CameraFxBlock
 				{
 					StringID Name;
 					TagReference Tag;
@@ -3165,7 +3165,7 @@ namespace Blam
 					uint32_t Unknown6;
 					uint32_t Unknown7;
 				};
-				TAG_STRUCT_SIZE_ASSERT(CameraFx, 0x30);
+				TAG_STRUCT_SIZE_ASSERT(CameraFxBlock, 0x30);
 
 				struct ScenarioClusterDatum
 				{

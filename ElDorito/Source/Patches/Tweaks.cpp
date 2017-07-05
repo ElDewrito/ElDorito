@@ -2,13 +2,8 @@
 #include <vector>
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Camera/CameraFxSettings.hpp"
-#include "../Patch.hpp"
-#include "Core.hpp"
 #include "../Blam/Tags/Sounds/SoundClasses.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
-#include "../Blam/Tags/Game/Globals.hpp"
-#include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
 #include "../Blam/Tags/Objects/Projectile.hpp"
@@ -23,6 +18,21 @@ namespace Patches
 		void ApplyAfterTagsLoaded()
 		{
 			using namespace Blam::Tags;
+
+			if (Modules::ModuleTweaks::Instance().VarIntelBloomPatch->ValueInt)
+			{
+				//TODO: Don't hardcode tag offsets, get these from scnr->CameraFx
+				const std::vector<uint16_t> camera_fx_settings{
+					0x2EF8, 0x34CD, 0x3AA9, 0x3E0D, 0x3FD1, 0x3FD2, 0x4228, 0x4A00, 0x4BCE, 0x4F0E, 0x523F, 0x54E1, 0x571D
+				};
+
+				for (auto &camera_fx_setting : camera_fx_settings)
+				{
+					auto cfxs = TagInstance(camera_fx_setting).GetDefinition<Blam::Tags::Camera::FxSettings>('cfxs');
+					if (cfxs)
+						cfxs->Flags = 16;
+				}
+			}
 
 			if (Modules::ModuleTweaks::Instance().VarAggressiveAudioDiscarding->ValueInt)
 			{

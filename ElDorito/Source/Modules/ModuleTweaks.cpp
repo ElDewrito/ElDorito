@@ -4,10 +4,9 @@ namespace Modules
 {
 	ModuleTweaks::ModuleTweaks() : ModuleBase("Tweaks")
 	{
-		//TODO: Find testers for this patch
-		/*VarIntelBloomPatch = AddVariableInt("IntelBloomPatch", "intelbloompatch", "Fixes excessive bloom when using Intel integrated graphics", eCommandFlagsArchived, 0);
+		VarIntelBloomPatch = AddVariableInt("IntelBloomPatch", "intelbloompatch", "Fixes excessive bloom when using Intel integrated graphics", eCommandFlagsArchived, 0);
 		VarIntelBloomPatch->ValueIntMin = 0;
-		VarIntelBloomPatch->ValueIntMax = 1;*/
+		VarIntelBloomPatch->ValueIntMax = 1;
 
 		VarAggressiveAudioDiscarding = AddVariableInt("AggressiveAudioDiscarding", "aggressiveaudiodiscarding", "Discard sounds more aggressively to prevent audio latency. This is a workaround, not a fix.", eCommandFlagsArchived, 0);
 		VarAggressiveAudioDiscarding->ValueIntMin = 0;
