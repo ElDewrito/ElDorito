@@ -99,7 +99,8 @@ var settingsToLoad = [
     ['tDisableHeadshotEffect', 'Tweaks.DisableHeadshotEffect'],
     ['tDisableHitmarkers', 'Tweaks.DisableHitMarkers'], 
     ['tGruntBirthdayParty', 'Tweaks.GruntBirthdayParty'],
-    ['tReachFrags','Tweaks.ReachStyleFrags']
+    ['tReachFrags','Tweaks.ReachStyleFrags'],
+    ['tIntelBloomPatch','Tweaks.IntelBloomPatch']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
