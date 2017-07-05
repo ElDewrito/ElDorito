@@ -160,8 +160,11 @@ namespace
 
 		if (GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
+			const auto& moduleForge = Modules::ModuleForge::Instance();
 			// only show selection when we're in monitor mode
 			Forge::SelectionRenderer::SetEnabled(true);
+			auto rendererType = Forge::SelectionRenderer::RendererImplementationType(moduleForge.VarSelectionRenderer->ValueInt);
+			Forge::SelectionRenderer::SetRendererType(rendererType);
 			Forge::Selection::Update();
 
 			Forge::RotationSnap::Update(playerIndex, heldObjectIndex);

@@ -131,6 +131,9 @@ namespace Modules
 		VarRotationSnap = AddVariableFloat("RotationSnap", "forge_rotation_snap", "Angle in degrees at which object rotation will be snapped", eCommandFlagsNone, 0);
 		VarRotationSensitivity = AddVariableFloat("RotationSensitivity", "forge_rotation_sensitivity", "Controls the sensitivity of object rotation", eCommandFlagsArchived, 1.0f);
 		VarMonitorSpeed = AddVariableFloat("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 1.0f);
+		VarSelectionRenderer = AddVariableInt("SelectionRenderer", "forge_selection_renderer", "Set the selection renderer to use", eCommandFlagsArchived, 0);
+		VarSelectionRenderer->ValueIntMin = 0;
+		VarSelectionRenderer->ValueIntMax = 1;
 
 		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);

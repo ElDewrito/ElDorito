@@ -12,6 +12,7 @@ namespace Modules
 		Command* VarRotationSnap;
 		Command* VarRotationSensitivity;
 		Command* VarMonitorSpeed;
+		Command* VarSelectionRenderer;
 
 		ModuleForge();
 	};
