@@ -786,12 +786,12 @@ function initializeBindings(){
         $('.keybind').on('focus blur', function(e){
             var this_ = $(this);
             dew.on('mouse-xbutton-event', function(m){
-               if(m.data.xbutton == 1){
-                   document.activeElement.value = 'Mouse4';
-               }else{
-                   document.activeElement.value = 'Mouse5';
-               }; 
-              document.activeElement.blur();
+                if(m.data.xbutton == 1){
+                    document.activeElement.value = 'Mouse4';
+                }else{
+                    document.activeElement.value = 'Mouse5';
+                }; 
+                document.activeElement.blur();
             });
             function keyHandler(e){
                 e.preventDefault();
@@ -832,11 +832,18 @@ function initializeBindings(){
                         }   
                     break
                     case 17:
-                        this_.val('LControl');
+                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
+                           this_.val('LControl'); 
+                        }else{
+                           this_.val('RControl'); 
+                        }   
                     break;
                     case 18:
-                        this_.val('LAlt');
-                    break;
+                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
+                           this_.val('LAlt'); 
+                        }else{
+                           this_.val('RAlt'); 
+                        }  
                     case 32: 
                         this_.val('Space'); 
                     break;
@@ -977,6 +984,7 @@ function updateSelection(item){
     $('.selectedElement').removeClass('selectedElement');
     $(activePage + ' label:visible').eq(item).addClass('selectedElement');
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
+    $('#'+selectedItem)[0].scrollIntoView(false);
     dew.command('Game.PlaySound 0xAFE');
 }
 

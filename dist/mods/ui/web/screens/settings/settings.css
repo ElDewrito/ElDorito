@@ -135,6 +135,10 @@ textarea{
     right:45vh;
 }
 
+#page10 .setting{
+    right:10vh;
+}
+
 #presetMenu{
     right: 25.5vh;    
 }
@@ -404,10 +408,10 @@ input[type=range]::-webkit-slider-thumb {
   width: 1vh;
   background: #ffffff;
   -webkit-appearance: none;
-  margin-top:-0.8vh;
+  margin-top:-0.85vh;
 }
 
-#voting,#veto,#both{
+#voting,#veto{
     display:none;
 }
 
