@@ -31,6 +31,7 @@ namespace
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
+	char __stdcall ForgeInputHook(int localPlayerIndex);
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -87,6 +88,7 @@ namespace Patches
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
+			Hook(0x19D482, ForgeInputHook, HookFlags::IsCall).Apply();
 
 			Patch(0x695008, { 0x80, 0x3D, 0xEB, 0xDB, 0x38, 0x02, 0x00 }).Apply(); // Disable H3UI on UI input locks
 		}
@@ -530,6 +532,16 @@ namespace
 
 		if (s_ConsumablesLocked)
 			*(uint32_t *)(state + 0x18) &= ~0x10;
+	}
+
+	char __stdcall ForgeInputHook(int localPlayerIndex)
+	{
+		static auto ForgeInput = (char(__stdcall*)(int playerMappingIndex))(0x59F0E0);
+
+		if (contextStack.empty())
+			return ForgeInput(localPlayerIndex);
+
+		return -1;
 	}
 }
 
