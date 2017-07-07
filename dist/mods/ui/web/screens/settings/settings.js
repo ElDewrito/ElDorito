@@ -670,6 +670,7 @@ function applyButton(){
 
 function cancelButton(){
     resetInstants();
+    itemNumber = 0;
     if(window.location.hash == '#page5'){
         initializeBindings(); 
         switchPage('#page2');  
