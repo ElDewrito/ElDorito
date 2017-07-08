@@ -307,7 +307,7 @@ function startConnection(info)
 			{
 				var id;
 				dev.forEach(function(d){
-					if(d.deviceId == Microphone)
+					if(d.label == Microphone)
 						id = d.deviceId;
 				});
 				console.log("used id: " + id);

@@ -119,27 +119,29 @@ namespace Modules
 {
 	ModuleVoIP::ModuleVoIP() : ModuleBase("VoIP")
 	{
-		VarVoipEnabled = AddVariableInt("Enabled", "enabled", "Toggle voip on or off", eCommandFlagsArchived, 1, UpdateVoip);
+		VarVoipEnabled = AddVariableInt("Enabled", "enabled", "Toggle voip on or off", eCommandFlagsArchived, 1);
 		VarVoipEnabled->ValueIntMin = 0;
 		VarVoipEnabled->ValueIntMax = 1;
 
-		VarPTTEnabled = AddVariableInt("PTT_Enabled", "ptt_enabled", "Enable PTT(1) or voice activation(0)", eCommandFlagsArchived, 1, UpdateVoip);
+		VarPTTEnabled = AddVariableInt("PTT_Enabled", "ptt_enabled", "Enable PTT(1) or voice activation(0)", eCommandFlagsArchived, 1);
 		VarPTTEnabled->ValueIntMin = 0;
 		VarPTTEnabled->ValueIntMax = 1;
 
-		VarMicrophone = AddVariableString("MicrophoneID", "microphoneid", "microphone id to use for voip, blank is default device", eCommandFlagsArchived, "", UpdateVoip);
+		VarMicrophone = AddVariableString("MicrophoneID", "microphoneid", "microphone label to use for voip, blank is default device", eCommandFlagsArchived, "");
 
-		VarEchoCancellation = AddVariableInt("EchoCancelation", "echocancellation", "Toggle echo cancellation", eCommandFlagsArchived, 1, UpdateVoip);
+		VarEchoCancellation = AddVariableInt("EchoCancelation", "echocancellation", "Toggle echo cancellation", eCommandFlagsArchived, 1);
 		VarEchoCancellation->ValueIntMin = 0;
 		VarEchoCancellation->ValueIntMax = 1;
 
-		VarAGC = AddVariableInt("AGC", "agc", "Toggle automatic gain control", eCommandFlagsArchived, 1, UpdateVoip);
+		VarAGC = AddVariableInt("AGC", "agc", "Toggle automatic gain control", eCommandFlagsArchived, 1);
 		VarAGC->ValueIntMin = 0;
 		VarAGC->ValueIntMax = 1;
 
-		VarNoiseSupress = AddVariableInt("NoiseSupress", "noisesupress", "Toggle noise supression", eCommandFlagsArchived, 1, UpdateVoip);
+		VarNoiseSupress = AddVariableInt("NoiseSupress", "noisesupress", "Toggle noise supression", eCommandFlagsArchived, 1);
 		VarNoiseSupress->ValueIntMin = 0;
 		VarNoiseSupress->ValueIntMax = 1;
+
+		AddCommand("Update", "update", "Updates the voip screen layer with variable states", eCommandFlagsNone, UpdateVoip);
 
 
 		Patches::Core::OnMapLoaded(RendererStarted);
