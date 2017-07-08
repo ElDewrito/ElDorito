@@ -1,11 +1,14 @@
 #include "../Patch.hpp"
 #include "Audio.hpp"
+#include "../Modules/ModuleSettings.hpp"
 
 namespace
 {
-	void FmodSystemInitHook();
-	void FmodSystemInitHook2();
+	const auto MAX_CHANNELS = 1024;
+
 	int FmodChannelCountHook();
+	int __stdcall FMOD_System_Init_Hook(void* system, int maxchannels, int flags, int extradriverdata, int a5);
+	int __fastcall snd_SYSTEM_FMOD_Init_Hook(int thisptr, void* unusded, int a2, int a3);
 }
 
 namespace Patches
@@ -33,49 +36,56 @@ namespace Patches
 
 			// increase fmod max virtual audio channel count
 			// http://www.fmod.org/docs/content/generated/FMOD_System_Init.html
-			Hook(0x4E9C, FmodSystemInitHook).Apply();
-			Hook(0x4EC0, FmodSystemInitHook2).Apply();
+			//Hook(0x4E9C, FmodSystemInitHook).Apply();
+			//Hook(0x4EC0, FmodSystemInitHook2).Apply();
 			Hook(0x25076B, FmodChannelCountHook, HookFlags::IsCall).Apply();
 
 			// increase fmod software channel count
 			// http://www.fmod.org/docs/content/generated/FMOD_System_SetSoftwareChannels.html
-			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = FmodChannelCountHook();
+			*reinterpret_cast<uint32_t*>(0x404DF8 + 1) = MAX_CHANNELS;
+
+			Pointer(0x01750794).Write(uint32_t(&FMOD_System_Init_Hook));
+			Pointer(0x0176CA18).Write(uint32_t(&snd_SYSTEM_FMOD_Init_Hook));
+		}
+
+		bool SetOutputDevice(int deviceIndex)
+		{
+			static auto FMOD_System_SetDriver = (int(__thiscall *)(void *fmodSoundSystem, int driver))(0x139771C);
+
+			auto haloSoundSystemPtr = (void**)0x018BC9C8;
+			if (!haloSoundSystemPtr)
+				return false;
+			auto fmodSystem = *((void**)(*haloSoundSystemPtr) + 1);
+			if (!fmodSystem)
+				return false;
+
+			return FMOD_System_SetDriver(fmodSystem, deviceIndex) == 0;
 		}
 	}
 }
 
 namespace
 {
-	__declspec(naked) void FmodSystemInitHook()
-	{
-		__asm
-		{
-			push	0; extradriverdata
-			push	ebx; flags
-			push	100h; maxchannels
-			push	eax; FMOD_SYSTEM
-			call	dword ptr[ecx]; FMOD::System::init
-			push	0x404EA4
-			ret
-		}
-	}
-
-	__declspec(naked) void FmodSystemInitHook2()
-	{
-		__asm
-		{
-			push	0; extradriverdata
-			push	ebx; flags
-			push	100h; maxchannels
-			push	eax; FMOD_SYSTEM
-			call	dword ptr[ecx]; FMOD::System::init
-			push	0x404EC8
-			ret
-		}
-	}
-
 	int FmodChannelCountHook()
 	{
-		return 1024;
+		return MAX_CHANNELS;
+	}
+
+	int __stdcall FMOD_System_Init_Hook(void* system, int maxchannels, int flags, int extradriverdata, int a5)
+	{
+		static auto FMOD_System_Init = (int(__stdcall *)(void* system, int maxchannels, int flags, int extradriverdata, int a5))(0x1369AA0);
+		return FMOD_System_Init(system, MAX_CHANNELS, flags, extradriverdata, a5);
+	}
+
+	int __fastcall snd_SYSTEM_FMOD_Init_Hook(int thisptr, void* unused, int a2, int a3)
+	{
+		static auto snd_SYSTEM_FMOD_Init = (int(__thiscall *)(int thisptr, int a2, int a3))(0x004047B0);
+		auto result = snd_SYSTEM_FMOD_Init(thisptr, a2, a3);
+
+		auto outputDevice = Modules::ModuleSettings::Instance().VarAudioOutputDevice->ValueInt;
+		if (result)
+			Patches::Audio::SetOutputDevice(outputDevice);
+
+		return result;
 	}
 }

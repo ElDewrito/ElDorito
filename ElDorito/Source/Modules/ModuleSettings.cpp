@@ -1,4 +1,7 @@
 #include "ModuleSettings.hpp"
+#include "../Patches/Audio.hpp"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../ThirdParty/rapidjson/writer.h"
 
 namespace
 {
@@ -552,6 +555,51 @@ namespace
 
 		return true;
 	}
+
+	bool VariableAudioOutputDeviceUpdated(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		if (!SoundSystemInitialized())
+			return true;
+
+		int device;
+		if (args.size() < 1 || !TryParseInt(args[0], &device) || device < 0)
+			return false;
+
+
+		if (!Patches::Audio::SetOutputDevice(device))
+		{
+			returnInfo = "Error setting audo output device.";
+			return false;
+		}
+
+		std::stringstream ss;
+		ss << "Audio output device set to " << device << ".";
+		returnInfo = ss.str();
+
+		return true;
+	}
+
+	bool CommandAudioOutputDeviceList(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartArray();
+
+		WAVEOUTCAPS caps = {};
+		auto numDevs = waveOutGetNumDevs();
+		for (auto i = 0u; i < numDevs; i++)
+		{	
+			if (waveOutGetDevCaps(i, &caps, sizeof(caps)) != MMSYSERR_NOERROR)
+				continue;
+
+			writer.String(caps.szPname);	
+		}
+		writer.EndArray();
+
+		returnInfo = buffer.GetString();
+		return true;
+	}
 }
 
 namespace Modules
@@ -589,6 +637,9 @@ namespace Modules
 		VarMasterVolume = AddVariableInt("MasterVolume", "volume", "Controls the master volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial), 100, VariableSettingsMasterVolumeUpdated);
 		VarSfxVolume = AddVariableInt("SfxVolume", "volume_sfx", "Controls the sfx volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial), 100, VariableSettingsSfxVolumeUpdated);
 		VarMusicVolume = AddVariableInt("MusicVolume", "volume_music", "Controls the music volume", CommandFlags(eCommandFlagsArchived | eCommandFlagsDontUpdateInitial), 100, VariableSettingsMusicVolumeUpdated);
+		VarAudioOutputDevice = AddVariableInt("AudioOutputDevice", "audio_out", "Sets the audio output device to use (0) being system default", eCommandFlagsArchived, 0, VariableAudioOutputDeviceUpdated);
+
+		AddCommand("AudioOutputDeviceList", "audio_out_devs", "List available audio output devices", eCommandFlagsNone, CommandAudioOutputDeviceList);
 	}
 
 	void ModuleSettings::GetScreenResolution(int* width, int* height) const

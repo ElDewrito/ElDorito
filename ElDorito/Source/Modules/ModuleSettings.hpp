@@ -38,6 +38,7 @@ namespace Modules
 		Command *VarMasterVolume;
 		Command *VarSfxVolume;
 		Command *VarMusicVolume;
+		Command *VarAudioOutputDevice;
 		
 
 		ModuleSettings();
