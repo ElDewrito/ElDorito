@@ -10,7 +10,7 @@ namespace
 
 	auto SSL_SetAntialiasing = reinterpret_cast<int(__stdcall *)(bool)>(0x79B240);
 	auto SSL_SetAutoCentering = reinterpret_cast<int(__stdcall *)(bool)>(0x79B260);
-	auto SSL_SetBrightness = reinterpret_cast<int(__stdcall *)(int)>(0x79B290);
+	auto SSL_SetContrast = reinterpret_cast<int(__stdcall *)(int)>(0x79B290);
 	auto SSL_SetButtonLayout = reinterpret_cast<int(__stdcall *)(int)>(0x79B2B0);
 	auto SSL_SetCameraFOV = reinterpret_cast<int(__stdcall *)(int)>(0x79B300);
 	auto SSL_SetControlsMethod = reinterpret_cast<int(__stdcall *)(int)>(0x79B330);
@@ -89,10 +89,25 @@ namespace
 		if (value < 0 || value > 100)
 			return false;
 
-		SSL_SetBrightness(value);
+		*reinterpret_cast<int*>(0x022C0128 + 0x41BD8) = static_cast<int>(value);
 
 		std::stringstream ss;
 		ss << "Brightness set to " << value << ".";
+		returnInfo = ss.str();
+		return true;
+	}
+
+	bool VariableSettingsContrastUpdate(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto value = Modules::ModuleSettings::Instance().VarContrast->ValueInt;
+
+		if (value < 0 || value > 100)
+			return false;
+
+		SSL_SetContrast(value);
+
+		std::stringstream ss;
+		ss << "Contrast set to " << value << ".";
 		returnInfo = ss.str();
 		return true;
 	}
@@ -609,6 +624,7 @@ namespace Modules
 		VarAntialiasing = AddVariableInt("Antialiasing", "antialiasing", "Controls whether antialiasing is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsAntialiasingUpdate);
 		VarAutoCentering = AddVariableInt("AutoCentering", "autocenter", "Controls whether auto-centering is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsAutoCenteringUpdate);
 		VarBrightness = AddVariableInt("Brightness", "brightness", "Controls the brightness level (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsBrightnessUpdate);
+		VarContrast = AddVariableInt("Contrast", "Contrast", "Controls the contrast level (0 - 100)", eCommandFlagsArchived, 50, VariableSettingsContrastUpdate);
 		VarDetailsQuality = AddVariableString("DetailsQuality", "details", "Controls whether the details quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsDetailsQualityUpdate);
 		VarDisplayHints = AddVariableInt("DisplayHints", "hints", "Controls whether displaying of hints is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsDisplayHintsUpdate);
 		VarEffectsQuality = AddVariableString("EffectsQuality", "effects", "Controls whether the effects Quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsEffectsQualityUpdate);

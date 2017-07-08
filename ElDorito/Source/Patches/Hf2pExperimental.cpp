@@ -243,6 +243,8 @@ namespace
 		preferencesPtr(0x41C54).Write<uint32_t>(moduleSettings.VarSfxVolume->ValueInt);
 		preferencesPtr(0x41BE0).Write<uint32_t>(screenResolutionWidth);
 		preferencesPtr(0x41BE4).Write<uint32_t>(screenResolutionHeight);
+		preferencesPtr(0x41BD4).Write<uint32_t>(moduleSettings.VarContrast->ValueInt);
+		preferencesPtr(0x41BD8).Write<uint32_t>(moduleSettings.VarBrightness->ValueInt);
 	}
 
 	void OnMapLoaded(const char* map)

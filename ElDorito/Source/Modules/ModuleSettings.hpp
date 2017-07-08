@@ -10,6 +10,7 @@ namespace Modules
 		Command *VarAntialiasing;
 		Command *VarAutoCentering;
 		Command *VarBrightness;
+		Command *VarContrast;
 		Command *VarDetailsQuality;
 		Command *VarDisplayHints;
 		Command *VarEffectsQuality;
