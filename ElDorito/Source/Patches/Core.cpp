@@ -25,7 +25,7 @@ namespace
 	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
-	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
+	char GetBinkVideoPathHook(int p_VideoID, char *p_bink_filepath);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -352,12 +352,16 @@ namespace
 
 	const auto GetBinkVideoPath = reinterpret_cast<char(*)(int, char*)>(0xA99120);
 
-	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf)
+	// Returns should the engine attempt to load the bink file
+	char GetBinkVideoPathHook(int p_VideoID, char *p_bink_filepath)
 	{
-		if (Modules::ModuleGame::Instance().VarSkipIntroVideos->ValueInt == 1)
-			// Tell the game that there is no video with that ID
-			return 0;
-
-		return GetBinkVideoPath(p_VideoID, p_DestBuf);
+		// Check if we should display the intros
+		if (Modules::ModuleGame::Instance().VarSkipIntroVideos->ValueInt)
+			return false;
+		// never load the russian langauge intro
+		if (p_VideoID == 3)
+			return false;
+		// Call the orginal function
+		return GetBinkVideoPath(p_VideoID, p_bink_filepath);
 	}
 }
