@@ -206,8 +206,9 @@ namespace Server
 					char ipStr[INET_ADDRSTRLEN];
 					inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr));
 
-					std::stringstream uid;
-					uid << std::hex << player->Properties.Uid;
+					std::string uidStr;
+					Utils::String::BytesToHexString(&player->Properties.Uid, sizeof(uint64_t), uidStr);
+
 					uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
 					Pointer pvpBase(0x23F5A98);
@@ -221,7 +222,7 @@ namespace Server
 					writer.Key("playerIndex");
 					writer.Int(playerIdx);
 					writer.Key("uid");
-					writer.String(uid.str().c_str());
+					writer.String(uidStr.c_str());
 
 					writer.Key("playerGameStats");
 					writer.StartObject();
