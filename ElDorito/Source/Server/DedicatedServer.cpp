@@ -120,6 +120,8 @@ namespace Server
 			writer.String(Utils::Version::GetVersionString().c_str());
 			writer.Key("serverName");
 			writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+			writer.Key("serverPort");
+			writer.Int(Modules::ModuleServer::Instance().VarServerPort->ValueInt);
 			writer.Key("port");
 			writer.Int(Pointer(0x1860454).Read<uint32_t>());
 			writer.Key("hostPlayer");
