@@ -38,6 +38,7 @@ namespace
 	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex);
 	void GetActionButtonNameHook();
 	void UI_GetHUDGlobalsIndexHook();
+	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -423,10 +424,6 @@ namespace Patches
 			// Hook window title sprintf to replace the dest buf with our string
 			Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
 
-			// Hook the call to create a lobby from the main menu so that we
-			// can show the server browser if matchmaking is selected
-			Hook(0x6E79A7, MainMenuCreateLobbyHook, HookFlags::IsCall).Apply();
-
 			// Runs when the game's resolution is changed
 			Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
 
@@ -458,6 +455,8 @@ namespace Patches
 			Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
 			// enable controller buttons in HUD messages
 			Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
+
+			Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
 		}
 
 		void ApplyMapNameFixes()
@@ -752,26 +751,32 @@ namespace
 			UI_Dialog_QueueLoad(dialog);
 	}
 
-	bool MainMenuCreateLobbyHook(int lobbyType)
+	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5)
 	{
-		// If matchmaking is selected, show the server browser instead
-		// TODO: Really need to map out the ui_game_mode enum...
-		switch (lobbyType)
+		static auto  c_main_menu_screen_widget_item_select = (void(__thiscall*)(void* thisptr, int a2, int a3, void* dataSource, void* a5))(0xAE77D0);
+
+		if (a3 == 0x10083) // main_menu
 		{
-		case 1: // Matchmaking
-			Web::Ui::ScreenLayer::Show("browser", "{}");
-			return true;
-		case 4: // Theater (rip)
-			ShowLanBrowser();
-			return true;
-		case 0: // Campaign
-			Web::Ui::ScreenLayer::Show("settings", "{}");
-			return true;
-		default:
-			typedef bool(*CreateLobbyPtr)(int lobbyType);
-			auto CreateLobby = reinterpret_cast<CreateLobbyPtr>(0xA7EE70);
-			return CreateLobby(lobbyType);
+			uint32_t id;
+			auto itemIndex = (*(int(__thiscall **)(void*))(*(uint8_t**)a4 + 0x18))(a4);
+			if ((*(bool(__thiscall **)(void*, uint32_t, uint32_t, uint32_t*))(*(uint8_t**)a5 + 0x34))(a5, itemIndex, 0x2AA, &id))
+			{
+				switch (id)
+				{
+				case 0x10075: // matchmaking
+					Web::Ui::ScreenLayer::Show("browser", "{}");
+					return;
+				case 0x1007C: // theater
+					ShowLanBrowser();
+					return;
+				case 0x10076: // campaign
+					Web::Ui::ScreenLayer::Show("settings", "{}");
+					return;
+				}
+			}
 		}
+
+		c_main_menu_screen_widget_item_select(thisptr, a2, a3, a4, a5);
 	}
 
 	void ResolutionChangeHook()
