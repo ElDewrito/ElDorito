@@ -20,7 +20,7 @@ namespace
 	struct Preferences
 	{
 		uint8_t Unknown00;
-		uint8_t Unknown01;
+		uint8_t IsDirty;
 		uint8_t Unknown[0x1E];
 		uint8_t Unknown20[0x78];
 		uint8_t Unknown98[0x78];
@@ -338,16 +338,13 @@ namespace
 		preferences->Unknown41BC0 = 1;
 		preferences->DisplaySubtitles = 0;
 		preferences->Unknown41BC8 = 0;
-
-		uint8_t osInfo[0x34];
-		sub_65C990(osInfo, preferences->Unknown41BC8);
-
 		preferences->Unknown41BDC = 4;
-		sub_50AD30(osInfo, &preferences->Unknown41BDC); // display preferences
-
 		preferences->Unknown41BD0 = 0;
 		preferences->Unknown41C6A = 1;
 
+		uint8_t osInfo[0x34];
+		sub_65C990(osInfo, preferences->Unknown41BC8);
+		sub_50AD30(osInfo, &preferences->Unknown41BDC); // display preferences
 		sub_50AC70(&preferences->ControlsMethod);
 
 		int screenResolutionWidth, screenResolutionHeight;
@@ -390,7 +387,9 @@ namespace
 		sub_65CA30(osInfo); // osInfo dtor
 
 		preferences->Unknown00 = 1;
-		preferences->Unknown01 = 1;
+		preferences->IsDirty = 1;
+
+		*(uint32_t*)ElDorito::GetMainTls(0x18)[0](0x8400C) = 1; // needed for dirtying
 	}
 
 	void OnMapLoaded(const char* map)
