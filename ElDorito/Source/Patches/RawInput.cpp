@@ -36,6 +36,11 @@ namespace
 
 		static auto Forge_GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x0059A6F0);
 
+		// if we're in a h3 ui screen
+		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
+		if (activeScreenCount > 0)
+			return true;
+
 		// if the left mouse button is down
 		if (*(uint8_t*)0x238E6AC > 0)
 		{
