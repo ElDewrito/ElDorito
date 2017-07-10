@@ -3,6 +3,8 @@
 #include "../Blam/BlamInput.hpp"
 #include "../Modules/ModuleSettings.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Modules/ModuleCamera.hpp"
+#include "../Modules/ModuleInput.hpp"
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Core.hpp"
@@ -15,6 +17,93 @@
 
 namespace
 {
+	struct Preferences
+	{
+		uint8_t Unknown00;
+		uint8_t Unknown01;
+		uint8_t Unknown[0x1E];
+		uint8_t Unknown20[0x78];
+		uint8_t Unknown98[0x78];
+		uint32_t Unknown110;
+		uint32_t Unknown114;
+		uint8_t Unknown118[0x80];
+		uint8_t Unknown198[0x198]; // campaign?
+		uint32_t Unknown330;
+		uint32_t Unknown334;
+		uint8_t Unknown338[0xE718]; // game varaint at 0x33c
+		uint8_t UnknownEA50[0xE2A8]; // map variant at 0xEA58
+		uint8_t Unknown1CCF8[0x24E80];
+		uint8_t Unknown41B78[0x4C];
+		uint32_t Unknown41BC0;
+		uint8_t Unknown41BC5;
+		uint8_t Unknown41BC6;
+		uint8_t Unknown41BC7;
+		uint8_t Unknown41BC8;
+		uint8_t Fullscreen;
+		uint32_t Unknown41BD0;
+		uint32_t Contrast;
+		uint32_t Brightness;
+		uint32_t Unknown41BDC;
+		uint32_t ScreenResolutionWidth;
+		uint32_t ScreenResolutionHeight;
+		uint32_t Unknown41BE8;
+		uint32_t Unknown41BEC;
+		uint32_t TextureResolution;
+		uint32_t ShadowQuality;
+		uint32_t TextureFilteringQuality;
+		uint32_t LightingQuality;
+		uint32_t EffectsQuality;
+		uint32_t DetailsQuality;
+		uint32_t PostprocessingQuality;
+		uint8_t MotionBlur;
+		uint8_t VSync;
+		uint8_t Antialiasing;
+		uint8_t Unknown41C0F;
+		uint8_t ShowWatermark;
+		uint32_t DisplaySubtitles;
+		uint32_t DisplayAdapter;
+		uint32_t Unknown41C1C;
+		uint32_t Unknown41C20;
+		uint32_t Unknown41C24;
+		uint32_t Unknown41C28;
+		uint32_t Unknown41C2C;
+		uint32_t Unknown41C30;
+		uint32_t Unknown41C34;
+		uint32_t Unknown41C38;
+		uint32_t Unknown41C3C;
+		uint32_t Unknown41C40;
+		uint32_t Unknown41C44;
+		uint32_t Unknown41C48;
+		uint32_t Unknown41C4C;
+		uint32_t MasterVolume;
+		uint32_t SfxVolume;
+		uint32_t MusicVolume;
+		uint32_t VoiceVolume;
+		uint32_t VoiceChatControl;
+		uint32_t VoiceChatVolume;
+		uint8_t ToggleCrouch;
+		uint8_t HUDShake;
+		uint8_t Unknown41C6A;
+		uint8_t Unknown41C6B;
+		uint32_t TeamColor;
+		float CameraFov;
+		uint32_t ControlsMethod;
+		uint32_t MouseSensitivityVertical;
+		uint32_t MouseSensitivityHorizontal;
+		uint32_t MouseSensitivityVehicleVertical;
+		uint32_t MouseSensitivityVehicleHorizontal;
+		uint32_t MouseAcceleration;
+		uint8_t MouseFilter;
+		uint8_t InvertMouse;
+		uint8_t Unknown41C8E;
+		uint8_t Unknown41C8F;
+		uint32_t Unknown41C90;
+		uint8_t Bindings[0x17c];
+		uint8_t Unknown41E10[0x1F0];
+	};
+
+	static_assert(sizeof(Preferences) == 0x42000, "Invalid Preferences size");
+
 	void Hf2pInitHook();
 	void Hf2pShutdownHook();
 	void Hf2pTickHook();
@@ -36,6 +125,8 @@ namespace Patches
 		Patch(0x010F1121, { 0xE9 }).Apply();
 		// skip anti-cheat, watermark, account stuff
 		Patch(0x200732, { 0xEB }).Apply();
+		// prevent display/graphics settings from resetting when preferences.dat doesn't exist
+		Patch(0x622920, { 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }).Apply();
 
 		Hook(0x200790, Hf2pShutdownHook).Apply();
 		Hook(0x105F0D, Hf2pTickHook, HookFlags::IsCall).Apply();
@@ -224,27 +315,82 @@ namespace
 
 	void Hf2pLoadPreferencesHook()
 	{
-		static auto Hf2pLoadPreferences = (void(*)())(0x50C830);
-		Hf2pLoadPreferences();
+		// TODO: look into some of these functions further
+		static auto sub_50A190 = (void(__thiscall *)(void* thisptr))(0x50A190);
+		static auto sub_65C990 = (DWORD *(__thiscall*)(void* thisptr, int a2))(0x65C990);
+		static auto sub_50AD30 = (void(__cdecl*)(void* a1, void* a2))(0x50AD30);
+		static auto sub_50AC70 = (void(__cdecl*)(void* a1))(0x50AC70);
+		static auto sub_65CA30 = (void(__thiscall*)(void *thisptr))(0x65CA30);
 
-		auto preferencesPtr = ElDorito::GetMainTls(0x18)[0];
-		if (!preferencesPtr)
+		const auto& moduleSettings = Modules::ModuleSettings::Instance();
+		const auto& moduleCamera = Modules::ModuleCamera::Instance();
+		const auto& moduleInput = Modules::ModuleInput::Instance();
+
+		Preferences* preferences = ElDorito::GetMainTls(0x18)[0];
+		if (!preferences)
 			return;
 
-		auto& moduleSettings = Modules::ModuleSettings::Instance();
+		memset(preferences, 0, 0x42000u);
+		*(DWORD *)(preferences->Unknown20) = 0x33;
+		*(DWORD *)(preferences->Unknown20 + 0x24) = -1;
+		*(DWORD *)(preferences->Unknown20 + 0x28) = -1;
+		*(DWORD *)(preferences->Unknown20 + 0x34) = 0;
+		preferences->Unknown41BC0 = 1;
+		preferences->DisplaySubtitles = 0;
+		preferences->Unknown41BC8 = 0;
+
+		uint8_t osInfo[0x34];
+		sub_65C990(osInfo, preferences->Unknown41BC8);
+
+		preferences->Unknown41BDC = 4;
+		sub_50AD30(osInfo, &preferences->Unknown41BDC); // display preferences
+
+		preferences->Unknown41BD0 = 0;
+		preferences->Unknown41C6A = 1;
+
+		sub_50AC70(&preferences->ControlsMethod);
 
 		int screenResolutionWidth, screenResolutionHeight;
 		moduleSettings.GetScreenResolution(&screenResolutionWidth, &screenResolutionHeight);
 
-		// a step towards eliminating the need preferences.dat at least for settings
-		preferencesPtr(0x41BCC).Write<uint32_t>(moduleSettings.VarFullscreen->ValueInt);
-		preferencesPtr(0x41C50).Write<uint32_t>(moduleSettings.VarMasterVolume->ValueInt);
-		preferencesPtr(0x41C58).Write<uint32_t>(moduleSettings.VarMusicVolume->ValueInt);
-		preferencesPtr(0x41C54).Write<uint32_t>(moduleSettings.VarSfxVolume->ValueInt);
-		preferencesPtr(0x41BE0).Write<uint32_t>(screenResolutionWidth);
-		preferencesPtr(0x41BE4).Write<uint32_t>(screenResolutionHeight);
-		preferencesPtr(0x41BD4).Write<uint32_t>(moduleSettings.VarContrast->ValueInt);
-		preferencesPtr(0x41BD8).Write<uint32_t>(moduleSettings.VarBrightness->ValueInt);
+		preferences->Fullscreen = uint8_t(moduleSettings.VarFullscreen->ValueInt);
+		preferences->Contrast = moduleSettings.VarContrast->ValueInt;
+		preferences->Brightness = moduleSettings.VarBrightness->ValueInt;
+		preferences->ScreenResolutionWidth = screenResolutionWidth;
+		preferences->ScreenResolutionHeight = screenResolutionHeight;
+		preferences->TextureResolution = LevelStringToInt(moduleSettings.VarTextureResolution->ValueString);
+		preferences->ShadowQuality = LevelStringToInt(moduleSettings.VarShadowQuality->ValueString);
+		preferences->TextureFilteringQuality = LevelStringToInt(moduleSettings.VarTextureFilteringQuality->ValueString);
+		preferences->LightingQuality = LevelStringToInt(moduleSettings.VarLightingQuality->ValueString);
+		preferences->EffectsQuality = LevelStringToInt(moduleSettings.VarEffectsQuality->ValueString);
+		preferences->DetailsQuality = LevelStringToInt(moduleSettings.VarDetailsQuality->ValueString);
+		preferences->PostprocessingQuality = LevelStringToInt(moduleSettings.VarPostprocessingQuality->ValueString);
+		preferences->MotionBlur = uint8_t(moduleSettings.VarMotionBlur->ValueInt);
+		preferences->VSync = uint8_t(moduleSettings.VarVSync->ValueInt);
+		preferences->Antialiasing = uint8_t(moduleSettings.VarAntialiasing->ValueInt);
+		preferences->ShowWatermark = uint8_t(moduleSettings.VarShadowQuality->ValueInt);
+		preferences->MasterVolume = moduleSettings.VarMasterVolume->ValueInt;
+		preferences->SfxVolume = moduleSettings.VarSfxVolume->ValueInt;
+		preferences->MusicVolume = moduleSettings.VarMusicVolume->ValueInt;
+		preferences->ToggleCrouch = uint8_t(moduleSettings.VarToggleCrouch->ValueInt);
+		preferences->HUDShake = uint8_t(moduleSettings.VarHUDShake->ValueInt);
+		preferences->TeamColor = moduleSettings.VarPlayerMarkerColors->ValueInt;
+		preferences->CameraFov = moduleCamera.VarCameraFov->ValueFloat;
+		preferences->ControlsMethod = moduleSettings.VarGamepadEnabled->ValueInt;
+		preferences->MouseSensitivityHorizontal = moduleSettings.VarMouseSensitivityHorizontal->ValueInt;
+		preferences->MouseSensitivityVertical = moduleSettings.VarMouseSensitivityVertical->ValueInt;
+		preferences->MouseSensitivityVehicleHorizontal = moduleSettings.VarMouseSensitivityVehicleHorizontal->ValueInt;
+		preferences->MouseSensitivityVehicleVertical = moduleSettings.VarMouseSensitivityVehicleVertical->ValueInt;
+		preferences->MouseAcceleration = moduleSettings.VarMouseAcceleration->ValueInt;
+		preferences->MouseFilter = uint8_t(moduleSettings.VarMouseFilter->ValueInt);
+		preferences->InvertMouse = uint8_t(moduleSettings.VarInvertMouse->ValueInt);
+
+		memmove(ElDorito::GetMainTls(0x18)[0](0x42020), &preferences->Unknown00 + 0x20, 0x41DF0u);
+
+		sub_65CA30(osInfo); // osInfo dtor
+
+		preferences->Unknown00 = 1;
+		preferences->Unknown01 = 1;
 	}
 
 	void OnMapLoaded(const char* map)
