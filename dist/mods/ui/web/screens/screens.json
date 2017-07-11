@@ -84,6 +84,12 @@
 			"url": "dew://screens/timer/",
 			"captureInput": false,
 			"zIndex": 0
+		},
+        {
+			"id": "weaponOffset",
+			"url": "dew://screens/weaponOffset/",
+			"captureInput": true,
+			"zIndex": 1
 		}
 	]
 }
