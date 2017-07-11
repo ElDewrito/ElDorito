@@ -206,6 +206,15 @@ function onControllerDisconnect(){
 }
 
 dew.on("show", function(e){
+    dew.command('Weapon.List', {}).then(function(response){
+        var weaponList = response.split('\n');
+        var weaponArray = [];
+        for(i = 0; i < weaponList.length; i++){
+            var weapName = weaponList[i].split('Name: ')[1]
+            weaponArray.push([weapName,weapName]);
+        }
+        setOptionList('weapList', weaponArray);
+    });
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
             onControllerConnect();
