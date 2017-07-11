@@ -9,6 +9,7 @@
 #include "../Modules/ModuleWeapon.hpp"
 #include "../Modules/ModuleServer.hpp"
 
+#include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
 
@@ -73,7 +74,7 @@ namespace Patches
 
 				if (!weaponOffsetsModified.empty())
 				{
-					ConfigSave(ConfigPath);
+					Config::Save(ConfigPath);
 				}
 				else
 				{
@@ -90,7 +91,7 @@ namespace Patches
 		void ApplyAll()
 		{
 			ConfigPath = Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString;
-			ConfigLoad(ConfigPath);
+			Config::Load(ConfigPath);
 			Patches::Core::OnMapLoaded(MapLoadedCallback);
 
 			// Force descoping for all weapons
@@ -120,6 +121,11 @@ namespace Patches
 			}
 		}
 
+		std::map<std::string, uint16_t> GetIndices()
+		{
+			return weaponIndices;
+		}
+
 		uint16_t GetIndex(std::string &weaponName)
 		{
 			if (weaponIndices.find(weaponName) == weaponIndices.end())
@@ -128,17 +134,84 @@ namespace Patches
 			return weaponIndices.find(weaponName)->second;
 		}
 
-		std::map<std::string, uint16_t> GetIndices()
+		std::string GetName(uint16_t & weaponIndex)
 		{
-			return weaponIndices;
+			std::string weaponName;
+			for (auto &element : weaponIndices)
+			{
+				auto string = element.first;
+				auto index = element.second;
+
+				if (weaponIndex == index)
+					weaponName = string;
+			}
+
+			return weaponName;
 		}
 
-		RealVector3D GetOffset(bool isDefault, std::string &weaponName)
+		uint16_t GetEquippedWeaponIndex()
 		{
-			if (isDefault)
+			uint16_t equippedIndex = 0xFFFF;
+
+			auto session = Blam::Network::GetActiveSession();
+			if (!session || !session->IsEstablished())
+			{
+				return equippedIndex;
+			}
+
+			int playerIdx = session->MembershipInfo.FindFirstPlayer();
+			auto playerDatum = &Blam::Players::GetPlayers()[playerIdx];
+			auto playerObject = Pointer(Blam::Objects::GetObjects()[playerDatum->SlaveUnit].Data);
+			if (playerObject)
+			{
+				auto equippedWeaponIndex = playerObject(0x2CA).Read<uint8_t>();
+				if (equippedWeaponIndex != -1)
+				{
+					auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
+					auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
+					if (equippedWeaponObjectPtr)
+					{
+						auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
+						equippedIndex = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
+					}
+				}
+			}
+			return equippedIndex;
+		}
+
+		std::string GetEquippedWeaponName()
+		{
+			auto Index = GetEquippedWeaponIndex();
+			auto weap = Blam::Tags::TagInstance(Index).GetDefinition<Blam::Tags::Items::Weapon>();
+			return std::string(Blam::Cache::StringIDCache::Instance.GetString(weap->WeaponName));
+		}
+
+		RealVector3D GetOffsetByIndex(uint16_t &weaponIndex)
+		{
+			for each (auto element in weaponIndices)
+			{
+				std::string weaponName = element.first;
+
+				if (weaponIndex == element.second)
+				{
+					if (weaponOffsetsModified.count(weaponName)>0)
+						return weaponOffsetsDefault.find(weaponName)->second;
+					else
+						return weaponOffsetsModified.find(weaponName)->second;
+				}
+			}
+
+			return { -0xFFF, -0xFFF, -0xFFF };
+		}
+
+		RealVector3D GetOffsetByName(std::string &weaponName)
+		{
+			if (weaponOffsetsModified.count(weaponName)>0)
 				return weaponOffsetsDefault.find(weaponName)->second;
 			else
 				return weaponOffsetsModified.find(weaponName)->second;
+
+			return { -0xFFF, -0xFFF, -0xFFF };
 		}
 
 		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
@@ -169,53 +242,56 @@ namespace Patches
 			return weaponOffsetsModified.find(weapon) != weaponOffsetsModified.end();
 		}
 
-		void ConfigLoad(std::string configPath)
+		namespace Config
 		{
-			std::ifstream inFile(configPath);
-			std::vector <std::string> lines;
-			std::string str;
-
-			while (std::getline(inFile, str))
-				lines.push_back(str);
-
-			weaponOffsetsModified.clear();
-
-			for (std::string line : lines)
+			void Load(std::string configPath)
 			{
-				auto weaponParams = Utils::String::SplitString(line, ' ');
+				std::ifstream inFile(configPath);
+				std::vector <std::string> lines;
+				std::string str;
 
-				if ((weaponParams.size() < 4 || weaponParams.size() > 4))
-				{
-#if _DEBUG
-					Console::WriteLine(line);
-#endif
-				}
-				else if (line[0] != '#')
-				{
-					std::string weaponName = weaponParams[0];
-					RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
+				while (std::getline(inFile, str))
+					lines.push_back(str);
 
-					SetOffsetModified(weaponName, offset);
-				}
-				else
+				weaponOffsetsModified.clear();
+
+				for (std::string line : lines)
 				{
+					auto weaponParams = Utils::String::SplitString(line, ' ');
+
+					if ((weaponParams.size() < 4 || weaponParams.size() > 4))
+					{
 #if _DEBUG
-					Console::WriteLine(line);
+						Console::WriteLine(line);
 #endif
+					}
+					else if (line[0] != '#')
+					{
+						std::string weaponName = weaponParams[0];
+						RealVector3D offset = { stof(weaponParams[1]), stof(weaponParams[2]), stof(weaponParams[3]) };
+
+						SetOffsetModified(weaponName, offset);
+					}
+					else
+					{
+#if _DEBUG
+						Console::WriteLine(line);
+#endif
+					}
 				}
 			}
-		}
 
-		void ConfigSave(std::string configPath)
-		{
-			std::ofstream outFile(configPath, std::ios::trunc);
-
-			for (auto &weaponParams : weaponOffsetsModified)
+			void Save(std::string configPath)
 			{
-				std::string weaponName = weaponParams.first;
-				auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-				weapon->FirstPersonWeaponOffset = weaponParams.second;
-				outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
+				std::ofstream outFile(configPath, std::ios::trunc);
+
+				for (auto &weaponParams : weaponOffsetsModified)
+				{
+					std::string weaponName = weaponParams.first;
+					auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+					weapon->FirstPersonWeaponOffset = weaponParams.second;
+					outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
+				}
 			}
 		}
 	}
@@ -292,9 +368,9 @@ namespace
 			and		ax, 0FEFFh // disable by removing the 8th bit indicating no sprint input press
 		enable:
 			mov		dword ptr ds : [esi + 8], eax
-			mov		ecx, edi
-			push	046DFC0h
-			ret
+				mov		ecx, edi
+				push	046DFC0h
+				ret
 		}
 	}
 
@@ -314,7 +390,7 @@ namespace
 			mov		word ptr ds : [edi + esi + 32Ah], ax // otherwise use intended scope level
 		noscope:
 			push	05D50D3h
-			ret
+				ret
 		}
 	}
 

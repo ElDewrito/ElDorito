@@ -352,8 +352,21 @@
     <ClCompile Include="Source\Blam\BlamObjects.cpp">
       <Filter>Blam</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Modules\ModuleTweaks.cpp" />
-    <ClCompile Include="Source\Patches\Tweaks.cpp" />
+    <ClCompile Include="Source\Patches\Tweaks.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\RotationSnap.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\Selection.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\SelectionRenderer.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Modules\ModuleTweaks.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -921,12 +934,33 @@
     <ClInclude Include="Source\Blam\Math\MathUtil.hpp">
       <Filter>Blam\Math</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Modules\ModuleTweaks.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Camera\CameraFxSettings.hpp" />
-    <ClInclude Include="Source\Patches\Tweaks.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp" />
+    <ClInclude Include="Source\Patches\Tweaks.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\RotationSnap.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Selection.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\SelectionRenderer.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Modules\ModuleTweaks.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Camera\CameraFxSettings.hpp">
+      <Filter>Blam\Tags\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp">
+      <Filter>Blam\Tags\Sounds</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />
@@ -1012,6 +1046,9 @@
     </Filter>
     <Filter Include="Forge">
       <UniqueIdentifier>{bf4417b5-3953-43c4-9a47-d2af8f7aa92a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Camera">
+      <UniqueIdentifier>{f614a2e0-46cc-4cd5-9a17-8003f9df8d64}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
