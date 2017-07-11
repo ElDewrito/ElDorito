@@ -137,14 +137,21 @@ namespace Patches
 		std::string GetName(uint16_t & weaponIndex)
 		{
 			std::string weaponName;
+
+			bool indexExists = false;
+
 			for (auto &element : weaponIndices)
 			{
-				auto string = element.first;
+				auto name = element.first;
 				auto index = element.second;
 
-				if (weaponIndex == index)
-					weaponName = string;
+				if (weaponIndex == index) {
+					weaponName = name;
+					indexExists = true;
+				}
 			}
+			if (indexExists == false)
+				return "NotFoundInMULG";
 
 			return weaponName;
 		}
@@ -182,8 +189,8 @@ namespace Patches
 		std::string GetEquippedWeaponName()
 		{
 			auto Index = GetEquippedWeaponIndex();
-			auto weap = Blam::Tags::TagInstance(Index).GetDefinition<Blam::Tags::Items::Weapon>();
-			return std::string(Blam::Cache::StringIDCache::Instance.GetString(weap->WeaponName));
+
+			return GetName(Index);
 		}
 
 		RealVector3D GetOffsetByIndex(uint16_t &weaponIndex)
