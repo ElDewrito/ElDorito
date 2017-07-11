@@ -17,8 +17,8 @@ namespace Patches
 		std::string GetName(uint16_t &weaponIndex);
 		uint16_t GetEquippedWeaponIndex();
 		std::string GetEquippedWeaponName();
-		Blam::Math::RealVector3D GetOffsetByIndex(uint16_t &weaponIndex);
-		Blam::Math::RealVector3D GetOffsetByName(std::string &weaponName);
+		Blam::Math::RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex);
+		Blam::Math::RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName);
 
 		void SetOffsetModified(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 

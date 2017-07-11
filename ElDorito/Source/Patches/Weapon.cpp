@@ -26,6 +26,9 @@
 #include "../Patches/Core.hpp"
 #include "../Patches/Weapon.hpp"
 
+#include "../ThirdParty/rapidjson/document.h"
+#include "../ThirdParty/rapidjson/stringbuffer.h"
+
 namespace
 {
 	int __cdecl DualWieldHook(unsigned short objectIndex);
@@ -193,7 +196,7 @@ namespace Patches
 			return GetName(Index);
 		}
 
-		RealVector3D GetOffsetByIndex(uint16_t &weaponIndex)
+		RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex)
 		{
 			for each (auto element in weaponIndices)
 			{
@@ -201,24 +204,24 @@ namespace Patches
 
 				if (weaponIndex == element.second)
 				{
-					if (weaponOffsetsModified.count(weaponName)>0)
+					if (isDefault)
 						return weaponOffsetsDefault.find(weaponName)->second;
 					else
 						return weaponOffsetsModified.find(weaponName)->second;
 				}
 			}
 
-			return { -0xFFF, -0xFFF, -0xFFF };
+			return { -0xFFFFFFFF, -0xFFFFFFFF, -0xFFFFFFFF };
 		}
 
-		RealVector3D GetOffsetByName(std::string &weaponName)
+		RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName)
 		{
-			if (weaponOffsetsModified.count(weaponName)>0)
+			if (isDefault)
 				return weaponOffsetsDefault.find(weaponName)->second;
 			else
 				return weaponOffsetsModified.find(weaponName)->second;
 
-			return { -0xFFF, -0xFFF, -0xFFF };
+			return { -0xFFFFFFFF, -0xFFFFFFFF, -0xFFFFFFFF };
 		}
 
 		void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
@@ -300,6 +303,103 @@ namespace Patches
 					outFile << weaponName << " " << weaponParams.second.I << " " << weaponParams.second.J << " " << weaponParams.second.K << "\n";
 				}
 			}
+
+			/* This is copypasta from voting json, going to model the newer weapon config on it
+			bool LoadJson(std::string filename)
+			{
+				std::ifstream in(filename, std::ios::in | std::ios::binary);
+				if (!in || !in.is_open())
+					return false;
+
+				std::string contents;
+				in.seekg(0, std::ios::end);
+				contents.resize((unsigned int)in.tellg());
+				in.seekg(0, std::ios::beg);
+				in.read(&contents[0], contents.size());
+				in.close();
+
+				rapidjson::Document document;
+				if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
+				{
+					if (!document.HasMember("Types") || !document.HasMember("Maps"))
+						return false;
+
+					const rapidjson::Value& maps = document["Maps"];
+					// rapidjson uses SizeType instead of size_t :/
+					for (rapidjson::SizeType i = 0; i < maps.Size(); i++)
+					{
+						const rapidjson::Value& mapObject = maps[i];
+						if (!mapObject.HasMember("mapName") || !mapObject.HasMember("displayName"))
+							continue;
+
+						//Check to make sure that the map exists
+						std::string mapName = mapObject["mapName"].GetString();
+						if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
+							haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getDefaultMapId(mapName)));
+
+						else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
+							haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getCustomMapID(mapName)));
+
+						else
+							Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+
+
+					}
+
+					const rapidjson::Value& types = document["Types"];
+					for (rapidjson::SizeType i = 0; i < types.Size(); i++)
+					{
+						const rapidjson::Value& c = types[i];
+						if (!c.HasMember("typeName") || !c.HasMember("displayName"))
+							continue;
+
+						//TODO verify the gametypes
+						HaloType ht(c["typeName"].GetString(), c["displayName"].GetString());
+
+
+						if (c.HasMember("commands"))
+						{
+							const rapidjson::Value& commands = c["commands"];
+							for (rapidjson::SizeType i = 0; i < commands.Size(); i++)
+							{
+								ht.commands.push_back(commands[i].GetString());
+							}
+						}
+
+						if (c.HasMember("SpecificMaps"))
+						{
+							const rapidjson::Value& smaps = c["SpecificMaps"];
+							if (!smaps.IsNull())
+							{
+								for (rapidjson::SizeType i = 0; i < smaps.Size(); i++)
+								{
+									const rapidjson::Value& map = smaps[i];
+									if (!map.HasMember("mapName") || !map.HasMember("displayName"))
+										continue;
+
+									std::string mapName = map["mapName"].GetString();
+									if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
+										ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getDefaultMapId(mapName)));
+
+									else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
+										ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getCustomMapID(mapName)));
+									else
+										Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+								}
+							}
+						}
+						gameTypes.push_back(ht);
+
+					}
+				}
+
+				if (gameTypes.size() < 2 || haloMaps.size() < 2)
+					return false;
+
+
+				return true;
+			}
+			*/
 		}
 	}
 }

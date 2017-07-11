@@ -36,7 +36,9 @@ namespace
 			return false;
 		}
 
-		auto weaponOffset = Patches::Weapon::GetOffsetByIndex(weaponIndex);
+		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+
+		auto weaponOffset = RealVector3D(weapon->FirstPersonWeaponOffset);
 
 		if (Arguments.size() != 4) {
 			std::stringstream ss;
@@ -79,8 +81,8 @@ namespace
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(weaponName);
-		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffsetByName(weaponName));
+		weapon->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(true, weaponName);
+		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffsetByName(true, weaponName));
 
 		std::stringstream ss;
 		ss << "Weapon: " << weaponName << " offset reset to default";
