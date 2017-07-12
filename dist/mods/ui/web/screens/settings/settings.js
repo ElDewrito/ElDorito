@@ -996,9 +996,9 @@ function randomColors(){
 function updateSelection(item){
     colorIndex = 0;
     $('.selectedElement').removeClass('selectedElement');
-    $(activePage + ' label:visible').eq(item).addClass('selectedElement');
+    $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
-    $('#'+selectedItem)[0].scrollIntoView(false);
+    $('#'+selectedItem).parent()[0].scrollIntoView(false);
     dew.command('Game.PlaySound 0xAFE');
 }
 

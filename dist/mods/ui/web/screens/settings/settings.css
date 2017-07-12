@@ -102,7 +102,9 @@ div[id^='page']:target{
 
 .subHeader{
     font-size: 3vh;
-    margin:1vh 0;
+    margin:0;
+    padding:0;
+    height: 4vh;
     text-transform: uppercase;
     text-align: center;
 }
@@ -117,26 +119,20 @@ label{
 }
 
 .setting{
-    position:absolute;
     width: 25.5vh;
-    right:20vh;
+    float:right;
     margin-top:0.25vh;
     height:2.5vh;
-    margin-bottom:0vh;
-}
-
-textarea{
-    max-height:6.5vh;
-    min-height:6.5vh;
-    resize: none;
-}
-
-#page7 .setting{
-    right:45vh;
+    margin-bottom:0.25vh;
 }
 
 #page10 .setting{
-    right:10vh;
+    width: 4vh;
+}
+
+textarea.setting{
+    height: 7vh !important;
+    resize: none;
 }
 
 #presetMenu{
@@ -346,10 +342,8 @@ button.tinySetting{
     left: 37vh;
 }
     
-
 .selectedElement{
-    color:#B1572A;
-    font-weight:700;
+    background-color:#B1572A;
 }
 
 #page7 button{
@@ -361,7 +355,7 @@ button.tinySetting{
 }
 
 #page7 button:hover{
-   background-color: #B1572A; 
+    background-color: #B1572A; 
 }
 
 button img,.tabs img{
@@ -429,8 +423,28 @@ input[type=range]::-webkit-slider-thumb {
 
 .desc{
     margin: 0;
-    margin-bottom: -1vh;
     padding:0;    
     font-size: 2.25vh;
     color: grey;
+}
+
+.selectedElement .desc{
+    color: black;
+}
+
+span{
+    margin-left: -20vh;
+    padding-left: 20vh;
+    margin-right: -20vh;
+    padding-right: 20vh;
+    width: 100%;
+    display: inline-block;
+    margin-bottom: 0.25vh;
+}
+
+#page7 span{
+    margin-left: -4vh;
+    padding-left: 4vh;
+    margin-right: -3vh;
+    padding-right: 3vh;
 }
