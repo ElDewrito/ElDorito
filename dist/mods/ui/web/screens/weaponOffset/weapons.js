@@ -54,9 +54,7 @@ $(document).ready(function() {
         });
     });
     $('#saveButton').on('click', function(){
-        dew.command('Weapon.Config ' + $('#wOffsetConfig').val(), {}).then(function(){
-            dew.command('Weapon.Config.Save');
-        });
+        dew.command('Weapon.Config.Save');
     });
     $('#resetButton').on('click', function(){
         dew.command('Weapon.Offset.Reset '+$('#weapList').val(), {}).then(function(){ 
@@ -70,6 +68,9 @@ $(document).ready(function() {
                 $('#weaponKText').val(offsets.split(', K: ')[1]);
             });  
         });
+    });
+    $('#wOffsetConfig').on('change', function(){
+        dew.command('Weapon.Config ' + $('#wOffsetConfig').val());
     });
     dew.command('Weapon.List', {}).then(function(response){
         var weaponList = response.split('\n');
