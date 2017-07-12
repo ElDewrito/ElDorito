@@ -143,6 +143,7 @@ namespace Web
 				writer.Key("players");
 				writer.StartArray();
 				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				bool teamObjective[10] = { 0 };
 				while (playerIdx != -1)
 				{
 					auto player = session->MembershipInfo.PlayerSessions[playerIdx];
@@ -200,6 +201,10 @@ namespace Web
 								{
 									auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
 									hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+									if (hasObjective)
+										teamObjective[player.Properties.TeamIndex] = true;
+									if (session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
+										hasObjective = false;
 								}
 							}
 						}
@@ -230,6 +235,15 @@ namespace Web
 					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 				}
 				writer.EndArray();
+
+				writer.Key("teamHasObjective");
+				writer.StartArray();
+				for (int i = 0; i < 10; i++)
+				{
+					writer.Bool(teamObjective[i]);
+				}
+				writer.EndArray();
+
 				writer.EndObject();
 
 				return buffer.GetString();
