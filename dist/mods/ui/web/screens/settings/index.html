@@ -269,6 +269,9 @@
         </div>
         
         <div id="page3">
+            <label for="sAudioDevice">Audio Device</label>
+            <select id="sAudioDevice"class="setting wheelable"></select>
+            <br>
             <label for="sMasterVolume">Master Volume</label>
             <input type="text" class="tinySetting" id="sMasterVolumeText">
             <input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
@@ -290,6 +293,10 @@
             <input type="text" class="tinySetting" id="sBrightnessText">
             <input type="range" class="setting hasTiny" min="1" max="100" id="sBrightness">
             <br>
+            <label for="sContrast">Contrast</label>
+            <input type="text" class="tinySetting" id="sContrastText">
+            <input type="range" class="setting hasTiny" min="1" max="100" id="sContrast">
+            <br>
             <label for="sFullscreen">Fullscreen</label>
             <input class="setting" type="checkbox" id="sFullscreen">
             <br>
@@ -310,22 +317,22 @@
             <br>   
             <h3 class="subHeader">VOIP</h3>
             <label for="vEnabled">VOIP Enabled</label>
-            <input class="setting" type="checkbox" id="vEnabled">
+            <input class="setting voip" type="checkbox" id="vEnabled">
             <br>
             <label for="vMicrophoneID">Microphone ID</label>
-            <select id="vMicrophoneID"class="setting wheelable"></select>
+            <select id="vMicrophoneID"class="setting voip wheelable"></select>
             <br>
             <label for="vPTTEnable">Push To Talk</label>
-            <input class="setting" type="checkbox" id="vPTTEnable">
+            <input class="setting voip" type="checkbox" id="vPTTEnable">
             <br>
             <label for="vEchoCancelation">Echo Cancelation</label>
-            <input class="setting" type="checkbox" id="vEchoCancelation">
+            <input class="setting voip" type="checkbox" id="vEchoCancelation">
             <br>
             <label for="vAGC">Automatic Gain Control</label>
-            <input class="setting" type="checkbox" id="vAGC">
+            <input class="setting voip" type="checkbox" id="vAGC">
             <br>    
             <label for="vNoiseSupress">Noise Supress</label>
-            <input class="setting" type="checkbox" id="vNoiseSupress">
+            <input class="setting voip" type="checkbox" id="vNoiseSupress">
             <br>            
         </div>
         

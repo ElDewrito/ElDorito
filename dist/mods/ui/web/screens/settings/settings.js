@@ -100,7 +100,9 @@ var settingsToLoad = [
     ['tDisableHitmarkers', 'Tweaks.DisableHitMarkers'], 
     ['tGruntBirthdayParty', 'Tweaks.GruntBirthdayParty'],
     ['tReachFrags','Tweaks.ReachStyleFrags'],
-    ['tIntelBloomPatch','Tweaks.IntelBloomPatch']
+    ['tIntelBloomPatch','Tweaks.IntelBloomPatch'],
+    ['sAudioDevice','Settings.AudioOutputDevice'],
+    ['sContrast','Settings.Contrast']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
@@ -406,11 +408,14 @@ $(document).ready(function(){
     $('#gIconSet').on('change', function(){
         setButtons();
     });
+    $('.voip').on('change', function(){
+        changeArray.push(['VoIP.Update', '']);
+    });
     navigator.mediaDevices.enumerateDevices().then(function(devices){
         var deviceArray = [['Default','']];
         for (i = 0; i < devices.length; i++){
             if(devices[i].kind == "audioinput" && devices[i].label){
-                deviceArray.push([devices[i].label,devices[i].deviceId]);
+                deviceArray.push([devices[i].label,devices[i].label]);
             }
         }
         setOptionList('vMicrophoneID', deviceArray);
@@ -450,6 +455,14 @@ $(document).ready(function(){
                 $('#sSprint').val('0');
             }
         });       
+    });
+    dew.command('Settings.AudioOutputDeviceList', {}).then(function(response) {
+        var audioDevArray = [];
+        var devs = JSON.parse(response);
+        for (i = 0; i < devs.length; i++){
+                audioDevArray.push([devs[i],i]);
+        }
+        setOptionList('sAudioDevice', audioDevArray);
     });
     dew.on('controllerinput', function(e){    
         if(hasGP){    
