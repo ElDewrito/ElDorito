@@ -87,22 +87,6 @@ namespace Patches
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
 
-			// set max of 255 and cost of 0 for all forge objects
-			Patch::NopFill(Pointer::Base(0x183CA3), 2); // weapons
-			Patch::Patch(0x183C38, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183C23), 2);	// vehicles
-			Patch::Patch(0x183CB8, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183D23), 2); // equipment
-			Patch::Patch(0x183D38, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183DA3), 2); // scenery
-			Patch::Patch(0x183DB8, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183E23), 2); // teleporters
-			Patch::Patch(0x183E38, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183EA3), 2); // spawners
-			Patch::Patch(0x183EB8, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-			Patch::NopFill(Pointer::Base(0x183F23), 2); // goals
-			Patch::Patch(0x183F38, { 0x0F, 0x57, 0xC0, 0x90, 0x90 }).Apply();
-
 			Patches::Core::OnGameStart(FixRespawnZones);
 
 			::Forge::SelectionRenderer::Initialize();
