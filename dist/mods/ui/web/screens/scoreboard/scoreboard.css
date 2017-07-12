@@ -87,7 +87,11 @@ html {
 
 .objective{
     position: absolute;
-    margin-left: -2vw;
+    margin-left: -5.5vw;
+}
+
+.objective.team{
+    margin-left:-1.9vw;
 }
 
 #closeButton{

@@ -334,7 +334,7 @@ function displayScoreboard(expandedScoreboard){
         }
         scoreboardheader += '<th>Score</th>'; 
         $('#header').html(scoreboardheader);
-        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard);
+        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard, e.teamHasObjective);
     });
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
@@ -344,7 +344,7 @@ function displayScoreboard(expandedScoreboard){
     }
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray){
     var emblemPath;
     var where = '#singlePlayers';
     if(lobby.length > 0){
@@ -358,6 +358,9 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 if($(where).length == 0){
                     var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
                     $('#window table').append(teamHeader);    
+                    if(objectiveArray[lobby[i].team]){
+                        $('#'+teamArray[lobby[i].team].name).prepend('<img class="emblem objective team" src="dew://assets/emblems/'+gameType+'.png">')                    
+                    }
                 }    
             } 
             $(where).append(
@@ -433,9 +436,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score    
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem speaker" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator          
-            /*if(lobby[i].hasObjective){
-                $("[data-playerIndex='" + lobby[i].playerIndex + "']").parent().prepend($('<img class="emblem objective">')) //objective (flag/oddball) indicator
-            }*/
+            if(lobby[i].hasObjective){
+                $('.objective').remove();
+                $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')) //objective (flag/oddball) indicator
+            }
             if(teamGame){
                 sortMe('scoreboard','tbody');
                 sortMe(teamArray[lobby[i].team].name,'tr');
