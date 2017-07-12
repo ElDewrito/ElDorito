@@ -185,19 +185,22 @@ namespace Web
 					writer.Int(playerStats.BestStreak);
 
 					bool hasObjective = false;
-					auto playerDatum = &Blam::Players::GetPlayers()[playerIdx];
-					auto playerObject = Pointer(Blam::Objects::GetObjects()[playerDatum->SlaveUnit].Data);
-					if(playerObject)
+					const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
+					if (playerDatum.GetSalt())
 					{
-						auto equippedWeaponIndex = playerObject(0x2CA).Read<uint8_t>();
-						if (equippedWeaponIndex != -1)
+						auto playerObject = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
+						if (playerObject)
 						{
-							auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
-							auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
-							if (equippedWeaponObjectPtr)
+							auto equippedWeaponIndex = playerObject(0x2CA).Read<uint8_t>();
+							if (equippedWeaponIndex != -1)
 							{
-								auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
-								hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+								auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
+								auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
+								if (equippedWeaponObjectPtr)
+								{
+									auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
+									hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+								}
 							}
 						}
 					}
