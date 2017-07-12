@@ -54,7 +54,9 @@ $(document).ready(function() {
         });
     });
     $('#saveButton').on('click', function(){
-        dew.command('Weapon.Config.Save');
+        dew.command('Weapon.Config ' + $('#wOffsetConfig').val(), {}).then(function(){
+            dew.command('Weapon.Config.Save');
+        });
     });
     $('#resetButton').on('click', function(){
         dew.command('Weapon.Offset.Reset '+$('#weapList').val(), {}).then(function(){ 
