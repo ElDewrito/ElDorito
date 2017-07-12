@@ -9,16 +9,12 @@ html {
 
 #weaponOffsets {
     width: 50vh;
-    margin-bottom: 0;
     opacity: 0.85;
     position: absolute;
     font-size: 2.655vh;
-    line-height: 3.0975vh;  
-    left:5%;
-    top:84%;
     background: rgba(20, 35, 74, 0.69);
     padding: 1.5vh;
-    overflow:hidden;
+    max-height:25vh;
 }
 
 .header {
@@ -82,8 +78,8 @@ button {
     border: 1px solid white;
     text-align: center;
     line-height: 24px;
-    height: 1.75vw;
-    line-height: 1.5vw;
+    height: 4vh;
+    line-height: 1.5vh;
     float:left;
     margin-right:0.75vh;
 }
@@ -99,10 +95,10 @@ button.close {
     line-height: 24px;
     width: 3vh;
     height: 3vh;
-    line-height: 1.5vw;
+    line-height: 1.25vh;
     position: absolute;
-    right: 0.5vw;
-    top: 0.3vw;
+    right: 0.5vh;
+    top: 0.5vh;
     margin-right:0;
 }
 button:hover{
@@ -116,11 +112,10 @@ button:hover{
 
 button img{
     display:none;
-    width: 1.75vw;
-    margin-top:-2vw;
+    width: 3vh;
+    margin-top:-1.75vh;
     position:relative;
-    top:0.5vw;
-    margin-right:-0.25vw;
+    top:1vh;
 }
 
 input[type=range] {
