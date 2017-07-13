@@ -1,5 +1,5 @@
 var settingsToLoad = [
-    ['wOffsetConfig','Weapon.Config']
+    ['wOffsetConfig','Weapon.JSON.file']
 ];
 
 var selectedItem;
@@ -41,7 +41,7 @@ $(document).ready(function() {
         $('#'+newID).trigger('change');
     });
     $('#loadButton').on('click', function(){
-        dew.command('Weapon.Config '+ $('#wOffsetConfig').val(), {}).then(function(){ 
+        dew.command('Weapon.JSON.Load '+ $('#wOffsetConfig').val(), {}).then(function(){ 
             dew.command('Weapon.Offset ' + $('#weapList').val(), {}).then(function(response){
                 var offsets = response.split($('#weapList').val() + ', I: ')[1];
                 $('#weaponI').val(offsets.split(',')[0] * -1);
@@ -54,7 +54,7 @@ $(document).ready(function() {
         });
     });
     $('#saveButton').on('click', function(){
-        dew.command('Weapon.Config.Save');
+        dew.command('Weapon.JSON.Save');
     });
     $('#resetButton').on('click', function(){
         dew.command('Weapon.Offset.Reset '+$('#weapList').val(), {}).then(function(){ 
@@ -70,7 +70,7 @@ $(document).ready(function() {
         });
     });
     $('#wOffsetConfig').on('change', function(){
-        dew.command('Weapon.Config ' + $('#wOffsetConfig').val());
+        dew.command('Weapon.JSON.file ' + $('#wOffsetConfig').val());
     });
     dew.command('Weapon.List', {}).then(function(response){
         var weaponList = response.split('\n');
@@ -227,7 +227,7 @@ dew.on("show", function(e){
             hasGP = false;
         }
     });
-    dew.command('Weapon.JSON', {}).then(function(response){
+    dew.command('Weapon.Equipped json', {}).then(function(response){
         var weaponInfo = JSON.parse(response);
         $('#weapList').val(weaponInfo.Name);
         $('#weaponI').val(weaponInfo.FirstPersonWeaponOffset[0] * -1);
