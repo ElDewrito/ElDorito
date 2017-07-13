@@ -28,7 +28,7 @@ namespace
 		std::string weaponName;
 		uint16_t weaponIndex;
 
-		if (Utils::String::ToLower(Arguments[0]).c_str() == "equipped") {
+		if (Utils::String::ToLower(Arguments[0]) == "equipped") {
 			weaponName = Patches::Weapon::GetEquippedWeaponName();
 			weaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 		}
