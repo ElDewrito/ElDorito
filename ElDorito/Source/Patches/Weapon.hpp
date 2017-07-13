@@ -22,14 +22,15 @@ namespace Patches
 
 		void SetOffsetModified(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 
-		void ApplyOffset(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
+		void ApplyOffsetByIndex(uint16_t &weaponIndex, Blam::Math::RealVector3D &weaponOffset);
+		void ApplyOffsetByName(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 
 		bool IsOffsetModified(const std::string &weapon);
 
 		namespace Config
 		{
-			void Load(std::string configPath);
-			void Save(std::string configPath);
+			bool LoadJSON(std::string JSONPath);
+			bool SaveJSON(std::string JSONPath);
 		}
 	}
 }

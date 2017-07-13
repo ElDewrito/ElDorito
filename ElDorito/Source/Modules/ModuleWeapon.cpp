@@ -25,15 +25,23 @@ namespace
 		}
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		auto weaponName = Arguments[0];
-
+		std::string weaponName;
 		uint16_t weaponIndex;
-		if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::GetIndex(weaponName);
+
+		if (Utils::String::ToLower(Arguments[0]).c_str() == "equipped") {
+			weaponName = Patches::Weapon::GetEquippedWeaponName();
+			weaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 		}
-		else {
-			returnInfo = "Invalid weapon name";
-			return false;
+		else
+		{
+			weaponName = Arguments[0];
+			if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
+				weaponIndex = Patches::Weapon::GetIndex(weaponName);
+			}
+			else {
+				returnInfo = "Invalid weapon name";
+				return false;
+			}
 		}
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
@@ -91,19 +99,19 @@ namespace
 		return true;
 	}
 
-	bool CommandSaveWeaponsConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandLoadWeaponsJSON(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Weapon::Config::Save(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
+		Patches::Weapon::Config::LoadJSON(Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString);
 
-		returnInfo = "Weapons config saved successfully";
+		returnInfo = "Weapons json loaded successfully";
 		return true;
 	}
 
-	bool VariableWeaponConfigUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandSaveWeaponsJSON(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Weapon::Config::Load(Modules::ModuleWeapon::Instance().VarWeaponConfig->ValueString);
+		Patches::Weapon::Config::SaveJSON(Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString);
 
-		returnInfo = "Weapons config file updated successfully";
+		returnInfo = "Weapons json saved successfully";
 		return true;
 	}
 
@@ -126,24 +134,191 @@ namespace
 			return false;
 		}
 
-		std::stringstream ss;
-
 		auto equippedWeaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 		auto equippedWeaponName = Patches::Weapon::GetEquippedWeaponName();
 
 		auto *weapon = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 		auto equippedWeaponOffset = RealVector3D(weapon->FirstPersonWeaponOffset);
 
-		ss << "Name: " << equippedWeaponName << std::endl;
-		//ss << "Class: " << std::string(StringIDCache::Instance.GetString(weapon->WeaponClass)) << std::endl;
-		//ss << "Acceleration Scale: " << weapon->AccelerationScale << std::endl;
-		ss << "Index: 0x" << std::hex << equippedWeaponIndex << std::endl;
-		ss << "First Person Weapon Offset: { " << equippedWeaponOffset.I << ", " << equippedWeaponOffset.J << ", " << equippedWeaponOffset.K << " }" << std::endl;
-		//ss << "Acceleration Scale: " << weapon->AccelerationScale << std::endl;
-		//ss << "Autoaim Angle: " << weapon->AutoaimAngle.Value << std::endl;
-		//ss << "Magnetism Angle: " << weapon->MagnetismAngle.Value << std::endl;
+		std::stringstream index_;
+		index_ << "0x" << std::hex << equippedWeaponIndex;
+		std::string Index = index_.str();
 
-		returnInfo = ss.str();
+		std::string MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType;
+
+		switch (weapon->MultiplayerWeaponType)
+		{
+		case Blam::Tags::Items::Weapon::MultiplayerType::None:
+			MultiplayerWeaponType = "None";
+			break;
+		case Blam::Tags::Items::Weapon::MultiplayerType::CTFFlag:
+			MultiplayerWeaponType = "CTFFlag";
+			break;
+		case Blam::Tags::Items::Weapon::MultiplayerType::OddballBall:
+			MultiplayerWeaponType = "OddballBall";
+			break;
+		case Blam::Tags::Items::Weapon::MultiplayerType::HeadhunterHead:
+			MultiplayerWeaponType = "HeadhunterHead";
+			break;
+		case Blam::Tags::Items::Weapon::MultiplayerType::JuggernautPowerup:
+			MultiplayerWeaponType = "JuggernautPowerup";
+			break;
+		}
+
+		switch (weapon->WeaponType)
+		{
+		case Blam::Tags::Items::Weapon::Type::Undefined:
+			WeaponType = "Undefined";
+			break;
+		case Blam::Tags::Items::Weapon::Type::Shotgun:
+			WeaponType = "Shotgun";
+			break;
+		case Blam::Tags::Items::Weapon::Type::Needler:
+			WeaponType = "Needler";
+			break;
+		case Blam::Tags::Items::Weapon::Type::PlasmaPistol:
+			WeaponType = "PlasmaPistol";
+			break;
+		case Blam::Tags::Items::Weapon::Type::PlasmaRifle:
+			WeaponType = "PlasmaRifle";
+			break;
+		case Blam::Tags::Items::Weapon::Type::RocketLauncher:
+			WeaponType = "RocketLauncher";
+			break;
+		case Blam::Tags::Items::Weapon::Type::EnergySword:
+			WeaponType = "EnergySword";
+			break;
+		case Blam::Tags::Items::Weapon::Type::SpartanLaser:
+			WeaponType = "SpartanLaser";
+			break;
+		case Blam::Tags::Items::Weapon::Type::AssaultRifle:
+			WeaponType = "AssaultRifle";
+			break;
+		case Blam::Tags::Items::Weapon::Type::BattleRifle:
+			WeaponType = "BattleRifle";
+			break;
+		case Blam::Tags::Items::Weapon::Type::DMR:
+			WeaponType = "DMR";
+			break;
+		case Blam::Tags::Items::Weapon::Type::Magnum:
+			WeaponType = "Magnum";
+			break;
+		case Blam::Tags::Items::Weapon::Type::SniperRifle:
+			WeaponType = "SniperRifle";
+			break;
+		case Blam::Tags::Items::Weapon::Type::SMG:
+			WeaponType = "SMG";
+			break;
+		}
+
+		switch (weapon->TrackingType)
+		{
+		case Blam::Tags::Items::Weapon::TrackingType::NoTracking:
+			TrackingType = "NoTracking";
+			break;
+		case Blam::Tags::Items::Weapon::TrackingType::HumanTracking:
+			TrackingType = "HumanTracking";
+			break;
+		case Blam::Tags::Items::Weapon::TrackingType::PlasmaTracking:
+			TrackingType = "PlasmaTracking";
+			break;
+		}
+
+		switch (weapon->SpecialHUDType)
+		{
+		case Blam::Tags::Items::Weapon::SpecialHUDType::NoOutline:
+			SpecialHUDType = "NoOutline";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Default:
+			SpecialHUDType = "Default";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Ammo:
+			SpecialHUDType = "Ammo";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Damage:
+			SpecialHUDType = "Damage";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Accuracy:
+			SpecialHUDType = "Accuracy";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::RateOfFire:
+			SpecialHUDType = "RateOfFire";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Range:
+			SpecialHUDType = "Range";
+			break;
+		case Blam::Tags::Items::Weapon::SpecialHUDType::Power:
+			SpecialHUDType = "Power";
+			break;
+		}
+
+
+		std::string format;
+		if (Arguments.size() == 0)
+			format = "normal";
+		else
+			format = Utils::String::ToLower(Arguments[0]);
+
+		if (format == "normal")
+		{
+			std::stringstream ss;
+
+			ss << "Name: " << equippedWeaponName << std::endl;
+			//ss << "Class: " << std::string(StringIDCache::Instance.GetString(weapon->WeaponClass)) << std::endl;
+			//ss << "Acceleration Scale: " << weapon->AccelerationScale << std::endl;
+			ss << "Index: 0x" << std::hex << equippedWeaponIndex << std::endl;
+			ss << "First Person Weapon Offset: { " << equippedWeaponOffset.I << ", " << equippedWeaponOffset.J << ", " << equippedWeaponOffset.K << " }" << std::endl;
+			//ss << "Acceleration Scale: " << weapon->AccelerationScale << std::endl;
+			//ss << "Autoaim Angle: " << weapon->AutoaimAngle.Value << std::endl;
+			//ss << "Magnetism Angle: " << weapon->MagnetismAngle.Value << std::endl;
+
+			returnInfo = ss.str();
+		}
+		else if (format == "json")
+		{
+			rapidjson::StringBuffer jsonBuffer;
+			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+
+			jsonWriter.StartObject();
+			jsonWriter.Key("Name");
+			jsonWriter.String(equippedWeaponName.c_str());
+			jsonWriter.Key("Index");
+			jsonWriter.String(Index.c_str());
+			jsonWriter.Key("FirstPersonWeaponOffset");
+			jsonWriter.StartArray();
+			jsonWriter.String(std::to_string(equippedWeaponOffset.I).c_str());
+			jsonWriter.String(std::to_string(equippedWeaponOffset.J).c_str());
+			jsonWriter.String(std::to_string(equippedWeaponOffset.K).c_str());
+			jsonWriter.EndArray();
+			jsonWriter.Key("MultiplayerWeaponType");
+			jsonWriter.String(MultiplayerWeaponType.c_str());
+			jsonWriter.Key("WeaponType");
+			jsonWriter.String(WeaponType.c_str());
+			jsonWriter.Key("TrackingType");
+			jsonWriter.String(TrackingType.c_str());
+			jsonWriter.Key("SpecialHUDType");
+			jsonWriter.String(SpecialHUDType.c_str());
+			jsonWriter.EndObject();
+
+			returnInfo = jsonBuffer.GetString();
+		}
+		else if (format == "csv")
+		{
+			std::stringstream ss;
+
+			ss << equippedWeaponName.c_str() << ",";
+			ss << Index.c_str() << ",";
+			ss << std::to_string(equippedWeaponOffset.I).c_str() << ",";
+			ss << std::to_string(equippedWeaponOffset.J).c_str() << ",";
+			ss << std::to_string(equippedWeaponOffset.K).c_str() << ",";
+			ss << MultiplayerWeaponType.c_str() << ",";
+			ss << WeaponType.c_str() << ",";
+			ss << TrackingType.c_str() << ",";
+			ss << SpecialHUDType.c_str();
+
+			returnInfo = ss.str();
+		}
+
 		return true;
 	}
 
@@ -307,10 +482,11 @@ namespace Modules
 	{
 		AddCommand("Offset", "weap_off", "This changes weapon offset.", eCommandFlagsNone, CommandWeaponOffset, { "Weapon Name", "I Offset", "J Offset", "K Offset" });
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default.", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
-		AddCommand("Config.Save", "weap_cfg_sv", "This saves weapon offset.", eCommandFlagsNone, CommandSaveWeaponsConfig);
-		VarWeaponConfig = AddVariableString("Config", "weap_cfg", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.cfg", VariableWeaponConfigUpdate);
+		VarAutoSaveOnMapLoad = AddVariableInt("AutoSaveOnMapLoad", "weap_auto_save", "This determines if the offsets get saved on map load.", eCommandFlagsArchived, 0);
+		VarWeaponJSON = AddVariableString("JSON.File", "weap_json_file", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.json");
+		AddCommand("JSON.Load", "weap_json_load", "This loads weapon offset.", eCommandFlagsNone, CommandLoadWeaponsJSON);
+		AddCommand("JSON.Save", "weap_json_save", "This saves weapon offset.", eCommandFlagsNone, CommandSaveWeaponsJSON);
 		AddCommand("List", "weap_list", "Lists all weapons available in the mulg tag.", eCommandFlagsNone, CommandWeaponList);
-		AddCommand("Equipped", "weap_equipped", "Gives info on the currently equipped weapon.", eCommandFlagsNone, CommandGetEquippedWeaponInfo);
-		AddCommand("JSON", "weap_json", "Gives JSON formatted info on the currently equipped weapon.", eCommandFlagsHidden, CommandGetEquippedWeaponJSON);
+		AddCommand("Equipped", "weap_equipped", "Gives info on the currently equipped weapon.", eCommandFlagsNone, CommandGetEquippedWeaponInfo, { "Format: null, json, csv" });
 	}
 }

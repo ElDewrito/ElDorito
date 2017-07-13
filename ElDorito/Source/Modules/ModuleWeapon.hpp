@@ -7,7 +7,8 @@ namespace Modules
 	class ModuleWeapon : public Utils::Singleton<ModuleWeapon>, public ModuleBase
 	{
 	public:
-		Command* VarWeaponConfig;
+		Command* VarAutoSaveOnMapLoad;
+		Command* VarWeaponJSON;
 
 		ModuleWeapon();
 	};
