@@ -203,7 +203,7 @@ namespace Web
 									hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
 									if (hasObjective)
 										teamObjective[player.Properties.TeamIndex] = true;
-									if (session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
+									if (hasObjective && session->HasTeams() && session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
 										hasObjective = false;
 								}
 							}
