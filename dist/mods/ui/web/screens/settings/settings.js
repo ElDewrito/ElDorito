@@ -60,7 +60,7 @@ var settingsToLoad = [
     ['gHideChat','Game.HideChat'], 
     ['gSuppressJuggling','Game.SuppressJuggling'], 
     ['sTeamShufflingEnabled','Server.TeamShuffleEnabled'],
-    ['wOffsetConfig','Weapon.Config'], 
+    ['wOffsetConfig','Weapon.JSON.File'],
     ['gMedalPack','Game.MedalPack'], 
     ['iSpectateSens','Input.SpectateSensitivity'],
     ['iDisableSprint','Input.ToggleSprint'],
@@ -411,6 +411,9 @@ $(document).ready(function(){
     $('.voip').on('change', function(){
         changeArray.push(['VoIP.Update', '']);
     });
+    $('#wOffsetConfig').on('change', function(){
+        changeArray.push(['Weapon.JSON.Load', '']);
+    });    
     navigator.mediaDevices.enumerateDevices().then(function(devices){
         var deviceArray = [['Default','']];
         for (i = 0; i < devices.length; i++){
