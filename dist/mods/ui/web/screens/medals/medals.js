@@ -134,49 +134,109 @@ function doMedal(eventString, audience){
             case 0:
                 if(eventJson[eventString].hasOwnProperty('cause_player')){
                     if(eventJson[eventString].cause_player.hasOwnProperty('image')){
-                        display_medal(eventJson[eventString].cause_player.image);
+                        if(typeof eventJson[eventString].cause_player.image === 'string'){
+                            display_medal(eventJson[eventString].cause_player.image);
+                        }
+                        else{
+                            var items = eventJson[eventString].cause_player.image;
+                            display_medal(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                     if(eventJson[eventString].cause_player.hasOwnProperty('sound')){
-                        queue_audio(eventJson[eventString].cause_player.sound);		
+                        if(typeof eventJson[eventString].cause_player.sound === 'string'){
+                            queue_audio(eventJson[eventString].cause_player.sound); 
+                        }
+                        else{
+                            var items = eventJson[eventString].cause_player.sound;
+                            queue_audio(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                 }
                 break;
             case 1:
                 if(eventJson[eventString].hasOwnProperty('cause_team')){
                     if(eventJson[eventString].cause_team.hasOwnProperty('image')){
-                        display_medal(eventJson[eventString].cause_team.image);
+                        if(typeof eventJson[eventString].cause_team.image === 'string'){
+                            display_medal(eventJson[eventString].cause_team.image);
+                        }
+                        else{
+                            var items = eventJson[eventString].cause_team.image;
+                            display_medal(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                     if(eventJson[eventString].cause_team.hasOwnProperty('sound')){
-                        queue_audio(eventJson[eventString].cause_team.sound);		
+                        if(typeof eventJson[eventString].cause_team.sound === 'string'){
+                            queue_audio(eventJson[eventString].cause_team.sound);   
+                        }
+                        else{
+                            var items = eventJson[eventString].cause_team.sound;
+                            queue_audio(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                 }
                 break;
             case 2:
                 if(eventJson[eventString].hasOwnProperty('effect_player')){
                     if(eventJson[eventString].effect_player.hasOwnProperty('image')){
-                        display_medal(eventJson[eventString].effect_player.image);
+                        if(typeof eventJson[eventString].effect_player.image === 'string'){
+                            display_medal(eventJson[eventString].effect_player.image);
+                        }
+                        else{
+                            var items = eventJson[eventString].effect_player.image;
+                            display_medal(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                     if(eventJson[eventString].effect_player.hasOwnProperty('sound')){
-                        queue_audio(eventJson[eventString].effect_player.sound);		
-                    }	
+                        if(typeof eventJson[eventString].effect_player.sound === 'string'){
+                            queue_audio(eventJson[eventString].effect_player.sound);    
+                        }
+                        else{
+                            var items = eventJson[eventString].effect_player.sound;
+                            queue_audio(items[Math.floor(Math.random()*items.length)]);
+                        }
+                    }
                 }
                 break;
             case 3:
                 if(eventJson[eventString].hasOwnProperty('effect_team')){
                     if(eventJson[eventString].effect_team.hasOwnProperty('image')){
-                        display_medal(eventJson[eventString].effect_team.image);
+                        if(typeof eventJson[eventString].effect_team.image === 'string'){
+                            display_medal(eventJson[eventString].effect_team.image);
+                        }
+                        else{
+                            var items = eventJson[eventString].effect_team.image;
+                            display_medal(items[Math.floor(Math.random()*items.length)]);
+                        }
                     }
                     if(eventJson[eventString].effect_team.hasOwnProperty('sound')){
-                        queue_audio(eventJson[eventString].effect_team.sound);		
-                    }	
+                        if(typeof eventJson[eventString].effect_team.sound === 'string'){
+                            queue_audio(eventJson[eventString].effect_team.sound);  
+                        }
+                        else{
+                            var items = eventJson[eventString].effect_team.sound;
+                            queue_audio(items[Math.floor(Math.random()*items.length)]);
+                        }
+                    }
                 }
                 break;
             case 4:
                 if(eventJson[eventString].hasOwnProperty('image')){
-                    display_medal(eventJson[eventString].image);
+                    if(typeof eventJson[eventString].image === 'string'){
+                        display_medal(eventJson[eventString].image);
+                    }
+                    else{
+                        var items = eventJson[eventString].image;
+                        display_medal(items[Math.floor(Math.random()*items.length)]);
+                    }
                 }
                 if(eventJson[eventString].hasOwnProperty('sound')){
-                    queue_audio(eventJson[eventString].sound);		
+                    if(typeof eventJson[eventString].sound === 'string'){
+                        queue_audio(eventJson[eventString].sound);  
+                    }
+                    else{
+                        var items = eventJson[eventString].sound;
+                        queue_audio(items[Math.floor(Math.random()*items.length)]);
+                    }
                 }
                 break;
         }
