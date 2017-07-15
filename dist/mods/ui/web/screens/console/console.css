@@ -210,3 +210,7 @@ body {
 .console .box.output pre.error-line {
     background-color: #af4444;
 }
+
+.console #memory-usage {
+    float: right;
+}

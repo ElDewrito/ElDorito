@@ -47,4 +47,5 @@ void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type
 	command_line->AppendSwitch("enable-begin-frame-scheduling");
 	command_line->AppendSwitch("enable-experimental-web-platform-features");
 	command_line->AppendSwitch("enable-media-stream");
+	command_line->AppendSwitch("enable-precise-memory-info");
 }
