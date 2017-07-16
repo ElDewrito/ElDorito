@@ -4,7 +4,7 @@ var removeTime = 4500;
 var medalsPath = 'medals://';
 var playQueue = [];
 var eventJson;
-var announcerVolume;
+var playVol;
 var suppressRepeat = false;
 var medalWidth = '3.5vw';
 var leftPos = '6.78vw';
@@ -39,20 +39,24 @@ dew.on("mpevent", function (event) {
                     suppressRepeat = false;
                 }
             });
-            dew.command('Game.AnnouncerVolume', {}).then(function(response) {
-                announcerVolume = response/100;
-                var medal = event.data.name;
-                if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
-                    juggleEvent++;
-                    setTimeout(function(){
-                        if(juggleEvent > 0){ juggleEvent--; }
-                    }, juggleDelay);
-                } 
-                if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
-                    return
-                }
-                doMedal(event.data.name, event.data.audience);
-            });            
+            dew.command('Settings.MasterVolume', {}).then(function(x) {
+                dew.command('Settings.SfxVolume', {}).then(function(y) {
+                    var sfxVol = x/100;
+                    var mstrVol = y/100;
+                    playVol = sfxVol * mstrVol * 0.3;
+                    var medal = event.data.name;
+                    if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
+                        juggleEvent++;
+                        setTimeout(function(){
+                            if(juggleEvent > 0){ juggleEvent--; }
+                        }, juggleDelay);
+                    } 
+                    if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
+                        return
+                    }
+                    doMedal(event.data.name, event.data.audience);
+                });   
+            });             
         });
     });
 });
@@ -89,7 +93,7 @@ function play(audio){
     isPlaying = true;
     var audioElement = new Audio(audio);
     audioElement.play();
-    audioElement.volume = announcerVolume;
+    audioElement.volume = playVol;
     audioElement.onended = function(){
         isPlaying = false;
         playQueue.splice(0, 1);
