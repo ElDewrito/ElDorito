@@ -1284,7 +1284,7 @@ namespace Modules
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
-		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", eCommandFlagsHostOnly, 1);
+		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsHostOnly | eCommandFlagsArchived), 1);
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
 
