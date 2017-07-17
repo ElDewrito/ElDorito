@@ -15,7 +15,6 @@ namespace Modules
 		Command* VarRconPort;
 		Command* VarMedalPack;
 		Command* VarFirstRun;
-		Command* VarAnnouncerVol;
 		Command* VarExpandedScoreboard;
 		Command* VarHideChat;
 		Command* VarSuppressJuggling;

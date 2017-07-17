@@ -931,10 +931,6 @@ namespace Modules
 		VarFirstRun->ValueIntMin = 0;
 		VarFirstRun->ValueIntMax = 1;
 
-		VarAnnouncerVol = AddVariableInt("AnnouncerVolume", "announcer_volume", "Set the volume percentage for announcer playback", eCommandFlagsArchived, 50);
-		VarAnnouncerVol->ValueIntMin = 0;
-		VarAnnouncerVol->ValueIntMax = 100;
-
 		VarExpandedScoreboard = AddVariableInt("ExpandedScoreboard", "expanded_scoreboard", "Always show full scoreboard, instead of just while locked/postgame", eCommandFlagsArchived, 0);
 		VarExpandedScoreboard->ValueIntMin = 0;
 		VarExpandedScoreboard->ValueIntMax = 1;
