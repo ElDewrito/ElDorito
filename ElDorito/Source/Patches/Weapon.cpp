@@ -78,6 +78,10 @@ namespace Patches
 						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
 					}
 				}
+				else
+				{
+					Config::LoadJSON(JSONPath);
+				}
 
 				if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
 				{
@@ -210,9 +214,14 @@ namespace Patches
 				if (weaponIndex == element.second)
 				{
 					if (isDefault)
+					{
 						return weaponOffsetsDefault.find(weaponName)->second;
+					}
 					else
-						return weaponOffsetsModified.find(weaponName)->second;
+					{
+						auto weap = Blam::Tags::TagInstance(GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+						return weap->FirstPersonWeaponOffset; // weaponOffsetsModified.find(weaponName)->second;
+					}
 				}
 			}
 
@@ -222,9 +231,14 @@ namespace Patches
 		RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName)
 		{
 			if (isDefault)
+			{
 				return weaponOffsetsDefault.find(weaponName)->second;
+			}
 			else
-				return weaponOffsetsModified.find(weaponName)->second;
+			{
+				auto weap = Blam::Tags::TagInstance(GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+				return weap->FirstPersonWeaponOffset; // weaponOffsetsModified.find(weaponName)->second;
+			}
 
 			return { -0xFFF, -0xFFF, -0xFFF };
 		}
@@ -281,6 +295,8 @@ namespace Patches
 				in.read(&contents[0], contents.size());
 				in.close();
 
+				weaponOffsetsModified.clear();
+
 				rapidjson::Document document;
 				if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
 				{
@@ -307,32 +323,32 @@ namespace Patches
 
 			bool SaveJSON(std::string JSONPath)
 			{
-				std::ofstream out(JSONPath, std::ios::binary);
+				std::ofstream out(JSONPath, std::ios::out | std::ios::binary);
 				if (!out.is_open())
 					return false;
 
-				rapidjson::StringBuffer jsonBuffer;
-				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
-				jsonWriter.StartObject();
+					rapidjson::StringBuffer jsonBuffer;
+					rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+					jsonWriter.StartObject();
 					jsonWriter.Key("Weapons");
 
 					jsonWriter.StartArray();
 					for (auto &weaponParams : weaponOffsetsModified)
 					{
 						std::string weaponName = weaponParams.first;
-						RealVector3D weaponOffset = weaponParams.second;
+						RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
 
 						jsonWriter.StartObject();
 
-							jsonWriter.Key("Name");
-							jsonWriter.String(weaponName.c_str());
+						jsonWriter.Key("Name");
+						jsonWriter.String(weaponName.c_str());
 
-							jsonWriter.Key("Offset");
-							jsonWriter.StartArray();
-								jsonWriter.String(std::to_string(weaponOffset.I).c_str());
-								jsonWriter.String(std::to_string(weaponOffset.J).c_str());
-								jsonWriter.String(std::to_string(weaponOffset.K).c_str());
-							jsonWriter.EndArray();
+						jsonWriter.Key("Offset");
+						jsonWriter.StartArray();
+						jsonWriter.String(std::to_string(weaponOffset.I).c_str());
+						jsonWriter.String(std::to_string(weaponOffset.J).c_str());
+						jsonWriter.String(std::to_string(weaponOffset.K).c_str());
+						jsonWriter.EndArray();
 
 						jsonWriter.EndObject();
 					}
@@ -341,13 +357,14 @@ namespace Patches
 					//jsonWriter.String("true");
 
 					jsonWriter.EndArray();
-				jsonWriter.EndObject();
+					jsonWriter.EndObject();
 
-				out << jsonBuffer.GetString();
+					out << jsonBuffer.GetString();
+					if (out.fail())
+						return false;
 
-				//out.write(jsonBuffer.GetString(), sizeof(jsonBuffer));
-				//if (out.fail())
-				//	return false;
+					out.flush();
+					out.close();
 
 				return true;
 			}
