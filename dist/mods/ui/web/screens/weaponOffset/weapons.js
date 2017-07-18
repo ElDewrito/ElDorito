@@ -1,7 +1,3 @@
-var settingsToLoad = [
-    ['wOffsetConfig','Weapon.JSON.file']
-];
-
 var selectedItem;
 var itemNumber = 0;
 var tabIndex = 0;
@@ -23,7 +19,6 @@ function closeBrowser() {
 }
 
 $(document).ready(function() {
-    loadSettings(0);     
     if(hasGP){
         updateSelection(itemNumber);
     }   
@@ -118,21 +113,6 @@ function loadSettings(i) {
 	}
 }
 
-function updateSetting(setting, value){
-    if ($("#"+setting).is(':checkbox')){
-        if ($("#"+setting).is(':checked')){
-            value = "1";
-        } else {
-            value = "0";
-        }
-    }
-    $.grep(settingsToLoad, function(result, index){
-        if(result[0] == setting){
-            dew.command(result[1] + " \"" + value + "\"");
-        }
-    });
-}
-
 function updateSelection(item){
     $('.selected').removeClass();
     $("#weaponOffsets label").eq(item).addClass('selected');
@@ -209,6 +189,9 @@ function onControllerDisconnect(){
 }
 
 dew.on("show", function(e){
+    dew.command('Weapon.JSON.File', {}).then(function(response){
+        $('#wOffsetConfig').val(response);
+    });
     dew.command('Weapon.List', {}).then(function(response){
         var weaponList = response.split('\n');
         var weaponArray = [];
