@@ -58,6 +58,8 @@ namespace
 
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	RealVector3D s_GrabOffset;
+
+	bool shown_legal(char unused);
 }
 
 namespace Patches
@@ -91,6 +93,10 @@ namespace Patches
 
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
+
+			Hook(0x70E33B, shown_legal, HookFlags::IsCall).Apply();
+			Hook(0x6EAAD3, shown_legal, HookFlags::IsCall).Apply();
+			Hook(0x6EAA2D, shown_legal, HookFlags::IsCall).Apply();
 
 			Patches::Core::OnGameStart(FixRespawnZones);
 		}
@@ -668,5 +674,9 @@ namespace
 					GrabSelection(playerIndex);
 			}
 		}
+	}
+	bool shown_legal(char unused)
+	{
+		return true;
 	}
 }
