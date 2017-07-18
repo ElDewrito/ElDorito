@@ -40,7 +40,7 @@ function updateProgress(progress) {
 
 function loadMap(mapName) {
     $(".mapLoader").show();
-    $(".mapLoader").css({backgroundImage: "url('dew://assets/maps/large/" + mapName + ".png')"});
+    $(".mapLoader").css({backgroundImage: "url('dew://assets/maps/large/" + mapName + ".jpg')"});
     $(".genericLoader").hide();
     dew.getMapVariantInfo().then(function (info) {
         $("#title").text(info.name);
