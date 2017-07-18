@@ -517,12 +517,14 @@ $(document).ready(function(){
 });
 
 function setButtons(){
-    $('#randomArmor img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_X.png');
-    $('#randomColors img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_Y.png');
-    $('#applyButton img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_Start.png');
-    $('#cancelButton img').attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_B.png');
-    $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_LB.png');
-    $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + $('#gIconSet').val() + '_RB.png');
+    dew.command('Game.IconSet', {}).then(function(response) {
+        $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_X.png');
+        $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
+        $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
+        $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
+        $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
+    });
 }
 
 dew.on('show', function(e){
@@ -548,6 +550,7 @@ dew.on('show', function(e){
         initActive();
     });
     setControlValues();
+    setButtons();
     adjustBiped();
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
