@@ -83,7 +83,7 @@ namespace
 		auto result = snd_SYSTEM_FMOD_Init(thisptr, a2, a3);
 
 		auto outputDevice = Modules::ModuleSettings::Instance().VarAudioOutputDevice->ValueInt;
-		if (result)
+		if (result && outputDevice)
 			Patches::Audio::SetOutputDevice(outputDevice);
 
 		return result;
