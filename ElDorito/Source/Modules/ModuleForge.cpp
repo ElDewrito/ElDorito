@@ -134,6 +134,12 @@ namespace Modules
 		VarSelectionRenderer = AddVariableInt("SelectionRenderer", "forge_selection_renderer", "Set the selection renderer to use", eCommandFlagsArchived, 0);
 		VarSelectionRenderer->ValueIntMin = 0;
 		VarSelectionRenderer->ValueIntMax = 1;
+		VarMagnetsEnabled = AddVariableInt("Magnets", "forge_magnets", "Controls whether magnets are enabled (1) or disabled (0)", eCommandFlagsArchived, 0);
+		VarMagnetsEnabled->ValueIntMin = 0;
+		VarMagnetsEnabled->ValueIntMax = 1;
+		VarMagnetsVisible = AddVariableInt("MagnetsVisible", "forge_magnets_visible", "Controls whether magnets are shown (1) or hidden (0)", eCommandFlagsArchived, 1);
+		VarMagnetsVisible->ValueIntMin = 0;
+		VarMagnetsVisible->ValueIntMax = 1;
 
 		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);

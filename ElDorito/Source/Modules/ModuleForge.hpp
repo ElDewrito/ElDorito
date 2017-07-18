@@ -13,6 +13,8 @@ namespace Modules
 		Command* VarRotationSensitivity;
 		Command* VarMonitorSpeed;
 		Command* VarSelectionRenderer;
+		Command* VarMagnetsEnabled;
+		Command* VarMagnetsVisible;
 
 		ModuleForge();
 	};

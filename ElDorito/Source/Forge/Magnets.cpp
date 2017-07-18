@@ -1,0 +1,445 @@
+#include "Magnets.hpp"
+#include "../Blam/Math/RealVector3D.hpp"
+#include "../Blam/Math/RealQuaternion.hpp"
+#include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamObjects.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Objects/Object.hpp"
+#include "../Blam/BlamTime.hpp"
+#include "../Blam/Cache/StringIdCache.hpp"
+#include "../Utils/Logger.hpp"
+#include "../Modules/ModuleForge.hpp"
+#include "../ThirdParty/rapidjson/document.h"
+#include "../ThirdParty/rapidjson/error/en.h"
+#include "ObjectSet.hpp"
+#include "ForgeUtil.hpp"
+#include "Selection.hpp"
+#include "Geoemetry.hpp"
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include <memory>
+#include <unordered_map>
+
+using namespace Forge;
+using namespace Blam;
+using namespace Blam::Math;
+using namespace Magnets;
+
+namespace
+{
+	const auto MIN_DISTANCE = 0.45f;
+	const auto MAX_SOURCE_MAGNETS = 512;
+	const auto MAX_DEST_MAGNETS = 512;
+	const auto MARKER_STORE_PATH = "./mods/forge/magnets.json";
+
+	class JsonMarkerStore
+	{
+	public:
+		void Load(const std::string& path)
+		{
+			std::unordered_map<std::string, uint32_t> stringIdLookup;
+			Blam::Cache::StringIDCache stringIdCache;
+			if (!stringIdCache.Load("maps\\string_ids.dat"))
+				return;
+
+			for (auto i = 0; i < stringIdCache.Header.StringCount; i++)
+			{
+				const auto s = stringIdCache.Strings[i];
+				if (!s)
+					continue;
+				stringIdLookup[s] = i;
+			}
+
+			std::ifstream is(path);
+			if (!is.is_open())
+				return;
+
+			std::stringstream ss;
+			ss << is.rdbuf();
+
+			const auto source = ss.str();
+
+			rapidjson::Document doc;
+			if ((doc.Parse<0>(source.c_str()).HasParseError()))
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "failed to parse magnets.json. Error: %s (%u)",
+					rapidjson::GetParseError_En(doc.GetParseError()), doc.GetErrorOffset());
+				return;
+			}
+
+			if (!doc.IsObject())
+				return;
+
+			for (auto objectIt = doc.MemberBegin(); objectIt != doc.MemberEnd(); ++objectIt)
+			{
+				const auto name = objectIt->name.GetString();
+				if (!objectIt->value.IsArray())
+					continue;
+
+				auto lookupIt = stringIdLookup.find(name);
+				if (lookupIt == stringIdLookup.end())
+					continue;
+
+				auto modelNameId = lookupIt->second;
+
+				std::vector<RealVector3D> markers;
+				for (auto markerIt = objectIt->value.Begin(); markerIt != objectIt->value.End(); ++markerIt)
+				{
+					RealVector3D vec;
+					ReadJsonArrayIntoVector3(markerIt, &vec);
+					markers.emplace_back(vec);
+				}
+
+				m_Markers[modelNameId] = markers;
+			}
+		}
+
+		int GetMarkers(uint32_t name, Blam::Math::RealVector3D* markers)
+		{
+			auto it = m_Markers.find(name);
+			if (it == m_Markers.end())
+				return 0;
+
+			auto numMarkers = 0;
+			for (auto& m : it->second)
+				markers[numMarkers++] = m;
+
+			return numMarkers;
+		}
+
+	private:
+		std::unordered_map<uint32_t, std::vector<Blam::Math::RealVector3D>> m_Markers;
+
+		template <typename T>
+		bool ReadJsonArrayIntoVector3(T& value, RealVector3D* outVector)
+		{
+			if (!outVector)
+				return false;
+
+			auto it = value->Begin();
+			if (it == value->End())
+				return false;
+			outVector->I = static_cast<float>(it->GetDouble());
+			if (++it == value->End())
+				return false;
+			outVector->J = static_cast<float>(it->GetDouble());
+			if (++it == value->End())
+				return false;
+			outVector->K = static_cast<float>(it->GetDouble());
+
+			return true;
+		}
+	};
+
+	class MagnetManager
+	{
+	public:
+
+		MagnetManager() :
+			m_LastCheck(0),
+			m_NumSourceMagnets(0),
+			m_NumDestMagnets(0)
+		{
+			m_MagnetStore.Load(MARKER_STORE_PATH);
+		}
+
+		void Update()
+		{
+			static auto Objects_GetObjectsInCluster = (uint16_t(*)(int a1, uint32_t objectTypeMask, int16_t* pClusterIndex,
+				RealVector3D *center, float radius, uint32_t* result, uint16_t maxObjects))(0x00B35B60);
+
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			if (playerIndex == DatumIndex::Null)
+				return;
+
+			uint32_t heldObjectIndex;
+			if (!Forge::GetEditorModeState(playerIndex, &heldObjectIndex, nullptr) || heldObjectIndex == -1)
+			{
+				m_NumSourceMagnets = 0;
+				m_NumDestMagnets = 0;
+				return;
+			}
+
+			const auto& selection = Selection::GetSelection();
+
+			auto heldObject = Blam::Objects::Get(heldObjectIndex);
+			auto numSourceObjects = 0;
+
+			uint32_t s_SourceObjectIndices[256];
+
+			s_SourceObjectIndices[numSourceObjects++] = heldObjectIndex;
+
+			if (selection.Contains(heldObjectIndex))
+			{
+				const auto& heldObject = Blam::Objects::Get(heldObjectIndex);
+				for (auto objectIndex = heldObject->FirstChild; objectIndex != DatumIndex::Null
+					&& numSourceObjects < MAX_SOURCE_MAGNETS;)
+				{
+					auto object = Blam::Objects::Get(objectIndex);
+					if (!object)
+						continue;
+
+					s_SourceObjectIndices[numSourceObjects++] = objectIndex;
+					objectIndex = object->NextSibling;
+				}
+			}
+
+			m_NumSourceMagnets = 0;
+
+			for (auto i = 0; i < numSourceObjects; i++)
+			{
+				const auto objectIndex = s_SourceObjectIndices[i];
+				const auto object = Blam::Objects::Get(objectIndex);
+				if (!object)
+					continue;
+
+				const auto numMarkers = GetObjectMarkers(object->TagIndex, (RealVector3D*)&m_SourceMagnets[m_NumSourceMagnets]);
+
+				RealMatrix4x3 objectTransform;
+				GetObjectTransformationMatrix(objectIndex, &objectTransform);
+				const auto objectRotation = RealQuaternion::CreateFromRotationMatrix(objectTransform);
+
+				for (auto i = 0; i < numMarkers; i++)
+				{
+					auto& magnet = m_SourceMagnets[m_NumSourceMagnets + i];
+					magnet.Position = RealVector3D::Transform(magnet.Position, objectRotation) + objectTransform.Position;
+				}
+
+				m_NumSourceMagnets += numMarkers;
+			}
+
+			if (Blam::Time::TicksToSeconds(static_cast<float>(Blam::Time::GetGameTicks() - m_LastCheck)) < 0.3f)
+				return;
+
+			m_LastCheck = Blam::Time::GetGameTicks();
+			m_NumDestMagnets = 0;
+
+			uint32_t proximityObjects[256];
+			auto numProximityObjects = Objects_GetObjectsInCluster(0, 0, &heldObject->ClusterIndex,
+				&heldObject->Center, heldObject->Radius, proximityObjects, 256);
+
+			for (auto i = 0; i < numProximityObjects; i++)
+			{
+				auto objectIndex = proximityObjects[i];
+				if (objectIndex == heldObjectIndex)
+					continue;
+
+				const auto& object = Blam::Objects::Get(objectIndex);
+				if (!object || object->PlacementIndex == -1)
+					continue;
+
+				RealMatrix4x3 objectTransform;
+				GetObjectTransformationMatrix(objectIndex, &objectTransform);
+				const auto objectRotation = RealQuaternion::CreateFromRotationMatrix(objectTransform);
+
+				const auto numMarkers = GetObjectMarkers(object->TagIndex, (RealVector3D*)&m_DestMagnets[m_NumDestMagnets]);
+				for (auto j = 0; j < numMarkers; j++)
+				{
+					auto& marker = m_DestMagnets[m_NumDestMagnets + j];
+					marker.Position = RealVector3D::Transform(marker.Position, objectRotation) + objectTransform.Position;
+				}
+
+				m_NumDestMagnets += numMarkers;
+				if (m_NumDestMagnets > MAX_DEST_MAGNETS)
+					continue;
+			}
+
+			m_MagnetPairing.IsValid = false;
+
+			auto player = Blam::Players::GetPlayers().Get(playerIndex);
+			if (!player)
+				return;
+
+			RealMatrix4x3 unitTransform;
+			GetObjectTransformationMatrix(player->SlaveUnit, &unitTransform);
+
+			auto shortestDistance = 999.0f;
+			auto shortestUnitDistance = 999.0f;
+
+			// worst case O(n^2)
+			for (auto i = 0; i < m_NumSourceMagnets; i++)
+			{
+				const auto& sourceMagnet = m_SourceMagnets[i];
+
+				auto unitDistance = (unitTransform.Position - sourceMagnet.Position).Length2();
+
+				// try to pick the source closest to the player
+				if (m_MagnetPairing.IsValid && unitDistance > shortestUnitDistance)
+					continue;
+
+				for (auto j = 0; j < m_NumDestMagnets; j++)
+				{
+					const auto& destMagnet = m_DestMagnets[j];
+
+					auto d = sourceMagnet.Position - destMagnet.Position;
+					auto distance2 = d.Length2();
+
+					if (distance2 < (MIN_DISTANCE * MIN_DISTANCE) && distance2 < shortestDistance)
+					{
+						shortestUnitDistance = unitDistance;
+						shortestDistance = distance2;
+						m_MagnetPairing.IsValid = true;
+						m_MagnetPairing.Source = &m_SourceMagnets[i];
+						m_MagnetPairing.Dest = &m_DestMagnets[j];
+					}
+				}
+			}
+		}
+
+		void Render()
+		{
+			static const auto UseDefaultShader = (bool(*)(int defaultShaderIndex, int a2, int a3, int a4))(0x00A23300);
+			static const auto sub_A3CA60 = (void(*)(uint32_t shaderTagIndex, void* shaderDef, int a3, unsigned int a4, int a5, int a6))(0xA3CA60);
+
+			const auto SHADER_TAGINDEX = 0x303c;
+			if (!UseDefaultShader(64, 0x14, 0, 0))
+				return;
+
+			auto shaderDef = Blam::Tags::TagInstance(SHADER_TAGINDEX).GetDefinition<void>();
+			sub_A3CA60(SHADER_TAGINDEX, shaderDef, 20, 0, Geoemetry::PT_TRIANGLESTRIP, 1);
+
+			for (auto i = 0; i < m_NumDestMagnets; i++)
+				RenderMagnet(m_DestMagnets[i]);
+			for (auto i = 0; i < m_NumSourceMagnets; i++)
+				RenderMagnet(m_SourceMagnets[i]);
+		}
+
+
+		const MagnetPair& GetMagnetPair() const
+		{
+			return m_MagnetPairing;
+		}
+
+	private:
+		uint32_t m_LastCheck;
+		int m_NumSourceMagnets;
+		int m_NumDestMagnets;
+		MagnetPair m_MagnetPairing;
+		Magnet m_SourceMagnets[MAX_SOURCE_MAGNETS];
+		Magnet m_DestMagnets[MAX_DEST_MAGNETS];
+		JsonMarkerStore m_MagnetStore;
+
+		void RenderMagnet(const Magnet& magnet)
+		{
+			using namespace Forge::Geoemetry;
+
+			static const auto sub_A232D0 = (int(*)(int a1))(0xA232D0);
+			static const auto sub_A22BA0 = (int(*)())(0xA22BA0);
+			static const auto SetShaderConstant = (void(*)(int id, int type, const float* data))(0x00A66410);
+			static const auto DrawPrimitive = (int(*)(int primitiveType, int primitiveCount, void *data, int stride))(0x00A28330);
+
+			if (m_MagnetPairing.IsValid && (m_MagnetPairing.Dest == &magnet || m_MagnetPairing.Source == &magnet))
+			{
+				const float color[] = { 1, 0, 0, 1 };
+				SetShaderConstant(20, 3, color);
+			}
+			else
+			{
+				const float color[] = { 0, 0, 1, 1 };
+				SetShaderConstant(20, 3, color);
+			}
+
+			const auto scale = 0.05f;
+			RealVector3D forward(1, 0, 0), left(0, 1, 0), up(0, 0, 1);
+			float m[] = 				// transpose
+			{
+				forward.I * scale, left.I * scale,  up.I * scale, magnet.Position.I,
+				forward.J * scale, left.J * scale,  up.J * scale, magnet.Position.J,
+				forward.K * scale, left.K * scale,  up.K * scale, magnet.Position.K
+			};
+
+			SetShaderConstant(24, 3, m);
+
+			auto v14 = sub_A22BA0();
+			sub_A232D0(1);
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)BOX_VERTICES, sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 4), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 8), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 12), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 16), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 20), sizeof(VertexPosUV));
+			sub_A232D0(v14);
+		}
+
+		int GetObjectMarkers(uint32_t tagIndex, RealVector3D* markers)
+		{
+			using ObjectDefinition = Blam::Tags::Objects::Object;
+			auto objeDefinition = Blam::Tags::TagInstance(tagIndex).GetDefinition<ObjectDefinition>();
+			if (!objeDefinition)
+				return 0;
+			auto hlmtDefinition = Blam::Tags::TagInstance(objeDefinition->Model.TagIndex).GetDefinition<uint8_t>();
+			if (!hlmtDefinition)
+				return 0;
+			auto modeDefinition = Blam::Tags::TagInstance(*(uint32_t*)&hlmtDefinition[0xC]).GetDefinition<uint8_t>();
+			if (!modeDefinition)
+				return 0;
+
+			return m_MagnetStore.GetMarkers(*(uint32_t*)modeDefinition, markers);
+		}
+	};
+
+	std::unique_ptr<MagnetManager> s_MagnetManager;
+}
+
+namespace
+{
+	bool MagnetsEnabled()
+	{
+		return Modules::ModuleForge::Instance().VarMagnetsEnabled->ValueInt;
+	}
+
+	bool MagnetsVisible()
+	{
+		return Modules::ModuleForge::Instance().VarMagnetsVisible->ValueInt;
+	}
+}
+
+namespace Forge
+{
+	bool Magnets::Initialize()
+	{
+		if (!s_MagnetManager)
+		{
+			s_MagnetManager = std::make_unique<MagnetManager>();
+			if (!s_MagnetManager)
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Failed to initialize magnets. Out of memory");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void Magnets::Shutdown()
+	{
+		s_MagnetManager.reset();
+	}
+
+	void Magnets::Update()
+	{
+		if (!MagnetsEnabled())
+			return;
+
+		if (s_MagnetManager)
+			s_MagnetManager->Update();
+	}
+
+	void Magnets::Render()
+	{
+		if (!MagnetsEnabled() || !MagnetsVisible())
+			return;
+
+		if (s_MagnetManager)
+			s_MagnetManager->Render();
+	}
+
+	const MagnetPair& Magnets::GetMagnetPair()
+	{
+		static MagnetPair nullMagnetPair = {};
+		if (!s_MagnetManager || !MagnetsEnabled())
+			return nullMagnetPair;
+
+		return s_MagnetManager->GetMagnetPair();
+	}
+}

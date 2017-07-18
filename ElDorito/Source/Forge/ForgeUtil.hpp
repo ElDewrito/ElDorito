@@ -49,7 +49,7 @@ namespace Forge
 	Blam::MapVariant* GetMapVariant();
 
 	struct AABB { float MinX, MaxX, MinY, MaxY, MinZ, MaxZ; };
-	bool CalculateObjectBoundingBox(uint32_t objectIndex, AABB* outBoundingBox);
+	const AABB* GetObjectBoundingBox(uint32_t tagIndex);
 	Blam::Math::RealVector3D GetClosestCardianalAxix(const Blam::Math::RealVector3D& v);
 	void DeleteObject(uint16_t playerIndex, int16_t placementIndex);
 	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth);

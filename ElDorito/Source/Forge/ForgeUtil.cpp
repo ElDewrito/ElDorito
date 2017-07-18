@@ -18,18 +18,10 @@ namespace Forge
 		return GetMapVariant();
 	}
 
-	bool CalculateObjectBoundingBox(uint32_t objectIndex, Forge::AABB* outBoundingBox)
+	const AABB* GetObjectBoundingBox(uint32_t tagIndex)
 	{
 		using namespace Blam::Tags;
-
-		auto objects = Blam::Objects::GetObjects();
-		auto objectPtr = Pointer(objects.Get(objectIndex))[0xC];
-		if (!objectPtr)
-			return false;
-
-		auto objectTagIndex = objectPtr.Read<uint32_t>();
-
-		auto objectDefPtr = Pointer(TagInstance(objectTagIndex).GetDefinition<void>());
+		auto objectDefPtr = Pointer(TagInstance(tagIndex).GetDefinition<void>());
 		if (!objectDefPtr)
 			return false;
 
@@ -49,9 +41,7 @@ namespace Forge
 		if (compressionInfoBlock.Count < 1)
 			return false;
 
-		*outBoundingBox = Pointer(compressionInfoBlock.Elements)(0x4).Read<AABB>();
-
-		return true;
+		return (AABB*)Pointer(compressionInfoBlock.Elements)(0x4);
 	}
 
 	void DeleteObject(uint16_t playerIndex, int16_t placementIndex)
@@ -73,9 +63,10 @@ namespace Forge
 
 		RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xFFFF];
 
-		AABB bounds;
-		if (!CalculateObjectBoundingBox(objectIndex, &bounds))
+		auto boundsPtr = GetObjectBoundingBox(object->TagIndex);
+		if (!boundsPtr)
 			return -1;
+		const auto& bounds = *boundsPtr;
 
 		const auto& variantProperties = mapv->Placements[object->PlacementIndex].Properties;
 

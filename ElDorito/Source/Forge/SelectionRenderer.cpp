@@ -8,7 +8,8 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Math/MathUtil.hpp"
 #include "../Patch.hpp"
-#include <cstdint>
+#include "Geoemetry.hpp"
+#include "Magnets.hpp"
 
 using namespace Blam::Math;
 
@@ -16,41 +17,6 @@ using namespace Forge::SelectionRenderer;
 
 namespace
 {
-	struct VertexPosUV { float X, Y, Z, U, V; };
-	const VertexPosUV BOX_VERTS[] =
-	{
-		// front
-		{ -0.5f, 0.5f,-0.5f,  0.0f,  0.0f },
-		{ 0.5f, 0.5f,-0.5f,  0.5f,  0.0f },
-		{ -0.5f,-0.5f,-0.5f,  0.0f,  0.5f },
-		{ 0.5f,-0.5f,-0.5f,  0.5f,  0.5f },
-		// back
-		{ -0.5f, 0.5f, 0.5f,  0.5f,  0.0f },
-		{ -0.5f,-0.5f, 0.5f,  0.5f,  0.5f },
-		{ 0.5f, 0.5f, 0.5f,  0.0f,  0.0f },
-		{ 0.5f,-0.5f, 0.5f,  0.0f,  0.5f },
-		// top
-		{ -0.5f, 0.5f, 0.5f,  0.0f,  0.0f },
-		{ 0.5f, 0.5f, 0.5f,  0.5f,  0.0f },
-		{ -0.5f, 0.5f,-0.5f,  0.0f,  0.5f },
-		{ 0.5f, 0.5f,-0.5f,  0.5f,  0.5f },
-		// bottom
-		{ -0.5f,-0.5f, 0.5f,  0.0f,  0.0f },
-		{ -0.5f,-0.5f,-0.5f,  0.5f,  0.0f },
-		{ 0.5f,-0.5f, 0.5f,  0.0f,  0.5f },
-		{ 0.5f,-0.5f,-0.5f,  0.5f,  0.5f },
-		// right
-		{ 0.5f, 0.5f,-0.5f,  0.0f,  0.0f },
-		{ 0.5f, 0.5f, 0.5f,  0.5f,  0.0f },
-		{ 0.5f,-0.5f,-0.5f,  0.0f,  0.5f },
-		{ 0.5f,-0.5f, 0.5f,  0.5f,  0.5f },
-		// left
-		{ -0.5f, 0.5f,-0.5f,  0.5f,  0.0f },
-		{ -0.5f,-0.5f,-0.5f,  0.5f,  0.5f },
-		{ -0.5f, 0.5f, 0.5f,  0.0f,  0.0f },
-		{ -0.5f,-0.5f, 0.5f,  0.0f,  0.5f }
-	};
-
 	struct SelectionItem
 	{
 		RealMatrix4x3 Transform;
@@ -96,18 +62,20 @@ namespace Forge
 
 				auto& item = s_items[s_NumActiveItems++];
 
-				Forge::AABB boundingBox;
-				Forge::GetObjectTransformationMatrix(it.CurrentDatumIndex, &item.Transform);
-				Forge::CalculateObjectBoundingBox(it.CurrentDatumIndex, &boundingBox);
+				auto boundingBox = Forge::GetObjectBoundingBox(it->Data->TagIndex);
+				if (!boundingBox)
+					continue;
 
-				item.Transform.Forward *= (boundingBox.MaxX - boundingBox.MinX) * 1.01f;
-				item.Transform.Left *= (boundingBox.MaxY - boundingBox.MinY) * 1.01f;
-				item.Transform.Up *= (boundingBox.MaxZ - boundingBox.MinZ) * 1.01f;
+				Forge::GetObjectTransformationMatrix(it.CurrentDatumIndex, &item.Transform);
+
+				item.Transform.Forward *= (boundingBox->MaxX - boundingBox->MinX) * 1.01f;
+				item.Transform.Left *= (boundingBox->MaxY - boundingBox->MinY) * 1.01f;
+				item.Transform.Up *= (boundingBox->MaxZ - boundingBox->MinZ) * 1.01f;
 				item.Transform.Position = it->Data->Center;
 
-				item.Width = boundingBox.MaxX - boundingBox.MinX;
-				item.Depth = boundingBox.MaxY - boundingBox.MinY;
-				item.Height = boundingBox.MaxZ - boundingBox.MinZ;
+				item.Width = boundingBox->MaxX - boundingBox->MinX;
+				item.Depth = boundingBox->MaxY - boundingBox->MinY;
+				item.Height = boundingBox->MaxZ - boundingBox->MinZ;
 			}
 
 			s_SelectionColorCounter += Blam::Time::GetSecondsPerTick() / 1.0f;
@@ -186,6 +154,10 @@ namespace
 	}
 	void RenderImplicit()
 	{
+		using namespace Forge::Geoemetry;
+
+		Forge::Magnets::Render();
+
 		if (s_RendererType != eRendererImplicit)
 			return;
 
@@ -238,17 +210,20 @@ namespace
 			auto v14 = sub_A22BA0();
 			sub_A232D0(1);
 
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)BOX_VERTS, sizeof(VertexPosUV));
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTS + 4), sizeof(VertexPosUV));
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTS + 8), sizeof(VertexPosUV));
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTS + 12), sizeof(VertexPosUV));
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTS + 16), sizeof(VertexPosUV));
-			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTS + 20), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)BOX_VERTICES, sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 4), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 8), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 12), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 16), sizeof(VertexPosUV));
+			DrawPrimitive(PT_TRIANGLESTRIP, 2, (void*)(BOX_VERTICES + 20), sizeof(VertexPosUV));
 		}
 	}
 
 	void RasterizeImplicitGeometryHook()
 	{
+		if (!s_Enabled)
+			return;
+
 		static const auto RasterizeImplicitGeometry = (void(*)())(0x00A743B0);
 		RasterizeImplicitGeometry();
 		RenderImplicit();

@@ -56,6 +56,7 @@
     <ClCompile Include="Source\ElModules.cpp" />
     <ClCompile Include="Source\ElPatches.cpp" />
     <ClCompile Include="Source\Forge\ForgeUtil.cpp" />
+    <ClCompile Include="Source\Forge\Magnets.cpp" />
     <ClCompile Include="Source\Forge\Prefab.cpp" />
     <ClCompile Include="Source\Forge\RotationSnap.cpp" />
     <ClCompile Include="Source\Forge\Selection.cpp" />
@@ -222,6 +223,8 @@
     <ClInclude Include="Source\ElModules.hpp" />
     <ClInclude Include="Source\ElPatches.hpp" />
     <ClInclude Include="Source\Forge\ForgeUtil.hpp" />
+    <ClInclude Include="Source\Forge\Geoemetry.hpp" />
+    <ClInclude Include="Source\Forge\Magnets.hpp" />
     <ClInclude Include="Source\Forge\ObjectSet.hpp" />
     <ClInclude Include="Source\Forge\Prefab.hpp" />
     <ClInclude Include="Source\Forge\RotationSnap.hpp" />

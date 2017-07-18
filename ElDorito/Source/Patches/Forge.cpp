@@ -18,6 +18,7 @@
 #include "../Forge/RotationSnap.hpp"
 #include "../Forge/Selection.hpp"
 #include "../Forge/SelectionRenderer.hpp"
+#include "../Forge/Magnets.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include <cassert>
 #include <queue>
@@ -46,6 +47,8 @@ namespace
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* forwardVec, RealVector3D* upVec);
+	void SandboxEngineInitHook();
+	void SandboxEngineShutdownHook();
 	void SandboxEngineTickHook();
 	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex);
 
@@ -65,6 +68,8 @@ namespace Patches
 		{
 			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
 			Pointer(0x0165AB94).Write((uint32_t)&SandboxEngineObjectDisposeHook);
+			Pointer(0x0165AB04).Write((uint32_t)&SandboxEngineInitHook);
+			Pointer(0x0165AB08).Write((uint32_t)&SandboxEngineShutdownHook);
 
 			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
 			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
@@ -88,8 +93,6 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
 
 			Patches::Core::OnGameStart(FixRespawnZones);
-
-			::Forge::SelectionRenderer::Initialize();
 		}
 
 		void Tick()
@@ -118,12 +121,32 @@ namespace Patches
 
 namespace
 {
+	void SandboxEngineInitHook()
+	{
+		static auto SandboxEngineInit = (void(*)())(0x0059C0D0);
+		SandboxEngineInit();
+
+		Forge::Magnets::Initialize();
+		Forge::SelectionRenderer::Initialize();	
+	}
+
+	void SandboxEngineShutdownHook()
+	{
+		static auto SandboxEngineShutdown = (void(*)())(0x0059A600);
+		SandboxEngineShutdown();
+
+		Forge::Magnets::Shutdown();
+
+		Forge::Selection::Clear();
+	}
+
 	void SandboxEngineTickHook()
 	{
 		static auto SandboxEngine_Tick = (void(*)())(0x0059ED70);
 
 		SandboxEngine_Tick();
 		Forge::SelectionRenderer::Update();
+		Forge::Magnets::Update();
 		
 		while (!s_SandboxTickCommandQueue.empty())
 		{
@@ -346,6 +369,8 @@ namespace
 	{
 		static auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
 		static auto ObjectDropped = (void(__cdecl*)(uint16_t placementIndex, float throwForce, int a3))(0x0059B250);
+		static auto Object_Transform = (void(*)(bool a1, int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
+		static auto Object_GetPosition = (void(*)(uint32_t objectIndex, RealVector3D *position))(0x00B2E5A0);
 
 		auto mapv = GetMapVariant();
 		auto& objects = Blam::Objects::GetObjects();
@@ -358,13 +383,24 @@ namespace
 
 		ObjectDropped(placementIndex, throwForce, a3);
 
+		
+		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
+		if (!droppedObject)
+			return;
+
+		auto& magnetPair = Magnets::GetMagnetPair();
+		if (magnetPair.IsValid)
+		{
+			RealVector3D heldObjectPosition;
+			Object_GetPosition(droppedObjectIndex, &heldObjectPosition);
+			heldObjectPosition = magnetPair.Dest->Position - (magnetPair.Source->Position - heldObjectPosition);
+			Object_Transform(0, droppedObjectIndex, &heldObjectPosition, nullptr, nullptr);
+		}
+
 		auto& selection = Forge::Selection::GetSelection();
 		if (!selection.Contains(droppedObjectIndex))
 			return;
 
-		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
-		if (!droppedObject)
-			return;
 
 		std::stack<uint32_t> detachStack;
 		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumIndex::Null;)
