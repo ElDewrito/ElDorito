@@ -132,6 +132,24 @@ namespace Patches
 
 			return true;
 		}
+
+		void ForgeVariant_Set_Name(const std::wstring name)
+		{
+			const wchar_t *c_name = name.c_str();
+			static auto get_forge_varient = (void*(*)())(0x583230);
+			void *forge_varient = get_forge_varient();
+
+			static auto Game_ForgeVariant_SetName = (wchar_t*(__thiscall*)(void* thisptr, const wchar_t* name))(0x586570);
+			Game_ForgeVariant_SetName(forge_varient, c_name);
+		}
+
+		void ForgeVariant_Set_Description(const std::string description) {
+			const char *c_description = description.c_str();
+			static auto get_forge_varient = (char*(*)())(0x583230);
+			char *forge_varient = get_forge_varient();
+
+			strncpy(forge_varient + 0x28, c_description, 127);
+		}
 	}
 }
 

@@ -1,3 +1,5 @@
+#include <locale>
+#include <codecvt>
 #include "ModuleForge.hpp"
 #include "../Patches/Forge.hpp"
 #include "boost\filesystem.hpp"
@@ -120,6 +122,34 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> string_converter;
+	bool CommandSetName(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.empty())
+		{
+			returnInfo = "expected varient name";
+			return false;
+		}
+
+		std::wstring name = string_converter.from_bytes(Arguments[0]);
+		Patches::Forge::ForgeVariant_Set_Name(name);
+		returnInfo = "Varient name set to " + Arguments[0];
+		return true;
+	}
+
+	bool CommandSetDescription(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.empty())
+		{
+			returnInfo = "expected varient description";
+			return false;
+		}
+
+		std::string description = Arguments[0];
+		Patches::Forge::ForgeVariant_Set_Description(description);
+		returnInfo = "Varient description set to " + description;
+		return true;
+	}
 }
 
 namespace Modules
@@ -148,5 +178,7 @@ namespace Modules
 		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", eCommandFlagsNone, CommandSavePrefab);
 		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", eCommandFlagsNone, CommandLoadPrefab);
 		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsNone, CommandDumpPrefabs);
+		AddCommand("SetName", "forge_set_name", "Set the name of the current map varient", eCommandFlagsNone, CommandSetName);
+		AddCommand("SetDescription", "forge_set_description", "Set the description that will be used when the current map varrient", eCommandFlagsNone, CommandSetDescription);
 	}
 }
