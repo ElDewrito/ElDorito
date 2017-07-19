@@ -487,5 +487,11 @@ namespace
 
 		auto js = "if (window.ui) ui.sendControllerInput(" + std::string(buffer.GetString()) + ");";
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
+
+		for (auto i = 0; i < eGameActionJump; i++)
+		{
+			auto action = GetActionState(static_cast<GameAction>(i));
+			action->Flags |= eActionStateFlagsHandled;
+		}
 	}
 }

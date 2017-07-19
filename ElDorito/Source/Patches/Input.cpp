@@ -88,9 +88,6 @@ namespace Patches
 			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
 			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
-			Hook(0x19D482, ForgeInputHook, HookFlags::IsCall).Apply();
-
-			Patch(0x695008, { 0x80, 0x3D, 0xEB, 0xDB, 0x38, 0x02, 0x00 }).Apply(); // Disable H3UI on UI input locks
 		}
 
 		bool QueueGameAction(int index)
@@ -532,16 +529,6 @@ namespace
 
 		if (s_ConsumablesLocked)
 			*(uint32_t *)(state + 0x18) &= ~0x10;
-	}
-
-	char __stdcall ForgeInputHook(int localPlayerIndex)
-	{
-		static auto ForgeInput = (char(__stdcall*)(int playerMappingIndex))(0x59F0E0);
-
-		if (contextStack.empty())
-			return ForgeInput(localPlayerIndex);
-
-		return -1;
 	}
 }
 
