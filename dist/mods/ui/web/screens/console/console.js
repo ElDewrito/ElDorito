@@ -7,6 +7,7 @@ var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
+var consoleAutoCompleteMode = 1;
 
 function isset(val) {
      return !!val;
@@ -66,6 +67,7 @@ function resetConsole() {
     invertConsole(1, true)
     transparencyConsole(75, true);
     opacityConsole(100, true);
+    autoCompleteModeConsole(1, true);
     clearConsole();
     clearInput();
 }
@@ -103,6 +105,18 @@ function getConsoleHelp() {
             "defaultValue": null,
             "hidden": false,
             "arguments": []
+        },
+        {
+            "module": "Console",
+            "name": "Console.AutoCompleteMode",
+            "shortName": "console_autocompletemode",
+            "description": "Toggle between the Console auto complete modes. Options: 0, 1 or 2. Setting it to 0 will toggle between Prefix and Substring modes",
+            "value": consoleAutoCompleteMode,
+            "defaultValue": 1,
+            "hidden": false,
+            "arguments": [
+                "autocompletemode(int) Options: 0, 1 or 2. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
+            ]
         },
         {
             "module": "Console",
@@ -201,7 +215,7 @@ function showHelp(command) {
     if (!isset(command)) {
         commands = commands.sort(function(a, b) {
             if (a.module < b.module) {
-                return -1;  
+                return -1;
             } else if (a.module > b.module) {
                 return 1;
             } else {
@@ -262,7 +276,7 @@ function showVariables() {
     $.extend(commands, commandList, getConsoleHelp());
     commands = commands.sort(function(a, b) {
         if (a.module < b.module) {
-            return -1;  
+            return -1;
         } else if (a.module > b.module) {
             return 1;
         } else {
@@ -293,7 +307,7 @@ function getSuggestedCommands(partial) {
     $(".suggestion").remove();
     if (isset(partial)) {
         commandItem = $.grep(commands, function(item) {
-            return item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0;
+            return ((consoleAutoCompleteMode == 1) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
@@ -478,6 +492,45 @@ function opacityConsole(percentage, silent) {
     $("body").css({"opacity": percentage});
 }
 
+function autoCompleteModeConsole(toggle, silent) {
+    ifset(silent, false);
+    if (isNaN(parseInt(toggle))) {
+        if (!isset(toggle)) {
+            appendLine("", consoleAutoCompleteMode);
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+        }
+        return;
+    }
+    else if (toggle != 0 && toggle != 1 && toggle != 2) {
+        appendLine("error-line", "Parameter is invalid! Options: 0, 1 or 2");
+        return;
+    }
+    switch(toggle) {
+        case 1:
+            if (!silent) {
+                appendLine("", consoleAutoCompleteMode + " -> " + 1);
+            }
+            consoleDock = 1;
+            break;
+        case 2:
+            if (!silent) {
+                appendLine("", consoleAutoCompleteMode + " -> " + 2);
+            }
+            consoleAutoCompleteMode = 2;
+            break;
+        default:
+            if (consoleAutoCompleteMode == 1) {
+                autoCompleteModeConsole(2, silent);
+            }
+            else {
+                autoCompleteModeConsole(1, silent);
+            }
+            break;
+    }
+}
+
 function isScrolledToBottom(e) {
     return (e.prop("scrollHeight") - e.scrollTop() - e.outerHeight() < 1);
 }
@@ -564,6 +617,12 @@ function runCommand(command) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
                     opacityConsole(commandValue[1]);
+                    break;
+                }
+                else if (command.toLowerCase().indexOf('console.autocompletemode') == 0) {
+                    appendLine("command-line", "> " + command);
+                    var commandValue = command.split(' ');
+                    autoCompleteModeConsole(commandValue[1]);
                     break;
                 }
                 else if (command.toLowerCase().indexOf('help') == 0) {
