@@ -480,16 +480,12 @@ namespace Patches
 			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 			unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
-			if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
-				port++;
 			bindAddr.sin_port = htons((u_short)port);
 
 			// open our listener socket
 			while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
 			{
 				port++;
-				if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
-					port++;
 				bindAddr.sin_port = htons((u_short)port);
 				if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
 					return false; // tried 10 ports, lets give up
