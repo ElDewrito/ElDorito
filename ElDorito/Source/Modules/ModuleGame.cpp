@@ -945,6 +945,10 @@ namespace Modules
 
 		VarFixHudGlobals = AddVariableInt("FixHudGlobals", "fix_hud_globals", "Use the correct hud globals for the player representation", eCommandFlagsArchived, 0);
 
+		VarHideH3UI = AddVariableInt("HideH3UI", "hide_h3ui", "Hide the H3 UI", eCommandFlagsHidden, 0);
+		VarHideH3UI->ValueIntMin = 0;
+		VarHideH3UI->ValueIntMax = 1;
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

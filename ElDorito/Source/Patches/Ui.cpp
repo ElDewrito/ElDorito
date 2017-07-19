@@ -31,7 +31,6 @@ namespace
 	void LocalizedStringHook();
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
-	bool MainMenuCreateLobbyHook(int lobbyType);
 	void ResolutionChangeHook();
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 	HWND CreateGameWindowHook();
@@ -39,6 +38,7 @@ namespace
 	void GetActionButtonNameHook();
 	void UI_GetHUDGlobalsIndexHook();
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
+	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -457,6 +457,7 @@ namespace Patches
 			Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
 
 			Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
+			Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
 		}
 
 		void ApplyMapNameFixes()
@@ -1071,5 +1072,11 @@ namespace
 			pop ebp
 			retn
 		}
+	}
+
+	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused)
+	{
+		if (!Modules::ModuleGame::Instance().VarHideH3UI->ValueInt)
+			((void(__thiscall*)(void* thisptr))(0xA290A0))(thisptr);
 	}
 }
