@@ -24,6 +24,13 @@ namespace Blam
 			return EngineGetKeyMs(key, type);
 		}
 
+		uint8_t GetMouseButtonTicks(MouseButton button, InputType type)
+		{
+			typedef uint8_t(*EngineGetMouseButtonTicksPtr)(MouseButton, InputType);
+			auto EngineGetMousButtonTicks = reinterpret_cast<EngineGetMouseButtonTicksPtr>(0x00511DF0);
+			return EngineGetMousButtonTicks(button, type);
+		}
+
 		bool ReadKeyEvent(KeyEvent* result, InputType type)
 		{
 			typedef bool(*EngineReadKeyEventPtr)(KeyEvent*, InputType);

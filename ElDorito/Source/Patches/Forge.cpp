@@ -31,6 +31,10 @@ using namespace Blam::Math;
 
 namespace
 {
+	const auto HELDOBJECT_DISTANCE_MIN = 0.1f;
+	const auto HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER = 0.1f;
+	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
+
 	bool barriersEnabledValid = false;
 	bool killBarriersEnabled = true;
 	bool pushBarriersEnabled = true;
@@ -44,6 +48,7 @@ namespace
 	void ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex);
 	void ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3);
 	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
+	void ObjectSpawnedHook(uint32_t tagIndex, uint32_t playerIndex, const RealVector3D* position);
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* forwardVec, RealVector3D* upVec);
@@ -55,9 +60,13 @@ namespace
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
+	void HandleMovementSpeed();
 
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	RealVector3D s_GrabOffset;
+
+	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
+	int s_MonitorMovementSpeedIndex = 3;
 }
 
 namespace Patches
@@ -86,11 +95,18 @@ namespace Patches
 			Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
 			Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
 			Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
+			Hook(0x734EE, ObjectSpawnedHook, HookFlags::IsCall).Apply();
 			Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
 			Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
 
+			// prevent the object from lurching forward when being rotated
+			Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
+			// slow down in/out movement
+			Pointer(0x0059FA7A + 4).Write((float*)&HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER);
+
 			// enable teleporter volume editing compliments of zedd
 			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
+
 
 			Patches::Core::OnGameStart(FixRespawnZones);
 		}
@@ -127,7 +143,7 @@ namespace
 		SandboxEngineInit();
 
 		Forge::Magnets::Initialize();
-		Forge::SelectionRenderer::Initialize();	
+		Forge::SelectionRenderer::Initialize();
 	}
 
 	void SandboxEngineShutdownHook()
@@ -147,7 +163,7 @@ namespace
 		SandboxEngine_Tick();
 		Forge::SelectionRenderer::Update();
 		Forge::Magnets::Update();
-		
+
 		while (!s_SandboxTickCommandQueue.empty())
 		{
 			auto cmd = s_SandboxTickCommandQueue.front();
@@ -168,6 +184,7 @@ namespace
 		if (GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
 			const auto& moduleForge = Modules::ModuleForge::Instance();
+
 			// only show selection when we're in monitor mode
 			Forge::SelectionRenderer::SetEnabled(true);
 			auto rendererType = Forge::SelectionRenderer::RendererImplementationType(moduleForge.VarSelectionRenderer->ValueInt);
@@ -175,6 +192,7 @@ namespace
 			Forge::Selection::Update();
 
 			Forge::RotationSnap::Update(playerIndex, heldObjectIndex);
+			HandleMovementSpeed();
 
 			if (heldObjectIndex == -1)
 			{
@@ -251,19 +269,88 @@ namespace
 		return GetStructureDesign(index);
 	}
 
+	void HandleRotationReset()
+	{
+		using namespace Blam::Input;
+
+		auto uiUpAction = GetActionState(eGameActionUiUp);
+		if ((!(uiUpAction->Flags &= eActionStateFlagsHandled) && uiUpAction->Ticks == 1)
+			|| GetMouseButtonTicks(eMouseButtonMiddle, eInputTypeGame) == 1)
+		{
+			uiUpAction->Flags |= Blam::Input::eActionStateFlagsHandled;
+			Forge::RotationSnap::RotateToScripted(RealQuaternion());
+		}
+	}
+
+	void HandleMovementSpeed()
+	{
+		using namespace Blam::Input;
+
+		static auto Object_SetVelocity = (void(__cdecl *)(uint32_t objectIndex, RealVector3D* a2, RealVector3D *a3))(0x00B34040);
+
+		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+		if (!player)
+			return;
+
+		auto movementSpeedAction = GetActionState(eGameActionUiLeftStick);
+		if (!(movementSpeedAction->Flags &= eActionStateFlagsHandled) && movementSpeedAction->Ticks == 1 ||
+			GetKeyTicks(eKeyCodeF, eInputTypeGame) == 1)
+		{
+			movementSpeedAction->Flags |= Blam::Input::eActionStateFlagsHandled;
+
+			s_MonitorMovementSpeedIndex = (s_MonitorMovementSpeedIndex + 1) %
+				(sizeof(MONITOR_MOVEMENT_SPEEDS) / sizeof(MONITOR_MOVEMENT_SPEEDS[0]));
+
+			wchar_t buff[256];
+			switch (s_MonitorMovementSpeedIndex)
+			{
+			case 0:
+				swprintf_s(buff, 256, L"Movement Speed: 0.001 (Z-Fight Fixer)");
+				break;
+			case 1:
+				swprintf_s(buff, 256, L"Movement Speed: Slower");
+				break;
+			case 2:
+				swprintf_s(buff, 256, L"Movement Speed: Slow");
+				break;
+			case 3:
+				swprintf_s(buff, 256, L"Movement Speed: Normal");
+				break;
+			case 4:
+				swprintf_s(buff, 256, L"Movement Speed: Fast");
+				break;
+			}
+
+			RealVector3D v1 = {}, v2 = {};
+			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
+
+			static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
+			PrintKillFeedText(0, buff, 0);
+		}
+	}
+
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot)
 	{
+		static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
+
 		static auto& moduleForge = Modules::ModuleForge::Instance();
 		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
 		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
 
-		xRot *= rotationSensitvity;
-		yRot *= rotationSensitvity;
-		zRot *= rotationSensitvity;
+		if (DatumIndex(playerIndex) != Blam::Players::GetLocalPlayer(0))
+		{
+			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
+			return;
+		}
+
+		xRot *= rotationSensitvity * HELDOBJECT_ROTATION_SENSITIVTY_BASE;
+		yRot *= rotationSensitvity * HELDOBJECT_ROTATION_SENSITIVTY_BASE;
+		zRot *= rotationSensitvity * HELDOBJECT_ROTATION_SENSITIVTY_BASE;
+
+		HandleRotationReset();
 
 		if (snapAngleDegrees < 1)
 		{
-			static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
 		}
@@ -283,7 +370,7 @@ namespace
 		const auto yn = std::abs(yRot);
 		const auto zn = std::abs(zRot);
 
-		const float DEAD_ZONE = 0.5f;
+		const float DEAD_ZONE = 0.5f * rotationSensitvity * HELDOBJECT_ROTATION_SENSITIVTY_BASE;
 		static float xticks = 0, yticks = 0, zticks = 0;
 
 		if (xn > DEAD_ZONE) xticks++; else xticks = 0;
@@ -343,26 +430,26 @@ namespace
 		auto objectIndex = mapv->Placements[placementIndex].ObjectIndex;
 
 		const auto& selection = Forge::Selection::GetSelection();
-		if (!selection.Contains(objectIndex))
-			return;
-
-		for (auto i = 0; i < 640; i++)
+		if (selection.Contains(objectIndex))
 		{
-			auto& placement = mapv->Placements[i];
-			if (!(placement.PlacementFlags & 1) || placement.ObjectIndex == objectIndex)
-				continue;
-
-			auto placementObjectIndex = placement.ObjectIndex;
-
-			if (selection.Contains(placement.ObjectIndex))
+			for (auto i = 0; i < 640; i++)
 			{
-				FreePlacement(mapv, i, 2);
-				ObjectAttach(objectIndex, placementObjectIndex, 0);
-				sub_59A620(placementObjectIndex, 1);
+				auto& placement = mapv->Placements[i];
+				if (!(placement.PlacementFlags & 1) || placement.ObjectIndex == objectIndex)
+					continue;
+
+				auto placementObjectIndex = placement.ObjectIndex;
+				if (selection.Contains(placement.ObjectIndex))
+				{
+					FreePlacement(mapv, i, 2);
+					ObjectAttach(objectIndex, placementObjectIndex, 0);
+					sub_59A620(placementObjectIndex, 1);
+				}
 			}
 		}
 
-		ApplyGrabOffset(playerIndex, objectIndex);
+		if (ObjectIsPhased(objectIndex))
+			ApplyGrabOffset(playerIndex, objectIndex);
 	}
 
 	void __cdecl ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3)
@@ -383,7 +470,6 @@ namespace
 
 		ObjectDropped(placementIndex, throwForce, a3);
 
-		
 		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
 		if (!droppedObject)
 			return;
@@ -400,7 +486,6 @@ namespace
 		auto& selection = Forge::Selection::GetSelection();
 		if (!selection.Contains(droppedObjectIndex))
 			return;
-
 
 		std::stack<uint32_t> detachStack;
 		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumIndex::Null;)
@@ -468,6 +553,18 @@ namespace
 		Forge::GetSandboxGlobals().HeldObjectDistances[playerIndex & 0xFFFF] = *(float*)0x018A157C;
 	}
 
+	void ObjectSpawnedHook(uint32_t tagIndex, uint32_t playerIndex, const RealVector3D* position)
+	{
+		static auto ObjectSpawned = (void(*)(uint32_t tagIndex, uint32_t playerIndex, const RealVector3D* position))(0x0059AE50);
+
+		auto& sandboxGlobals = GetSandboxGlobals();
+
+		if (playerIndex = Blam::Players::GetLocalPlayer(0))
+			s_GrabOffset = RealVector3D(0, 0, 0);
+
+		ObjectSpawned(tagIndex, playerIndex, position);
+	}
+
 	void __cdecl ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties)
 	{
 		static auto ObjectPropertiesChange = (void(__cdecl*)(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties))(0x0059B5F0);
@@ -506,6 +603,7 @@ namespace
 			auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& monitorSpeed = *(float*)(a2 + 0x150);
 			monitorSpeed *= moduleForge.VarMonitorSpeed->ValueFloat;
+			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[s_MonitorMovementSpeedIndex];
 
 			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
 
@@ -565,7 +663,8 @@ namespace
 		DatumIndex playerIndex = GetPlayerHoldingObject(objectIndex);
 
 		const auto& selection = Forge::Selection::GetSelection();
-		if (selection.Contains(objectIndex))
+
+		if (ObjectIsPhased(objectIndex))
 		{
 			auto offset = heldObject->Center - heldObject->Position - s_GrabOffset;
 			auto newPos = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()] - offset;

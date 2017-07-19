@@ -25,6 +25,7 @@ namespace
 		float Current;
 		RealQuaternion StartRotation;
 		RealQuaternion EndRotation;
+		bool IsScripted;
 
 	} s_RotationSnapState;
 
@@ -43,7 +44,7 @@ namespace Forge
 		static auto& moduleForge = Modules::ModuleForge::Instance();
 		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
 
-		if (snapAngleDegrees < 1)
+		if (snapAngleDegrees < 1 && !s_RotationSnapState.IsScripted)
 			return;
 
 		if (heldObjectIndex == -1)
@@ -56,7 +57,11 @@ namespace Forge
 		}
 
 		s_RotationSnapState.Current += Blam::Time::GetSecondsPerTick() / DURATION_SECONDS;
-		if (s_RotationSnapState.Current > 1) s_RotationSnapState.Current = 1;
+		if (s_RotationSnapState.Current >= 1)
+		{
+			s_RotationSnapState.IsScripted = false;
+			s_RotationSnapState.Current = 1;
+		}
 
 		if (s_RotationSnapState.ObjectIndex != heldObjectIndex)
 		{
@@ -98,6 +103,18 @@ namespace Forge
 		s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
 		s_RotationSnapState.StartRotation = RealQuaternion::Normalize(RealQuaternion::CreateFromRotationMatrix(objectTransform));
 		s_RotationSnapState.EndRotation = RealQuaternion::Normalize(rotation * s_RotationSnapState.StartRotation);
+		s_RotationSnapState.Current = 0;
+	}
+
+	void RotationSnap::RotateToScripted(const Blam::Math::RealQuaternion& rotation)
+	{
+		RealMatrix4x3 objectTransform;
+		GetObjectTransformationMatrix(s_RotationSnapState.ObjectIndex, &objectTransform);
+
+		s_RotationSnapState.IsScripted = true;
+		s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
+		s_RotationSnapState.StartRotation = RealQuaternion::Normalize(RealQuaternion::CreateFromRotationMatrix(objectTransform));
+		s_RotationSnapState.EndRotation = rotation;
 		s_RotationSnapState.Current = 0;
 	}
 }

@@ -45,6 +45,7 @@ namespace Forge
 	const auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
 	const auto GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x59A6F0);
 	const auto GetSandboxGlobals = (SandboxGlobals&(*)())(0x0059BC10);
+	const auto ObjectIsPhased = (bool(*)(uint32_t objectIndex))(0x0059A7B0);
 
 	Blam::MapVariant* GetMapVariant();
 

@@ -419,6 +419,10 @@ namespace Blam
 		// Will always be nonzero if the key is down.
 		uint16_t GetKeyMs(KeyCode key, InputType type);
 
+		// Gets the number of ticks that a mouse button has been held down for.
+		// Will always be nonzero if the button is down.
+		uint8_t GetMouseButtonTicks(MouseButton button, InputType type);
+
 		// Reads a raw keyboard input event. Returns false if nothing is
 		// available. You should call this in a loop to ensure that you process
 		// all available events. NOTE THAT THIS IS ONLY GUARANTEED TO WORK
