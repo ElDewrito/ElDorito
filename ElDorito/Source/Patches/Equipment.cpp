@@ -59,6 +59,9 @@ namespace Patches
 			Patch::NopFill(Pointer::Base(0x74CFF4), 6);
 			Patch::NopFill(Pointer::Base(0x137F4D), 2);
 
+			// remove initial equipment use delay
+			Patch::NopFill(Pointer::Base(0x13DC0A), 2);
+
 			// stop new equipment from destroying the old one
 			Patch(0x78A179, { 0xEB }).Apply();
 			Patch(0x78950D, { 0xEB }).Apply();
