@@ -365,7 +365,7 @@ function displayScoreboard(expandedScoreboard){
         $("#serverName").text(name);
     });    
     if(hasGP && locked){
-        //updateSelection(itemNumber);
+        updateSelection(itemNumber);
     }
 }
 
@@ -745,7 +745,7 @@ function updateSelection(item){
             $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
         }
     }
-    col = $("[data-playerIndex='" + item+ "']").attr('data-color'),
+    col = $('.clickable').eq(item).attr('data-color'),
     bright = adjustColor(col, 30);
     $('.clickable').eq(item).css("background-color", hexToRgb(bright, cardOpacity));
 }
