@@ -7,8 +7,8 @@ using namespace Anvil::Client::Rendering;
 
 void WebRendererApp::OnRegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> p_Registrar)
 {
-	p_Registrar->AddCustomScheme("dew", true, false, false, true, true);
-	p_Registrar->AddCustomScheme("medals", true, false, false, true, true);
+	p_Registrar->AddCustomScheme("dew", true, false, false, true, true, false);
+	p_Registrar->AddCustomScheme("medals", true, false, false, true, true, false);
 }
 
 CefRefPtr<CefBrowserProcessHandler> WebRendererApp::GetBrowserProcessHandler()
@@ -31,7 +31,6 @@ void WebRendererApp::OnContextInitialized()
 void WebRendererApp::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
 	//WriteLog("OnContextCreated.");
-	context->GetGlobal()->AdjustExternallyAllocatedMemory(268435456); //256mb
 }
 
 void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line)
