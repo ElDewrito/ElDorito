@@ -69,33 +69,12 @@ namespace Patches
 			{
 				IsNotMainMenu = true;
 
-				if (!weaponOffsetsDefault.empty())
-				{
-					for (auto &element : weaponIndices)
-					{
-						std::string selected = element.first;
-						auto *weapon = TagInstance(Patches::Weapon::GetIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
-						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
-					}
-				}
-				else
-				{
-					Config::LoadJSON(JSONPath);
-				}
-
 				if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
 				{
 					Config::SaveJSON(JSONPath);
 				}
-				else
-				{
-					for (auto &weaponParams : weaponOffsetsModified)
-					{
-						std::string weaponName = weaponParams.first;
-						RealVector3D weaponOffset = weaponParams.second;
-						ApplyOffsetByName(weaponName, weaponOffset);
-					}
-				}
+
+				Modules::CommandMap::Instance().ExecuteCommand("Weapon.JSON.Load");
 			}
 		}
 
