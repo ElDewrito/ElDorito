@@ -447,10 +447,21 @@ namespace
 
 	void OnUIInputUpdated()
 	{
+		struct ControllerAxes { int16_t LeftX, LeftY, RightX, RightY; };
+		auto& controllerAxes = *(ControllerAxes*)(0x0244D1F0 + 0x2F4);
+
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
 		writer.StartObject();
+		writer.Key("AxisLeftX");
+		writer.Double(controllerAxes.LeftX / 32768.0f);
+		writer.Key("AxisLeftY");
+		writer.Double(controllerAxes.LeftY / 32768.0f);
+		writer.Key("AxisRightX");
+		writer.Double(controllerAxes.RightX / 32768.0f);
+		writer.Key("AxisRightY");
+		writer.Double(controllerAxes.RightY / 32768.0f);
 		writer.Key("LeftTrigger");
 		writer.Int(GetActionState(eGameActionUiLeftTrigger)->Ticks);
 		writer.Key("RightTrigger");
@@ -488,6 +499,10 @@ namespace
 		auto js = "if (window.ui) ui.sendControllerInput(" + std::string(buffer.GetString()) + ");";
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
 
+		controllerAxes.LeftX = 0;
+		controllerAxes.LeftY = 0;
+		controllerAxes.RightX = 0;
+		controllerAxes.RightY = 0;
 		for (auto i = 0; i < eGameActionJump; i++)
 		{
 			auto action = GetActionState(static_cast<GameAction>(i));

@@ -31,7 +31,6 @@ namespace
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
-	char __stdcall ForgeInputHook(int localPlayerIndex);
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -393,8 +392,8 @@ namespace
 		}
 		auto leftAction = GetActionState(eGameActionUiLeft);
 		auto rightAction = GetActionState(eGameActionUiRight);
-		auto rotateLeft = (leftAction->Ticks != 0);
-		auto rotateRight = (rightAction->Ticks != 0);
+		auto rotateLeft = (!(leftAction->Flags & eActionStateFlagsHandled) && leftAction->Ticks != 0);
+		auto rotateRight = (!(rightAction->Flags & eActionStateFlagsHandled) && rightAction->Ticks != 0);
 		auto rotateAmount = static_cast<int>(rotateRight) - static_cast<int>(rotateLeft);
 		if (rotateAmount)
 		{
