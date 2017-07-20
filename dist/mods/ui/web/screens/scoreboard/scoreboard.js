@@ -7,6 +7,7 @@ var imageFormat = 'svg';
 var itemNumber = 0;
 var controllerType;
 var hasGP = false;
+var talkingArray = [];
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -256,11 +257,35 @@ dew.on("scoreboard", function(e){
     });
 });
 
-dew.on("voip-user-volume", function(data){
+dew.on("voip-user-volume", function(e){
 });
 
-dew.on("voip-speaking", function(data){ 
-    //$('#'+playerName).find('.speaker').css({'opacity':'1 !important'});  //VOIP: show speaker if talking
+dew.on("voip-speaking", function(e){ 
+    if(e.data.isSpeaking){
+        talkingArray.push(e.data.user);
+    }else{
+        talkingArray.splice($.inArray(e.data.user, talkingArray),1);
+    }
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+        displayScoreboard(response);
+    });
+});
+
+dew.on("voip-ptt", function(e){
+    dew.command('VoIP.PTT_Enabled', {}).then(function(x){
+        if(x == 1){
+            dew.command('Player.Name', {}).then(function(n){
+                if(e.data.talk == 1){
+                    talkingArray.push(n);
+                }else{
+                    talkingArray.splice($.inArray(n, talkingArray),1);
+                }
+                dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+                    displayScoreboard(response);
+                });
+            });
+        }      
+    })
 });
 
 dew.on("show", function(e){
@@ -340,7 +365,7 @@ function displayScoreboard(expandedScoreboard){
         $("#serverName").text(name);
     });    
     if(hasGP && locked){
-        updateSelection(itemNumber);
+        //updateSelection(itemNumber);
     }
 }
 
@@ -434,8 +459,12 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                         $('.teamHeader .name').attr('colspan',5);
                 }
             }
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score    
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem speaker" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator          
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
+            var speakerClass = "emblem speaker";
+            if($.inArray(lobby[i].name,talkingArray) > -1){
+                speakerClass += " talking";
+            }
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="'+speakerClass+'" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator              
             if(lobby[i].hasObjective){
                 $('.objective').remove();
                 $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')) //objective (flag/oddball) indicator

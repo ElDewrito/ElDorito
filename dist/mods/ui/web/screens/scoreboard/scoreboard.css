@@ -85,6 +85,10 @@ html {
     opacity: 1;
 }
 
+.talking{
+    opacity: 1 !important;
+}
+
 .objective{
     position: absolute;
     margin-left: -5.5vw;
