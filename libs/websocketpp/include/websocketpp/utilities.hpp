@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <string>
 #include <locale>
+#include <functional>
 
 namespace websocketpp {
 /// Generic non-websocket specific utility functions and data structures
@@ -72,10 +73,10 @@ private:
  * Based on code from
  * http://stackoverflow.com/questions/3152241/case-insensitive-stdstring-find
  */
-struct ci_less : std::binary_function<std::string, std::string, bool> {
+struct ci_less : std::function<bool(std::string, std::string)> {
     // case-independent (ci) compare_less binary function
     struct nocase_compare
-      : public std::binary_function<unsigned char,unsigned char,bool>
+      : public std::function<bool(unsigned char, unsigned char)>
     {
         bool operator() (unsigned char const & c1, unsigned char const & c2) const {
             return tolower (c1) < tolower (c2);

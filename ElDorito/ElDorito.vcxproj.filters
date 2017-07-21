@@ -367,6 +367,7 @@
     <ClCompile Include="Source\Modules\ModuleTweaks.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Forge\Magnets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -961,6 +962,8 @@
     <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp">
       <Filter>Blam\Tags\Sounds</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Forge\Geoemetry.hpp" />
+    <ClInclude Include="Source\Forge\Magnets.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />
