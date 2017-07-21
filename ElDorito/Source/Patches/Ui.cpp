@@ -2,6 +2,7 @@
 
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
+#include "../Patches/Core.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
@@ -762,16 +763,31 @@ namespace
 			auto itemIndex = (*(int(__thiscall **)(void*))(*(uint8_t**)a4 + 0x18))(a4);
 			if ((*(bool(__thiscall **)(void*, uint32_t, uint32_t, uint32_t*))(*(uint8_t**)a5 + 0x34))(a5, itemIndex, 0x2AA, &id))
 			{
-				switch (id)
+				// TODO: Maybe check the menu item's text over the index?
+
+				switch (itemIndex)
 				{
-				case 0x10075: // matchmaking
+				case 0: // Server Browser
 					Web::Ui::ScreenLayer::Show("browser", "{}");
 					return;
-				case 0x1007C: // theater
+
+				case 1: // Host Multiplayer
+					break;
+
+				case 2: // Host Forge
+					break;
+
+				case 3: // Local Games
 					ShowLanBrowser();
 					return;
-				case 0x10076: // campaign
+
+				case 4: // Settings
 					Web::Ui::ScreenLayer::Show("settings", "{}");
+					return;
+
+				case 5: // Exit
+					Patches::Core::ExecuteShutdownCallbacks();
+					std::exit(0);
 					return;
 				}
 			}
