@@ -78,7 +78,15 @@ html {
 
 .speaker{
     position: absolute;
+    left: -1.8vw;
     opacity: 0;
+}
+
+.volSlider{
+    display:none;
+    position: absolute;
+    left: -6vw;
+    width: 5.5vw;
 }
 
 .speaker:hover{
@@ -91,11 +99,6 @@ html {
 
 .objective{
     position: absolute;
-    margin-left: -5.5vw;
-}
-
-.objective.team{
-    margin-left:-1.9vw;
 }
 
 #closeButton{
