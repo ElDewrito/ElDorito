@@ -183,23 +183,22 @@ namespace Web::Ui::WebScoreboard
 
 			bool hasObjective = false;
 			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
-			if (playerDatum.GetSalt())
+			if (playerDatum.GetSalt() && playerDatum.SlaveUnit != Blam::DatumIndex::Null)
 			{
-				auto playerObject = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
-				if (playerObject)
+				auto unitObjectPtr = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
+				if (unitObjectPtr)
 				{
-					auto equippedWeaponIndex = playerObject(0x2CA).Read<uint8_t>();
-					if (equippedWeaponIndex != -1)
+					auto rightWeaponIndex = unitObjectPtr(0x2Ca).Read<uint8_t>();
+					if (rightWeaponIndex != 0xFF)
 					{
-						auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
-						auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
-						if (equippedWeaponObjectPtr)
+						auto rightWeaponObject = Blam::Objects::Get(unitObjectPtr(0x2D0 + 4 * rightWeaponIndex).Read<uint32_t>());
+						if (rightWeaponObject)
 						{
-							auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
+							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 							hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
 							if (hasObjective)
 								teamObjective[player.Properties.TeamIndex] = true;
-							if (hasObjective && session->HasTeams() && session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
+								if (hasObjective && session->HasTeams() && session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
 								hasObjective = false;
 						}
 					}
