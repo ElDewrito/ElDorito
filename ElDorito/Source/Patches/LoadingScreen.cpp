@@ -13,25 +13,22 @@ namespace
 	std::shared_ptr<LoadingScreenUi> ActiveUi;
 }
 
-namespace Patches
+namespace Patches::LoadingScreen
 {
-	namespace LoadingScreen
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			Hook(0x167935, ShowLoadingScreenHook, HookFlags::IsCall).Apply();
-			Hook(0x161E1E, BeginLoadingHook, HookFlags::IsCall).Apply();
-			Hook(0x2EBA07, UpdateLoadingProgressHook, HookFlags::IsCall).Apply();
-			Hook(0x167ABA, HideLoadingScreenHook, HookFlags::IsCall).Apply();
+		Hook(0x167935, ShowLoadingScreenHook, HookFlags::IsCall).Apply();
+		Hook(0x161E1E, BeginLoadingHook, HookFlags::IsCall).Apply();
+		Hook(0x2EBA07, UpdateLoadingProgressHook, HookFlags::IsCall).Apply();
+		Hook(0x167ABA, HideLoadingScreenHook, HookFlags::IsCall).Apply();
 
-			// Force a jump so that the loading screen never renders
-			Patch(0x1064E7, { 0xEB }).Apply();
-		}
+		// Force a jump so that the loading screen never renders
+		Patch(0x1064E7, { 0xEB }).Apply();
+	}
 
-		void SetUi(std::shared_ptr<LoadingScreenUi> ui)
-		{
-			ActiveUi = ui;
-		}
+	void SetUi(std::shared_ptr<LoadingScreenUi> ui)
+	{
+		ActiveUi = ui;
 	}
 }
 

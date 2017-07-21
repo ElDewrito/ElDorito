@@ -1,8 +1,6 @@
 #include "Bounds.hpp"
 
-namespace Blam
+namespace Blam::Math
 {
-	namespace Math
-	{
-	}
 }
+

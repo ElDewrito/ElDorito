@@ -302,7 +302,4 @@ namespace ChatCommands
 	{
 		return description;
 	}
-
-
-
 }

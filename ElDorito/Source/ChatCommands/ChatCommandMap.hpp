@@ -6,5 +6,4 @@ namespace ChatCommands
 	void Tick();
 	bool handleChatMessage(const Server::Chat::ChatMessage &message, int peer);
 	bool addToVoteTimes(uint64_t sender);
-
 }

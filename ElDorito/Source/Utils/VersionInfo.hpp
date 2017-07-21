@@ -3,11 +3,8 @@
 #include <cstdint>
 #include <string>
 
-namespace Utils
+namespace Utils::Version
 {
-	namespace Version
-	{
-		uint32_t GetVersionInt();
-		std::string GetVersionString();
-	}
+	uint32_t GetVersionInt();
+	std::string GetVersionString();
 }

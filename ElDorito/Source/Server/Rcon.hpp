@@ -1,10 +1,7 @@
 #pragma once
 #include <string>
-namespace Server
+namespace Server::Rcon
 {
-	namespace Rcon
-	{
-		void SendMessageToClients(std::string message);
-		void Initialize();
-	}
+	void SendMessageToClients(std::string message);
+	void Initialize();
 }

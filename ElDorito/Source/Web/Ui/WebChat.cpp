@@ -23,38 +23,32 @@ namespace
 	void OnGameInputUpdated();
 }
 
-namespace Web
+namespace Web::Ui::WebChat
 {
-	namespace Ui
+	void Init()
 	{
-		namespace WebChat
-		{
-			void Init()
-			{
-				Server::Chat::AddHandler(std::make_shared<GameChatHandler>());
-				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-			}
+		Server::Chat::AddHandler(std::make_shared<GameChatHandler>());
+		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
+	}
 
-			void Show(bool teamChat)
-			{
-				rapidjson::StringBuffer jsonBuffer;
-				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+	void Show(bool teamChat)
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
-				jsonWriter.StartObject();
-				jsonWriter.Key("teamChat");
-				jsonWriter.Bool(teamChat);
-				jsonWriter.Key("captureInput");
-				jsonWriter.Bool(true);
-				jsonWriter.EndObject();
+		jsonWriter.StartObject();
+		jsonWriter.Key("teamChat");
+		jsonWriter.Bool(teamChat);
+		jsonWriter.Key("captureInput");
+		jsonWriter.Bool(true);
+		jsonWriter.EndObject();
 
-				ScreenLayer::Show("chat", jsonBuffer.GetString());
-			}
+		ScreenLayer::Show("chat", jsonBuffer.GetString());
+	}
 
-			void Hide()
-			{
-				ScreenLayer::Hide("chat");
-			}
-		}
+	void Hide()
+	{
+		ScreenLayer::Hide("chat");
 	}
 }
 

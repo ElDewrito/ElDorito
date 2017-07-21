@@ -91,6 +91,4 @@ namespace ChatCommands
 	private:
 		std::string playerName;
 	};
-
-
 }

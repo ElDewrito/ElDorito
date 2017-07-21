@@ -1073,7 +1073,7 @@ namespace
 	}
 	bool CommandMaxTeamSize(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto session = Blam::Network::GetActiveSession();
+		auto *session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
 		{
 			returnInfo = "Session not established";

@@ -4,82 +4,78 @@
 #include <bitset>
 #include <memory>
 #include "../Blam/BlamNetwork.hpp"
-namespace Server
+namespace Server::Voting
 {
-	namespace Voting
+	// Chat message types.
+	enum class VotingMessageType : uint32_t
 	{
-		// Chat message types.
-		enum class VotingMessageType : uint32_t
-		{
-			VetoVote,
+		VetoVote,
 
-			VetoOption,
+		VetoOption,
 
-			// A user's vote, to be sent to the host.
-			Vote,
+		// A user's vote, to be sent to the host.
+		Vote,
 
-			// The Voting Options, sent to all clients
-			VotingOptions,
+		// The Voting Options, sent to all clients
+		VotingOptions,
 
-			// The Vote Tally, sent to all clients
-			VoteTally,
+		// The Vote Tally, sent to all clients
+		VoteTally,
 
-			// The winning option
-			Winner,
+		// The winning option
+		Winner,
 
-			// Not actually a message type, just used to indicate the number of
-			// valid message types.
-			Count
-		};
-		struct VotingOption
-		{
-			char mapName[16];  // The Display Name of the map to show in the UI
-			char typeName[16]; // The Display Name of the gametype to show in the UI
-			bool canVeto;
-			int mapId;		   // mapId, used to determine which image to show
-		};
+		// Not actually a message type, just used to indicate the number of
+		// valid message types.
+		Count
+	};
+	struct VotingOption
+	{
+		char mapName[16];  // The Display Name of the map to show in the UI
+		char typeName[16]; // The Display Name of the gametype to show in the UI
+		bool canVeto;
+		int mapId;		   // mapId, used to determine which image to show
+	};
 
-		// Voting Message Data
-		struct VotingMessage
-		{
-			VotingMessage() { }
+	// Voting Message Data
+	struct VotingMessage
+	{
+		VotingMessage() { }
 
-			VotingMessage(VotingMessageType type);
-			// The message type.
-			VotingMessageType Type;
+		VotingMessage(VotingMessageType type);
+		// The message type.
+		VotingMessageType Type;
 
-			VotingOption votingOptions[5]; //  up to 4 options and one revote
+		VotingOption votingOptions[5]; //  up to 4 options and one revote
 
-			int voteTime; //The length of time that will be allowed for voting 
+		int voteTime; //The length of time that will be allowed for voting 
 
-			int votes[5]; // Vote tally
+		int votes[5]; // Vote tally
 
-			int Vote; // The user's vote
+		int Vote; // The user's vote
 
-			int winner; 
+		int winner; 
 
 
-		};
+	};
 
-		// Interface for a class which processes and handles voting messages.
-		class VotingMessageHandler
-		{
-		public:
-			virtual ~VotingMessageHandler() { }
+	// Interface for a class which processes and handles voting messages.
+	class VotingMessageHandler
+	{
+	public:
+		virtual ~VotingMessageHandler() { }
 
-			// Called after a message has been received.
-			virtual void MessageReceived(const VotingMessage &message) = 0;
-		};
+		// Called after a message has been received.
+		virtual void MessageReceived(const VotingMessage &message) = 0;
+	};
 
-		bool BroadcastVotingMessage(VotingMessage &message);
+	bool BroadcastVotingMessage(VotingMessage &message);
 
-		bool SendVotingMessageToPeer(VotingMessage &message, int peer);
+	bool SendVotingMessageToPeer(VotingMessage &message, int peer);
 
-		void InitializePackets();
+	void InitializePackets();
 		
-		bool SendVoteToHost(const int vote);
+	bool SendVoteToHost(const int vote);
 
-		void AddMessageHandler(std::shared_ptr<VotingMessageHandler> handler);
-	}
-
+	void AddMessageHandler(std::shared_ptr<VotingMessageHandler> handler);
 }

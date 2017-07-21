@@ -1,14 +1,8 @@
 #pragma once
 
-namespace Web
+namespace Web::Ui::WebConsole
 {
-	namespace Ui
-	{
-		namespace WebConsole
-		{
-			void Init();
-			void Show();
-			void Hide();
-		}
-	}
+	void Init();
+	void Show();
+	void Hide();
 }

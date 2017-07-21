@@ -14,24 +14,21 @@ namespace
 	Patches::VirtualKeyboard::KeyboardHandlerCallback KeyboardHandler = [](Blam::Input::VirtualKeyboard* keyboard) { keyboard->Reset(); };
 }
 
-namespace Patches
+namespace Patches::VirtualKeyboard
 {
-	namespace VirtualKeyboard
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// Implement virtual keyboard stubs
-			Hook(0xE1840, CreateVirtualKeyboard).Apply();
-			Hook(0xE19A0, SetVirtualKeyboardDefaultValue).Apply();
-			Hook(0xE19D0, SetVirtualKeyboardTitle).Apply();
-			Hook(0xE19B0, SetVirtualKeyboardDescription).Apply();
-			Hook(0x1A8F40, ShowVirtualKeyboard).Apply();
-		}
+		// Implement virtual keyboard stubs
+		Hook(0xE1840, CreateVirtualKeyboard).Apply();
+		Hook(0xE19A0, SetVirtualKeyboardDefaultValue).Apply();
+		Hook(0xE19D0, SetVirtualKeyboardTitle).Apply();
+		Hook(0xE19B0, SetVirtualKeyboardDescription).Apply();
+		Hook(0x1A8F40, ShowVirtualKeyboard).Apply();
+	}
 
-		void SetKeyboardHandler(KeyboardHandlerCallback callback)
-		{
-			KeyboardHandler = callback;
-		}
+	void SetKeyboardHandler(KeyboardHandlerCallback callback)
+	{
+		KeyboardHandler = callback;
 	}
 }
 

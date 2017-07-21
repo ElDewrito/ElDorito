@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Memory
 {
-	namespace Memory
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

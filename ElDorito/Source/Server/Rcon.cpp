@@ -34,23 +34,20 @@ namespace
 	const char* DenyMessage = "deny";
 }
 
-namespace Server
+namespace Server::Rcon
 {
-	namespace Rcon
+	void Initialize()
 	{
-		void Initialize()
+		if (Modules::ModuleServer::Instance().VarRconPassword->ValueString == "")
 		{
-			if (Modules::ModuleServer::Instance().VarRconPassword->ValueString == "")
-			{
-				// Ensure a password is set
-				Utils::Cryptography::RandomPassword(DefaultPasswordLength, Modules::ModuleServer::Instance().VarRconPassword->ValueString);
-				Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
-			}
-			CreateThread(nullptr, 0, RconThread, nullptr, 0, nullptr);
+			// Ensure a password is set
+			Utils::Cryptography::RandomPassword(DefaultPasswordLength, Modules::ModuleServer::Instance().VarRconPassword->ValueString);
+			Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
 		}
-		void SendMessageToClients(std::string message) {
-			sendThroughWebsocket.push_back(message);
-		}
+		CreateThread(nullptr, 0, RconThread, nullptr, 0, nullptr);
+	}
+	void SendMessageToClients(std::string message) {
+		sendThroughWebsocket.push_back(message);
 	}
 }
 

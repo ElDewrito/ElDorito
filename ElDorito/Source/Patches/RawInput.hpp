@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::RawInput
 {
-	namespace RawInput
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

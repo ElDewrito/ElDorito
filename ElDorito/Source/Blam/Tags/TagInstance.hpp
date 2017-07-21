@@ -2,38 +2,35 @@
 #include <cstdint>
 #include "Tags.hpp"
 
-namespace Blam
+namespace Blam::Tags
 {
-	namespace Tags
+	struct TagInstance
 	{
-		struct TagInstance
+		uint16_t Index;
+
+		TagInstance(const uint16_t index);
+
+		uint32_t GetGroupTag();
+
+		template <typename T>
+		inline T *GetDefinition()
 		{
-			uint16_t Index;
+			return GetDefinition<T>(GetGroupTag());
+		}
 
-			TagInstance(const uint16_t index);
-
-			uint32_t GetGroupTag();
-
-			template <typename T>
-			inline T *GetDefinition()
+		// For use when GetGroupTag may fail due to a tag not being loaded yet
+		template <typename T>
+		inline T *GetDefinition(int groupTag)
+		{
+			if (Index != 0xFFFF)
 			{
-				return GetDefinition<T>(GetGroupTag());
+				typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+				auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
+				return reinterpret_cast<T *>(GetTagAddressImpl(groupTag, Index));
 			}
 
-			// For use when GetGroupTag may fail due to a tag not being loaded yet
-			template <typename T>
-			inline T *GetDefinition(int groupTag)
-			{
-				if (Index != 0xFFFF)
-				{
-					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-					auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-
-					return reinterpret_cast<T *>(GetTagAddressImpl(groupTag, Index));
-				}
-
-				return nullptr;
-			}
-		};
-	}
+			return nullptr;
+		}
+	};
 }

@@ -3,24 +3,21 @@
 #include "../Padding.hpp"
 #include "Tag.hpp"
 
-namespace Blam
+namespace Blam::Tags
 {
-	namespace Tags
+	struct TagReference
 	{
-		struct TagReference
-		{
-			Tag GroupTag;
-			PAD32;
-			PAD32;
-			int32_t TagIndex;
+		Tag GroupTag;
+		PAD32;
+		PAD32;
+		int32_t TagIndex;
 
-			TagReference();
-			TagReference(const Tag &groupTag, const int32_t tagIndex);
+		TagReference();
+		TagReference(const Tag &groupTag, const int32_t tagIndex);
 
-			bool operator==(const TagReference &other) const;
-			bool operator!=(const TagReference &other) const;
+		bool operator==(const TagReference &other) const;
+		bool operator!=(const TagReference &other) const;
 
-			explicit operator bool() const;
-		};
-	}
+		explicit operator bool() const;
+	};
 }

@@ -142,7 +142,6 @@ public:
 
 namespace
 {
-
 	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
 	{
 		switch (newState)
@@ -160,31 +159,21 @@ namespace
 	}
 }
 
-namespace Web
+namespace Web::Ui::Voting
 {
-	namespace Ui
+	void Init()
 	{
-		namespace Voting
-		{
-			void Init()
-			{
-				Server::Voting::AddMessageHandler(std::make_shared<VotingOutputHandler>());
-				Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
-			}
+		Server::Voting::AddMessageHandler(std::make_shared<VotingOutputHandler>());
+		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
+	}
 
-			void Show()
-			{
-				ScreenLayer::Show("voting", "{}");
-			}
+	void Show()
+	{
+		ScreenLayer::Show("voting", "{}");
+	}
 
-			void Hide()
-			{
-				ScreenLayer::Hide("voting");
-			}
-
-
-
-		}
-
+	void Hide()
+	{
+		ScreenLayer::Hide("voting");
 	}
 }

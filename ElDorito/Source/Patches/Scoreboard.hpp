@@ -1,13 +1,10 @@
 #pragma once
 #include <functional>
 
-namespace Patches
+namespace Patches::Scoreboard
 {
-	namespace Scoreboard
-	{
-		void ApplyAll();
+	void ApplyAll();
 
-		typedef std::function<void()> ScoreUpdateCallback;
-		void OnScoreUpdate(ScoreUpdateCallback callback);
-	}
+	typedef std::function<void()> ScoreUpdateCallback;
+	void OnScoreUpdate(ScoreUpdateCallback callback);
 }

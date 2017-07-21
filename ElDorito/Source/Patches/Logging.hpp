@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Logging
 {
-	namespace Logging
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

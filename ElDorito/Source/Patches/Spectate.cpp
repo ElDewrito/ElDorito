@@ -29,31 +29,28 @@ namespace
 	void NotifyPlayerChanged(Blam::DatumIndex newPlayerIndex);
 }
 
-namespace Patches
+namespace Patches::Spectate
 {
-	namespace Spectate
+	void ApplyAll()
 	{
-		void ApplyAll()
+		// fix spectating
+		Patch::NopFill(Pointer::Base(0x192FFD), 6);
+
+		Pointer(0x01671F5C).Write((uint32_t)GameDirectorUpdateHook);
+		Hook(0x32A8D6, GetObserverCameraSensitivityHook, HookFlags::IsCall).Apply();
+	}
+
+	void Tick()
+	{
+		auto gameGlobals = ElDorito::GetMainTls(0x3c)[0];
+		if (!gameGlobals)
+			return;
+
+		auto isMapLoaded = gameGlobals(1).Read<uint8_t>();
+		if (s_SpectateState.Flags & 1 && !isMapLoaded)
 		{
-			// fix spectating
-			Patch::NopFill(Pointer::Base(0x192FFD), 6);
-
-			Pointer(0x01671F5C).Write((uint32_t)GameDirectorUpdateHook);
-			Hook(0x32A8D6, GetObserverCameraSensitivityHook, HookFlags::IsCall).Apply();
-		}
-
-		void Tick()
-		{
-			auto gameGlobals = ElDorito::GetMainTls(0x3c)[0];
-			if (!gameGlobals)
-				return;
-
-			auto isMapLoaded = gameGlobals(1).Read<uint8_t>();
-			if (s_SpectateState.Flags & 1 && !isMapLoaded)
-			{
-				s_SpectateState.Flags = 0;
-				NotifyEnded();
-			}
+			s_SpectateState.Flags = 0;
+			NotifyEnded();
 		}
 	}
 }

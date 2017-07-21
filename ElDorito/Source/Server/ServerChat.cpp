@@ -357,125 +357,122 @@ namespace
 	}
 }
 
-namespace Server
+namespace Server::Chat
 {
-	namespace Chat
+	void Initialize()
 	{
-		void Initialize()
+		LastTimeMs = timeGetTime();
+
+		// Register custom packet type
+		auto handler = std::make_shared<ChatMessagePacketHandler>();
+		PacketSender = Patches::CustomPackets::RegisterPacket<ChatMessage>("eldewrito-text-chat", handler);
+	}
+
+	void Tick()
+	{
+		// Compute the time delta (the game also uses timeGetTime in its various subsystems to do this)
+		auto currentTimeMs = timeGetTime();
+		auto timeDeltaMs = currentTimeMs - LastTimeMs;
+		LastTimeMs = currentTimeMs;
+
+		// Update the flood filter for each second that has passed since the last flood filter update
+		SpamUpdateMs += timeDeltaMs;
+		while (SpamUpdateMs >= 1000)
 		{
-			LastTimeMs = timeGetTime();
+			SpamUpdateMs -= 1000;
 
-			// Register custom packet type
-			auto handler = std::make_shared<ChatMessagePacketHandler>();
-			PacketSender = Patches::CustomPackets::RegisterPacket<ChatMessage>("eldewrito-text-chat", handler);
-		}
-
-		void Tick()
-		{
-			// Compute the time delta (the game also uses timeGetTime in its various subsystems to do this)
-			auto currentTimeMs = timeGetTime();
-			auto timeDeltaMs = currentTimeMs - LastTimeMs;
-			LastTimeMs = currentTimeMs;
-
-			// Update the flood filter for each second that has passed since the last flood filter update
-			SpamUpdateMs += timeDeltaMs;
-			while (SpamUpdateMs >= 1000)
+			// Decrease each spam score and timeout, and remove empty structures to save memory
+			auto it = SpamStats.begin();
+			while (it != SpamStats.end())
 			{
-				SpamUpdateMs -= 1000;
+				auto nextIt = it;
+				++nextIt;
 
-				// Decrease each spam score and timeout, and remove empty structures to save memory
-				auto it = SpamStats.begin();
-				while (it != SpamStats.end())
-				{
-					auto nextIt = it;
-					++nextIt;
+				if (it->second.SpamScore > 0)
+					it->second.SpamScore--;
 
-					if (it->second.SpamScore > 0)
-						it->second.SpamScore--;
+				if (it->second.TimeoutSeconds > 0)
+					it->second.TimeoutSeconds--;
+				else if (it->second.TimeoutResetSeconds > 0)
+					it->second.TimeoutResetSeconds--; // Only decrement the timeout reset if no timeout is active
 
-					if (it->second.TimeoutSeconds > 0)
-						it->second.TimeoutSeconds--;
-					else if (it->second.TimeoutResetSeconds > 0)
-						it->second.TimeoutResetSeconds--; // Only decrement the timeout reset if no timeout is active
+				if (it->second.TimeoutResetSeconds == 0)
+					it->second.NextTimeoutSeconds = 0;
 
-					if (it->second.TimeoutResetSeconds == 0)
-						it->second.NextTimeoutSeconds = 0;
+				if (it->second.TimeoutSeconds <= 0 && it->second.SpamScore <= 0 && it->second.TimeoutResetSeconds <= 0)
+					SpamStats.erase(it);
 
-					if (it->second.TimeoutSeconds <= 0 && it->second.SpamScore <= 0 && it->second.TimeoutResetSeconds <= 0)
-						SpamStats.erase(it);
-
-					it = nextIt;
-				}
+				it = nextIt;
 			}
 		}
+	}
 
-		bool SendGlobalMessage(const std::string &body)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session || !session->IsEstablished())
-				return false;
+	bool SendGlobalMessage(const std::string &body)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+			return false;
 
-			ChatMessage message(ChatMessageType::Global, body);
-			return SendClientMessage(session, message);
-		}
-		//Sends a server message to all peers. 
-		bool SendServerMessage(const std::string &body)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session || !session->IsEstablished() || !session->IsHost())
-				return false;
+		ChatMessage message(ChatMessageType::Global, body);
+		return SendClientMessage(session, message);
+	}
+	//Sends a server message to all peers. 
+	bool SendServerMessage(const std::string &body)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+			return false;
 
-			PeerBitSet p;
-			p.set();
-			ChatMessage message(ChatMessageType::Server, body);
-			return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, p);
-		}
-		bool SendTeamMessage(const std::string &body)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session || !session->IsEstablished() || !session->HasTeams())
-				return false;
+		PeerBitSet p;
+		p.set();
+		ChatMessage message(ChatMessageType::Server, body);
+		return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, p);
+	}
+	bool SendTeamMessage(const std::string &body)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->HasTeams())
+			return false;
 
-			ChatMessage message(ChatMessageType::Team, body);
-			return SendClientMessage(session, message);
-		}
-		//So I dont have to create a new PeerBitSet all the time when sending it to just one peer
-		bool SendServerMessage(const std::string &body, int peer)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session || !session->IsEstablished() || !session->IsHost())
-				return false;
+		ChatMessage message(ChatMessageType::Team, body);
+		return SendClientMessage(session, message);
+	}
+	//So I dont have to create a new PeerBitSet all the time when sending it to just one peer
+	bool SendServerMessage(const std::string &body, int peer)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+			return false;
 
-			PeerBitSet peers;
-			peers.set(peer);
-			ChatMessage message(ChatMessageType::Server, body);
-			return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, peers);
-		}
-		bool SendServerMessage(const std::string &body, PeerBitSet peers)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session || !session->IsEstablished() || !session->IsHost())
-				return false;
+		PeerBitSet peers;
+		peers.set(peer);
+		ChatMessage message(ChatMessageType::Server, body);
+		return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, peers);
+	}
+	bool SendServerMessage(const std::string &body, PeerBitSet peers)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+			return false;
 
-			ChatMessage message(ChatMessageType::Server, body);
-			return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, peers);
-		}
+		ChatMessage message(ChatMessageType::Server, body);
+		return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, peers);
+	}
 
-		void AddHandler(std::shared_ptr<ChatHandler> handler)
-		{
-			chatHandlers.push_back(handler);
-		}
+	void AddHandler(std::shared_ptr<ChatHandler> handler)
+	{
+		chatHandlers.push_back(handler);
+	}
 
-		std::string GetSenderName(const ChatMessage &message)
-		{
-			return ::GetSenderName(Blam::Network::GetActiveSession(), message);
-		}
+	std::string GetSenderName(const ChatMessage &message)
+	{
+		return ::GetSenderName(Blam::Network::GetActiveSession(), message);
+	}
 
-		ChatMessage::ChatMessage(ChatMessageType type, const std::string &body)
-		{
-			memset(this, 0, sizeof(*this));
-			Type = type;
-			strncpy(Body, body.c_str(), sizeof(Body) / sizeof(Body[0]) - 1);
-		}
+	ChatMessage::ChatMessage(ChatMessageType type, const std::string &body)
+	{
+		memset(this, 0, sizeof(*this));
+		Type = type;
+		strncpy(Body, body.c_str(), sizeof(Body) / sizeof(Body[0]) - 1);
 	}
 }

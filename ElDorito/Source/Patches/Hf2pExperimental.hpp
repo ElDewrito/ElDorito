@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Hf2pExperimental
 {
-	namespace Hf2pExperimental
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

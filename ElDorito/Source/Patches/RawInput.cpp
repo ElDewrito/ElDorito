@@ -12,15 +12,12 @@ namespace
 	void RawInputHook();
 }
 
-namespace Patches
+namespace Patches::RawInput
 {
-	namespace RawInput
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// Hook the input handling routine to fix mouse acceleration
-			Hook(0x112395, RawInputHook).Apply();
-		}
+		// Hook the input handling routine to fix mouse acceleration
+		Hook(0x112395, RawInputHook).Apply();
 	}
 }
 

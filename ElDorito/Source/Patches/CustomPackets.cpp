@@ -26,42 +26,40 @@ namespace
 	bool DeserializeCustomPacket(Blam::BitStream *stream, int packetSize, void *packet);
 }
 
-namespace Patches
+namespace Patches::CustomPackets
 {
-	namespace CustomPackets
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			Hook(0x9E226, InitializePacketsHook, HookFlags::IsCall).Apply();
-			Hook(0x9CAFA, HandlePacketHook).Apply();
-		}
+		Hook(0x9E226, InitializePacketsHook, HookFlags::IsCall).Apply();
+		Hook(0x9CAFA, HandlePacketHook).Apply();
+	}
 
-		void SendPacket(int targetPeer, const void *packet, int packetSize)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session)
-				return;
-			auto channelIndex = session->MembershipInfo.PeerChannels[targetPeer].ChannelIndex;
-			if (channelIndex == -1)
-				return;
-			session->Observer->ObserverChannelSendMessage(0, channelIndex, false, CustomPacketId, packetSize, packet);
-		}
+	void SendPacket(int targetPeer, const void *packet, int packetSize)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session)
+			return;
+		auto channelIndex = session->MembershipInfo.PeerChannels[targetPeer].ChannelIndex;
+		if (channelIndex == -1)
+			return;
+		session->Observer->ObserverChannelSendMessage(0, channelIndex, false, CustomPacketId, packetSize, packet);
+	}
 
-		PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler)
-		{
-			PacketGuid guid;
-			if (!Utils::Cryptography::Hash32(name, &guid))
-				throw std::runtime_error("Failed to generate packet GUID");
-			if (LookUpPacketType(guid))
-				throw std::runtime_error("Duplicate packet GUID"); // TODO: Throwing an exception here might not be the best idea...
-			CustomPacket packet;
-			packet.Name = name;
-			packet.Handler = handler;
-			customPackets[guid] = packet;
-			return guid;
-		}
+	PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler)
+	{
+		PacketGuid guid;
+		if (!Utils::Cryptography::Hash32(name, &guid))
+			throw std::runtime_error("Failed to generate packet GUID");
+		if (LookUpPacketType(guid))
+			throw std::runtime_error("Duplicate packet GUID"); // TODO: Throwing an exception here might not be the best idea...
+		CustomPacket packet;
+		packet.Name = name;
+		packet.Handler = handler;
+		customPackets[guid] = packet;
+		return guid;
 	}
 }
+
 
 namespace
 {

@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::ContentItems
 {
-	namespace ContentItems
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

@@ -83,93 +83,90 @@ namespace
 	bool setupDone = false;
 }
 
-namespace Server
+namespace Server::Signaling
 {
-	namespace Signaling
+	void Initialize()
 	{
-		void Initialize()
-		{
-			wsphandler = std::make_shared<WebSocketPacketHandler>();
-			wspsender = RegisterPacket<WebSocketPacketData>("eldewrito-signal-server-echo", wsphandler);
+		wsphandler = std::make_shared<WebSocketPacketHandler>();
+		wspsender = RegisterPacket<WebSocketPacketData>("eldewrito-signal-server-echo", wsphandler);
 
-			Patches::Network::OnLifeCycleStateChanged(LifeCycleChanged);
-			Patches::Core::OnShutdown(ForceStopServer);
-		}
+		Patches::Network::OnLifeCycleStateChanged(LifeCycleChanged);
+		Patches::Core::OnShutdown(ForceStopServer);
+	}
 
-		void StartServer()
+	void StartServer()
+	{
+		auto session = Blam::Network::GetActiveSession();
+		CreatePasswords();
+		currentPassword = authStrings[session->MembershipInfo.HostPeerIndex];
+		port = Modules::ModuleServer::Instance().VarSignalServerPort->ValueInt; 
+		Web::Ui::ScreenLayer::Notify("signal-ready", ServerPortJson(), true);
+		if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
 		{
-			auto session = Blam::Network::GetActiveSession();
-			CreatePasswords();
-			currentPassword = authStrings[session->MembershipInfo.HostPeerIndex];
-			port = Modules::ModuleServer::Instance().VarSignalServerPort->ValueInt; 
-			Web::Ui::ScreenLayer::Notify("signal-ready", ServerPortJson(), true);
-			if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
-			{
-				Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "Eldewrito Signal Server");
-			}
-			if (!is_listening)
-				CreateThread(nullptr, 0, SignalingThread, nullptr, 0, nullptr);
+			Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "Eldewrito Signal Server");
 		}
+		if (!is_listening)
+			CreateThread(nullptr, 0, SignalingThread, nullptr, 0, nullptr);
+	}
 		
-		void StopServer()
+	void StopServer()
+	{
+		if (is_listening)
 		{
-			if (is_listening)
-			{
-				signalServer.stop_listening(); //run will cleanly exit after all connections are stopped
-				for each (auto client in connectedSockets)
-				{
-					signalServer.get_con_from_hdl(client.first)->close(websocketpp::close::status::going_away, "Server closing");
-				}
-				is_listening = false;
-			}
-		}
-
-		void SendPeerPassword(int playerIndex)
-		{
-			auto packet = wspsender->New();
-			auto *session = Blam::Network::GetActiveSession();
-			auto peerIdx = session->MembershipInfo.GetPlayerPeer(playerIndex);
-			ResetPassword(peerIdx);
-			strncpy_s(packet.Data.echoString, authStrings[peerIdx].c_str(), PASSWORD_LENGTH + 1);
-			packet.Data.serverPort = port;
-			wspsender->Send(peerIdx, packet);
-		}
-
-		void RemovePeer(int peerIndex)
-		{
-			ResetPassword(peerIndex);
+			signalServer.stop_listening(); //run will cleanly exit after all connections are stopped
 			for each (auto client in connectedSockets)
 			{
-				if (client.second.peerIdx == peerIndex)
+				signalServer.get_con_from_hdl(client.first)->close(websocketpp::close::status::going_away, "Server closing");
+			}
+			is_listening = false;
+		}
+	}
+
+	void SendPeerPassword(int playerIndex)
+	{
+		auto packet = wspsender->New();
+		auto *session = Blam::Network::GetActiveSession();
+		auto peerIdx = session->MembershipInfo.GetPlayerPeer(playerIndex);
+		ResetPassword(peerIdx);
+		strncpy_s(packet.Data.echoString, authStrings[peerIdx].c_str(), PASSWORD_LENGTH + 1);
+		packet.Data.serverPort = port;
+		wspsender->Send(peerIdx, packet);
+	}
+
+	void RemovePeer(int peerIndex)
+	{
+		ResetPassword(peerIndex);
+		for each (auto client in connectedSockets)
+		{
+			if (client.second.peerIdx == peerIndex)
+			{
+				rapidjson::StringBuffer buffer;
+				buffer.Clear();
+				rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+				writer.StartObject();
+				writer.Key("leave");
+				writer.String(client.second.uid.c_str());
+				writer.EndObject();
+				for each(auto otherClient in connectedSockets)
 				{
-					rapidjson::StringBuffer buffer;
-					buffer.Clear();
-					rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-					writer.StartObject();
-					writer.Key("leave");
-					writer.String(client.second.uid.c_str());
-					writer.EndObject();
-					for each(auto otherClient in connectedSockets)
+					if (!otherClient.second.subprotocol.compare(client.second.subprotocol))
 					{
-						if (!otherClient.second.subprotocol.compare(client.second.subprotocol))
-						{
-							signalServer.get_con_from_hdl(otherClient.first)->send(buffer.GetString());
-						}
+						signalServer.get_con_from_hdl(otherClient.first)->send(buffer.GetString());
 					}
-					signalServer.get_con_from_hdl(client.first)->close(websocketpp::close::status::normal, "Left session");
 				}
+				signalServer.get_con_from_hdl(client.first)->close(websocketpp::close::status::normal, "Left session");
 			}
 		}
+	}
 
-		std::string GetPassword()
-		{
-			return currentPassword;
-		}
+	std::string GetPassword()
+	{
+		return currentPassword;
+	}
 
-		uint16_t GetPort()
-		{
-			return port;
-		}
+	uint16_t GetPort()
+	{
+		return port;
 	}
 }
 

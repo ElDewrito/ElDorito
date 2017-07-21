@@ -23,18 +23,12 @@ namespace
 	};
 }
 
-namespace Web
+namespace Web::Ui::WebLoadingScreen
 {
-	namespace Ui
+	void Init()
 	{
-		namespace WebLoadingScreen
-		{
-			void Init()
-			{
-				auto ui = std::make_shared<WebLoadingScreenUi>();
-				Patches::LoadingScreen::SetUi(ui);
-			}
-		}
+		auto ui = std::make_shared<WebLoadingScreenUi>();
+		Patches::LoadingScreen::SetUi(ui);
 	}
 }
 

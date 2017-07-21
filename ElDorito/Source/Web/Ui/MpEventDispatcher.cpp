@@ -17,17 +17,11 @@ namespace
 	extern std::unordered_map<uint32_t, std::string> EventNames;
 }
 
-namespace Web
+namespace Web::Ui::MpEventDispatcher
 {
-	namespace Ui
+	void Init()
 	{
-		namespace MpEventDispatcher
-		{
-			void Init()
-			{
-				Patches::Events::OnEvent(OnEvent);
-			}
-		}
+		Patches::Events::OnEvent(OnEvent);
 	}
 }
 

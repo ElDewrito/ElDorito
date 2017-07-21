@@ -1,12 +1,6 @@
 #pragma once
 
-namespace Web
+namespace Web::Ui::WebLoadingScreen
 {
-	namespace Ui
-	{
-		namespace WebLoadingScreen
-		{
-			void Init();
-		}
-	}
+	void Init();
 }

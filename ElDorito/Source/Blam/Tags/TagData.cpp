@@ -1,8 +1,5 @@
 #include "TagData.hpp"
 
-namespace Blam
+namespace Blam::Tags
 {
-	namespace Tags
-	{
-	}
 }

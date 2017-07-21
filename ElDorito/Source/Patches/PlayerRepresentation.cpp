@@ -63,24 +63,21 @@ namespace
 }
 
 
-namespace Patches
+namespace Patches::PlayerRepresentation
 {
-	namespace PlayerRepresentation
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			Patches::Network::PlayerPropertiesExtender::Instance().Add(std::make_unique<PlayerRepresentationExtensions>());
-		}
+		Patches::Network::PlayerPropertiesExtender::Instance().Add(std::make_unique<PlayerRepresentationExtensions>());
+	}
 
-		void UpdateLocalRepresentation()
+	void UpdateLocalRepresentation()
+	{
+		auto activeSession = Blam::Network::GetActiveSession();
+		if (activeSession && activeSession->IsEstablished())
 		{
-			auto activeSession = Blam::Network::GetActiveSession();
-			if (activeSession && activeSession->IsEstablished())
-			{
-				// this will allow the player to change in-game, which is fine for testing, but it'll need to be locked down before release.
-				auto Network_session_update_user_properties = (signed __int32(__cdecl*)(Blam::Network::Session* session, int a2))(0x00437B30);
-				Network_session_update_user_properties(activeSession, 0);
-			}
+			// this will allow the player to change in-game, which is fine for testing, but it'll need to be locked down before release.
+			auto Network_session_update_user_properties = (signed __int32(__cdecl*)(Blam::Network::Session* session, int a2))(0x00437B30);
+			Network_session_update_user_properties(activeSession, 0);
 		}
 	}
 }

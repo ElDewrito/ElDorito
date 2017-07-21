@@ -1,11 +1,8 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Audio
 {
-	namespace Audio
-	{
-		void ApplyAll();
+	void ApplyAll();
 
-		bool SetOutputDevice(int deviceIndex);
-	}
+	bool SetOutputDevice(int deviceIndex);
 }

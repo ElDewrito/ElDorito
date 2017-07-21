@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Tweaks
 {
-	namespace Tweaks
-	{
-		void ApplyAfterTagsLoaded();
-	}
+	void ApplyAfterTagsLoaded();
 }

@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Assassination
 {
-	namespace Assassination
-	{
-		void Enable(bool enabled);
-	}
+	void Enable(bool enabled);
 }

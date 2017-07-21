@@ -3,29 +3,27 @@
 #include <iostream>
 #include <string>
 
-namespace Blam
+namespace Blam::Cache
 {
-	namespace Cache
+	struct StringIDCacheHeader
 	{
-		struct StringIDCacheHeader
-		{
-			int32_t StringCount;
-			int32_t StringDataSize;
-		};
+		int32_t StringCount;
+		int32_t StringDataSize;
+	};
 
-		struct StringIDCache
-		{
-			StringIDCacheHeader Header;
-			char *Data;
-			char **Strings;
+	struct StringIDCache
+	{
+		StringIDCacheHeader Header;
+		char *Data;
+		char **Strings;
 
-			StringIDCache();
-			~StringIDCache();
+		StringIDCache();
+		~StringIDCache();
 
-			static StringIDCache Instance;
+		static StringIDCache Instance;
 
-			bool Load(const std::string &path);
-			char *GetString(const uint32_t stringID);
-		};
-	}
+		bool Load(const std::string &path);
+		char *GetString(const uint32_t stringID);
+	};
 }
+

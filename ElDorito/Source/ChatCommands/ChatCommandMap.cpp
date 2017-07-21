@@ -46,6 +46,7 @@ namespace ChatCommands
 			}
 		}
 	}
+
 	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
 	{
 		auto* session = Blam::Network::GetActiveSession();
@@ -56,7 +57,6 @@ namespace ChatCommands
 			break;
 				
 		}
-		
 	}
 
 	void Init()
@@ -106,7 +106,6 @@ namespace ChatCommands
 			for (auto elem : Commands)
 				elem->tick();
 		}
-
 	}
 
 	std::vector<std::string> getHelpText()
@@ -196,7 +195,4 @@ namespace ChatCommands
 		return true;
 	}
 
-
-
 }
-

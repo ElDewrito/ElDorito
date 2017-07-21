@@ -1,20 +1,15 @@
 #pragma once
 #include <cstdint>
 
-namespace Blam
+namespace Blam::Tags::Sounds
 {
-	namespace Tags
+	enum class NoiseLevel : int16_t
 	{
-		namespace Sounds
-		{
-			enum class NoiseLevel : int16_t
-			{
-				Silent,
-				Medium,
-				Loud,
-				Shout,
-				Quiet
-			};
-		}
-	}
+		Silent,
+		Medium,
+		Loud,
+		Shout,
+		Quiet
+	};
 }
+

@@ -2,10 +2,7 @@
 
 #include <cmath>
 
-namespace Blam
+namespace Blam::Math
 {
-	namespace Math
-	{
-		const float PI = 3.14159265358979323846f;
-	}
+	const float PI = 3.14159265358979323846f;
 }

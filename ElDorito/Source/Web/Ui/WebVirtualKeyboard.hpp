@@ -2,15 +2,9 @@
 
 #include <string>
 
-namespace Web
+namespace Web::Ui::WebVirtualKeyboard
 {
-	namespace Ui
-	{
-		namespace WebVirtualKeyboard
-		{
-			void Init();
-			void Submit(std::wstring& value);
-			void Cancel();
-		}
-	}
+	void Init();
+	void Submit(std::wstring& value);
+	void Cancel();
 }

@@ -1,14 +1,8 @@
 #pragma once
 
-namespace Web
+namespace Web::Ui::WebChat
 {
-	namespace Ui
-	{
-		namespace WebChat
-		{
-			void Init();
-			void Show();
-			void Hide();
-		}
-	}
+	void Init();
+	void Show();
+	void Hide();
 }

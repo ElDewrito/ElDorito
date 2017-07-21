@@ -1,10 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace Blam
+namespace Blam::Tags
 {
-	namespace Tags
-	{
-		typedef uint32_t Tag;
-	}
+	typedef uint32_t Tag;
 }

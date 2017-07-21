@@ -2,14 +2,11 @@
 
 #include <string>
 
-namespace Patches
+namespace Patches::Forge
 {
-	namespace Forge
-	{
-		void ApplyAll();
-		void Tick();
+	void ApplyAll();
+	void Tick();
 
-		bool SavePrefab(const std::string& name, const std::string& path);
-		bool LoadPrefab(const std::string& path);
-	}
+	bool SavePrefab(const std::string& name, const std::string& path);
+	bool LoadPrefab(const std::string& path);
 }

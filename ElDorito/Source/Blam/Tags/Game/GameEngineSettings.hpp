@@ -15,36 +15,31 @@
 #include "VIPVariant.hpp"
 #include "SandboxVariant.hpp"
 
-namespace Blam
+namespace Blam::Tags::Game
 {
-	namespace Tags
-	{
-		namespace Game
-		{
-			using Blam::Tags::Tag;
-			using Blam::Tags::TagBlock;
-			using Blam::Tags::TagData;
-			using Blam::Tags::TagGroup;
-			using Blam::Tags::TagReference;
-			using Blam::Text::StringID;
+	using Blam::Tags::Tag;
+	using Blam::Tags::TagBlock;
+	using Blam::Tags::TagData;
+	using Blam::Tags::TagGroup;
+	using Blam::Tags::TagReference;
+	using Blam::Text::StringID;
 
-			struct GameEngineSettingsDefinition : TagGroup<'wezr'>
-			{
-				PAD32;
-				TagBlock<TraitsProfile> TraitsProfiles;
-				TagBlock<SlayerVariant> SlayerVariants;
-				TagBlock<OddballVariant> OddballVariants;
-				TagBlock<CTFVariant> CTFVariants;
-				TagBlock<AssaultVariant> AssaultVariants;
-				TagBlock<InfectionVariant> InfectionVariants;
-				TagBlock<KOTHVariant> KOTHVariants;
-				TagBlock<TerritoriesVariant> TerritoriesVariants;
-				TagBlock<JuggernautVariant> JuggernautVariants;
-				TagBlock<VIPVariant> VIPVariants;
-				TagBlock<SandboxVariant> SandboxVariants;
-				PAD32;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct GameEngineSettingsDefinition, 0x8C);
-		}
-	}
+	struct GameEngineSettingsDefinition : TagGroup<'wezr'>
+	{
+		PAD32;
+		TagBlock<TraitsProfile> TraitsProfiles;
+		TagBlock<SlayerVariant> SlayerVariants;
+		TagBlock<OddballVariant> OddballVariants;
+		TagBlock<CTFVariant> CTFVariants;
+		TagBlock<AssaultVariant> AssaultVariants;
+		TagBlock<InfectionVariant> InfectionVariants;
+		TagBlock<KOTHVariant> KOTHVariants;
+		TagBlock<TerritoriesVariant> TerritoriesVariants;
+		TagBlock<JuggernautVariant> JuggernautVariants;
+		TagBlock<VIPVariant> VIPVariants;
+		TagBlock<SandboxVariant> SandboxVariants;
+		PAD32;
+	};
+	TAG_STRUCT_SIZE_ASSERT(struct GameEngineSettingsDefinition, 0x8C);
 }
+
