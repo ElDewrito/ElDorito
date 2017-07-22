@@ -1023,7 +1023,12 @@ namespace
 			returnInfo = "No message to send";
 			return false;
 		}
-		std::string message = Arguments[0];
+
+		std::string message = "";
+		for each (auto word in Arguments)
+		{
+			message += word + " ";
+		}
 		Server::Chat::SendServerMessage(message);
 		return true;
 	}
