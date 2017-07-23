@@ -2,12 +2,17 @@ var inputHistory = [];
 var selectedHistoryIndex = 0;
 var commandList = {};
 
+var eAutoCompleteMode = {
+    Prefix : 1,
+    Substring : 2
+};
+
 var consoleSize = 2;
 var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
-var consoleAutoCompleteMode = 1;
+var consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
 
 function isset(val) {
      return !!val;
@@ -67,7 +72,7 @@ function resetConsole() {
     invertConsole(1, true)
     transparencyConsole(75, true);
     opacityConsole(100, true);
-    autoCompleteModeConsole(1, true);
+    autoCompleteModeConsole(eAutoCompleteMode.Prefix, true);
     clearConsole();
     clearInput();
 }
@@ -112,7 +117,7 @@ function getConsoleHelp() {
             "shortName": "console_autocompletemode",
             "description": "Toggle between the Console auto complete modes. Options: 0, 1 or 2. Setting it to 0 will toggle between Prefix and Substring modes",
             "value": consoleAutoCompleteMode,
-            "defaultValue": 1,
+            "defaultValue": eAutoCompleteMode.Prefix,
             "hidden": false,
             "arguments": [
                 "autocompletemode(int) Options: 0, 1 or 2. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
@@ -307,7 +312,7 @@ function getSuggestedCommands(partial) {
     $(".suggestion").remove();
     if (isset(partial)) {
         commandItem = $.grep(commands, function(item) {
-            return ((consoleAutoCompleteMode == 1) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
+            return ((consoleAutoCompleteMode == eAutoCompleteMode.Prefix) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
@@ -492,6 +497,10 @@ function opacityConsole(percentage, silent) {
     $("body").css({"opacity": percentage});
 }
 
+function isScrolledToBottom(e) {
+    return (e.prop("scrollHeight") - e.scrollTop() - e.outerHeight() < 1);
+}
+
 function autoCompleteModeConsole(toggle, silent) {
     ifset(silent, false);
     if (isNaN(parseInt(toggle))) {
@@ -503,36 +512,32 @@ function autoCompleteModeConsole(toggle, silent) {
         }
         return;
     }
-    else if (toggle != 0 && toggle != 1 && toggle != 2) {
+    else if (toggle != 0 && toggle != eAutoCompleteMode.Prefix && toggle != eAutoCompleteMode.Substring) {
         appendLine("error-line", "Parameter is invalid! Options: 0, 1 or 2");
         return;
     }
     switch(toggle) {
-        case 1:
+        case eAutoCompleteMode.Prefix:
             if (!silent) {
-                appendLine("", consoleAutoCompleteMode + " -> " + 1);
+                appendLine("", consoleAutoCompleteMode + " -> " + eAutoCompleteMode.Prefix);
             }
-            consoleDock = 1;
+            consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
             break;
-        case 2:
+        case eAutoCompleteMode.Substring:
             if (!silent) {
-                appendLine("", consoleAutoCompleteMode + " -> " + 2);
+                appendLine("", consoleAutoCompleteMode + " -> " + eAutoCompleteMode.Substring);
             }
-            consoleAutoCompleteMode = 2;
+            consoleAutoCompleteMode = eAutoCompleteMode.Substring;
             break;
         default:
-            if (consoleAutoCompleteMode == 1) {
-                autoCompleteModeConsole(2, silent);
+            if (consoleAutoCompleteMode == eAutoCompleteMode.Prefix) {
+                autoCompleteModeConsole(eAutoCompleteMode.Substring, silent);
             }
             else {
-                autoCompleteModeConsole(1, silent);
+                autoCompleteModeConsole(eAutoCompleteMode.Prefix, silent);
             }
             break;
     }
-}
-
-function isScrolledToBottom(e) {
-    return (e.prop("scrollHeight") - e.scrollTop() - e.outerHeight() < 1);
 }
 
 function scrollToBottom() {
@@ -777,19 +782,3 @@ $(window).load(function () {
 
     sizeConsole(consoleSize, true);
 });
-
-function formatBytes(bytes,decimals) {
-    if(bytes == 0) return '0 Bytes';
-    var k = 1000,
-        dm = decimals || 2,
-        sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-        i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-function showMemoryUsage() {
-	$("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize))
-	setTimeout(showMemoryUsage, 1000);
-}
-
-showMemoryUsage();
