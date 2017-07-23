@@ -5,6 +5,7 @@
 #include <websocketpp/server.hpp>
 #include <Windows.h>
 
+#include "../Patches/Core.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Utils/Cryptography.hpp"
@@ -17,6 +18,8 @@ typedef websocketpp::server<Utils::WebSocket::Config> server;
 
 namespace
 {
+	void ForceStopServer();
+	server rconServer;
 	DWORD WINAPI RconThread(LPVOID);
 	bool OnValidate(server* rconServer, websocketpp::connection_hdl hdl);
 	void OnMessage(server* rconServer, websocketpp::connection_hdl hdl, server::message_ptr msg);
@@ -38,6 +41,7 @@ namespace Server::Rcon
 {
 	void Initialize()
 	{
+		Patches::Core::OnShutdown(ForceStopServer);
 		if (Modules::ModuleServer::Instance().VarRconPassword->ValueString == "")
 		{
 			// Ensure a password is set
@@ -53,9 +57,14 @@ namespace Server::Rcon
 
 namespace
 {
+	void ForceStopServer()
+	{
+		if (rconServer.is_listening)
+			rconServer.stop();
+	}
+
 	DWORD WINAPI RconThread(LPVOID)
 	{
-		server rconServer;
 		try
 		{
 #ifdef _DEBUG
