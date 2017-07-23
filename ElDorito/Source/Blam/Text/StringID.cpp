@@ -1,8 +1,5 @@
 #include "StringID.hpp"
 
-namespace Blam
+namespace Blam::Text
 {
-	namespace Text
-	{
-	}
 }

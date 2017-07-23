@@ -7,6 +7,8 @@ var imageFormat = 'svg';
 var itemNumber = 0;
 var controllerType;
 var hasGP = false;
+var talkingArray = [];
+var volArray = [];
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -256,11 +258,35 @@ dew.on("scoreboard", function(e){
     });
 });
 
-dew.on("voip-user-volume", function(data){
+dew.on("voip-user-volume", function(e){
 });
 
-dew.on("voip-speaking", function(data){ 
-    //$('#'+playerName).find('.speaker').css({'opacity':'1 !important'});  //VOIP: show speaker if talking
+dew.on("voip-speaking", function(e){ 
+    if(e.data.isSpeaking){
+        talkingArray.push(e.data.user);
+    }else{
+        talkingArray.splice($.inArray(e.data.user, talkingArray),1);
+    }
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+        displayScoreboard(response);
+    });
+});
+
+dew.on("voip-ptt", function(e){
+    dew.command('VoIP.PTT_Enabled', {}).then(function(x){
+        if(x == 1){
+            dew.command('Player.Name', {}).then(function(n){
+                if(e.data.talk == 1){
+                    talkingArray.push(n);
+                }else{
+                    talkingArray.splice($.inArray(n, talkingArray),1);
+                }
+                dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+                    displayScoreboard(response);
+                });
+            });
+        }      
+    })
 });
 
 dew.on("show", function(e){
@@ -359,7 +385,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
                     $('#window table').append(teamHeader);    
                     if(objectiveArray[lobby[i].team]){
-                        $('#'+teamArray[lobby[i].team].name).prepend('<img class="emblem objective team" src="dew://assets/emblems/'+gameType+'.png">')                    
+                        $('#'+teamArray[lobby[i].team].name+' .teamHeader').append('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')                    
                     }
                 }    
             } 
@@ -434,11 +460,32 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                         $('.teamHeader .name').attr('colspan',5);
                 }
             }
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score    
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem speaker" src="dew://assets/emblems/speaker.png">')) //voip speaking indicator          
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
+            var speakerClass = "emblem speaker";
+            if($.inArray(lobby[i].name,talkingArray) > -1){
+                speakerClass += " talking";
+            }
+
+            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="'+speakerClass+'" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="5" step="1" value="5"></input>')) //voip speaking indicator        
+            $.grep(volArray, function(result, index){
+                if(result){
+                    if(result[0] == lobby[i].name){
+                        $('#'+lobby[i].name).find('.volSlider').val(result[1]);
+                        if(result[1] < 2){
+                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
+                        }else if(result[1] < 4){
+                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
+                        }else{
+                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
+                        };
+                    }
+                }
+            });            
             if(lobby[i].hasObjective){
                 $('.objective').remove();
-                $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')) //objective (flag/oddball) indicator
+                if(gameType == "oddball"||gameType == "assault"||gameType == "ctf"){
+                    $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')) //objective (flag/oddball) indicator
+                }
             }
             if(teamGame){
                 sortMe('scoreboard','tbody');
@@ -447,15 +494,30 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 sortMe('singlePlayers','tr');
             }
             rankMe(teamGame);
-        }     
+        }      
         $('.clickable').find('td').on('click',function(){
             var playerName = $(this).parent().attr('id');
             playerBreakdown(playerName);
         });
+        $('.volSlider').on('change click', function(e){
+            e.stopPropagation();
+            var playerName = $(this).parent().parent().attr('id');
+            $.grep(volArray, function(result, index){
+                if(result){
+                    if(result[0] == playerName){
+                        volArray.splice(index,1);
+                    };
+                }
+            });
+            volArray.push([playerName, $(this).val()]);   
+            dew.command('Game.ExpandedScoreboard', {}).then(function(response){
+                displayScoreboard(response);
+            });   
+        });
         $('.speaker').on('click', function(e){
-            $('.speaker').off('click');
-            console.log($(this).parent().attr('id'), $(this).parent().attr('data-uid')); //VOIP: replace with volume control
-        });        
+            e.stopPropagation();
+            $(this).parent().find('.volSlider').show(); 
+        });  
     }  
 }
 
@@ -715,10 +777,10 @@ function updateSelection(item){
         for(var i = 0; i < $('.clickable').length; i++) {
             $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
         }
+        col = $('.clickable').eq(item).attr('data-color'),
+        bright = adjustColor(col, 30);
+        $('.clickable').eq(item).css("background-color", hexToRgb(bright, cardOpacity));
     }
-    col = $("[data-playerIndex='" + item+ "']").attr('data-color'),
-    bright = adjustColor(col, 30);
-    $('.clickable').eq(item).css("background-color", hexToRgb(bright, cardOpacity));
 }
 
 function upNav(){

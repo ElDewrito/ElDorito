@@ -114,9 +114,9 @@ namespace
 	void OnMapLoaded(const char *mapPath);
 }
 
-namespace Patches
+namespace Patches::Hf2pExperimental
 {
-	void Hf2pExperimental::ApplyAll()
+	void ApplyAll()
 	{
 		Hook(0x200630, Hf2pInitHook).Apply();
 		// we no longer have sound_config.ps

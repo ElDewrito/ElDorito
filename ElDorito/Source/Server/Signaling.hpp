@@ -2,16 +2,14 @@
 
 #include <string>
 
-namespace Server
+namespace Server::Signaling
 {
-	namespace Signaling
-	{
-		void Initialize();
-		void StartServer();
-		void StopServer();
-		void SendPeerPassword(int playerIndex);
-		void RemovePeer(int peerIndex);
-		std::string GetPassword();
-		uint16_t GetPort();
-	}
+	void Initialize();
+	void StartServer();
+	void StopServer();
+	void SendPeerPassword(int playerIndex);
+	void RemovePeer(int peerIndex);
+	std::string GetPassword();
+	uint16_t GetPort();
 }
+

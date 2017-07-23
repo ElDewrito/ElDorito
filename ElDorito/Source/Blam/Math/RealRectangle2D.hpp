@@ -1,21 +1,19 @@
 #pragma once
 
-namespace Blam
+namespace Blam::Math
 {
-	namespace Math
+	struct RealRectangle2D
 	{
-		struct RealRectangle2D
-		{
-			float Top;
-			float Bottom;
-			float Left;
-			float Right;
+		float Top;
+		float Bottom;
+		float Left;
+		float Right;
 
-			RealRectangle2D();
-			RealRectangle2D(const float top, const float bottom, const float left, const float right);
+		RealRectangle2D();
+		RealRectangle2D(const float top, const float bottom, const float left, const float right);
 
-			bool operator==(const RealRectangle2D &other) const;
-			bool operator!=(const RealRectangle2D &other) const;
-		};
-	}
+		bool operator==(const RealRectangle2D &other) const;
+		bool operator!=(const RealRectangle2D &other) const;
+	};
 }
+

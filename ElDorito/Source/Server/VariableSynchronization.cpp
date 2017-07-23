@@ -66,36 +66,33 @@ namespace
 	void HostTick(Blam::Network::Session *session);
 }
 
-namespace Server
+namespace Server::VariableSynchronization
 {
-	namespace VariableSynchronization
+	void Initialize()
 	{
-		void Initialize()
-		{
-			auto updateHandler = std::make_shared<SyncUpdateHandler>();
-			updateSender = RegisterVariadicPacket<SyncUpdatePacketData, SyncUpdatePacketVar>("eldewrito-sync-var", updateHandler);
-		}
+		auto updateHandler = std::make_shared<SyncUpdateHandler>();
+		updateSender = RegisterVariadicPacket<SyncUpdatePacketData, SyncUpdatePacketVar>("eldewrito-sync-var", updateHandler);
+	}
 
-		void Synchronize(Command *serverVariable, Command *clientVariable)
-		{
-			if (serverVariable->Type != clientVariable->Type)
-				throw std::runtime_error("Server and client variable types do not match");
-			SynchronizationBinding binding;
-			binding.ServerVariable = serverVariable;
-			binding.ClientVariable = clientVariable;
-			binding.ID = GenerateID(binding);
-			binding.SynchronizedPeers.reset();
-			AddBinding(binding);
-		}
+	void Synchronize(Command *serverVariable, Command *clientVariable)
+	{
+		if (serverVariable->Type != clientVariable->Type)
+			throw std::runtime_error("Server and client variable types do not match");
+		SynchronizationBinding binding;
+		binding.ServerVariable = serverVariable;
+		binding.ClientVariable = clientVariable;
+		binding.ID = GenerateID(binding);
+		binding.SynchronizedPeers.reset();
+		AddBinding(binding);
+	}
 
-		void Tick()
-		{
-			// We only need to do anything if we're the host, otherwise the
-			// packet handler will take care of client stuff
-			auto session = Blam::Network::GetActiveSession();
-			if (session && session->IsHost())
-				HostTick(session);
-		}
+	void Tick()
+	{
+		// We only need to do anything if we're the host, otherwise the
+		// packet handler will take care of client stuff
+		auto session = Blam::Network::GetActiveSession();
+		if (session && session->IsHost())
+			HostTick(session);
 	}
 }
 

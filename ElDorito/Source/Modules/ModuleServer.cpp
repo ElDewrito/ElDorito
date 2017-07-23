@@ -1023,7 +1023,12 @@ namespace
 			returnInfo = "No message to send";
 			return false;
 		}
-		std::string message = Arguments[0];
+
+		std::string message = "";
+		for each (auto word in Arguments)
+		{
+			message += word + " ";
+		}
 		Server::Chat::SendServerMessage(message);
 		return true;
 	}
@@ -1073,7 +1078,7 @@ namespace
 	}
 	bool CommandMaxTeamSize(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto session = Blam::Network::GetActiveSession();
+		auto *session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
 		{
 			returnInfo = "Session not established";

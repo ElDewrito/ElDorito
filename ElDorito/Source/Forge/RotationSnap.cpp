@@ -32,9 +32,9 @@ namespace
 	void HandleInput();
 }
 
-namespace Forge
+namespace Forge::RotationSnap
 {
-	void RotationSnap::Update(uint32_t playerIndex, uint32_t heldObjectIndex)
+	void Update(uint32_t playerIndex, uint32_t heldObjectIndex)
 	{
 		if (heldObjectIndex == -1)
 			return;
@@ -87,7 +87,7 @@ namespace Forge
 		s_RotationSnapState.ObjectIndex = heldObjectIndex;
 	}
 
-	void RotationSnap::RotateSnapped(const Blam::Math::RealVector3D& axis)
+	void RotateSnapped(const Blam::Math::RealVector3D& axis)
 	{
 		static auto& moduleForge = Modules::ModuleForge::Instance();
 		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
@@ -106,7 +106,7 @@ namespace Forge
 		s_RotationSnapState.Current = 0;
 	}
 
-	void RotationSnap::RotateToScripted(const Blam::Math::RealQuaternion& rotation)
+	void RotateToScripted(const Blam::Math::RealQuaternion& rotation)
 	{
 		RealMatrix4x3 objectTransform;
 		GetObjectTransformationMatrix(s_RotationSnapState.ObjectIndex, &objectTransform);

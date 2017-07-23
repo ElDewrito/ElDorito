@@ -9,15 +9,12 @@ namespace
 	uint32_t DualAimAssistHook(uint32_t unitObject, short weaponIndex);
 }
 
-namespace Patches
+namespace Patches::Mouse
 {
-	namespace Mouse
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			Hook(0x18AA17, AimAssistHook).Apply();
-			Hook(0x18ABAB, DualAimAssistHook, HookFlags::IsCall).Apply();
-		}
+		Hook(0x18AA17, AimAssistHook).Apply();
+		Hook(0x18ABAB, DualAimAssistHook, HookFlags::IsCall).Apply();
 	}
 }
 

@@ -18,28 +18,22 @@ namespace
 	void OnGameInputUpdated();
 }
 
-namespace Web
+namespace Web::Ui::WebConsole
 {
-	namespace Ui
+	void Init()
 	{
-		namespace WebConsole
-		{
-			void Init()
-			{
-				Console::RegisterHandler(std::make_shared<WebConsoleOutputHandler>());
-				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-			}
+		Console::RegisterHandler(std::make_shared<WebConsoleOutputHandler>());
+		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
+	}
 
-			void Show()
-			{
-				ScreenLayer::Show("console", "{}");
-			}
+	void Show()
+	{
+		ScreenLayer::Show("console", "{}");
+	}
 
-			void Hide()
-			{
-				ScreenLayer::Hide("console");
-			}
-		}
+	void Hide()
+	{
+		ScreenLayer::Hide("console");
 	}
 }
 

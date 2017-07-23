@@ -1,10 +1,7 @@
 #pragma once
 
-namespace Utils
+namespace Utils::AntiCheat
 {
-	namespace AntiCheat
-	{
-		void AntiSpeed();
-		void OnTickCheck();
-	}
+	void AntiSpeed();
+	void OnTickCheck();
 }

@@ -20,6 +20,7 @@ namespace Modules
 		Command* VarSuppressJuggling;
 		Command* VarIconSet;
 		Command* VarFixHudGlobals;
+		Command* VarHideH3UI;
 
 		int DebugFlags;
 

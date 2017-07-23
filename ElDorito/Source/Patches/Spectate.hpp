@@ -1,10 +1,7 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Spectate
 {
-	namespace Spectate
-	{
-		void ApplyAll();
-		void Tick();
-	}
+	void ApplyAll();
+	void Tick();
 }

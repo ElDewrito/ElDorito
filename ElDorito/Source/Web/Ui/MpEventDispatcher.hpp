@@ -1,12 +1,6 @@
 #pragma once
 
-namespace Web
+namespace Web::Ui::MpEventDispatcher
 {
-	namespace Ui
-	{
-		namespace MpEventDispatcher
-		{
-			void Init();
-		}
-	}
+	void Init();
 }

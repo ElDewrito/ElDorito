@@ -4,25 +4,20 @@
 #include "../../Text/StringID.hpp"
 #include "GameVariant.hpp"
 
-namespace Blam
+namespace Blam::Tags::Game
 {
-	namespace Tags
-	{
-		namespace Game
-		{
-			using Blam::Text::StringID;
+	using Blam::Text::StringID;
 
-			struct JuggernautVariant : GameVariant
-			{
-				int Unknown58;
-				int Unknown5C;
-				int Unknown60;
-				int Unknown64;
-				int Unknown68;
-				int Unknown6C;
-				int Unknown70;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct JuggernautVariant, 0x74);
-		}
-	}
+	struct JuggernautVariant : GameVariant
+	{
+		int Unknown58;
+		int Unknown5C;
+		int Unknown60;
+		int Unknown64;
+		int Unknown68;
+		int Unknown6C;
+		int Unknown70;
+	};
+	TAG_STRUCT_SIZE_ASSERT(struct JuggernautVariant, 0x74);
 }
+

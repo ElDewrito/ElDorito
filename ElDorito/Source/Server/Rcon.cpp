@@ -5,6 +5,7 @@
 #include <websocketpp/server.hpp>
 #include <Windows.h>
 
+#include "../Patches/Core.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Utils/Cryptography.hpp"
@@ -17,6 +18,8 @@ typedef websocketpp::server<Utils::WebSocket::Config> server;
 
 namespace
 {
+	void ForceStopServer();
+	server rconServer;
 	DWORD WINAPI RconThread(LPVOID);
 	bool OnValidate(server* rconServer, websocketpp::connection_hdl hdl);
 	void OnMessage(server* rconServer, websocketpp::connection_hdl hdl, server::message_ptr msg);
@@ -34,31 +37,34 @@ namespace
 	const char* DenyMessage = "deny";
 }
 
-namespace Server
+namespace Server::Rcon
 {
-	namespace Rcon
+	void Initialize()
 	{
-		void Initialize()
+		Patches::Core::OnShutdown(ForceStopServer);
+		if (Modules::ModuleServer::Instance().VarRconPassword->ValueString == "")
 		{
-			if (Modules::ModuleServer::Instance().VarRconPassword->ValueString == "")
-			{
-				// Ensure a password is set
-				Utils::Cryptography::RandomPassword(DefaultPasswordLength, Modules::ModuleServer::Instance().VarRconPassword->ValueString);
-				Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
-			}
-			CreateThread(nullptr, 0, RconThread, nullptr, 0, nullptr);
+			// Ensure a password is set
+			Utils::Cryptography::RandomPassword(DefaultPasswordLength, Modules::ModuleServer::Instance().VarRconPassword->ValueString);
+			Modules::CommandMap::Instance().ExecuteCommand("WriteConfig");
 		}
-		void SendMessageToClients(std::string message) {
-			sendThroughWebsocket.push_back(message);
-		}
+		CreateThread(nullptr, 0, RconThread, nullptr, 0, nullptr);
+	}
+	void SendMessageToClients(std::string message) {
+		sendThroughWebsocket.push_back(message);
 	}
 }
 
 namespace
 {
+	void ForceStopServer()
+	{
+		if (rconServer.is_listening())
+			rconServer.stop();
+	}
+
 	DWORD WINAPI RconThread(LPVOID)
 	{
-		server rconServer;
 		try
 		{
 #ifdef _DEBUG

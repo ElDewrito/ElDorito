@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Equipment
 {
-	namespace Equipment
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

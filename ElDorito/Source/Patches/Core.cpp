@@ -44,147 +44,144 @@ namespace
 	std::vector<Patches::Core::GameStartCallback> gameStartCallbacks;
 }
 
-namespace Patches
+namespace Patches::Core
 {
-	namespace Core
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// Enable tag edits
-			Patch(0x101A5B, { 0xEB }).Apply();
-			Patch::NopFill(Pointer::Base(0x102874), 2);
-			Patch::NopFill(Pointer::Base(0x1030AA), 2);
+		// Enable tag edits
+		Patch(0x101A5B, { 0xEB }).Apply();
+		Patch::NopFill(Pointer::Base(0x102874), 2);
+		Patch::NopFill(Pointer::Base(0x1030AA), 2);
 
-			// No --account args patch
-			Patch(0x43731A, { 0xEB, 0x0E }).Apply();
-			Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
+		// No --account args patch
+		Patch(0x43731A, { 0xEB, 0x0E }).Apply();
+		Patch(0x4373AD, { 0xEB, 0x03 }).Apply();
 
-			// prevent hf2p services from being registered
-			Patch(0x003B8810, { 0xC3 }).Apply();
+		// prevent hf2p services from being registered
+		Patch(0x003B8810, { 0xC3 }).Apply();
 
-			// Remove preferences.dat hash check
-			Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
+		// Remove preferences.dat hash check
+		Patch::NopFill(Pointer::Base(0x10C99A), 0x6);
 
-			// Patch to allow spawning AI through effects
-			Patch::NopFill(Pointer::Base(0x1033321), 2);
+		// Patch to allow spawning AI through effects
+		Patch::NopFill(Pointer::Base(0x1033321), 2);
 
-			// Fix random colored lighting
-			Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
+		// Fix random colored lighting
+		Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
-			// Maps folder override
-			Hook(0x101FC0, GetMapsFolderHook).Apply();
-			SetMapsFolder("maps\\");
+		// Maps folder override
+		Hook(0x101FC0, GetMapsFolderHook).Apply();
+		SetMapsFolder("maps\\");
 
-			// Run callbacks on engine shutdown
-			Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
+		// Run callbacks on engine shutdown
+		Hook(0x2EBD7, ShutdownHook, HookFlags::IsCall).Apply();
 
-			// Map loading
-			Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
-			Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
-			Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
+		// Map loading
+		Hook(0x10FC2C, LoadMapHook, HookFlags::IsCall).Apply();
+		Hook(0x1671BE, LoadMapHook, HookFlags::IsCall).Apply();
+		Hook(0x167B4F, LoadMapHook, HookFlags::IsCall).Apply();
 
-			Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
+		Hook(0x14C7FF, LoadLevelHook, HookFlags::IsCall).Apply();
 
-			Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
-			Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
-			Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
+		Hook(0x152C15, GameStartHook, HookFlags::IsCall).Apply();
+		Hook(0x14EB62, GameStartHook, HookFlags::IsCall).Apply();
+		Hook(0x14EB54, GameStartHook, HookFlags::IsCall).Apply();
 
-			// Hook game ticks
-			Hook(0x105ABA, GameTickHook, HookFlags::IsCall).Apply();
-			Hook(0x105AD7, GameTickHook, HookFlags::IsCall).Apply();
-			Hook(0x1063E6, GameTickHook, HookFlags::IsCall).Apply();
+		// Hook game ticks
+		Hook(0x105ABA, GameTickHook, HookFlags::IsCall).Apply();
+		Hook(0x105AD7, GameTickHook, HookFlags::IsCall).Apply();
+		Hook(0x1063E6, GameTickHook, HookFlags::IsCall).Apply();
 
-			// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
-			Hook(0x1030EA, TagsLoadedHook).Apply();
+		// Used to call Patches::ApplyAfterTagsLoaded when tags have loaded
+		Hook(0x1030EA, TagsLoadedHook).Apply();
 
-			// Prevent FOV from being overridden when the game loads
-			Patch::NopFill(Pointer::Base(0x25FA79), 10);
-			Patch::NopFill(Pointer::Base(0x25FA86), 5);
-			Hook(0x10CA02, FovHook).Apply();
+		// Prevent FOV from being overridden when the game loads
+		Patch::NopFill(Pointer::Base(0x25FA79), 10);
+		Patch::NopFill(Pointer::Base(0x25FA86), 5);
+		Hook(0x10CA02, FovHook).Apply();
 
-			//Fix aspect ratio not matching resolution
-			Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
-			Hook(0x216487, AspectRatioHook, HookFlags::IsCall).Apply();
+		//Fix aspect ratio not matching resolution
+		Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
+		Hook(0x216487, AspectRatioHook, HookFlags::IsCall).Apply();
 
-			//Disable converting the game's resolution to 16:9
-			Patch::NopFill(Pointer::Base(0x62217D), 2);
-			Patch::NopFill(Pointer::Base(0x622183), 6);
+		//Disable converting the game's resolution to 16:9
+		Patch::NopFill(Pointer::Base(0x62217D), 2);
+		Patch::NopFill(Pointer::Base(0x622183), 6);
 
-			//Allow the user to select any resolution that Windows supports in the settings screen.
-			Patch::NopFill(Pointer::Base(0x10BF1B), 2);
-			Patch::NopFill(Pointer::Base(0x10BF21), 6);
+		//Allow the user to select any resolution that Windows supports in the settings screen.
+		Patch::NopFill(Pointer::Base(0x10BF1B), 2);
+		Patch::NopFill(Pointer::Base(0x10BF21), 6);
 
-			// Prevent game variant weapons from being overridden
-			Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
-			Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
-			Hook(0x1A3267, GrenadeLoadoutHook).Apply();
+		// Prevent game variant weapons from being overridden
+		Pointer::Base(0x1A315F).Write<uint8_t>(0xEB);
+		Pointer::Base(0x1A31A4).Write<uint8_t>(0xEB);
+		Hook(0x1A3267, GrenadeLoadoutHook).Apply();
 
-			// Remove exception handlers
-			/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
-			Patch::NopFill(Pointer::Base(0x2EC10), 6);
-			//Patch::NopFill(Pointer::Base(0x7FC411), 6);
-			Patch(0x7FC40B, { 0xC3 }).Apply();
-			Patch(0x7FC42E, { 0xC3 }).Apply();
-			Patch::NopFill(Pointer::Base(0x106057), 5);*/
+		// Remove exception handlers
+		/*Patch::NopFill(Pointer::Base(0x2EA2B), 6);
+		Patch::NopFill(Pointer::Base(0x2EC10), 6);
+		//Patch::NopFill(Pointer::Base(0x7FC411), 6);
+		Patch(0x7FC40B, { 0xC3 }).Apply();
+		Patch(0x7FC42E, { 0xC3 }).Apply();
+		Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
-			Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
+		Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 
-			Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
-		}
+		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
+	}
 
-		void OnShutdown(ShutdownCallback callback)
-		{
-			shutdownCallbacks.push_back(callback);
-		}
+	void OnShutdown(ShutdownCallback callback)
+	{
+		shutdownCallbacks.push_back(callback);
+	}
 
-		void ExecuteShutdownCallbacks()
-		{
-			for (auto &&callback : shutdownCallbacks)
-				callback();
-		}
+	void ExecuteShutdownCallbacks()
+	{
+		for (auto &&callback : shutdownCallbacks)
+			callback();
+	}
 
-		void OnMapLoaded(MapLoadedCallback callback)
-		{
-			mapLoadedCallbacks.push_back(callback);
-		}
+	void OnMapLoaded(MapLoadedCallback callback)
+	{
+		mapLoadedCallbacks.push_back(callback);
+	}
 
-		void SetMapsFolder(const std::string &path)
-		{
-			MapsFolder = path;
-			MapFormatString = MapsFolder + "%s.map";
-			StringIdsPath = MapsFolder + "string_ids.dat";
-			TagsPath = MapsFolder + "tags.dat";
-			TagListPath = MapsFolder + "tag_list.csv";
-			ResourcesPath = MapsFolder + "resources.dat";
-			TexturesPath = MapsFolder + "textures.dat";
-			TexturesBPath = MapsFolder + "textures_b.dat";
-			AudioPath = MapsFolder + "audio.dat";
-			VideoPath = MapsFolder + "video.dat";
-			FontsPath = MapsFolder + "fonts\\";
+	void SetMapsFolder(const std::string &path)
+	{
+		MapsFolder = path;
+		MapFormatString = MapsFolder + "%s.map";
+		StringIdsPath = MapsFolder + "string_ids.dat";
+		TagsPath = MapsFolder + "tags.dat";
+		TagListPath = MapsFolder + "tag_list.csv";
+		ResourcesPath = MapsFolder + "resources.dat";
+		TexturesPath = MapsFolder + "textures.dat";
+		TexturesBPath = MapsFolder + "textures_b.dat";
+		AudioPath = MapsFolder + "audio.dat";
+		VideoPath = MapsFolder + "video.dat";
+		FontsPath = MapsFolder + "fonts\\";
 
-			Pointer::Base(0x1AC050).Write(MapFormatString.c_str());
+		Pointer::Base(0x1AC050).Write(MapFormatString.c_str());
 
-			Pointer::Base(0x149CFEC).Write(StringIdsPath.c_str());
-			Pointer::Base(0x149CFF0).Write(TagsPath.c_str());
-			Pointer::Base(0x149CFF4).Write(TagListPath.c_str());
-			Pointer::Base(0x149CFF8).Write(ResourcesPath.c_str());
-			Pointer::Base(0x149CFFC).Write(TexturesPath.c_str());
-			Pointer::Base(0x149D000).Write(TexturesBPath.c_str());
-			Pointer::Base(0x149D004).Write(AudioPath.c_str());
-			Pointer::Base(0x149D008).Write(VideoPath.c_str());
+		Pointer::Base(0x149CFEC).Write(StringIdsPath.c_str());
+		Pointer::Base(0x149CFF0).Write(TagsPath.c_str());
+		Pointer::Base(0x149CFF4).Write(TagListPath.c_str());
+		Pointer::Base(0x149CFF8).Write(ResourcesPath.c_str());
+		Pointer::Base(0x149CFFC).Write(TexturesPath.c_str());
+		Pointer::Base(0x149D000).Write(TexturesBPath.c_str());
+		Pointer::Base(0x149D004).Write(AudioPath.c_str());
+		Pointer::Base(0x149D008).Write(VideoPath.c_str());
 
-			Pointer::Base(0x149D358).Write(FontsPath.c_str());
-			Pointer::Base(0x149D35C).Write(FontsPath.c_str());
+		Pointer::Base(0x149D358).Write(FontsPath.c_str());
+		Pointer::Base(0x149D35C).Write(FontsPath.c_str());
 
-			//Update the list of maps
-			Modules::ModuleGame::Instance().UpdateMapList();
-			Modules::ModuleGame::Instance().UpdateCustomMapList();
-		}
+		//Update the list of maps
+		Modules::ModuleGame::Instance().UpdateMapList();
+		Modules::ModuleGame::Instance().UpdateCustomMapList();
+	}
 
-		void OnGameStart(GameStartCallback callback)
-		{
-			gameStartCallbacks.push_back(callback);
-		}
+	void OnGameStart(GameStartCallback callback)
+	{
+		gameStartCallbacks.push_back(callback);
 	}
 }
 

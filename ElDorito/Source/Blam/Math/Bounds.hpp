@@ -1,35 +1,33 @@
 #pragma once
 
-namespace Blam
+namespace Blam::Math
 {
-	namespace Math
+	template <typename T>
+	struct Bounds
 	{
-		template <typename T>
-		struct Bounds
+		T Lower;
+		T Upper;
+
+		Bounds(const T &lower, const T &upper)
+			: Lower(lower), Upper(upper)
 		{
-			T Lower;
-			T Upper;
+		}
 
-			Bounds(const T &lower, const T &upper)
-				: Lower(lower), Upper(upper)
-			{
-			}
+		Bounds()
+			: Bounds(T(), T())
+		{
+		}
 
-			Bounds()
-				: Bounds(T(), T())
-			{
-			}
+		bool operator==(const Bounds<T> &other) const
+		{
+			return Lower == other.Lower
+				&& Upper == other.Upper;
+		}
 
-			bool operator==(const Bounds<T> &other) const
-			{
-				return Lower == other.Lower
-					&& Upper == other.Upper;
-			}
-
-			bool operator!=(const Bounds<T> &other) const
-			{
-				return !(*this == other);
-			}
-		};
-	}
+		bool operator!=(const Bounds<T> &other) const
+		{
+			return !(*this == other);
+		}
+	};
 }
+

@@ -69,69 +69,66 @@ namespace
 	int s_MonitorMovementSpeedIndex = 3;
 }
 
-namespace Patches
+namespace Patches::Forge
 {
-	namespace Forge
+	void ApplyAll()
 	{
-		void ApplyAll()
+		Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
+		Pointer(0x0165AB94).Write((uint32_t)&SandboxEngineObjectDisposeHook);
+		Pointer(0x0165AB04).Write((uint32_t)&SandboxEngineInitHook);
+		Pointer(0x0165AB08).Write((uint32_t)&SandboxEngineShutdownHook);
+
+		Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
+		Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
+		Hook(0x19EBA1, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
+		Hook(0x19FDBE, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
+		Hook(0x19FEEC, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
+		Hook(0x32663D, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
+		Hook(0x2749D1, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
+		Hook(0x274DBA, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
+		Hook(0x2750F8, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
+		Hook(0x275655, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
+		Hook(0x19FA69, RotateHeldObjectHook, HookFlags::IsCall).Apply();
+		Hook(0x7350A, ObjectGrabbedHook, HookFlags::IsCall).Apply();
+		Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
+		Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
+		Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
+		Hook(0x734EE, ObjectSpawnedHook, HookFlags::IsCall).Apply();
+		Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
+		Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
+
+		// prevent the object from lurching forward when being rotated
+		Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
+		// slow down in/out movement
+		Pointer(0x0059FA7A + 4).Write((float*)&HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER);
+
+		// enable teleporter volume editing compliments of zedd
+		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
+
+
+		Patches::Core::OnGameStart(FixRespawnZones);
+	}
+
+	void Tick()
+	{
+		// Require a rescan for barrier disabler objects each tick
+		barriersEnabledValid = false;
+	}
+
+	bool SavePrefab(const std::string& name, const std::string& path)
+	{
+		return ::Forge::Prefabs::Save(name, path);
+	}
+
+	bool LoadPrefab(const std::string& path)
+	{
+		s_SandboxTickCommandQueue.push([=]()
 		{
-			Pointer(0x0165AB54).Write<uint32_t>((uint32_t)&SandboxEngineTickHook);
-			Pointer(0x0165AB94).Write((uint32_t)&SandboxEngineObjectDisposeHook);
-			Pointer(0x0165AB04).Write((uint32_t)&SandboxEngineInitHook);
-			Pointer(0x0165AB08).Write((uint32_t)&SandboxEngineShutdownHook);
+			::Forge::Prefabs::Load(path);
+			GrabSelection(Blam::Players::GetLocalPlayer(0));
+		});
 
-			Hook(0x771C7D, CheckKillTriggersHook, HookFlags::IsCall).Apply();
-			Hook(0x7B4C32, CheckKillTriggersHook, HookFlags::IsCall).Apply();
-			Hook(0x19EBA1, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
-			Hook(0x19FDBE, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
-			Hook(0x19FEEC, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
-			Hook(0x32663D, ObjectSafeZoneHook, HookFlags::IsCall).Apply();
-			Hook(0x2749D1, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
-			Hook(0x274DBA, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
-			Hook(0x2750F8, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
-			Hook(0x275655, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
-			Hook(0x19FA69, RotateHeldObjectHook, HookFlags::IsCall).Apply();
-			Hook(0x7350A, ObjectGrabbedHook, HookFlags::IsCall).Apply();
-			Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
-			Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
-			Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
-			Hook(0x734EE, ObjectSpawnedHook, HookFlags::IsCall).Apply();
-			Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
-			Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
-
-			// prevent the object from lurching forward when being rotated
-			Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
-			// slow down in/out movement
-			Pointer(0x0059FA7A + 4).Write((float*)&HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER);
-
-			// enable teleporter volume editing compliments of zedd
-			Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
-
-
-			Patches::Core::OnGameStart(FixRespawnZones);
-		}
-
-		void Tick()
-		{
-			// Require a rescan for barrier disabler objects each tick
-			barriersEnabledValid = false;
-		}
-
-		bool SavePrefab(const std::string& name, const std::string& path)
-		{
-			return ::Forge::Prefabs::Save(name, path);
-		}
-
-		bool LoadPrefab(const std::string& path)
-		{
-			s_SandboxTickCommandQueue.push([=]()
-			{
-				::Forge::Prefabs::Load(path);
-				GrabSelection(Blam::Players::GetLocalPlayer(0));
-			});
-
-			return true;
-		}
+		return true;
 	}
 }
 

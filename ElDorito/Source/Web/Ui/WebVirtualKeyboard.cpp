@@ -14,41 +14,35 @@ namespace
 	Blam::Input::VirtualKeyboard* CurrentKeyboard;
 }
 
-namespace Web
+namespace Web::Ui::WebVirtualKeyboard
 {
-	namespace Ui
+	void Init()
 	{
-		namespace WebVirtualKeyboard
-		{
-			void Init()
-			{
-				Patches::VirtualKeyboard::SetKeyboardHandler(WebVirtualKeyboardHandler);
-			}
+		Patches::VirtualKeyboard::SetKeyboardHandler(WebVirtualKeyboardHandler);
+	}
 
-			void Submit(std::wstring& value)
-			{
-				if (!CurrentKeyboard)
-					return;
+	void Submit(std::wstring& value)
+	{
+		if (!CurrentKeyboard)
+			return;
 
-				//Strip illegal characters
-				std::string illegal = "\\/:?\"<>|";
-				for (auto it = value.begin(); it < value.end(); ++it)
-					if (illegal.find(*it) != std::wstring::npos)
-						*it = ' ';
+		//Strip illegal characters
+		std::string illegal = "\\/:?\"<>|";
+		for (auto it = value.begin(); it < value.end(); ++it)
+			if (illegal.find(*it) != std::wstring::npos)
+				*it = ' ';
 
-				CurrentKeyboard->SetValue(value.c_str());
-				CurrentKeyboard->Finish();
-				CurrentKeyboard = nullptr;
-			}
+		CurrentKeyboard->SetValue(value.c_str());
+		CurrentKeyboard->Finish();
+		CurrentKeyboard = nullptr;
+	}
 
-			void Cancel()
-			{
-				if (!CurrentKeyboard)
-					return;
-				CurrentKeyboard->Reset();
-				CurrentKeyboard = nullptr;
-			}
-		}
+	void Cancel()
+	{
+		if (!CurrentKeyboard)
+			return;
+		CurrentKeyboard->Reset();
+		CurrentKeyboard = nullptr;
 	}
 }
 

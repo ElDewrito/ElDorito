@@ -1,19 +1,16 @@
 #pragma once
 
-namespace Utils
+namespace Utils::Bits
 {
-	namespace Bits
+	template<class T>
+	int CountBits(T val)
 	{
-		template<class T>
-		int CountBits(T val)
+		int result = 0;
+		while (val != 0)
 		{
-			int result = 0;
-			while (val != 0)
-			{
-				val >>= 1;
-				result++;
-			}
-			return result;
+			val >>= 1;
+			result++;
 		}
+		return result;
 	}
 }

@@ -16,21 +16,18 @@ namespace
 
 }
 
-namespace Patches
+namespace Patches::Events
 {
-	namespace Events
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			Hook(0x16669C, RunEventHook, HookFlags::IsCall).Apply();
-			Hook(0x165CE2, RunEventHook, HookFlags::IsCall).Apply();
-			Hook(0x165D0D, RunEventHook, HookFlags::IsCall).Apply();
-		}
+		Hook(0x16669C, RunEventHook, HookFlags::IsCall).Apply();
+		Hook(0x165CE2, RunEventHook, HookFlags::IsCall).Apply();
+		Hook(0x165D0D, RunEventHook, HookFlags::IsCall).Apply();
+	}
 
-		void OnEvent(EventCallback callback)
-		{
-			OnEventCallbacks.push_back(callback);
-		}
+	void OnEvent(EventCallback callback)
+	{
+		OnEventCallbacks.push_back(callback);
 	}
 }
 

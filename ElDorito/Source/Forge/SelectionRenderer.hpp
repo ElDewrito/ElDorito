@@ -1,19 +1,17 @@
 #pragma once
 
-namespace Forge
+namespace Forge::SelectionRenderer
 {
-	namespace SelectionRenderer
+	enum RendererImplementationType
 	{
-		enum RendererImplementationType
-		{
-			eRendererSpecialHud = 0,
-			eRendererImplicit = 1
-		};
+		eRendererSpecialHud = 0,
+		eRendererImplicit = 1
+	};
 
 
-		void Initialize();
-		void Update();
-		void SetEnabled(bool enabled);
-		void SetRendererType(RendererImplementationType type);
-	}
+	void Initialize();
+	void Update();
+	void SetEnabled(bool enabled);
+	void SetRendererType(RendererImplementationType type);
 }
+

@@ -7,46 +7,43 @@
 #include "../../Blam/BlamTime.hpp"
 #include "../../Pointer.hpp"
 
-namespace Web
+namespace Web::Ui
 {
-	namespace Ui
+	void WebTimer::Start(const std::string& type, int initialValue)
 	{
-		void WebTimer::Start(const std::string& type, int initialValue)
-		{
-			rapidjson::StringBuffer jsonBuffer;
-			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
-			jsonWriter.StartObject();
-			jsonWriter.Key("type");
-			jsonWriter.String(type.c_str());
-			jsonWriter.Key("startTime");
-			jsonWriter.Int64(_time64(0));
-			jsonWriter.Key("value");
-			jsonWriter.Int(initialValue);
-			jsonWriter.EndObject();
+		jsonWriter.StartObject();
+		jsonWriter.Key("type");
+		jsonWriter.String(type.c_str());
+		jsonWriter.Key("startTime");
+		jsonWriter.Int64(_time64(0));
+		jsonWriter.Key("value");
+		jsonWriter.Int(initialValue);
+		jsonWriter.EndObject();
 
-			Web::Ui::ScreenLayer::Notify("timerStart", jsonBuffer.GetString(), true);
-		}
+		Web::Ui::ScreenLayer::Notify("timerStart", jsonBuffer.GetString(), true);
+	}
 
-		void WebTimer::Update(int value)
-		{
-			rapidjson::StringBuffer jsonBuffer;
-			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+	void WebTimer::Update(int value)
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
-			jsonWriter.StartObject();
-			jsonWriter.Key("value");
-			jsonWriter.Int(value);
-			jsonWriter.EndObject();
+		jsonWriter.StartObject();
+		jsonWriter.Key("value");
+		jsonWriter.Int(value);
+		jsonWriter.EndObject();
 
-			Web::Ui::ScreenLayer::Notify("timerUpdate", jsonBuffer.GetString(), true);
-		}
+		Web::Ui::ScreenLayer::Notify("timerUpdate", jsonBuffer.GetString(), true);
+	}
 
-		void WebTimer::End()
-		{
-			rapidjson::StringBuffer jsonBuffer;
-			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+	void WebTimer::End()
+	{
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
-			Web::Ui::ScreenLayer::Notify("timerEnd", "{}", true);
-		}
+		Web::Ui::ScreenLayer::Notify("timerEnd", "{}", true);
 	}
 }

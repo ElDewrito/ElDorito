@@ -1,10 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace Blam
+namespace Blam::Text
 {
-	namespace Text
-	{
-		typedef uint32_t StringID;
-	}
+	typedef uint32_t StringID;
 }

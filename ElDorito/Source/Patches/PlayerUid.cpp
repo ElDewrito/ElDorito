@@ -44,43 +44,40 @@ namespace
 	};
 }
 
-namespace Patches
+namespace Patches::PlayerUid
 {
-	namespace PlayerUid
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// Override the "get UID" function to pull the UID from preferences
-			Hook(0x67E005, GetPlayerUidHook, HookFlags::IsCall).Apply();
+		// Override the "get UID" function to pull the UID from preferences
+		Hook(0x67E005, GetPlayerUidHook, HookFlags::IsCall).Apply();
 
-			// Register the player-properties packet extension
-			Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<UidExtension>());
+		// Register the player-properties packet extension
+		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<UidExtension>());
+	}
+
+	uint64_t Get()
+	{
+		EnsureValidUid();
+		return UidPtr.Read<uint64_t>();
+	}
+
+	std::string GetFormattedPrivKey()
+	{
+		EnsureValidUid();
+		return Utils::Cryptography::ReformatKey(true, Modules::ModulePlayer::Instance().VarPlayerPrivKey->ValueString);
+	}
+
+	bool ParseUid(const std::string &str, uint64_t *out)
+	{
+		try
+		{
+			size_t end;
+			*out = std::stoull(str, &end, 16);
+			return end == str.length(); // Only succeed if there's nothing after the number
 		}
-
-		uint64_t Get()
+		catch (std::exception&)
 		{
-			EnsureValidUid();
-			return UidPtr.Read<uint64_t>();
-		}
-
-		std::string GetFormattedPrivKey()
-		{
-			EnsureValidUid();
-			return Utils::Cryptography::ReformatKey(true, Modules::ModulePlayer::Instance().VarPlayerPrivKey->ValueString);
-		}
-
-		bool ParseUid(const std::string &str, uint64_t *out)
-		{
-			try
-			{
-				size_t end;
-				*out = std::stoull(str, &end, 16);
-				return end == str.length(); // Only succeed if there's nothing after the number
-			}
-			catch (std::exception&)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 }

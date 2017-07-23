@@ -1,15 +1,8 @@
 #pragma once
 #include <string>
-namespace Web
+namespace Web::Ui::Voting
 {
-	namespace Ui
-	{
-		namespace Voting
-		{
-
-			void Init();
-			void Show();
-			void Hide();
-		}
-	}
+	void Init();
+	void Show();
+	void Hide();
 }

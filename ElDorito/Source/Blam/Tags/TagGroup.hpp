@@ -1,14 +1,11 @@
 #pragma once
 #include "Tag.hpp"
 
-namespace Blam
+namespace Blam::Tags
 {
-	namespace Tags
+	template <const Tag GroupTagValue>
+	struct TagGroup
 	{
-		template <const Tag GroupTagValue>
-		struct TagGroup
-		{
-			static const Tag GroupTag = GroupTagValue;
-		};
-	}
+		static const Tag GroupTag = GroupTagValue;
+	};
 }

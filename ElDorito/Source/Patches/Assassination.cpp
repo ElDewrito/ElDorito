@@ -8,19 +8,16 @@ namespace
 	Patch disableAssassinationsPatch(0x138557, { 0x90, 0xE9 });
 }
 
-namespace Patches
+namespace Patches::Assassination
 {
-	namespace Assassination
+	void Enable(bool enabled)
 	{
-		void Enable(bool enabled)
-		{
-			assassinationEnabled = enabled;
-			if (enabled) {
-				disableAssassinationsPatch.Reset();
-			}
-			else {
-				disableAssassinationsPatch.Apply();
-			}
+		assassinationEnabled = enabled;
+		if (enabled) {
+			disableAssassinationsPatch.Reset();
+		}
+		else {
+			disableAssassinationsPatch.Apply();
 		}
 	}
 }

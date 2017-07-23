@@ -1,11 +1,8 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Sprint
 {
-	namespace Sprint
-	{
-		void Enable(bool enabled);
-		void SetUnlimited(bool unlimited);
-		void Tick();
-	}
+	void Enable(bool enabled);
+	void SetUnlimited(bool unlimited);
+	void Tick();
 }

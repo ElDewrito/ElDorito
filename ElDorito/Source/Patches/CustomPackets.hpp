@@ -196,361 +196,358 @@
 #include <type_traits>
 #include <limits>
 
-namespace Patches
+namespace Patches::CustomPackets
 {
-	namespace CustomPackets
+	void ApplyAll();
+
+	// Type used for a custom packet GUID.
+	typedef uint32_t PacketGuid;
+
+	// Sends raw packet data.
+	void SendPacket(int targetPeer, const void *packet, int packetSize);
+
+	// Base class for raw packet data handlers.
+	class RawPacketHandler
 	{
-		void ApplyAll();
+	public:
+		virtual ~RawPacketHandler() { }
 
-		// Type used for a custom packet GUID.
-		typedef uint32_t PacketGuid;
+		// Gets the minimum size of an acceptable packet in bytes.
+		virtual int GetMinRawPacketSize() const = 0;
 
-		// Sends raw packet data.
-		void SendPacket(int targetPeer, const void *packet, int packetSize);
+		// Gets the maximum size of an acceptable packet in bytes.
+		virtual int GetMaxRawPacketSize() const = 0;
 
-		// Base class for raw packet data handlers.
-		class RawPacketHandler
+		// Serializes raw packet data to a bitstream.
+		virtual void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) = 0;
+
+		// Deserializes raw packet data from a bitstream.
+		virtual bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) = 0;
+
+		// Called whenever raw packet data is received.
+		virtual void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) = 0;
+	};
+
+	// Base struct for custom packets.
+	struct PacketBase
+	{
+		explicit PacketBase(PacketGuid guid)
+			: TypeGuid(guid)
 		{
-		public:
-			virtual ~RawPacketHandler() { }
-
-			// Gets the minimum size of an acceptable packet in bytes.
-			virtual int GetMinRawPacketSize() const = 0;
-
-			// Gets the maximum size of an acceptable packet in bytes.
-			virtual int GetMaxRawPacketSize() const = 0;
-
-			// Serializes raw packet data to a bitstream.
-			virtual void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) = 0;
-
-			// Deserializes raw packet data from a bitstream.
-			virtual bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) = 0;
-
-			// Called whenever raw packet data is received.
-			virtual void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) = 0;
-		};
-
-		// Base struct for custom packets.
-		struct PacketBase
-		{
-			explicit PacketBase(PacketGuid guid)
-				: TypeGuid(guid)
-			{
-			}
-
-			// The packet's header (initialized automatically).
-			Blam::Network::PacketHeader Header;
-
-			// The GUID of the packet's type.
-			PacketGuid TypeGuid;
-		};
-
-		// A packet which can be sent across the network.
-		template<class TData>
-		struct Packet: PacketBase
-		{
-			explicit Packet(PacketGuid guid)
-				: PacketBase(guid)
-			{
-			}
-
-			// The packet's data.
-			TData Data;
-		};
-
-		// A packet which can be sent across the network with extra data that
-		// varies in size.
-		template<class TData, class TExtraData>
-		class VariadicPacket: PacketBase
-		{
-			// Private - use Allocate() to create a VariadicPacket
-			VariadicPacket(PacketGuid guid, int extraDataCount)
-				: PacketBase(guid), extraDataCount(extraDataCount)
-			{
-			}
-
-			VariadicPacket(const VariadicPacket&) = delete;
-			VariadicPacket& operator=(const VariadicPacket&) = delete;
-
-			typedef VariadicPacket<TData, TExtraData> TPacketType;
-
-		public:
-			// Calculates the number of extra data objects that can fit in a
-			// packet of a given size, or -1 if the size is incorrect.
-			static int CalculateExtraDataCount(int packetSize)
-			{
-				packetSize -= CalculateSize(0);
-				if (packetSize < 0)
-					return -1;
-				if (packetSize % sizeof(TExtraData) != 0)
-					return -1;
-				return packetSize / sizeof(TExtraData);
-			}
-
-			// Calculates the size of a packet in bytes given a count of extra
-			// data objects.
-			static int CalculateSize(int extraDataCount)
-			{
-				return offsetof(TPacketType, ExtraData) + extraDataCount * sizeof(TExtraData);
-			}
-
-			// Gets the number of extra data objects in the packet.
-			int GetExtraDataCount() const
-			{
-				return extraDataCount;
-			}
-
-			// Get the size of the packet in bytes.
-			int GetSize() const
-			{
-				return CalculateSize(extraDataCount);
-			}
-
-			// Allocates a new variadic packet.
-			static std::shared_ptr<TPacketType> Allocate(PacketGuid guid, int extraDataCount)
-			{
-				auto packetSize = CalculateSize(extraDataCount);
-				auto buffer = new uint8_t[packetSize];
-				new (buffer) VariadicPacket<TData, TExtraData>(guid, extraDataCount);
-				return std::shared_ptr<TPacketType>(reinterpret_cast<TPacketType*>(buffer), [](TPacketType* x)
-				{
-					delete[] reinterpret_cast<uint8_t*>(x);
-				});
-			}
-
-			// Initializes a variadic packet from a buffer.
-			static TPacketType *FromBuffer(uint8_t *buffer, int extraDataCount)
-			{
-				auto result = reinterpret_cast<TPacketType*>(buffer);
-				result->extraDataCount = extraDataCount;
-				return result;
-			}
-
-			// The packet's data.
-			TData Data;
-
-		private:
-			int extraDataCount;
-
-		public:
-			// Gets the extra data in the packet. Note that this array is not
-			// actually 1 element in length - it depends on what was passed to
-			// the Allocate() function.
-			TExtraData ExtraData[1];
-		};
-
-		// Base class for packet data handlers
-		template<class TData>
-		class PacketHandler : public RawPacketHandler
-		{
-		public:
-			virtual void Serialize(Blam::BitStream *stream, const TData *data) = 0;
-			virtual bool Deserialize(Blam::BitStream *stream, TData *data) = 0;
-			virtual void HandlePacket(Blam::Network::ObserverChannel *sender, const Packet<TData> *packet) = 0;
-
-			int GetMinRawPacketSize() const override
-			{
-				return static_cast<int>(sizeof(Packet<TData>));
-			}
-
-			int GetMaxRawPacketSize() const override
-			{
-				return static_cast<int>(sizeof(Packet<TData>));
-			}
-
-			void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) override
-			{
-				// Verify the packet size and typecast to the type-safe packet data
-				if (packetSize != sizeof(Packet<TData>))
-					return;
-				auto fullPacket = static_cast<const Packet<TData>*>(packet);
-				Serialize(stream, &fullPacket->Data);
-			}
-
-			bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) override
-			{
-				// Verify the packet size and typecast to the type-safe packet data
-				if (packetSize != sizeof(Packet<TData>))
-					return false;
-				auto fullPacket = static_cast<Packet<TData>*>(packet);
-				return Deserialize(stream, &fullPacket->Data);
-			}
-
-			void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) override
-			{
-				HandlePacket(sender, static_cast<const Packet<TData>*>(packet));
-			}
-		};
-
-		// Base class for a type-safe variadic packet handler.
-		template<class TData, class TExtraData>
-		class VariadicPacketHandler : public RawPacketHandler
-		{
-			typedef VariadicPacket<TData, TExtraData> TPacket;
-
-		public:
-			// Constructs a variadic packet handler with a minimum extra data
-			// count, but with the maximum packet size set as large as possible.
-			explicit VariadicPacketHandler(int extraDataMin)
-			{
-				minPacketSize = TPacket::CalculateSize(extraDataMin);
-				maxPacketSize = std::numeric_limits<int>::max();
-			}
-
-			// Constructs a variadic packet handler with minimum and maximum
-			// extra data counts.
-			VariadicPacketHandler(int extraDataMin, int extraDataMax)
-			{
-				minPacketSize = TPacket::CalculateSize(extraDataMin);
-				maxPacketSize = TPacket::CalculateSize(extraDataMax);
-			}
-
-			// Serializes packet data to a bitstream.
-			virtual void Serialize(Blam::BitStream *stream, const TData *data, int extraDataCount, const TExtraData *extraData) = 0;
-
-			// Deserializes packet data from a bitstream.
-			virtual bool Deserialize(Blam::BitStream *stream, TData *data, int extraDataCount, TExtraData *extraData) = 0;
-
-			// Called when a packet is received.
-			virtual void HandlePacket(Blam::Network::ObserverChannel *sender, const VariadicPacket<TData, TExtraData> *packet) = 0;
-
-			int GetMinRawPacketSize() const override
-			{
-				return minPacketSize;
-			}
-
-			int GetMaxRawPacketSize() const override
-			{
-				return maxPacketSize;
-			}
-
-			void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) override
-			{
-				// Verify the packet size and typecast to the type-safe packet data
-				if (packetSize < minPacketSize || packetSize > maxPacketSize)
-					return;
-				auto fullPacket = static_cast<const VariadicPacket<TData, TExtraData>*>(packet);
-				if (TPacket::CalculateExtraDataCount(packetSize) != fullPacket->GetExtraDataCount())
-					return;
-
-				// Serialize the extra data count
-				stream->WriteUnsigned(static_cast<uint32_t>(fullPacket->GetExtraDataCount()), 32);
-
-				// Pass the packet to the Serialize() function
-				Serialize(stream, &fullPacket->Data, fullPacket->GetExtraDataCount(), fullPacket->ExtraData);
-			}
-
-			bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) override
-			{
-				// Verify the packet size
-				if (packetSize < minPacketSize || packetSize > maxPacketSize)
-					return false;
-				auto calculatedExtraDataCount = TPacket::CalculateExtraDataCount(packetSize);
-				if (calculatedExtraDataCount < 0)
-					return false;
-
-				// Deserialize the extra data count
-				auto extraDataCount = static_cast<int>(stream->ReadUnsigned<uint32_t>(32));
-				if (extraDataCount != calculatedExtraDataCount)
-					return false;
-
-				// Initialize the packet inside the buffer and pass the rest to Deserialize()
-				auto fullPacket = TPacket::FromBuffer(static_cast<uint8_t*>(packet), extraDataCount);
-				return Deserialize(stream, &fullPacket->Data, extraDataCount, fullPacket->ExtraData);
-			}
-
-			void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) override
-			{
-				HandlePacket(sender, static_cast<const TPacket*>(packet));
-			}
-
-		private:
-			int minPacketSize;
-			int maxPacketSize;
-		};
-
-		// Sends fixed-size packets across the network.
-		template<class TData>
-		class PacketSender
-		{
-			typedef Packet<TData> TPacket;
-
-		public:
-			explicit PacketSender(PacketGuid id)
-			{
-				this->id = id;
-			}
-
-			// Creates a new packet.
-			TPacket New() const
-			{
-				return Packet<TData>(id);
-			}
-
-			// Sends packet data to a peer.
-			void Send(int targetPeer, const TPacket &packet) const
-			{
-				SendPacket(targetPeer, &packet, sizeof(packet));
-			}
-
-		private:
-			PacketGuid id;
-		};
-
-		// Sends variable-length packets across the network.
-		template<class TData, class TExtraData>
-		class VariadicPacketSender
-		{
-			typedef VariadicPacket<TData, TExtraData> TPacket;
-
-		public:
-			explicit VariadicPacketSender(PacketGuid id)
-			{
-				this->id = id;
-			}
-
-			// Creates a new packet.
-			std::shared_ptr<TPacket> New(int extraDataCount) const
-			{
-				return TPacket::Allocate(id, extraDataCount);
-			}
-
-			// Sends packet data to a peer.
-			void Send(int targetPeer, const TPacket &packet)
-			{
-				SendPacket(targetPeer, &packet, packet.GetSize());
-			}
-
-			// Sends packet data to a peer.
-			void Send(int targetPeer, std::shared_ptr<const TPacket> packet)
-			{
-				Send(targetPeer, *packet);
-			}
-
-		private:
-			PacketGuid id;
-		};
-
-		// Registers a packet handler under a particular name and returns the
-		// GUID of the new packet type.
-		PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler);
-
-		// Registers a packet handler under a particular name and returns an
-		// object which can be used to easily send packets.
-		template<class TPacket>
-		std::shared_ptr<PacketSender<TPacket>> RegisterPacket(const std::string &name, std::shared_ptr<PacketHandler<TPacket>> handler)
-		{
-			auto id = RegisterPacketImpl(name, handler);
-			return std::make_shared<PacketSender<TPacket>>(id);
 		}
 
-		// Registers a variadic packet handler under a particular name and
-		// returns an object which can be used to easily send packets.
-		template<class TPacket, class TExtraData>
-		std::shared_ptr<VariadicPacketSender<TPacket, TExtraData>> RegisterVariadicPacket(const std::string &name, std::shared_ptr<VariadicPacketHandler<TPacket, TExtraData>> handler)
+		// The packet's header (initialized automatically).
+		Blam::Network::PacketHeader Header;
+
+		// The GUID of the packet's type.
+		PacketGuid TypeGuid;
+	};
+
+	// A packet which can be sent across the network.
+	template<class TData>
+	struct Packet: PacketBase
+	{
+		explicit Packet(PacketGuid guid)
+			: PacketBase(guid)
 		{
-			auto id = RegisterPacketImpl(name, handler);
-			return std::make_shared<VariadicPacketSender<TPacket, TExtraData>>(id);
 		}
+
+		// The packet's data.
+		TData Data;
+	};
+
+	// A packet which can be sent across the network with extra data that
+	// varies in size.
+	template<class TData, class TExtraData>
+	class VariadicPacket: PacketBase
+	{
+		// Private - use Allocate() to create a VariadicPacket
+		VariadicPacket(PacketGuid guid, int extraDataCount)
+			: PacketBase(guid), extraDataCount(extraDataCount)
+		{
+		}
+
+		VariadicPacket(const VariadicPacket&) = delete;
+		VariadicPacket& operator=(const VariadicPacket&) = delete;
+
+		typedef VariadicPacket<TData, TExtraData> TPacketType;
+
+	public:
+		// Calculates the number of extra data objects that can fit in a
+		// packet of a given size, or -1 if the size is incorrect.
+		static int CalculateExtraDataCount(int packetSize)
+		{
+			packetSize -= CalculateSize(0);
+			if (packetSize < 0)
+				return -1;
+			if (packetSize % sizeof(TExtraData) != 0)
+				return -1;
+			return packetSize / sizeof(TExtraData);
+		}
+
+		// Calculates the size of a packet in bytes given a count of extra
+		// data objects.
+		static int CalculateSize(int extraDataCount)
+		{
+			return offsetof(TPacketType, ExtraData) + extraDataCount * sizeof(TExtraData);
+		}
+
+		// Gets the number of extra data objects in the packet.
+		int GetExtraDataCount() const
+		{
+			return extraDataCount;
+		}
+
+		// Get the size of the packet in bytes.
+		int GetSize() const
+		{
+			return CalculateSize(extraDataCount);
+		}
+
+		// Allocates a new variadic packet.
+		static std::shared_ptr<TPacketType> Allocate(PacketGuid guid, int extraDataCount)
+		{
+			auto packetSize = CalculateSize(extraDataCount);
+			auto buffer = new uint8_t[packetSize];
+			new (buffer) VariadicPacket<TData, TExtraData>(guid, extraDataCount);
+			return std::shared_ptr<TPacketType>(reinterpret_cast<TPacketType*>(buffer), [](TPacketType* x)
+			{
+				delete[] reinterpret_cast<uint8_t*>(x);
+			});
+		}
+
+		// Initializes a variadic packet from a buffer.
+		static TPacketType *FromBuffer(uint8_t *buffer, int extraDataCount)
+		{
+			auto result = reinterpret_cast<TPacketType*>(buffer);
+			result->extraDataCount = extraDataCount;
+			return result;
+		}
+
+		// The packet's data.
+		TData Data;
+
+	private:
+		int extraDataCount;
+
+	public:
+		// Gets the extra data in the packet. Note that this array is not
+		// actually 1 element in length - it depends on what was passed to
+		// the Allocate() function.
+		TExtraData ExtraData[1];
+	};
+
+	// Base class for packet data handlers
+	template<class TData>
+	class PacketHandler : public RawPacketHandler
+	{
+	public:
+		virtual void Serialize(Blam::BitStream *stream, const TData *data) = 0;
+		virtual bool Deserialize(Blam::BitStream *stream, TData *data) = 0;
+		virtual void HandlePacket(Blam::Network::ObserverChannel *sender, const Packet<TData> *packet) = 0;
+
+		int GetMinRawPacketSize() const override
+		{
+			return static_cast<int>(sizeof(Packet<TData>));
+		}
+
+		int GetMaxRawPacketSize() const override
+		{
+			return static_cast<int>(sizeof(Packet<TData>));
+		}
+
+		void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) override
+		{
+			// Verify the packet size and typecast to the type-safe packet data
+			if (packetSize != sizeof(Packet<TData>))
+				return;
+			auto fullPacket = static_cast<const Packet<TData>*>(packet);
+			Serialize(stream, &fullPacket->Data);
+		}
+
+		bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) override
+		{
+			// Verify the packet size and typecast to the type-safe packet data
+			if (packetSize != sizeof(Packet<TData>))
+				return false;
+			auto fullPacket = static_cast<Packet<TData>*>(packet);
+			return Deserialize(stream, &fullPacket->Data);
+		}
+
+		void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) override
+		{
+			HandlePacket(sender, static_cast<const Packet<TData>*>(packet));
+		}
+	};
+
+	// Base class for a type-safe variadic packet handler.
+	template<class TData, class TExtraData>
+	class VariadicPacketHandler : public RawPacketHandler
+	{
+		typedef VariadicPacket<TData, TExtraData> TPacket;
+
+	public:
+		// Constructs a variadic packet handler with a minimum extra data
+		// count, but with the maximum packet size set as large as possible.
+		explicit VariadicPacketHandler(int extraDataMin)
+		{
+			minPacketSize = TPacket::CalculateSize(extraDataMin);
+			maxPacketSize = std::numeric_limits<int>::max();
+		}
+
+		// Constructs a variadic packet handler with minimum and maximum
+		// extra data counts.
+		VariadicPacketHandler(int extraDataMin, int extraDataMax)
+		{
+			minPacketSize = TPacket::CalculateSize(extraDataMin);
+			maxPacketSize = TPacket::CalculateSize(extraDataMax);
+		}
+
+		// Serializes packet data to a bitstream.
+		virtual void Serialize(Blam::BitStream *stream, const TData *data, int extraDataCount, const TExtraData *extraData) = 0;
+
+		// Deserializes packet data from a bitstream.
+		virtual bool Deserialize(Blam::BitStream *stream, TData *data, int extraDataCount, TExtraData *extraData) = 0;
+
+		// Called when a packet is received.
+		virtual void HandlePacket(Blam::Network::ObserverChannel *sender, const VariadicPacket<TData, TExtraData> *packet) = 0;
+
+		int GetMinRawPacketSize() const override
+		{
+			return minPacketSize;
+		}
+
+		int GetMaxRawPacketSize() const override
+		{
+			return maxPacketSize;
+		}
+
+		void SerializeRawPacket(Blam::BitStream *stream, int packetSize, const void *packet) override
+		{
+			// Verify the packet size and typecast to the type-safe packet data
+			if (packetSize < minPacketSize || packetSize > maxPacketSize)
+				return;
+			auto fullPacket = static_cast<const VariadicPacket<TData, TExtraData>*>(packet);
+			if (TPacket::CalculateExtraDataCount(packetSize) != fullPacket->GetExtraDataCount())
+				return;
+
+			// Serialize the extra data count
+			stream->WriteUnsigned(static_cast<uint32_t>(fullPacket->GetExtraDataCount()), 32);
+
+			// Pass the packet to the Serialize() function
+			Serialize(stream, &fullPacket->Data, fullPacket->GetExtraDataCount(), fullPacket->ExtraData);
+		}
+
+		bool DeserializeRawPacket(Blam::BitStream *stream, int packetSize, void *packet) override
+		{
+			// Verify the packet size
+			if (packetSize < minPacketSize || packetSize > maxPacketSize)
+				return false;
+			auto calculatedExtraDataCount = TPacket::CalculateExtraDataCount(packetSize);
+			if (calculatedExtraDataCount < 0)
+				return false;
+
+			// Deserialize the extra data count
+			auto extraDataCount = static_cast<int>(stream->ReadUnsigned<uint32_t>(32));
+			if (extraDataCount != calculatedExtraDataCount)
+				return false;
+
+			// Initialize the packet inside the buffer and pass the rest to Deserialize()
+			auto fullPacket = TPacket::FromBuffer(static_cast<uint8_t*>(packet), extraDataCount);
+			return Deserialize(stream, &fullPacket->Data, extraDataCount, fullPacket->ExtraData);
+		}
+
+		void HandleRawPacket(Blam::Network::ObserverChannel *sender, const void *packet) override
+		{
+			HandlePacket(sender, static_cast<const TPacket*>(packet));
+		}
+
+	private:
+		int minPacketSize;
+		int maxPacketSize;
+	};
+
+	// Sends fixed-size packets across the network.
+	template<class TData>
+	class PacketSender
+	{
+		typedef Packet<TData> TPacket;
+
+	public:
+		explicit PacketSender(PacketGuid id)
+		{
+			this->id = id;
+		}
+
+		// Creates a new packet.
+		TPacket New() const
+		{
+			return Packet<TData>(id);
+		}
+
+		// Sends packet data to a peer.
+		void Send(int targetPeer, const TPacket &packet) const
+		{
+			SendPacket(targetPeer, &packet, sizeof(packet));
+		}
+
+	private:
+		PacketGuid id;
+	};
+
+	// Sends variable-length packets across the network.
+	template<class TData, class TExtraData>
+	class VariadicPacketSender
+	{
+		typedef VariadicPacket<TData, TExtraData> TPacket;
+
+	public:
+		explicit VariadicPacketSender(PacketGuid id)
+		{
+			this->id = id;
+		}
+
+		// Creates a new packet.
+		std::shared_ptr<TPacket> New(int extraDataCount) const
+		{
+			return TPacket::Allocate(id, extraDataCount);
+		}
+
+		// Sends packet data to a peer.
+		void Send(int targetPeer, const TPacket &packet)
+		{
+			SendPacket(targetPeer, &packet, packet.GetSize());
+		}
+
+		// Sends packet data to a peer.
+		void Send(int targetPeer, std::shared_ptr<const TPacket> packet)
+		{
+			Send(targetPeer, *packet);
+		}
+
+	private:
+		PacketGuid id;
+	};
+
+	// Registers a packet handler under a particular name and returns the
+	// GUID of the new packet type.
+	PacketGuid RegisterPacketImpl(const std::string &name, std::shared_ptr<RawPacketHandler> handler);
+
+	// Registers a packet handler under a particular name and returns an
+	// object which can be used to easily send packets.
+	template<class TPacket>
+	std::shared_ptr<PacketSender<TPacket>> RegisterPacket(const std::string &name, std::shared_ptr<PacketHandler<TPacket>> handler)
+	{
+		auto id = RegisterPacketImpl(name, handler);
+		return std::make_shared<PacketSender<TPacket>>(id);
+	}
+
+	// Registers a variadic packet handler under a particular name and
+	// returns an object which can be used to easily send packets.
+	template<class TPacket, class TExtraData>
+	std::shared_ptr<VariadicPacketSender<TPacket, TExtraData>> RegisterVariadicPacket(const std::string &name, std::shared_ptr<VariadicPacketHandler<TPacket, TExtraData>> handler)
+	{
+		auto id = RegisterPacketImpl(name, handler);
+		return std::make_shared<VariadicPacketSender<TPacket, TExtraData>>(id);
 	}
 }

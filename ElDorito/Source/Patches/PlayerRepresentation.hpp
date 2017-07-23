@@ -1,10 +1,7 @@
 #pragma once
 
-namespace Patches
+namespace Patches::PlayerRepresentation
 {
-	namespace PlayerRepresentation
-	{
-		void ApplyAll();
-		void UpdateLocalRepresentation();
-	}
+	void ApplyAll();
+	void UpdateLocalRepresentation();
 }

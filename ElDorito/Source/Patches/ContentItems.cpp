@@ -23,58 +23,55 @@ namespace
 	char __fastcall Game_SetFlagAfterCopyBLFDataHook(uint8_t* flag, void* unused, char flagIdx, char set);
 }
 
-namespace Patches
+namespace Patches::ContentItems
 {
-	namespace ContentItems
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// Allow saving content without a profile
-			Hook(0x67DCA0, IsProfileAvailable).Apply();
+		// Allow saving content without a profile
+		Hook(0x67DCA0, IsProfileAvailable).Apply();
 
-			// Fix storage device checks, so storage device funcs return 0 instead of 0xCACACACA
-			Patch(0x1A7A80, { 0x31, 0xc0, 0xC3 }).Apply();
-			Patch(0x34D570, { 0x31, 0xc0, 0xC3 }).Apply();
+		// Fix storage device checks, so storage device funcs return 0 instead of 0xCACACACA
+		Patch(0x1A7A80, { 0x31, 0xc0, 0xC3 }).Apply();
+		Patch(0x34D570, { 0x31, 0xc0, 0xC3 }).Apply();
 
-			// Hook this AllocateGameGlobalMemory to use a different one (this one is outdated mb? crashes when object is added to "content items" global without this hook)
-			Hook(0x15B010, AllocateGameGlobalMemory2Hook).Apply();
+		// Hook this AllocateGameGlobalMemory to use a different one (this one is outdated mb? crashes when object is added to "content items" global without this hook)
+		Hook(0x15B010, AllocateGameGlobalMemory2Hook).Apply();
 
-			// Hook GetContentMountPath to actually return a dest folder
-			Hook(0x34CC00, GetContentMountPathHook).Apply();
+		// Hook GetContentMountPath to actually return a dest folder
+		Hook(0x34CC00, GetContentMountPathHook).Apply();
 
-			// Hook (not patch, important otherwise stack gets fucked) content_catalogue_create_new_XContent_item stub to return true
-			Hook(0x34CBE0, PackageCreateHook).Apply();
+		// Hook (not patch, important otherwise stack gets fucked) content_catalogue_create_new_XContent_item stub to return true
+		Hook(0x34CBE0, PackageCreateHook).Apply();
 
-			// Hook (not patch, like above) content package mount stub to return true
-			Hook(0x34D010, PackageMountHook).Apply();
+		// Hook (not patch, like above) content package mount stub to return true
+		Hook(0x34D010, PackageMountHook).Apply();
 
-			// Hook the func that gets the save file dest. name, 
-			Patch(0x12708E, { 0x8B, 0x4D, 0x14 }).Apply(); // pass blf data to our func
-			Hook(0x127091, SaveFileGetNameHook, HookFlags::IsCall).Apply();
-			Patch(0x127096, 0x90, 3).Apply();
+		// Hook the func that gets the save file dest. name, 
+		Patch(0x12708E, { 0x8B, 0x4D, 0x14 }).Apply(); // pass blf data to our func
+		Hook(0x127091, SaveFileGetNameHook, HookFlags::IsCall).Apply();
+		Patch(0x127096, 0x90, 3).Apply();
 
-			// needed for the game to load our items in "content items" global
-			Patch(0x6DC0EA, 0x90, 6).Apply();
-			Patch(0x6DA59A, 0x90, 6).Apply();
-			//Patch(0x34CEC8, 0x90, 2).Apply();
+		// needed for the game to load our items in "content items" global
+		Patch(0x6DC0EA, 0x90, 6).Apply();
+		Patch(0x6DA59A, 0x90, 6).Apply();
+		//Patch(0x34CEC8, 0x90, 2).Apply();
 
-			// patch the func that handles game variant BLFs so it'll load byteswapped blfs
-			Patch(0x1731CD, 0x90, 2).Apply();
-			Patch(0x1732CD, 0x90, 2).Apply();
+		// patch the func that handles game variant BLFs so it'll load byteswapped blfs
+		Patch(0x1731CD, 0x90, 2).Apply();
+		Patch(0x1732CD, 0x90, 2).Apply();
 
-			// patch proper endian -1 into BLF header creation
-			Patch(0x62AE8, { 0xFF, 0xFE }).Apply();
+		// patch proper endian -1 into BLF header creation
+		Patch(0x62AE8, { 0xFF, 0xFE }).Apply();
 
-			// patch content items global size
-			Pointer::Base(0x1A7E44).Write<uint32_t>(1024);
+		// patch content items global size
+		Pointer::Base(0x1A7E44).Write<uint32_t>(1024);
 
-			Hook(0x1A9050, CallsXEnumerateHook).Apply();
-			Hook(0x34CE00, FS_GetFiloForContentItemHook).Apply(); // game doesnt seem to use the filo for this? maybe used for overwriting
-			Hook(0x34CE70, FS_GetFilePathForContentItemHook).Apply();
-			Hook(0x34CCF0, FS_GetFiloForContentItemHook1).Apply();
+		Hook(0x1A9050, CallsXEnumerateHook).Apply();
+		Hook(0x34CE00, FS_GetFiloForContentItemHook).Apply(); // game doesnt seem to use the filo for this? maybe used for overwriting
+		Hook(0x34CE70, FS_GetFilePathForContentItemHook).Apply();
+		Hook(0x34CCF0, FS_GetFiloForContentItemHook1).Apply();
 
-			Hook(0x34D376, Game_SetFlagAfterCopyBLFDataHook, HookFlags::IsCall).Apply();
-		}
+		Hook(0x34D376, Game_SetFlagAfterCopyBLFDataHook, HookFlags::IsCall).Apply();
 	}
 }
 

@@ -1,9 +1,6 @@
 #pragma once
 
-namespace Patches
+namespace Patches::Mouse
 {
-	namespace Mouse
-	{
-		void ApplyAll();
-	}
+	void ApplyAll();
 }

@@ -149,57 +149,54 @@ namespace
 }
 
 
-namespace Server
+namespace Server::Voting
 {
-	namespace Voting
+	VotingMessage::VotingMessage(VotingMessageType type)
 	{
-		VotingMessage::VotingMessage(VotingMessageType type)
-		{
-			memset(this, 0, sizeof(*this));
-			Type = type;
-		}
-		void AddMessageHandler(std::shared_ptr<VotingMessageHandler> handler)
-		{
-			votingMessageHandlers.push_back(handler);
-		}
-		void InitializePackets()
-		{
-			// Register custom packet type
-			auto handler = std::make_shared<VotingMessagePacketHandler>();
-			VotingPacketSender = Patches::CustomPackets::RegisterPacket<VotingMessage>("eldewrito-voting-message", handler);
-		}
+		memset(this, 0, sizeof(*this));
+		Type = type;
+	}
+	void AddMessageHandler(std::shared_ptr<VotingMessageHandler> handler)
+	{
+		votingMessageHandlers.push_back(handler);
+	}
+	void InitializePackets()
+	{
+		// Register custom packet type
+		auto handler = std::make_shared<VotingMessagePacketHandler>();
+		VotingPacketSender = Patches::CustomPackets::RegisterPacket<VotingMessage>("eldewrito-voting-message", handler);
+	}
 
-		//Sends a voting message to all peers
-		bool BroadcastVotingMessage(VotingMessage &message)
+	//Sends a voting message to all peers
+	bool BroadcastVotingMessage(VotingMessage &message)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		auto membership = &session->MembershipInfo;
+		for (int peer = membership->FindFirstPeer(); peer >= 0; peer = membership->FindNextPeer(peer))
 		{
-			auto session = Blam::Network::GetActiveSession();
-			auto membership = &session->MembershipInfo;
-			for (int peer = membership->FindFirstPeer(); peer >= 0; peer = membership->FindNextPeer(peer))
-			{
-				if (!SendVotingMessagePacket(session, peer, message))
-					return false;
-			}
-			return true;
-		}
-
-		//Sends a voting message to a specific peer only
-		bool SendVotingMessageToPeer(VotingMessage &message, int peer)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			return SendVotingMessagePacket(session, peer, message);
-		}
-
-		//To be called anytime you vote for something. Vote gets sent to the host. 
-		bool SendVoteToHost(const int vote)
-		{
-			auto session = Blam::Network::GetActiveSession();
-			if (!session)
+			if (!SendVotingMessagePacket(session, peer, message))
 				return false;
-
-			VotingMessage message(VotingMessageType::Vote);
-			message.Vote = vote;
-
-			return SendVotingMessagePacket(session, session->MembershipInfo.HostPeerIndex, message);
 		}
+		return true;
+	}
+
+	//Sends a voting message to a specific peer only
+	bool SendVotingMessageToPeer(VotingMessage &message, int peer)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		return SendVotingMessagePacket(session, peer, message);
+	}
+
+	//To be called anytime you vote for something. Vote gets sent to the host. 
+	bool SendVoteToHost(const int vote)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session)
+			return false;
+
+		VotingMessage message(VotingMessageType::Vote);
+		message.Vote = vote;
+
+		return SendVotingMessagePacket(session, session->MembershipInfo.HostPeerIndex, message);
 	}
 }

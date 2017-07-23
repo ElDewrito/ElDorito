@@ -78,20 +78,27 @@ html {
 
 .speaker{
     position: absolute;
+    left: -1.8vw;
     opacity: 0;
+}
+
+.volSlider{
+    display:none;
+    position: absolute;
+    left: -6vw;
+    width: 5.5vw;
 }
 
 .speaker:hover{
     opacity: 1;
 }
 
-.objective{
-    position: absolute;
-    margin-left: -5.5vw;
+.talking{
+    opacity: 1 !important;
 }
 
-.objective.team{
-    margin-left:-1.9vw;
+.objective{
+    position: absolute;
 }
 
 #closeButton{

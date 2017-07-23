@@ -1,22 +1,20 @@
 #pragma once
 
-namespace Blam
+namespace Blam::Math
 {
-	namespace Math
+	struct RealColorRGB
 	{
-		struct RealColorRGB
-		{
-			float Red;
-			float Green;
-			float Blue;
+		float Red;
+		float Green;
+		float Blue;
 
-			RealColorRGB();
-			RealColorRGB(const float red, const float green, const float blue);
+		RealColorRGB();
+		RealColorRGB(const float red, const float green, const float blue);
 
-			bool operator==(const RealColorRGB &other) const;
-			bool operator!=(const RealColorRGB &other) const;
+		bool operator==(const RealColorRGB &other) const;
+		bool operator!=(const RealColorRGB &other) const;
 
-			explicit operator const float *() const;
-		};
-	}
+		explicit operator const float *() const;
+	};
 }
+

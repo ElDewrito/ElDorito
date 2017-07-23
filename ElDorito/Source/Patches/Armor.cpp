@@ -150,139 +150,135 @@ namespace
 	void ScoreboardPlayerModelArmorHook();
 }
 
-namespace Patches
+namespace Patches::Armor
 {
-	namespace Armor
+	void ApplyAll()
 	{
+		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<ArmorExtension>());
 
-		void ApplyAll()
+		// Fix the player model on the main menu
+		// Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
+
+		// Fix rendering the scoreboard player model
+		// (todo: figure out why your biped doesn't show on the postgame screen...there's probably something missing here)
+		Patch::NopFill(Pointer::Base(0x435DAB), 0x50);
+		Hook(0x4360D9, ScoreboardPlayerModelArmorHook, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x4360DE), 0x1A9);
+		Pointer::Base(0x43628A).Write<uint8_t>(0x1C);
+		Patch::NopFill(Pointer::Base(0x43628B), 0x3);
+	}
+
+	void RefreshUiPlayer()
+	{
+		updateUiPlayerArmor = true;
+	}
+
+	void AddArmorPermutations(const Blam::Tags::Game::MultiplayerGlobals::Universal::ArmorCustomization &element, std::map<std::string, uint8_t> &map)
+	{
+		for (auto i = 0; i < element.Permutations.Count; i++)
 		{
-			Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<ArmorExtension>());
+			auto &perm = element.Permutations[i];
 
-			// Fix the player model on the main menu
-			// Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
-
-			// Fix rendering the scoreboard player model
-			// (todo: figure out why your biped doesn't show on the postgame screen...there's probably something missing here)
-			Patch::NopFill(Pointer::Base(0x435DAB), 0x50);
-			Hook(0x4360D9, ScoreboardPlayerModelArmorHook, HookFlags::IsCall).Apply();
-			Patch::NopFill(Pointer::Base(0x4360DE), 0x1A9);
-			Pointer::Base(0x43628A).Write<uint8_t>(0x1C);
-			Patch::NopFill(Pointer::Base(0x43628B), 0x3);
-		}
-
-		void RefreshUiPlayer()
-		{
-			updateUiPlayerArmor = true;
-		}
-
-		void AddArmorPermutations(const Blam::Tags::Game::MultiplayerGlobals::Universal::ArmorCustomization &element, std::map<std::string, uint8_t> &map)
-		{
-			for (auto i = 0; i < element.Permutations.Count; i++)
+			if (!perm.FirstPersonArmorModel && !perm.ThirdPersonArmorObject)
 			{
-				auto &perm = element.Permutations[i];
+				continue;
+			}
 
-				if (!perm.FirstPersonArmorModel && !perm.ThirdPersonArmorObject)
-				{
-					continue;
-				}
+			auto permName = std::string(Blam::Cache::StringIDCache::Instance.GetString(perm.Name));
 
-				auto permName = std::string(Blam::Cache::StringIDCache::Instance.GetString(perm.Name));
+			map.emplace(permName, i);
+		}
+	}
 
-				map.emplace(permName, i);
+	void ApplyAfterTagsLoaded()
+	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::Game::MultiplayerGlobals;
+
+		auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
+		auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+
+		for (auto &element : mulg->Universal->SpartanArmorCustomization)
+		{
+			auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.PieceRegion));
+
+			if (string == "helmet")
+			{
+				AddArmorPermutations(element, helmetIndices);
+			}
+			else if (string == "chest")
+			{
+				AddArmorPermutations(element, chestIndices);
+			}
+			else if (string == "shoulders")
+			{
+				AddArmorPermutations(element, shouldersIndices);
+			}
+			else if (string == "arms")
+			{
+				AddArmorPermutations(element, armsIndices);
+			}
+			else if (string == "legs")
+			{
+				AddArmorPermutations(element, legsIndices);
+			}
+			else if (string == "acc")
+			{
+				AddArmorPermutations(element, accIndices);
+			}
+			else if (string == "pelvis")
+			{
+				AddArmorPermutations(element, pelvisIndices);
+			}
+			else
+			{
+				throw std::exception("Invalid armor section");
 			}
 		}
 
-		void ApplyAfterTagsLoaded()
+		for (auto &element : mulg->Universal->GameVariantWeapons)
 		{
-			using Blam::Tags::TagInstance;
-			using Blam::Tags::Game::Globals;
-			using Blam::Tags::Game::MultiplayerGlobals;
+			auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
+			auto index = (uint16_t)element.Weapon.TagIndex;
 
-			auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
-			auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
-
-			for (auto &element : mulg->Universal->SpartanArmorCustomization)
+			if (index != 0xFFFF)
 			{
-				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.PieceRegion));
-
-				if (string == "helmet")
-				{
-					AddArmorPermutations(element, helmetIndices);
-				}
-				else if (string == "chest")
-				{
-					AddArmorPermutations(element, chestIndices);
-				}
-				else if (string == "shoulders")
-				{
-					AddArmorPermutations(element, shouldersIndices);
-				}
-				else if (string == "arms")
-				{
-					AddArmorPermutations(element, armsIndices);
-				}
-				else if (string == "legs")
-				{
-					AddArmorPermutations(element, legsIndices);
-				}
-				else if (string == "acc")
-				{
-					AddArmorPermutations(element, accIndices);
-				}
-				else if (string == "pelvis")
-				{
-					AddArmorPermutations(element, pelvisIndices);
-				}
-				else
-				{
-					throw std::exception("Invalid armor section");
-				}
-			}
-
-			for (auto &element : mulg->Universal->GameVariantWeapons)
-			{
-				auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
-				auto index = (uint16_t)element.Weapon.TagIndex;
-
-				if (index != 0xFFFF)
-				{
-					weaponIndices.emplace(string, index);
-				}
+				weaponIndices.emplace(string, index);
 			}
 		}
+	}
 
-		bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::stringstream ss;
+
+		for (auto &entry : weaponIndices)
 		{
-			std::stringstream ss;
-
-			for (auto &entry : weaponIndices)
-			{
-				ss << entry.first << std::endl;
-			}
-
-			returnInfo = ss.str();
-			return true;
+			ss << entry.first << std::endl;
 		}
 
-		void UpdateUiPlayerModelArmor()
+		returnInfo = ss.str();
+		return true;
+	}
+
+	void UpdateUiPlayerModelArmor()
+	{
+		UiPlayerModelArmorHook();
+	}
+
+	void SetUiPlayewrModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle)
+	{
+		if (newPosition)
 		{
-			UiPlayerModelArmorHook();
+			s_UiPlayerModelState.Position = *newPosition;
+			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsTranslation;
 		}
 
-		void SetUiPlayewrModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle)
+		if (rotationAngle)
 		{
-			if (newPosition)
-			{
-				s_UiPlayerModelState.Position = *newPosition;
-				s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsTranslation;
-			}
-
-			if (rotationAngle)
-			{
-				s_UiPlayerModelState.RotationAngle = *rotationAngle;
-				s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsRotation;
-			}
+			s_UiPlayerModelState.RotationAngle = *rotationAngle;
+			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsRotation;
 		}
 	}
 }

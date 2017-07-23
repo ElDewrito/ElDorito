@@ -2,21 +2,16 @@
 
 #include <functional>
 
-namespace Blam
+namespace Blam::Input
 {
-	namespace Input
-	{
-		class VirtualKeyboard;
-	}
+	class VirtualKeyboard;
 }
 
-namespace Patches
+namespace Patches::VirtualKeyboard
 {
-	namespace VirtualKeyboard
-	{
-		void ApplyAll();
+	void ApplyAll();
 
-		typedef std::function<void(Blam::Input::VirtualKeyboard* keyboard)> KeyboardHandlerCallback;
-		void SetKeyboardHandler(KeyboardHandlerCallback callback);
-	}
+	typedef std::function<void(Blam::Input::VirtualKeyboard* keyboard)> KeyboardHandlerCallback;
+	void SetKeyboardHandler(KeyboardHandlerCallback callback);
 }
+

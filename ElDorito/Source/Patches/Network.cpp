@@ -62,482 +62,479 @@ namespace
 	float __cdecl Objects_GetInstantaneousAccelerationScaleHook(uint32_t objectIndex);
 }
 
-namespace Patches
+namespace Patches::Network
 {
-	namespace Network
+	SOCKET infoSocket;
+	bool infoSocketOpen = false;
+	time_t lastAnnounce = 0;
+	const time_t serverContactTimeLimit = 30 + (2 * 60);
+
+	bool IsInfoSocketOpen() { return infoSocketOpen; }
+
+	int GetNumPlayers()
 	{
-		SOCKET infoSocket;
-		bool infoSocketOpen = false;
-		time_t lastAnnounce = 0;
-		const time_t serverContactTimeLimit = 30 + (2 * 60);
+		void* v2;
 
-		bool IsInfoSocketOpen() { return infoSocketOpen; }
+		typedef char(__cdecl *sub_454F20Func)(void** a1);
+		sub_454F20Func sub_454F20 = (sub_454F20Func)0x454F20;
+		if (!sub_454F20(&v2))
+			return 0;
 
-		int GetNumPlayers()
+		typedef char*(__thiscall *sub_45C250Func)(void* thisPtr);
+		sub_45C250Func sub_45C250 = (sub_45C250Func)0x45C250;
+
+		return *(DWORD*)(sub_45C250(v2) + 0x10A0);
+	}
+
+	int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		// TODO: move this somewhere better, it seems fine here though, always announces every "serverContactTimeLimit" seconds even when window isn't focused
+		if (infoSocketOpen && Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt)
 		{
-			void* v2;
-
-			typedef char(__cdecl *sub_454F20Func)(void** a1);
-			sub_454F20Func sub_454F20 = (sub_454F20Func)0x454F20;
-			if (!sub_454F20(&v2))
-				return 0;
-
-			typedef char*(__thiscall *sub_45C250Func)(void* thisPtr);
-			sub_45C250Func sub_45C250 = (sub_45C250Func)0x45C250;
-
-			return *(DWORD*)(sub_45C250(v2) + 0x10A0);
+			time_t curTime;
+			time(&curTime);
+			if (curTime - lastAnnounce > serverContactTimeLimit) // re-announce every "serverContactTimeLimit" seconds
+			{
+				lastAnnounce = curTime;
+				Modules::CommandMap::Instance().ExecuteCommand("Server.Announce");
+			}
 		}
 
-		int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+		if (msg != WM_INFOSERVER)
 		{
-			// TODO: move this somewhere better, it seems fine here though, always announces every "serverContactTimeLimit" seconds even when window isn't focused
-			if (infoSocketOpen && Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt)
+			//TODO: Move WndProc logic out of Network.cpp
+			if (msg == WM_XBUTTONDOWN && !ElDorito::Instance().IsDedicated())
 			{
-				time_t curTime;
-				time(&curTime);
-				if (curTime - lastAnnounce > serverContactTimeLimit) // re-announce every "serverContactTimeLimit" seconds
-				{
-					lastAnnounce = curTime;
-					Modules::CommandMap::Instance().ExecuteCommand("Server.Announce");
-				}
+				int mouseXButton = GET_XBUTTON_WPARAM(wParam);
+
+				rapidjson::StringBuffer jsonBuffer;
+				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+				jsonWriter.StartObject();
+				jsonWriter.Key("xbutton");
+				jsonWriter.Int(mouseXButton);
+				jsonWriter.EndObject();
+
+				Web::Ui::ScreenLayer::Notify("mouse-xbutton-event", jsonBuffer.GetString(), true);
 			}
 
-			if (msg != WM_INFOSERVER)
-			{
-				//TODO: Move WndProc logic out of Network.cpp
-				if (msg == WM_XBUTTONDOWN && !ElDorito::Instance().IsDedicated())
-				{
-					int mouseXButton = GET_XBUTTON_WPARAM(wParam);
+			typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+			Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
+			return Game_WndProc(hWnd, msg, wParam, lParam);
+		}
 
-					rapidjson::StringBuffer jsonBuffer;
-					rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
-					jsonWriter.StartObject();
-					jsonWriter.Key("xbutton");
-					jsonWriter.Int(mouseXButton);
-					jsonWriter.EndObject();
-
-					Web::Ui::ScreenLayer::Notify("mouse-xbutton-event", jsonBuffer.GetString(), true);
-				}
-
-				typedef int(__stdcall *Game_WndProcFunc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-				Game_WndProcFunc Game_WndProc = (Game_WndProcFunc)0x42E6A0;
-				return Game_WndProc(hWnd, msg, wParam, lParam);
-			}
-
-			if (WSAGETSELECTERROR(lParam))
-			{
-				closesocket((SOCKET)wParam);
-				return 0;
-			}
-
-			SOCKET clientSocket;
-			int inDataLength;
-			char inDataBuffer[4096];
-
-			switch (WSAGETSELECTEVENT(lParam))
-			{
-			case FD_ACCEPT:
-				clientSocket = accept(wParam, NULL, NULL);
-				WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
-				break;
-			case FD_READ:
-				ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
-				inDataLength = recv((SOCKET)wParam, (char*)inDataBuffer, sizeof(inDataBuffer) / sizeof(inDataBuffer[0]), 0);
-
-				if (msg == WM_INFOSERVER)
-				{
-					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-					std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
-					std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
-					std::string xnkid;
-					std::string xnaddr;
-					std::string gameVersion((char*)Pointer(0x199C0F0));
-					std::string status = "InGame";
-					Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-					Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
-
-					Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
-					uint32_t gameMode = gameModePtr.Read<uint32_t>();
-					int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
-					if (gameMode == 3)
-					{
-						if (mapName == "mainmenu")
-						{
-							status = "InLobby";
-							// on mainmenu so we'll have to read other data
-							mapName = std::string((char*)Pointer(0x19A5E49));
-							variantName = std::wstring((wchar_t*)Pointer(0x179254));
-							variantType = Pointer(0x179250).Read<uint32_t>();
-						}
-						else // TODO: find how to get the variant name/type while it's on the loading screen
-							status = "Loading";
-					}
-
-					rapidjson::StringBuffer s;
-					rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-					writer.StartObject();
-					writer.Key("name");
-					writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
-					writer.Key("port");
-					writer.Int(Pointer(0x1860454).Read<uint32_t>());
-					writer.Key("hostPlayer");
-					writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
-					writer.Key("sprintEnabled");
-					writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
-					writer.Key("sprintUnlimitedEnabled");
-					writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
-					writer.Key("dualWielding");
-					writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
-					writer.Key("assassinationEnabled");
-					writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
-
-					auto session = Blam::Network::GetActiveSession();
-					if (session && session->IsEstablished()){
-						writer.Key("teams");
-						writer.Bool(session->HasTeams());
-					}
-					writer.Key("map");
-					writer.String(Utils::String::ThinString(mapVariantName).c_str());
-					writer.Key("mapFile");
-					writer.String(mapName.c_str());
-					writer.Key("variant");
-					writer.String(Utils::String::ThinString(variantName).c_str());
-					if (variantType >= 0 && variantType < Blam::GameTypeCount)
-					{
-						writer.Key("variantType");
-						writer.String(Blam::GameTypeNames[variantType].c_str());
-					}
-					writer.Key("status");
-					writer.String(status.c_str());
-					writer.Key("numPlayers");
-					writer.Int(GetNumPlayers());
-
-					std::ifstream file("fmmRequired.dat");
-					std::string temp;
-
-					writer.Key("mods");
-					writer.StartArray();
-					while (std::getline(file, temp))
-						writer.String(temp.c_str());
-					writer.EndArray();
-
-					// TODO: find how to get actual max players from the game, since our variable might be wrong
-					writer.Key("maxPlayers");
-					writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
-
-					bool authenticated = true;
-					if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
-					{
-						std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
-						authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
-						authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
-					}
-
-					if(authenticated)
-					{
-						writer.Key("xnkid");
-						writer.String(xnkid.c_str());
-						writer.Key("xnaddr");
-						writer.String(xnaddr.c_str());
-						if (session->HasTeams())
-						{
-							writer.Key("teamScores");
-							writer.StartArray();
-							uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
-							for (int t = 0; t < 8; t++)
-							{
-								writer.Int(scores[t]);
-							}
-							writer.EndArray();
-						}
-
-						writer.Key("players");
-
-						writer.StartArray();
-						uint32_t playerScoresBase = 0x23F1724;
-						//uint32_t playerInfoBase = 0x2162DD0;
-						uint32_t playerInfoBase = 0x2162E08;
-						uint32_t menuPlayerInfoBase = 0x1863B58;
-						uint32_t playerStatusBase = 0x2161808;
-						for (int i = 0; i < 16; i++)
-						{
-							uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
-							uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
-							uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
-							uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
-
-							wchar_t* name = Pointer(playerInfoBase + (5696 * i));
-							std::string nameStr = Utils::String::ThinString(name);
-
-							wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
-							std::string menuNameStr = Utils::String::ThinString(menuName);
-
-							uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
-							uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
-							uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
-
-							uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
-
-							uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
-							std::string uidStr;
-							Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
-
-							if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
-								continue;
-
-							writer.StartObject();
-							writer.Key("name");
-							writer.String(menuNameStr.c_str());
-							writer.Key("score");
-							writer.Int(score);
-							writer.Key("kills");
-							writer.Int(kills);
-							writer.Key("assists");
-							writer.Int(assists);
-							writer.Key("deaths");
-							writer.Int(deaths);
-							writer.Key("team");
-							writer.Int(team);
-							writer.Key("isAlive");
-							writer.Bool(alive == 1);
-							writer.Key("uid");
-							writer.String(uidStr.c_str());
-							writer.EndObject();
-						}
-						writer.EndArray();
-					}
-					else
-					{
-						writer.Key("passworded");
-						writer.Bool(true);
-					}
-
-					writer.Key("gameVersion");
-					writer.String(gameVersion.c_str());
-					writer.Key("eldewritoVersion");
-					writer.String(Utils::Version::GetVersionString().c_str());
-					writer.EndObject();
-
-					std::string replyData = s.GetString();
-					std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
-					send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
-				}
-
-				break;
-			case FD_CLOSE:
-				closesocket((SOCKET)wParam);
-				break;
-			}
+		if (WSAGETSELECTERROR(lParam))
+		{
+			closesocket((SOCKET)wParam);
 			return 0;
 		}
 
-		void ApplyAll()
+		SOCKET clientSocket;
+		int inDataLength;
+		char inDataBuffer[4096];
+
+		switch (WSAGETSELECTEVENT(lParam))
 		{
-			// Fix network debug strings having (null) instead of an IP address
-			Hook(0x3F6F0, &Network_GetIPStringFromInAddr).Apply();
+		case FD_ACCEPT:
+			clientSocket = accept(wParam, NULL, NULL);
+			WSAAsyncSelect(clientSocket, hWnd, msg, FD_READ | FD_WRITE | FD_CLOSE);
+			break;
+		case FD_READ:
+			ZeroMemory(inDataBuffer, sizeof(inDataBuffer));
+			inDataLength = recv((SOCKET)wParam, (char*)inDataBuffer, sizeof(inDataBuffer) / sizeof(inDataBuffer[0]), 0);
 
-			// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
-			Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
-			Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
-
-			// Hook call to Network_managed_session_create_session_internal so we can detect when an online game is started
-			Hook(0x82AAC, &Network_managed_session_create_session_internalHook, HookFlags::IsCall).Apply();
-
-			// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
-			uint32_t verNum = Utils::Version::GetVersionInt();
-			Pointer::Base(0x101421).Write<uint32_t>(verNum);
-			Pointer::Base(0x10143A).Write<uint32_t>(verNum);
-
-			// Player-properties packet hooks
-			Hook(0x5DD20, PeerRequestPlayerDesiredPropertiesUpdateHook).Apply();
-			Hook(0xDAF4F, ApplyPlayerPropertiesExtended, HookFlags::IsCall).Apply();
-			Hook(0xDFF7E, RegisterPlayerPropertiesPacketHook, HookFlags::IsCall).Apply();
-			Hook(0xDFD53, SerializePlayerPropertiesHook, HookFlags::IsCall).Apply();
-			Hook(0xDE178, DeserializePlayerPropertiesHook, HookFlags::IsCall).Apply();
-
-			// Set the games wndproc to our one, so we can receive async network messages
-			Pointer::Base(0x2EB63).Write<uint32_t>((uint32_t)&networkWndProc);
-
-			// Hook leader_request_boot_machine so we can do some extra things if the boot succeeded
-			Hook(0x37E17, Network_leader_request_boot_machineHook, HookFlags::IsCall).Apply();
-
-			// Pong hook
-			Hook(0x9D9DB, PongReceivedHook).Apply();
-
-			// Lifecycle state change hook
-			Hook(0x8E527, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
-			Hook(0x8E10F, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
-
-			// Hook the join request handler to check the user's IP address against the ban list
-			Hook(0x9D0F7, Network_session_handle_join_requestHook, HookFlags::IsCall).Apply();
-
-			// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
-			DWORD temp;
-			DWORD temp2;
-			auto writeAddr = Pointer(0x16183A0);
-			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+			if (msg == WM_INFOSERVER)
 			{
-				std::stringstream ss;
-				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
-				OutputDebugString(ss.str().c_str());
+				std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+				std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
+				std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+				std::string xnkid;
+				std::string xnaddr;
+				std::string gameVersion((char*)Pointer(0x199C0F0));
+				std::string status = "InGame";
+				Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+				Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+				Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+				uint32_t gameMode = gameModePtr.Read<uint32_t>();
+				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+				if (gameMode == 3)
+				{
+					if (mapName == "mainmenu")
+					{
+						status = "InLobby";
+						// on mainmenu so we'll have to read other data
+						mapName = std::string((char*)Pointer(0x19A5E49));
+						variantName = std::wstring((wchar_t*)Pointer(0x179254));
+						variantType = Pointer(0x179250).Read<uint32_t>();
+					}
+					else // TODO: find how to get the variant name/type while it's on the loading screen
+						status = "Loading";
+				}
+
+				rapidjson::StringBuffer s;
+				rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+				writer.StartObject();
+				writer.Key("name");
+				writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+				writer.Key("port");
+				writer.Int(Pointer(0x1860454).Read<uint32_t>());
+				writer.Key("hostPlayer");
+				writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+				writer.Key("sprintEnabled");
+				writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
+				writer.Key("sprintUnlimitedEnabled");
+				writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+				writer.Key("dualWielding");
+				writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
+				writer.Key("assassinationEnabled");
+				writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
+
+				auto session = Blam::Network::GetActiveSession();
+				if (session && session->IsEstablished()){
+					writer.Key("teams");
+					writer.Bool(session->HasTeams());
+				}
+				writer.Key("map");
+				writer.String(Utils::String::ThinString(mapVariantName).c_str());
+				writer.Key("mapFile");
+				writer.String(mapName.c_str());
+				writer.Key("variant");
+				writer.String(Utils::String::ThinString(variantName).c_str());
+				if (variantType >= 0 && variantType < Blam::GameTypeCount)
+				{
+					writer.Key("variantType");
+					writer.String(Blam::GameTypeNames[variantType].c_str());
+				}
+				writer.Key("status");
+				writer.String(status.c_str());
+				writer.Key("numPlayers");
+				writer.Int(GetNumPlayers());
+
+				std::ifstream file("fmmRequired.dat");
+				std::string temp;
+
+				writer.Key("mods");
+				writer.StartArray();
+				while (std::getline(file, temp))
+					writer.String(temp.c_str());
+				writer.EndArray();
+
+				// TODO: find how to get actual max players from the game, since our variable might be wrong
+				writer.Key("maxPlayers");
+				writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+
+				bool authenticated = true;
+				if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+				{
+					std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+					authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+					authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
+				}
+
+				if(authenticated)
+				{
+					writer.Key("xnkid");
+					writer.String(xnkid.c_str());
+					writer.Key("xnaddr");
+					writer.String(xnaddr.c_str());
+					if (session->HasTeams())
+					{
+						writer.Key("teamScores");
+						writer.StartArray();
+						uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
+						for (int t = 0; t < 8; t++)
+						{
+							writer.Int(scores[t]);
+						}
+						writer.EndArray();
+					}
+
+					writer.Key("players");
+
+					writer.StartArray();
+					uint32_t playerScoresBase = 0x23F1724;
+					//uint32_t playerInfoBase = 0x2162DD0;
+					uint32_t playerInfoBase = 0x2162E08;
+					uint32_t menuPlayerInfoBase = 0x1863B58;
+					uint32_t playerStatusBase = 0x2161808;
+					for (int i = 0; i < 16; i++)
+					{
+						uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
+						uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
+						uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
+						uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
+
+						wchar_t* name = Pointer(playerInfoBase + (5696 * i));
+						std::string nameStr = Utils::String::ThinString(name);
+
+						wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
+						std::string menuNameStr = Utils::String::ThinString(menuName);
+
+						uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
+						uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
+						uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
+
+						uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
+
+						uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
+						std::string uidStr;
+						Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
+
+						if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
+							continue;
+
+						writer.StartObject();
+						writer.Key("name");
+						writer.String(menuNameStr.c_str());
+						writer.Key("score");
+						writer.Int(score);
+						writer.Key("kills");
+						writer.Int(kills);
+						writer.Key("assists");
+						writer.Int(assists);
+						writer.Key("deaths");
+						writer.Int(deaths);
+						writer.Key("team");
+						writer.Int(team);
+						writer.Key("isAlive");
+						writer.Bool(alive == 1);
+						writer.Key("uid");
+						writer.String(uidStr.c_str());
+						writer.EndObject();
+					}
+					writer.EndArray();
+				}
+				else
+				{
+					writer.Key("passworded");
+					writer.Bool(true);
+				}
+
+				writer.Key("gameVersion");
+				writer.String(gameVersion.c_str());
+				writer.Key("eldewritoVersion");
+				writer.String(Utils::Version::GetVersionString().c_str());
+				writer.EndObject();
+
+				std::string replyData = s.GetString();
+				std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
+				send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 			}
-			else
-			{
-				writeAddr.Write<uint32_t>((uint32_t)&Network_state_end_game_write_stats_enterHook);
-				VirtualProtect(writeAddr, 4, temp, &temp2);
-			}
 
-			// Hook c_life_cycle_state_handler_leaving's vftable ::entry method
-			writeAddr = Pointer(0x16183BC);
-			if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
-			{
-				std::stringstream ss;
-				ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
-				OutputDebugString(ss.str().c_str());
-			}
-			else
-			{
-				writeAddr.Write<uint32_t>((uint32_t)&Network_state_leaving_enterHook);
-				VirtualProtect(writeAddr, 4, temp, &temp2);
-			}
+			break;
+		case FD_CLOSE:
+			closesocket((SOCKET)wParam);
+			break;
+		}
+		return 0;
+	}
 
-			// Set the max player count to Server.MaxPlayers when hosting a lobby
-			Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
+	void ApplyAll()
+	{
+		// Fix network debug strings having (null) instead of an IP address
+		Hook(0x3F6F0, &Network_GetIPStringFromInAddr).Apply();
 
-			Hook(0x3BAFB, Network_GetEndpointHook, HookFlags::IsCall).Apply();
+		// Fix for XnAddrToInAddr to try checking syslink-menu data for XnAddr->InAddr mapping before consulting XNet
+		Hook(0x30B6C, &Network_XnAddrToInAddrHook, HookFlags::IsCall).Apply();
+		Hook(0x30F51, &Network_InAddrToXnAddrHook, HookFlags::IsCall).Apply();
 
-			Hook(0x7F5B9, Network_session_join_remote_sessionHook, HookFlags::IsCall).Apply();
+		// Hook call to Network_managed_session_create_session_internal so we can detect when an online game is started
+		Hook(0x82AAC, &Network_managed_session_create_session_internalHook, HookFlags::IsCall).Apply();
 
-			// Hook Network_session_initiate_leave_protocol in Network_session_idle_peer_joining's error states
-			// "peer join timed out waiting for secure connection to become established"
-			Hook(0x9BFCA, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
-			// "peer join timed out waiting for initial updates"
-			Hook(0x9C0BE, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
+		// Patch version subs to return version of this DLL, to make people with older DLLs incompatible
+		uint32_t verNum = Utils::Version::GetVersionInt();
+		Pointer::Base(0x101421).Write<uint32_t>(verNum);
+		Pointer::Base(0x10143A).Write<uint32_t>(verNum);
 
-			// "received initial update, clearing"
-			Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
-			Hook(0x683D45, Network_session_parameter_countdown_timer_request_change_hook, HookFlags::IsCall).Apply();
+		// Player-properties packet hooks
+		Hook(0x5DD20, PeerRequestPlayerDesiredPropertiesUpdateHook).Apply();
+		Hook(0xDAF4F, ApplyPlayerPropertiesExtended, HookFlags::IsCall).Apply();
+		Hook(0xDFF7E, RegisterPlayerPropertiesPacketHook, HookFlags::IsCall).Apply();
+		Hook(0xDFD53, SerializePlayerPropertiesHook, HookFlags::IsCall).Apply();
+		Hook(0xDE178, DeserializePlayerPropertiesHook, HookFlags::IsCall).Apply();
 
-			Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
-			Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
+		// Set the games wndproc to our one, so we can receive async network messages
+		Pointer::Base(0x2EB63).Write<uint32_t>((uint32_t)&networkWndProc);
 
-			//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
-			Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
+		// Hook leader_request_boot_machine so we can do some extra things if the boot succeeded
+		Hook(0x37E17, Network_leader_request_boot_machineHook, HookFlags::IsCall).Apply();
+
+		// Pong hook
+		Hook(0x9D9DB, PongReceivedHook).Apply();
+
+		// Lifecycle state change hook
+		Hook(0x8E527, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
+		Hook(0x8E10F, LifeCycleStateChangedHook, HookFlags::IsCall).Apply();
+
+		// Hook the join request handler to check the user's IP address against the ban list
+		Hook(0x9D0F7, Network_session_handle_join_requestHook, HookFlags::IsCall).Apply();
+
+		// Hook c_life_cycle_state_handler_end_game_write_stats's vftable ::entry method
+		DWORD temp;
+		DWORD temp2;
+		auto writeAddr = Pointer(0x16183A0);
+		if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+		{
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+			OutputDebugString(ss.str().c_str());
+		}
+		else
+		{
+			writeAddr.Write<uint32_t>((uint32_t)&Network_state_end_game_write_stats_enterHook);
+			VirtualProtect(writeAddr, 4, temp, &temp2);
 		}
 
-
-		void ForceDedicated()
+		// Hook c_life_cycle_state_handler_leaving's vftable ::entry method
+		writeAddr = Pointer(0x16183BC);
+		if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
 		{
-
-			//pit
-			Hook(0x2D0EAC, reinterpret_cast<void*>(0x6D0EBC)).Apply();
-
-			// Put the game into dedicated server mode
-			Patch(0x2E600, { 0xB0, 0x01 }).Apply();
-
-			// Force syslink to still work
-			Patch(0x12D62E, { 0xEB }).Apply();
-			Patch(0x12D67A, { 0xEB }).Apply();
-			Patch(0x5A8BB, { 0xEB }).Apply();
-
-			// Crash fixes
-			Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
-
-			//Allows for switching of teams
-			Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
-
-			// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
-			Patch(0x62E636, { 0x33, 0xFF }).Apply();
-			// Prevents dedicated hosts from crashing due to invalid texture datum lookup
-			Hook(0x66E982, GetTextureDimensionsHook).Apply();
-
-			// force windowed (temporarily for now) with null d3d reference device
-			Patch(0x620380, { 0x6A, 0x01, 0x6A, 0x00, 0x90, 0x90 }).Apply();
-			// Fixes the game being stuck in some d3d-related while loop
-			Patch(0x622290, { 0xC3 }).Apply();
-
-			*reinterpret_cast<uint8_t*>(0x1917CED) = 0;	// fix dedi crash @ 0xA22325 (pairs with patch above)
-
-														// Fixes an exception that happens with null d3d
-			Patch(0x675E30, { 0xC3 }).Apply();
-
-
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+			OutputDebugString(ss.str().c_str());
+		}
+		else
+		{
+			writeAddr.Write<uint32_t>((uint32_t)&Network_state_leaving_enterHook);
+			VirtualProtect(writeAddr, 4, temp, &temp2);
 		}
 
-		bool StartInfoServer()
+		// Set the max player count to Server.MaxPlayers when hosting a lobby
+		Hook(0x67FA0D, Network_GetMaxPlayersHook, HookFlags::IsCall).Apply();
+
+		Hook(0x3BAFB, Network_GetEndpointHook, HookFlags::IsCall).Apply();
+
+		Hook(0x7F5B9, Network_session_join_remote_sessionHook, HookFlags::IsCall).Apply();
+
+		// Hook Network_session_initiate_leave_protocol in Network_session_idle_peer_joining's error states
+		// "peer join timed out waiting for secure connection to become established"
+		Hook(0x9BFCA, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
+		// "peer join timed out waiting for initial updates"
+		Hook(0x9C0BE, Network_session_initiate_leave_protocolHook, HookFlags::IsCall).Apply();
+
+		// "received initial update, clearing"
+		Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
+		Hook(0x683D45, Network_session_parameter_countdown_timer_request_change_hook, HookFlags::IsCall).Apply();
+
+		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
+		Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
+
+		//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
+		Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
+	}
+
+
+	void ForceDedicated()
+	{
+
+		//pit
+		Hook(0x2D0EAC, reinterpret_cast<void*>(0x6D0EBC)).Apply();
+
+		// Put the game into dedicated server mode
+		Patch(0x2E600, { 0xB0, 0x01 }).Apply();
+
+		// Force syslink to still work
+		Patch(0x12D62E, { 0xEB }).Apply();
+		Patch(0x12D67A, { 0xEB }).Apply();
+		Patch(0x5A8BB, { 0xEB }).Apply();
+
+		// Crash fixes
+		Patch(0xC9C5E0, { 0xC2, 0x08, 0x00 }).Apply();
+
+		//Allows for switching of teams
+		Patch(0x378C0, { 0xB0, 0x00, 0x90, 0x90, 0x90 }).Apply();
+
+		// Fixes dedicated host crash caused accessing uninitialized player mapping globals by forcing a player datum index of 0 to always be used instead
+		Patch(0x62E636, { 0x33, 0xFF }).Apply();
+		// Prevents dedicated hosts from crashing due to invalid texture datum lookup
+		Hook(0x66E982, GetTextureDimensionsHook).Apply();
+
+		// force windowed (temporarily for now) with null d3d reference device
+		Patch(0x620380, { 0x6A, 0x01, 0x6A, 0x00, 0x90, 0x90 }).Apply();
+		// Fixes the game being stuck in some d3d-related while loop
+		Patch(0x622290, { 0xC3 }).Apply();
+
+		*reinterpret_cast<uint8_t*>(0x1917CED) = 0;	// fix dedi crash @ 0xA22325 (pairs with patch above)
+
+													// Fixes an exception that happens with null d3d
+		Patch(0x675E30, { 0xC3 }).Apply();
+
+
+	}
+
+	bool StartInfoServer()
+	{
+		if (infoSocketOpen)
+			return true;
+
+		Server::Voting::StartNewVote();
+		HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
+		if (hwnd == 0)
+			return false;
+
+		infoSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		SOCKADDR_IN bindAddr;
+		bindAddr.sin_family = AF_INET;
+		bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+		unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
+		if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
+			port++;
+		bindAddr.sin_port = htons((u_short)port);
+
+		// open our listener socket
+		while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
 		{
-			if (infoSocketOpen)
-				return true;
-
-			Server::Voting::StartNewVote();
-			HWND hwnd = Pointer::Base(0x159C014).Read<HWND>();
-			if (hwnd == 0)
-				return false;
-
-			infoSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			SOCKADDR_IN bindAddr;
-			bindAddr.sin_family = AF_INET;
-			bindAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
-			unsigned long port = Modules::ModuleServer::Instance().VarServerPort->ValueInt;
+			port++;
 			if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
 				port++;
 			bindAddr.sin_port = htons((u_short)port);
+			if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
+				return false; // tried 10 ports, lets give up
+		}
+		Modules::CommandMap::Instance().SetVariable(Modules::ModuleServer::Instance().VarServerPort, std::to_string(port), std::string());
 
-			// open our listener socket
-			while (bind(infoSocket, (PSOCKADDR)&bindAddr, sizeof(bindAddr)) != 0)
-			{
-				port++;
-				if (port == Pointer(0x1860454).Read<uint32_t>()) // make sure port isn't the same as game port
-					port++;
-				bindAddr.sin_port = htons((u_short)port);
-				if (port > (Modules::ModuleServer::Instance().VarServerPort->ValueInt + 10))
-					return false; // tried 10 ports, lets give up
-			}
-			Modules::CommandMap::Instance().SetVariable(Modules::ModuleServer::Instance().VarServerPort, std::to_string(port), std::string());
+		//Setup UPnP
+		if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
+		{
+			Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "ElDewrito InfoServer");
+			Modules::ModuleUPnP::Instance().UPnPForwardPort(false, Pointer(0x1860454).Read<uint32_t>(), Pointer(0x1860454).Read<uint32_t>(), "ElDewrito Game");
+		}
 
-			//Setup UPnP
-			if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
-			{
-				Modules::ModuleUPnP::Instance().UPnPForwardPort(true, port, port, "ElDewrito InfoServer");
-				Modules::ModuleUPnP::Instance().UPnPForwardPort(false, Pointer(0x1860454).Read<uint32_t>(), Pointer(0x1860454).Read<uint32_t>(), "ElDewrito Game");
-			}
+		WSAAsyncSelect(infoSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
+		listen(infoSocket, 5);
+		infoSocketOpen = true;
 
-			WSAAsyncSelect(infoSocket, hwnd, WM_INFOSERVER, FD_ACCEPT | FD_CLOSE);
-			listen(infoSocket, 5);
-			infoSocketOpen = true;
+		return true;
+	}
 
+	bool StopInfoServer()
+	{
+		if (!infoSocketOpen)
 			return true;
-		}
 
-		bool StopInfoServer()
-		{
-			if (!infoSocketOpen)
-				return true;
+		closesocket(infoSocket);
+		int istrue = 1;
+		setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
 
-			closesocket(infoSocket);
-			int istrue = 1;
-			setsockopt(infoSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&istrue, sizeof(int));
+		Modules::CommandMap::Instance().ExecuteCommand("Server.Unannounce");
 
-			Modules::CommandMap::Instance().ExecuteCommand("Server.Unannounce");
+		infoSocketOpen = false;
+		lastAnnounce = 0;
 
-			infoSocketOpen = false;
-			lastAnnounce = 0;
+		return true;
+	}
 
-			return true;
-		}
+	uint16_t OnPong(PongCallback callback)
+	{
+		static uint16_t id = 0;
+		pongCallbacks.push_back(callback);
+		return id++;
+	}
 
-		uint16_t OnPong(PongCallback callback)
-		{
-			static uint16_t id = 0;
-			pongCallbacks.push_back(callback);
-			return id++;
-		}
-
-		void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback)
-		{
-			lifeCycleStateChangedCallbacks.push_back(callback);
-		}
+	void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback)
+	{
+		lifeCycleStateChangedCallbacks.push_back(callback);
 	}
 }
 

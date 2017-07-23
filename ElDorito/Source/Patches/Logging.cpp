@@ -49,44 +49,41 @@ namespace
 	uint32_t origVirtualAllocAddress;
 }
 
-namespace Patches
+namespace Patches::Logging
 {
-	namespace Logging
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// increase BackEnd::IEndpointsDispatcherService::GetAuthorizationEndpointsAndDate::Execute request buffer size
-			*reinterpret_cast<uint32_t*>(0x9053C6 + 1) = 2048 - 1;
+		// increase BackEnd::IEndpointsDispatcherService::GetAuthorizationEndpointsAndDate::Execute request buffer size
+		*reinterpret_cast<uint32_t*>(0x9053C6 + 1) = 2048 - 1;
 
-			Patch(0x11C158, { 0x8D, 0x85, 0x00, 0xFC, 0xFF, 0xFF, 0x50 }).Apply();
-			Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
-			Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
+		Patch(0x11C158, { 0x8D, 0x85, 0x00, 0xFC, 0xFF, 0xFF, 0x50 }).Apply();
+		Patch(0x11C165, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
+		Hook(0x11C15F, ExceptionHook, HookFlags::IsCall).Apply();
 
-			NetworkLogHook.Apply();
-			SSLHook.Apply();
-			UIHook.Apply();
-			Game1Hook.Apply();
-			DebugLogFloatHook.Apply();
-			DebugLogIntHook.Apply();
-			DebugLogStringHook.Apply();
-			PacketReceiveHook.Apply();
-			PacketSendHook.Apply();
+		NetworkLogHook.Apply();
+		SSLHook.Apply();
+		UIHook.Apply();
+		Game1Hook.Apply();
+		DebugLogFloatHook.Apply();
+		DebugLogIntHook.Apply();
+		DebugLogStringHook.Apply();
+		PacketReceiveHook.Apply();
+		PacketSendHook.Apply();
 
-			MemoryGlobalAllocateStructHook.Apply();
-			MemoryGlobalInitializeArrayHook.Apply();
-			MemoryGlobalInitializePoolHook.Apply();
-			MemoryGlobalInitializeCacheHook.Apply();
+		MemoryGlobalAllocateStructHook.Apply();
+		MemoryGlobalInitializeArrayHook.Apply();
+		MemoryGlobalInitializePoolHook.Apply();
+		MemoryGlobalInitializeCacheHook.Apply();
 
-			// hook VirtualAlloc
-			DWORD temp;
-			VirtualProtect((void*)0x1600194, 4, PAGE_READWRITE, &temp);
-			origVirtualAllocAddress = *(uint32_t*)0x1600194;
-			*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
+		// hook VirtualAlloc
+		DWORD temp;
+		VirtualProtect((void*)0x1600194, 4, PAGE_READWRITE, &temp);
+		origVirtualAllocAddress = *(uint32_t*)0x1600194;
+		*(uint32_t*)0x1600194 = (uint32_t)&virtualAllocHook;
 
-			Hook(0x11D186, LogPhysicalMemoryAllocationRequestHook).Apply();
-			Hook(0x11D1E0, LogFailedPhysicalMemoryAllocationResultHook).Apply();
-			Hook(0x11D266, LogSuccessfulPhysicalMemoryAllocationResultHook).Apply();
-		}
+		Hook(0x11D186, LogPhysicalMemoryAllocationRequestHook).Apply();
+		Hook(0x11D1E0, LogFailedPhysicalMemoryAllocationResultHook).Apply();
+		Hook(0x11D266, LogSuccessfulPhysicalMemoryAllocationResultHook).Apply();
 	}
 }
 

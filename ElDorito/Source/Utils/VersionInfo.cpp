@@ -48,23 +48,20 @@
 #define VERSION_SUFFIX ""
 #endif
 
-namespace Utils
+namespace Utils::Version
 {
-	namespace Version
+	uint32_t GetVersionInt()
 	{
-		uint32_t GetVersionInt()
-		{
-			return CURRENT_VERSION;
-		}
+		return CURRENT_VERSION;
+	}
 
-		std::string GetVersionString()
-		{
-			auto v = CURRENT_VERSION;
-			return
-				std::to_string(V1(v)) + "." +
-				std::to_string(V2(v)) + "." +
-				std::to_string(V3(v)) + "." +
-				std::to_string(V4(v)) + VERSION_SUFFIX;
-		}
+	std::string GetVersionString()
+	{
+		auto v = CURRENT_VERSION;
+		return
+			std::to_string(V1(v)) + "." +
+			std::to_string(V2(v)) + "." +
+			std::to_string(V3(v)) + "." +
+			std::to_string(V4(v)) + VERSION_SUFFIX;
 	}
 }

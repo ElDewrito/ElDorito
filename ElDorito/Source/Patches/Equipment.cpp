@@ -29,53 +29,53 @@ namespace
 	void DespawnEquipmentHook();
 }
 
-namespace Patches
+namespace Patches::Equipment
 {
-	namespace Equipment
+	void ApplyAll()
 	{
-		void ApplyAll()
-		{
-			// implements the missing functionality in order to pickup equipment
-			Hook(0x139888, EquipmentPickupHook, HookFlags::IsJmpIfNotEqual).Apply();
+		// implements the missing functionality in order to pickup equipment
+		Hook(0x139888, EquipmentPickupHook, HookFlags::IsJmpIfNotEqual).Apply();
 
-			// this is needed for object creationional equipment, as we cannot free the equipment slot until-
-			// after the initial animation, or it will cut off abruptly.
-			Hook(0x7A37F9, EquipmentActivationHook, HookFlags::None).Apply();
+		// this is needed for object creationional equipment, as we cannot free the equipment slot until-
+		// after the initial animation, or it will cut off abruptly.
+		Hook(0x7A37F9, EquipmentActivationHook, HookFlags::None).Apply();
 
-			// so the unit drops their equipment on death and when swapping
-			Hook(0x0073FC9B, Unit_EquipmentDetachHook, HookFlags::IsCall).Apply();
+		// so the unit drops their equipment on death and when swapping
+		Hook(0x0073FC9B, Unit_EquipmentDetachHook, HookFlags::IsCall).Apply();
 
-			// this gets called by the chud renderer, hud state builder in order to display the equipment
-			// we're hijacking it and returning our own state to match the unit's equipment at 0x2F0
-			Hook(0x006858FE, Player_GetArmorAbilitiesCHUDHook, HookFlags::IsCall).Apply();
+		// this gets called by the chud renderer, hud state builder in order to display the equipment
+		// we're hijacking it and returning our own state to match the unit's equipment at 0x2F0
+		Hook(0x006858FE, Player_GetArmorAbilitiesCHUDHook, HookFlags::IsCall).Apply();
 
-			// for use duration and max uses
-			Hook(0x00749F23, UnitUpdateHook, HookFlags::IsCall).Apply();
-			Hook(0x0013DC4B, EquipmentUseHook, HookFlags::IsCall).Apply(); // host
-			Hook(0x000BA06A, EquipmentUseHook, HookFlags::IsCall).Apply(); // client
+		// for use duration and max uses
+		Hook(0x00749F23, UnitUpdateHook, HookFlags::IsCall).Apply();
+		Hook(0x0013DC4B, EquipmentUseHook, HookFlags::IsCall).Apply(); // host
+		Hook(0x000BA06A, EquipmentUseHook, HookFlags::IsCall).Apply(); // client
 
-																		   // disable armor ability slot checks preventing use 
-			Patch::NopFill(Pointer::Base(0x786CFF), 6);
-			Patch::NopFill(Pointer::Base(0x74CFF4), 6);
-			Patch::NopFill(Pointer::Base(0x137F4D), 2);
+																		// disable armor ability slot checks preventing use 
+		Patch::NopFill(Pointer::Base(0x786CFF), 6);
+		Patch::NopFill(Pointer::Base(0x74CFF4), 6);
+		Patch::NopFill(Pointer::Base(0x137F4D), 2);
 
-			// stop new equipment from destroying the old one
-			Patch(0x78A179, { 0xEB }).Apply();
-			Patch(0x78950D, { 0xEB }).Apply();
+		// remove initial equipment use delay
+		Patch::NopFill(Pointer::Base(0x13DC0A), 2);
 
-			// mid-function jump table hook for equipment.
-			// this gets executed for each equipment object returned from a cluster search radius-
-			// and is used in order to populate the control globals action structure with the information needed for swapping
-			DWORD oldProtect, tmp;
-			auto pEquipmentJumpTableCase = LPVOID(0x00539E08 + 3 * 4);
-			VirtualProtect(pEquipmentJumpTableCase, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-			*(uintptr_t*)pEquipmentJumpTableCase = (uintptr_t)&EquipmentActionStateHook;
-			VirtualProtect(pEquipmentJumpTableCase, 4, oldProtect, &tmp);
+		// stop new equipment from destroying the old one
+		Patch(0x78A179, { 0xEB }).Apply();
+		Patch(0x78950D, { 0xEB }).Apply();
 
-			// drop grenades on unit death
-			Hook(0x73F562, UnitDeathHook, HookFlags::IsCall).Apply();
-			Hook(0x14EE29, DespawnEquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
-		}
+		// mid-function jump table hook for equipment.
+		// this gets executed for each equipment object returned from a cluster search radius-
+		// and is used in order to populate the control globals action structure with the information needed for swapping
+		DWORD oldProtect, tmp;
+		auto pEquipmentJumpTableCase = LPVOID(0x00539E08 + 3 * 4);
+		VirtualProtect(pEquipmentJumpTableCase, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
+		*(uintptr_t*)pEquipmentJumpTableCase = (uintptr_t)&EquipmentActionStateHook;
+		VirtualProtect(pEquipmentJumpTableCase, 4, oldProtect, &tmp);
+
+		// drop grenades on unit death
+		Hook(0x73F562, UnitDeathHook, HookFlags::IsCall).Apply();
+		Hook(0x14EE29, DespawnEquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
 	}
 }
 

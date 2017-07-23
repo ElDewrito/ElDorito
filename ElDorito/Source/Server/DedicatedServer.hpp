@@ -3,12 +3,8 @@
 #include <d3dx9core.h>
 #include <chrono>
 
-namespace Server
+namespace Server::DedicatedServer
 {
-	namespace DedicatedServer
-	{
-		void Init();
-		void Tick();
-
-	}
+	void Init();
+	void Tick();
 }

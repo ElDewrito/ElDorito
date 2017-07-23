@@ -54,81 +54,75 @@ namespace
 	};
 }
 
-namespace Web
+namespace Web::Ui::ScreenLayer
 {
-	namespace Ui
+	void Init()
 	{
-		namespace ScreenLayer
+		Patches::Ui::OnCreateWindow(WindowCreated);
+		Patches::Core::OnShutdown(ShutdownRenderer);
+		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
+	}
+
+	void Tick()
+	{
+		WebRenderer::GetInstance()->Update();
+	}
+
+	void Resize()
+	{
+		auto hwnd = *reinterpret_cast<HWND*>(0x199C014);
+		RECT clientRect;
+		if (GetClientRect(hwnd, &clientRect))
+			WebRenderer::GetInstance()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+	}
+
+	void Show(bool show)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		auto webRenderer = WebRenderer::GetInstance();
+		if (show == webRenderer->IsRendering())
+			return;
+		webRenderer->ShowRenderer(show, true);
+	}
+
+	void Show(const std::string &screenId, const std::string &data)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		// ui.requestScreen(id, data)
+		auto js = "if (window.ui) ui.requestScreen('" + screenId + "', " + data + ");";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
+	}
+
+	void Hide(const std::string &screenId)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		// ui.hideScreen(id)
+		auto js = "if (window.ui) ui.hideScreen('" + screenId + "');";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
+	}
+
+	void Notify(const std::string &event, const std::string &data, bool broadcast)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		// ui.notify(event, data, broadcast, fromDew)
+		auto js = "if (window.ui) ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
+	}
+
+	void CaptureInput(bool capture)
+	{
+		if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
+			return;
+		InputCaptured = capture;
+		if (capture)
 		{
-			void Init()
-			{
-				Patches::Ui::OnCreateWindow(WindowCreated);
-				Patches::Core::OnShutdown(ShutdownRenderer);
-				Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-			}
-
-			void Tick()
-			{
-				WebRenderer::GetInstance()->Update();
-			}
-
-			void Resize()
-			{
-				auto hwnd = *reinterpret_cast<HWND*>(0x199C014);
-				RECT clientRect;
-				if (GetClientRect(hwnd, &clientRect))
-					WebRenderer::GetInstance()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
-			}
-
-			void Show(bool show)
-			{
-				if (ElDorito::Instance().IsDedicated())
-					return;
-				auto webRenderer = WebRenderer::GetInstance();
-				if (show == webRenderer->IsRendering())
-					return;
-				webRenderer->ShowRenderer(show, true);
-			}
-
-			void Show(const std::string &screenId, const std::string &data)
-			{
-				if (ElDorito::Instance().IsDedicated())
-					return;
-				// ui.requestScreen(id, data)
-				auto js = "if (window.ui) ui.requestScreen('" + screenId + "', " + data + ");";
-				WebRenderer::GetInstance()->ExecuteJavascript(js);
-			}
-
-			void Hide(const std::string &screenId)
-			{
-				if (ElDorito::Instance().IsDedicated())
-					return;
-				// ui.hideScreen(id)
-				auto js = "if (window.ui) ui.hideScreen('" + screenId + "');";
-				WebRenderer::GetInstance()->ExecuteJavascript(js);
-			}
-
-			void Notify(const std::string &event, const std::string &data, bool broadcast)
-			{
-				if (ElDorito::Instance().IsDedicated())
-					return;
-				// ui.notify(event, data, broadcast, fromDew)
-				auto js = "if (window.ui) ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
-				WebRenderer::GetInstance()->ExecuteJavascript(js);
-			}
-
-			void CaptureInput(bool capture)
-			{
-				if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
-					return;
-				InputCaptured = capture;
-				if (capture)
-				{
-					// Override game input
-					auto inputContext = std::make_shared<WebOverlayInputContext>();
-					Patches::Input::PushContext(inputContext);
-				}
-			}
+			// Override game input
+			auto inputContext = std::make_shared<WebOverlayInputContext>();
+			Patches::Input::PushContext(inputContext);
 		}
 	}
 }
@@ -447,10 +441,21 @@ namespace
 
 	void OnUIInputUpdated()
 	{
+		struct ControllerAxes { int16_t LeftX, LeftY, RightX, RightY; };
+		auto& controllerAxes = *(ControllerAxes*)(0x0244D1F0 + 0x2F4);
+
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
 		writer.StartObject();
+		writer.Key("AxisLeftX");
+		writer.Double(controllerAxes.LeftX / 32768.0f);
+		writer.Key("AxisLeftY");
+		writer.Double(controllerAxes.LeftY / 32768.0f);
+		writer.Key("AxisRightX");
+		writer.Double(controllerAxes.RightX / 32768.0f);
+		writer.Key("AxisRightY");
+		writer.Double(controllerAxes.RightY / 32768.0f);
 		writer.Key("LeftTrigger");
 		writer.Int(GetActionState(eGameActionUiLeftTrigger)->Ticks);
 		writer.Key("RightTrigger");
@@ -487,5 +492,15 @@ namespace
 
 		auto js = "if (window.ui) ui.sendControllerInput(" + std::string(buffer.GetString()) + ");";
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
+
+		controllerAxes.LeftX = 0;
+		controllerAxes.LeftY = 0;
+		controllerAxes.RightX = 0;
+		controllerAxes.RightY = 0;
+		for (auto i = 0; i < eGameActionJump; i++)
+		{
+			auto action = GetActionState(static_cast<GameAction>(i));
+			action->Flags |= eActionStateFlagsHandled;
+		}
 	}
 }

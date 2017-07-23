@@ -31,7 +31,6 @@ namespace
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
-	char __stdcall ForgeInputHook(int localPlayerIndex);
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -51,116 +50,110 @@ namespace
 	BindingsTable s_ForgeMonitorModeBindings;
 }
 
-namespace Patches
+namespace Patches::Input
 {
-	namespace Input
+	void ApplyAll()
 	{
-		void ApplyAll()
+		Hook(0x1129A0, UpdateInputHook).Apply();
+		Hook(0x105CBA, ProcessUiInputHook, HookFlags::IsCall).Apply();
+		Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
+		Hook(0x234238, BlockInputHook, HookFlags::IsCall).Apply();
+		Hook(0x20BF00, InitBindingsHook).Apply();
+		Hook(0x10AB40, PreferencesGetKeyBindingsHook).Apply();
+		Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
+		Hook(0x20C040, GetDefaultBindingsHook).Apply();
+		Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
+		Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
+		Hook(0x11298B, SetControllerVibrationHook, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
+		Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
+		Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x112613), 2); // Never clip the cursor to the window boundaries
+
+		// Fix a bug in the keyboard input routine that screws up UI keys.
+		// If an action has the "handled" flag set and has a secondary key
+		// bound to it, then the tick count gets reset to 0 because the
+		// secondary key won't be down and the action gets spammed.
+		//
+		// To fix it, we have to nop out every place where the flag is
+		// checked, disable the code which updates the flag, and then
+		// update it ourselves only after every key has been checked.
+		uint32_t keyboardFixPointers[] = { 0x20C529, 0x20C558, 0x20C591, 0x20C5C2, 0x20C5FA, 0x20C63F };
+		for (auto pointer : keyboardFixPointers)
+			Patch::NopFill(Pointer::Base(pointer), 2);
+		Patch(0x20C69F, { 0xEB }).Apply();
+		Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
+		Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
+		Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
+	}
+
+	bool QueueGameAction(int index)
+	{
+		if (index > -1 && index < eGameAction_KeyboardMouseCount)
 		{
-			Hook(0x1129A0, UpdateInputHook).Apply();
-			Hook(0x105CBA, ProcessUiInputHook, HookFlags::IsCall).Apply();
-			Hook(0x106417, QuickUpdateUiInputHook, HookFlags::IsCall).Apply();
-			Hook(0x234238, BlockInputHook, HookFlags::IsCall).Apply();
-			Hook(0x20BF00, InitBindingsHook).Apply();
-			Hook(0x10AB40, PreferencesGetKeyBindingsHook).Apply();
-			Hook(0x10D040, PreferencesSetKeyBindingsHook).Apply();
-			Hook(0x20C040, GetDefaultBindingsHook).Apply();
-			Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
-			Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
-			Hook(0x11298B, SetControllerVibrationHook, HookFlags::IsCall).Apply();
-			Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
-			Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
-			Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
-			Patch::NopFill(Pointer::Base(0x112613), 2); // Never clip the cursor to the window boundaries
+			queuedGameAction[index] = true;
+			return true;
+		}
+		return false;
+	}
 
-			// Fix a bug in the keyboard input routine that screws up UI keys.
-			// If an action has the "handled" flag set and has a secondary key
-			// bound to it, then the tick count gets reset to 0 because the
-			// secondary key won't be down and the action gets spammed.
-			//
-			// To fix it, we have to nop out every place where the flag is
-			// checked, disable the code which updates the flag, and then
-			// update it ourselves only after every key has been checked.
-			uint32_t keyboardFixPointers[] = { 0x20C529, 0x20C558, 0x20C591, 0x20C5C2, 0x20C5FA, 0x20C63F };
-			for (auto pointer : keyboardFixPointers)
-				Patch::NopFill(Pointer::Base(pointer), 2);
-			Patch(0x20C69F, { 0xEB }).Apply();
-			Hook(0x20D980, ProcessKeyBindingsHook, HookFlags::IsCall).Apply();
-			Hook(0x20D99B, ProcessMouseBindingsHook, HookFlags::IsCall).Apply();
-			Hook(0x1D4C66, LocalPlayerInputHook, HookFlags::IsCall).Apply();
-			Hook(0x19D482, ForgeInputHook, HookFlags::IsCall).Apply();
-
-			Patch(0x695008, { 0x80, 0x3D, 0xEB, 0xDB, 0x38, 0x02, 0x00 }).Apply(); // Disable H3UI on UI input locks
+	void PushContext(std::shared_ptr<InputContext> context)
+	{
+		if (contextStack.empty())
+		{
+			// Block all input, unacquiring the mouse in the process
+			for (auto i = 0; i < eInputType_Count; i++)
+				BlockInput(static_cast<InputType>(i), true);
+		}
+		else
+		{
+			// Deactivate the current context
+			contextStack.top()->Deactivated();
 		}
 
-		bool QueueGameAction(int index)
-		{
-			if (index > -1 && index < eGameAction_KeyboardMouseCount)
-			{
-				queuedGameAction[index] = true;
-				return true;
-			}
-			return false;
-		}
+		// Push and activate the new context
+		contextStack.push(context);
+		context->Activated();
+	}
 
-		void PushContext(std::shared_ptr<InputContext> context)
-		{
-			if (contextStack.empty())
-			{
-				// Block all input, unacquiring the mouse in the process
-				for (auto i = 0; i < eInputType_Count; i++)
-					BlockInput(static_cast<InputType>(i), true);
-			}
-			else
-			{
-				// Deactivate the current context
-				contextStack.top()->Deactivated();
-			}
+	void RegisterDefaultInputHandler(DefaultInputHandler func)
+	{
+		defaultHandlers.push_back(func);
+	}
 
-			// Push and activate the new context
-			contextStack.push(context);
-			context->Activated();
-		}
+	void RegisterMenuUIInputHandler(MenuUIInputHandler func)
+	{
+		uiHandlers.push_back(func);
+	}
 
-		void RegisterDefaultInputHandler(DefaultInputHandler func)
-		{
-			defaultHandlers.push_back(func);
-		}
+	void SetKeyboardSettingsMenu(
+		const std::vector<ConfigurableAction> &infantrySettings,
+		const std::vector<ConfigurableAction> &vehicleSettings)
+	{
+		// The settings array needs to have infantry settings followed by
+		// vehicle settings due to assumptions that the EXE makes
+		settings.clear();
+		settings.insert(settings.end(), infantrySettings.begin(), infantrySettings.end());
+		settings.insert(settings.end(), vehicleSettings.begin(), vehicleSettings.end());
 
-		void RegisterMenuUIInputHandler(MenuUIInputHandler func)
-		{
-			uiHandlers.push_back(func);
-		}
-
-		void SetKeyboardSettingsMenu(
-			const std::vector<ConfigurableAction> &infantrySettings,
-			const std::vector<ConfigurableAction> &vehicleSettings)
-		{
-			// The settings array needs to have infantry settings followed by
-			// vehicle settings due to assumptions that the EXE makes
-			settings.clear();
-			settings.insert(settings.end(), infantrySettings.begin(), infantrySettings.end());
-			settings.insert(settings.end(), vehicleSettings.begin(), vehicleSettings.end());
-
-			// Patch the exe to point to the new menus
-			auto infantryCount = infantrySettings.size();
-			auto vehicleCount = vehicleSettings.size();
-			uint32_t infantryPointers[] = { 0x398573, 0x3993CF, 0x39A42F, 0x39B4B0 };
-			uint32_t vehiclePointers[] = { 0x39856D, 0x3993CA, 0x39A63A, 0x39A645, 0x39B4AB };
-			uint32_t endPointers[] = { 0x39A84A };
-			uint32_t infantryCountPointers[] = { 0x39857B, 0x3993BC, 0x39B495 };
-			uint32_t vehicleCountPointers[] = { 0x398580, 0x3993C1, 0x39B49A };
-			for (auto pointer : infantryPointers)
-				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0]);
-			for (auto pointer : vehiclePointers)
-				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + infantryCount);
-			for (auto pointer : endPointers)
-				Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + settings.size());
-			for (auto pointer : infantryCountPointers)
-				Pointer::Base(pointer).Write<int>(static_cast<int>(infantryCount));
-			for (auto pointer : vehicleCountPointers)
-				Pointer::Base(pointer).Write<int>(static_cast<int>(vehicleCount));
-		}
+		// Patch the exe to point to the new menus
+		auto infantryCount = infantrySettings.size();
+		auto vehicleCount = vehicleSettings.size();
+		uint32_t infantryPointers[] = { 0x398573, 0x3993CF, 0x39A42F, 0x39B4B0 };
+		uint32_t vehiclePointers[] = { 0x39856D, 0x3993CA, 0x39A63A, 0x39A645, 0x39B4AB };
+		uint32_t endPointers[] = { 0x39A84A };
+		uint32_t infantryCountPointers[] = { 0x39857B, 0x3993BC, 0x39B495 };
+		uint32_t vehicleCountPointers[] = { 0x398580, 0x3993C1, 0x39B49A };
+		for (auto pointer : infantryPointers)
+			Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0]);
+		for (auto pointer : vehiclePointers)
+			Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + infantryCount);
+		for (auto pointer : endPointers)
+			Pointer::Base(pointer).Write<ConfigurableAction*>(&settings[0] + settings.size());
+		for (auto pointer : infantryCountPointers)
+			Pointer::Base(pointer).Write<int>(static_cast<int>(infantryCount));
+		for (auto pointer : vehicleCountPointers)
+			Pointer::Base(pointer).Write<int>(static_cast<int>(vehicleCount));
 	}
 }
 
@@ -396,8 +389,8 @@ namespace
 		}
 		auto leftAction = GetActionState(eGameActionUiLeft);
 		auto rightAction = GetActionState(eGameActionUiRight);
-		auto rotateLeft = (leftAction->Ticks != 0);
-		auto rotateRight = (rightAction->Ticks != 0);
+		auto rotateLeft = (!(leftAction->Flags & eActionStateFlagsHandled) && leftAction->Ticks != 0);
+		auto rotateRight = (!(rightAction->Flags & eActionStateFlagsHandled) && rightAction->Ticks != 0);
 		auto rotateAmount = static_cast<int>(rotateRight) - static_cast<int>(rotateLeft);
 		if (rotateAmount)
 		{
@@ -532,16 +525,6 @@ namespace
 
 		if (s_ConsumablesLocked)
 			*(uint32_t *)(state + 0x18) &= ~0x10;
-	}
-
-	char __stdcall ForgeInputHook(int localPlayerIndex)
-	{
-		static auto ForgeInput = (char(__stdcall*)(int playerMappingIndex))(0x59F0E0);
-
-		if (contextStack.empty())
-			return ForgeInput(localPlayerIndex);
-
-		return -1;
 	}
 }
 
