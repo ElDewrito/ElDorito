@@ -59,7 +59,7 @@ namespace
 {
 	void ForceStopServer()
 	{
-		if (rconServer.is_listening)
+		if (rconServer.is_listening())
 			rconServer.stop();
 	}
 
