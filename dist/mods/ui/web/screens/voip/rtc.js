@@ -433,6 +433,9 @@ $(document).ready(function(){
 		if(args.data.volume){
 			setVolume(args.data.volume.uid, args.data.volume.vol);
 		}
+		else if(args.data.getPeers){
+			dew.notify("voip-peers", peerIds);
+		}
 	});
 	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
 	dew.show();
