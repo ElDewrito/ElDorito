@@ -117,10 +117,11 @@ namespace Patches::Weapon
 
 	uint16_t GetIndex(std::string &weaponName)
 	{
-		if (weaponIndices.find(weaponName) == weaponIndices.end())
+		auto result = weaponIndices.find(weaponName);
+		if (result == weaponIndices.end())
 			return 0xFFFF;
 
-		return weaponIndices.find(weaponName)->second;
+		return result->second;
 	}
 
 	std::string GetName(uint16_t & weaponIndex)
@@ -192,7 +193,9 @@ namespace Patches::Weapon
 			{
 				if (isDefault)
 				{
-					return weaponOffsetsDefault.find(weaponName)->second;
+					auto result = weaponOffsetsDefault.find(weaponName);
+					if (result != weaponOffsetsDefault.end())
+						return result->second;
 				}
 				else
 				{
@@ -209,7 +212,9 @@ namespace Patches::Weapon
 	{
 		if (isDefault)
 		{
-			return weaponOffsetsDefault.find(weaponName)->second;
+			auto result = weaponOffsetsDefault.find(weaponName);
+			if (result != weaponOffsetsDefault.end())
+				return result->second;
 		}
 		else
 		{
@@ -222,14 +227,15 @@ namespace Patches::Weapon
 
 	void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
-		if (weaponOffsetsDefault.find(weaponName)->second == weaponOffset)
+		auto result = weaponOffsetsDefault.find(weaponName);
+		if (result->second == weaponOffset)
 		{
 			weaponOffsetsModified.erase(weaponName);
 			ApplyOffsetByName(weaponName, weaponOffset);
 		}
 		else
 		{
-			weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
+			weaponOffsetsModified.emplace(weaponName, weaponOffset);
 			ApplyOffsetByName(weaponName, weaponOffset);
 		}
 	}
@@ -254,7 +260,10 @@ namespace Patches::Weapon
 
 	bool IsOffsetModified(const std::string &weapon)
 	{
-		return weaponOffsetsModified.find(weapon) != weaponOffsetsModified.end();
+		auto result = weaponOffsetsDefault.find(weapon);
+		if (result != weaponOffsetsDefault.end())
+			return false;
+		return true;
 	}
 
 	namespace Config
