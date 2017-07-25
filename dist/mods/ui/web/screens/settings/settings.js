@@ -514,6 +514,23 @@ $(document).ready(function(){
             }
         }
     });
+    var clicking = false;
+    var currentPos = {x: null, y: null};
+    $('#playerWindow').mousedown(function(){
+        clicking = true;
+    });
+    $(document).mouseup(function(){
+        clicking = false;
+    })
+    $('#playerWindow').mousemove(function( event ) {
+        if(clicking){
+            currentPos.x = event.clientX;
+            currentPos.y = event.clientY;
+            var xDiff = (currentPos.x + 90);
+            //console.log(xDiff);
+            dew.command('Player.Armor.SetUiModelRotation ' + xDiff);
+        }
+    });
 });
 
 function setButtons(){
@@ -561,17 +578,20 @@ dew.on('show', function(e){
             hasGP = false;
         }
     });
+    dew.command('game.hideh3ui 1');
 });
 
 dew.on('hide', function(e){
     dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
+    dew.command('Player.Armor.SetUiModelRotation 270');
+    dew.command('game.hideh3ui 0');
 });
 
 function initActive(){
     tabIndex = 0;
     $('.selected').removeClass('selected');
     $('.tabs li:visible').eq(0).addClass('selected');
-    window.location.replace($('.tabs li:visible').eq(0).find('a')[0].hash);
+    location.hash = $('.selected a')[0].hash;
     activePage = window.location.hash;
 }
 

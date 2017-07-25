@@ -448,3 +448,11 @@ span{
     margin-right: -3vh;
     padding-right: 3vh;
 }
+
+#playerWindow{
+    position:absolute;
+    height: 54.75vh;
+    width: 38vh;
+    top:5.25vh;
+    right: 4vh;
+}
