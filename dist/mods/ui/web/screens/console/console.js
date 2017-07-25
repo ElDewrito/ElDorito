@@ -502,6 +502,13 @@ function isScrolledToBottom(e) {
 }
 
 function autoCompleteModeConsole(toggle, silent) {
+    if (toggle.toString().toLowerCase() == "prefix") {
+        toggle = 1;
+    }
+    else if (toggle.toString().toLowerCase() == "substring") {
+        toggle = 2;
+    }
+    toggle = parseInt(toggle);
     ifset(silent, false);
     if (isNaN(parseInt(toggle))) {
         if (!isset(toggle)) {
@@ -782,3 +789,19 @@ $(window).load(function () {
 
     sizeConsole(consoleSize, true);
 });
+
+function formatBytes(bytes,decimals) {
+    if(bytes == 0) return '0 Bytes';
+    var k = 1000,
+        dm = decimals || 2,
+        sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+        i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+function showMemoryUsage() {
+	$("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize))
+	setTimeout(showMemoryUsage, 1000);
+}
+
+showMemoryUsage();
