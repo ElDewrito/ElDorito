@@ -29,10 +29,11 @@ body{
     justify-content: center;
     height:5vh;
     z-index:5;
+    margin-bottom: 0;
 }
 
 .tabs li {
-  display:flex;
+    display:flex;
 }
 
 .tabs li.selected a{
@@ -59,7 +60,7 @@ body{
     position:relative;
     margin-top:10.25vh;
     width: 100vh;
-    height: 73vh;
+    height: 74.5vh;
     margin-left: auto;
     margin-right: auto;
     opacity: 0.95;
@@ -69,11 +70,10 @@ div[id^='page']{
     position: absolute;
     left: 0;
     width:60vh;
-    margin-top:-2.75vh;
-    height: 62.5vh;
+    height: 63.5vh;
     background: #14234a;
     padding: 0vh;
-    padding-top: 2vh;
+    padding-top: 1vh;
     padding-left:20vh;
     padding-right:20vh;
     overflow-y:auto;
@@ -182,7 +182,7 @@ button.tinySetting{
     background-color:black;
     border:1px solid white;
     z-index: 3;
-    bottom: 1vh;
+    bottom: 2vh;
 }
 
 #applyButton:hover,#cancelButton:hover,button.tinySetting:hover{
@@ -304,7 +304,6 @@ button.tinySetting{
     padding-left:4vh;
     padding-right:45vh;
     width:51vh;
-    height:63vh;
 }
 
 #rightSide, #leftSide{
@@ -331,7 +330,7 @@ button.tinySetting{
     width: 45vh;
     background: #14234a;
     height:8vh;
-    bottom:0.5vh;
+    bottom:0;
     right:0;
 }
 
