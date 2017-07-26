@@ -20,6 +20,7 @@
 #include "../Forge/SelectionRenderer.hpp"
 #include "../Forge/Magnets.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include "../Web/Ui/ScreenLayer.hpp"
 #include <cassert>
 #include <queue>
 #include <stack>
@@ -67,6 +68,34 @@ namespace
 
 	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
 	int s_MonitorMovementSpeedIndex = 3;
+
+	struct ForgeMessage
+	{
+		uint32_t Type;
+		uint32_t TagIndex;
+		uint32_t PlacementIndex;
+		uint32_t PlayerIndex;
+		uint32_t Unknown10;
+		int8_t QuotaMin;
+		int8_t QuotaMax;
+		uint16_t Unknown16;
+		RealVector3D CrosshairPoint;
+		uint32_t SelectedGameType;
+		uint16_t EngineFlags;
+		uint8_t Flags;
+		uint8_t Team;
+		uint8_t SharedStorage;
+		uint8_t SpawnTime;
+		uint8_t ObjectType;
+		uint8_t ShapeType;
+		uint32_t Unknown30;
+		uint32_t Unknown34;
+		uint32_t Unknown38;
+		uint32_t Unknown3c;
+	};
+	static_assert(sizeof(ForgeMessage) == 0x40, "Invalid ForgeMessage size");
+
+	uint32_t s_SpawnItemTagIndex = -1;
 }
 
 namespace Patches::Forge
@@ -130,6 +159,11 @@ namespace Patches::Forge
 
 		return true;
 	}
+
+	void SpawnItem(uint32_t tagIndex)
+	{
+		s_SpawnItemTagIndex = tagIndex;
+	}
 }
 
 namespace
@@ -176,6 +210,21 @@ namespace
 		if (playerIndex == DatumIndex::Null)
 			return;
 
+		if (s_SpawnItemTagIndex != -1)
+		{
+			ForgeMessage msg = {0};
+			msg.Type = 0;
+			msg.PlayerIndex = playerIndex;
+			msg.TagIndex = s_SpawnItemTagIndex;
+			msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+
+			static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
+			Forge_SendMessage(&msg);
+		}
+
+		s_SpawnItemTagIndex = -1;
+
+
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 
 		if (GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
@@ -195,6 +244,10 @@ namespace
 			{
 				if (GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
 					DoClone(playerIndex, objectIndexUnderCrosshair);
+
+				if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeP, Blam::Input::eInputTypeGame) == 1)
+					Web::Ui::ScreenLayer::Show("forge_search", "{}");
+
 			}
 		}
 		else

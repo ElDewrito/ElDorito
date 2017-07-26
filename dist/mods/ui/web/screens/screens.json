@@ -67,6 +67,12 @@
 			"captureInput": true,
 			"zIndex": 8
 		},
+		{
+			"id": "forge_search",
+			"url": "dew://screens/forge/search/",
+			"captureInput": true,
+			"zIndex": 0
+		},
         {
 			"id": "spectate",
 			"url": "dew://screens/spectate/",

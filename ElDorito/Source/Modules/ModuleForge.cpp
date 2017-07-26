@@ -5,6 +5,11 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../Forge/Selection.hpp"
 #include "../Forge/ForgeUtil.hpp"
+#include "../Blam/Tags/TagReference.hpp"
+#include "../Blam/Tags/TagBlock.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Objects/Object.hpp"
+#include <unordered_map>
 
 namespace
 {
@@ -120,6 +125,118 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
+
+	bool CommandDumpPalette(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		using namespace Blam::Tags;
+
+		struct SandboxPaletteBlockDefinition
+		{
+			TagReference Object;
+			uint32_t Name;
+			int32_t MaxAllowed;
+			float Cost;
+			uint32_t Unknown1C;
+			uint32_t Unknown20;
+			uint32_t Unknown24;
+			uint32_t Unknown28;
+			uint32_t Unknown2c;
+		};
+		static_assert(sizeof(SandboxPaletteBlockDefinition) == 0x30, "Invalid SandboxPaletteBlockDefinition");
+
+		const auto lanquageId = ((int(*)())(0x0052FC40))();
+		static auto UI_GetString = (char*(*)(uint32_t unicTagIndex, uint32_t id, int lanquageId))(0x0051E290);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartArray();
+		auto scnrDefinitionPtr = (uint8_t**)0x022AAEB4;
+		if (!scnrDefinitionPtr)
+			return false;
+
+		auto mapv = Forge::GetMapVariant();
+		if (!mapv)
+			return false;
+
+		std::unordered_map<uint32_t, Blam::MapVariant::BudgetEntry*> budgetLookup;
+		for (auto i = 0; i < mapv->BudgetEntryCount; i++)
+		{
+			const auto budget = &mapv->Budget[i];
+			budgetLookup[budget->TagIndex] = budget;
+		}
+		
+		auto palettes = (TagBlock<SandboxPaletteBlockDefinition>*)((*scnrDefinitionPtr) + 0x20c);
+		for (auto i = 0; i < 7; i++)
+		{
+			auto& palette = palettes[i];
+			for (auto& item : palette)
+			{
+				auto objectDefinition = TagInstance(item.Object.TagIndex).GetDefinition<Objects::Object>();
+				if (!objectDefinition || !objectDefinition->MultiplayerProperties.Count)
+					continue;
+	
+				auto& mpObjectProperties = objectDefinition->MultiplayerProperties[0];
+				auto engineFlags = uint32_t(mpObjectProperties.EngineFlags);
+
+			
+				if (!(engineFlags & 0x3FF) || engineFlags == 0x3FF ||
+					mapv->Unknown11C != 10 && uint16_t(1 << mapv->Unknown11C) & engineFlags)
+				{
+					const char* asciiName = UI_GetString(0x1221, item.Name, lanquageId);
+					char tagIndexStr[8];
+					sprintf_s(tagIndexStr, "0x%04x", item.Object.TagIndex);
+
+					if (budgetLookup.find(item.Object.TagIndex) == budgetLookup.end())
+						continue;
+
+					const auto budget = budgetLookup[item.Object.TagIndex];
+					const auto maxAllowed = !palette->MaxAllowed ? 255 : palette->MaxAllowed;
+
+					writer.StartObject();
+					writer.Key("tagIndex");
+					writer.String(tagIndexStr);
+					writer.Key("remaining");
+					writer.Int(maxAllowed - budget->CountOnMap);
+					writer.Key("cost");
+					writer.Double(budget->Cost);
+					writer.Key("name");
+					writer.Key(asciiName);
+					writer.EndObject();
+				}
+			}
+		}
+		writer.EndArray();
+
+		returnInfo = buffer.GetString();
+		return true;
+	}
+
+	bool TryParseTagIndex(const std::string& str, uint32_t* value)
+	{
+		if (str.length() == 0)
+			return false;
+
+		auto c_str = str.c_str();
+		char* endp;
+
+		*value = std::strtol(c_str, &endp, 16);
+
+		return endp != c_str;
+	}
+
+
+	bool CommandSpawnItem(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		uint32_t tagIndex;
+		if (Arguments.size() < 1 || !TryParseTagIndex(Arguments[0], &tagIndex)) {
+			returnInfo = "Invalid tag index";
+			return false;
+		}
+
+		Patches::Forge::SpawnItem(tagIndex);
+		return true;
+	}
 }
 
 namespace Modules
@@ -148,5 +265,8 @@ namespace Modules
 		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", eCommandFlagsNone, CommandSavePrefab);
 		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", eCommandFlagsNone, CommandLoadPrefab);
 		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsNone, CommandDumpPrefabs);
+
+		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsNone, CommandDumpPalette);
+		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsNone, CommandSpawnItem);
 	}
 }

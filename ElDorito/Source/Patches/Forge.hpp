@@ -9,4 +9,6 @@ namespace Patches::Forge
 
 	bool SavePrefab(const std::string& name, const std::string& path);
 	bool LoadPrefab(const std::string& path);
+
+	void SpawnItem(uint32_t tagIndex);
 }
