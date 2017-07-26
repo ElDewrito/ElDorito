@@ -10,6 +10,7 @@
 </head>
 <body>
     <div id="settingsWindow">
+        <h1 class="header">Settings</h1>
         <ul class="tabs">
             <img class="button">
             <li><a href="#page7">Customization</a></li>
@@ -20,7 +21,6 @@
             <li><a href="#page10">Tweaks</a></li>
             <img class="button">
         </ul>
-        <h1 class="header">Settings</h1>
         <div id="page7">
             <span>
                 <label for="pName">Player Name</label>
@@ -66,12 +66,12 @@
                 <label for="colorsHolo">Holo</label>
                 <input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
             </span>
-            <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
-            <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
             <div id="playerWindow"></div>
             <div id="leftSide"></div>
             <div id="rightSide"></div>
             <div id="bottom"></div>
+            <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
+            <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
         </div>
         
         <div id="page6"> 
