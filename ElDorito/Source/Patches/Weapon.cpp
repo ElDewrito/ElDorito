@@ -228,6 +228,15 @@ namespace Patches::Weapon
 	void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
 		auto result = weaponOffsetsDefault.find(weaponName);
+
+		// Store the default value
+		if (result == weaponOffsetsDefault.end())
+		{
+			auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
+			weaponOffsetsDefault.emplace(weaponName, weapon->FirstPersonWeaponOffset);
+			result = weaponOffsetsDefault.find(weaponName);
+		}
+
 		if (result->second == weaponOffset)
 		{
 			weaponOffsetsModified.erase(weaponName);
