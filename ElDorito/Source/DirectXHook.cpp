@@ -21,6 +21,8 @@ HRESULT __stdcall DirectXHook::hookedEndScene(LPDIRECT3DDEVICE9 device)
 	auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
 	D3DVIEWPORT9 viewport;
 	pDevice->GetViewport(&viewport);
+	viewport.X = 0;
+	viewport.Y = 0;
 	viewport.Width = windowResolution[0];
 	viewport.Height = windowResolution[1];
 	pDevice->SetViewport(&viewport);

@@ -70,10 +70,8 @@ namespace Web::Ui::ScreenLayer
 
 	void Resize()
 	{
-		auto hwnd = *reinterpret_cast<HWND*>(0x199C014);
-		RECT clientRect;
-		if (GetClientRect(hwnd, &clientRect))
-			WebRenderer::GetInstance()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+		auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
+		WebRenderer::GetInstance()->Resize(windowResolution[0], windowResolution[1]);
 	}
 
 	void Show(bool show)

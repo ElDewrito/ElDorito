@@ -63,7 +63,7 @@ namespace Patches::Ui
 				Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
 		}
 
-		tagsInitiallyLoaded = true;		
+		tagsInitiallyLoaded = true;
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -133,7 +133,7 @@ namespace Patches::Ui
 		if (firstStringUpdate)
 		{
 			//go through string blocks backwards to find speaking_player, as it should be at the end.
-			for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--) 
+			for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--)
 				if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
 				{
 					speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
@@ -317,7 +317,7 @@ namespace Patches::Ui
 		}
 
 		//Hide all Icons.
-		//Bit 7 is the broken "Tap to Talk" state used in halo 3. 
+		//Bit 7 is the broken "Tap to Talk" state used in halo 3.
 		//Disabling the icon using a broken state triggers the close animation. Then removing this state triggers the open animation.
 		scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
 		scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = ChudDefinition::StateDataEngineFlags3::Bit7;
@@ -557,7 +557,7 @@ namespace Patches::Ui
 			// H3UI Resolution
 			int* UIResolution = reinterpret_cast<int*>(0x19106C8);
 
-			if ((gameResolution[0] / 16 > gameResolution[1] / 9)) {
+			if (((float)gameResolution[0] / (float)gameResolution[1] >  16.0f / 9.0f)) {
 				// On aspect ratios with a greater width than 16:9 center the UI on the screen
 				globals->HudGlobals[0].HudAttributes[0].ResolutionHeight = HUDResolutionHeight;
 				globals->HudGlobals[0].HudAttributes[0].HorizontalScale = (globals->HudGlobals[0].HudAttributes[0].ResolutionWidth / (float)gameResolution[0]) * HUDResolutionScaleX;

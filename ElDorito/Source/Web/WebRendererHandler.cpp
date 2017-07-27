@@ -178,16 +178,10 @@ void WebRendererHandler::OnPaint(CefRefPtr<CefBrowser> p_Browser, PaintElementTy
 
 bool WebRendererHandler::GetViewportInformation(uint32_t& p_Width, uint32_t& p_Height)
 {
-	if (!m_Device)
-		return false;
+	auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
 
-	D3DVIEWPORT9 s_Viewport;
-	auto s_Ret = m_Device->GetViewport(&s_Viewport);
-	if (FAILED(s_Ret))
-		return false;
-
-	p_Width = s_Viewport.Width;
-	p_Height = s_Viewport.Height;
+	p_Width = windowResolution[0];
+	p_Height = windowResolution[1];
 
 	return true;
 }
@@ -279,7 +273,7 @@ bool WebRendererHandler::OnBeforePopup(CefRefPtr<CefBrowser> p_Browser, CefRefPt
 	auto s_UrlStr = p_Url.ToWString();
 	if (!boost::istarts_with(s_UrlStr, L"http://") && !boost::istarts_with(s_UrlStr, L"https://"))
 		s_UrlStr = L"http://" + s_UrlStr;
-	
+
 	// Open the URL in the user's browser
 	ShellExecuteW(nullptr, L"open", s_UrlStr.c_str(), L"", nullptr, SW_SHOWNORMAL);
 	return true;
