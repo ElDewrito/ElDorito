@@ -11,7 +11,7 @@ environment:
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
   _zipD: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%-debug.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.config -x!*.exp -x!*.lib -x!*.pdb
-  _7zD: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zipD% -r -x!*.config -x!*.exp -x!*.lib
+  _7zD: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zipD% -r -x!*.config -x!*.exp -x!*.lib -x!*.ilk
 
 init:
   - git config --global core.autocrlf input
