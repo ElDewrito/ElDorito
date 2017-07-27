@@ -117,12 +117,12 @@ namespace Server::Voting
 	}
 	void VotingSystem::Init()
 	{
-		if (!LoadJson("mods/server/voting.json"))
+		if (!LoadJson((ElDorito::Instance().GetInstanceName() != "") ? "mods/server/voting_" + ElDorito::Instance().GetInstanceName() + ".json" : "mods/server/voting.json"))
 			loadDefaultMapsAndTypes();
 	}
 	void VetoSystem::Init()
 	{
-		if (!LoadJson("mods/server/veto.json"))
+		if (!LoadJson((ElDorito::Instance().GetInstanceName() != "") ? "mods/server/veto_" + ElDorito::Instance().GetInstanceName() + ".json" : "mods/server/veto.json"))
 			loadDefaultMapsAndTypes();
 	}
 
