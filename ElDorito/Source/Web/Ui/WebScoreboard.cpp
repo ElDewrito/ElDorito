@@ -81,11 +81,6 @@ namespace Web::Ui::WebScoreboard
 
 			if ((curTime - postgameDisplayed) > (postgameDisplayTime + postgameDelayTime))
 			{
-				auto session = Blam::Network::GetActiveSession();
-
-				if (session)
-					session->Parameters.SetSessionMode(1);
-
 				postgame = false;
 				postgameScoreShown = false;
 			}

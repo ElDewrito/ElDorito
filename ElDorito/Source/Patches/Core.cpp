@@ -128,6 +128,8 @@ namespace Patches::Core
 		Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
+
+		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
 	}
 
 	void OnShutdown(ShutdownCallback callback)
