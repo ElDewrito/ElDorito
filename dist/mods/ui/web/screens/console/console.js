@@ -115,12 +115,12 @@ function getConsoleHelp() {
             "module": "Console",
             "name": "Console.AutoCompleteMode",
             "shortName": "console_autocompletemode",
-            "description": "Toggle between the Console auto complete modes. Options: 0, 1 or 2. Setting it to 0 will toggle between Prefix and Substring modes",
+            "description": "Toggle between the Console auto complete modes. Options: 0, 1, 2, Prefix, or Substring. Setting it to 0 will toggle between Prefix and Substring modes",
             "value": consoleAutoCompleteMode,
             "defaultValue": eAutoCompleteMode.Prefix,
             "hidden": false,
             "arguments": [
-                "autocompletemode(int) Options: 0, 1 or 2. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
+                "autocompletemode(int) Options: 0, 1, 2, prefix, substring. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
             ]
         },
         {
@@ -512,7 +512,7 @@ function autoCompleteModeConsole(toggle, silent) {
     ifset(silent, false);
     if (isNaN(parseInt(toggle))) {
         if (!isset(toggle)) {
-            appendLine("", consoleAutoCompleteMode);
+            appendLine("", "[" + consoleAutoCompleteMode + "] " + autoCompleteModeToString());
         }
         else {
             appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
@@ -526,13 +526,13 @@ function autoCompleteModeConsole(toggle, silent) {
     switch(toggle) {
         case eAutoCompleteMode.Prefix:
             if (!silent) {
-                appendLine("", consoleAutoCompleteMode + " -> " + eAutoCompleteMode.Prefix);
+                appendLine("", consoleAutoCompleteMode + " -> [" + eAutoCompleteMode.Prefix + "] " + autoCompleteModeToString(eAutoCompleteMode.Prefix));
             }
             consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
             break;
         case eAutoCompleteMode.Substring:
             if (!silent) {
-                appendLine("", consoleAutoCompleteMode + " -> " + eAutoCompleteMode.Substring);
+                appendLine("", consoleAutoCompleteMode + " -> [" + eAutoCompleteMode.Substring + "] " + autoCompleteModeToString(eAutoCompleteMode.Substring));
             }
             consoleAutoCompleteMode = eAutoCompleteMode.Substring;
             break;
@@ -544,6 +544,20 @@ function autoCompleteModeConsole(toggle, silent) {
                 autoCompleteModeConsole(eAutoCompleteMode.Prefix, silent);
             }
             break;
+    }
+}
+
+function autoCompleteModeToString(mode) {
+    if (isNaN(parseInt(mode))) {
+        mode = consoleAutoCompleteMode;
+    }
+    mode = parseInt(mode);
+
+    switch(mode) {
+            return "Prefix";
+            return "Substring";
+        default:
+            return "Error";
     }
 }
 
