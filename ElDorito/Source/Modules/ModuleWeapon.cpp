@@ -135,6 +135,13 @@ namespace
 		}
 
 		auto equippedWeaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
+
+		if(equippedWeaponIndex == 0xFFFF)
+		{
+			returnInfo = "Equipped weapon not found in mulg";
+			return false;
+		}
+
 		auto equippedWeaponName = Patches::Weapon::GetEquippedWeaponName();
 
 		auto *weapon = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
