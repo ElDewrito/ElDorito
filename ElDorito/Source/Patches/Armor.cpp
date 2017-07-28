@@ -16,6 +16,7 @@
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/Math/RealQuaternion.hpp"
+#include <boost/regex.hpp>
 
 using namespace Blam::Players;
 
@@ -27,7 +28,7 @@ namespace
 		{
 			eStateFlagsNone = 0,
 			eStateFlagsRotation = 1 << 0,
-			eStateFlagsTranslation = 1 << 1 
+			eStateFlagsTranslation = 1 << 1
 		};
 
 		uint16_t Flags;
@@ -38,7 +39,7 @@ namespace
 
 	// Used during bitstream operations to automatically calculate the size of each armor component
 	const uint8_t MaxArmorIndices[] = { 81, 82, 82, 50, 52, 24, 4 };
-	
+
 	std::map<std::string, uint8_t> helmetIndices;
 	std::map<std::string, uint8_t> chestIndices;
 	std::map<std::string, uint8_t> shouldersIndices;
@@ -62,15 +63,17 @@ namespace
 
 		uint32_t temp = 0;
 
-		if (playerVars.VarColorsPrimary->ValueString.length() > 0 && playerVars.VarColorsPrimary->ValueString.substr(0, 1) == "#")
+		boost::cmatch what;
+		boost::regex expression("#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})");
+		if(boost::regex_match(playerVars.VarColorsPrimary->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Primary] = std::stoi(playerVars.VarColorsPrimary->ValueString.substr(1), 0, 16);
-		if (playerVars.VarColorsSecondary->ValueString.length() > 0 && playerVars.VarColorsSecondary->ValueString.substr(0, 1) == "#")
+		if (boost::regex_match(playerVars.VarColorsSecondary->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Secondary] = std::stoi(playerVars.VarColorsSecondary->ValueString.substr(1), 0, 16);
-		if (playerVars.VarColorsLights->ValueString.length() > 0 && playerVars.VarColorsLights->ValueString.substr(0, 1) == "#")
+		if (boost::regex_match(playerVars.VarColorsLights->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Lights] = std::stoi(playerVars.VarColorsLights->ValueString.substr(1), 0, 16);
-		if (playerVars.VarColorsVisor->ValueString.length() > 0 && playerVars.VarColorsVisor->ValueString.substr(0, 1) == "#")
+		if (boost::regex_match(playerVars.VarColorsVisor->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Visor] = std::stoi(playerVars.VarColorsVisor->ValueString.substr(1), 0, 16);
-		if (playerVars.VarColorsHolo->ValueString.length() > 0 && playerVars.VarColorsHolo->ValueString.substr(0, 1) == "#")
+		if (boost::regex_match(playerVars.VarColorsHolo->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
 
 		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndices);
@@ -121,7 +124,7 @@ namespace
 			// Colors
 			for (int i = 0; i < ColorIndices::Count; i++)
 				stream->WriteUnsigned<uint32_t>(data.Colors[i], 24);
-			
+
 			// Armor
 			for (int i = 0; i < ArmorIndices::Count; i++)
 				stream->WriteUnsigned<uint8_t>(data.Armor[i], 0, MaxArmorIndices[i]);
