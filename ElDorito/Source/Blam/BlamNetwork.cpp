@@ -103,7 +103,7 @@ namespace Blam::Network
 			memset(this, 0, sizeof(*this));
 			return;
 		}
-			
+
 		typedef void(*InitPacketPtr)(int addressIndex, PacketHeader *packet);
 		auto InitPacket = reinterpret_cast<InitPacketPtr>(0x482040);
 		InitPacket(session->AddressIndex, this);
@@ -223,6 +223,13 @@ namespace Blam::Network
 		typedef bool(__cdecl *Network_squad_session_end_gamePtr)();
 		auto Network_squad_session_end_game = reinterpret_cast<Network_squad_session_end_gamePtr>(0x438780);
 		return Network_squad_session_end_game();
+	}
+
+	bool Disconnect()
+	{
+		typedef bool(__cdecl *Network_network_life_cycle_endPtr)();
+		auto Network_network_life_cycle_end = reinterpret_cast<Network_network_life_cycle_endPtr>(0x454B40);
+		return Network_network_life_cycle_end();
 	}
 
 	void LeaveGame()

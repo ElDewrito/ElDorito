@@ -700,6 +700,21 @@ namespace
 		return true;
 	}
 
+	bool CommandGameLeave(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session)
+		{
+			returnInfo = "Unable to leave the game!";
+			return false;
+		}
+
+		Blam::Network::Disconnect();
+
+		returnInfo = "Leaving game...";
+		return true;
+	}
+
 	bool CommandGameVersion(const std::vector<std::string>& arguments, std::string& returnInfo) {
 		returnInfo = Utils::Version::GetVersionString();
 		return true;
@@ -894,6 +909,8 @@ namespace Modules
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
 
 		AddCommand("Stop", "stop", "Stops the game, goes back to lobby", eCommandFlagsNone, CommandGameStop);
+
+		AddCommand("Leave", "leave", "Leaves the game, goes back to menu", eCommandFlagsNone, CommandGameLeave);
 
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 

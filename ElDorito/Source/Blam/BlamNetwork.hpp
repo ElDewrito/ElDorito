@@ -372,6 +372,9 @@ namespace Blam::Network
 	// Requests to end the game.
 	bool EndGame();
 
+	// Disconnect from the current game.
+	bool Disconnect();
+
 	// Leaves the current game.
 	void LeaveGame();
 }
