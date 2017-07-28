@@ -24,9 +24,7 @@ namespace
 {
 	bool locked = false;
 	bool postgame = false;
-	bool postgameScoreShown = false;
 	time_t postgameDisplayed;
-	const time_t postgameDisplayTime = 5;
 	const time_t postgameDelayTime = 4.7;
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
@@ -63,9 +61,6 @@ namespace Web::Ui::WebScoreboard
 		ScreenLayer::Hide("scoreboard");
 	}
 
-	//Used to skip the 40 second wait at the end of a round.
-	//It would probably be better to find the code that is causing the wait and fix it there.
-	//This also fixes the black screen of death that happens sometimes at the end of a round. \o/
 	void Tick()
 	{
 		if (postgame)
@@ -73,16 +68,10 @@ namespace Web::Ui::WebScoreboard
 			time_t curTime;
 			time(&curTime);
 
-			if (!postgameScoreShown && ((curTime - postgameDisplayed) > postgameDelayTime))
+			if ((curTime - postgameDisplayed) > postgameDelayTime)
 			{
 				Web::Ui::WebScoreboard::Show(locked, postgame);
-				postgameScoreShown = true;
-			}
-
-			if ((curTime - postgameDisplayed) > (postgameDisplayTime + postgameDelayTime))
-			{
 				postgame = false;
-				postgameScoreShown = false;
 			}
 		}
 	}
