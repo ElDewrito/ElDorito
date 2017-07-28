@@ -517,11 +517,11 @@ $(document).ready(function(){
             if(e.data.Start == 1){
                 applyButton();
             }
-            if(e.data.LeftTrigger == 1){
-                console.log('LT');
+            if(e.data.LeftTrigger != 0){
+                rotateBiped('left');
             }
-            if(e.data.RightTrigger == 1){
-                console.log('RT');
+            if(e.data.RightTrigger != 0){
+                rotateBiped('right');
             }
             if(e.data.AxisLeftX != 0){
                 if(e.data.AxisLeftX > axisThreshold){
@@ -597,7 +597,9 @@ function setButtons(){
     });
 }
 
+var bipedRotate = 270;
 dew.on('show', function(e){
+    bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
         if(i.established){
             if(i.mapName != "mainmenu"){
@@ -646,6 +648,15 @@ dew.on('hide', function(e){
         window.clearInterval(repGP);
     }
 });
+
+function rotateBiped(direction){
+    if(direction == "right"){
+        bipedRotate++;
+    }else{
+        bipedRotate--;
+    }
+    dew.command('Player.Armor.SetUiModelRotation '+bipedRotate);
+}
 
 function initActive(){
     tabIndex = 0;
