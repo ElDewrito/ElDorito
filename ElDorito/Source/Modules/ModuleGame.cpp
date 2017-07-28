@@ -703,7 +703,7 @@ namespace
 	bool CommandGameLeave(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto session = Blam::Network::GetActiveSession();
-		if (!session)
+		if (!session || !session->IsEstablished())
 		{
 			returnInfo = "Unable to leave the game!";
 			return false;
