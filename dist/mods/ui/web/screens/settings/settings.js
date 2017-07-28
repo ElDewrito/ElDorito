@@ -600,6 +600,7 @@ function setButtons(){
 var bipedRotate = 270;
 dew.on('show', function(e){
     bipedRotate = 270;
+    dew.command('Player.Armor.SetUiModelRotation 270');
     dew.getSessionInfo().then(function(i){
         if(i.established){
             if(i.mapName != "mainmenu"){
@@ -650,10 +651,11 @@ dew.on('hide', function(e){
 });
 
 function rotateBiped(direction){
+    var rotateAmount = 2;
     if(direction == "right"){
-        bipedRotate++;
+        bipedRotate+=rotateAmount;
     }else{
-        bipedRotate--;
+        bipedRotate-=rotateAmount;
     }
     dew.command('Player.Armor.SetUiModelRotation '+bipedRotate);
 }
