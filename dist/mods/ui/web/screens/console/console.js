@@ -554,7 +554,9 @@ function autoCompleteModeToString(mode) {
     mode = parseInt(mode);
 
     switch(mode) {
+        case eAutoCompleteMode.Prefix:
             return "Prefix";
+        case eAutoCompleteMode.Substring:
             return "Substring";
         default:
             return "Error";
