@@ -2,6 +2,9 @@
 #include <fstream>
 #include <map>
 
+#include <wchar.h>
+#include <stdio.h>
+
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Console.hpp"
@@ -67,13 +70,7 @@ namespace Patches::Weapon
 		{
 			IsNotMainMenu = true;
 
-			if (!weaponOffsetsDefault.empty()) {
-				for (auto &element : weaponIndices) {
-					std::string selected = element.first;
-					auto *weapon = TagInstance(Patches::Weapon::GetIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
-					weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
-				}
-			}
+			SetDefaultOffsets();
 
 			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
 			{
@@ -233,31 +230,53 @@ namespace Patches::Weapon
 		return { -0xFFF, -0xFFF, -0xFFF };
 	}
 
+	void SetDefaultOffsets()
+	{
+		if (weaponOffsetsDefault.empty()) {
+			for (auto &element : weaponIndices) {
+				std::string selected = element.first;
+				auto *weapon = TagInstance(Patches::Weapon::GetIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+				weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
+			}
+		}
+	}
+
 	bool SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
 		if (!IsNotMainMenu)
 			return false;
 
+		std::stringstream ss;
+		ss << weaponName << ": ";
+		ss << weaponOffset.I << " " << weaponOffset.J << " " << weaponOffset.K;
+
 		auto result = weaponOffsetsDefault.find(weaponName);
 
-		// Store the default value
-		if (result == weaponOffsetsDefault.end())
+		if (IsOffsetModified(weaponName))
 		{
-			auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-			weaponOffsetsDefault.emplace(weaponName, weapon->FirstPersonWeaponOffset);
-			result = weaponOffsetsDefault.find(weaponName);
-		}
-
-		if (result->second == weaponOffset)
-		{
-			weaponOffsetsModified.erase(weaponName);
+			weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
 			ApplyOffsetByName(weaponName, weaponOffset);
+
+#if _DEBUG
+			ss << " emplace";
+#endif
 		}
 		else
 		{
-			weaponOffsetsModified.emplace(weaponName, weaponOffset);
+			weaponOffsetsModified.erase(weaponName);
 			ApplyOffsetByName(weaponName, weaponOffset);
+
+#if _DEBUG
+			ss << " erase";
+#endif
 		}
+
+		ss << "." << std::endl;
+		PrintKillFeed(ss.str());
+
+#if _DEBUG
+		Console::WriteLine(ss.str());
+#endif
 
 		return true;
 	}
@@ -280,12 +299,25 @@ namespace Patches::Weapon
 		}
 	}
 
-	bool IsOffsetModified(const std::string &weapon)
+	bool IsOffsetModified(const std::string &weaponName)
 	{
-		auto result = weaponOffsetsDefault.find(weapon);
-		if (result != weaponOffsetsDefault.end())
+		auto result = weaponOffsetsDefault.find(weaponName);
+		if (result == weaponOffsetsDefault.end())
 			return false;
 		return true;
+	}
+
+	void PrintKillFeed(std::string text)
+	{
+		std::wstring widestr = std::wstring(text.begin(), text.end());
+		const wchar_t* szText = widestr.c_str();
+
+		wchar_t buff[256];
+
+		swprintf(buff, 256, L"%s", szText);
+
+		static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
+		PrintKillFeedText(0, buff, 0);
 	}
 
 	namespace Config

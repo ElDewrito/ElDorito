@@ -76,15 +76,23 @@ namespace
 		}
 
 		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		auto weaponName = Arguments[0];
-
+		std::string weaponName;
 		uint16_t weaponIndex;
-		if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
-			weaponIndex = Patches::Weapon::GetIndex(weaponName);
+
+		if (Utils::String::ToLower(Arguments[0]) == "equipped") {
+			weaponName = Patches::Weapon::GetEquippedWeaponName();
+			weaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 		}
-		else {
-			returnInfo = "Invalid weapon name";
-			return false;
+		else
+		{
+			weaponName = Arguments[0];
+			if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
+				weaponIndex = Patches::Weapon::GetIndex(weaponName);
+			}
+			else {
+				returnInfo = "Invalid weapon name";
+				return false;
+			}
 		}
 
 		auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
