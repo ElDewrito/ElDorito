@@ -110,41 +110,6 @@ var settingsToLoad = [
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
-var renderWeapons = [
-	["Assault Rifle","assault_rifle"],
-	/*["Assault Rifle DMG","ar_variant_2"],
-	["Assault Rifle ROF","ar_variant_3"],
-	["Assault Rifle ACC","ar_variant_5"],
-	["Assault Rifle PWR","ar_variant_6"],*/
-	["Battle Rifle","battle_rifle"],
-	/*["Battle Rifle ROF","br_variant_1"],
-	["Battle Rifle ACC","br_variant_2"],
-	["Battle Rifle MAG","br_variant_3"],
-	["Battle Rifle DMG","br_variant_4"],
-	["Battle Rifle RNG","br_variant_5"],
-	["Battle Rifle PWR","br_variant_6"],
-	["Covenant Carbine","covenant_carbine"],
-	["Covenant Carbine MAG","covenant_carbine_variant_1"],
-	["Covenant Carbine DMG","covenant_carbine_variant_2"],
-	["Covenant Carbine ACC","covenant_carbine_variant_3"],
-	["Covenant Carbine ROF","covenant_carbine_variant_4"],
-	["Covenant Carbine RNG","covenant_carbine_variant_5"],
-	["Covenant Carbine PWR","covenant_carbine_variant_6"],*/
-	["DMR","dmr"],
-	/*["DMR MAG","dmr_variant_1"],
-	["DMR ACC","dmr_variant_2"],
-	["DMR ROF","dmr_variant_3"],
-	["DMR DMG","dmr_variant_4"],
-	["DMR RNG","dmr_variant_5"],
-	["DMR PWR","dmr_variant_6"],*/
-	["Plasma Rifle","plasma_rifle"],
-	/*["Plasma Rifle PWR","plasma_rifle_variant_6"],*/
-	["SMG","smg"],
-	/*["SMG ROF","smg_variant_1"],
-	["SMG ACC","smg_variant_2"],
-	["SMG DMG","smg_variant_4"],
-	["SMG PWR","smg_variant_6"]*/
-];
 var armorList = [
 	["Air Assault","air_assault"],
 	["Ballista","ballista"],
@@ -243,7 +208,18 @@ $(document).ready(function(){
     initActive();
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
-	setOptionList('renderWeapon', renderWeapons);
+    dew.command('Weapon.List', {}).then(function(response){
+        var weaponList = response.split('\n');
+        var weaponArray = [];
+        for(i = 0; i < weaponList.length; i++){
+            var weapName = weaponList[i].split('Name: ')[1]
+            if(weapName && weapName != 'unarmed'){
+                var fancyName = weapName.replace(/_/g, ' ');
+                weaponArray.push([fancyName,weapName]);
+            }   
+        }
+        setOptionList('renderWeapon', weaponArray);
+    });
 	setOptionList('armorHelmet', armorList);
 	setOptionList('armorChest', armorList);
 	setOptionList('armorShoulders', armorList);
