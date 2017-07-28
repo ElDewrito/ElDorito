@@ -67,6 +67,14 @@ namespace Patches::Weapon
 		{
 			IsNotMainMenu = true;
 
+			if (!weaponOffsetsDefault.empty()) {
+				for (auto &element : weaponIndices) {
+					std::string selected = element.first;
+					auto *weapon = TagInstance(Patches::Weapon::GetIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
+					weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
+				}
+			}
+
 			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
 			{
 				Config::SaveJSON(JSONPath);
@@ -225,8 +233,11 @@ namespace Patches::Weapon
 		return { -0xFFF, -0xFFF, -0xFFF };
 	}
 
-	void SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
+	bool SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
+		if (!IsNotMainMenu)
+			return false;
+
 		auto result = weaponOffsetsDefault.find(weaponName);
 
 		// Store the default value
@@ -247,6 +258,8 @@ namespace Patches::Weapon
 			weaponOffsetsModified.emplace(weaponName, weaponOffset);
 			ApplyOffsetByName(weaponName, weaponOffset);
 		}
+
+		return true;
 	}
 
 	void ApplyOffsetByIndex(uint16_t &weaponIndex, RealVector3D &weaponOffset)

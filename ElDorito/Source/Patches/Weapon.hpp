@@ -18,7 +18,7 @@ namespace Patches::Weapon
 	Blam::Math::RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex);
 	Blam::Math::RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName);
 
-	void SetOffsetModified(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
+	bool SetOffsetModified(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
 
 	void ApplyOffsetByIndex(uint16_t &weaponIndex, Blam::Math::RealVector3D &weaponOffset);
 	void ApplyOffsetByName(std::string &weaponName, Blam::Math::RealVector3D &weaponOffset);
