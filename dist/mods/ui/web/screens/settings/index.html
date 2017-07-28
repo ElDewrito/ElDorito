@@ -12,14 +12,15 @@
     <div id="settingsWindow">
         <h1 class="header">Settings</h1>
         <ul class="tabs">
-            <img class="button">
+            <img class="button"></img>
+						<img class="button"></img>
             <li><a href="#page7">Customization</a></li>
             <li><a href="#page6">Server</a></li>
             <li><a href="#page1">Gameplay</a></li>
             <li><a href="#page2">Controls</a></li>
             <li><a href="#page3">Audio/Video</a></li>
             <li><a href="#page10">Tweaks</a></li>
-            <img class="button">
+            
         </ul>
         <div id="page7">
             <span>
@@ -69,9 +70,8 @@
             <div id="playerWindow"></div>
             <div id="leftSide"></div>
             <div id="rightSide"></div>
-            <div id="bottom"></div>
-            <button id="randomColors" onclick="randomColors();">Random Colors<img class="button"></button>
-            <button id="randomArmor" onclick="randomArmor();">Random Armor<img class="button"></button>
+            <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
+            <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
         </div>
         
         <div id="page6"> 
@@ -583,8 +583,11 @@
                 <p class="desc">Give tossed grenades the orangey-yellow tail ala Halo: Reach</p>
             </span> 
         </div>
-        
-        <button id="applyButton">Apply<img class="button"></button><button id="cancelButton">Cancel<img class="button"></button>
+				
+				<div class="bottomBar">
+					<button id="applyButton"><img class="button">Apply</button>
+					<button id="cancelButton"><img class="button">Cancel</button>
+				</div>
     </div>
 </body>
 </html>

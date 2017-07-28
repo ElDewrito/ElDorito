@@ -1,11 +1,17 @@
 @font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
 
 html {
-    color: #FFF;
-    font-family: "Conduit ITC", sans-serif;
-    font-weight: 500;
+    color: 98b3d3;
+    font-weight: 300;
+		/*background-color: rgba(0,0,0,0.5);*/
+		cursor: pointer;
 }
-
+* {
+    font-family: "Conduit ITC", sans-serif;
+}
+*:focus {
+    outline: none;
+}
 body{
     padding: 0;
     margin: 0;
@@ -20,25 +26,25 @@ body{
 
 .tabs {
     position: relative;
-    margin-top:-0.25vh;
     list-style: none;
-    padding:0;
     width: 100%;
-    background: #14234a;
     display:flex;
-    justify-content: center;
     height:5vh;
     z-index:5;
-    margin-bottom: 0;
+		background-color: rgba(27,41,70,0.95);
+		padding: 0 0 0 16%;
+		margin: 0;
+		text-transform: uppercase;
 }
 
 .tabs li {
-    display:flex;
+		display:flex;
+		margin-right: 0;
 }
 
 .tabs li.selected a{
-    color: #B1572A;
-    font-weight: 700;
+    color: white;
+    font-weight: 300;
 }
 
 .tabs li a{
@@ -47,67 +53,130 @@ body{
     text-decoration: none;
     float: left;
     margin: 0;
-    padding: 5px;
+    padding: 0.5vh;
+		margin-right: 0.5vh;
     font-size: 3vh;
 }
 
 .tabs li a:hover {
-    background: #B1572A;
-    color: white;
+		color: #b6b6b6;
 }
+
 
 #settingsWindow{
     position:relative;
-    margin-top:10.25vh;
-    width: 100vh;
-    height: 74.5vh;
+    margin-top:7vh;
+    width: 100%;
+    height: 71.48vh;
     margin-left: auto;
     margin-right: auto;
-    opacity: 0.95;
-}
-
-div[id^='page']{
-    position: absolute;
-    left: 0;
-    width:60vh;
-    height: 63.5vh;
-    background: #14234a;
-    padding: 0vh;
-    padding-top: 1vh;
-    padding-left:20vh;
-    padding-right:20vh;
-    overflow-y:auto;
-    opacity:0;
-}
-
-div[id^='page']:target{
-    z-index: 3;
     opacity: 1;
+		z-index: -5;
 }
 
 .header{
-    position:relative;
-    top:0;
-    width: 100%;
-    background-color:black;
-    color:white;
-    padding:0;
-    margin:0;
-    text-align: center;
-    font-weight:500;
-    z-index:3;
-    height:5vh;
-    font-size:3.25vh;
-    line-height:5vh;
+	position:relative;
+	top:0;
+	width: 100%;
+	background-color: rgba(2, 8, 13, 0.85);
+	color:white;
+	padding-left: 16%;
+	margin:0;
+	text-align: left;
+	font-weight:100;
+	z-index:3;
+	height: 6.48vh;
+	font-size: 6.66vh;
+	line-height:6.48vh;
+	text-transform: uppercase;
+	border-top: solid 0.15vh rgba(91, 106, 133, 0.3); 
+	border-bottom: solid 0.15vh rgba(91, 106, 133, 0.3); 
+	box-sizing: border-box;
+}
+.bottomBar{
+	position:absolute;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.9);
+	bottom: -6.48vh;
+	z-index: 1;
+	height: 6.48vh;
+	border-top: solid 0.15vh rgba(91, 106, 133, 0.3); 
+	border-bottom: solid 0.15vh rgba(91, 106, 133, 0.3); 
+	box-sizing: border-box;
+}
+#applyButton,#cancelButton{
+	top: calc(0vh + 1.1vh);
+}
+#randomArmor,#randomColors{
+	bottom: calc(-4.15vh - 1.1vh);
+}
+#applyButton,#cancelButton,#randomArmor,#randomColors{
+	position: absolute;
+	height: 4vh;
+	line-height: 4vh;
+	font-size: 3vh;
+	font-weight: 100;
+	color: white;
+	background-color: rgba(0,0,0,0);
+	border: none;
+	z-index: 3;
+	text-align: left;
+	vertical-align: middle;
+	box-sizing: border-box;
+	padding: none;
+	float: left;
+}
+#applyButton img,#cancelButton img,#randomArmor img,#randomColors img{
+	display:none;
+	position:relative;
+	height: 3.75vh;
+	float: left;
+}
+#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover{
+	text-decoration: underline;
+}
+#applyButton{
+	right: calc(16% + 0vh);
+}
+#cancelButton{
+	left:16%;
+}
+#randomArmor{
+	left: calc(16% + 12.2vh);
+}
+#randomColors{
+	left: calc(16% + 33.2vh);
+}
+
+
+div[id^='page'] {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 60vh;
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.95) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.9) 20%, rgba(6,16,37,0.85) 100%);
+	padding: 0vh;
+	padding-top: 2vh;
+	padding-left: 16%;
+	padding-right: 16%;
+	padding-bottom: 3vh;
+	overflow-y: auto;
+	opacity: 0;
+	box-sizing: border-box;
+}
+
+div[id^='page']:target{
+	z-index: 3;
+	opacity: 1;
 }
 
 .subHeader{
-    font-size: 3vh;
-    margin:0;
-    padding:0;
-    height: 4vh;
-    text-transform: uppercase;
-    text-align: center;
+	font-size: 3vh;
+	margin:0;
+	padding:0;
+	height: 4vh;
+	text-transform: uppercase;
+	text-align: center;
 }
 
 label{
@@ -115,108 +184,64 @@ label{
     font-weight: 800;
 }
 
-.setting{
-    width: 25.5vh;
-    float:right;
-    margin-top:0.25vh;
-    height:2.5vh;
-    margin-bottom:0.25vh;
-    font-size:1.75vh;
-    font-weight:600;
-    text-align-last:center;
-    padding:0;
+.setting {
+	width: 25.5vh;
+	float: right;
+	margin-top: 0.25vh;
+	height: 2.5vh;
+	margin-bottom: 0.25vh;
+	font-size: 1.75vh;
+	font-weight: 600;
+	text-align-last: center;
+	padding: 0;
+	border: none;
+	color: 98b3d3;
+	right: 0;
+	float: right;
+	-webkit-appearance: none;
+	background-color: rgba(0,0,0,0);
 }
-
+/*
 #page10 .setting{
     width: 4vh;
 }
-
+*/
 textarea.setting{
     height: 7vh !important;
     resize: none;
 }
-
 #presetMenu{
     right: 25.5vh;    
 }
-
 input[type=range].setting {
     margin-top:0.5vh;
 }
-
 .hasTiny{
     width:19.75vh;
-    right: 25.5vh;
-}
-
-.tinySetting{
-    float:right;
-    width: 5.5vh;
-    height:2.5vh;
-    z-index:-2;
-    margin-top:0.6vh;
-    margin-bottom: -0.25vh;
-    font-size:1.75vh;
-    text-align:center;
-    font-weight:600;
-}
-
-button.tinySetting{
-    margin-top: 0.25vh;
-    background-color:black;
-    color:white;
-    border:1px solid white;
-    padding:0;
+    right: 0;
 }
 
 #bindBox{
     margin-left:-2vh;
 }
-
-#applyButton,#cancelButton{
-    position: absolute;
-    width: 12vh;
-    height: 4vh;
-    font-size: 1.75vh;
-    color: white;
-    background-color:black;
-    border:1px solid white;
-    z-index: 3;
-    bottom: 2vh;
-}
-
-#applyButton:hover,#cancelButton:hover,button.tinySetting:hover{
-    background: #B1572A;    
-}
-
-#applyButton:focus,#cancelButton:focus,button.tinySetting:focus{
-    outline: 0;
-}
-
-#applyButton{
-    right:2.5vh;
-}
-
-#cancelButton{
-    left:2.5vh;
-}
-
 #controllerGraphic {
     position: absolute;
-    left: 30vh;
+    left: calc(50% - 20.25vh);
     top: 26.5vh;
 }
+
 #controllerGraphic div {
     height: 3.009vh;
     line-height: 1.4691vh;
     position: absolute;
     width: 23.01vh;
     z-index: -1;
+		font-size: 1.6vh;
 }
 #controllerPic {
     position: relative;
     top: 0.354vh;
-    width: 40.533vh;
+    width: 40.5vh;
     height: 23.541vh;
 }
 #A {
@@ -299,78 +324,74 @@ button.tinySetting{
     width: 10vh;
 }
 
-#page7{
-    background:none;
-    padding-left:4vh;
-    padding-right:45vh;
-    width:51vh;
-}
-
-#rightSide, #leftSide{
-    position:absolute;
-    background: #14234a;
-    height: 64.5vh;
+.tinySetting{
+    float:right;
+    width: 5.5vh;
+    height:2.5vh;
     z-index:-2;
-}
-
-#rightSide{
-    top:0;
-    right:0;
-    width:4vh;
-}
-
-#leftSide{
-    top:0;
-    left:0;
-    width:58vh;
-}
-
-#bottom{
-    position: absolute;
-    width: 45vh;
-    background: #14234a;
-    height:8vh;
-    bottom:0;
-    right:0;
-}
-
-#randomArmor,#randomColors{
-    position: absolute;
-    bottom: 2vh;
-    left: 19vh;
-}
-
-#randomColors{
-    left: 37vh;
-}
-    
-.selectedElement{
-    background-color:#B1572A;
-}
-
-#page7 button{
-    background-color: black;  
-    color: white;    
-    border: 1px solid white;
-    height: 4vh;
+    margin-top:0.6vh;
+    margin-bottom: -0.25vh;
     font-size:1.75vh;
+    text-align:center;
+    font-weight:600;
+		border: none;
+		color: 98b3d3;
 }
 
-#page7 button:hover{
-    background-color: #B1572A; 
+button.tinySetting{
+    margin-top: 0.25vh;
+    padding:0;
+		background: none;
 }
 
-button img,.tabs img{
+span button.tinySetting:hover{
+	color: white;
+}
+.selectedElement, span:hover {
+	background-image: url(dew://assets/ux/buttonhover.svg);
+	background-position: center;
+	background-repeat: no-repeat;
+	color: white;
+}
+.selectedElement .setting, span:hover .setting{
+	color: white;
+}
+.selectedElement select{
+	background-image: url(dew://assets/ux/arrow_right.svg), url(dew://assets/ux/arrow_left.svg);
+	background-position: 98% 50%, 2% 50%;
+	background-repeat: no-repeat, no-repeat;
+	padding-right: .6vh;
+	padding-left: .6vh;
+	background-size: 1.2vh 1.2vh, 1.2vh 1.2vh;
+}
+
+.selectedElement select:hover, select:hover{
+	color: white;
+	background-image: url(dew://assets/ux/arrow_down.svg);
+	background-position: 98% 50%;
+	background-repeat: no-repeat;
+	background-size: 1.2vh 1.2vh;
+}
+select option{
+	color:black;
+}
+label {
+    font-size: 2.5vh;
+    font-weight: 500;
+    /* padding-left: 2.96vh; */
+    text-transform: uppercase;
+}
+.tabs img{
     display:none;
     position:relative;
     width: 3.75vh;
-    top:1.2vh;
-    margin-top:-2vh;
+    height: 3.75vh;
+    margin-top: 0vh;
     margin-right:-0.5vh;
+		top: 0.3vh;
 }
 
 .tabs img{
-    top:0;
     margin:0;
 }
 
@@ -383,12 +404,21 @@ button img,.tabs img{
     font-size:3vh;
     color: grey;
 }
-
 input[type=range] {
   -webkit-appearance: none;
   background:none;
 }
-
+input[type=checkbox]{
+ -webkit-appearance:none;
+}
+input[type=checkbox]:after{
+	content: "OFF";
+}
+input[type="checkbox"]:checked {
+}
+input[type="checkbox"]:checked:after {
+	content: "ON";
+}
 input[type=range]:focus {
   outline: none;
 }
@@ -435,27 +465,54 @@ input[type=range]::-webkit-slider-thumb {
     color: black;
 }
 
-span{
-    margin-left: -20vh;
-    padding-left: 20vh;
-    margin-right: -20vh;
-    padding-right: 20vh;
+span {
     width: 100%;
-    display: inline-block;
+    display: table;
     margin-bottom: 0.25vh;
+    position: relative;
+    padding-right: 2.96vh;
+    padding-left: 2.96vh;
 }
-
-#page7 span{
-    margin-left: -4vh;
-    padding-left: 4vh;
-    margin-right: -3vh;
-    padding-right: 3vh;
+#page7{
+    background:none;
+    padding-left:16%;
+    padding-right:50%;
+		overflow-y: visible;
 }
-
-#playerWindow{
+#rightSide, #leftSide{
     position:absolute;
-    height: 54.75vh;
-    width: 38vh;
-    top:5.25vh;
-    right: 4vh;
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
+    height: 100%;
+    z-index:-2;
 }
+#rightSide{
+	top:0;
+	right:0;
+	width: calc(50% - 45vh);
+}
+#leftSide{
+	top:0;
+	left:0;
+	width: calc(50% + 7vh);
+}
+#playerWindow{
+	position:absolute;
+	width: 38vh;
+	top: 0;
+	right: calc(50% - 19vh - 26vh);
+	height: 100%/*calc(100% - 3vh)*/;
+	opacity: 1;
+	box-sizing: border-box;
+	border: solid #0f1d38;
+	border-width: 2vh 2vh 2vh 2vh;
+}/*
+#playerWindow:after{
+	position: absolute;
+	content: " ";
+	display: block;
+	width: calc(100% + 4vh);
+	bottom: -9.4vh;
+	left: -2vh;
+	height: 9.48vh;
+  background-image: -webkit-linear-gradient( -90deg, rgb(15,29,56) 0%, rgb(15,29,56) 30%, rgba(23,33,53,0) 100%);
+}*/
