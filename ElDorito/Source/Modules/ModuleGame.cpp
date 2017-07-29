@@ -709,7 +709,7 @@ namespace
 			return false;
 		}
 
-		Blam::Network::Disconnect();
+		Blam::Network::LeaveGame();
 
 		returnInfo = "Leaving game...";
 		return true;
