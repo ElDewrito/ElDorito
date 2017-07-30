@@ -20,12 +20,12 @@
             <li><a href="#page2">Controls</a></li>
             <li><a href="#page3">Audio/Video</a></li>
             <li><a href="#page10">Tweaks</a></li>
-            
         </ul>
         <div id="page7">
+					<div id="buttonConatiner">
             <span>
                 <label for="pName">Player Name</label>
-                <input class="setting" type="text" id="pName">
+                <input class="setting textInput" type="text" id="pName" placeholder="...">
             </span><span>
                 <label for="renderWeapon">Podium Weapon</label>
                 <select id="renderWeapon" class="setting wheelable instant"></select>
@@ -53,56 +53,66 @@
                 <h3 class="subHeader">Colors</h3>
             </span><span>
                 <label for="colorsPrimary">Primary</label>
-                <input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
             </span><span>
                 <label for="colorsSecondary">Secondary</label>
-                <input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
             </span><span>
                 <label for="colorsVisor">Visor</label>
-                <input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
             </span><span>
                 <label for="colorsLights">Lights</label>
-                <input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
             </span><span>
                 <label for="colorsHolo">Holo</label>
-                <input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">
+                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsHolo" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
             </span>
+					</div>
             <div id="playerWindow"></div>
-            <div id="leftSide"></div>
-            <div id="rightSide"></div>
+            <div id="backgroundLeftSide"></div>
+            <div id="backgroundRightSide"></div>
             <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
             <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
         </div>
         
         <div id="page6"> 
+					<div id="buttonConatiner">
             <span>
                 <label for="sName">Server Name</label>
-                <input class="setting" type="text" id="sName">
+                <input class="setting textInput" type="text" id="sName" placeholder="...">
             </span><span>
                 <label for="sPass">Password</label>
-                <input class="setting" type="text" id="sPass">
+                <input class="setting textInput" type="text" id="sPass" placeholder="...">
             </span><span>
                 <label for="sUPNP">Enable UPnP</label>
                 <input class="setting" type="checkbox" id="sUPNP">
             </span><span>
                 <label for="sMessage">Join Message (\n for new line)</label>
-                <textarea class="setting" type="text" id="sMessage"></textarea>
+                <textarea class="setting textInput" type="text" id="sMessage" placeholder="..."></textarea>
             </span><span>
                 <label for="sCountdown">Match Start Countdown</label>
-                <input type="text" class="tinySetting" id="sMatchCountdownText">
-                <input type="range" class="setting hasTiny" min="0" max="20" id="sMatchCountdown">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sMatchCountdownText">
+									<input type="range" class="setting hasTiny" min="0" max="20" id="sMatchCountdown">
+								</div>
             </span><span>
                 <label for="sCountdown">Round Start Countdown</label>
-                <input type="text" class="tinySetting" id="sCountdownText">
-                <input type="range" class="setting hasTiny" min="0" max="20" id="sCountdown">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sCountdownText">
+									<input type="range" class="setting hasTiny" min="0" max="20" id="sCountdown">
+								</div>
             </span><span>
                 <label for="sMaxPlayers">Maximum Players</label>
-                <input type="text" class="tinySetting" id="sMaxPlayersText">
-                <input type="range" class="setting hasTiny" min="1" max="16" id="sMaxPlayers">
+								<div class="colorBox">
+									<input type="range" class="setting hasTiny" min="1" max="16" id="sMaxPlayers">
+									<input type="text" class="tinySetting" id="sMaxPlayersText">
+								</div>
             </span><span>
                 <label for="sMaxTeamSize">Maximum Team Size</label>
-                <input type="text" class="tinySetting" id="sMaxTeamSizeText">
-                <input type="range"class="setting hasTiny" min="2" max="16" id="sMaxTeamSize">
+								<div class="colorBox">
+									<input type="range"class="setting hasTiny" min="2" max="16" id="sMaxTeamSize">
+									<input type="text" class="tinySetting" id="sMaxTeamSizeText">
+								</div>
             </span><span>		
                 <label for="sShouldAnnounce">Announce to Server Lists</label>
                 <input class="setting" type="checkbox" id="sShouldAnnounce">
@@ -135,16 +145,22 @@
                     <h3 class="subHeader voting">Map Voting Options</h3>
                 </span><span>
                     <label for="sMapVotingTime">Map Voting Time</label>
+									<div class="colorBox">
                     <input type="text" class="tinySetting" id="sMapVotingTimeText">
                     <input type="range" class="setting hasTiny" min="0" max="100" id="sMapVotingTime">
+									</div>
                 </span><span>
                     <label for="sNumOfRevotes">Number of Revotes Allowed</label>
-                    <input type="text" class="tinySetting" id="sNumOfRevotesText">
-                    <input type="range" class="setting hasTiny" min="0" max="100" id="sNumOfRevotes">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sNumOfRevotesText">
+											<input type="range" class="setting hasTiny" min="0" max="100" id="sNumOfRevotes">
+										</div>
                 </span><span>
                     <label for="sNumberOfVotingOptions">Number of Voting Options</label>
-                    <input type="text" class="tinySetting" id="sNumberOfVotingOptionsText">
-                    <input type="range" class="setting hasTiny" min="1" max="4" id="sNumberOfVotingOptions">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sNumberOfVotingOptionsText">
+											<input type="range" class="setting hasTiny" min="1" max="4" id="sNumberOfVotingOptions">
+										</div>
                 </span><span>
                     <label for="sVotingDuplicationLevel">Voting Duplication Level</label>
                     <select id="sVotingDuplicationLevel" class="setting wheelable voting">
@@ -154,8 +170,10 @@
                     </select>
                 </span><span>
                     <label for="sTimeBetweenVoteEndAndGameStart">Time Between Winner And Start</label>
-                    <input type="text" class="tinySetting" id="sTimeBetweenVoteEndAndGameStartText">
-                    <input type="range" class="setting hasTiny" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sTimeBetweenVoteEndAndGameStartText">
+											<input type="range" class="setting hasTiny" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart">
+										</div>
                 </span>
             </div>
             <div id="veto">
@@ -163,25 +181,36 @@
                     <h3 class="subHeader veto">Map Veto Options</h3>
                 </span><span>
                     <label for="sNumOfVetoes">Maximum Veto Votes Per Round</label>
-                    <input type="text" class="tinySetting" id="sNumOfVetoesText">
-                    <input type="range" class="setting hasTiny" min="0" max="10" id="sNumOfVetoes">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sNumOfVetoesText">
+											<input type="range" class="setting hasTiny" min="0" max="10" id="sNumOfVetoes">
+										</div>
                 </span><span>    
                     <label for="sVetoVoteTime">Veto Vote Time</label>
-                    <input type="text" class="tinySetting" id="sVetoVoteTimeText">
-                    <input type="range" class="setting hasTiny" min="0" max="200" id="sVetoVoteTime">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sVetoVoteTimeText">
+											<input type="range" class="setting hasTiny" min="0" max="200" id="sVetoVoteTime">
+										</div>
                 </span><span>  
                     <label for="sVetoWinningShowTime">Winning Option Shown Time</label>
-                    <input type="text" class="tinySetting" id="sVetoWinningShowTimeText">
-                    <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoWinningShowTime">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sVetoWinningShowTimeText">
+											<input type="range" class="setting hasTiny" min="0" max="100" id="sVetoWinningShowTime">
+										</div>
                 </span><span>       
                     <label for="sVetoPassPercentage">Vote Pass Percentage</label>
-                    <input type="text" class="tinySetting" id="sVetoPassPercentageText">
-                    <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoPassPercentage">
+										<div class="colorBox">
+											<input type="text" class="tinySetting" id="sVetoPassPercentageText">
+											<input type="range" class="setting hasTiny" min="0" max="100" id="sVetoPassPercentage">
+										</div>
                 </span>
             </div>
+					</div>
+					<div id="backgroundFill"></div>
         </div>     
         
         <div id="page1">  
+					<div id="buttonConatiner">
             <span>        
                 <label for="sHudShake">Hud Shake</label>
                 <input class="setting" type="checkbox" id="sHudShake">
@@ -194,14 +223,16 @@
                 </select>
             </span><span>
                 <label for="sCameraFOV">Camera FOV</label>
-                <input type="text" class="tinySetting" id="sCameraFOVText">
-                <input type="range" class="setting hasTiny" min="55" max="155" id="sCameraFOV">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sCameraFOVText">
+									<input type="range" class="setting hasTiny" min="55" max="155" id="sCameraFOV">
+								</div>
             </span><span>
                 <label for="cCenteredCrosshair">Centered Crosshair</label>
                 <input class="setting" type="checkbox" id="cCenteredCrosshair">
             </span><span>
                 <label for="wOffsetConfig">Viewmodel Config</label>
-                <input class="setting" type="text" id="wOffsetConfig">
+                <input class="setting textInput" type="text" id="wOffsetConfig">
             </span><span>
                 <label for="cHideHUD">Hide HUD</label>
                 <input class="setting" type="checkbox" id="cHideHUD">
@@ -221,9 +252,12 @@
                 <label for="gIconSet">Controller Button Icon Set</label>
                 <select id="gIconSet" class="setting wheelable"></select>
             </span>
+					</div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page2">
+					<div id="buttonConatiner">
             <span>
                 <label for="sControlsMethod">Control Method</label>
                 <button class="tinySetting" onclick="editControls($('#sControlsMethod').val())">EDIT</button>
@@ -235,26 +269,36 @@
                 <h3 class="subHeader">Infantry Mouse Sensitivity</h3>
             </span><span>
                 <label for="sInfantryMouseSensV">Vertical</label>
-                <input type="text" class="tinySetting" id="sInfantryMouseSensVText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensV">
-            </span><span>
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sInfantryMouseSensVText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensV">
+								</div>
+						</span><span>
                 <label for="sInfantryMouseSensH">Horizontal</label>
-                <input type="text" class="tinySetting" id="sInfantryMouseSensHText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensH">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sInfantryMouseSensHText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensH">
+								</div>
             </span><span>
                 <h3 class="subHeader">Vehicle Mouse Sensitivity</h3>
             </span><span>
                 <label for="sVehicleMouseSensV">Vertical</label>
-                <input type="text" class="tinySetting" id="sVehicleMouseSensVText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensV">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sVehicleMouseSensVText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensV">
+								</div>
             </span><span>
                 <label for="sVehicleMouseSensH">Horizontal</label>
-                <input type="text" class="tinySetting" id="sVehicleMouseSensHText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensH">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sVehicleMouseSensHText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensH">
+								</div>
             </span><span>
                 <label for="sMouseAcceleration">Mouse Acceleration</label>
-                <input type="text" class="tinySetting" id="sMouseAccelerationText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sMouseAcceleration">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sMouseAccelerationText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sMouseAcceleration">
+								</div>
             </span><span>
                 <label for="sMouseFilter">Mouse Filter</label>
                 <input class="setting" type="checkbox" id="sMouseFilter">
@@ -272,12 +316,17 @@
                 <input class="setting" type="checkbox" id="inputRaw">
             </span><span>
                 <label for="iSpectateSens">Spectator Camera Senstivity</label>
-                <input type="text" class="tinySetting" id="iSpectateSensText">
-                <input type="range" class="setting hasTiny" min="0" max="2" step="0.1" id="iSpectateSens">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="iSpectateSensText">
+									<input type="range" class="setting hasTiny" min="0" max="2" step="0.1" id="iSpectateSens">
+								</div>
             </span>
+					</div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page5">
+					<div id="buttonConatiner">
             <table id="bindBox">
             <thead>
                 <tr><th>Action</th><th>Primary Bind</th><th>Secondary Bind</th></tr>
@@ -285,24 +334,33 @@
             <tbody>
             </tbody>
             </table>
+					</div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page3">
+					<div id="buttonConatiner">
             <span>
                 <label for="sAudioDevice">Audio Device</label>
                 <select id="sAudioDevice"class="setting wheelable"></select>
             </span><span>
                 <label for="sMasterVolume">Master Volume</label>
-                <input type="text" class="tinySetting" id="sMasterVolumeText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sMasterVolumeText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
+								</div>
             </span><span>
                 <label for="sSFXVolume">SFX Volume</label>
-                <input type="text" class="tinySetting" id="sSFXVolumeText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sSFXVolume">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sSFXVolumeText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sSFXVolume">
+								</div>
             </span><span>
                 <label for="sMusicVolume">Music Volume</label>
-                <input type="text" class="tinySetting" id="sMusicVolumeText">
-                <input type="range" class="setting hasTiny" min="0" max="100" id="sMusicVolume">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sMusicVolumeText">
+									<input type="range" class="setting hasTiny" min="0" max="100" id="sMusicVolume">
+								</div>
             </span><span>     
                 <h3 class="subHeader">Video</h3>
             </span><span>
@@ -311,12 +369,16 @@
                 </select>
             </span><span>
                 <label for="sBrightness">Brightness</label>
-                <input type="text" class="tinySetting" id="sBrightnessText">
-                <input type="range" class="setting hasTiny" min="1" max="100" id="sBrightness">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sBrightnessText">
+									<input type="range" class="setting hasTiny" min="1" max="100" id="sBrightness">
+								</div>
             </span><span>
                 <label for="sContrast">Contrast</label>
-                <input type="text" class="tinySetting" id="sContrastText">
-                <input type="range" class="setting hasTiny" min="1" max="100" id="sContrast">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="sContrastText">
+									<input type="range" class="setting hasTiny" min="1" max="100" id="sContrast">
+								</div>
             </span><span>
                 <label for="sFullscreen">Fullscreen</label>
                 <input class="setting" type="checkbox" id="sFullscreen">
@@ -355,10 +417,13 @@
             </span><span>    
                 <label for="vNoiseSupress">Noise Supress</label>
                 <input class="setting voip" type="checkbox" id="vNoiseSupress">
-            </span>            
+            </span>    
+					</div>
+					<div id="backgroundFill"></div>						
         </div>
         
         <div id="page4">
+					<div id="buttonConatiner">
             <span>
                 <h3 class="subHeader">Advanced Video</h3>
             </span><span>
@@ -413,17 +478,22 @@
                 <label for="sMotionBlur">Motion Blur</label>
                 <input class="setting video" type="checkbox" id="sMotionBlur">
             </span> 
+					</div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page8">
+					<div id="buttonConatiner">
             <span>
                 <label for="presetMenu">Button Layout</label>
                 <button class="tinySetting" onclick="switchPage('#page9')">EDIT</button>
-                <select id="presetMenu" class="setting"></select>
+                <select id="presetMenu" class="setting hasTiny wheelable"></select>
             </span><span>
                 <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
-                <input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
-                <input type="range" min="1" max="15" id="lookSensitivity" class="setting hasTiny">
+								<div class="colorBox">
+									<input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
+									<input type="range" min="1" max="15" id="lookSensitivity" class="setting hasTiny">
+								</div>
             </span><span>
                 <label for="invertLook">Invert Look</label>
                 <input class="setting" type="checkbox" id="invertLook">
@@ -436,6 +506,7 @@
                     <option value="3">3</option>
                 </select>
             </span>
+					</div>
             <div id="controllerGraphic">
                 <img id="controllerPic" src="controller.png">
                 <div id="A"></div>
@@ -455,9 +526,11 @@
                 <div id="Up"></div>
                 <div id="Down"></div>
             </div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page9">
+					<div id="buttonConatiner">
             <span>
                 <label for="Jump">Jump</label>
                 <select class="bind setting" id="Jump"></select>
@@ -546,9 +619,12 @@
                 <label for="VoiceChat">VoiceChat</label>
                 <select class="bind setting" id="VoiceChat">
             </select></span>
+					</div>
+					<div id="backgroundFill"></div>
         </div>
         
         <div id="page10">
+					<div id="buttonConatiner">
             <span>
                 <label for="tAgressiveAudioDiscard">Aggressive Audio Discarding (by Dany)</label>
                 <input class="setting" type="checkbox" id="tAgressiveAudioDiscard">
@@ -582,6 +658,8 @@
                 <input class="setting" type="checkbox" id="tReachFrags">
                 <p class="desc">Give tossed grenades the orangey-yellow tail ala Halo: Reach</p>
             </span> 
+					</div>
+					<div id="backgroundFill"></div>
         </div>
 				
 				<div class="bottomBar">
@@ -598,7 +676,7 @@
             </span><span>
             
             <label for="yText">Text</label>
-            <input class="setting" type="text" id="yText">
+            <input class="setting textInput" type="text" id="yText">
             </span><span>
 
             <label for="yTextArea">Text Area</label>
