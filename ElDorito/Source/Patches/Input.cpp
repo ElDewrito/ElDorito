@@ -449,6 +449,89 @@ namespace
 		return unitObjectPtr(0x2CB).Read<uint8_t>() != 0xFF;
 	}
 
+	//Checks if two game actions have the same binding, and that same binding is down.
+	//Eg, true if for parameters eGameActionPickUpLeft and eGameActionUseConsumable 1, if both are bound to Z and Z is down.
+	//False if bindings are the same, but different inputs are down, or if bindings are different.
+	bool HasEqualBindingsDown(GameAction action1, GameAction action2, InputType inputType)
+	{
+		auto isUsingController = *(bool*)0x0244DE98;
+		auto& moduleInput = Modules::ModuleInput::Instance();
+		auto bindings = moduleInput.GetBindings();
+
+		//Controller's easy, so check that first.
+		if (isUsingController)
+		{
+			auto action1State = GetActionState(action1);
+			auto action2State = GetActionState(action2);
+
+			if (action1State->Ticks != 0 && action2State->Ticks != 0)
+				return true;
+		}
+		else
+		{
+			//Check keyboard first, with the most bindings it's most likely.
+
+			//Find all keyboard/mouse bindings for the two actions
+			KeyCode action1PrimaryKey = bindings->PrimaryKeys[action1];
+			KeyCode action1SecondaryKey = bindings->SecondaryKeys[action1];
+
+			KeyCode action2PrimaryKey = bindings->PrimaryKeys[action2];
+			KeyCode action2SecondaryKey = bindings->SecondaryKeys[action2];
+
+			//Find which bindings are active
+			bool action1PrimaryKeyDown = GetKeyTicks(action1PrimaryKey, inputType) != 0;
+			bool action1SecondaryKeyDown = GetKeyTicks(action1SecondaryKey, inputType) != 0;
+
+			bool action2PrimaryKeyDown = GetKeyTicks(action2PrimaryKey, inputType) != 0;
+			bool action2SecondaryKeyDown = GetKeyTicks(action2SecondaryKey, inputType) != 0;
+
+			if (action1PrimaryKeyDown)
+			{
+				if (action1PrimaryKey == action2PrimaryKey && action2PrimaryKeyDown)
+					return true;
+				if (action1PrimaryKey == action1SecondaryKey && action1SecondaryKeyDown)
+					return true;
+			}
+			if(action1SecondaryKeyDown)
+			{
+				if (action1SecondaryKey == action2PrimaryKey && action2PrimaryKeyDown)
+					return true;
+				if (action1SecondaryKey == action1SecondaryKey && action1SecondaryKeyDown)
+					return true;
+			}
+
+			//Now check mouse bindings.
+
+			MouseButton action1PrimaryMouseButton = bindings->PrimaryMouseButtons[action1];
+			MouseButton action1SecondaryMouseButton = bindings->SecondaryMouseButtons[action1];
+
+			MouseButton action2PrimaryMouseButton = bindings->PrimaryMouseButtons[action2];
+			MouseButton action2SecondaryMouseButton = bindings->SecondaryMouseButtons[action2];
+
+			bool action1PrimaryMouseButtonDown = GetMouseButtonTicks(action1PrimaryMouseButton, inputType) != 0;
+			bool action1SecondaryMouseButtonDown = GetMouseButtonTicks(action1SecondaryMouseButton, inputType) != 0;
+
+			bool action2PrimaryMouseButtonDown = GetMouseButtonTicks(action2PrimaryMouseButton, inputType) != 0;
+			bool action2SecondaryMouseButtonDown = GetMouseButtonTicks(action2SecondaryMouseButton, inputType) != 0;
+
+			if (action1PrimaryMouseButtonDown)
+			{
+				if (action1PrimaryMouseButton == action2PrimaryMouseButton && action2PrimaryMouseButton)
+					return true;
+				if (action1PrimaryMouseButton == action2SecondaryMouseButton && action2SecondaryMouseButton)
+					return true;
+			}
+			if (action1SecondaryMouseButtonDown)
+			{
+				if (action1SecondaryMouseButton == action2PrimaryMouseButton && action2PrimaryMouseButton)
+					return true;
+				if (action1SecondaryMouseButton == action2SecondaryMouseButton && action2SecondaryMouseButton)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state)
 	{
 		static auto LocalPlayerInputHook = (void(__cdecl*)(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state))(0x5D0C90);
@@ -502,9 +585,12 @@ namespace
 
 		if (*(uint32_t*)(state + 0x18) & 0x10)
 		{
-			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
+			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button 
 			if (*(uint16_t*)GetPlayerControlsAction(localPlayerIndex) == 1)
-				s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft] && GetKeyTicks(bindings->PrimaryKeys[eGameActionUseConsumable1], eInputTypeGame) == 0 && GetKeyTicks(bindings->SecondaryKeys[eGameActionUseConsumable1], eInputTypeGame) == 0;
+				if (isUsingController)
+					s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft];
+				else
+					s_ConsumablesLocked = HasEqualBindingsDown(eGameActionUseConsumable1, eGameActionPickUpLeft, eInputTypeGame);
 		}
 		else
 		{
@@ -513,8 +599,8 @@ namespace
 
 		if (isDualWielding)
 		{
-			if (bindings->ControllerButtons[eGameActionReloadLeft] == bindings->ControllerButtons[eGameActionUseConsumable1])
-				s_ConsumablesLocked = true;
+			if(!s_ConsumablesLocked)
+				s_ConsumablesLocked = HasEqualBindingsDown(eGameActionUseConsumable1, eGameActionReloadLeft, eInputTypeGame);
 
 			if (bindings->ControllerButtons[eGameActionMelee] == bindings->ControllerButtons[eGameActionFireLeft])
 				*(uint32_t *)(state + 0x18) &= ~0x20u;
