@@ -494,10 +494,12 @@ $(document).ready(function(){
                 applyButton();
             }
             if(e.data.LeftTrigger != 0){
-                rotateBiped('left');
+                itemNumber = 0;
+                updateSelection(itemNumber);
             }
             if(e.data.RightTrigger != 0){
-                rotateBiped('right');
+                itemNumber = $(activePage + ' label:visible').length-1;
+                updateSelection(itemNumber);
             }
             if(e.data.AxisLeftX != 0){
                 if(e.data.AxisLeftX > axisThreshold){
@@ -520,6 +522,14 @@ $(document).ready(function(){
             }else{
                 stickTicks.up = 0;
                 stickTicks.down = 0;               
+            }
+            if(e.data.AxisRightX != 0){
+                if(e.data.AxisRightX > axisThreshold){
+                    rotateBiped('right');
+                };
+                if(e.data.AxisRightX < -axisThreshold){
+                    rotateBiped('left');
+                };
             }
         }
     });
