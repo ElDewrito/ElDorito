@@ -261,6 +261,10 @@ dew.on("scoreboard", function(e){
 dew.on("voip-user-volume", function(e){
 });
 
+dew.on("voip-peers", function(e){
+    console.log(e);
+});
+
 dew.on("voip-speaking", function(e){ 
     if(e.data.isSpeaking){
         talkingArray.push(e.data.user);
@@ -270,23 +274,6 @@ dew.on("voip-speaking", function(e){
     dew.command('Game.ExpandedScoreboard', {}).then(function(response){
         displayScoreboard(response);
     });
-});
-
-dew.on("voip-ptt", function(e){
-    dew.command('VoIP.PTT_Enabled', {}).then(function(x){
-        if(x == 1){
-            dew.command('Player.Name', {}).then(function(n){
-                if(e.data.talk == 1){
-                    talkingArray.push(n);
-                }else{
-                    talkingArray.splice($.inArray(n, talkingArray),1);
-                }
-                dew.command('Game.ExpandedScoreboard', {}).then(function(response){
-                    displayScoreboard(response);
-                });
-            });
-        }      
-    })
 });
 
 dew.on("show", function(e){
@@ -407,8 +394,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }).mouseout(function(){
                     col = $(this).attr('data-color');
                     $(this).css("background-color", hexToRgb(col, cardOpacity));
-                })
-                .append($('<td class="rank">'))
+                }).click(function(){
+                    var playerName = $(this).attr('id');
+                    playerBreakdown(playerName);
+                }).append($('<td class="rank">'))
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
             if(lobby[i].isAlive){
@@ -472,11 +461,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     if(result[0] == lobby[i].name){
                         $('#'+lobby[i].name).find('.volSlider').val(result[1]);
                         if(result[1] < 2){
-                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
+                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
                         }else if(result[1] < 4){
-                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
+                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
                         }else{
-                                $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
+                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
                         };
                     }
                 }
@@ -495,10 +484,6 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             }
             rankMe(teamGame);
         }      
-        $('.clickable').find('td').on('click',function(){
-            var playerName = $(this).parent().attr('id');
-            playerBreakdown(playerName);
-        });
         $('.volSlider').on('change click', function(e){
             e.stopPropagation();
             var playerName = $(this).parent().parent().attr('id');
