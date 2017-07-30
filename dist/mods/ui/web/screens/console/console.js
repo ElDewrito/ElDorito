@@ -2,11 +2,17 @@ var inputHistory = [];
 var selectedHistoryIndex = 0;
 var commandList = {};
 
+var eAutoCompleteMode = {
+    Prefix : 1,
+    Substring : 2
+};
+
 var consoleSize = 2;
 var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
+var consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
 
 function isset(val) {
      return !!val;
@@ -66,6 +72,7 @@ function resetConsole() {
     invertConsole(1, true)
     transparencyConsole(75, true);
     opacityConsole(100, true);
+    autoCompleteModeConsole(eAutoCompleteMode.Prefix, true);
     clearConsole();
     clearInput();
 }
@@ -103,6 +110,18 @@ function getConsoleHelp() {
             "defaultValue": null,
             "hidden": false,
             "arguments": []
+        },
+        {
+            "module": "Console",
+            "name": "Console.AutoCompleteMode",
+            "shortName": "console_autocompletemode",
+            "description": "Toggle between the Console auto complete modes. Options: 0, 1, 2, Prefix, or Substring. Setting it to 0 will toggle between Prefix and Substring modes",
+            "value": consoleAutoCompleteMode,
+            "defaultValue": eAutoCompleteMode.Prefix,
+            "hidden": false,
+            "arguments": [
+                "autocompletemode(int) Options: 0, 1, 2, prefix, substring. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
+            ]
         },
         {
             "module": "Console",
@@ -201,7 +220,7 @@ function showHelp(command) {
     if (!isset(command)) {
         commands = commands.sort(function(a, b) {
             if (a.module < b.module) {
-                return -1;  
+                return -1;
             } else if (a.module > b.module) {
                 return 1;
             } else {
@@ -262,7 +281,7 @@ function showVariables() {
     $.extend(commands, commandList, getConsoleHelp());
     commands = commands.sort(function(a, b) {
         if (a.module < b.module) {
-            return -1;  
+            return -1;
         } else if (a.module > b.module) {
             return 1;
         } else {
@@ -293,7 +312,7 @@ function getSuggestedCommands(partial) {
     $(".suggestion").remove();
     if (isset(partial)) {
         commandItem = $.grep(commands, function(item) {
-            return item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0;
+            return ((consoleAutoCompleteMode == eAutoCompleteMode.Prefix) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
@@ -482,6 +501,68 @@ function isScrolledToBottom(e) {
     return (e.prop("scrollHeight") - e.scrollTop() - e.outerHeight() < 1);
 }
 
+function autoCompleteModeConsole(toggle, silent) {
+    if (toggle.toString().toLowerCase() == "prefix") {
+        toggle = 1;
+    }
+    else if (toggle.toString().toLowerCase() == "substring") {
+        toggle = 2;
+    }
+    toggle = parseInt(toggle);
+    ifset(silent, false);
+    if (isNaN(parseInt(toggle))) {
+        if (!isset(toggle)) {
+            appendLine("", "[" + consoleAutoCompleteMode + "] " + autoCompleteModeToString());
+        }
+        else {
+            appendLine("error-line", "Parameter is not an integer! Options: 0, 1 or 2");
+        }
+        return;
+    }
+    else if (toggle != 0 && toggle != eAutoCompleteMode.Prefix && toggle != eAutoCompleteMode.Substring) {
+        appendLine("error-line", "Parameter is invalid! Options: 0, 1 or 2");
+        return;
+    }
+    switch(toggle) {
+        case eAutoCompleteMode.Prefix:
+            if (!silent) {
+                appendLine("", consoleAutoCompleteMode + " -> [" + eAutoCompleteMode.Prefix + "] " + autoCompleteModeToString(eAutoCompleteMode.Prefix));
+            }
+            consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
+            break;
+        case eAutoCompleteMode.Substring:
+            if (!silent) {
+                appendLine("", consoleAutoCompleteMode + " -> [" + eAutoCompleteMode.Substring + "] " + autoCompleteModeToString(eAutoCompleteMode.Substring));
+            }
+            consoleAutoCompleteMode = eAutoCompleteMode.Substring;
+            break;
+        default:
+            if (consoleAutoCompleteMode == eAutoCompleteMode.Prefix) {
+                autoCompleteModeConsole(eAutoCompleteMode.Substring, silent);
+            }
+            else {
+                autoCompleteModeConsole(eAutoCompleteMode.Prefix, silent);
+            }
+            break;
+    }
+}
+
+function autoCompleteModeToString(mode) {
+    if (isNaN(parseInt(mode))) {
+        mode = consoleAutoCompleteMode;
+    }
+    mode = parseInt(mode);
+
+    switch(mode) {
+        case eAutoCompleteMode.Prefix:
+            return "Prefix";
+        case eAutoCompleteMode.Substring:
+            return "Substring";
+        default:
+            return "Error";
+    }
+}
+
 function scrollToBottom() {
     var box = $("#output-box");
     box.scrollTop(box.prop("scrollHeight"));
@@ -564,6 +645,12 @@ function runCommand(command) {
                     appendLine("command-line", "> " + command);
                     var commandValue = command.split(' ');
                     opacityConsole(commandValue[1]);
+                    break;
+                }
+                else if (command.toLowerCase().indexOf('console.autocompletemode') == 0) {
+                    appendLine("command-line", "> " + command);
+                    var commandValue = command.split(' ');
+                    autoCompleteModeConsole(commandValue[1]);
                     break;
                 }
                 else if (command.toLowerCase().indexOf('help') == 0) {
