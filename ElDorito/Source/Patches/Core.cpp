@@ -69,6 +69,10 @@ namespace Patches::Core
 		// Fix random colored lighting
 		Patch(0x14F2FFC, { 0x0, 0x0, 0x0, 0x0 }).Apply();
 
+		// There once was a man from Bungie......
+		static const auto RESOURCES_B_DAT_PATH = "maps\\resources_b.dat";
+		Pointer(0x01595078 + 1).Write(uint32_t(&RESOURCES_B_DAT_PATH));
+
 		// Maps folder override
 		Hook(0x101FC0, GetMapsFolderHook).Apply();
 		SetMapsFolder("maps\\");
