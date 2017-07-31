@@ -162,7 +162,7 @@ body {
     height: 5vw;
 }
 
-#initialInstructions{
+#announcementBox{
     display:none;
     position: absolute;
     top:20%;
@@ -177,6 +177,30 @@ body {
     border: 2px solid white;
 }
 
-#initialInstructions a{
+#announcementBox a{
     color: #95bde1; 
+}
+
+.announcement{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90%;
+    background-color: #14234a;
+    display: none;
+}
+
+#buttonNav{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 10%;
+    width: 100%;
+    background-color: black;
+    color: white;
+}
+
+#buttonNav a{
+    margin-right: 4vh;
 }
