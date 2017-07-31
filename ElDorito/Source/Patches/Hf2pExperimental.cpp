@@ -14,6 +14,7 @@
 #include "../ElDorito.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/BlamTime.hpp"
+#include "../Blam/Tags/Scenario/Scenario.hpp"
 
 namespace
 {
@@ -392,6 +393,25 @@ namespace
 		*(uint32_t*)ElDorito::GetMainTls(0x18)[0](0x8400C) = 1; // needed for dirtying
 	}
 
+	void ApplyDefaultScreenFx()
+	{
+		static const auto GetLocalPlayerUnitObjectIndex = (uint32_t(*)(int playerIndex))(0x00589CC0);
+		static const auto SpawnScreenEffect = (void(*)(uint32_t tagIndex, uint32_t unitObjectIndex, int a3, void* a4, void* a5))(0x683060);
+
+		auto scnrDefinitionPtr = (Blam::Tags::Scenario::Scenario**)0x022AAEB4;
+		if (!scnrDefinitionPtr)
+			return;
+
+		auto scnrDefinition = *scnrDefinitionPtr;
+		if (scnrDefinition->DefaultScreenFx.TagIndex == -1)
+			return;
+
+		auto unitObjectIndex = GetLocalPlayerUnitObjectIndex(*(uint32_t*)0x018BF52C);
+
+		uint8_t unk[0x3C] = { 0 };
+		SpawnScreenEffect(scnrDefinition->DefaultScreenFx.TagIndex, unitObjectIndex, 0, &unk, &unk);
+	}
+
 	void OnMapLoaded(const char* map)
 	{
 		const auto soundSystemPtr = (uint8_t**)(0x018BC9C8);
@@ -400,6 +420,9 @@ namespace
 
 		const auto& mapStr = std::string(map);
 		const std::string mainmenu("mainmenu");
+
+		// this can be removed when we have scripts
+		ApplyDefaultScreenFx();
 
 		if (mapStr.length() >= mainmenu.length() && std::equal(mainmenu.rbegin(), mainmenu.rend(), mapStr.rbegin()))
 		{
