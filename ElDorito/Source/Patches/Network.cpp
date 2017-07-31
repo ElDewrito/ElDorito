@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 
 #include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
@@ -252,55 +253,58 @@ namespace Patches::Network
 					writer.Key("players");
 
 					writer.StartArray();
-					uint32_t playerScoresBase = 0x23F1724;
-					//uint32_t playerInfoBase = 0x2162DD0;
 					uint32_t playerInfoBase = 0x2162E08;
-					uint32_t menuPlayerInfoBase = 0x1863B58;
 					uint32_t playerStatusBase = 0x2161808;
-					for (int i = 0; i < 16; i++)
+
+
+					int peerIdx = session->MembershipInfo.FindFirstPeer();
+					while (peerIdx != -1)
 					{
-						uint16_t score = Pointer(playerScoresBase + (1080 * i)).Read<uint16_t>();
-						uint16_t kills = Pointer(playerScoresBase + (1080 * i) + 4).Read<uint16_t>();
-						uint16_t assists = Pointer(playerScoresBase + (1080 * i) + 6).Read<uint16_t>();
-						uint16_t deaths = Pointer(playerScoresBase + (1080 * i) + 8).Read<uint16_t>();
+						int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+						if (playerIdx != -1)
+						{
+							
+							auto playerStats = Blam::Players::GetStats(playerIdx);
+							auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+							std::string name = Utils::String::ThinString(player->Properties.DisplayName);
+							uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
+							std::string uidStr;
+							Utils::String::BytesToHexString(&player->Properties.Uid, sizeof(uint64_t), uidStr);
+							uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
 
-						wchar_t* name = Pointer(playerInfoBase + (5696 * i));
-						std::string nameStr = Utils::String::ThinString(name);
+							writer.StartObject();
+							writer.Key("name");
+							writer.String(name.c_str());
+							writer.Key("team");
+							writer.Int(team);
+							writer.Key("uid");
+							writer.String(uidStr.c_str());
+							std::stringstream color;
+							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+							writer.Key("primaryColor");
+							writer.String(color.str().c_str());
+							writer.Key("isAlive");
+							writer.Bool(alive == 1);
+							writer.Key("score");
+							writer.Int(playerStats.Score);
+							writer.Key("kills");
+							writer.Int(playerStats.Kills);
+							writer.Key("assists");
+							writer.Int(playerStats.Assists);
+							writer.Key("deaths");
+							writer.Int(playerStats.Deaths);
+							writer.Key("betrayals");
+							writer.Int(playerStats.Betrayals);
+							writer.Key("timeSpentAlive");
+							writer.Int(playerStats.TimeSpentAlive);
+							writer.Key("suicides");
+							writer.Int(playerStats.Suicides);
+							writer.Key("bestStreak");
+							writer.Int(playerStats.BestStreak);
+							writer.EndObject();
 
-						wchar_t* menuName = Pointer(menuPlayerInfoBase + (0x1628 * i));
-						std::string menuNameStr = Utils::String::ThinString(menuName);
-
-						uint32_t ipAddr = Pointer(playerInfoBase + (5696 * i) - 88).Read<uint32_t>();
-						uint16_t team = Pointer(playerInfoBase + (5696 * i) + 32).Read<uint16_t>();
-						uint16_t num7 = Pointer(playerInfoBase + (5696 * i) + 36).Read<uint16_t>();
-
-						uint8_t alive = Pointer(playerStatusBase + (176 * i)).Read<uint8_t>();
-
-						uint64_t uid = Pointer(playerInfoBase + (5696 * i) - 8).Read<uint64_t>();
-						std::string uidStr;
-						Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
-
-						if (menuNameStr.empty() && nameStr.empty() && ipAddr == 0)
-							continue;
-
-						writer.StartObject();
-						writer.Key("name");
-						writer.String(menuNameStr.c_str());
-						writer.Key("score");
-						writer.Int(score);
-						writer.Key("kills");
-						writer.Int(kills);
-						writer.Key("assists");
-						writer.Int(assists);
-						writer.Key("deaths");
-						writer.Int(deaths);
-						writer.Key("team");
-						writer.Int(team);
-						writer.Key("isAlive");
-						writer.Bool(alive == 1);
-						writer.Key("uid");
-						writer.String(uidStr.c_str());
-						writer.EndObject();
+						}
+						peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 					}
 					writer.EndArray();
 				}
@@ -309,7 +313,8 @@ namespace Patches::Network
 					writer.Key("passworded");
 					writer.Bool(true);
 				}
-
+				writer.Key("isDedicated");
+				writer.Bool(ElDorito::Instance().IsDedicated());
 				writer.Key("gameVersion");
 				writer.String(gameVersion.c_str());
 				writer.Key("eldewritoVersion");
