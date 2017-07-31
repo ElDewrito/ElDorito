@@ -170,6 +170,11 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 	RegisterScheme("dew", GetUIDirectory());
 	CefAddCrossOriginWhitelistEntry("dew://ui", "http", "", true);
 
+	// Register a medals:// scheme to point to mods\medals (and ensure the directory for a default pack exists)
+	boost::system::error_code error;
+	boost::filesystem::create_directories("mods\\medals\\default", error);
+	RegisterScheme("medals", "mods\\medals");
+
 	auto s_RequestContext = CefRequestContext::GetGlobalContext();
 	if (!CefBrowserHost::CreateBrowser(s_WindowInfo, m_RenderHandler.get(), s_ContainerPath.c_str(), s_BrowserSettings, s_RequestContext))
 	{

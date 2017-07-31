@@ -26,7 +26,7 @@
 #include "Patches\Weapon.hpp"
 #include "Patches\Spectate.hpp"
 #include "Patches\Tweaks.hpp"
-#include "DirectXHook.hpp"
+#include "Patches\DirectXHook.hpp"
 
 
 namespace
@@ -75,7 +75,7 @@ namespace Patches
 		}
 
 		if (!isdedicated)
-			DirectXHook::applyPatches();
+			DirectXHook::ApplyAll();
 	}
 
 	void ApplyOnFirstTick()

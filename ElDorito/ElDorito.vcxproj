@@ -51,7 +51,7 @@
     <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp" />
     <ClCompile Include="Source\CommandMap.cpp" />
     <ClCompile Include="Source\Console.cpp" />
-    <ClCompile Include="Source\DirectXHook.cpp" />
+    <ClCompile Include="Source\Patches\DirectXHook.cpp" />
     <ClCompile Include="Source\ElDorito.cpp" />
     <ClCompile Include="Source\ElModules.cpp" />
     <ClCompile Include="Source\ElPatches.cpp" />
@@ -218,7 +218,7 @@
     <ClInclude Include="Source\ChatCommands\ChatCommandMap.hpp" />
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
-    <ClInclude Include="Source\DirectXHook.hpp" />
+    <ClInclude Include="Source\Patches\DirectXHook.hpp" />
     <ClInclude Include="Source\ElDorito.hpp" />
     <ClInclude Include="Source\ElModules.hpp" />
     <ClInclude Include="Source\ElPatches.hpp" />
