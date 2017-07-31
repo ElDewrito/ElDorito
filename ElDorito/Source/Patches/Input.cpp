@@ -265,7 +265,7 @@ namespace
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveRight] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveForward] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;
-		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionMelee] = eKeyCodeC; // clone
+		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionUiB] = eKeyCodeC; // Clone
 	}
 
 	// Hook to redirect keybind preference reads to ModuleInput
@@ -324,7 +324,8 @@ namespace
 		typedef void(*EngineProcessKeyBindingsPtr)(const BindingsTable &bindings, ActionState *actions);
 		auto EngineProcessKeyBindings = reinterpret_cast<EngineProcessKeyBindingsPtr>(0x60C4A0);
 
-		if(InMonitorMode())
+		// if we're in monitor mode and no UI is open
+		if(InMonitorMode() && !Pointer(0x05260F34)[0](0x3c).Read<int16_t>())
 			EngineProcessKeyBindings(s_ForgeMonitorModeBindings, actions);
 		else
 			EngineProcessKeyBindings(bindings, actions);

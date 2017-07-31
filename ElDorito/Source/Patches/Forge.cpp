@@ -10,6 +10,7 @@
 #include "../Blam/Math/RealQuaternion.hpp"
 #include "../Blam/Math/RealMatrix4x3.hpp"
 #include "../Blam/Math/MathUtil.hpp"
+#include "../Blam/BlamNetwork.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -35,6 +36,9 @@ namespace
 	const auto HELDOBJECT_DISTANCE_MIN = 0.1f;
 	const auto HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER = 0.1f;
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
+
+	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
+	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
 
 	bool barriersEnabledValid = false;
 	bool killBarriersEnabled = true;
@@ -242,12 +246,22 @@ namespace
 
 			if (heldObjectIndex == -1)
 			{
-				if (GetActionState(Blam::Input::eGameActionMelee)->Ticks == 1)
-					DoClone(playerIndex, objectIndexUnderCrosshair);
+				auto cloneAction = GetActionState(Blam::Input::eGameActionUiB);
+				if ((!(cloneAction->Flags & Blam::Input::eActionStateFlagsHandled) && cloneAction->Ticks == 1))
+				{
+					cloneAction->Flags |= Blam::Input::eActionStateFlagsHandled;
+
+					if(Blam::Network::GetActiveSession()->IsHost())
+						DoClone(playerIndex, objectIndexUnderCrosshair);
+					else
+					{
+						PrintKillFeedText(0, L"Must be host to clone objects", 0);
+						UI_PlaySound(0, -1); // error
+					}
+				}
 
 				if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeP, Blam::Input::eInputTypeGame) == 1)
 					Web::Ui::ScreenLayer::Show("forge_search", "{}");
-
 			}
 		}
 		else
@@ -324,7 +338,7 @@ namespace
 		using namespace Blam::Input;
 
 		auto uiUpAction = GetActionState(eGameActionUiUp);
-		if ((!(uiUpAction->Flags &= eActionStateFlagsHandled) && uiUpAction->Ticks == 1)
+		if ((!(uiUpAction->Flags & eActionStateFlagsHandled) && uiUpAction->Ticks == 1)
 			|| GetMouseButtonTicks(eMouseButtonMiddle, eInputTypeGame) == 1)
 		{
 			uiUpAction->Flags |= Blam::Input::eActionStateFlagsHandled;
@@ -343,7 +357,7 @@ namespace
 			return;
 
 		auto movementSpeedAction = GetActionState(eGameActionUiLeftStick);
-		if (!(movementSpeedAction->Flags &= eActionStateFlagsHandled) && movementSpeedAction->Ticks == 1 ||
+		if ((!(movementSpeedAction->Flags & eActionStateFlagsHandled) && movementSpeedAction->Ticks == 1) ||
 			GetKeyTicks(eKeyCodeF, eInputTypeGame) == 1)
 		{
 			movementSpeedAction->Flags |= Blam::Input::eActionStateFlagsHandled;
@@ -374,7 +388,6 @@ namespace
 			RealVector3D v1 = {}, v2 = {};
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
 
-			static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
 			PrintKillFeedText(0, buff, 0);
 		}
 	}
@@ -674,17 +687,10 @@ namespace
 			auto uiLeftBumper = Blam::Input::GetActionState(Blam::Input::eGameActionUiLeftBumper);
 
 			auto direction = 0;
-			if (!(uiRightBumper->Flags & 1) && uiRightBumper->Ticks > 0)
-			{
-				uiRightBumper->Flags &= Blam::Input::eActionStateFlagsHandled;
+			if (!(uiRightBumper->Flags & Blam::Input::eActionStateFlagsHandled) && uiRightBumper->Ticks > 0)
 				direction = 1;
-			}
-
-			if (!(uiLeftBumper->Flags & 1) && uiLeftBumper->Ticks > 0)
-			{
-				uiLeftBumper->Flags &= Blam::Input::eActionStateFlagsHandled;
+			else if (!(uiLeftBumper->Flags & Blam::Input::eActionStateFlagsHandled) && uiLeftBumper->Ticks > 0)
 				direction = -1;
-			}
 
 			static float s_Velocity = 0;
 
