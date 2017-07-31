@@ -924,76 +924,42 @@ namespace
 
 	bool UpdateH3HUDImpl(int playerMappingIndex)
 	{
-		using TagInstance = Blam::Tags::TagInstance;
-		using WeaponDefinition = Blam::Tags::Items::Weapon;
-
-		static auto GetPlayerIndexFromPlayerMappingIndex = (uint32_t(__cdecl*)(int playerMappingIndex))(0x00589C60);
-		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
-		static auto DisplayHUDMessage = (void(__cdecl *)(int playerMappingIndex, uint32_t stringId, int a3, int a4))(0x00A964E0);
-
-		auto actionStatePtr = Pointer(GetPlayerControlsAction(playerMappingIndex));
-		auto actionType = actionStatePtr.Read<uint16_t>();
-		auto actionObjectIndex = actionStatePtr(0x4).Read<uint32_t>();
-		auto actionFlags = actionStatePtr(0x2).Read<uint16_t>();
-
-		if (actionType != 1 && actionType != 9) // weapon pickup/swap
-			return false;
-
-		auto& players = Blam::Players::GetPlayers();
-		auto& objects = Blam::Objects::GetObjects();
-
-		auto playerIndex = GetPlayerIndexFromPlayerMappingIndex(playerMappingIndex);
-		auto player = players.Get(playerIndex);
-		assert(player);
-
-		auto unitObjectPtr = Pointer(objects.Get(player->SlaveUnit))[0xC];
-		assert(unitObjectPtr);
-
-		auto actionWeaponObjectPtr = Pointer(objects.Get(actionObjectIndex))[0xC];
-		if (!actionWeaponObjectPtr)
-			return false;
-
-		auto equippedWeaponIndex = unitObjectPtr(0x2CA).Read<uint8_t>();
-		auto actionWeapDef = TagInstance(actionWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
-		if (!actionWeapDef)
-			return false;
-
-		auto secondaryWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * 1).Read<uint32_t>();
-		auto primaryWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * 0).Read<uint32_t>();
-		auto equippedWeaponObjectIndex = unitObjectPtr(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
-
-		if (primaryWeaponObjectIndex == -1 || secondaryWeaponObjectIndex == -1 || actionType == 9)
+		struct ControlGlobalsAction
 		{
-			DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupMessage, -1, 0);
-			return true;
-		}
+			uint16_t Type;
+			uint16_t Flags;
+			uint32_t ObjectIndex;
+			// ...
+		};
 
-		if (equippedWeaponIndex == -1)
+		static auto GetPlayerControlsAction = (ControlGlobalsAction*(*)(int playerMappingIndex))(0x5D0BD0);
+		static auto HUD_DisplayHUDMessage = (void(*)(unsigned int playerMappingIndex, int stringId, int a3, int alignment))(0x00A964E0);
+
+		auto action = GetPlayerControlsAction(playerMappingIndex);
+
+		if (action->Type != 9 && action->Type != 1)
+			return false;
+		auto actionWeapObject = Blam::Objects::Get(action->ObjectIndex);
+		if (!actionWeapObject)
 			return false;
 
-		auto equippedWeaponObjectPtr = Pointer(objects.Get(equippedWeaponObjectIndex))[0xC];
-		if (!equippedWeaponObjectPtr)
-			return false;
+		auto actionWeapDef = Blam::Tags::TagInstance(actionWeapObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		auto equippedWeapDef = TagInstance(equippedWeaponObjectPtr.Read<uint32_t>()).GetDefinition<WeaponDefinition>();
-		if (!equippedWeapDef)
-			return false;
-
-		if (uint32_t(equippedWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded) &&
-			uint32_t(actionWeapDef->WeaponFlags1) & uint32_t(WeaponDefinition::Flags1::CanBeDualWielded))
-		{
-			if (actionFlags != (1 << 1))
-				DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
-			if (actionFlags != (1 << 3) && actionFlags != (1 << 2))
-				DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
-			return true;
-		}
+		if (action->Flags & 1)
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupMessage, -1, 0);
+		else if (action->Flags & 2)
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
 		else
-		{
-			DisplayHUDMessage(playerMappingIndex, -1, -1, 1);
-			DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
-			return true;
-		}
+			HUD_DisplayHUDMessage(playerMappingIndex, -1, -1, 0);
+
+		if (action->Flags & 4)
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
+		else if (action->Flags & 8)
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapOrDualWieldMessage, -1, 1);
+		else
+			HUD_DisplayHUDMessage(playerMappingIndex, -1, -1, 1);
+
+		return true;
 	}
 
 	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex)
