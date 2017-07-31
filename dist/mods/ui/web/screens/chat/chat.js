@@ -47,6 +47,12 @@ $(window).load(function(){
             $("#chatWindow").scrollTop($("#chatWindow").scrollTop()+($('#chatWindow p').height() * 6));        
         }
     });
+	
+	$("html").on("keydown", function(e){ //disable tabbing
+		if(e.keyCode == 9){ //tab
+			e.preventDefault();
+		}
+	});
 
     $("body").click(function(){
         $("#chatBox").focus();
