@@ -25,6 +25,7 @@
 #include <cassert>
 #include <queue>
 #include <stack>
+#include "../CommandMap.hpp"
 
 using namespace Forge;
 using namespace Blam;
@@ -262,6 +263,17 @@ namespace
 
 				if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeP, Blam::Input::eInputTypeGame) == 1)
 					Web::Ui::ScreenLayer::Show("forge_search", "{}");
+			}
+
+			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1)
+			{
+				auto prevValue = moduleForge.VarMagnetsEnabled->ValueInt;
+				auto& commandMap = Modules::CommandMap::Instance();
+				commandMap.SetVariable(moduleForge.VarMagnetsEnabled, std::to_string(prevValue ? 0 : 1), std::to_string(prevValue));
+				if (!prevValue)
+					PrintKillFeedText(0, L"Magnets Enabled", 0);
+				else
+					PrintKillFeedText(0, L"Magnets Disabled", 0);
 			}
 		}
 		else
