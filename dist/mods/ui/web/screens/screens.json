@@ -96,6 +96,12 @@
 			"url": "dew://screens/weaponOffset/",
 			"captureInput": true,
 			"zIndex": 1
+		},
+        {
+			"id": "controllerSensitivity",
+			"url": "dew://screens/controllerSensitivity/",
+			"captureInput": true,
+			"zIndex": 1
 		}
 	]
 }
