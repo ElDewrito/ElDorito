@@ -7,6 +7,7 @@
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamTime.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Console.hpp"
 #include "../ElDorito.hpp"
@@ -29,7 +30,7 @@ namespace
 	void ProcessMouseBindingsHook(const BindingsTable &bindings, ActionState *actions);
 	void UpdateUiControllerInputHook(int a0);
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
-	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3);
+	void SetControllerVibrationHook(int controllerIndex, uint16_t leftMotorSpeed, uint16_t rightMotorSpeed);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
@@ -48,6 +49,7 @@ namespace
 	bool queuedGameAction[eGameAction_KeyboardMouseCount] = {};
 
 	BindingsTable s_ForgeMonitorModeBindings;
+	int32_t s_ControllerVibrationTestTicks = 0;
 }
 
 namespace Patches::Input
@@ -64,7 +66,7 @@ namespace Patches::Input
 		Hook(0x20C040, GetDefaultBindingsHook).Apply();
 		Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
 		Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
-		Hook(0x11298B, SetControllerVibrationHook, HookFlags::IsCall).Apply();
+		Hook(0x1124F0, SetControllerVibrationHook).Apply();
 		Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 		Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
 		Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();
@@ -155,6 +157,11 @@ namespace Patches::Input
 		for (auto pointer : vehicleCountPointers)
 			Pointer::Base(pointer).Write<int>(static_cast<int>(vehicleCount));
 	}
+
+	void TestControllerVibration(float durationSeconds)
+	{
+		s_ControllerVibrationTestTicks = Blam::Time::SecondsToTicks(durationSeconds);
+	}
 }
 
 namespace
@@ -209,6 +216,9 @@ namespace
 			for (auto &&handler : defaultHandlers)
 				handler();
 		}
+
+		if (s_ControllerVibrationTestTicks-- < 0)
+			s_ControllerVibrationTestTicks = 0;
 	}
 
 	void UiInputTick()
@@ -426,13 +436,29 @@ namespace
 		return val;
 	}
 
-
-	DWORD SetControllerVibrationHook(int dwUserIndex, int a2, char a3)
+	void SetControllerVibrationHook(int controllerIndex, uint16_t leftMotorSpeed, uint16_t rightMotorSpeed)
 	{
-		typedef char(*SetControllerVibrationPtr)(int dwUserIndex, int a2, char a3);
-		auto SetControllerVibration = reinterpret_cast<SetControllerVibrationPtr>(0x65F220);
+		struct CONTROLLER_VIBRATION { uint16_t LeftMotorSpeed, RightMotorSpeed; };
 
-		return SetControllerVibration(Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt, a2, a3);
+		const auto& moduleInput = Modules::ModuleInput::Instance();
+		auto controllerPort = moduleInput.VarInputControllerPort->ValueInt;
+		auto intensity = moduleInput.VarControllerVibrationIntensity->ValueFloat;
+
+		if (controllerIndex == controllerPort)
+		{
+			if (s_ControllerVibrationTestTicks > 0)
+			{
+				leftMotorSpeed = 65535;
+				leftMotorSpeed = 65535;
+			}
+
+			leftMotorSpeed = static_cast<uint16_t>(leftMotorSpeed * intensity);
+			rightMotorSpeed = static_cast<uint16_t>(rightMotorSpeed * intensity);
+		}
+
+		auto& vibration = ((CONTROLLER_VIBRATION*)0x0238E840)[controllerIndex];
+		vibration.LeftMotorSpeed = leftMotorSpeed;
+		vibration.RightMotorSpeed = rightMotorSpeed;
 	}
 
 	bool IsDualWielding()

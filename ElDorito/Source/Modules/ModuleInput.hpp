@@ -19,6 +19,7 @@ namespace Modules
 		Command* VarInputControllerPort;
 		Command* VarControllerSensitivityX;
 		Command* VarControllerSensitivityY;
+		Command* VarControllerVibrationIntensity;
 		Command* VarControllerInvertY;
 		Command* VarSpectateSensitivity;
 		Command* VarToggleSprint;

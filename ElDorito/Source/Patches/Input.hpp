@@ -55,4 +55,6 @@ namespace Patches::Input
 	void SetKeyboardSettingsMenu(
 		const std::vector<Blam::Input::ConfigurableAction> &infantrySettings,
 		const std::vector<Blam::Input::ConfigurableAction> &vehicleSettings);
+
+	void TestControllerVibration(float duration);
 }

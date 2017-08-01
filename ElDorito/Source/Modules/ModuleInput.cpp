@@ -624,6 +624,21 @@ namespace
 		return true;
 	}
 #endif
+
+	bool TryParseFloat(const char* str, float* value)
+	{
+		char* endp;
+		*value = std::strtod(str, &endp);
+		return endp != str;
+	}
+
+	bool CommandControllerVibrationTest(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		float duration = 0.5f;
+		Arguments.size() > 0 && TryParseFloat(Arguments[0].c_str(), &duration);
+		Patches::Input::TestControllerVibration(duration);
+		return true;
+	}
 }
 
 namespace Modules
@@ -654,6 +669,12 @@ namespace Modules
 		AddCommand("FindBind", "findbind", "Finds the key bound to a command passed", eCommandFlagsNone, CommandFindKeybdBinding);
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
+		
+		VarControllerVibrationIntensity = AddVariableFloat("ControllerVibrationIntensity", "vibration", "Controls the controller vibration intensity", eCommandFlagsNone, 1.0f);
+		VarControllerVibrationIntensity->ValueFloatMin = 0.0f;
+		VarControllerVibrationIntensity->ValueFloatMax = 1.0f;
+		AddCommand("ControllerVibrationTest", "vibration_test", "Test the controller vibration", eCommandFlagsNone, CommandControllerVibrationTest);
+
 		VarSpectateSensitivity = AddVariableFloat("SpectateSensitivity", "specsens", "Spectator camera sensitivity", eCommandFlagsArchived, 1.0f);
 
 		VarControllerInvertY = AddVariableInt("ControllerInvertY", "yinvert", "Invert the controller Y look axis", eCommandFlagsArchived, 0);
