@@ -290,19 +290,6 @@ namespace Blam::Network
 	};
 	static_assert(sizeof(MessageGateway) == 0x688, "Invalid c_network_message_gateway size");
 
-	//TODO: Map out this enum
-	enum SessionType: int
-	{
-		eSessionTypeUnk0,
-		eSessionTypeUnk1,
-		eSessionTypeUnk2,
-		eSessionTypeUnk3,// 0, 1, 2, and 3 are considered disconnected
-		eSessionTypePeer, // Needs to be verified
-		eSessionTypeUnk5,
-		eSessionTypeHost,
-		eSessionTypeLocal,
-	};
-
 	// c_network_session
 	struct Session
 	{
@@ -319,7 +306,7 @@ namespace Blam::Network
 		int Unknown25B864;
 		int Unknown25B868;
 		int Unknown25B86C;
-		SessionType Type;
+		int Type; // 6 = host, 7 = local game
 		uint8_t Unknown25B874[0x37C];
 		int AddressIndex; // Idk what this actually is, but it's used to look up xnkaddr
 		uint8_t Unknown25BBF4[0x4C];
@@ -329,10 +316,10 @@ namespace Blam::Network
 		int GetChannelPeer(const ObserverChannel *channel) const;
 
 		// Gets whether a session is established.
-		bool IsEstablished() const { return Type > eSessionTypeUnk3; }
+		bool IsEstablished() const { return Type > 3; }
 
 		// Gets whether the local peer is hosting the session.
-		bool IsHost() const { return Type == eSessionTypeHost || Type == eSessionTypeLocal; }
+		bool IsHost() const { return Type == 6 || Type == 7; }
 
 		// Gets whether teams are enabled.
 		bool HasTeams() const;
