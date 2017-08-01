@@ -26,6 +26,7 @@ namespace
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
+	void DirtyDiskErrorHook();
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -128,6 +129,9 @@ namespace Patches::Core
 		Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
+
+		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
+		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
 	}
@@ -358,5 +362,21 @@ namespace
 			return 0;
 
 		return GetBinkVideoPath(p_VideoID, p_DestBuf);
+	}
+
+	void DirtyDiskErrorHookImpl()
+	{
+		MessageBoxA(NULL, "Dirty Disk Error! Your tags are invalid or corrupted.\nIf you have any mods installed please verify that\nthey are installed in the correct order.\n\nElDewrito will now exit.", "There once was a man from Bungie...", MB_ICONERROR);
+		Patches::Core::ExecuteShutdownCallbacks();
+		std::exit(0);
+	}
+
+	__declspec(naked) void DirtyDiskErrorHook()
+	{
+		// "There once was a man from Bungie...... Nothing rhymes with Bungie.but he got a dirty disc error for the Alpha or Profile Build and exploded.  The End."
+		__asm
+		{
+			call DirtyDiskErrorHookImpl;
+		}
 	}
 }
