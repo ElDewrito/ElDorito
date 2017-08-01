@@ -715,6 +715,21 @@ namespace
 		return true;
 	}
 
+	bool CommandGameEnd(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+		{
+			returnInfo = "Unable to end the game!";
+			return false;
+		}
+
+		Blam::Network::EndGame();
+
+		returnInfo = "Ending game...";
+		return true;
+	}
+
 	bool CommandGameVersion(const std::vector<std::string>& arguments, std::string& returnInfo) {
 		returnInfo = Utils::Version::GetVersionString();
 		return true;
@@ -907,6 +922,8 @@ namespace Modules
 		AddCommand("GameType", "gametype", "Loads a gametype", eCommandFlagsNone, CommandGameType, { "name(string) The internal name of the built-in gametype or custom gametype to load" });
 
 		AddCommand("Start", "start", "Starts or restarts the game", eCommandFlagsNone, CommandGameStart);
+
+		AddCommand("End", "end", "Ends the game", eCommandFlagsNone, CommandGameEnd);
 
 		AddCommand("Stop", "stop", "Stops the game, goes back to lobby", eCommandFlagsNone, CommandGameStop);
 
