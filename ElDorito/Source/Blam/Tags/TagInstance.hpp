@@ -1,6 +1,11 @@
 #pragma once
 #include <cstdint>
+#include <vector>
 #include "Tags.hpp"
+
+// Disable warnings about signed/unsigned mismatch
+#pragma warning(disable:4018)
+
 
 namespace Blam::Tags
 {
@@ -31,6 +36,47 @@ namespace Blam::Tags
 			}
 
 			return nullptr;
+		}
+
+		// Gets all valid tag instances
+		inline static std::vector<TagInstance> GetInstances()
+		{
+			auto tagCount = *reinterpret_cast<uint32_t *>(0x22AB008);
+			std::vector<TagInstance> result;
+
+			for (auto i = 0; i < tagCount; i++)
+			{
+				auto instance = TagInstance(i);
+
+				if (instance.GetDefinition<void>() == nullptr)
+					continue;
+
+				result.push_back(instance);
+			}
+
+			return result;
+		}
+
+		// Gets all valid tag instances within the specified tag group
+		inline static std::vector<TagInstance> GetInstancesInGroup(const Tag groupTag)
+		{
+			auto tagCount = *reinterpret_cast<uint32_t *>(0x22AB008);
+			std::vector<TagInstance> result;
+
+			for (auto i = 0; i < tagCount; i++)
+			{
+				auto instance = TagInstance(i);
+
+				if (instance.GetDefinition<void>() == nullptr)
+					continue;
+
+				if (instance.GetGroupTag() != groupTag)
+					continue;
+
+				result.push_back(instance);
+			}
+
+			return result;
 		}
 	};
 }

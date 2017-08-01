@@ -34,10 +34,10 @@ namespace
 	std::string TagsPath;
 	std::string TagListPath;
 	std::string ResourcesPath;
+	std::string ResourcesBPath;
 	std::string TexturesPath;
 	std::string TexturesBPath;
 	std::string AudioPath;
-	std::string VideoPath;
 	std::string FontsPath;
 
 	std::vector<Patches::Core::MapLoadedCallback> mapLoadedCallbacks;
@@ -156,10 +156,10 @@ namespace Patches::Core
 		TagsPath = MapsFolder + "tags.dat";
 		TagListPath = MapsFolder + "tag_list.csv";
 		ResourcesPath = MapsFolder + "resources.dat";
+		ResourcesBPath = MapsFolder + "resources_b.dat";
 		TexturesPath = MapsFolder + "textures.dat";
 		TexturesBPath = MapsFolder + "textures_b.dat";
 		AudioPath = MapsFolder + "audio.dat";
-		VideoPath = MapsFolder + "resources_b.dat";
 		FontsPath = MapsFolder + "fonts\\";
 
 		Pointer::Base(0x1AC050).Write(MapFormatString.c_str());
@@ -168,10 +168,10 @@ namespace Patches::Core
 		Pointer::Base(0x149CFF0).Write(TagsPath.c_str());
 		Pointer::Base(0x149CFF4).Write(TagListPath.c_str());
 		Pointer::Base(0x149CFF8).Write(ResourcesPath.c_str());
+		Pointer::Base(0x149D008).Write(ResourcesBPath.c_str());
 		Pointer::Base(0x149CFFC).Write(TexturesPath.c_str());
 		Pointer::Base(0x149D000).Write(TexturesBPath.c_str());
 		Pointer::Base(0x149D004).Write(AudioPath.c_str());
-		Pointer::Base(0x149D008).Write(VideoPath.c_str());
 
 		Pointer::Base(0x149D358).Write(FontsPath.c_str());
 		Pointer::Base(0x149D35C).Write(FontsPath.c_str());

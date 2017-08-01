@@ -19,16 +19,16 @@ namespace Patches::Tweaks
 
 		if (Modules::ModuleTweaks::Instance().VarIntelBloomPatch->ValueInt)
 		{
-			//TODO: Don't hardcode tag offsets, get these from scnr->CameraFx
-			const std::vector<uint16_t> camera_fx_settings{
-				0x2EF8, 0x34CD, 0x3AA9, 0x3E0D, 0x3FD1, 0x3FD2, 0x4228, 0x4A00, 0x4BCE, 0x4F0E, 0x523F, 0x54E1, 0x571D
-			};
+			auto cfxsIndices = TagInstance::GetInstancesInGroup('cfxs');
 
-			for (auto &camera_fx_setting : camera_fx_settings)
+			if (cfxsIndices.empty())
+				return;
+
+			for (auto &cfxsIndex : cfxsIndices)
 			{
-				auto cfxs = TagInstance(camera_fx_setting).GetDefinition<Blam::Tags::Camera::FxSettings>('cfxs');
-				if (cfxs)
-					cfxs->Flags = 16;
+				auto camera_fx_setting = TagInstance(cfxsIndex.Index).GetDefinition<Blam::Tags::Camera::FxSettings>();
+				if (camera_fx_setting)
+					camera_fx_setting->Flags = 16;
 			}
 		}
 
