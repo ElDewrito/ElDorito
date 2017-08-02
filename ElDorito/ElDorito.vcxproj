@@ -51,6 +51,7 @@
     <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp" />
     <ClCompile Include="Source\CommandMap.cpp" />
     <ClCompile Include="Source\Console.cpp" />
+    <ClCompile Include="Source\Patches\BottomlessClip.cpp" />
     <ClCompile Include="Source\Patches\DirectXHook.cpp" />
     <ClCompile Include="Source\ElDorito.cpp" />
     <ClCompile Include="Source\ElModules.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Source\ChatCommands\ChatCommandMap.hpp" />
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
+    <ClInclude Include="Source\Patches\BottomlessClip.hpp" />
     <ClInclude Include="Source\Patches\DirectXHook.hpp" />
     <ClInclude Include="Source\ElDorito.hpp" />
     <ClInclude Include="Source\ElModules.hpp" />

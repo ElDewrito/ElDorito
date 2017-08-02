@@ -368,6 +368,9 @@
       <Filter>Modules</Filter>
     </ClCompile>
     <ClCompile Include="Source\Forge\Magnets.cpp" />
+    <ClCompile Include="Source\Patches\BottomlessClip.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -964,6 +967,9 @@
     </ClInclude>
     <ClInclude Include="Source\Forge\Geoemetry.hpp" />
     <ClInclude Include="Source\Forge\Magnets.hpp" />
+    <ClInclude Include="Source\Patches\BottomlessClip.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

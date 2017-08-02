@@ -23,6 +23,8 @@ namespace Modules
 		Command* VarServerLobbyType;
 		Command* VarServerSprintEnabled;
 		Command* VarServerSprintEnabledClient;
+		Command* VarServerBottomlessClipEnabled;
+		Command* VarServerBottomlessClipEnabledClient;
 		Command* VarServerSprintUnlimited;
 		Command* VarServerSprintUnlimitedClient;
 		Command* VarServerDualWieldEnabled;
