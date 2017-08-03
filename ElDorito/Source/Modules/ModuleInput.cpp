@@ -48,10 +48,10 @@ namespace
 	{
 		memset(&bindings, 0, sizeof(bindings));
 
-		bindings.ControllerSensitivityX = 150.f;
-		bindings.ControllerSensitivityY = 90.f;
-		bindings.Unknown200 = .8f;
-		bindings.Unknown204 = 1.f;
+		bindings.ControllerSensitivityX = 120;
+		bindings.ControllerSensitivityY = 60;
+		bindings.FlyingCameraSpeed = .8f;
+		bindings.FlyingCameraThrust = 1.f;
 
 		// Set all bindings to "none"
 		for (auto i = 0; i < eGameAction_KeyboardMouseCount; i++)
@@ -511,6 +511,15 @@ namespace
 		Modules::ModuleInput::UpdateBindings();
 		return true;
 	}
+
+	bool VariableControllerStickLayoutUpdated(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto layout = Modules::ModuleInput::Instance().VarControllerStickLayout->ValueInt;
+		bindings.JoystickLayout = layout;
+		Modules::ModuleInput::UpdateBindings();
+		return true;
+	}
+
 	bool CommandDumpBindingsJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		returnInfo = "";
@@ -675,10 +684,14 @@ namespace Modules
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 		
-		VarControllerVibrationIntensity = AddVariableFloat("ControllerVibrationIntensity", "vibration", "Controls the controller vibration intensity", eCommandFlagsNone, 1.0f);
+		VarControllerVibrationIntensity = AddVariableFloat("ControllerVibrationIntensity", "vibration", "Controls the controller vibration intensity", eCommandFlagsArchived, 1.0f);
 		VarControllerVibrationIntensity->ValueFloatMin = 0.0f;
 		VarControllerVibrationIntensity->ValueFloatMax = 1.0f;
 		AddCommand("ControllerVibrationTest", "vibration_test", "Test the controller vibration", eCommandFlagsNone, CommandControllerVibrationTest);
+
+		VarControllerStickLayout = AddVariableInt("ControllerStickLayout", "stick_layout", "Controller stick layout", eCommandFlagsArchived, 0, VariableControllerStickLayoutUpdated);
+		VarControllerStickLayout->ValueIntMin = 0;
+		VarControllerStickLayout->ValueIntMax = 3;
 
 		VarSpectateSensitivity = AddVariableFloat("SpectateSensitivity", "specsens", "Spectator camera sensitivity", eCommandFlagsArchived, 1.0f);
 

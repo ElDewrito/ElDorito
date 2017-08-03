@@ -21,6 +21,7 @@ namespace Modules
 		Command* VarControllerSensitivityY;
 		Command* VarControllerVibrationIntensity;
 		Command* VarControllerInvertY;
+		Command* VarControllerStickLayout;
 		Command* VarSpectateSensitivity;
 		Command* VarToggleSprint;
 

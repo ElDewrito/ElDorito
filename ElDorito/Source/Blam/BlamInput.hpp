@@ -319,10 +319,11 @@ namespace Blam::Input
 		KeyCode SecondaryKeys[eGameAction_KeyboardMouseCount];
 		MouseButton PrimaryMouseButtons[eGameAction_KeyboardMouseCount];
 		MouseButton SecondaryMouseButtons[eGameAction_KeyboardMouseCount];
-		uint32_t Unknown1F8;
+		uint16_t JoystickLayout;
+		uint16_t Unknown1FA;
 		uint32_t Unknown1FC;
-		float Unknown200; // Default = .8
-		float Unknown204; // Default = 1
+		float FlyingCameraSpeed; // Default = .8
+		float FlyingCameraThrust; // Default = 1
 	};
 	static_assert(sizeof(BindingsTable) == 0x208, "Invalid BindingsTable size");
 
