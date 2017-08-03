@@ -437,7 +437,7 @@ $(document).ready(function(){
 			dew.notify("voip-peers", peerIds);
 		}
 	});
-	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
+	dew.command("voip.update", {}).then(function(){}); //triggers update of settings
 	dew.show();
 	dew.getSessionInfo().then(function(info){
 		if(info.established == true){
