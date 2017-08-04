@@ -60,12 +60,18 @@ namespace Blam::Tags
 		// Gets all valid tag instances within the specified tag group
 		inline static std::vector<TagInstance> GetInstancesInGroup(const Tag groupTag)
 		{
+			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+			auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
 			auto tagCount = *reinterpret_cast<uint32_t *>(0x22AB008);
 			std::vector<TagInstance> result;
 
 			for (auto i = 0; i < tagCount; i++)
 			{
 				auto instance = TagInstance(i);
+
+				if (GetTagAddressImpl(groupTag, instance.Index) == nullptr)
+					continue;
 
 				if (instance.GetDefinition<void>() == nullptr)
 					continue;
