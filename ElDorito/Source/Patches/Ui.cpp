@@ -252,18 +252,7 @@ namespace Patches::Ui
 				if (hudGlobal.HudAttributes.Count < 1)
 					continue;
 
-				switch (hudGlobal.Biped)
-				{
-				case ChudGlobalsDefinition::HudGlobal::BipedValue::Spartan:
-					hudDistortionDirection[0] = hudGlobal.HudAttributes[0].WarpDirection;
-					break;
-				case ChudGlobalsDefinition::HudGlobal::BipedValue::Elite:
-					hudDistortionDirection[1] = hudGlobal.HudAttributes[0].WarpDirection;
-					break;
-				case ChudGlobalsDefinition::HudGlobal::BipedValue::Monitor:
-					hudDistortionDirection[2] = hudGlobal.HudAttributes[0].WarpDirection;
-					break;
-				}
+				hudDistortionDirection[hudGlobal.Biped] = hudGlobal.HudAttributes[0].WarpDirection;
 			}
 			firstHUDDistortionUpdate = false;
 			validHUDDistortionTags = true;
@@ -306,18 +295,7 @@ namespace Patches::Ui
 			if (chgd->HudGlobals[hudGlobalsIndex].HudAttributes.Count < 1)
 				continue;
 
-			switch (chgd->HudGlobals[hudGlobalsIndex].Biped)
-			{
-			case ChudGlobalsDefinition::HudGlobal::BipedValue::Spartan:
-				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[0] : 0;
-				break;
-			case ChudGlobalsDefinition::HudGlobal::BipedValue::Elite:
-				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[1] : 0;
-				break;
-			case ChudGlobalsDefinition::HudGlobal::BipedValue::Monitor:
-				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[2] : 0;
-				break;
-			}
+			chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[chgd->HudGlobals[hudGlobalsIndex].Biped] : 0;
 		}
 		lastDistortionEnabledValue = enabled;
 	}
