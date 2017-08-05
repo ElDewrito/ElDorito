@@ -557,6 +557,12 @@ $(document).ready(function(){
             dew.command('Player.Armor.SetUiModelRotation ' + xDiff);
         }
     });
+    $('span').has('.setting').mouseover(function(){
+        if(hasGP){
+            itemNumber = $(activePage+' span').has('.setting').index($(this));
+            updateSelection(itemNumber); 
+        }
+    });
 });
 
 function checkGamepad(){
