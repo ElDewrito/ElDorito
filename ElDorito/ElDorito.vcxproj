@@ -193,6 +193,7 @@
     <ClInclude Include="Source\Blam\Tags\Game\TerritoriesVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />

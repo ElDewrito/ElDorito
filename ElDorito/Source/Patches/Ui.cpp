@@ -9,6 +9,8 @@
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
 #include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
+#include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
@@ -43,6 +45,7 @@ namespace
 	void UI_GetHUDGlobalsIndexHook();
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
+	void CameraModeChangedHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -193,6 +196,132 @@ namespace Patches::Ui
 		}
 
 	}
+
+
+	typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+	auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
+	unsigned int chgdIndex;
+	bool firstHUDDistortionUpdate = true;
+	bool validHUDDistortionTags = false;
+	//Distortion direction for spartan, monitor, elite.
+	//If more are added, this needs to be increased.
+	float hudDistortionDirection[3]{ 0,0,0 };
+	void UpdateHUDDistortion()
+	{
+		if (!tagsInitiallyLoaded)
+			return;
+
+		if (firstHUDDistortionUpdate)
+		{
+			firstHUDDistortionUpdate = false;
+
+			using Blam::Tags::UI::ChudGlobalsDefinition;
+			using Blam::Tags::Globals::CacheFileGlobalTags;
+			using Blam::Tags::Game::Globals;
+			using Blam::Tags::TagInstance;
+
+			auto cfgtInstances = TagInstance::GetInstancesInGroup('cfgt');
+			for (auto &cfgtInstance : cfgtInstances)
+			{
+				auto *cfgtDefinition = cfgtInstance.GetDefinition<Blam::Tags::Globals::CacheFileGlobalTags>();
+				for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->globalsTags.Count; globalsTagIndex++)
+				{
+					if (cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.GroupTag == 'matg')
+					{
+						auto matgDefinition = TagInstance(cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.TagIndex).GetDefinition<Globals>();
+						for (size_t interfaceTagsIndex = 0; interfaceTagsIndex < matgDefinition->InterfaceTags.Count; interfaceTagsIndex++)
+						{
+							if (matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex != NULL &&
+								matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.GroupTag == 'chgd')
+							{
+								chgdIndex = matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex;
+							}
+						}
+					}
+				}
+			}
+
+			if (GetTagAddressImpl('chgd', chgdIndex) == nullptr)
+				return;
+
+			auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+			for each (ChudGlobalsDefinition::HudGlobal hudGlobal in chgd->HudGlobals)
+			{
+				if (hudGlobal.HudAttributes.Count < 1)
+					continue;
+
+				switch (hudGlobal.Biped)
+				{
+				case ChudGlobalsDefinition::HudGlobal::BipedValue::Spartan:
+					hudDistortionDirection[0] = hudGlobal.HudAttributes[0].WarpDirection;
+					break;
+				case ChudGlobalsDefinition::HudGlobal::BipedValue::Elite:
+					hudDistortionDirection[1] = hudGlobal.HudAttributes[0].WarpDirection;
+					break;
+				case ChudGlobalsDefinition::HudGlobal::BipedValue::Monitor:
+					hudDistortionDirection[2] = hudGlobal.HudAttributes[0].WarpDirection;
+					break;
+				}
+			}
+			firstHUDDistortionUpdate = false;
+			validHUDDistortionTags = true;
+		}
+
+		if (!validHUDDistortionTags)
+			return;
+
+		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
+
+		switch (cameraFunc)
+		{
+				//player first person
+			case 0x0166acb0:
+				ToggleHUDDistortion(true);
+				break;
+			default:
+				ToggleHUDDistortion(false);
+				break;
+		}
+	}
+
+	bool lastDistortionEnabledValue;
+	void ToggleHUDDistortion(bool enabled)
+	{
+		if (enabled == lastDistortionEnabledValue)
+			return;
+
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+
+		//Return if the tag cant be found, happens during loading.
+		if (GetTagAddressImpl('chgd', chgdIndex) == nullptr)
+			return;
+
+		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+		for (size_t hudGlobalsIndex = 0; hudGlobalsIndex < chgd->HudGlobals.Count; hudGlobalsIndex++)
+		{
+			if (chgd->HudGlobals[hudGlobalsIndex].HudAttributes.Count < 1)
+				continue;
+
+			switch (chgd->HudGlobals[hudGlobalsIndex].Biped)
+			{
+			case ChudGlobalsDefinition::HudGlobal::BipedValue::Spartan:
+				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[0] : 0;
+				break;
+			case ChudGlobalsDefinition::HudGlobal::BipedValue::Elite:
+				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[1] : 0;
+				break;
+			case ChudGlobalsDefinition::HudGlobal::BipedValue::Monitor:
+				chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[2] : 0;
+				break;
+			}
+		}
+		lastDistortionEnabledValue = enabled;
+	}
+
 
 	bool firstHudUpdate = true;
 	unsigned short teamBroadcastIndicatorIndex = 0; //Hud Widget containing Icons.
@@ -465,6 +594,7 @@ namespace Patches::Ui
 
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
+		Hook(0x193370, CameraModeChangedHook, HookFlags::IsCall).Apply();
 	}
 
 	void ApplyMapNameFixes()
@@ -1092,5 +1222,20 @@ namespace
 	{
 		if (!Modules::ModuleGame::Instance().VarHideH3UI->ValueInt)
 			((void(__thiscall*)(void* thisptr))(0xA290A0))(thisptr);
+	}
+
+	__declspec(naked) void CameraModeChangedHook()
+	{
+		__asm
+		{
+			//execute custom code
+			call UpdateHUDDistortion
+
+			//perform original instruction
+			movss xmm0, [ebp + 0xC]
+
+			//return to eldorado code
+			ret
+		}
 	}
 }

@@ -35,4 +35,7 @@ namespace Patches::Ui
 	void SetVoiceChatIcon(VoiceChatIcon newIcon);
 	void UpdateVoiceChatHUD();
 	void ApplyAfterTagsLoaded();
+
+	void UpdateHUDDistortion();
+	void ToggleHUDDistortion(bool enabled);
 }
