@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Patches/Core.hpp"
+#include "../Patches/Input.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
@@ -33,6 +34,8 @@ namespace
 	void LobbyMenuButtonHandlerHook();
 	void WindowTitleSprintfHook(char* destBuf, char* format, char* version);
 	void ResolutionChangeHook();
+	int __fastcall UI_SetPlayerDesiredTeamHook(void *thisPtr, int unused, int a2, int teamIndex, int a4);
+	void OnUiInputUpdated();
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0);
 	HWND CreateGameWindowHook();
 	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex);
@@ -50,6 +53,8 @@ namespace
 	bool someoneSpeaking = false;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
 	int32_t speakingPlayerStringID;
+
+	int localDesiredTeam = -1;
 }
 
 namespace Patches::Ui
@@ -457,6 +462,9 @@ namespace Patches::Ui
 
 		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
 		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
+		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
 	}
 
 	void ApplyMapNameFixes()
@@ -820,6 +828,25 @@ namespace
 		return Get(data, 0, index, key, result);
 	}
 
+	int __fastcall UI_SetPlayerDesiredTeamHook(void *thisPtr, int unused, int a2, int teamIndex, int a4)
+	{
+		localDesiredTeam = teamIndex;
+
+		typedef int(__thiscall *UI_SetPlayerDesiredTeamFunc)(void* thisPtr, int a2, int a3, int a4);
+		UI_SetPlayerDesiredTeamFunc UI_SetPlayerDesiredTeam = reinterpret_cast<UI_SetPlayerDesiredTeamFunc>(0xB25C30);
+		return UI_SetPlayerDesiredTeam(thisPtr, a2, teamIndex, a4);
+	}
+
+	void OnUiInputUpdated()
+	{
+		auto isUsingController = *(bool*)0x0244DE98;
+
+		if (isUsingController && Blam::Input::GetActionState(Blam::Input::eGameActionUiB)->Ticks == 1) //reset desired team after cancel
+			localDesiredTeam = -1;
+		else if (Blam::Input::GetKeyTicks(Blam::Input::KeyCode::eKeyCodeB, Blam::Input::InputType::eInputTypeGame) == 1) //kbm
+			localDesiredTeam = -1;
+	}
+
 	void __fastcall UI_UpdateRosterColorsHook(void *thisPtr, int unused, void *a0)
 	{
 		typedef void*(__fastcall* UI_GetOrderedDataSourcePtr)(void *thisPtr, int unused);
@@ -862,6 +889,8 @@ namespace
 		if (session && session->IsEstablished())
 			teamsEnabled = session->HasTeams();
 
+		int playerWidgetIndex = *reinterpret_cast<uint32_t*>(reinterpret_cast<int>(data) + session->MembershipInfo.GetPeerPlayer(session->MembershipInfo.LocalPeerIndex) * 0x1678 + 0x11C);
+
 		// Loop through each list item widget
 		auto item = UI_Widget_FindFirstChild(thisPtr, 0, 5); // 5 = List item
 		while (item)
@@ -883,6 +912,12 @@ namespace
 				auto teamIndex = 0;
 				if (teamsEnabled && UI_OrderedDataSource_Get(data, itemIndex, str_team, &teamIndex) && teamIndex >= 0)
 				{
+					if (itemIndex == playerWidgetIndex)
+					{
+						if (localDesiredTeam > -1 && localDesiredTeam < 8)
+							teamIndex = localDesiredTeam;
+					}
+					
 					if (nameWidget)
 						UI_ColorWidgetWithPlayerColor(nameWidget, teamIndex, true);
 					if (baseColorWidget)
