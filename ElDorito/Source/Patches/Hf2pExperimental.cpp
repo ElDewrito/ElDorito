@@ -60,7 +60,7 @@ namespace
 		uint8_t VSync;
 		uint8_t Antialiasing;
 		uint8_t Unknown41C0F;
-		uint8_t ShowWatermark;
+		uint8_t HideWatermark;
 		uint32_t DisplaySubtitles;
 		uint32_t DisplayAdapter;
 		uint32_t Unknown41C1C;
@@ -120,12 +120,13 @@ namespace Patches::Hf2pExperimental
 	void ApplyAll()
 	{
 		Hook(0x200630, Hf2pInitHook).Apply();
-		// we no longer have sound_config.ps
-		Patch(0x04858, { 0x90, 0x90 }).Apply();
+		// we no longer have game.cfg or sound_config.ps
+		Patch(0x24F6B0, { 0xC3 }).Apply();
+		Patch(0x24EF50, { 0xC3 }).Apply();
 		// skip over vfiles_plugin load
 		Patch(0x010F1121, { 0xE9 }).Apply();
-		// skip anti-cheat, watermark, account stuff
-		Patch(0x200732, { 0xEB }).Apply();
+		// skip config, anti-cheat, watermark, account stuff
+		Patch(0x2006F0, { 0xC3 }).Apply();
 		// prevent display/graphics settings from resetting when preferences.dat doesn't exist
 		Patch(0x622920, { 0xB8, 0x01, 0x00, 0x00, 0x00, 0xC3 }).Apply();
 
@@ -366,7 +367,7 @@ namespace
 		preferences->MotionBlur = uint8_t(moduleSettings.VarMotionBlur->ValueInt);
 		preferences->VSync = uint8_t(moduleSettings.VarVSync->ValueInt);
 		preferences->Antialiasing = uint8_t(moduleSettings.VarAntialiasing->ValueInt);
-		preferences->ShowWatermark = uint8_t(moduleSettings.VarShadowQuality->ValueInt);
+		preferences->HideWatermark = 1;
 		preferences->MasterVolume = moduleSettings.VarMasterVolume->ValueInt;
 		preferences->SfxVolume = moduleSettings.VarSfxVolume->ValueInt;
 		preferences->MusicVolume = moduleSettings.VarMusicVolume->ValueInt;

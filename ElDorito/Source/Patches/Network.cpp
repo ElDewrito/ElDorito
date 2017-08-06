@@ -463,6 +463,8 @@ namespace Patches::Network
 													// Fixes an exception that happens with null d3d
 		Patch(0x675E30, { 0xC3 }).Apply();
 
+		*(uint8_t*)0x0244F970 = 1; // g_IsDedicatedServer 
+		*(uint8_t*)0x0244F971 = 1; // g_SoundDisabled
 
 	}
 
