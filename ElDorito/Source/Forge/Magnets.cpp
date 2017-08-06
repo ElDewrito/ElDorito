@@ -37,7 +37,7 @@ namespace
 	{
 	public:
 		void Load(const std::string& path);
-		int GetMarkers(uint32_t name, Blam::Math::RealVector3D* markers);
+		int GetMarkers(uint32_t name, std::vector<Blam::Math::RealVector3D> &markers);
 
 	private:
 		std::unordered_map<uint32_t, std::vector<Blam::Math::RealVector3D>> m_Markers;
@@ -65,7 +65,7 @@ namespace
 		Magnet m_DestMagnets[MAX_DEST_MAGNETS];
 		JsonMarkerStore m_MarkerStore;
 
-		int GetObjectMarkers(uint32_t tagIndex, RealVector3D* markers);
+		int GetObjectMarkers(uint32_t tagIndex, std::vector<RealVector3D> &markers);
 		void AddSourceObject(uint32_t objectIndex);
 		void AddDestObject(uint32_t objectIndex);
 		void PerformPairing();
@@ -305,7 +305,7 @@ namespace
 			RenderMagnet(m_SourceMagnets[i]);
 	}
 
-	int MagnetManager::GetObjectMarkers(uint32_t tagIndex, RealVector3D* markers)
+	int MagnetManager::GetObjectMarkers(uint32_t tagIndex, std::vector<RealVector3D> &markers)
 	{
 		using ObjectDefinition = Blam::Tags::Objects::Object;
 		auto objeDefinition = Blam::Tags::TagInstance(tagIndex).GetDefinition<ObjectDefinition>();
@@ -331,7 +331,7 @@ namespace
 		GetObjectTransformationMatrix(objectIndex, &objectTransform);
 		const auto objectRotation = RealQuaternion::CreateFromRotationMatrix(objectTransform);
 
-		RealVector3D markers[24];
+		auto markers = std::vector<RealVector3D>();
 		const auto numMarkers = GetObjectMarkers(object->TagIndex, markers);
 		for (auto i = 0; i < numMarkers; i++)
 		{
@@ -353,7 +353,7 @@ namespace
 		GetObjectTransformationMatrix(objectIndex, &objectTransform);
 		const auto objectRotation = RealQuaternion::CreateFromRotationMatrix(objectTransform);
 
-		RealVector3D markers[24];
+		auto markers = std::vector<RealVector3D>();
 		const auto numMarkers = GetObjectMarkers(object->TagIndex, markers);
 		for (auto i = 0; i < numMarkers; i++)
 		{
@@ -368,17 +368,16 @@ namespace
 
 namespace
 {
-	int JsonMarkerStore::GetMarkers(uint32_t name, Blam::Math::RealVector3D* markers)
+	int JsonMarkerStore::GetMarkers(uint32_t name, std::vector<RealVector3D> &markers)
 	{
 		auto it = m_Markers.find(name);
 		if (it == m_Markers.end())
 			return 0;
 
-		auto numMarkers = 0;
 		for (const auto& m : it->second)
-			markers[numMarkers++] = m;
+			markers.push_back(m);
 
-		return numMarkers;
+		return markers.size();
 	}
 
 	template <typename T>

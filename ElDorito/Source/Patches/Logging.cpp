@@ -334,10 +334,10 @@ namespace
 		dataPool->Padding = temp ? temp - reinterpret_cast<int>(dataPool) : 0;
 		dataPool->Size = size;
 		dataPool->FreeSize = size;
-		dataPool->Unk52 = 0;
-		dataPool->Unk56 = 0;
-		dataPool->Unk60 = 0;
-		dataPool->Unk63 = 0;
+		dataPool->Unknown52 = 0;
+		dataPool->Unknown56 = 0;
+		dataPool->Unknown60 = 0;
+		dataPool->Unknown63 = 0;
 
 		return size;
 	}
