@@ -1,8 +1,8 @@
 #pragma once
-
 #include <cstdint>
-#include <type_traits>
 #include <iterator>
+#include <type_traits>
+#include "Tags\Tag.hpp"
 
 namespace Blam
 {
@@ -72,7 +72,7 @@ namespace Blam
 		uint8_t Alignment;             // Bit to align datum addresses to (0 = none)
 		bool IsValid;                  // true if the array can be used
 		uint16_t Flags;                // TODO: Map these out
-		int Signature;                 // 'd@t@'
+		Blam::Tags::Tag Signature;                 // 'd@t@'
 		void *Allocator;               // Object used to allocate the array
 		int NextIndex;                 // Index to start searching at to allocate a new datum
 		int FirstUnallocated;          // Data starting at this index is guaranteed to be unallocated
@@ -101,17 +101,17 @@ namespace Blam
 
 	struct DataPoolBase
 	{
-		int Signature;			// 'pool'
-		char Name[0x20];		// Name given to the pool when it was allocated
+		Blam::Tags::Tag Signature; // 'pool'
+		char Name[0x20];           // Name given to the pool when it was allocated
 		void** Allocator;
 		int Size;
 		int FreeSize;
 		int Padding;
-		int Unk52;
-		int Unk56;
-		uint16_t Unk60;
-		uint8_t Unk62;
-		uint8_t Unk63;			// likely IsValid
+		int Unknown52;
+		int Unknown56;
+		uint16_t Unknown60;
+		uint8_t Unknown62;
+		uint8_t Unknown63;			   // likely IsValid
 		int Unk64;
 	};
 	static_assert(sizeof(DataPoolBase) == 0x44, "Invalid DataPoolBase size");
