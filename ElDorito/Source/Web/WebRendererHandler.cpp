@@ -54,8 +54,8 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("submitVirtualKeyboard", Bridge::ClientFunctions::OnSubmitVirtualKeyboard);
 		m_QueryHandler->AddMethod("cancelVirtualKeyboard", Bridge::ClientFunctions::OnCancelVirtualKeyboard);
 		m_QueryHandler->AddMethod("gameaction", Bridge::ClientFunctions::OnGameAction);
-		m_QueryHandler->AddMethod("voipSpeakingStarted", Bridge::ClientFunctions::OnVoIPSpeakingStarted);
-		m_QueryHandler->AddMethod("voipSpeakingStopped", Bridge::ClientFunctions::OnVoIPSpeakingStopped);
+		m_QueryHandler->AddMethod("voipSpeaking", Bridge::ClientFunctions::OnVoIPSpeakingChanged);
+		m_QueryHandler->AddMethod("voipConnected", Bridge::ClientFunctions::OnVoIPConnectedChanged);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}

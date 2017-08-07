@@ -534,20 +534,55 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		}
 		return QueryError_Ok;
 	}
-	QueryError OnVoIPSpeakingStarted(const rapidjson::Value &p_Args, std::string *p_Result)
+
+	QueryError OnVoIPSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result)
 	{
+		auto value = p_Args.FindMember("value");
+		if (value == p_Args.MemberEnd() || !value->value.IsBool())
+		{
+			*p_Result = "Bad query : A \"bool\" argument is required and must be a bool";
+			return QueryError_BadQuery;
+		}
+
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
 		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+			if (value->value.GetBool())
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+			else
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
 		}
 		return QueryError_Ok;
 	}
-	QueryError OnVoIPSpeakingStopped(const rapidjson::Value &p_Args, std::string *p_Result)
+
+	QueryError OnVoIPConnectedChanged(const rapidjson::Value &p_Args, std::string *p_Result)
 	{
-		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+		auto value = p_Args.FindMember("value");
+		if (value == p_Args.MemberEnd() || !value->value.IsBool())
 		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			*p_Result = "Bad query : A \"bool\" argument is required and must be a bool";
+			return QueryError_BadQuery;
 		}
+
+		if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
+		}
+		else if (value->value.GetBool())
+		{
+			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			}
+			else
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+			}
+		}
+		else
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
+		}
+
 		return QueryError_Ok;
 	}
 }

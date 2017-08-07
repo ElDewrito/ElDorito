@@ -14,6 +14,7 @@
 #include "../Modules/ModuleGraphics.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Modules/ModuleGame.hpp"
+#include "../Modules/ModuleVoIP.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include <iostream>
@@ -49,7 +50,7 @@ namespace
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 
 	bool tagsInitiallyLoaded = false;
-	VoiceChatIcon micState = VoiceChatIcon::Unavailable;
+	VoiceChatIcon micState = VoiceChatIcon::None;
 	bool someoneSpeaking = false;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
 	int32_t speakingPlayerStringID;
@@ -66,9 +67,14 @@ namespace Patches::Ui
 			// use the correct hud globals for the player representation
 			if (Modules::ModuleGame::Instance().VarFixHudGlobals->ValueInt)
 				Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
+
+			if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 1)
+				SetVoiceChatIcon(VoiceChatIcon::Unavailable);
 		}
 
 		tagsInitiallyLoaded = true;
+
+		UpdateVoiceChatHUD();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);

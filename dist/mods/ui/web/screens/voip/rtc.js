@@ -262,6 +262,8 @@ function stopSpeak(user, peer)
 
 function clearConnection()
 {
+    dew.callMethod("voipConnected", { "value": "false" });
+
 	try{
 		serverCon.close();
 		serverCon = undefined;
@@ -335,14 +337,14 @@ function startConnection(info)
 			navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
                 localStream = stream;
 
+                dew.callMethod("voipConnected", { "value": "true" });
+
                 var speechEvents = hark(localStream, { "threshold": "-60" });
                 speechEvents.on('speaking', function () {
-                    console.log('speaking');
-                    dew.callMethod("voipSpeakingStarted", {});
+                    dew.callMethod("voipSpeaking", {"value":"true"});
                 });
                 speechEvents.on('stopped_speaking', function () {
-                    console.log('stopped_speaking');
-                    dew.callMethod("voipSpeakingStopped", {});
+                    dew.callMethod("voipSpeakingStopped", {"value":"false"});
                 });
 
 				serverCon = new WebSocket("ws://" + info.server, "dew-voip");
