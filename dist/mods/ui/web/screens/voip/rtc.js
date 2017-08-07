@@ -333,8 +333,18 @@ function startConnection(info)
 			}
 			
 			navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
-				localStream = stream;
-				
+                localStream = stream;
+
+                var speechEvents = hark(localStream, { "threshold": "-60" });
+                speechEvents.on('speaking', function () {
+                    console.log('speaking');
+                    dew.callMethod("voipSpeakingStarted", {});
+                });
+                speechEvents.on('stopped_speaking', function () {
+                    console.log('stopped_speaking');
+                    dew.callMethod("voipSpeakingStopped", {});
+                });
+
 				serverCon = new WebSocket("ws://" + info.server, "dew-voip");
 				serverCon.onmessage = OnMessage;
 				serverCon.onclose = function()

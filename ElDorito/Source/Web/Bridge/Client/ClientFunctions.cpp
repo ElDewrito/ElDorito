@@ -7,6 +7,8 @@
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
 #include "../../../Patches/Input.hpp"
+#include "../../../Patches/Ui.hpp"
+#include "../../../Modules/ModuleVoIP.hpp"
 #include "../../../Pointer.hpp"
 #include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
@@ -529,6 +531,22 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		{
 			*p_Result = "Bad query : \"key\" argument was out of bounds.";
 			return QueryError_BadQuery;
+		}
+		return QueryError_Ok;
+	}
+	QueryError OnVoIPSpeakingStarted(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+		}
+		return QueryError_Ok;
+	}
+	QueryError OnVoIPSpeakingStopped(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
 		}
 		return QueryError_Ok;
 	}

@@ -215,11 +215,19 @@ namespace Patches::Ui
 		if (!tagsInitiallyLoaded)
 			return;
 
+		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::UI::ChudDefinition;
 
 		//If there's no data to toggle (due to modded tags), do nothing.
 		if (!firstHudUpdate && !voiceChatIconValidTags)
+			return;
+
+		if (GetTagAddressImpl('chdt', 0x12BD) == nullptr)
+			return;
+		if (GetTagAddressImpl('chdt', 0x0C1E) == nullptr)
 			return;
 
 		auto *scoreboardChud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
