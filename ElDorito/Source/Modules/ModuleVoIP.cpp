@@ -39,9 +39,9 @@ namespace
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-		else
 			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+		else
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
 
 		returnInfo = "";
 		return true;
@@ -55,9 +55,9 @@ namespace
 
 			//initial voip icons when maps loads
 			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-			else
 				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			else
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
 		}
 		else
 			isMainMenu = true;
@@ -79,14 +79,47 @@ namespace
 			{
 				isChatting = false;
 				if (!isMainMenu)
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+					if (!isMainMenu)
+					{
+						Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+
+						static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
+						//static auto sub_5D7290 = (void(*)(std::string a1, uint32_t sndTagIndex, int a2, int a3))(0x5D7290);
+
+						//Make sure the sound exists before playing
+						typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+						auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+						if (GetTagAddressImpl('lsnd', 0x000015AD) != nullptr)
+						{
+							int a2 = -1;
+							Sound_PlaySoundEffect(0x000015AD, a2);
+						}
+					}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
 			else if (!isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionVoiceChat)->Ticks == 1)
 			{
 				isChatting = true;
 				if (!isMainMenu)
+				{
 					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+
+					static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
+					//static auto sub_5D7290 = (void(*)(std::string a1, uint32_t sndTagIndex, int a2, int a3))(0x5D7290);
+
+					//Make sure the sound exists before playing
+					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+					auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+					if (GetTagAddressImpl('lsnd', 0x000015AD) != nullptr)
+					{
+						int a2 = -1;
+						int a3 = 1065353216;
+						int a4 = 0;
+						char a5 = 0;
+						Sound_PlaySoundEffect(0x000015AD, a2, a3, a4, a5);
+					}
+				}
+
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);
 			}
 		}

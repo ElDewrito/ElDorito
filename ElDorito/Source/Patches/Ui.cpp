@@ -356,6 +356,7 @@ namespace Patches::Ui
 			break;
 		case VoiceChatIcon::PushToTalk:
 			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastPTTIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
+			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastAvailableIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;
 			break;
 		case VoiceChatIcon::None: //Not sure if this is even needed.
 			break;
