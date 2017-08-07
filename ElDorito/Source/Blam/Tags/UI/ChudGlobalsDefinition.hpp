@@ -123,7 +123,14 @@ namespace Blam::Tags::UI
 				uint8_t B;
 			};
 
-			int32_t Biped;
+			enum BipedValue : int32_t
+			{
+				Spartan,
+				Elite,
+				Monitor,
+			};
+
+			BipedValue Biped;
 			GlobalDynamicColor GlobalDynamicColors[37];
 			TagBlock<HudAttribute> HudAttributes;
 			TagBlock<HudSound> HudSounds;
