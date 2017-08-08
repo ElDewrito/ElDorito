@@ -21,6 +21,7 @@
 #include <string>
 #include <iomanip>
 #include <cassert>
+#include <vector>
 
 using namespace Patches::Ui;
 
@@ -51,7 +52,6 @@ namespace
 
 	bool tagsInitiallyLoaded = false;
 	VoiceChatIcon micState = VoiceChatIcon::None;
-	bool someoneSpeaking = false;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
 	int32_t speakingPlayerStringID;
 
@@ -75,6 +75,7 @@ namespace Patches::Ui
 		tagsInitiallyLoaded = true;
 
 		UpdateVoiceChatHUD();
+		UpdateSpeakingPlayerWidget();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -105,38 +106,62 @@ namespace Patches::Ui
 		UpdateVoiceChatHUD();
 	}
 
-	void ToggleSpeakingPlayer(bool newSomeoneSpeaking)
-	{
-		someoneSpeaking = newSomeoneSpeaking;
-		UpdateVoiceChatHUD();
-	}
-
+	std::vector<std::string> speakingPlayers;
+	bool speakingPlayerStringFound = false;
 	bool firstStringUpdate = true;
 	int speakingPlayerOffset; //The offset of speaker_name in memory.
 	int speakingPlayerIndex = 0; //Hud Widget Containing Speaker.
 	static const char* const hex = "0123456789ABCDEF";
 	std::stringstream hexStringStream;
 
-	void SetSpeakingPlayer(std::string speakingPlayer)
+	void ToggleSpeakingPlayerName(std::string name, bool speaking)
+	{
+		if (speaking)
+		{
+			speakingPlayers.push_back(name);
+		}
+		else
+		{
+			for (size_t i = 0; i < speakingPlayers.size(); i++)
+			{
+				if (speakingPlayers.at(i) == name)
+				{
+					speakingPlayers.erase(speakingPlayers.begin() + i);
+				}
+			}
+		}
+
+		UpdateSpeakingPlayerWidget();
+	}
+
+	void UpdateSpeakingPlayerWidget()
 	{
 		if (!tagsInitiallyLoaded) //Commands might call methods a little early.
 			return;
-
 
 		//This method could use some refactoring, and performance could be improved I think.
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::UI::MultilingualUnicodeStringList;
 		using Blam::Tags::UI::ChudDefinition;
 
-		//If the client is speaking, hide the text and let icons display.
-		//Really this method shouldn't be called with the client's username, but here's a half working fix for that if necessary.
-		//if (speakingPlayer == username)
-		//{
-		//	ToggleSpeakingPlayer(false);
-		//	return;
-		//}
+		std::string newName;
 
-		if (speakingPlayer.length() > 15) // player names are limited to 15 anyway.
+		if (speakingPlayers.size() < 1)
+		{
+			UpdateVoiceChatHUD();
+			return;
+		}
+		else if (speakingPlayers[0].length() < 15) // player names are limited to 15 anyway.
+		{
+			newName = speakingPlayers[0];
+		}
+		else 
+		{
+			UpdateVoiceChatHUD();
+			return;
+		}
+
+		if (!TagInstance::IsLoaded('unic', 0x12c2))
 			return;
 
 		auto *unic = Blam::Tags::TagInstance(0x12c2).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
@@ -153,8 +178,13 @@ namespace Patches::Ui
 				}
 
 			//If the speaking_player string cannot be found, RIP. This shouldn't happen unless tags don't have correct modifications.
-			if (speakingPlayerOffset == NULL)
-				throw nullptr;
+			if (speakingPlayerOffset != NULL)
+				speakingPlayerStringFound = true;
+			else
+			{
+				speakingPlayerStringFound = false;
+				UpdateVoiceChatHUD();
+			}
 
 			firstStringUpdate = false;
 		}
@@ -162,16 +192,16 @@ namespace Patches::Ui
 		std::string newHudMessagesStrings;
 		newHudMessagesStrings.reserve(30);
 
-		for (size_t i = 0; i < speakingPlayer.length(); ++i)
+		for (size_t i = 0; i < newName.length(); ++i)
 		{
-			const unsigned char c = speakingPlayer[i];
+			const unsigned char c = newName[i];
 			newHudMessagesStrings.push_back(hex[c >> 4]);
 			newHudMessagesStrings.push_back(hex[c & 15]);
 		}
 
 		//if the speaker name is less than 15 characters, fill the rest of the string with 0.
-		if (speakingPlayer.length() < (size_t)15)
-			for (int i = speakingPlayer.length() * 2; i < 30; ++i)
+		if (newName.length() < (size_t)15)
+			for (int i = newName.length() * 2; i < 30; ++i)
 				newHudMessagesStrings.push_back('0');
 
 		//Now convert the hex string to a byte array and poke!
@@ -193,11 +223,15 @@ namespace Patches::Ui
 
 		if (speakingPlayerIndex != NULL)
 		{
+			if (!TagInstance::IsLoaded('chdt', 0x12BD))
+				return;
+
 			auto *chud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 			//Make sure that the speaking player HUD widget has the correct string.
 			chud->HudWidgets[speakingPlayerIndex].TextWidgets[0].TextStringID = speakingPlayerStringID;
 		}
 
+		UpdateVoiceChatHUD();
 	}
 
 	bool firstHudUpdate = true;
@@ -221,9 +255,6 @@ namespace Patches::Ui
 		if (!tagsInitiallyLoaded)
 			return;
 
-		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::UI::ChudDefinition;
 
@@ -231,9 +262,9 @@ namespace Patches::Ui
 		if (!firstHudUpdate && !voiceChatIconValidTags)
 			return;
 
-		if (GetTagAddressImpl('chdt', 0x12BD) == nullptr)
+		if (!TagInstance::IsLoaded('chdt', 0x12BD))
 			return;
-		if (GetTagAddressImpl('chdt', 0x0C1E) == nullptr)
+		else if (!TagInstance::IsLoaded('chdt', 0x0C1E))
 			return;
 
 		auto *scoreboardChud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
@@ -376,7 +407,7 @@ namespace Patches::Ui
 			break;
 		}
 
-		if (someoneSpeaking)
+		if (speakingPlayerStringFound && speakingPlayers.size() > 0)
 			scoreboardChud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = (ChudDefinition::StateDataScoreboardFlags1)0;
 	}
 
@@ -547,6 +578,11 @@ namespace Patches::Ui
 			using Blam::Tags::TagInstance;
 			using Blam::Tags::UI::ChudGlobalsDefinition;
 			using Blam::Tags::UI::ChudDefinition;
+
+			if (!TagInstance::IsLoaded('chgd', 0x01BD))
+				return;
+			else if (!TagInstance::IsLoaded('chdt', 0x0C1E))
+				return;
 
 			auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
 			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();

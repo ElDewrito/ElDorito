@@ -847,10 +847,48 @@ namespace
 		}
 
 		//Make sure the sound exists before playing
-		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-		if(GetTagAddressImpl('snd!', tagIndex) != nullptr)
+		if (Blam::Tags::TagInstance::IsLoaded('snd!', tagIndex))
 			Sound_PlaySoundEffect(tagIndex, 1.0f);
+		else
+			returnInfo = "Invalid sound index: " + arguments[0];
+
+		return true;
+	}
+
+	bool CommandPlayLoopingSound(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
+
+		uint32_t tagIndex;
+		if (arguments.size() < 1 || !TryParseTagIndex(arguments[0], &tagIndex))
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		//Make sure the sound exists before playing
+		if (Blam::Tags::TagInstance::IsLoaded('lsnd', tagIndex))
+			Sound_LoopingSound_Start(tagIndex, -1, 1065353216, 0, 0);
+		else
+			returnInfo = "Invalid sound index: " + arguments[0];
+
+		return true;
+	}
+
+	bool CommandStopLoopingSound(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
+
+		uint32_t tagIndex;
+		if (arguments.size() < 1 || !TryParseTagIndex(arguments[0], &tagIndex))
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		//Make sure the sound exists before playing
+		if (Blam::Tags::TagInstance::IsLoaded('lsnd', tagIndex))
+			Sound_LoopingSound_Stop(tagIndex, -1);
 		else
 			returnInfo = "Invalid sound index: " + arguments[0];
 
@@ -940,6 +978,10 @@ namespace Modules
 		AddCommand("ListMedalPacks", "list_medals", "List all available medal packs", eCommandFlagsNone, CommandListMedalPacks);
 
 		AddCommand("PlaySound", "play_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlaySound);
+
+		AddCommand("PlayLoopingSound", "play_looping_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlayLoopingSound);
+
+		AddCommand("StopLoopingSound", "stop_looping_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 

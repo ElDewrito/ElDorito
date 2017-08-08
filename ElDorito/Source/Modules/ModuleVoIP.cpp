@@ -6,6 +6,7 @@
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../Blam/Tags/TagInstance.hpp"
 
 namespace
 {
@@ -38,10 +39,25 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+		if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
+		}
+		else if (Modules::ModuleVoIP::Instance().voipConnected)
+		{
+			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			}
+			else
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+			}
+		}
 		else
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+		{
+			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
+		}
 
 		returnInfo = "";
 		return true;
@@ -54,10 +70,25 @@ namespace
 			isMainMenu = false;
 
 			//initial voip icons when maps loads
-			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
+			}
+			else if (Modules::ModuleVoIP::Instance().voipConnected)
+			{
+				if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+				{
+					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+				}
+				else
+				{
+					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+				}
+			}
 			else
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+			{
+				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
+			}
 		}
 		else
 			isMainMenu = true;
@@ -72,6 +103,9 @@ namespace
 		
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
 		{
+			if (!Modules::ModuleVoIP::Instance().voipConnected)
+				return;
+
 			if (isMainMenu && isUsingController)
 				return;
 			//keyboard/controller in-game
@@ -83,16 +117,15 @@ namespace
 					{
 						Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
 
-						static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
-						//static auto sub_5D7290 = (void(*)(std::string a1, uint32_t sndTagIndex, int a2, int a3))(0x5D7290);
-
-						//Make sure the sound exists before playing
-						typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-						auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-						if (GetTagAddressImpl('lsnd', 0x000015AD) != nullptr)
+						if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
 						{
-							int a2 = -1;
-							Sound_PlaySoundEffect(0x000015AD, a2);
+							static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
+
+							//Make sure the sound exists before playing
+							if (Blam::Tags::TagInstance::IsLoaded('lsnd', 0x000015AD))
+							{
+								Sound_LoopingSound_Stop(0x000015AD, -1);
+							}
 						}
 					}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
@@ -104,19 +137,15 @@ namespace
 				{
 					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
 
-					static auto Sound_PlaySoundEffect = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
-					//static auto sub_5D7290 = (void(*)(std::string a1, uint32_t sndTagIndex, int a2, int a3))(0x5D7290);
-
-					//Make sure the sound exists before playing
-					typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-					auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-					if (GetTagAddressImpl('lsnd', 0x000015AD) != nullptr)
+					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
 					{
-						int a2 = -1;
-						int a3 = 1065353216;
-						int a4 = 0;
-						char a5 = 0;
-						Sound_PlaySoundEffect(0x000015AD, a2, a3, a4, a5);
+						static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
+
+						//Make sure the sound exists before playing
+						if (Blam::Tags::TagInstance::IsLoaded('lsnd', 0x000015AD))
+						{
+							Sound_LoopingSound_Start(0x000015AD, -1, 1065353216, 0, 0);
+						}
 					}
 				}
 
@@ -176,6 +205,13 @@ namespace Modules
 
 		AddCommand("Update", "update", "Updates the voip screen layer with variable states", eCommandFlagsNone, UpdateVoip);
 
+		VarPTTSoundEnabled = AddVariableInt("PTTSoundEnabled", "ptt_sound_enabled", "Toggles the sound played when using Push-To-Talk.", eCommandFlagsArchived, 1);
+		VarPTTSoundEnabled->ValueIntMin = 0;
+		VarPTTSoundEnabled->ValueIntMax = 1;
+
+		VarSpeakingPlayerOnHUD = AddVariableInt("SpeakingPlayerOnHUD", "speaking_player_hud", "Shows the speaking player on the HUD, rather than the web overlay.", eCommandFlagsArchived, 0);
+		VarSpeakingPlayerOnHUD->ValueIntMin = 0;
+		VarSpeakingPlayerOnHUD->ValueIntMax = 1;
 
 		Patches::Core::OnMapLoaded(RendererStarted);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);

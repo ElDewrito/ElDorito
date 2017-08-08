@@ -184,14 +184,19 @@ function remotestream(event)
 	});
 }
 
-function speak(user, peer)
-{
-	var speaker = {
-		user: user,
-		volume: peer.speakingVolume,
-		isSpeaking: true
-	}
-	dew.notify("voip-speaking", speaker);
+function speak(user, peer) {
+    var speaker = {
+        user: user,
+        volume: peer.speakingVolume,
+        isSpeaking: true
+    }
+    dew.notify("voip-speaking", speaker);
+
+    if(dew.getSpeakingPlayerHUDEnabled){
+		dew.callMethod("playerSpeaking", { "name": user, "value": true });
+		return;
+    };
+
 	if($.inArray(user, speaking) == -1)	{
 		speaking.push(user);
 		
@@ -234,6 +239,10 @@ function stopSpeak(user, peer)
 	if(index != -1)
 		speaking.splice(index, 1);
 	
+	if(dew.getSpeakingPlayerHUDEnabled){
+        dew.callMethod("playerSpeaking", { "name": user , "value" : false});
+    }
+    else{
 	var thisUser = $("#" + user);
 	var index = thisUser.index();
 	if($("#speaking > p").length > 0)
@@ -257,12 +266,13 @@ function stopSpeak(user, peer)
 	});
 	setTimeout(function(){
 		thisUser.remove();
-	}, 300);
+    }, 300);
+    }
 }
 
 function clearConnection()
 {
-    dew.callMethod("voipConnected", { "value": "false" });
+    dew.callMethod("voipConnected", { "value": false });
 
 	try{
 		serverCon.close();
@@ -337,14 +347,31 @@ function startConnection(info)
 			navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
                 localStream = stream;
 
-                dew.callMethod("voipConnected", { "value": "true" });
+                dew.callMethod("voipConnected", { "value": true });
 
                 var speechEvents = hark(localStream, { "threshold": "-60" });
                 speechEvents.on('speaking', function () {
-                    dew.callMethod("voipSpeaking", {"value":"true"});
+                    if (serverCon != undefined)
+                        dew.callMethod("voipSpeaking", {"value": true});
+
+					if(dew.getSpeakingPlayerHUDEnabled){
+						
+						dew.command('Player.Name').then(function(res) {
+							dew.callMethod("playerSpeaking", { "name": res , "value" : true});
+							return;
+						});
+					};
                 });
                 speechEvents.on('stopped_speaking', function () {
-                    dew.callMethod("voipSpeakingStopped", {"value":"false"});
+                    if (serverCon != undefined)
+                        dew.callMethod("voipSpeaking", {"value": false});
+
+					if(dew.getSpeakingPlayerHUDEnabled){
+						dew.command('Player.Name').then(function(res) {
+							dew.callMethod("playerSpeaking", { "name": res , "value" : false});
+							return;
+						});
+					};
                 });
 
 				serverCon = new WebSocket("ws://" + info.server, "dew-voip");

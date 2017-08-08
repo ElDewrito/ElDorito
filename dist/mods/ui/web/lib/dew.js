@@ -636,6 +636,12 @@ CommandType = {
 		});
 	}
 
+    dew.getSpeakingPlayerHUDEnabled = function () {		
+        dew.callMethod("speakingPlayerHUD", {}, jsonResultMapping).then(function(s){
+            return s.enabled;
+        });	
+    }
+
     /**
      * A callback function for responding to events.
      *

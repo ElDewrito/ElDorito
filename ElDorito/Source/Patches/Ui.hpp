@@ -29,8 +29,8 @@ namespace Patches::Ui
 		PushToTalk
 	};
 
-	void ToggleSpeakingPlayer(bool newSomeoneSpeaking);
-	void SetSpeakingPlayer(std::string speakingPlayer);
+	void ToggleSpeakingPlayerName(std::string name, bool speaking);
+	void UpdateSpeakingPlayerWidget();
 
 	void SetVoiceChatIcon(VoiceChatIcon newIcon);
 	void UpdateVoiceChatHUD();

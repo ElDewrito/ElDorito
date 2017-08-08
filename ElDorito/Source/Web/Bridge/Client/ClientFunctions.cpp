@@ -540,7 +540,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		auto value = p_Args.FindMember("value");
 		if (value == p_Args.MemberEnd() || !value->value.IsBool())
 		{
-			*p_Result = "Bad query : A \"bool\" argument is required and must be a bool";
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
 			return QueryError_BadQuery;
 		}
 
@@ -559,9 +559,11 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		auto value = p_Args.FindMember("value");
 		if (value == p_Args.MemberEnd() || !value->value.IsBool())
 		{
-			*p_Result = "Bad query : A \"bool\" argument is required and must be a bool";
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
 			return QueryError_BadQuery;
 		}
+
+		Modules::ModuleVoIP::Instance().voipConnected = value->value.GetBool();
 
 		if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
 		{
@@ -582,6 +584,44 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		{
 			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
 		}
+
+		return QueryError_Ok;
+	}
+
+	QueryError OnVoIPPlayerSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		auto name = p_Args.FindMember("name");
+		auto value = p_Args.FindMember("value");
+		if (name == p_Args.MemberEnd() || !name->value.IsString())
+		{
+			*p_Result = "Bad query : A \"name\" argument is required and must be a string";
+			return QueryError_BadQuery;
+		}
+		else if (value == p_Args.MemberEnd() || !value->value.IsBool())
+		{
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
+			return QueryError_BadQuery;
+		}
+
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
+		{
+			Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
+		}
+
+		return QueryError_Ok;
+	}
+
+	QueryError OnVoIPSpeakingPlayerHUD(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartObject();
+		writer.Key("enabled");
+		writer.Bool(Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1);
+		writer.EndObject();
+
+		*p_Result = buffer.GetString();
 
 		return QueryError_Ok;
 	}
