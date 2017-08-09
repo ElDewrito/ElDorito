@@ -8,7 +8,11 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
+#include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
+#include "../Blam/Tags/Game/Globals.hpp"
+#include "../Blam//Tags/Objects/Biped.hpp"
 #include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
@@ -64,6 +68,8 @@ namespace Patches::Ui
 	{
 		if (!tagsInitiallyLoaded)
 		{
+			FindUiTagIndices();
+
 			// use the correct hud globals for the player representation
 			if (Modules::ModuleGame::Instance().VarFixHudGlobals->ValueInt)
 				Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
@@ -76,6 +82,108 @@ namespace Patches::Ui
 
 		UpdateVoiceChatHUD();
 		UpdateSpeakingPlayerWidget();
+	}
+
+	void ApplyAll()
+	{
+		// Rewire $hq.MatchmakingLeaveQueue() to end the game
+		Hook(0x3B6826, UI_EndGame, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
+
+		// Rewire $hf2pEngine.PerformLogin() to show the pause menu
+		Hook(0x234756, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x234756 + 5), 1);
+
+		// Allows you to press B to close the H3 pause menu
+		// TODO: find out what the byte that's being checked does, we're just patching out the check here but maybe it's important
+		Patch::NopFill(Pointer::Base(0x6E05F3), 2);
+
+		// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
+		Patch(0x6C34B0, { 0xB6 }).Apply();
+
+		// Fix gamepad option in settings (todo: find out why it doesn't detect gamepads
+		// and find a way to at least enable pressing ESC when gamepad is enabled)
+		Patch::NopFill(Pointer::Base(0x20D7F2), 2);
+
+		// Fix menu update code to include missing mainmenu code
+		Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
+
+		// Sorta hacky way of getting game options screen to show when you press X on lobby
+		// TODO: find real way of showing the [X] Edit Game Options text, that might enable it to work without patching
+		Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
+
+		// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
+		// added side effect: analog stick left/right can also navigate through menus
+		DWORD temp;
+		DWORD temp2;
+		auto writeAddr = Pointer(0x169EFD8);
+		if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
+		{
+			std::stringstream ss;
+			ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
+			OutputDebugString(ss.str().c_str());
+		}
+		else
+		{
+			writeAddr.Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
+			VirtualProtect(writeAddr, 4, temp, &temp2);
+		}
+
+		// Remove Xbox Live from the network menu
+		Patch::NopFill(Pointer::Base(0x723D85), 0x17);
+		Pointer::Base(0x723DA1).Write<uint8_t>(0);
+		Pointer::Base(0x723DB8).Write<uint8_t>(1);
+		Patch::NopFill(Pointer::Base(0x723DFF), 0x3);
+		Pointer::Base(0x723E07).Write<uint8_t>(0);
+		Pointer::Base(0x723E1C).Write<uint8_t>(0);
+
+		// Localized string override hook
+		Hook(0x11E040, LocalizedStringHook).Apply();
+
+		// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
+		// TODO: find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata
+		Patch(0x705D6F, { 0x2 }).Apply();
+
+		// Hook window title sprintf to replace the dest buf with our string
+		Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
+
+		// Runs when the game's resolution is changed
+		Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
+
+		if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 1) {
+			// Enable H3UI scaling
+			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
+		}
+
+		// Change the way that Forge handles dpad up so that it doesn't mess with key repeat
+		// Comparing the action tick count to 1 instead of using the "handled" flag does roughly the same thing and lets the menu UI read the key too
+		Patch(0x19F17F, { 0x75 }).Apply();
+		Patch::NopFill(Pointer::Base(0x19F198), 4);
+
+		// Reimplement the function that assigns lobby roster colors
+		Hook(0x726100, UI_UpdateRosterColorsHook).Apply();
+
+		// Game window creation callbacks
+		Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
+
+		// disable saber's weapon hud
+		Patch(0x6866F2, { 0xEB }).Apply();
+		// restore h3 weapon hud
+		Hook(0x006970BB, UI_UpdateH3HUDHook, HookFlags::IsCall).Apply();
+		// fix equipment swap message
+		Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
+		// fix dual-wield message
+		Pointer(0xABD388).Write<uint32_t>(0xABD300);
+		// add support for mouse buttons in HUD messages
+		Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
+		// enable controller buttons in HUD messages
+		Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
+
+		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
+		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
+		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -98,6 +206,117 @@ namespace Patches::Ui
 	void OnCreateWindow(CreateWindowCallback callback)
 	{
 		createWindowCallbacks.push_back(callback);
+	}
+
+	//Functions that interact with Tags
+
+	uint32_t hudMessagesUnicIndex;
+	uint32_t spartanChdtIndex;
+	//uint32_t eliteChdtIndex;
+	//uint32_t monitorChdtIndex;
+	uint32_t scoreboardChdtIndex;
+	uint32_t chgdIndex;
+	uint32_t pttLsndIndex;
+
+	void FindUiTagIndices()
+	{
+		using Blam::Tags::Globals::CacheFileGlobalTags;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Objects::Biped;
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using Blam::Tags::Game::MultiplayerGlobals;
+
+		auto cfgtInstances = TagInstance::GetInstancesInGroup('cfgt');
+		for (auto &cfgtInstance : cfgtInstances)
+		{
+			auto *cfgtDefinition = cfgtInstance.GetDefinition<CacheFileGlobalTags>();
+			for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->globalsTags.Count; globalsTagIndex++)
+			{
+				if (cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.GroupTag == 'matg')
+				{
+					auto matgDefinition = TagInstance(cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.TagIndex).GetDefinition<Globals>();
+
+					for (size_t interfaceTagsIndex = 0; interfaceTagsIndex < matgDefinition->InterfaceTags.Count; interfaceTagsIndex++)
+					{
+						if (matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex != NULL &&
+							matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.GroupTag == 'chgd')
+						{
+							chgdIndex = matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex;
+
+							if (!TagInstance::IsLoaded('chgd', chgdIndex))
+								continue;
+
+							auto *chgd = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+							if (chgd->HudGlobals.Count > 1) {
+								if (chgd->HudGlobals[0].ScoreboardHud.TagIndex != NULL)
+									scoreboardChdtIndex = chgd->HudGlobals[0].ScoreboardHud.TagIndex;
+								if (chgd->HudGlobals[0].HudStrings.TagIndex != NULL)
+									hudMessagesUnicIndex = chgd->HudGlobals[0].HudStrings.TagIndex;
+							}
+
+							//Can't break out of all these loops without setting an unnecessary variable.
+							//So if a chgd is found, move to the next loop.
+							goto findBipedChdts;
+						}
+					}
+
+				findBipedChdts:
+
+					for (size_t playerRepresentationIndex = 0; playerRepresentationIndex < matgDefinition->PlayerRepresentation.Count; playerRepresentationIndex++)
+					{
+						if (matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex == NULL)
+							continue;
+
+						uint32_t bipdIndex = matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex;
+
+						if (!TagInstance::IsLoaded('bipd', bipdIndex))
+							continue;
+
+						auto *bipd = TagInstance(bipdIndex).GetDefinition<Biped>();
+
+						if (bipd->HudInterfaces.Count < 1)
+							continue;
+
+						switch (matgDefinition->PlayerRepresentation[playerRepresentationIndex].Name)
+						{
+							case 4376: //mp_spartan
+								spartanChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+								break;
+							//case 4377: //mp_elite
+							//	eliteChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							//	break;
+							//case 4379: //monitor
+							//	monitorChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							//	break;
+							default:
+								continue;
+						}
+
+						//If all the tag indices are found, move on.
+						if (spartanChdtIndex != NULL /*&& eliteChdtIndex != NULL && monitorChdtIndex != NULL*/)
+							goto findPttLsnd;
+					}
+
+				findPttLsnd:
+
+					if (matgDefinition->MultiplayerGlobals.TagIndex == NULL)
+						return;
+					if (!TagInstance::IsLoaded('mulg', matgDefinition->MultiplayerGlobals.TagIndex))
+						return;
+
+					auto *mulg = TagInstance(matgDefinition->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+
+					if (mulg->Runtime.Count < 1 || mulg->Runtime[0].LoopingSounds.Count < 1 || mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex == NULL)
+						return;
+
+					pttLsndIndex = mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex;
+
+					return;
+				}
+			}
+		}
 	}
 
 	void SetVoiceChatIcon(VoiceChatIcon newIcon)
@@ -161,10 +380,10 @@ namespace Patches::Ui
 			return;
 		}
 
-		if (!TagInstance::IsLoaded('unic', 0x12c2))
+		if (!TagInstance::IsLoaded('unic', hudMessagesUnicIndex))
 			return;
 
-		auto *unic = Blam::Tags::TagInstance(0x12c2).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
+		auto *unic = Blam::Tags::TagInstance(hudMessagesUnicIndex).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
 
 		if (firstStringUpdate)
 		{
@@ -223,10 +442,10 @@ namespace Patches::Ui
 
 		if (speakingPlayerIndex != NULL)
 		{
-			if (!TagInstance::IsLoaded('chdt', 0x12BD))
+			if (!TagInstance::IsLoaded('chdt', scoreboardChdtIndex))
 				return;
 
-			auto *chud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			auto *chud = Blam::Tags::TagInstance(scoreboardChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 			//Make sure that the speaking player HUD widget has the correct string.
 			chud->HudWidgets[speakingPlayerIndex].TextWidgets[0].TextStringID = speakingPlayerStringID;
 		}
@@ -262,14 +481,16 @@ namespace Patches::Ui
 		if (!firstHudUpdate && !voiceChatIconValidTags)
 			return;
 
-		if (!TagInstance::IsLoaded('chdt', 0x12BD))
+		if (!TagInstance::IsLoaded('chdt', scoreboardChdtIndex))
 			return;
-		else if (!TagInstance::IsLoaded('chdt', 0x0C1E))
+		else if (!TagInstance::IsLoaded('chdt', spartanChdtIndex))
 			return;
+		/*else if(!TagInstance::IsLoaded('chdt' eliteChdtIndex))
+			return*/
 
-		auto *scoreboardChud = Blam::Tags::TagInstance(0x12BD).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-		auto *spartanChud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-		//auto *eliteChud = Blam::Tags::TagInstance(0x0E5F).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+		auto *scoreboardChud = Blam::Tags::TagInstance(scoreboardChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+		auto *spartanChud = Blam::Tags::TagInstance(spartanChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+		//auto *eliteChud = Blam::Tags::TagInstance(eliteChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
 
 		//If it's the first time updating the HUD, find the tagblock indexes.
 		if (firstHudUpdate)
@@ -411,108 +632,6 @@ namespace Patches::Ui
 			scoreboardChud->HudWidgets[speakingPlayerIndex].StateData[0].ScoreboardFlags1 = (ChudDefinition::StateDataScoreboardFlags1)0;
 	}
 
-	void ApplyAll()
-	{
-		// Rewire $hq.MatchmakingLeaveQueue() to end the game
-		Hook(0x3B6826, UI_EndGame, HookFlags::IsCall).Apply();
-		Patch::NopFill(Pointer::Base(0x3B6826 + 5), 1);
-
-		// Rewire $hf2pEngine.PerformLogin() to show the pause menu
-		Hook(0x234756, &UI_ShowHalo3PauseMenu, HookFlags::IsCall).Apply();
-		Patch::NopFill(Pointer::Base(0x234756 + 5), 1);
-
-		// Allows you to press B to close the H3 pause menu
-		// TODO: find out what the byte that's being checked does, we're just patching out the check here but maybe it's important
-		Patch::NopFill(Pointer::Base(0x6E05F3), 2);
-
-		// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
-		Patch(0x6C34B0, { 0xB6 }).Apply();
-
-		// Fix gamepad option in settings (todo: find out why it doesn't detect gamepads
-		// and find a way to at least enable pressing ESC when gamepad is enabled)
-		Patch::NopFill(Pointer::Base(0x20D7F2), 2);
-
-		// Fix menu update code to include missing mainmenu code
-		Hook(0x6DFB73, &UI_MenuUpdateHook, HookFlags::IsCall).Apply();
-
-		// Sorta hacky way of getting game options screen to show when you press X on lobby
-		// TODO: find real way of showing the [X] Edit Game Options text, that might enable it to work without patching
-		Hook(0x721B8A, LobbyMenuButtonHandlerHook, HookFlags::IsJmpIfEqual).Apply();
-
-		// Hook UI vftable's forge menu button handler, so arrow keys can act as bumpers
-		// added side effect: analog stick left/right can also navigate through menus
-		DWORD temp;
-		DWORD temp2;
-		auto writeAddr = Pointer(0x169EFD8);
-		if (!VirtualProtect(writeAddr, 4, PAGE_READWRITE, &temp))
-		{
-			std::stringstream ss;
-			ss << "Failed to set protection on memory address " << std::hex << (void*)writeAddr;
-			OutputDebugString(ss.str().c_str());
-		}
-		else
-		{
-			writeAddr.Write<uint32_t>((uint32_t)&UI_Forge_ButtonPressHandlerHook);
-			VirtualProtect(writeAddr, 4, temp, &temp2);
-		}
-
-		// Remove Xbox Live from the network menu
-		Patch::NopFill(Pointer::Base(0x723D85), 0x17);
-		Pointer::Base(0x723DA1).Write<uint8_t>(0);
-		Pointer::Base(0x723DB8).Write<uint8_t>(1);
-		Patch::NopFill(Pointer::Base(0x723DFF), 0x3);
-		Pointer::Base(0x723E07).Write<uint8_t>(0);
-		Pointer::Base(0x723E1C).Write<uint8_t>(0);
-
-		// Localized string override hook
-		Hook(0x11E040, LocalizedStringHook).Apply();
-
-		// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
-		// TODO: find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata
-		Patch(0x705D6F, { 0x2 }).Apply();
-
-		// Hook window title sprintf to replace the dest buf with our string
-		Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
-
-		// Runs when the game's resolution is changed
-		Hook(0x621303, ResolutionChangeHook, HookFlags::IsCall).Apply();
-
-		if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 1) {
-			// Enable H3UI scaling
-			Patch::NopFill(Pointer::Base(0x61FAD1), 2);
-		}
-
-		// Change the way that Forge handles dpad up so that it doesn't mess with key repeat
-		// Comparing the action tick count to 1 instead of using the "handled" flag does roughly the same thing and lets the menu UI read the key too
-		Patch(0x19F17F, { 0x75 }).Apply();
-		Patch::NopFill(Pointer::Base(0x19F198), 4);
-
-		// Reimplement the function that assigns lobby roster colors
-		Hook(0x726100, UI_UpdateRosterColorsHook).Apply();
-
-		// Game window creation callbacks
-		Hook(0x622057, CreateGameWindowHook, HookFlags::IsCall).Apply();
-
-		// disable saber's weapon hud
-		Patch(0x6866F2, { 0xEB }).Apply();
-		// restore h3 weapon hud
-		Hook(0x006970BB, UI_UpdateH3HUDHook, HookFlags::IsCall).Apply();
-		// fix equipment swap message
-		Pointer(0xABD324).Write<uint32_t>(0xABD2F7);
-		// fix dual-wield message
-		Pointer(0xABD388).Write<uint32_t>(0xABD300);
-		// add support for mouse buttons in HUD messages
-		Hook(0x6BC83F, GetActionButtonNameHook, HookFlags::IsJmpIfEqual).Apply();
-		// enable controller buttons in HUD messages
-		Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
-
-		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
-		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
-
-		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
-		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
-	}
-
 	void ApplyMapNameFixes()
 	{
 		uint32_t levelsGlobalPtr = Pointer::Base(0x149E2E0).Read<uint32_t>();
@@ -579,15 +698,15 @@ namespace Patches::Ui
 			using Blam::Tags::UI::ChudGlobalsDefinition;
 			using Blam::Tags::UI::ChudDefinition;
 
-			if (!TagInstance::IsLoaded('chgd', 0x01BD))
+			if (!TagInstance::IsLoaded('chgd', chgdIndex))
 				return;
-			else if (!TagInstance::IsLoaded('chdt', 0x0C1E))
+			else if (!TagInstance::IsLoaded('chdt', spartanChdtIndex))
 				return;
 
 			auto *gameResolution = reinterpret_cast<int *>(0x19106C0);
-			auto *globals = TagInstance(0x01BD).GetDefinition<ChudGlobalsDefinition>();
-			auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-			if (!globals || !chud || globals->HudGlobals.Count == 0 || globals->HudGlobals[0].HudAttributes.Count == 0)
+			auto *globals = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+			auto *spartanChud = Blam::Tags::TagInstance(spartanChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+			if (!globals || !spartanChud || globals->HudGlobals.Count == 0 || globals->HudGlobals[0].HudAttributes.Count == 0)
 				return;
 
 			// Store initial HUD resolution values the first time the resolution is changed.
@@ -599,7 +718,7 @@ namespace Patches::Ui
 				HUDResolutionScaleY = globals->HudGlobals[0].HudAttributes[0].VerticalScale;
 				HUDMotionSensorOffsetX = globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX;
 				// Store bottom visor offset
-				for (auto &widget : chud->HudWidgets)
+				for (auto &widget : spartanChud->HudWidgets)
 				{
 					if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
 					{
@@ -640,7 +759,7 @@ namespace Patches::Ui
 			globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetY = (float)(globals->HudGlobals[0].HudAttributes[0].ResolutionHeight - (globals->HudGlobals[0].HudAttributes[0].MotionSensorRadius - globals->HudGlobals[0].HudAttributes[0].MotionSensorScale));
 
 			// Search for the visor bottom and fix it if found
-			for (auto &widget : chud->HudWidgets)
+			for (auto &widget : spartanChud->HudWidgets)
 			{
 				if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
 				{

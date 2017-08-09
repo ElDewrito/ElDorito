@@ -113,21 +113,20 @@ namespace
 			{
 				isChatting = false;
 				if (!isMainMenu)
-					if (!isMainMenu)
+				{
+					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+
+					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
 					{
-						Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
+						static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
 
-						if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
+						//Make sure the sound exists before playing
+						if (Blam::Tags::TagInstance::IsLoaded('lsnd', Patches::Ui::pttLsndIndex))
 						{
-							static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
-
-							//Make sure the sound exists before playing
-							if (Blam::Tags::TagInstance::IsLoaded('lsnd', 0x000015AD))
-							{
-								Sound_LoopingSound_Stop(0x000015AD, -1);
-							}
+							Sound_LoopingSound_Stop(Patches::Ui::pttLsndIndex, -1);
 						}
 					}
+				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
 			else if (!isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionVoiceChat)->Ticks == 1)
@@ -142,9 +141,9 @@ namespace
 						static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
 
 						//Make sure the sound exists before playing
-						if (Blam::Tags::TagInstance::IsLoaded('lsnd', 0x000015AD))
+						if (Blam::Tags::TagInstance::IsLoaded('lsnd', Patches::Ui::pttLsndIndex))
 						{
-							Sound_LoopingSound_Start(0x000015AD, -1, 1065353216, 0, 0);
+							Sound_LoopingSound_Start(Patches::Ui::pttLsndIndex, -1, 1065353216, 0, 0);
 						}
 					}
 				}
