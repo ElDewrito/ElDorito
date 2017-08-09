@@ -87,8 +87,8 @@ namespace Patches
 	{
 		Armor::ApplyAfterTagsLoaded();
 		Armor::RefreshUiPlayer();
-		Ui::ApplyUIResolution();
 		Ui::ApplyAfterTagsLoaded();
+		Ui::ApplyUIResolution();
 		Weapon::ApplyAfterTagsLoaded();
 		Tweaks::ApplyAfterTagsLoaded();
 	}

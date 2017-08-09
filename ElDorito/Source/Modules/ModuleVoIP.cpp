@@ -117,15 +117,7 @@ namespace
 					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
 
 					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
-					{
-						static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
-
-						//Make sure the sound exists before playing
-						if (Blam::Tags::TagInstance::IsLoaded('lsnd', Patches::Ui::pttLsndIndex))
-						{
-							Sound_LoopingSound_Stop(Patches::Ui::pttLsndIndex, -1);
-						}
-					}
+						Patches::Ui::TogglePTTSound(true);
 				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
@@ -137,15 +129,7 @@ namespace
 					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
 
 					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
-					{
-						static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
-
-						//Make sure the sound exists before playing
-						if (Blam::Tags::TagInstance::IsLoaded('lsnd', Patches::Ui::pttLsndIndex))
-						{
-							Sound_LoopingSound_Start(Patches::Ui::pttLsndIndex, -1, 1065353216, 0, 0);
-						}
-					}
+						Patches::Ui::TogglePTTSound(false);
 				}
 
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);

@@ -88,7 +88,13 @@ namespace Blam::Tags
 			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
 			auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
 
-			if (GetTagAddressImpl('unic', 0x12c2) == nullptr)
+			if (GetTagAddressImpl(groupTag, index) == nullptr)
+				return false;
+
+			typedef int(*GetGroupTagPtr)(uint16_t);
+			auto GetGroupTagImpl = reinterpret_cast<GetGroupTagPtr>(0x5033A0);
+
+			if (GetGroupTagImpl(index) != groupTag)
 				return false;
 
 			return true;

@@ -319,6 +319,21 @@ namespace Patches::Ui
 		}
 	}
 
+	void TogglePTTSound(bool enabled)
+	{
+		static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
+		static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
+
+		//Make sure the sound exists before playing
+		if (Blam::Tags::TagInstance::IsLoaded('lsnd', pttLsndIndex))
+		{
+			if(enabled)
+				Sound_LoopingSound_Start(pttLsndIndex, -1, 1065353216, 0, 0);
+			else
+				Sound_LoopingSound_Stop(pttLsndIndex, -1);
+		}
+	}
+
 	void SetVoiceChatIcon(VoiceChatIcon newIcon)
 	{
 		micState = newIcon;

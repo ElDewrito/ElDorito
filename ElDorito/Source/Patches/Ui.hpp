@@ -29,10 +29,11 @@ namespace Patches::Ui
 		PushToTalk
 	};
 
+	void FindUiTagIndices();
+
+	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget();
-
-	uint32_t pttLsndIndex;
 
 	void SetVoiceChatIcon(VoiceChatIcon newIcon);
 	void UpdateVoiceChatHUD();
