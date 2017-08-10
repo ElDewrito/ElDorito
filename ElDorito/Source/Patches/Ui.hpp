@@ -35,7 +35,6 @@ namespace Patches::Ui
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget();
 
-	void SetVoiceChatIcon(VoiceChatIcon newIcon);
 	void UpdateVoiceChatHUD();
 	void ApplyAfterTagsLoaded();
 }

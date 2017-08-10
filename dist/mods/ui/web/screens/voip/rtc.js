@@ -351,27 +351,14 @@ function startConnection(info)
 
                 var speechEvents = hark(localStream, { "threshold": "-60" });
                 speechEvents.on('speaking', function () {
-                    if (serverCon != undefined)
-                        dew.callMethod("voipSpeaking", {"value": true});
-
-					if(dew.getSpeakingPlayerHUDEnabled){
-						
-						dew.command('Player.Name').then(function(res) {
-							dew.callMethod("playerSpeaking", { "name": res , "value" : true});
-							return;
-						});
-					};
+                    if (serverCon != undefined) {
+                        dew.callMethod("voipSpeaking", { "value": true });
+                    }
                 });
                 speechEvents.on('stopped_speaking', function () {
-                    if (serverCon != undefined)
-                        dew.callMethod("voipSpeaking", {"value": false});
-
-					if(dew.getSpeakingPlayerHUDEnabled){
-						dew.command('Player.Name').then(function(res) {
-							dew.callMethod("playerSpeaking", { "name": res , "value" : false});
-							return;
-						});
-					};
+                    if (serverCon != undefined) {
+                        dew.callMethod("voipSpeaking", { "value": false });
+                    }
                 });
 
 				serverCon = new WebSocket("ws://" + info.server, "dew-voip");

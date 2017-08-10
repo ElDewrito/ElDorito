@@ -9,6 +9,7 @@
 #include "../../../Patches/Input.hpp"
 #include "../../../Patches/Ui.hpp"
 #include "../../../Modules/ModuleVoIP.hpp"
+#include "../../../Modules/ModulePlayer.hpp"
 #include "../../../Pointer.hpp"
 #include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
@@ -544,13 +545,14 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 			return QueryError_BadQuery;
 		}
 
-		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
+		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
+		Patches::Ui::UpdateVoiceChatHUD();
+
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
 		{
-			if (value->value.GetBool())
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-			else
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
 		}
+
 		return QueryError_Ok;
 	}
 
@@ -565,25 +567,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 		Modules::ModuleVoIP::Instance().voipConnected = value->value.GetBool();
 
-		if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
-		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
-		}
-		else if (value->value.GetBool())
-		{
-			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
-			}
-			else
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
-			}
-		}
-		else
-		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
-		}
+		Patches::Ui::UpdateVoiceChatHUD();
 
 		return QueryError_Ok;
 	}

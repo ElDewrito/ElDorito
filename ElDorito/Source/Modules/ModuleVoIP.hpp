@@ -16,6 +16,7 @@ namespace Modules
 		Command* VarSpeakingPlayerOnHUD;
 
 		bool voipConnected = false;
+		bool voiceDetected = false;
 
 		ModuleVoIP();
 	};

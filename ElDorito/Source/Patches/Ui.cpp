@@ -55,7 +55,6 @@ namespace
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 
 	bool tagsInitiallyLoaded = false;
-	VoiceChatIcon micState = VoiceChatIcon::None;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
 	int32_t speakingPlayerStringID;
 
@@ -73,9 +72,6 @@ namespace Patches::Ui
 			// use the correct hud globals for the player representation
 			if (Modules::ModuleGame::Instance().VarFixHudGlobals->ValueInt)
 				Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
-
-			if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 1)
-				SetVoiceChatIcon(VoiceChatIcon::Unavailable);
 		}
 
 		tagsInitiallyLoaded = true;
@@ -319,8 +315,15 @@ namespace Patches::Ui
 		}
 	}
 
+	bool isPttSoundPlaying;
 	void TogglePTTSound(bool enabled)
 	{
+		if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 0)
+			return;
+
+		if (isPttSoundPlaying == enabled)
+			return;
+
 		static auto Sound_LoopingSound_Stop = (void(*)(uint32_t sndTagIndex, int a2))(0x5DC6B0);
 		static auto Sound_LoopingSound_Start = (void(*)(uint32_t sndTagIndex, int a2, int a3, int a4, char a5))(0x5DC530);
 
@@ -331,13 +334,9 @@ namespace Patches::Ui
 				Sound_LoopingSound_Start(pttLsndIndex, -1, 1065353216, 0, 0);
 			else
 				Sound_LoopingSound_Stop(pttLsndIndex, -1);
-		}
-	}
 
-	void SetVoiceChatIcon(VoiceChatIcon newIcon)
-	{
-		micState = newIcon;
-		UpdateVoiceChatHUD();
+			isPttSoundPlaying = enabled;
+		}
 	}
 
 	std::vector<std::string> speakingPlayers;
@@ -461,6 +460,10 @@ namespace Patches::Ui
 				return;
 
 			auto *chud = Blam::Tags::TagInstance(scoreboardChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+
+			if (chud->HudWidgets.Count < 1 || chud->HudWidgets[speakingPlayerIndex].TextWidgets.Count < 1)
+				return;
+
 			//Make sure that the speaking player HUD widget has the correct string.
 			chud->HudWidgets[speakingPlayerIndex].TextWidgets[0].TextStringID = speakingPlayerStringID;
 		}
@@ -486,6 +489,42 @@ namespace Patches::Ui
 
 	void UpdateVoiceChatHUD()
 	{
+		VoiceChatIcon newIcon;
+
+		Modules::ModuleVoIP &voipModule = Modules::ModuleVoIP::Instance();
+
+		if (voipModule.VarVoipEnabled->ValueInt == 0)
+		{
+			newIcon = VoiceChatIcon::None;
+		}
+		else if (voipModule.voipConnected)
+		{
+			if (voipModule.VarPTTEnabled->ValueInt == 0)
+			{
+				if (voipModule.voiceDetected)
+					newIcon = VoiceChatIcon::Speaking;
+				else
+					newIcon = VoiceChatIcon::Available;
+			}
+			else
+			{
+				if (Blam::Input::GetActionState(Blam::Input::eGameActionVoiceChat)->Ticks > 0 || voipModule.voiceDetected)
+				{
+					newIcon = VoiceChatIcon::Speaking;
+					TogglePTTSound(true);
+				}
+				else
+				{
+					newIcon = VoiceChatIcon::PushToTalk;
+					TogglePTTSound(false);
+				}
+			}
+		}
+		else
+		{
+			newIcon = VoiceChatIcon::Unavailable;
+		}
+
 		if (!tagsInitiallyLoaded)
 			return;
 
@@ -602,6 +641,15 @@ namespace Patches::Ui
 			firstHudUpdate = false;
 		}
 
+		if (scoreboardChud->HudWidgets.Count < teamBroadcastIndicatorIndex + 1)
+			return;
+		else if (scoreboardChud->HudWidgets.Count < speakingPlayerIndex + 1)
+			return;
+		else if (spartanChud->HudWidgets.Count < spartanMotionTrackerIndex + 1)
+			return;
+		/*else if (eliteChud->HudWidgets.Count < eliteMotionTrackerIndex + 1)
+			return;*/
+
 		//Hide all Icons.
 		//Bit 7 is the broken "Tap to Talk" state used in halo 3.
 		//Disabling the icon using a broken state triggers the close animation. Then removing this state triggers the open animation.
@@ -620,7 +668,7 @@ namespace Patches::Ui
 
 		//Show the correct Icon.
 		//To remove hardcoded scale values, we could store these default scales earlier by reading them on first update. I'm gonna leave them for now.
-		switch (micState)
+		switch (newIcon)
 		{
 		case VoiceChatIcon::Speaking:
 			scoreboardChud->HudWidgets[teamBroadcastIndicatorIndex].BitmapWidgets[broadcastIndex].StateData[0].EngineFlags3 = (ChudDefinition::StateDataEngineFlags3)0;

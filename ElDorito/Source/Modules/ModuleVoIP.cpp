@@ -39,25 +39,7 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
-		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
-		}
-		else if (Modules::ModuleVoIP::Instance().voipConnected)
-		{
-			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
-			}
-			else
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
-			}
-		}
-		else
-		{
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
-		}
+		Patches::Ui::UpdateVoiceChatHUD();
 
 		returnInfo = "";
 		return true;
@@ -69,26 +51,7 @@ namespace
 		{
 			isMainMenu = false;
 
-			//initial voip icons when maps loads
-			if (Modules::ModuleVoIP::Instance().VarVoipEnabled->ValueInt == 0)
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::None);
-			}
-			else if (Modules::ModuleVoIP::Instance().voipConnected)
-			{
-				if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-				{
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
-				}
-				else
-				{
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
-				}
-			}
-			else
-			{
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Unavailable);
-			}
+			Patches::Ui::UpdateVoiceChatHUD();
 		}
 		else
 			isMainMenu = true;
@@ -114,10 +77,7 @@ namespace
 				isChatting = false;
 				if (!isMainMenu)
 				{
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::PushToTalk);
-
-					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
-						Patches::Ui::TogglePTTSound(true);
+					Patches::Ui::UpdateVoiceChatHUD();
 				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
@@ -126,10 +86,7 @@ namespace
 				isChatting = true;
 				if (!isMainMenu)
 				{
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-
-					if (Modules::ModuleVoIP::Instance().VarPTTSoundEnabled->ValueInt == 1)
-						Patches::Ui::TogglePTTSound(false);
+					Patches::Ui::UpdateVoiceChatHUD();
 				}
 
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);
