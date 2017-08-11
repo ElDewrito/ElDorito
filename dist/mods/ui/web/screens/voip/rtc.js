@@ -192,39 +192,40 @@ function speak(user, peer) {
     }
     dew.notify("voip-speaking", speaker);
 
-    if(dew.getSpeakingPlayerHUDEnabled){
-		dew.callMethod("playerSpeaking", { "name": user, "value": true });
-		return;
-    };
+    dew.command('VoIP.SpeakingPlayerOnHUD').then(function (res) {
+        if (res == 1)
+            dew.callMethod("playerSpeaking", { "name": user, "value": true });
+        else {
 
-	if($.inArray(user, speaking) == -1)	{
-		speaking.push(user);
-		
-		//push everyone down
-		if($("#speaking > p").length > 0)
-		{
-			$("#speaking > p").each(function(){
-				y = $(this).height() * ($(this).index() + 1);
-				$(this).css({
-					'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-					'transition': 'all 300ms ease'
-				});
-				
-			});
-		}
-		
-		$("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
-			'transform': 'translate(0px, -100px)', //offscreen
-			'transition': 'all 300ms ease'
-		});
-		
-		setTimeout(function(){//drag in from offscreen
-			$("#" + user).css({
-				'transform': 'translate(0px, 0px)',
-				'transition': 'all 300ms ease'
-			});
-		}, 25);
-	}
+            if ($.inArray(user, speaking) == -1) {
+                speaking.push(user);
+
+                //push everyone down
+                if ($("#speaking > p").length > 0) {
+                    $("#speaking > p").each(function () {
+                        y = $(this).height() * ($(this).index() + 1);
+                        $(this).css({
+                            'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+                            'transition': 'all 300ms ease'
+                        });
+
+                    });
+                }
+
+                $("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
+                    'transform': 'translate(0px, -100px)', //offscreen
+                    'transition': 'all 300ms ease'
+                });
+
+                setTimeout(function () {//drag in from offscreen
+                    $("#" + user).css({
+                        'transform': 'translate(0px, 0px)',
+                        'transition': 'all 300ms ease'
+                    });
+                }, 25);
+            }
+        }
+    });
 }
 
 function stopSpeak(user, peer)
@@ -233,41 +234,44 @@ function stopSpeak(user, peer)
 		user: user,
 		volume: peer.speakingVolume,
 		isSpeaking: false
-	}
-	dew.notify("voip-speaking", speaker);
-	var index = $.inArray(user, speaking);
-	if(index != -1)
-		speaking.splice(index, 1);
-	
-	if(dew.getSpeakingPlayerHUDEnabled){
-        dew.callMethod("playerSpeaking", { "name": user , "value" : false});
     }
-    else{
-	var thisUser = $("#" + user);
-	var index = thisUser.index();
-	if($("#speaking > p").length > 0)
-	{
-		$("#speaking > p").each(function(){
-			if($(this).index() < index)
-				return; //this user does not need to move
-			
-			y = $(this).height() * $(this).index() - $(this).height();
-			$(this).css({
-				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+
+    dew.notify("voip-speaking", speaker);
+
+    dew.command('VoIP.SpeakingPlayerOnHUD').then(function (res) {
+        if(res == 1)
+            dew.callMethod("playerSpeaking", { "name": user, "value": false });
+        else
+        {
+            var index = $.inArray(user, speaking);
+            if (index != -1)
+                speaking.splice(index, 1);
+
+			var thisUser = $("#" + user);
+			var index = thisUser.index();
+			if ($("#speaking > p").length > 0) {
+				$("#speaking > p").each(function () {
+					if ($(this).index() < index)
+						return; //this user does not need to move
+
+					y = $(this).height() * $(this).index() - $(this).height();
+					$(this).css({
+						'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+						'transition': 'all 300ms ease'
+					});
+				});
+			}
+			var unParsed = thisUser.prop('style').transform.substring(10);
+			var y = parseInt(unParsed.split(",")[1].split("px")[0]);
+			thisUser.css({
+				'transform': 'translate(-200px, ' + y + 'px)', //offscreen
 				'transition': 'all 300ms ease'
 			});
-		});
-	}
-	var unParsed = thisUser.prop('style').transform.substring(10);
-	var y = parseInt(unParsed.split(",")[1].split("px")[0]);
-	thisUser.css({
-		'transform': 'translate(-200px, ' + y + 'px)', //offscreen
-		'transition': 'all 300ms ease'
-	});
-	setTimeout(function(){
-		thisUser.remove();
-    }, 300);
-    }
+			setTimeout(function () {
+				thisUser.remove();
+			}, 300);
+        }
+    }); 
 }
 
 function clearConnection()

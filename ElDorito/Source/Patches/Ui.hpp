@@ -10,6 +10,9 @@
 namespace Patches::Ui
 {
 	void ApplyAll();
+	void ApplyAfterTagsLoaded();
+	void OnMapLoaded(const char *mapPath);
+
 	void ApplyMapNameFixes();
 	void ApplyUIResolution();
 
@@ -29,12 +32,19 @@ namespace Patches::Ui
 		PushToTalk
 	};
 
+	void FindUiTagData();
 	void FindUiTagIndices();
+	void FindVoiceChatSpeakingPlayerTagData();
+	void FindVoiceChatIconsTagData();
+	void FindHUDDistortionTagData();
+	void FindHUDResolutionTagData();
 
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
-	void UpdateSpeakingPlayerWidget();
+	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
-	void UpdateVoiceChatHUD();
-	void ApplyAfterTagsLoaded();
+	void UpdateVoiceChatHUD(bool mapLoaded);
+
+	void UpdateHUDDistortion(bool mapLoaded);
+	void ToggleHUDDistortion(bool enabled);
 }

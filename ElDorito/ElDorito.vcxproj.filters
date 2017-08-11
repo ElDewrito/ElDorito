@@ -963,6 +963,9 @@
     </ClInclude>
     <ClInclude Include="Source\Forge\Geoemetry.hpp" />
     <ClInclude Include="Source\Forge\Magnets.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
+      <Filter>Blam\Tags\Globals</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Patches\DirectXHook.hpp" />
     <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
       <Filter>Blam\Tags\Globals</Filter>
@@ -1067,6 +1070,9 @@
     </Filter>
     <Filter Include="Blam\Tags\Camera">
       <UniqueIdentifier>{f614a2e0-46cc-4cd5-9a17-8003f9df8d64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Globals">
+      <UniqueIdentifier>{edd74372-6943-4855-a924-f620d4057ab0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Blam\Memory">
       <UniqueIdentifier>{cc50940c-7b3f-4b94-b77d-58ee5ae2bcb2}</UniqueIdentifier>

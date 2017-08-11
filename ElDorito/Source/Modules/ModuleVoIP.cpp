@@ -39,7 +39,7 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		Patches::Ui::UpdateVoiceChatHUD();
+		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		returnInfo = "";
 		return true;
@@ -51,7 +51,7 @@ namespace
 		{
 			isMainMenu = false;
 
-			Patches::Ui::UpdateVoiceChatHUD();
+			Patches::Ui::UpdateVoiceChatHUD(false);
 		}
 		else
 			isMainMenu = true;
@@ -77,7 +77,7 @@ namespace
 				isChatting = false;
 				if (!isMainMenu)
 				{
-					Patches::Ui::UpdateVoiceChatHUD();
+					Patches::Ui::UpdateVoiceChatHUD(false);
 				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
@@ -86,7 +86,7 @@ namespace
 				isChatting = true;
 				if (!isMainMenu)
 				{
-					Patches::Ui::UpdateVoiceChatHUD();
+					Patches::Ui::UpdateVoiceChatHUD(false);
 				}
 
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);

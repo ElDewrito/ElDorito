@@ -57,7 +57,6 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("voipSpeaking", Bridge::ClientFunctions::OnVoIPSpeakingChanged);
 		m_QueryHandler->AddMethod("voipConnected", Bridge::ClientFunctions::OnVoIPConnectedChanged);
 		m_QueryHandler->AddMethod("playerSpeaking", Bridge::ClientFunctions::OnVoIPPlayerSpeakingChanged);
-		m_QueryHandler->AddMethod("speakingPlayerHUD", Bridge::ClientFunctions::OnVoIPSpeakingPlayerHUD);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}

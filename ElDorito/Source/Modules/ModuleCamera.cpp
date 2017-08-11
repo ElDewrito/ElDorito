@@ -196,7 +196,7 @@ namespace
 	bool VariableCameraPositionUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo) {
 		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 
-		if (Arguments.size() < 1 || Arguments.size() > 3) {
+		if (Arguments.size() < 3) {
 			std::stringstream ss;
 			ss << "X: " << directorGlobalsPtr(0x834).Read<float>() << ", Y: " << directorGlobalsPtr(0x838).Read<float>() << ", Z: " << directorGlobalsPtr(0x83C).Read<float>();
 			returnInfo = ss.str();

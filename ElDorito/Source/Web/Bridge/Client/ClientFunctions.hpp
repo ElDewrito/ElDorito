@@ -21,6 +21,5 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 	QueryError OnGameAction(const rapidjson::Value &p_Args, std::string *p_Result);
 	QueryError OnVoIPSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result);
 	QueryError OnVoIPConnectedChanged(const rapidjson::Value &p_Args, std::string *p_Result);
-	QueryError OnVoIPSpeakingPlayerHUD(const rapidjson::Value &p_Args, std::string *p_Result);
 	QueryError OnVoIPPlayerSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result);
 }

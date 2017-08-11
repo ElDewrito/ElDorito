@@ -546,7 +546,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		}
 
 		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
-		Patches::Ui::UpdateVoiceChatHUD();
+		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
 		{
@@ -567,7 +567,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 		Modules::ModuleVoIP::Instance().voipConnected = value->value.GetBool();
 
-		Patches::Ui::UpdateVoiceChatHUD();
+		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		return QueryError_Ok;
 	}
@@ -591,21 +591,6 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		{
 			Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
 		}
-
-		return QueryError_Ok;
-	}
-
-	QueryError OnVoIPSpeakingPlayerHUD(const rapidjson::Value &p_Args, std::string *p_Result)
-	{
-		rapidjson::StringBuffer buffer;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-
-		writer.StartObject();
-		writer.Key("enabled");
-		writer.Bool(Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1);
-		writer.EndObject();
-
-		*p_Result = buffer.GetString();
 
 		return QueryError_Ok;
 	}
