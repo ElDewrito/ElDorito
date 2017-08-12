@@ -758,6 +758,26 @@ namespace Modules
 				result += " \"" + secondaryName + "\"";
 			result += "\n";
 		}
+
+		for (auto i = 0; i < eKeyCode_Count; i++)
+		{
+			const auto binding = &commandBindings[i];
+			if (binding->command.size() == 0)
+				continue; // Key is not bound
+			std::string key_name;
+			std::string line;
+			keyCodes.FindName(static_cast<KeyCode>(i), &key_name);
+			std::string prefix = "";
+			if (binding->isHold)
+				prefix = "+";
+			line += "bind " + key_name + " " + prefix;
+			for (std::string command : binding->command)
+			{
+				line += command + " ";
+			}
+			line.erase(line.find_last_not_of(" \n\r\t") + 1);
+			result += line + "\n";
+		}
 		return result;
 	}
 }
