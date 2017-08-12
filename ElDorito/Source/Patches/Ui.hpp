@@ -11,7 +11,6 @@ namespace Patches::Ui
 {
 	void ApplyAll();
 	void ApplyAfterTagsLoaded();
-	void OnMapLoaded(const char *mapPath);
 
 	void ApplyMapNameFixes();
 	void ApplyUIResolution();

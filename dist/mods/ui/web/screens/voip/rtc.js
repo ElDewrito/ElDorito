@@ -184,6 +184,80 @@ function remotestream(event)
 	});
 }
 
+function addToSpeakingPlayersList(user)
+{
+	//push everyone down
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			y = $(this).height() * ($(this).index() + 1);
+			$(this).css({
+				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+				'transition': 'all 300ms ease'
+			});
+
+		});
+	}
+
+	$("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
+		'transform': 'translate(0px, -100px)', //offscreen
+		'transition': 'all 300ms ease'
+	});
+
+	setTimeout(function () {//drag in from offscreen
+		$("#" + user).css({
+			'transform': 'translate(0px, 0px)',
+			'transition': 'all 300ms ease'
+		});
+	}, 25);
+}
+
+function removeFromSpeakingPlayersList(user) 
+{
+	var thisUser = $("#" + user);
+	var index = thisUser.index();
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			if ($(this).index() < index)
+				return; //this user does not need to move
+
+			y = $(this).height() * $(this).index() - $(this).height();
+			$(this).css({
+				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+				'transition': 'all 300ms ease'
+			});
+		});
+	}
+	var unParsed = thisUser.prop('style').transform.substring(10);
+	var y = parseInt(unParsed.split(",")[1].split("px")[0]);
+	thisUser.css({
+		'transform': 'translate(-200px, ' + y + 'px)', //offscreen
+		'transition': 'all 300ms ease'
+	});
+	setTimeout(function () {
+		thisUser.remove();
+	}, 300);
+}
+
+function populateSpeakingPlayersList()
+{
+	speaking.forEach(function(element){
+		addToSpeakingPlayersList(element);
+	});
+}
+
+function destroySpeakingPlayersList()
+{
+	//Destroy names
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			$(this).remove();
+		});
+	}
+}
+
+//true if last time somebody talked/stopped talking it was shown on the HUD.
+var previouslyDisplayedSpeakersOnHUD = false; //Mainmenu is overlay, so defaults to false.
+
 function speak(user, peer) {
     var speaker = {
         user: user,
@@ -192,41 +266,40 @@ function speak(user, peer) {
     }
     dew.notify("voip-speaking", speaker);
 
-    dew.command('VoIP.SpeakingPlayerOnHUD').then(function (res) {
-        if (res == 1)
-            dew.callMethod("playerSpeaking", { "name": user, "value": true });
-        else {
+	dew.callMethod("getMapPath", {}).then(function (mapPathRes) {
 
-            if ($.inArray(user, speaking) == -1) {
-                speaking.push(user);
+		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
 
-                //push everyone down
-                if ($("#speaking > p").length > 0) {
-                    $("#speaking > p").each(function () {
-                        y = $(this).height() * ($(this).index() + 1);
-                        $(this).css({
-                            'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-                            'transition': 'all 300ms ease'
-                        });
+			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
 
-                    });
-                }
+				dew.callMethod("playerSpeaking", { "name": user, "value": true });
 
-                $("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
-                    'transform': 'translate(0px, -100px)', //offscreen
-                    'transition': 'all 300ms ease'
-                });
+				if ($.inArray(user, speaking) == -1) {
 
-                setTimeout(function () {//drag in from offscreen
-                    $("#" + user).css({
-                        'transform': 'translate(0px, 0px)',
-                        'transition': 'all 300ms ease'
-                    });
-                }, 25);
-            }
-        }
-    });
-}
+					speaking.push(user);
+
+					//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+					if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
+					{
+						if(previouslyDisplayedSpeakersOnHUD)
+							populateSpeakingPlayersList();
+						else
+							addToSpeakingPlayersList(user);
+
+						previouslyDisplayedSpeakersOnHUD = false;
+					}
+					else
+					{
+						if(!previouslyDisplayedSpeakersOnHUD)
+							destroySpeakingPlayersList();
+
+						previouslyDisplayedSpeakersOnHUD = true;
+					}
+				}
+			});
+		});
+	});
+};
 
 function stopSpeak(user, peer)
 {
@@ -238,40 +311,38 @@ function stopSpeak(user, peer)
 
     dew.notify("voip-speaking", speaker);
 
-    dew.command('VoIP.SpeakingPlayerOnHUD').then(function (res) {
-        if(res == 1)
-            dew.callMethod("playerSpeaking", { "name": user, "value": false });
-        else
-        {
-            var index = $.inArray(user, speaking);
-            if (index != -1)
-                speaking.splice(index, 1);
+	dew.callMethod("getMapPath", {}).then(function (mapPathRes) {
 
-			var thisUser = $("#" + user);
-			var index = thisUser.index();
-			if ($("#speaking > p").length > 0) {
-				$("#speaking > p").each(function () {
-					if ($(this).index() < index)
-						return; //this user does not need to move
+		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
 
-					y = $(this).height() * $(this).index() - $(this).height();
-					$(this).css({
-						'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-						'transition': 'all 300ms ease'
-					});
-				});
-			}
-			var unParsed = thisUser.prop('style').transform.substring(10);
-			var y = parseInt(unParsed.split(",")[1].split("px")[0]);
-			thisUser.css({
-				'transform': 'translate(-200px, ' + y + 'px)', //offscreen
-				'transition': 'all 300ms ease'
+			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
+
+				dew.callMethod("playerSpeaking", { "name": user, "value": false });
+
+				var index = $.inArray(user, speaking);
+				if (index != -1)
+					speaking.splice(index, 1);
+
+				//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+				if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
+				{
+					if(previouslyDisplayedSpeakersOnHUD)
+						populateSpeakingPlayersList();
+					else
+						removeFromSpeakingPlayersList(user);
+
+					previouslyDisplayedSpeakersOnHUD = false;
+				}
+				else
+				{	
+					if(!previouslyDisplayedSpeakersOnHUD)
+						destroySpeakingPlayersList();
+
+					previouslyDisplayedSpeakersOnHUD = true;
+				}
 			});
-			setTimeout(function () {
-				thisUser.remove();
-			}, 300);
-        }
-    }); 
+		});
+	});
 }
 
 function clearConnection()

@@ -587,11 +587,40 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 			return QueryError_BadQuery;
 		}
 
-		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
-		{
-			Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
-		}
+		Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
 
+		return QueryError_Ok;
+	}
+
+	QueryError OnGetMapPath(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		std::string mapPath = reinterpret_cast<const char *>(0x22AB034);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.StartObject();
+
+		writer.Key("mapPath");
+		writer.String(mapPath.c_str());
+		writer.EndObject();
+
+		*p_Result = buffer.GetString();
+		return QueryError_Ok;
+	}
+
+	QueryError OnIsMapLoading(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		static auto IsMapLoading = (bool(*)())(0x005670E0);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.StartObject();
+
+		writer.Key("loading");
+		writer.Bool(IsMapLoading());
+		writer.EndObject();
+
+		*p_Result = buffer.GetString();
 		return QueryError_Ok;
 	}
 }

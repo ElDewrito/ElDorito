@@ -979,14 +979,14 @@ namespace Modules
 
 		AddCommand("PlaySound", "play_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlaySound);
 
-		AddCommand("PlayLoopingSound", "play_looping_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlayLoopingSound);
+		AddCommand("PlayLoopingSound", "play_looping_sound", "Plays a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlayLoopingSound);
 
-		AddCommand("StopLoopingSound", "stop_looping_sound", "Plays a sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
+		AddCommand("StopLoopingSound", "stop_looping_sound", "Stops a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
 		VarLanguage = AddVariableString("Language", "language", "The language to use", eCommandFlagsArchived, "english", VariableLanguageUpdated);
-
+		
 		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
 		VarSkipTitleSplash->ValueIntMin = 0;
 		VarSkipTitleSplash->ValueIntMax = 1;
