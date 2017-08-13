@@ -21,6 +21,7 @@ namespace Modules
 		Command* VarIconSet;
 		Command* VarFixHudGlobals;
 		Command* VarHideH3UI;
+		Command* VarScreenshotsFolder;
 
 		int DebugFlags;
 

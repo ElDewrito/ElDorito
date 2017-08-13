@@ -32,6 +32,7 @@ namespace
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
 	void SetControllerVibrationHook(int controllerIndex, uint16_t leftMotorSpeed, uint16_t rightMotorSpeed);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
+	void null_stub() {};
 
 	// Block/unblock input without acquiring or de-acquiring the mouse
 	void QuickBlockInput();
@@ -67,6 +68,7 @@ namespace Patches::Input
 		Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
 		Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
 		Hook(0x1124F0, SetControllerVibrationHook).Apply();
+		Hook(0x105C58, null_stub, HookFlags::IsCall).Apply(); // remove the hardcoded binding of screenshot to printscreen
 		Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
 		Patch(0x6940E7, { 0x90, 0xE9 }).Apply(); // Disable custom UI input code
 		Hook(0x695012, UpdateUiControllerInputHook, HookFlags::IsCall).Apply();

@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Blam\BitStream.cpp" />
     <ClCompile Include="Source\Blam\BlamData.cpp" />
+    <ClCompile Include="Source\Blam\BlamGraphics.cpp" />
     <ClCompile Include="Source\Blam\BlamInput.cpp" />
     <ClCompile Include="Source\Blam\BlamNetwork.cpp" />
     <ClCompile Include="Source\Blam\BlamObjects.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="Source\Blam\BitStream.hpp" />
     <ClInclude Include="Source\Blam\BlamData.hpp" />
     <ClInclude Include="Source\Blam\BlamEvents.hpp" />
+    <ClInclude Include="Source\Blam\BlamGraphics.hpp" />
     <ClInclude Include="Source\Blam\BlamInput.hpp" />
     <ClInclude Include="Source\Blam\BlamMemory.hpp" />
     <ClInclude Include="Source\Blam\BlamNetwork.hpp" />
