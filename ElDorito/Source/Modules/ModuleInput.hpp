@@ -32,5 +32,6 @@ namespace Modules
 		static Blam::Input::BindingsTable *GetBindings();
 		static void UpdateBindings();
 		std::string ExportBindings() const;
+		bool IsCommandBound(std::string command);
 	};
 }

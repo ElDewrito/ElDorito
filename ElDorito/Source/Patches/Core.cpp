@@ -11,6 +11,8 @@
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include <codecvt>
+#include <Shlobj.h>
 
 namespace
 {
@@ -27,6 +29,7 @@ namespace
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 	void DirtyDiskErrorHook();
+	int __cdecl GetScreenshotFolderHook(wchar_t *path);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -132,6 +135,9 @@ namespace Patches::Core
 
 		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
 		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
+
+		Hook(0x20F4AD, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
+		Hook(0x20F44B, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
 	}
@@ -378,5 +384,18 @@ namespace
 		{
 			call DirtyDiskErrorHookImpl;
 		}
+	}
+	int __cdecl GetScreenshotFolderHook(wchar_t *path)
+	{
+		std::string screenshots_folder = Modules::ModuleGame::Instance().VarScreenshotsFolder->ValueString;
+		std::wstring unprocessed_path = std::wstring(screenshots_folder.begin(), screenshots_folder.end());
+
+		DWORD return_code = ExpandEnvironmentStringsW(unprocessed_path.c_str(), path, MAX_PATH);
+
+		if (return_code == 0 || return_code > MAX_PATH) {// fall back to default
+			static auto GetScreenshotsFolder = (int(__cdecl*)(wchar_t *path))(0x724BB0);
+			return GetScreenshotsFolder(path);
+		}
+		return SHCreateDirectoryExW(NULL, path, NULL);
 	}
 }
