@@ -396,6 +396,6 @@ namespace
 			static auto GetScreenshotsFolder = (int(__cdecl*)(wchar_t *path))(0x724BB0);
 			return GetScreenshotsFolder(path);
 		}
-		return SHCreateDirectoryExW(NULL, path, NULL);
+		return CreateDirectoryW(path, NULL);
 	}
 }
