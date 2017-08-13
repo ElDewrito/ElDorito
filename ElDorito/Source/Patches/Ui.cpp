@@ -58,6 +58,7 @@ namespace
 	int32_t speakingPlayerStringID;
 
 	int localDesiredTeam = -1;
+	int teamChangeTicks = 0;
 }
 
 namespace Patches::Ui
@@ -939,6 +940,7 @@ namespace
 	int __fastcall UI_SetPlayerDesiredTeamHook(void *thisPtr, int unused, int a2, int teamIndex, int a4)
 	{
 		localDesiredTeam = teamIndex;
+		teamChangeTicks = 0;
 
 		typedef int(__thiscall *UI_SetPlayerDesiredTeamFunc)(void* thisPtr, int a2, int a3, int a4);
 		UI_SetPlayerDesiredTeamFunc UI_SetPlayerDesiredTeam = reinterpret_cast<UI_SetPlayerDesiredTeamFunc>(0xB25C30);
@@ -1023,7 +1025,13 @@ namespace
 					if (itemIndex == playerWidgetIndex)
 					{
 						if (localDesiredTeam > -1 && localDesiredTeam < 8)
-							teamIndex = localDesiredTeam;
+						{
+							teamChangeTicks++;
+							if (teamChangeTicks > 120)
+								localDesiredTeam = -1;
+							else
+								teamIndex = localDesiredTeam;
+						}
 					}
 					
 					if (nameWidget)
