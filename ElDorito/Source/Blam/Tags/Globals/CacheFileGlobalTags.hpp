@@ -1,5 +1,5 @@
-#pragma once 
-#include "../Tags.hpp" 
+#pragma once  
+#include "../Tags.hpp"  
 
 namespace Blam::Tags::Globals
 {
