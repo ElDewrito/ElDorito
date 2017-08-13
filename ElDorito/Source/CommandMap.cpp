@@ -382,6 +382,7 @@ namespace Modules
 		int lineIdx = 0;
 		while (std::getline(stream, line))
 		{
+			line.erase(line.find_last_not_of("\r") + 1);
 			if (!this->ExecuteCommandWithStatus(line, isUserInput, &output))
 			{
 				ss << "Error at line " << lineIdx << std::endl;

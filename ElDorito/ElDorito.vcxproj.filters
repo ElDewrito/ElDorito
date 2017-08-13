@@ -368,6 +368,9 @@
     </ClCompile>
     <ClCompile Include="Source\Forge\Magnets.cpp" />
     <ClCompile Include="Source\Patches\DirectXHook.cpp" />
+    <ClCompile Include="Source\Blam\BlamGraphics.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
@@ -981,6 +984,8 @@
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp">
       <Filter>Blam\Tags\Objects</Filter>
+    <ClInclude Include="Source\Blam\BlamGraphics.hpp">
+      <Filter>Blam</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

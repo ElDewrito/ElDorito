@@ -23,6 +23,7 @@
 #include "Modules/ModuleGame.hpp"
 #include "Patch.hpp"
 #include "Modules/ModuleCamera.hpp"
+#include "Modules/ModuleInput.hpp"
 #include "Server/Voting.hpp"
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
@@ -120,8 +121,11 @@ void ElDorito::Initialize()
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
-	//This should be removed when we can save binds
-	Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
+	// maybe use an unordered_map here
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.takescreenshot"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
+	if (!Modules::ModuleInput::Instance().IsCommandBound("voip.talk"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
 
 	mapsFolder = "maps\\";
 

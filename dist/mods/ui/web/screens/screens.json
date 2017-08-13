@@ -102,6 +102,12 @@
 			"url": "dew://screens/controllerSensitivity/",
 			"captureInput": true,
 			"zIndex": 1
+		},
+		{
+			"id": "screenshot_notice",
+			"url": "dew://screens/screenshot_notice/",
+			"captureInput": false,
+			"zIndex": 90
 		}
 	]
 }

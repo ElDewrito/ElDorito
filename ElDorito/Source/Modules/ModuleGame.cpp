@@ -8,6 +8,7 @@
 #include "../Patches/Logging.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Blam/BlamGraphics.hpp"
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
@@ -22,6 +23,7 @@
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
 #include <unordered_map>
+#include <codecvt>
 
 namespace
 {
@@ -892,6 +894,23 @@ namespace
 		else
 			returnInfo = "Invalid sound index: " + arguments[0];
 
+	bool CommandGameTakeScreenshot(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{	
+		wchar_t *path = Blam::Graphics::TakeScreenshot();
+		wchar_t full_path[400];
+		_wfullpath(full_path, path, 400);
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
+		std::string screenshot_path = wstring_to_string.to_bytes(full_path);
+
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		jsonWriter.StartObject();
+		jsonWriter.Key("filepath");
+		jsonWriter.String(screenshot_path.c_str());
+		jsonWriter.EndObject();
+		Web::Ui::ScreenLayer::Show("screenshot_notice", jsonBuffer.GetString());
+
+		returnInfo = "Screenshot saved to: " + screenshot_path;
 		return true;
 	}
 
@@ -982,6 +1001,8 @@ namespace Modules
 		AddCommand("PlayLoopingSound", "play_looping_sound", "Plays a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlayLoopingSound);
 
 		AddCommand("StopLoopingSound", "stop_looping_sound", "Stops a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
+    
+		AddCommand("TakeScreenshot", "take_screenshot", "Take a screenshot", eCommandFlagsNone, CommandGameTakeScreenshot);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
@@ -1024,6 +1045,8 @@ namespace Modules
 		VarHideH3UI = AddVariableInt("HideH3UI", "hide_h3ui", "Hide the H3 UI", eCommandFlagsHidden, 0);
 		VarHideH3UI->ValueIntMin = 0;
 		VarHideH3UI->ValueIntMax = 1;
+
+		VarScreenshotsFolder = AddVariableString("ScreenshotsFolder", "screenshots_folder", "The location where the game will save screenshots", eCommandFlagsArchived, "%userprofile%\\Pictures\\Screenshots\\blam");
 
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
