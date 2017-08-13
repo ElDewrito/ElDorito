@@ -894,8 +894,11 @@ namespace
 		else
 			returnInfo = "Invalid sound index: " + arguments[0];
 
+		return true;
+	}
+
 	bool CommandGameTakeScreenshot(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{	
+	{
 		wchar_t *path = Blam::Graphics::TakeScreenshot();
 		wchar_t full_path[400];
 		_wfullpath(full_path, path, 400);
@@ -1001,13 +1004,13 @@ namespace Modules
 		AddCommand("PlayLoopingSound", "play_looping_sound", "Plays a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandPlayLoopingSound);
 
 		AddCommand("StopLoopingSound", "stop_looping_sound", "Stops a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
-    
+
 		AddCommand("TakeScreenshot", "take_screenshot", "Take a screenshot", eCommandFlagsNone, CommandGameTakeScreenshot);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
 		VarLanguage = AddVariableString("Language", "language", "The language to use", eCommandFlagsArchived, "english", VariableLanguageUpdated);
-		
+
 		VarSkipTitleSplash = AddVariableInt("SkipTitleSplash", "titlesplash", "Skip the ElDewrito splash screen and go straight to the main menu", eCommandFlagsArchived, 0);
 		VarSkipTitleSplash->ValueIntMin = 0;
 		VarSkipTitleSplash->ValueIntMax = 1;
