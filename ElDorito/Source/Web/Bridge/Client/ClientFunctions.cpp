@@ -7,6 +7,9 @@
 #include "../../../Blam/BlamNetwork.hpp"
 #include "../../../Patches/Network.hpp"
 #include "../../../Patches/Input.hpp"
+#include "../../../Patches/Ui.hpp"
+#include "../../../Modules/ModuleVoIP.hpp"
+#include "../../../Modules/ModulePlayer.hpp"
 #include "../../../Pointer.hpp"
 #include "../../../Server/ServerChat.hpp"
 #include "../../../Utils/VersionInfo.hpp"
@@ -530,6 +533,94 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 			*p_Result = "Bad query : \"key\" argument was out of bounds.";
 			return QueryError_BadQuery;
 		}
+		return QueryError_Ok;
+	}
+
+	QueryError OnVoIPSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		auto value = p_Args.FindMember("value");
+		if (value == p_Args.MemberEnd() || !value->value.IsBool())
+		{
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
+			return QueryError_BadQuery;
+		}
+
+		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
+		Patches::Ui::UpdateVoiceChatHUD(false);
+
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
+		{
+			Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
+		}
+
+		return QueryError_Ok;
+	}
+
+	QueryError OnVoIPConnectedChanged(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		auto value = p_Args.FindMember("value");
+		if (value == p_Args.MemberEnd() || !value->value.IsBool())
+		{
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
+			return QueryError_BadQuery;
+		}
+
+		Modules::ModuleVoIP::Instance().voipConnected = value->value.GetBool();
+
+		Patches::Ui::UpdateVoiceChatHUD(false);
+
+		return QueryError_Ok;
+	}
+
+	QueryError OnVoIPPlayerSpeakingChanged(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		auto name = p_Args.FindMember("name");
+		auto value = p_Args.FindMember("value");
+		if (name == p_Args.MemberEnd() || !name->value.IsString())
+		{
+			*p_Result = "Bad query : A \"name\" argument is required and must be a string";
+			return QueryError_BadQuery;
+		}
+		else if (value == p_Args.MemberEnd() || !value->value.IsBool())
+		{
+			*p_Result = "Bad query : A \"value\" argument is required and must be a bool";
+			return QueryError_BadQuery;
+		}
+
+		Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
+
+		return QueryError_Ok;
+	}
+
+	QueryError OnGetMapPath(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		std::string mapPath = reinterpret_cast<const char *>(0x22AB034);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.StartObject();
+
+		writer.Key("mapPath");
+		writer.String(mapPath.c_str());
+		writer.EndObject();
+
+		*p_Result = buffer.GetString();
+		return QueryError_Ok;
+	}
+
+	QueryError OnIsMapLoading(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		static auto IsMapLoading = (bool(*)())(0x005670E0);
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+		writer.StartObject();
+
+		writer.Key("loading");
+		writer.Bool(IsMapLoading());
+		writer.EndObject();
+
+		*p_Result = buffer.GetString();
 		return QueryError_Ok;
 	}
 }

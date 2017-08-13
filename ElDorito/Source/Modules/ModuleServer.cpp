@@ -518,7 +518,25 @@ namespace
 			returnInfo = "Player \"" + kickPlayerName + "\" not found.";
 			return false;
 		}
-		auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx)).ToString();
+		auto peer = session->MembershipInfo.GetPlayerPeer(playerIdx);
+
+		std::stringstream ss;
+		ss << "You have been ";
+		switch(type)
+		{
+		case KickType::Ban:
+			ss << "banned.";
+			break;
+		case KickType::TempBan:
+			ss << "temporarily banned.";
+			break;
+		case KickType::Kick:
+			ss << "kicked.";
+			break;
+		}
+
+		Server::Chat::SendServerMessage(ss.str().c_str(), peer);
+		auto ip = session->GetPeerAddress(peer).ToString();
 		if (!Blam::Network::BootPlayer(playerIdx, 4))
 		{
 			returnInfo = "Failed to kick player " + kickPlayerName;

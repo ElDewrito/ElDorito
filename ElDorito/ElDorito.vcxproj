@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Blam\BitStream.cpp" />
     <ClCompile Include="Source\Blam\BlamData.cpp" />
+    <ClCompile Include="Source\Blam\BlamGraphics.cpp" />
     <ClCompile Include="Source\Blam\BlamInput.cpp" />
     <ClCompile Include="Source\Blam\BlamNetwork.cpp" />
     <ClCompile Include="Source\Blam\BlamObjects.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Source\Blam\BitStream.hpp" />
     <ClInclude Include="Source\Blam\BlamData.hpp" />
     <ClInclude Include="Source\Blam\BlamEvents.hpp" />
+    <ClInclude Include="Source\Blam\BlamGraphics.hpp" />
     <ClInclude Include="Source\Blam\BlamInput.hpp" />
     <ClInclude Include="Source\Blam\BlamMemory.hpp" />
     <ClInclude Include="Source\Blam\BlamNetwork.hpp" />
@@ -194,13 +196,17 @@
     <ClInclude Include="Source\Blam\Tags\Game\TerritoriesVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\Equipment.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp" />
     <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp" />
     <ClInclude Include="Source\Blam\Tags\Sounds\Noise.hpp" />
     <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp" />
@@ -213,6 +219,7 @@
     <ClInclude Include="Source\Blam\Tags\Tags.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\ChudDefinition.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\ChudGlobalsDefinition.hpp" />
+    <ClInclude Include="Source\Blam\Tags\UI\GuiSkinWidgetDefinition.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\MultilingualUnicodeStringList.hpp" />
     <ClInclude Include="Source\Blam\Text\StringID.hpp" />
     <ClInclude Include="Source\ChatCommands\ChatCommand.hpp" />

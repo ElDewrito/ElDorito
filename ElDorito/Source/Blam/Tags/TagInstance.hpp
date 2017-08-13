@@ -67,6 +67,9 @@ namespace Blam::Tags
 			{
 				auto instance = TagInstance(i);
 
+				if (!IsLoaded(groupTag, instance.Index))
+					continue;
+
 				if (instance.GetDefinition<void>() == nullptr)
 					continue;
 
@@ -77,6 +80,24 @@ namespace Blam::Tags
 			}
 
 			return result;
+		}
+
+		// Returns true if the tag of the provided group and index is loaded
+		inline static bool IsLoaded(int groupTag, uint32_t index)
+		{
+			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+			auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
+			if (GetTagAddressImpl(groupTag, index) == nullptr)
+				return false;
+
+			typedef int(*GetGroupTagPtr)(uint16_t);
+			auto GetGroupTagImpl = reinterpret_cast<GetGroupTagPtr>(0x5033A0);
+
+			if (GetGroupTagImpl(index) != groupTag)
+				return false;
+
+			return true;
 		}
 	};
 }

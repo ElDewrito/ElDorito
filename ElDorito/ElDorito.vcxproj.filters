@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="Source\CommandMap.cpp" />
     <ClCompile Include="Source\Console.cpp" />
-    <ClCompile Include="Source\DirectXHook.cpp" />
     <ClCompile Include="Source\ElDorito.cpp" />
     <ClCompile Include="Source\ElModules.cpp" />
     <ClCompile Include="Source\ElPatches.cpp" />
@@ -371,11 +370,14 @@
     <ClCompile Include="Source\Patches\BottomlessClip.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Patches\DirectXHook.cpp" />
+    <ClCompile Include="Source\Blam\BlamGraphics.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
-    <ClInclude Include="Source\DirectXHook.hpp" />
     <ClInclude Include="Source\ElDorito.hpp" />
     <ClInclude Include="Source\ElModules.hpp" />
     <ClInclude Include="Source\ElPatches.hpp" />
@@ -969,6 +971,27 @@
     <ClInclude Include="Source\Forge\Magnets.hpp" />
     <ClInclude Include="Source\Patches\BottomlessClip.hpp">
       <Filter>Patches</Filter>
+    </ClCompile>
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
+      <Filter>Blam\Tags\Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\DirectXHook.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
+      <Filter>Blam\Tags\Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\Equipment.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\GuiSkinWidgetDefinition.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    <ClInclude Include="Source\Blam\BlamGraphics.hpp">
+      <Filter>Blam</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1058,6 +1081,15 @@
     </Filter>
     <Filter Include="Blam\Tags\Camera">
       <UniqueIdentifier>{f614a2e0-46cc-4cd5-9a17-8003f9df8d64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Globals">
+      <UniqueIdentifier>{edd74372-6943-4855-a924-f620d4057ab0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Memory">
+      <UniqueIdentifier>{cc50940c-7b3f-4b94-b77d-58ee5ae2bcb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blam\Tags\Globals">
+      <UniqueIdentifier>{56b2c4b4-6165-4243-ba33-392a136da18e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

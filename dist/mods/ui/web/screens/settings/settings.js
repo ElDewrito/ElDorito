@@ -57,7 +57,7 @@ var settingsToLoad = [
     ['inputRaw','Input.RawInput'], 
     ['sPass', 'Server.Password'], 
     ['sMessage', 'Server.Message'], 
-    ['lookSensitivity', 'Input.ControllerSensitivityX'], 
+    ['lookSensitivity', 'Input.ControllerSensitivityY'], 
     ['controllerPort','Input.ControllerPort'], 
     ['gExpandScoreboard','Game.ExpandedScoreboard'], 
     ['invertLook','Input.ControllerInvertY'], 
@@ -106,7 +106,9 @@ var settingsToLoad = [
     ['tReachFrags','Tweaks.ReachStyleFrags'],
     ['tIntelBloomPatch','Tweaks.IntelBloomPatch'],
     ['sAudioDevice','Settings.AudioOutputDevice'],
-    ['sContrast','Settings.Contrast']
+    ['sContrast','Settings.Contrast'],
+    ['controllerVibration', 'Input.ControllerVibrationIntensity'],
+    ['stickLayout', 'Input.ControllerStickLayout']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
@@ -282,9 +284,15 @@ $(document).ready(function(){
         });
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
-        var xVal = 90 + (e.target.value * 20);
+        var yVal = 30 + (e.target.value * 10);
+        var xVal = yVal * 2;
         queueChange(['Input.ControllerSensitivityX', xVal]);
-        queueChange(['Input.ControllerSensitivityY', 90]);
+        queueChange(['Input.ControllerSensitivityY', yVal]);
+    });
+    $('#controllerVibration, #controllerVibrationText').on('change', function(e){
+        dew.command('Input.ControllerVibrationIntensity ' + $(this).val(), {}).then(function(x){
+            dew.command('Input.ControllerVibrationTest');
+        });
     });
     $('.instant').on('change', function(e){
         if($(this).hasClass('color')){
@@ -388,9 +396,6 @@ $(document).ready(function(){
     $('#gIconSet').on('change', function(){
         setButtons();
     });
-    $('.voip').on('change', function(){
-        changeArray.push(['VoIP.Update', '']);
-    });
     $('#wOffsetConfig').on('change', function(){
         changeArray.push(['Weapon.JSON.Load', '']);
     });    
@@ -463,8 +468,10 @@ $(document).ready(function(){
             if(e.data.X == 1){
                 if(activePage=='#page7'){
                     randomArmor();
-                }else if(selectedItem=='presetMenu'){
-                    location.href='#page9';
+                }else{
+                    if($('#'+selectedItem).prev()[0].computedRole == 'button'){
+                        $('#'+selectedItem).prev().click();
+                    }
                 }
             }
             if(e.data.Y == 1){
@@ -548,6 +555,12 @@ $(document).ready(function(){
             var xDiff = (currentPos.x + 90);
             //console.log(xDiff);
             dew.command('Player.Armor.SetUiModelRotation ' + xDiff);
+        }
+    });
+    $('span').has('.setting').mouseover(function(){
+        if(hasGP){
+            itemNumber = $(activePage+' span').has('.setting').index($(this));
+            updateSelection(itemNumber); 
         }
     });
 });
@@ -670,14 +683,16 @@ function setControlValues(){
                         }else{
                             $('#'+result[0]).css('color','#ddd');
                         }
-                    }else if(result[1].startsWith('Input.ControllerSensitivityX')){ 
-                        var xVal = (setValue-90)/20;
-                        $('#lookSensitivity').val(xVal);
-                        $('#lookSensitivityText').val(xVal);
+                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){ 
+                        var h3Val = (setValue-30)/10;
+                        $('#lookSensitivity').val(h3Val);
+                        $('#lookSensitivityText').val(h3Val);
                     }else if(result[1].startsWith('Settings.PostprocessingQuality')){
                         $('#'+result[0]).val(setValue);
                         if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
                             $('#sQualityPreset').val(setValue);
+                        }else if($('#sTextureResolution').val() == 'low' && $('#sTextureFiltering').val() == 'low' && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == 'low' && $('#sShadowQuality').val() == 'medium' && $('#sDetailsLevel').val() == 'low' && $('#sPostprocessing').val() == 'low'){
+                            $('#sQualityPreset').val('low');
                         }else{
                             $('#sQualityPreset').val('custom');
                         }
@@ -744,6 +759,7 @@ function applySettings(i){
     }else{
         changeArray = [];
         dew.command('writeconfig');
+        dew.command('VoIP.Update');
     }
 }
 
@@ -1223,13 +1239,6 @@ function toggleSetting(){
         $('#'+selectedItem).trigger('change');
         dew.command('Game.PlaySound 0x0B00');  
     }       
-}
-
-function updateSensitivity(value){
-    var xVal = 90 + (value * 20);
-    dew.command("Input.ControllerSensitivityX " + xVal, {}).then(function(){
-        dew.command("writeconfig");
-    });
 }
 
 function queueChange(changeBlock){

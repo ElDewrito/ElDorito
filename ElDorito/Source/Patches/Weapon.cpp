@@ -172,10 +172,7 @@ namespace Patches::Weapon
 				auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
 				auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
 				if (equippedWeaponObjectPtr)
-				{
-					auto weap = Blam::Tags::TagInstance(Pointer(equippedWeaponObjectPtr).Read<uint32_t>()).GetDefinition<Blam::Tags::Items::Weapon>();
 					equippedIndex = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
-				}
 			}
 		}
 		return equippedIndex;
@@ -184,7 +181,6 @@ namespace Patches::Weapon
 	std::string GetEquippedWeaponName()
 	{
 		auto Index = GetEquippedWeaponIndex();
-
 		return GetName(Index);
 	}
 
@@ -204,8 +200,9 @@ namespace Patches::Weapon
 				}
 				else
 				{
-					auto weap = Blam::Tags::TagInstance(GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-					return weap->FirstPersonWeaponOffset; // weaponOffsetsModified.find(weaponName)->second;
+					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+					if(weap)
+						return weap->FirstPersonWeaponOffset;
 				}
 			}
 		}
@@ -215,19 +212,8 @@ namespace Patches::Weapon
 
 	RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName)
 	{
-		if (isDefault)
-		{
-			auto result = weaponOffsetsDefault.find(weaponName);
-			if (result != weaponOffsetsDefault.end())
-				return result->second;
-		}
-		else
-		{
-			auto weap = Blam::Tags::TagInstance(GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-			return weap->FirstPersonWeaponOffset; // weaponOffsetsModified.find(weaponName)->second;
-		}
-
-		return { -0xFFF, -0xFFF, -0xFFF };
+		auto index = Patches::Weapon::GetIndex(weaponName);
+		return GetOffsetByIndex(isDefault, index);
 	}
 
 	void SetDefaultOffsets()
@@ -235,8 +221,13 @@ namespace Patches::Weapon
 		if (weaponOffsetsDefault.empty()) {
 			for (auto &element : weaponIndices) {
 				std::string selected = element.first;
-				auto *weapon = TagInstance(Patches::Weapon::GetIndex(selected)).GetDefinition<Blam::Tags::Items::Weapon>();
-				weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
+				auto weapIndex = Patches::Weapon::GetIndex(selected);
+				if (weapIndex != 0xFFFF)
+				{
+					auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+					if(weapon)
+						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
+				}
 			}
 		}
 	}
@@ -246,37 +237,18 @@ namespace Patches::Weapon
 		if (!IsNotMainMenu)
 			return false;
 
-		std::stringstream ss;
-		ss << weaponName << ": ";
-		ss << weaponOffset.I << " " << weaponOffset.J << " " << weaponOffset.K;
-
 		auto result = weaponOffsetsDefault.find(weaponName);
 
 		if (IsOffsetModified(weaponName))
 		{
 			weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
 			ApplyOffsetByName(weaponName, weaponOffset);
-
-#if _DEBUG
-			ss << " emplace";
-#endif
 		}
 		else
 		{
 			weaponOffsetsModified.erase(weaponName);
 			ApplyOffsetByName(weaponName, weaponOffset);
-
-#if _DEBUG
-			ss << " erase";
-#endif
 		}
-
-		ss << "." << std::endl;
-		PrintKillFeed(ss.str());
-
-#if _DEBUG
-		Console::WriteLine(ss.str());
-#endif
 
 		return true;
 	}
@@ -285,8 +257,9 @@ namespace Patches::Weapon
 	{
 		if (IsNotMainMenu)
 		{
-			auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			weapon->FirstPersonWeaponOffset = weaponOffset;
+			auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+			if(weapon)
+				weapon->FirstPersonWeaponOffset = weaponOffset;
 		}
 	}
 
@@ -294,8 +267,14 @@ namespace Patches::Weapon
 	{
 		if (IsNotMainMenu)
 		{
-			auto *weapon = TagInstance(Patches::Weapon::GetIndex(weaponName)).GetDefinition<Blam::Tags::Items::Weapon>();
-			weapon->FirstPersonWeaponOffset = weaponOffset;
+
+			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
+			if (weapIndex != 0xFFFF)
+			{
+				auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+				if(weapon)
+					weapon->FirstPersonWeaponOffset = weaponOffset;
+			}
 		}
 	}
 
@@ -305,19 +284,6 @@ namespace Patches::Weapon
 		if (result == weaponOffsetsDefault.end())
 			return false;
 		return true;
-	}
-
-	void PrintKillFeed(std::string text)
-	{
-		std::wstring widestr = std::wstring(text.begin(), text.end());
-		const wchar_t* szText = widestr.c_str();
-
-		wchar_t buff[256];
-
-		swprintf(buff, 256, L"%s", szText);
-
-		static auto PrintKillFeedText = (void(__cdecl *)(unsigned int hudIndex, wchar_t *text, int a3))(0x00A95920);
-		PrintKillFeedText(0, buff, 0);
 	}
 
 	namespace Config
@@ -392,9 +358,6 @@ namespace Patches::Weapon
 
 					jsonWriter.EndObject();
 				}
-
-				//jsonWriter.Key("Centered");
-				//jsonWriter.String("true");
 
 				jsonWriter.EndArray();
 				jsonWriter.EndObject();

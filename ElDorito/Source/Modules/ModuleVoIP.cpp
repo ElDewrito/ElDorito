@@ -6,6 +6,7 @@
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
+#include "../Blam/Tags/TagInstance.hpp"
 
 namespace
 {
@@ -38,10 +39,7 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-		else
-			Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		returnInfo = "";
 		return true;
@@ -53,11 +51,7 @@ namespace
 		{
 			isMainMenu = false;
 
-			//initial voip icons when maps loads
-			if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 0)
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
-			else
-				Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+			Patches::Ui::UpdateVoiceChatHUD(false);
 		}
 		else
 			isMainMenu = true;
@@ -72,6 +66,9 @@ namespace
 		
 		if (Modules::ModuleVoIP::Instance().VarPTTEnabled->ValueInt == 1)
 		{
+			if (!Modules::ModuleVoIP::Instance().voipConnected)
+				return;
+
 			if (isMainMenu && isUsingController)
 				return;
 			//keyboard/controller in-game
@@ -79,14 +76,19 @@ namespace
 			{
 				isChatting = false;
 				if (!isMainMenu)
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Available);
+				{
+					Patches::Ui::UpdateVoiceChatHUD(false);
+				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
 			else if (!isChatting && Blam::Input::GetActionState(Blam::Input::eGameActionVoiceChat)->Ticks == 1)
 			{
 				isChatting = true;
 				if (!isMainMenu)
-					Patches::Ui::SetVoiceChatIcon(Patches::Ui::VoiceChatIcon::Speaking);
+				{
+					Patches::Ui::UpdateVoiceChatHUD(false);
+				}
+
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);
 			}
 		}
@@ -143,6 +145,13 @@ namespace Modules
 
 		AddCommand("Update", "update", "Updates the voip screen layer with variable states", eCommandFlagsNone, UpdateVoip);
 
+		VarPTTSoundEnabled = AddVariableInt("PTTSoundEnabled", "ptt_sound_enabled", "Toggles the sound played when using Push-To-Talk.", eCommandFlagsArchived, 1);
+		VarPTTSoundEnabled->ValueIntMin = 0;
+		VarPTTSoundEnabled->ValueIntMax = 1;
+
+		VarSpeakingPlayerOnHUD = AddVariableInt("SpeakingPlayerOnHUD", "speaking_player_hud", "Shows the speaking player on the HUD, rather than the web overlay.", eCommandFlagsArchived, 0, UpdateVoip);
+		VarSpeakingPlayerOnHUD->ValueIntMin = 0;
+		VarSpeakingPlayerOnHUD->ValueIntMax = 1;
 
 		Patches::Core::OnMapLoaded(RendererStarted);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);

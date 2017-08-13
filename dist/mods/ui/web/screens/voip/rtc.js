@@ -184,64 +184,42 @@ function remotestream(event)
 	});
 }
 
-function speak(user, peer)
+function addToSpeakingPlayersList(user)
 {
-	var speaker = {
-		user: user,
-		volume: peer.speakingVolume,
-		isSpeaking: true
-	}
-	dew.notify("voip-speaking", speaker);
-	if($.inArray(user, speaking) == -1)	{
-		speaking.push(user);
-		
-		//push everyone down
-		if($("#speaking > p").length > 0)
-		{
-			$("#speaking > p").each(function(){
-				y = $(this).height() * ($(this).index() + 1);
-				$(this).css({
-					'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-					'transition': 'all 300ms ease'
-				});
-				
-			});
-		}
-		
-		$("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
-			'transform': 'translate(0px, -100px)', //offscreen
-			'transition': 'all 300ms ease'
-		});
-		
-		setTimeout(function(){//drag in from offscreen
-			$("#" + user).css({
-				'transform': 'translate(0px, 0px)',
+	//push everyone down
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			y = $(this).height() * ($(this).index() + 1);
+			$(this).css({
+				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
 				'transition': 'all 300ms ease'
 			});
-		}, 25);
+
+		});
 	}
+
+	$("<p id=\"" + user + "\">" + user + "</p>").prependTo("#speaking").css({
+		'transform': 'translate(0px, -100px)', //offscreen
+		'transition': 'all 300ms ease'
+	});
+
+	setTimeout(function () {//drag in from offscreen
+		$("#" + user).css({
+			'transform': 'translate(0px, 0px)',
+			'transition': 'all 300ms ease'
+		});
+	}, 25);
 }
 
-function stopSpeak(user, peer)
+function removeFromSpeakingPlayersList(user) 
 {
-	var speaker = {
-		user: user,
-		volume: peer.speakingVolume,
-		isSpeaking: false
-	}
-	dew.notify("voip-speaking", speaker);
-	var index = $.inArray(user, speaking);
-	if(index != -1)
-		speaking.splice(index, 1);
-	
 	var thisUser = $("#" + user);
 	var index = thisUser.index();
-	if($("#speaking > p").length > 0)
-	{
-		$("#speaking > p").each(function(){
-			if($(this).index() < index)
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			if ($(this).index() < index)
 				return; //this user does not need to move
-			
+
 			y = $(this).height() * $(this).index() - $(this).height();
 			$(this).css({
 				'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
@@ -255,13 +233,122 @@ function stopSpeak(user, peer)
 		'transform': 'translate(-200px, ' + y + 'px)', //offscreen
 		'transition': 'all 300ms ease'
 	});
-	setTimeout(function(){
+	setTimeout(function () {
 		thisUser.remove();
 	}, 300);
 }
 
+function populateSpeakingPlayersList()
+{
+	speaking.forEach(function(element){
+		addToSpeakingPlayersList(element);
+	});
+}
+
+function destroySpeakingPlayersList()
+{
+	//Destroy names
+	if ($("#speaking > p").length > 0) {
+		$("#speaking > p").each(function () {
+			$(this).remove();
+		});
+	}
+}
+
+//true if last time somebody talked/stopped talking it was shown on the HUD.
+var previouslyDisplayedSpeakersOnHUD = false; //Mainmenu is overlay, so defaults to false.
+
+function speak(user, peer) {
+    var speaker = {
+        user: user,
+        volume: peer.speakingVolume,
+        isSpeaking: true
+    }
+    dew.notify("voip-speaking", speaker);
+
+	dew.callMethod("getMapPath", {}).then(function (mapPathRes) {
+
+		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
+
+			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
+
+				dew.callMethod("playerSpeaking", { "name": user, "value": true });
+
+				if ($.inArray(user, speaking) == -1) {
+
+					speaking.push(user);
+
+					//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+					if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
+					{
+						if(previouslyDisplayedSpeakersOnHUD)
+							populateSpeakingPlayersList();
+						else
+							addToSpeakingPlayersList(user);
+
+						previouslyDisplayedSpeakersOnHUD = false;
+					}
+					else
+					{
+						if(!previouslyDisplayedSpeakersOnHUD)
+							destroySpeakingPlayersList();
+
+						previouslyDisplayedSpeakersOnHUD = true;
+					}
+				}
+			});
+		});
+	});
+};
+
+function stopSpeak(user, peer)
+{
+	var speaker = {
+		user: user,
+		volume: peer.speakingVolume,
+		isSpeaking: false
+    }
+
+    dew.notify("voip-speaking", speaker);
+
+	dew.callMethod("getMapPath", {}).then(function (mapPathRes) {
+
+		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
+
+			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
+
+				dew.callMethod("playerSpeaking", { "name": user, "value": false });
+
+				var index = $.inArray(user, speaking);
+				if (index != -1)
+					speaking.splice(index, 1);
+
+				//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+				if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
+				{
+					if(previouslyDisplayedSpeakersOnHUD)
+						populateSpeakingPlayersList();
+					else
+						removeFromSpeakingPlayersList(user);
+
+					previouslyDisplayedSpeakersOnHUD = false;
+				}
+				else
+				{	
+					if(!previouslyDisplayedSpeakersOnHUD)
+						destroySpeakingPlayersList();
+
+					previouslyDisplayedSpeakersOnHUD = true;
+				}
+			});
+		});
+	});
+}
+
 function clearConnection()
 {
+    dew.callMethod("voipConnected", { "value": false });
+
 	try{
 		serverCon.close();
 		serverCon = undefined;
@@ -333,8 +420,22 @@ function startConnection(info)
 			}
 			
 			navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
-				localStream = stream;
-				
+                localStream = stream;
+
+                dew.callMethod("voipConnected", { "value": true });
+
+                var speechEvents = hark(localStream, { "threshold": "-60" });
+                speechEvents.on('speaking', function () {
+                    if (serverCon != undefined) {
+                        dew.callMethod("voipSpeaking", { "value": true });
+                    }
+                });
+                speechEvents.on('stopped_speaking', function () {
+                    if (serverCon != undefined) {
+                        dew.callMethod("voipSpeaking", { "value": false });
+                    }
+                });
+
 				serverCon = new WebSocket("ws://" + info.server, "dew-voip");
 				serverCon.onmessage = OnMessage;
 				serverCon.onclose = function()
@@ -437,7 +538,7 @@ $(document).ready(function(){
 			dew.notify("voip-peers", peerIds);
 		}
 	});
-	dew.command("voip.PTT_Enabled", {}).then(function(){}); //triggers update of settings
+	dew.command("voip.update", {}).then(function(){}); //triggers update of settings
 	dew.show();
 	dew.getSessionInfo().then(function(info){
 		if(info.established == true){

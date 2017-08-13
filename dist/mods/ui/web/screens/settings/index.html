@@ -489,6 +489,14 @@
                 <button class="tinySetting" onclick="switchPage('#page9')">EDIT</button>
                 <select id="presetMenu" class="setting hasTiny wheelable"></select>
             </span><span>
+                <label for="stickLayout">Stick Layout</label>
+                <select id="stickLayout" class="setting">
+                    <option value="0">Default</option>
+                    <option value="1">Southpaw</option>
+                    <option value="2">Legacy</option>
+                    <option value="3">Legacy Southpaw</option>
+                </select>
+            </span><span>
                 <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
 								<div class="colorBox">
 									<input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
@@ -505,6 +513,12 @@
                     <option value="2">2</option>
                     <option value="3">3</option>
                 </select>
+            </span><span>
+                <label for="controllerVibration">Controller Vibration (Default is 1)</label>
+                <div class="colorBox">
+                    <input type="text" class="tinySetting" id="controllerVibrationText" class="setting">
+                    <input type="range" min="0" max="1" step="0.05" id="controllerVibration" class="setting hasTiny">
+                </div>
             </span>
 					</div>
             <div id="controllerGraphic">

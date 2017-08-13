@@ -1,5 +1,6 @@
 #include "ModuleInput.hpp"
 #include <sstream>
+#include <algorithm>
 #include "../ElDorito.hpp"
 #include "../Patches/Input.hpp"
 #include "../Console.hpp"
@@ -576,6 +577,8 @@ namespace
 			returnInfo = "Not enough arguments";
 			return false;
 		}
+		std::string search_for = Arguments[0];
+		std::transform(search_for.begin(), search_for.end(), search_for.begin(), ::tolower);
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
@@ -584,7 +587,9 @@ namespace
 		{
 			for (int k = 0; k < commandBindings[i].command.size(); k++)
 			{
-				if (commandBindings[i].command[k].compare(Arguments[0]) == 0)
+				std::string command_part = commandBindings[i].command[k];
+				std::transform(command_part.begin(), command_part.end(), command_part.begin(), ::tolower);
+				if (command_part.compare(search_for) == 0)
 				{
 					std::string key;
 					keyCodes.FindName((Blam::Input::KeyCode)i, &key);
@@ -758,7 +763,41 @@ namespace Modules
 				result += " \"" + secondaryName + "\"";
 			result += "\n";
 		}
+
+		for (auto i = 0; i < eKeyCode_Count; i++)
+		{
+			const auto binding = &commandBindings[i];
+			if (binding->command.size() == 0)
+				continue; // Key is not bound
+			std::string key_name;
+			std::string line;
+			keyCodes.FindName(static_cast<KeyCode>(i), &key_name);
+			std::string prefix = "";
+			if (binding->isHold)
+				prefix = "+";
+			line += "bind " + key_name + " " + prefix;
+			for (std::string command : binding->command)
+			{
+				line += command + " ";
+			}
+			line.erase(line.find_last_not_of(" \n\r\t") + 1);
+			result += line + "\n";
+		}
 		return result;
+	}
+	bool ModuleInput::IsCommandBound(std::string command)
+	{
+		for (int i = 0; i < eKeyCode_Count; i++)
+		{
+			const auto binding = &commandBindings[i];
+			if (binding->command.size() == 0)
+				continue; // Key is not bound
+			std::string bound_command = binding->command[0];
+			std::transform(bound_command.begin(), bound_command.end(), bound_command.begin(), ::tolower);
+			if (command.compare(bound_command) == 0)
+				return true;
+		}
+		return false;
 	}
 }
 
