@@ -785,16 +785,16 @@ namespace Modules
 		}
 		return result;
 	}
-	bool ModuleInput::IsCommandBinded(std::string command)
+	bool ModuleInput::IsCommandBound(std::string command)
 	{
 		for (int i = 0; i < eKeyCode_Count; i++)
 		{
 			const auto binding = &commandBindings[i];
 			if (binding->command.size() == 0)
 				continue; // Key is not bound
-			std::string binded_command = binding->command[0];
-			std::transform(binded_command.begin(), binded_command.end(), binded_command.begin(), ::tolower);
-			if (command.compare(binded_command) == 0)
+			std::string bound_command = binding->command[0];
+			std::transform(bound_command.begin(), bound_command.end(), bound_command.begin(), ::tolower);
+			if (command.compare(bound_command) == 0)
 				return true;
 		}
 		return false;

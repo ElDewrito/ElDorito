@@ -122,9 +122,9 @@ void ElDorito::Initialize()
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
 	// maybe use an unordered_map here
-	if (!Modules::ModuleInput::Instance().IsCommandBinded("game.takescreenshot"))
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.takescreenshot"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
-	if (!Modules::ModuleInput::Instance().IsCommandBinded("voip.talk"))
+	if (!Modules::ModuleInput::Instance().IsCommandBound("voip.talk"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
 
 	mapsFolder = "maps\\";
