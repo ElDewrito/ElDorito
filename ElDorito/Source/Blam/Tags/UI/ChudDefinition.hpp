@@ -82,9 +82,9 @@ namespace Blam::Tags::UI
 		enum class StateDataEngineFlags2 : uint16_t
 		{
 			None = 0,
-			Bit0 = 1 << 0,
-			Bit1 = 1 << 1,
-			Bit2 = 1 << 2,
+			Biped1 = 1 << 0,
+			Biped2 = 1 << 1,
+			Biped3 = 1 << 2,
 			Bit3 = 1 << 3,
 			Bit4 = 1 << 4,
 			Bit5 = 1 << 5,
