@@ -268,8 +268,9 @@ namespace Patches::Network
 							auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 							std::string name = Utils::String::ThinString(player->Properties.DisplayName);
 							uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
-							std::string uidStr;
-							Utils::String::BytesToHexString(&player->Properties.Uid, sizeof(uint64_t), uidStr);
+
+							std::stringstream uid;		 
+							uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
 							uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
 
 							writer.StartObject();
@@ -278,7 +279,7 @@ namespace Patches::Network
 							writer.Key("team");
 							writer.Int(team);
 							writer.Key("uid");
-							writer.String(uidStr.c_str());
+							writer.String(uid.str().c_str());
 							std::stringstream color;
 							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 							writer.Key("primaryColor");

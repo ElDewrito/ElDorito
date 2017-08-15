@@ -5,6 +5,7 @@
 #include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include "../Patches/Armor.hpp"
+#include <iomanip>
 
 namespace
 {
@@ -34,9 +35,9 @@ namespace
 	bool CommandPlayerPrintUID(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto uid = Patches::PlayerUid::Get();
-		std::string uidStr;
-		Utils::String::BytesToHexString(&uid, sizeof(uint64_t), uidStr);
-		returnInfo = "Player UID: 0x" + uidStr;
+		std::stringstream ss;
+		ss << std::setw(16) << std::setfill('0') << std::hex << uid << std::dec << std::setw(0);
+		returnInfo = "Player UID: 0x" + ss.str();
 		return true;
 	}
 

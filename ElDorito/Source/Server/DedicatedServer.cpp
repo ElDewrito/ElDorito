@@ -11,6 +11,7 @@
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../ThirdParty/rapidjson/document.h"
 #include "../Patches/Network.hpp"
+#include <iomanip>
 
 
 namespace Server::DedicatedServer
@@ -49,7 +50,7 @@ namespace Server::DedicatedServer
 
 					
 				std::stringstream uid;
-				uid << std::hex << player->Properties.Uid;
+				uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
 				Pointer pvpBase(0x23F5A98);
@@ -206,8 +207,8 @@ namespace Server::DedicatedServer
 				char ipStr[INET_ADDRSTRLEN];
 				inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr));
 
-				std::string uidStr;
-				Utils::String::BytesToHexString(&player->Properties.Uid, sizeof(uint64_t), uidStr);
+				std::stringstream uid;
+				uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
 
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
@@ -222,8 +223,11 @@ namespace Server::DedicatedServer
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
-				writer.String(uidStr.c_str());
-
+				writer.String(uid.str().c_str());
+				std::stringstream color;
+				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+				writer.Key("primaryColor");
+				writer.String(color.str().c_str());
 				writer.Key("playerGameStats");
 				writer.StartObject();
 				writer.Key("score");
