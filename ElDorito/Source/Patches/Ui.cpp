@@ -52,6 +52,8 @@ namespace
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 	void CameraModeChangedHook();
+	void StateDataBipedFlagsHook();
+	int GetActiveChudState2FlagsValue();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -182,6 +184,8 @@ namespace Patches::Ui
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
 		
 		Hook(0x193370, CameraModeChangedHook, HookFlags::IsCall).Apply();
+
+		Hook(0x686FA4, StateDataBipedFlagsHook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1441,6 +1445,40 @@ namespace
 
 			//return to eldorado code
 			ret
+		}
+	}
+
+	__declspec(naked) void StateDataBipedFlagsHook()
+	{
+		__asm
+		{
+			call GetActiveChudState2FlagsValue
+			or word ptr[edi + 57Ah], ax
+			mov eax, 0xA86FC8
+			jmp eax
+		}
+	}
+
+	int GetActiveChudState2FlagsValue()
+	{
+		using Blam::Players::PlayerDatum;
+		using Blam::Tags::UI::ChudDefinition;
+
+		auto GetPlayerIndexFromPlayerDatum = (int(*)(PlayerDatum))(0x589C60);
+		auto sub_53A6F0 = (void*(*)(uint32_t))(0x53A6F0);
+
+		void* playerRepresentation = sub_53A6F0(Blam::Players::GetLocalPlayer(0).Index());
+
+		auto nameId = *(uint32_t*)playerRepresentation;
+		switch (nameId)
+		{
+		case 0x111B: // monitor
+			return 4;
+		case 0x1119: //mp_elite
+		case 0xCC: // dervish
+			return 2;
+		default:
+			return 1;
 		}
 	}
 }
