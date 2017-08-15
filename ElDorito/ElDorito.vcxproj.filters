@@ -453,6 +453,14 @@
     <ClCompile Include="Source\Web\WebRendererSchemeHandlerFactory.cpp">
       <Filter>Web</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Forge\Magnets.cpp" />
+    <ClCompile Include="Source\Patches\BottomlessClip.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\DirectXHook.cpp" />
+    <ClCompile Include="Source\Blam\BlamGraphics.cpp">
+      <Filter>Blam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1048,6 +1056,14 @@
     </ClInclude>
     <ClInclude Include="Source\Web\Ui\WebVirtualKeyboard.hpp">
       <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Geoemetry.hpp" />
+    <ClInclude Include="Source\Forge\Magnets.hpp" />
+    <ClInclude Include="Source\Patches\BottomlessClip.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
+      <Filter>Blam\Tags\Globals</Filter>
     </ClInclude>
     <ClInclude Include="Source\Web\WebRenderer.hpp">
       <Filter>Web</Filter>
