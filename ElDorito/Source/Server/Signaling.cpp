@@ -58,7 +58,7 @@ namespace
 
 	static std::string currentPassword = "not-connected";
 	static uint16_t port;
-	
+
 	struct WebSocketPacketData
 	{
 		char echoString[PASSWORD_LENGTH + 1];
@@ -99,7 +99,7 @@ namespace Server::Signaling
 		auto session = Blam::Network::GetActiveSession();
 		CreatePasswords();
 		currentPassword = authStrings[session->MembershipInfo.HostPeerIndex];
-		port = Modules::ModuleServer::Instance().VarSignalServerPort->ValueInt; 
+		port = Modules::ModuleServer::Instance().VarSignalServerPort->ValueInt;
 		Web::Ui::ScreenLayer::Notify("signal-ready", ServerPortJson(), true);
 		if (Modules::ModuleUPnP::Instance().VarUPnPEnabled->ValueInt)
 		{
@@ -108,7 +108,7 @@ namespace Server::Signaling
 		if (!is_listening)
 			CreateThread(nullptr, 0, SignalingThread, nullptr, 0, nullptr);
 	}
-		
+
 	void StopServer()
 	{
 		if (is_listening)
@@ -204,7 +204,7 @@ namespace
 
 		if (session->IsHost())
 			return;
-		
+
 		currentPassword = std::string(packet->Data.echoString);
 		port = packet->Data.serverPort;
 
@@ -333,7 +333,7 @@ namespace
 		rapidjson::Document::AllocatorType &allocator = doc.GetAllocator();
 
 		std::string proto = signalServer->get_con_from_hdl(hdl)->get_requested_subprotocols()[0];
-		
+
 		if (doc.HasMember("leave") || doc.HasMember("uid"))
 			return;
 
@@ -382,7 +382,7 @@ namespace
 	{
 		connectedSockets.erase(hdl);
 	}
-	
+
 	bool ProcessEcho(const char* echo, coninfo &info)
 	{
 		auto *session = Blam::Network::GetActiveSession();
@@ -392,7 +392,7 @@ namespace
 			if(std::strcmp(echo, authStrings[peerIdx].c_str()) == 0)
 			{
 				std::stringstream ss;
-				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << std::hex << session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid; //unique
+				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << Blam::Players::FormatUid(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid); //unique
 				info.uid = ss.str();
 				info.authed = true;
 				info.peerIdx = peerIdx;

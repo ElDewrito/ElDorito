@@ -19,12 +19,12 @@ namespace Server::DedicatedServer
 	//We are waiting a couple of seconds after calling Lobbytype before we call Server.Mode.
 	time_t setModeStartTime = 0;
 
-	//If we send stats right when the game ends, some of the team scores arent updated yet. 
-	//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0. 
+	//If we send stats right when the game ends, some of the team scores arent updated yet.
+	//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0.
 	time_t sendStatsTime = 0;
 
-	//Endpoint for getting information about players in the game. Data retrieved is set as a 
-	//variable that is synchronized to clients, and sent to the scoreboard (or any other screen layer) as json. 
+	//Endpoint for getting information about players in the game. Data retrieved is set as a
+	//variable that is synchronized to clients, and sent to the scoreboard (or any other screen layer) as json.
 	DWORD WINAPI GetPlayersInfo_Thread(LPVOID lpParam)
 	{
 
@@ -48,9 +48,6 @@ namespace Server::DedicatedServer
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 				std::string name = Utils::String::ThinString(player->Properties.DisplayName);
 
-					
-				std::stringstream uid;
-				uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
 				Pointer pvpBase(0x23F5A98);
@@ -60,7 +57,7 @@ namespace Server::DedicatedServer
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
-				writer.String(uid.str().c_str());
+				writer.String(Blam::Players::FormatUid(player->Properties.Uid));
 				writer.EndObject();
 			}
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
@@ -103,7 +100,7 @@ namespace Server::DedicatedServer
 		}
 
 		return true;
-	}  
+	}
 
 	DWORD WINAPI CommandServerAnnounceStats_Thread(LPVOID lpParam)
 	{
@@ -207,9 +204,6 @@ namespace Server::DedicatedServer
 				char ipStr[INET_ADDRSTRLEN];
 				inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr));
 
-				std::stringstream uid;
-				uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
-
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
 				Pointer pvpBase(0x23F5A98);
@@ -223,7 +217,7 @@ namespace Server::DedicatedServer
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
-				writer.String(uid.str().c_str());
+				writer.String(Blam::Players::FormatUid(player->Properties.Uid));
 				std::stringstream color;
 				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 				writer.Key("primaryColor");
@@ -302,7 +296,7 @@ namespace Server::DedicatedServer
 
 				}
 				writer.EndArray();
-					
+
 				writer.Key("otherStats");
 				writer.StartObject();
 
@@ -380,7 +374,7 @@ namespace Server::DedicatedServer
 				auto thread = CreateThread(NULL, 0, GetPlayersInfo_Thread, (LPVOID)"", 0, NULL);
 				break;
 			}
-			
+
 		}
 	}
 	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
@@ -409,7 +403,7 @@ namespace Server::DedicatedServer
 			Modules::CommandMap::Instance().ExecuteCommand("Server.Lobbytype 2");
 			time(&setModeStartTime);
 		}
-				
+
 
 	}
 	void Tick()
@@ -434,8 +428,8 @@ namespace Server::DedicatedServer
 		if (sendStatsTime != 0)
 		{
 
-			//If we send stats right when the game ends, some of the team scores arent updated yet. 
-			//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0. 
+			//If we send stats right when the game ends, some of the team scores arent updated yet.
+			//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0.
 			auto elapsed = curTime1 - sendStatsTime;
 			if (elapsed > 1)
 			{

@@ -263,14 +263,12 @@ namespace Patches::Network
 						int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
 						if (playerIdx != -1)
 						{
-							
+
 							auto playerStats = Blam::Players::GetStats(playerIdx);
 							auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
 							std::string name = Utils::String::ThinString(player->Properties.DisplayName);
 							uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
-							std::stringstream uid;		 
-							uid << std::setw(16) << std::setfill('0') << std::hex << player->Properties.Uid << std::dec << std::setw(0);
 							uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
 
 							writer.StartObject();
@@ -279,7 +277,7 @@ namespace Patches::Network
 							writer.Key("team");
 							writer.Int(team);
 							writer.Key("uid");
-							writer.String(uid.str().c_str());
+							writer.String(Blam::Players::FormatUid(player->Properties.Uid));
 							std::stringstream color;
 							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 							writer.Key("primaryColor");
@@ -737,7 +735,7 @@ namespace
 			Server::Voting::PlayerJoinedVoteInProgress(playerIndex);
 			isNewMember = true;
 		}
-		
+
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
 		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{

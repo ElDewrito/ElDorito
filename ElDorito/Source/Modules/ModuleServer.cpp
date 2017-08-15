@@ -757,7 +757,7 @@ namespace
 		{
 			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
 			auto name = Utils::String::ThinString(player.Properties.DisplayName);
-			ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << std::hex << player.Properties.Uid;
+			ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << Blam::Players::FormatUid(player.Properties.Uid);
 			if (session->IsHost())
 			{
 				auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx));
@@ -797,10 +797,8 @@ namespace
 			writer.Key("teamIndex");
 			writer.Int(player.Properties.TeamIndex);
 
-			std::string uidStr;
-			Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
 			writer.Key("UID");
-			writer.String(uidStr.c_str());
+			writer.String(Blam::Players::FormatUid(player.Properties.Uid));
 
 			std::stringstream color;
 			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];

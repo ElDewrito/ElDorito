@@ -140,10 +140,8 @@ namespace Web::Ui::WebScoreboard
 			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 			writer.Key("color");
 			writer.String(color.str().c_str());
-			std::string uidStr;
-			Utils::String::BytesToHexString(&player.Properties.Uid, sizeof(uint64_t), uidStr);
 			writer.Key("UID");
-			writer.String(uidStr.c_str());
+			writer.String(Blam::Players::FormatUid(player.Properties.Uid));
 			writer.Key("isHost");
 			writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
 			uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
