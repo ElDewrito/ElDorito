@@ -22,6 +22,7 @@
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
 #include "../Patches/Sprint.hpp"
+#include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
@@ -982,6 +983,14 @@ namespace
 		return true;
 	}
 
+	bool BottomlessClipEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarServerBottomlessClipEnabledClient->ValueInt != 0;
+		Patches::BottomlessClip::Toggle(enabled);
+		return true;
+	}
+
 	bool UnlimitedSprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto &serverModule = Modules::ModuleServer::Instance();
@@ -1222,6 +1231,10 @@ namespace Modules
 		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
+
+		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerBottomlessClipEnabledClient = AddVariableInt("BottomlessClipEnabledClient", "bottomlessclip_client", "", eCommandFlagsInternal, 1, BottomlessClipEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarServerBottomlessClipEnabled, VarServerBottomlessClipEnabledClient);
 
 		VarServerSprintUnlimited = AddVariableInt("UnlimitedSprint", "unlimited_sprint", "Controls whether unlimited sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
 		VarServerSprintUnlimitedClient = AddVariableInt("UnlimitedSprintClient", "unlimited_sprint_client", "", eCommandFlagsInternal, 0, UnlimitedSprintEnabledChanged);
