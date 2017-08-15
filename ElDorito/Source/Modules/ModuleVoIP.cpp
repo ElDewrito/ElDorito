@@ -39,8 +39,6 @@ namespace
 
 		Web::Ui::ScreenLayer::Notify("voip-settings", buffer.GetString(), true);
 
-		Patches::Ui::UpdateVoiceChatHUD(false);
-
 		returnInfo = "";
 		return true;
 	}
@@ -48,11 +46,7 @@ namespace
 	void RendererStarted(const char* map)
 	{
 		if (std::string(map).find("mainmenu") == std::string::npos)
-		{
 			isMainMenu = false;
-
-			Patches::Ui::UpdateVoiceChatHUD(false);
-		}
 		else
 			isMainMenu = true;
 		ready = true;
@@ -77,7 +71,7 @@ namespace
 				isChatting = false;
 				if (!isMainMenu)
 				{
-					Patches::Ui::UpdateVoiceChatHUD(false);
+					Patches::Ui::TogglePTTSound(false);
 				}
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":0}", true);
 			}
@@ -86,7 +80,7 @@ namespace
 				isChatting = true;
 				if (!isMainMenu)
 				{
-					Patches::Ui::UpdateVoiceChatHUD(false);
+					Patches::Ui::TogglePTTSound(true);
 				}
 
 				Web::Ui::ScreenLayer::Notify("voip-ptt", "{\"talk\":1}", true);

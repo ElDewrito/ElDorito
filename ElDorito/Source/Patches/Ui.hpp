@@ -34,15 +34,12 @@ namespace Patches::Ui
 	void FindUiTagData();
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
-	void FindVoiceChatIconsTagData();
 	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
 
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
-
-	void UpdateVoiceChatHUD(bool mapLoaded);
 
 	void UpdateHUDDistortion(bool mapLoaded);
 	void ToggleHUDDistortion(bool enabled);
