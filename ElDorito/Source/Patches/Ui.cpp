@@ -57,11 +57,13 @@ namespace
 	void StateDataFlags5Hook();
 	void StateDataFlags21Hook();
 	void StateDataFlags31Hook();
+	void StateDataFlags33Hook();
 	int GetBrokenChudStateFlags2Values();
 	int GetBrokenChudStateFlags3Values();
 	int GetBrokenChudStateFlags5Values();
 	int GetBrokenChudStateFlags21Values();
 	int GetBrokenChudStateFlags31Values();
+	int GetBrokenChudStateFlags33Values();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -197,6 +199,7 @@ namespace Patches::Ui
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
+		Hook(0x685815, StateDataFlags33Hook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1278,6 +1281,18 @@ namespace
 		}
 	}
 
+	__declspec(naked) void StateDataFlags33Hook()
+	{
+		__asm
+		{
+			call GetBrokenChudStateFlags33Values
+			or [edi + 5B0h], eax
+			and dword ptr[edi + 5B0h], 0xFFFFFC1F //perform original instruction
+			mov eax, 0xA8581F
+			jmp eax
+		}
+	}
+
 	//All values in this bitfield are broken.
 	int GetBrokenChudStateFlags2Values()
 	{
@@ -1413,6 +1428,21 @@ namespace
 
 		lastEqipIndex = itemTagIndex;
 
+		return flags;
+	}
+
+	int GetBrokenChudStateFlags33Values()
+	{
+		int flags = 0;
+
+		//Team and FFA flags that were in Flags 1 in halo 3 are now here.
+		auto session = Blam::Network::GetActiveSession();
+		if (session && session->IsEstablished())
+			if (session->HasTeams())
+				flags |= 0x2000; //Bit13, was inactive, now Teams Enabled
+			else
+				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
+		
 		return flags;
 	}
 }
