@@ -393,9 +393,6 @@ $(document).ready(function(){
     $('#presetMenu').on('change', function(){
         applyBindString(this.value);
     });
-    $('#gIconSet').on('change', function(){
-        setButtons();
-    });
     $('#wOffsetConfig').on('change', function(){
         changeArray.push(['Weapon.JSON.Load', '']);
     });    
@@ -501,12 +498,16 @@ $(document).ready(function(){
                 applyButton();
             }
             if(e.data.LeftTrigger != 0){
-                itemNumber = 0;
-                updateSelection(itemNumber);
+                if(itemNumber > 0){
+                    itemNumber = 0;
+                    updateSelection(itemNumber);
+                }
             }
             if(e.data.RightTrigger != 0){
-                itemNumber = $(activePage + ' label:visible').length-1;
-                updateSelection(itemNumber);
+                if(itemNumber < $(activePage + ' label:visible').length-1){
+                    itemNumber = $(activePage + ' label:visible').length-1;
+                    updateSelection(itemNumber);
+                }
             }
             if(e.data.AxisLeftX != 0){
                 if(e.data.AxisLeftX > axisThreshold){
@@ -533,7 +534,7 @@ $(document).ready(function(){
             if(e.data.AxisRightX != 0){
                 if(e.data.AxisRightX > axisThreshold){
                     rotateBiped('right');
-                };
+                }
                 if(e.data.AxisRightX < -axisThreshold){
                     rotateBiped('left');
                 };
@@ -776,7 +777,8 @@ function applyButton(){
         switchPage('#page2');    
     }else{
         if(changeArray.length){
-            applySettings(0);           
+            applySettings(0);   
+            setButtons();            
         }else{
             dew.hide();
         }
