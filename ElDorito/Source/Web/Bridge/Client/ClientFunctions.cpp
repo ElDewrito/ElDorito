@@ -546,7 +546,6 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		}
 
 		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
-		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
 		{
@@ -566,8 +565,6 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		}
 
 		Modules::ModuleVoIP::Instance().voipConnected = value->value.GetBool();
-
-		Patches::Ui::UpdateVoiceChatHUD(false);
 
 		return QueryError_Ok;
 	}

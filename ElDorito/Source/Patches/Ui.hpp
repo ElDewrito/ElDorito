@@ -34,7 +34,6 @@ namespace Patches::Ui
 	void FindUiTagData();
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
-	void FindVoiceChatIconsTagData();
 	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
 
@@ -42,8 +41,6 @@ namespace Patches::Ui
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
-	void UpdateVoiceChatHUD(bool mapLoaded);
-
-	void UpdateHUDDistortion(bool mapLoaded);
+	void UpdateHUDDistortion();
 	void ToggleHUDDistortion(bool enabled);
 }
