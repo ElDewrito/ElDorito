@@ -124,8 +124,6 @@ void ElDorito::Initialize()
 	// maybe use an unordered_map here
 	if (!Modules::ModuleInput::Instance().IsCommandBound("game.takescreenshot"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
-	if (!Modules::ModuleInput::Instance().IsCommandBound("voip.talk"))
-		Modules::CommandMap::Instance().ExecuteCommand("Bind CAPITAL +VoIP.Talk");
 
 	mapsFolder = "maps\\";
 
