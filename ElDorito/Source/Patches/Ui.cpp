@@ -56,10 +56,12 @@ namespace
 	void StateDataFlags3Hook();
 	void StateDataFlags5Hook();
 	void StateDataFlags21Hook();
+	void StateDataFlags31Hook();
 	int GetBrokenChudStateFlags2Values();
 	int GetBrokenChudStateFlags3Values();
 	int GetBrokenChudStateFlags5Values();
 	int GetBrokenChudStateFlags21Values();
+	int GetBrokenChudStateFlags31Values();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -194,6 +196,7 @@ namespace Patches::Ui
 		Hook(0x686E7B, StateDataFlags3Hook).Apply();
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
+		Hook(0x685A6B, StateDataFlags31Hook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1272,12 +1275,23 @@ namespace
 		}
 	}
 
+	//Called if equipment held (flags 0x100)
+	__declspec(naked) void StateDataFlags31Hook()
+	{
+		__asm 
+		{
+			call GetBrokenChudStateFlags31Values
+			or [edi + 5ACh], eax
+			mov eax, 0xA85A71
+			jmp eax
+		}
+	}
+
 	//All values in this bitfield are broken.
 	int GetBrokenChudStateFlags2Values()
 	{
 		using Blam::Players::PlayerDatum;
 
-		auto GetPlayerIndexFromPlayerDatum = (int(*)(PlayerDatum))(0x589C60);
 		auto sub_53A6F0 = (void*(*)(uint32_t))(0x53A6F0);
 
 		void* playerRepresentation = sub_53A6F0(Blam::Players::GetLocalPlayer(0).Index());
@@ -1365,6 +1379,48 @@ namespace
 				}
 			}
 		}
+
+		return flags;
+	}
+
+	int lastEqipIndex;
+	int GetBrokenChudStateFlags31Values()
+	{
+		int flags;
+
+		using ObjectArray = Blam::DataArray<Blam::Objects::ObjectHeader>;
+		using Blam::Players::PlayerDatum;
+
+		auto objectsPtr = (ObjectArray**)ElDorito::GetMainTls(0x448);
+
+		if (!objectsPtr) 
+			return 0;
+
+		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+
+		auto unitObjectDatum = (*objectsPtr)->Get(playerDatum->SlaveUnit);
+		auto unitObject = unitObjectDatum->Data;
+
+		if (!unitObjectDatum || !unitObject)
+			return 0;
+
+		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
+
+		if (primaryEquipmentObjectIndex == -1)
+			return 0;
+
+		auto itemObjectDatum = (*objectsPtr)->Get(primaryEquipmentObjectIndex);
+		if (!itemObjectDatum)
+			return 0;
+
+		auto itemTagIndex = Pointer(itemObjectDatum->Data).Read<uint32_t>();
+
+		if (itemTagIndex != lastEqipIndex)
+			flags = 0;
+		else
+			flags = 0x100;
+
+		lastEqipIndex = itemTagIndex;
 
 		return flags;
 	}
