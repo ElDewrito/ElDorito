@@ -1,13 +1,12 @@
-<!DOCTYPE html>
-<!-- HTML and CSS designed by soular00t-->
+<!DOCTYPE html><!-- HTML and CSS designed by soular00t-->
 <html>
     <head>
-          <title>Screemshot taken</title>
+          <title>Screenshot Taken!</title>
           <script src="dew://lib/jquery-2.2.1.min.js"></script>
 		  <script src="dew://lib/dew.js"></script>
 		  <script src="screenshot_notice.js"></script>
-          <style>
-            @font-face{ font-family:"Conduit ITC"; src:url(dew://lib/Conduit-ITC.woff); }
+          <style>@font-face { font-family:"Conduit ITC"; src:url(dew://lib/Conduit-ITC.woff); }
+            /* Alternative animation instead of fade out if desired. to apply - animation:slideInFromRight; */
             @keyframes slideInFromRight {
               0% { transform: translateX(100%); }
               100% { transform: translateX(0);  }
@@ -38,8 +37,7 @@
         border-radius:20px;
         box-shadow:0px 0px 45px rgba(0,0,0,0.7);
         background:linear-gradient(rgba(25,41,77, 1.0),rgba(21, 30, 39, 0.9));
-        position:absolute;
-        bottom:10px;
-        left:10px;">Screenshot saved to:<br /><span id='savedto'></span></div>
+        position:absolute; bottom:10px; left:10px;
+        font-size:1.5em;">Screenshot saved to:<br /><span id='savedto'></span></div>
     </body>
 </html>
