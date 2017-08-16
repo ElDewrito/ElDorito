@@ -454,14 +454,7 @@ function startConnection(info)
 					}));
 				}
 				
-				dew.command("voip.ptt_enabled", {}).then(function(ptt_enabled){
-					if(ptt_enabled == 1){
-						localStream.getAudioTracks()[0].enabled = false;
-					}
-					else{
-						localStream.getAudioTracks()[0].enabled = true;
-					}
-				});
+				dew.command("voip.update", {}).then(function(){}); //trigger initial voip variables
 			});
 		});
 	});
