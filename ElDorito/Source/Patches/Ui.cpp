@@ -196,7 +196,7 @@ namespace Patches::Ui
 		Hook(0x686E7B, StateDataFlags3Hook).Apply();
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
-		Hook(0x685A6B, StateDataFlags31Hook).Apply();
+		Hook(0x685A5A, StateDataFlags31Hook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
