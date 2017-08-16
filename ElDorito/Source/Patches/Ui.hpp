@@ -41,6 +41,6 @@ namespace Patches::Ui
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
-	void UpdateHUDDistortion(bool mapLoaded);
+	void UpdateHUDDistortion();
 	void ToggleHUDDistortion(bool enabled);
 }

@@ -94,7 +94,7 @@ namespace Patches::Ui
 		tagsInitiallyLoaded = true;
 
 		UpdateSpeakingPlayerWidget(true);
-		UpdateHUDDistortion(true);
+		UpdateHUDDistortion();
 	}
 
 	void ApplyAll()
@@ -543,14 +543,8 @@ namespace Patches::Ui
 		}
 	}
 
-	void UpdateHUDDistortion(bool mapLoaded)
+	void UpdateHUDDistortion()
 	{
-		if ((IsMapLoading() || IsMainMenu()) && !mapLoaded)
-			return;
-
-		if (!tagsInitiallyLoaded)
-			return;
-
 		if (!validHUDDistortionTags)
 			return;
 
@@ -572,10 +566,7 @@ namespace Patches::Ui
 	bool lastDistortionEnabledValue;
 	void ToggleHUDDistortion(bool enabled)
 	{
-		if (IsMapLoading() || IsMainMenu())
-			return;
-
-		if (!tagsInitiallyLoaded)
+		if (!validHUDDistortionTags)
 			return;
 
 		if (enabled == lastDistortionEnabledValue)
@@ -1275,7 +1266,7 @@ namespace
 		}
 	}
 
-	//Called if equipment held (flags 0x100)
+	//Called if equipment held
 	__declspec(naked) void StateDataFlags31Hook()
 	{
 		__asm 
