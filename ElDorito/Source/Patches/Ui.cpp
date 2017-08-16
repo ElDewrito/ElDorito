@@ -57,7 +57,6 @@ namespace
 	void StateDataFlags5Hook();
 	void StateDataFlags21Hook();
 	void StateDataFlags31Hook();
-	void StateDataFlags33Hook();
 	int GetBrokenChudStateFlags2Values();
 	int GetBrokenChudStateFlags3Values();
 	int GetBrokenChudStateFlags5Values();
@@ -199,7 +198,6 @@ namespace Patches::Ui
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
-		Hook(0x685815, StateDataFlags33Hook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1230,6 +1228,12 @@ namespace
 		{
 			call GetBrokenChudStateFlags2Values
 			or word ptr[edi + 57Ah], ax
+
+			//Since biped flags are regularly updated,
+			//Fix flags additions to flags33 here too, to also be regularly updated.
+			call GetBrokenChudStateFlags33Values
+			or [edi + 5B0h], eax
+
 			mov eax, 0xA86FC8
 			jmp eax
 		}
@@ -1277,18 +1281,6 @@ namespace
 			call GetBrokenChudStateFlags31Values
 			or [edi + 5ACh], eax
 			mov eax, 0xA85A71
-			jmp eax
-		}
-	}
-
-	__declspec(naked) void StateDataFlags33Hook()
-	{
-		__asm
-		{
-			call GetBrokenChudStateFlags33Values
-			or [edi + 5B0h], eax
-			and dword ptr[edi + 5B0h], 0xFFFFFC1F //perform original instruction
-			mov eax, 0xA8581F
 			jmp eax
 		}
 	}
