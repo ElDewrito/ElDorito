@@ -353,8 +353,6 @@ namespace
 	{
 		using namespace Blam::Math;
 
-		static auto UI_Globals = *(void**)0x05260F34;
-		static auto UI_ExecuteScenarioScript = (signed int(__thiscall*)(void* thisptr, int scriptIndex))(0xAACE40);
 		static auto Object_SetTransform = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up, int a5))(0x00B33530);
 		static auto GetCharPlatformBiped = (int(*)(int playerRepresentationIndex))(0x00BB5BD0);
 
@@ -379,18 +377,6 @@ namespace
 		// This function runs every tick, so only update if necessary
 		if (!updateUiPlayerArmor)
 			return;
-
-		const auto& representation = Modules::ModulePlayer::Instance().VarRepresentation->ValueString;
-
-		// switch hangar to match the player representation
-		if (representation == std::string("elite"))
-		{
-			UI_ExecuteScenarioScript(UI_Globals, 73); // elite
-		}
-		else
-		{
-			UI_ExecuteScenarioScript(UI_Globals, 72);  // human
-		}
 
 		CustomizeBiped(uiPlayerBiped);
 		updateUiPlayerArmor = false;
