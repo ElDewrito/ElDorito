@@ -10,6 +10,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamGraphics.hpp"
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
+#include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Web/WebRenderer.hpp"
@@ -917,6 +918,42 @@ namespace
 		return true;
 	}
 
+	bool CommandExecuteScenarioScript(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		static auto Scenario_ExecuteScript = (uint32_t(*)(int16_t scriptIndex, int scriptType, bool a3))(0x598050);
+
+		if (!Arguments.size())
+		{
+			returnInfo = "Expected script name";
+			return false;
+		}
+
+		auto scnr = Blam::Tags::Scenario::GetCurrentScenario();
+		if (!scnr)
+		{
+			returnInfo = "No scenario loaded";
+			return false;
+		}
+
+		for(auto i = 0; i < scnr->Scripts.Count; i++)
+		{
+			const auto& script = scnr->Scripts.Elements[i];
+
+			if (!stricmp(script.ScriptName, Arguments[0].c_str()))
+			{
+				if (Scenario_ExecuteScript(i, script.ScriptType, 0) == -1)
+				{
+					returnInfo = "Failed execution failed";
+					return false;
+				}
+				return true;
+			}
+		}
+
+		returnInfo = "Script not found";
+		return false;
+	}
+
 	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
 		if (arguments.size() < 1)
@@ -1006,6 +1043,8 @@ namespace Modules
 		AddCommand("StopLoopingSound", "stop_looping_sound", "Stops a looping sound effect", CommandFlags(eCommandFlagsHidden | eCommandFlagsOmitValueInList), CommandStopLoopingSound);
 
 		AddCommand("TakeScreenshot", "take_screenshot", "Take a screenshot", eCommandFlagsNone, CommandGameTakeScreenshot);
+
+		AddCommand("ScenarioScript", "scnr_script", "Executes a scenario script", eCommandFlagsNone, CommandExecuteScenarioScript);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
