@@ -935,6 +935,12 @@ namespace
 			return false;
 		}
 
+		if(numPlayers < 2)
+		{
+			returnInfo = "Need at least 2 players to shuffle the teams";
+			return false;
+		}
+
 		// Shuffle it
 		static std::random_device rng;
 		static std::mt19937 urng(rng());
