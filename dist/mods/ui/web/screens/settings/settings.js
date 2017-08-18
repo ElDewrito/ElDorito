@@ -240,7 +240,6 @@ $(document).ready(function(){
         setOptionList('gMedalPack', packArray);
     });
     $('.tabs li a').click(function(e){
-        adjustBiped();   
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
         window.location.href = e.target.href;
@@ -624,7 +623,6 @@ dew.on('show', function(e){
     });
     setControlValues();
     setButtons();
-    adjustBiped();
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
             onControllerConnect();
@@ -639,10 +637,12 @@ dew.on('show', function(e){
         }
     });
     dew.command('game.hideh3ui 1');
+    dew.command('Game.ScenarioScript settings_cam');
 });
 
 dew.on('hide', function(e){
-    dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
+    dew.command('Game.ScenarioScript mainmenu_cam');
+    //dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
     dew.command('Player.Armor.SetUiModelRotation 270');
     dew.command('game.hideh3ui 0');
     if(repGP){
@@ -721,14 +721,14 @@ function setControlValues(){
     })
 }
 
-function adjustBiped(){
+/*function adjustBiped(){
     //console.log(getAspectRatio());
     if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
         dew.command('Player.Armor.SetUiModelPosition 0.048312 -13.6018 25.5232');
     }else{
         dew.command('Player.Armor.SetUiModelPosition 0.108312 -13.2518 25.5232');
     }    
-}
+}*/
 
 function switchPage(pageHash){
     itemNumber = 0;
