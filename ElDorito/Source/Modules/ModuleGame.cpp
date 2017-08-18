@@ -216,6 +216,26 @@ namespace
 		return true;
 	}
 
+	bool CommandGameRestart(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::Core::ExecuteShutdownCallbacks();
+
+		char *cmd = GetCommandLine();
+		int offset = 0;
+		//Seperate the *.exe from the arguments
+		if (cmd[offset] == '"')
+			while (cmd[++offset] != '"');
+		while (cmd[++offset] != ' ');
+
+		//Relaunch the game with the same arguments
+		auto str = static_cast<std::string>(GetCommandLine());
+		ShellExecuteA(nullptr, nullptr, str.substr(0, offset).c_str(), str.substr(offset).c_str(), nullptr, SW_SHOWNORMAL);
+
+		//Close the current instance
+		std::exit(0);
+		return true;
+	}
+
 	bool CommandGameForceLoad(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
@@ -1009,6 +1029,8 @@ namespace Modules
 		AddCommand("Info", "info", "Displays information about the game", eCommandFlagsNone, CommandGameInfo);
 
 		AddCommand("Exit", "exit", "Ends the game process", eCommandFlagsNone, CommandGameExit);
+
+		AddCommand("Restart", "restart", "Restart the game process", eCommandFlagsNone, CommandGameRestart);
 
 		AddCommand("ForceLoad", "forceload", "Forces a map to load", eCommandFlagsNone, CommandGameForceLoad, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
