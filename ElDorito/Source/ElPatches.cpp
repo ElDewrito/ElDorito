@@ -59,9 +59,12 @@ namespace Patches
 		Events::ApplyAll();
 		LoadingScreen::ApplyAll();
 		Equipment::ApplyAll();
-		PlayerRepresentation::ApplyAll();
 		Weapon::ApplyAll();
 		Spectate::ApplyAll();
+
+#ifdef _DEBUG
+		PlayerRepresentation::ApplyAll();
+#endif
 
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not.
 		bool isdedicated = false;

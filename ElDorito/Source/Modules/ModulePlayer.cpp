@@ -27,7 +27,9 @@ namespace
 
 	bool VariablePlayerRepresentationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+#ifdef _DEBUG
 		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+#endif
 		Patches::Armor::RefreshUiPlayer();
 		return true;
 	}
@@ -101,7 +103,7 @@ namespace Modules
 		VarColorsLights = AddVariableString("Colors.Lights", "colors_lights", "The lights colors hex value", eCommandFlagsArchived, "#9685FF", VariablePlayerArmorUpdate);
 		VarColorsHolo = AddVariableString("Colors.Holo", "colors_holo", "The holo colors hex value", eCommandFlagsArchived, "#FFFFFF", VariablePlayerArmorUpdate);
 
-		VarRepresentation = AddVariableString("Representation", "player_race", "The representation to display for the player's render mannequin", eCommandFlagsArchived, "spartan", VariablePlayerRepresentationUpdate);
+		VarRepresentation = AddVariableString("Representation", "player_race", "(DEBUG BUILDS ONLY) The representation to display for the player's render mannequin", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "spartan", VariablePlayerRepresentationUpdate);
 
 		VarRenderWeapon = AddVariableString("RenderWeapon", "render_weapon", "The weapon to display on the player's render mannequin", eCommandFlagsArchived, "assault_rifle", VariablePlayerArmorUpdate);
 
