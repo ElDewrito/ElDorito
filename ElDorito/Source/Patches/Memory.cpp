@@ -1,6 +1,7 @@
 #include "Memory.hpp"
 #include <cstdint>
 #include "../Blam/BlamData.hpp"
+#include "../Modules/ModuleTweaks.hpp"
 
 namespace Patches::Memory
 {
@@ -18,7 +19,7 @@ namespace Patches::Memory
 		uint32_t newXboxSoundCount = oldXboxSoundCount * 2;
 		uint32_t xboxSoundSize = 12;
 		*reinterpret_cast<uint32_t*>(0x66009A + 1) = newXboxSoundCount;
-		extraSize += Blam::CalculateDatumArraySize(newXboxSoundCount, xboxSoundSize, 0) - 
+		extraSize += Blam::CalculateDatumArraySize(newXboxSoundCount, xboxSoundSize, 0) -
 			Blam::CalculateDatumArraySize(oldXboxSoundCount, xboxSoundSize, 0);
 
 		// expand sound sources
@@ -87,7 +88,7 @@ namespace Patches::Memory
 	void ExpandMainGlobalMemoryMap()
 	{
 		size_t dataSizeIncrease = 0;
-		size_t cacheSizeIncrease = 1024 * 1024 * 100;
+		size_t cacheSizeIncrease = Modules::ModuleTweaks::Instance().VarMemoryExpansion->ValueInt;
 
 		//dataSizeIncrease += ExpandGameStateGlobals();
 		//dataSizeIncrease += ExpandRuntimeStateGlobals();

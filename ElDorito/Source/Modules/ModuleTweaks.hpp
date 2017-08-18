@@ -14,6 +14,7 @@ namespace Modules
 		Command *VarDisableHitMarkers;
 		Command *VarGruntBirthdayParty;
 		Command *VarReachStyleFrags;
+		Command* VarMemoryExpansion;
 
 		ModuleTweaks();
 	};
