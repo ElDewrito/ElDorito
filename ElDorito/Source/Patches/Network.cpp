@@ -37,7 +37,7 @@ namespace
 	int Network_GetMaxPlayersHook();
 	bool __fastcall Network_GetEndpointHook(char *thisPtr, void *unused);
 
-	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC);
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, Blam::Players::ClientPlayerProperties *properties, uint32_t argC);
 	void __fastcall ApplyPlayerPropertiesExtended(Blam::Network::SessionMembership *thisPtr, void *unused, int playerIndex, uint32_t arg4, uint32_t arg8, uint8_t *data, uint32_t arg10);
 	void __fastcall RegisterPlayerPropertiesPacketHook(void *thisPtr, void *unused, int packetId, const char *packetName, int arg8, int size1, int size2, void *serializeFunc, void *deserializeFunc, int arg1C, int arg20);
 	void SerializePlayerPropertiesHook(Blam::BitStream *stream, uint8_t *buffer, bool flag);
@@ -276,8 +276,10 @@ namespace Patches::Network
 							writer.String(name.c_str());
 							writer.Key("team");
 							writer.Int(team);
+							char uid[17];
+							Blam::Players::FormatUid(uid, player->Properties.Uid);
 							writer.Key("uid");
-							writer.String(Blam::Players::FormatUid(player->Properties.Uid));
+							writer.String(uid);
 							std::stringstream color;
 							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 							writer.Key("primaryColor");
@@ -463,7 +465,7 @@ namespace Patches::Network
 													// Fixes an exception that happens with null d3d
 		Patch(0x675E30, { 0xC3 }).Apply();
 
-		*(uint8_t*)0x0244F970 = 1; // g_IsDedicatedServer 
+		*(uint8_t*)0x0244F970 = 1; // g_IsDedicatedServer
 		*(uint8_t*)0x0244F971 = 1; // g_SoundDisabled
 
 	}
@@ -865,7 +867,7 @@ namespace
 
 	// This completely replaces c_network_session::peer_request_player_desired_properties_update
 	// Editing the existing function doesn't allow for a lot of flexibility
-	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, void *properties, uint32_t argC)
+	bool __fastcall PeerRequestPlayerDesiredPropertiesUpdateHook(Blam::Network::Session *thisPtr, void *unused, uint32_t arg0, uint32_t arg4, Blam::Players::ClientPlayerProperties *properties, uint32_t argC)
 	{
 		if (thisPtr->Type == 3)
 			return false;
@@ -875,6 +877,8 @@ namespace
 		auto playerIndex = thisPtr->MembershipInfo.GetPeerPlayer(membership->LocalPeerIndex);
 		if (playerIndex == -1)
 			return false;
+
+		wcscpy_s(properties->DisplayName, 16, Modules::ModulePlayer::Instance().UserName);
 
 		// Copy the player properties to a new array and add the extension data
 		auto packetSize = GetPlayerPropertiesPacketSize();

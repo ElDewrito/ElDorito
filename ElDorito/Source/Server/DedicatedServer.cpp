@@ -50,6 +50,9 @@ namespace Server::DedicatedServer
 
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
+				char uid[17];
+				Blam::Players::FormatUid(uid, player->Properties.Uid);
+
 				Pointer pvpBase(0x23F5A98);
 
 				writer.Key("name");
@@ -57,7 +60,7 @@ namespace Server::DedicatedServer
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
-				writer.String(Blam::Players::FormatUid(player->Properties.Uid));
+				writer.String(uid);
 				writer.EndObject();
 			}
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
@@ -206,6 +209,9 @@ namespace Server::DedicatedServer
 
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
+				char uid[17];
+				Blam::Players::FormatUid(uid, player->Properties.Uid);
+
 				Pointer pvpBase(0x23F5A98);
 
 				writer.Key("name");
@@ -217,7 +223,7 @@ namespace Server::DedicatedServer
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
-				writer.String(Blam::Players::FormatUid(player->Properties.Uid));
+				writer.String(uid);
 				std::stringstream color;
 				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
 				writer.Key("primaryColor");

@@ -101,8 +101,11 @@ namespace
 				jsonWriter.Key("teamIndex");
 				jsonWriter.Int(player.Properties.TeamIndex);
 
+				char uid[17];
+				Blam::Players::FormatUid(uid, player.Properties.Uid);
+
 				jsonWriter.Key("UID");
-				jsonWriter.String(Blam::Players::FormatUid(player.Properties.Uid));
+				jsonWriter.String(uid);
 
 				std::stringstream color;
 				color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
