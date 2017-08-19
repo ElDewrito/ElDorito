@@ -19,7 +19,7 @@ body {
     padding: 6px;
     color: white;
     font: 10pt "Consolas", monospace;
-    background-color: rgba(64, 64, 64, 0.75);
+    background-color: rgba(20, 31, 55, 0.85);
     border: 1px solid rgba(255,255,255,0.4);
     border-radius: 4px;
 }
@@ -61,7 +61,7 @@ body {
 }
 
 .console .box {
-    border: 1px solid #202020;
+    border: 1px solid #2a2d36;
     border-radius: 2px;
 }
 
@@ -126,7 +126,7 @@ body {
     color: #00bfff;
     text-align: center;
     text-decoration: none;
-    border: 1px solid #00bfff;
+    border: 1px solid #2a2d36;
     border-radius: 2px;
 }
 
