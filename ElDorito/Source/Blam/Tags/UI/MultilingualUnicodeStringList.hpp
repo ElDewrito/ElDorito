@@ -2,14 +2,12 @@
 #include <cstdint>
 #include "../Tags.hpp"
 #include "../../Text/StringID.hpp"
-#include <string>
 
 namespace Blam::Tags::UI
 {
 	using Blam::Tags::TagBlock;
 	using Blam::Tags::TagData;
 	using Blam::Tags::TagGroup;
-	using Blam::Tags::TagReference;
 	using Blam::Text::StringID;
 
 	struct MultilingualUnicodeStringList : TagGroup<'unic'>
