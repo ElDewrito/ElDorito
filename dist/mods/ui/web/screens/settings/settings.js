@@ -196,7 +196,7 @@ var controllerIconPacks = [
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
-        if (e.keyCode === 27) {
+        if (e.keyCode === 27 || (e.keyCode == 8 && !$('.textInput').is(":focus"))) {
             if(window.location.hash != '#page5'){
                 cancelButton();
             }
@@ -454,12 +454,18 @@ $(document).ready(function(){
             if(e.data.A == 1){
                 if($('#'+selectedItem).prev()[0].computedRole == 'button'){
                     $('#'+selectedItem).prev().click();
-                }else{
+                }else if(activePage.endsWith('alertBox')){
+                    hideAlert();
+                }else{    
                     toggleSetting();
                 }
             }
             if(e.data.B == 1){
-                cancelButton();
+                if(activePage.endsWith('alertBox')){
+                    
+                }else{
+                    cancelButton();
+                }
             }
             if(e.data.X == 1){
                 if(activePage=='#page7'){
@@ -563,6 +569,18 @@ $(document).ready(function(){
             updateSelection(itemNumber); 
         }
     });
+    $('#sVsync').on('change', function(){
+        alertBox('VSync changes requires a restart to take effect', false);
+    });
+    $('#okButton').on('click', function(){
+        hideAlert();
+    });
+    $('#dismissButton').on('click', function(){
+        hideAlert();
+        dew.hide();
+        setControlValues();
+        changeArray = [];
+    });
 });
 
 function checkGamepad(){
@@ -591,6 +609,8 @@ function setButtons(){
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
         $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
         $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
     });
@@ -761,6 +781,11 @@ function applySettings(i){
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
+        $('#applyButton').html('<img class="button">Ok');
+        if(hasGP){
+            setButtons();
+            $('button img,.tabs img').show();
+        }
     }
 }
 
@@ -798,6 +823,8 @@ function cancelButton(){
         switchPage('#page8');
     }else if(window.location.hash == '#page8'){ 
         switchPage('#page2');
+    }else if(changeArray.length){
+        alertBox('You have unapplied settings', true);
     }else{
         dew.hide();
         setControlValues();
@@ -1244,6 +1271,11 @@ function toggleSetting(){
 }
 
 function queueChange(changeBlock){
+    $('#applyButton').html('<img class="button">Apply');
+    if(hasGP){
+        setButtons();
+        $('button img,.tabs img').show();
+    }
     $.grep(changeArray, function(result, index){
         if(result){
             if(result[0] == changeBlock[0]){
@@ -1252,4 +1284,21 @@ function queueChange(changeBlock){
         }
     });
     changeArray.push(changeBlock);
+}
+
+function alertBox(alertText, dismissButton){
+    if(dismissButton){
+        $('#dismissButton').show();
+    }else{
+        $('#dismissButton').hide();
+    }
+    $('#wDescription').text(alertText);
+    $('#alertBox').fadeIn(100);
+    activePage = activePage+'alertBox';
+}
+
+function hideAlert(){
+    $('#alertBox').hide();
+    activePage = activePage.replace('alertBox', ''); 
+    dew.command('Game.PlaySound 0x0B00'); 
 }

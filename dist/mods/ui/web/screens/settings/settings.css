@@ -223,7 +223,7 @@ div[id^='page']:target #buttonConatiner{
 #randomArmor,#randomColors{
 	bottom: calc(-4.15vh - 1.1vh);
 }
-#applyButton,#cancelButton,#randomArmor,#randomColors{
+#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton{
 	position: absolute;
 	height: 4vh;
 	line-height: 4vh;
@@ -239,13 +239,13 @@ div[id^='page']:target #buttonConatiner{
 	padding: none;
 	float: left;
 }
-#applyButton img,#cancelButton img,#randomArmor img,#randomColors img{
+#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img{
 	display:none;
 	position:relative;
 	height: 3.75vh;
 	float: left;
 }
-#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover{
+#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover{
 	text-decoration: underline;
 }
 #applyButton{
@@ -649,4 +649,34 @@ input[type=range]:focus {
 	left: -2vh;
 	height: 4.48vh;
   background-image: -webkit-linear-gradient( -90deg, rgb(15,29,56) 0%, rgb(15,29,56) 30%, rgba(23,33,53,0) 100%);
+}
+
+#alertBox {
+    display:none;
+    position:absolute;
+    top:45%;
+    width: 100%;
+    height: 14vh;
+    background-color: black;
+}
+
+.wHeader {
+	font-size: 4vh;
+	text-align:center;
+    text-transform: uppercase;
+    font-weight:700;
+}
+
+#wDescription {
+	text-align:center;
+	font-size:3vh;
+}
+
+#okButton{
+    left: 60%;
+}
+
+#dismissButton{
+    display:none;
+    left: 35%;
 }
