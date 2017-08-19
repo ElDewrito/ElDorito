@@ -25,6 +25,7 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include <unordered_map>
 #include <codecvt>
+#include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
 
 namespace
 {
@@ -830,7 +831,7 @@ namespace
 					std::string file = std::string(itr->path().generic_string());
 					file.append("\\events.json");
 					auto path = boost::filesystem::path(file);
-					if(boost::filesystem::exists(path))
+					if (boost::filesystem::exists(path))
 						Modules::ModuleGame::Instance().MedalPackList.push_back(itr->path().filename().string());
 				}
 			}
@@ -955,7 +956,7 @@ namespace
 			return false;
 		}
 
-		for(auto i = 0; i < scnr->Scripts.Count; i++)
+		for (auto i = 0; i < scnr->Scripts.Count; i++)
 		{
 			const auto& script = scnr->Scripts.Elements[i];
 
@@ -1002,6 +1003,54 @@ namespace
 		ss << "Tag 0x" << std::hex << tagIndex << " is located at 0x" << std::hex << (int)address;
 		returnInfo = ss.str();
 		return true;
+	}
+
+
+	bool CommandScreenEffectRange(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 2)
+		{
+			returnInfo = "You must include an index and a range!";
+			return false;
+		}
+
+		int index = 0;
+		float range = 0;
+		try
+		{
+			index = std::stoi(Arguments[0], 0, 0);
+			range = std::stof(Arguments[1]);
+		}
+		catch (std::invalid_argument)
+		{
+			returnInfo = "Invalid argument given.";
+			return false;
+		}
+
+		auto scnr = Blam::Tags::Scenario::GetCurrentScenario();
+		if (!scnr)
+		{
+			returnInfo = "A scenario must be loaded!";
+			return false;
+		}
+
+		auto sefcIndex = scnr->DefaultScreenFx;
+		if(!sefcIndex)
+		{
+			returnInfo = "Current scenario does not have a default screen fx";
+			return false;
+		}
+
+		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>('sefc');
+		if(sefc)
+		{
+			sefc->ScreenEffect2[index].MaximumDistance = range;
+			return true;
+		}
+
+		returnInfo = "Failed to get sefc";
+		return false;
+
 	}
 
 	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
@@ -1099,6 +1148,8 @@ namespace Modules
 		AddCommand("ScenarioScript", "scnr_script", "Executes a scenario script", eCommandFlagsNone, CommandExecuteScenarioScript);
 
 		AddCommand("TagAddress", "tag_address", "Gets the address of a tag in memory", eCommandFlagsNone, CommandGetTagAddress);
+
+		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 

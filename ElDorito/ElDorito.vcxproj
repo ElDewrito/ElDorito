@@ -180,6 +180,7 @@
     <ClInclude Include="Source\Blam\Math\RealVector3D.hpp" />
     <ClInclude Include="Source\Blam\Math\Rectangle2D.hpp" />
     <ClInclude Include="Source\Blam\Padding.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp" />
     <ClInclude Include="Source\Blam\Tags\Camera\CameraFxSettings.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\AssaultVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\CTFVariant.hpp" />
