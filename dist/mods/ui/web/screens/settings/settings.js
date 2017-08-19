@@ -462,7 +462,10 @@ $(document).ready(function(){
             }
             if(e.data.B == 1){
                 if(activePage.endsWith('alertBox')){
-                    
+                    hideAlert();
+                    dew.hide();
+                    setControlValues();
+                    changeArray = [];
                 }else{
                     cancelButton();
                 }
