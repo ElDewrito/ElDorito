@@ -974,6 +974,36 @@ namespace
 		return false;
 	}
 
+
+	bool CommandGetTagAddress(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() <= 0)
+		{
+			returnInfo = "You must specify a tag index!";
+			return false;
+		}
+
+		int tagIndex = 0;
+		try
+		{
+			tagIndex = std::stoi(Arguments[0], 0, 0);
+		}
+		catch (std::invalid_argument)
+		{
+			returnInfo = "Invalid argument given.";
+			return false;
+		}
+
+		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
+		void* address = GetTagAddressImpl(0, tagIndex);
+		std::stringstream ss;
+		ss << "Tag 0x" << std::hex << tagIndex << " is located at 0x" << std::hex << (int)address;
+		returnInfo = ss.str();
+		return true;
+	}
+
 	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
 		if (arguments.size() < 1)
@@ -1067,6 +1097,8 @@ namespace Modules
 		AddCommand("TakeScreenshot", "take_screenshot", "Take a screenshot", eCommandFlagsNone, CommandGameTakeScreenshot);
 
 		AddCommand("ScenarioScript", "scnr_script", "Executes a scenario script", eCommandFlagsNone, CommandExecuteScenarioScript);
+
+		AddCommand("TagAddress", "tag_address", "Gets the address of a tag in memory", eCommandFlagsNone, CommandGetTagAddress);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
