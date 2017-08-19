@@ -622,7 +622,6 @@ function setButtons(){
 var bipedRotate = 270;
 dew.on('show', function(e){
     bipedRotate = 270;
-    dew.command('Player.Armor.SetUiModelRotation 270');
     dew.getSessionInfo().then(function(i){
         if(i.established){
             if(i.mapName != "mainmenu"){
@@ -635,12 +634,18 @@ dew.on('show', function(e){
                 $('.tabs li').eq(5).hide();
             }else{
                 $('.tabs li').eq(0).show();
-                $('.tabs li').eq(5).show();  
+                $('.tabs li').eq(5).show();
             }
         }else{
             $('.tabs li').eq(0).show();
             $('.tabs li').eq(1).show();   
-            $('.tabs li').eq(5).show();            
+            $('.tabs li').eq(5).show();    
+        }
+        if(i.mapName == "mainmenu"){
+            dew.command('Player.Armor.SetUiModelRotation 270');
+            dew.command('game.hideh3ui 1');
+            dew.command('Game.ScreenEffectRange 0 0');
+            dew.command('Game.ScenarioScript settings_cam');                 
         }
         initActive();
     });
@@ -659,15 +664,18 @@ dew.on('show', function(e){
             }
         }
     });
-    dew.command('game.hideh3ui 1');
-    dew.command('Game.ScenarioScript settings_cam');
 });
 
 dew.on('hide', function(e){
-    dew.command('Game.ScenarioScript mainmenu_cam');
     //dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
-    dew.command('Player.Armor.SetUiModelRotation 270');
-    dew.command('game.hideh3ui 0');
+    dew.getSessionInfo().then(function(i){
+        if(i.mapName == "mainmenu"){
+            dew.command('Player.Armor.SetUiModelRotation 270');
+            dew.command('game.hideh3ui 0');
+            dew.command('Game.ScreenEffectRange 0 1E+19');
+            dew.command('Game.ScenarioScript leave_settings');
+        }
+    });
     if(repGP){
         window.clearInterval(repGP);
     }
