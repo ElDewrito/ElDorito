@@ -36,6 +36,5 @@ namespace Modules
 		VarReachStyleFrags->ValueIntMin = 0;
 		VarReachStyleFrags->ValueIntMax = 1;;
 
-		VarMemoryExpansion = AddVariableInt("MemoryExpansion", "memoryexpansion", "Number of bytes to expand the global memory map by. Applies on startup.", eCommandFlagsHidden, 104857600);
 	}
 }
