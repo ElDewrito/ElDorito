@@ -628,7 +628,7 @@ function setButtons(){
 
 var bipedRotate = 270;
 dew.on('show', function(e){
-    $('#blueHeader, #blueFooter').hide();
+    $('#blueHeader, #blueFooter,#blackLayer').hide();
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
         if(i.established){
@@ -650,12 +650,15 @@ dew.on('show', function(e){
             $('.tabs li').eq(5).show();    
         }
         if(i.mapName == "mainmenu"){
+            $('#blueHeader, #blueFooter, #blackLayer').show();
             dew.command('Player.Armor.Update');
             dew.command('Player.Armor.SetUiModelRotation 270');
             dew.command('game.hideh3ui 1');
-            dew.command('Game.ScreenEffectRange 0 0');
             dew.command('Game.ScenarioScript settings_cam');
-            $('#blueHeader, #blueFooter').show();
+            dew.command('Game.ScreenEffectRange 0 0');
+            $('#blackLayer').show().fadeOut(800, 'linear', function(){
+                //additional animation here                
+            });
         }
         initActive();
     });
@@ -677,13 +680,12 @@ dew.on('show', function(e){
 });
 
 dew.on('hide', function(e){
+    dew.command('Game.PlaySound 0x0B04');
     //dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
             dew.command('Player.Armor.SetUiModelRotation 270');
             dew.command('game.hideh3ui 0');
-            dew.command('Game.ScreenEffectRange 0 1E+19');
-            dew.command('Game.ScenarioScript leave_settings');
         }
     });
     if(repGP){
@@ -838,7 +840,17 @@ function cancelButton(){
     }else if(changeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
-        dew.hide();
+        dew.getSessionInfo().then(function(i){
+            if(i.mapName == "mainmenu"){
+                $('#blackLayer').fadeIn(400, function(){
+                    dew.command('Game.ScenarioScript leave_settings');
+                    dew.command('Game.ScreenEffectRange 0 1E+19');
+                    dew.hide();
+                });
+            }else{
+                dew.hide();
+            }
+        })
         setControlValues();
         changeArray = [];
     }
