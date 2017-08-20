@@ -128,7 +128,8 @@ namespace Server::Voting
 	void StartNewVote() 
 	{
 		auto* session = Blam::Network::GetActiveSession();
-		if (!(session && session->IsEstablished() && session->IsHost()))
+		auto get_game_mode = (int(__cdecl*)())(0x00435640);
+		if (!(session && session->IsEstablished() && session->IsHost() && get_game_mode() == 2))
 			return;
 
 		for (auto elem : VotingSystems)
