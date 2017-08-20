@@ -142,6 +142,7 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-dedicated") == 0 || arg.compare(L"-headless") == 0)
 			{
 				isDedicated = true;
+				Modules::CommandMap::Instance().ExecuteCommand("Server.Dedicated 1");
 			}
 
 			if (arg.compare(L"-maps") == 0 && i < numArgs - 1)

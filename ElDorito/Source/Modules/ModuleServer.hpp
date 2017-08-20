@@ -29,6 +29,8 @@ namespace Modules
 		Command* VarServerSprintUnlimitedClient;
 		Command* VarServerDualWieldEnabled;
 		Command* VarServerDualWieldEnabledClient;
+		Command* VarServerDedicated;
+		Command* VarServerDedicatedClient;
 		Command* VarServerAssassinationEnabled;
 		Command* VarFloodFilterEnabled;
 		Command* VarFloodMessageScoreShort;

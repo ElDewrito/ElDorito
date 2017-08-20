@@ -145,7 +145,11 @@ namespace Web::Ui::WebScoreboard
 			writer.Key("UID");
 			writer.String(uid);
 			writer.Key("isHost");
-			writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
+			if (Modules::ModuleServer::Instance().VarServerDedicatedClient->ValueInt == 1)
+				writer.Bool(false);
+			else {
+				writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
+			}
 			uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
 			writer.Key("isAlive");
 			writer.Bool(alive == 1);

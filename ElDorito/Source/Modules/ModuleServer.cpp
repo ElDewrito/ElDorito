@@ -1237,6 +1237,10 @@ namespace Modules
 		VarServerLobbyType->ValueIntMin = 0;
 		VarServerLobbyType->ValueIntMax = 4;
 
+		VarServerDedicated = AddVariableInt("Dedicated", "dedicated", "Used only to let clients know if the server is dedicated or not",  eCommandFlagsReplicated, 0);
+		VarServerDedicatedClient = AddVariableInt("DedicatedClient", "dedicated_client", "", eCommandFlagsInternal, 0);
+		Server::VariableSynchronization::Synchronize(VarServerDedicated, VarServerDedicatedClient);
+
 		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
