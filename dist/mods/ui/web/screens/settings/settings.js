@@ -642,6 +642,7 @@ dew.on('show', function(e){
             $('.tabs li').eq(5).show();    
         }
         if(i.mapName == "mainmenu"){
+            dew.command('Player.Armor.Update');
             dew.command('Player.Armor.SetUiModelRotation 270');
             dew.command('game.hideh3ui 1');
             dew.command('Game.ScreenEffectRange 0 0');
