@@ -302,6 +302,7 @@ $(document).ready(function(){
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.id){
                 dew.command(result[1] + ' ' + e.target.value);
+                queueChange([result[1], e.target.value]);
             };
         });
     });
@@ -457,10 +458,7 @@ $(document).ready(function(){
             }
             if(e.data.B == 1){
                 if(activePage.endsWith('alertBox')){
-                    hideAlert();
-                    effectReset();
-                    setControlValues();
-                    changeArray = [];
+                    dismissButton();
                 }else{
                     cancelButton();
                 }
@@ -574,10 +572,7 @@ $(document).ready(function(){
         hideAlert();
     });
     $('#dismissButton').on('click', function(){
-        hideAlert();
-        effectReset();
-        setControlValues();
-        changeArray = [];
+        dismissButton();
     });
     $('span:has(.setting)').hover(
         function(){
@@ -822,8 +817,6 @@ function applyButton(){
 }
 
 function cancelButton(){
-    resetInstants();
-    itemNumber = 0;
     if(window.location.hash == '#page5'){
         initializeBindings(); 
         switchPage('#page2');  
@@ -837,10 +830,18 @@ function cancelButton(){
     }else if(changeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
+        itemNumber = 0;
         effectReset();
-        setControlValues();
-        changeArray = [];
     }
+}
+
+function dismissButton(){
+    hideAlert();
+    resetInstants();    
+    itemNumber = 0;
+    effectReset();
+    setControlValues();
+    changeArray = [];
 }
 
 exiting = false;
