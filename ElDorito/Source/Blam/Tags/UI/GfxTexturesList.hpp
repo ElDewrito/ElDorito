@@ -12,7 +12,7 @@ namespace Blam::Tags::UI
 	{
 		struct Texture;
 
-		TagBlock<Texture> textures;
+		TagBlock<Texture> Textures;
 		float Unknown;
 
 		struct Texture

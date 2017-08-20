@@ -136,7 +136,9 @@ namespace Blam::Network
 	// c_network_session_parameter_map_variant
 	struct MapVariantSessionParameter: SessionParameter
 	{
-		uint8_t Unknown0[0x2A1D0];
+		uint8_t Unknown0[0x118];
+		int32_t MapID;
+		uint8_t Unknown1[0x2A0B4];
 
 		// Gets the current variant data, or null if not available.
 		void* Get() const;

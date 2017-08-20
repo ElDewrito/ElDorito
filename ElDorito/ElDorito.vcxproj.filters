@@ -1080,6 +1080,9 @@
     <ClInclude Include="Source\Web\WebRendererSchemeHandlerFactory.hpp">
       <Filter>Web</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup />

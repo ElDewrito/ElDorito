@@ -219,6 +219,7 @@
     <ClInclude Include="Source\Blam\Tags\Tags.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\ChudDefinition.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\ChudGlobalsDefinition.hpp" />
+    <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\GuiSkinWidgetDefinition.hpp" />
     <ClInclude Include="Source\Blam\Tags\UI\MultilingualUnicodeStringList.hpp" />
     <ClInclude Include="Source\Blam\Text\StringID.hpp" />

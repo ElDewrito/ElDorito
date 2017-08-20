@@ -15,6 +15,7 @@
 #include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
+#include "../Blam/Tags/UI/GfxTexturesList.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGraphics.hpp"
@@ -28,6 +29,7 @@
 #include <iomanip>
 #include <cassert>
 #include <vector>
+#include <map>
 
 using namespace Patches::Ui;
 
@@ -51,6 +53,7 @@ namespace
 	void UI_GetHUDGlobalsIndexHook();
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
+	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
 	void CameraModeChangedHook();
 	void StateDataFlags2Hook();
 	void StateDataFlags3Hook();
@@ -187,6 +190,7 @@ namespace Patches::Ui
 
 		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
 		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
+		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
 
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
@@ -230,6 +234,7 @@ namespace Patches::Ui
 		FindVoiceChatSpeakingPlayerTagData();
 		FindHUDDistortionTagData();
 		FindHUDResolutionTagData();
+		FindMapImages();
 	}
 
 	uint32_t hudMessagesUnicIndex;
@@ -337,6 +342,59 @@ namespace Patches::Ui
 					return;
 				}
 			}
+		}
+	}
+
+	void FindMapImages()
+	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::UI::GfxTexturesList;
+
+		auto gfxtInstances = TagInstance::GetInstancesInGroup('gfxt');
+		for (auto &gfxtInstance : gfxtInstances)
+		{
+			//mapID|BitmapIndex
+			std::map<int,int> tempMapImages = std::map<int, int>();
+
+			auto *gfxtDefinition = gfxtInstance.GetDefinition<GfxTexturesList>();
+			for each (GfxTexturesList::Texture texture in gfxtDefinition->Textures)
+			{
+				char *output = NULL;
+				output = strstr(texture.FileName, "mapeditor placeholder");
+
+				if (output)
+				{
+					mapeditorPlaceholderIndex = texture.Bitmap.TagIndex;
+					continue;
+				}
+				
+				output = NULL;
+				output = strstr(texture.FileName, "multiplayer placeholder");
+				
+				if (output)
+				{
+					multiplayerPlaceholderIndex = texture.Bitmap.TagIndex;
+					continue;
+				}
+				
+				try
+				{
+					int mapID = std::stoi(texture.FileName);
+					tempMapImages.insert(std::pair<int, int>(mapID, texture.Bitmap.TagIndex));
+					continue;
+				}
+				catch (...)
+				{
+					goto invalid_gfxt;
+				}
+			}
+
+			mapImages = tempMapImages;
+			foundMapImages = true;
+			return;
+
+			invalid_gfxt:
+			continue;
 		}
 	}
 	
@@ -905,6 +963,45 @@ namespace
 		}
 
 		c_main_menu_screen_widget_item_select(thisptr, a2, a3, a4, a5);
+	}
+
+	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7)
+	{
+		static auto c_gui_bitmap_widget_get_render_data = (void(__thiscall*)(void* thisptr, void* renderData, int a3, int a4, char a5, char a6, char a7))(0x00B167B0);
+
+		auto name = Pointer(thisptr)(0x40).Read<uint32_t>();
+
+		c_gui_bitmap_widget_get_render_data(thisptr, renderData, a3, a4, a5, a6, a7);
+
+		if (name != 67196) // unknown_film_image
+			return;
+
+		static int bitmapIndex = 0;
+		if (!Patches::Ui::foundMapImages)
+			return; 
+
+		auto session = Blam::Network::GetActiveSession();
+
+		if (!session || !session->IsEstablished())
+			return;
+
+		if (session->Parameters.MapVariant.MapID == 0)
+			return;
+
+		try
+		{
+			bitmapIndex = Patches::Ui::mapImages.at(session->Parameters.MapVariant.MapID);
+		}
+		catch (...)
+		{
+				bitmapIndex = Patches::Ui::multiplayerPlaceholderIndex;
+		}
+
+
+		if (!Blam::Tags::TagInstance::IsLoaded('bitm', bitmapIndex))
+			return;
+
+		*(uint32_t*)((uint8_t*)renderData + 0x2C) = bitmapIndex; // bitmap tag index
 	}
 
 	void ResolutionChangeHook()

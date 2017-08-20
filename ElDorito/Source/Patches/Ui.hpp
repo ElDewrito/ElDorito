@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <functional>
+#include <map>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -36,6 +37,11 @@ namespace Patches::Ui
 	void FindVoiceChatSpeakingPlayerTagData();
 	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
+	static bool foundMapImages = false;
+	static int mapeditorPlaceholderIndex;
+	static int multiplayerPlaceholderIndex;
+	static std::map<int, int> mapImages = std::map<int, int>();
+	void FindMapImages();
 
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
