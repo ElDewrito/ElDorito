@@ -463,7 +463,7 @@ $(document).ready(function(){
             if(e.data.B == 1){
                 if(activePage.endsWith('alertBox')){
                     hideAlert();
-                    dew.hide();
+                    backToMain();
                     setControlValues();
                     changeArray = [];
                 }else{
@@ -580,7 +580,7 @@ $(document).ready(function(){
     });
     $('#dismissButton').on('click', function(){
         hideAlert();
-        dew.hide();
+        backToMain();
         setControlValues();
         changeArray = [];
     });
@@ -840,20 +840,24 @@ function cancelButton(){
     }else if(changeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
-        dew.getSessionInfo().then(function(i){
-            if(i.mapName == "mainmenu"){
-                $('#blackLayer').fadeIn(400, function(){
-                    dew.command('Game.ScenarioScript leave_settings');
-                    dew.command('Game.ScreenEffectRange 0 1E+19');
-                    dew.hide();
-                });
-            }else{
-                dew.hide();
-            }
-        })
+        backToMain();
         setControlValues();
         changeArray = [];
     }
+}
+
+function backToMain(){
+    dew.getSessionInfo().then(function(i){
+        if(i.mapName == "mainmenu"){
+            $('#blackLayer').fadeIn(400, function(){
+                dew.command('Game.ScenarioScript leave_settings');
+                dew.command('Game.ScreenEffectRange 0 1E+19');
+                dew.hide();
+            });
+        }else{
+            dew.hide();
+        }
+    })
 }
 
 function applyBinds(){
