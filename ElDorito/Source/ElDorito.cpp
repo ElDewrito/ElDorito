@@ -244,7 +244,7 @@ void ElDorito::Tick()
 	if (!isDedicated) {
 		Web::Ui::ScreenLayer::Tick();
 		Web::Ui::WebScoreboard::Tick();
-		
+
 
 	}
 	else
@@ -296,7 +296,7 @@ void ElDorito::OnMainMenuShown()
 	if (isDedicated)
 		Server::DedicatedServer::Init();
 
-	if (!skipTitleSplash && !isDedicated)
+	if (!isDedicated)
 		Web::Ui::ScreenLayer::Show("title", "{}");
 }
 
