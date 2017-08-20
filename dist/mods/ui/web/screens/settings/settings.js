@@ -628,6 +628,7 @@ function setButtons(){
 
 var bipedRotate = 270;
 dew.on('show', function(e){
+    $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
@@ -650,15 +651,17 @@ dew.on('show', function(e){
             $('.tabs li').eq(5).show();    
         }
         if(i.mapName == "mainmenu"){
-            $('#blueHeader, #blueFooter, #blackLayer').show();
-            dew.command('Player.Armor.Update');
-            dew.command('Player.Armor.SetUiModelRotation 270');
-            dew.command('game.hideh3ui 1');
-            dew.command('Game.ScenarioScript settings_cam');
-            dew.command('Game.ScreenEffectRange 0 0');
-            $('#blackLayer').show().fadeOut(800, 'linear', function(){
-                //additional animation here                
-            });
+            $('#blackLayer').fadeIn(200, function() {
+                dew.command('Player.Armor.Update');
+                dew.command('Player.Armor.SetUiModelRotation 270');
+                dew.command('game.hideh3ui 1');
+                dew.command('Game.ScenarioScript settings_cam');
+                dew.command('Game.ScreenEffectRange 0 0');
+                $('#settingsWindow').show();
+                $('#blueHeader, #blueFooter, #blackLayer').show();
+            }).fadeOut(200);
+        } else {
+            $('#settingsWindow').show();
         }
         initActive();
     });
@@ -680,14 +683,6 @@ dew.on('show', function(e){
 });
 
 dew.on('hide', function(e){
-    dew.command('Game.PlaySound 0x0B04');
-    //dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
-    dew.getSessionInfo().then(function(i){
-        if(i.mapName == "mainmenu"){
-            dew.command('Player.Armor.SetUiModelRotation 270');
-            dew.command('game.hideh3ui 0');
-        }
-    });
     if(repGP){
         window.clearInterval(repGP);
     }
@@ -847,12 +842,23 @@ function cancelButton(){
 }
 
 function effectReset(){
+    dew.command('Game.PlaySound 0x0B04');
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
-            $('#blackLayer').fadeIn(400, function(){
+            $('#blackLayer').fadeIn(200, function(){
                 dew.command('Game.ScenarioScript leave_settings');
                 dew.command('Game.ScreenEffectRange 0 1E+19');
-                dew.hide();
+                dew.command('Player.Armor.SetUiModelRotation 270');
+                dew.command('game.hideh3ui 0');
+                $('#settingsWindow').hide();
+                $('#blueHeader').hide();
+                $('#blueFooter').hide();
+                $('#blackLayer').fadeOut(200, function(){
+                    dew.hide();
+                    $('#settingsWindow').show();
+                    $('#blueHeader').show();
+                    $('#blueFooter').show();
+                });
             });
         }else{
             dew.hide();

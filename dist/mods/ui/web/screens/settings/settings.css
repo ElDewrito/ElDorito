@@ -18,6 +18,7 @@ body{
 	overflow:hidden;
 	position: absolute;
 	width: 100%;
+	height: 71.48vh;
 	top:50%;
 	left:50%;
 	transform: translate(-50%,-50%);
@@ -614,19 +615,6 @@ input[type=range]:focus {
 #backgroundLeftSide{
 	width: calc(50vw + 69vh);
 	left: -50vw;
-}
-#page7:target #playerWindow{
-  -webkit-animation: playerwindow-fade-in 0.2s;
-}
-@-webkit-keyframes playerwindow-fade-in {
-	0% {
-		-webkit-transform: translateY(10vh);
-		opacity: 0;
-	}
-	100% {
-		-webkit-transform: translateY(-0vh);
-		opacity: 1;
-	}
 }
 
 #playerWindow{
