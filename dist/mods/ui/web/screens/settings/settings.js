@@ -584,6 +584,13 @@ $(document).ready(function(){
         setControlValues();
         changeArray = [];
     });
+    $('span:has(.setting)').hover(
+        function(){
+            $(this).addClass('selectedElement');
+        }, function(){
+            $(this).removeClass('selectedElement');
+        }
+    );
 });
 
 function checkGamepad(){
@@ -621,6 +628,7 @@ function setButtons(){
 
 var bipedRotate = 270;
 dew.on('show', function(e){
+    $('#blueHeader, #blueFooter').hide();
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
         if(i.established){
@@ -646,7 +654,8 @@ dew.on('show', function(e){
             dew.command('Player.Armor.SetUiModelRotation 270');
             dew.command('game.hideh3ui 1');
             dew.command('Game.ScreenEffectRange 0 0');
-            dew.command('Game.ScenarioScript settings_cam');                 
+            dew.command('Game.ScenarioScript settings_cam');
+            $('#blueHeader, #blueFooter').show();
         }
         initActive();
     });
@@ -752,15 +761,6 @@ function setControlValues(){
         }
     })
 }
-
-/*function adjustBiped(){
-    //console.log(getAspectRatio());
-    if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
-        dew.command('Player.Armor.SetUiModelPosition 0.048312 -13.6018 25.5232');
-    }else{
-        dew.command('Player.Armor.SetUiModelPosition 0.108312 -13.2518 25.5232');
-    }    
-}*/
 
 function switchPage(pageHash){
     itemNumber = 0;
@@ -1180,16 +1180,6 @@ function onControllerConnect(){
 function onControllerDisconnect(){
     $('.selectedItem').removeClass(); 
     $('button img, .tabs img').hide();
-}
-
-function getAspectRatio(){
-    function gcd (a, b) {
-        return (b == 0) ? a : gcd (b, a%b);
-    }
-    var w = screen.width;
-    var h = screen.height;
-    var r = gcd (w, h);
-    return w/r+":"+h/r;
 }
 
 function resetInstants(){

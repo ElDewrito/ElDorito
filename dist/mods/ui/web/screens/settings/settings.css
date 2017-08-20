@@ -404,7 +404,7 @@ textarea.setting{
 #presetMenu{
     right: 25.5vh;    
 }
-.selectedElement, span:hover {
+.selectedElement {
 	background-image: url(dew://assets/ux/buttonhover.svg);
 	background-position: center;
 	background-repeat: no-repeat;
@@ -679,4 +679,23 @@ input[type=range]:focus {
 #dismissButton{
     display:none;
     left: 35%;
+}
+
+#blueHeader,#blueFooter{
+	position:absolute;
+	left:0;
+	width:100%;
+	height:11.5vh;
+	background-color:#111a44;
+	z-index:5;
+	opacity:0.85;
+}
+
+#blueHeader{
+	top:-11.5vh;	
+}
+
+#blueFooter{
+	bottom:-18vh;
+
 }
