@@ -843,7 +843,13 @@ function cancelButton(){
     }
 }
 
+exiting = false;
 function effectReset(){
+    // Prevent escape spamming
+    if(exiting)
+        return;
+    exiting = true;
+
     dew.command('Game.PlaySound 0x0B04');
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
@@ -860,10 +866,12 @@ function effectReset(){
                     $('#settingsWindow').show();
                     $('#blueHeader').show();
                     $('#blueFooter').show();
+                    exiting = false;
                 });
             });
         }else{
             dew.hide();
+            exiting = false;
         }
     })
 }
