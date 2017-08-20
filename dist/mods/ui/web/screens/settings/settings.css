@@ -250,6 +250,7 @@ div[id^='page']:target #buttonConatiner{
 	text-decoration: underline;
 }
 #applyButton{
+    display:none;
 	right: 0vh;
 }
 #cancelButton{
@@ -615,6 +616,20 @@ input[type=range]:focus {
 #backgroundLeftSide{
 	width: calc(50vw + 69vh);
 	left: -50vw;
+}
+
+#page7:target #playerWindow{
+  -webkit-animation: playerwindow-fade-in 0.2s;
+}
+@-webkit-keyframes playerwindow-fade-in {
+	0% {
+		-webkit-transform: translateY(10vh);
+		opacity: 0;
+	}
+	100% {
+		-webkit-transform: translateY(-0vh);
+		opacity: 1;
+	}
 }
 
 #playerWindow{

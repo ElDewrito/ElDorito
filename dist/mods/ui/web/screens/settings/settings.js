@@ -207,7 +207,6 @@ $(document).ready(function(){
             dew.show('console');
         }
     });
-    initActive();
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
     dew.command('Weapon.List', {}).then(function(response){
@@ -406,10 +405,6 @@ $(document).ready(function(){
     });
     setControlValues();
     initializeBindings();
-    setButtons();
-    if(hasGP){
-        $('button img,.tabs img').show();
-    }
     $('.bind').on('change', function(){
         updateBinding(this.id, this.value);
         updateBindLabels();
@@ -659,28 +654,37 @@ dew.on('show', function(e){
                 dew.command('Game.ScreenEffectRange 0 0');
                 $('#settingsWindow').show();
                 $('#blueHeader, #blueFooter, #blackLayer').show();
+                initActive();
+                initGamepad();
             }).fadeOut(200);
         } else {
             $('#settingsWindow').show();
+            initActive();
+            initGamepad();
         }
-        initActive();
     });
     setControlValues();
-    setButtons();
+
+});
+
+function initGamepad(){
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
             onControllerConnect();
             hasGP = true;
             repGP = window.setInterval(checkGamepad,1000/60);
+            setButtons();
+            $('button img,.tabs img').show();
         }else{
             onControllerDisconnect();
             hasGP = false;
             if(repGP){
                 window.clearInterval(repGP);
             }
+            $('button img,.tabs img').hide();
         }
     });
-});
+}
 
 dew.on('hide', function(e){
     if(repGP){
@@ -790,11 +794,9 @@ function applySettings(i){
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
-        $('#applyButton').html('<img class="button">Ok');
-        if(hasGP){
-            setButtons();
-            $('button img,.tabs img').show();
-        }
+        $('#cancelButton').html('<img class="button">Close');
+        $('#applyButton').hide();
+        initGamepad();
     }
 }
 
@@ -1295,7 +1297,8 @@ function toggleSetting(){
 }
 
 function queueChange(changeBlock){
-    $('#applyButton').html('<img class="button">Apply');
+    $('#cancelButton').html('<img class="button">Cancel');
+    $('#applyButton').show();
     if(hasGP){
         setButtons();
         $('button img,.tabs img').show();
