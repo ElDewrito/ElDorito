@@ -463,7 +463,7 @@ $(document).ready(function(){
             if(e.data.B == 1){
                 if(activePage.endsWith('alertBox')){
                     hideAlert();
-                    backToMain();
+                    effectReset();
                     setControlValues();
                     changeArray = [];
                 }else{
@@ -580,7 +580,7 @@ $(document).ready(function(){
     });
     $('#dismissButton').on('click', function(){
         hideAlert();
-        backToMain();
+        effectReset();
         setControlValues();
         changeArray = [];
     });
@@ -819,7 +819,7 @@ function applyButton(){
             applySettings(0);   
             setButtons();            
         }else{
-            dew.hide();
+            effectReset();
         }
     }
 }
@@ -840,13 +840,13 @@ function cancelButton(){
     }else if(changeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
-        backToMain();
+        effectReset();
         setControlValues();
         changeArray = [];
     }
 }
 
-function backToMain(){
+function effectReset(){
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
             $('#blackLayer').fadeIn(400, function(){
