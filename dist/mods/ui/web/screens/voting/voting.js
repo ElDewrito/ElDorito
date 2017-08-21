@@ -202,7 +202,9 @@ function onControllerConnect(){
         $('.playerStats img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
         $('.playerStats img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
     });
-    updateSelection(1);    
+    if(votingType != 'veto'){
+        updateSelection(1);    
+    }
 }
 
 function onControllerDisconnect(){
@@ -212,28 +214,34 @@ function onControllerDisconnect(){
 
 dew.on('controllerinput', function(e){       
     if(hasGP){
-        if(e.data.A == 1){
-            vote(itemNumber);
+        if(votingType != 'veto'){
+            if(e.data.A == 1){
+                vote(itemNumber);
+            }
+            if(e.data.Up == 1){
+                upNav();
+            }
+            if(e.data.Down == 1){
+                downNav();
+            }
+            if(e.data.AxisLeftY != 0){
+                if(e.data.AxisLeftY > axisThreshold){
+                    stickTicks.up++;
+                };
+                if(e.data.AxisLeftY < -axisThreshold){
+                    stickTicks.down++;
+                };
+            }else{
+                stickTicks.up = 0;
+                stickTicks.down = 0;               
+            }
+        }else{
+            if(e.data.X == 1){
+                vote(1);
+            }            
         }
         if(e.data.B == 1){
             dew.hide();
-        }
-        if(e.data.Up == 1){
-            upNav();
-        }
-        if(e.data.Down == 1){
-            downNav();
-        }
-        if(e.data.AxisLeftY != 0){
-            if(e.data.AxisLeftY > axisThreshold){
-                stickTicks.up++;
-            };
-            if(e.data.AxisLeftY < -axisThreshold){
-                stickTicks.down++;
-            };
-        }else{
-            stickTicks.up = 0;
-            stickTicks.down = 0;               
         }
     }
 });
