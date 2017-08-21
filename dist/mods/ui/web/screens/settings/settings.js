@@ -524,7 +524,7 @@ $(document).ready(function(){
             if(e.data.AxisLeftY > axisThreshold){
                 stickTicks.up++;
             }else{
-                tickTicks.up = 0;
+                stickTicks.up = 0;
             }
             if(e.data.AxisLeftY < -axisThreshold){
                 stickTicks.down++;
