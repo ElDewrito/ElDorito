@@ -5,6 +5,11 @@ var hasGP = false;
 var interval = 0;
 var seconds_left;
 var isHost;
+var axisThreshold = .5;
+var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
+var repGP;
+var lastHeldUpdated = 0;
+var itemNumber = 1;
 
 $("html").on("keydown", function(e) {
     if (e.which == 113){
@@ -32,19 +37,15 @@ dew.on("show", function(event) {
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
     });
-    dew.command('Settings.Gamepad', {}).then(function(result){
-        if(result == 1){
-            onControllerConnect();
-            hasGP = true;
-        }else{
-            onControllerDisconnect();
-            hasGP = false;
-        }
-    });
+    initGamepad();
+    itemNumber = 1;
 });
 
 dew.on("hide", function(event) {
     clearInterval(interval);
+    if(repGP){
+        window.clearInterval(repGP);
+    }
 });
 
 dew.on("Winner", function(event) {
@@ -53,7 +54,6 @@ dew.on("Winner", function(event) {
 });
 dew.on("VetoOptionsUpdated", function(event) {
     clearInterval(interval);
-	//console.log(event.data);
 	var message = "";
 	if(event.data.vetoOption.canveto){
 		message = "VETO COUNTDOWN " 
@@ -88,10 +88,6 @@ dew.on("VetoOptionsUpdated", function(event) {
 
         }
     
-    if(hasGP){
-        onControllerConnect(); 
-    }
-
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
     interval = setInterval(function() {
         document.getElementById('timer_span').innerHTML = " - " + --seconds_left;
@@ -159,9 +155,6 @@ dew.on("VotingOptionsUpdated", function(event) {
 
         }
     });
-    if(hasGP){
-        onControllerConnect(); 
-    }
 
     seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
     interval = setInterval(function() {
@@ -205,44 +198,97 @@ dew.on("VoteCountsUpdated", function(event) {
 function onControllerConnect(){
     dew.command('Game.IconSet', {}).then(function(response){
         controllerType = response;
-        if(votingType == 'voting'){
-            $(".votingOption").each(function(index){
-                $(this).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_"+buttons[index]+".png'>");
-            });
-        }else if(votingType == 'veto'){
-            $(".votingOption").eq(0).append("<img class='button' src='dew://assets/buttons/"+controllerType+"_X.png'>");
-        }
-        $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+controllerType+"_Start.png'>");  
-        $('.playerStats img').eq(0).attr('src','dew://assets/buttons/' + controllerType + '_LB.png');
-        $('.playerStats img').eq(1).attr('src','dew://assets/buttons/' + controllerType + '_RB.png');
-    });    
+        $("#boxclose").html("<img class='button' src='dew://assets/buttons/"+response+"_B.png'>");  
+        $('.playerStats img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
+        $('.playerStats img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
+    });
+    updateSelection(1);    
+}
+
+function onControllerDisconnect(){
+    $('.selected').removeClass(); 
+    $("#boxclose").text("x"); 
 }
 
 dew.on('controllerinput', function(e){       
     if(hasGP){
-        if(votingType != 'veto'){
-            if(e.data.A == 1){
-                vote(1);
-            }
-            if(e.data.B == 1){
-                vote(2);
-            }
-            if(e.data.Y == 1){
-                vote(4);
-            }
-            if(e.data.Select == 1){
-                vote(5);
-            }
+        if(e.data.A == 1){
+            vote(itemNumber);
         }
-        if(e.data.X == 1){
-            if(votingType == 'veto'){
-                vote(1);
-            }else{
-                vote(3);
-            }
+        if(e.data.B == 1){
+            dew.hide();
         }
-        if(e.data.Start == 1){
-            dew.hide();   
+        if(e.data.Up == 1){
+            upNav();
+        }
+        if(e.data.Down == 1){
+            downNav();
+        }
+        if(e.data.AxisLeftY != 0){
+            if(e.data.AxisLeftY > axisThreshold){
+                stickTicks.up++;
+            };
+            if(e.data.AxisLeftY < -axisThreshold){
+                stickTicks.down++;
+            };
+        }else{
+            stickTicks.up = 0;
+            stickTicks.down = 0;               
         }
     }
 });
+
+function initGamepad(){
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            onControllerConnect();
+            hasGP = true;
+            if(!repGP){
+                repGP = window.setInterval(checkGamepad,1000/60);
+            }
+            setButtons();
+            //$('button img,.tabs img').show();
+        }else{
+            onControllerDisconnect();
+            hasGP = false;
+            if(repGP){
+                window.clearInterval(repGP);
+            }
+            //$('button img,.tabs img').hide();
+        }
+    });
+}
+
+function checkGamepad(){
+    var shouldUpdateHeld = false;
+    if(Date.now() - lastHeldUpdated > 100) {
+        shouldUpdateHeld = true;
+        lastHeldUpdated = Date.now();
+    }
+    if(stickTicks.up == 1 || (shouldUpdateHeld && stickTicks.up > 25)){
+        upNav();
+    }
+    if(stickTicks.down == 1 || (shouldUpdateHeld && stickTicks.down > 25)){
+        downNav();
+    }
+};
+
+function updateSelection(item){
+    $('.selected').removeClass('selected');
+    $('#'+item).addClass('selected');
+    dew.command('Game.PlaySound 0xAFE');
+}
+
+function upNav(){
+    if(itemNumber > 1){
+        itemNumber--;
+        updateSelection(itemNumber);
+    }
+}
+
+function downNav(){
+    if(itemNumber < $('.votingOption').length){
+        itemNumber++;
+        updateSelection(itemNumber);
+    }           
+}
