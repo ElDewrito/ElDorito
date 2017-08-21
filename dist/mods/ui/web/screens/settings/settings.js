@@ -511,27 +511,25 @@ $(document).ready(function(){
                     updateSelection(itemNumber);
                 }
             }
-            if(e.data.AxisLeftX != 0){
-                if(e.data.AxisLeftX > axisThreshold){
-                    stickTicks.right++;
-                };
-                if(e.data.AxisLeftX < -axisThreshold){
-                    stickTicks.left++;
-                };
+            if(e.data.AxisLeftX > axisThreshold){
+                stickTicks.right++;
             }else{
                 stickTicks.right = 0;
-                stickTicks.left = 0;
             }
-            if(e.data.AxisLeftY != 0){
-                if(e.data.AxisLeftY > axisThreshold){
-                    stickTicks.up++;
-                };
-                if(e.data.AxisLeftY < -axisThreshold){
-                    stickTicks.down++;
-                };
+            if(e.data.AxisLeftX < -axisThreshold){
+                stickTicks.left++;
             }else{
-                stickTicks.up = 0;
-                stickTicks.down = 0;               
+                stickTicks.left = 0; 
+            }
+            if(e.data.AxisLeftY > axisThreshold){
+                stickTicks.up++;
+            }else{
+                tickTicks.up = 0;
+            }
+            if(e.data.AxisLeftY < -axisThreshold){
+                stickTicks.down++;
+            }else{
+                stickTicks.down = 0;
             }
             if(e.data.AxisRightX != 0){
                 if(e.data.AxisRightX > axisThreshold){
@@ -668,7 +666,9 @@ function initGamepad(){
         if(result == 1){
             onControllerConnect();
             hasGP = true;
-            repGP = window.setInterval(checkGamepad,1000/60);
+            if(!repGP){
+                repGP = window.setInterval(checkGamepad,1000/60);
+            }
             setButtons();
             $('button img,.tabs img').show();
         }else{
