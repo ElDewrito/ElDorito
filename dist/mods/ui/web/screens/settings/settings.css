@@ -412,7 +412,7 @@ textarea.setting{
 	background-repeat: no-repeat;
 	color: white;
 }
-.selectedElement .setting, span:hover .setting, .selectedElement .tinySetting, span:hover .tinySetting{
+.selectedElement .setting, .selectedElement .tinySetting{
 	color: white;
 }
 .selectedElement select, .selectedElement .colorBox{
@@ -487,7 +487,7 @@ button.tinySetting {
 }
 /*------------------------*/
 
-.selectedElement input[type=range]::-webkit-slider-thumb, span:hover input[type=range]::-webkit-slider-thumb{
+.selectedElement input[type=range]::-webkit-slider-thumb{
 	background-color: white;
 }
 input[type=range]::-webkit-slider-runnable-track , input[type=range]:focus::-webkit-slider-runnable-track{
@@ -532,7 +532,7 @@ span button.tinySetting:hover{
 	padding-left: 2vh;
 	padding-right: 2vh;
 }
-.selectedElement select:hover, select:hover{
+.selectedElement select:hover{
 	color: white;
 	background-image: url(dew://assets/ux/arrow_down.svg);
 	background-position: 98% 50%;

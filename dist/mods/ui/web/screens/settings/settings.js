@@ -497,6 +497,7 @@ $(document).ready(function(){
             }
             if(e.data.Start == 1){
                 applyButton();
+                hideAlert();
             }
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
@@ -685,6 +686,7 @@ dew.on('hide', function(e){
     if(repGP){
         window.clearInterval(repGP);
     }
+    hideAlert();
 });
 
 function rotateBiped(direction){
