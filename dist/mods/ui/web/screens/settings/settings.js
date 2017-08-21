@@ -666,9 +666,7 @@ function initGamepad(){
         if(result == 1){
             onControllerConnect();
             hasGP = true;
-            if(!repGP){
-                repGP = window.setInterval(checkGamepad,1000/60);
-            }
+            repGP = window.setInterval(checkGamepad,1000/60);
             setButtons();
             $('button img,.tabs img').show();
         }else{
