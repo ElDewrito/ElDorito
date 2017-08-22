@@ -108,7 +108,9 @@ var settingsToLoad = [
     ['sAudioDevice','Settings.AudioOutputDevice'],
     ['sContrast','Settings.Contrast'],
     ['controllerVibration', 'Input.ControllerVibrationIntensity'],
-    ['stickLayout', 'Input.ControllerStickLayout']
+    ['stickLayout', 'Input.ControllerStickLayout'],
+    ['xSens', 'Input.ControllerSensitivityX'],
+    ['ySens', 'Input.ControllerSensitivityY']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
@@ -451,7 +453,7 @@ $(document).ready(function(){
                 if($('#'+selectedItem).prev()[0].computedRole == 'button'){
                     $('#'+selectedItem).prev().click();
                 }else if(activePage.endsWith('alertBox')){
-                    hideAlert();
+                    hideAlert(true);
                 }else{    
                     toggleSetting();
                 }
@@ -497,7 +499,7 @@ $(document).ready(function(){
             }
             if(e.data.Start == 1){
                 applyButton();
-                hideAlert();
+                hideAlert(true);
             }
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
@@ -568,7 +570,7 @@ $(document).ready(function(){
         alertBox('VSync changes requires a restart to take effect', false);
     });
     $('#okButton').on('click', function(){
-        hideAlert();
+        hideAlert(true);
     });
     $('#dismissButton').on('click', function(){
         dismissButton();
@@ -684,7 +686,7 @@ dew.on('hide', function(e){
     if(repGP){
         window.clearInterval(repGP);
     }
-    hideAlert();
+    hideAlert(false);
 });
 
 function rotateBiped(direction){
@@ -721,10 +723,10 @@ function setControlValues(){
                         }else{
                             $('#'+result[0]).css('color','#ddd');
                         }
-                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){ 
+                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){
+                        $('#ySens, #ySensText').val(setValue);
                         var h3Val = (setValue-30)/10;
-                        $('#lookSensitivity').val(h3Val);
-                        $('#lookSensitivityText').val(h3Val);
+                        $('#lookSensitivity, #lookSensitivityText').val(h3Val);
                     }else if(result[1].startsWith('Settings.PostprocessingQuality')){
                         $('#'+result[0]).val(setValue);
                         if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
@@ -805,7 +807,9 @@ function applyButton(){
     }else if(window.location.hash == '#page9'){
         switchPage('#page8');    
     }else if(window.location.hash == '#page8'){
-        switchPage('#page2');    
+        switchPage('#page2');   
+    }else if(window.location.hash == '#page11'){ 
+        switchPage('#page8');        
     }else{
         if(changeArray.length){
             applySettings(0);   
@@ -827,6 +831,8 @@ function cancelButton(){
         switchPage('#page8');
     }else if(window.location.hash == '#page8'){ 
         switchPage('#page2');
+    }else if(window.location.hash == '#page11'){ 
+        switchPage('#page8');
     }else if(changeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
@@ -836,7 +842,7 @@ function cancelButton(){
 }
 
 function dismissButton(){
-    hideAlert();
+    hideAlert(false);
     resetInstants();    
     itemNumber = 0;
     effectReset();
@@ -1333,8 +1339,10 @@ function alertBox(alertText, dismissButton){
     activePage = activePage+'alertBox';
 }
 
-function hideAlert(){
+function hideAlert(sound){
     $('#alertBox').hide();
     activePage = activePage.replace('alertBox', ''); 
-    dew.command('Game.PlaySound 0x0B00'); 
+    if(sound){
+        dew.command('Game.PlaySound 0x0B04');
+    }
 }

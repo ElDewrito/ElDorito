@@ -502,6 +502,7 @@
                 </select>
             </span><span>
                 <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
+                <button class="tinySetting" onclick="switchPage('#page11')">EDIT</button>
 								<div class="colorBox">
 									<input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
 									<input type="range" min="1" max="15" id="lookSensitivity" class="setting hasTiny">
@@ -546,6 +547,27 @@
             </div>
 					<div id="backgroundFill"></div>
         </div>
+        
+        <div id="page11">
+            <div id="buttonConatiner">
+                <span>
+                    <h3 class="subHeader">Advanced Controller Sensitivity</h3>
+                </span><span>
+                    <label for="xSens">X Axis</label>
+                    <div class="colorBox">
+                        <input type="text" step="any" class="tinySetting" id="xSensText">
+                        <input type="range" class="setting hasTiny" min="0" max="300" step="1" id="xSens">
+                    </div>
+                </span><span>
+                    <label for="ySens">Y Axis</label>
+                    <div class="colorBox">
+                        <input type="text" step="any" class="tinySetting" id="ySensText">
+                        <input type="range" class="setting hasTiny" min="0" max="300" step="1" id="ySens">
+                    </div>
+                </span>
+            </div>
+            <div id="backgroundFill"></div>
+		</div>	
         
         <div id="page9">
 					<div id="buttonConatiner">
@@ -678,11 +700,10 @@
             </span> 
 					</div>
 					<div id="backgroundFill"></div>
-        </div>
-				
+        </div>	
 				<div class="bottomBar">
-					<button id="applyButton"><img class="button">Ok</button>
-					<button id="cancelButton"><img class="button">Cancel</button>
+					<button id="applyButton"><img class="button">Apply</button>
+					<button id="cancelButton"><img class="button">Close</button>
 				</div>
     </div>
     <div id="alertBox">
