@@ -552,11 +552,17 @@ namespace Patches::Ui
 		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
 
-		switch (cameraFunc)
+		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
+		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
+		//Else, add a break; case.
+
+		switch (cameraFunc) //Add cases as required.
 		{
-				//player first person
-			case 0x0166acb0:
+			case 0x0166acb0: //player first person
 				ToggleHUDDistortion(true);
+				break;
+			case 0x16726D0: //flying camera
+			case 0x16728A8: //static camera
 				break;
 			default:
 				ToggleHUDDistortion(false);
