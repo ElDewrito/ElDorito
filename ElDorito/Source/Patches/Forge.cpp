@@ -60,6 +60,7 @@ namespace
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* forwardVec, RealVector3D* upVec);
+	bool Forge_UpdatePlayerEditorGlobalsHook(int16_t playerIndex, uint32_t* pObjectIndex);
 	void SandboxEngineInitHook();
 	void SandboxEngineShutdownHook();
 	void SandboxEngineTickHook();
@@ -110,6 +111,7 @@ namespace Patches::Forge
 		Hook(0x734EE, ObjectSpawnedHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
 		Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
+		Hook(0x19F4CA, Forge_UpdatePlayerEditorGlobalsHook, HookFlags::IsCall).Apply();
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
 		Hook(0x6E26C1, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
@@ -941,5 +943,26 @@ namespace
 			}
 		}
 		return nullptr;
+	}
+
+	bool Forge_UpdatePlayerEditorGlobalsHook(int16_t playerIndex, uint32_t* pObjectIndex)
+	{
+		static auto Forge_UpdatePlayerEditorGlobals = (bool(*)(int16_t playerIndex, uint32_t* pObjectIndex))(0x0059E720);
+
+		if (Blam::Players::GetLocalPlayer(0).Index() == playerIndex)
+		{
+			auto& editorGlobals = Forge::GetSandboxGlobals();
+
+			if (editorGlobals.HeldObjects[playerIndex] == -1)
+			{
+				auto oldDistance = editorGlobals.HeldObjectDistances[playerIndex];
+				editorGlobals.HeldObjectDistances[playerIndex] = Modules::ModuleForge::Instance().VarMaxGrabDistance->ValueFloat;
+				auto ret = Forge_UpdatePlayerEditorGlobals(playerIndex, pObjectIndex);
+				editorGlobals.HeldObjectDistances[playerIndex] = oldDistance;
+				return ret;
+			}
+		}
+
+		return Forge_UpdatePlayerEditorGlobals(playerIndex, pObjectIndex);
 	}
 }
