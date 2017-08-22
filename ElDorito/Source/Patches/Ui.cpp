@@ -29,7 +29,7 @@
 #include <iomanip>
 #include <cassert>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 using namespace Patches::Ui;
 
@@ -68,6 +68,15 @@ namespace
 	int GetBrokenChudStateFlags33Values();
 	void MenuSelectedMapIDChangedHook();
 
+	void FindUiTagIndices();
+	void FindVoiceChatSpeakingPlayerTagData();
+	void FindHUDDistortionTagData();
+	void FindHUDResolutionTagData();
+	void FindMapImages();
+
+	void UpdateHUDDistortion();
+	void ToggleHUDDistortion(bool enabled);
+
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
@@ -75,12 +84,40 @@ namespace
 	static auto IsMapLoading = (bool(*)())(0x005670E0);
 	static auto IsMainMenu = (bool(*)())(0x00531E90);
 
+	uint32_t hudMessagesUnicIndex;
+	uint32_t spartanChdtIndex;
+	//uint32_t eliteChdtIndex; //Uncomment as needed.
+	//uint32_t monitorChdtIndex;
+	uint32_t scoreboardChdtIndex;
+	uint32_t chgdIndex;
+	uint32_t pttLsndIndex;
+
 	bool tagsInitiallyLoaded = false;
 	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
 	int32_t speakingPlayerStringID;
 
 	int localDesiredTeam = -1;
 	int teamChangeTicks = 0;
+
+	bool foundMapImages = false;
+	int multiplayerPlaceholderIndex;
+	std::unordered_map<int, int> mapImages = std::unordered_map<int, int>();
+
+	int HUDResolutionWidth = 0;
+	int HUDResolutionHeight = 0;
+	float HUDResolutionScaleX = 0;
+	float HUDResolutionScaleY = 0;
+	float HUDMotionSensorOffsetX = 0;
+	float HUDBottomVisorOffsetY = 0;
+
+	bool firstHUDDistortionUpdate = true;
+	bool validHUDDistortionTags = false;
+	//Distortion direction for spartan, monitor, elite.
+	//If more are added, this needs to be increased or stored differently.
+	float hudDistortionDirection[3]{ 0,0,0 };
+
+	bool speakingPlayerStringFound = false;
+	uint32_t speakingPlayerOffset; //The offset of speaker_name in memory.
 }
 
 namespace Patches::Ui
@@ -245,247 +282,6 @@ namespace Patches::Ui
 		FindMapImages();
 	}
 
-	uint32_t hudMessagesUnicIndex;
-	uint32_t spartanChdtIndex;
-	//uint32_t eliteChdtIndex; //Uncomment as needed.
-	//uint32_t monitorChdtIndex;
-	uint32_t scoreboardChdtIndex;
-	uint32_t chgdIndex;
-	uint32_t pttLsndIndex;
-	void FindUiTagIndices()
-	{
-		using Blam::Tags::Globals::CacheFileGlobalTags;
-		using Blam::Tags::Game::Globals;
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::Objects::Biped;
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::Game::MultiplayerGlobals;
-
-		auto cfgtInstances = TagInstance::GetInstancesInGroup('cfgt');
-		for (auto &cfgtInstance : cfgtInstances)
-		{
-			auto *cfgtDefinition = cfgtInstance.GetDefinition<CacheFileGlobalTags>();
-			for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->globalsTags.Count; globalsTagIndex++)
-			{
-				if (cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.GroupTag == 'matg')
-				{
-					auto matgDefinition = TagInstance(cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.TagIndex).GetDefinition<Globals>();
-
-					for (size_t interfaceTagsIndex = 0; interfaceTagsIndex < matgDefinition->InterfaceTags.Count; interfaceTagsIndex++)
-					{
-						if (matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex != NULL &&
-							matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.GroupTag == 'chgd')
-						{
-							chgdIndex = matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex;
-
-							if (!TagInstance::IsLoaded('chgd', chgdIndex))
-								continue;
-
-							auto *chgd = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-
-							if (chgd->HudGlobals.Count > 1) {
-								if (chgd->HudGlobals[0].ScoreboardHud.TagIndex != NULL)
-									scoreboardChdtIndex = chgd->HudGlobals[0].ScoreboardHud.TagIndex;
-								if (chgd->HudGlobals[0].HudStrings.TagIndex != NULL)
-									hudMessagesUnicIndex = chgd->HudGlobals[0].HudStrings.TagIndex;
-							}
-
-							//Can't break out of all these loops without setting an unnecessary variable.
-							//So if a chgd is found, move to the next loop.
-							goto findBipedChdts;
-						}
-					}
-
-				findBipedChdts:
-
-					for (size_t playerRepresentationIndex = 0; playerRepresentationIndex < matgDefinition->PlayerRepresentation.Count; playerRepresentationIndex++)
-					{
-						if (matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex == NULL)
-							continue;
-
-						uint32_t bipdIndex = matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex;
-
-						if (!TagInstance::IsLoaded('bipd', bipdIndex))
-							continue;
-
-						auto *bipd = TagInstance(bipdIndex).GetDefinition<Biped>();
-
-						if (bipd->HudInterfaces.Count < 1)
-							continue;
-
-						switch (matgDefinition->PlayerRepresentation[playerRepresentationIndex].Name)
-						{
-							case 4376: //mp_spartan
-								spartanChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
-								break;
-							//case 4377: //mp_elite
-							//	eliteChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
-							//	break;
-							//case 4379: //monitor
-							//	monitorChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
-							//	break;
-							default:
-								continue;
-						}
-
-						//If all the tag indices are found, move on.
-						if (spartanChdtIndex != NULL /*&& eliteChdtIndex != NULL && monitorChdtIndex != NULL*/)
-							goto findPttLsnd;
-					}
-
-				findPttLsnd:
-
-					if (matgDefinition->MultiplayerGlobals.TagIndex == NULL)
-						return;
-					if (!TagInstance::IsLoaded('mulg', matgDefinition->MultiplayerGlobals.TagIndex))
-						return;
-
-					auto *mulg = TagInstance(matgDefinition->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
-
-					if (mulg->Runtime.Count < 1 || mulg->Runtime[0].LoopingSounds.Count < 1 || mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex == NULL)
-						return;
-
-					pttLsndIndex = mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex;
-
-					return;
-				}
-			}
-		}
-	}
-
-	void FindMapImages()
-	{
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::UI::GfxTexturesList;
-
-		auto gfxtInstances = TagInstance::GetInstancesInGroup('gfxt');
-		for (auto &gfxtInstance : gfxtInstances)
-		{
-			//mapID|BitmapIndex
-			std::map<int,int> tempMapImages = std::map<int, int>();
-
-			auto *gfxtDefinition = gfxtInstance.GetDefinition<GfxTexturesList>();
-			for each (GfxTexturesList::Texture texture in gfxtDefinition->Textures)
-			{
-				char *output = strstr(texture.FileName, "placeholder");
-				
-				if (output)
-				{
-					multiplayerPlaceholderIndex = texture.Bitmap.TagIndex;
-					continue;
-				}
-				
-				try
-				{
-					int mapID = std::stoi(texture.FileName);
-					tempMapImages.insert(std::pair<int, int>(mapID, texture.Bitmap.TagIndex));
-					continue;
-				}
-				catch (...)
-				{
-					goto invalid_gfxt;
-				}
-			}
-
-			mapImages = tempMapImages;
-			foundMapImages = true;
-			return;
-
-			invalid_gfxt:
-			continue;
-		}
-	}
-	
-	bool speakingPlayerStringFound = false;
-	uint32_t speakingPlayerOffset; //The offset of speaker_name in memory.
-	void FindVoiceChatSpeakingPlayerTagData()
-	{
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::UI::MultilingualUnicodeStringList;
-
-		if (!TagInstance::IsLoaded('unic', hudMessagesUnicIndex))
-			return;
-
-		auto *unic = Blam::Tags::TagInstance(hudMessagesUnicIndex).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
-
-		//go through string blocks backwards to find speaking_player, as it should be at the end.
-		for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--)
-			if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
-			{
-				speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
-				speakingPlayerStringID = unic->Strings[stringBlockIndex].StringID;
-				break;
-			}
-
-		//If the speaking_player string cannot be found, RIP. This shouldn't happen unless tags don't have correct modifications.
-		if (speakingPlayerOffset != NULL)
-			speakingPlayerStringFound = true;
-		else
-			speakingPlayerStringFound = false;
-	}
-
-	bool firstHUDDistortionUpdate = true;
-	bool validHUDDistortionTags = false;
-	//Distortion direction for spartan, monitor, elite.
-	//If more are added, this needs to be increased or stored differently.
-	float hudDistortionDirection[3]{ 0,0,0 };
-	void FindHUDDistortionTagData()
-	{
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::TagInstance;
-
-		if (!TagInstance::IsLoaded('chgd', chgdIndex))
-			return;
-
-		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-
-		for each (ChudGlobalsDefinition::HudGlobal hudGlobal in chgd->HudGlobals)
-		{
-			if (hudGlobal.HudAttributes.Count < 1)
-				continue;
-
-			hudDistortionDirection[hudGlobal.Biped] = hudGlobal.HudAttributes[0].WarpDirection;
-		}
-		firstHUDDistortionUpdate = false;
-		validHUDDistortionTags = true;
-	}
-
-	int HUDResolutionWidth = 0;
-	int HUDResolutionHeight = 0;
-	float HUDResolutionScaleX = 0;
-	float HUDResolutionScaleY = 0;
-	float HUDMotionSensorOffsetX = 0;
-	float HUDBottomVisorOffsetY = 0;
-	void FindHUDResolutionTagData()
-	{
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::UI::ChudDefinition;
-
-		if (!TagInstance::IsLoaded('chgd', chgdIndex))
-			return;
-		else if (!TagInstance::IsLoaded('chdt', spartanChdtIndex))
-			return;
-
-		auto *globals = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-		auto *spartanChud = Blam::Tags::TagInstance(spartanChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-
-		// Store initial HUD resolution values the first time the resolution is changed.
-		HUDResolutionWidth = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth;
-		HUDResolutionHeight = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight;
-		HUDResolutionScaleX = globals->HudGlobals[0].HudAttributes[0].HorizontalScale;
-		HUDResolutionScaleY = globals->HudGlobals[0].HudAttributes[0].VerticalScale;
-		HUDMotionSensorOffsetX = globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX;
-		// Store bottom visor offset
-		for (auto &widget : spartanChud->HudWidgets)
-		{
-			if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
-			{
-				HUDBottomVisorOffsetY = widget.PlacementData[0].OffsetY;
-			}
-		}
-	}
-
 	bool isPttSoundPlaying;
 	void TogglePTTSound(bool enabled)
 	{
@@ -598,60 +394,6 @@ namespace Patches::Ui
 
 			unic->Data.Elements[dataIndex + speakingPlayerOffset] = static_cast<unsigned char>(tmpValue);
 		}
-	}
-
-	void UpdateHUDDistortion()
-	{
-		if (!validHUDDistortionTags)
-			return;
-
-		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
-		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
-
-		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
-		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
-		//Else, add a break; case.
-
-		switch (cameraFunc) //Add cases as required.
-		{
-			case 0x0166acb0: //player first person
-				ToggleHUDDistortion(true);
-				break;
-			case 0x16726D0: //flying camera
-			case 0x16728A8: //static camera
-				break;
-			default:
-				ToggleHUDDistortion(false);
-				break;
-		}
-	}
-
-	bool lastDistortionEnabledValue;
-	void ToggleHUDDistortion(bool enabled)
-	{
-		if (!validHUDDistortionTags)
-			return;
-
-		if (enabled == lastDistortionEnabledValue)
-			return;
-
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::TagInstance;
-
-		//Return if the tag cant be found, happens during loading.
-		if (!TagInstance::IsLoaded('chgd', chgdIndex))
-			return;
-
-		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-
-		for (size_t hudGlobalsIndex = 0; hudGlobalsIndex < chgd->HudGlobals.Count; hudGlobalsIndex++)
-		{
-			if (chgd->HudGlobals[hudGlobalsIndex].HudAttributes.Count < 1)
-				continue;
-
-			chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[chgd->HudGlobals[hudGlobalsIndex].Biped] : 0;
-		}
-		lastDistortionEnabledValue = enabled;
 	}
 	
 	void ApplyMapNameFixes()
@@ -771,6 +513,281 @@ namespace Patches::Ui
 
 namespace
 {
+	void FindUiTagIndices()
+	{
+		using Blam::Tags::Globals::CacheFileGlobalTags;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Objects::Biped;
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using Blam::Tags::Game::MultiplayerGlobals;
+
+		auto cfgtInstances = TagInstance::GetInstancesInGroup('cfgt');
+		for (auto &cfgtInstance : cfgtInstances)
+		{
+			auto *cfgtDefinition = cfgtInstance.GetDefinition<CacheFileGlobalTags>();
+			for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->globalsTags.Count; globalsTagIndex++)
+			{
+				if (cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.GroupTag == 'matg')
+				{
+					auto matgDefinition = TagInstance(cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.TagIndex).GetDefinition<Globals>();
+
+					for (size_t interfaceTagsIndex = 0; interfaceTagsIndex < matgDefinition->InterfaceTags.Count; interfaceTagsIndex++)
+					{
+						if (matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex != NULL &&
+							matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.GroupTag == 'chgd')
+						{
+							chgdIndex = matgDefinition->InterfaceTags[interfaceTagsIndex].HudGlobals.TagIndex;
+
+							if (!TagInstance::IsLoaded('chgd', chgdIndex))
+								continue;
+
+							auto *chgd = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+							if (chgd->HudGlobals.Count > 1) {
+								if (chgd->HudGlobals[0].ScoreboardHud.TagIndex != NULL)
+									scoreboardChdtIndex = chgd->HudGlobals[0].ScoreboardHud.TagIndex;
+								if (chgd->HudGlobals[0].HudStrings.TagIndex != NULL)
+									hudMessagesUnicIndex = chgd->HudGlobals[0].HudStrings.TagIndex;
+							}
+
+							//Can't break out of all these loops without setting an unnecessary variable.
+							//So if a chgd is found, move to the next loop.
+							goto findBipedChdts;
+						}
+					}
+
+				findBipedChdts:
+
+					for (size_t playerRepresentationIndex = 0; playerRepresentationIndex < matgDefinition->PlayerRepresentation.Count; playerRepresentationIndex++)
+					{
+						if (matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex == NULL)
+							continue;
+
+						uint32_t bipdIndex = matgDefinition->PlayerRepresentation[playerRepresentationIndex].ThirdPersonUnit.TagIndex;
+
+						if (!TagInstance::IsLoaded('bipd', bipdIndex))
+							continue;
+
+						auto *bipd = TagInstance(bipdIndex).GetDefinition<Biped>();
+
+						if (bipd->HudInterfaces.Count < 1)
+							continue;
+
+						switch (matgDefinition->PlayerRepresentation[playerRepresentationIndex].Name)
+						{
+						case 4376: //mp_spartan
+							spartanChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							break;
+							//case 4377: //mp_elite
+							//	eliteChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							//	break;
+							//case 4379: //monitor
+							//	monitorChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							//	break;
+						default:
+							continue;
+						}
+
+						//If all the tag indices are found, move on.
+						if (spartanChdtIndex != NULL /*&& eliteChdtIndex != NULL && monitorChdtIndex != NULL*/)
+							goto findPttLsnd;
+					}
+
+				findPttLsnd:
+
+					if (matgDefinition->MultiplayerGlobals.TagIndex == NULL)
+						return;
+					if (!TagInstance::IsLoaded('mulg', matgDefinition->MultiplayerGlobals.TagIndex))
+						return;
+
+					auto *mulg = TagInstance(matgDefinition->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+
+					if (mulg->Runtime.Count < 1 || mulg->Runtime[0].LoopingSounds.Count < 1 || mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex == NULL)
+						return;
+
+					pttLsndIndex = mulg->Runtime[0].LoopingSounds[0].LoopingSound.TagIndex;
+
+					return;
+				}
+			}
+		}
+	}
+
+	void FindMapImages()
+	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::UI::GfxTexturesList;
+
+		auto gfxtInstances = TagInstance::GetInstancesInGroup('gfxt');
+		for (auto &gfxtInstance : gfxtInstances)
+		{
+			//mapID|BitmapIndex
+			std::unordered_map<int, int> tempMapImages = std::unordered_map<int, int>();
+
+			auto *gfxtDefinition = gfxtInstance.GetDefinition<GfxTexturesList>();
+			for each (GfxTexturesList::Texture texture in gfxtDefinition->Textures)
+			{
+				char *output = strstr(texture.FileName, "placeholder");
+
+				if (output)
+				{
+					multiplayerPlaceholderIndex = texture.Bitmap.TagIndex;
+					continue;
+				}
+
+				try
+				{
+					int mapID = std::stoi(texture.FileName);
+					tempMapImages.insert(std::pair<int, int>(mapID, texture.Bitmap.TagIndex));
+					continue;
+				}
+				catch (...)
+				{
+					goto invalid_gfxt;
+				}
+			}
+
+			mapImages = tempMapImages;
+			foundMapImages = true;
+			return;
+
+		invalid_gfxt:
+			continue;
+		}
+	}
+
+	void FindVoiceChatSpeakingPlayerTagData()
+	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::UI::MultilingualUnicodeStringList;
+
+		if (!TagInstance::IsLoaded('unic', hudMessagesUnicIndex))
+			return;
+
+		auto *unic = Blam::Tags::TagInstance(hudMessagesUnicIndex).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
+
+		//go through string blocks backwards to find speaking_player, as it should be at the end.
+		for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--)
+			if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
+			{
+				speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
+				speakingPlayerStringID = unic->Strings[stringBlockIndex].StringID;
+				break;
+			}
+
+		//If the speaking_player string cannot be found, RIP. This shouldn't happen unless tags don't have correct modifications.
+		if (speakingPlayerOffset != NULL)
+			speakingPlayerStringFound = true;
+		else
+			speakingPlayerStringFound = false;
+	}
+
+	void FindHUDDistortionTagData()
+	{
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using Blam::Tags::TagInstance;
+
+		if (!TagInstance::IsLoaded('chgd', chgdIndex))
+			return;
+
+		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+		for each (ChudGlobalsDefinition::HudGlobal hudGlobal in chgd->HudGlobals)
+		{
+			if (hudGlobal.HudAttributes.Count < 1)
+				continue;
+
+			hudDistortionDirection[hudGlobal.Biped] = hudGlobal.HudAttributes[0].WarpDirection;
+		}
+		firstHUDDistortionUpdate = false;
+		validHUDDistortionTags = true;
+	}
+
+	void FindHUDResolutionTagData()
+	{
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using Blam::Tags::UI::ChudDefinition;
+
+		if (!TagInstance::IsLoaded('chgd', chgdIndex))
+			return;
+		else if (!TagInstance::IsLoaded('chdt', spartanChdtIndex))
+			return;
+
+		auto *globals = TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+		auto *spartanChud = Blam::Tags::TagInstance(spartanChdtIndex).GetDefinition<Blam::Tags::UI::ChudDefinition>();
+
+		// Store initial HUD resolution values the first time the resolution is changed.
+		HUDResolutionWidth = globals->HudGlobals[0].HudAttributes[0].ResolutionWidth;
+		HUDResolutionHeight = globals->HudGlobals[0].HudAttributes[0].ResolutionHeight;
+		HUDResolutionScaleX = globals->HudGlobals[0].HudAttributes[0].HorizontalScale;
+		HUDResolutionScaleY = globals->HudGlobals[0].HudAttributes[0].VerticalScale;
+		HUDMotionSensorOffsetX = globals->HudGlobals[0].HudAttributes[0].MotionSensorOffsetX;
+		// Store bottom visor offset
+		for (auto &widget : spartanChud->HudWidgets)
+		{
+			if (widget.NameStringID == 0x2ABD) // in_helmet_bottom_new
+			{
+				HUDBottomVisorOffsetY = widget.PlacementData[0].OffsetY;
+			}
+		}
+	}
+
+	void UpdateHUDDistortion()
+	{
+		if (!validHUDDistortionTags)
+			return;
+
+		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
+
+		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
+		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
+		//Else, add a break; case.
+
+		switch (cameraFunc) //Add cases as required.
+		{
+		case 0x0166acb0: //player first person
+			ToggleHUDDistortion(true);
+			break;
+		case 0x16726D0: //flying camera
+		case 0x16728A8: //static camera
+			break;
+		default:
+			ToggleHUDDistortion(false);
+			break;
+		}
+	}
+
+	bool lastDistortionEnabledValue;
+	void ToggleHUDDistortion(bool enabled)
+	{
+		if (!validHUDDistortionTags)
+			return;
+
+		if (enabled == lastDistortionEnabledValue)
+			return;
+
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using Blam::Tags::TagInstance;
+
+		//Return if the tag cant be found, happens during loading.
+		if (!TagInstance::IsLoaded('chgd', chgdIndex))
+			return;
+
+		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
+
+		for (size_t hudGlobalsIndex = 0; hudGlobalsIndex < chgd->HudGlobals.Count; hudGlobalsIndex++)
+		{
+			if (chgd->HudGlobals[hudGlobalsIndex].HudAttributes.Count < 1)
+				continue;
+
+			chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[chgd->HudGlobals[hudGlobalsIndex].Biped] : 0;
+		}
+		lastDistortionEnabledValue = enabled;
+	}
+
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)
 	{
 		auto& dorito = ElDorito::Instance();
@@ -992,7 +1009,7 @@ namespace
 		auto name = Pointer(thisptr)(0x40).Read<uint32_t>();
 		c_gui_bitmap_widget_get_render_data(thisptr, renderData, a3, a4, a5, a6, a7);
 
-		if (!Patches::Ui::foundMapImages)
+		if (!foundMapImages)
 			return;
 
 		if (name != 67196 && name != 67149) // unknown_film_image, woohoo!
@@ -1018,11 +1035,11 @@ namespace
 
 		try
 		{
-			bitmapIndex = Patches::Ui::mapImages.at(mapID);
+			bitmapIndex = mapImages.at(mapID);
 		}
 		catch (...)
 		{
-			bitmapIndex = Patches::Ui::multiplayerPlaceholderIndex;
+			bitmapIndex = multiplayerPlaceholderIndex;
 		}
 
 
