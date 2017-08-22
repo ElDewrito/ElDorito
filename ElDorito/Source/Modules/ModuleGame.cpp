@@ -25,6 +25,7 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include <unordered_map>
 #include <codecvt>
+#include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
 
 namespace
 {
@@ -212,6 +213,26 @@ namespace
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		Patches::Core::ExecuteShutdownCallbacks();
+		std::exit(0);
+		return true;
+	}
+
+	bool CommandGameRestart(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::Core::ExecuteShutdownCallbacks();
+
+		char *cmd = GetCommandLine();
+		int offset = 0;
+		//Seperate the *.exe from the arguments
+		if (cmd[offset] == '"')
+			while (cmd[++offset] != '"');
+		while (cmd[++offset] != ' ');
+
+		//Relaunch the game with the same arguments
+		auto str = static_cast<std::string>(GetCommandLine());
+		ShellExecuteA(nullptr, nullptr, str.substr(0, offset).c_str(), str.substr(offset).c_str(), nullptr, SW_SHOWNORMAL);
+
+		//Close the current instance
 		std::exit(0);
 		return true;
 	}
@@ -810,7 +831,7 @@ namespace
 					std::string file = std::string(itr->path().generic_string());
 					file.append("\\events.json");
 					auto path = boost::filesystem::path(file);
-					if(boost::filesystem::exists(path))
+					if (boost::filesystem::exists(path))
 						Modules::ModuleGame::Instance().MedalPackList.push_back(itr->path().filename().string());
 				}
 			}
@@ -935,7 +956,7 @@ namespace
 			return false;
 		}
 
-		for(auto i = 0; i < scnr->Scripts.Count; i++)
+		for (auto i = 0; i < scnr->Scripts.Count; i++)
 		{
 			const auto& script = scnr->Scripts.Elements[i];
 
@@ -952,6 +973,84 @@ namespace
 
 		returnInfo = "Script not found";
 		return false;
+	}
+
+
+	bool CommandGetTagAddress(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() <= 0)
+		{
+			returnInfo = "You must specify a tag index!";
+			return false;
+		}
+
+		int tagIndex = 0;
+		try
+		{
+			tagIndex = std::stoi(Arguments[0], 0, 0);
+		}
+		catch (std::invalid_argument)
+		{
+			returnInfo = "Invalid argument given.";
+			return false;
+		}
+
+		typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
+		auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+
+		void* address = GetTagAddressImpl(0, tagIndex);
+		std::stringstream ss;
+		ss << "Tag 0x" << std::hex << tagIndex << " is located at 0x" << std::hex << (int)address;
+		returnInfo = ss.str();
+		return true;
+	}
+
+
+	bool CommandScreenEffectRange(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 2)
+		{
+			returnInfo = "You must include an index and a range!";
+			return false;
+		}
+
+		int index = 0;
+		float range = 0;
+		try
+		{
+			index = std::stoi(Arguments[0], 0, 0);
+			range = std::stof(Arguments[1]);
+		}
+		catch (std::invalid_argument)
+		{
+			returnInfo = "Invalid argument given.";
+			return false;
+		}
+
+		auto scnr = Blam::Tags::Scenario::GetCurrentScenario();
+		if (!scnr)
+		{
+			returnInfo = "A scenario must be loaded!";
+			return false;
+		}
+
+		auto sefcIndex = scnr->DefaultScreenFx;
+		if(!sefcIndex)
+		{
+			returnInfo = "Current scenario does not have a default screen fx";
+			return false;
+		}
+
+		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>('sefc');
+		if(sefc)
+		{
+			sefc->ScreenEffect2[index].MaximumDistance = range;
+			return true;
+		}
+
+		returnInfo = "Failed to get sefc";
+		return false;
+
 	}
 
 	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
@@ -1010,6 +1109,8 @@ namespace Modules
 
 		AddCommand("Exit", "exit", "Ends the game process", eCommandFlagsNone, CommandGameExit);
 
+		AddCommand("Restart", "restart", "Restart the game process", eCommandFlagsNone, CommandGameRestart);
+
 		AddCommand("ForceLoad", "forceload", "Forces a map to load", eCommandFlagsNone, CommandGameForceLoad, { "mapname(string) The name of the map to load", "gametype(int) The gametype to load", "gamemode(int) The type of gamemode to play", });
 
 		AddCommand("ShowUI", "show_ui", "Attempts to force a UI widget to open", eCommandFlagsNone, CommandGameShowUI, { "dialogID(int) The dialog ID to open", "arg1(int) Unknown argument", "flags(int) Unknown argument", "parentdialogID(int) The ID of the parent dialog" });
@@ -1045,6 +1146,10 @@ namespace Modules
 		AddCommand("TakeScreenshot", "take_screenshot", "Take a screenshot", eCommandFlagsNone, CommandGameTakeScreenshot);
 
 		AddCommand("ScenarioScript", "scnr_script", "Executes a scenario script", eCommandFlagsNone, CommandExecuteScenarioScript);
+
+		AddCommand("TagAddress", "tag_address", "Gets the address of a tag in memory", eCommandFlagsNone, CommandGetTagAddress);
+
+		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 

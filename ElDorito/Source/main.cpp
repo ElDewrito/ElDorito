@@ -172,8 +172,19 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD Reason, LPVOID Misc)
 		//Relaunch here to avoid the loader lock
 		if (relaunch)
 		{
-			ShellExecuteA(NULL, "runas", "eldorado.exe", ((std::string) GetCommandLine()).substr(13).c_str(), NULL, SW_SHOWNORMAL);
-			std::exit(1);
+			char *cmd = GetCommandLine();
+			int offset = 0;
+			//Seperate the *.exe from the arguments
+			if (cmd[offset] == '"')
+				while (cmd[++offset] != '"');
+			while (cmd[++offset] != ' ');
+
+			//Relaunch the game with the same arguments
+			auto str = static_cast<std::string>(GetCommandLine());
+			ShellExecuteA(nullptr, "runas", str.substr(0, offset).c_str(), str.substr(offset).c_str(), nullptr, SW_SHOWNORMAL);
+
+			//Close the current instance
+			std::exit(0);
 		}
 		return true;
 	}

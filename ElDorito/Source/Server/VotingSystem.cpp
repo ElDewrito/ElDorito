@@ -571,7 +571,7 @@ namespace Server::Voting
 		numberOfVetosUsed++;
 		currentVetoOption = GenerateVotingOption();
 		currentVetoOption.canveto = true;
-
+		SetGameAndMap();
 		auto message = GenerateVotingOptionsMessage();
 		BroadcastVotingMessage(message);
 
@@ -596,14 +596,15 @@ namespace Server::Voting
 		}
 		else {
 			currentVetoOption.canveto = false;
-			SetGameAndMapAndStartTimer();
+			SetGameAndMap();
+			SetStartTimer();
 		}
 
 		voteStartedTime = 0;
 		mapVotes.clear();
 	}
 
-	void VetoSystem::SetGameAndMapAndStartTimer()
+	void VetoSystem::SetGameAndMap()
 	{
 		Modules::CommandMap::Instance().ExecuteCommand("Game.GameType \"" + currentVetoOption.haloType.typeName + "\"");
 		Modules::CommandMap::Instance().ExecuteCommand("Game.Map \"" + currentVetoOption.haloMap.mapName + "\"");
@@ -612,6 +613,10 @@ namespace Server::Voting
 			Modules::CommandMap::Instance().ExecuteCommand(command);
 		}
 
+	}
+
+	void VetoSystem::SetStartTimer()
+	{
 		auto message = GenerateVotingOptionsMessage();
 		BroadcastVotingMessage(message);
 		time(&startime);
@@ -794,7 +799,8 @@ namespace Server::Voting
 			//we want to send a voting option that can not be voted on, and then start the game.
 			currentVetoOption = GenerateVotingOption();
 			currentVetoOption.canveto = false;
-			SetGameAndMapAndStartTimer();
+			SetGameAndMap();
+			SetStartTimer();
 		}
 	}
 

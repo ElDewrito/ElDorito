@@ -263,10 +263,13 @@ namespace
 			uid = session->MembershipInfo.PlayerSessions[playerIndex].Properties.Uid;
 		std::ostringstream ss;
 
+		char uidStr[17];
+		Blam::Players::FormatUid(uidStr, uid);
+
 
 		ss << "[" << std::put_time(&gmTime, "%m/%d/%y %H:%M:%S") << "] "; // Timestamp
 		ss << "<" << sender << "/"; // Sender name
-		ss << Blam::Players::FormatUid(uid) << "/"; // UID
+		ss << uidStr << "/"; // UID
 		ss << (ip >> 24) << "." << ((ip >> 16) & 0xFF) << "." << ((ip >> 8) & 0xFF) << "." << (ip & 0xFF) << "> "; // IP address
 		ss << message.Body; // Message body
 		return ss.str();

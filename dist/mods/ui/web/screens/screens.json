@@ -68,6 +68,12 @@
 			"zIndex": 8
 		},
 		{
+			"id": "forge_object_properties",
+			"url": "dew://screens/forge/object_properties/",
+			"captureInput": true,
+			"zIndex": 0
+		},
+		{
 			"id": "forge_search",
 			"url": "dew://screens/forge/search/",
 			"captureInput": true,
@@ -94,12 +100,6 @@
         {
 			"id": "weaponOffset",
 			"url": "dew://screens/weaponOffset/",
-			"captureInput": true,
-			"zIndex": 1
-		},
-        {
-			"id": "controllerSensitivity",
-			"url": "dew://screens/controllerSensitivity/",
 			"captureInput": true,
 			"zIndex": 1
 		},

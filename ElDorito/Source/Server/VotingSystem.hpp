@@ -169,7 +169,8 @@ namespace Server::Voting
 	private:
 		virtual bool LoadJson(std::string filename);
 		virtual MapAndType GenerateVotingOption();
-		void SetGameAndMapAndStartTimer();
+		void SetGameAndMap();
+		void SetStartTimer();
 		void countVotes();
 		void FindWinner();
 		virtual void loadDefaultMapsAndTypes();

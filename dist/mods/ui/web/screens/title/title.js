@@ -11,36 +11,47 @@ $("html").on("keydown", function(e) {
 });
 
 dew.on("show", function(e){
-    $.getJSON( "http://scooterpsu.github.io/announcements.json", function(data) {
-        if(data.announcements.length){
-            //dew.command('Game.FirstRun', {}).then(function(response){
-                //if(response == 1){
-                   $("#announcementBox").show(); 
-                //};
-            //});
-            for(var i = 0; i < data.announcements.length; i++){
-                $('#announcementBox').append(
-                    $('<div>',{
-                        class: 'announcement'
-                    }).append($('<p>',{
-                        class: 'announceTitle',
-                        text: data.announcements[i].title
-                    })).append($('<p>',{
-                        class: 'announceContent',
-                        html: data.announcements[i].content
-                    }))
-                );
-            }
-            $('.announcement').eq(0).show();
-        }
-    }); 
-    dew.command('Settings.Gamepad', {}).then(function(result){
+    dew.command('Game.SkipTitleSplash', {}).then(function(result){
         if(result == 1){
-            onControllerConnect();
-            hasGP = true;
+            dew.captureInput(false);
+            $(".genericLoader").hide();
+            $("#blackLayer").fadeOut(2000, function() {
+                dew.hide();
+            });
         }else{
-            onControllerDisconnect();
-            hasGP = false;
+            $("#blackLayer").hide();
+            $.getJSON( "http://scooterpsu.github.io/announcements.json", function(data) {
+                if(data.announcements.length){
+                    //dew.command('Game.FirstRun', {}).then(function(response){
+                        //if(response == 1){
+                           $("#announcementBox").show(); 
+                        //};
+                    //});
+                    for(var i = 0; i < data.announcements.length; i++){
+                        $('#announcementBox').append(
+                            $('<div>',{
+                                class: 'announcement'
+                            }).append($('<p>',{
+                                class: 'announceTitle',
+                                text: data.announcements[i].title
+                            })).append($('<p>',{
+                                class: 'announceContent',
+                                html: data.announcements[i].content
+                            }))
+                        );
+                    }
+                    $('.announcement').eq(0).show();
+                }
+            }); 
+            dew.command('Settings.Gamepad', {}).then(function(result){
+                if(result == 1){
+                    onControllerConnect();
+                    hasGP = true;
+                }else{
+                    onControllerDisconnect();
+                    hasGP = false;
+                }
+            });
         }
     });
 });

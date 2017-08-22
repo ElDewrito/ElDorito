@@ -461,6 +461,14 @@
     <ClCompile Include="Source\Blam\BlamGraphics.cpp">
       <Filter>Blam</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CommandMap.cpp" />
+    <ClCompile Include="Source\Console.cpp" />
+    <ClCompile Include="Source\ElDorito.cpp" />
+    <ClCompile Include="Source\ElModules.cpp" />
+    <ClCompile Include="Source\ElPatches.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Patch.cpp" />
+    <ClCompile Include="Source\Pointer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1083,7 +1091,21 @@
     <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp">
       <Filter>Blam\Tags\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\CommandMap.hpp" />
+    <ClInclude Include="Source\Console.hpp" />
+    <ClInclude Include="Source\ElDorito.hpp" />
+    <ClInclude Include="Source\ElModules.hpp" />
+    <ClInclude Include="Source\ElPatches.hpp" />
+    <ClInclude Include="Source\Patch.hpp" />
+    <ClInclude Include="Source\Pointer.hpp" />
+    <ClInclude Include="Source\resource.h" />
+    <ClInclude Include="Source\Settings.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp" />
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup />
+  <ItemGroup>
+    <ResourceCompile Include="Source\ElDorito.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\ElDorito.def" />
+  </ItemGroup>
 </Project>

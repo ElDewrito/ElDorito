@@ -70,7 +70,7 @@ function resetConsole() {
     sizeConsole(2, true);
     dockConsole(1, true);
     invertConsole(1, true)
-    transparencyConsole(75, true);
+    transparencyConsole(85, true);
     opacityConsole(100, true);
     autoCompleteModeConsole(eAutoCompleteMode.Prefix, true);
     clearConsole();
@@ -471,7 +471,7 @@ function transparencyConsole(percentage, silent) {
     }
     consoleTransparency = percentage;
     percentage = percentage / 100;
-    $(".console").css({"background-color": "rgba(64, 64, 64, " + percentage + ")"});
+    $(".console").css({"background-color": "rgba(20, 31, 55, " + percentage + ")"});
 }
 
 function opacityConsole(percentage, silent) {

@@ -757,7 +757,9 @@ namespace
 		{
 			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
 			auto name = Utils::String::ThinString(player.Properties.DisplayName);
-			ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << Blam::Players::FormatUid(player.Properties.Uid);
+			char uid[17];
+			Blam::Players::FormatUid(uid, player.Properties.Uid);
+			ss << std::dec << "[" << playerIdx << "] \"" << name << "\" (uid: " << uid;
 			if (session->IsHost())
 			{
 				auto ip = session->GetPeerAddress(session->MembershipInfo.GetPlayerPeer(playerIdx));
@@ -797,8 +799,11 @@ namespace
 			writer.Key("teamIndex");
 			writer.Int(player.Properties.TeamIndex);
 
+			char uid[17];
+			Blam::Players::FormatUid(uid, player.Properties.Uid);
+
 			writer.Key("UID");
-			writer.String(Blam::Players::FormatUid(player.Properties.Uid));
+			writer.String(uid);
 
 			std::stringstream color;
 			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
@@ -927,6 +932,12 @@ namespace
 		if (numPlayers == 0)
 		{
 			returnInfo = "No players connected";
+			return false;
+		}
+
+		if(numPlayers < 2)
+		{
+			returnInfo = "Need at least 2 players to shuffle the teams";
 			return false;
 		}
 
@@ -1225,6 +1236,10 @@ namespace Modules
 		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
 		VarServerLobbyType->ValueIntMin = 0;
 		VarServerLobbyType->ValueIntMax = 4;
+
+		VarServerDedicated = AddVariableInt("Dedicated", "dedicated", "Used only to let clients know if the server is dedicated or not",  eCommandFlagsReplicated, 0);
+		VarServerDedicatedClient = AddVariableInt("DedicatedClient", "dedicated_client", "", eCommandFlagsInternal, 0);
+		Server::VariableSynchronization::Synchronize(VarServerDedicated, VarServerDedicatedClient);
 
 		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);

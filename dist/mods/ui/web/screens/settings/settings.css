@@ -18,6 +18,7 @@ body{
 	overflow:hidden;
 	position: absolute;
 	width: 100%;
+	height: 71.48vh;
 	top:50%;
 	left:50%;
 	transform: translate(-50%,-50%);
@@ -223,7 +224,7 @@ div[id^='page']:target #buttonConatiner{
 #randomArmor,#randomColors{
 	bottom: calc(-4.15vh - 1.1vh);
 }
-#applyButton,#cancelButton,#randomArmor,#randomColors{
+#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton{
 	position: absolute;
 	height: 4vh;
 	line-height: 4vh;
@@ -239,16 +240,17 @@ div[id^='page']:target #buttonConatiner{
 	padding: none;
 	float: left;
 }
-#applyButton img,#cancelButton img,#randomArmor img,#randomColors img{
+#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img{
 	display:none;
 	position:relative;
 	height: 3.75vh;
 	float: left;
 }
-#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover{
+#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover{
 	text-decoration: underline;
 }
 #applyButton{
+    display:none;
 	right: 0vh;
 }
 #cancelButton{
@@ -404,13 +406,13 @@ textarea.setting{
 #presetMenu{
     right: 25.5vh;    
 }
-.selectedElement, span:hover {
+.selectedElement {
 	background-image: url(dew://assets/ux/buttonhover.svg);
 	background-position: center;
 	background-repeat: no-repeat;
 	color: white;
 }
-.selectedElement .setting, span:hover .setting, .selectedElement .tinySetting, span:hover .tinySetting{
+.selectedElement .setting, .selectedElement .tinySetting{
 	color: white;
 }
 .selectedElement select, .selectedElement .colorBox{
@@ -485,7 +487,7 @@ button.tinySetting {
 }
 /*------------------------*/
 
-.selectedElement input[type=range]::-webkit-slider-thumb, span:hover input[type=range]::-webkit-slider-thumb{
+.selectedElement input[type=range]::-webkit-slider-thumb{
 	background-color: white;
 }
 input[type=range]::-webkit-slider-runnable-track , input[type=range]:focus::-webkit-slider-runnable-track{
@@ -530,7 +532,7 @@ span button.tinySetting:hover{
 	padding-left: 2vh;
 	padding-right: 2vh;
 }
-.selectedElement select:hover, select:hover{
+.selectedElement select:hover{
 	color: white;
 	background-image: url(dew://assets/ux/arrow_down.svg);
 	background-position: 98% 50%;
@@ -615,6 +617,7 @@ input[type=range]:focus {
 	width: calc(50vw + 69vh);
 	left: -50vw;
 }
+
 #page7:target #playerWindow{
   -webkit-animation: playerwindow-fade-in 0.2s;
 }
@@ -649,4 +652,64 @@ input[type=range]:focus {
 	left: -2vh;
 	height: 4.48vh;
   background-image: -webkit-linear-gradient( -90deg, rgb(15,29,56) 0%, rgb(15,29,56) 30%, rgba(23,33,53,0) 100%);
+}
+
+#alertBox {
+    display:none;
+    position:absolute;
+    top:45%;
+    width: 100%;
+    height: 14vh;
+    background-color: black;
+}
+
+.wHeader {
+	font-size: 4vh;
+	text-align:center;
+    text-transform: uppercase;
+    font-weight:700;
+}
+
+#wDescription {
+	text-align:center;
+	font-size:3vh;
+}
+
+#okButton{
+    left: 60%;
+}
+
+#dismissButton{
+    display:none;
+    left: 35%;
+}
+
+
+#blueHeader,#blueFooter{
+    display:none;
+	position:absolute;
+	left:0;
+	width:100%;
+	height:11.5vh;
+	background-color:#111a44;
+	z-index:-7;
+	opacity:0.75;
+}
+
+#blueHeader{
+	top:-11.5vh;	
+}
+
+#blueFooter{
+	bottom:-18vh;
+}
+
+#blackLayer{
+    display:none;
+	position:absolute;
+	background-color:black;
+	top:-11.5vh;
+	left:0;
+	width:100%;
+	height:100vh;
 }

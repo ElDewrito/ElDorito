@@ -108,7 +108,9 @@ var settingsToLoad = [
     ['sAudioDevice','Settings.AudioOutputDevice'],
     ['sContrast','Settings.Contrast'],
     ['controllerVibration', 'Input.ControllerVibrationIntensity'],
-    ['stickLayout', 'Input.ControllerStickLayout']
+    ['stickLayout', 'Input.ControllerStickLayout'],
+    ['xSens', 'Input.ControllerSensitivityX'],
+    ['ySens', 'Input.ControllerSensitivityY']
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
@@ -196,7 +198,7 @@ var controllerIconPacks = [
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
-        if (e.keyCode === 27) {
+        if (e.keyCode === 27 || (e.keyCode == 8 && !$('.textInput').is(":focus"))) {
             if(window.location.hash != '#page5'){
                 cancelButton();
             }
@@ -207,7 +209,6 @@ $(document).ready(function(){
             dew.show('console');
         }
     });
-    initActive();
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
     dew.command('Weapon.List', {}).then(function(response){
@@ -303,6 +304,7 @@ $(document).ready(function(){
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.id){
                 dew.command(result[1] + ' ' + e.target.value);
+                queueChange([result[1], e.target.value]);
             };
         });
     });
@@ -406,10 +408,6 @@ $(document).ready(function(){
     });
     setControlValues();
     initializeBindings();
-    setButtons();
-    if(hasGP){
-        $('button img,.tabs img').show();
-    }
     $('.bind').on('change', function(){
         updateBinding(this.id, this.value);
         updateBindLabels();
@@ -454,12 +452,18 @@ $(document).ready(function(){
             if(e.data.A == 1){
                 if($('#'+selectedItem).prev()[0].computedRole == 'button'){
                     $('#'+selectedItem).prev().click();
-                }else{
+                }else if(activePage.endsWith('alertBox')){
+                    hideAlert(true);
+                }else{    
                     toggleSetting();
                 }
             }
             if(e.data.B == 1){
-                cancelButton();
+                if(activePage.endsWith('alertBox')){
+                    dismissButton();
+                }else{
+                    cancelButton();
+                }
             }
             if(e.data.X == 1){
                 if(activePage=='#page7'){
@@ -495,6 +499,7 @@ $(document).ready(function(){
             }
             if(e.data.Start == 1){
                 applyButton();
+                hideAlert(true);
             }
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
@@ -508,27 +513,25 @@ $(document).ready(function(){
                     updateSelection(itemNumber);
                 }
             }
-            if(e.data.AxisLeftX != 0){
-                if(e.data.AxisLeftX > axisThreshold){
-                    stickTicks.right++;
-                };
-                if(e.data.AxisLeftX < -axisThreshold){
-                    stickTicks.left++;
-                };
+            if(e.data.AxisLeftX > axisThreshold){
+                stickTicks.right++;
             }else{
                 stickTicks.right = 0;
-                stickTicks.left = 0;
             }
-            if(e.data.AxisLeftY != 0){
-                if(e.data.AxisLeftY > axisThreshold){
-                    stickTicks.up++;
-                };
-                if(e.data.AxisLeftY < -axisThreshold){
-                    stickTicks.down++;
-                };
+            if(e.data.AxisLeftX < -axisThreshold){
+                stickTicks.left++;
+            }else{
+                stickTicks.left = 0; 
+            }
+            if(e.data.AxisLeftY > axisThreshold){
+                stickTicks.up++;
             }else{
                 stickTicks.up = 0;
-                stickTicks.down = 0;               
+            }
+            if(e.data.AxisLeftY < -axisThreshold){
+                stickTicks.down++;
+            }else{
+                stickTicks.down = 0;
             }
             if(e.data.AxisRightX != 0){
                 if(e.data.AxisRightX > axisThreshold){
@@ -563,6 +566,22 @@ $(document).ready(function(){
             updateSelection(itemNumber); 
         }
     });
+    $('#sVsync').on('change', function(){
+        alertBox('VSync changes requires a restart to take effect', false);
+    });
+    $('#okButton').on('click', function(){
+        hideAlert(true);
+    });
+    $('#dismissButton').on('click', function(){
+        dismissButton();
+    });
+    $('span:has(.setting)').hover(
+        function(){
+            $(this).addClass('selectedElement');
+        }, function(){
+            $(this).removeClass('selectedElement');
+        }
+    );
 });
 
 function checkGamepad(){
@@ -591,6 +610,8 @@ function setButtons(){
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
         $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
         $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
     });
@@ -598,8 +619,9 @@ function setButtons(){
 
 var bipedRotate = 270;
 dew.on('show', function(e){
+    $('#settingsWindow').hide();
+    $('#blueHeader, #blueFooter,#blackLayer').hide();
     bipedRotate = 270;
-    dew.command('Player.Armor.SetUiModelRotation 270');
     dew.getSessionInfo().then(function(i){
         if(i.established){
             if(i.mapName != "mainmenu"){
@@ -612,42 +634,59 @@ dew.on('show', function(e){
                 $('.tabs li').eq(5).hide();
             }else{
                 $('.tabs li').eq(0).show();
-                $('.tabs li').eq(5).show();  
+                $('.tabs li').eq(5).show();
             }
         }else{
             $('.tabs li').eq(0).show();
             $('.tabs li').eq(1).show();   
-            $('.tabs li').eq(5).show();            
+            $('.tabs li').eq(5).show();    
         }
-        initActive();
+        if(i.mapName == "mainmenu"){
+            $('#blackLayer').fadeIn(200, function() {
+                dew.command('Player.Armor.Update');
+                dew.command('Player.Armor.SetUiModelRotation 270');
+                dew.command('game.hideh3ui 1');
+                dew.command('Game.ScenarioScript settings_cam');
+                dew.command('Game.ScreenEffectRange 0 0');
+                $('#settingsWindow').show();
+                $('#blueHeader, #blueFooter, #blackLayer').show();
+                initActive();
+                initGamepad();
+            }).fadeOut(200);
+        } else {
+            $('#settingsWindow').show();
+            initActive();
+            initGamepad();
+        }
     });
     setControlValues();
-    setButtons();
+
+});
+
+function initGamepad(){
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
             onControllerConnect();
             hasGP = true;
             repGP = window.setInterval(checkGamepad,1000/60);
+            setButtons();
+            $('button img,.tabs img').show();
         }else{
             onControllerDisconnect();
             hasGP = false;
             if(repGP){
                 window.clearInterval(repGP);
             }
+            $('button img,.tabs img').hide();
         }
     });
-    dew.command('game.hideh3ui 1');
-    dew.command('Game.ScenarioScript settings_cam');
-});
+}
 
 dew.on('hide', function(e){
-    dew.command('Game.ScenarioScript mainmenu_cam');
-    //dew.command('Player.Armor.SetUiModelPosition -0.398312 -13.5218 25.5292');
-    dew.command('Player.Armor.SetUiModelRotation 270');
-    dew.command('game.hideh3ui 0');
     if(repGP){
         window.clearInterval(repGP);
     }
+    hideAlert(false);
 });
 
 function rotateBiped(direction){
@@ -684,10 +723,10 @@ function setControlValues(){
                         }else{
                             $('#'+result[0]).css('color','#ddd');
                         }
-                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){ 
+                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){
+                        $('#ySens, #ySensText').val(setValue);
                         var h3Val = (setValue-30)/10;
-                        $('#lookSensitivity').val(h3Val);
-                        $('#lookSensitivityText').val(h3Val);
+                        $('#lookSensitivity, #lookSensitivityText').val(h3Val);
                     }else if(result[1].startsWith('Settings.PostprocessingQuality')){
                         $('#'+result[0]).val(setValue);
                         if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
@@ -721,15 +760,6 @@ function setControlValues(){
     })
 }
 
-/*function adjustBiped(){
-    //console.log(getAspectRatio());
-    if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
-        dew.command('Player.Armor.SetUiModelPosition 0.048312 -13.6018 25.5232');
-    }else{
-        dew.command('Player.Armor.SetUiModelPosition 0.108312 -13.2518 25.5232');
-    }    
-}*/
-
 function switchPage(pageHash){
     itemNumber = 0;
     location.href=pageHash;
@@ -761,6 +791,9 @@ function applySettings(i){
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
+        $('#cancelButton').html('<img class="button">Close');
+        $('#applyButton').hide();
+        initGamepad();
     }
 }
 
@@ -774,20 +807,20 @@ function applyButton(){
     }else if(window.location.hash == '#page9'){
         switchPage('#page8');    
     }else if(window.location.hash == '#page8'){
-        switchPage('#page2');    
+        switchPage('#page2');   
+    }else if(window.location.hash == '#page11'){ 
+        switchPage('#page8');        
     }else{
         if(changeArray.length){
             applySettings(0);   
             setButtons();            
         }else{
-            dew.hide();
+            effectReset();
         }
     }
 }
 
 function cancelButton(){
-    resetInstants();
-    itemNumber = 0;
     if(window.location.hash == '#page5'){
         initializeBindings(); 
         switchPage('#page2');  
@@ -798,11 +831,56 @@ function cancelButton(){
         switchPage('#page8');
     }else if(window.location.hash == '#page8'){ 
         switchPage('#page2');
+    }else if(window.location.hash == '#page11'){ 
+        switchPage('#page8');
+    }else if(changeArray.length){
+        alertBox('You have unapplied settings', true);
     }else{
-        dew.hide();
-        setControlValues();
-        changeArray = [];
+        itemNumber = 0;
+        effectReset();
     }
+}
+
+function dismissButton(){
+    hideAlert(false);
+    resetInstants();    
+    itemNumber = 0;
+    effectReset();
+    setControlValues();
+    changeArray = [];
+}
+
+exiting = false;
+function effectReset(){
+    // Prevent escape spamming
+    if(exiting)
+        return;
+    exiting = true;
+
+    dew.command('Game.PlaySound 0x0B04');
+    dew.getSessionInfo().then(function(i){
+        if(i.mapName == "mainmenu"){
+            $('#blackLayer').fadeIn(200, function(){
+                dew.command('Game.ScenarioScript leave_settings');
+                dew.command('Game.ScreenEffectRange 0 1E+19');
+                dew.command('Player.Armor.SetUiModelRotation 270');
+                dew.command('game.hideh3ui 0');
+                $('#settingsWindow').hide();
+                $('#blueHeader').hide();
+                $('#blueFooter').hide();
+                $('#blackLayer').fadeOut(200, function(){
+                    dew.hide();
+                    $('#settingsWindow').show();
+                    $('#blueHeader').show();
+                    $('#blueFooter').show();
+                    exiting = false;
+                });
+            });
+        }else{
+            dew.hide();
+            exiting = false;
+        }
+    })
 }
 
 function applyBinds(){
@@ -1143,16 +1221,6 @@ function onControllerDisconnect(){
     $('button img, .tabs img').hide();
 }
 
-function getAspectRatio(){
-    function gcd (a, b) {
-        return (b == 0) ? a : gcd (b, a%b);
-    }
-    var w = screen.width;
-    var h = screen.height;
-    var r = gcd (w, h);
-    return w/r+":"+h/r;
-}
-
 function resetInstants(){
     for(var i = 0; i < $('.instant').length; i++) {
         var elementID = $('.instant').eq(i).attr('id');
@@ -1244,6 +1312,12 @@ function toggleSetting(){
 }
 
 function queueChange(changeBlock){
+    $('#cancelButton').html('<img class="button">Cancel');
+    $('#applyButton').show();
+    if(hasGP){
+        setButtons();
+        $('button img,.tabs img').show();
+    }
     $.grep(changeArray, function(result, index){
         if(result){
             if(result[0] == changeBlock[0]){
@@ -1252,4 +1326,23 @@ function queueChange(changeBlock){
         }
     });
     changeArray.push(changeBlock);
+}
+
+function alertBox(alertText, dismissButton){
+    if(dismissButton){
+        $('#dismissButton').show();
+    }else{
+        $('#dismissButton').hide();
+    }
+    $('#wDescription').text(alertText);
+    $('#alertBox').fadeIn(100);
+    activePage = activePage+'alertBox';
+}
+
+function hideAlert(sound){
+    $('#alertBox').hide();
+    activePage = activePage.replace('alertBox', ''); 
+    if(sound){
+        dew.command('Game.PlaySound 0x0B04');
+    }
 }

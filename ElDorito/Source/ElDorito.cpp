@@ -142,6 +142,7 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-dedicated") == 0 || arg.compare(L"-headless") == 0)
 			{
 				isDedicated = true;
+				Modules::CommandMap::Instance().ExecuteCommand("Server.Dedicated 1");
 			}
 
 			if (arg.compare(L"-maps") == 0 && i < numArgs - 1)
@@ -243,7 +244,7 @@ void ElDorito::Tick()
 	if (!isDedicated) {
 		Web::Ui::ScreenLayer::Tick();
 		Web::Ui::WebScoreboard::Tick();
-		
+
 
 	}
 	else
@@ -295,7 +296,7 @@ void ElDorito::OnMainMenuShown()
 	if (isDedicated)
 		Server::DedicatedServer::Init();
 
-	if (!skipTitleSplash && !isDedicated)
+	if (!isDedicated)
 		Web::Ui::ScreenLayer::Show("title", "{}");
 }
 

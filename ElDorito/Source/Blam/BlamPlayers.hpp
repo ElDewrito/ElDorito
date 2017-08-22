@@ -180,5 +180,5 @@ namespace Blam::Players
 
 	PLAYER_KILLED_PLAYER_STATS GetPVPStats(int playerIndex);
 
-	const char* FormatUid(int64_t uid);
+	void FormatUid(char* out, int64_t Uid);
 }

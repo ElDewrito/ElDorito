@@ -391,8 +391,11 @@ namespace
 		{
 			if(std::strcmp(echo, authStrings[peerIdx].c_str()) == 0)
 			{
+				char uid[17];
+				Blam::Players::FormatUid(uid, session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid);
+
 				std::stringstream ss;
-				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << Blam::Players::FormatUid(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid); //unique
+				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << uid; //unique
 				info.uid = ss.str();
 				info.authed = true;
 				info.peerIdx = peerIdx;
