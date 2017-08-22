@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <functional>
+#include <map>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -22,25 +23,9 @@ namespace Patches::Ui
 
 	void *ShowDialog(const Blam::Text::StringID p_DialogID, const int32_t p_Arg1 = 0, const int32_t p_Flags = 4, const Blam::Text::StringID p_ParentID = 0);
 
-	enum VoiceChatIcon
-	{
-		None,
-		Speaking,
-		Available,
-		Unavailable,
-		PushToTalk
-	};
-
 	void FindUiTagData();
-	void FindUiTagIndices();
-	void FindVoiceChatSpeakingPlayerTagData();
-	void FindHUDDistortionTagData();
-	void FindHUDResolutionTagData();
 
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
-
-	void UpdateHUDDistortion();
-	void ToggleHUDDistortion(bool enabled);
 }

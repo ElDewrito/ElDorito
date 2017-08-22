@@ -1088,6 +1088,9 @@
     <ClInclude Include="Source\Web\WebRendererSchemeHandlerFactory.hpp">
       <Filter>Web</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
     <ClInclude Include="Source\ElDorito.hpp" />
