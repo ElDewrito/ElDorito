@@ -38,7 +38,6 @@ namespace Patches::Ui
 	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
 	static bool foundMapImages = false;
-	static int mapeditorPlaceholderIndex;
 	static int multiplayerPlaceholderIndex;
 	static std::map<int, int> mapImages = std::map<int, int>();
 	void FindMapImages();

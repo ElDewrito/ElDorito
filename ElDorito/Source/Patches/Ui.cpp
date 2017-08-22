@@ -66,6 +66,7 @@ namespace
 	int GetBrokenChudStateFlags21Values();
 	int GetBrokenChudStateFlags31Values();
 	int GetBrokenChudStateFlags33Values();
+	void MenuSelectedMapIDChangedHook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
@@ -190,18 +191,25 @@ namespace Patches::Ui
 
 		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
 		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
-		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
 
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
 		
+		//Fix HUD Distortion in third person.
 		Hook(0x193370, CameraModeChangedHook, HookFlags::IsCall).Apply();
 
+		//Fix Chud Widget State Data
 		Hook(0x686FA4, StateDataFlags2Hook).Apply();
 		Hook(0x686E7B, StateDataFlags3Hook).Apply();
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
+
+		//Fix map images in lobby.
+		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
+
+		//Fix map images in the selection menu.
+		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -359,17 +367,7 @@ namespace Patches::Ui
 			auto *gfxtDefinition = gfxtInstance.GetDefinition<GfxTexturesList>();
 			for each (GfxTexturesList::Texture texture in gfxtDefinition->Textures)
 			{
-				char *output = NULL;
-				output = strstr(texture.FileName, "mapeditor placeholder");
-
-				if (output)
-				{
-					mapeditorPlaceholderIndex = texture.Bitmap.TagIndex;
-					continue;
-				}
-				
-				output = NULL;
-				output = strstr(texture.FileName, "multiplayer placeholder");
+				char *output = strstr(texture.FileName, "placeholder");
 				
 				if (output)
 				{
@@ -965,36 +963,60 @@ namespace
 		c_main_menu_screen_widget_item_select(thisptr, a2, a3, a4, a5);
 	}
 
+	unsigned int selectionMenuMapID = 0;
+	__declspec(naked) void MenuSelectedMapIDChangedHook()
+	{
+		__asm
+		{
+			mov selectionMenuMapID, esi
+
+			//perform original instruction
+			mov ecx, [ebp - 0x52C]
+
+			//return to ED code
+			mov esi, 0xADA104
+			jmp esi
+		}
+	}
+
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7)
 	{
 		static auto c_gui_bitmap_widget_get_render_data = (void(__thiscall*)(void* thisptr, void* renderData, int a3, int a4, char a5, char a6, char a7))(0x00B167B0);
 
 		auto name = Pointer(thisptr)(0x40).Read<uint32_t>();
-
 		c_gui_bitmap_widget_get_render_data(thisptr, renderData, a3, a4, a5, a6, a7);
 
-		if (name != 67196) // unknown_film_image
+		if (!Patches::Ui::foundMapImages)
+			return;
+
+		if (name != 67196 && name != 67149) // unknown_film_image, woohoo!
 			return;
 
 		static int bitmapIndex = 0;
-		if (!Patches::Ui::foundMapImages)
-			return; 
+		static int mapID = 0;
 
-		auto session = Blam::Network::GetActiveSession();
+		if (name == 67196)
+		{
+			auto session = Blam::Network::GetActiveSession();
 
-		if (!session || !session->IsEstablished())
-			return;
+			if (!session || !session->IsEstablished())
+				return;
 
-		if (session->Parameters.MapVariant.MapID == 0)
-			return;
+			mapID = session->Parameters.MapVariant.MapID;
+		}
+		else if (name == 67149)
+		{
+			mapID = selectionMenuMapID;
+		}
+
 
 		try
 		{
-			bitmapIndex = Patches::Ui::mapImages.at(session->Parameters.MapVariant.MapID);
+			bitmapIndex = Patches::Ui::mapImages.at(mapID);
 		}
 		catch (...)
 		{
-				bitmapIndex = Patches::Ui::multiplayerPlaceholderIndex;
+			bitmapIndex = Patches::Ui::multiplayerPlaceholderIndex;
 		}
 
 
