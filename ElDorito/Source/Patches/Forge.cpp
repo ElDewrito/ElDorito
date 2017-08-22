@@ -22,6 +22,7 @@
 #include "../Forge/Magnets.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
+#include "../Web/Ui/WebForge.hpp"
 #include <cassert>
 #include <queue>
 #include <stack>
@@ -37,6 +38,7 @@ namespace
 	const auto HELDOBJECT_DISTANCE_MIN = 0.1f;
 	const auto HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER = 0.1f;
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
+	const auto REFORGE_DEFAULT_SHADER = 0x3ab0;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
 	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
@@ -62,6 +64,9 @@ namespace
 	void SandboxEngineShutdownHook();
 	void SandboxEngineTickHook();
 	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex);
+	void* ObjectPropertiesUIAllocateHook(int size);
+	void RenderMeshPartHook(void* data, int a2);
+	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
@@ -74,31 +79,6 @@ namespace
 	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
 	int s_MonitorMovementSpeedIndex = 3;
 
-	struct ForgeMessage
-	{
-		uint32_t Type;
-		uint32_t TagIndex;
-		uint32_t PlacementIndex;
-		uint32_t PlayerIndex;
-		uint32_t Unknown10;
-		int8_t QuotaMin;
-		int8_t QuotaMax;
-		uint16_t Unknown16;
-		RealVector3D CrosshairPoint;
-		uint32_t SelectedGameType;
-		uint16_t EngineFlags;
-		uint8_t Flags;
-		uint8_t Team;
-		uint8_t SharedStorage;
-		uint8_t SpawnTime;
-		uint8_t ObjectType;
-		uint8_t ShapeType;
-		uint32_t Unknown30;
-		uint32_t Unknown34;
-		uint32_t Unknown38;
-		uint32_t Unknown3c;
-	};
-	static_assert(sizeof(ForgeMessage) == 0x40, "Invalid ForgeMessage size");
 
 	uint32_t s_SpawnItemTagIndex = -1;
 }
@@ -130,6 +110,13 @@ namespace Patches::Forge
 		Hook(0x734EE, ObjectSpawnedHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
 		Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
+		// hook the object properties menu to show the cef one
+		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
+		Hook(0x6E26C1, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
+		// facilitate swapping materials based on shared storage
+		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
+		// disable the lightmap for reforge objects
+		Hook(0x7BEEEE, LightmapHook, HookFlags::IsCall).Apply();
 
 		// prevent the object from lurching forward when being rotated
 		Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
@@ -217,7 +204,7 @@ namespace
 
 		if (s_SpawnItemTagIndex != -1)
 		{
-			ForgeMessage msg = {0};
+			ForgeMessage msg = { 0 };
 			msg.Type = 0;
 			msg.PlayerIndex = playerIndex;
 			msg.TagIndex = s_SpawnItemTagIndex;
@@ -252,7 +239,7 @@ namespace
 				{
 					cloneAction->Flags |= Blam::Input::eActionStateFlagsHandled;
 
-					if(Blam::Network::GetActiveSession()->IsHost())
+					if (Blam::Network::GetActiveSession()->IsHost())
 						DoClone(playerIndex, objectIndexUnderCrosshair);
 					else
 					{
@@ -790,7 +777,7 @@ namespace
 					continue;
 
 				// set the team index to match the zone
-				auto zoneTeamIndex = placement.Properties.ObjectFlags >> 8;
+				auto zoneTeamIndex = placement.Properties.TeamAffilation;
 				mpPropertiesPtr(0xA).Write<uint8_t>(zoneTeamIndex);
 			}
 		}
@@ -835,5 +822,124 @@ namespace
 					GrabSelection(playerIndex);
 			}
 		}
+	}
+
+	bool CanThemeObject(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
+		if (!objectDef)
+			return false;
+		auto hlmtDef = Blam::Tags::TagInstance(*(uint32_t*)(objectDef + 0x40)).GetDefinition<uint8_t>();
+		if (!hlmtDef)
+			return false;
+		auto modeTagIndex = *(uint32_t*)(hlmtDef + 0xC);
+
+		const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+		if (!modeDefinitionPtr)
+			return false;
+
+		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
+		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
+		if (!materialCount || firstMaterialShaderTagRef.TagIndex != REFORGE_DEFAULT_SHADER)
+			return false;
+
+		return true;
+	}
+
+	bool GetObjectMaterial(void* renderData, int16_t* pMaterialIndex)
+	{
+		auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
+		auto objectIndex = Pointer(renderData)(0x6c).Read<uint32_t>();
+
+		const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+		if (!modeDefinitionPtr)
+			return false;
+
+		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
+		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
+		if (!materialCount || firstMaterialShaderTagRef.TagIndex != REFORGE_DEFAULT_SHADER)
+			return false;
+
+		const auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto mpProps = object->GetMultiplayerProperties();
+		if (!mpProps)
+			return false;
+
+		auto sharedStorage = Pointer(mpProps)(0x5).Read<uint8_t>();
+
+		auto materialIndex = int16_t(sharedStorage);
+		if (!materialIndex)
+			return false;
+
+		if (int32_t(materialIndex) >= materialCount)
+			return false;
+
+		*pMaterialIndex = materialIndex;
+
+		return true;
+	}
+
+	void RenderMeshPartHook(void* data, int a2)
+	{
+		static auto RenderMeshPart = (void(*)(void* data, int a2))(0xA78940);
+
+		auto renderData = Pointer(data)[4];
+
+		int16_t materialIndex;
+		if (GetObjectMaterial(renderData, &materialIndex))
+		{
+			auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
+			const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+			const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
+			const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
+
+			auto oldMaterialIndex = *materialIndexPtr;
+			*materialIndexPtr = materialIndex;
+			RenderMeshPart(data, a2);
+			*materialIndexPtr = oldMaterialIndex;
+
+			return;
+		}
+		RenderMeshPart(data, a2);
+	}
+
+	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7)
+	{
+		static auto LightmapFunc = (int(*)(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7))(0x752B10);
+
+		if (CanThemeObject(objectIndex))
+		{
+			memcpy(a7, (uint8_t*)0x18F3000, 0x1F8u);
+			*((uint8_t*)a7 + 0x1F0) = 0;
+			return 1;
+		}
+
+		return LightmapFunc(origin, direction, a3, objectIndex, a5, a6, a7);
+	}
+
+	void* ObjectPropertiesUIAllocateHook(int size)
+	{
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		uint32_t objectIndexUnderCrosshair, heldObjectIndex;
+		if (Forge::GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
+		{
+			auto currentObjectIndex = objectIndexUnderCrosshair != -1 ? objectIndexUnderCrosshair : heldObjectIndex;
+			auto currentObject = Blam::Objects::Get(currentObjectIndex);
+			if (currentObject && currentObject->PlacementIndex != -1)
+			{
+				auto mapv = Forge::GetMapVariant();
+				auto placement = mapv->Placements[currentObject->PlacementIndex];
+
+				Web::Ui::WebForge::ShowObjectProperties(currentObjectIndex);
+			}
+		}
+		return nullptr;
 	}
 }

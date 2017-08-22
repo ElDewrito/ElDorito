@@ -5,6 +5,7 @@
 #include "../../Patches/Input.hpp"
 #include "../../Patches/Core.hpp"
 #include "../../Blam/BlamInput.hpp"
+#include "../../Blam/BlamTime.hpp"
 #include "../../Patches/Ui.hpp"
 #include "../../ElDorito.hpp"
 #include <Windows.h>
@@ -446,6 +447,10 @@ namespace
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
 		writer.StartObject();
+		writer.Key("gameTicks");
+		writer.Double(Blam::Time::GetGameTicks());
+		writer.Key("secondsPerTick");
+		writer.Double(Blam::Time::GetSecondsPerTick());
 		writer.Key("AxisLeftX");
 		writer.Double(controllerAxes.LeftX / 32768.0f);
 		writer.Key("AxisLeftY");

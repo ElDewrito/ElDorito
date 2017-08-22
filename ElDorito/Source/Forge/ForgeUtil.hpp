@@ -35,13 +35,40 @@ namespace Forge
 	};
 	static_assert(sizeof(SandboxGlobals) == 0x748, "Invalid SandboxGlobals size");
 
+	struct ForgeMessage
+	{
+		uint32_t Type;
+		uint32_t TagIndex;
+		uint32_t PlacementIndex;
+		uint32_t PlayerIndex;
+		uint32_t Unknown10;
+		int8_t QuotaMin;
+		int8_t QuotaMax;
+		uint16_t Unknown16;
+		Blam::Math::RealVector3D CrosshairPoint;
+		uint32_t SelectedGameType;
+		uint16_t EngineFlags;
+		uint8_t Flags;
+		uint8_t Team;
+		uint8_t SharedStorage;
+		uint8_t SpawnTime;
+		uint8_t ObjectType;
+		uint8_t ShapeType;
+		uint32_t Unknown30;
+		uint32_t Unknown34;
+		uint32_t Unknown38;
+		uint32_t Unknown3c;
+	};
+	static_assert(sizeof(ForgeMessage) == 0x40, "Invalid ForgeMessage size");
+
+
 	const auto GetObjectZoneShape = (void(__cdecl *)(uint32_t objectIndex, ZoneShape* zoneShape, int a3))(0xBA0AD0);
 	const auto PointIntersectsZone = (bool(__cdecl*)(const Blam::Math::RealVector3D* point, const ZoneShape* zone))(0x00BA11F0);
 	const auto GetObjectTransformationMatrix = (void(__cdecl*)(uint32_t objectIndex, Blam::Math::RealMatrix4x3* outMatrix))(0x00B2EC60);
 	const auto GetObjectPosition = (void(*)(uint32_t objectIndex, Blam::Math::RealVector3D *position))(0xB2E5A0);
 	const auto SpawnObject = (uint32_t(__thiscall *)(Blam::MapVariant* thisptr, uint32_t tagIndex, int a3, int16_t placementIndex,
-	const Blam::Math::RealVector3D *position, const Blam::Math::RealVector3D *rightVec, const Blam::Math::RealVector3D *upVec, int16_t scnrPlacementBlockIndex,
-	int objectType, const Blam::MapVariant::VariantProperties* variantProperties, uint16_t placementFlags))(0x00582110);
+		const Blam::Math::RealVector3D *position, const Blam::Math::RealVector3D *rightVec, const Blam::Math::RealVector3D *upVec, int16_t scnrPlacementBlockIndex,
+		int objectType, const Blam::MapVariant::VariantProperties* variantProperties, uint16_t placementFlags))(0x00582110);
 	const auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
 	const auto GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x59A6F0);
 	const auto GetSandboxGlobals = (SandboxGlobals&(*)())(0x0059BC10);

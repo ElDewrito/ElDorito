@@ -133,6 +133,7 @@
     <ClCompile Include="Source\Web\Ui\VotingScreen.cpp" />
     <ClCompile Include="Source\Web\Ui\WebChat.cpp" />
     <ClCompile Include="Source\Web\Ui\WebConsole.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebForge.cpp" />
     <ClCompile Include="Source\Web\Ui\WebLoadingScreen.cpp" />
     <ClCompile Include="Source\Web\Ui\WebScoreboard.cpp" />
     <ClCompile Include="Source\Web\Ui\WebTimer.cpp" />
@@ -349,6 +350,7 @@
     <ClInclude Include="Source\Web\Ui\VotingScreen.hpp" />
     <ClInclude Include="Source\Web\Ui\WebChat.hpp" />
     <ClInclude Include="Source\Web\Ui\WebConsole.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebForge.hpp" />
     <ClInclude Include="Source\Web\Ui\WebLoadingScreen.hpp" />
     <ClInclude Include="Source\Web\Ui\WebScoreboard.hpp" />
     <ClInclude Include="Source\Web\Ui\WebTimer.hpp" />

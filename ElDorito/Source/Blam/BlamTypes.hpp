@@ -196,7 +196,8 @@ namespace Blam
 		struct VariantProperties
 		{
 			uint16_t EngineFlags;
-			uint16_t ObjectFlags;
+			uint8_t ObjectFlags;
+			uint8_t TeamAffilation;
 			uint8_t SharedStorage;
 			uint8_t RespawnTime;
 			uint8_t ObjectType;
