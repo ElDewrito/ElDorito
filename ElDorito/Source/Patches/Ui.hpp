@@ -28,4 +28,6 @@ namespace Patches::Ui
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
+
+	void UpdateHUDDistortion();
 }

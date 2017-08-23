@@ -24,6 +24,7 @@
 #include "../Modules/ModuleVoIP.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
+#include "../Modules/ModuleTweaks.hpp"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -74,7 +75,6 @@ namespace
 	void FindHUDResolutionTagData();
 	void FindMapImages();
 
-	void UpdateHUDDistortion();
 	void ToggleHUDDistortion(bool enabled);
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
@@ -509,6 +509,38 @@ namespace Patches::Ui
 			}
 		}
 	}
+
+	void UpdateHUDDistortion()
+	{
+		if (!validHUDDistortionTags)
+			return;
+
+		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
+
+		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
+		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
+		//Else, add a break; case.
+
+		if (Modules::ModuleTweaks::Instance().VarFlatHUD->ValueInt)
+		{
+			ToggleHUDDistortion(false);
+			return;
+		}
+
+		switch (cameraFunc) //Add cases as required.
+		{
+		case 0x0166acb0: //player first person
+			ToggleHUDDistortion(true);
+			break;
+		case 0x16726D0: //flying camera
+		case 0x16728A8: //static camera
+			break;
+		default:
+			ToggleHUDDistortion(false);
+			break;
+		}
+	}
 }
 
 namespace
@@ -731,32 +763,6 @@ namespace
 			{
 				HUDBottomVisorOffsetY = widget.PlacementData[0].OffsetY;
 			}
-		}
-	}
-
-	void UpdateHUDDistortion()
-	{
-		if (!validHUDDistortionTags)
-			return;
-
-		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
-		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
-
-		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
-		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
-		//Else, add a break; case.
-
-		switch (cameraFunc) //Add cases as required.
-		{
-		case 0x0166acb0: //player first person
-			ToggleHUDDistortion(true);
-			break;
-		case 0x16726D0: //flying camera
-		case 0x16728A8: //static camera
-			break;
-		default:
-			ToggleHUDDistortion(false);
-			break;
 		}
 	}
 
