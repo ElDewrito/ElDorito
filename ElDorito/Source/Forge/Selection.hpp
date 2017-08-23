@@ -8,6 +8,8 @@ namespace Forge
 		ObjectSet& GetSelection();
 
 		void SelectAll();
+		void DeselectAllOf();
+
 		void Clear();
 		void Delete();
 		bool Clone();
