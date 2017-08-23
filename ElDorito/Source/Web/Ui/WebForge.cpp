@@ -387,6 +387,7 @@ namespace
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
 		SerializeProperty(writer, "has_material", CanThemeObject());
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
+		SerializeProperty(writer, "is_selected", Forge::Selection::GetSelection().Contains(placement.ObjectIndex));
 
 		writer.Key("properties");
 		writer.StartObject();

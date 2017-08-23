@@ -34,6 +34,12 @@ namespace
 		return true;
 	}
 
+	bool CommandDeselectAllOf(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Forge::Selection::DeselectAllOf();
+		return true;
+	}
+
 	bool CommandSelectAll(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		Forge::Selection::SelectAll();
@@ -257,12 +263,13 @@ namespace Modules
 		VarMagnetsVisible = AddVariableInt("MagnetsVisible", "forge_magnets_visible", "Controls whether magnets are shown (1) or hidden (0)", eCommandFlagsArchived, 1);
 		VarMagnetsVisible->ValueIntMin = 0;
 		VarMagnetsVisible->ValueIntMax = 1;
-		VarMaxGrabDistance = AddVariableFloat("GrabDistance", "forge_grab_distance", "Controls the maximum distance from which objects can be grabbed", eCommandFlagsArchived, 10.0f);
+		VarMaxGrabDistance = AddVariableFloat("GrabDistance", "forge_grab_distance", "Controls the maximum distance from which objects can be grabbed", eCommandFlagsArchived, 5.0f);
 
 		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);
 		AddCommand("SelectAll", "forge_select_all", "Select all objects that are the same as the object under the crosshair", eCommandFlagsNone, CommandSelectAll);
 		AddCommand("DeselectAll", "forge_deselect_all", "Deselect all selected objects", eCommandFlagsNone, CommandDeselectAll);
+		AddCommand("DeselectAllOf", "forge_deselect_all_of", "Deselect all selected objects that are the same as the object under the crosshair", eCommandFlagsNone, CommandDeselectAllOf);
 		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", eCommandFlagsNone, CommandSavePrefab);
 		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", eCommandFlagsNone, CommandLoadPrefab);
 		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsNone, CommandDumpPrefabs);

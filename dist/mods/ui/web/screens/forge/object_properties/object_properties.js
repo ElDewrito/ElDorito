@@ -62,6 +62,7 @@ var STRINGS = {
 	summary_maximum_allowed: 'maximum allowed',
 	summary_total_cost: 'total cost',
 	select_all: '[ select all ]',
+	deselect_all: '[ deselect all ]',
 };
 
 
@@ -154,16 +155,16 @@ var objectPropertyGridData = {
 			{ name: 'Material #40', value: 39 },
 			{ name: 'Material #41', value: 40 },
 			{ name: 'Material #42', value: 41 },
-			{ name: 'Material #42', value: 42 },
-			{ name: 'Material #43', value: 43 },
-			{ name: 'Material #44', value: 44 },
-			{ name: 'Material #45', value: 45 },
-			{ name: 'Material #46', value: 46 },
-			{ name: 'Material #47', value: 47 },
-			{ name: 'Material #48', value: 48 },
-			{ name: 'Material #49', value: 49 },
-			{ name: 'Material #50', value: 50 },
-			{ name: 'Material #51', value: 51 },
+			{ name: 'Material #43', value: 42 },
+			{ name: 'Material #44', value: 43 },
+			{ name: 'Material #45', value: 44 },
+			{ name: 'Material #46', value: 45 },
+			{ name: 'Material #47', value: 46 },
+			{ name: 'Material #48', value: 47 },
+			{ name: 'Material #49', value: 48 },
+			{ name: 'Material #50', value: 49 },
+			{ name: 'Material #51', value: 50 },
+			{ name: 'Material #52', value: 51 },
 			{ name: 'Material #53', value: 52 },
 			{ name: 'Material #54', value: 53 },
 			{ name: 'Material #55', value: 54 },
@@ -194,6 +195,7 @@ var objectPropertyGridData = {
 	properties: [
 		{ name: 'budget_screen_action', type: 'action'},
 		{ name: 'select_all', type: 'action'},
+		{ name: 'deselect_all', type: 'action'},
 		{
 			name: 'general',
 			values: [
@@ -227,6 +229,7 @@ var objectPropertyGridData = {
 
 var objectPropertiesWidget;
 var budgetPropertiesWidget;
+var materialPickerShowTime;
 
 var screenManager = makeScreenManager({
 	object_properties_list: {	
@@ -324,6 +327,16 @@ materialListController.on('selectedIndexChanged', ({index, userInput}) => {
 });
 
 dew.on('show',function(e) {
+
+	for(var key in e.data.properties)
+	{
+		switch(key) {
+			case 'appearance_material':
+				materialListController.setSelectedIndex(e.data.properties[key]);
+			break;
+		}
+	}
+
 	objectPropertiesWidget.populate(objectPropertyGridData, e.data.properties);
 	buildPropertyFilter(e.data);
 
@@ -389,6 +402,17 @@ $(function() {
 			break;
 			case 'select_all':
 				dew.command('Forge.SelectAll');
+				objectPropertiesWidget.setSelectedIndex(0);
+				objectPropertiesWidget.toggleVisibility('select_all', false);
+				objectPropertiesWidget.toggleVisibility('deselect_all', true);
+				objectPropertiesWidget.setSelectedIndex(1);
+			break;
+			case 'deselect_all':
+				dew.command('Forge.DeselectAllOf');
+				objectPropertiesWidget.setSelectedIndex(0);
+				objectPropertiesWidget.toggleVisibility('select_all', true);
+				objectPropertiesWidget.toggleVisibility('deselect_all', false);
+				objectPropertiesWidget.setSelectedIndex(1);
 			break;
 			case 'delete_all':
 				dew.command('Forge.DeleteAll');
@@ -410,7 +434,9 @@ $(function() {
 		onPropertyChanged(name, value);
 	});
 
-	$('#material-picker').on('mouseenter mouseleave', 'li', function(e) {
+	$('#material-picker').on('mouseover', 'li', function(e) {
+		if((Date.now() - materialPickerShowTime) < 150)
+			return;
 		$('#material-picker li').removeClass('selected');	
 		$(this).addClass('selected');
 	});
@@ -532,6 +558,10 @@ function buildPropertyFilter(data) {
 		break;
 	}
 
+	objectPropertiesWidget.toggleVisibility('deselect_all', data.is_selected);
+	objectPropertiesWidget.toggleVisibility('select_all', !data.is_selected);
+	
+
 	if(!hasSpawn) {
 		objectPropertiesWidget.toggleVisibility('on_map_at_start', false);
 		objectPropertiesWidget.toggleVisibility('respawn_rate', false);
@@ -602,7 +632,7 @@ function updateTitle() {
 
 function showMaterialPicker(callback) {
 	var materials = objectPropertyGridData.meta['appearance_material'];
-
+	materialPickerShowTime = Date.now();
 	$('#material-picker').html(`
 		<ul class="material-list">
 			${materials.reduce((html, m) => (html + `
@@ -641,8 +671,8 @@ dew.on('controllerinput', function(e){
     	stickTicks.down = 0;
 
     var holding =
-    	stickTicks.up > 0 && (stickTicks.up * e.data.SecondsPerTick) > .5 ||
-    	stickTicks.down > 0 && (stickTicks.down * e.data.SecondsPerTick) > .5 ||
+    	stickTicks.up > 0 && (stickTicks.up * e.data.secondsPerTick) > .5 ||
+    	stickTicks.down > 0 && (stickTicks.down * e.data.secondsPerTick) > .5 ||
     	stickTicks.left > 0 && (stickTicks.left * e.data.secondsPerTick) > .5 ||
     	stickTicks.right > 0 && (stickTicks.right * e.data.secondsPerTick) > .5;
    	
