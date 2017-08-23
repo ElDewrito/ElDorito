@@ -137,6 +137,20 @@ namespace
 			m_BudgetDirty = true;
 		}
 
+		void SetPhysics(int value)
+		{
+			switch (value)
+			{
+			case 0:
+				m_Properties.ZoneShape = 0;
+				break;
+			case 1:
+				m_Properties.ZoneShape = 4;
+				break;
+			}
+			
+		}
+
 		void Apply(uint32_t playerIndex, int16_t placementIndex)
 		{
 			static auto Forge_SetPlacementVariantProperties = (void(*)(uint32_t playerIndex,
@@ -399,6 +413,7 @@ namespace
 		SerializeProperty(writer, "shape_width", properties.ZoneRadiusWidth);
 		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
 		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
+		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -441,7 +456,8 @@ namespace
 			{ "shape_depth",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeDepth(value.GetDouble()); } },
 			{ "appearance_material",	 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetMaterial(value.GetInt()); } },
 			{ "summary_runtime_minimum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMinimum(value.GetInt()); } },
-			{ "summary_runtime_maximum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMaximum(value.GetInt()); } }
+			{ "summary_runtime_maximum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMaximum(value.GetInt()); } },
+			{ "physics",			     [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetPhysics(value.GetInt()); } }
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)

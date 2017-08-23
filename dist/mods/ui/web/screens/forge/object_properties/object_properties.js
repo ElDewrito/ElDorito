@@ -189,7 +189,7 @@ var objectPropertyGridData = {
 			{ name: 'Off', value: 0 }
 			
 		],
-		physics: [{name:'Default', value: 0}, {name:'Phased', value: 1}, {name: 'Dynamic', vlaue: 2}]
+		physics: [{name:'Default', value: 0}, {name:'Phased', value: 1}]
 	},
 	properties: [
 		{ name: 'budget_screen_action', type: 'action'},
@@ -203,7 +203,9 @@ var objectPropertyGridData = {
 				{ name: 'team_affiliation', type: 'spinner', meta:'team_affiliation' },
 				{ name: 'spawn_order', type: 'spinner', meta:'spawn_order' },
 				{ name: 'symmetry', type: 'spinner', meta:'symmetry' }, 
-				{ name: 'appearance_material', type: 'material', meta:'appearance_material'}
+				{ name: 'physics', type: 'spinner', meta:'physics'},
+				{ name: 'appearance_material', type: 'material', meta:'appearance_material'},
+				
 				
 			]
 		},
@@ -546,6 +548,7 @@ function buildPropertyFilter(data) {
 		objectPropertiesWidget.toggleVisibility('spare_clips', false);
 
 	if(hasZone) {
+		objectPropertiesWidget.toggleVisibility('physics', false);
 		switch (data.properties.shape_type)
 		{
 		  case 1:
@@ -574,8 +577,11 @@ function buildPropertyFilter(data) {
 		objectPropertiesWidget.toggleVisibility('shape_type', false);
 	}
 
-	if(!data.has_material) 
+	if(!data.has_material) {	
 		objectPropertiesWidget.toggleVisibility('appearance_material', false);
+	} else {
+		objectPropertiesWidget.toggleVisibility('physics', false);
+	}
 
 	return filter;
 }
