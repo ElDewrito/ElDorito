@@ -12,6 +12,7 @@
 #include <shellapi.h>
 #include "../../ThirdParty/rapidjson/stringbuffer.h"
 #include "../../ThirdParty/rapidjson/writer.h"
+#include "../../CommandMap.hpp"
 
 using namespace Blam::Input;
 using namespace Anvil::Client::Rendering;
@@ -355,6 +356,8 @@ namespace
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
 			key.type = KEYEVENT_KEYUP;
+			if (msg->lParam & (1 << 29) && msg->wParam == VK_F4) // alt-f4
+				Modules::CommandMap::Instance().ExecuteCommand("Game.Exit");
 			break;
 		case WM_CHAR:
 		case WM_SYSCHAR:
