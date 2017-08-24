@@ -195,6 +195,8 @@ var controllerIconPacks = [
     ['Xbox 360','360'],
     ['Xbox One','XboxOne']
 ];
+var bindChangeArray = [];
+var subPages = ['#page4','#page5','#page8','#page9','#page11'];
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
@@ -409,7 +411,7 @@ $(document).ready(function(){
     setControlValues();
     initializeBindings();
     $('.bind').on('change', function(){
-        updateBinding(this.id, this.value);
+        queueBindChange([this.id, this.value]);
         updateBindLabels();
     });   
     dew.command('Server.VotingEnabled', {}).then(function(x){
@@ -666,9 +668,11 @@ dew.on('show', function(e){
 function initGamepad(){
     dew.command('Settings.Gamepad', {}).then(function(result){
         if(result == 1){
-            onControllerConnect();
             hasGP = true;
-            repGP = window.setInterval(checkGamepad,1000/60);
+            if(!repGP){
+                repGP = window.setInterval(checkGamepad,1000/60);
+            }
+            onControllerConnect();
             setButtons();
             $('button img,.tabs img').show();
         }else{
@@ -676,6 +680,7 @@ function initGamepad(){
             hasGP = false;
             if(repGP){
                 window.clearInterval(repGP);
+                repGP = null;
             }
             $('button img,.tabs img').hide();
         }
@@ -685,6 +690,7 @@ function initGamepad(){
 dew.on('hide', function(e){
     if(repGP){
         window.clearInterval(repGP);
+        repGP = null;
     }
     hideAlert(false);
 });
@@ -767,6 +773,16 @@ function switchPage(pageHash){
     if(hasGP){
         updateSelection(0);
     }
+    if(subPages.indexOf(pageHash) != -1){
+        $('#cancelButton').html('<img class="button">Back');
+    }else{
+        if(changeArray.length || bindChangeArray.length){
+            $('#cancelButton').html('<img class="button">Cancel');
+        }else{
+            $('#cancelButton').html('<img class="button">Close');
+        }
+    }
+    initGamepad();
 }
 
 function editControls(which){
@@ -791,11 +807,40 @@ function applySettings(i){
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
-        $('#cancelButton').html('<img class="button">Close');
+        if(subPages.indexOf(activePage) != -1){
+            $('#cancelButton').html('<img class="button">Back');
+        }else{
+            $('#cancelButton').html('<img class="button">Close');
+        }
         $('#applyButton').hide();
         initGamepad();
     }
 }
+
+function applyBindChanges(i){
+    if(i != bindChangeArray.length){    
+        if (bindChangeArray[i][1] == "Back") { bindChangeArray[i][1] = "Select"; }
+        if (bindChangeArray[i][1]) { bindChangeArray[i][1] = "\"" + bindChangeArray[i][1] + "\""; }
+        dew.command("Input.ControllerAction \"" + bindChangeArray[i][0] + "\" " + bindChangeArray[i][1], {}).then(function(){
+            i++;
+            applyBindChanges(i);            
+        }).catch(function (error){
+            console.log(error);
+            i++;
+            applyBindChanges(i);  
+        });
+    }else{
+        bindChangeArray = [];
+        dew.command('writeconfig');
+        if(subPages.indexOf(activePage) != -1){
+            $('#cancelButton').html('<img class="button">Back');
+        }else{
+            $('#cancelButton').html('<img class="button">Close');
+        }
+        initGamepad();
+    }
+}
+
 
 function applyButton(){
     if(window.location.hash == '#page5'){
@@ -803,16 +848,13 @@ function applyButton(){
         switchPage('#page2'); 
     }else if(window.location.hash == '#page4'){
         applySettings(0);
-        switchPage('#page3');    
-    }else if(window.location.hash == '#page9'){
-        switchPage('#page8');    
-    }else if(window.location.hash == '#page8'){
-        switchPage('#page2');   
+        switchPage('#page3');     
     }else if(window.location.hash == '#page11'){ 
         switchPage('#page8');        
     }else{
-        if(changeArray.length){
-            applySettings(0);   
+        if(changeArray.length || bindChangeArray.length){
+            applySettings(0); 
+            applyBindChanges(0);              
             setButtons();            
         }else{
             effectReset();
@@ -833,7 +875,7 @@ function cancelButton(){
         switchPage('#page2');
     }else if(window.location.hash == '#page11'){ 
         switchPage('#page8');
-    }else if(changeArray.length){
+    }else if(changeArray.length || bindChangeArray.length){
         alertBox('You have unapplied settings', true);
     }else{
         itemNumber = 0;
@@ -848,6 +890,10 @@ function dismissButton(){
     effectReset();
     setControlValues();
     changeArray = [];
+    if(bindChangeArray.length){
+        initializeBindings();
+        bindChangeArray = [];
+    }
 }
 
 exiting = false;
@@ -951,7 +997,7 @@ function applyBindString(bindString){
     var bindArray = new Array(bindString.split(','));
     for (i = 0; i < bindArray[0].length; i++) { 
         $('#'+binds[i]).val(bindArray[0][i]);
-        updateBinding(binds[i], bindArray[0][i]);
+        $('#'+binds[i]).trigger('change');
     }
     updateBindLabels();
 }
@@ -1095,14 +1141,6 @@ function initializeBindings(){
     });
 }
 
-function updateBinding(action, bind){
-    if (bind == "Back") { bind = "Select"; }
-    if (bind) { bind = "\"" + bind + "\""; }
-    dew.command("Input.ControllerAction \"" + action + "\" " + bind, {}).then(function(){
-        dew.command("writeconfig");
-    });
-}
-
 function updateBindLabels(){
     $('#controllerGraphic').children('div').empty();
     for (i = 0; i < binds.length-4; i++) { 
@@ -1238,11 +1276,15 @@ function leftToggle(){
         if(elementIndex > 0){
             var newElement = elementIndex - 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
+            triggerChange();
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        document.getElementById(selectedItem).stepDown();
-        document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
+        if(document.getElementById(selectedItem).value > document.getElementById(selectedItem).min){
+            document.getElementById(selectedItem).stepDown();
+            document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
+            triggerChange();
+        }
     }
     if($('#'+selectedItem).hasClass('color')){
         colorIndex = $.inArray($('#'+selectedItem).val(), h3ColorArray);
@@ -1254,24 +1296,24 @@ function leftToggle(){
         }
         setColor(h3ColorArray[colorIndex]);
     }
-    if(document.getElementById(selectedItem).computedRole == "combobox" || document.getElementById(selectedItem).computedRole == "slider" || $('#'+selectedItem).hasClass('color')){
-        $('#'+selectedItem).trigger('change');
-        dew.command('Game.PlaySound 0x0B00');  
-    }
 }
 
 function rightToggle(){
     if(document.getElementById(selectedItem).computedRole == "combobox"){
         var elementIndex = $('#'+selectedItem+' option:selected').index();
         var elementLength = $('#'+selectedItem).children('option').length;
-        if(elementIndex < elementLength){
+        if(elementIndex < elementLength - 1){
             var newElement = elementIndex + 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
+            triggerChange();
         } 
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        document.getElementById(selectedItem).stepUp();
-        document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
+        if(parseInt(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
+            document.getElementById(selectedItem).stepUp();
+            document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
+            triggerChange();
+        }
     }
     if($('#'+selectedItem).hasClass('color')){
         colorIndex = $.inArray( $('#'+selectedItem).val(), h3ColorArray);
@@ -1283,10 +1325,11 @@ function rightToggle(){
         }
         setColor(h3ColorArray[colorIndex]);
     }
-    if(document.getElementById(selectedItem).computedRole == "combobox" || document.getElementById(selectedItem).computedRole == "slider" || $('#'+selectedItem).hasClass('color')){
-        $('#'+selectedItem).trigger('change');
-        dew.command('Game.PlaySound 0x0B00');  
-    }
+}
+
+function triggerChange(){
+    $('#'+selectedItem).trigger('change');
+    dew.command('Game.PlaySound 0x0B00');  
 }
 
 function setColor(colorHex){
@@ -1297,6 +1340,7 @@ function setColor(colorHex){
     }else{
         $('#'+selectedItem).css('color','#ddd');
     }      
+    triggerChange();
 }
 
 function toggleSetting(){
@@ -1345,4 +1389,21 @@ function hideAlert(sound){
     if(sound){
         dew.command('Game.PlaySound 0x0B04');
     }
+}
+
+function queueBindChange(changeBlock){
+    $('#cancelButton').html('<img class="button">Cancel');
+    $('#applyButton').show();
+    if(hasGP){
+        setButtons();
+        $('button img,.tabs img').show();
+    }
+    $.grep(bindChangeArray, function(result, index){
+        if(result){
+            if(result[0] == changeBlock[0]){
+                bindChangeArray.splice(index,1);
+            };
+        }
+    });
+    bindChangeArray.push(changeBlock);
 }
