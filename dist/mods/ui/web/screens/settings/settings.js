@@ -413,7 +413,8 @@ $(document).ready(function(){
     $('.bind').on('change', function(){
         queueBindChange([this.id, this.value]);
         updateBindLabels();
-    });   
+    });
+    
     dew.command('Server.VotingEnabled', {}).then(function(x){
         dew.command('Server.VetoSystemEnabled', {}).then(function(y){
             if(x == '1' && y == '1'){
@@ -894,6 +895,7 @@ function dismissButton(){
         initializeBindings();
         bindChangeArray = [];
     }
+    $('#applyButton').hide();
 }
 
 exiting = false;
@@ -997,7 +999,7 @@ function applyBindString(bindString){
     var bindArray = new Array(bindString.split(','));
     for (i = 0; i < bindArray[0].length; i++) { 
         $('#'+binds[i]).val(bindArray[0][i]);
-        $('#'+binds[i]).trigger('change');
+        queueBindChange([binds[i],bindArray[0][i]])
     }
     updateBindLabels();
 }
