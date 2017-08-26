@@ -949,6 +949,12 @@ namespace
 			return false;
 		}
 
+		if ((bool(*)())(0x005670E0)) //is loading
+		{
+			returnInfo = "Can not run script while in a loading screen";
+			return false;
+		}
+
 		auto scnr = Blam::Tags::Scenario::GetCurrentScenario();
 		if (!scnr)
 		{
