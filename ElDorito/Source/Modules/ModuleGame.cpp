@@ -949,7 +949,7 @@ namespace
 			return false;
 		}
 
-		if ((bool(*)())(0x005670E0)) //is loading
+		if (*(uint8_t*)0x023917F0) //is loading
 		{
 			returnInfo = "Can not run script while in a loading screen";
 			return false;
