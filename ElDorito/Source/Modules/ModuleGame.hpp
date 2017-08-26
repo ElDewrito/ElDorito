@@ -19,7 +19,6 @@ namespace Modules
 		Command* VarHideChat;
 		Command* VarSuppressJuggling;
 		Command* VarIconSet;
-		Command* VarFixHudGlobals;
 		Command* VarHideH3UI;
 		Command* VarScreenshotsFolder;
 

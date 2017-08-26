@@ -148,10 +148,6 @@ namespace Patches::Ui
 		if (!tagsInitiallyLoaded)
 		{
 			FindUiTagData();
-
-			// use the correct hud globals for the player representation
-			if (Modules::ModuleGame::Instance().VarFixHudGlobals->ValueInt)
-				Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
 		}
 
 		tagsInitiallyLoaded = true;
@@ -262,6 +258,9 @@ namespace Patches::Ui
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
+
+		// use the correct hud globals for the player representation
+		Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
 
 		//Fix map images in lobby.
 		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));

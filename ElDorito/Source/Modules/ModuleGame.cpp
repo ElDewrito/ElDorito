@@ -1187,8 +1187,6 @@ namespace Modules
 		VarSuppressJuggling->ValueIntMin = 0;
 		VarSuppressJuggling->ValueIntMax = 1;
 
-		VarFixHudGlobals = AddVariableInt("FixHudGlobals", "fix_hud_globals", "Use the correct hud globals for the player representation", eCommandFlagsArchived, 0);
-
 		VarHideH3UI = AddVariableInt("HideH3UI", "hide_h3ui", "Hide the H3 UI", eCommandFlagsHidden, 0);
 		VarHideH3UI->ValueIntMin = 0;
 		VarHideH3UI->ValueIntMax = 1;
