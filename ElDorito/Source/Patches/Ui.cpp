@@ -56,7 +56,8 @@ namespace
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
 
-	struct c_gui_map_category_datasource
+	template <int MaxItems>
+	struct c_gui_generic_category_datasource
 	{
 		uint8_t order_date_source[0x10c];
 		wchar_t RecentName[48];
@@ -65,16 +66,19 @@ namespace
 		wchar_t FileshareDescription[256];
 		struct
 		{
-			int Index;
+			int Type;
 			int MapId;
 			wchar_t Name[48];
 			wchar_t Description[256];
 			int field_268;
-		} items[50];
+		} items[MaxItems];
 		int ItemCount;
 	};
+	using c_gui_map_category_datasource = c_gui_generic_category_datasource<50>;
+	using c_gui_game_variant_category_datasource = c_gui_generic_category_datasource<11>;
 
 	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource);
+	bool __fastcall c_gui_game_variant_category_datasource_init(c_gui_game_variant_category_datasource *thisptr, void* unused, int datasource);
 
 	void CameraModeChangedHook();
 	void StateDataFlags2Hook();
@@ -269,6 +273,8 @@ namespace Patches::Ui
 		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
 		// remove recent maps, fileshare menu items
 		Pointer(0x0169E270).Write(uint32_t(&c_gui_map_category_datasource_init));
+		// remove game variants, fileshare menu items
+		Pointer(0x0169E510).Write(uint32_t(&c_gui_game_variant_category_datasource_init));
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1630,7 +1636,7 @@ namespace
 			{
 				auto& item = thisptr->items[thisptr->ItemCount];
 
-				item.Index = 2;
+				item.Type = 2;
 				item.MapId = mapIds[i];
 				wcsncpy(item.Name, (wchar_t*)(levelInfo + 0x8), 48);
 				wcsncpy(item.Description, (wchar_t*)(levelInfo + 0x48), 256);
@@ -1640,6 +1646,35 @@ namespace
 		}
 
 		std::qsort(thisptr->items, thisptr->ItemCount, 0x26c, (int(*)(const void*, const void*))0xADA1D0);
+		return true;
+	}
+
+	bool __fastcall c_gui_game_variant_category_datasource_init(c_gui_game_variant_category_datasource *thisptr, void* unused, int datasource)
+	{
+		static auto c_gui_data_init = ((bool(__thiscall*)(void*, int))(0x00AD52F0));
+		static auto sub_A84200 = (void*(*)(int a1))(0xA84200);
+		static auto sub_ADB130 = (void*(__thiscall*)(c_gui_game_variant_category_datasource *thisptr, void* a2, int index))(0xADB130);
+
+		if (!c_gui_data_init(thisptr, datasource))
+			return false;
+
+		auto tagsource = sub_A84200(0x201); // game_variant
+		if (!tagsource)
+			return false;
+
+		thisptr->ItemCount = 0;
+		auto index = 0;
+		do
+		{
+			if (index)
+			{
+				if (index != 5)
+					sub_ADB130(thisptr, tagsource, index);
+			}
+			++index;
+		} while (index < 11);
+
+		std::qsort(thisptr->items, thisptr->ItemCount, 0x26c, (int(*)(const void*, const void*))0xADB280);
 		return true;
 	}
 }
