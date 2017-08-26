@@ -55,6 +55,27 @@ namespace
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
+
+	struct c_gui_map_category_datasource
+	{
+		uint8_t order_date_source[0x10c];
+		wchar_t RecentName[48];
+		wchar_t RecentDescription[256];
+		wchar_t FileshareName[48];
+		wchar_t FileshareDescription[256];
+		struct
+		{
+			int Index;
+			int MapId;
+			wchar_t Name[48];
+			wchar_t Description[256];
+			int field_268;
+		} items[50];
+		int ItemCount;
+	};
+
+	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource);
+
 	void CameraModeChangedHook();
 	void StateDataFlags2Hook();
 	void StateDataFlags3Hook();
@@ -247,6 +268,8 @@ namespace Patches::Ui
 
 		//Fix map images in the selection menu.
 		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
+		// remove recent maps, fileshare menu items
+		Pointer(0x0169E270).Write(uint32_t(&c_gui_map_category_datasource_init));
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1584,5 +1607,40 @@ namespace
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
 		
 		return flags;
+	}
+
+	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource)
+	{
+		static auto c_gui_data_init = ((bool(__thiscall*)(void*, int))(0x00AD52F0));
+		static auto maps_get_multiplayer_map_ids = (void(*)(int* pMapIds, int* pCount))(0x0054BEE0);
+		static auto maps_get_multiplayer_level = (bool(*)(int mapId, uint8_t* data))(0x0054CB00);
+		static auto sub_54BFD0 = (bool(*)(int mapId))(0x54BFD0);
+
+		if (!c_gui_data_init(thisptr, datasource))
+			return false;
+
+		int mapIds[50];
+		int numMapIds = 50;
+		maps_get_multiplayer_map_ids(mapIds, &numMapIds);
+
+		thisptr->ItemCount = 0;
+		for (auto i = 0; i < numMapIds; i++)
+		{
+			uint8_t levelInfo[0x360];
+			if (sub_54BFD0(mapIds[i]) && maps_get_multiplayer_level(mapIds[i], levelInfo))
+			{
+				auto& item = thisptr->items[thisptr->ItemCount];
+
+				item.Index = 2;
+				item.MapId = mapIds[i];
+				wcsncpy(item.Name, (wchar_t*)(levelInfo + 0x8), 48);
+				wcsncpy(item.Description, (wchar_t*)(levelInfo + 0x48), 256);
+				item.field_268 = *(uint32_t*)(levelInfo + 0x34c);
+				thisptr->ItemCount++;
+			}
+		}
+
+		std::qsort(thisptr->items, thisptr->ItemCount, 0x26c, (int(*)(const void*, const void*))0xADA1D0);
+		return true;
 	}
 }
