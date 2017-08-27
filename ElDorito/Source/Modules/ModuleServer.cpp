@@ -31,6 +31,15 @@
 
 namespace
 {
+	bool VarServerNameUpdated(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		//Trim server name to 128 characters
+		if (Modules::ModuleServer::Instance().VarServerName->ValueString.length() > 128)
+			Modules::ModuleServer::Instance().VarServerName->ValueString = Modules::ModuleServer::Instance().VarServerName->ValueString.substr(0, 128);
+
+		return true;
+	}
+
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
@@ -1163,7 +1172,7 @@ namespace Modules
 {
 	ModuleServer::ModuleServer() : ModuleBase("Server")
 	{
-		VarServerName = AddVariableString("Name", "server_name", "The name of the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), "HaloOnline Server");
+		VarServerName = AddVariableString("Name", "server_name", "The name of the server (limited to 128 characters)", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), "HaloOnline Server", VarServerNameUpdated);
 		VarServerNameClient = AddVariableString("NameClient", "server_name_client", "", eCommandFlagsInternal);
 		Server::VariableSynchronization::Synchronize(VarServerName, VarServerNameClient);
 
