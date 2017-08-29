@@ -25,6 +25,7 @@
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include "../Modules/ModuleTweaks.hpp"
+#include "../Modules/ModuleCamera.hpp"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -546,27 +547,38 @@ namespace Patches::Ui
 		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
 		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
 
-		//If the camera mode needs the HUD with no distortion, add a ToggleHUDDistortion(false); case (or just use default).
-		//If the camera mode needs the HUD with distortion, add a ToggleHUDDistortion(true); case.
-		//Else, add a break; case.
-
-		if (Modules::ModuleTweaks::Instance().VarFlatHUD->ValueInt)
+		if (Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt != 0)
 		{
-			ToggleHUDDistortion(false);
+			ToggleHUDDistortion(true);
 			return;
 		}
 
 		switch (cameraFunc) //Add cases as required.
 		{
-		case 0x0166acb0: //player first person
-			ToggleHUDDistortion(true);
-			break;
-		case 0x16726D0: //flying camera
-		case 0x16728A8: //static camera
-			break;
-		default:
+			//Unknown cameras:
+			//01672130 - c_camera
+			//01672920 - c_authored_camera
+			//0165A64C - c_director?
+
+		case 0x16724D4: //c_following_camera
+		case 0x16725DC: //c_dead_camera
+		case 0x167265C: //c_orbiting_camera
+		case 0x167280C: //c_scripted_camera
 			ToggleHUDDistortion(false);
 			break;
+
+		case 0x166ACB0: //c_first_person_camera
+			if (Modules::ModuleTweaks::Instance().VarFlatHUD->ValueInt == 1)
+				ToggleHUDDistortion(false);
+			else
+				ToggleHUDDistortion(true);
+			break;
+
+		case 0x165A6E4: //c_null_camera
+		case 0x16726D0: //c_flying_camera
+		case 0x16728A8: //c_static_camera
+		default:
+			ToggleHUDDistortion(true);
 		}
 	}
 }

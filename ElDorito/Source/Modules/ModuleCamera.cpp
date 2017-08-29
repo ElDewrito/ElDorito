@@ -2,6 +2,7 @@
 #include <sstream>
 #include "../ElDorito.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Patches/Ui.hpp"
 
 namespace
 {
@@ -149,6 +150,8 @@ namespace
 			status = "hidden.";
 
 		Modules::ModuleCamera::Instance().HideHudPatch.Apply(!statusBool);
+
+		Patches::Ui::UpdateHUDDistortion();
 
 		returnInfo = "HUD " + status;
 		return true;
