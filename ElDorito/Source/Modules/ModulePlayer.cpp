@@ -1,17 +1,16 @@
 #include <ctime>
 #include "ModulePlayer.hpp"
 #include "../ElDorito.hpp"
-#include "../Patches/Armor.hpp"
+#include "../Game/Armor.hpp"
 #include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
-#include "../Patches/Armor.hpp"
 #include <iomanip>
 
 namespace
 {
 	bool VariablePlayerArmorUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Armor::RefreshUiPlayer();
+		Game::Armor::RefreshUiPlayer();
 		return true;
 	}
 
@@ -30,7 +29,7 @@ namespace
 #ifdef _DEBUG
 		Patches::PlayerRepresentation::UpdateLocalRepresentation();
 #endif
-		Patches::Armor::RefreshUiPlayer();
+		Game::Armor::RefreshUiPlayer();
 		return true;
 	}
 
@@ -63,7 +62,7 @@ namespace
 			return false;
 		}
 
-		Patches::Armor::SetUiPlayewrModelTransform(&position, nullptr);
+		Game::Armor::SetUiPlayerModelTransform(&position, nullptr);
 
 		return true;
 	}
@@ -77,7 +76,7 @@ namespace
 			return false;
 		}
 
-		Patches::Armor::SetUiPlayewrModelTransform(nullptr, &rotationAngle);
+		Game::Armor::SetUiPlayerModelTransform(nullptr, &rotationAngle);
 
 		return true;
 	}
@@ -87,13 +86,10 @@ namespace Modules
 {
 	ModulePlayer::ModulePlayer() : ModuleBase("Player")
 	{
-		VarArmorAccessory = AddVariableString("Armor.Accessory", "armor_accessory", "Armor ID for player accessory", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
-		VarArmorArms = AddVariableString("Armor.Arms", "armor_arms", "Armor ID for player arms", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
-		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
 		VarArmorHelmet = AddVariableString("Armor.Helmet", "armor_helmet", "Armor ID for player helmet", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
-		VarArmorLegs = AddVariableString("Armor.Legs", "armor_legs", "Armor ID for player legs", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
-		VarArmorPelvis = AddVariableString("Armor.Pelvis", "armor_pelvis", "Armor ID for player pelvis", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
-		VarArmorShoulders = AddVariableString("Armor.Shoulders", "armor_shoulders", "Armor ID for player shoulders", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorChest = AddVariableString("Armor.Chest", "armor_chest", "Armor ID for player chest", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorRightShoulder = AddVariableString("Armor.RightShoulder", "armor_right_shoulder", "Armor ID for player right shoulder", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
+		VarArmorLeftShoulder = AddVariableString("Armor.LeftShoulder", "armor_left_shoulder", "Armor ID for player left shoulder", eCommandFlagsArchived, "", VariablePlayerArmorUpdate);
 		AddCommand("Armor.Update", "armor_update", "Update the player's armor.", eCommandFlagsHidden, VariablePlayerArmorUpdate);
 		AddCommand("Armor.SetUiModelPosition", "armor_ui_player_model_position", "Set the position of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelPosition);
 		AddCommand("Armor.SetUiModelRotation", "armor_ui_player_model_rotation", "Set the rotation of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelRotation);
@@ -117,7 +113,7 @@ namespace Modules
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 
-		AddCommand("ListRenderWeapons", "list_render_weapons", "Lists available weapons to display on the player's render mannequin", eCommandFlagsNone, Patches::Armor::CommandPlayerListRenderWeapons);
+		AddCommand("ListRenderWeapons", "list_render_weapons", "Lists available weapons to display on the player's render mannequin", eCommandFlagsNone, Game::Armor::CommandPlayerListRenderWeapons);
 
 		// patch Game_GetPlayerName to get the name from our field
 		Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);

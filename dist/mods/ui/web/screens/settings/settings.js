@@ -87,15 +87,12 @@ var settingsToLoad = [
     ['renderWeapon', 'Player.RenderWeapon'], 
     ['armorHelmet', 'Player.Armor.Helmet'], 
     ['armorChest', 'Player.Armor.Chest'],
-    ['armorShoulders', 'Player.Armor.Shoulders'], 
-    ['armorArms', 'Player.Armor.Arms'], 
-    ['armorLegs', 'Player.Armor.Legs'], 
-    ['armorAcc', 'Player.Armor.Accessory'], 
+    ['armorRightShoulder', 'Player.Armor.RightShoulder'],
+    ['armorLeftShoulder', 'Player.Armor.LeftShoulder'],
     ['colorsPrimary', 'Player.Colors.Primary'], 
     ['colorsSecondary', 'Player.Colors.Secondary'], 
     ['colorsVisor', 'Player.Colors.Visor'],
-    ['colorsLights', 'Player.Colors.Lights'], 
-    ['colorsHolo', 'Player.Colors.Holo'],
+    ['colorsLights', 'Player.Colors.Lights'],
     ['sUPNP','UPnP.Enabled'], 
     ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding'], 
     ['tDisableFog', 'Tweaks.DisableReactorFog'], 
@@ -114,33 +111,42 @@ var settingsToLoad = [
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
-var armorList = [
-	["Air Assault","air_assault"],
-	["Ballista","ballista"],
-	["Chameleon","chameleon"],
-	["Cyclops","cyclops"],
-	["Demo","demo"],
-	["Dutch","dutch"],
-	["Gladiator","gladiator"],
-	["Gungnir","gungnir"],
-	["Halberd","halberd"],
-	["Hammerhead","hammerhead"],
-	["Hoplite","hoplite"],
-	["Juggernaut","juggernaut"],
-	["Mac","mac"],
-	["Mercenary","mercenary"],
-	["Nihard","nihard"],
-	["Omni","omni"],
-	["Oracle","oracle"],
-	["Orbital","orbital"],
-	["Renegade","renegade"],
-	["Scanner","scanner"],
-	["Shark","shark"],
-	["Silverback","silverback"],
-	["Spectrum","spectrum"],
-	["Stealth","stealth"],
-	["Strider","strider"],
-	["Widow Maker","widow_maker"]
+var armorShoulderList = [
+    ["MJOLNIR Mk. VI","base"],
+    ["MJOLNIR/CQB","mp_cobra"],
+    ["MJOLNIR/EOD","mp_regulator"],
+    ["MJOLNIR/EVA","mp_intruder"],
+    ["MJOLNIR/Recon","mp_ninja"],
+    ["MJOLNIR/Scout","mp_scout"],
+    ["MJOLNIR/Security","mp_marathon"],
+    ["HAYABUSA","mp_ryu"]
+];
+var armorHelmetList = [
+    ["MJOLNIR Mk. VI","base"],
+    ["MJOLNIR Mk. V","mp_markv"],
+    ["MJOLNIR/CQB","mp_cobra"],
+    ["MJOLNIR/EOD","mp_regulator"],
+    ["MJOLNIR/EVA","mp_intruder"],
+    ["MJOLNIR/Recon","mp_ninja"],
+    ["MJOLNIR/Rogue","mp_rogue"],
+    ["MJOLNIR/Scout","mp_scout"],
+    ["MJOLNIR/Security","mp_marathon"],
+    ["HAYABUSA","mp_ryu"],
+    ["ODST","mp_odst"]
+];
+var armorChestList = [
+	["MJOLNIR Mk. VI","base"],
+    ["MJOLNIR/Bungie","mp_bungie"],
+	["MJOLNIR/CQB","mp_cobra"],
+    ["MJOLNIR/EOD","mp_regulator"],
+	["MJOLNIR/EVA","mp_intruder"],
+	["MJOLNIR/Recon","mp_ninja"],
+    ["MJOLNIR/Rogue","mp_rogue"],
+    ["MJOLNIR/Scout","mp_scout"],
+    ["MJOLNIR/Security","mp_marathon"],
+	["HAYABUSA","mp_ryu"],
+    ["HAYABUSA/Katana","mp_katana"],
+    ["ODST","mp_odst"]
 ];
 var accessoryList = [
     ["None", ""],
@@ -225,12 +231,10 @@ $(document).ready(function(){
         }
         setOptionList('renderWeapon', weaponArray);
     });
-	setOptionList('armorHelmet', armorList);
-	setOptionList('armorChest', armorList);
-	setOptionList('armorShoulders', armorList);
-	setOptionList('armorArms', armorList);
-	setOptionList('armorLegs', armorList);
-    setOptionList('armorAcc', accessoryList);
+	setOptionList('armorHelmet', armorHelmetList);
+	setOptionList('armorChest', armorChestList);
+	setOptionList('armorRightShoulder', armorShoulderList);
+	setOptionList('armorLeftShoulder', armorShoulderList);
     setOptionList('gIconSet', controllerIconPacks);
     dew.command('Game.ListMedalPacks', {}).then(function(response) {
         var packArray = [];
@@ -1183,7 +1187,7 @@ function setButtonLists(){
     }
 }
 function randomArmor(){
-    var armorArray = ['armorHelmet','armorChest','armorShoulders','armorArms','armorLegs'];
+    var armorArray = ['armorHelmet','armorChest','armorRightShoulder','armorLeftShoulder'];
     for(var i = 0; i < armorArray.length; i++) {
         var $options = $('#'+armorArray[i]).find('option'),
             random = ~~(Math.random() * $options.length);
@@ -1197,7 +1201,7 @@ function randomArmor(){
 }
 
 function randomColors(){
-    var colorArray = ['colorsPrimary','colorsSecondary','colorsVisor','colorsLights','colorsHolo'];
+    var colorArray = ['colorsPrimary','colorsSecondary','colorsVisor','colorsLights'];
     for(var i = 0; i < colorArray.length; i++) {
         var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16).toUpperCase();
         $('#'+colorArray[i]).css("background-color",randomColor);

@@ -270,9 +270,6 @@
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp">
       <Filter>Modules</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Patches\Armor.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Patches\Assassination.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
@@ -469,6 +466,10 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Pointer.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebForge.cpp" />
+    <ClCompile Include="Source\Game\Armor.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -782,9 +783,6 @@
     </ClInclude>
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp">
       <Filter>Modules</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Patches\Armor.hpp">
-      <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Patches\Assassination.hpp">
       <Filter>Patches</Filter>
@@ -1101,6 +1099,10 @@
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\Settings.hpp" />
     <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebForge.hpp" />
+    <ClInclude Include="Source\Game\Armor.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

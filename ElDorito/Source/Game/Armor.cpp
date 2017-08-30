@@ -3,7 +3,6 @@
 #include <map>
 
 #include "Armor.hpp"
-#include "PlayerPropertiesExtension.hpp"
 #include "../Patch.hpp"
 #include "../Modules/ModulePlayer.hpp"
 
@@ -42,12 +41,11 @@ namespace
 
 	std::map<std::string, uint8_t> helmetIndices;
 	std::map<std::string, uint8_t> chestIndices;
-	std::map<std::string, uint8_t> shouldersIndices;
-	std::map<std::string, uint8_t> armsIndices;
-	std::map<std::string, uint8_t> legsIndices;
-	std::map<std::string, uint8_t> accIndices;
-	std::map<std::string, uint8_t> pelvisIndices;
+	std::map<std::string, uint8_t> rightShoulderIndices;
+	std::map<std::string, uint8_t> leftShoulderIndices;
 	std::map<std::string, uint16_t> weaponIndices;
+
+	bool updateUiPlayerArmor = false; // Set to true to update the Spartan on the main menu
 
 	uint8_t GetArmorIndex(const std::string &name, const std::map<std::string, uint8_t> &Indices)
 	{
@@ -78,11 +76,8 @@ namespace
 
 		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndices);
 		out->Armor[ArmorIndices::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndices);
-		out->Armor[ArmorIndices::Shoulders] = GetArmorIndex(playerVars.VarArmorShoulders->ValueString, shouldersIndices);
-		out->Armor[ArmorIndices::Arms] = GetArmorIndex(playerVars.VarArmorArms->ValueString, armsIndices);
-		out->Armor[ArmorIndices::Legs] = GetArmorIndex(playerVars.VarArmorLegs->ValueString, legsIndices);
-		out->Armor[ArmorIndices::Acc] = GetArmorIndex(playerVars.VarArmorAccessory->ValueString, accIndices);
-		out->Armor[ArmorIndices::Pelvis] = GetArmorIndex(playerVars.VarArmorPelvis->ValueString, pelvisIndices);
+		out->Armor[ArmorIndices::RightShoulder] = GetArmorIndex(playerVars.VarArmorRightShoulder->ValueString, rightShoulderIndices);
+		out->Armor[ArmorIndices::LeftShoulder] = GetArmorIndex(playerVars.VarArmorLeftShoulder->ValueString, leftShoulderIndices);
 	}
 
 	uint8_t ValidateArmorPiece(const std::map<std::string, uint8_t> &indices, const uint8_t index)
@@ -90,85 +85,64 @@ namespace
 		// Just do a quick check to see if the index has a key associated with it,
 		// and force it to 0 if not
 		for (auto pair : indices)
-		{
 			if (pair.second == index)
 				return index;
-		}
 
 		return 0;
 	}
-
-	class ArmorExtension : public Patches::Network::PlayerPropertiesExtension<PlayerCustomization>
-	{
-	protected:
-		void BuildData(int playerIndex, PlayerCustomization *out) override
-		{
-			BuildPlayerCustomization(Modules::ModulePlayer::Instance(), out);
-		}
-
-		void ApplyData(int playerIndex, PlayerProperties *properties, const PlayerCustomization &data) override
-		{
-			auto armorSessionData = &properties->Customization;
-			armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndices, data.Armor[ArmorIndices::Helmet]);
-			armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndices, data.Armor[ArmorIndices::Chest]);
-			armorSessionData->Armor[ArmorIndices::Shoulders] = ValidateArmorPiece(shouldersIndices, data.Armor[ArmorIndices::Shoulders]);
-			armorSessionData->Armor[ArmorIndices::Arms] = ValidateArmorPiece(armsIndices, data.Armor[ArmorIndices::Arms]);
-			armorSessionData->Armor[ArmorIndices::Legs] = ValidateArmorPiece(legsIndices, data.Armor[ArmorIndices::Legs]);
-			armorSessionData->Armor[ArmorIndices::Acc] = ValidateArmorPiece(accIndices, data.Armor[ArmorIndices::Acc]);
-			armorSessionData->Armor[ArmorIndices::Pelvis] = ValidateArmorPiece(pelvisIndices, data.Armor[ArmorIndices::Pelvis]);
-			memcpy(armorSessionData->Colors, data.Colors, sizeof(data.Colors));
-		}
-
-		void Serialize(Blam::BitStream *stream, const PlayerCustomization &data) override
-		{
-			// Colors
-			for (int i = 0; i < ColorIndices::Count; i++)
-				stream->WriteUnsigned<uint32_t>(data.Colors[i], 24);
-
-			// Armor
-			for (int i = 0; i < ArmorIndices::Count; i++)
-				stream->WriteUnsigned<uint8_t>(data.Armor[i], 0, MaxArmorIndices[i]);
-
-			stream->WriteUnsigned<uint32_t>(data.Unknown1C, 0, 0xFFFFFFFF);
-		}
-
-		void Deserialize(Blam::BitStream *stream, PlayerCustomization *out) override
-		{
-			memset(out, 0, sizeof(PlayerCustomization));
-
-			// Colors
-			for (int i = 0; i < ColorIndices::Count; i++)
-				out->Colors[i] = stream->ReadUnsigned<uint32_t>(24);
-
-			// Armor
-			for (int i = 0; i < ArmorIndices::Count; i++)
-				out->Armor[i] = stream->ReadUnsigned<uint8_t>(0, MaxArmorIndices[i]);
-
-			out->Unknown1C = stream->ReadUnsigned<uint32_t>(0, 0xFFFFFFFF);
-		}
-	};
-
-	bool updateUiPlayerArmor = false; // Set to true to update the Spartan on the main menu
-	void UiPlayerModelArmorHook();
-	void ScoreboardPlayerModelArmorHook();
 }
 
-namespace Patches::Armor
+namespace Game::Armor
 {
-	void ApplyAll()
+	void ArmorExtension::BuildData(int playerIndex, PlayerCustomization *out)
 	{
-		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<ArmorExtension>());
+		BuildPlayerCustomization(Modules::ModulePlayer::Instance(), out);
+	}
 
-		// Fix the player model on the main menu
-		// Hook(0x20086D, UiPlayerModelArmorHook, HookFlags::IsCall).Apply();
+	void ArmorExtension::ApplyData(int playerIndex, PlayerProperties *properties, const PlayerCustomization &data)
+	{
+		auto armorSessionData = &properties->Customization;
+		armorSessionData->Armor[ArmorIndices::Helmet] = ValidateArmorPiece(helmetIndices, data.Armor[ArmorIndices::Helmet]);
+		armorSessionData->Armor[ArmorIndices::Chest] = ValidateArmorPiece(chestIndices, data.Armor[ArmorIndices::Chest]);
+		armorSessionData->Armor[ArmorIndices::RightShoulder] = ValidateArmorPiece(rightShoulderIndices, data.Armor[ArmorIndices::RightShoulder]);
+		armorSessionData->Armor[ArmorIndices::LeftShoulder] = ValidateArmorPiece(leftShoulderIndices, data.Armor[ArmorIndices::LeftShoulder]);
+		memcpy(armorSessionData->Colors, data.Colors, sizeof(data.Colors));
+	}
 
-		// Fix rendering the scoreboard player model
-		// (todo: figure out why your biped doesn't show on the postgame screen...there's probably something missing here)
-		Patch::NopFill(Pointer::Base(0x435DAB), 0x50);
-		Hook(0x4360D9, ScoreboardPlayerModelArmorHook, HookFlags::IsCall).Apply();
-		Patch::NopFill(Pointer::Base(0x4360DE), 0x1A9);
-		Pointer::Base(0x43628A).Write<uint8_t>(0x1C);
-		Patch::NopFill(Pointer::Base(0x43628B), 0x3);
+	void ArmorExtension::Serialize(Blam::BitStream *stream, const PlayerCustomization &data)
+	{
+		// Colors
+		for (int i = 0; i < ColorIndices::Count; i++)
+			stream->WriteUnsigned<uint32_t>(data.Colors[i], 24);
+
+		// Armor
+		for (int i = 0; i < ArmorIndices::Count; i++)
+			stream->WriteUnsigned<uint8_t>(data.Armor[i], 0, MaxArmorIndices[i]);
+
+		// Unused
+		for (int i = 0; i < 3; i++)
+			stream->WriteUnsigned<uint8_t>(0, 8);
+
+		stream->WriteUnsigned<uint32_t>(data.Unknown1C, 0, 0xFFFFFFFF);
+	}
+
+	void ArmorExtension::Deserialize(Blam::BitStream *stream, PlayerCustomization *out)
+	{
+		memset(out, 0, sizeof(PlayerCustomization));
+
+		// Colors
+		for (int i = 0; i < ColorIndices::Count; i++)
+			out->Colors[i] = stream->ReadUnsigned<uint32_t>(24);
+
+		// Armor
+		for (int i = 0; i < ArmorIndices::Count; i++)
+			out->Armor[i] = stream->ReadUnsigned<uint8_t>(0, MaxArmorIndices[i]);
+
+		// Unused
+		for (int i = 0; i < 3; i++)
+			stream->ReadUnsigned<uint8_t>(8);
+
+		out->Unknown1C = stream->ReadUnsigned<uint32_t>(0, 0xFFFFFFFF);
 	}
 
 	void RefreshUiPlayer()
@@ -183,9 +157,7 @@ namespace Patches::Armor
 			auto &perm = element.Permutations[i];
 
 			if (!perm.FirstPersonArmorModel && !perm.ThirdPersonArmorObject)
-			{
 				continue;
-			}
 
 			auto permName = std::string(Blam::Cache::StringIDCache::Instance.GetString(perm.Name));
 
@@ -193,7 +165,7 @@ namespace Patches::Armor
 		}
 	}
 
-	void ApplyAfterTagsLoaded()
+	void LoadArmorPermutations()
 	{
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::Game::Globals;
@@ -207,48 +179,23 @@ namespace Patches::Armor
 			auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.PieceRegion));
 
 			if (string == "helmet")
-			{
 				AddArmorPermutations(element, helmetIndices);
-			}
 			else if (string == "chest")
-			{
 				AddArmorPermutations(element, chestIndices);
-			}
-			else if (string == "shoulders")
-			{
-				AddArmorPermutations(element, shouldersIndices);
-			}
-			else if (string == "arms")
-			{
-				AddArmorPermutations(element, armsIndices);
-			}
-			else if (string == "legs")
-			{
-				AddArmorPermutations(element, legsIndices);
-			}
-			else if (string == "acc")
-			{
-				AddArmorPermutations(element, accIndices);
-			}
-			else if (string == "pelvis")
-			{
-				AddArmorPermutations(element, pelvisIndices);
-			}
-			else
-			{
-				throw std::exception("Invalid armor section");
-			}
+			else if (string == "rightshoulder")
+				AddArmorPermutations(element, rightShoulderIndices);
+			else if (string == "leftshoulder")
+				AddArmorPermutations(element, leftShoulderIndices);
 		}
 
 		for (auto &element : mulg->Universal->GameVariantWeapons)
 		{
-			auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
-			auto index = (uint16_t)element.Weapon.TagIndex;
+			if (element.Weapon.TagIndex == -1)
+				continue;
 
-			if (index != 0xFFFF)
-			{
-				weaponIndices.emplace(string, index);
-			}
+			weaponIndices.emplace(
+				std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name)),
+				(uint16_t)element.Weapon.TagIndex);
 		}
 	}
 
@@ -257,37 +204,12 @@ namespace Patches::Armor
 		std::stringstream ss;
 
 		for (auto &entry : weaponIndices)
-		{
 			ss << entry.first << std::endl;
-		}
 
 		returnInfo = ss.str();
 		return true;
 	}
 
-	void UpdateUiPlayerModelArmor()
-	{
-		UiPlayerModelArmorHook();
-	}
-
-	void SetUiPlayewrModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle)
-	{
-		if (newPosition)
-		{
-			s_UiPlayerModelState.Position = *newPosition;
-			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsTranslation;
-		}
-
-		if (rotationAngle)
-		{
-			s_UiPlayerModelState.RotationAngle = *rotationAngle;
-			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsRotation;
-		}
-	}
-}
-
-namespace
-{
 	__declspec(naked) void PoseWithWeapon(uint32_t unit, uint32_t weaponTag)
 	{
 		// This is a pretty big hack, basically I don't know where the function pulls the weapon index from
@@ -349,7 +271,7 @@ namespace
 		PoseWithWeapon(bipedObject, weaponIndices.find(weaponName)->second);
 	}
 
-	void UiPlayerModelArmorHook()
+	void UpdateUiPlayerModelArmor()
 	{
 		using namespace Blam::Math;
 
@@ -380,15 +302,20 @@ namespace
 
 		CustomizeBiped(uiPlayerBiped);
 		updateUiPlayerArmor = false;
-
-		// Note: the call that this hook replaces is for setting up armor based on the server data,
-		// so it's not necessary to call here
 	}
 
-	void ScoreboardPlayerModelArmorHook()
+	void SetUiPlayerModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle)
 	{
-		uint32_t scoreboardBiped = Pointer::Base(0x4C4C698).Read<uint32_t>();
-		if (scoreboardBiped != 0xFFFFFFFF)
-			CustomizeBiped(scoreboardBiped);
+		if (newPosition)
+		{
+			s_UiPlayerModelState.Position = *newPosition;
+			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsTranslation;
+		}
+
+		if (rotationAngle)
+		{
+			s_UiPlayerModelState.RotationAngle = *rotationAngle;
+			s_UiPlayerModelState.Flags |= UiPlayerModelState::eStateFlagsRotation;
+		}
 	}
 }
