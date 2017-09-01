@@ -43,7 +43,6 @@ namespace
 	std::map<std::string, uint8_t> chestIndices;
 	std::map<std::string, uint8_t> rightShoulderIndices;
 	std::map<std::string, uint8_t> leftShoulderIndices;
-	std::map<std::string, uint16_t> weaponIndices;
 
 	bool updateUiPlayerArmor = false; // Set to true to update the Spartan on the main menu
 
@@ -71,8 +70,6 @@ namespace
 			out->Colors[ColorIndices::Lights] = std::stoi(playerVars.VarColorsLights->ValueString.substr(1), 0, 16);
 		if (boost::regex_match(playerVars.VarColorsVisor->ValueString.c_str(), what, expression))
 			out->Colors[ColorIndices::Visor] = std::stoi(playerVars.VarColorsVisor->ValueString.substr(1), 0, 16);
-		if (boost::regex_match(playerVars.VarColorsHolo->ValueString.c_str(), what, expression))
-			out->Colors[ColorIndices::Holo] = std::stoi(playerVars.VarColorsHolo->ValueString.substr(1), 0, 16);
 
 		out->Armor[ArmorIndices::Helmet] = GetArmorIndex(playerVars.VarArmorHelmet->ValueString, helmetIndices);
 		out->Armor[ArmorIndices::Chest] = GetArmorIndex(playerVars.VarArmorChest->ValueString, chestIndices);
@@ -115,6 +112,9 @@ namespace Game::Armor
 		for (int i = 0; i < ColorIndices::Count; i++)
 			stream->WriteUnsigned<uint32_t>(data.Colors[i], 24);
 
+		// Unused
+		stream->WriteUnsigned<uint32_t>(0, 32);
+
 		// Armor
 		for (int i = 0; i < ArmorIndices::Count; i++)
 			stream->WriteUnsigned<uint8_t>(data.Armor[i], 0, MaxArmorIndices[i]);
@@ -133,6 +133,9 @@ namespace Game::Armor
 		// Colors
 		for (int i = 0; i < ColorIndices::Count; i++)
 			out->Colors[i] = stream->ReadUnsigned<uint32_t>(24);
+
+		// Unused
+		stream->ReadUnsigned<uint32_t>(32);
 
 		// Armor
 		for (int i = 0; i < ArmorIndices::Count; i++)
@@ -187,28 +190,11 @@ namespace Game::Armor
 			else if (string == "leftshoulder")
 				AddArmorPermutations(element, leftShoulderIndices);
 		}
-
-		for (auto &element : mulg->Universal->GameVariantWeapons)
-		{
-			if (element.Weapon.TagIndex == -1)
-				continue;
-
-			weaponIndices.emplace(
-				std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name)),
-				(uint16_t)element.Weapon.TagIndex);
-		}
 	}
 
-	bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		std::stringstream ss;
-
-		for (auto &entry : weaponIndices)
-			ss << entry.first << std::endl;
-
-		returnInfo = ss.str();
-		return true;
-	}
+	static const auto ApplyArmor = (void(*)(PlayerCustomization *customization, uint32_t objectDatum))(0x5A4430);
+	static const auto ApplyArmorColor = (void(*)(uint32_t objectDatum, int colorIndex, float *colorData))(0xB328F0);
+	static const auto UpdateArmorColors = (void(*)(uint32_t objectDatum))(0x5A2FA0);
 
 	__declspec(naked) void PoseWithWeapon(uint32_t unit, uint32_t weaponTag)
 	{
@@ -237,9 +223,6 @@ namespace Game::Armor
 		PlayerCustomization customization;
 		BuildPlayerCustomization(playerVars, &customization);
 
-		// Apply armor to the biped
-		typedef void(*ApplyArmorPtr)(PlayerCustomization *customization, uint32_t objectDatum);
-		ApplyArmorPtr ApplyArmor = reinterpret_cast<ApplyArmorPtr>(0x5A4430);
 		ApplyArmor(&customization, bipedObject);
 
 		// Apply each color
@@ -247,36 +230,26 @@ namespace Game::Armor
 		{
 			// Convert the color data from RGB to float3
 			float colorData[3];
-			typedef void(*RgbToFloatColorPtr)(uint32_t rgbColor, float *result);
-			RgbToFloatColorPtr RgbToFloatColor = reinterpret_cast<RgbToFloatColorPtr>(0x521300);
-			RgbToFloatColor(customization.Colors[i], colorData);
+			for (int j = 0; j < 3; j++)
+				colorData[2 - j] = (float)((uint8_t)(customization.Colors[i] >> (j * 8))) / 255.0f;
 
 			// Apply the color
-			typedef void(*ApplyArmorColorPtr)(uint32_t objectDatum, int colorIndex, float *colorData);
-			ApplyArmorColorPtr ApplyArmorColor = reinterpret_cast<ApplyArmorColorPtr>(0xB328F0);
 			ApplyArmorColor(bipedObject, i, colorData);
 		}
 
 		// Need to call this or else colors don't actually show up
-		typedef void(*UpdateArmorColorsPtr)(uint32_t objectDatum);
-		UpdateArmorColorsPtr UpdateArmorColors = reinterpret_cast<UpdateArmorColorsPtr>(0x5A2FA0);
 		UpdateArmorColors(bipedObject);
 
-		// Give the biped a weapon (0x151E = tag index for Assault Rifle)
-		auto weaponName = playerVars.VarRenderWeapon->ValueString;
-
-		if (weaponIndices.find(weaponName) == weaponIndices.end())
-			weaponName = (playerVars.VarRenderWeapon->ValueString = "assault_rifle");
-
-		PoseWithWeapon(bipedObject, weaponIndices.find(weaponName)->second);
+		// Pose the biped with the assault rifle
+		PoseWithWeapon(bipedObject, 0x151E);
 	}
+
+	static const auto Object_SetTransform = (void(*)(int objectIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *right, Blam::Math::RealVector3D *up, int a5))(0x00B33530);
+	static const auto GetCharPlatformBiped = (int(*)(int playerRepresentationIndex))(0x00BB5BD0);
 
 	void UpdateUiPlayerModelArmor()
 	{
 		using namespace Blam::Math;
-
-		static auto Object_SetTransform = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up, int a5))(0x00B33530);
-		static auto GetCharPlatformBiped = (int(*)(int playerRepresentationIndex))(0x00BB5BD0);
 
 		// Try to get the UI player biped
 		uint32_t uiPlayerBiped = GetCharPlatformBiped(2);

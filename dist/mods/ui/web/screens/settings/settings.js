@@ -83,8 +83,7 @@ var settingsToLoad = [
     ['vAGC','VoIP.AGC'],
     ['vNoiseSupress','VoIP.NoiseSupress'],
     ['vEchoCancelation','VoIP.EchoCancelation'],
-    ['pName', 'Player.Name'], 
-    ['renderWeapon', 'Player.RenderWeapon'], 
+    ['pName', 'Player.Name'],
     ['armorHelmet', 'Player.Armor.Helmet'], 
     ['armorChest', 'Player.Armor.Chest'],
     ['armorRightShoulder', 'Player.Armor.RightShoulder'],
@@ -219,18 +218,6 @@ $(document).ready(function(){
     });
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
-    dew.command('Weapon.List', {}).then(function(response){
-        var weaponList = response.split('\n');
-        var weaponArray = [];
-        for(i = 0; i < weaponList.length; i++){
-            var weapName = weaponList[i].split('Name: ')[1]
-            if(weapName && weapName != 'unarmed'){
-                var fancyName = weapName.replace(/_/g, ' ');
-                weaponArray.push([fancyName,weapName]);
-            }   
-        }
-        setOptionList('renderWeapon', weaponArray);
-    });
 	setOptionList('armorHelmet', armorHelmetList);
 	setOptionList('armorChest', armorChestList);
 	setOptionList('armorRightShoulder', armorShoulderList);

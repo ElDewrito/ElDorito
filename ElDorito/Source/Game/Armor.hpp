@@ -20,5 +20,4 @@ namespace Game::Armor
 	void LoadArmorPermutations();
 	void UpdateUiPlayerModelArmor();
 	void SetUiPlayerModelTransform(const Blam::Math::RealVector3D* newPosition, const float* rotationAngle);
-	bool CommandPlayerListRenderWeapons(const std::vector<std::string>& Arguments, std::string& returnInfo);
 }
