@@ -66,6 +66,7 @@ namespace
 	void SandboxEngineTickHook();
 	void __fastcall SandboxEngineObjectDisposeHook(void* thisptr, void* unused, uint32_t objectIndex);
 	void* ObjectPropertiesUIAllocateHook(int size);
+	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
@@ -125,6 +126,9 @@ namespace Patches::Forge
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
 		Hook(0x6E26C1, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
+		// hook the object creation menu to show the cef one
+		Hook(0x6E2729, ObjectCreationUIAllocateHook, HookFlags::IsCall).Apply();
+
 		// facilitate swapping materials based on shared storage
 		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
 		// disable the lightmap for reforge objects
@@ -952,6 +956,12 @@ namespace
 				Web::Ui::WebForge::ShowObjectProperties(currentObjectIndex);
 			}
 		}
+		return nullptr;
+	}
+
+	void* ObjectCreationUIAllocateHook(int size)
+	{
+		Web::Ui::WebForge::ShowObjectCreation();
 		return nullptr;
 	}
 

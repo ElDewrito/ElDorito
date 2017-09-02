@@ -74,6 +74,12 @@
 			"zIndex": 0
 		},
 		{
+			"id": "forge_object_creation",
+			"url": "dew://screens/forge/object_creation/",
+			"captureInput": true,
+			"zIndex": 0
+		},
+		{
 			"id": "forge_search",
 			"url": "dew://screens/forge/search/",
 			"captureInput": true,

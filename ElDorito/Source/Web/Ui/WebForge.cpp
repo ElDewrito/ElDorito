@@ -184,6 +184,10 @@ namespace
 	std::string SerializeObjectProperties(int16_t placementIndex);
 	void DeserializeObjectProperties(const rapidjson::Value &json, ObjectPropertySink& Setor);
 
+	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
+	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) { writer.Key(key); writer.Double(value); };
+	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
+
 	uint32_t s_CurrentObjectIndex = -1;
 }
 
@@ -201,6 +205,39 @@ namespace Web::Ui::WebForge
 
 			Web::Ui::ScreenLayer::Show("forge_object_properties", SerializeObjectProperties(currentObject->PlacementIndex));
 		}
+	}
+
+	void ShowObjectCreation()
+	{
+		const auto mapv = Forge::GetMapVariant();
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		char buff[256];
+
+		writer.StartObject();
+		writer.Key("budget");
+		writer.StartArray();
+		for (auto i = 0; i < mapv->BudgetEntryCount; i++) 
+		{
+			const auto& itemBudget = mapv->Budget[i];
+
+			sprintf_s(buff, 256, "0x%x", itemBudget.TagIndex);
+
+			writer.StartObject();
+			writer.Key("tagindex");
+			writer.String(buff);
+			SerializeProperty(writer, "max_allowed", itemBudget.DesignTimeMax);
+			SerializeProperty(writer, "count_on_map", itemBudget.CountOnMap);
+			SerializeProperty(writer, "runtime_min", itemBudget.RuntimeMin);
+			SerializeProperty(writer, "runtime_max", itemBudget.RuntimeMax);
+			writer.EndObject();
+		}	
+		writer.EndArray();
+		writer.EndObject();
+
+		Web::Ui::ScreenLayer::Show("forge_object_creation", buffer.GetString());
 	}
 
 	QueryError ProcessAction(const rapidjson::Value &p_Args, std::string *p_Result)
@@ -366,10 +403,6 @@ namespace
 			s_CurrentObjectIndex = RespawnObject(placement.ObjectIndex);
 		}
 	}
-
-	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
-	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) { writer.Key(key); writer.Double(value); };
-	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
 	std::string SerializeObjectProperties(int16_t placementIndex)
 	{
