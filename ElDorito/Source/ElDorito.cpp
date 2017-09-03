@@ -3,7 +3,7 @@
 #include "Utils/Utils.hpp"
 #include "ElPatches.hpp"
 #include "Patches/Network.hpp"
-#include "Server/DedicatedServer.hpp"
+#include "Server/Stats.hpp"
 #include "Server/ServerChat.hpp"
 #include "Server/VariableSynchronization.hpp"
 #include "Server/BanList.hpp"
@@ -225,6 +225,7 @@ void ElDorito::Initialize()
 	// Initialize server modules
 	Server::Chat::Initialize();
 	ChatCommands::Init();
+	Server::Stats::Init();
 	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
@@ -247,9 +248,8 @@ void ElDorito::Tick()
 
 
 	}
-	else
-		Server::DedicatedServer::Tick();
 
+	Server::Stats::Tick();
 	Server::Voting::Tick();
 	ChatCommands::Tick();
 
@@ -293,8 +293,10 @@ void ElDorito::OnMainMenuShown()
 		return;
 	GameHasMenuShown = true;
 	executeCommandQueue = true;
-	if (isDedicated)
-		Server::DedicatedServer::Init();
+	if (isDedicated) {
+		Modules::CommandMap::Instance().ExecuteCommand("Server.Lobbytype 2");
+		Modules::CommandMap::Instance().ExecuteCommand("Server.Mode 3");
+	}
 
 	if (!isDedicated)
 		Web::Ui::ScreenLayer::Show("title", "{}");

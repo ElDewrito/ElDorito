@@ -1,5 +1,5 @@
 #include <WS2tcpip.h>
-#include "DedicatedServer.hpp"
+#include "Stats.hpp"
 #include "../Blam/BlamEvents.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Patches/Events.hpp"
@@ -14,11 +14,8 @@
 #include <iomanip>
 
 
-namespace Server::DedicatedServer
+namespace Server::Stats
 {
-	//We are waiting a couple of seconds after calling Lobbytype before we call Server.Mode.
-	time_t setModeStartTime = 0;
-
 	//If we send stats right when the game ends, some of the team scores arent updated yet.
 	//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0.
 	time_t sendStatsTime = 0;
@@ -109,7 +106,7 @@ namespace Server::DedicatedServer
 	{
 
 		auto* session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished() || !session->IsHost() || Modules::ModuleServer::Instance().VarStatsServer->ValueString.empty())
+		if (!session || !session->IsEstablished() || !session->IsHost() || Modules::ModuleServer::Instance().VarStatsServer->ValueString.empty() || !Patches::Network::IsInfoSocketOpen())
 			return false;
 
 		rapidjson::StringBuffer s;
@@ -397,17 +394,13 @@ namespace Server::DedicatedServer
 }
 
 
-namespace Server::DedicatedServer
+namespace Server::Stats
 {
-
 	void Init()
 	{
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 		Patches::Events::OnEvent(OnEvent);
 		
-		Modules::CommandMap::Instance().ExecuteCommand("Server.Lobbytype 2");
-		time(&setModeStartTime);
-
 	}
 	void Tick()
 	{
@@ -417,16 +410,6 @@ namespace Server::DedicatedServer
 
 		time_t curTime1;
 		time(&curTime1);
-
-		if (setModeStartTime != 0)
-		{
-			auto elapsed = curTime1 - setModeStartTime;
-			if (elapsed > 2)
-			{
-				Modules::CommandMap::Instance().ExecuteCommand("Server.Mode 3");
-				setModeStartTime = 0;
-			}
-		}
 
 		if (sendStatsTime != 0)
 		{

@@ -351,9 +351,6 @@
     <ClCompile Include="Source\Server\BanList.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Server\DedicatedServer.cpp">
-      <Filter>Server</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Server\Rcon.cpp">
       <Filter>Server</Filter>
     </ClCompile>
@@ -469,6 +466,9 @@
     <ClCompile Include="Source\Web\Ui\WebForge.cpp" />
     <ClCompile Include="Source\Game\Armor.cpp">
       <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\Stats.cpp">
+      <Filter>Server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -865,9 +865,6 @@
     <ClInclude Include="Source\Server\BanList.hpp">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Server\DedicatedServer.hpp">
-      <Filter>Server</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Server\Rcon.hpp">
       <Filter>Server</Filter>
     </ClInclude>
@@ -1102,6 +1099,9 @@
     <ClInclude Include="Source\Web\Ui\WebForge.hpp" />
     <ClInclude Include="Source\Game\Armor.hpp">
       <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Server\Stats.hpp">
+      <Filter>Server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
