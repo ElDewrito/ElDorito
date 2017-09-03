@@ -148,6 +148,7 @@ namespace
 	const auto UI_ScreenManager_GetScreenWidget = (void* (__thiscall *)(void *thisptr, int a2, uint32_t nameId))(0x00AAB550);
 	const auto UI_ScreenManager_AnyActiveScreens = (bool(__thiscall *)(void *thisptr, int a2))(0x00AAA970);
 	const auto UI_GetScreenManager = (void*(*)())(0x00AAD930);
+	const auto UI_PlaySound = (void(*)(int index, uint32_t uiseTagIndex))(0x00AA5CD0);
 
 	void Hf2pInitHook()
 	{
@@ -173,11 +174,24 @@ namespace
 		auto uiStartAction = Blam::Input::GetActionState(eGameActionUiStart);
 		if (!(uiStartAction->Flags & eActionStateFlagsHandled) && uiStartAction->Ticks == 1)
 		{
+			auto isUsingController = *(bool*)0x0244DE98;
 			auto screenManager = (void*)0x05260F34;
+			const auto start_menu = 0x10084;
+
 			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0))
 			{
 				uiStartAction->Flags |= eActionStateFlagsHandled;
-				Patches::Ui::ShowDialog(0x10084, 0, 4, 0x1000C);
+				UI_PlaySound(7, -1);
+				Patches::Ui::ShowDialog(start_menu, 0, 4, 0x1000C);
+			}
+			else if (isUsingController)
+			{
+				auto screenWidget = UI_ScreenManager_GetScreenWidget(screenManager, 4, start_menu);
+				if (screenWidget)
+				{
+					uiStartAction->Flags |= eActionStateFlagsHandled;
+					UI_ScreenWidget_Close(screenWidget, 1);
+				}
 			}
 		}
 	}
@@ -283,6 +297,7 @@ namespace
 		switch (nameId)
 		{
 		case 0x4055: // control_settings
+			UI_PlaySound(3, -1); // A Button
 			CloseScreen(UI_GetScreenManager(), 0x10084);
 			Web::Ui::ScreenLayer::Show("settings", "{}");
 			return true;
