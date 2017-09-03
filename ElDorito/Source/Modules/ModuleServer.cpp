@@ -1299,10 +1299,6 @@ namespace Modules
 		VarServerNumberOfVotingOptions->ValueIntMin = 1;
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
 
-		VarServerAutoHost = AddVariableInt("AutoHost", "autohost", "Whether or not the game will automatically host a game on launch. Only works in dedi mode.", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1);
-		VarServerAutoHost->ValueIntMin = 0;
-		VarServerAutoHost->ValueIntMax = 1;
-
 		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
 		VarStatsServer = AddVariableString("StatsServer", "stats_server", "URL to send the stats to", eCommandFlagsArchived, "");
 		VarPlayerInfoEndpoint = AddVariableString("PlayerInfoEndpoint", "player_info_endpoint", "URL to request player info from", eCommandFlagsArchived, "");

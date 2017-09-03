@@ -404,12 +404,9 @@ namespace Server::DedicatedServer
 	{
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 		Patches::Events::OnEvent(OnEvent);
-		if (Modules::ModuleServer::Instance().VarServerAutoHost->ValueInt == 1)
-		{
-			Modules::CommandMap::Instance().ExecuteCommand("Server.Lobbytype 2");
-			time(&setModeStartTime);
-		}
-
+		
+		Modules::CommandMap::Instance().ExecuteCommand("Server.Lobbytype 2");
+		time(&setModeStartTime);
 
 	}
 	void Tick()
