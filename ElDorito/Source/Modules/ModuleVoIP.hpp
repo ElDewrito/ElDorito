@@ -13,7 +13,6 @@ namespace Modules
 		Command* VarAGC;
 		Command* VarNoiseSupress;
 		Command* VarPTTSoundEnabled;
-		Command* VarSpeakingPlayerOnHUD;
 
 		bool voipConnected = false;
 		bool voiceDetected = false;

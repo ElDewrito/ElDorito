@@ -270,33 +270,30 @@ function speak(user, peer) {
 
 		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
 
-			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
+			dew.callMethod("playerSpeaking", { "name": user, "value": true });
 
-				dew.callMethod("playerSpeaking", { "name": user, "value": true });
+			if ($.inArray(user, speaking) == -1) {
 
-				if ($.inArray(user, speaking) == -1) {
+				speaking.push(user);
 
-					speaking.push(user);
-
-					//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
-					if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
-					{
-						if(previouslyDisplayedSpeakersOnHUD)
-							populateSpeakingPlayersList();
-						else
-							addToSpeakingPlayersList(user);
-
-						previouslyDisplayedSpeakersOnHUD = false;
-					}
+				//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+				if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading)
+				{
+					if(previouslyDisplayedSpeakersOnHUD)
+						populateSpeakingPlayersList();
 					else
-					{
-						if(!previouslyDisplayedSpeakersOnHUD)
-							destroySpeakingPlayersList();
+						addToSpeakingPlayersList(user);
 
-						previouslyDisplayedSpeakersOnHUD = true;
-					}
+					previouslyDisplayedSpeakersOnHUD = false;
 				}
-			});
+				else
+				{
+					if(!previouslyDisplayedSpeakersOnHUD)
+						destroySpeakingPlayersList();
+
+					previouslyDisplayedSpeakersOnHUD = true;
+				}
+			}
 		});
 	});
 };
@@ -315,32 +312,29 @@ function stopSpeak(user, peer)
 
 		dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
 
-			dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
+			dew.callMethod("playerSpeaking", { "name": user, "value": false });
 
-				dew.callMethod("playerSpeaking", { "name": user, "value": false });
+			var index = $.inArray(user, speaking);
+			if (index != -1)
+				speaking.splice(index, 1);
 
-				var index = $.inArray(user, speaking);
-				if (index != -1)
-					speaking.splice(index, 1);
-
-				//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
-				if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading || hudToggleRes == 0)
-				{
-					if(previouslyDisplayedSpeakersOnHUD)
-						populateSpeakingPlayersList();
-					else
-						removeFromSpeakingPlayersList(user);
-
-					previouslyDisplayedSpeakersOnHUD = false;
-				}
+			//If the player is on the mainmenu, or doesn't want the speaking player to appear on the HUD, use the Overlay.
+			if(JSON.parse(mapPathRes).mapPath.includes("mainmenu") || JSON.parse(mapLoadingRes).loading)
+			{
+				if(previouslyDisplayedSpeakersOnHUD)
+					populateSpeakingPlayersList();
 				else
-				{	
-					if(!previouslyDisplayedSpeakersOnHUD)
-						destroySpeakingPlayersList();
+					removeFromSpeakingPlayersList(user);
 
-					previouslyDisplayedSpeakersOnHUD = true;
-				}
-			});
+				previouslyDisplayedSpeakersOnHUD = false;
+			}
+			else
+			{	
+				if(!previouslyDisplayedSpeakersOnHUD)
+					destroySpeakingPlayersList();
+
+				previouslyDisplayedSpeakersOnHUD = true;
+			}
 		});
 	});
 }
