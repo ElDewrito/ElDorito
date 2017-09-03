@@ -443,7 +443,7 @@ namespace
 		return true;
 	}
 
-	int FindPlayerByName(const std::string &name)
+	int FindPlayerByName(const std::string &name, bool findPeer = false)
 	{
 		auto* session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished() || !session->IsHost())
@@ -455,8 +455,13 @@ namespace
 			if (playerIdx == -1)
 				continue;
 			auto* player = &membership->PlayerSessions[playerIdx];
-			if (Utils::String::ThinString(player->Properties.DisplayName) == name)
-				return playerIdx;
+			if (Utils::String::ThinString(player->Properties.DisplayName) == name) {
+				if (findPeer)
+					return peerIdx;
+				else
+					return playerIdx;
+			}
+				
 		}
 		return -1;
 	}
@@ -1077,6 +1082,33 @@ namespace
 		Server::Chat::SendServerMessage(message);
 		return true;
 	}
+	bool CommandServerPM(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() <= 1)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		auto playerName = Arguments[0];
+		std::string message = Arguments[1];
+
+		auto* session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+		{
+			returnInfo = "You must be hosting a game to use this command";
+			return false;
+		}
+		auto peer = FindPlayerByName(playerName, true);
+		if (peer < 0)
+		{
+			returnInfo = "Player \"" + playerName + "\" not found.";
+			return false;
+		}
+		Server::Chat::SendServerMessage("(PM) " + message, peer);
+
+		return true;
+	}
 	bool ReloadVotingJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.size() < 1)
@@ -1236,6 +1268,8 @@ namespace Modules
 		VarMaxTeamSize->ValueIntMax = 16;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
+		AddCommand("PM", "pm", "Sends a pm to a player as the server. First argument is the player name, second is the message in quotes", eCommandFlagsHostOnly, CommandServerPM);
+
 		AddCommand("SubmitVote", "submitvote", "Sumbits a vote", eCommandFlagsNone, CommandServerSubmitVote, { "The vote to send to the host" });
 
 		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
