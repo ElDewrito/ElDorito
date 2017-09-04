@@ -153,10 +153,7 @@ namespace ChatCommands
 		}
 
 		//If the voting commands are not active at the moment, don't do anything.
-		if (!chatCommandsActive)
-		{
-			return false;
-		}
+		
 
 
 		for (auto elem : Commands)
@@ -181,6 +178,11 @@ namespace ChatCommands
 
 			if (cmd == (name))
 			{
+				if (!chatCommandsActive)
+				{
+					Server::Chat::SendServerMessage("This command is not currently active.", peer);
+					return true;
+				}
 				//Now that we know this is the command being invoked, lets prep the argument (if there is one) and pass it in
 				std::vector<std::string> argsVect;
 				for (int i = 1; i < numArgs; i++)
