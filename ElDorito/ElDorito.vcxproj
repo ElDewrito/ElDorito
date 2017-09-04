@@ -109,6 +109,7 @@
     <ClCompile Include="Source\Patches\Weapon.cpp" />
     <ClCompile Include="Source\Pointer.cpp" />
     <ClCompile Include="Source\Server\BanList.cpp" />
+    <ClCompile Include="Source\Server\DedicatedServer.cpp" />
     <ClCompile Include="Source\Server\Stats.cpp" />
     <ClCompile Include="Source\Server\Rcon.cpp" />
     <ClCompile Include="Source\Server\ServerChat.cpp" />
@@ -288,6 +289,7 @@
     <ClInclude Include="Source\Pointer.hpp" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\Server\BanList.hpp" />
+    <ClInclude Include="Source\Server\DedicatedServer.hpp" />
     <ClInclude Include="Source\Server\Stats.hpp" />
     <ClInclude Include="Source\Server\Rcon.hpp" />
     <ClInclude Include="Source\Server\ServerChat.hpp" />
