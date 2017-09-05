@@ -115,13 +115,12 @@ namespace Patches::Forge
 		Hook(0x7AF758, UnitFlyingHook, HookFlags::IsCall).Apply();
 		Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
 		Hook(0x19F4CA, Forge_UpdatePlayerEditorGlobalsHook, HookFlags::IsCall).Apply();
-		
+
 		Hook(0x180E66, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x185BBD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x181326, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x1AD4DD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x1824EA, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-
 
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
@@ -991,7 +990,7 @@ namespace
 	{
 		static auto MapVariant_SyncObjectProperties = (void(__thiscall *)(Blam::MapVariant* thisptr,
 			Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex))(0x00580E80);
-		static auto sub_B313E0 = (void(__cdecl *)(int objectIndex, char arg_4))(0xB313E0);
+		const auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
 
 		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
 
@@ -1004,10 +1003,11 @@ namespace
 
 			if (placement.PlacementFlags & 2)
 			{
-				if (placement.PlacementFlags & 2 && properties->ZoneShape  ==  4)
+				if (placement.PlacementFlags & 2 && properties->ZoneShape == 4)
 				{
 					object->HavokFlags |= 0x2C8;
-					sub_B313E0(objectIndex, 1);
+					object->HavokFlags &= ~0x100000u;
+					sub_59A620(objectIndex, 1);
 				}
 				else
 				{
@@ -1015,7 +1015,8 @@ namespace
 					{
 						object->HavokFlags &= ~0x2C8;
 						object->HavokFlags |= 0x80;
-						sub_B313E0(objectIndex, 1);
+						object->HavokFlags &= ~0x100000u;
+						sub_59A620(objectIndex, 1);
 					}
 				}
 			}
