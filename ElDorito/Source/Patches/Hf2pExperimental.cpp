@@ -332,37 +332,16 @@ namespace
 
 	void Hf2pLoadPreferencesHook()
 	{
-		// TODO: look into some of these functions further
-		static auto sub_50A190 = (void(__thiscall *)(void* thisptr))(0x50A190);
-		static auto sub_65C990 = (DWORD *(__thiscall*)(void* thisptr, int a2))(0x65C990);
-		static auto sub_50AD30 = (void(__cdecl*)(void* a1, void* a2))(0x50AD30);
-		static auto sub_50AC70 = (void(__cdecl*)(void* a1))(0x50AC70);
-		static auto sub_65CA30 = (void(__thiscall*)(void *thisptr))(0x65CA30);
-
 		const auto& moduleSettings = Modules::ModuleSettings::Instance();
 		const auto& moduleCamera = Modules::ModuleCamera::Instance();
 		const auto& moduleInput = Modules::ModuleInput::Instance();
 
+		const auto sub_50A520 = (void(*)())(0x0050A520);
+		sub_50A520();
+
 		Preferences* preferences = ElDorito::GetMainTls(0x18)[0];
 		if (!preferences)
 			return;
-
-		memset(preferences, 0, 0x42000u);
-		*(DWORD *)(preferences->Unknown20) = 0x33;
-		*(DWORD *)(preferences->Unknown20 + 0x24) = -1;
-		*(DWORD *)(preferences->Unknown20 + 0x28) = -1;
-		*(DWORD *)(preferences->Unknown20 + 0x34) = 0;
-		preferences->Unknown41BC0 = 1;
-		preferences->DisplaySubtitles = 0;
-		preferences->Unknown41BC8 = 0;
-		preferences->Unknown41BDC = 4;
-		preferences->Unknown41BD0 = 0;
-		preferences->Unknown41C6A = 1;
-
-		uint8_t osInfo[0x34];
-		sub_65C990(osInfo, preferences->Unknown41BC8);
-		sub_50AD30(osInfo, &preferences->Unknown41BDC); // display preferences
-		sub_50AC70(&preferences->ControlsMethod);
 
 		int screenResolutionWidth, screenResolutionHeight;
 		moduleSettings.GetScreenResolution(&screenResolutionWidth, &screenResolutionHeight);
@@ -398,10 +377,6 @@ namespace
 		preferences->MouseAcceleration = moduleSettings.VarMouseAcceleration->ValueInt;
 		preferences->MouseFilter = uint8_t(moduleSettings.VarMouseFilter->ValueInt);
 		preferences->InvertMouse = uint8_t(moduleSettings.VarInvertMouse->ValueInt);
-
-		memmove(ElDorito::GetMainTls(0x18)[0](0x42020), &preferences->Unknown00 + 0x20, 0x41DF0u);
-
-		sub_65CA30(osInfo); // osInfo dtor
 
 		preferences->Unknown00 = 1;
 		preferences->IsDirty = 1;
