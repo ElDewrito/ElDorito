@@ -1405,7 +1405,7 @@ namespace Modules
 		VarVetoVotePassPercentage->ValueIntMin = 1;
 		VarVetoVotePassPercentage->ValueIntMax = 100;
 
-		VarVetoSystemSelectionType = AddVariableInt("VetoSystemSelectionType", "veto_system_selection_type", "0 for ordered, 1 for random ", eCommandFlagsArchived, 1);
+		VarVetoSystemSelectionType = AddVariableInt("VetoSystemSelectionType", "veto_system_selection_type", "0 for random, 1 for ordered ", eCommandFlagsArchived, 0);
 		VarVetoSystemSelectionType->ValueIntMin = 0;
 		VarVetoSystemSelectionType->ValueIntMax = 1;
 
