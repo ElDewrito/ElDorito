@@ -142,7 +142,7 @@ var armorChestList = [
     ["MJOLNIR/Recon","mp_ninja"],
     ["MJOLNIR/Scout","mp_scout"],
     ["HAYABUSA","mp_ryu"],
-    ["HAYABUSA/Katana","mp_katana"],
+    ["HAYABUSA/Katana","mp_katana"]
 ];
 var accessoryList = [
     ["None", ""],
