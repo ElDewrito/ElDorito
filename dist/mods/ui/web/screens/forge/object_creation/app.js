@@ -163,8 +163,12 @@
   				var tagindex = parseInt(x.getAttribute('tagindex'));
 
   				var itemBudget = budget[tagindex];
-  				var remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
+          var remainingItems = 255;
 
+          if(itemBudget) {
+            remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
+          }
+  				
   				var help = getNodeHelp(x);
 
   				html += `
@@ -310,13 +314,13 @@
 	})();
 
   	dew.on('show', function(e) {
-		for(var i = 0; i < e.data.budget.length; i++) {
-			var itemBudget = e.data.budget[i];
-			budget[parseInt(itemBudget.tagindex)] = itemBudget;
-		}
-		var oldSelectedIndex = objectListController.selectedIndex();
-		renderObjectList(treeList.selectedNode());
-		objectListController.setSelectedIndex(oldSelectedIndex);
+  		for(var i = 0; i < e.data.budget.length; i++) {
+  			var itemBudget = e.data.budget[i];
+  			budget[parseInt(itemBudget.tagindex)] = itemBudget;
+  		}
+  		var oldSelectedIndex = objectListController.selectedIndex();
+  		renderObjectList(treeList.selectedNode());
+  		objectListController.setSelectedIndex(oldSelectedIndex);
 	});
 
 	changeTab('props');

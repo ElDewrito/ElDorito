@@ -11,6 +11,7 @@
 #include "../Blam/Math/RealMatrix4x3.hpp"
 #include "../Blam/Math/MathUtil.hpp"
 #include "../Blam/BlamNetwork.hpp"
+#include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -71,6 +72,12 @@ namespace
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
+	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
+	int __fastcall c_map_variant_get_budget_index_for_item_hook(Blam::MapVariant *thisptr, void* unused, int tagIndex);
+	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
+	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
+		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
@@ -141,6 +148,12 @@ namespace Patches::Forge
 		// enable teleporter volume editing compliments of zedd
 		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
 
+		// increase forge item limit
+		Hook(0x199FC9, c_map_variant_get_budget_index_for_item_hook, HookFlags::IsCall).Apply();
+		Hook(0x184887, c_map_variant_get_budget_index_for_item_hook, HookFlags::IsCall).Apply();
+		Hook(0x151506, c_map_variant_initialize_from_scenario_hook, HookFlags::IsCall).Apply();
+		Hook(0x185DC1, c_map_variant_update_item_budget_hook, HookFlags::IsCall).Apply();
+		Hook(0x181F30, c_map_variant_spawn_object_hook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1021,5 +1034,154 @@ namespace
 				}
 			}
 		}
+	}
+
+	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused)
+	{
+		struct s_scenario_palette_item
+		{
+			Blam::Tags::TagReference Object;
+			uint32_t Unknown10;
+			uint32_t Unknown14;
+			uint32_t Unknown18;
+			uint32_t Unknown1c;
+			uint32_t Unknown20;
+			uint32_t Unknown24;
+			uint32_t Unknown28;
+			uint32_t Unknown2c;
+		};
+
+		const auto c_map_variant_initialize = (void(__thiscall *)(MapVariant *thisptr, int mapId))(0x00581F70);
+		const auto crc32 = (uint32_t(*)(uint32_t def, uint8_t *data, long size))(0x0052CD20);
+		const auto sub_B734F0 = (void*(*)(int objectType))(0x00B734F0);
+		const auto scenario_get_placement_block = (void*(*)(void *scenario, int objectType, long *pSize))(0x00B5A880);
+		const auto scenario_get_palette_block = (Blam::Tags::TagBlock<s_scenario_palette_item>*(*)(void *scenario, int objectType))(0x00B5A8B0);
+
+		auto scenario = *(Blam::Tags::Scenario::Scenario**)0x022AAEB4;
+		auto mapid = scenario->MapId;
+
+		c_map_variant_initialize(thisptr, mapid);
+
+		auto cacheFileHash = (uint8_t*)0x22AB34C;
+		thisptr->Unknown12C = crc32(-1, cacheFileHash, 256);
+
+		thisptr->ScnrPlacementsCount = 0;
+		thisptr->BudgetEntryCount = 0;
+
+		auto totalObjectCount = 0;	
+		auto scnrPlacementOffset = 0;
+		for (auto objectType = 0; objectType < 15; objectType++)
+		{
+			if (objectType == Blam::Objects::ObjectType::eObjectTypeScenery
+				|| objectType == Blam::Objects::ObjectType::eObjectTypeCrate
+				|| objectType == Blam::Objects::ObjectType::eObjectTypeVehicle
+				|| objectType == Blam::Objects::ObjectType::eObjectTypeWeapon
+				|| objectType == Blam::Objects::ObjectType::eObjectTypeEquipment)
+			{
+				auto v6 = (uint8_t*)sub_B734F0(objectType);
+				if (-1 != *(int16_t *)(v6 + 0xA) && -1 != *(int16_t *)(v6 + 0xC))
+				{
+					auto placementBlock = scenario_get_placement_block(scenario, objectType, nullptr);
+
+					auto placementCount = *(int32_t*)placementBlock;
+					thisptr->ScnrIndices[objectType] = scnrPlacementOffset;
+					thisptr->UsedPlacementsCount += placementCount;
+					scnrPlacementOffset += placementCount;
+				}
+
+				auto palette = scenario_get_palette_block(scenario, objectType);
+				for (auto i = 0; i < palette->Count; i++)
+				{
+					auto& paletteEntry = palette->Elements[i];
+					if (paletteEntry.Object.TagIndex == -1)
+						continue;
+
+					auto& budgetEntry = thisptr->Budget[thisptr->BudgetEntryCount];
+					budgetEntry.TagIndex = paletteEntry.Object.TagIndex;
+					budgetEntry.DesignTimeMax = 255;
+					budgetEntry.RuntimeMin = 1;
+					budgetEntry.RuntimeMax = 255;
+					budgetEntry.Cost = 0;
+					thisptr->BudgetEntryCount++;
+				}
+			}
+		}
+
+		thisptr->ScnrPlacementsCount = thisptr->UsedPlacementsCount;
+		thisptr->MaxBudget = scenario->SandboxBudget;
+	}
+
+	int __fastcall c_map_variant_get_budget_index_for_item_hook(Blam::MapVariant *thisptr, void *unused, int tagIndex)
+	{
+		static auto c_map_variant_get_budget_index_for_item = (int(__thiscall*)(Blam::MapVariant *thisptr, int tagIndex))(0x005831C0);
+		const auto sub_4B2570 = (void(*)(void *a1))(0x4B2570);
+		const auto  game_simulation_is_client = (bool(*)())(0x005319C0);
+
+		auto index = c_map_variant_get_budget_index_for_item(thisptr, tagIndex);
+		if (index != -1)
+			return index;
+
+		if (thisptr->BudgetEntryCount >= 256)
+		{
+			for (auto i = 0; i < thisptr->BudgetEntryCount; i++)
+			{
+				const auto& budget = thisptr->Budget[i];
+				if (budget.TagIndex == -1)
+				{
+					index = i;
+					break;
+				}
+			}
+		}
+		else
+		{
+			index = thisptr->BudgetEntryCount;
+			thisptr->BudgetEntryCount++;
+		}
+
+		if (index != -1)
+		{
+			auto& budget = thisptr->Budget[index];
+
+			budget.Cost = 0;
+			budget.CountOnMap = 0;
+			budget.DesignTimeMax = 255;
+			budget.RuntimeMin = 1;
+			budget.RuntimeMax = 255;
+			budget.TagIndex = tagIndex;
+		}
+
+		return index;
+	}
+
+	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4)
+	{
+		static auto c_map_variant_update_item_budget = (void(__thiscall *)(Blam::MapVariant *thisptr, int budgetIndex, char arg_4))(0x00584E10);
+		c_map_variant_update_item_budget(thisptr, budgetIndex, arg_4);
+
+		auto& budget = thisptr->Budget[budgetIndex];
+		if (!budget.CountOnMap)
+		{
+			budget.TagIndex = -1;
+			budget.Cost = -1;
+			budget.CountOnMap = 0;
+			budget.DesignTimeMax = -1;
+			budget.RuntimeMin = -1;
+			budget.RuntimeMax = -1;
+		}
+	}
+
+	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
+		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags)
+	{
+		const auto c_map_variant_spawn_object = (void(__thiscall *)(MapVariant *thisptr, uint32_t tagIndex, int a3, int placementIndex,
+			RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
+			int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags))(0x00582110);
+
+		c_map_variant_get_budget_index_for_item_hook(thisptr, nullptr, tagIndex);
+
+		return c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex, 
+			position, forward, up, scenarioPlacementIndex, objectType, placementProps, placementFlags);
 	}
 }
