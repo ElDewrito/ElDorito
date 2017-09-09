@@ -134,18 +134,15 @@ var armorHelmetList = [
     ["ODST","mp_odst"]
 ];
 var armorChestList = [
-	["MJOLNIR Mk. VI","base"],
+    ["MJOLNIR Mk. VI","base"],
     ["MJOLNIR/Bungie","mp_bungie"],
-	["MJOLNIR/CQB","mp_cobra"],
+    ["MJOLNIR/CQB","mp_cobra"],
     ["MJOLNIR/EOD","mp_regulator"],
-	["MJOLNIR/EVA","mp_intruder"],
-	["MJOLNIR/Recon","mp_ninja"],
-    ["MJOLNIR/Rogue","mp_rogue"],
+    ["MJOLNIR/EVA","mp_intruder"],
+    ["MJOLNIR/Recon","mp_ninja"],
     ["MJOLNIR/Scout","mp_scout"],
-    ["MJOLNIR/Security","mp_marathon"],
-	["HAYABUSA","mp_ryu"],
+    ["HAYABUSA","mp_ryu"],
     ["HAYABUSA/Katana","mp_katana"],
-    ["ODST","mp_odst"]
 ];
 var accessoryList = [
     ["None", ""],
