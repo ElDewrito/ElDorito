@@ -1099,7 +1099,8 @@ namespace
 					auto& budgetEntry = thisptr->Budget[thisptr->BudgetEntryCount];
 					budgetEntry.TagIndex = paletteEntry.Object.TagIndex;
 					budgetEntry.DesignTimeMax = 255;
-					budgetEntry.RuntimeMin = 1;
+					budgetEntry.CountOnMap = 0;
+					budgetEntry.RuntimeMin = 0;
 					budgetEntry.RuntimeMax = 255;
 					budgetEntry.Cost = 0;
 					thisptr->BudgetEntryCount++;
@@ -1146,7 +1147,7 @@ namespace
 			budget.Cost = 0;
 			budget.CountOnMap = 0;
 			budget.DesignTimeMax = 255;
-			budget.RuntimeMin = 1;
+			budget.RuntimeMin = 0;
 			budget.RuntimeMax = 255;
 			budget.TagIndex = tagIndex;
 		}
