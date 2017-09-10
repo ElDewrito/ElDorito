@@ -2,6 +2,7 @@
 (function() {
 	var categoryTreeElement = document.getElementById('category_tree');
 	var objectListElement = document.getElementById('object_list');
+  var tabsElement = document.getElementById('main_tabs');
 	var budget = {};
 
   	var parser = new DOMParser();
@@ -15,7 +16,7 @@
   		count: () => 3
   	});
 
-  	objectListController.on('selectedIndexChanged', function({index}) {
+  	objectListController.on('selectedIndexChanged', function({index, userInput}) {
   		var items = objectListElement.querySelectorAll('li');
   		for(var i = 0; i < items.length; i++) {
   			items[i].classList.remove('selected');
@@ -23,10 +24,35 @@
   		var item = objectListElement.querySelector(`li:nth-of-type(${index+1})`);
   		if(item) {
   			item.classList.add('selected');
-  			item.scrollIntoView(false);
+        if(userInput)
+  			   item.scrollIntoView(false);
   		}
   		updateHelpText();
   	});
+
+    categoryTreeElement.addEventListener('click', function(e) {
+        handleUiInput(0);
+    }, true);
+
+    tabsElement.addEventListener('click', function(e) {
+          if(e.target.className.indexOf('tab-header') == -1)
+            return;
+          if(screenManager.currentScreen().name !== 'main')
+           screenManager.pop();
+          dew.command('Game.PlaySound 0xb00');
+          changeTab(e.target.getAttribute('data-target'));
+    }, true);
+
+    objectListElement.addEventListener('mouseover', function(e) {
+        if(e.target.nodeName == 'LI') {
+          var nodes = Array.prototype.slice.call(objectListElement.children);
+            objectListController.setSelectedIndex(nodes.indexOf(e.target));
+        }    
+    }, true);
+
+    objectListElement.addEventListener('click', function(e) {
+          handleUiInput(0);
+    }, true);
 
   	var screenManager = makeScreenManager({
   		main: {
@@ -103,9 +129,15 @@
   					break;
   					case 10:
   					case 11:
+                if(screenManager.currentScreen().name !== 'main')
+                  screenManager.pop();
+              tabListController.navigate(uiButtonCode == 10 ? -1 : 1);
+              dew.command('Game.PlaySound 0xaff');
+            break;
   					case 4:
   					case 5:
-  						screenManager.pop();
+              if(screenManager.currentScreen().name !== 'main')
+  						    screenManager.pop();
   						tabListController.navigate(uiButtonCode == 5 ? -1 : 1);
   						dew.command('Game.PlaySound 0xaff');
   					break;
@@ -304,12 +336,17 @@
 		    	lastHeldUpdate = e.data.gameTicks;
 		    	handleUiInput(11);
 		    }
+
 		    if(e.data.A == 1) handleUiInput(0);
 		    else if(e.data.B == 1) handleUiInput(1);
 		    else if(e.data.X == 1) handleUiInput(2);
 		    else if(e.data.Y == 1) handleUiInput(3);
 		    else if(e.data.RightBumper == 1) handleUiInput(4);
 		    else if(e.data.LeftBumper == 1) handleUiInput(5);
+        else if(e.data.Up == 1) handleUiInput(8);
+        else if(e.data.Down == 1) handleUiInput(9);
+        else if(e.data.Left == 1) handleUiInput(10);
+        else if(e.data.Right == 1) handleUiInput(11);
 			});
 	})();
 
@@ -337,6 +374,12 @@ function makeTreeList(_element, _data) {
 
 	push(_data.firstChild);
 	render();
+
+  _element.addEventListener('mouseover', function(e) {
+    var nodes = Array.prototype.slice.call(_element.children);
+    _selectedIndex = nodes.indexOf(e.target);
+    renderSelection();
+  }, true);
 
 	return  {
 		on: function(eventType, callback) {
@@ -380,13 +423,13 @@ function makeTreeList(_element, _data) {
 	}
 
 
-  	function getNodeHelp(node) {
-  		for(var n = node.firstChild; n; n = n.nextSibling) {
-  			if(n.nodeName === 'help') {
-  				return n.textContent;
-  			}
+  function getNodeHelp(node) {
+  	for(var n = node.firstChild; n; n = n.nextSibling) {
+  		if(n.nodeName === 'help') {
+  			return n.textContent;
   		}
   	}
+  }
 
 	function getSelectedPath() {
 		return _paths[_selectedIndex];
