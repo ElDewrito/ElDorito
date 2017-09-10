@@ -834,10 +834,13 @@ namespace
 			auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
 			auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
 
+			auto sandboxGlobals = Forge::GetSandboxGlobals();
+			const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
+
 			auto objectIndexToClone = objectIndexUnderCrosshair;
 			for (auto i = 0; i < cloneMultiplier; i++)
 			{
-				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth);
+				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth,intersectNormal);
 				if (objectIndexToClone == -1)
 					break;
 			}

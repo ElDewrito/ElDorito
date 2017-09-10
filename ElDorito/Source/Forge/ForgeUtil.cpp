@@ -50,7 +50,7 @@ namespace Forge
 		Forge_DeleteObject(playerIndex, placementIndex);
 	}
 
-	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth)
+	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth, const RealVector3D &normal)
 	{
 		auto mapv = GetMapVariant();
 
@@ -58,10 +58,6 @@ namespace Forge
 
 		if (!mapv || playerIndex == -1 || objectIndex == -1 || !object)
 			return -1;
-
-		auto& sandboxGlobals = GetSandboxGlobals();
-
-		RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xFFFF];
 
 		auto boundsPtr = GetObjectBoundingBox(object->TagIndex);
 		if (!boundsPtr)
@@ -73,8 +69,9 @@ namespace Forge
 		RealMatrix4x3 objectTransform;
 		GetObjectTransformationMatrix(objectIndex, &objectTransform);
 
-		static auto Matrix4x3_TransformVec = (void(__cdecl*)(RealMatrix4x3* matrix, RealVector3D *vec, RealVector3D *outVector))(0x005B2710);
-		Matrix4x3_TransformVec(&objectTransform, &intersectNormal, &intersectNormal);
+		RealVector3D intersectNormal;
+		static auto Matrix4x3_TransformVec = (void(__cdecl*)(RealMatrix4x3* matrix, const RealVector3D *vec, RealVector3D *outVector))(0x005B2710);
+		Matrix4x3_TransformVec(&objectTransform, &normal, &intersectNormal);
 
 		RealVector3D displacement(0, 0, 0);
 		if (std::abs(intersectNormal.K) > std::abs(intersectNormal.J) && std::abs(intersectNormal.K) > std::abs(intersectNormal.I))
