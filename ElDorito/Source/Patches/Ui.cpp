@@ -1184,8 +1184,6 @@ namespace
 		if (session && session->IsEstablished())
 			teamsEnabled = session->HasTeams();
 
-		int playerWidgetIndex = *reinterpret_cast<uint32_t*>(reinterpret_cast<int>(data) + session->MembershipInfo.GetPeerPlayer(session->MembershipInfo.LocalPeerIndex) * 0x1678 + 0x11C);
-
 		// Loop through each list item widget
 		auto item = UI_Widget_FindFirstChild(thisPtr, 0, 5); // 5 = List item
 		while (item)
@@ -1207,7 +1205,9 @@ namespace
 				auto teamIndex = 0;
 				if (teamsEnabled && UI_OrderedDataSource_Get(data, itemIndex, str_team, &teamIndex) && teamIndex >= 0)
 				{
-					if (itemIndex == playerWidgetIndex)
+					//TODO: find a less expensive way of checking for the player's widget
+					wchar_t* widgetPlayerName = reinterpret_cast<wchar_t*>(reinterpret_cast<uint8_t*>(data) + itemIndex * 0x1678 + 0x168);
+					if (Utils::String::ThinString(widgetPlayerName) == Utils::String::ThinString(session->MembershipInfo.GetLocalPlayerSession().Properties.DisplayName))
 					{
 						if (localDesiredTeam > -1 && localDesiredTeam < 8)
 						{
