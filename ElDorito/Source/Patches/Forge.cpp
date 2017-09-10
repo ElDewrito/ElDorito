@@ -62,6 +62,7 @@ namespace
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* forwardVec, RealVector3D* upVec);
 	bool Forge_UpdatePlayerEditorGlobalsHook(int16_t playerIndex, uint32_t* pObjectIndex);
+	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex);
 	void SandboxEngineInitHook();
 	void SandboxEngineShutdownHook();
 	void SandboxEngineTickHook();
@@ -73,7 +74,6 @@ namespace
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
-	int __fastcall c_map_variant_get_budget_index_for_item_hook(Blam::MapVariant *thisptr, void* unused, int tagIndex);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
 	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
@@ -149,11 +149,11 @@ namespace Patches::Forge
 		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
 
 		// increase forge item limit
-		Hook(0x199FC9, c_map_variant_get_budget_index_for_item_hook, HookFlags::IsCall).Apply();
-		Hook(0x184887, c_map_variant_get_budget_index_for_item_hook, HookFlags::IsCall).Apply();
 		Hook(0x151506, c_map_variant_initialize_from_scenario_hook, HookFlags::IsCall).Apply();
 		Hook(0x185DC1, c_map_variant_update_item_budget_hook, HookFlags::IsCall).Apply();
 		Hook(0x181F30, c_map_variant_spawn_object_hook, HookFlags::IsCall).Apply();
+		// also removes bounding radius check
+		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1112,7 +1112,7 @@ namespace
 		thisptr->MaxBudget = scenario->SandboxBudget;
 	}
 
-	int __fastcall c_map_variant_get_budget_index_for_item_hook(Blam::MapVariant *thisptr, void *unused, int tagIndex)
+	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex)
 	{
 		static auto c_map_variant_get_budget_index_for_item = (int(__thiscall*)(Blam::MapVariant *thisptr, int tagIndex))(0x005831C0);
 		const auto sub_4B2570 = (void(*)(void *a1))(0x4B2570);
@@ -1180,9 +1180,14 @@ namespace
 			RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
 			int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags))(0x00582110);
 
-		c_map_variant_get_budget_index_for_item_hook(thisptr, nullptr, tagIndex);
+		CreateOrGetBudgetForItem(thisptr, tagIndex);
 
 		return c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex, 
 			position, forward, up, scenarioPlacementIndex, objectType, placementProps, placementFlags);
+	}
+
+	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
+	{
+		return CreateOrGetBudgetForItem(GetMapVariant(), tagIndex) != -1;
 	}
 }
