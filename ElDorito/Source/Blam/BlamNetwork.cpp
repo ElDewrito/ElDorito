@@ -74,6 +74,11 @@ namespace Blam::Network
 		return PlayerSessions[playerIndex].Properties.TeamIndex;
 	}
 
+	PlayerSession SessionMembership::GetLocalPlayerSession() const
+	{
+		return PlayerSessions[GetPeerPlayer(LocalPeerIndex)];
+	}
+
 	void SessionMembership::Update()
 	{
 		// The engine does this all over the place

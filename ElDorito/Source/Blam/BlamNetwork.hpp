@@ -109,6 +109,9 @@ namespace Blam::Network
 		// Gets a peer's team index, or -1 on failure.
 		// Note that -1 does NOT mean that teams are disabled.
 		int GetPeerTeam(int peer) const;
+		
+		//Gets the local game's player session
+		PlayerSession GetLocalPlayerSession() const;
 
 		// Signals that membership data has been changed and needs to be updated.
 		// Call this after modifying player or peer data.
