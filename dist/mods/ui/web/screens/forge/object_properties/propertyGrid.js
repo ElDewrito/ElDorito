@@ -56,7 +56,14 @@ function makePropertyGridWidget(_containerElem) {
 		},
 		selectedIndex: () => listController.selectedIndex(),
 		toggleVisibility: (name, visible) => {
-			_containerElem.find('#' + name).parents('.property-item-leaf').toggleClass('hidden', !visible);
+			var items = _containerElem.find(`.property-item`);
+			for(var i = 0; i < items.length; i++) {
+				var item = $(items[i]);
+				if(item.data('property-name') === name) {
+					item.toggleClass('hidden', !visible);
+				}
+			}
+		
 			cacheCount();
 		}
 	};
@@ -93,7 +100,7 @@ function makePropertyGridWidget(_containerElem) {
 
 	_containerElem.on('mouseenter mouseleave mousemove',  '.property-item-leaf', function(e) {
 		_containerElem.find('.property-item-leaf').not('.hidden').removeClass('selected');
-		$(this).addClass('selected')[0].scrollIntoView(false);
+		$(this).addClass('selected')[0];
 	});
 
 	listController.on('selectedIndexChanged', function({index}) {
@@ -213,7 +220,8 @@ function makePropertyGridWidget(_containerElem) {
 			case 'static':
 			return `
 				<span readonly id="${property.name}">${meta}</span>
-			`
+			`;
+			
 		}
 	}
 
@@ -225,7 +233,7 @@ function makePropertyGridWidget(_containerElem) {
 			var prop = properties[i];
 			if(prop.values && prop.values.constructor === Array) {
 				html += `
-				<div class="property-item property-item-group" id="${prop.name}_group">
+				<div class="property-item property-item-group" data-property-name="${prop.name}" id="${prop.name}_group">
 					<div class="group-heading">${_strings[prop.name]}</div>
 					<div class="group-body">
 					${buildPropertiesHtml(prop.values, '')}

@@ -145,10 +145,9 @@ html {
 	vertical-align: baseline;
 }
 
-.property-item-leaf.hidden {
+.property-item.hidden {
 	display: none;
 }
-
 
 .material-picker {
 	padding: 4px;

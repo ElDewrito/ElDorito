@@ -1,6 +1,7 @@
 #include "WebForge.hpp"
 #include "../../Blam/Tags/TagInstance.hpp"
 #include "../../Blam/Tags/TagBlock.hpp"
+#include "../../Blam/Tags/Objects/Object.hpp"
 #include "../../Blam/Tags/TagReference.hpp"
 #include "../../Blam/Math/RealVector3D.hpp"
 #include "../../Blam/BlamPlayers.hpp"
@@ -135,6 +136,52 @@ namespace
 		{
 			m_Budget.RuntimeMax = value;
 			m_BudgetDirty = true;
+		}
+
+		void SetLightColorR(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
+			current = (current & 0xffffff00) | i & 0xff;
+		}
+
+		void SetLightColorG(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
+			current = (current & 0xffff00ff) | (i << 8);
+		}
+		void SetLightColorB(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
+			current = (current & 0xff00ffff) | (i << 16);
+		}
+
+		void SetLightColorIntensity(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
+			current = (current & 0x00ffffff) | (i << 24);
+		}
+
+		void SetAttenuation(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneDepth;
+			current = (current & 0xff00ffff) | (i << 16);
+		}
+
+		void SetLightIntensity(float value)
+		{
+			auto i = uint32_t(value * 255);
+			auto& current = *(uint32_t*)&m_Properties.ZoneDepth;
+			current = (current & 0x00ffffff) | (i << 24);
+		}
+
+		void SetLightRadius(float value)
+		{
+			m_Properties.ZoneTop = value;
 		}
 
 		void SetPhysics(int value)
@@ -404,6 +451,28 @@ namespace
 		}
 	}
 
+	bool IsForgeLight(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
+		if (!objectDef)
+			return false;
+
+		for (const auto& attachment : objectDef->Attachments)
+		{
+			if (attachment.Attached.GroupTag != 'ligh')
+				continue;
+
+			auto lightFlags = *(uint32_t*)Blam::Tags::TagInstance(attachment.Attached.TagIndex).GetDefinition<uint8_t>();
+			if (lightFlags & (1 << 31))
+				return true;
+		}
+
+		return false;
+	}
+
 	std::string SerializeObjectProperties(int16_t placementIndex)
 	{
 		static auto Weapon_HasSpareClips = (bool(*)(uint32_t tagIndex))(0x00B624E0);
@@ -421,6 +490,7 @@ namespace
 		SerializeProperty(writer, "has_material", CanThemeObject());
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
 		SerializeProperty(writer, "is_selected", Forge::Selection::GetSelection().Contains(placement.ObjectIndex));
+		SerializeProperty(writer, "is_light", IsForgeLight(placement.ObjectIndex));
 
 		writer.Key("properties");
 		writer.StartObject();
@@ -448,6 +518,17 @@ namespace
 		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
 		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
 		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
+
+		auto current = *(uint32_t*)&properties.ZoneRadiusWidth;
+		auto current2 = *(uint32_t*)&properties.ZoneDepth;
+
+		SerializeProperty(writer, "light_color_b", ((current >> 16) & 0xff) / 255.0f);
+		SerializeProperty(writer, "light_color_g", ((current >> 8) & 0xff) / 255.0f);
+		SerializeProperty(writer, "light_color_r", (current & 0xff) / 255.0f);
+		SerializeProperty(writer, "light_color_intensity", ((current >> 24) & 0xff) / 255.0f);
+		SerializeProperty(writer, "light_intensity", ((current2 >> 24) & 0xff) / 255.0f);
+		SerializeProperty(writer, "light_radius", properties.ZoneTop);
+
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -491,7 +572,14 @@ namespace
 			{ "appearance_material",	 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetMaterial(value.GetInt()); } },
 			{ "summary_runtime_minimum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMinimum(value.GetInt()); } },
 			{ "summary_runtime_maximum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMaximum(value.GetInt()); } },
-			{ "physics",			     [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetPhysics(value.GetInt()); } }
+			{ "physics",			     [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetPhysics(value.GetInt()); } },
+			{ "light_color_r",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorR(value.GetDouble()); } },
+			{ "light_color_g",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorG(value.GetDouble()); } },
+			{ "light_color_b",		    [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorB(value.GetDouble()); } },
+			{ "light_color_intensity",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorIntensity(value.GetDouble()); } },
+			{ "light_intensity",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightIntensity(value.GetDouble()); } },
+			{ "light_attenuation",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightIntensity(value.GetDouble()); } },
+			{ "light_radius",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightRadius(value.GetDouble()); } }
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)

@@ -83,4 +83,5 @@ namespace Forge
 	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth, const Blam::Math::RealVector3D &normal);
 	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float throwForce);
 	void CanvasMap();
+	bool ObjectIsForgeLight(uint32_t objectTagIndex);
 }

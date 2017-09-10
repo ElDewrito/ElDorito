@@ -12,6 +12,7 @@
 #include "../Blam/Math/MathUtil.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Blam/Math/RealColorRGB.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -78,6 +79,7 @@ namespace
 	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
+	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
@@ -154,6 +156,8 @@ namespace Patches::Forge
 		Hook(0x181F30, c_map_variant_spawn_object_hook, HookFlags::IsCall).Apply();
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
+
+		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1192,5 +1196,89 @@ namespace
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
 	{
 		return CreateOrGetBudgetForItem(GetMapVariant(), tagIndex) != -1;
+	}
+
+	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4)
+	{
+		struct LightDatum : public Blam::DatumBase
+		{
+			__int16 Flags;
+			int TagIndex;
+			int field_8;
+			int field_C;
+			int UnknownTicks;
+			BYTE field_14[48];
+			int ObjectIndex;
+			uint32_t field_48;
+			__int16 field_4C;
+			__int16 ColorPermutation;
+			int field_50;
+			BYTE field_54[39];
+			char field_7B;
+			RealVector3D Center;
+			BYTE field_88[28];
+			RealVector3D field_A4;
+			BYTE field_B0[28];
+			RealColorRGB Color;
+			int field_D8;
+			int field_DC;
+			int field_E0;
+		};
+
+		static_assert(sizeof(LightDatum) == 0xE4, "invalid light datum size");
+
+		const auto sub_A66900 = (void(__thiscall *)(int thisptr, RealVector3D center, RealColorRGB color, float arg_18, float range,
+			RealVector3D a6, float spread, float arg_30, float spreadb))(0xA66900);
+		const auto sub_A667F0 = (void(*)(uint32_t lightDatumIndex, int a2, float colorIntensity, int a4))(0xA667F0);
+
+		auto& lightArray = ElDorito::GetMainTls(0x498)[0].Read<Blam::DataArray<LightDatum>>();
+
+		auto light = lightArray.Get(lightDatumIndex);
+		if (!light)
+			return;
+
+		auto lightDef = Blam::Tags::TagInstance(light->TagIndex).GetDefinition<uint8_t>();
+		auto lightFlags = *(uint32_t*)lightDef;
+
+		auto parentObject = Blam::Objects::Get(light->ObjectIndex);
+		if (lightFlags & (1 << 31) && parentObject)
+		{
+			auto props = parentObject->GetMultiplayerProperties();
+
+			auto current = Pointer(props)(0x14).Read<uint32_t>();
+			auto current2 = Pointer(props)(0x18).Read<uint32_t>();
+			auto range = Pointer(props)(0x1c).Read<float>();
+
+			auto colorIntensity = ((current >> 24) / 255.0f) * 100.0f;
+			auto colorB = ((current >> 16) & 0xff) / 255.0f;
+			auto colorG = ((current >> 8) & 0xff) / 255.0f;
+			auto colorR = ((current) & 0xff) / 255.0f;
+			auto intensity = (current2 >> 24) / 255.0f;
+			auto attenuation = 10.0f - ((((current2 >> 16) & 0xff) / 255.0f) * 10);
+
+			auto lightDefPtr = Pointer(lightDef);
+
+			auto v2 = 0.0f;
+			auto lightType = lightDefPtr(0x4).Read<uint16_t>();
+			if (lightType == 0) // point light
+				v2 = 1.0f;
+			else // spot light
+				v2 = lightDefPtr(0x78).Read<float>();
+
+			auto v23 = lightDefPtr(0x74).Read<float>();
+			auto v22 = lightDefPtr(0x14).Read<float>();
+			auto v18 = lightDefPtr(0x70).Read<float>();
+
+			RealColorRGB color(
+				intensity + colorIntensity * colorR,
+				intensity + colorIntensity * colorG,
+				intensity + colorIntensity * colorB
+			);
+
+			sub_A66900(a4, light->Center, color, v18, range, light->field_A4, v2, v23, v22);
+			return;
+		}
+
+		sub_A667F0(lightDatumIndex, a2, intensity, a4);
 	}
 }
