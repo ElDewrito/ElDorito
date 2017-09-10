@@ -28,7 +28,6 @@ using namespace Magnets;
 
 namespace
 {
-	const auto MIN_DISTANCE = 0.45f;
 	const auto MAX_SOURCE_MAGNETS = 512;
 	const auto MAX_DEST_MAGNETS = 2048;
 	const auto MARKER_STORE_PATH = "./mods/forge/magnets.json";
@@ -214,7 +213,7 @@ namespace
 
 		auto shortestDistance = 999.0f;
 		auto shortestUnitDistance = 999.0f;
-
+		const auto minDistance = Modules::ModuleForge::Instance().VarMagnetsStrength->ValueFloat;
 		// worst case O(n^2)
 		for (auto i = 0; i < m_NumSourceMagnets; i++)
 		{
@@ -232,8 +231,9 @@ namespace
 
 				auto d = sourceMagnet.Position - destMagnet.Position;
 				auto distance2 = d.Length2();
-
-				if (distance2 < (MIN_DISTANCE * MIN_DISTANCE) && distance2 < shortestDistance)
+				
+				
+				if (distance2 < (minDistance * minDistance) && distance2 < shortestDistance)
 				{
 					shortestUnitDistance = unitDistance;
 					shortestDistance = distance2;
@@ -256,13 +256,13 @@ namespace
 
 		if (m_MagnetPairing.IsValid && (m_MagnetPairing.Dest == &magnet || m_MagnetPairing.Source == &magnet))
 		{
-			const float color[] = { 1, 0, 0, 1 };
-			SetShaderConstant(20, 3, color);
+			const float color[] = { 2, 0, 0, 2 };
+			SetShaderConstant(20, 1, color);
 		}
 		else
 		{
-			const float color[] = { 0, 0, 1, 1 };
-			SetShaderConstant(20, 3, color);
+			const float color[] = { 0, 0, 2, 2 };
+			SetShaderConstant(20, 1, color);
 		}
 
 		const auto scale = 0.05f;
