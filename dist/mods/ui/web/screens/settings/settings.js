@@ -14,7 +14,6 @@ var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
 
-var h3ColorArray = ['#626262','#B0B0B0','#DEDEDE','#9B3332','#DB6766','#EE807F','#DB8B00','#F8AE58','#FECB9C','#CCAE2C','#F3BC2B','#FDD879','#57741A','#90A560','#D8EFA7','#31787E','#4ABBC1','#91EDEC','#325992','#5588DB','#97B5F5','#553E8F','#9175E3','#C4B4FD','#830147','#D23C83','#FC8BB9','#513714 ','#AC8A6E','#E0BEA2'];
 var settingsToLoad = [
     ['sControlsMethod','Settings.Gamepad'],
     ['sInfantryMouseSensV','Settings.MouseSensitivityVertical'],
@@ -77,21 +76,13 @@ var settingsToLoad = [
     ['sNumOfVetoes','Server.NumberOfVetoVotes'],['sVetoVoteTime','Server.VetoVoteTime'],
     ['sVetoWinningShowTime','Server.VetoWinningOptionShownTime'],
     ['sVetoPassPercentage','Server.VetoVotePassPercentage'],
+    ['sVetoSystemSelectionType','Server.VetoSystemSelectionType'],
     ['vEnabled','VoIP.Enabled'],
     ['vMicrophoneID','VoIP.MicrophoneID'],
     ['vPTTEnable','VoIP.PTT_Enabled'],
     ['vAGC','VoIP.AGC'],
     ['vNoiseSupress','VoIP.NoiseSupress'],
     ['vEchoCancelation','VoIP.EchoCancelation'],
-    ['pName', 'Player.Name'],
-    ['armorHelmet', 'Player.Armor.Helmet'], 
-    ['armorChest', 'Player.Armor.Chest'],
-    ['armorRightShoulder', 'Player.Armor.RightShoulder'],
-    ['armorLeftShoulder', 'Player.Armor.LeftShoulder'],
-    ['colorsPrimary', 'Player.Colors.Primary'], 
-    ['colorsSecondary', 'Player.Colors.Secondary'], 
-    ['colorsVisor', 'Player.Colors.Visor'],
-    ['colorsLights', 'Player.Colors.Lights'],
     ['sUPNP','UPnP.Enabled'], 
     ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding'], 
     ['tDisableFog', 'Tweaks.DisableReactorFog'], 
@@ -110,70 +101,7 @@ var settingsToLoad = [
 ];
 var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
-var armorShoulderList = [
-    ["MJOLNIR Mk. VI","base"],
-    ["MJOLNIR/CQB","mp_cobra"],
-    ["MJOLNIR/EOD","mp_regulator"],
-    ["MJOLNIR/EVA","mp_intruder"],
-    ["MJOLNIR/Recon","mp_ninja"],
-    ["MJOLNIR/Scout","mp_scout"],
-    ["MJOLNIR/Security","mp_marathon"],
-    ["HAYABUSA","mp_ryu"]
-];
-var armorHelmetList = [
-    ["MJOLNIR Mk. VI","base"],
-    ["MJOLNIR Mk. V","mp_markv"],
-    ["MJOLNIR/CQB","mp_cobra"],
-    ["MJOLNIR/EOD","mp_regulator"],
-    ["MJOLNIR/EVA","mp_intruder"],
-    ["MJOLNIR/Recon","mp_ninja"],
-    ["MJOLNIR/Rogue","mp_rogue"],
-    ["MJOLNIR/Scout","mp_scout"],
-    ["MJOLNIR/Security","mp_marathon"],
-    ["HAYABUSA","mp_ryu"],
-    ["ODST","mp_odst"]
-];
-var armorChestList = [
-	["MJOLNIR Mk. VI","base"],
-    ["MJOLNIR/Bungie","mp_bungie"],
-	["MJOLNIR/CQB","mp_cobra"],
-    ["MJOLNIR/EOD","mp_regulator"],
-	["MJOLNIR/EVA","mp_intruder"],
-	["MJOLNIR/Recon","mp_ninja"],
-    ["MJOLNIR/Rogue","mp_rogue"],
-    ["MJOLNIR/Scout","mp_scout"],
-    ["MJOLNIR/Security","mp_marathon"],
-	["HAYABUSA","mp_ryu"],
-    ["HAYABUSA/Katana","mp_katana"],
-    ["ODST","mp_odst"]
-];
-var accessoryList = [
-    ["None", ""],
-    ["Ammo Belt", "ammo_belt"],
-    ["Ammo Pack", "ammo_pack"],
-    ["Antenna 1", "antenna_01"],
-    ["Antenna 2", "antenna_02"],
-    ["Bullet Shield", "bullet_shield"],
-    ["Chest Battery", "chest_battery"],
-    ["Dog Tag", "dog_tag_01"],
-    ["Electronic Tool", "electronic_tool"],
-    ["Flashlight", "flashlight"],
-    ["Generator Device", "generator_device"],
-    ["Grenade", "grenade_01"],
-    ["Holo Scope", "holo_scope"],
-    ["HUD Screen", "hud_screen"],
-    ["Katana", "katana"],
-    ["Knife 1", "knife_01"],
-    ["Knife 2", "knife_02"],
-    ["Medkit", "medkit"],
-    ["Reactive Armor Arm", "reactive_armor_arm"],
-    ["Reactive Armor Leg", "reactive_armor_leg"],
-    ["Reactive Armor Plate", "reactive_armor_plate"],
-    ["Shotgun Ammo", "shotgun_ammo"],
-    ["Target Painter", "target_painter"],
-    ["Throwing Knives", "throwing_knives"],
-    ["Tool Bag", "tools_bag_1"]
-];
+
 var controllerPresets = [
     ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,Y,,,LB,Down"],
     ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
@@ -218,10 +146,6 @@ $(document).ready(function(){
     });
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
-	setOptionList('armorHelmet', armorHelmetList);
-	setOptionList('armorChest', armorChestList);
-	setOptionList('armorRightShoulder', armorShoulderList);
-	setOptionList('armorLeftShoulder', armorShoulderList);
     setOptionList('gIconSet', controllerIconPacks);
     dew.command('Game.ListMedalPacks', {}).then(function(response) {
         var packArray = [];
@@ -241,10 +165,11 @@ $(document).ready(function(){
         itemNumber = 0;
         $(e).ready(function(){
             if(hasGP){
-                updateSelection(0);
+                updateSelection(0, false);
             }
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
+        dew.command('Game.PlaySound 0x0B00');
     });
     $('.tinySetting').on('change', function(){
         var newID = $(this).attr('id');
@@ -286,31 +211,6 @@ $(document).ready(function(){
         dew.command('Input.ControllerVibrationIntensity ' + $(this).val(), {}).then(function(x){
             dew.command('Input.ControllerVibrationTest');
         });
-    });
-    $('.instant').on('change', function(e){
-        if($(this).hasClass('color')){
-            if(!/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(e.target.value)){
-                $(this).val('#FFFFFF');
-                return;
-            }
-        }
-        $.grep(settingsToLoad, function(result){
-            if(result[0] == e.target.id){
-                dew.command(result[1] + ' ' + e.target.value);
-                queueChange([result[1], e.target.value]);
-            };
-        });
-    });
-    $('.color').colorPicker({
-        opacity: false,    
-        renderCallback: function($elm, toggled) {
-            var colors = this.color.colors;
-            $.grep(settingsToLoad, function(result){
-                if(result[0] == $elm[0].id){
-                    dew.command(result[1]+' #'+colors.HEX);
-                };
-            });
-        }
     });
     $('.wheelable').on('mousewheel', function(e) {
         if(e.originalEvent.wheelDelta > 0) {
@@ -378,7 +278,7 @@ $(document).ready(function(){
             if(itemNumber > $(activePage + ' label:visible').length-1){
                 itemNumber = $(activePage + ' label:visible').length-1;
             }
-            updateSelection(itemNumber);
+            updateSelection(itemNumber, true);
         }
     });
     $('#sSprint').on('change', function(){
@@ -460,17 +360,8 @@ $(document).ready(function(){
                 }
             }
             if(e.data.X == 1){
-                if(activePage=='#page7'){
-                    randomArmor();
-                }else{
-                    if($('#'+selectedItem).prev()[0].computedRole == 'button'){
-                        $('#'+selectedItem).prev().click();
-                    }
-                }
-            }
-            if(e.data.Y == 1){
-                if(activePage=='#page7'){
-                    randomColors();
+                if($('#'+selectedItem).prev()[0].computedRole == 'button'){
+                    $('#'+selectedItem).prev().click();
                 }
             }
             if(e.data.Up == 1){
@@ -498,13 +389,13 @@ $(document).ready(function(){
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
                     itemNumber = 0;
-                    updateSelection(itemNumber);
+                    updateSelection(itemNumber, true);
                 }
             }
             if(e.data.RightTrigger != 0){
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
-                    updateSelection(itemNumber);
+                    updateSelection(itemNumber, true);
                 }
             }
             if(e.data.AxisLeftX > axisThreshold){
@@ -527,14 +418,6 @@ $(document).ready(function(){
             }else{
                 stickTicks.down = 0;
             }
-            if(e.data.AxisRightX != 0){
-                if(e.data.AxisRightX > axisThreshold){
-                    rotateBiped('right');
-                }
-                if(e.data.AxisRightX < -axisThreshold){
-                    rotateBiped('left');
-                };
-            }
         }
     });
     var clicking = false;
@@ -545,19 +428,10 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $('#playerWindow').mousemove(function(event){
-        if(clicking){
-            currentPos.x = event.clientX;
-            currentPos.y = event.clientY;
-            var xDiff = (currentPos.x + 90);
-            //console.log(xDiff);
-            dew.command('Player.Armor.SetUiModelRotation ' + xDiff);
-        }
-    });
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
-            updateSelection(itemNumber); 
+            updateSelection(itemNumber, true); 
         }
     });
     $('#sVsync').on('change', function(){
@@ -611,39 +485,24 @@ function setButtons(){
     });
 }
 
-var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
-    $('#blueHeader, #blueFooter,#blackLayer').hide();
-    bipedRotate = 270;
+    $('#blackLayer').hide();
     dew.getSessionInfo().then(function(i){
         if(i.established){
-            if(i.mapName != "mainmenu"){
-                $('.tabs li').eq(0).hide();
-                if(i.isHost){
-                    $('.tabs li').eq(1).show();
-                }else{
-                    $('.tabs li').eq(1).hide();
-                }
-                $('.tabs li').eq(5).hide();
-            }else{
+            if(i.isHost){
                 $('.tabs li').eq(0).show();
-                $('.tabs li').eq(5).show();
+            }else{
+                $('.tabs li').eq(0).hide();
             }
         }else{
-            $('.tabs li').eq(0).show();
-            $('.tabs li').eq(1).show();   
-            $('.tabs li').eq(5).show();    
+            $('.tabs li').eq(0).show(); 
         }
         if(i.mapName == "mainmenu"){
             $('#blackLayer').fadeIn(200, function() {
-                dew.command('Player.Armor.Update');
-                dew.command('Player.Armor.SetUiModelRotation 270');
                 dew.command('game.hideh3ui 1');
-                dew.command('Game.ScenarioScript settings_cam');
-                dew.command('Game.ScreenEffectRange 0 0');
                 $('#settingsWindow').show();
-                $('#blueHeader, #blueFooter, #blackLayer').show();
+                $('#blackLayer').show();
                 initActive();
                 initGamepad();
             }).fadeOut(200);
@@ -686,16 +545,6 @@ dew.on('hide', function(e){
     }
     hideAlert(false);
 });
-
-function rotateBiped(direction){
-    var rotateAmount = 2;
-    if(direction == "right"){
-        bipedRotate+=rotateAmount;
-    }else{
-        bipedRotate-=rotateAmount;
-    }
-    dew.command('Player.Armor.SetUiModelRotation '+bipedRotate);
-}
 
 function initActive(){
     tabIndex = 0;
@@ -763,7 +612,7 @@ function switchPage(pageHash){
     location.href=pageHash;
     activePage=pageHash;    
     if(hasGP){
-        updateSelection(0);
+        updateSelection(0, true);
     }
     if(subPages.indexOf(pageHash) != -1){
         $('#cancelButton').html('<img class="button">Back');
@@ -838,6 +687,7 @@ function applyButton(){
     if(window.location.hash == '#page5'){
         applyBinds();
         switchPage('#page2'); 
+        $('#applyButton').hide();
     }else if(window.location.hash == '#page4'){
         applySettings(0);
         switchPage('#page3');     
@@ -857,7 +707,13 @@ function applyButton(){
 function cancelButton(){
     if(window.location.hash == '#page5'){
         initializeBindings(); 
-        switchPage('#page2');  
+        switchPage('#page2'); 
+        $('#cancelButton').html('<img class="button">Close');
+        $('#applyButton').hide();
+        if(hasGP){
+            setButtons();
+            $('button img,.tabs img').show();
+        }        
     }else if(window.location.hash == '#page4'){
         setControlValues();      
         switchPage('#page3');
@@ -900,18 +756,11 @@ function effectReset(){
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
             $('#blackLayer').fadeIn(200, function(){
-                dew.command('Game.ScenarioScript leave_settings');
-                dew.command('Game.ScreenEffectRange 0 1E+19');
-                dew.command('Player.Armor.SetUiModelRotation 270');
                 dew.command('game.hideh3ui 0');
                 $('#settingsWindow').hide();
-                $('#blueHeader').hide();
-                $('#blueFooter').hide();
                 $('#blackLayer').fadeOut(200, function(){
                     dew.hide();
                     $('#settingsWindow').show();
-                    $('#blueHeader').show();
-                    $('#blueFooter').show();
                     exiting = false;
                 });
             });
@@ -971,19 +820,6 @@ function updateSprint(value){
         queueChange(['Server.SprintEnabled', '1']);
         queueChange(['Server.UnlimitedSprint', '1']);
     }
-}
-
-function getLuminance(hex) {
-    var r = parseInt(hex.slice(1, 3), 16),
-        g = parseInt(hex.slice(3, 5), 16),
-        b = parseInt(hex.slice(5, 7), 16);
-    var div = 255,
-        RGB = [r/div, g/div, b/div],
-        luminance = {r: 0.2126, g: 0.7152, b: 0.0722};
-    for (var i = RGB.length; i--; ) {
-        RGB[i] = RGB[i] <= 0.03928 ? RGB[i] / 12.92 : Math.pow(((RGB[i] + 0.055) / 1.055), 2.4);
-    }
-    return ((luminance.r * RGB[0]) + (luminance.g * RGB[1]) + (luminance.b * RGB[2]));
 }
 
 function applyBindString(bindString){
@@ -1079,6 +915,9 @@ function initializeBindings(){
                         }else{
                            this_.val('RAlt'); 
                         }  
+                    case 20: 
+                        this_.val('CapsLock'); 
+                    break;
                     case 32: 
                         this_.val('Space'); 
                     break;
@@ -1131,6 +970,14 @@ function initializeBindings(){
                 $doc.off('mousewheel.rebind');
             }
         });
+        $('.keybind').on('blur', function(e){
+            $('#cancelButton').html('<img class="button">Cancel');
+            $('#applyButton').show();
+            if(hasGP){
+                setButtons();
+                $('button img,.tabs img').show();
+            }
+        });
     });
 }
 
@@ -1173,46 +1020,16 @@ function setButtonLists(){
         }
     }
 }
-function randomArmor(){
-    var armorArray = ['armorHelmet','armorChest','armorRightShoulder','armorLeftShoulder'];
-    for(var i = 0; i < armorArray.length; i++) {
-        var $options = $('#'+armorArray[i]).find('option'),
-            random = ~~(Math.random() * $options.length);
-        $options.eq(random).prop('selected', true);    
-        $.grep(settingsToLoad, function(result){
-            if(result[0] == armorArray[i]){
-                dew.command(result[1] + ' ' + $('#'+armorArray[i]).val());
-            };
-        });
-    }
-}
 
-function randomColors(){
-    var colorArray = ['colorsPrimary','colorsSecondary','colorsVisor','colorsLights'];
-    for(var i = 0; i < colorArray.length; i++) {
-        var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16).toUpperCase();
-        $('#'+colorArray[i]).css("background-color",randomColor);
-        if(getLuminance(randomColor)> 0.22){
-            $('#'+colorArray[i]).css("color","#222");
-        }else{
-            $('#'+colorArray[i]).css("color","#ddd");
-        }
-        $('#'+colorArray[i]).val(randomColor);
-        $.grep(settingsToLoad, function(result){
-            if(result[0] == colorArray[i]){
-                dew.command(result[1] + ' ' + randomColor);
-            };
-        });
-    }   
-}
-
-function updateSelection(item){
+function updateSelection(item, sound){
     colorIndex = 0;
     $('.selectedElement').removeClass('selectedElement');
     $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
     $('#'+selectedItem).parent()[0].scrollIntoView(false);
-    dew.command('Game.PlaySound 0xAFE');
+    if(sound){
+        dew.command('Game.PlaySound 0xAFE');
+    }
 }
 
 function prevPage(){
@@ -1231,19 +1048,19 @@ function nextPage(){
 function upNav(){
     if(itemNumber > 0){
         itemNumber--;
-        updateSelection(itemNumber);
+        updateSelection(itemNumber, true);
     }
 }
 
 function downNav(){
     if(itemNumber < $(activePage + ' label:visible').length-1){
         itemNumber++;
-        updateSelection(itemNumber);
+        updateSelection(itemNumber, true);
     }           
 }
 
 function onControllerConnect(){
-    updateSelection(itemNumber);
+    updateSelection(itemNumber, false);
     $('button img, .tabs img').show();
 }
 
@@ -1323,17 +1140,6 @@ function rightToggle(){
 function triggerChange(){
     $('#'+selectedItem).trigger('change');
     dew.command('Game.PlaySound 0x0B00');  
-}
-
-function setColor(colorHex){
-    $('#'+selectedItem).css('background-color',colorHex);   
-    $('#'+selectedItem).val(colorHex); 
-    if(getLuminance(colorHex)> 0.22){
-        $('#'+selectedItem).css('color','#222');
-    }else{
-        $('#'+selectedItem).css('color','#ddd');
-    }      
-    triggerChange();
 }
 
 function toggleSetting(){

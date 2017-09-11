@@ -1,0 +1,95 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript" src="dew://lib/dew.js"></script>
+    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="dew://lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="settings.js"></script>
+    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="dew://lib/jquery-ui.css">
+</head>
+<body>
+    <div id="blackLayer"></div>
+    <div id="blueHeader"></div>
+    <div id="settingsWindow">
+        <h1 class="header">Customize</h1>
+        <ul class="tabs">
+            <img class="button"></img>
+            <img class="button"></img>
+            <li><a href="#page1">Armory</a></li>
+            <li><a href="#page2">Colors</a></li>
+        </ul>
+                    
+        <div id="page1">
+            <div id="buttonConatiner">
+                <span>
+                    <div class="setting baseNav" onclick="armorShow('armorHelmet',$(this));"><label>Helmet</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="armorShow('armorChest',$(this));"><label>Chest</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="armorShow('armorRightShoulder',$(this));"><label>Right Shoulder</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="armorShow('armorLeftShoulder',$(this));"><label>Left Shoulder</label></div>
+                </span>
+            </div>
+            <div id="playerWindow"></div>
+            <form class="armorForm" id="armorHelmet"></form>
+            <form class="armorForm" id="armorChest"></form>
+            <form class="armorForm" id="armorRightShoulder"></form>
+            <form class="armorForm" id="armorLeftShoulder"></form>
+            <div id="backgroundLeftSide"></div>
+            <div id="backgroundRightSide"></div>
+            <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
+        </div>
+        
+        <div id="page2">
+            <div id="buttonConatiner">
+               <span>
+                    <div class="setting baseNav" onclick="colorShow('colorsPrimary',$(this));"><label>Primary</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="colorShow('colorsSecondary',$(this));"><label>Secondary</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="colorShow('colorsVisor',$(this));"><label>Visor</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="colorShow('colorsLights',$(this));"><label>Lights</label></div>
+                </span>
+
+            </div>
+            <div id="playerWindow"></div>
+            <form class="colorForm" id="colorsPrimary">
+                <span><label><input type="radio" name="colorsPrimary" value="" onclick="document.getElementById('colorsPrimaryText').click()">Custom <input type="text" name="colorsPrimary" class="setting" id="colorsPrimaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+            </form>
+            <form class="colorForm" id="colorsSecondary">
+                <span><label><input type="radio" name="colorsSecondary" value="" onclick="document.getElementById('colorsSecondaryText').click()">Custom <input type="text" name="colorsSecondary" class="setting" id="colorsSecondaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+            </form>
+           <form class="colorForm" id="colorsVisor">
+                <span><label><input type="radio" name="colorsVisor" value="" onclick="document.getElementById('colorsVisorText').click()">Custom <input type="text" name="colorsVisor" id="colorsVisorText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+            </form>
+            <form class="colorForm" id="colorsLights">
+                <span><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom <input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+            </form>
+            <div id="backgroundLeftSide"></div>
+            <div id="backgroundRightSide"></div>
+            <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
+        </div>
+        
+        <div id="infoBox">
+            <div id="infoHeader"></div>
+            <div id="infoText"></div>
+        </div>
+    </div>	
+    <div class="bottomBar">
+        <button id="applyButton"><img class="button">Apply</button>
+        <button id="namePrompt" onclick="inputBox()"><img class="button">Player Name</button>
+        <button id="cancelButton"><img class="button">Close</button>
+    </div>
+    <div id="inputBox">
+        <div class="wHeader">Player Name</div>
+        <input type="text" class="textInput" id="pName" placeholder="...">
+        <button id="okButton"><img class="button">Ok</button>
+        <button id="dismissButton"><img class="button">Cancel</button>
+    </div>
+    <div id="blueFooter"></div>
+</body>
+</html>

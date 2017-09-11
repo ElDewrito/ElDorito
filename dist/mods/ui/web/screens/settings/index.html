@@ -5,67 +5,24 @@
     <script type="text/javascript" src="dew://lib/dew.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="jqColorPicker.min.js"></script>
     <script type="text/javascript" src="settings.js"></script>
     <link rel="stylesheet" href="settings.css">
     <link rel="stylesheet" href="dew://lib/jquery-ui.css">
 </head>
 <body>
     <div id="blackLayer"></div>
-    <div id="blueHeader"></div>
     <div id="settingsWindow">
         <h1 class="header">Settings</h1>
         <ul class="tabs">
             <img class="button"></img>
 						<img class="button"></img>
-            <li><a href="#page7">Customization</a></li>
             <li><a href="#page6">Server</a></li>
             <li><a href="#page1">Gameplay</a></li>
             <li><a href="#page2">Controls</a></li>
             <li><a href="#page3">Audio/Video</a></li>
             <li><a href="#page10">Tweaks</a></li>
         </ul>
-        <div id="page7">
-					<div id="buttonConatiner">
-            <span>
-                <label for="pName">Player Name</label>
-                <input class="setting textInput" type="text" id="pName" placeholder="...">
-            </span><span>
-                <h3 class="subHeader">Armor</h3>
-            </span><span>
-                <label for="armorHelmet">Helmet</label>
-                <select id="armorHelmet" class="setting wheelable instant"></select>
-            </span><span>
-                <label for="armorChest">Chest</label>
-                <select id="armorChest" class="setting wheelable instant"></select>
-            </span><span>
-                <label for="armorRightShoulder">Right Shoulder</label>
-                <select id="armorRightShoulder" class="setting wheelable instant"></select>
-            </span><span>
-                <label for="armorLeftShoulder">Left Shoulder</label>
-                <select id="armorLeftShoulder" class="setting wheelable instant"></select>
-            </span><span>
-                <h3 class="subHeader">Colors</h3>
-            </span><span>
-                <label for="colorsPrimary">Primary</label>
-                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsPrimary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
-            </span><span>
-                <label for="colorsSecondary">Secondary</label>
-                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsSecondary" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
-            </span><span>
-                <label for="colorsVisor">Visor</label>
-                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsVisor" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
-            </span><span>
-                <label for="colorsLights">Lights</label>
-                <div class="colorBox"><input class="setting color no-alpha instant" id="colorsLights" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"></div>
-            </span></div>
-            <div id="playerWindow"></div>
-            <div id="backgroundLeftSide"></div>
-            <div id="backgroundRightSide"></div>
-            <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
-            <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
-        </div>
-        
+
         <div id="page6"> 
 					<div id="buttonConatiner">
             <span>
@@ -194,6 +151,13 @@
 											<input type="text" class="tinySetting" id="sVetoPassPercentageText">
 											<input type="range" class="setting hasTiny" min="0" max="100" id="sVetoPassPercentage">
 										</div>
+                </span><span>
+                    <label for="sVetoSystemSelectionType">Veto System Selection Type</label>
+                    <select id="sVetoSystemSelectionType" class="setting wheelable">
+                        <option value="0">Random</option> 
+                        <option value="1">Ordered</option>              
+                    </select>
+
                 </span>
             </div>
 					</div>
@@ -699,7 +663,6 @@
         <button id="okButton"><img class="button">Ok</button>
         <button id="dismissButton"><img class="button">Dismiss</button>
     </div>
-    <div id="blueFooter"></div>
 </body>
 </html>
 
