@@ -95,6 +95,9 @@ namespace Patches::Weapon
 		Hook(0x06DFBB, DualWieldSprintInputHook).Apply();
 		Hook(0x1D50CB, DualWieldScopeLevelHook).Apply();
 		Hook(0x7A21D4, DualWieldEquipmentCountHook, HookFlags::IsCall).Apply();
+
+		// fix recoil
+		Pointer(0x0B603E7 + 5).Write<int>(0x214);
 	}
 
 	void ApplyAfterTagsLoaded()
