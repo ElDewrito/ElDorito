@@ -25,11 +25,135 @@ using namespace Anvil::Client::Rendering::Bridge;
 
 namespace
 {
-	class ObjectPropertySink
+	enum class PropertyTarget
+	{
+		General_OnMapAtStart,
+		General_Symmetry,
+		General_RespawnRate,
+		General_SpareClips,
+		General_SpawnOrder,
+		General_Team,
+		General_TeleporterChannel,
+		General_ShapeType,
+		General_ShapeRadius,
+		General_ShapeWidth,
+		General_ShapeTop,
+		General_ShapeBottom,
+		General_ShapeDepth,
+		General_Material,
+		General_Physics,
+		Budget_Minimum,
+		Budget_Maximum,
+		Light_ColorR,
+		Light_ColorG,
+		Light_ColorB,
+		Light_ColorIntensity,
+		Light_Intensity,
+		Light_Radius,
+
+	};
+
+	enum class PropertyDataType
+	{
+		Int = 0,
+		Float
+	};
+
+	struct PropertyValue
+	{
+		union
+		{
+			float ValueFloat;
+			int ValueInt;
+		};
+	};
+
+	struct PropertyInfo
+	{
+		PropertyDataType Type;
+		PropertyTarget Target;
+	};
+
+	class ObjectPropertySetter
 	{
 	public:
-		ObjectPropertySink(const Blam::MapVariant::VariantProperties& properties, const Blam::MapVariant::BudgetEntry& budget)
-			: m_Properties(properties), m_Budget(budget), m_RespawnRequired(false), m_SyncRequired(false), m_BudgetDirty(false) {}
+		ObjectPropertySetter(const Blam::MapVariant::VariantProperties& properties, const Blam::MapVariant::BudgetEntry& budget)
+			: m_Properties(properties), m_Budget(budget), m_RespawnRequired(false), m_BudgetDirty(false) {}
+
+		void SetProperty(PropertyTarget target, PropertyValue value)
+		{
+			switch (target)
+			{
+			case PropertyTarget::General_OnMapAtStart:
+				break;
+			case PropertyTarget::General_Symmetry:
+				SetSymmetry(value.ValueInt);
+				break;
+			case PropertyTarget::General_RespawnRate:
+				m_Properties.RespawnTime = value.ValueInt;
+				break;
+			case PropertyTarget::General_SpareClips:
+				m_Properties.SharedStorage = value.ValueInt;
+				break;
+			case PropertyTarget::General_SpawnOrder:
+				m_Properties.SharedStorage = value.ValueInt;
+				break;
+			case PropertyTarget::General_Team:
+				m_Properties.TeamAffilation = value.ValueInt;
+				break;
+			case PropertyTarget::General_TeleporterChannel:
+				m_Properties.SharedStorage = value.ValueInt;
+				break;
+			case PropertyTarget::General_ShapeType:
+				m_Properties.ZoneShape = value.ValueInt;
+				break;
+			case PropertyTarget::General_ShapeRadius:
+				m_Properties.ZoneRadiusWidth = value.ValueFloat;
+				break;
+			case PropertyTarget::General_ShapeWidth:
+				m_Properties.ZoneRadiusWidth = value.ValueFloat;
+				break;
+			case PropertyTarget::General_ShapeTop:
+				m_Properties.ZoneTop = value.ValueFloat;
+				break;
+			case PropertyTarget::General_ShapeBottom:
+				m_Properties.ZoneBottom = value.ValueFloat;
+				break;
+			case PropertyTarget::General_ShapeDepth:
+				m_Properties.ZoneDepth = value.ValueFloat;
+				break;
+			case PropertyTarget::General_Material:
+				m_Properties.SharedStorage = value.ValueInt;
+				break;
+			case PropertyTarget::General_Physics:
+				SetPhysics(value.ValueInt);
+				break;
+			case PropertyTarget::Budget_Minimum:
+				SetBudgetMinimum(value.ValueInt);
+				break;
+			case PropertyTarget::Budget_Maximum:
+				SetBudgetMinimum(value.ValueInt);
+				break;
+			case PropertyTarget::Light_ColorR:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_ColorG:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_ColorB:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_ColorIntensity:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorIntensity = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_Intensity:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Intensity = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_Radius:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueFloat;
+				break;
+			}
+		}
 
 		bool RespawnRequired() const
 		{
@@ -39,14 +163,6 @@ namespace
 		bool SyncRequired() const
 		{
 			return m_SyncRequired;
-		}
-
-		void SetOnMapAtStart(int value)
-		{
-			if (!value)
-				m_Properties.ObjectFlags |= 2u;
-			else
-				m_Properties.ObjectFlags &= ~2u;
 		}
 
 		void SetSymmetry(int value)
@@ -65,67 +181,6 @@ namespace
 			}
 		}
 
-		void SetRespawnRate(int respawnRate)
-		{
-			m_Properties.RespawnTime = respawnRate;
-		}
-
-		void SetSpareClips(int value)
-		{
-			m_Properties.SharedStorage = value;
-		}
-
-		void SetSpawnOrder(int value)
-		{
-			m_Properties.SharedStorage = value;
-		}
-
-		void SetTeam(int value)
-		{
-			m_Properties.TeamAffilation = value;
-		}
-
-		void SetTeleporterChannel(int value)
-		{
-			m_Properties.SharedStorage = value;
-		}
-
-		void SetShapeType(float value)
-		{
-			m_Properties.ZoneShape = value;
-			m_SyncRequired = true;
-		}
-
-		void SetShapeRadius(float value)
-		{
-			m_Properties.ZoneRadiusWidth = value;
-		}
-
-		void SetShapeWidth(float value)
-		{
-			m_Properties.ZoneRadiusWidth = value;
-		}
-
-		void SetShapeTop(float value)
-		{
-			m_Properties.ZoneTop = value;
-		}
-
-		void SetShapeBottom(float value)
-		{
-			m_Properties.ZoneBottom = value;
-		}
-
-		void SetShapeDepth(float value)
-		{
-			m_Properties.ZoneDepth = value;
-		}
-
-		void SetMaterial(int value)
-		{
-			m_Properties.SharedStorage = value;
-		}
-
 		void SetBudgetMinimum(int value)
 		{
 			m_Budget.RuntimeMin = value;
@@ -136,52 +191,6 @@ namespace
 		{
 			m_Budget.RuntimeMax = value;
 			m_BudgetDirty = true;
-		}
-
-		void SetLightColorR(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
-			current = (current & 0xffffff00) | i & 0xff;
-		}
-
-		void SetLightColorG(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
-			current = (current & 0xffff00ff) | (i << 8);
-		}
-		void SetLightColorB(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
-			current = (current & 0xff00ffff) | (i << 16);
-		}
-
-		void SetLightColorIntensity(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneRadiusWidth;
-			current = (current & 0x00ffffff) | (i << 24);
-		}
-
-		void SetAttenuation(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneDepth;
-			current = (current & 0xff00ffff) | (i << 16);
-		}
-
-		void SetLightIntensity(float value)
-		{
-			auto i = uint32_t(value * 255);
-			auto& current = *(uint32_t*)&m_Properties.ZoneDepth;
-			current = (current & 0x00ffffff) | (i << 24);
-		}
-
-		void SetLightRadius(float value)
-		{
-			m_Properties.ZoneTop = value;
 		}
 
 		void SetPhysics(int value)
@@ -195,7 +204,7 @@ namespace
 				m_Properties.ZoneShape = 4;
 				break;
 			}
-			
+
 		}
 
 		void Apply(uint32_t playerIndex, int16_t placementIndex)
@@ -228,18 +237,85 @@ namespace
 		bool m_BudgetDirty;
 	};
 
+	struct IObjectPropertySink
+	{
+		virtual void SetProperty(PropertyTarget target, PropertyValue value) = 0;
+		virtual ~IObjectPropertySink() {}
+	};
+
+	class DeferedPropertySink : public IObjectPropertySink
+	{
+	public:
+		void SetProperty(PropertyTarget target, PropertyValue value) override
+		{
+			m_Values.emplace_back(target, value);
+		}
+
+		void Apply(uint32_t playerIndex, int16_t placementIndex)
+		{
+			auto mapv = Forge::GetMapVariant();
+			if (!mapv || placementIndex == -1)
+				return;
+
+			const auto &placement = mapv->Placements[placementIndex];
+			ObjectPropertySetter propertySetter(placement.Properties, mapv->Budget[placement.BudgetIndex]);
+			for (auto& v : m_Values)
+				propertySetter.SetProperty(std::get<0>(v), std::get<1>(v));
+
+			propertySetter.Apply(playerIndex, placementIndex);
+			m_Values.clear();
+		}
+
+	private:
+		std::vector<std::tuple<PropertyTarget, PropertyValue>> m_Values;
+	};
+
+	class ImmediatePropertySink : public IObjectPropertySink
+	{
+	public:
+
+		ImmediatePropertySink(uint32_t playerIndex, int16_t placementIndex) :
+			m_PlayerIndex(playerIndex), m_PlacementIndex(placementIndex) {}
+
+		void SetProperty(PropertyTarget target, PropertyValue value) override
+		{
+			auto mapv = Forge::GetMapVariant();
+			if (!mapv)
+				return;
+
+			const auto &placement = mapv->Placements[m_PlacementIndex];
+			ObjectPropertySetter propertySetter(placement.Properties, mapv->Budget[placement.BudgetIndex]);
+			propertySetter.SetProperty(target, value);
+			propertySetter.Apply(m_PlayerIndex, m_PlacementIndex);
+		}
+
+	private:
+		uint32_t m_PlayerIndex;
+		int16_t m_PlacementIndex;
+	};
+
 	std::string SerializeObjectProperties(int16_t placementIndex);
-	void DeserializeObjectProperties(const rapidjson::Value &json, ObjectPropertySink& Setor);
+	void DeserializeObjectProperties(const rapidjson::Value &json, IObjectPropertySink& sink);
 
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) { writer.Key(key); writer.Double(value); };
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
 	uint32_t s_CurrentObjectIndex = -1;
+	DeferedPropertySink s_ItemSpawnProperties;
 }
 
 namespace Web::Ui::WebForge
 {
+	void OnItemSpawned(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object || object->PlacementIndex == -1)
+			return;
+
+		s_ItemSpawnProperties.Apply(Blam::Players::GetLocalPlayer(0), object->PlacementIndex);
+	}
+
 	void ShowObjectProperties(uint32_t objectIndex)
 	{
 		auto currentObject = Blam::Objects::Get(objectIndex);
@@ -257,6 +333,8 @@ namespace Web::Ui::WebForge
 	void ShowObjectCreation()
 	{
 		const auto mapv = Forge::GetMapVariant();
+		if (!mapv)
+			return;
 
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
@@ -266,7 +344,7 @@ namespace Web::Ui::WebForge
 		writer.StartObject();
 		writer.Key("budget");
 		writer.StartArray();
-		for (auto i = 0; i < mapv->BudgetEntryCount; i++) 
+		for (auto i = 0; i < mapv->BudgetEntryCount; i++)
 		{
 			const auto& itemBudget = mapv->Budget[i];
 
@@ -280,7 +358,7 @@ namespace Web::Ui::WebForge
 			SerializeProperty(writer, "runtime_min", itemBudget.RuntimeMin);
 			SerializeProperty(writer, "runtime_max", itemBudget.RuntimeMax);
 			writer.EndObject();
-		}	
+		}
 		writer.EndArray();
 		writer.EndObject();
 
@@ -304,22 +382,21 @@ namespace Web::Ui::WebForge
 
 		switch (type->value.GetInt())
 		{
-		case 1:
+		case 1: // set immediate properties
 		{
 			auto currentObject = Blam::Objects::Get(s_CurrentObjectIndex);
 			if (currentObject && currentObject->PlacementIndex != 0xFFFF)
 			{
 				auto mapv = Forge::GetMapVariant();
-				auto placement = mapv->Placements[currentObject->PlacementIndex];
 				auto playerIndex = Blam::Players::GetLocalPlayer(0);
-
-				ObjectPropertySink sink(placement.Properties, mapv->Budget[placement.BudgetIndex]);
+				ImmediatePropertySink sink(playerIndex, currentObject->PlacementIndex);
 				DeserializeObjectProperties(data->value, sink);
-
-				sink.Apply(playerIndex, currentObject->PlacementIndex);
 			}
 		}
 		break;
+		case 2: // set defered properties
+			DeserializeObjectProperties(data->value, s_ItemSpawnProperties);
+			break;
 		}
 
 		return QueryError_Ok;
@@ -388,69 +465,6 @@ namespace
 		return true;
 	}
 
-	uint32_t RespawnObject(uint32_t objectIndex)
-	{
-		auto object = Blam::Objects::Get(objectIndex);
-		if (!object || object->PlacementIndex == -1)
-			return -1;
-
-		auto mapv = Forge::GetMapVariant();
-		const auto& placement = mapv->Placements[object->PlacementIndex];
-
-		auto newObjectIndex = Forge::SpawnObject(mapv, object->TagIndex, -1, -1,
-			&placement.Position, &placement.RightVector, &placement.UpVector,
-			-1, -1, &placement.Properties, placement.PlacementFlags);
-
-		if (newObjectIndex != -1)
-		{
-			Forge::DeleteObject(Blam::Players::GetLocalPlayer(0).Index(), object->PlacementIndex);
-		}
-
-		return newObjectIndex;
-	}
-
-	void RespawnObject()
-	{
-		static auto Object_Dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
-
-		if (s_CurrentObjectIndex == -1)
-			return;
-
-		auto object = Blam::Objects::Get(s_CurrentObjectIndex);
-		if (!object || object->PlacementIndex == -1)
-			return;
-
-		auto mapv = Forge::GetMapVariant();
-		const auto& placement = mapv->Placements[object->PlacementIndex];
-
-		Forge::ObjectSet newSelection;
-
-		auto& selection = Forge::Selection::GetSelection();
-		if (selection.Contains(s_CurrentObjectIndex))
-		{
-			auto placementCount = mapv->UsedPlacementsCount;
-			for (auto i = 0; i < placementCount; i++)
-			{
-				const auto placement = mapv->Placements[i];
-
-				if (!selection.Contains(placement.ObjectIndex))
-					continue;
-
-				auto objectIndex = placement.ObjectIndex;
-				auto newObjectIndex = RespawnObject(placement.ObjectIndex);
-
-				if (newObjectIndex != -1)
-					newSelection.Add(newObjectIndex);
-			}
-
-			selection = newSelection;
-		}
-		else
-		{
-			s_CurrentObjectIndex = RespawnObject(placement.ObjectIndex);
-		}
-	}
-
 	bool IsForgeLight(uint32_t objectIndex)
 	{
 		auto object = Blam::Objects::Get(objectIndex);
@@ -485,6 +499,17 @@ namespace
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
+		auto symmetry = 0;
+		if (properties.ObjectFlags & 4)
+		{
+			if (!(properties.ObjectFlags & 8))
+				symmetry = 1;
+		}
+		else
+			symmetry = 2;
+
+		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
+
 		writer.StartObject();
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
 		SerializeProperty(writer, "has_material", CanThemeObject());
@@ -495,16 +520,6 @@ namespace
 		writer.Key("properties");
 		writer.StartObject();
 		SerializeProperty(writer, "on_map_at_start", ((properties.ObjectFlags >> 1) & 1) == 0 ? 1 : 0);
-
-		auto symmetry = 0;
-		if (properties.ObjectFlags & 4)
-		{
-			if (!(properties.ObjectFlags & 8))
-				symmetry = 1;
-		}
-		else
-			symmetry = 2;
-
 		SerializeProperty(writer, "symmetry", symmetry);
 		SerializeProperty(writer, "respawn_rate", properties.RespawnTime);
 		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
@@ -518,17 +533,12 @@ namespace
 		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
 		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
 		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
-
-		auto current = *(uint32_t*)&properties.ZoneRadiusWidth;
-		auto current2 = *(uint32_t*)&properties.ZoneDepth;
-
-		SerializeProperty(writer, "light_color_b", ((current >> 16) & 0xff) / 255.0f);
-		SerializeProperty(writer, "light_color_g", ((current >> 8) & 0xff) / 255.0f);
-		SerializeProperty(writer, "light_color_r", (current & 0xff) / 255.0f);
-		SerializeProperty(writer, "light_color_intensity", ((current >> 24) & 0xff) / 255.0f);
-		SerializeProperty(writer, "light_intensity", ((current2 >> 24) & 0xff) / 255.0f);
-		SerializeProperty(writer, "light_radius", properties.ZoneTop);
-
+		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
+		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
+		SerializeProperty(writer, "light_color_r", lightProperties->ColorR / 255.0f);
+		SerializeProperty(writer, "light_color_intensity", lightProperties->ColorIntensity / 255.0f);
+		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
+		SerializeProperty(writer, "light_radius", lightProperties->Range);
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -544,51 +554,57 @@ namespace
 		return buffer.GetString();
 	}
 
-	struct ObjectPropertyData
+	void DeserializeObjectProperties(const rapidjson::Value &json, IObjectPropertySink& sink)
 	{
-		Blam::MapVariant::VariantProperties Proprties;
-		Blam::MapVariant::BudgetEntry Budget;
-	};
-
-	void DeserializeObjectProperties(const rapidjson::Value &json, ObjectPropertySink& sink)
-	{
-		using PropertySetterFunc = void(*)(const rapidjson::Value&, ObjectPropertySink&);
-
-		static std::unordered_map<std::string, PropertySetterFunc> s_Setters =
+		const static std::unordered_map<std::string, PropertyInfo> s_PropertyTypeLookup =
 		{
-			{ "on_map_at_start",		 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetOnMapAtStart(value.GetInt()); } },
-			{ "symmetry",				 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetSymmetry(value.GetInt()); } },
-			{ "respawn_rate",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetRespawnRate(value.GetInt()); } },
-			{ "spare_clips",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetSpareClips(value.GetInt()); } },
-			{ "spawn_order",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetSpawnOrder(value.GetInt()); } },
-			{ "team_affiliation",		 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetTeam(value.GetInt()); } },
-			{ "teleporter_channel",		 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetTeleporterChannel(value.GetInt()); } },
-			{ "shape_type",				 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeType(value.GetInt()); } },
-			{ "shape_radius",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeRadius(value.GetDouble()); } },
-			{ "shape_width",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeWidth(value.GetDouble()); } },
-			{ "shape_top",				 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeTop(value.GetDouble()); } },
-			{ "shape_bottom",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeBottom(value.GetDouble()); } },
-			{ "shape_depth",			 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetShapeDepth(value.GetDouble()); } },
-			{ "appearance_material",	 [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetMaterial(value.GetInt()); } },
-			{ "summary_runtime_minimum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMinimum(value.GetInt()); } },
-			{ "summary_runtime_maximum", [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetBudgetMaximum(value.GetInt()); } },
-			{ "physics",			     [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetPhysics(value.GetInt()); } },
-			{ "light_color_r",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorR(value.GetDouble()); } },
-			{ "light_color_g",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorG(value.GetDouble()); } },
-			{ "light_color_b",		    [](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorB(value.GetDouble()); } },
-			{ "light_color_intensity",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightColorIntensity(value.GetDouble()); } },
-			{ "light_intensity",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightIntensity(value.GetDouble()); } },
-			{ "light_attenuation",		[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightIntensity(value.GetDouble()); } },
-			{ "light_radius",			[](const rapidjson::Value& value, ObjectPropertySink& sink) { sink.SetLightRadius(value.GetDouble()); } }
+			{ "on_map_at_start",		 { PropertyDataType::Int, PropertyTarget::General_OnMapAtStart }},
+			{ "symmetry",				 { PropertyDataType::Int, PropertyTarget::General_Symmetry }},
+			{ "respawn_rate",			 { PropertyDataType::Int, PropertyTarget::General_RespawnRate }},
+			{ "spare_clips",			 { PropertyDataType::Int, PropertyTarget::General_SpareClips }},
+			{ "spawn_order",			 { PropertyDataType::Int, PropertyTarget::General_SpawnOrder }},
+			{ "team_affiliation",		 { PropertyDataType::Int, PropertyTarget::General_Team }},
+			{ "physics",				 { PropertyDataType::Int, PropertyTarget::General_Physics } },
+			{ "appearance_material",	 { PropertyDataType::Int, PropertyTarget::General_Material } },
+			{ "teleporter_channel",		 { PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
+			{ "shape_type",				 { PropertyDataType::Int, PropertyTarget::General_ShapeType }},
+			{ "shape_radius",			 { PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},
+			{ "shape_width",			 { PropertyDataType::Float, PropertyTarget::General_ShapeWidth }},
+			{ "shape_top",				 { PropertyDataType::Float, PropertyTarget::General_ShapeTop }},
+			{ "shape_bottom",			 { PropertyDataType::Float, PropertyTarget::General_ShapeBottom }},
+			{ "shape_depth",			 { PropertyDataType::Float, PropertyTarget::General_ShapeDepth }},
+			{ "light_color_r",			 { PropertyDataType::Float, PropertyTarget::Light_ColorR }},
+			{ "light_color_g",			 { PropertyDataType::Float, PropertyTarget::Light_ColorG }},
+			{ "light_color_b",			 { PropertyDataType::Float, PropertyTarget::Light_ColorB }},
+			{ "light_color_intensity",	 { PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
+			{ "light_intensity",		 { PropertyDataType::Float, PropertyTarget::Light_Intensity }},
+			{ "light_radius",			 { PropertyDataType::Float, PropertyTarget::Light_Radius }},
+			{ "summary_runtime_minimum", { PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
+			{ "summary_runtime_maximum", { PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)
 		{
 			const auto& name = it->name.GetString();
-			if (s_Setters.find(name) == s_Setters.end())
+
+			auto typeIt = s_PropertyTypeLookup.find(name);
+			if (typeIt == s_PropertyTypeLookup.end())
 				continue;
-			auto setter = s_Setters[name];
-			setter(it->value, sink);
+
+			auto info = typeIt->second;
+
+			PropertyValue value;
+			switch (info.Type)
+			{
+			case PropertyDataType::Int:
+				value.ValueInt = it->value.GetInt();
+				break;
+			case PropertyDataType::Float:
+				value.ValueFloat = it->value.GetDouble();
+				break;
+			}
+
+			sink.SetProperty(info.Target, value);
 		}
 	}
 }

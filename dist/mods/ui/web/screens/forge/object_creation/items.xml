@@ -62,7 +62,9 @@
       <item name="Trash Can" tagindex="0x4226" />
       <item name="Radio Antennae" tagindex="0x34a5" />
       <item name="Bridge" tagindex="0x4e20" />
-      <item name="Double Box, Open" tagindex="0x4e10" />
+      <item name="Double Box, Open" tagindex="0x4e10">
+        <setter target="physics" type="int" value="1" />
+      </item>
       <item name="Wire Spool" tagindex="0x4e08" />
       <item name="Fence Box" tagindex="0x4def" />
       <item name="Swinging Door (P)" tagindex="0x4223" />

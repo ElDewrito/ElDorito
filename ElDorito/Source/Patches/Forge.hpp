@@ -11,4 +11,6 @@ namespace Patches::Forge
 	bool LoadPrefab(const std::string& path);
 
 	void SpawnItem(uint32_t tagIndex);
+	using ItemSpawnedCallback = void(*)(uint32_t objectIndex);
+	void OnItemSpawned(ItemSpawnedCallback callback);
 }

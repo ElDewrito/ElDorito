@@ -76,10 +76,13 @@ namespace
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
-	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+	uint32_t __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
+	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
+		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
@@ -93,7 +96,9 @@ namespace
 	int s_MonitorMovementSpeedIndex = 3;
 
 
+	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 	uint32_t s_SpawnItemTagIndex = -1;
+	uint32_t s_SpawnItemPlayerIndex = -1;
 }
 
 namespace Patches::Forge
@@ -154,9 +159,9 @@ namespace Patches::Forge
 		Hook(0x151506, c_map_variant_initialize_from_scenario_hook, HookFlags::IsCall).Apply();
 		Hook(0x185DC1, c_map_variant_update_item_budget_hook, HookFlags::IsCall).Apply();
 		Hook(0x181F30, c_map_variant_spawn_object_hook, HookFlags::IsCall).Apply();
+		Hook(0x19AEE6, SpawnItemHook, HookFlags::IsCall).Apply();
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
-
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 
 		Patches::Core::OnGameStart(FixRespawnZones);
@@ -187,6 +192,11 @@ namespace Patches::Forge
 	void SpawnItem(uint32_t tagIndex)
 	{
 		s_SpawnItemTagIndex = tagIndex;
+	}
+
+	void OnItemSpawned(ItemSpawnedCallback callback)
+	{
+		s_ItemSpawnedCallbacks.push_back(callback);
 	}
 }
 
@@ -844,7 +854,7 @@ namespace
 			auto objectIndexToClone = objectIndexUnderCrosshair;
 			for (auto i = 0; i < cloneMultiplier; i++)
 			{
-				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth,intersectNormal);
+				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
 				if (objectIndexToClone == -1)
 					break;
 			}
@@ -1075,7 +1085,7 @@ namespace
 		thisptr->ScnrPlacementsCount = 0;
 		thisptr->BudgetEntryCount = 0;
 
-		auto totalObjectCount = 0;	
+		auto totalObjectCount = 0;
 		auto scnrPlacementOffset = 0;
 		for (auto objectType = 0; objectType < 15; objectType++)
 		{
@@ -1179,18 +1189,41 @@ namespace
 		}
 	}
 
-	void __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+	uint32_t __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags)
 	{
-		const auto c_map_variant_spawn_object = (void(__thiscall *)(MapVariant *thisptr, uint32_t tagIndex, int a3, int placementIndex,
+		const auto c_map_variant_spawn_object = (uint32_t(__thiscall *)(MapVariant *thisptr, uint32_t tagIndex, int a3, int placementIndex,
 			RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
 			int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags))(0x00582110);
 
 		CreateOrGetBudgetForItem(thisptr, tagIndex);
 
-		return c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex, 
+		auto objectIndex = c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex,
 			position, forward, up, scenarioPlacementIndex, objectType, placementProps, placementFlags);
+
+		return objectIndex;
+	}
+
+	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
+		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
+		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags)
+	{
+		const auto c_map_variant_spawn_object = (uint32_t(__thiscall *)(MapVariant *thisptr, uint32_t tagIndex, int a3, int placementIndex,
+			RealVector3D *position, RealVector3D *forward, RealVector3D *up,
+			int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags))(0x00582110);
+
+		CreateOrGetBudgetForItem(thisptr, tagIndex);
+
+		auto objectIndex = c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex,
+			position, forward, up, scenarioPlacementIndex, objectType, placementProps, placementFlags);
+
+		for (auto &cb : s_ItemSpawnedCallbacks)
+			cb(objectIndex);
+
+		Web::Ui::WebForge::OnItemSpawned(objectIndex);
+
+		return objectIndex;
 	}
 
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
@@ -1244,17 +1277,7 @@ namespace
 		if (lightFlags & (1 << 31) && parentObject)
 		{
 			auto props = parentObject->GetMultiplayerProperties();
-
-			auto current = Pointer(props)(0x14).Read<uint32_t>();
-			auto current2 = Pointer(props)(0x18).Read<uint32_t>();
-			auto range = Pointer(props)(0x1c).Read<float>();
-
-			auto colorIntensity = ((current >> 24) / 255.0f) * 100.0f;
-			auto colorB = ((current >> 16) & 0xff) / 255.0f;
-			auto colorG = ((current >> 8) & 0xff) / 255.0f;
-			auto colorR = ((current) & 0xff) / 255.0f;
-			auto intensity = (current2 >> 24) / 255.0f;
-			auto attenuation = 10.0f - ((((current2 >> 16) & 0xff) / 255.0f) * 10);
+			auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>((uint8_t*)props + 0x14);
 
 			auto lightDefPtr = Pointer(lightDef);
 
@@ -1269,13 +1292,15 @@ namespace
 			auto v22 = lightDefPtr(0x14).Read<float>();
 			auto v18 = lightDefPtr(0x70).Read<float>();
 
+			intensity = ((lightProperties->Intensity / 255.0f)) * 10.0f;
+			auto colorIntensity = lightProperties->ColorIntensity / 255.0f * 100.0f;
 			RealColorRGB color(
-				intensity + colorIntensity * colorR,
-				intensity + colorIntensity * colorG,
-				intensity + colorIntensity * colorB
+				intensity + colorIntensity * (lightProperties->ColorR / 255.0f),
+				intensity + colorIntensity * (lightProperties->ColorG / 255.0f),
+				intensity + colorIntensity * (lightProperties->ColorB / 255.0f)
 			);
 
-			sub_A66900(a4, light->Center, color, v18, range, light->field_A4, v2, v23, v22);
+			sub_A66900(a4, light->Center, color, v18, lightProperties->Range, light->field_A4, v2, v23, v22);
 			return;
 		}
 

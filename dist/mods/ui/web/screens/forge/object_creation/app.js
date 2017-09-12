@@ -5,6 +5,7 @@
     var treeList = makeTreeList(categoryTreeElement, null);
     var budget = {};
     var doc = null;
+    var objectListNode = null;
   
     loadItems(function(data) {
         var parser = new DOMParser();
@@ -126,9 +127,49 @@
                     case 0:
                         dew.command('Game.PlaySound 0xb00');
                         var selected = objectListElement.querySelector('li.selected');
+                        var index = $(selected).index();
+
                         if(selected) {
-                            var tagIndex = selected.getAttribute('data-tagindex');
-                            dew.command('forge.spawnitem ' + tagIndex).then(function() {});
+                            var selectedTagIndex = parseInt(selected.getAttribute('data-tagindex'));
+
+                            var j = 0;
+                            var node = null;
+                            for(var x = objectListNode.firstChild; x; x = x.nextSibling) {
+                                if(x.nodeName === 'item') {
+                                    if(j++ == index) {
+                                        node = x;
+                                    }
+
+                                }
+                            }
+
+                            if(!node)
+                                return;
+
+                            var props = {};
+                            for(var x = node.firstChild; x; x = x.nextSibling) {
+                                if(x.nodeName === 'setter') {
+                                    var target = x.getAttribute('target');
+                                    var value = x.getAttribute('value');
+                                    var type = x.getAttribute('type');
+                                    switch(type) {
+                                        case 'int':
+                                            props[target] = parseInt(value);
+                                            break;
+                                        case 'float':
+                                            props[target] = parseFloat(value);
+                                            break;
+                                    }
+                                    
+                                }
+                            }
+
+                            dew.callMethod('forgeaction',  {
+                                type: 2,
+                                data: props
+                            });
+
+                            dew.command('forge.spawnitem ' + selected.getAttribute('data-tagindex')).then(function() {});
                             dew.hide();
                         }
                         break;
@@ -201,6 +242,8 @@
     function renderObjectList(node) {
         if(!node)
             return;
+
+        objectListNode = node;
 
         var html = '';
         for(var x = node.firstChild; x; x = x.nextSibling) {

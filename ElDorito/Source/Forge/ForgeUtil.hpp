@@ -6,6 +6,19 @@
 
 namespace Forge
 {
+	struct ForgeLightProperties
+	{
+		uint8_t ColorR;
+		uint8_t ColorG;
+		uint8_t ColorB;
+		uint8_t ColorIntensity;
+		uint8_t Intensity;
+		uint8_t Unused1;
+		uint8_t Unused2;
+		float Range;
+	};
+	static_assert(sizeof(ForgeLightProperties) < 16, "ForgeLightProperties must be 16 bytes or less in size");
+
 	struct ZoneShape
 	{
 		int32_t Shape;
