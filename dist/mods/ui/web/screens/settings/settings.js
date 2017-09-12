@@ -200,6 +200,7 @@ $(document).ready(function(){
                 queueChange([result[1], newValue]);
             };
         });
+        dew.command('Game.PlaySound 0x0B00');
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
         var yVal = 30 + (e.target.value * 10);
@@ -431,7 +432,7 @@ $(document).ready(function(){
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
-            updateSelection(itemNumber, true); 
+            updateSelection(itemNumber, false); 
         }
     });
     $('#sVsync').on('change', function(){
@@ -1086,14 +1087,14 @@ function leftToggle(){
         if(elementIndex > 0){
             var newElement = elementIndex - 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
-            triggerChange();
+            $('#'+selectedItem).trigger('change');
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
         if(document.getElementById(selectedItem).value > document.getElementById(selectedItem).min){
             document.getElementById(selectedItem).stepDown();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
-            triggerChange();
+            $('#'+selectedItem).trigger('change');
         }
     }
     if($('#'+selectedItem).hasClass('color')){
@@ -1115,14 +1116,14 @@ function rightToggle(){
         if(elementIndex < elementLength - 1){
             var newElement = elementIndex + 1;
             $('#'+selectedItem+' option').eq(newElement).prop('selected', true);
-            triggerChange();
+            $('#'+selectedItem).trigger('change');
         } 
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
         if(parseInt(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
             document.getElementById(selectedItem).stepUp();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
-            triggerChange();
+            $('#'+selectedItem).trigger('change');
         }
     }
     if($('#'+selectedItem).hasClass('color')){
@@ -1137,11 +1138,6 @@ function rightToggle(){
     }
 }
 
-function triggerChange(){
-    $('#'+selectedItem).trigger('change');
-    dew.command('Game.PlaySound 0x0B00');  
-}
-
 function toggleSetting(){
     if(document.getElementById(selectedItem).computedRole == "checkbox"){
         if(document.getElementById(selectedItem).checked){
@@ -1149,8 +1145,7 @@ function toggleSetting(){
         }else{
             document.getElementById(selectedItem).checked = true;
         }
-        $('#'+selectedItem).trigger('change');
-        dew.command('Game.PlaySound 0x0B00');  
+        $('#'+selectedItem).trigger('change'); 
     }       
 }
 
@@ -1180,6 +1175,7 @@ function alertBox(alertText, dismissButton){
     $('#wDescription').text(alertText);
     $('#alertBox').fadeIn(100);
     activePage = activePage+'alertBox';
+    dew.command('Game.PlaySound 0x0B02');
 }
 
 function hideAlert(sound){
