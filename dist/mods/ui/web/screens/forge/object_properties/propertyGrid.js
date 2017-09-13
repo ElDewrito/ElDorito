@@ -234,7 +234,7 @@ function makePropertyGridWidget(_containerElem) {
 			if(prop.values && prop.values.constructor === Array) {
 				html += `
 				<div class="property-item property-item-group" data-property-name="${prop.name}" id="${prop.name}_group">
-					<div class="group-heading">${_strings[prop.name]}</div>
+					<div class="group-heading">${_strings[prop.name] || prop.name}</div>
 					<div class="group-body">
 					${buildPropertiesHtml(prop.values, '')}
 					</div>
@@ -244,7 +244,7 @@ function makePropertyGridWidget(_containerElem) {
 				
 				html += `
 				<div class="property-item property-item-leaf property-item-${prop.type}" data-property-name="${prop.name}" data-property-type="${prop.type}">
-					<span class="property-name">${_strings[prop.name]}</span>
+					<span class="property-name">${_strings[prop.name] || prop.name}</span>
 					<span class="property-value">
 					${buildPropertyHtml(prop)}
 					</span>

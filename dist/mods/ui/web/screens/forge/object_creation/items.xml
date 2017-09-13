@@ -39,6 +39,126 @@
       <item name="Propane Burner" tagindex="0x4baa" />
       <item name="Propane Tank" tagindex="0x486d" />
     </category>
+    <category name="FX">
+      <item name="Juicy" tagindex="0x00005804">
+        <setter target="fx_saturation" type="float" value="1" />
+        <setter target="fx_hue" type="float" value="0" />
+        <setter target="fx_tint_r" type="float" value="1" />
+        <setter target="fx_tint_g" type="float" value="0.92" />
+        <setter target="fx_tint_b" type="float" value="0.83" />
+        <setter target="fx_color_mute" type="float" value="0" />
+        <setter target="fx_light_intensity" type="float" value="0" />
+        <setter target="fx_darkness" type="float" value="0.5" />
+        <setter target="fx_brightness" type="float" value="0" />
+        <setter target="fx_range" type="float" value="3" />
+      </item>
+      <item name="Nova" tagindex="0x00005804">
+        <setter target="fx_saturation" type="float" value="0.3" />
+        <setter target="fx_hue" type="float" value="0" />
+        <setter target="fx_tint_r" type="float" value="0.03" />
+        <setter target="fx_tint_g" type="float" value="0.03" />
+        <setter target="fx_tint_b" type="float" value="0.03" />
+        <setter target="fx_color_mute" type="float" value="0" />
+        <setter target="fx_light_intensity" type="float" value="1" />
+        <setter target="fx_darkness" type="float" value="0.5" />
+        <setter target="fx_brightness" type="float" value="0" />
+        <setter target="fx_range" type="float" value="3" />
+      </item>
+      <item name="Sepiatone" tagindex="0x00005804">
+        <setter target="fx_saturation" type="float" value="0.3" />
+        <setter target="fx_hue" type="float" value="0.027" />
+        <setter target="fx_tint_r" type="float" value="0.55" />
+        <setter target="fx_tint_g" type="float" value="0.27" />
+        <setter target="fx_tint_b" type="float" value="0.15" />
+        <setter target="fx_color_mute" type="float" value="1" />
+        <setter target="fx_light_intensity" type="float" value="0" />
+        <setter target="fx_darkness" type="float" value="0.25" />
+        <setter target="fx_brightness" type="float" value="0" />
+        <setter target="fx_range" type="float" value="3" />
+      </item>
+      <item name="Film" tagindex="0x00005804">
+        <setter target="fx_saturation" type="float" value="0" />
+        <setter target="fx_hue" type="float" value="0" />
+        <setter target="fx_tint_r" type="float" value="0.784" />
+        <setter target="fx_tint_g" type="float" value="0.784" />
+        <setter target="fx_tint_b" type="float" value="0.784" />
+        <setter target="fx_color_mute" type="float" value="1" />
+        <setter target="fx_light_intensity" type="float" value="0" />
+        <setter target="fx_darkness" type="float" value="0" />
+        <setter target="fx_brightness" type="float" value="0" />
+        <setter target="fx_range" type="float" value="3" />
+      </item>
+      <item name="Gloomy" tagindex="0x00005804">
+        <setter target="fx_saturation" type="float" value="0" />
+        <setter target="fx_hue" type="float" value="5" />
+        <setter target="fx_tint_r" type="float" value="0.784" />
+        <setter target="fx_tint_g" type="float" value="0.784" />
+        <setter target="fx_tint_b" type="float" value="0.784" />
+        <setter target="fx_color_mute" type="float" value="0.4" />
+        <setter target="fx_light_intensity" type="float" value="0.6" />
+        <setter target="fx_darkness" type="float" value="1" />
+        <setter target="fx_brightness" type="float" value="0.07" />
+        <setter target="fx_range" type="float" value="3" />
+      </item>
+    </category>
+    <category name="Lights">
+      <item name="Yellow" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0.5" />
+        <setter target="light_color_g" type="float" value="0.5" />
+        <setter target="light_color_b" type="float" value="0" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Orange" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0.5" />
+        <setter target="light_color_g" type="float" value="0.25" />
+        <setter target="light_color_b" type="float" value="0" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Pink" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0.5" />
+        <setter target="light_color_g" type="float" value="0" />
+        <setter target="light_color_b" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Red" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0.5" />
+        <setter target="light_color_g" type="float" value="0" />
+        <setter target="light_color_b" type="float" value="0" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Purple" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0.5" />
+        <setter target="light_color_g" type="float" value="0" />
+        <setter target="light_color_b" type="float" value="0.5" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Blue" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0" />
+        <setter target="light_color_g" type="float" value="0" />
+        <setter target="light_color_b" type="float" value="0.5" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+      <item name="Green" tagindex="0x00005808">
+        <setter target="light_color_r" type="float" value="0" />
+        <setter target="light_color_g" type="float" value="0.5" />
+        <setter target="light_color_b" type="float" value="0" />
+        <setter target="light_intensity" type="float" value="0.1" />
+        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_radius" type="float" value="5" />
+      </item>
+    </category>
     <category name="Miscellaneous">
       <item name="Weapon Holder (P)" tagindex="0x2ebe" />
       <item name="Missile, Body" tagindex="0x4849" />

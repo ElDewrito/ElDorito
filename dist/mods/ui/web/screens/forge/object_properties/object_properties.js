@@ -50,7 +50,7 @@ var STRINGS = {
 	coordinates_yaw: 'Yaw',
 	coordinates_pitch: 'Pitch',
 	coordinates_roll: 'Roll',
-	zone: '',
+	zone: ' ',
 	appearance: 'Appearance',
 	appearance_lightmap: 'Lightmap',
 	appearance_material: 'Material',
@@ -69,7 +69,7 @@ var STRINGS = {
 	light_color_b: 'B',
 	light_intensity: 'Intensity',
 	light_radius: 'radius',
-	light_color_intensity: 'Color Intensity'
+	light_color_intensity: 'Color Intensity',
 };
 
 
@@ -260,7 +260,17 @@ var objectPropertyGridData = {
 		light_color_b: { min: 0.0, max: 1.0, step: 0.01 },
 		light_intensity: { min: 0.0, max: 1.0, step: 0.01 },
 		light_color_intensity: { min: 0.0, max: 1.0, step: 0.01 },
-		light_radius: { min: 0, max: 50, step: 0.01 }	
+		light_radius: { min: 0, max: 50, step: 0.01 },
+		fx_hue: { min: 0, max: 1, step: 0.01 },
+		fx_saturation: { min: 0, max: 1, step: 0.01 },
+		fx_tint_r: { min: 0, max: 1, step: 0.01 },
+		fx_tint_g: { min: 0, max: 1, step: 0.01 },
+		fx_tint_b: { min: 0, max: 1, step: 0.01 },
+		fx_light_intensity: { min: 0, max: 1, step: 0.01 },
+		fx_darkness: { min: 0, max: 1, step: 0.01 },
+		fx_brightness: { min: 0, max: 1, step: 0.01 },
+		fx_color_mute: { min: 0, max: 1, step: 0.01 },
+	    fx_range: { min: 1, max: 255, step: 1 }
 	},
 	properties: [
 		{ name: 'budget_screen_action', type: 'action'},
@@ -303,7 +313,22 @@ var objectPropertyGridData = {
 				{ name: 'light_color_g', type: 'range', meta:'light_color_g'},
 				{ name: 'light_color_b', type: 'range', meta:'light_color_b'}
 			]
-		}
+		},
+        {
+            name: 'fx',
+            values: [
+				{ name: 'fx_hue', type: 'range', meta:'fx_hue'},
+				{ name: 'fx_saturation', type: 'range', meta:'fx_saturation'},
+				{ name: 'fx_tint_r', type: 'range', meta:'fx_tint_r'},
+				{ name: 'fx_tint_g', type: 'range', meta:'fx_tint_g'},		
+				{ name: 'fx_tint_b', type: 'range', meta:'fx_tint_b'},
+                { name: 'fx_color_mute', type: 'range', meta:'fx_color_mute'},
+                { name: 'fx_light_intensity', type: 'range', meta:'fx_light_intensity'},
+                { name: 'fx_darkness', type: 'range', meta:'fx_darkness'},
+                { name: 'fx_brightness', type: 'range', meta:'fx_brightness'},
+                { name: 'fx_range', type: 'range', meta:'fx_range'},
+            ]
+        }
 	]
 };
 
@@ -649,6 +674,19 @@ function buildPropertyFilter(data) {
 	objectPropertiesWidget.toggleVisibility('light_color_b', data.is_light);
 	objectPropertiesWidget.toggleVisibility('light_color_intensity', data.is_light);
 	objectPropertiesWidget.toggleVisibility('light_intensity', data.is_light);
+
+
+	objectPropertiesWidget.toggleVisibility('fx', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_hue', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_saturation', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_light_intensity', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_tint_r', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_tint_g', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_tint_b', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_mute', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_brightness', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_darkness', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_range', data.is_screenfx);
 
 	if(!hasSpawn) {
 		objectPropertiesWidget.toggleVisibility('on_map_at_start', false);

@@ -13,6 +13,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Blam/Math/RealColorRGB.hpp"
+#include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -83,6 +84,7 @@ namespace
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
+	void RenderScreenEffectHook();
 
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
@@ -163,6 +165,8 @@ namespace Patches::Forge
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
+
+		Hook(0x00283621, RenderScreenEffectHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1305,5 +1309,80 @@ namespace
 		}
 
 		sub_A667F0(lightDatumIndex, a2, intensity, a4);
+	}
+
+	struct ScreenEffectDatum
+	{
+		uint32_t Unknown00;
+		uint32_t TagIndex;
+		uint32_t Unknown08;
+		RealVector3D Position;
+		uint32_t ObjectIndex;
+		uint32_t Unknown1c[0x2c];
+	};
+
+	struct ScreenEffectData
+	{
+		float LightIntensity;
+		float PrimaryHue;
+		float SecondaryHue;
+		float Saturation;
+		float ColorMuting;
+		float Brightness;
+		float Darkness;
+		float ShadowBrightness;
+		RealColorRGB TintColor;
+		RealColorRGB ToneColor;
+		float Tracing;
+		float field_3C;
+	};
+
+	void RenderScreenEffect(ScreenEffectDatum *screenEffectDatum, ScreenEffectData* data, float t)
+	{
+		if (!screenEffectDatum->ObjectIndex || screenEffectDatum->ObjectIndex == -1)
+			return;
+
+		auto object = Blam::Objects::Get(screenEffectDatum->ObjectIndex);
+		if (!object || object->PlacementIndex == -1)
+			return;
+
+		auto sefc = Blam::Tags::TagInstance(screenEffectDatum->TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
+		if (!sefc)
+			return;
+
+		auto props = object->GetMultiplayerProperties();
+
+		auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
+
+		// need to rethink this
+		auto& screenEffectDefinition = sefc->ScreenEffect2.Elements[0];
+		screenEffectDefinition.MaximumDistance = std::max<int>(1, properties->Range);
+
+		data->TintColor.Red = (properties->TintR / 255.0f * t) + (1.0f - t);
+		data->TintColor.Green = (properties->TintG / 255.0f * t) + (1.0f - t);;
+		data->TintColor.Blue = (properties->TintB / 255.0f * t) + (1.0f - t);
+		data->Saturation = properties->Saturation / 255.0f * t;
+		data->PrimaryHue = (properties->Hue / 255.0f) * 360 * t;
+		data->Brightness = properties->Brightness / 255.0f * t;
+		data->Darkness = properties->Darkness / 255.0f * t;
+		data->LightIntensity = properties->LightIntensity / 255.0f * 5.0f * t;
+		data->ColorMuting = properties->ColorMuting / 255.0f * t;
+	}
+
+	__declspec(naked) void RenderScreenEffectHook()
+	{
+		__asm
+		{
+			sub esp, 4
+			movss  dword ptr[esp], xmm4
+			push[ebp + 0x10]
+			mov edi, [ebp - 0x88]
+			sub edi, 0xc
+			push edi
+			call RenderScreenEffect
+			add esp, 0xC
+			mov eax, 0x682A90
+			jmp eax
+		}
 	}
 }

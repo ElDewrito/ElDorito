@@ -19,6 +19,25 @@ namespace Forge
 	};
 	static_assert(sizeof(ForgeLightProperties) < 16, "ForgeLightProperties must be 16 bytes or less in size");
 
+	struct ForgeScreenFxProperties
+	{
+		uint8_t LightIntensity;
+		uint8_t Hue;
+		uint8_t ColorMuting;
+		uint8_t Darkness;
+		uint8_t Brightness;
+		uint8_t Saturation;
+		uint8_t Range;
+		uint8_t Unused2;
+		uint8_t TintR;
+		uint8_t TintG;
+		uint8_t TintB;
+		uint8_t ToneR;
+		uint8_t ToneG;
+		uint8_t ToneB;
+	};
+	static_assert(sizeof(ForgeScreenFxProperties) < 16, "ForgeScreenFxData must be 16 bytes or less in size");
+
 	struct ZoneShape
 	{
 		int32_t Shape;

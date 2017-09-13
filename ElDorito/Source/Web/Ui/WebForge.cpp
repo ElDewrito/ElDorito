@@ -50,7 +50,16 @@ namespace
 		Light_ColorIntensity,
 		Light_Intensity,
 		Light_Radius,
-
+		Fx_Hue,
+		Fx_Saturation,
+		Fx_TintR,
+		Fx_TintG,
+		Fx_TintB,
+		Fx_ColorMute,
+		Fx_LightIntensity,
+		Fx_Darkness,
+		Fx_Brightness,
+		Fx_Range
 	};
 
 	enum class PropertyDataType
@@ -151,6 +160,36 @@ namespace
 				break;
 			case PropertyTarget::Light_Radius:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueFloat;
+				break;
+			case PropertyTarget::Fx_TintR:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintR = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_TintG:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintG = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_TintB:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintB = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_ColorMute:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorMuting = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_Brightness:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Brightness = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_Darkness:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Darkness = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_Hue:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Hue = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_LightIntensity:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->LightIntensity = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_Saturation:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Saturation = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_Range:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueInt;
 				break;
 			}
 		}
@@ -487,6 +526,27 @@ namespace
 		return false;
 	}
 
+	bool IsForgeScreenEffectObject(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
+		if (!objectDef)
+			return false;
+
+		for (const auto& attachment : objectDef->Attachments)
+		{
+			if (attachment.Attached.GroupTag != 'effe')
+				continue;
+
+			if (attachment.Marker == 0x13BB)
+				return true;
+		}
+
+		return false;
+	}
+
 	std::string SerializeObjectProperties(int16_t placementIndex)
 	{
 		static auto Weapon_HasSpareClips = (bool(*)(uint32_t tagIndex))(0x00B624E0);
@@ -509,6 +569,7 @@ namespace
 			symmetry = 2;
 
 		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
+		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
 
 		writer.StartObject();
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
@@ -516,6 +577,7 @@ namespace
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
 		SerializeProperty(writer, "is_selected", Forge::Selection::GetSelection().Contains(placement.ObjectIndex));
 		SerializeProperty(writer, "is_light", IsForgeLight(placement.ObjectIndex));
+		SerializeProperty(writer, "is_screenfx", IsForgeScreenEffectObject(placement.ObjectIndex));
 
 		writer.Key("properties");
 		writer.StartObject();
@@ -539,6 +601,16 @@ namespace
 		SerializeProperty(writer, "light_color_intensity", lightProperties->ColorIntensity / 255.0f);
 		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
 		SerializeProperty(writer, "light_radius", lightProperties->Range);
+		SerializeProperty(writer, "fx_tint_r", screenFxProperties->TintR / 255.0f);
+		SerializeProperty(writer, "fx_tint_g", screenFxProperties->TintG / 255.0f);
+		SerializeProperty(writer, "fx_tint_b", screenFxProperties->TintB / 255.0f);
+		SerializeProperty(writer, "fx_hue",	screenFxProperties->Hue / 255.0f);
+		SerializeProperty(writer, "fx_saturation", screenFxProperties->Saturation / 255.0f);
+		SerializeProperty(writer, "fx_color_mute", screenFxProperties->ColorMuting / 255.0f);
+		SerializeProperty(writer, "fx_light_intensity", screenFxProperties->LightIntensity / 255.0f);
+		SerializeProperty(writer, "fx_brightness", screenFxProperties->Brightness / 255.0f);
+		SerializeProperty(writer, "fx_darkness", screenFxProperties->Darkness / 255.0f);
+		SerializeProperty(writer, "fx_range", screenFxProperties->Range);
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -558,29 +630,39 @@ namespace
 	{
 		const static std::unordered_map<std::string, PropertyInfo> s_PropertyTypeLookup =
 		{
-			{ "on_map_at_start",		 { PropertyDataType::Int, PropertyTarget::General_OnMapAtStart }},
-			{ "symmetry",				 { PropertyDataType::Int, PropertyTarget::General_Symmetry }},
-			{ "respawn_rate",			 { PropertyDataType::Int, PropertyTarget::General_RespawnRate }},
-			{ "spare_clips",			 { PropertyDataType::Int, PropertyTarget::General_SpareClips }},
-			{ "spawn_order",			 { PropertyDataType::Int, PropertyTarget::General_SpawnOrder }},
-			{ "team_affiliation",		 { PropertyDataType::Int, PropertyTarget::General_Team }},
-			{ "physics",				 { PropertyDataType::Int, PropertyTarget::General_Physics } },
-			{ "appearance_material",	 { PropertyDataType::Int, PropertyTarget::General_Material } },
-			{ "teleporter_channel",		 { PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
-			{ "shape_type",				 { PropertyDataType::Int, PropertyTarget::General_ShapeType }},
-			{ "shape_radius",			 { PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},
-			{ "shape_width",			 { PropertyDataType::Float, PropertyTarget::General_ShapeWidth }},
-			{ "shape_top",				 { PropertyDataType::Float, PropertyTarget::General_ShapeTop }},
-			{ "shape_bottom",			 { PropertyDataType::Float, PropertyTarget::General_ShapeBottom }},
-			{ "shape_depth",			 { PropertyDataType::Float, PropertyTarget::General_ShapeDepth }},
-			{ "light_color_r",			 { PropertyDataType::Float, PropertyTarget::Light_ColorR }},
-			{ "light_color_g",			 { PropertyDataType::Float, PropertyTarget::Light_ColorG }},
-			{ "light_color_b",			 { PropertyDataType::Float, PropertyTarget::Light_ColorB }},
-			{ "light_color_intensity",	 { PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
-			{ "light_intensity",		 { PropertyDataType::Float, PropertyTarget::Light_Intensity }},
-			{ "light_radius",			 { PropertyDataType::Float, PropertyTarget::Light_Radius }},
-			{ "summary_runtime_minimum", { PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
-			{ "summary_runtime_maximum", { PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
+			{ "on_map_at_start",			{ PropertyDataType::Int, PropertyTarget::General_OnMapAtStart }},
+			{ "symmetry",					{ PropertyDataType::Int, PropertyTarget::General_Symmetry }},
+			{ "respawn_rate",				{ PropertyDataType::Int, PropertyTarget::General_RespawnRate }},
+			{ "spare_clips",				{ PropertyDataType::Int, PropertyTarget::General_SpareClips }},
+			{ "spawn_order",				{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder }},
+			{ "team_affiliation",			{ PropertyDataType::Int, PropertyTarget::General_Team }},
+			{ "physics",					{ PropertyDataType::Int, PropertyTarget::General_Physics } },
+			{ "appearance_material",		{ PropertyDataType::Int, PropertyTarget::General_Material } },
+			{ "teleporter_channel",			{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
+			{ "shape_type",					{ PropertyDataType::Int, PropertyTarget::General_ShapeType }},
+			{ "shape_radius",				{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},
+			{ "shape_width",				{ PropertyDataType::Float, PropertyTarget::General_ShapeWidth }},
+			{ "shape_top",					{ PropertyDataType::Float, PropertyTarget::General_ShapeTop }},
+			{ "shape_bottom",				{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom }},
+			{ "shape_depth",				{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth }},
+			{ "light_color_r",				{ PropertyDataType::Float, PropertyTarget::Light_ColorR }},
+			{ "light_color_g",				{ PropertyDataType::Float, PropertyTarget::Light_ColorG }},
+			{ "light_color_b",				{ PropertyDataType::Float, PropertyTarget::Light_ColorB }},
+			{ "light_color_intensity",		{ PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
+			{ "light_intensity",			{ PropertyDataType::Float, PropertyTarget::Light_Intensity }},
+			{ "light_radius",				{ PropertyDataType::Float, PropertyTarget::Light_Radius }},
+			{ "fx_hue",						{ PropertyDataType::Float, PropertyTarget::Fx_Hue}},
+			{ "fx_saturation",				{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
+			{ "fx_tint_r",					{ PropertyDataType::Float, PropertyTarget::Fx_TintR } },
+			{ "fx_tint_g",					{ PropertyDataType::Float, PropertyTarget::Fx_TintG } },
+			{ "fx_tint_b",					{ PropertyDataType::Float, PropertyTarget::Fx_TintB } },
+			{ "fx_color_mute",				{ PropertyDataType::Float, PropertyTarget::Fx_ColorMute } },
+			{ "fx_light_intensity",			{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
+			{ "fx_darkness",				{ PropertyDataType::Float, PropertyTarget::Fx_Darkness } },
+			{ "fx_brightness",				{ PropertyDataType::Float, PropertyTarget::Fx_Brightness } },
+			{ "fx_range",					{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
+			{ "summary_runtime_minimum",	{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
+			{ "summary_runtime_maximum",	{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)
