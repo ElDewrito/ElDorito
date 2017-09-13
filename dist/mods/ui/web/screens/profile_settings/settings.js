@@ -43,43 +43,42 @@ var h3ColorArray = [
 var settingsToLoad = [
     ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head', 0], 
     ['armorChest', 'Player.Armor.Chest','Chest','From arm to arm', 1],
-    ['armorShoulders', 'Player.Armor.Shoulders','Right Shoulder','', 2], 
-    ['armorArms', 'Player.Armor.Arms','Arms','', 3], 
-    ['armorLegs', 'Player.Armor.Legs','Legs','', 4], 
-    //['armourAcc', 'Player.Armor.Accessory', 'Accessory', '', 5]
+    ['armorShoulders', 'Player.Armor.Shoulders','Shoulders','The bendy bit at the top', 2], 
+    ['armorArms', 'Player.Armor.Arms','Arms','With these wide open', 3], 
+    ['armorLegs', 'Player.Armor.Legs','Legs','Never skip leg day', 4], 
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','Your main color',0], 
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','Your accent color',1], 
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Tint the world',2],
-    ['colorsLights', 'Player.Colors.Lights','Light Color','Like Christmas, but more subtle',3]
-    ['colorsHolo', 'Player.Colors.Lights','Holo Color','',4]
+    ['colorsLights', 'Player.Colors.Lights','Light Color','Like Christmas, but more subtle',3],
+    ['colorsHolo', 'Player.Colors.Holo','Holo Color','When armor and Vegas colide',4]
 ];
 var armorList = [
-    ["Air Assault","air_assault"],
-    ["Ballista","ballista"],
-    ["Chameleon","chameleon"],
-    ["Cyclops","cyclops"],
-    ["Demo","demo"],
-    ["Dutch","dutch"],
-    ["Gladiator","gladiator"],
-    ["Gungnir","gungnir"],
-    ["Halberd","halberd"],
-    ["Hammerhead","hammerhead"],
-    ["Hoplite","hoplite"],
-    ["Juggernaut","juggernaut"],
-    ["Mac","mac"],
-    ["Mercenary","mercenary"],
-    ["Nihard","nihard"],
-    ["Omni","omni"],
-    ["Oracle","oracle"],
-    ["Orbital","orbital"],
-    ["Renegade","renegade"],
-    ["Scanner","scanner"],
-    ["Shark","shark"],
-    ["Silverback","silverback"],
-    ["Spectrum","spectrum"],
-    ["Stealth","stealth"],
-    ["Strider","strider"],
-    ["Widow Maker","widow_maker"]
+    ['Air Assault','air_assault','Description'],
+    ['Ballista','ballista','Description'],
+    ['Chameleon','chameleon','Description'],
+    ['Cyclops','cyclops','Description'],
+    ['Demo','demo','Description'],
+    ['Dutch','dutch','Description'],
+    ['Gladiator','gladiator','Description'],
+    ['Gungnir','gungnir','Description'],
+    ['Halberd','halberd','Description'],
+    ['Hammerhead','hammerhead','Description'],
+    ['Hoplite','hoplite','Description'],
+    ['Juggernaut','juggernaut','Description'],
+    ['Mac','mac','Description'],
+    ['Mercenary','mercenary','Description'],
+    ['Nihard','nihard','Description'],
+    ['Omni','omni','Description'],
+    ['Oracle','oracle','Description'],
+    ['Orbital','orbital','Description'],
+    ['Renegade','renegade','Description'],
+    ['Scanner','scanner','Description'],
+    ['Shark','shark','Description'],
+    ['Silverback','silverback','Description'],
+    ['Spectrum','spectrum','Description'],
+    ['Stealth','stealth','Description'],
+    ['Strider','strider','Description'],
+    ['Widow Maker','widow_maker','Description']
 ];
 var subPages = [];
 
@@ -94,16 +93,16 @@ $(document).ready(function(){
             dew.show('console');
         }
     });
-    setOptionList('armorHelmet', armorList);
-    setOptionList('armorChest', armorList);
-    setOptionList('armorShoulders', armorList);
-    setOptionList('armorArms', armorList);
-    setOptionList('armorLegs', armorList);
-    //setOptionList('armorAcc', accessoryList);
+    setRadioList('armorHelmet', armorList);
+    setRadioList('armorChest', armorList);
+    setRadioList('armorShoulders', armorList);
+    setRadioList('armorArms', armorList);
+    setRadioList('armorLegs', armorList);
     setRadioList('colorsPrimary', h3ColorArray);
     setRadioList('colorsSecondary', h3ColorArray);
     setRadioList('colorsVisor', h3ColorArray);
     setRadioList('colorsLights', h3ColorArray);
+    setRadioList('colorsHolo', h3ColorArray);
     $('.tabs li a').click(function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
@@ -142,7 +141,7 @@ $(document).ready(function(){
         });
         $('#infoBox #infoText').text($(this).attr('desc'));
     });
-    $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
+    $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText,#colorsHoloText').on('click', function(e){
         $(this).prev()[0].checked = true;
     });
     $('.colorForm, .armorForm').submit(function() {
