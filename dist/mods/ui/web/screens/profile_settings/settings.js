@@ -43,47 +43,43 @@ var h3ColorArray = [
 var settingsToLoad = [
     ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head', 0], 
     ['armorChest', 'Player.Armor.Chest','Chest','From arm to arm', 1],
-    ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder', 2], 
-    ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left', 3], 
+    ['armorShoulders', 'Player.Armor.Shoulders','Right Shoulder','', 2], 
+    ['armorArms', 'Player.Armor.Arms','Arms','', 3], 
+    ['armorLegs', 'Player.Armor.Legs','Legs','', 4], 
+    //['armourAcc', 'Player.Armor.Accessory', 'Accessory', '', 5]
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','Your main color',0], 
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','Your accent color',1], 
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Tint the world',2],
     ['colorsLights', 'Player.Colors.Lights','Light Color','Like Christmas, but more subtle',3]
     ['colorsHolo', 'Player.Colors.Lights','Holo Color','',4]
 ];
-var armorShoulderList = [
-    ['MJOLNIR Mk. VI','base','Supplemental Armor, Pauldron, Mjolnir: This standard-issue shoulder armor for the Mjolnir Mark VI Powered Assault Armor has been in use since October 2552. It is compatible with all Mjolnir variants.'],
-    ['MJOLNIR/CQB','mp_cobra','Developed at Beweglichrüstungsysteme of Essen and tested at the Special Warfare Center in Songnam, the Mjolnir/C variant focuses on improving combat survivability and mobility.'],
-    ['MJOLNIR/EOD','mp_regulator','Developed at the UNSC Damascus Materials Testing Facility on Chi Ceti 4, the Mjolnir/EOD variant was designed specifically to reduce the number of grabbing edges on the armor, decreasing the likelihood of dismemberment.'],
-    ['MJOLNIR/EVA','mp_intruder','Developed at the UNSC Low/Zero Gravity Testing Facility on Ganymede, the Mjolnir/V variant focuses on increasing exoatmospheric endurance and improving mobility in zero gravity.'],
-    ['MJOLNIR/Recon','mp_ninja','In developing the Mjolnir VI/R variant, the goal was to increase the armor\'s overall stealth capabilities with little or no loss of endurance. This was achieved by relying on several tried-and-true methods.'],
-    ['MJOLNIR/Scout','mp_scout','The SCOUT and RECON projects were run as independent parallel projects intended to develop a single variant of the Mjolnir Powered Assault Armor with stealth capabilities.'],
-    ['MJOLNIR/Security','mp_marathon','The Mjolnir Mark V(m) Powered Assault Armor was originally manufactured in 2528 and recently upgraded to be compatible with all current-issue armor variants.'],
-    ['HAYABUSA','mp_ryu','The critical innovation brought about by RKD\'s involvement in the development of power armor is in the use of advanced materials-reducing the weight of current generation armor by nearly a third.']
-];
-var armorHelmetList = [
-    ['MJOLNIR Mk. VI','base','Integrated Communications Helmet, Mjolnir: This standard-issue helmet for the Mjolnir Mark VI Powered Assault Armor has been in use since October 2552. It is compatible with all Mjolnir variants.'],
-    ['MJOLNIR Mk. V','mp_markv',' Originally issued in August 2542, all extant Mark V helmets have been upgraded with current-issue internal components and software.'],
-    ['MJOLNIR/CQB','mp_cobra','The Mjolnir/C variant was developed and tested at UNSC facilities in Essen, Deutschland, and Songnam, Hanguk, respectively, integrating feedback gathered from the Jericho VII Theater.'],
-    ['MJOLNIR/EOD','mp_regulator','The Mjolnir/EOD variant was created at UNSC facilities on Chi Ceti 4. The helmet was designed specifically to channel the pressure wave around the user\'s head, significantly reducing the likelihood of decapitation.'],
-    ['MJOLNIR/EVA','mp_intruder','The Mjolnir/V variant was developed and tested at UNSC facilities in Lister, Aigburth on Ganymede, integrating feedback gathered from the Summa Deep Space Incident.'],
-    ['MJOLNIR/Recon','mp_ninja','The Mjolnir VI/R variant was developed concurrently with the Mjolnir Mark VI Powered Assault Armor. The goal was to increase stealth capability without impacting endurance.'],
-    ['MJOLNIR/Rogue','mp_rogue','The Mark VI[A] helmet was the first of the "privatized" variants. With the fall of the Outer Colonies the UNSC called upon private industry to manufacture previously classified war materiel.'],
-    ['MJOLNIR/Scout','mp_scout','As with the RECON variant the goal was to improve the armor\'s stealth capabilities with no impact on endurance; however, the SCOUT variant relies more heavily on advanced materials.'],
-    ['MJOLNIR/Security','mp_marathon','The Mjolnir V(m) variant was manufactured at the Misrah Armories Facility on Mars in 2528. It has been upgraded and modified to be compatible with all current-issue armor variants.'],
-    ['HAYABUSA','mp_ryu','The critical innovation brought about by RKD\'s involvement in the development of power armor is in the use of advanced materials-reducing the weight of current generation armor by nearly a third.'],
-    ['ODST','mp_odst','Many technologies initially developed for Project: MJOLNIR have gained widespread adoption; the use of CTCs for body armor and helmet-integrated neural interfaces being the most visible.']
-];
-var armorChestList = [
-    ['MJOLNIR Mk. VI','base','Mjolnir Mark VI Powered Assault Armor: This is the standard issue Powered Assault Armor for Spartans as of October 2552. It is compatible with all certified helmet and pauldron variants.'],
-    ['MJOLNIR/Bungie','mp_bungie','Forged in the flames of passion and perseverance. Go forth and represent.'],
-    ['MJOLNIR/CQB','mp_cobra','The Mjolnir/C variant was developed and tested at UNSC facilities in Essen, Deutschland, and Songnam, Hanguk, respectively, integrating feedback gathered from the Jericho VII Theater.'],
-    ['MJOLNIR/EOD','mp_regulator','This variant was designed specifically to protect Spartans during operations involving the handling of explosive ordnance (e.g., clearing/planting land mines, demolishing enemy structures/materiel).'],
-    ['MJOLNIR/EVA','mp_intruder','In developing the Mjolnir Mark VI Powered Assault Armor/V variant, emphasis was placed on increasing exoatmospheric endurance and improving mobility in zero gravity without the use of thrusters.'],
-    ['MJOLNIR/Recon','mp_ninja','In developing the Mjolnir Mark VI Powered Assault Armor/R, the emphasis was to increase stealth capability, specifically by reducing its IR signature, reflective surfaces, and Cherenkov radiation emission.'],
-    ['MJOLNIR/Scout','mp_scout','The Mjolnir VI/S variant was developed and tested alongside the RECON variant at the ONI\'s Ordnance Testing Facility (B5D) at Swanbourne, Perth, Western Australia.'],
-    ['HAYABUSA','mp_ryu','In late 2536, RKD-an Earth-based think tank-presented the UNSC Ordnance Committee with its answer to the self-contained powered armor problem: Project: HAYABUSA.'],
-    ['HAYABUSA/Katana','mp_katana','To correctly use the sword, one must make it an extension of one\'s body. This is for the understanding of those intending to be warriors.']
+var armorList = [
+    ["Air Assault","air_assault"],
+    ["Ballista","ballista"],
+    ["Chameleon","chameleon"],
+    ["Cyclops","cyclops"],
+    ["Demo","demo"],
+    ["Dutch","dutch"],
+    ["Gladiator","gladiator"],
+    ["Gungnir","gungnir"],
+    ["Halberd","halberd"],
+    ["Hammerhead","hammerhead"],
+    ["Hoplite","hoplite"],
+    ["Juggernaut","juggernaut"],
+    ["Mac","mac"],
+    ["Mercenary","mercenary"],
+    ["Nihard","nihard"],
+    ["Omni","omni"],
+    ["Oracle","oracle"],
+    ["Orbital","orbital"],
+    ["Renegade","renegade"],
+    ["Scanner","scanner"],
+    ["Shark","shark"],
+    ["Silverback","silverback"],
+    ["Spectrum","spectrum"],
+    ["Stealth","stealth"],
+    ["Strider","strider"],
+    ["Widow Maker","widow_maker"]
 ];
 var subPages = [];
 
@@ -98,10 +94,12 @@ $(document).ready(function(){
             dew.show('console');
         }
     });
-	setRadioList('armorHelmet', armorHelmetList);
-	setRadioList('armorChest', armorChestList);
-	setRadioList('armorRightShoulder', armorShoulderList);
-	setRadioList('armorLeftShoulder', armorShoulderList);
+    setOptionList('armorHelmet', armorList);
+    setOptionList('armorChest', armorList);
+    setOptionList('armorShoulders', armorList);
+    setOptionList('armorArms', armorList);
+    setOptionList('armorLegs', armorList);
+    //setOptionList('armorAcc', accessoryList);
     setRadioList('colorsPrimary', h3ColorArray);
     setRadioList('colorsSecondary', h3ColorArray);
     setRadioList('colorsVisor', h3ColorArray);
@@ -496,7 +494,7 @@ function setRadioList(ElementID, ArrayVar){
 }
 
 function randomArmor(){
-    var armorArray = ['armorHelmet','armorChest','armorRightShoulder','armorLeftShoulder'];
+    var armorArray = ['armorHelmet','armorChest','armorShoulders','armourArms','armourLegs'];
     for(var i = 0; i < armorArray.length; i++) {
         var $options = $('#'+armorArray[i]).find('input'),
             random = ~~(Math.random() * $options.length);
@@ -510,7 +508,7 @@ function randomArmor(){
 }
 
 function randomColors(){
-    var colorArray = ['colorsPrimary','colorsSecondary','colorsLights','colorsVisor'];
+    var colorArray = ['colorsPrimary','colorsSecondary','colorsLights','colorsVisor', 'colorsHolo'];
     for(var i = 0; i < colorArray.length; i++) {
         var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16).toUpperCase();
         $('#'+colorArray[i]+'Text').val(randomColor);

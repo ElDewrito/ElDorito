@@ -8,13 +8,13 @@
 #include "../ElDorito.hpp"
 #include "../Patches/Ui.hpp"
 #include "../Patches/Core.hpp"
+#include "../Patches/Armor.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebTimer.hpp"
 #include "../ElDorito.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/BlamTime.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
-#include "../Game/Armor.hpp"
 
 namespace
 {
@@ -274,7 +274,7 @@ namespace
 			if (IsMainMenu())
 			{
 				// armour customizations on mainmenu
-				Game::Armor::UpdateUiPlayerModelArmor();
+				Patches::Armor::UpdateUiPlayerModelArmor();
 			}
 			else
 			{

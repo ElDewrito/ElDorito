@@ -464,7 +464,7 @@
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Pointer.cpp" />
     <ClCompile Include="Source\Web\Ui\WebForge.cpp" />
-    <ClCompile Include="Source\Game\Armor.cpp">
+    <ClCompile Include="Source\Patches\Armor.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Source\Server\Stats.cpp">
@@ -1098,7 +1098,7 @@
     <ClInclude Include="Source\Settings.hpp" />
     <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp" />
     <ClInclude Include="Source\Web\Ui\WebForge.hpp" />
-    <ClInclude Include="Source\Game\Armor.hpp">
+    <ClInclude Include="Source\Patches\Armor.hpp">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Server\Stats.hpp">

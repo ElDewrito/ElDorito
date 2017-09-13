@@ -8,6 +8,7 @@
 #include "Patches\Scoreboard.hpp"
 #include "Patches\Ui.hpp"
 #include "Patches\VirtualKeyboard.hpp"
+#include "Patches\Armor.hpp"
 #include "Patches\RawInput.hpp"
 #include "Patches\ContentItems.hpp"
 #include "Patches\PlayerUid.hpp"
@@ -26,7 +27,6 @@
 #include "Patches\Spectate.hpp"
 #include "Patches\Tweaks.hpp"
 #include "Patches\DirectXHook.hpp"
-#include "Game\Armor.hpp"
 
 namespace
 {
@@ -47,6 +47,7 @@ namespace Patches
 		Scoreboard::ApplyAll();
 		Ui::ApplyAll();
 		VirtualKeyboard::ApplyAll();
+		Armor::ApplyAll();
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();
 		PlayerUid::ApplyAll();
@@ -59,8 +60,6 @@ namespace Patches
 		Equipment::ApplyAll();
 		Weapon::ApplyAll();
 		Spectate::ApplyAll();
-
-		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
 #ifdef _DEBUG
 		PlayerRepresentation::ApplyAll();
@@ -88,8 +87,8 @@ namespace Patches
 
 	void ApplyAfterTagsLoaded()
 	{
-		Game::Armor::LoadArmorPermutations();
-		Game::Armor::RefreshUiPlayer();
+		Armor::ApplyAfterTagsLoaded();
+		Armor::RefreshUiPlayer();
 		Ui::ApplyAfterTagsLoaded(); //No UI calls interacting with tags before this!
 		Ui::ApplyUIResolution();
 		Weapon::ApplyAfterTagsLoaded();
