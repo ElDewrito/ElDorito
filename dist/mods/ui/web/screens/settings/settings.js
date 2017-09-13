@@ -688,7 +688,9 @@ function applyButton(){
     if(window.location.hash == '#page5'){
         applyBinds();
         switchPage('#page2'); 
-        $('#applyButton').hide();
+        if(!changeArray.length && !bindChangeArray.length){
+            $('#applyButton').hide();
+        }
     }else if(window.location.hash == '#page4'){
         applySettings(0);
         switchPage('#page3');     
