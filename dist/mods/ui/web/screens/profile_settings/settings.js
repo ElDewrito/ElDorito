@@ -49,6 +49,7 @@ var settingsToLoad = [
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','Your accent color',1], 
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Tint the world',2],
     ['colorsLights', 'Player.Colors.Lights','Light Color','Like Christmas, but more subtle',3]
+    ['colorsHolo', 'Player.Colors.Lights','Holo Color','',4]
 ];
 var armorShoulderList = [
     ['MJOLNIR Mk. VI','base','Supplemental Armor, Pauldron, Mjolnir: This standard-issue shoulder armor for the Mjolnir Mark VI Powered Assault Armor has been in use since October 2552. It is compatible with all Mjolnir variants.'],

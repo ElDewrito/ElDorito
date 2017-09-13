@@ -53,6 +53,8 @@
                     <div class="setting baseNav" onclick="colorShow('colorsVisor',$(this));"><label>Visor</label></div>
                 </span><span>
                     <div class="setting baseNav" onclick="colorShow('colorsLights',$(this));"><label>Lights</label></div>
+                </span><span>
+                    <div class="setting baseNav" onclick="colorShow('colorsHolo',$(this));"><label>Holo</label></div>
                 </span>
 
             </div>
@@ -63,11 +65,14 @@
             <form class="colorForm" id="colorsSecondary">
                 <span><label><input type="radio" name="colorsSecondary" value="" onclick="document.getElementById('colorsSecondaryText').click()">Custom <input type="text" name="colorsSecondary" class="setting" id="colorsSecondaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
             </form>
-           <form class="colorForm" id="colorsVisor">
+            <form class="colorForm" id="colorsVisor">
                 <span><label><input type="radio" name="colorsVisor" value="" onclick="document.getElementById('colorsVisorText').click()">Custom <input type="text" name="colorsVisor" id="colorsVisorText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
             </form>
             <form class="colorForm" id="colorsLights">
                 <span><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom <input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+            </form>
+            <form class="colorForm" id="colorsHolo">
+                <span><label><input type="radio" name="colorsHolo" value="" onclick="document.getElementById('colorsHoloText').click()">Custom <input type="text" name="colorsHolo" id="colorsHoloText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
             </form>
             <div id="backgroundLeftSide"></div>
             <div id="backgroundRightSide"></div>
