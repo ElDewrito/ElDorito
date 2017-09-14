@@ -1284,8 +1284,8 @@ namespace Modules
 		VarServerDedicatedClient = AddVariableInt("DedicatedClient", "dedicated_client", "", eCommandFlagsInternal, 0);
 		Server::VariableSynchronization::Synchronize(VarServerDedicated, VarServerDedicatedClient);
 
-		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
-		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
+		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 0, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
 		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
