@@ -1304,7 +1304,7 @@ namespace Modules
 		VarPlayersInfoClient = AddVariableString("PlayersInfoClient", "players_info_client", "Emblem and Rank info for each player", eCommandFlagsInternal, "{}" );
 		Server::VariableSynchronization::Synchronize(VarPlayersInfo, VarPlayersInfoClient);
 
-		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1, AssassinationDisabledChanged);
+		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0, AssassinationDisabledChanged);
 
 		// TODO: Fine-tune these default values
 		VarFloodFilterEnabled = AddVariableInt("FloodFilterEnabled", "floodfilter", "Controls whether chat flood filtering is enabled", eCommandFlagsArchived, 1);
