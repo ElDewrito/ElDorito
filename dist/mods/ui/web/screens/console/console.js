@@ -707,6 +707,9 @@ $(window).load(function () {
             // Hide when escape is released (keeps from triggering pause menu)
             dew.hide();
         }
+        if (e.keyCode == 44) {
+            dew.command('Game.TakeScreenshot');  
+        }
     });
     $(document).keydown(function (e) {
         if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){

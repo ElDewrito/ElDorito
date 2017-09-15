@@ -25,6 +25,12 @@ $("html").on("keydown", function(e) {
     }
 });
 
+$("html").on("keyup", function(e) {
+    if (e.which == 44) {
+        dew.command('Game.TakeScreenshot');  
+    }
+});
+
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
     if(hasGP){
@@ -224,16 +230,15 @@ dew.on('controllerinput', function(e){
             if(e.data.Down == 1){
                 downNav();
             }
-            if(e.data.AxisLeftY != 0){
-                if(e.data.AxisLeftY > axisThreshold){
-                    stickTicks.up++;
-                };
-                if(e.data.AxisLeftY < -axisThreshold){
-                    stickTicks.down++;
-                };
+            if(e.data.AxisLeftY > axisThreshold){
+                stickTicks.up++;
             }else{
                 stickTicks.up = 0;
-                stickTicks.down = 0;               
+            }
+            if(e.data.AxisLeftY < -axisThreshold){
+                stickTicks.down++;
+            }else{
+                stickTicks.down = 0;
             }
         }else{
             if(e.data.X == 1){
@@ -261,6 +266,7 @@ function initGamepad(){
             hasGP = false;
             if(repGP){
                 window.clearInterval(repGP);
+                repGP = null;
             }
             //$('button img,.tabs img').hide();
         }

@@ -133,10 +133,13 @@ var subPages = ['#page4','#page5','#page8','#page9','#page11'];
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
-        if (e.keyCode === 27 || (e.keyCode == 8 && !$('.textInput').is(":focus"))) {
+        if (e.keyCode === 27) {
             if(window.location.hash != '#page5'){
                 cancelButton();
             }
+        }
+        if (e.keyCode == 44) {
+            dew.command('Game.TakeScreenshot');  
         }
     });
     $(document).keydown(function(e){

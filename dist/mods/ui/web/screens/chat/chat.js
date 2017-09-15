@@ -28,6 +28,9 @@ $(window).load(function(){
         if (e.keyCode === 27) {
             chatboxHide();
         }
+        if (e.keyCode == 44) {
+            dew.command('Game.TakeScreenshot');  
+        }
     });
     $(document).keydown(function(e){
         if (e.keyCode === 13){ //Enter

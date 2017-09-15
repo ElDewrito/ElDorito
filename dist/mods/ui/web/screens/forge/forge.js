@@ -10,6 +10,9 @@ $(document).keyup(function (e) {
         $('#playerBreakdown').hide();
         dew.hide();
     }
+    if (e.keyCode == 44) {
+        dew.command('Game.TakeScreenshot');  
+    }
 });
 $(document).keydown(function (e) {
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
