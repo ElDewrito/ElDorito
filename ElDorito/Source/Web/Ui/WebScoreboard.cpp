@@ -16,6 +16,7 @@
 #include <iomanip>
 #include "../../Blam/BlamObjects.hpp"
 #include "../../Blam/Tags/Items/Weapon.hpp"
+#include "../../Blam/BlamTime.hpp"
 
 using namespace Blam::Input;
 using namespace Blam::Events;
@@ -24,7 +25,9 @@ namespace
 {
 	bool locked = false;
 	bool postgame = false;
-	time_t postgameDisplayed;
+	bool pressedLastTick = false;
+	int lastPressedTime = 0;
+	int postgameDisplayed;
 	const time_t postgameDelayTime = 4.7;
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
@@ -65,10 +68,7 @@ namespace Web::Ui::WebScoreboard
 	{
 		if (postgame)
 		{
-			time_t curTime;
-			time(&curTime);
-
-			if ((curTime - postgameDisplayed) > postgameDelayTime)
+			if (Blam::Time::TicksToSeconds((Blam::Time::GetGameTicks() - postgameDisplayed)) > postgameDelayTime)
 			{
 				Web::Ui::WebScoreboard::Show(locked, postgame);
 				postgame = false;
@@ -242,7 +242,7 @@ namespace
 
 		if (event->NameStringId == 0x4004D)// "general_event_game_over"
 		{
-			time(&postgameDisplayed);
+			postgameDisplayed = Blam::Time::GetGameTicks();
 			locked = true;
 			postgame = true;
 		}
@@ -259,25 +259,29 @@ namespace
 		BindingsTable bindings;
 		GetBindings(0, &bindings);
 
-		if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 1 || GetActionState(eGameActionUiSelect)->Ticks == 1 || GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 1)
+		auto uiSelect = GetActionState(eGameActionUiSelect);
+
+		if (uiSelect->Ticks == 1 && strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") != 0)
 		{
-			if (strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") != 0)
-			{
-				//If shift is held down then lock the scoreboard
-				if (GetKeyTicks(eKeyCodeShift, eInputTypeUi) == 0)
-					locked = false;
-				else
-					locked = true;
-				Web::Ui::WebScoreboard::Show(locked, postgame);
-			}
+			uiSelect->Flags |= eActionStateFlagsHandled;
+
+			//If shift is held down or was pressed again within the repeat delay, lock the scoreboard
+			locked = GetKeyTicks(eKeyCodeShift, eInputTypeUi) ||
+				Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - lastPressedTime) < 0.25f;
+
+			Web::Ui::WebScoreboard::Show(locked, postgame);
+
+			pressedLastTick = true;
+			lastPressedTime = Blam::Time::GetGameTicks();
 		}
 
 		if (!locked && !postgame)
 		{
 			//Hide the scoreboard when you release tab. Only check when the scoreboard isn't locked.
-			if (GetKeyTicks(bindings.PrimaryKeys[eGameActionUiSelect], eInputTypeUi) == 0 && GetActionState(eGameActionUiSelect)->Ticks == 0 && GetKeyTicks(bindings.SecondaryKeys[eGameActionUiSelect], eInputTypeUi) == 0)
+			if (pressedLastTick && uiSelect->Ticks == 0)
 			{
 				Web::Ui::WebScoreboard::Hide();
+				pressedLastTick = false;
 				locked = false;
 			}
 		}

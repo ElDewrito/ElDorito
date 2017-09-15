@@ -43,8 +43,8 @@ namespace Patches::Input
 	// becomes deactivated, the previous context will be re-activated.
 	void PushContext(std::shared_ptr<InputContext> context);
 
-	typedef std::function<void()> DefaultInputHandler;
-	typedef std::function<void()> MenuUIInputHandler;
+	using DefaultInputHandler = void(*)();
+	using MenuUIInputHandler = void(*)();
 		
 	// Registers a function to be called when the default input handler is
 	// ticked.
