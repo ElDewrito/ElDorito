@@ -11,6 +11,7 @@
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "boost/filesystem.hpp"
 #include <codecvt>
 #include <Shlobj.h>
 
@@ -387,8 +388,8 @@ namespace
 	}
 	int __cdecl GetScreenshotFolderHook(wchar_t *path)
 	{
-		std::string screenshots_folder = Modules::ModuleGame::Instance().VarScreenshotsFolder->ValueString;
-		std::wstring unprocessed_path = std::wstring(screenshots_folder.begin(), screenshots_folder.end());
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
+		std::wstring unprocessed_path = wstring_to_string.from_bytes(Modules::ModuleGame::Instance().VarScreenshotsFolder->ValueString);
 
 		DWORD return_code = ExpandEnvironmentStringsW(unprocessed_path.c_str(), path, MAX_PATH);
 
@@ -396,6 +397,9 @@ namespace
 			static auto GetScreenshotsFolder = (int(__cdecl*)(wchar_t *path))(0x724BB0);
 			return GetScreenshotsFolder(path);
 		}
-		return CreateDirectoryW(path, NULL);
+		boost::filesystem::path dir(path);
+		dir = boost::filesystem::weakly_canonical(dir);
+		wcsncpy(path, dir.c_str(), 0x100);
+		return SHCreateDirectoryExW(NULL, path, NULL);
 	}
 }

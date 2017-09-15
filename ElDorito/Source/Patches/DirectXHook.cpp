@@ -9,12 +9,13 @@
 namespace
 {
 	LPDIRECT3DDEVICE9 pDevice;
-	HRESULT(__stdcall *origEndScenePtr)(LPDIRECT3DDEVICE9);
+	typedef void(__cdecl *Video_CallsD3DEndScene_ptr)(void);
+	Video_CallsD3DEndScene_ptr Video_CallsD3DEndSceneOrginal;
 	HRESULT(__stdcall *origResetPtr)(LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS*);
 	HRESULT(__stdcall *origPresentPtr)(LPDIRECT3DDEVICE9, const RECT *pSourceRect, const RECT *pDestRect, HWND hDestWindowOverride, const RGNDATA *pDirtyRegion);
 
 	bool CreateDeviceHook(bool windowless, bool nullRefDevice);
-	HRESULT __stdcall EndSceneHook(LPDIRECT3DDEVICE9 device);
+	void Video_CallsEndSceneHook();
 	HRESULT __stdcall ResetHook(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params);
 }
 
@@ -33,12 +34,12 @@ namespace
 	bool HookDirectX(LPDIRECT3DDEVICE9 device)
 	{
 		auto directXVTable = *((uint32_t**)device);	// d3d9 interface ptr
-		origEndScenePtr = reinterpret_cast<decltype(origEndScenePtr)>(directXVTable[42]);
+		Video_CallsD3DEndSceneOrginal = reinterpret_cast<Video_CallsD3DEndScene_ptr>(0xA21510);
 		origResetPtr = reinterpret_cast<decltype(origResetPtr)>(directXVTable[16]);
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
-		DetourAttach((PVOID*)&origEndScenePtr, &EndSceneHook); // redirect origEndScenePtr to newEndScene
+		DetourAttach((PVOID*)&Video_CallsD3DEndSceneOrginal, &Video_CallsEndSceneHook); // redirect origEndScenePtr to newEndScene
 		DetourAttach((PVOID*)&origResetPtr, &ResetHook); // redirect DrawIndexedPrimitive to newDrawIndexedPrimitive
 
 		if (DetourTransactionCommit() != NO_ERROR)
@@ -61,9 +62,9 @@ namespace
 		return HookDirectX(*reinterpret_cast<LPDIRECT3DDEVICE9*>(0x50DADDC));
 	}
 
-	HRESULT __stdcall EndSceneHook(LPDIRECT3DDEVICE9 device)
+	void Video_CallsEndSceneHook()
 	{
-		pDevice = device;
+		pDevice = *reinterpret_cast<LPDIRECT3DDEVICE9*>(0x50DADDC);
 
 		//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
 		auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
@@ -78,9 +79,9 @@ namespace
 		// Update the web renderer
 		auto webRenderer = WebRenderer::GetInstance();
 		if (webRenderer->Initialized() && webRenderer->IsRendering())
-			webRenderer->Render(device);
+			webRenderer->Render(pDevice);
 
-		return (*origEndScenePtr)(device);
+		Video_CallsD3DEndSceneOrginal();
 	}
 
 	HRESULT __stdcall ResetHook(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params)

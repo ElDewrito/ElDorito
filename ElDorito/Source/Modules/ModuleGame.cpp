@@ -922,10 +922,8 @@ namespace
 	bool CommandGameTakeScreenshot(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		wchar_t *path = Blam::Graphics::TakeScreenshot();
-		wchar_t full_path[400];
-		_wfullpath(full_path, path, 400);
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
-		std::string screenshot_path = wstring_to_string.to_bytes(full_path);
+		std::string screenshot_path = wstring_to_string.to_bytes(path);
 
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
