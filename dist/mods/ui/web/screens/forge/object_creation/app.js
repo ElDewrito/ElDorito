@@ -408,6 +408,7 @@
     })();
 
     dew.on('show', function(e) {
+        budget = {};
         for(var i = 0; i < e.data.budget.length; i++) {
             var itemBudget = e.data.budget[i];
             budget[parseInt(itemBudget.tagindex)] = itemBudget;
