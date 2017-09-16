@@ -251,12 +251,15 @@ namespace Server::Stats
 
 				for (int i = 0; i < Blam::Tags::Objects::MedalType::MedalCount; i++)
 				{
-					writer.StartObject();
-					writer.Key("medalName");
-					writer.String(Blam::Tags::Objects::MedalTypeNames[i].c_str());
-					writer.Key("count");
-					writer.Int(playerStats.Medals[i]);
-					writer.EndObject();
+					if (playerStats.Medals[i] > 0)
+					{
+						writer.StartObject();
+						writer.Key("medalName");
+						writer.String(Blam::Tags::Objects::MedalTypeNames[i].c_str());
+						writer.Key("count");
+						writer.Int(playerStats.Medals[i]);
+						writer.EndObject();
+					}
 				}
 				//The sniper headshots medal is broken, so lets get it manually by grabbing the headshots from each sniper
 				uint16_t SniperRifleHeadshots = p((playerIdx * 0x438) + 0x1F6).Read<uint16_t>();
