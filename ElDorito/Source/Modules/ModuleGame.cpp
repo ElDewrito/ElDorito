@@ -1197,6 +1197,8 @@ namespace Modules
 
 		VarScreenshotsFolder = AddVariableString("ScreenshotsFolder", "screenshots_folder", "The location where the game will save screenshots", eCommandFlagsArchived, "%userprofile%\\Pictures\\Screenshots\\blam");
 
+		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 1);
+
 		// Level load patch
 		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
 

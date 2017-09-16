@@ -471,6 +471,7 @@
       <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="Source\Server\DedicatedServer.cpp" />
+    <ClCompile Include="Source\Patches\Medals.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1105,6 +1106,7 @@
       <Filter>Server</Filter>
     </ClInclude>
     <ClInclude Include="Source\Server\DedicatedServer.hpp" />
+    <ClInclude Include="Source\Patches\Medals.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

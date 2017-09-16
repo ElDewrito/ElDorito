@@ -26,6 +26,7 @@
 #include "Patches\Spectate.hpp"
 #include "Patches\Tweaks.hpp"
 #include "Patches\DirectXHook.hpp"
+#include "Patches\Medals.hpp"
 #include "Game\Armor.hpp"
 
 namespace
@@ -59,6 +60,7 @@ namespace Patches
 		Equipment::ApplyAll();
 		Weapon::ApplyAll();
 		Spectate::ApplyAll();
+		Medals::ApplyAll();
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
