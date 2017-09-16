@@ -90,6 +90,7 @@ namespace
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
+	void HandleSpawnItem();
 
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	RealVector3D s_GrabOffset;
@@ -248,20 +249,7 @@ namespace
 		if (playerIndex == DatumIndex::Null)
 			return;
 
-		if (s_SpawnItemTagIndex != -1)
-		{
-			ForgeMessage msg = { 0 };
-			msg.Type = 0;
-			msg.PlayerIndex = playerIndex;
-			msg.TagIndex = s_SpawnItemTagIndex;
-			msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
-
-			static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
-			Forge_SendMessage(&msg);
-		}
-
-		s_SpawnItemTagIndex = -1;
-
+		HandleSpawnItem();
 
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 
@@ -376,6 +364,43 @@ namespace
 		typedef void*(*GetStructureDesignPtr)(int index);
 		auto GetStructureDesign = reinterpret_cast<GetStructureDesignPtr>(0x4E97D0);
 		return GetStructureDesign(index);
+	}
+
+	void HandleSpawnItem()
+	{
+		if (s_SpawnItemTagIndex == -1)
+			return;
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		if (playerIndex == DatumIndex::Null || !GetEditorModeState(playerIndex, nullptr, nullptr))
+			return;
+
+		Blam::Tags::TagInstance instance(s_SpawnItemTagIndex);
+		auto def = instance.GetDefinition<void>(s_SpawnItemTagIndex);
+		auto groupTag = def ? instance.GetGroupTag() : 0;
+
+		s_SpawnItemTagIndex = -1;
+
+		if (!def || !(groupTag == 'weap' || groupTag == 'vehi' || groupTag == 'eqip'
+			|| groupTag == 'scen' || groupTag == 'bloc' || groupTag == 'crea'
+			|| groupTag == 'efsc' || groupTag == 'proj' || groupTag == 'bipd'
+			|| groupTag == 'mach' || groupTag == 'ctrl' || groupTag == 'gint'
+			|| groupTag == 'ssce'))
+		{
+			wchar_t buff[256];
+			swprintf_s(buff, L"Tag not loaded or not a valid forge object [0x%X4]", instance.Index);
+			PrintKillFeedText(0, buff, 0);
+			return;
+		}
+
+		ForgeMessage msg = { 0 };
+		msg.Type = 0;
+		msg.PlayerIndex = playerIndex;
+		msg.TagIndex = instance.Index;
+		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+
+		static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
+		Forge_SendMessage(&msg);	
 	}
 
 	void HandleRotationReset()
