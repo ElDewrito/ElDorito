@@ -1284,8 +1284,8 @@ namespace Modules
 		VarServerDedicatedClient = AddVariableInt("DedicatedClient", "dedicated_client", "", eCommandFlagsInternal, 0);
 		Server::VariableSynchronization::Synchronize(VarServerDedicated, VarServerDedicatedClient);
 
-		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
-		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 1, SprintEnabledChanged);
+		VarServerSprintEnabled = AddVariableInt("SprintEnabled", "sprint", "Controls whether sprint is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 0, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
 		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
@@ -1304,7 +1304,7 @@ namespace Modules
 		VarPlayersInfoClient = AddVariableString("PlayersInfoClient", "players_info_client", "Emblem and Rank info for each player", eCommandFlagsInternal, "{}" );
 		Server::VariableSynchronization::Synchronize(VarPlayersInfo, VarPlayersInfoClient);
 
-		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1, AssassinationDisabledChanged);
+		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0, AssassinationDisabledChanged);
 
 		// TODO: Fine-tune these default values
 		VarFloodFilterEnabled = AddVariableInt("FloodFilterEnabled", "floodfilter", "Controls whether chat flood filtering is enabled", eCommandFlagsArchived, 1);
