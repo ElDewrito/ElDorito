@@ -3,12 +3,12 @@
 #include <vector>
 #include "Tags.hpp"
 
-// Disable warnings about signed/unsigned mismatch
-#pragma warning(disable:4018)
-
-
 namespace Blam::Tags
 {
+	const auto TagIndexTablePtr = (uint32_t**)0x022AAFFC;
+	const auto TagTablePtr = (uint8_t***)0x022AAFF8;
+	const auto MaxTagCountPtr = (uint32_t*)0x022AB008;
+
 	struct TagInstance
 	{
 		uint16_t Index;
@@ -27,15 +27,18 @@ namespace Blam::Tags
 		template <typename T>
 		inline T *GetDefinition(int groupTag)
 		{
-			if (Index != 0xFFFF)
-			{
-				typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-				auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
+			auto maxTagCount = *MaxTagCountPtr;
 
-				return reinterpret_cast<T *>(GetTagAddressImpl(groupTag, Index));
-			}
+			if (Index == 0xFFFF || Index >= maxTagCount * 4)
+				return nullptr;
+			auto tagTableIndex = (*TagIndexTablePtr)[Index];
+			if (tagTableIndex == -1 && tagTableIndex >= maxTagCount * 4)
+				return nullptr;
+			auto tagHeader = (*TagTablePtr)[tagTableIndex];
+			if (!tagHeader)
+				return nullptr;
 
-			return nullptr;
+			return reinterpret_cast<T *>(tagHeader + *(uint32_t*)(tagHeader + 0x10));
 		}
 
 		// Gets all valid tag instances
@@ -44,7 +47,7 @@ namespace Blam::Tags
 			auto tagCount = *reinterpret_cast<uint32_t *>(0x22AB008);
 			std::vector<TagInstance> result;
 
-			for (auto i = 0; i < tagCount; i++)
+			for (auto i = 0U; i < tagCount; i++)
 			{
 				auto instance = TagInstance(i);
 
@@ -63,7 +66,7 @@ namespace Blam::Tags
 			auto tagCount = *reinterpret_cast<uint32_t *>(0x22AB008);
 			std::vector<TagInstance> result;
 
-			for (auto i = 0; i < tagCount; i++)
+			for (auto i = 0U; i < tagCount; i++)
 			{
 				auto instance = TagInstance(i);
 
@@ -85,19 +88,8 @@ namespace Blam::Tags
 		// Returns true if the tag of the provided group and index is loaded
 		inline static bool IsLoaded(int groupTag, uint32_t index)
 		{
-			typedef void *(*GetTagAddressPtr)(int groupTag, uint32_t index);
-			auto GetTagAddressImpl = reinterpret_cast<GetTagAddressPtr>(0x503370);
-
-			if (GetTagAddressImpl(groupTag, index) == nullptr)
-				return false;
-
-			typedef int(*GetGroupTagPtr)(uint16_t);
-			auto GetGroupTagImpl = reinterpret_cast<GetGroupTagPtr>(0x5033A0);
-
-			if (GetGroupTagImpl(index) != groupTag)
-				return false;
-
-			return true;
+			TagInstance instance(index);
+			return instance.GetDefinition<void>(groupTag) && instance.GetGroupTag() == groupTag;
 		}
 	};
 }

@@ -9,9 +9,6 @@ namespace Blam::Tags
 
 	uint32_t TagInstance::GetGroupTag()
 	{
-		typedef int(*GetGroupTagPtr)(uint16_t);
-		auto GetGroupTagImpl = reinterpret_cast<GetGroupTagPtr>(0x5033A0);
-
-		return GetGroupTagImpl(Index);
+		return *(uint32_t*)((*TagTablePtr)[(*TagIndexTablePtr)[Index]] + 0x14);
 	}
 }
