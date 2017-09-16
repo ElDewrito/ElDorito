@@ -15,6 +15,7 @@
 #include "../Blam/Math/RealColorRGB.hpp"
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
 #include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Objects//Model.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -1355,6 +1356,31 @@ namespace
 
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
 	{
+		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4, 
+			int a5, const RealVector3D *a6, int a7, int a8, RealVector3D *newPosition, char a10))(0x715E90);
+
+		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		if (!object)
+			return false;
+
+		auto boundingRadius = object->BoundingRadius;
+		if (object->Model.TagIndex != -1)
+		{
+			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Objects::Model>('hlmt');
+			if (hlmtDef && hlmtDef->ModelObjectData.Count)
+			{
+				const auto &modelobjectData = hlmtDef->ModelObjectData.Elements[0];
+				if (modelobjectData.Radius > boundingRadius)
+					boundingRadius = modelobjectData.Radius;
+			}			
+		}
+
+		if (boundingRadius < 0.000099999997f)
+			boundingRadius = 1;
+
+		if (boundingRadius < 2)
+			sub_715E90(boundingRadius, boundingRadius, 1, 4, unitObjectIndex, position, 0, -1, position, 0);
+
 		return CreateOrGetBudgetForItem(GetMapVariant(), tagIndex) != -1;
 	}
 
