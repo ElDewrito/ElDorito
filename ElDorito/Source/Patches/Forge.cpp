@@ -14,6 +14,7 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Blam/Math/RealColorRGB.hpp"
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
+#include "../Blam/Tags/Items/Weapon.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -86,6 +87,62 @@ namespace
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 	void RenderScreenEffectHook();
 
+
+	uint32_t __fastcall c_simulation_generic_entity_definition_spawn_object_hook(void *thisptr, void *unused, uint8_t *data, uint8_t *a3, int a4, uint8_t *newObjectData)
+	{
+		const auto sub_B35740 = (void(*)())(0xB35740);
+		const auto SpawnObject = (uint32_t(*)(void *data))(0x0);
+		const auto sub_4AD510 = (uint32_t(*)(void *data))(0x4AD510);
+		const auto sub_4ACF00 = (void(__thiscall*)(void *thisptr, uint32_t objectIndex, void *a3, void *a4))(0x4ACF00);
+		const auto c_map_variant_placement_ctor = (void(__thiscall*)(void *thisptr))(0x004AC1D0);
+		const auto c_map_variant_get_placement = (bool(__thiscall *)(MapVariant *thisptr, int placementIndex, Blam::MapVariant::VariantPlacement *pPlacement))(0x00583630);
+		const auto c_map_variant_set_placement = (bool(__thiscall *)(MapVariant *thisptr, int placementIndex, const Blam::MapVariant::VariantPlacement *placement, uint16_t flags))(0x005865D0);
+		const auto sub_4AD4EA = (void(*)(uint32_t objectIndex, int16_t placementIndex, int a3))(0x4AD4EA);
+
+		sub_B35740();
+
+		if (*(uint32_t *)(data + 8) != -1 && Blam::Tags::TagInstance(*(uint32_t *)(data + 8)).GetDefinition<Blam::Tags::Objects::Object>('obje'))
+		{
+			auto objectIndex = -1;
+			if (*(uint32_t *)data == -1)
+				objectIndex = SpawnObject(newObjectData);
+			else
+				objectIndex = sub_4AD510(data);
+			if (objectIndex != -1)
+			{
+				if (*(uint32_t*)(a3 + 0x6C) != -1 && *(uint8_t *)(a3 + 0x74) && *(uint32_t *)(data + 0xC) != -1)
+					sub_4ACF00(thisptr, objectIndex, data, a3);
+				if (-1 != *(int16_t *)(data + 4))
+				{
+					Blam::MapVariant::VariantPlacement placement;
+					auto placementIndex = *(WORD *)(data + 4);
+					c_map_variant_placement_ctor(&placement);
+					auto mapv = GetMapVariant();
+					c_map_variant_get_placement(mapv, placementIndex, &placement);
+
+					if (*(uint8_t *)(data + 6))
+					{
+						placement.PlacementFlags |= 0x80u;
+						c_map_variant_set_placement(mapv, placementIndex, &placement, 0);
+					}
+
+					if ((placement.PlacementFlags &  (1 << 1)))
+					{
+						auto object = Blam::Objects::Get(objectIndex);
+						object->PlacementIndex = placementIndex;
+						MapVariant_SyncObjectPropertiesHook(mapv, nullptr, &placement.Properties, objectIndex);
+					}
+
+					sub_4AD4EA(objectIndex, placementIndex, 1);
+				}
+			}
+
+			return objectIndex;
+		}
+
+		return -1;
+	}
+
 	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -133,11 +190,7 @@ namespace Patches::Forge
 		Hook(0x19CAFC, UpdateHeldObjectTransformHook, HookFlags::IsCall).Apply();
 		Hook(0x19F4CA, Forge_UpdatePlayerEditorGlobalsHook, HookFlags::IsCall).Apply();
 
-		Hook(0x180E66, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-		Hook(0x185BBD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-		Hook(0x181326, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-		Hook(0x1AD4DD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-		Hook(0x1824EA, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
+		Hook(0x180E80, MapVariant_SyncObjectPropertiesHook).Apply();
 
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
@@ -157,6 +210,8 @@ namespace Patches::Forge
 
 		// enable teleporter volume editing compliments of zedd
 		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
+
+		Hook(0x4AD3E0, c_simulation_generic_entity_definition_spawn_object_hook).Apply();
 
 		// increase forge item limit
 		Hook(0x151506, c_map_variant_initialize_from_scenario_hook, HookFlags::IsCall).Apply();
@@ -400,7 +455,7 @@ namespace
 		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
 
 		static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
-		Forge_SendMessage(&msg);	
+		Forge_SendMessage(&msg);
 	}
 
 	void HandleRotationReset()
@@ -1047,39 +1102,82 @@ namespace
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex)
 	{
-		static auto MapVariant_SyncObjectProperties = (void(__thiscall *)(Blam::MapVariant* thisptr,
-			Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex))(0x00580E80);
 		const auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
-
-		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
+		const auto weapon_set_clips = (void(*)(uint32_t objectIndex, int clips))(0x00B66F80);
+		const auto sub_4B28B0 = (void(*)(int16_t placementIndex, int a2))(0x004B28B0);
 
 		auto object = Blam::Objects::Get(objectIndex);
-		if (object && object->PlacementIndex != -1)
+		if (!object)
+			return;
+
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
+
+		mpProperties->Shape = properties->ZoneShape;
+		mpProperties->SpawnTime = properties->RespawnTime;
+		mpProperties->Length = properties->ZoneDepth;
+		mpProperties->Bottom = properties->ZoneBottom;
+		mpProperties->Top = properties->ZoneTop;
+		mpProperties->RadiusWidth = properties->ZoneRadiusWidth;
+
+		if (properties->ObjectFlags & 1)
+			mpProperties->Flags |= 0x40u;
+		else
+			mpProperties->Flags &= ~0x40u;
+
+		if (properties->ObjectFlags & 2)
+			mpProperties->Flags |= 0x80u;
+		else
+			mpProperties->Flags &= ~0x80u;
+
+		auto v7 = (properties->ObjectFlags >> 2) & 1;
+		if (v7 == ((properties->ObjectFlags >> 3) & 1))
+			mpProperties->field_7 = 0;
+		else
+			mpProperties->field_7 = (v7 == 0) + 1;
+
+		mpProperties->SpareClips = properties->SharedStorage;
+		mpProperties->TeamIndex = properties->TeamAffilation;
+		mpProperties->TeleporterChannel = properties->SharedStorage;
+
+		if (object->ObjectType == eObjectTypeWeapon)
 		{
-
-			auto mapv = GetMapVariant();
-			auto& placement = mapv->Placements[object->PlacementIndex];
-
-			if (placement.PlacementFlags & 2)
+			auto weapDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if (weapDef->Magazines.Count)
 			{
-				if (placement.PlacementFlags & 2 && properties->ZoneShape == 4)
-				{
-					object->HavokFlags |= 0x2C8;
-					object->HavokFlags &= ~0x100000u;
-					sub_59A620(objectIndex, 1);
-				}
-				else
+				auto clips = weapDef->Magazines[0].RoundsTotalLoadedMaximum * (properties->SharedStorage + 1);
+				weapon_set_clips(objectIndex, clips);
+			}
+		}
+
+		// physics
+		if (properties->ZoneShape == 4)
+		{
+			object->HavokFlags &= ~0x100000u;
+			object->HavokFlags |= 0x2C8;
+			sub_59A620(objectIndex, 1);
+		}
+		else
+		{
+			if (object->PlacementIndex != -1)
+			{
+				auto mapv = GetMapVariant();
+				if (mapv->Placements[object->PlacementIndex].PlacementFlags & 2)
 				{
 					if (object->HavokFlags & 0x2C8)
 					{
 						object->HavokFlags &= ~0x2C8;
-						object->HavokFlags |= 0x80;
 						object->HavokFlags &= ~0x100000u;
+						object->HavokFlags |= 0x80;
 						sub_59A620(objectIndex, 1);
 					}
 				}
 			}
 		}
+
+		if (object->PlacementIndex != -1)
+			sub_4B28B0(object->PlacementIndex, 4); // simulation
 	}
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused)

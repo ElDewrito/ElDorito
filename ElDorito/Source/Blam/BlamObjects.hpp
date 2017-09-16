@@ -26,6 +26,41 @@ namespace Blam::Objects
 		eObjectTypeEffectScenery
 	};
 
+	struct MultiplayerProperties
+	{
+		uint16_t Flags;
+		uint8_t ObjectType;
+		int8_t Shape;
+		int8_t TeleporterFlags;
+		int8_t TeleporterChannel;
+		int8_t field_6;
+		int8_t field_7;
+		uint16_t EngineFlags;
+		int16_t TeamIndex;
+		int8_t SpareClips;
+		int8_t Unknown0D;
+		int8_t Unknown0E;
+		int8_t SpawnTimerMode;
+		int16_t SpawnTime;
+		int16_t AbandonTime;
+		float RadiusWidth;
+		float Length;
+		float Top;
+		float Bottom;
+		float Unknown24;
+		int Unknown28;
+		float Unknown2C;
+		float Unknown30;
+		int Unknown34;
+		int Unknown38;
+		int Unknown3C;
+		int Unknown40;
+		int ShapeShaderTagIndex;
+		int UnknownShaderTagIndex;
+		int Unknown4C;
+	};
+	static_assert(sizeof(MultiplayerProperties) == 0x50);
+
 	struct ObjectBase
 	{
 		uint32_t TagIndex;
@@ -76,13 +111,13 @@ namespace Blam::Objects
 		DatumIndex SimulationEntity;
 		// ...
 
-		void* GetMultiplayerProperties() const
+		MultiplayerProperties* GetMultiplayerProperties() const
 		{
-			auto p = reinterpret_cast<const uint8_t*>(this);
-			auto offset = *reinterpret_cast<const int16_t*>(p + 0x16c);
+			auto p = reinterpret_cast<intptr_t>(this);
+			auto offset = *reinterpret_cast<int16_t*>(p + 0x16c);
 			if (offset == -1)
 				return nullptr;
-			return const_cast<uint8_t*>(p) + offset;
+			return reinterpret_cast<MultiplayerProperties*>(p + offset);
 		}
 	};
 
