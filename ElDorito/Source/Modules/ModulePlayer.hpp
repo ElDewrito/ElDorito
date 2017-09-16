@@ -7,17 +7,23 @@ namespace Modules
 	class ModulePlayer : public Utils::Singleton<ModulePlayer>, public ModuleBase
 	{
 	public:
-		Command* VarArmorHelmet;
+		Command* VarArmorAccessory;
+		Command* VarArmorArms;
 		Command* VarArmorChest;
-		Command* VarArmorRightShoulder;
-		Command* VarArmorLeftShoulder;
+		Command* VarArmorHelmet;
+		Command* VarArmorLegs;
+		Command* VarArmorPelvis;
+		Command* VarArmorShoulders;
 
 		Command* VarColorsPrimary;
 		Command* VarColorsSecondary;
 		Command* VarColorsVisor;
 		Command* VarColorsLights;
+		Command* VarColorsHolo;
 
 		Command *VarRepresentation;
+
+		Command* VarRenderWeapon;
 
 		Command* VarPlayerName;
 		Command* VarPlayerPrivKey;

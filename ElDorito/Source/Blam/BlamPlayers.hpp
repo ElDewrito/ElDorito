@@ -17,6 +17,7 @@ namespace Blam::Players
 			Secondary,
 			Visor,
 			Lights,
+			Holo,
 
 			Count
 		};
@@ -29,8 +30,11 @@ namespace Blam::Players
 		{
 			Helmet = 0,
 			Chest,
-			RightShoulder,
-			LeftShoulder,
+			Shoulders,
+			Arms,
+			Legs,
+			Acc,
+			Pelvis,
 
 			Count
 		};
@@ -40,11 +44,7 @@ namespace Blam::Players
 	struct PlayerCustomization
 	{
 		uint32_t Colors[ColorIndices::Count];
-		uint32_t : 32;
 		uint8_t Armor[ArmorIndices::Count];
-		uint8_t : 8;
-		uint8_t : 8;
-		uint8_t : 8;
 		uint32_t Unknown1C;
 	};
 	static_assert(sizeof(PlayerCustomization) == 0x20, "Invalid PlayerCustomization size");

@@ -80,7 +80,7 @@
     <ClCompile Include="Source\Modules\ModuleVoIP.cpp" />
     <ClCompile Include="Source\Modules\ModuleWeapon.cpp" />
     <ClCompile Include="Source\Patch.cpp" />
-    <ClCompile Include="Source\Game\Armor.cpp" />
+    <ClCompile Include="Source\Patches\Armor.cpp" />
     <ClCompile Include="Source\Patches\Assassination.cpp" />
     <ClCompile Include="Source\Patches\Audio.cpp" />
     <ClCompile Include="Source\Patches\ContentItems.cpp" />
@@ -259,7 +259,7 @@
     <ClInclude Include="Source\Modules\ModuleVoIP.hpp" />
     <ClInclude Include="Source\Modules\ModuleWeapon.hpp" />
     <ClInclude Include="Source\Patch.hpp" />
-    <ClInclude Include="Source\Game\Armor.hpp" />
+    <ClInclude Include="Source\Patches\Armor.hpp" />
     <ClInclude Include="Source\Patches\Assassination.hpp" />
     <ClInclude Include="Source\Patches\Audio.hpp" />
     <ClInclude Include="Source\Patches\ContentItems.hpp" />

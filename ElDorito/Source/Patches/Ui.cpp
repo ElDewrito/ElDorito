@@ -271,7 +271,8 @@ namespace Patches::Ui
 		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
 
 		//Fix map images in the selection menu.
-		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
+		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
+
 		// remove recent maps, fileshare menu items
 		Pointer(0x0169E270).Write(uint32_t(&c_gui_map_category_datasource_init));
 		// remove game variants, fileshare menu items
@@ -1013,8 +1014,8 @@ namespace
 				case 2: // Host Forge
 					break;
 
-				case 3: // Local Games
-					ShowLanBrowser();
+				case 3: // Profile
+					Web::Ui::ScreenLayer::Show("profile_settings", "{}");
 					return;
 
 				case 4: // Settings
