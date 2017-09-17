@@ -8,6 +8,7 @@ namespace Modules
 	{
 	public:
 		Command* VarSpeed;
+		Command* VarSpeedClient;
 
 		// TODO: experimental fps with buggy havok physics - give hkWorld initialization a second chance in hopes of fixing it
 		//Command* VarFps;

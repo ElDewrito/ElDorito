@@ -461,7 +461,7 @@ namespace
 				else
 					return playerIdx;
 			}
-				
+
 		}
 		return -1;
 	}
@@ -1025,7 +1025,7 @@ namespace
 	bool AssassinationDisabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto &serverModule = Modules::ModuleServer::Instance();
-		auto enabled = serverModule.VarServerAssassinationEnabled->ValueInt != 0;
+		auto enabled = serverModule.VarServerAssassinationEnabledClient ->ValueInt != 0;
 		Patches::Assassination::Enable(enabled);
 		return true;
 	}
@@ -1304,7 +1304,9 @@ namespace Modules
 		VarPlayersInfoClient = AddVariableString("PlayersInfoClient", "players_info_client", "Emblem and Rank info for each player", eCommandFlagsInternal, "{}" );
 		Server::VariableSynchronization::Synchronize(VarPlayersInfo, VarPlayersInfoClient);
 
-		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1, AssassinationDisabledChanged);
+		VarServerAssassinationEnabled = AddVariableInt("AssassinationEnabled", "assassination", "Controls whether assassinations are enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 1);
+		VarServerAssassinationEnabledClient = AddVariableInt("AssassinationEnabledClient", "assassination_client", "Controls whether assassinations are enabled on the server", eCommandFlagsInternal, 0, AssassinationDisabledChanged);
+		Server::VariableSynchronization::Synchronize(VarServerAssassinationEnabled, VarServerAssassinationEnabledClient);
 
 		// TODO: Fine-tune these default values
 		VarFloodFilterEnabled = AddVariableInt("FloodFilterEnabled", "floodfilter", "Controls whether chat flood filtering is enabled", eCommandFlagsArchived, 1);

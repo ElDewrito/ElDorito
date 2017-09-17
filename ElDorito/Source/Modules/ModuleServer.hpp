@@ -32,6 +32,7 @@ namespace Modules
 		Command* VarServerDedicated;
 		Command* VarServerDedicatedClient;
 		Command* VarServerAssassinationEnabled;
+		Command* VarServerAssassinationEnabledClient;
 		Command* VarFloodFilterEnabled;
 		Command* VarFloodMessageScoreShort;
 		Command* VarFloodMessageScoreLong;
