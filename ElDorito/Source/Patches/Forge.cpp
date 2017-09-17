@@ -148,6 +148,7 @@ namespace Patches::Forge
 		Hook(0x6E2729, ObjectCreationUIAllocateHook, HookFlags::IsCall).Apply();
 		// disable legal screen
 		Patch(0x6EAADD, { 0xEB }).Apply();
+		Patch(0x6EAA37, { 0xEB }).Apply();
 
 		// facilitate swapping materials based on shared storage
 		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
@@ -285,9 +286,6 @@ namespace
 						UI_PlaySound(0, -1); // error
 					}
 				}
-
-				if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeP, Blam::Input::eInputTypeGame) == 1)
-					Web::Ui::ScreenLayer::Show("forge_search", "{}");
 			}
 
 			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1)

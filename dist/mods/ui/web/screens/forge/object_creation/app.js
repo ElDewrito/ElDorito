@@ -1,26 +1,68 @@
 (function($) {
     var categoryTreeElement = document.getElementById('category_tree');
     var objectListElement = document.getElementById('object_list');
+    var searchResultListElement = document.querySelector('.search-results');
     var tabsElement = document.getElementById('main_tabs');
     var treeList = makeTreeList(categoryTreeElement, null);
     var budget = {};
     var doc = null;
     var objectListNode = null;
+    var searchResults = null;
+    var doSearch = null;
   
     loadItems(function(data) {
         var parser = new DOMParser();
         doc = parser.parseFromString(data, "application/xml");
         treeList.setSource(doc.firstChild);
+
+        var itemsJson = buildItemsJson(doc.firstChild);
+
+        var fuse = new Fuse(itemsJson,  {
+            shouldSort: true,
+            threshold: 0.6,
+            location: 0,
+            distance: 100,
+            maxPatternLength: 32,
+            minMatchCharLength: 1,
+            keys: ["name"]
+        });
+
+        doSearch = function(query) {
+            return fuse.search(query);
+        }
+
         changeTab('props');
     });
-  
 
+    document.querySelector('.search-text').addEventListener('input', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var query = e.target.value.trim();
+        if(!query || !query.length)
+            return;
+
+        searchResults = doSearch(query);
+        renderSearchResults(searchResults);
+        searchResultListController.setSelectedIndex(0);
+        updateHelpText();
+    });
+
+    document.querySelector('.search-text').addEventListener('keydown', function(e) {   
+        if(e.keyCode == 38  || e.keyCode == 40) {
+            e.preventDefault();
+        }
+    });
+    
     var objectListController = makeListWidgetController('object_list', {wrapAround:true}, {
         count: () => objectListElement.querySelectorAll('li').length
     })
     var tabListController = makeListWidgetController('tab_list', {}, {
         count: () => 3
     });
+    var searchResultListController = makeListWidgetController('search_results', {wrapAround:true}, {
+        count: () => searchResultListElement.querySelectorAll('li').length
+    })
 
     objectListController.on('selectedIndexChanged', function({index, userInput}) {
         var items = objectListElement.querySelectorAll('li');
@@ -36,7 +78,24 @@
         updateHelpText();
     });
 
+    searchResultListController.on('selectedIndexChanged', function({index, userInput}) {
+        var items = searchResultListElement.querySelectorAll('li');
+        for(var i = 0; i < items.length; i++) {
+            items[i].classList.remove('selected');
+        }
+        var item = searchResultListElement.querySelector(`li:nth-of-type(${index+1})`);
+        if(item) {
+            item.classList.add('selected');
+            if(userInput)
+                item.scrollIntoView(false);
+        }
+    });
+
     categoryTreeElement.addEventListener('click', function(e) {
+        handleUiInput(0);
+    }, true);
+
+    objectListElement.addEventListener('click', function(e) {
         handleUiInput(0);
     }, true);
 
@@ -56,7 +115,18 @@
         }    
     }, true);
 
+    searchResultListElement.addEventListener('mouseover', function(e) {
+        if(e.target.nodeName == 'LI') {
+            var nodes = Array.prototype.slice.call(searchResultListElement.children);
+            searchResultListController.setSelectedIndex(nodes.indexOf(e.target));
+        }    
+    }, true);
+
     objectListElement.addEventListener('click', function(e) {
+        handleUiInput(0);
+    }, true);
+
+    searchResultListElement.addEventListener('click', function(e) {
         handleUiInput(0);
     }, true);
 
@@ -66,7 +136,6 @@
             activate: function() {
                 categoryTreeElement.classList.remove('hidden');
                 updateHelpText();
-  				
             },
             deactivate: function() {
                 categoryTreeElement.classList.add('hidden');
@@ -99,8 +168,15 @@
                         dew.command('Game.PlaySound 0xaff');
                         break;
                 }
-  				
+                
                 treeList.handleInput(uiButtonCode);
+            },
+            onKeyDown: function(keyCode) {
+                if(!(!(keyCode > 47 && keyCode < 58) && // 0-9
+                    !(keyCode > 64 && keyCode < 91) && // A-Z
+                    !(keyCode > 96 && keyCode < 123))) { // a-z
+                    screenManager.push('search');
+                }
             }
         },
         object_list: {
@@ -193,9 +269,74 @@
                         dew.command('Game.PlaySound 0xafe');
                         break;
                 }
+            },
+            onKeyDown: function(keyCode) {
+                if(!(!(keyCode > 47 && keyCode < 58) && // 0-9
+                    !(keyCode > 64 && keyCode < 91) && // A-Z
+                    !(keyCode > 96 && keyCode < 123))) { // a-z
+                    screenManager.push('search');
+                }    
+            }
+        },
+        search: {
+            name: 'search',
+            activate: function() {
+                $('#main_tabs').hide();
+                var searchContainerElement = document.getElementById('search');
+                searchContainerElement.classList.remove('hidden');
+                searchContainerElement.classList.add('active');
+                var searchTextInput = searchContainerElement.querySelector('.search-text');
+                searchTextInput.value = '';
+                searchTextInput.focus();
+            },
+            deactivate: function() {
+                $('#main_tabs').show();
+
+                var searchContainerElement = document.getElementById('search');
+                searchContainerElement.classList.add('hidden');
+                searchContainerElement.classList.remove('active');
+            },
+            handleInput: function(uiButtonCode) {
+                switch(uiButtonCode) {
+                    case 8:
+                    case 9:
+                        searchResultListController.navigate(uiButtonCode == 8 ? -1 : 1);
+                        dew.command('Game.PlaySound 0xafe');
+                        break;
+                    case 0:
+                        dew.command('Game.PlaySound 0xb00');
+                        var selectedElem = searchResultListElement.querySelector('li.selected');
+                        dew.command('forge.spawnitem ' + selectedElem.getAttribute('data-tagindex')).then(function() {});
+                        dew.hide();
+                        break;
+                    case 1:
+                        if(screenManager.currentScreen().name !== 'main')
+                            screenManager.pop();
+                        break;
+                }
             }
         }
     })
+
+
+    function buildItemsJson(node) {
+        var items = [];
+        for(var x = node.firstChild; x; x = x.nextSibling) {
+           
+            if(x.nodeName === 'category' || x.nodeName === 'root')
+                items = items.concat(buildItemsJson(x));
+            else if(x.nodeName === 'item') {
+                items.push({
+                    name: x.getAttribute('name'),
+                    tagindex: x.getAttribute('tagindex'),
+                    node: x
+                })
+            }
+        }
+
+        return items;
+    }
+
 
     screenManager.push('main');
 
@@ -208,7 +349,7 @@
     function updateHelpText() {
         var currentScreen = screenManager.currentScreen();
 
-        var helpText = undefined;
+        var helpText = null;
         switch(currentScreen.name) {
             case 'main':
                 var selected = helpText = categoryTreeElement.querySelector('li.selected');
@@ -220,9 +361,9 @@
                 var selected = helpText = objectListElement.querySelector('li.selected');
                 if(selected) {
                     helpText = selected.getAttribute('data-help');
-                }			
+                }           
                 break;
-        }	
+        }   
 
         var helpBoxElem = document.getElementById('help_text');
         helpBoxElem.innerHTML = '';
@@ -237,6 +378,40 @@
                 return n.textContent;
             }
         }
+    }
+
+    function renderSearchResults(results) {
+        var searchContainerElement = document.getElementById('search');
+        var searchResultListElement = searchContainerElement.querySelector('.search-results');
+
+        var MAX_RESULTS = 7;
+        var numResultsToDisplay = Math.min(MAX_RESULTS, results.length);
+
+        var html = '';
+        for(var i = 0; i < numResultsToDisplay; i++) {
+            var result = results[i];
+
+            var name = result.name;
+            var tagindex = parseInt(result.tagindex);
+            var itemBudget = budget[tagindex];
+            var remainingItems = 255;
+
+            var category = result.node.parentNode.getAttribute('name');
+
+            if(itemBudget) {  
+                remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
+            }
+
+            var help = getNodeHelp(result.node);
+
+            html += `
+            <li data-tagindex="${result.tagindex}" data-help="${help}">
+                <span class="title">${name}<span class="text-mute"> [${category}]</span></span>
+                <span class="quota">${remainingItems}</span>
+            </li>`;
+        }
+
+        searchResultListElement.innerHTML = html;
     }
 
     function renderObjectList(node) {
@@ -254,17 +429,20 @@
                 var itemBudget = budget[tagindex];
                 var remainingItems = 255;
 
+               
                 if(itemBudget) {
+                    
                     remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
                 }
-  				
+
+                
                 var help = getNodeHelp(x);
 
                 html += `
-	  			<li data-tagindex="${x.getAttribute('tagindex')}" data-help="${help}">
-	  				<span class="title">${name}</span>
-	  				<span class="quota">${remainingItems}</span>
-	  			</li>`;
+                <li data-tagindex="${x.getAttribute('tagindex')}" data-help="${help}">
+                    <span class="title">${name}</span>
+                    <span class="quota">${remainingItems}</span>
+                </li>`;
             }
         }
         objectListElement.innerHTML = html;
@@ -300,7 +478,7 @@
             return;
 
         screenManager.push('object_list');
-	
+    
         renderObjectList(node);
         objectListController.setSelectedIndex(0);
     });
@@ -322,7 +500,13 @@
         screen.handleInput(uiButtonCode);
     }
 
-    document.addEventListener('keydown', function(e) {	
+    document.addEventListener('keydown', function(e) {  
+        var screen = screenManager.currentScreen();
+
+        
+        if(screen && screen.onKeyDown)
+            screen.onKeyDown(e.keyCode);
+
         switch(e.keyCode) {
             case 27:
                 handleUiInput(1);
@@ -340,10 +524,9 @@
                 handleUiInput(0);
                 break;
         }
-    });
+    }, false);
 
 
-    (function() {
         /* todo: merge this with object properties */
         var stickTicks = { left: 0, right: 0, up: 0, down: 0 }
         var axisThreshold = .5;
@@ -371,11 +554,11 @@
                 stickTicks.down = 0;
 
             var holding =
-		    	stickTicks.up > 0 && (stickTicks.up * e.data.secondsPerTick) > .5 ||
-		    	stickTicks.down > 0 && (stickTicks.down * e.data.secondsPerTick) > .5 ||
-		    	stickTicks.left > 0 && (stickTicks.left * e.data.secondsPerTick) > .5 ||
-		    	stickTicks.right > 0 && (stickTicks.right * e.data.secondsPerTick) > .5;
-		   	
+                stickTicks.up > 0 && (stickTicks.up * e.data.secondsPerTick) > .5 ||
+                stickTicks.down > 0 && (stickTicks.down * e.data.secondsPerTick) > .5 ||
+                stickTicks.left > 0 && (stickTicks.left * e.data.secondsPerTick) > .5 ||
+                stickTicks.right > 0 && (stickTicks.right * e.data.secondsPerTick) > .5;
+            
 
             if(stickTicks.up == 1 || (stickTicks.up > 1 && holding && (e.data.gameTicks - lastHeldUpdate) * e.data.secondsPerTick > 0.1)) {
                 lastHeldUpdate = e.data.gameTicks;
@@ -405,17 +588,26 @@
             else if(e.data.Left == 1) handleUiInput(10);
             else if(e.data.Right == 1) handleUiInput(11);
         });
-    })();
 
     dew.on('show', function(e) {
+        var currentScreen = screenManager.currentScreen();
+        if(currentScreen) {
+            currentScreen.activate();
+        }
         budget = {};
         for(var i = 0; i < e.data.budget.length; i++) {
             var itemBudget = e.data.budget[i];
             budget[parseInt(itemBudget.tagindex)] = itemBudget;
         }
+
         var oldSelectedIndex = objectListController.selectedIndex();
         renderObjectList(treeList.selectedNode());
         objectListController.setSelectedIndex(oldSelectedIndex);
+
+        if(searchResults && screenManager.currentScreen().name === 'search') {
+            renderSearchResults(searchResults);
+            searchResultListController.setSelectedIndex(0);
+        }
     });
 
 })(jQuery);
@@ -480,7 +672,6 @@ function makeTreeList(_element, _data) {
         }
     }
 
-
     function getNodeHelp(node) {
         for(var n = node.firstChild; n; n = n.nextSibling) {
             if(n.nodeName === 'help') {
@@ -508,7 +699,7 @@ function makeTreeList(_element, _data) {
             _selectedIndex = 0;
         if(_selectedIndex < 0)
             _selectedIndex = count-1;
-				
+                
         renderSelection();
 
         if(oldIndex != _selectedIndex)

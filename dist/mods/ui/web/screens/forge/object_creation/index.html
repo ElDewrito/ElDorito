@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script type="text/javascript" src="dew://lib/dew.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="dew://lib/fuse.min.js"></script>
 </head>
 <body>
     <main class="container">
@@ -20,7 +21,13 @@
             </nav>
             <div class="body">
                 <ul id="category_tree" class="hidden"></ul>
-                <ul id="object_list" class="hidden"></ul>
+                <ul id="object_list" class="object-list hidden"></ul>
+                <div id="search" class="search hidden">
+                    <div class="search-text-container">
+                        <input class="search-text" type="text">
+                    </div>
+                    <ul class="search-results object-list"></ul>
+                </div>
             </div>
             <div id="help_text" class="help-text"></div>
             <footer class="footer"></footer>

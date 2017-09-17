@@ -111,12 +111,12 @@ html, body {
 
 
 /* object list */
-#object_list li {
+.object-list li {
 	position: relative;
 	padding: 0.7em;
 }
 
-#object_list .quota {
+.object-list .quota {
 	position: absolute;
 	right: 1em;
 }
@@ -131,9 +131,6 @@ html, body {
 }
 
 
-#object_list.hidden, #category_tree.hidden {
-	display:none;
-}
 
 /* tabs */
 ul.tabs {
@@ -162,4 +159,42 @@ ul.tabs {
 
 .tab-header:hover {
 	color: #dfdfdf;
+}
+
+.search-text-container {
+	width:100%;
+	background: inherit;
+}
+
+.search-text {
+	width:100%;
+	display:block;
+	border: none;
+	background: inherit;
+	padding: 0.9em;
+	font-size: 0.8rem;
+	color: white;
+
+}
+
+#search {
+	width: 600px;
+	
+}
+
+.search-results {
+	height: 400px;
+	max-height: 450px;
+	overflow-y:auto;
+	overflow-x: hidden;
+	transition:all 0.1s ease-in;
+	height: 400px;
+}
+
+.hidden {
+	display:none;
+}
+
+.text-mute {
+	color: rgba(255,255,255,0.4);
 }
