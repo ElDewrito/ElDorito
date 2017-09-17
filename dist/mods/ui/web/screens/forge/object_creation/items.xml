@@ -40,7 +40,7 @@
       <item name="Propane Tank" tagindex="0x486d" />
     </category>
     <category name="FX">
-      <item name="Juicy" tagindex="0x00005804">
+      <item name="Juicy" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="1" />
         <setter target="fx_hue" type="float" value="0" />
         <setter target="fx_tint_r" type="float" value="1" />
@@ -52,7 +52,7 @@
         <setter target="fx_brightness" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
       </item>
-      <item name="Nova" tagindex="0x00005804">
+      <item name="Nova" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0.3" />
         <setter target="fx_hue" type="float" value="0" />
         <setter target="fx_tint_r" type="float" value="0.03" />
@@ -64,7 +64,7 @@
         <setter target="fx_brightness" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
       </item>
-      <item name="Sepiatone" tagindex="0x00005804">
+      <item name="Sepiatone" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0.3" />
         <setter target="fx_hue" type="float" value="0.027" />
         <setter target="fx_tint_r" type="float" value="0.55" />
@@ -76,7 +76,7 @@
         <setter target="fx_brightness" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
       </item>
-      <item name="Film" tagindex="0x00005804">
+      <item name="Film" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0" />
         <setter target="fx_hue" type="float" value="0" />
         <setter target="fx_tint_r" type="float" value="0.784" />
@@ -88,7 +88,7 @@
         <setter target="fx_brightness" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
       </item>
-      <item name="Gloomy" tagindex="0x00005804">
+      <item name="Gloomy" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0" />
         <setter target="fx_hue" type="float" value="5" />
         <setter target="fx_tint_r" type="float" value="0.784" />
@@ -102,7 +102,7 @@
       </item>
     </category>
     <category name="Lights">
-      <item name="Yellow" tagindex="0x00005808">
+      <item name="Yellow" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0.5" />
         <setter target="light_color_b" type="float" value="0" />
@@ -110,7 +110,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Orange" tagindex="0x00005808">
+      <item name="Orange" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0.25" />
         <setter target="light_color_b" type="float" value="0" />
@@ -118,7 +118,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Pink" tagindex="0x00005808">
+      <item name="Pink" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.25" />
@@ -126,7 +126,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Red" tagindex="0x00005808">
+      <item name="Red" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0" />
@@ -134,7 +134,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Purple" tagindex="0x00005808">
+      <item name="Purple" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.5" />
@@ -142,7 +142,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Blue" tagindex="0x00005808">
+      <item name="Blue" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.5" />
@@ -150,7 +150,7 @@
         <setter target="light_color_intensity" type="float" value="0.25" />
         <setter target="light_radius" type="float" value="5" />
       </item>
-      <item name="Green" tagindex="0x00005808">
+      <item name="Green" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0" />
         <setter target="light_color_g" type="float" value="0.5" />
         <setter target="light_color_b" type="float" value="0" />
@@ -208,150 +208,7 @@
     </category>
   </category>
   <category name="Structure" id="structure">
-    <category name="Blocks 0.5x">
-      <item name=".5 .5" tagindex="0x5759" />
-      <item name="1 .5" tagindex="0x575A" />
-      <item name="1 1" tagindex="0x5761" />
-      <item name="2 1" tagindex="0x5765" />
-      <item name="2 2" tagindex="0x576E" />
-      <item name="3 1" tagindex="0x5763" />
-      <item name="3 2" tagindex="0x576D" />
-      <item name="3 3" tagindex="0x576C" />
-      <item name="4 1" tagindex="0x5762" />
-      <item name="4 2" tagindex="0x5758" />
-      <item name="4 3" tagindex="0x576B" />
-      <item name="4 4" tagindex="0x576A" />
-      <item name="5 1" tagindex="0x5764" />
-      <item name="5 2" tagindex="0x5768" />
-      <item name="5 3" tagindex="0x5767" />
-      <item name="5 4" tagindex="0x5766" />
-      <item name="5 5" tagindex="0x5769" />
-      <item name="10 1" tagindex="0x575E" />
-      <item name="10 2" tagindex="0x575D" />
-      <item name="10 3" tagindex="0x575C" />
-      <item name="10 4" tagindex="0x575B" />
-      <item name="10 5" tagindex="0x575F" />
-      <item name="10 10" tagindex="0x5760" />
-      <item name="20 20" tagindex="0x5757" />
-    </category>
-    <category name="Blocks 1x">
-      <item name="1 1" tagindex="0x574E" />
-      <item name="2 1" tagindex="0x574A" />
-      <item name="2 2" tagindex="0x576F" />
-      <item name="3 1" tagindex="0x574C" />
-      <item name="3 2" tagindex="0x5742" />
-      <item name="3 3" tagindex="0x5743" />
-      <item name="4 1" tagindex="0x574D" />
-      <item name="4 2" tagindex="0x5755" />
-      <item name="4 3" tagindex="0x5744" />
-      <item name="4 4" tagindex="0x5745" />
-      <item name="5 1" tagindex="0x574B" />
-      <item name="5 2" tagindex="0x5747" />
-      <item name="5 3" tagindex="0x5748" />
-      <item name="5 4" tagindex="0x5749" />
-      <item name="5 5" tagindex="0x5746" />
-      <item name="10 1" tagindex="0x5751" />
-      <item name="10 2" tagindex="0x5752" />
-      <item name="10 3" tagindex="0x5753" />
-      <item name="10 4" tagindex="0x5754" />
-      <item name="10 5" tagindex="0x5750" />
-      <item name="10 10" tagindex="0x574F" />
-      <item name="20 20" tagindex="0x5756" />
-    </category>
-    <category name="Wall 0.1x">
-      <item name=".5 .5" tagindex="0x578B" />
-      <item name="1 .5" tagindex="0x5787" />
-      <item name="1 1" tagindex="0x5777" />
-      <item name="2 .5" tagindex="0x5785" />
-      <item name="2 1" tagindex="0x577B" />
-      <item name="2 2" tagindex="0x5784" />
-      <item name="3 .5" tagindex="0x5789" />
-      <item name="3 1" tagindex="0x5779" />
-      <item name="3 2" tagindex="0x5783" />
-      <item name="3 3" tagindex="0x5782" />
-      <item name="4 .5" tagindex="0x5788" />
-      <item name="4 1" tagindex="0x5778" />
-      <item name="4 2" tagindex="0x5770" />
-      <item name="4 3" tagindex="0x5781" />
-      <item name="4 4" tagindex="0x5780" />
-      <item name="5 .5" tagindex="0x578A" />
-      <item name="5 1" tagindex="0x577A" />
-      <item name="5 2" tagindex="0x577E" />
-      <item name="5 3" tagindex="0x577D" />
-      <item name="5 4" tagindex="0x577C" />
-      <item name="5 5" tagindex="0x577F" />
-      <item name="10 .5" tagindex="0x5786" />
-      <item name="10 1" tagindex="0x5774" />
-      <item name="10 2" tagindex="0x5773" />
-      <item name="10 3" tagindex="0x5772" />
-      <item name="10 4" tagindex="0x5771" />
-      <item name="10 5" tagindex="0x5775" />
-      <item name="10 10" tagindex="0x5776" />
-      <item name="20 20" tagindex="0x578C" />
-    </category>
-    <category name="Half Cylinders">
-      <item name="1x1x05" tagindex="0x5797" />
-      <item name="1x2x05" tagindex="0x5795" />
-      <item name="1x3x05" tagindex="0x5794" />
-      <item name="1x5x05" tagindex="0x5796" />
-      <item name="2x1x05" tagindex="0x57AB" />
-      <item name="2x2x05" tagindex="0x578E" />
-      <item name="2x3x05" tagindex="0x578F" />
-      <item name="2x5x05" tagindex="0x578D" />
-      <item name="4x1x05" tagindex="0x5793" />
-      <item name="4x2x05" tagindex="0x5791" />
-      <item name="4x3x05" tagindex="0x5790" />
-      <item name="4x5x05" tagindex="0x5792" />
-    </category>
-    <category name="Triangle Walls">
-      <item name=".1x0.5x0.5" tagindex="0x579D" />
-      <item name=".1x1x1" tagindex="0x57BD" />
-      <item name=".1x2x2" tagindex="0x579C" />
-      <item name=".1x3x3" tagindex="0x579B" />
-      <item name=".1x4x4" tagindex="0x579A" />
-      <item name=".1x5x5" tagindex="0x5799" />
-      <item name=".1x10x10" tagindex="0x5798" />
-    </category>
-    <category name="Triangles">
-      <item name="05x10x10" tagindex="0x57A2" />
-      <item name="05x05x05" tagindex="0x57BC" />
-      <item name="05x1x1" tagindex="0x57A3" />
-      <item name="05x2x2" tagindex="0x579E" />
-      <item name="05x3x3" tagindex="0x579F" />
-      <item name="05x4x4" tagindex="0x57A0" />
-      <item name="05x5x5" tagindex="0x57A1" />
-      <item name="1x05x05" tagindex="0x57AA" />
-      <item name="1x10x10" tagindex="0x57A5" />
-      <item name="1x1x1" tagindex="0x57A4" />
-      <item name="1x2x2" tagindex="0x57A9" />
-      <item name="1x3x3" tagindex="0x57A8" />
-      <item name="1x4x4" tagindex="0x57A7" />
-      <item name="1x5x5" tagindex="0x57A6" />
-    </category>
-    <category name="Cylinder">
-      <item name="05x05x05" tagindex="0x57BB" />
-      <item name="05x05x1" tagindex="0x57B2" />
-      <item name="05x05x2" tagindex="0x57B6" />
-      <item name="05x05x4" tagindex="0x57BA" />
-      <item name="1x1x05" tagindex="0x57AC" />
-      <item name="1x1x1" tagindex="0x57B1" />
-      <item name="1x1x2" tagindex="0x57B5" />
-      <item name="1x1x4" tagindex="0x57B9" />
-      <item name="2x2x05" tagindex="0x57AD" />
-      <item name="2x2x1" tagindex="0x57B0" />
-      <item name="2x2x2" tagindex="0x57B4" />
-      <item name="2x2x4" tagindex="0x57B8" />
-      <item name="4x4x05" tagindex="0x57AE" />
-      <item name="4x4x1" tagindex="0x57AF" />
-      <item name="4x4x2" tagindex="0x57B3" />
-      <item name="4x4x4" tagindex="0x57B7" />
-    </category>
-    <category name="Corners">
-      <item name="1x1x05" tagindex="0x57BE" />
-      <item name="1x1x1" tagindex="0x57BF" />
-      <item name="Box 1x1x05" tagindex="0x57C0" />
-      <item name="Box 1x1x1" tagindex="0x57C1" />
-    </category>
+    <category name="ReForge"></category>
   </category>
   <category name="Gameplay" id="gameplay">
     <category name="Equipment">
