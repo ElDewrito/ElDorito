@@ -146,6 +146,8 @@ namespace Patches::Forge
 		Hook(0x6E26C1, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
 		// hook the object creation menu to show the cef one
 		Hook(0x6E2729, ObjectCreationUIAllocateHook, HookFlags::IsCall).Apply();
+		// disable legal screen
+		Patch(0x6EAADD, { 0xEB }).Apply();
 
 		// facilitate swapping materials based on shared storage
 		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
@@ -1435,6 +1437,7 @@ namespace
 			call RenderScreenEffect
 			add esp, 0xC
 			mov eax, 0x682A90
+			mov ecx, [ebp+0x14]
 			jmp eax
 		}
 	}
