@@ -11,6 +11,7 @@
 #include <iomanip>
 
 #include <openssl\evp.h>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace Utils::String
 {
@@ -246,14 +247,14 @@ namespace Utils::String
 	// trim from start
 	static inline std::string &ltrim(std::string &s)
 	{
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int c) { return !std::isspace(c); }));
+		boost::algorithm::trim_left(s);
 		return s;
 	}
 
 	// trim from end
 	static inline std::string &rtrim(std::string &s)
 	{
-		s.erase(std::find_if(s.rbegin(), s.rend(), [](int c) { return !std::isspace(c); }).base(), s.end());
+		boost::algorithm::trim_right(s);
 		return s;
 	}
 
@@ -267,15 +268,9 @@ namespace Utils::String
 	{
 		std::string retValue(string);
 		if( fromEnd ) // From End
-		{
-			retValue.erase(std::find_if(retValue.rbegin(), retValue.rend(), [](int c) { return !std::isspace(c); }).base(), retValue.end());
-		}
+			return rtrim(retValue);
 		else // From Start
-		{
-			retValue.erase(retValue.begin(), std::find_if(retValue.begin(), retValue.end(), [](int c) { return !std::isspace(c); }));
-		}
-
-		return retValue;
+			return ltrim(retValue);
 	}
 
 	std::vector<std::string> Wrap(const std::string &string, size_t lineLength)
