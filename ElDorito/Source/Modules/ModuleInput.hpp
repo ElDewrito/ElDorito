@@ -24,6 +24,7 @@ namespace Modules
 		Command* VarControllerStickLayout;
 		Command* VarSpectateSensitivity;
 		Command* VarToggleSprint;
+		Command* VarTapScoreboard;
 
 		Command* CommandBindControllerAction;
 		Command* CommandBindKeyboardAction;

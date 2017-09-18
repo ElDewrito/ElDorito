@@ -7,6 +7,7 @@
 #include "../../Patches/Scoreboard.hpp"
 #include "../../Patches/Input.hpp"
 #include "../../Pointer.hpp"
+#include "../../Modules/ModuleInput.hpp"
 #include "../../Modules/ModuleServer.hpp"
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../ThirdParty/rapidjson/stringbuffer.h"
@@ -267,7 +268,7 @@ namespace
 
 			//If shift is held down or was pressed again within the repeat delay, lock the scoreboard
 			locked = GetKeyTicks(eKeyCodeShift, eInputTypeUi) ||
-				Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - lastPressedTime) < 0.25f;
+				(Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - lastPressedTime) < 0.25f && Modules::ModuleInput::Instance().VarTapScoreboard->ValueInt == 1);
 
 			Web::Ui::WebScoreboard::Show(locked, postgame);
 

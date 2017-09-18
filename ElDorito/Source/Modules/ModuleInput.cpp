@@ -701,6 +701,8 @@ namespace Modules
 
 		VarToggleSprint = AddVariableInt("ToggleSprint", "toggle_sprint", "Sprint toggle enabled (1) or disabled (0)", eCommandFlagsArchived, 0);
 
+		VarTapScoreboard = AddVariableInt("TapScoreboard", "tap_scoreboard", "Enable/disable double tap to lock scoreboard", eCommandFlagsArchived, 1);
+
 		LoadDefaultBindings();
 		BuildSettingsMenu();
 
