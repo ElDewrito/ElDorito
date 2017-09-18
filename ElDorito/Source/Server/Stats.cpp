@@ -1,4 +1,5 @@
 #include <WS2tcpip.h>
+#include <fstream>
 #include "Stats.hpp"
 #include "../Blam/BlamEvents.hpp"
 #include "../Blam/BlamNetwork.hpp"
@@ -19,6 +20,34 @@ namespace Server::Stats
 	//If we send stats right when the game ends, some of the team scores arent updated yet.
 	//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0.
 	time_t sendStatsTime = 0;
+
+	// retrieves master server endpoints from dewrito.json
+	void GetStatsEndpoints(std::vector<std::string>& destVect)
+	{
+		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
+		if (in && in.is_open())
+		{
+			std::string contents;
+			in.seekg(0, std::ios::end);
+			contents.resize((unsigned int)in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&contents[0], contents.size());
+			in.close();
+
+			rapidjson::Document json;
+			if (!json.Parse<0>(contents.c_str()).HasParseError() && json.IsObject())
+			{
+				if (json.HasMember("statsServers"))
+				{
+					auto& statsArray = json["statsServers"];
+					for (auto it = statsArray.Begin(); it != statsArray.End(); it++)
+					{
+						destVect.push_back((*it)["url"].GetString());
+					}
+				}
+			}
+		}
+	}
 
 	//Endpoint for getting information about players in the game. Data retrieved is set as a
 	//variable that is synchronized to clients, and sent to the scoreboard (or any other screen layer) as json.
@@ -106,8 +135,16 @@ namespace Server::Stats
 	{
 
 		auto* session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished() || !session->IsHost() || Modules::ModuleServer::Instance().VarStatsServer->ValueString.empty() || !Patches::Network::IsInfoSocketOpen())
+		if (!session || !session->IsEstablished() || !session->IsHost() || !Patches::Network::IsInfoSocketOpen())
 			return false;
+
+		std::vector<std::string> statsEndpoints;
+		GetStatsEndpoints(statsEndpoints);
+
+		if (statsEndpoints.size() == 0) {
+			return false;
+		}
+		
 
 		rapidjson::StringBuffer s;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(s);
@@ -353,21 +390,25 @@ namespace Server::Stats
 		writer.EndArray();
 		writer.EndObject();
 
-		std::string server = Modules::ModuleServer::Instance().VarStatsServer->ValueString;
-		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
 
-		try
+		for (auto server : statsEndpoints)
 		{
-			std::string sendObject = s.GetString();
-			if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+			HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+
+			try
 			{
-				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Unable to connect to stats server");
+				std::string sendObject = s.GetString();
+				if (!req.SendRequest(Utils::String::WidenString(server), L"POST", L"", L"", L"Content-Type: application/json\r\n", (void*)sendObject.c_str(), sendObject.length()))
+				{
+					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Unable to connect to stats server");
+				}
 			}
-		}
-		catch (...)
-		{
-			Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Exception while sending stats to server");
-		}
+			catch (...)
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Exception while sending stats to server");
+			}
+
+		}		
 
 		return true;
 	}

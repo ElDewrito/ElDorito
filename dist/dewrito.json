@@ -32,7 +32,9 @@
 
     "updateServiceUrl": "http://eldewrito.anvilonline.net/update.json",
     "updateChannelsUrl": "",
-
+	"statsServers":[{
+		"url": "http://new.halostats.click/api/submit"
+	}],
     "masterServers": [{
         "list": "http://158.69.166.144:8080/list",
         "announce": "http://158.69.166.144:8080/announce",

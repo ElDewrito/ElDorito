@@ -1336,7 +1336,6 @@ namespace Modules
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
 
 		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
-		VarStatsServer = AddVariableString("StatsServer", "stats_server", "URL to send the stats to", eCommandFlagsArchived, "");
 		VarPlayerInfoEndpoint = AddVariableString("PlayerInfoEndpoint", "player_info_endpoint", "URL to request player info from", eCommandFlagsArchived, "");
 		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
 		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;

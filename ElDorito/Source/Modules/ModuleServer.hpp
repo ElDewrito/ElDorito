@@ -45,7 +45,6 @@ namespace Modules
 		Command* VarServerVotingEnabled;
 		Command* VarServerNumberOfRevotesAllowed;
 		Command* VarServerNumberOfVotingOptions;
-		Command* VarStatsServer;
 		Command* VarRconPassword;
 		Command* VarServerTeamShuffleEnabled;
 		Command* VarServerTimeBetweenVoteEndAndGameStart;
