@@ -22,6 +22,7 @@ namespace Modules
 		Command* VarHideH3UI;
 		Command* VarScreenshotsFolder;
 		Command* VarCefMedals;
+		Command* VarFpsLimiter;
 
 		int DebugFlags;
 
