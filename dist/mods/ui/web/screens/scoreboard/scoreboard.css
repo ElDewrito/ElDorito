@@ -43,7 +43,7 @@ html {
     text-align: center;
     height: 22px;
     font-size: 18px;
-    line-height: 3vh;
+    line-height: 22px;
     padding: 22px;
     margin: 1px;
     z-index: 1;
@@ -231,11 +231,11 @@ html {
 #bigMedal .medalDesc{
     position: absolute;
     text-align: center;
-    bottom: 0.75vh;
+    bottom: 6px;
     width: 90%;
     margin-left: 5%;
     margin-right: auto;
-    font-size: 2.25vh;
+    font-size: 16px;
 }
 
 #medalBox{

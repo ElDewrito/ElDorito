@@ -7,9 +7,9 @@ body {
 
 #chat{
     position: absolute;
-    font-size: 2.655vh;
-    line-height: 3.54vh;
-    letter-spacing: 0.02vw;
+    font-size: 19px;
+    line-height: 26px;
+    letter-spacing: 0.3px;
     color: white;
     overflow:hidden;
     zoom: 75%;
@@ -30,14 +30,14 @@ body {
 
 #chatWindow{
     position: absolute;
-    bottom: 2vw;
+    bottom: 26px;
     width: 100%;
     text-shadow:
         -1px -1px 0 #000,  
         1px -1px 0 #000,
         -1px 1px 0 #000,
          1px 1px 0 #000;
-    letter-spacing: 0.02vw;
+    letter-spacing: 0.3px;
     word-wrap: break-word;
     overflow-y:auto;
     max-height:65%;
@@ -53,7 +53,7 @@ body {
 
 #chatWindow p{
     margin: 0;
-    padding-bottom: 0.19vw;
+    padding-bottom: 3px;
 }
 
 #chatBox{
@@ -64,8 +64,8 @@ body {
     color: white;
     width: calc(100% - 8px);
     display: none;
-    font-size: 2.0355vh;
-    height: 2.5665vh;
+    font-size: 15px;
+    height: 19px;
     -webkit-backface-visibility: hidden;
     padding: 2px;
 }
@@ -78,7 +78,7 @@ body {
     padding: 2px 5px; 
     color: white; 
     margin-right: 4px;
-    height: 1.1vw;
+    height: 14px;
 }
 
 .GLOBAL, .TEAM, a{ 
@@ -127,7 +127,7 @@ a:hover{
 }
 
 #chatWindow::-webkit-scrollbar {
-    width: 1.25em;
+    width: 20px;
 }
 
 #chatWindow::-webkit-scrollbar-thumb {
