@@ -1481,24 +1481,14 @@ namespace
 
 			stream->WriteUnsigned(placement.PlacementFlags, 16);
 			stream->WriteUnsigned(placement.BudgetIndex, 32);
-			stream->WriteUnsigned(1, 1);
 			sub_46FD80(stream, &placement.Position, 16, 0, (uint8_t*)&mapv->WorldBoundsXMin);
 			BitStream_WriteAxes(stream, "variant-object-axe", &placement.RightVector, &placement.UpVector);
-			stream->WriteUnsigned(placement.Properties.ObjectType, 8);
-			stream->WriteUnsigned(placement.Properties.ObjectFlags, 16);
-			stream->WriteUnsigned(placement.Properties.EngineFlags, 8);
-			stream->WriteUnsigned(placement.Properties.SharedStorage, 8);
-			stream->WriteUnsigned(placement.Properties.RespawnTime, 8);
-			stream->WriteUnsigned(placement.Properties.TeamAffilation, 8);
-			stream->WriteUnsigned(placement.Properties.ZoneShape, 8);
-			stream->WriteBlock(32, (uint8_t*)&placement.Properties.ZoneRadiusWidth);
-			stream->WriteBlock(32, (uint8_t*)&placement.Properties.ZoneTop);
-			stream->WriteBlock(32, (uint8_t*)&placement.Properties.ZoneBottom);
-			stream->WriteBlock(32, (uint8_t*)&placement.Properties.ZoneDepth);
+			stream->WriteBlock(sizeof(Blam::MapVariant::VariantProperties) * 8, (uint8_t*)&placement.Properties);
 		}
 
 		for (auto i = 0; i < 16; i++)
-			stream->WriteUnsigned(mapv->ScnrIndices[i], 9);
+			stream->WriteBlock(16, (uint8_t*)&mapv->ScnrIndices[i]);
+
 		for (auto i = 0; i < 256; i++)
 			stream->WriteBlock(sizeof(Blam::MapVariant::BudgetEntry) * 8, (uint8_t*)&mapv->Budget[i]);
 	}
@@ -1533,26 +1523,14 @@ namespace
 
 			placement.PlacementFlags = stream->ReadUnsigned<uint16_t>(16);
 			placement.BudgetIndex = stream->ReadUnsigned<uint32_t>(32);
-			if (stream->ReadBool())
-			{
-				sub_46F3F0(stream, &placement.Position, 16, (uint8_t*)&mapv->WorldBoundsXMin);
-				BitStream_ReadAxes(stream, "variant-object-axe", &placement.RightVector, &placement.UpVector);
-				placement.Properties.ObjectType = stream->ReadUnsigned<uint8_t>(8);
-				placement.Properties.ObjectFlags = stream->ReadUnsigned<uint8_t>(16);
-				placement.Properties.EngineFlags = stream->ReadUnsigned<uint8_t>(8);
-				placement.Properties.SharedStorage = stream->ReadUnsigned<uint8_t>(8);
-				placement.Properties.RespawnTime = stream->ReadUnsigned<uint8_t>(8);
-				placement.Properties.TeamAffilation = stream->ReadUnsigned<uint8_t>(8);
-				placement.Properties.ZoneShape = stream->ReadUnsigned<uint8_t>(8);
-				stream->ReadBlock(32, (uint8_t*)&placement.Properties.ZoneRadiusWidth);
-				stream->ReadBlock(32, (uint8_t*)&placement.Properties.ZoneTop);
-				stream->ReadBlock(32, (uint8_t*)&placement.Properties.ZoneBottom);
-				stream->ReadBlock(32, (uint8_t*)&placement.Properties.ZoneDepth);
-			}
+			sub_46F3F0(stream, &placement.Position, 16, (uint8_t*)&mapv->WorldBoundsXMin);
+			BitStream_ReadAxes(stream, "variant-object-axe", &placement.RightVector, &placement.UpVector);
+			stream->ReadBlock(sizeof(Blam::MapVariant::VariantProperties) * 8, (uint8_t*)&placement.Properties);
 		}
 
 		for (auto i = 0; i < 16; i++)
-			mapv->ScnrIndices[i] = stream->ReadUnsigned<uint16_t>(9);
+			stream->ReadBlock(16, (uint8_t*)&mapv->ScnrIndices[i]);
+
 		for (auto i = 0; i < 256; i++)
 			stream->ReadBlock(sizeof(Blam::MapVariant::BudgetEntry) * 8, (uint8_t*)&mapv->Budget[i]);
 
