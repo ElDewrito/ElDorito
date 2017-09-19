@@ -110,6 +110,16 @@ namespace
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 	uint32_t s_SpawnItemTagIndex = -1;
 	uint32_t s_SpawnItemPlayerIndex = -1;
+
+	struct SandboxPaletteItem
+	{
+		Blam::Tags::TagReference Object;
+		uint32_t Name;
+		int32_t MaxAllowed;
+		float Cost;
+		uint8_t Unknown1C[0x14];
+	};
+	static_assert(sizeof(SandboxPaletteItem) == 0x30, "Invalid SandboxPaletteItem size");
 }
 
 namespace Patches::Forge
@@ -1102,6 +1112,24 @@ namespace
 		}
 	}
 
+	SandboxPaletteItem* FindSandboxPaletteItem(uint32_t tagIndex)
+	{
+		using namespace Blam::Tags;
+		auto scenarioDef = Blam::Tags::Scenario::GetCurrentScenario();
+
+		for (auto i = 0; i < 7; i++)
+		{
+			auto palette = ((TagBlock<SandboxPaletteItem>*)&scenarioDef->SandboxVehicles) + i;
+			for (auto j = 0; j < palette->Count; j++)
+			{
+				if (palette->Elements[j].Object.TagIndex == tagIndex)
+					return &palette->Elements[j];
+			}
+		}
+
+		return nullptr;
+	}
+
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused)
 	{
 		struct s_scenario_palette_item
@@ -1163,12 +1191,22 @@ namespace
 						continue;
 
 					auto& budgetEntry = thisptr->Budget[thisptr->BudgetEntryCount];
+
+					// inefficient, but only done once
+					auto sandboxPaletteItem = FindSandboxPaletteItem(paletteEntry.Object.TagIndex);
+					if (!sandboxPaletteItem)
+						continue;
+
 					budgetEntry.TagIndex = paletteEntry.Object.TagIndex;
-					budgetEntry.DesignTimeMax = 255;
+					if (sandboxPaletteItem->MaxAllowed)
+						budgetEntry.DesignTimeMax = sandboxPaletteItem->MaxAllowed;
+					else
+						budgetEntry.DesignTimeMax = -1;
 					budgetEntry.CountOnMap = 0;
 					budgetEntry.RuntimeMin = 0;
-					budgetEntry.RuntimeMax = 255;
-					budgetEntry.Cost = 0;
+					budgetEntry.RuntimeMax = 0;
+					budgetEntry.Cost = sandboxPaletteItem->Cost;
+
 					thisptr->BudgetEntryCount++;
 				}
 			}
@@ -1210,12 +1248,20 @@ namespace
 		{
 			auto& budget = thisptr->Budget[index];
 
-			budget.Cost = 0;
-			budget.CountOnMap = 0;
-			budget.DesignTimeMax = 255;
-			budget.RuntimeMin = 0;
-			budget.RuntimeMax = 255;
+			auto sandboxPaletteItem = FindSandboxPaletteItem(tagIndex);
+			if (!sandboxPaletteItem)
+				return -1;
+
 			budget.TagIndex = tagIndex;
+			if (sandboxPaletteItem->MaxAllowed)
+				budget.DesignTimeMax = sandboxPaletteItem->MaxAllowed;
+			else
+				budget.DesignTimeMax = -1;
+			budget.CountOnMap = 0;
+			budget.RuntimeMin = 0;
+			budget.RuntimeMax = 0;
+			budget.Cost = sandboxPaletteItem->Cost;
+			
 		}
 
 		return index;
