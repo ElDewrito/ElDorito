@@ -126,16 +126,6 @@ a:hover{
     margin-right: 0;
 }
 
-@media screen and (min-aspect-ratio: 20/9) {
-    .inLobby #chat{
-        left: 37.5%; 
-        width: 24.5%;
-    } 
-    .inGame #chat{
-        width: 18%;
-    }
-}
-
 #chatWindow::-webkit-scrollbar {
     width: 1.25em;
 }
@@ -146,4 +136,23 @@ a:hover{
 
 .hide-scrollbar::-webkit-scrollbar-thumb {
     visibility : hidden !important;
+}
+
+#container{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width: 100%;
+    height: 100%;
+}
+
+.page_content{
+    position: relative;
+    width:1280px;
+    height:720px;
+    margin-left: calc(-1280px / 2);
+    margin-top: calc(-720px / 2);
+    box-sizing: border-box;
+    transform: scale(1);
+    transform-origin: center center;
 }

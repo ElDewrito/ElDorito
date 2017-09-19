@@ -19,6 +19,41 @@ var teamArray = [
 var playerName;
 var hideChat;
 var hasGP = false;
+var pageWidth, pageHeight;
+var basePage = {
+    width: 1280,
+    height: 720,
+    scale: 1,
+    scaleX: 1,
+    scaleY: 1
+};
+
+$(function(){
+    var $page = $('.page_content');
+
+    getPageSize();
+    scalePages($page, pageWidth, pageHeight);
+  
+    $(window).resize(function() {
+        getPageSize();            
+        scalePages($page, pageWidth, pageHeight);
+    });
+  
+    function getPageSize() {
+        pageHeight = $('#container').height();
+        pageWidth = $('#container').width();
+    }
+
+    function scalePages(page, maxWidth, maxHeight) {            
+        var scaleX = 1, scaleY = 1;                      
+        scaleX = maxWidth / basePage.width;
+        scaleY = maxHeight / basePage.height;
+        basePage.scaleX = scaleX;
+        basePage.scaleY = scaleY;
+        basePage.scale = (scaleX > scaleY) ? scaleY : scaleX;
+        page.attr('style', '-webkit-transform:scale(' + basePage.scale + ');');
+    }
+});
 
 $(window).load(function(){
     dew.command('Player.Name').then(function(res) {
@@ -108,7 +143,9 @@ $(window).load(function(){
                                 fadeAway();
                             }
                         }
-                        $("#chatWindow").scrollTop($('#chatWindow')[0].scrollHeight);
+                        if($("#chatWindow p").length){
+                            $("#chatWindow p").last()[0].scrollIntoView(false);
+                        }
                     }else{
                         dew.hide();
                     }
@@ -188,7 +225,6 @@ function hexToRgba(hex,opacity){
 function aWrap(link) {
     return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
 };
-
 
 dew.on('controllerinput', function(e){       
     if(hasGP){
