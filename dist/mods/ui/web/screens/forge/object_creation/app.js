@@ -182,7 +182,6 @@
         object_list: {
             name: 'object_list',
             activate: function() {
-                objectListController.setSelectedIndex(0);
                 objectListElement.classList.remove('hidden');
                 objectListElement.classList.add('active');
                 updateHelpText();
