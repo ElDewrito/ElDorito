@@ -133,7 +133,7 @@ $(window).load(function(){
                                 stayOpen = true;
                                 $("#chatBox").show(0, "linear", function(){
                                     $("#chatBox").focus();
-                                    $("#chatWindow").css("bottom", "3.54vh");
+                                    $("#chatWindow").css("bottom", "26px");
                                     $("#chatWindow").removeClass("hide-scrollbar");
                                 });
                             }else{
