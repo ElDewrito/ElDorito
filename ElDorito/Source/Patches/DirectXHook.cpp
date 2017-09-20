@@ -45,7 +45,7 @@ namespace
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
-		DetourAttach((PVOID*)&Video_CallsD3DEndSceneOrginal, &Video_CallsEndSceneHook); // redirect Video_CallsD3DEndSceneOrginal to Video_CallsEndSceneHook
+		//DetourAttach((PVOID*)&Video_CallsD3DEndSceneOrginal, &Video_CallsEndSceneHook); // redirect Video_CallsD3DEndSceneOrginal to Video_CallsEndSceneHook
 		DetourAttach((PVOID*)&origResetPtr, &ResetHook); // redirect DrawIndexedPrimitive to newDrawIndexedPrimitive
 		DetourAttach((PVOID*)&origEndScenePtr, &EndSceneHook);
 		QueryPerformanceFrequency(&freq);
@@ -64,6 +64,22 @@ namespace
 
 	HRESULT __stdcall EndSceneHook(LPDIRECT3DDEVICE9 device)
 	{
+
+		//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
+		auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
+		D3DVIEWPORT9 viewport;
+		device->GetViewport(&viewport);
+		viewport.X = 0;
+		viewport.Y = 0;
+		viewport.Width = windowResolution[0];
+		viewport.Height = windowResolution[1];
+		device->SetViewport(&viewport);
+
+		// Update the web renderer
+		auto webRenderer = WebRenderer::GetInstance();
+		if (webRenderer->Initialized() && webRenderer->IsRendering())
+			webRenderer->Render(device);
+
 		if(Modules::ModuleGame::Instance().VarFpsLimiter->ValueInt == 0)
 			return (*origEndScenePtr)(device);
 
@@ -98,21 +114,6 @@ namespace
 	void Video_CallsEndSceneHook()
 	{
 		pDevice = *reinterpret_cast<LPDIRECT3DDEVICE9*>(0x50DADDC);
-
-		//Fixes the viewport if the game is in fullscreen with an incorrect aspect ratio.
-		auto *windowResolution = reinterpret_cast<int *>(0x19106E4);
-		D3DVIEWPORT9 viewport;
-		pDevice->GetViewport(&viewport);
-		viewport.X = 0;
-		viewport.Y = 0;
-		viewport.Width = windowResolution[0];
-		viewport.Height = windowResolution[1];
-		pDevice->SetViewport(&viewport);
-
-		// Update the web renderer
-		auto webRenderer = WebRenderer::GetInstance();
-		if (webRenderer->Initialized() && webRenderer->IsRendering())
-			webRenderer->Render(pDevice);
 
 		Video_CallsD3DEndSceneOrginal();
 	}
