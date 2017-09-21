@@ -25,7 +25,7 @@ var settingsToLoad = [
     ['sInvertMouse','Settings.InvertMouse', 'Invert Mouse', 'Inverts the Mouse Look.'],
     ['sToggleCrouch','Settings.ToggleCrouch', 'Toggle Crouch', 'Allows toggling of Crouch.'],
     ['sScreenResolution','Settings.ScreenResolution', 'Screen Resolution', 'Sets the rendering resolution. Higher resolutions require more graphics processing power and video memory.'],
-    ['sBrightness','Settings.Brightness', 'Brightness', 'Adjust the game\'s brightless'],
+    ['sBrightness','Settings.Brightness', 'Brightness', 'Adjust the game\'s brightness'],
     ['sFullscreen','Settings.Fullscreen', 'Fullscreen', 'Toggles Fullscreen Mode.'],
     ['sVsync','Settings.VSync', 'Vsync', 'VSYNC elimates the screen tearing by synchronizing the game\'s frame rate with the display\'s refresh rate. Turning it ON will limit your maximum FPS.'],
     ['sAntiAliasing','Settings.Antialiasing', 'Anti-Aliasing', 'Anti-Alliasing smoothes edges, transparent textures and particles increasing graphic fidelity for both low and high resolutions.'],
