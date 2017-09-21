@@ -1,9 +1,7 @@
-var activePage;
+var activePage = "#page1";
 var selectedItem;
 var itemNumber = 0;
 var tabIndex = 0;
-var previousBind;
-var colorIndex = 0;
 var changeArray = [];
 var commandValues = [];
 var vetoEnabled;
@@ -15,109 +13,39 @@ var repGP;
 var lastHeldUpdated = 0;
 
 var settingsToLoad = [
-    ['sControlsMethod','Settings.Gamepad', 'Control Method', 'Desc'],
-    ['sInfantryMouseSensV','Settings.MouseSensitivityVertical', 'Infantry Mouse Sensitivity Vertical', 'Desc'],
-    ['sInfantryMouseSensH','Settings.MouseSensitivityHorizontal', 'Infantry Mouse Sensitivity Horizontal', 'Desc'],
-    ['sVehicleMouseSensV','Settings.MouseSensitivityVehicleVertical', 'Vehicle Mouse Sensitivity Vertical', 'Desc'],
-    ['sVehicleMouseSensH','Settings.MouseSensitivityVehicleHorizontal', 'Vehicle Mouse Sensitivity Horizontal', 'Desc'],
-    ['sMouseAcceleration','Settings.MouseAcceleration', 'Mouse Acceleration', 'Desc'],
-    ['sMouseFilter','Settings.MouseFilter', 'Mouse Filter', 'Desc'],
-    ['sInvertMouse','Settings.InvertMouse', 'Invert Mouse', 'Desc'],
-    ['sToggleCrouch','Settings.ToggleCrouch', 'Toggle Crouch', 'Desc'],
-    ['sScreenResolution','Settings.ScreenResolution', 'Screen Resolution', 'Desc'],
-    ['sBrightness','Settings.Brightness', 'Brightness', 'Desc'],
-    ['sFullscreen','Settings.Fullscreen', 'Fullscreen', 'Desc'],
-    ['sVsync','Settings.VSync', 'Vsync', 'Desc'],
-    ['sAntiAliasing','Settings.Antialiasing', 'Anti-Aliasing', 'Desc'],
-    ['sTextureResolution','Settings.TextureResolution', 'Texture Resolution', 'Desc'],
-    ['sTextureFiltering','Settings.TextureFilteringQuality', 'Texture Filtering', 'Desc'],
-    ['sLightningQuality','Settings.LightingQuality', 'Lighting Quality', 'Desc'],
-    ['sEffectsQuality','Settings.EffectsQuality', 'Effects Quality', 'Desc'],
-    ['sShadowQuality','Settings.ShadowQuality', 'Shadow Quality', 'Desc'],
-    ['sDetailsLevel','Settings.DetailsQuality', 'Details Level', 'Desc'],
-    ['sPostprocessing','Settings.PostprocessingQuality', 'Postprocessing', 'Desc'],
-    ['sMotionBlur','Settings.MotionBlur', 'Motion Blur', 'Desc'],
-    ['sMasterVolume','Settings.MasterVolume', 'Master Volume', 'Desc'],
-    ['sSFXVolume','Settings.SfxVolume', 'SFX Volume', 'Desc'],
-    ['sMusicVolume','Settings.MusicVolume', 'Music Volume', 'Desc'],
-    ['sHudShake','Settings.HUDShake', 'HUD Shake', 'Desc'],
-    ['sPlayerMarkerColors','Settings.PlayerMarkerColors', 'Player Marker Colors', 'Desc'],
-    ['sCameraFOV','Camera.FOV', 'Camera FOV', 'Desc'],
-    ['cCenteredCrosshair' , 'Camera.Crosshair', 'Centered Crosshair', 'Desc'], 
-    ['cHideHUD', 'Camera.HideHUD', 'Hide HUD', 'Desc'], 
-    ['inputRaw','Input.RawInput', 'Use Raw Input', 'Desc'],  
-    ['lookSensitivity', 'Input.ControllerSensitivityY', 'Look Sensitivity', 'Desc'], 
-    ['controllerPort','Input.ControllerPort', 'Controller Port Number', 'Desc'], 
-    ['gExpandScoreboard','Game.ExpandedScoreboard', 'Always Expand Scoreboard', 'Desc'], 
-    ['invertLook','Input.ControllerInvertY', 'Invert Look', 'Desc'], 
-    ['gHideChat','Game.HideChat', 'Hide Chat', 'Desc'], 
-    ['gSuppressJuggling','Game.SuppressJuggling', 'Suppress Juggling Announcer Spam', 'Desc'], 
-    ['wOffsetConfig','Weapon.JSON.File', 'Viewmodel Config', 'Desc'],
-    ['gMedalPack','Game.MedalPack', 'Medal Pack', 'Desc'], 
-    ['iSpectateSens','Input.SpectateSensitivity', 'Spectator Camera Senstivity', 'Desc'],
-    ['iDisableSprint','Input.ToggleSprint', 'Toggle Sprint', 'Desc'],
-    ['gIconSet','Game.IconSet', 'Controller Button Icon Set', 'Desc'],
-    ['vEnabled','VoIP.Enabled', 'VOIP Enabled', 'Desc'],
-    ['vMicrophoneID','VoIP.MicrophoneID', 'Microphone ID', 'Desc'],
-    ['vPTTEnable','VoIP.PTT_Enabled', 'Push To Talk', 'Desc'],
-    ['vAGC','VoIP.AGC', 'Automatic Gain Control', 'Desc'],
-    ['vNoiseSupress','VoIP.NoiseSupress', 'Noise Supress', 'Desc'],
-    ['vEchoCancelation','VoIP.EchoCancelation', 'Echo Cancelation', 'Desc'],
-    ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding', 'Aggressive Audio Discarding', 'Desc'], 
-    ['tDisableFog', 'Tweaks.DisableReactorFog', 'Reacthor', 'Desc'], 
-    ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline', 'Weapon Outline Removal', 'Desc'], 
-    ['tDisableHeadshotEffect', 'Tweaks.DisableHeadshotEffect', 'Disable headshot "ping" sound and effect', 'Desc'],
-    ['tDisableHitmarkers', 'Tweaks.DisableHitMarkers', 'Disable weapon hitmarkers', 'Desc'], 
-    ['tGruntBirthdayParty', 'Tweaks.GruntBirthdayParty', 'Grunt Birthday Party', 'Desc'],
-    ['tReachFrags','Tweaks.ReachStyleFrags', 'Reach Style Frags', 'Desc'],
-    ['tIntelBloomPatch','Tweaks.IntelBloomPatch', 'Bloom Patch', 'Desc'],
-    ['sAudioDevice','Settings.AudioOutputDevice', 'Audio Device', 'Desc'],
-    ['sContrast','Settings.Contrast', 'Contrast', 'Desc'],
-    ['controllerVibration', 'Input.ControllerVibrationIntensity', 'Controller Vibration', 'Desc'],
-    ['stickLayout', 'Input.ControllerStickLayout', 'Stick Layout', 'Desc'],
-    ['xSens', 'Input.ControllerSensitivityX', 'Controller Sensitivity - X Axis', 'Desc'],
-    ['ySens', 'Input.ControllerSensitivityY', 'Controller Sensitivity - Y Axis', 'Desc'],
-    ['sQualityPreset', '', 'Quality Preset', 'Desc'],
-    ['presetMenu', '', 'Button Layout', 'Desc']
+    ['sName', 'Server.Name', 'Server Name', 'Desc'],
+	['sMatchCountdown', 'Server.CountdownLobby', 'Match Start Countdown', 'Desc'], 
+    ['sCountdown', 'Server.Countdown', 'Round Start Countdown', 'Desc'], 
+    ['sMaxPlayers', 'Server.MaxPlayers', 'Max Players', 'Desc'], 
+    ['sMaxTeamSize', 'Server.MaxTeamSize', 'Max Team Size', 'Desc'], 
+    ['sShouldAnnounce', 'Server.ShouldAnnounce', 'Display Server in Browser', 'Desc'],
+    ['sDualWieldEnabled', 'Server.DualWieldEnabled', 'Dual Wielding', 'Desc'], 
+    ['sAssassinationEnabled', 'Server.AssassinationEnabled', 'Assassinations', 'Desc'], 
+    ['sPass', 'Server.Password', 'Password', 'Desc'], 
+    ['sMessage', 'Server.Message', 'Join Message', 'Desc'],  
+    ['sTeamShufflingEnabled','Server.TeamShuffleEnabled', 'Team Shuffle', 'Desc'],
+    ['sMapVotingTime','Server.MapVotingTime', 'Voting Countdown', 'Desc'],
+    ['sNumOfRevotes','Server.NumberOfRevotesAllowed', 'Revotes', 'Desc'],
+    ['sNumberOfVotingOptions','Server.NumberOfVotingOptions', 'Voting Options', 'Desc'],
+    ['sVotingDuplicationLevel','Server.VotingDuplicationLevel', 'Voting Duplication', 'Desc'],
+    ['sTimeBetweenVoteEndAndGameStart','Server.TimeBetweenVoteEndAndGameStart', 'Winner/Start Time', 'Desc'],
+    ['sNumOfVetoes','Server.NumberOfVetoVotes', 'Max Veto Votes Per Round', 'Desc'],
+    ['sVetoVoteTime','Server.VetoVoteTime', 'Veto Countdown', 'Desc'],
+    ['sVetoWinningShowTime','Server.VetoWinningOptionShownTime', 'Winning Vote Display Time', 'Desc'],
+    ['sVetoPassPercentage','Server.VetoVotePassPercentage', 'Vote Pass Percentage', 'Desc'],
+    ['sVetoSystemSelectionType','Server.VetoSystemSelectionType', 'Veto System Selection Type', 'Desc'],
+    ['sUPNP','UPnP.Enabled', 'Universal Plug and Play (UPnP)', 'Desc'],
+    ['sNetworkMode', '', 'Network Mode', 'Desc'],
+    ['sVotingStyle', '', 'Voting Mode', 'Desc']
 ];
-var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
-var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 
-var controllerPresets = [
-    ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Southpaw","Right,A,LS,RB,LB,LT,RT,RB,LB,RS,Y,B,RT,LB,,,RT,A,LS,LT,RT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Boxer","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,LT,B,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Green Thumb","Right,A,LS,RB,LB,RT,LT,RB,LB,B,Y,RS,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Bumper Jumper","Right,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Walkie Talkie","Right,A,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,A,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Up,LB"],
-    ["Halo Reach Default","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,RB,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Southpaw","RB,A,LS,X,B,LT,RT,X,RB,RS,Y,LB,RT,B,,,RT,A,LS,LT,RT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Boxer","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,LT,RB,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Green Thumb","LB,A,LS,X,B,RT,LT,X,LB,RB,Y,RS,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Bumper Jumper","X,LB,LS,B,LB,RT,LT,B,LB,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Recon","LB,A,LS,RB,B,RT,LT,RB,LB,RS,Y,B,LT,X,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo 4 Default","LS,A,B,X,LB,RT,LT,X,LB,RS,Y,RB,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Southpaw","LS,A,B,X,RB,LT,RT,X,RB,RS,Y,LB,RT,Right,,,RT,A,B,LT,RT,LB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,Y,,,X,Down"],
-    ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,Y,,,LB,Down"]
-];
-var controllerIconPacks = [
-    ['Xbox 360','360'],
-    ['Xbox One','XboxOne']
-];
 var bindChangeArray = [];
-var subPages = ['#page4','#page5','#page8','#page9','#page11'];
+var subPages = [];
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            if(window.location.hash != '#page5'){
-                cancelButton();
-            }
+            cancelButton();
         }
         if (e.keyCode == 44) {
             dew.command('Game.TakeScreenshot');  
@@ -128,33 +56,7 @@ $(document).ready(function(){
             dew.show('console');
         }
     });
-    setButtonLists();
-    setOptionList('presetMenu', controllerPresets);
-    setOptionList('gIconSet', controllerIconPacks);
-    dew.command('Game.ListMedalPacks', {}).then(function(response) {
-        var packArray = [];
-        var packs = response.split(',');
-        for (i = 0; i < packs.length; i++){
-            if(packs[i].indexOf(" ") == -1){
-                packArray.push([packs[i],packs[i]]);
-            }
-        }
-        setOptionList('gMedalPack', packArray);
-    });
-    $('.tabs li a').click(function(e){
-        $('.tabs li').removeClass('selected');
-        $(this).parent().addClass('selected');
-        window.location.href = e.target.href;
-        activePage = e.target.hash;
-        itemNumber = 0;
-        $(e).ready(function(){
-            if(hasGP){
-                updateSelection(0, false);
-            }
-            tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
-        });
-        dew.command('Game.PlaySound 0x0B00');
-    });
+    location.hash = activePage;
     $('.tinySetting').on('change', function(){
         var newID = $(this).attr('id');
         if(newID.endsWith('Text')){
@@ -181,21 +83,12 @@ $(document).ready(function(){
         }
         $.grep(settingsToLoad, function(result){
             if(result[0] == elementID){
-                queueChange([result[1], newValue]);
+                if(result[1].length){
+                    dew.command(result[1]+' '+newValue);
+                }
             };
         });
         dew.command('Game.PlaySound 0x0B00');
-    });
-    $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
-        var yVal = 30 + (e.target.value * 10);
-        var xVal = yVal * 2;
-        queueChange(['Input.ControllerSensitivityX', xVal]);
-        queueChange(['Input.ControllerSensitivityY', yVal]);
-    });
-    $('#controllerVibration, #controllerVibrationText').on('change', function(e){
-        dew.command('Input.ControllerVibrationIntensity ' + $(this).val(), {}).then(function(x){
-            dew.command('Input.ControllerVibrationTest');
-        });
     });
     $('.wheelable').on('mousewheel', function(e) {
         if(e.originalEvent.wheelDelta > 0) {
@@ -215,47 +108,11 @@ $(document).ready(function(){
             }
         }
     });
-    dew.command('Graphics.SupportedResolutions', {}).then(function(response){
-        var supportedArray = JSON.parse(response);
-        var resolutionArray = [['Default','default']];
-        for(i = 0; i < supportedArray.length; i++){
-            resolutionArray.push([supportedArray[i],supportedArray[i]]);
-        }
-        setOptionList('sScreenResolution', resolutionArray);
-    });
     $('#applyButton').on('click', function(e){
         applyButton();
     });
     $('#cancelButton').on('click', function(e){
         cancelButton();
-    });
-    $('#sTextureResolution, #sTextureFiltering, #sLightningQuality, #sEffectsQuality, #sShadowQuality, #sDetailsLevel, #sPostprocessing').on('change', function(e){
-        if($('#sTextureResolution').val() == e.target.value && $('#sTextureFiltering').val() == e.target.value && $('#sLightningQuality').val() == e.target.value && $('#sEffectsQuality').val() == e.target.value && $('#sDetailsLevel').val() == e.target.value && $('#sPostprocessing').val() == e.target.value){
-            $('#sQualityPreset').val(e.target.value);
-        }else{
-            $('#sQualityPreset').val('custom');
-        }
-    });
-    $('#sQualityPreset').on('change', function(e){
-        if(e.target.value != 'custom'){
-            $('#sTextureResolution').val(e.target.value);
-            $('#sTextureFiltering').val(e.target.value);
-            $('#sLightningQuality').val(e.target.value);
-            $('#sEffectsQuality').val(e.target.value);
-            $('#sDetailsLevel').val(e.target.value);
-            $('#sPostprocessing').val(e.target.value);
-            if(e.target.value == 'low'){
-                $('#sShadowQuality').val('medium');
-            }else{
-                $('#sShadowQuality').val(e.target.value);
-            }
-            if(e.target.value == 'high'){
-                 $('#sMotionBlur').prop('checked', true);
-            }else{
-                $('#sMotionBlur').prop('checked', false);
-            }
-            $('.video').trigger('change');
-        }
     });
     $('#sVotingStyle').on('change', function(){
         updateVotingStyle(this.value);
@@ -269,27 +126,7 @@ $(document).ready(function(){
     $('#sSprint').on('change', function(){
         updateSprint(this.value);
     });
-    $('#presetMenu').on('change', function(){
-        applyBindString(this.value);
-    });
-    $('#wOffsetConfig').on('change', function(){
-        changeArray.push(['Weapon.JSON.Load', '']);
-    });    
-    navigator.mediaDevices.enumerateDevices().then(function(devices){
-        var deviceArray = [['Default','']];
-        for (i = 0; i < devices.length; i++){
-            if(devices[i].kind == "audioinput" && devices[i].label){
-                deviceArray.push([devices[i].label,devices[i].label]);
-            }
-        }
-        setOptionList('vMicrophoneID', deviceArray);
-    });
     setControlValues();
-    initializeBindings();
-    $('.bind').on('change', function(){
-        queueBindChange([this.id, this.value]);
-        updateBindLabels();
-    });
     
     dew.command('Server.VotingEnabled', {}).then(function(x){
         dew.command('Server.VetoSystemEnabled', {}).then(function(y){
@@ -316,14 +153,6 @@ $(document).ready(function(){
                 $('#sSprint').val('0');
             }
         });       
-    });
-    dew.command('Settings.AudioOutputDeviceList', {}).then(function(response) {
-        var audioDevArray = [];
-        var devs = JSON.parse(response);
-        for (i = 0; i < devs.length; i++){
-                audioDevArray.push([devs[i],i]);
-        }
-        setOptionList('sAudioDevice', audioDevArray);
     });
     
     dew.on('controllerinput', function(e){    
@@ -407,21 +236,14 @@ $(document).ready(function(){
     });
     var clicking = false;
     var currentPos = {x: null, y: null};
-    $('#playerWindow').mousedown(function(){
-        clicking = true;
-    });
-    $(document).mouseup(function(){
-        clicking = false;
-    })
+
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
             updateSelection(itemNumber, false); 
         }
     });
-    $('#sVsync').on('change', function(){
-        alertBox('VSync changes requires a restart to take effect', false);
-    });
+
     $('#okButton').on('click', function(){
         hideAlert(true);
     });
@@ -436,6 +258,9 @@ $(document).ready(function(){
             $(this).removeClass('selectedElement');
         }
     );
+    $('#sNetworkMode').on('change', function(){
+        dew.command('Server.Mode '+$(this).val());
+    });
 });
 
 function checkGamepad(){
@@ -480,17 +305,19 @@ dew.on('show', function(e){
                 dew.command('game.hideh3ui 1');
                 $('#settingsWindow').show();
                 $('#blackLayer').show();
-                initActive();
+                //initActive();
                 initGamepad();
             }).fadeOut(200);
         } else {
             $('#settingsWindow').show();
-            initActive();
+            //initActive();
             initGamepad();
         }
     });
     setControlValues();
-
+    dew.command('Server.Mode', function(response){
+        $('#sNetworkMode').val(response);
+    });
 });
 
 function initGamepad(){
@@ -684,30 +511,8 @@ function applyButton(){
 }
 
 function cancelButton(){
-    if(window.location.hash == '#page5'){
-        initializeBindings(); 
-        switchPage('#page2'); 
-        $('#cancelButton').html('<img class="button">Close');
-        $('#applyButton').hide();
-        if(hasGP){
-            setButtons();
-            $('button img,.tabs img').show();
-        }        
-    }else if(window.location.hash == '#page4'){
-        setControlValues();      
-        switchPage('#page3');
-    }else if(window.location.hash == '#page9'){ 
-        switchPage('#page8');
-    }else if(window.location.hash == '#page8'){ 
-        switchPage('#page2');
-    }else if(window.location.hash == '#page11'){ 
-        switchPage('#page8');
-    }else if(changeArray.length || bindChangeArray.length){
-        alertBox('You have unapplied settings', true);
-    }else{
-        itemNumber = 0;
         effectReset();
-    }
+        dew.command('writeconfig');
 }
 
 function dismissButton(){
@@ -750,16 +555,6 @@ function effectReset(){
     })
 }
 
-function applyBinds(){
-    for(i=0; i<$('#bindBox tbody tr').length; i++){
-        var action = $('#bindBox tbody tr').eq(i).find('td').eq(0).text();
-        var primaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(0).val();
-        var secondaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(1).val();
-        dew.command('Input.KeyboardAction ' + action + ' ' + primaryKey + ' ' + secondaryKey);
-    }
-    dew.command('writeconfig');
-}
-
 function setOptionList(ElementID, ArrayVar){
     var sel = document.getElementById(ElementID);
     for(var i = 0; i < ArrayVar.length; i++){
@@ -772,17 +567,17 @@ function setOptionList(ElementID, ArrayVar){
 
 function updateVotingStyle(value){
     if(value == "0"){
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
+        dew.command('Server.VotingEnabled 0');
+        dew.command('Server.VetoSystemEnabled 0');
         $('#voting, #veto').hide();
     }else if(value == "1"){
-        queueChange(['Server.VotingEnabled', '1']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
+        dew.command('Server.VotingEnabled 1');
+        dew.command('Server.VetoSystemEnabled 0');
         $('#veto').hide();
         $('#voting').show();
     }else{
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '1']);
+        dew.command('Server.VotingEnabled 0');
+        dew.command('Server.VetoSystemEnabled 1');
         $('#voting').hide();
         $('#veto').show();
     }
@@ -790,213 +585,14 @@ function updateVotingStyle(value){
 
 function updateSprint(value){
     if(value == "0"){
-        queueChange(['Server.SprintEnabled', '0']);
-        queueChange(['Server.UnlimitedSprint', '0']);
+        dew.command('Server.SprintEnabled 0');
+        dew.command('Server.UnlimitedSprint 0');
     }else if(value == "1"){
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '0']);
+        dew.command('Server.SprintEnabled 1');
+        dew.command('Server.UnlimitedSprint 0');
     }else{
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '1']);
-    }
-}
-
-function applyBindString(bindString){
-    var bindArray = new Array(bindString.split(','));
-    for (i = 0; i < bindArray[0].length; i++) { 
-        $('#'+binds[i]).val(bindArray[0][i]);
-        queueBindChange([binds[i],bindArray[0][i]])
-    }
-    updateBindLabels();
-}
-
-function initializeBindings(){
-    dew.command("Input.DumpBindingsJson", {}).then(function(response){
-        $('#bindBox tbody').empty();
-        var bindDump = JSON.parse(response);
-        for (i = 0; i < bindDump.length; i++){
-            if(bindDump[i].controllerButton=="Select"){
-                bindDump[i].controllerButton="Back";
-            }
-            $('#'+bindDump[i].actionName).val(bindDump[i].controllerButton);
-            if($.inArray(bindDump[i].actionName, binds) > -1){
-                var primaryBind = bindDump[i].primaryKey;
-                if(bindDump[i].primaryMouseButton != 'none'){
-                    primaryBind = bindDump[i].primaryMouseButton;
-                }
-                var secondaryBind = bindDump[i].secondaryKey;
-                if(bindDump[i].secondaryMouseButton != 'none'){
-                    secondaryBind = bindDump[i].secondaryMouseButton;
-                }
-                $('#bindBox').find('tbody').append($('<tr><td>'+bindDump[i].actionName+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
-            }
-        }
-        updateBindLabels();
-        getCurrentBindString();
-        $('.keybind').on('focus blur', function(e){
-            var this_ = $(this);
-            dew.on('mouse-xbutton-event', function(m){
-                if(m.data.xbutton == 1){
-                    document.activeElement.value = 'Mouse4';
-                }else{
-                    document.activeElement.value = 'Mouse5';
-                }; 
-                document.activeElement.blur();
-            });
-            function keyHandler(e){
-                e.preventDefault();
-                e.stopPropagation();
-
-                // not escape
-                if(e.keyCode == 27){
-                    if(previousBind){
-                        if(previousBind == this_.val()){
-                            this_.val('none');
-                        }else{
-                            this_.val(previousBind);
-                        }
-                    }
-                    this_.blur();
-                    return;
-                }
-
-                // A-Z, 0-9
-                if((e.keyCode >= 65 && e.keyCode <= 90) || (e.keyCode >= 48 && e.keyCode < 58))
-                    this_.val( String.fromCharCode(e.keyCode));
-
-                switch(e.keyCode){
-                    case 8: 
-                        this_.val('Back'); 
-                    break;
-                    case 9: 
-                        this_.val('Tab'); 
-                    break;
-                    case 13:
-                        this_.val('Enter');
-                    break;
-                    case 16: 
-                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
-                           this_.val('LShift'); 
-                        }else{
-                           this_.val('RShift'); 
-                        }   
-                    break
-                    case 17:
-                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
-                           this_.val('LControl'); 
-                        }else{
-                           this_.val('RControl'); 
-                        }   
-                    break;
-                    case 18:
-                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
-                           this_.val('LAlt'); 
-                        }else{
-                           this_.val('RAlt'); 
-                        }  
-                    case 20: 
-                        this_.val('CapsLock'); 
-                    break;
-                    case 32: 
-                        this_.val('Space'); 
-                    break;
-                    case 46: 
-                        this_.val('Delete'); 
-                    break;
-                    default:
-                        //console.log(e.keyCode);
-                }
-                this_.blur();
-            };
-
-            function mouseHandler(e){
-                e.preventDefault();
-                e.stopPropagation();
-                if(e.type == 'mousewheel'){
-                    if(e.originalEvent.wheelDelta > 0){
-                        this_.val('MouseWheelUp');
-                    }else{
-                        this_.val('MouseWheelDown');
-                    }   
-                }
-                else if(e.type == 'mousedown'){
-                    switch(e.which){
-                        case 1:
-                            this_.val('MouseLeft');
-                        break;
-                        case 2:
-                            this_.val('MouseMiddle');
-                        break;
-                        case 3:
-                            this_.val('MouseRight');
-                        break;
-                        default:
-                            this_.val('Mouse' + e.which);
-                    }
-                }
-                this_.blur();
-            };
-
-            var $doc = $(document);
-            if(e.type == 'focus'){
-                $doc.on('mousedown.rebind', mouseHandler);
-                $doc.on('mousewheel.rebind', mouseHandler);
-                $doc.on('keydown.rebind', keyHandler);
-            }else{
-                previousBind = e.target.defaultValue;
-                $doc.off('keydown.rebind');
-                $doc.off('mousedown.rebind');
-                $doc.off('mousewheel.rebind');
-            }
-        });
-        $('.keybind').on('blur', function(e){
-            $('#cancelButton').html('<img class="button">Cancel');
-            $('#applyButton').show();
-            if(hasGP){
-                setButtons();
-                $('button img,.tabs img').show();
-            }
-        });
-    });
-}
-
-function updateBindLabels(){
-    $('#controllerGraphic').children('div').empty();
-    for (i = 0; i < binds.length-4; i++) { 
-        var bind = document.getElementById(binds[i]).value;
-        var action = binds[i];
-        if(document.getElementById(bind)){
-            var actionString = action;
-            if(document.getElementById(bind).innerHTML.length > 0){
-                actionString = ", " + action;
-            }
-            $("#" + bind).append(actionString);
-        }
-    }
-}
-
-function getCurrentBindString(){
-    var currentBinds = "";
-    for(var i = 0; i < binds.length-4; i++) {
-        if($('#'+binds[i]).val()){
-            currentBinds += $('#'+binds[i]).val() + ",";
-        }else{
-            currentBinds += ",";
-        }
-    }
-    //console.log(currentBinds.slice(0, -1));
-    $("#presetMenu").val(currentBinds.slice(0, -1));
-}
-
-function setButtonLists(){
-    for(var i = 0; i < binds.length-4; i++) {
-        var sel = document.getElementById(binds[i]);
-        for(var x = 0; x < buttons.length; x++) {
-            var opt = document.createElement('option');
-            opt.innerHTML = buttons[x];
-            opt.value = buttons[x];
-            sel.appendChild(opt);
-        }
+        dew.command('Server.SprintEnabled 1');
+        dew.command('Server.UnlimitedSprint 1');
     }
 }
 
@@ -1163,23 +759,6 @@ function hideAlert(sound){
     if(sound){
         dew.command('Game.PlaySound 0x0B04');
     }
-}
-
-function queueBindChange(changeBlock){
-    $('#cancelButton').html('<img class="button">Cancel');
-    $('#applyButton').show();
-    if(hasGP){
-        setButtons();
-        $('button img,.tabs img').show();
-    }
-    $.grep(bindChangeArray, function(result, index){
-        if(result){
-            if(result[0] == changeBlock[0]){
-                bindChangeArray.splice(index,1);
-            };
-        }
-    });
-    bindChangeArray.push(changeBlock);
 }
 
 function setInfoBox(ID){

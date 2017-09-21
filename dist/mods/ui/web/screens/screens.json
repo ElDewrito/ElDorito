@@ -68,6 +68,12 @@
 			"zIndex": 9
 		},
         {
+			"id": "server_settings",
+			"url": "dew://screens/server_settings/",
+			"captureInput": true,
+			"zIndex": 9
+		},
+        {
 			"id": "forge",
 			"url": "dew://screens/forge/",
 			"captureInput": true,
