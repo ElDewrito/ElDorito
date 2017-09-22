@@ -103,6 +103,8 @@ namespace
 
 	void ToggleHUDDistortion(bool enabled);
 
+	void c_gui_screen_pregame_lobby_switch_network_hook();
+
 	std::vector<CreateWindowCallback> createWindowCallbacks;
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
@@ -276,6 +278,8 @@ namespace Patches::Ui
 		Pointer(0x0169E270).Write(uint32_t(&c_gui_map_category_datasource_init));
 		// remove game variants, fileshare menu items
 		Pointer(0x0169E510).Write(uint32_t(&c_gui_game_variant_category_datasource_init));
+
+		Hook(0x721F03, c_gui_screen_pregame_lobby_switch_network_hook).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1688,5 +1692,22 @@ namespace
 
 		std::qsort(thisptr->items, thisptr->ItemCount, 0x26c, (int(*)(const void*, const void*))0xADB280);
 		return true;
+	}
+
+	void __stdcall OnLobbySwitchNetworkMode()
+	{
+		Web::Ui::ScreenLayer::Show("server_settings", "{}");
+	}
+
+	__declspec(naked) void c_gui_screen_pregame_lobby_switch_network_hook()
+	{
+		__asm
+		{
+			call OnLobbySwitchNetworkMode
+
+			// jump to cleanup and return
+			mov eax, 0xB21F5B
+			jmp eax
+		}
 	}
 }
