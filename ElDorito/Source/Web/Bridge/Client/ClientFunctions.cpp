@@ -627,6 +627,12 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		Web::Ui::WebForge::ProcessAction(p_Args, p_Result);
 		return QueryError_Ok;
 	}
+	
+	QueryError OnShowLan(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		Patches::Ui::ShowLanBrowser();
+		return QueryError_Ok;
+	}
 }
 
 namespace

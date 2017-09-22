@@ -30,4 +30,6 @@ namespace Patches::Ui
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
 	void UpdateHUDDistortion();
+
+	void ShowLanBrowser();
 }
