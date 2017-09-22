@@ -78,14 +78,13 @@ namespace
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 	void __cdecl MapVariant_SyncVariantPropertiesHook(Blam::MapVariant::VariantPlacement *placement);
+	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused);
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
 	uint32_t __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
-	bool __fastcall c_map_variant_deserialize_hook(Blam::MapVariant *mapv, void *unused, BitStream *stream);
-	void __fastcall c_map_variant_serialize_hook(Blam::MapVariant *mapv, void *unused, BitStream *stream);
 
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
@@ -192,14 +191,9 @@ namespace Patches::Forge
 
 		// allow arbitrary data to be stored in variant properties
 		Patch(0x18676E, { 0x90,0x90 }).Apply();
-		Hook(0x001829A0, c_map_variant_serialize_hook).Apply();
-		Hook(0x00182550, c_map_variant_deserialize_hook).Apply();
-		Hook(0x185B8B, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
-		Hook(0x1824F2, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
-		Hook(0x1824FD, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
-		Hook(0x1852CA, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
-		Hook(0x1857AF, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
-		Hook(0x185B8B, MapVariant_SyncVariantPropertiesHook, HookFlags::IsCall);
+
+		// prevent serializing/deserialzing the map variant on save to keep precision
+		Hook(0x184CF0, sub_584CF0_hook).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1503,86 +1497,6 @@ namespace
 		}
 	}
 
-	void __fastcall c_map_variant_serialize_hook(Blam::MapVariant *mapv, void *unused, BitStream *stream)
-	{
-		const auto c_content_header_Serialize = (void(__thiscall*)(void *contentHeader, BitStream *stream))(0x00524120);
-		const auto sub_46FD80 = (int(*)(BitStream *bitStream, RealVector3D *a2, int sizeBits, char a4, void *a5))(0x0046FD80);
-		const auto BitStream_WriteAxes = (void(__thiscall*)(BitStream *stream, char *name, RealVector3D *forwardVec, RealVector3D *upVector))(0x004A9BC0);
-
-		c_content_header_Serialize(&mapv->ContentHeader, stream);
-		stream->WriteUnsigned(mapv->UnknownF8, 8);
-		stream->WriteUnsigned(mapv->Unknown12C, 32);
-		stream->WriteUnsigned(mapv->ScnrPlacementsCount, 10);
-		stream->WriteUnsigned(mapv->UsedPlacementsCount, 10);
-		stream->WriteUnsigned(mapv->BudgetEntryCount, 9);
-		stream->WriteUnsigned(mapv->MapId, 32);
-		stream->WriteUnsigned(mapv->Unknown128, 32);
-		stream->WriteBlock(32, (uint8_t*)&mapv->MaxBudget);
-		stream->WriteBlock(32, (uint8_t*)&mapv->CurrentBudget);
-		stream->WriteBlock(0xC0, (uint8_t*)&mapv->WorldBoundsXMin);
-
-		for (auto i = 0; i < mapv->UsedPlacementsCount; i++)
-		{
-			auto& placement = mapv->Placements[i];
-
-			stream->WriteUnsigned(placement.PlacementFlags, 16);
-			stream->WriteUnsigned(placement.BudgetIndex, 32);
-			sub_46FD80(stream, &placement.Position, 16, 0, (uint8_t*)&mapv->WorldBoundsXMin);
-			BitStream_WriteAxes(stream, "variant-object-axe", &placement.RightVector, &placement.UpVector);
-			stream->WriteBlock(sizeof(Blam::MapVariant::VariantProperties) * 8, (uint8_t*)&placement.Properties);
-		}
-
-		for (auto i = 0; i < 16; i++)
-			stream->WriteBlock(16, (uint8_t*)&mapv->ScnrIndices[i]);
-
-		for (auto i = 0; i < 256; i++)
-			stream->WriteBlock(sizeof(Blam::MapVariant::BudgetEntry) * 8, (uint8_t*)&mapv->Budget[i]);
-	}
-
-	bool __fastcall c_map_variant_deserialize_hook(Blam::MapVariant *mapv, void *unused, BitStream *stream)
-	{
-		const auto c_content_header_deserialize = (void(__thiscall*)(void *contentHeader, BitStream *stream))(0x00523FE0);
-		const auto sub_46F3F0 = (void(*)(BitStream *stream, RealVector3D *a2, int bits, void *a3))(0x46F3F0);
-		const auto BitStream_ReadAxes = (void(__thiscall*)(BitStream *stream, char *name, RealVector3D *forwardVec, RealVector3D *upVector))(0x004A9B30);
-		const auto c_variant_placement_ctor = (void(__thiscall*)(Blam::MapVariant::VariantPlacement *placement))(0x004AC1D0);
-
-		c_content_header_deserialize(&mapv->ContentHeader, stream);
-		mapv->UnknownF8 = stream->ReadUnsigned<uint16_t>(8);
-		mapv->Unknown12C = stream->ReadUnsigned<uint32_t>(32);
-		mapv->ScnrPlacementsCount = stream->ReadUnsigned<uint16_t>(10);
-		mapv->UsedPlacementsCount = stream->ReadUnsigned<uint16_t>(10);
-		mapv->BudgetEntryCount = stream->ReadUnsigned<uint16_t>(9);
-
-		if (!(mapv->UsedPlacementsCount >= 0 && mapv->UsedPlacementsCount <= 640 && mapv->BudgetEntryCount >= 0 && mapv->BudgetEntryCount <= 0x100))
-			return false;
-
-		mapv->MapId = stream->ReadUnsigned<uint32_t>(32);
-		mapv->Unknown128 = stream->ReadUnsigned<uint32_t>(32);
-		stream->ReadBlock(32, (uint8_t*)&mapv->MaxBudget);
-		stream->ReadBlock(32, (uint8_t*)&mapv->CurrentBudget);
-		stream->ReadBlock(0xC0, (uint8_t*)&mapv->WorldBoundsXMin);
-
-		for (auto i = 0; i < mapv->UsedPlacementsCount; i++)
-		{
-			auto& placement = mapv->Placements[i];
-			c_variant_placement_ctor(&placement);
-
-			placement.PlacementFlags = stream->ReadUnsigned<uint16_t>(16);
-			placement.BudgetIndex = stream->ReadUnsigned<uint32_t>(32);
-			sub_46F3F0(stream, &placement.Position, 16, (uint8_t*)&mapv->WorldBoundsXMin);
-			BitStream_ReadAxes(stream, "variant-object-axe", &placement.RightVector, &placement.UpVector);
-			stream->ReadBlock(sizeof(Blam::MapVariant::VariantProperties) * 8, (uint8_t*)&placement.Properties);
-		}
-
-		for (auto i = 0; i < 16; i++)
-			stream->ReadBlock(16, (uint8_t*)&mapv->ScnrIndices[i]);
-
-		for (auto i = 0; i < 256; i++)
-			stream->ReadBlock(sizeof(Blam::MapVariant::BudgetEntry) * 8, (uint8_t*)&mapv->Budget[i]);
-
-		return true;
-	}
-
 	void __cdecl MapVariant_SyncVariantPropertiesHook(Blam::MapVariant::VariantPlacement *placement)
 	{
 		const auto MapVariant_UpdateObjectVariantProperties = (void(*)(Blam::MapVariant::VariantPlacement *a1))(0x00586680);
@@ -1601,5 +1515,10 @@ namespace
 			placement->Properties.ZoneDepth = mpProperties->Length;
 			placement->Properties.ZoneRadiusWidth = mpProperties->RadiusWidth;
 		}
+	}
+
+	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused)
+	{
+		// do nothing
 	}
 }

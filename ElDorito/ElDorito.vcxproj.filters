@@ -472,6 +472,7 @@
     </ClCompile>
     <ClCompile Include="Source\Server\DedicatedServer.cpp" />
     <ClCompile Include="Source\Patches\Medals.cpp" />
+    <ClCompile Include="Source\Patches\Simulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1107,6 +1108,7 @@
     </ClInclude>
     <ClInclude Include="Source\Server\DedicatedServer.hpp" />
     <ClInclude Include="Source\Patches\Medals.hpp" />
+    <ClInclude Include="Source\Patches\Simulation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

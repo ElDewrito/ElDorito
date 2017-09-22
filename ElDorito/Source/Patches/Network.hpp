@@ -33,4 +33,8 @@ namespace Patches::Network
 	// Registers a function to be called when the lifecycle state is
 	// changed.
 	void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback);
+
+
+	typedef std::function<void(Blam::MapVariant*)> MapVariantRequestChangeCallback;
+	void OnMapVariantRequestChange(MapVariantRequestChangeCallback callback);
 }

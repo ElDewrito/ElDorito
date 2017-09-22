@@ -50,8 +50,10 @@ namespace
 	int __fastcall Network_session_parameters_clearHook(void* thisPtr, int unused);
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex);
 	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
+	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
+	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
 	void PongReceivedHook();
 
 	std::vector<Patches::Network::LifeCycleStateChangedCallback> lifeCycleStateChangedCallbacks;
@@ -429,6 +431,8 @@ namespace Patches::Network
 
 		//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
 		Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
+
+		Hook(0x00039AE4, c_network_session_parameter_map_variant__request_change_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -545,6 +549,11 @@ namespace Patches::Network
 	void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback)
 	{
 		lifeCycleStateChangedCallbacks.push_back(callback);
+	}
+
+	void OnMapVariantRequestChange(MapVariantRequestChangeCallback callback)
+	{
+		mapVariantRequestChangeCallbacks.push_back(callback);
 	}
 }
 
@@ -1173,5 +1182,18 @@ namespace
 
 		static auto Network_session_parameter_countdown_timer_request_change = (bool(__thiscall*)(void *thisPtr, int state, int newValue))(0x00453740);
 		return Network_session_parameter_countdown_timer_request_change(thisPtr, state, value);
+	}
+
+	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant)
+	{
+		const auto c_network_session_parameter_map_variant__request_change = (bool(__thiscall *)(void *thisptr, Blam::MapVariant *mapVariant))(0x00456480);
+		
+		auto ret = c_network_session_parameter_map_variant__request_change(thisptr, mapVariant);
+		if (ret)
+		{
+			for (auto &&callback : mapVariantRequestChangeCallbacks)
+				callback(mapVariant);
+		}
+		return ret;
 	}
 }

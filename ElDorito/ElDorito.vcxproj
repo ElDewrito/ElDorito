@@ -102,6 +102,7 @@
     <ClCompile Include="Source\Patches\PlayerUid.cpp" />
     <ClCompile Include="Source\Patches\RawInput.cpp" />
     <ClCompile Include="Source\Patches\Scoreboard.cpp" />
+    <ClCompile Include="Source\Patches\Simulation.cpp" />
     <ClCompile Include="Source\Patches\Spectate.cpp" />
     <ClCompile Include="Source\Patches\Sprint.cpp" />
     <ClCompile Include="Source\Patches\Tweaks.cpp" />
@@ -282,6 +283,7 @@
     <ClInclude Include="Source\Patches\PlayerUid.hpp" />
     <ClInclude Include="Source\Patches\RawInput.hpp" />
     <ClInclude Include="Source\Patches\Scoreboard.hpp" />
+    <ClInclude Include="Source\Patches\Simulation.hpp" />
     <ClInclude Include="Source\Patches\Spectate.hpp" />
     <ClInclude Include="Source\Patches\Sprint.hpp" />
     <ClInclude Include="Source\Patches\Tweaks.hpp" />
