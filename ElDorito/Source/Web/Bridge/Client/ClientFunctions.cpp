@@ -548,7 +548,10 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
 
-		Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
+		{
+			Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
+		}
 
 		return QueryError_Ok;
 	}

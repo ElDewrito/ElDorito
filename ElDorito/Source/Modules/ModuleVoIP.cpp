@@ -143,6 +143,10 @@ namespace Modules
 		VarPTTSoundEnabled->ValueIntMin = 0;
 		VarPTTSoundEnabled->ValueIntMax = 1;
 
+		VarSpeakingPlayerOnHUD = AddVariableInt("SpeakingPlayerOnHUD", "speaking_player_hud", "Shows the speaking player on the HUD, rather than the web overlay.", eCommandFlagsArchived, 0, UpdateVoip);
+		VarSpeakingPlayerOnHUD->ValueIntMin = 0;
+		VarSpeakingPlayerOnHUD->ValueIntMax = 1;
+
 		Patches::Core::OnMapLoaded(RendererStarted);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
 		Patches::Input::RegisterMenuUIInputHandler(OnUiInputUpdated);
