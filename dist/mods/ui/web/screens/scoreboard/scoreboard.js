@@ -867,6 +867,12 @@ function setPlayerVolume(name,uid,level){
             };
         }
     });
-    volArray.push([name, uid, level]);   
+    volArray.push([name, uid, level]);
+    dew.show("voip", {
+        volume:{
+            uid:name + "|" + uid,
+            vol:level / 100.0
+        }
+    });
     console.log(name, uid,level);
 }
