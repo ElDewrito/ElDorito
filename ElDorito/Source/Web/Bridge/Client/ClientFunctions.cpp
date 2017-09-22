@@ -590,22 +590,6 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		return QueryError_Ok;
 	}
 
-	QueryError OnGetMapPath(const rapidjson::Value &p_Args, std::string *p_Result)
-	{
-		std::string mapPath = reinterpret_cast<const char *>(0x22AB034);
-
-		rapidjson::StringBuffer buffer;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-		writer.StartObject();
-
-		writer.Key("mapPath");
-		writer.String(mapPath.c_str());
-		writer.EndObject();
-
-		*p_Result = buffer.GetString();
-		return QueryError_Ok;
-	}
-
 	QueryError OnIsMapLoading(const rapidjson::Value &p_Args, std::string *p_Result)
 	{
 		static auto IsMapLoading = (bool(*)())(0x005670E0);

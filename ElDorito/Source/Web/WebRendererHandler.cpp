@@ -57,7 +57,6 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("voipSpeaking", Bridge::ClientFunctions::OnVoIPSpeakingChanged);
 		m_QueryHandler->AddMethod("voipConnected", Bridge::ClientFunctions::OnVoIPConnectedChanged);
 		m_QueryHandler->AddMethod("playerSpeaking", Bridge::ClientFunctions::OnVoIPPlayerSpeakingChanged);
-		m_QueryHandler->AddMethod("getMapPath", Bridge::ClientFunctions::OnGetMapPath);
 		m_QueryHandler->AddMethod("isMapLoading", Bridge::ClientFunctions::OnIsMapLoading);
 		m_QueryHandler->AddMethod("forgeaction", Bridge::ClientFunctions::OnForgeAction);
 		m_QueryHandler->AddMethod("showlan", Bridge::ClientFunctions::OnShowLan);
