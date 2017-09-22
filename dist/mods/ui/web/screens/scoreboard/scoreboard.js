@@ -17,7 +17,7 @@ var basePage = {
 };
 var isVisible = false;
 var lobbyJSON;
-var expandedScoreboard = false;
+var expandedScoreboard;
 var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
@@ -338,8 +338,8 @@ dew.on("voip-speaking", function(e){
 dew.on("show", function(e){
     isVisible = true;
     dew.captureInput(e.data.locked);
+    locked = e.data.locked;
     if(e.data.locked){
-        locked = e.data.locked;
         $('#closeButton').show();
         dew.command('Game.MedalPack', {}).then(function(response){
             medalsPath = "medals://" + response + "/";
@@ -379,8 +379,9 @@ dew.on("show", function(e){
     }else{
         $('#winnerText').hide();
     }
-    dew.command('Game.ExpandedScoreboard', {}).then(function(expandedScoreboard){
+    dew.command('Game.ExpandedScoreboard', {}).then(function(response){
         dew.getSessionInfo().then(function(i){
+            expandedScoreboard = response;
             isHost = i.isHost;
             displayScoreboard();
         });
