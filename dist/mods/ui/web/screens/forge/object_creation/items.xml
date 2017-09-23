@@ -312,6 +312,9 @@
       <item name="Sender, Vehicle (P)" tagindex="0x444e" />
       <item name="Receiver, Vehicle (P)" tagindex="0x444f" />
       <item name="Two-Way, Vehicle (P)" tagindex="0x4450" />
+      <item name="Death Teleporter" tagindex="0x2ec1">
+        <setter target="teleporter_channel" type="int" value="255" />
+      </item>
     </category>
     <category name="Vehicles">
       <category name="Vehicles Heavy">

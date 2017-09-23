@@ -25,6 +25,7 @@
 #include "../Forge/Selection.hpp"
 #include "../Forge/SelectionRenderer.hpp"
 #include "../Forge/Magnets.hpp"
+#include "../Forge/KillVolumes.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebForge.hpp"
@@ -91,6 +92,7 @@ namespace
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 	void RenderScreenEffectHook();
+	void GameEngineTickHook();
 
 
 	void FixRespawnZones();
@@ -198,6 +200,8 @@ namespace Patches::Forge
 		// allow all object types to be forge
 		Patch(0x181C90, { 0xB0, 0x01, 0xC3 }).Apply();
 		Patch::NopFill(Pointer::Base(0x185655), 6);
+
+		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
@@ -1524,5 +1528,14 @@ namespace
 	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused)
 	{
 		// do nothing
+	}
+
+	void GameEngineTickHook()
+	{
+		const auto is_client = (bool(*)())(0x00531D70);
+
+		if (!is_client())
+			::Forge::KillVolumes::Update();
+
 	}
 }

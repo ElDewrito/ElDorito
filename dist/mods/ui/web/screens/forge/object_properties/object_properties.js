@@ -91,7 +91,19 @@ var objectPropertyGridData = {
 		],
 		spare_clips: [0, 1, 2],
 		on_map_at_start: [{name: 'no', value: 0}, {name: 'yes', value: 1}],
-		teleporter_channel: [0,1,2,3,4,5,6,7,8,9],
+		teleporter_channel: [
+            {name:'0', value: 0,},
+            {name:'1', value: 1 },
+            {name:'2', value: 2 },
+            {name:'3', value: 3 },
+            {name:'4', value: 4 },
+            {name:'5', value: 5 },
+            {name:'6', value: 6 },
+            {name:'7', value: 7 },
+            {name:'8', value: 8 },
+            {name:'9', value: 9 },
+            {name:'Death', value: 255 }
+		],
 		team_affiliation: [
 			{name: 'Neutral', value: 8},
 			{name: 'Defender', value: 0},

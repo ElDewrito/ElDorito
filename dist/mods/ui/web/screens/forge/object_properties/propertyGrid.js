@@ -36,8 +36,10 @@ function makePropertyGridWidget(_containerElem) {
 
 			_containerElem.find('.property-item-range input').each((i, e) => updateRangeOutput(e.id, $(e)));
 			_containerElem.find('.property-item-material select').each((i, e) => {
-				var thumbnail = _meta[e.id][$(e).val()].thumbnail;
-				$(e).prev('img').attr('src', thumbnail);
+			    var meta = _meta[e.id][$(e).val()];
+			    if(meta) {
+			        $(e).prev('img').attr('src', meta.thumbnail);
+			    }
 			});
 		},
 		populate(data, initialValues = {}) {
