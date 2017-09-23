@@ -81,24 +81,37 @@ namespace
 		const auto sub_4AEB10 = (bool(*)(char a1, int a6, int a3, void *a4, GenericEntitySimulationData *data, Blam::BitStream *stream, int a7, char a8, char a9))(0x4AEB10);
 
 		auto ret = sub_4AEB10(a1, a6, a3, a4, data, stream, a7, a8, a9);
-		if (ret)
+
+		if (data->VariantPlacementIndex && data->VariantPlacementIndex != -1)
 		{
-			if (data->VariantPlacementIndex && data->VariantPlacementIndex != -1)
-				stream->WriteBlock(0x54 * 8, (uint8_t*)&s_SyncPlacements[data->VariantPlacementIndex]);
+			auto placement = &s_SyncPlacements[data->VariantPlacementIndex];
+			if (placement->PlacementFlags & 2)
+			{
+				stream->WriteBool(true);
+				stream->WriteBlock(0x54 * 8, (uint8_t*)placement);
+			}
+			else
+			{
+				stream->WriteBool(false);
+			}
 		}
-		return ret;
+		else
+		{
+			stream->WriteBool(false);
+		}
+
+		return ret && stream->Position() <= 8 * stream->Size();
 	}
 
 	bool __cdecl c_simulation_generic_entity__deserialize2_hook(int a1, int a2, GenericEntitySimulationData *data, Blam::BitStream *stream, char a5)
 	{
 		const auto sub_4AE5F0 = (bool(*)(int a1, int a2, GenericEntitySimulationData *data, Blam::BitStream *stream, char a5))(0x4AE5F0);
 		auto ret = sub_4AE5F0(a1, a2, data, stream, a5);
-		if (ret)
-		{
-			if (data->VariantPlacementIndex && data->VariantPlacementIndex != -1)
-				stream->ReadBlock(0x54 * 8, (uint8_t*)&s_SyncPlacements[data->VariantPlacementIndex]);
-		}
-		return ret;
+
+		if (ret && stream->ReadBool())
+			stream->ReadBlock(0x54 * 8, (uint8_t*)&s_SyncPlacements[data->VariantPlacementIndex]);
+
+		return ret && stream->Position() <= 8 * stream->Size();
 	}
 
 	uint32_t __fastcall c_simulation_generic_entity_definition__spawn_object_hook(int thisptr, void *unused,

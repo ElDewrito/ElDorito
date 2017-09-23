@@ -81,6 +81,16 @@ namespace Blam
 			return true;
 		}
 
+		inline int Size() const
+		{
+			return size;
+		}
+
+		inline int Position() const
+		{
+			return position;
+		}
+
 	private:
 		uint8_t *start;      // 0x00
 		uint8_t *end;        // 0x04
