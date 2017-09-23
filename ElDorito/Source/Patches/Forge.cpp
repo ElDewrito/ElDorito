@@ -195,6 +195,10 @@ namespace Patches::Forge
 		// prevent serializing/deserialzing the map variant on save to keep precision
 		Hook(0x184CF0, sub_584CF0_hook).Apply();
 
+		// allow all object types to be forge
+		Patch(0x181C90, { 0xB0, 0x01, 0xC3 }).Apply();
+		Patch::NopFill(Pointer::Base(0x185655), 6);
+
 		Patches::Core::OnGameStart(FixRespawnZones);
 	}
 
