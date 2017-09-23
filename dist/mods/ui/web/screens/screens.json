@@ -110,8 +110,8 @@
 			"zIndex": 0
 		},
         {
-			"id": "weaponOffset",
-			"url": "dew://screens/weaponOffset/",
+			"id": "weapon_offset",
+			"url": "dew://screens/weapon_offset/",
 			"captureInput": true,
 			"zIndex": 1
 		},
