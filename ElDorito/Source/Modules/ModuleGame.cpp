@@ -1,4 +1,5 @@
 #include "ModuleGame.hpp"
+#include "ModuleLanDiscoveryListener.hpp"
 #include <sstream>
 #include <fstream>
 #include <type_traits>
@@ -26,6 +27,7 @@
 #include <unordered_map>
 #include <codecvt>
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
+#include "../Console.hpp"
 
 namespace
 {

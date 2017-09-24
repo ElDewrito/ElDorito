@@ -585,19 +585,7 @@ namespace Patches::Ui
 
 	void ShowLanBrowser()
 	{
-		typedef void*(__cdecl * UI_AllocPtr)(int size);
-		auto UI_Alloc = reinterpret_cast<UI_AllocPtr>(0xAB4ED0);
-		typedef void*(__fastcall* c_load_game_browser_screen_messagePtr)(void *thisPtr, int unused, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5);
-		auto c_load_game_browser_screen_message = reinterpret_cast<c_load_game_browser_screen_messagePtr>(0xADE0B0);
-		typedef void(*UI_Dialog_QueueLoadPtr)(void *dialog);
-		auto UI_Dialog_QueueLoad = reinterpret_cast<UI_Dialog_QueueLoadPtr>(0xA93450);
-
-		auto dialog = UI_Alloc(0x44);
-		if (!dialog)
-			return;
-		dialog = c_load_game_browser_screen_message(dialog, 0, 0x10355, 0, 4, 0x1000C, 0, 0);
-		if (dialog)
-			UI_Dialog_QueueLoad(dialog);
+		Web::Ui::ScreenLayer::Show("localbrowser", "{}");
 	}
 }
 

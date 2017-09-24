@@ -24,6 +24,7 @@
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Server/Signaling.hpp"
+#include "../Server/LanBroadcast.hpp"
 
 namespace
 {
@@ -575,11 +576,13 @@ namespace
 		{
 			Patches::Network::StartInfoServer();
 			Server::Signaling::StartServer();
+			Server::LanBroadcast::StartServer();
 		}
 		else
 		{
 			Patches::Network::StopInfoServer();
 			Server::Signaling::StopServer();
+			Server::LanBroadcast::StopServer();
 		}
 
 		return retval;
