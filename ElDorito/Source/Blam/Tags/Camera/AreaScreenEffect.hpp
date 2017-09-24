@@ -37,8 +37,8 @@ namespace Blam
 			struct ScreenEffect
 			{
 				Text::StringID Name;
-				ScreenEffectFlags Unknown;
-				ScreenEffectHiddenFlags Unknown2;
+				ScreenEffectFlags Flags;
+				ScreenEffectHiddenFlags HiddenFlags;
 				float MaximumDistance;
 				TagData<uint8_t> DistanceFalloffFunction;
 				float Duration;
@@ -48,14 +48,14 @@ namespace Blam
 				uint32_t PrimaryHue;
 				uint32_t SecondaryHue;
 				float Saturation;
-				float ColorMuting;
-				float Brightness;
-				float Darkness;
+				float Desaturation;
+				float GammaIncrease;
+				float GammaDecrease;
 				float ShadowBrightness;
-				Math::RealColorRGB Tint;
-				Math::RealColorRGB Tone;
+				Math::RealColorRGB ColorFilter;
+				Math::RealColorRGB ColorFloor;
 				float Tracing;
-				float Unknown4;
+				float Turbulance;
 				TagReference ScreenShader;
 			};
 			TAG_STRUCT_SIZE_ASSERT(ScreenEffect, 0x9C);

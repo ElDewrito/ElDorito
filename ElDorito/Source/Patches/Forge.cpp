@@ -91,7 +91,9 @@ namespace
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
-	void RenderScreenEffectHook();
+
+	struct ScreenEffectData;
+	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
 
 
@@ -189,7 +191,7 @@ namespace Patches::Forge
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 
-		Hook(0x00283621, RenderScreenEffectHook, HookFlags::IsCall).Apply();
+		Hook(0x639986, ScreenEffectsHook, HookFlags::IsCall).Apply();
 
 		// allow arbitrary data to be stored in variant properties
 		Patch(0x18676E, { 0x90,0x90 }).Apply();
@@ -1263,7 +1265,7 @@ namespace
 			budget.RuntimeMin = 0;
 			budget.RuntimeMax = 0;
 			budget.Cost = sandboxPaletteItem->Cost;
-			
+
 		}
 
 		return index;
@@ -1325,7 +1327,7 @@ namespace
 
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
 	{
-		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4, 
+		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4,
 			int a5, const RealVector3D *a6, int a7, int a8, RealVector3D *newPosition, char a10))(0x715E90);
 
 		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
@@ -1341,7 +1343,7 @@ namespace
 				const auto &modelobjectData = hlmtDef->ModelObjectData.Elements[0];
 				if (modelobjectData.Radius > boundingRadius)
 					boundingRadius = modelobjectData.Radius;
-			}			
+			}
 		}
 
 		if (boundingRadius < 0.000099999997f)
@@ -1429,14 +1431,20 @@ namespace
 		sub_A667F0(lightDatumIndex, a2, intensity, a4);
 	}
 
-	struct ScreenEffectDatum
+	struct ScreenEffectDatum : Blam::DatumBase
 	{
-		uint32_t Unknown00;
+		uint8_t Unknown02;
+		uint8_t Unknown03;
 		uint32_t TagIndex;
-		uint32_t Unknown08;
+		float SecondsAlive;
 		RealVector3D Position;
 		uint32_t ObjectIndex;
-		uint32_t Unknown1c[0x2c];
+		uint32_t Unknown1C;
+		uint32_t Unknown20;
+		uint32_t Unknown24;
+		uint32_t Unknown28;
+		RealVector3D Unknown2C;
+		uint32_t Unknown38;
 	};
 
 	struct ScreenEffectData
@@ -1445,63 +1453,130 @@ namespace
 		float PrimaryHue;
 		float SecondaryHue;
 		float Saturation;
-		float ColorMuting;
-		float Brightness;
-		float Darkness;
+		float Desaturation;
+		float GammaIncrease;
+		float GammaDecrease;
 		float ShadowBrightness;
-		RealColorRGB TintColor;
-		RealColorRGB ToneColor;
+		RealColorRGB ColorFilter;
+		RealColorRGB ColorFloor;
 		float Tracing;
-		float field_3C;
+		float Turbulance;
 	};
 
-	void RenderScreenEffect(ScreenEffectDatum *screenEffectDatum, ScreenEffectData* data, float t)
+	void FillScreenEffectRenderData(Blam::Tags::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
 	{
-		if (!screenEffectDatum->ObjectIndex || screenEffectDatum->ObjectIndex == -1)
-			return;
-
-		auto object = Blam::Objects::Get(screenEffectDatum->ObjectIndex);
-		if (!object || object->PlacementIndex == -1)
-			return;
-
-		auto sefc = Blam::Tags::TagInstance(screenEffectDatum->TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
-		if (!sefc)
-			return;
-
-		auto props = object->GetMultiplayerProperties();
-
-		auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
-
-		// need to rethink this
-		auto& screenEffectDefinition = sefc->ScreenEffect2.Elements[0];
-		screenEffectDefinition.MaximumDistance = std::max<int>(1, properties->Range);
-
-		data->TintColor.Red = (properties->TintR / 255.0f * t) + (1.0f - t);
-		data->TintColor.Green = (properties->TintG / 255.0f * t) + (1.0f - t);;
-		data->TintColor.Blue = (properties->TintB / 255.0f * t) + (1.0f - t);
-		data->Saturation = properties->Saturation / 255.0f * t;
-		data->PrimaryHue = (properties->Hue / 255.0f) * 360 * t;
-		data->Brightness = properties->Brightness / 255.0f * t;
-		data->Darkness = properties->Darkness / 255.0f * t;
-		data->LightIntensity = properties->LightIntensity / 255.0f * 5.0f * t;
-		data->ColorMuting = properties->ColorMuting / 255.0f * t;
+		data->LightIntensity = std::max(screenEffectDef.LightIntensity, data->LightIntensity);
+		data->PrimaryHue = std::max(screenEffectDef.PrimaryHue*t, data->PrimaryHue);
+		data->SecondaryHue = std::max(screenEffectDef.SecondaryHue*t, data->SecondaryHue);
+		data->Saturation = std::max(screenEffectDef.Saturation*t, data->Saturation);
+		data->Desaturation = std::max(screenEffectDef.Desaturation*t, data->Desaturation);
+		data->GammaIncrease = std::max(screenEffectDef.GammaIncrease*t, data->GammaIncrease);
+		data->GammaDecrease = std::max(screenEffectDef.GammaDecrease*t, data->GammaDecrease);
+		data->ShadowBrightness = std::max(screenEffectDef.ShadowBrightness*t, data->ShadowBrightness);
+		data->ColorFilter.Red = std::min(screenEffectDef.ColorFilter.Red*t + (1.0f - t), data->ColorFilter.Red);
+		data->ColorFilter.Green = std::min(screenEffectDef.ColorFilter.Green*t + (1.0f - t), data->ColorFilter.Green);
+		data->ColorFilter.Blue = std::min(screenEffectDef.ColorFilter.Blue*t + (1.0f - t), data->ColorFilter.Blue);
+		data->ColorFloor.Red = std::max(screenEffectDef.ColorFloor.Red*t, data->ColorFloor.Red);
+		data->ColorFloor.Green = std::max(screenEffectDef.ColorFloor.Green*t, data->ColorFloor.Green);
+		data->ColorFloor.Blue = std::max(screenEffectDef.ColorFloor.Blue*t, data->ColorFloor.Blue);
+		data->Tracing = std::max(screenEffectDef.Tracing*t, data->Tracing);
+		data->Turbulance = std::max(screenEffectDef.Turbulance*t, data->Turbulance);
 	}
 
-	__declspec(naked) void RenderScreenEffectHook()
+	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex)
 	{
-		__asm
+		const auto sub_683190 = (void(*)(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *data, int a4, int a5))(0x683190);
+		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
+		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, int a3, float a4, int a5, void * a6))(0x682A90);
+		const auto sub_A44FD0 = (bool(*)(int localPlayerIndex, uint32_t objectIndex))(0xA44FD0);
+		const auto sub_4EEC40 = (float(*)(RealVector3D *position, RealVector3D *forward))(0x4EEC40);
+		const auto sub_5F0C20 = (void(__thiscall *)(void *thisptr))(0x005F0C20);
+		const auto sub_6D67E0 = (char(*)(unsigned int flags, int a2, char a3, RealVector3D *a4, RealVector3D *a5, int a6, int a7, int a8, void *a9))(0x6D67E0);
+		const auto GetLocalPlayerUnitObjectIndex = (uint32_t(*)(int localPlayerIndex))(0x00589CC0);
+
+		renderData->LightIntensity = 0;
+		renderData->PrimaryHue = 0;
+		renderData->SecondaryHue = 0;
+		renderData->Saturation = 0;
+		renderData->Desaturation = 0;
+		renderData->GammaIncrease = 0;
+		renderData->GammaDecrease = 0;
+		renderData->ShadowBrightness = 0;
+		renderData->ColorFilter = { 1.0, 1.0, 1.0 };
+		renderData->ColorFloor = { 0.0, 0.0, 0.0 };
+		renderData->Tracing = 0;
+		renderData->Turbulance = 0;
+
+		if (!a4)
+			return;
+
+		*(DWORD *)((uint8_t*)a4 + 0x120) = 0;
+
+		auto &screenEffectDatumArray = ElDorito::GetMainTls(0x338)[0].Read<Blam::DataArray<ScreenEffectDatum>>();
+		for (auto &screenEffectDatum : screenEffectDatumArray)
 		{
-			sub esp, 4
-			movss  dword ptr[esp], xmm4
-			push[ebp + 0x10]
-			mov edi, [ebp - 0x88]
-			sub edi, 0xc
-			push edi
-			call RenderScreenEffect
-			add esp, 0xC
-			mov eax, 0x682A90
-			mov ecx, [ebp+0x14]
-			jmp eax
+			auto sefc = Blam::Tags::TagInstance(screenEffectDatum.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
+			if (!sefc || sefc->ScreenEffect2.Count <= 0)
+				continue;
+			auto screenEffectDef = sefc->ScreenEffect2.Elements[0];
+			if (screenEffectDef.Duration > 0 && screenEffectDatum.SecondsAlive > screenEffectDef.Duration)
+				continue;
+
+			if (screenEffectDef.Flags & 0xC && screenEffectDatum.Unknown02 == 1)
+			{
+				if (!(screenEffectDef.Flags & 0x20) || screenEffectDatum.ObjectIndex == GetLocalPlayerUnitObjectIndex(localPlayerIndex))
+				{
+					auto v25 = sub_A44FD0(localPlayerIndex, screenEffectDatum.ObjectIndex);
+					if ((!(screenEffectDef.Flags & 4) || v25) && (!(screenEffectDef.Flags & 8) || !v25))
+						continue;
+				}
+			}
+
+			uint8_t a9[0x70];
+
+			if (!(screenEffectDef.Flags & 0x10) || (sub_5F0C20(&a9[24]), *(WORD *)&a9[32] = -1,
+				!sub_6D67E0(*(uint32_t*)0x0471A8D0, *(uint32_t*)0x471A8D4, 0, a1, &screenEffectDatum.Position, -1, -1, -1, a9)))
+			{
+				auto object = Blam::Objects::Get(screenEffectDatum.ObjectIndex);
+				if (object && object->PlacementIndex != -1)
+				{
+					auto props = object->GetMultiplayerProperties();
+					auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
+					if (properties)
+					{
+						screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
+						screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
+						screenEffectDef.Saturation = properties->Saturation / 255.0f;
+						screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
+						screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
+						screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
+						screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
+						screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
+						screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
+						screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
+						screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
+						screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
+						screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
+						screenEffectDef.Tracing = properties->Tracing / 100.0f;
+					}
+				}
+
+				auto d = screenEffectDatum.Position - *a1;
+				auto v60 = sub_4EEC40(&d, a2);
+
+				auto distance = d.Length();
+
+				float f = 0;
+				auto t = sub_682C10(&screenEffectDef, distance, v60, screenEffectDatum.SecondsAlive, &f);
+				if (t != 0.0f)
+				{
+					if (t > 1.0f)
+						t = 1.0f;
+
+					FillScreenEffectRenderData(screenEffectDef, t, renderData);
+					sub_682A90(a4, &screenEffectDef.ScreenShader, t, v60, -1, &screenEffectDatum.Unknown2C);
+				}
+			}
 		}
 	}
 

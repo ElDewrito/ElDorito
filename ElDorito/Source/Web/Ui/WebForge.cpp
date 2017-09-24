@@ -42,24 +42,32 @@ namespace
 		General_ShapeDepth,
 		General_Material,
 		General_Physics,
+
 		Budget_Minimum,
 		Budget_Maximum,
+
 		Light_ColorR,
 		Light_ColorG,
 		Light_ColorB,
 		Light_ColorIntensity,
 		Light_Intensity,
 		Light_Radius,
+
+		Fx_Range,
+		Fx_LightIntensity,
 		Fx_Hue,
 		Fx_Saturation,
-		Fx_TintR,
-		Fx_TintG,
-		Fx_TintB,
-		Fx_ColorMute,
-		Fx_LightIntensity,
-		Fx_Darkness,
-		Fx_Brightness,
-		Fx_Range
+		Fx_Desaturation,
+		Fx_GammaIncrease,
+		Fx_GammaDecrease,
+		Fx_ColorFilterR,
+		Fx_ColorFilterG,
+		Fx_ColorFilterB,
+		Fx_ColorFloorR,
+		Fx_ColorFloorG,
+		Fx_ColorFloorB,
+		Fx_Tracing
+
 	};
 
 	enum class PropertyDataType
@@ -161,23 +169,23 @@ namespace
 			case PropertyTarget::Light_Radius:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueFloat;
 				break;
-			case PropertyTarget::Fx_TintR:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintR = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFilterR:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFilterR = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::Fx_TintG:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintG = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFilterG:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFilterG = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::Fx_TintB:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->TintB = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFilterB:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFilterB = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::Fx_ColorMute:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorMuting = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFloorR:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFloorR = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::Fx_Brightness:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Brightness = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFloorG:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFloorG = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::Fx_Darkness:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Darkness = int(value.ValueFloat * 255);
+			case PropertyTarget::Fx_ColorFloorB:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFloorB = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Fx_Hue:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Hue = int(value.ValueFloat * 255);
@@ -188,8 +196,20 @@ namespace
 			case PropertyTarget::Fx_Saturation:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Saturation = int(value.ValueFloat * 255);
 				break;
+			case PropertyTarget::Fx_Desaturation:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Desaturation = int(value.ValueFloat * 255);
+				break;
 			case PropertyTarget::Fx_Range:
-				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueInt;
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->MaximumDistance = value.ValueInt;
+				break;
+			case PropertyTarget::Fx_Tracing:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->Tracing = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_GammaIncrease:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->GammaIncrease = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Fx_GammaDecrease:
+				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->GammaDecrease = int(value.ValueFloat * 255);
 				break;
 			}
 		}
@@ -601,16 +621,20 @@ namespace
 		SerializeProperty(writer, "light_color_intensity", lightProperties->ColorIntensity / 255.0f);
 		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
 		SerializeProperty(writer, "light_radius", lightProperties->Range);
-		SerializeProperty(writer, "fx_tint_r", screenFxProperties->TintR / 255.0f);
-		SerializeProperty(writer, "fx_tint_g", screenFxProperties->TintG / 255.0f);
-		SerializeProperty(writer, "fx_tint_b", screenFxProperties->TintB / 255.0f);
-		SerializeProperty(writer, "fx_hue",	screenFxProperties->Hue / 255.0f);
+		SerializeProperty(writer, "fx_color_filter_r", screenFxProperties->ColorFilterR / 255.0f);
+		SerializeProperty(writer, "fx_color_filter_g", screenFxProperties->ColorFilterG / 255.0f);
+		SerializeProperty(writer, "fx_color_filter_b", screenFxProperties->ColorFilterB / 255.0f);
+		SerializeProperty(writer, "fx_color_floor_r", screenFxProperties->ColorFloorR / 255.0f);
+		SerializeProperty(writer, "fx_color_floor_g", screenFxProperties->ColorFloorG / 255.0f);
+		SerializeProperty(writer, "fx_color_floor_b", screenFxProperties->ColorFloorB / 255.0f);
+		SerializeProperty(writer, "fx_hue", screenFxProperties->Hue / 255.0f);
 		SerializeProperty(writer, "fx_saturation", screenFxProperties->Saturation / 255.0f);
-		SerializeProperty(writer, "fx_color_mute", screenFxProperties->ColorMuting / 255.0f);
+		SerializeProperty(writer, "fx_desaturation", screenFxProperties->Desaturation / 255.0f);
 		SerializeProperty(writer, "fx_light_intensity", screenFxProperties->LightIntensity / 255.0f);
-		SerializeProperty(writer, "fx_brightness", screenFxProperties->Brightness / 255.0f);
-		SerializeProperty(writer, "fx_darkness", screenFxProperties->Darkness / 255.0f);
-		SerializeProperty(writer, "fx_range", screenFxProperties->Range);
+		SerializeProperty(writer, "fx_gamma_inc", screenFxProperties->GammaIncrease / 255.0f);
+		SerializeProperty(writer, "fx_gamma_dec", screenFxProperties->GammaDecrease / 255.0f);
+		SerializeProperty(writer, "fx_range", screenFxProperties->MaximumDistance);
+		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -651,16 +675,22 @@ namespace
 			{ "light_color_intensity",		{ PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
 			{ "light_intensity",			{ PropertyDataType::Float, PropertyTarget::Light_Intensity }},
 			{ "light_radius",				{ PropertyDataType::Float, PropertyTarget::Light_Radius }},
-			{ "fx_hue",						{ PropertyDataType::Float, PropertyTarget::Fx_Hue}},
-			{ "fx_saturation",				{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
-			{ "fx_tint_r",					{ PropertyDataType::Float, PropertyTarget::Fx_TintR } },
-			{ "fx_tint_g",					{ PropertyDataType::Float, PropertyTarget::Fx_TintG } },
-			{ "fx_tint_b",					{ PropertyDataType::Float, PropertyTarget::Fx_TintB } },
-			{ "fx_color_mute",				{ PropertyDataType::Float, PropertyTarget::Fx_ColorMute } },
-			{ "fx_light_intensity",			{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
-			{ "fx_darkness",				{ PropertyDataType::Float, PropertyTarget::Fx_Darkness } },
-			{ "fx_brightness",				{ PropertyDataType::Float, PropertyTarget::Fx_Brightness } },
+
 			{ "fx_range",					{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
+			{ "fx_hue",						{ PropertyDataType::Float, PropertyTarget::Fx_Hue}},
+			{ "fx_light_intensity",			{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
+			{ "fx_saturation",				{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
+			{ "fx_desaturation",			{ PropertyDataType::Float, PropertyTarget::Fx_Desaturation } },
+			{ "fx_color_filter_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterR } },
+			{ "fx_color_filter_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterG } },
+			{ "fx_color_filter_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterB } },
+			{ "fx_color_floor_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorR } },
+			{ "fx_color_floor_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorG } },
+			{ "fx_color_floor_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorB } },
+			{ "fx_gamma_inc",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
+			{ "fx_gamma_dec",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
+			{ "fx_tracing",					{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
+
 			{ "summary_runtime_minimum",	{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",	{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
 		};
