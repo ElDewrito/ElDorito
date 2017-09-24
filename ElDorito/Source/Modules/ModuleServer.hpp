@@ -19,8 +19,6 @@ namespace Modules
 		Command* VarServerPort;
 		Command* VarServerGamePort;
 		Command* VarServerShouldAnnounce;
-		Command* VarServerMode;
-		Command* VarServerLobbyType;
 		Command* VarServerSprintEnabled;
 		Command* VarServerSprintEnabledClient;
 		Command* VarServerBottomlessClipEnabled;

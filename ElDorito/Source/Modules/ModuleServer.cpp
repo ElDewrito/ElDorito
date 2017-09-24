@@ -838,13 +838,32 @@ namespace
 
 	bool CommandServerMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		auto GetNetworkMode = (int(__cdecl*)())(0x00A7F160);
+		if (Arguments.size() < 1 || Arguments.size() > 1) {
+			returnInfo = std::to_string(GetNetworkMode());
+			return true;
+		}
 
-		typedef bool(__cdecl *SetGameOnlineFunc)(int a1);
-		const SetGameOnlineFunc Server_Set_Mode = reinterpret_cast<SetGameOnlineFunc>(0xA7F950);
-		bool retVal = Server_Set_Mode(Modules::ModuleServer::Instance().VarServerMode->ValueInt);
+		auto previous = std::to_string(GetNetworkMode());
+		auto serverMode = -1;
+		try
+		{
+			serverMode = std::atoi(Arguments[0].c_str());
+		}
+		catch (std::logic_error&)
+		{
+		}
+
+		if (serverMode < 0 || serverMode > 4) {
+			returnInfo = "0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;";
+			return false;
+		}
+
+		auto set_server_mode = (bool(__cdecl*)(int))(0x00A7F950);
+		bool retVal = set_server_mode(serverMode);
 		if (retVal)
 		{
-			returnInfo = "Changed game mode to " + Modules::ModuleServer::Instance().VarServerMode->ValueString;
+			returnInfo = "Changed network mode " + previous + " -> " + std::to_string(serverMode);
 			return true;
 		}
 		returnInfo = "Hmm, weird. Are you at the main menu?";
@@ -853,12 +872,33 @@ namespace
 
 	bool CommandServerLobbyType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		typedef bool(__cdecl *SetLobbyType)(int a1);
-		const SetLobbyType Server_Lobby_Type = reinterpret_cast<SetLobbyType>(0xA7EE70);
-		bool retVal1 = Server_Lobby_Type(Modules::ModuleServer::Instance().VarServerLobbyType->ValueInt);
-		if (retVal1)
+		auto GetlobbyType = (int(__cdecl*)())(0x00435640);
+		if (Arguments.size() < 1 || Arguments.size() > 1) {
+			returnInfo = std::to_string(GetlobbyType());
+			return true;
+		}
+
+		auto previous = std::to_string(GetlobbyType());
+		auto lobbyType = -1;
+		try
 		{
-			returnInfo = "Changed lobby type to " + Modules::ModuleServer::Instance().VarServerLobbyType->ValueString;
+			lobbyType = std::atoi(Arguments[0].c_str());
+		}
+		catch (std::logic_error&)
+		{
+		}
+
+		if (lobbyType < 0 || lobbyType > 4) {
+			returnInfo = "0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;";
+			return false;
+		}
+
+
+		auto set_server_lobby_type = (bool(__cdecl*)(int))(0x00A7EE70);
+		bool retVal = set_server_lobby_type(lobbyType);
+		if (retVal)
+		{
+			returnInfo = "Changed lobby type " + previous + " -> " + std::to_string(lobbyType);
 			return true;
 		}
 		return false;
@@ -1272,13 +1312,9 @@ namespace Modules
 
 		AddCommand("SubmitVote", "submitvote", "Sumbits a vote", eCommandFlagsNone, CommandServerSubmitVote, { "The vote to send to the host" });
 
-		VarServerMode = AddVariableInt("Mode", "mode", "Changes the game mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, 4, CommandServerMode);
-		VarServerMode->ValueIntMin = 0;
-		VarServerMode->ValueIntMax = 4;
+		AddCommand("Mode", "mode", "Changes the network mode for the server. 0 = Xbox Live (Open Party); 1 = Xbox Live (Friends Only); 2 = Xbox Live (Invite Only); 3 = Online; 4 = Offline;", eCommandFlagsNone, CommandServerMode, { "The network mode" });
 
-		VarServerLobbyType = AddVariableInt("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsDontUpdateInitial, 2, CommandServerLobbyType);
-		VarServerLobbyType->ValueIntMin = 0;
-		VarServerLobbyType->ValueIntMax = 4;
+		AddCommand("LobbyType", "lobbytype", "Changes the lobby type for the server. 0 = Campaign; 1 = Matchmaking; 2 = Multiplayer; 3 = Forge; 4 = Theater;", eCommandFlagsNone, CommandServerLobbyType, { "The lobby type" });
 
 		VarServerDedicated = AddVariableInt("Dedicated", "dedicated", "Used only to let clients know if the server is dedicated or not",  eCommandFlagsReplicated, 0);
 		VarServerDedicatedClient = AddVariableInt("DedicatedClient", "dedicated_client", "", eCommandFlagsInternal, 0);
