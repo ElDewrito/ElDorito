@@ -102,6 +102,7 @@ namespace
 			switch (target)
 			{
 			case PropertyTarget::General_OnMapAtStart:
+				SetOnMapAtStart(value.ValueInt);
 				break;
 			case PropertyTarget::General_Symmetry:
 				SetSymmetry(value.ValueInt);
@@ -222,6 +223,14 @@ namespace
 		bool SyncRequired() const
 		{
 			return m_SyncRequired;
+		}
+
+		void SetOnMapAtStart(int value)
+		{
+			if (!value)
+				m_Properties.ObjectFlags |= 2u;
+			else
+				m_Properties.ObjectFlags &= ~2u;
 		}
 
 		void SetSymmetry(int value)
@@ -604,6 +613,7 @@ namespace
 		SerializeProperty(writer, "on_map_at_start", ((properties.ObjectFlags >> 1) & 1) == 0 ? 1 : 0);
 		SerializeProperty(writer, "symmetry", symmetry);
 		SerializeProperty(writer, "respawn_rate", properties.RespawnTime);
+		SerializeProperty(writer, "spawn_order", properties.SharedStorage);
 		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
 		SerializeProperty(writer, "team_affiliation", properties.TeamAffilation);
 		SerializeProperty(writer, "teleporter_channel", properties.SharedStorage);
