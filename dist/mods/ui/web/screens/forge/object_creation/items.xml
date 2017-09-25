@@ -10,21 +10,27 @@
       <item name="Barricade" tagindex="0x34aa" />
       <item name="Barricade, Small" tagindex="0x3fd4" />
       <item name="Dumpster" tagindex="0x4225" />
-      <item name="Sandbag (P)" tagindex="0x444b" />
+      <item name="Sandbag (P)" tagindex="0x444b">
+        <setter target="physics" type="int" value="1" />
+      </item>
       <item name="Barrier" tagindex="0x47f2" />
-      <item name="Barrier_short" tagindex="0x481a" />
+      <item name="Barrier, Short" tagindex="0x481a" />
       <item name="Roadblock" tagindex="0x2eb8" />
     </category>
     <category name="Crates">
       <item name="Ammo Case" tagindex="0x47b1" />
-      <item name="Crate, Single_large" tagindex="0x2eb4" />
+      <item name="Crate, Single, Large" tagindex="0x2eb4" />
       <item name="Crate, Single" tagindex="0x2eb3" />
-      <item name="Crate, Multi (P)" tagindex="0x4221" />
-      <item name="Crate, Multi (P)_single" tagindex="0x444c" />
+      <item name="Crate, Multi, Destructible" tagindex="0x4221">
+        <setter target="physics" type="int" value="1" />
+      </item>
+      <item name="Crate, Multi" tagindex="0x444c">
+        <setter target="physics" type="int" value="1" />
+      </item>
       <item name="Container, Open" tagindex="0x5189" />
       <item name="Container" tagindex="0x517a" />
       <item name="Equipment Case" tagindex="0x34a6" />
-      <item name="Equipment Case_ap_turret" tagindex="0x2ebc" />
+      <item name="Equipment Case, Large" tagindex="0x2ebc" />
       <item name="Cabinet" tagindex="0x4224" />
       <item name="Metal Crate, Small" tagindex="0x4220" />
       <item name="Supply Case" tagindex="0x34c0" />
@@ -193,7 +199,7 @@
     <category name="Tech">
       <item name="Telephone" tagindex="0x546b" />
       <item name="Computer" tagindex="0x5427" />
-      <item name="Computer_small_crashed" tagindex="0x5441" />
+      <item name="Computer, Small" tagindex="0x5441" />
       <item name="Industrial Cart" tagindex="0x444a" />
       <item name="Generator, Small" tagindex="0x2ebd" />
       <item name="Floodlights" tagindex="0x47bb" />
@@ -203,8 +209,8 @@
       <item name="Grav Lift" tagindex="0x2ebf" />
       <item name="Cannon, Man" tagindex="0x4e46" />
       <item name="Forklift" tagindex="0x4965" />
-      <item name="Shield Door, Large (P)" tagindex="0x4e2b" />
-      <item name="Shield Door (P)" tagindex="0x4e41" />
+      <item name="Shield Door, Large" tagindex="0x4e2b" />
+      <item name="Shield Door" tagindex="0x4e41" />
     </category>
   </category>
   <category name="Structure" id="structure">
@@ -217,21 +223,21 @@
         <item name="Flare" tagindex="0x1565" />
         <item name="Grav Lift" tagindex="0x2ea9" />
         <item name="Deployable Cover" tagindex="0x1569" />
-        <item name="Radar Jammer" tagindex="0x1560" />
-        <item name="Trip Mine" tagindex="0x1567" />
         <item name="Power Drain" tagindex="0x1561" />
+        <item name="Radar Jammer" tagindex="0x1560" />
         <item name="Regenerator, Small" tagindex="0x1566" />
+        <item name="Trip Mine" tagindex="0x1567" />
       </category>
       <category name="Armor Abilities">
         <item name="Bomb Run" tagindex="0x1570" />
         <item name="Concussive Blast" tagindex="0x156b" />
         <item name="Hologram" tagindex="0x156e" />
         <item name="Invincibility" tagindex="0x1a6c" />
-        <item name="Vehicle Camo" tagindex="0x1563" />
         <item name="Lightning Strike" tagindex="0x1573" />
-        <item name="Mag Pulse" tagindex="0x156d" />
-        <item name="Reactive Armor" tagindex="0x156f" />
+        <item name="Reflective Shield" tagindex="0x156f" />
         <item name="Roadblock" tagindex="0x1571" />
+        <item name="Shockwave" tagindex="0x156d" />
+        <item name="Vehicle Camo" tagindex="0x1563" />
         <item name="Vision" tagindex="0x1577" />
       </category>
       <category name="Grenades">
@@ -318,9 +324,9 @@
     </category>
     <category name="Vehicles">
       <category name="Vehicles Heavy">
-        <item name="Wraith" tagindex="0x1519" />
-        <item name="Wraith1" tagindex="0x4449" />
         <item name="Scorpion" tagindex="0x1520" />
+        <item name="Wraith" tagindex="0x1519" />
+        <item name="Wraith, Anti-Air" tagindex="0x4449" />
       </category>
       <category name="Vehicles Land">
         <item name="Chopper" tagindex="0x1518" />
@@ -329,80 +335,82 @@
         <item name="Mongoose" tagindex="0x1596" />
         <item name="Shade Turret" tagindex="0x1516" />
         <item name="Warthog" tagindex="0x151f" />
-        <item name="Warthog_01" tagindex="0x4442" />
-        <item name="Warthog_02" tagindex="0x4443" />
-        <item name="Warthog_03" tagindex="0x4447" />
-        <item name="Warthog_04" tagindex="0x4444" />
-        <item name="Warthog_05" tagindex="0x4445" />
-        <item name="Warthog_06" tagindex="0x4446" />
-        <item name="Warthog_07" tagindex="0x4448" />
-        <item name="Warthog_gauss" tagindex="0x4441" />
-        <item name="Warthog_snow" tagindex="0x1599" />
+        <item name="Warthog, Snow" tagindex="0x1599" />
+        <item name="Warthog, Civilian" tagindex="0x4443" />
+        <item name="Warthog, Civilian, Snow" tagindex="0x4446" />
+        <item name="Warthog, Destroyed" tagindex="0x4447" />
+        <item name="Warthog, Destroyed, Snow" tagindex="0x4448" />
+        <item name="Warthog, Gauss" tagindex="0x4441" />
+        <item name="Warthog, Gauss, Snow" tagindex="0x4444" />
+        <item name="Warthog, Troop" tagindex="0x4442" />
+        <item name="Warthog, Troop, Snow" tagindex="0x4445" />
       </category>
       <category name="Vehicles Flying">
         <item name="Banshee" tagindex="0x151a" />
         <item name="Hornet" tagindex="0x1598" />
-        <item name="Hornet_lite" tagindex="0x159b" />
+        <item name="Hornet, Lite" tagindex="0x159b" />
       </category>
     </category>
     <category name="weapons">
       <category name="Assault Rifles">
         <item name="Assault Rifle" tagindex="0x151e" />
-        <item name="Assault Rifle_v2" tagindex="0x1581" />
-        <item name="Assault Rifle_v3" tagindex="0x1582" />
-        <item name="Assault Rifle_v5" tagindex="0x1583" />
-        <item name="Assault Rifle_v6" tagindex="0x1584" />
+        <item name="Assault Rifle, Accuracy" tagindex="0x1583" />
+        <item name="Assault Rifle, Damage" tagindex="0x1581" />
+        <item name="Assault Rifle, Power" tagindex="0x1584" />
+        <item name="Assault Rifle, Rate of Fire" tagindex="0x1582" />
       </category>
       <category name="Battle Rifles">
         <item name="Battle Rifle" tagindex="0x157c" />
-        <item name="Battle Rifle_v1" tagindex="0x15bb" />
-        <item name="Battle Rifle_v2" tagindex="0x15bc" />
-        <item name="Battle Rifle_v3" tagindex="0x1585" />
-        <item name="Battle Rifle_v4" tagindex="0x1586" />
-        <item name="Battle Rifle_v5" tagindex="0x15bd" />
-        <item name="Battle Rifle_v6" tagindex="0x1587" />
+        <item name="Battle Rifle, Accuracy" tagindex="0x15bc" />
+        <item name="Battle Rifle, Ammo" tagindex="0x1585" />
+        <item name="Battle Rifle, Damage" tagindex="0x1586" />
+        <item name="Battle Rifle, Power" tagindex="0x1587" />
+        <item name="Battle Rifle, Range" tagindex="0x15bd" />
+        <item name="Battle Rifle, Rate of Fire" tagindex="0x15bb" />
       </category>
       <category name="SMGs">
         <item name="SMG" tagindex="0x157d" />
-        <item name="SMG_v1" tagindex="0x158c" />
-        <item name="SMG_v2" tagindex="0x158d" />
-        <item name="SMG_v4" tagindex="0x158e" />
-        <item name="SMG_v6" tagindex="0x158f" />
+        <item name="SMG, Accuracy" tagindex="0x158d" />
+        <item name="SMG, Damage" tagindex="0x158e" />
+        <item name="SMG, Power" tagindex="0x158f" />
+        <item name="SMG, Rate of Fire" tagindex="0x158c" />
       </category>
       <category name="DMRs">
         <item name="DMR" tagindex="0x1580" />
-        <item name="DMR_v1" tagindex="0x15be" />
-        <item name="DMR_v2" tagindex="0x1588" />
-        <item name="DMR_v3" tagindex="0x1589" />
-        <item name="DMR_v4" tagindex="0x158a" />
-        <item name="DMR_v5" tagindex="0x15bf" />
-        <item name="DMR_v6" tagindex="0x158b" />
+        <item name="DMR, Accuracy" tagindex="0x1588" />
+        <item name="DMR, Ammo" tagindex="0x15be" />
+        <item name="DMR, Damage" tagindex="0x158a" />
+        <item name="DMR, Power" tagindex="0x158b" />
+        <item name="DMR, Range" tagindex="0x15bf" />
+        <item name="DMR, Rate of Fire" tagindex="0x1589" />
       </category>
       <category name="Carbines">
         <item name="Covenant Carbine" tagindex="0x14fe" />
-        <item name="Covenant Carbine_v1" tagindex="0x15c0" />
-        <item name="Covenant Carbine_v2" tagindex="0x15c1" />
-        <item name="Covenant Carbine_v3" tagindex="0x15c2" />
-        <item name="Covenant Carbine_v4" tagindex="0x15c3" />
-        <item name="Covenant Carbine_v5" tagindex="0x15c4" />
-        <item name="Covenant Carbine_v6" tagindex="0x1591" />
+        <item name="Covenant Carbine, Accuracy" tagindex="0x15c4" />
+        <item name="Covenant Carbine, Ammo" tagindex="0x15c1" />
+        <item name="Covenant Carbine, Damage" tagindex="0x15c3" />
+        <item name="Covenant Carbine, Power" tagindex="0x1591" />
+        <item name="Covenant Carbine, Range" tagindex="0x15c2" />
+        <item name="Covenant Carbine, Rate of Fire" tagindex="0x15c0" />
       </category>
       <category name="Pistols">
         <item name="Mauler" tagindex="0x1504" />
-        <item name="Mauler_v3" tagindex="0x1592" />
+        <item name="Mauler, Power" tagindex="0x1592" />
         <item name="Magnum" tagindex="0x157e" />
-        <item name="Magnum_v2" tagindex="0x1593" />
-        <item name="Magnum_v3" tagindex="0x1594" />
+        <item name="Magnum, Damage" tagindex="0x1593" />
+        <item name="Magnum, Power" tagindex="0x1594" />
         <item name="Plasma Pistol" tagindex="0x14f7" />
-        <item name="Plasma Pistol_v3" tagindex="0x1595" />
+        <item name="Plasma Pistol, Power" tagindex="0x1595" />
       </category>
       <category name="Turrets">
         <item name="Machine Gun Turret" tagindex="0x284c" />
+        <item name="Machine Gun Turret, Detached" tagindex="0x15b5" />
         <item name="Plasma Cannon" tagindex="0x14fb" />
-        <item name="Plasma Cannon Weapon" tagindex="0x150e" />
-        <item name="Missile Pod" tagindex="0x1a54" />
-        <item name="Missile Pod Vehicle" tagindex="0x3a18" />
-        <item name="Machinegun Turret Weapon" tagindex="0x15b5" />
+        <item name="Plasma Cannon, Detached" tagindex="0x150e" />
+        <item name="Missile Pod" tagindex="0x3a18">
+          <setter target="physics" type="int" value="1" />
+        </item>
+        <item name="Missile Pod, Detached" tagindex="0x1a54" />
       </category>
       <category name="Power Weapons">
         <item name="Brute Shot" tagindex="0x14ff" />
@@ -415,7 +423,7 @@
         <item name="Sentinel Beam" tagindex="0x1a56" />
         <item name="Spiker" tagindex="0x1500" />
         <item name="Plasma Rifle" tagindex="0x1525" />
-        <item name="Plasma Rifle_v6" tagindex="0x1590" />
+        <item name="Plasma Rifle, Power" tagindex="0x1590" />
         <item name="Rocket Launcher" tagindex="0x15b3" />
         <item name="Shotgun" tagindex="0x1a45" />
         <item name="Beam Rifle" tagindex="0x1509" />
