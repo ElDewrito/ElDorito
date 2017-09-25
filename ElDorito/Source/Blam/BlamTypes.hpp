@@ -237,7 +237,7 @@ namespace Blam
 		float WorldBoundsYMax;
 		float WorldBoundsZMin;
 		float WorldBoundsZMax;
-		uint32_t Unknown11C;
+		uint32_t ContentType;
 		float MaxBudget;
 		float CurrentBudget;
 		uint32_t Unknown128;

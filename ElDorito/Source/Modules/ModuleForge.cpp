@@ -187,7 +187,7 @@ namespace
 
 			
 				if (!(engineFlags & 0x3FF) || engineFlags == 0x3FF ||
-					mapv->Unknown11C != 10 && uint16_t(1 << mapv->Unknown11C) & engineFlags)
+					mapv->ContentType != 10 && uint16_t(1 << mapv->ContentType) & engineFlags)
 				{
 					const char* asciiName = UI_GetString(0x1221, item.Name, lanquageId);
 					char tagIndexStr[8];

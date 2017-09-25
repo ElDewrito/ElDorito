@@ -1275,8 +1275,21 @@ namespace
 	{
 		static auto c_map_variant_update_item_budget = (void(__thiscall *)(Blam::MapVariant *thisptr, int budgetIndex, char arg_4))(0x00584E10);
 		c_map_variant_update_item_budget(thisptr, budgetIndex, arg_4);
+		const auto IsForge = (bool(*)())(0x0059A780);
 
 		auto& budget = thisptr->Budget[budgetIndex];
+	
+		if (IsForge())
+		{
+			auto objectDef = Blam::Tags::TagInstance(budget.TagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+			if (objectDef && objectDef->MultiplayerProperties.Count)
+			{
+				auto engineFlags = objectDef->MultiplayerProperties.Elements[0].EngineFlags;
+				if (uint16_t(1 << thisptr->ContentType) & uint16_t(engineFlags));
+					return;
+			}
+		}
+	
 		if (!budget.CountOnMap)
 		{
 			budget.TagIndex = -1;
