@@ -34,6 +34,6 @@ namespace Patches::Sprint
 		// Show/hide the sprint meter
 		auto persistentUserDataChud = ElDorito::GetMainTls(GameGlobals::PersistentUserDataChud::TLSOffset)[0];
 		if (persistentUserDataChud)
-			persistentUserDataChud(GameGlobals::PersistentUserDataChud::SprintMeterOffset).Write<bool>(sprintEnabled);
+			persistentUserDataChud(GameGlobals::PersistentUserDataChud::SprintMeterOffset).WriteFast<bool>(sprintEnabled);
 	}
 }

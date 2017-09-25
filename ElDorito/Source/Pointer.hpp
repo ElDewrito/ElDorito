@@ -119,6 +119,12 @@ public:
 		VirtualProtect(_Pointer, sizeof(T), temp, &temp2);
 	}
 
+	template <class T>
+	inline void WriteFast(const T value) const
+	{
+		*((T*)_Pointer) = value;
+	}
+
 	inline void Write(const void* data, size_t size) const
 	{
 		DWORD temp;

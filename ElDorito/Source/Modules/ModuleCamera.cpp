@@ -535,18 +535,18 @@ namespace Modules
 		}
 
 		// update position
-		directorGlobalsPtr(0x834).Write<float>(xPos);
-		directorGlobalsPtr(0x838).Write<float>(yPos);
-		directorGlobalsPtr(0x83C).Write<float>(zPos);
+		directorGlobalsPtr(0x834).WriteFast<float>(xPos);
+		directorGlobalsPtr(0x838).WriteFast<float>(yPos);
+		directorGlobalsPtr(0x83C).WriteFast<float>(zPos);
 
 		// update look angles
-		directorGlobalsPtr(0x85C).Write<float>(cos(hLookAngle) * cos(vLookAngle));
-		directorGlobalsPtr(0x860).Write<float>(sin(hLookAngle) * cos(vLookAngle));
-		directorGlobalsPtr(0x864).Write<float>(sin(vLookAngle));
-		directorGlobalsPtr(0x868).Write<float>(-cos(hLookAngle) * sin(vLookAngle));
-		directorGlobalsPtr(0x86C).Write<float>(-sin(hLookAngle) * sin(vLookAngle));
-		directorGlobalsPtr(0x870).Write<float>(cos(vLookAngle));
+		directorGlobalsPtr(0x85C).WriteFast<float>(cos(hLookAngle) * cos(vLookAngle));
+		directorGlobalsPtr(0x860).WriteFast<float>(sin(hLookAngle) * cos(vLookAngle));
+		directorGlobalsPtr(0x864).WriteFast<float>(sin(vLookAngle));
+		directorGlobalsPtr(0x868).WriteFast<float>(-cos(hLookAngle) * sin(vLookAngle));
+		directorGlobalsPtr(0x86C).WriteFast<float>(-sin(hLookAngle) * sin(vLookAngle));
+		directorGlobalsPtr(0x870).WriteFast<float>(cos(vLookAngle));
 
-		directorGlobalsPtr(0x858).Write<float>(fov);
+		directorGlobalsPtr(0x858).WriteFast<float>(fov);
 	}
 }

@@ -432,7 +432,7 @@ namespace
 			//Prevent an overflow
 			if (rY == -32768)
 				rY++;
-			Pointer(controllerState)(0x3A).Write<short>(rY * -1);
+			Pointer(controllerState)(0x3A).WriteFast<short>(rY * -1);
 		}
 
 		return val;

@@ -882,7 +882,7 @@ namespace
 
 				// set the team index to match the zone
 				auto zoneTeamIndex = placement.Properties.TeamAffilation;
-				mpPropertiesPtr(0xA).Write<uint8_t>(zoneTeamIndex);
+				mpPropertiesPtr(0xA).WriteFast<uint8_t>(zoneTeamIndex);
 			}
 		}
 	}

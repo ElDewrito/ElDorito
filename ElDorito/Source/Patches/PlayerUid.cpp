@@ -125,7 +125,7 @@ namespace
 		SHA256_Final(hash, &sha256);
 		memcpy(&uid, hash, sizeof(uint64_t)); // use first 8 bytes of SHA256(pubKey) as UID
 
-		UidPtr.Write<uint64_t>(uid);
+		UidPtr.WriteFast<uint64_t>(uid);
 		UidValidPtr.Write(true);
 	}
 

@@ -1061,7 +1061,7 @@ namespace
 
 		while (true)
 		{
-			Pointer(0x1860454).Write<uint32_t>(port);
+			Pointer(0x1860454).WriteFast<uint32_t>(port);
 			success = Network_link_create_endpoint(0, (short)port, 1, socket);
 
 			if (success)
@@ -1075,7 +1075,7 @@ namespace
 
 			if (++port - Modules::ModuleServer::Instance().VarServerGamePort->ValueInt >= 1000)
 			{
-				Pointer(0x1860454).Write<uint32_t>(Modules::ModuleServer::Instance().VarServerGamePort->ValueInt);
+				Pointer(0x1860454).WriteFast<uint32_t>(Modules::ModuleServer::Instance().VarServerGamePort->ValueInt);
 				return success;
 			}
 		}
@@ -1141,7 +1141,7 @@ namespace
 
 	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data)
 	{
-		Pointer(data)(0xA).Write<uint8_t>(1); // flag the direction vector to be serialized
+		Pointer(data)(0xA).WriteFast<uint8_t>(1); // flag the direction vector to be serialized
 
 		auto SendSimulationDamageAftermathEvent = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
 		SendSimulationDamageAftermathEvent(a1, a2, a3, playerIndex, size, data);

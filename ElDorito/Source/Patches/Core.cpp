@@ -264,7 +264,7 @@ namespace
 		auto engineGobals = engineGlobalsPtr[0];
 
 		// fix in-game team switching for engines that support it
-		engineGobals(0x8).Write(engineGobals(0x4).Read<uint32_t>());
+		engineGobals(0x8).WriteFast(engineGobals(0x4).Read<uint32_t>());
 
 		for (auto& callback : gameStartCallbacks)
 			callback();
@@ -354,7 +354,7 @@ namespace
 	{
 		static auto& modulePlayer = Modules::ModulePlayer::Instance();
 
-		Pointer(a3)(0xAC).Write<float>(0.5f);
+		Pointer(a3)(0xAC).WriteFast<float>(0.5f);
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);

@@ -196,8 +196,8 @@ namespace
 			auto sub_4B3010 = (int(__cdecl *)(int objectIndex, void* a2))(0x4B3010);
 
 			sub_B40A70(unitObjectIndex, primaryEquipmentObjectIndex, 1);
-			unitObject(0x2F0).Write<uint32_t>(-1);
-			unitObject(0x310).Write<uint32_t>(-1);
+			unitObject(0x2F0).WriteFast<uint32_t>(-1);
+			unitObject(0x310).WriteFast<uint32_t>(-1);
 
 			uint8_t unknown[8] = { 0 };
 			sub_4B1E70(unknown, unitObjectIndex, 0x1Cu);
@@ -353,8 +353,8 @@ namespace
 		{
 			// sets up the swap action
 			Pointer p(pControlGlobalActionState);
-			p.Write<uint8_t>(2);
-			p(0x4).Write<uint32_t>(objectIndex);
+			p.WriteFast<uint8_t>(2);
+			p(0x4).WriteFast<uint32_t>(objectIndex);
 		}
 	}
 
@@ -582,7 +582,7 @@ namespace
 
 				Objects_InitializeNewObject(objectData, blockElem.Equipment.TagIndex, unitObjectIndex, 0);
 
-				Pointer(objectData)(0x1c).Write(unitPosition);
+				Pointer(objectData)(0x1c).WriteFast(unitPosition);
 
 				auto grenadeObjectIndex = Objects_SpawnObject(objectData);
 				auto grenadeObjectDatum = objects->Get(grenadeObjectIndex);

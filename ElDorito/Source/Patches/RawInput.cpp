@@ -117,8 +117,8 @@ namespace
 
 		currentHoriz -= (float)rwInput->data.mouse.lLastX * xaxisSens / 1000.0f / weaponSensitivity;
 
-		horizPtr.Write(currentHoriz);
-		vertPtr.Write(currentVert);
+		horizPtr.WriteFast(currentHoriz);
+		vertPtr.WriteFast(currentVert);
 		return true;
 	}
 
