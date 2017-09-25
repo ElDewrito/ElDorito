@@ -83,9 +83,8 @@ namespace
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
-	uint32_t __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
-		RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
-		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
+	void MapVariant_SpawnObjectHook();
+	void MapVariant_AssignPlacementHook();
 
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
@@ -185,7 +184,7 @@ namespace Patches::Forge
 		// increase forge item limit
 		Hook(0x151506, c_map_variant_initialize_from_scenario_hook, HookFlags::IsCall).Apply();
 		Hook(0x185DC1, c_map_variant_update_item_budget_hook, HookFlags::IsCall).Apply();
-		Hook(0x181F30, c_map_variant_spawn_object_hook, HookFlags::IsCall).Apply();
+		Hook(0x182110, MapVariant_SpawnObjectHook).Apply();
 		Hook(0x19AEE6, SpawnItemHook, HookFlags::IsCall).Apply();
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
@@ -1285,7 +1284,7 @@ namespace
 			if (objectDef && objectDef->MultiplayerProperties.Count)
 			{
 				auto engineFlags = objectDef->MultiplayerProperties.Elements[0].EngineFlags;
-				if (uint16_t(1 << thisptr->ContentType) & uint16_t(engineFlags));
+				if (uint32_t(engineFlags))
 					return;
 			}
 		}
@@ -1301,20 +1300,22 @@ namespace
 		}
 	}
 
-	uint32_t __fastcall c_map_variant_spawn_object_hook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
-		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
-		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags)
+	__declspec(naked) void MapVariant_SpawnObjectHook()
 	{
-		const auto c_map_variant_spawn_object = (uint32_t(__thiscall *)(MapVariant *thisptr, uint32_t tagIndex, int a3, int placementIndex,
-			RealVector3D *positionVec, RealVector3D *rightVec, RealVector3D *upVec,
-			int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags))(0x00582110);
-
-		CreateOrGetBudgetForItem(thisptr, tagIndex);
-
-		auto objectIndex = c_map_variant_spawn_object(thisptr, tagIndex, a3, placementIndex,
-			position, forward, up, scenarioPlacementIndex, objectType, placementProps, placementFlags);
-
-		return objectIndex;
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			sub esp, 0x194
+			pushad
+			push[ebp + 0x8]
+			push ecx
+			call CreateOrGetBudgetForItem
+			add esp, 8
+			popad
+			mov eax, 0x00582119
+			jmp eax
+		}
 	}
 
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
@@ -1676,6 +1677,5 @@ namespace
 
 		if (!is_client())
 			::Forge::KillVolumes::Update();
-
 	}
 }
