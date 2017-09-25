@@ -171,6 +171,7 @@ namespace Patches::Ui
 
 		// Fix "Network" setting in lobbies (change broken 0x100B7 menuID to 0x100B6)
 		Patch(0x6C34B0, { 0xB6 }).Apply();
+		Patch(0x705B21, { 0xB6 }).Apply();
 
 		// Fix gamepad option in settings (todo: find out why it doesn't detect gamepads
 		// and find a way to at least enable pressing ESC when gamepad is enabled)
@@ -210,10 +211,6 @@ namespace Patches::Ui
 
 		// Localized string override hook
 		Hook(0x11E040, LocalizedStringHook).Apply();
-
-		// Remove "BUILT IN" text when choosing map/game variants by feeding the UI_SetVisiblityOfElement func a nonexistant string ID for the element (0x202E8 instead of 0x102E8)
-		// TODO: find way to fix this text instead of removing it, since the 0x102E8 element (subitem_edit) is used for other things like editing/viewing map variant metadata
-		Patch(0x705D6F, { 0x2 }).Apply();
 
 		// Hook window title sprintf to replace the dest buf with our string
 		Hook(0x2EB84, WindowTitleSprintfHook, HookFlags::IsCall).Apply();
