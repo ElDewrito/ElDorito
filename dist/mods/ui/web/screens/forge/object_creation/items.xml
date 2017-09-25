@@ -229,8 +229,8 @@
         <item name="Invincibility" tagindex="0x1a6c" />
         <item name="Vehicle Camo" tagindex="0x1563" />
         <item name="Lightning Strike" tagindex="0x1573" />
-        <item name="Mag Pulse" tagindex="0x156d" />
-        <item name="Reactive Armor" tagindex="0x156f" />
+        <item name="Shockwave" tagindex="0x156d" />
+        <item name="Reflective Shield" tagindex="0x156f" />
         <item name="Roadblock" tagindex="0x1571" />
         <item name="Vision" tagindex="0x1577" />
       </category>
