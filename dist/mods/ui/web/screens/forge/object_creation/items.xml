@@ -220,19 +220,19 @@
         <item name="Radar Jammer" tagindex="0x1560" />
         <item name="Trip Mine" tagindex="0x1567" />
         <item name="Power Drain" tagindex="0x1561" />
-        <item name="ReGenerator, Small" tagindex="0x1566" />
+        <item name="Regenerator, Small" tagindex="0x1566" />
       </category>
       <category name="Armor Abilities">
-        <item name="Armor Lock" tagindex="0x1571" />
         <item name="Bomb Run" tagindex="0x1570" />
         <item name="Concussive Blast" tagindex="0x156b" />
         <item name="Hologram" tagindex="0x156e" />
         <item name="Invincibility" tagindex="0x1a6c" />
-        <item name="Vehicle Invincibility" tagindex="0x1563" />
+        <item name="Vehicle Camo" tagindex="0x1563" />
         <item name="Lightning Strike" tagindex="0x1573" />
         <item name="Mag Pulse" tagindex="0x156d" />
         <item name="Reactive Armor" tagindex="0x156f" />
-        <item name="vision" tagindex="0x1577" />
+        <item name="Roadblock" tagindex="0x1571" />
+        <item name="Vision" tagindex="0x1577" />
       </category>
       <category name="Grenades">
         <item name="Frag Grenade" tagindex="0x01ac" />
