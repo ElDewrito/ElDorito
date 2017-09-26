@@ -318,7 +318,7 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("voip-user-volume", function(e){
-	console.log(e);
+	//console.log(e);
 	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
