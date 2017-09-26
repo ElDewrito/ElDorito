@@ -318,21 +318,20 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("voip-user-volume", function(e){
+	console.log(e);
+	if(e.data.volume > -60)
+		talkingArray.push(e.data.user);
+	else
+		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
+	
+	if(isVisible)
+		displayScoreboard();
 });
 
 dew.on("voip-peers", function(e){
-    console.log(e);
 });
 
-dew.on("voip-speaking", function(e){ 
-    if(e.data.isSpeaking){
-        talkingArray.push(e.data.user);
-    }else{
-        talkingArray.splice($.inArray(e.data.user, talkingArray),1);
-    }
-    if(isVisible){
-        displayScoreboard();
-    }
+dew.on("voip-speaking", function(e){
 });
 
 dew.on("show", function(e){
