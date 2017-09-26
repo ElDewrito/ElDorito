@@ -84,7 +84,7 @@ $(document).ready(function(){
         $.grep(settingsToLoad, function(result){
             if(result[0] == elementID){
                 if(result[1].length){
-                    dew.command(result[1]+' '+newValue);
+                    dew.command(result[1]+' "'+newValue+'"');
                 }
             };
         });
@@ -653,7 +653,7 @@ function resetInstants(){
         var elementID = $('.instant').eq(i).attr('id');
         $.grep(commandValues, function(result){
             if(result[0] == elementID){
-                dew.command(result[1] + ' ' + result[2]);
+                dew.command(result[1] + ' "' + result[2]+'"');
             };
         });
     }

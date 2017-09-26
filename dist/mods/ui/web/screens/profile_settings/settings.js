@@ -284,7 +284,7 @@ $(document).ready(function(){
         }
     });
     $('#inputBox #okButton').on('click', function(){
-        dew.command('Player.Name '+$('#inputBox input').val());
+        dew.command('Player.Name "'+$('#inputBox input').val()+'"');
         hideInputBox(true);
     });
     $('#inputBox #dismissButton').on('click', function(){
