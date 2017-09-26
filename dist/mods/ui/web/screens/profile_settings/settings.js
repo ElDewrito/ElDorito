@@ -116,7 +116,7 @@ $(document).ready(function(){
         itemNumber = 0;
         $(e).ready(function(){
             if(hasGP){
-                updateSelection(itemNumber, false);
+                updateSelection(itemNumber, false, true);
             }
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
@@ -209,13 +209,13 @@ $(document).ready(function(){
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
                     itemNumber = 0;
-                    updateSelection(itemNumber, true);
+                    updateSelection(itemNumber, true, true);
                 }
             }
             if(e.data.RightTrigger != 0){
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
-                    updateSelection(itemNumber, true);
+                    updateSelection(itemNumber, true, true);
                 }
             }
             if(e.data.AxisLeftX > axisThreshold){
@@ -273,7 +273,7 @@ $(document).ready(function(){
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
-            updateSelection(itemNumber, false); 
+            updateSelection(itemNumber, false, false); 
         }else{
             $(this).addClass('selectedElement');
         }
@@ -384,7 +384,8 @@ dew.on('hide', function(e){
         window.clearInterval(repGP);
         repGP = null;
     }
-    hideAlert(false);
+    hideInputBox(false);
+    dew.command('Game.HideH3UI 0');
 });
 
 function rotateBiped(direction){
@@ -526,11 +527,11 @@ function randomColors(){
     }   
 }
 
-function updateSelection(item, sound){
+function updateSelection(item, sound, move){
     if(item > -1){
         $(activePage+' .selectedElement').removeClass('selectedElement');
         $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
-        if($(activePage+' .selectedElement').length){
+        if($(activePage+' .selectedElement').length && move){
             $(activePage+' .selectedElement')[0].scrollIntoView(false);
         }
         if(sound){
@@ -555,19 +556,19 @@ function nextPage(){
 function upNav(){
     if(itemNumber > 0){
         itemNumber--;
-        updateSelection(itemNumber, true);
+        updateSelection(itemNumber, true, true);
     }
 }
 
 function downNav(){
     if(itemNumber < $(activePage + ' label:visible').length-1){
         itemNumber++;
-        updateSelection(itemNumber, true);
+        updateSelection(itemNumber, true, true);
     }           
 }
 
 function onControllerConnect(){
-    updateSelection(itemNumber, false);
+    updateSelection(itemNumber, false, true);
     $('button img, .tabs img').show();
 }
 
@@ -612,7 +613,7 @@ function armorShow(showMe, element){
     });
     if(hasGP){
         itemNumber = 0;
-        updateSelection(0, false);
+        updateSelection(0, false, true);
     }
 }
 
@@ -635,7 +636,7 @@ function colorShow(showMe, element){
     });
     if(hasGP){
         itemNumber = 0;
-        updateSelection(0, false);
+        updateSelection(0, false, true);
     }
 }
 

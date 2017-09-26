@@ -120,7 +120,7 @@ $(document).ready(function(){
             if(itemNumber > $(activePage + ' label:visible').length-1){
                 itemNumber = $(activePage + ' label:visible').length-1;
             }
-            updateSelection(itemNumber, true);
+            updateSelection(itemNumber, true, true);
         }
     });
     $('#sSprint').on('change', function(){
@@ -203,13 +203,13 @@ $(document).ready(function(){
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
                     itemNumber = 0;
-                    updateSelection(itemNumber, true);
+                    updateSelection(itemNumber, true, true);
                 }
             }
             if(e.data.RightTrigger != 0){
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
-                    updateSelection(itemNumber, true);
+                    updateSelection(itemNumber, true, true);
                 }
             }
             if(e.data.AxisLeftX > axisThreshold){
@@ -240,7 +240,7 @@ $(document).ready(function(){
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
-            updateSelection(itemNumber, false); 
+            updateSelection(itemNumber, false, false);
         }
     });
 
@@ -348,6 +348,7 @@ dew.on('hide', function(e){
         repGP = null;
     }
     hideAlert(false);
+    dew.command('Game.HideH3UI 0');
 });
 
 function initActive(){
@@ -416,7 +417,7 @@ function switchPage(pageHash){
     location.href=pageHash;
     activePage=pageHash;    
     if(hasGP){
-        updateSelection(0, true);
+        updateSelection(0, true, true);
     }
     if(subPages.indexOf(pageHash) != -1){
         $('#cancelButton').html('<img class="button">Back');
@@ -511,8 +512,8 @@ function applyButton(){
 }
 
 function cancelButton(){
-        effectReset();
-        dew.command('writeconfig');
+    effectReset();
+    dew.command('writeconfig');
 }
 
 function dismissButton(){
@@ -596,12 +597,14 @@ function updateSprint(value){
     }
 }
 
-function updateSelection(item, sound){
+function updateSelection(item, sound, move){
     colorIndex = 0;
     $('.selectedElement').removeClass('selectedElement');
     $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
-    $('#'+selectedItem).parent()[0].scrollIntoView(false);
+    if(move){
+        $('#'+selectedItem).parent()[0].scrollIntoView(false);
+    }
     if(sound){
         dew.command('Game.PlaySound 0xAFE');
     }
@@ -624,19 +627,19 @@ function nextPage(){
 function upNav(){
     if(itemNumber > 0){
         itemNumber--;
-        updateSelection(itemNumber, true);
+        updateSelection(itemNumber, true, true);
     }
 }
 
 function downNav(){
     if(itemNumber < $(activePage + ' label:visible').length-1){
         itemNumber++;
-        updateSelection(itemNumber, true);
+        updateSelection(itemNumber, true, true);
     }           
 }
 
 function onControllerConnect(){
-    updateSelection(itemNumber, false);
+    updateSelection(itemNumber, false, true);
     $('button img, .tabs img').show();
 }
 
