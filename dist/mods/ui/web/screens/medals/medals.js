@@ -14,50 +14,54 @@ var juggleEvent = 0;
 var juggleDelay = 3000;
 
 dew.on("mpevent", function (event) {
-    dew.command('Game.MedalPack', {}).then(function(response) {
-        medalsPath = "medals://" + response + "/";
-        $.getJSON(medalsPath+'events.json', function(json) {
-            eventJson = json;
-            if(eventJson['settings']){
-                if(eventJson['settings'].hasOwnProperty('medalWidth')){
-                    medalWidth = eventJson['settings'].medalWidth;
-                }
-                if(eventJson['settings'].hasOwnProperty('leftPos')){            
-                    leftPos = eventJson['settings'].leftPos;
-                }
-                if(eventJson['settings'].hasOwnProperty('bottomPos')){
-                    bottomPos = eventJson['settings'].bottomPos;
-                }   
-                if(eventJson['settings'].hasOwnProperty('transform')){
-                    transform = eventJson['settings'].transform;
-                } 
-            }    
-            dew.command('Game.SuppressJuggling', {}).then(function(response) {
-                if(response == 1){
-                    suppressRepeat = true;
-                } else {
-                    suppressRepeat = false;
-                }
+    dew.command('Game.CefMedals', {}).then(function(res) {
+        if(res == 1){
+            dew.command('Game.MedalPack', {}).then(function(response) {
+                medalsPath = "medals://" + response + "/";
+                $.getJSON(medalsPath+'events.json', function(json) {
+                    eventJson = json;
+                    if(eventJson['settings']){
+                        if(eventJson['settings'].hasOwnProperty('medalWidth')){
+                            medalWidth = eventJson['settings'].medalWidth;
+                        }
+                        if(eventJson['settings'].hasOwnProperty('leftPos')){            
+                            leftPos = eventJson['settings'].leftPos;
+                        }
+                        if(eventJson['settings'].hasOwnProperty('bottomPos')){
+                            bottomPos = eventJson['settings'].bottomPos;
+                        }   
+                        if(eventJson['settings'].hasOwnProperty('transform')){
+                            transform = eventJson['settings'].transform;
+                        } 
+                    }    
+                    dew.command('Game.SuppressJuggling', {}).then(function(response) {
+                        if(response == 1){
+                            suppressRepeat = true;
+                        } else {
+                            suppressRepeat = false;
+                        }
+                    });
+                    dew.command('Settings.MasterVolume', {}).then(function(x) {
+                        dew.command('Settings.SfxVolume', {}).then(function(y) {
+                            var sfxVol = x/100;
+                            var mstrVol = y/100;
+                            playVol = sfxVol * mstrVol * 0.3;
+                            var medal = event.data.name;
+                            if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
+                                juggleEvent++;
+                                setTimeout(function(){
+                                    if(juggleEvent > 0){ juggleEvent--; }
+                                }, juggleDelay);
+                            } 
+                            if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
+                                return
+                            }
+                            doMedal(event.data.name, event.data.audience);
+                        });   
+                    });             
+                });
             });
-            dew.command('Settings.MasterVolume', {}).then(function(x) {
-                dew.command('Settings.SfxVolume', {}).then(function(y) {
-                    var sfxVol = x/100;
-                    var mstrVol = y/100;
-                    playVol = sfxVol * mstrVol * 0.3;
-                    var medal = event.data.name;
-                    if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
-                        juggleEvent++;
-                        setTimeout(function(){
-                            if(juggleEvent > 0){ juggleEvent--; }
-                        }, juggleDelay);
-                    } 
-                    if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
-                        return
-                    }
-                    doMedal(event.data.name, event.data.audience);
-                });   
-            });             
-        });
+        }
     });
 });
 
