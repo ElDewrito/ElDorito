@@ -319,13 +319,17 @@ dew.on("scoreboard", function(e){
 
 dew.on("voip-user-volume", function(e){
 	console.log(e);
-	if(e.data.volume > -60)
+	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
-	else
+        isSpeaking(e.data.user,true);
+	}else{
 		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
+        isSpeaking(e.data.user,false);
 	
-	if(isVisible)
+	/*if(isVisible)
 		displayScoreboard();
+    */
+    }
 });
 
 dew.on("voip-peers", function(e){
@@ -525,12 +529,8 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
-            var speakerClass = "emblem speaker";
-            if($.inArray(lobby[i].name,talkingArray) > -1){
-                speakerClass += " talking";
-            }
 
-            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="'+speakerClass+'" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="5" step="1" value="5"></input>')) //voip speaking indicator        
+            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="5" step="1" value="5"></input>')) //voip speaking indicator        
             $.grep(volArray, function(result, index){
                 if(result){
                     if(result[0] == lobby[i].name){
@@ -875,4 +875,12 @@ function setPlayerVolume(name,uid,level){
         }
     });
     console.log(name, uid,level);
+}
+
+function isSpeaking(name,visible){
+    if(visible){
+        $('#'+name).find('.speaker').addClass('talking');
+    }else{
+        $('#'+name).find('.speaker').removeClass('talking');  
+    }
 }
