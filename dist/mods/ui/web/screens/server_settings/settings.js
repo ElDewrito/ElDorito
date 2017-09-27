@@ -366,7 +366,6 @@ function setControlValues(){
             var setValue = commands[i].value;
             $.grep(settingsToLoad, function(result){
                 if(result[1] == commands[i].name){
-                    console.log(result,setValue);
                     commandValues.push([result[0],commands[i].name,commands[i].value]);
                         if($('#'+result[0]).is(':checkbox')){
                             if(setValue == '1'){
