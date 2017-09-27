@@ -121,6 +121,7 @@
     // Reloads a screen.
     function reloadScreen(screen) {
         screen.loaded = false;
+        screen.loadStartTime = Date.now();
 
         // If the screen is visible, hide it and put it in the waiting state
         if (screen.state === ScreenState.WAITING || screen.state === ScreenState.VISIBLE) {
@@ -196,6 +197,7 @@
             zIndex: data.zIndex || 0,
             state: ScreenState.HIDDEN,
             loaded: false,
+            loadStartTime: Date.now(),
             data: {},
             selector: null
         };
@@ -239,6 +241,12 @@
         } else {
             // The screen will be shown once it finishes loading
             screen.state = ScreenState.WAITING;
+            // If the screen has taken more than 5 seconds to load then reload the screen
+            // This fixes a rare bug where screens get stuck loading indefinitely
+            if(screen.loadStartTime > Date.now() + 5000) {
+            	console.error("Screen \"" + id + "\" has taken longer than 5 seconds to load. Reloading!");
+                reloadScreen(screen);
+            }
         }
     }
 
