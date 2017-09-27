@@ -136,6 +136,13 @@ namespace
 		return fov * 0.017453292f;
 	}
 
+	float ThirdPersonFovHook(uint32_t unitObjectIndex, float fov, int scopeLevel)
+	{
+		const auto sub_B44080 = (float(*)(uint32_t unitObjectIndex, float fov, int scopeLevel))(0xB44080);
+		const auto &moduleCamera = Modules::ModuleCamera::Instance();
+		return sub_B44080(unitObjectIndex, fov / moduleCamera.VarCameraFov->DefaultValueFloat * moduleCamera.VarCameraFov->ValueFloat, scopeLevel);
+	}
+
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
@@ -163,13 +170,11 @@ namespace
 
 		Pointer::Base(0x1F01D98).Write(value);
 		Pointer::Base(0x149D42C).Write(value);
-		// third
-		Patch(0x3298F9, { 0x5 }).Apply();
-		Pointer(0x7298FA).Write(&s_FovRadians);
 		// dead
 		Pointer(0x006122CB).Write(&s_FovDegrees);
 		// scripted
 		moduleCamera.CameraScriptedFovHook.Apply();
+		moduleCamera.CameraFollowingFovHook.Apply();
 		return true;
 	}
 
@@ -388,6 +393,7 @@ namespace Modules
 		CameraPermissionHookAlt2(0x2148BE, UpdateCameraDefinitionsAlt2),
 		CameraPermissionHookAlt3(0x214902, UpdateCameraDefinitionsAlt3),
 		CameraScriptedFovHook(0x32E18C, GetScriptedCameraFovHook, HookFlags::IsCall),
+		CameraFollowingFovHook(0x32990C, ThirdPersonFovHook, HookFlags::IsCall),
 		Debug1CameraPatch(0x325A80, 0x90, 6),
 		Debug2CameraPatch(0x191525, 0x90, 6),
 		ThirdPersonPatch(0x328640, 0x90, 6),
