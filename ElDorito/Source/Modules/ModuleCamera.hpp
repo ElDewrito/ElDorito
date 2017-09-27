@@ -40,8 +40,6 @@ namespace Modules
 		Hook CameraPermissionHookAlt1;
 		Hook CameraPermissionHookAlt2;
 		Hook CameraPermissionHookAlt3;
-		Hook CameraScriptedFovHook;
-		Hook CameraFollowingFovHook;
 
 		ModuleCamera();
 

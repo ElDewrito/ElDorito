@@ -28,6 +28,7 @@
 #include "Patches\DirectXHook.hpp"
 #include "Patches\Medals.hpp"
 #include "Patches\Simulation.hpp"
+#include "Patches\Camera.hpp"
 #include "Game\Armor.hpp"
 
 namespace
@@ -63,6 +64,7 @@ namespace Patches
 		Spectate::ApplyAll();
 		Medals::ApplyAll();
 		Simulation::ApplyAll();
+		Camera::ApplyAll();
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
@@ -104,7 +106,6 @@ namespace Patches
 	{
 		Sprint::Tick();
 		Forge::Tick();
-		Spectate::Tick();
 
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)

@@ -17,16 +17,13 @@ namespace
 {
 	struct SpectateState
 	{
-		uint32_t Flags = 0;
+		bool IsSpectating;
 		Blam::DatumIndex DirectedPlayerIndex;
 	}
 	s_SpectateState;
 
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2);
 	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity);
-
-	void NotifyEnded();
-	void NotifyPlayerChanged(Blam::DatumIndex newPlayerIndex);
 }
 
 namespace Patches::Spectate
@@ -38,20 +35,6 @@ namespace Patches::Spectate
 
 		Pointer(0x01671F5C).Write((uint32_t)GameDirectorUpdateHook);
 		Hook(0x32A8D6, GetObserverCameraSensitivityHook, HookFlags::IsCall).Apply();
-	}
-
-	void Tick()
-	{
-		auto gameGlobals = ElDorito::GetMainTls(0x3c)[0];
-		if (!gameGlobals)
-			return;
-
-		auto isMapLoaded = gameGlobals(1).Read<uint8_t>();
-		if (s_SpectateState.Flags & 1 && !isMapLoaded)
-		{
-			s_SpectateState.Flags = 0;
-			NotifyEnded();
-		}
 	}
 }
 
@@ -88,51 +71,52 @@ namespace
 		Web::Ui::ScreenLayer::Notify("spectate_end", "{}", true);
 	}
 
+	bool IsSpectating(int localPlayerIndex)
+	{
+		static auto game_engine_in_state = (bool(*)(char state))(0x005523A0);
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
+
+		if (!game_engine_round_in_progress() || game_engine_in_state(4))
+			return false;
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+		if (playerIndex == Blam::DatumIndex::Null)
+			return false;
+
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (player->SlaveUnit != Blam::DatumIndex::Null)
+			return false;
+
+		auto ticksUntilSpawn = Pointer(player)(0x2CB8).Read<int>();
+
+		return ticksUntilSpawn > 0;
+	}
+
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2)
 	{
 		static auto GameDirectorUpdate = (void(__thiscall*)(void* thisptr, int a2))(0x007219A0);
-		static auto GetLocalPlayerUnitObjectIndex = (uint32_t(__cdecl*)(int localPlayerIndex))(0x00589CC0);
-
 		GameDirectorUpdate(thisptr, a2);
 
 		auto localPlayerIndex = Pointer(thisptr)(0x140).Read<uint32_t>();
-		auto directedPlayerIndex = Blam::DatumIndex(Pointer(thisptr)(0x144).Read<uint32_t>());
-		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
-		auto unitObjectIndex = Blam::DatumIndex(GetLocalPlayerUnitObjectIndex(localPlayerIndex));
-
-		auto& players = Blam::Players::GetPlayers();
-		auto player = players.Get(playerIndex);
-
-		auto engineGlobals = ElDorito::GetMainTls(0x48)[0];
-
-		if (player && engineGlobals)
+		if (IsSpectating(localPlayerIndex))
 		{
-			auto engineState = engineGlobals(0xE108).Read<uint8_t>();
-			auto roundInProgress = engineState == 1;
-
-			if (!s_SpectateState.Flags && unitObjectIndex == Blam::DatumIndex::Null
-				&& player->DeadSlaveUnit != Blam::DatumIndex::Null)
+			if (!s_SpectateState.IsSpectating)
 			{
-				s_SpectateState.Flags |= 1;
+				s_SpectateState.IsSpectating = true;
+				s_SpectateState.DirectedPlayerIndex = -1;
+			}
+
+			auto directedPlayerIndex = Blam::DatumIndex(Pointer(thisptr)(0x144).Read<uint32_t>());
+			if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
 				NotifyPlayerChanged(directedPlayerIndex);
-			}
-
-			if (s_SpectateState.Flags & 1)
-			{
-				if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
-				{
-					NotifyPlayerChanged(directedPlayerIndex);
-				}
-
-				if (unitObjectIndex != Blam::DatumIndex::Null || !roundInProgress)
-				{
-					s_SpectateState.Flags = 0;
-					NotifyEnded();
-				}
-			}
+			s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
 		}
-
-		s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
+		else if (s_SpectateState.IsSpectating)
+		{
+			s_SpectateState.IsSpectating = false;
+			s_SpectateState.DirectedPlayerIndex = -1;
+			NotifyEnded();
+		}
 	}
 
 	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity)

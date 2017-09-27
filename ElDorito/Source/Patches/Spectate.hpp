@@ -3,5 +3,4 @@
 namespace Patches::Spectate
 {
 	void ApplyAll();
-	void Tick();
 }
