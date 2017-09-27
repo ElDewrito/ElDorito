@@ -3,6 +3,8 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Patches/Network.hpp"
+#include "../Blam/Tags/Objects/Object.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include "../Patch.hpp"
 
 namespace
@@ -14,6 +16,7 @@ namespace
 	bool __cdecl c_simulation_generic_entity__serialize2_hook(char a1, int a6, int a3, DWORD *a4, GenericEntitySimulationData *data, Blam::BitStream *stream, int a7, char a8, char a9);
 	bool __cdecl c_simulation_generic_entity__deserialize2_hook(int a1, int a2, GenericEntitySimulationData *data, Blam::BitStream *stream, char a5);
 	uint32_t __fastcall c_simulation_generic_entity_definition__spawn_object_hook(int thisptr, void *unused, uint8_t *data, GenericEntitySimulationData *simulationData, int a4, uint8_t *newObject);
+	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
 
 	void OnMapVariantRequestChange(Blam::MapVariant *mapVariant);
 
@@ -29,6 +32,7 @@ namespace Patches::Simulation
 		Hook(0xC913A, c_simulation_generic_entity__deserialize2_hook, HookFlags::IsCall).Apply();
 		Hook(0xC8E91, c_simulation_generic_entity_definition__spawn_object_hook, HookFlags::IsCall).Apply();
 		Patches::Network::OnMapVariantRequestChange(OnMapVariantRequestChange);
+		Hook(0x000B2E1B, ScenerySyncHook, HookFlags::IsCall).Apply();
 	}
 }
 
@@ -153,5 +157,16 @@ namespace
 	{
 		for (auto i = 0; i < 640; i++)
 			s_SyncPlacements[i] = mapVariant->Placements[i];
+	}
+
+	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3)
+	{
+		const auto sub_4AFA90 = (int(__cdecl *)(uint32_t tagIndex, int a2, char a3))(0x4AFA90);
+
+		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		if (def && int(def->ObjectType) == Blam::Objects::eObjectTypeScenery)
+			return 16;
+
+		return sub_4AFA90(tagIndex, a2, a3);
 	}
 }
