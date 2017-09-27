@@ -315,7 +315,7 @@ dew.on('show', function(e){
         }
     });
     setControlValues();
-    dew.command('Server.Mode', function(response){
+    dew.command('Server.Mode', {}).then(function(response){
         $('#sNetworkMode').val(response);
     });
 });
@@ -366,29 +366,8 @@ function setControlValues(){
             var setValue = commands[i].value;
             $.grep(settingsToLoad, function(result){
                 if(result[1] == commands[i].name){
+                    console.log(result,setValue);
                     commandValues.push([result[0],commands[i].name,commands[i].value]);
-                    if(result[1].startsWith('Player.Colors')){
-                        $('#'+result[0]).css('background-color',setValue);   
-                        $('#'+result[0]).val(setValue); 
-                        if(getLuminance(setValue)> 0.22){
-                            $('#'+result[0]).css('color','#222');
-                        }else{
-                            $('#'+result[0]).css('color','#ddd');
-                        }
-                    }else if(result[1].startsWith('Input.ControllerSensitivityY')){
-                        $('#ySens, #ySensText').val(setValue);
-                        var h3Val = (setValue-30)/10;
-                        $('#lookSensitivity, #lookSensitivityText').val(h3Val);
-                    }else if(result[1].startsWith('Settings.PostprocessingQuality')){
-                        $('#'+result[0]).val(setValue);
-                        if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
-                            $('#sQualityPreset').val(setValue);
-                        }else if($('#sTextureResolution').val() == 'low' && $('#sTextureFiltering').val() == 'low' && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == 'low' && $('#sShadowQuality').val() == 'medium' && $('#sDetailsLevel').val() == 'low' && $('#sPostprocessing').val() == 'low'){
-                            $('#sQualityPreset').val('low');
-                        }else{
-                            $('#sQualityPreset').val('custom');
-                        }
-                    }else{
                         if($('#'+result[0]).is(':checkbox')){
                             if(setValue == '1'){
                                 $('#'+result[0]).prop('checked', true);
@@ -405,7 +384,7 @@ function setControlValues(){
                         if($('#'+result[0]).hasClass('hasTiny')){
                             $('#'+result[0]+'Text').val(setValue);
                         }
-                    }
+
                 };
             });
         }
