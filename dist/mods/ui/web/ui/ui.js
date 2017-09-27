@@ -243,8 +243,8 @@
             screen.state = ScreenState.WAITING;
             // If the screen has taken more than 5 seconds to load then reload the screen
             // This fixes a rare bug where screens get stuck loading indefinitely
-            if(screen.loadStartTime > Date.now() + 5000) {
-            	console.error("Screen \"" + id + "\" has taken longer than 5 seconds to load. Reloading!");
+            if((Date.now() - screen.loadStartTime) > 5000) {
+                console.error("Screen \"" + id + "\" has taken longer than 5 seconds to load. Reloading!");
                 reloadScreen(screen);
             }
         }
