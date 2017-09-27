@@ -17,6 +17,13 @@ function OnMessage(msg) {
     if (msg.data == "bad password") {
         console.log("bad password");
         return;
+    } else if (msg.data = "try again later") {
+        setTimeout(function () {
+            dew.command("server.websocketinfo").then(function (resp) {
+                var info = JSON.parse(resp);
+                serverCon.send(info.password);
+            });
+        }, 5000);
     }
 
     var data = JSON.parse(msg.data);
@@ -425,8 +432,8 @@ function startConnection(info) {
 
                 serverCon = new WebSocket("ws://" + info.server, "dew-voip");
                 serverCon.onmessage = OnMessage;
-                serverCon.onclose = function () {
-                    console.log("disconnected from signal server");
+                serverCon.onclose = function (reason) {
+                    console.log("disconnected from signal server: " + reason.reason);
                     clearConnection();
                 }
                 serverCon.onopen = function () {

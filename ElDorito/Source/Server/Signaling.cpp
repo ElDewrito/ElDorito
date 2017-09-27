@@ -46,7 +46,14 @@ namespace
 		int peerIdx;
 	};
 
-	bool ProcessEcho(const char* echo, coninfo &info);
+	enum RejectionReason
+	{
+		eBadPassword,
+		eSessionHasBadInfo,
+		eNone
+	};
+
+	RejectionReason ProcessPassword(const char* echo, coninfo &info);
 	void CreatePasswords();
 	void ResetPassword(int playerIndex);
 	void ForceStopServer();
@@ -318,9 +325,13 @@ namespace
 			return;
 		if (it->second.authed == false)
 		{
-			if (!ProcessEcho(msg->get_payload().c_str(), it->second))
+			RejectionReason reject = ProcessPassword(msg->get_payload().c_str(), it->second);
+			if (reject != RejectionReason::eNone)
 			{
-				signalServer->get_con_from_hdl(hdl)->send("bad password");
+				if(reject == RejectionReason::eBadPassword)
+					signalServer->get_con_from_hdl(hdl)->send("bad password");
+				else if(reject == RejectionReason::eSessionHasBadInfo)
+					signalServer->get_con_from_hdl(hdl)->send("try again later");
 				return;
 			}
 		}
@@ -383,7 +394,7 @@ namespace
 		connectedSockets.erase(hdl);
 	}
 
-	bool ProcessEcho(const char* echo, coninfo &info)
+	RejectionReason ProcessPassword(const char* echo, coninfo &info)
 	{
 		auto *session = Blam::Network::GetActiveSession();
 		int peerIdx = session->MembershipInfo.FindFirstPeer();
@@ -391,19 +402,24 @@ namespace
 		{
 			if(std::strcmp(echo, authStrings[peerIdx].c_str()) == 0)
 			{
+				std::string name = Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName);
+
+				if (name == "" || session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid == 0)
+					return RejectionReason::eSessionHasBadInfo;
+
 				char uid[17];
 				Blam::Players::FormatUid(uid, session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.Uid);
 
 				std::stringstream ss;
-				ss << Utils::String::ThinString(session->MembershipInfo.PlayerSessions[session->MembershipInfo.GetPeerPlayer(peerIdx)].Properties.DisplayName) << "|" << uid; //unique
+				ss << name << "|" << uid; //unique
 				info.uid = ss.str();
 				info.authed = true;
 				info.peerIdx = peerIdx;
-				return true;
+				return RejectionReason::eNone;
 			}
 			peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 		}
-		return false;
+		return RejectionReason::eBadPassword;
 	}
 
 	void CreatePasswords()
