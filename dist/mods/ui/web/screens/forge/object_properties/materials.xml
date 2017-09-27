@@ -1,0 +1,208 @@
+<root>
+	<category name="Recently Used" id="recent"></category>
+	<category name="Concrete">
+		<item name="Asphalt" value="028" />
+		<item name="Bricks" value="027" />
+		<item name="Cloudy #1" value="041" />
+		<item name="Cloudy #2" value="109" />
+		<item name="Plain, Light" value="017" />
+		<item name="Plain, Dark" value="106" />
+		<item name="Subtle, Forerunner" value="083" />
+		<item name="Tiled" value="029" />
+		<item name="Wall, Light" value="018" />
+		<item name="Wall, Dark" value="019" />
+		<item name="Wall, Dirty" value="014" />
+		<item name="White Panels" value="015" />
+		<item name="Yellow Striped" value="013" />
+	</category>
+	<category name="Metal">
+		<category name="Forerunner">
+			<item name="Decorated" value="016" />
+			<item name="Diagonal #1" value="007" />
+			<item name="Diagonal #2" value="011" />
+			<item name="Hexagonal" value="026" />
+			<item name="Lined #1" value="004" />
+			<item name="Lined #2" value="006" />
+			<item name="Lined #3" value="085" />
+			<item name="Lined #4" value="089" />
+			<item name="Lined #5" value="108" />
+			<item name="Panelled #1" value="005" />
+			<item name="Panelled #2" value="082" />
+			<item name="Plain, Dark" value="107" />
+			<item name="Ribbed" value="086" />
+			<item name="Ribbed, Illuminated" value="117" />
+			<item name="Shrine" value="025" />
+			<item name="Stacked #1" value="008" />
+			<item name="Stacked #2" value="077" />
+			<item name="Stacked #3" value="078" />
+			<item name="Stacked #4" value="084" />
+			<item name="Streaked #1" value="002" />
+			<item name="Streaked #2" value="003" />
+			<item name="Stripe Lit" value="079" />
+			<item name="Tracks" value="080" />
+			<item name="Tracks, Animated" value="024" />
+			<item name="Tracks, Illuminated" value="116" />
+		</category>
+		<category name="Human">
+			<item name="Arrow" value="092" />
+			<item name="Caution" value="088" />
+			<item name="Corrugated, Green" value="090" />
+			<item name="Diamond, Black" value="081" />
+			<item name="Diamond, Plate #1" value="087" />
+			<item name="Diamond, Plate #2" value="094" />
+			<item name="Diamond, Plate #3" value="104" />
+			<item name="Grating" value="021" />
+			<item name="Grid, Animated" value="023" />
+			<item name="Lined, Horizontal #1" value="010" />
+			<item name="Lined, Horizontal #2" value="099" />
+			<item name="Lined, Vertical" value="009" />
+			<item name="Panelled, Brown" value="097" />
+			<item name="Panelled, Caution Tape" value="095" />
+			<item name="Panelled, Riveted #1" value="093" />
+			<item name="Panelled, Riveted #2" value="012" />
+			<item name="Panelled, Riveted #3" value="091" />
+			<item name="Panelled, Riveted #4" value="100" />
+			<item name="Panelled, Yellow Strip" value="096" />
+			<item name="Plain" value="076" />
+			<item name="Rusted #1" value="101" />
+			<item name="Rusted #2" value="105" />
+			<item name="Stacked #1" value="102" />
+			<item name="Stacked #2" value="103" />
+			<item name="Streaked" value="098" />
+		</category>
+	</category>
+	<category name="Natural">
+		<category name="Terrain">
+			<item name="Dirt" value="075" />
+			<item name="Forest Bed" value="050" />
+			<item name="Grass, Dry Brown" value="047" />
+			<item name="Grass, Dry Green" value="046" />
+			<item name="Grass, Vegetated" value="044" />
+			<item name="Grass, Wet Brown" value="048" />
+			<item name="Grass, Wet Green" value="045" />
+			<item name="Leaves" value="049" />
+			<item name="Tree Bark" value="115" />
+		</category>
+		<category name="Rock">
+			<item name="Cobblestone #1" value="033" />
+			<item name="Cobblestone #2" value="110" />
+			<item name="Dark" value="030" />
+			<item name="Icy #1" value="031" />
+			<item name="Icy #2" value="032" />
+			<item name="Icy #3" value="037" />
+			<item name="Icy #4" value="072" />
+			<item name="Plain, Light" value="073" />
+			<item name="Plain, Dark" value="113" />
+			<item name="Rough #1" value="058" />
+			<item name="Rough #2" value="059" />
+			<item name="Rough #3" value="060" />
+			<item name="Rough #4" value="062" />
+			<item name="Rough #5" value="069" />
+			<item name="Rough #6" value="074" />
+			<item name="Rough #7" value="112" />
+			<item name="Sandstone #1" value="036" />
+			<item name="Sandstone #2" value="063" />
+			<item name="Sandstone #3" value="064" />
+			<item name="Sandstone #4" value="065" />
+			<item name="Sandstone #5" value="066" />
+			<item name="Sandstone #6" value="067" />
+			<item name="Sandy #1" value="020" />
+			<item name="Sandy #2" value="040" />
+			<item name="Sandy #3" value="042" />
+			<item name="Sandy #4" value="061" />
+			<item name="Sandy #5" value="070" />
+			<item name="Sandy #6" value="111" />
+			<item name="Sandy #7" value="114" />
+			<item name="Slate, White" value="071" />
+		</category>
+		<category name="Sand">
+			<item name="Fine" value="053" />
+			<item name="Pebbled #1" value="034" />
+			<item name="Pebbled #2" value="038" />
+			<item name="Pebbled #3" value="068" />
+			<item name="Rippled" value="052" />
+			<item name="Rocky #1" value="035" />
+			<item name="Rocky #2" value="039" />
+			<item name="Rocky #3" value="043" />
+		</category>
+		<category name="Snow">
+			<item name="Bumpy #1" value="055" />
+			<item name="Bumpy #2" value="056" />
+			<item name="Fine #1" value="054" />
+			<item name="Fine #2" value="057" />
+		</category>
+	</category>
+	<category name="Miscellaneous">
+		<item name="Covenant, Destroyed" value="118" />
+		<item name="da Vinci (0x101F)" value="183" />
+		<item name="Plastic, Gray" value="001" />
+		<item name="Plastic, Grid" value="000" thumbnail="..." />
+		<item name="Wood, Planks" value="022" />
+	</category>
+	<category name="Solid Colors">
+		<item name="Indian Red" value="119" />
+		<item name="Light Coral" value="120" />
+		<item name="Salmon" value="121" />
+		<item name="Crimson" value="122" />
+		<item name="Red" value="123" />
+		<item name="FireBrick" value="124" />
+		<item name="Dark Red" value="125" />
+		<item name="Pink" value="126" />
+		<item name="Light Pink" value="127" />
+		<item name="Hot Pink" value="128" />
+		<item name="Deep Pink" value="129" />
+		<item name="Medium Violet Red" value="130" />
+		<item name="Pale Violet Red" value="131" />
+		<item name="Light Salmon" value="132" />
+		<item name="Coral" value="133" />
+		<item name="Tomato" value="134" />
+		<item name="Orange Red" value="135" />
+		<item name="Dark Orange" value="136" />
+		<item name="Orange" value="137" />
+		<item name="Goldenrod" value="138" />
+		<item name="Dark Goldenrod" value="139" />
+		<item name="Gold" value="140" />
+		<item name="Yellow" value="141" />
+		<item name="Light Yellow" value="142" />
+		<item name="Lemon Chiffon" value="143" />
+		<item name="Moccasin" value="144" />
+		<item name="Khaki" value="145" />
+		<item name="Lavender" value="146" />
+		<item name="Plum" value="147" />
+		<item name="Magenta" value="148" />
+		<item name="Blue Violet" value="149" />
+		<item name="Purple" value="150" />
+		<item name="Indigo" value="151" />
+		<item name="Slate Blue" value="152" />
+		<item name="Dark Slate Blue" value="153" />
+		<item name="Lawn Green" value="154" />
+		<item name="Lime Green" value="155" />
+		<item name="Light Green" value="156" />
+		<item name="Sea Green" value="157" />
+		<item name="Forest Green" value="158" />
+		<item name="Dark Green" value="159" />
+		<item name="Olive Drab" value="160" />
+		<item name="Dark Olive Green" value="161" />
+		<item name="Teal" value="162" />
+		<item name="Cyan" value="163" />
+		<item name="Aquamarine" value="164" />
+		<item name="Steel Blue" value="165" />
+		<item name="Light Blue" value="166" />
+		<item name="Dodger Blue" value="167" />
+		<item name="Blue" value="168" />
+		<item name="Navy" value="169" />
+		<item name="Midnight Blue" value="170" />
+		<item name="Cornsilk" value="171" />
+		<item name="Tan" value="172" />
+		<item name="Chocolate" value="173" />
+		<item name="SaddleBrown" value="174" />
+		<item name="Brown" value="175" />
+		<item name="Maroon" value="176" />
+		<item name="White" value="177" />
+		<item name="Light Gray" value="178" />
+		<item name="Gray" value="179" />
+		<item name="Slate Gray" value="180" />
+		<item name="Dark Slate Gray" value="181" />
+		<item name="Black" value="182" />
+	</category>
+</root>

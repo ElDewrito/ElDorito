@@ -67,6 +67,14 @@ function makePropertyGridWidget(_containerElem) {
 			}
 		
 			cacheCount();
+		},
+		getValue(propertyName) {
+			var propertyItemElement = _containerElem.find(`.property-item-leaf[data-property-name="${propertyName}"]`);
+			return propertyItemElement.find('input,select').val();
+		},
+		setValue(propertyName, value) {
+			var propertyItemElement = _containerElem.find(`.property-item-leaf[data-property-name="${propertyName}"]`);
+			propertyItemElement.find('input,select').val(value);
 		}
 	};
 
@@ -92,8 +100,6 @@ function makePropertyGridWidget(_containerElem) {
 			return;
 		if($(e.target).is('input') || $(e.target).is('select'))
 			return;
-
-		console.log('blah');
 
 		$selected = getSelected();
 		var name = $selected.data('property-name');
@@ -213,11 +219,11 @@ function makePropertyGridWidget(_containerElem) {
 				<strong id="${property.name}">+</strong>
 			`
 			case 'material':
-			return `
-				<img id="${property.name}_material_preview" />
-				<select id="${property.name}" style="display: none">
+			return `	
+				<select id="${property.name}" >
 					${meta.map(x => `<option value="${x.constructor === Object ? x.value : x}">${x.constructor === Object ? x.name : x}</option>`)};
 				</select>
+				<img id="${property.name}_material_preview" />
 			`
 			case 'static':
 			return `

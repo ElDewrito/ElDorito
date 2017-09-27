@@ -8,11 +8,16 @@ function makeScreenManager(screens) {
 			while(screenStack.length)
 				screenStack.pop();
 		},
+		closeAll: () => {
+			while(screenStack.length) {
+				screenStack.pop().deactivate();
+			}
+		},
 		currentScreen: () => screenStack[screenStack.length-1],
 		pushedScreens: () => {
 			return screenStack;
 		},
-		push: (name) => {
+		push: (name, props = {}) => {
 			var screen = screens[name];
 			if(!screen) {
 				console.error('screen not found.');
@@ -24,7 +29,7 @@ function makeScreenManager(screens) {
 			}
 
 			screenStack.push(screen);
-			screen.activate();
+			screen.activate(props);
 
 			emit('screenChange');
 		},

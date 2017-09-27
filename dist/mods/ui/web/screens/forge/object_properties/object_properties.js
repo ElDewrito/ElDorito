@@ -131,192 +131,6 @@ var objectPropertyGridData = {
 			{name: 'Symetric', value: 1},
 			{name: 'Asymmetric', value: 2}
 		],
-		appearance_material: [
-			{ name: 'Material #001', value: 000 },
-			{ name: 'Material #002', value: 001 },
-			{ name: 'Material #003', value: 002 },
-			{ name: 'Material #004', value: 003 },
-			{ name: 'Material #005', value: 004 },
-			{ name: 'Material #006', value: 005 },
-			{ name: 'Material #007', value: 006 },
-			{ name: 'Material #008', value: 007 },
-			{ name: 'Material #009', value: 008 },
-			{ name: 'Material #010', value: 009 },
-			{ name: 'Material #011', value: 010 },
-			{ name: 'Material #012', value: 011 },
-			{ name: 'Material #013', value: 012 },
-			{ name: 'Material #014', value: 013 },
-			{ name: 'Material #015', value: 014 },
-			{ name: 'Material #016', value: 015 },
-			{ name: 'Material #017', value: 016 },
-			{ name: 'Material #018', value: 017 },
-			{ name: 'Material #019', value: 018 },
-			{ name: 'Material #020', value: 019 },
-			{ name: 'Material #021', value: 020 },
-			{ name: 'Material #022', value: 021 },
-			{ name: 'Material #023', value: 022 },
-			{ name: 'Material #024', value: 023 },
-			{ name: 'Material #025', value: 024 },
-			{ name: 'Material #026', value: 025 },
-			{ name: 'Material #027', value: 026 },
-			{ name: 'Material #028', value: 027 },
-			{ name: 'Material #029', value: 028 },
-			{ name: 'Material #030', value: 029 },
-			{ name: 'Material #031', value: 030 },
-			{ name: 'Material #032', value: 031 },
-			{ name: 'Material #033', value: 032 },
-			{ name: 'Material #034', value: 033 },
-			{ name: 'Material #035', value: 034 },
-			{ name: 'Material #036', value: 035 },
-			{ name: 'Material #037', value: 036 },
-			{ name: 'Material #038', value: 037 },
-			{ name: 'Material #039', value: 038 },
-			{ name: 'Material #040', value: 039 },
-			{ name: 'Material #041', value: 040 },
-			{ name: 'Material #042', value: 041 },
-			{ name: 'Material #043', value: 042 },
-			{ name: 'Material #044', value: 043 },
-			{ name: 'Material #045', value: 044 },
-			{ name: 'Material #046', value: 045 },
-			{ name: 'Material #047', value: 046 },
-			{ name: 'Material #048', value: 047 },
-			{ name: 'Material #049', value: 048 },
-			{ name: 'Material #050', value: 049 },
-			{ name: 'Material #051', value: 050 },
-			{ name: 'Material #052', value: 051 },
-			{ name: 'Material #053', value: 052 },
-			{ name: 'Material #054', value: 053 },
-			{ name: 'Material #055', value: 054 },
-			{ name: 'Material #056', value: 055 },
-			{ name: 'Material #057', value: 056 },
-			{ name: 'Material #058', value: 057 },
-			{ name: 'Material #059', value: 058 },
-			{ name: 'Material #060', value: 059 },
-			{ name: 'Material #061', value: 060 },
-			{ name: 'Material #062', value: 061 },
-			{ name: 'Material #063', value: 062 },
-			{ name: 'Material #064', value: 063 },
-			{ name: 'Material #065', value: 064 },
-			{ name: 'Material #066', value: 065 },
-			{ name: 'Material #067', value: 066 },
-			{ name: 'Material #068', value: 067 },
-			{ name: 'Material #069', value: 068 },
-			{ name: 'Material #070', value: 069 },
-			{ name: 'Material #071', value: 070 },
-			{ name: 'Material #072', value: 071 },
-			{ name: 'Material #073', value: 072 },
-			{ name: 'Material #074', value: 073 },
-			{ name: 'Material #075', value: 074 },
-			{ name: 'Material #076', value: 075 },
-			{ name: 'Material #077', value: 076 },
-			{ name: 'Material #078', value: 077 },
-			{ name: 'Material #079', value: 078 },
-			{ name: 'Material #080', value: 079 },
-			{ name: 'Material #081', value: 080 },
-			{ name: 'Material #082', value: 081 },
-			{ name: 'Material #083', value: 082 },
-			{ name: 'Material #084', value: 083 },
-			{ name: 'Material #085', value: 084 },
-			{ name: 'Material #086', value: 085 },
-			{ name: 'Material #087', value: 086 },
-			{ name: 'Material #088', value: 087 },
-			{ name: 'Material #089', value: 088 },
-			{ name: 'Material #090', value: 089 },
-			{ name: 'Material #091', value: 090 },
-			{ name: 'Material #092', value: 091 },
-			{ name: 'Material #093', value: 092 },
-			{ name: 'Material #094', value: 093 },
-			{ name: 'Material #095', value: 094 },
-			{ name: 'Material #096', value: 095 },
-			{ name: 'Material #097', value: 096 },
-			{ name: 'Material #098', value: 097 },
-			{ name: 'Material #099', value: 098 },
-			{ name: 'Material #100', value: 099 },
-			{ name: 'Material #101', value: 100 },
-			{ name: 'Material #102', value: 101 },
-			{ name: 'Material #103', value: 102 },
-			{ name: 'Material #104', value: 103 },
-			{ name: 'Material #105', value: 104 },
-			{ name: 'Material #106', value: 105 },
-			{ name: 'Material #107', value: 106 },
-			{ name: 'Material #108', value: 107 },
-			{ name: 'Material #109', value: 108 },
-			{ name: 'Material #110', value: 109 },
-			{ name: 'Material #111', value: 110 },
-			{ name: 'Material #112', value: 111 },
-			{ name: 'Material #113', value: 112 },
-			{ name: 'Material #114', value: 113 },
-			{ name: 'Material #115', value: 114 },
-			{ name: 'Material #116', value: 115 },
-			{ name: 'Material #117', value: 116 },
-			{ name: 'Material #118', value: 117 },
-			{ name: 'Material #119', value: 118 },
-			{ name: 'Material #120', value: 119 },
-			{ name: 'Material #121', value: 120 },
-			{ name: 'Material #122', value: 121 },
-			{ name: 'Material #123', value: 122 },
-			{ name: 'Material #124', value: 123 },
-			{ name: 'Material #125', value: 124 },
-			{ name: 'Material #126', value: 125 },
-			{ name: 'Material #127', value: 126 },
-            { name: 'Material #128', value: 127 },
-            { name: 'Material #129', value: 128 },
-            { name: 'Material #130', value: 129 },
-            { name: 'Material #131', value: 130 },
-            { name: 'Material #132', value: 131 },
-            { name: 'Material #133', value: 132 },
-            { name: 'Material #134', value: 133 },
-            { name: 'Material #135', value: 134 },
-            { name: 'Material #136', value: 135 },
-            { name: 'Material #137', value: 136 },
-            { name: 'Material #138', value: 137 },
-            { name: 'Material #139', value: 138 },
-            { name: 'Material #140', value: 139 },
-            { name: 'Material #141', value: 140 },
-            { name: 'Material #142', value: 141 },
-            { name: 'Material #143', value: 142 },
-            { name: 'Material #144', value: 143 },
-            { name: 'Material #145', value: 144 },
-            { name: 'Material #146', value: 145 },
-            { name: 'Material #147', value: 146 },
-            { name: 'Material #148', value: 147 },
-            { name: 'Material #149', value: 148 },
-            { name: 'Material #150', value: 149 },
-            { name: 'Material #151', value: 150 },
-            { name: 'Material #152', value: 151 },
-            { name: 'Material #153', value: 152 },
-            { name: 'Material #154', value: 153 },
-            { name: 'Material #155', value: 154 },
-            { name: 'Material #156', value: 155 },
-            { name: 'Material #157', value: 156 },
-            { name: 'Material #158', value: 157 },
-            { name: 'Material #159', value: 158 },
-            { name: 'Material #160', value: 159 },
-            { name: 'Material #161', value: 160 },
-            { name: 'Material #162', value: 161 },
-            { name: 'Material #163', value: 162 },
-            { name: 'Material #164', value: 163 },
-            { name: 'Material #165', value: 164 },
-            { name: 'Material #166', value: 165 },
-            { name: 'Material #167', value: 166 },
-            { name: 'Material #168', value: 167 },
-            { name: 'Material #169', value: 168 },
-            { name: 'Material #170', value: 169 },
-            { name: 'Material #171', value: 170 },
-            { name: 'Material #172', value: 171 },
-            { name: 'Material #173', value: 172 },
-            { name: 'Material #174', value: 173 },
-            { name: 'Material #175', value: 174 },
-            { name: 'Material #176', value: 175 },
-            { name: 'Material #177', value: 176 },
-            { name: 'Material #178', value: 177 },
-            { name: 'Material #179', value: 178 },
-            { name: 'Material #180', value: 179 },
-            { name: 'Material #181', value: 180 },
-            { name: 'Material #182', value: 181 },
-            { name: 'Material #183', value: 182 },
-            { name: 'Material #184', value: 183 }
-		],
 		lightmap: [
 			{ name: 'On', value: 1 },
 			{ name: 'Off', value: 0 }
@@ -408,143 +222,247 @@ var objectPropertyGridData = {
 	]
 };
 
+$(function() {
 
 var objectPropertiesWidget;
 var budgetPropertiesWidget;
 var materialPickerShowTime;
+var quickClosed = false;
+var lastObjectIndex = -1;
+var materialXmlDoc = null;
+var recentSet = {};
+var objectData = {};
 
-var screenManager = makeScreenManager({
-	object_properties_list: {	
-		title: 'object_properties',
-		activate: () => {
-			$('#object-properties-list').show();
-		},
-		deactivate: () => {
-			$('#object-properties-list').hide();
-		},
-		handleUiButton: (uiButtonCode) => {
-			switch(uiButtonCode) {
-				case 1:
-					screenManager.pop();
-					dew.command('Game.PlaySound 0xb01');
-				break;
-				default:
-					objectPropertiesWidget.handleUiInput(uiButtonCode);
-				break;
-			}
-		}
-	},
-	material_picker: {
-		title: 'appearance_material',
-		activate: () => {
-			$('#material-picker').show();
-			$('#material-picker li')
-			.removeClass('selected')
-			.eq(materialListController.selectedIndex())
-			.addClass('selected')[0]
-			.scrollIntoView(false);
-		},
-		deactivate: () => {
-			$('#material-picker').hide();
-		},
-		handleUiButton: (uiButtonCode) => {
-			switch(uiButtonCode) {
-				case 1:
-					screenManager.pop();
-					dew.command('Game.PlaySound 0xb01');
-					break;
-				case 0:
-					var index = materialListController.selectedIndex();
-					onPropertyChanged('appearance_material', index);
-					screenManager.pop();
-					dew.command('Game.PlaySound 0xb00');
-				break;
-				case 8:
-				case 9:
-					materialListController.navigate(uiButtonCode == 8 ? -1 : 1);
-					dew.command('Game.PlaySound 0xafe');
-				default:
-				break;
-			}
-		}
-	},
-	budget: {
-		title: 'summary',
-		activate: () => {
-			$('#budget-screen').show();
-		},
-		deactivate: () => {
-			$('#budget-screen').hide();
-		},
-		handleUiButton: (uiButtonCode) => {
-			switch(uiButtonCode) {
-				case 1:
-					screenManager.pop();
-					dew.command('Game.PlaySound 0xb01');
-				break;
-				default:
-					budgetPropertiesWidget.handleUiInput(uiButtonCode);
-
-			}
-		}
-	}
+$(document).mouseup(function(e) {
+    var container = $(".container");
+    if (!container.is(e.target) && container.has(e.target).length === 0) {
+    	quickClose();
+    }
 });
+
+var materialListElement = $('#material-tree');
+var materialTreeListWidget = makeTreeList(materialListElement[0]);
+	$(materialListElement).on('click', function() {
+	handleUiInput(0);
+})
+
+materialTreeListWidget.on('select', function(node) {
+
+	 if(node.getElementsByTagName('category').length)
+	 	return;
+	 
+
+
+	renderMaterialList($('#material-list')[0], node);
+	
+	screenManager.push('material_picker_material_list', {
+		onSelect: function(item, finished) {
+			if(!item || !item.value)
+				return;
+
+			objectPropertiesWidget.setValue('appearance_material', item.value);
+			if(finished) {
+				for(var i = 0; i < 8; i++) {
+					var currentScreen = screenManager.currentScreen();
+					if(currentScreen && currentScreen.name === 'material_picker_material_list')
+						screenManager.pop();
+						break;		
+				}
+			}
+
+			onPropertyChanged('appearance_material', item.value);
+		},
+		onBack: function(finished) {
+			screenManager.pop();
+		}
+	});
+});
+
+	var screenManager = makeScreenManager({
+		object_properties_list: {	
+			title: 'object_properties',
+			activate: () => {
+				$('#object-properties-list').show();
+			},
+			deactivate: () => {
+				$('#object-properties-list').hide();
+			},
+			handleUiButton: (uiButtonCode) => {
+				switch(uiButtonCode) {
+					case 1:
+						screenManager.pop();
+						dew.command('Game.PlaySound 0xb01');
+					break;
+					default:
+						objectPropertiesWidget.handleUiInput(uiButtonCode);
+					break;
+				}
+			}
+		},
+		material_picker: {
+			title: 'appearance_material',
+			activate: () => {
+				$('#material-tree').show();
+			},
+			deactivate: () => {
+				$('#material-tree').hide();
+			},
+			handleUiButton: (uiButtonCode) => {
+				if(uiButtonCode == 1) {
+					screenManager.pop();
+					dew.command('Game.PlaySound 0xb01');
+					return;
+				}
+				switch(uiButtonCode) {
+					case 0:
+						dew.command('Game.PlaySound 0xb00');
+						break;
+					case 8:
+					case 9:
+						dew.command('Game.PlaySound 0xafe');
+					break;
+
+				}
+
+				materialTreeListWidget.handleInput(uiButtonCode);
+			}
+		},
+		material_picker_material_list: makeMaterialListScreens(),
+		budget: {
+			title: 'summary',
+			activate: () => {
+				$('#budget-screen').show();
+			},
+			deactivate: () => {
+				$('#budget-screen').hide();
+			},
+			handleUiButton: (uiButtonCode) => {
+				switch(uiButtonCode) {
+					case 1:
+						screenManager.pop();
+						dew.command('Game.PlaySound 0xb01');
+					break;
+					default:
+						budgetPropertiesWidget.handleUiInput(uiButtonCode);
+
+				}
+			}
+		}
+	});
+
+
 
 screenManager.on('screenChange', () => {
 	updateTitle();
 });
 
-var materialListController = makeListWidgetController('material_iist', { wrapAround: true }, {
-	count: () => objectPropertyGridData.meta['appearance_material'].length
-});
 
-materialListController.on('selectedIndexChanged', ({index, userInput}) => {
-	if($('#material-picker li').is(':visible')) {
-		$('#material-picker li').removeClass('selected').eq(index).addClass('selected')[0].scrollIntoView(false);
+function getMaterialsXml(callback) {
+	if(!materialXmlDoc) {
+		$.get('materials.xml', function(data) {
+			var parser = new DOMParser();
+	    	doc = parser.parseFromString(data, "application/xml");
+			materialXmlDoc = doc;
+			callback(materialXmlDoc);
+		});
 	}
+	else {
+		return callback(materialXmlDoc);
+	}
+}
 
-	if(userInput) {
-		onPropertyChanged('appearance_material', index);
+function findMaterialItem(materialIndex) {
+	for(var x = materialXmlDoc.firstChild; x; x = x.nextSibling) {
+		var id = x.getAttribute('id');
+		if(id == 'recent')
+			continue;
+
+		var items = x.getElementsByTagName('item');
+		for(var i = 0; i < items.length; i++) {
+			if(parseInt(items[i].getAttribute('value')) == materialIndex)
+				return items[i];
+		}
+	}
+}
+
+dew.on('hide', function() {
+	if(objectData.has_material) {
+		var selectedMaterialIndex = objectPropertiesWidget.getValue('appearance_material');
+		if(selectedMaterialIndex == -1)
+			return;
+
+		var recentNode = materialXmlDoc.getElementById('recent');
+
+		var item = findMaterialItem(selectedMaterialIndex);
+		if(!recentSet[selectedMaterialIndex]) {
+			recentSet[selectedMaterialIndex] = true;
+			item = item.cloneNode(true);
+		} else {
+			recentNode.removeChild(item);
+		}
+
+		recentNode.prepend(item);
 	}
 });
 
 dew.on('show',function(e) {
-	
-	for(var key in e.data.properties)
-	{
-		switch(key) {
-			case 'appearance_material':
-				materialListController.setSelectedIndex(e.data.properties[key]);
-			break;
+
+	objectData = { has_material: e.data.has_material };
+
+	if(quickClosed) {
+		quickClosed = false;
+		if(lastObjectIndex == e.data.object_index)
+			return;
+		else {
+			screenManager.closeAll();
 		}
 	}
 
-	objectPropertiesWidget.populate(objectPropertyGridData, e.data.properties);
-	buildPropertyFilter(e.data);
+	lastObjectIndex = e.data.object_index;
+	
+	getMaterialsXml(function(doc) {
+		 var allMaterials  = Array.prototype.slice.call(doc.getElementsByTagName('item'), 0);
 
-	budgetPropertiesWidget.populate({
-		strings: STRINGS,
-		properties: [
-			{ name: 'summary_placed_on_map', type: 'static', meta:'summary_placed_on_map'},
-			{ name: 'summary_runtime_minimum', type: 'range', meta:'summary_runtime_minimum' },
-			{ name: 'summary_runtime_maximum', type: 'range', meta:'summary_runtime_maximum' },
-			{ name: 'summary_maximum_allowed', type: 'static', meta: 'summary_maximum_allowed'},
-			{ name: 'summary_total_cost', type: 'static', meta:'summary_total_cost'}
-		],
-		meta: {
-			summary_placed_on_map: e.data.budget.summary_placed_on_map,
-			summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
-			summary_runtime_maximum: { type: 'int', min: 0, max: e.data.budget.summary_maximum_allowed, step: 1},
-			summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
-			summary_total_cost: e.data.budget.summary_total_cost
-		}
-	}, e.data.budget);
+		objectPropertiesWidget.populate({
+			strings: STRINGS,
+			properties: objectPropertyGridData.properties,
+			meta: Object.assign(objectPropertyGridData.meta, {
+				appearance_material: allMaterials.map(m => ({
+					name: m.getAttribute('name'),
+					value: parseInt(m.getAttribute('value'))
+				}))
+			})
+		}, e.data.properties);
+		buildPropertyFilter(e.data);
+		objectPropertiesWidget.setSelectedIndex(0);
 
-	objectPropertiesWidget.setSelectedIndex(0);
-	budgetPropertiesWidget.setSelectedIndex(0);
-	screenManager.clear();
-	screenManager.push('object_properties_list');
-	//dew.command('Game.PlaySound 0xb02');
+		materialTreeListWidget.setSource(doc.firstChild);
+
+		budgetPropertiesWidget.populate({
+			strings: STRINGS,
+			properties: [
+				{ name: 'summary_placed_on_map', type: 'static', meta:'summary_placed_on_map'},
+				{ name: 'summary_runtime_minimum', type: 'range', meta:'summary_runtime_minimum' },
+				{ name: 'summary_runtime_maximum', type: 'range', meta:'summary_runtime_maximum' },
+				{ name: 'summary_maximum_allowed', type: 'static', meta: 'summary_maximum_allowed'},
+				{ name: 'summary_total_cost', type: 'static', meta:'summary_total_cost'}
+			],
+			meta: {
+				summary_placed_on_map: e.data.budget.summary_placed_on_map,
+				summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
+				summary_runtime_maximum: { type: 'int', min: 0, max: e.data.budget.summary_maximum_allowed, step: 1},
+				summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
+				summary_total_cost: e.data.budget.summary_total_cost
+			}
+		}, e.data.budget);
+		budgetPropertiesWidget.setSelectedIndex(0);
+
+		
+		
+		screenManager.clear();
+		screenManager.push('object_properties_list');
+	});
+   
 });
 
 $(function() {
@@ -577,7 +495,8 @@ $(function() {
 	objectPropertiesWidget.on('select', function(name) {
 		switch(name) {
 			case 'appearance_material':
-				showMaterialPicker((selectedIndex) => { onPropertyChanged(name, selectedIndex); });
+				var value = objectPropertiesWidget.getValue(name);
+				showMaterialPicker(value);
 			break;
 			case 'budget_screen_action':
 				screenManager.push('budget');
@@ -604,12 +523,8 @@ $(function() {
 	});
 
 	objectPropertiesWidget.on('propertyChange', ({name, value}) => {
-		switch(name) {
-			case 'appearance_material':
-				materialListController.setSelectedIndex(value);
-			break;
-		}
-		onPropertyChanged(name, value);
+		if(value != undefined)
+			onPropertyChanged(name, value);
 	});
 
 	budgetPropertiesWidget.on('propertyChange', ({name, value}) => {
@@ -623,18 +538,13 @@ $(function() {
 		$(this).addClass('selected');
 	});
 
-	$('#material-picker').on('click', 'li', function(e) {
-		materialListController.setSelectedIndex($(this).index(), false);
-		handleUiInput(0);
-	});
-
 });
 
 function onPropertyChanged(name, value) {
 	var changes = {};
 	switch(name) {
 		case 'appearance_material':
-			$('#appearance_material_material_preview').attr('src', objectPropertyGridData.meta['appearance_material'][value].thumbnail);
+			//$('#appearance_material_material_preview').attr('src', objectPropertyGridData.meta['appearance_material'][value].thumbnail);
 		break;
 		case 'shape_type':
 			switch (value)
@@ -683,8 +593,6 @@ function buildVisiblePropertyArray(properties, filterSet) {
 }
 
 function buildPropertyFilter(data) {
-	var filter = {};
-
 	var isTeleporter = false;
 	var hasZone = false;
 	var hasSpawnOrder = false;
@@ -755,14 +663,18 @@ function buildPropertyFilter(data) {
 	objectPropertiesWidget.toggleVisibility('fx', data.is_screenfx);
 	objectPropertiesWidget.toggleVisibility('fx_hue', data.is_screenfx);
 	objectPropertiesWidget.toggleVisibility('fx_saturation', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_desaturation', data.is_screenfx);
 	objectPropertiesWidget.toggleVisibility('fx_light_intensity', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_tint_r', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_tint_g', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_tint_b', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_color_mute', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_brightness', data.is_screenfx);
-	objectPropertiesWidget.toggleVisibility('fx_darkness', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_filter_r', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_filter_g', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_filter_b', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_floor_r', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_floor_g', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_color_floor_b', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_gamma_inc', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_gamma_dec', data.is_screenfx);
 	objectPropertiesWidget.toggleVisibility('fx_range', data.is_screenfx);
+	objectPropertiesWidget.toggleVisibility('fx_tracing', data.is_screenfx);
 
 	if(!hasSpawn) {
 		objectPropertiesWidget.toggleVisibility('on_map_at_start', false);
@@ -814,36 +726,42 @@ function buildPropertyFilter(data) {
 	} else {
 		objectPropertiesWidget.toggleVisibility('physics', false);
 	}
-
-	return filter;
 }
 
 function handleUiInput(uiButtonCode) {
 	var current = screenManager.currentScreen();
 	if(!current)
 		return;
+	switch(uiButtonCode) {
+		case 2:
+			quickClose();
+		break;
+	}
 	current.handleUiButton(uiButtonCode);
 }
 
 function updateTitle() {
 	var screens = screenManager.pushedScreens();
-	var title = screens.map(screen => STRINGS[screen.title]).join(' - ');
+	var title = screens.slice(0, 2).map(screen => STRINGS[screen.title]).join(' - ');
 	$('#title').text(title);
 }
 
 
-function showMaterialPicker(callback) {
-	var materials = objectPropertyGridData.meta['appearance_material'];
+function showMaterialPicker(materialindex) {
 	materialPickerShowTime = Date.now();
-	$('#material-picker').html(`
-		<ul class="material-list">
-			${materials.reduce((html, m) => (html + `
-				<li><img src="${m.thumbnail}"></img> <span>${m.name}</span></li>
-				`), '')}
-		</ul>
-	 `);
+	var materialList = $('.material-tree')[0];
 
 	screenManager.push('material_picker');
+}
+
+function renderMaterialList(element, node) {
+	var html = '';
+	for(var x = node.firstChild; x; x = x.nextSibling) {
+		if(x.nodeName !== 'item') continue;
+			var thumbnail = x.getAttribute('thumbnail');
+			html += `<li data-value="${x.getAttribute('value')}"><img src="${thumbnail}"></img> <span>${x.getAttribute('name')}</span></li>`;
+	}
+	element.innerHTML = html;
 }
 
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 }
@@ -900,5 +818,90 @@ dew.on('controllerinput', function(e){
     else if(e.data.B == 1) handleUiInput(1);
     else if(e.data.X == 1) handleUiInput(2);
     else if(e.data.Y == 1) handleUiInput(3);
+    else if(e.data.RightBumper == 1) handleUiInput(4);
+    else if(e.data.LeftBumper == 1) handleUiInput(5);
+    else if(e.data.Up == 1) handleUiInput(8);
+    else if(e.data.Down == 1) handleUiInput(9);
+    else if(e.data.Left == 1) handleUiInput(10);
+    else if(e.data.Right == 1) handleUiInput(11);
   
 });
+
+function quickClose() {
+	quickClosed = true;
+	 dew.command('Game.PlaySound 0xb01');
+     dew.hide();
+}
+
+});
+
+
+function makeMaterialListScreens() {
+	var _materialListElement = $('#material-list');
+	var _onSelectCallback = null;
+	var _onBack = null;
+
+	var materialListController = makeListWidgetController('material_iist', { wrapAround: true }, {
+		count: () => _materialListElement.find('li').length
+	});
+
+	materialListController.on('selectedIndexChanged', function({index, userInput}) {
+		var selectedElement = _materialListElement.find('li').removeClass('selected').eq(index);
+		selectedElement.addClass('selected');
+		if(userInput)
+			selectedElement[0].scrollIntoView(false);
+		onMaterialSelect(false);
+	});
+
+	_materialListElement.on('mouseover', 'li', function(e) {
+		 if(e.target.nodeName == 'LI') {
+            materialListController.setSelectedIndex($(e.target).index(), true);
+        }    
+	});
+
+	_materialListElement.on('click', 'li', function(e) {
+		 handleUiInput(0); 
+	});
+
+	return {
+		name: 'material_picker_material_list',
+		activate: (props) => {
+			_onSelectCallback = props.onSelect;
+			_onBack = props.onBack;
+
+			materialListController.setSelectedIndex(props.selectedIndex || 0);
+			_materialListElement.show();		
+		},
+		deactivate: () => {
+			_materialListElement.hide();
+		},
+		handleUiButton: handleUiInput
+	}
+
+	function onMaterialSelect(finished) {
+		var selectedElement = _materialListElement.find('li').eq(materialListController.selectedIndex());
+		var value = parseInt(selectedElement.data('value'));
+		if(_onSelectCallback)
+			_onSelectCallback({ name: selectedElement.text(), value: value }, finished);
+
+	}
+
+	function handleUiInput(uiButtonCode) {
+		switch(uiButtonCode) {
+			case 0:
+				onMaterialSelect(true);
+				dew.command('Game.PlaySound 0xb00');
+				_onBack(true);
+			break;
+			case 1:
+				_onBack();
+				dew.command('Game.PlaySound 0xb01');
+				break;
+			case 8:
+			case 9:
+				materialListController.navigate(uiButtonCode == 8 ? -1 : 1);
+				dew.command('Game.PlaySound 0xafe');
+			break;
+		}
+	}
+}

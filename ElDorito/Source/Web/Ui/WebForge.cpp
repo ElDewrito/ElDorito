@@ -601,6 +601,7 @@ namespace
 		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
 
 		writer.StartObject();
+		SerializeProperty(writer, "object_index", int(s_CurrentObjectIndex));
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
 		SerializeProperty(writer, "has_material", CanThemeObject());
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
