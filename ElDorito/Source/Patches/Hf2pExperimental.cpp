@@ -13,6 +13,7 @@
 #include "../ElDorito.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/BlamTime.hpp"
+#include "../Web/Ui/WebScoreboard.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Game/Armor.hpp"
 
@@ -109,6 +110,7 @@ namespace
 	void Hf2pShutdownHook();
 	void Hf2pTickHook();
 	void Hf2pLoadPreferencesHook();
+	bool RespawnTimerHook(int hudIndex, wchar_t* buff, int len, int a4);
 
 	void UI_StartMenuScreenWidget_OnDataItemSelectedHook();
 
@@ -135,6 +137,8 @@ namespace Patches::Hf2pExperimental
 		Hook(0x10CB01, Hf2pLoadPreferencesHook, HookFlags::IsCall).Apply();
 
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
+
+		Hook(0x6963C6, RespawnTimerHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnMapLoaded(OnMapLoaded);
 	}
@@ -219,54 +223,12 @@ namespace
 		// update pre-match camera
 		if (InPrematchState(4))
 		{
-			if (!s_TimerStarted && secondsUntilPlayerSpawn > 0)
-			{
-				s_TimerStarted = true;
-				s_TimerLastTicked = Blam::Time::GetGameTicks();
-				Web::Ui::WebTimer::Start("startTimer", secondsUntilPlayerSpawn);
-			}
-
 			s_MatchStarted = UpdatePreMatchCamera();
 		}
 		else if (s_MatchStarted)
 		{
 			InitMpDirector();
 			s_MatchStarted = false;
-		}
-		else
-		{
-			if (!s_TimerStarted && secondsUntilPlayerSpawn > 0)
-			{
-				s_TimerStarted = true;
-				s_TimerLastTicked = Blam::Time::GetGameTicks();
-				Web::Ui::WebTimer::Start("respawnTimer", secondsUntilPlayerSpawn);
-			}
-		}
-
-		if (s_TimerStarted)
-		{
-			static auto s_LastTimerValue = 0;
-			auto secondsUntilSpawn = GetSecondsRemainingUntilPlayerSpawn();
-
-			if (secondsUntilSpawn != s_LastTimerValue)
-			{
-				s_LastTimerValue = secondsUntilSpawn;
-				s_TimerLastTicked = Blam::Time::GetGameTicks();
-				Web::Ui::WebTimer::Update(secondsUntilSpawn);
-
-				if (secondsUntilSpawn <= 0)
-				{
-					s_TimerStarted = false;
-					Web::Ui::WebTimer::End();
-				}
-			}
-
-			// TODO: find a better game ended indication
-			if (IsMapLoading())
-			{
-				s_TimerStarted = false;
-				Web::Ui::WebTimer::End();
-			}
 		}
 
 		if (!IsMapLoading())
@@ -428,5 +390,80 @@ namespace
 		{
 			*(float*)((*soundSystemPtr) + 0x44) = 1.0f;
 		}
+	}
+
+	bool RespawnTimerHook(int hudIndex, wchar_t* buff, int len, int a4)
+	{
+		const auto ui_play_sound = (void(*)(int index, uint32_t uise))(0x00AA5CD0);
+		static auto game_engine_in_state = (bool(*)(char state))(0x005523A0);
+		static int timeStarted = -1;
+		static int lastTimerBeep = 0;
+
+		const auto sub_6E4AA0 = (bool(__cdecl *)(int a1, wchar_t *DstBuf, int bufflen, char a4))(0x6E4AA0);
+		if (sub_6E4AA0(hudIndex, buff, len, a4))
+			return true;
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		if (playerIndex == Blam::DatumIndex::Null)
+			return false;
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (!player)
+			return false;
+
+		static auto scoreboardShown = false;
+		auto ticksUntilSpawn = Pointer(player)(0x2CB8).Read<int>();
+		if (ticksUntilSpawn > 0)
+		{
+			if (timeStarted == -1)
+				timeStarted = Blam::Time::GetGameTicks();
+
+			auto secondsElapsed = Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - timeStarted));
+			auto secondsUntilSpawn = Blam::Time::TicksToSeconds(float(ticksUntilSpawn));
+
+			if (secondsUntilSpawn <= 3)
+			{
+				if (int(secondsUntilSpawn) != lastTimerBeep)
+				{
+					lastTimerBeep = int(secondsUntilSpawn);
+					ui_play_sound(13, -1);
+				}
+			}
+
+			if (game_engine_in_state(4))
+			{
+				if (secondsElapsed > 4)
+				{
+					swprintf_s(buff, len, L"Spawn in %d", (int)secondsUntilSpawn + 1);
+					return true;
+				}
+			}
+			else
+			{
+				swprintf_s(buff, len, L"Respawn in %d", (int)secondsUntilSpawn);
+
+				if (secondsUntilSpawn <= 2)
+				{
+					if (!scoreboardShown)
+					{
+						Web::Ui::WebScoreboard::Show(false, false);
+						scoreboardShown = true;
+					}
+
+					return false;
+				}
+			}
+
+			return true;
+		}
+		else
+		{
+			timeStarted = -1;
+			if (scoreboardShown)
+			{
+				Web::Ui::WebScoreboard::Hide();
+				scoreboardShown = false;
+			}
+		}
+
+		return false;
 	}
 }
