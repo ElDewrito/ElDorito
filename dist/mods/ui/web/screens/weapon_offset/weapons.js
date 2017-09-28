@@ -193,6 +193,7 @@ dew.on("show", function(e){
         $('#wOffsetConfig').val(response);
     });
     dew.command('Weapon.List', {}).then(function(response){
+        $('#weapList').empty();
         var weaponList = response.split('\n');
         var weaponArray = [];
         for(i = 0; i < weaponList.length; i++){
