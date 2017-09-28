@@ -34,6 +34,13 @@
         changeTab('props');
     });
 
+    $(document).mouseup(function(e) {
+        var container = $(".object-browser");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            quickClose();
+        }
+    });
+
     document.querySelector('.search-text').addEventListener('input', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -495,6 +502,11 @@
     });
 
     function handleUiInput(uiButtonCode) {
+        switch(uiButtonCode) {
+            case 2:
+                quickClose();
+            return;
+        }
         var screen = screenManager.currentScreen();
         screen.handleInput(uiButtonCode);
     }
@@ -611,6 +623,10 @@
 
 })(jQuery);
 
+function quickClose() {
+     dew.command('Game.PlaySound 0xb01');
+     dew.hide();
+}
 
 function makeTreeList(_element, _data) {
     var _stack = [];
@@ -627,7 +643,7 @@ function makeTreeList(_element, _data) {
     _element.addEventListener('mouseover', function(e) {
         var nodes = Array.prototype.slice.call(_element.children);
         _selectedIndex = nodes.indexOf(e.target);
-        renderSelection();
+        renderSelection(false);
     }, true);
 
     return  {
@@ -736,7 +752,7 @@ function makeTreeList(_element, _data) {
         renderSelection();
     }
 
-    function renderSelection() {
+    function renderSelection(shouldScroll = true) {
         var items = _element.querySelectorAll('li');
         for(var i = 0; i < items.length; i++) {
             items[i].classList.remove('selected');
@@ -745,7 +761,8 @@ function makeTreeList(_element, _data) {
         if(items[_selectedIndex]) {
             var itemElem = items[_selectedIndex];
             itemElem.classList.add('selected');
-            itemElem.scrollIntoView(false);
+            if(shouldScroll)
+                itemElem.scrollIntoView(false);
         }
     }
 
