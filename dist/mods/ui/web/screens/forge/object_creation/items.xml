@@ -2,35 +2,57 @@
   <category name="Props" id="props">
     <category name="Barrels">
       <item name="Barrel" tagindex="0x2eb5" />
-      <item name="Barrel_small" tagindex="0x2eb6" />
+      <item name="Barrel, Small" tagindex="0x2eb6" />
       <item name="Drum, 12 Gal" tagindex="0x34c1" />
       <item name="Drum, 55 Gal" tagindex="0x4df8" />
     </category>
+	<category name="Natural">
+	  <item name="Pine Tree" tagindex="0x000034C3" />
+	  <item name="Pine Tree, Large" tagindex="0x34c5" />
+	  <item name="Palm Tree, Small" tagindex="0x00005225" />
+	  <item name="Palm Bush, Large" tagindex="0x0000522A" />
+	  <item name="Palm Bush, Medium" tagindex="0x0000521A" />
+	  <item name="Bush, A" tagindex="0x00004F04" />
+	  <item name="Bush, B" tagindex="0x00004F09" />
+	  <item name="Bush, Small" tagindex="0x00004EF5" />
+	  <item name="Icicle, 6 Inch" tagindex="0x000041E9" />
+	  <item name="Icicle, 10 Inch" tagindex="0x00003A14" />
+	  <item name="Icicle, 18 Inch" tagindex="0x00003A15" />
+	  <item name="Icicle, 24 Inch" tagindex="0x00004B4E" />
+	</category>
     <category name="Cover">
+	  <item name="Awning" tagindex="0x000051EA" />
       <item name="Barricade" tagindex="0x34aa" />
       <item name="Barricade, Small" tagindex="0x3fd4" />
       <item name="Dumpster" tagindex="0x4225" />
-      <item name="Sandbag (P)" tagindex="0x444b">
-        <setter target="physics" type="int" value="1" />
-      </item>
       <item name="Barrier" tagindex="0x47f2" />
       <item name="Barrier, Short" tagindex="0x481a" />
       <item name="Roadblock" tagindex="0x2eb8" />
+	  <item name="Battle Shield" tagindex="0x00005210" />
+	  <item name="Sandbags" tagindex="0x50f3" />
+	  <item name="Sandbags, Turret" tagindex="0x4d16" />
+	  <item name="Sandbags, 45° Corner" tagindex="0x4d4f" />
+	  <item name="Sandbags, 90° Corner" tagindex="0x50e9" />
+	  <item name="Sandbags, Endcap" tagindex="0x50ee" />
+	  <item name="Sandbag, Two" tagindex="0x50f8" />
+	  <item name="Sandbag, Single" tagindex="0x50fd" />
     </category>
     <category name="Crates">
+	  <item name="Ammo Crate" tagindex="0x3fd6" />
+      <item name="Ammo Crate, Small" tagindex="0x3fd5" />
       <item name="Ammo Case" tagindex="0x47b1" />
       <item name="Crate, Single, Large" tagindex="0x2eb4" />
       <item name="Crate, Single" tagindex="0x2eb3" />
-      <item name="Crate, Multi, Destructible" tagindex="0x4221">
-        <setter target="physics" type="int" value="1" />
-      </item>
-      <item name="Crate, Multi" tagindex="0x444c">
-        <setter target="physics" type="int" value="1" />
-      </item>
+      <item name="Crate, Multi, Destructible" tagindex="0x4221" />
+      <item name="Crate, Multi" tagindex="0x444c" />
       <item name="Container, Open" tagindex="0x5189" />
       <item name="Container" tagindex="0x517a" />
-      <item name="Equipment Case" tagindex="0x34a6" />
-      <item name="Equipment Case, Large" tagindex="0x2ebc" />
+	  <item name="Double Box, Open" tagindex="0x4e10" />
+      <item name="Equipment Case" tagindex="0x2ebc" />
+	  <item name="Equipment Case, Small" tagindex="0x34a6" />
+	  <item name="Equipment Case, Open" tagindex="0x00004EE3" />
+	  <item name="Equipment Case, Lid" tagindex="0x00004EF0" />
+	  <item name="Fence Box" tagindex="0x4def" />
       <item name="Cabinet" tagindex="0x4224" />
       <item name="Metal Crate, Small" tagindex="0x4220" />
       <item name="Supply Case" tagindex="0x34c0" />
@@ -39,7 +61,8 @@
       <item name="Metal Crate" tagindex="0x3fd3" />
     </category>
     <category name="Explosives">
-      <item name="Plasma Battery" tagindex="0x2eba" />
+      <item name="Trip Mine (Armed)" tagindex="0x00005A68" />
+	  <item name="Plasma Battery" tagindex="0x2eba" />
       <item name="Fusion Coil" tagindex="0x34a4" />
       <item name="Power Core" tagindex="0x2ebb" />
       <item name="Propane Burner" tagindex="0x4baa" />
@@ -165,56 +188,373 @@
         <setter target="light_radius" type="float" value="5" />
       </item>
     </category>
-    <category name="Miscellaneous">
-      <item name="Weapon Holder (P)" tagindex="0x2ebe" />
+    <category name="Tech">
+	  <item name="Monitor, Medium" tagindex="0x4686" />
+	  <item name="Monitor, Small" tagindex="0x469f" />
+      <item name="Computer" tagindex="0x5427" />
+      <item name="Computer, Small" tagindex="0x5441" />
+      <item name="Industrial Cart" tagindex="0x444a" />
+	  <item name="Generator" tagindex="0x47cd" />
+      <item name="Generator, Small" tagindex="0x2ebd" />
+	  <item name="Generator, Industrial" tagindex="0x0000493D" />
+      <item name="Floodlights" tagindex="0x47bb" />
+      <item name="Radio Set" tagindex="0x2eaf" />
+      <item name="Radio Set, Small" tagindex="0x34a7" />
+      <item name="Forklift" tagindex="0x4965" />
+    </category>
+	<category name="Gadgets">
+	  <item name="Soccer Ball" tagindex="0x4e58" />
+	  <item name="Weapon Holder" tagindex="0x2ebe" />
+	  <item name="Grav Lift" tagindex="0x2ebf" />
+	  <item name="Man Cannon" tagindex="0x4e46" />
+      <item name="Shield Door" tagindex="0x4e41" />
+	  <item name="Shield Door 2" tagindex="0x3a94" />
+	  <item name="Shield Door, Large" tagindex="0x4e2b" />
+	  <item name="Shield Door, Gold" tagindex="0x2ee5" />
+	</category>
+	<category name="Office">
+	<item name="Telephone" tagindex="0x546b" />
+	<item name="Telephone, Wall" tagindex="0x000048EF" />
+	<item name="Table" tagindex="0x4608" />
+	<item name="Keyboard" tagindex="0x0000490E" />
+	 <item name="Computer Monitor" tagindex="0x00004918" />
+	 <item name="Filing Cabinet" tagindex="0x00004923" />
+	 <item name="Filing Cabinet, Small" tagindex="0x0000492F" />
+	 <item name="Chair" tagindex="0x00004934" />
+	 <item name="Stand" tagindex="0x000054D1" />
+	 <item name="Kitchen Sink" tagindex="0x46a4" />
+	</category>
+	 <category name="Miscellaneous">
+	  <item name="Weapon Shelf" tagindex="0x46ad" />
+	  <item name="Loudspeaker" tagindex="0x46be" />
+	  <item name="Drop Bridge" tagindex="0x51c7" />
+	  <item name="Swinging Lamp" tagindex="0x000051FD" />
+	  <item name="Warthog Platform" tagindex="0x3492" />
+	  <item name="Mongoose Platform" tagindex="0x3493" />
       <item name="Missile, Body" tagindex="0x4849" />
       <item name="Missile, Warhead" tagindex="0x484e" />
-      <item name="Ammo Crate" tagindex="0x3fd6" />
-      <item name="Ammo Crate, Small" tagindex="0x3fd5" />
+	  <item name="Missile, Stack" tagindex="0x4662" />
       <item name="Drop Pod, Panel" tagindex="0x34a9" />
       <item name="Drop Pod, Closed" tagindex="0x34a8" />
+	  <item name="Drop Pod, Deployed" tagindex="0x0000348E" />
       <item name="Blitz Can" tagindex="0x34c2" />
       <item name="Camping Stool" tagindex="0x2eb2" />
       <item name="Garbage Can" tagindex="0x518e" />
       <item name="Medical Tray" tagindex="0x5460" />
+	  <item name="Floor Hatch" tagindex="0x00005495" />
       <item name="Pallet" tagindex="0x4222" />
       <item name="Pallet, Large" tagindex="0x2eb7" />
-      <item name="Pine Tree, Large (P)" tagindex="0x34c5" />
       <item name="Medical Cart" tagindex="0x544a" />
-      <item name="Soccer Ball" tagindex="0x4e58" />
+	  <item name="Medical Cabinet" tagindex="0x0000541C" />
       <item name="Street Cone" tagindex="0x2eb9" />
       <item name="Toolbox" tagindex="0x4865" />
       <item name="Toolbox, Small" tagindex="0x4853" />
       <item name="Trash Can" tagindex="0x4226" />
       <item name="Radio Antennae" tagindex="0x34a5" />
       <item name="Bridge" tagindex="0x4e20" />
-      <item name="Double Box, Open" tagindex="0x4e10">
-        <setter target="physics" type="int" value="1" />
-      </item>
       <item name="Wire Spool" tagindex="0x4e08" />
-      <item name="Fence Box" tagindex="0x4def" />
-      <item name="Swinging Door (P)" tagindex="0x4223" />
+      <item name="Swinging Door" tagindex="0x4223" />
       <item name="Locker" tagindex="0x47e5" />
-    </category>
-    <category name="Tech">
-      <item name="Telephone" tagindex="0x546b" />
-      <item name="Computer" tagindex="0x5427" />
-      <item name="Computer, Small" tagindex="0x5441" />
-      <item name="Industrial Cart" tagindex="0x444a" />
-      <item name="Generator, Small" tagindex="0x2ebd" />
-      <item name="Floodlights" tagindex="0x47bb" />
-      <item name="Generator" tagindex="0x47cd" />
-      <item name="Radio Set" tagindex="0x2eaf" />
-      <item name="Radio Set, Small" tagindex="0x34a7" />
-      <item name="Grav Lift" tagindex="0x2ebf" />
-      <item name="Cannon, Man" tagindex="0x4e46" />
-      <item name="Forklift" tagindex="0x4965" />
-      <item name="Shield Door, Large" tagindex="0x4e2b" />
-      <item name="Shield Door" tagindex="0x4e41" />
+	  <item name="Backpack" tagindex="0x00002EB0" />
+	  <item name="Crowbar" tagindex="0x00005709" />
+	  <item name="Warthog Tire" tagindex="0x00002A76" />
+		<item name="Phantom Destroyed, Back, Large" tagindex="0x000055FB" />
+		<item name="Phantom Destroyed, Back, Medium" tagindex="0x00005600" />
+		<item name="Phantom Destroyed, Back, Small" tagindex="0x00005605" />
+		<item name="Phantom Destroyed, Bottom" tagindex="0x0000560A" />
+		<item name="Phantom Destroyed, Flat, Right" tagindex="0x00005614" />
+		<item name="Phantom Destroyed, Side, Left" tagindex="0x0000561E" />
+		<item name="Phantom Destroyed, Side, Right" tagindex="0x00005623" />
     </category>
   </category>
   <category name="Structure" id="structure">
-    <category name="ReForge"></category>
+         <category name="Blocks">
+        <category name="Block X:0.1">
+          <category name="Block X:0.1 Y:0.5">
+            <item name="Block X:0.1 Y:0.5 Z:0.5" tagindex="0x15c" />
+          </category>
+          <category name="Block X:0.1 Y:1">
+            <item name="Block X:0.1 Y:1 Z:0.5" tagindex="0x158" />
+            <item name="Block X:0.1 Y:1 Z:1" tagindex="0x148" />
+          </category>
+          <category name="Block X:0.1 Y:2">
+            <item name="Block X:0.1 Y:2 Z:0.5" tagindex="0x156" />
+            <item name="Block X:0.1 Y:2 Z:1" tagindex="0x14c" />
+            <item name="Block X:0.1 Y:2 Z:2" tagindex="0x155" />
+          </category>
+          <category name="Block X:0.1 Y:3">
+            <item name="Block X:0.1 Y:3 Z:0.5" tagindex="0x15a" />
+            <item name="Block X:0.1 Y:3 Z:1" tagindex="0x14a" />
+            <item name="Block X:0.1 Y:3 Z:2" tagindex="0x154" />
+            <item name="Block X:0.1 Y:3 Z:3" tagindex="0x153" />
+          </category>
+          <category name="Block X:0.1 Y:4">
+            <item name="Block X:0.1 Y:4 Z:0.5" tagindex="0x159" />
+            <item name="Block X:0.1 Y:4 Z:1" tagindex="0x149" />
+            <item name="Block X:0.1 Y:4 Z:2" tagindex="0x141" />
+            <item name="Block X:0.1 Y:4 Z:3" tagindex="0x152" />
+            <item name="Block X:0.1 Y:4 Z:4" tagindex="0x151" />
+          </category>
+          <category name="Block X:0.1 Y:5">
+            <item name="Block X:0.1 Y:5 Z:0.5" tagindex="0x15b" />
+            <item name="Block X:0.1 Y:5 Z:1" tagindex="0x14b" />
+            <item name="Block X:0.1 Y:5 Z:2" tagindex="0x14f" />
+            <item name="Block X:0.1 Y:5 Z:3" tagindex="0x14e" />
+            <item name="Block X:0.1 Y:5 Z:4" tagindex="0x14d" />
+            <item name="Block X:0.1 Y:5 Z:5" tagindex="0x150" />
+          </category>
+          <category name="Block X:0.1 Y:10">
+            <item name="Block X:0.1 Y:10 Z:0.5" tagindex="0x157" />
+            <item name="Block X:0.1 Y:10 Z:1" tagindex="0x145" />
+            <item name="Block X:0.1 Y:10 Z:2" tagindex="0x144" />
+            <item name="Block X:0.1 Y:10 Z:3" tagindex="0x143" />
+            <item name="Block X:0.1 Y:10 Z:4" tagindex="0x142" />
+            <item name="Block X:0.1 Y:10 Z:5" tagindex="0x146" />
+            <item name="Block X:0.1 Y:10 Z:10" tagindex="0x147" />
+          </category>
+          <category name="Block X:0.1 Y:20">
+            <item name="Block X:0.1 Y:20 Z:20" tagindex="0x15d" />
+          </category>
+        </category>
+        <category name="Block X:0.5">
+          <category name="Block X:0.5 Y:0.5">
+            <item name="Block X:0.5 Y:0.5 Z:0.5" tagindex="0x12a" />
+          </category>
+          <category name="Block X:0.5 Y:1">
+            <item name="Block X:0.5 Y:1 Z:0.5" tagindex="0x12b" />
+            <item name="Block X:0.5 Y:1 Z:1" tagindex="0x132" />
+          </category>
+          <category name="Block X:0.5 Y:2">
+            <item name="Block X:0.5 Y:2 Z:1" tagindex="0x136" />
+            <item name="Block X:0.5 Y:2 Z:2" tagindex="0x13f" />
+          </category>
+          <category name="Block X:0.5 Y:3">
+            <item name="Block X:0.5 Y:3 Z:1" tagindex="0x134" />
+            <item name="Block X:0.5 Y:3 Z:2" tagindex="0x13e" />
+            <item name="Block X:0.5 Y:3 Z:3" tagindex="0x13d" />
+          </category>
+          <category name="Block X:0.5 Y:4">
+            <item name="Block X:0.5 Y:4 Z:1" tagindex="0x133" />
+            <item name="Block X:0.5 Y:4 Z:2" tagindex="0x129" />
+            <item name="Block X:0.5 Y:4 Z:3" tagindex="0x13c" />
+            <item name="Block X:0.5 Y:4 Z:4" tagindex="0x13b" />
+          </category>
+          <category name="Block X:0.5 Y:5">
+            <item name="Block X:0.5 Y:5 Z:1" tagindex="0x135" />
+            <item name="Block X:0.5 Y:5 Z:2" tagindex="0x139" />
+            <item name="Block X:0.5 Y:5 Z:3" tagindex="0x138" />
+            <item name="Block X:0.5 Y:5 Z:4" tagindex="0x137" />
+            <item name="Block X:0.5 Y:5 Z:5" tagindex="0x13a" />
+          </category>
+          <category name="Block X:0.5 Y:10">
+            <item name="Block X:0.5 Y:10 Z:1" tagindex="0x12f" />
+            <item name="Block X:0.5 Y:10 Z:2" tagindex="0x12e" />
+            <item name="Block X:0.5 Y:10 Z:3" tagindex="0x12d" />
+            <item name="Block X:0.5 Y:10 Z:4" tagindex="0x12c" />
+            <item name="Block X:0.5 Y:10 Z:5" tagindex="0x130" />
+            <item name="Block X:0.5 Y:10 Z:10" tagindex="0x131" />
+          </category>
+          <category name="Block X:0.5 Y:20">
+            <item name="Block X:0.5 Y:20 Z:20" tagindex="0x128" />
+          </category>
+        </category>
+        <category name="Block X:1">
+          <category name="Block X:1 Y:0.5">
+          </category>
+          <category name="Block X:1 Y:1">
+            <item name="Block X:1 Y:1 Z:1" tagindex="0x11f" />
+          </category>
+          <category name="Block X:1 Y:2">
+            <item name="Block X:1 Y:2 Z:1" tagindex="0x11b" />
+            <item name="Block X:1 Y:2 Z:2" tagindex="0x140" />
+          </category>
+          <category name="Block X:1 Y:3">
+            <item name="Block X:1 Y:3 Z:1" tagindex="0x11d" />
+            <item name="Block X:1 Y:3 Z:2" tagindex="0x113" />
+            <item name="Block X:1 Y:3 Z:3" tagindex="0x114" />
+          </category>
+          <category name="Block X:1 Y:4">
+            <item name="Block X:1 Y:4 Z:1" tagindex="0x11e" />
+            <item name="Block X:1 Y:4 Z:2" tagindex="0x126" />
+            <item name="Block X:1 Y:4 Z:3" tagindex="0x115" />
+            <item name="Block X:1 Y:4 Z:4" tagindex="0x116" />
+          </category>
+          <category name="Block X:1 Y:5">
+            <item name="Block X:1 Y:5 Z:1" tagindex="0x11c" />
+            <item name="Block X:1 Y:5 Z:2" tagindex="0x118" />
+            <item name="Block X:1 Y:5 Z:3" tagindex="0x119" />
+            <item name="Block X:1 Y:5 Z:4" tagindex="0x11a" />
+            <item name="Block X:1 Y:5 Z:5" tagindex="0x117" />
+          </category>
+          <category name="Block X:1 Y:10">
+            <item name="Block X:1 Y:10 Z:1" tagindex="0x122" />
+            <item name="Block X:1 Y:10 Z:2" tagindex="0x123" />
+            <item name="Block X:1 Y:10 Z:3" tagindex="0x124" />
+            <item name="Block X:1 Y:10 Z:4" tagindex="0x125" />
+            <item name="Block X:1 Y:10 Z:5" tagindex="0x121" />
+            <item name="Block X:1 Y:10 Z:10" tagindex="0x120" />
+          </category>
+          <category name="Block X:1 Y:20">
+            <item name="Block X:1 Y:20 Z:20" tagindex="0x127" />
+          </category>
+        </category>
+      </category>
+      <category name="Triangles">
+        <category name="Triangle X:0.1">
+          <item name="Triangle X:0.1 Y:0.5 Z:0.5" tagindex="0x163" />
+          <item name="Triangle X:0.1 Y:1 Z:1" tagindex="0x164" />
+          <item name="Triangle X:0.1 Y:2 Z:2" tagindex="0x162" />
+          <item name="Triangle X:0.1 Y:3 Z:3" tagindex="0x161" />
+          <item name="Triangle X:0.1 Y:4 Z:4" tagindex="0x160" />
+          <item name="Triangle X:0.1 Y:5 Z:5" tagindex="0x15f" />
+          <item name="Triangle X:0.1 Y:10 Z:10" tagindex="0x15e" />
+        </category>
+        <category name="Triangle X:0.5">
+          <item name="Triangle X:0.5 Y:0.5 Z:0.5" tagindex="0x112" />
+          <item name="Triangle X:0.5 Y:1 Z:1" tagindex="0x10b" />
+          <item name="Triangle X:0.5 Y:2 Z:2" tagindex="0x10f" />
+          <item name="Triangle X:0.5 Y:3 Z:3" tagindex="0x10e" />
+          <item name="Triangle X:0.5 Y:4 Z:4" tagindex="0x10d" />
+          <item name="Triangle X:0.5 Y:5 Z:5" tagindex="0x10c" />
+          <item name="Triangle X:0.5 Y:10 Z:10" tagindex="0x110" />
+        </category>
+        <category name="Triangle X:1">
+          <item name="Triangle X:1 Y:0.5 Z:0.5" tagindex="0x105" />
+          <item name="Triangle X:1 Y:1 Z:1" tagindex="0x10a" />
+          <item name="Triangle X:1 Y:2 Z:2" tagindex="0x106" />
+          <item name="Triangle X:1 Y:3 Z:3" tagindex="0x107" />
+          <item name="Triangle X:1 Y:4 Z:4" tagindex="0x108" />
+          <item name="Triangle X:1 Y:5 Z:5" tagindex="0x109" />
+          <item name="Triangle X:1 Y:10 Z:10" tagindex="0x111" />
+        </category>
+        <category name="Triangle (Equilateral) X:0.1">
+          <item name="Triangle (Equilateral) X:0.1 Y:0.5 Z:0.43" tagindex="0xf7" />
+          <item name="Triangle (Equilateral) X:0.1 Y:1 Z:0.87" tagindex="0xf5" />
+          <item name="Triangle (Equilateral) X:0.1 Y:2 Z:1.73" tagindex="0xf4" />
+          <item name="Triangle (Equilateral) X:0.1 Y:3 Z:2.6" tagindex="0xf3" />
+          <item name="Triangle (Equilateral) X:0.1 Y:4 Z:3.46" tagindex="0xf2" />
+          <item name="Triangle (Equilateral) X:0.1 Y:5 Z:4.33" tagindex="0xf6" />
+          <item name="Triangle (Equilateral) X:0.1 Y:10 Z:8.66" tagindex="0xf1" />
+        </category>
+      </category>
+      <category name="Cylinders">
+        <category name="Cylinder X:0.5">
+          <item name="Cylinder X:0.5 Y:0.5 Z:0.1" tagindex="0xd6" />
+          <item name="Cylinder X:0.5 Y:0.5 Z:0.5" tagindex="0xed" />
+          <item name="Cylinder X:0.5 Y:0.5 Z:1" tagindex="0xdd" />
+          <item name="Cylinder X:0.5 Y:0.5 Z:2" tagindex="0xe0" />
+          <item name="Cylinder X:0.5 Y:0.5 Z:4" tagindex="0xe3" />
+        </category>
+        <category name="Cylinder X:1">
+          <item name="Cylinder X:1 Y:1 Z:0.1" tagindex="0xd7" />
+          <item name="Cylinder X:1 Y:1 Z:0.5" tagindex="0xd8" />
+          <item name="Cylinder X:1 Y:1 Z:1" tagindex="0xdc" />
+          <item name="Cylinder X:1 Y:1 Z:2" tagindex="0xdf" />
+          <item name="Cylinder X:1 Y:1 Z:4" tagindex="0xe2" />
+        </category>
+        <category name="Cylinder X:2">
+          <item name="Cylinder X:2 Y:2 Z:0.1" tagindex="0xd5" />
+          <item name="Cylinder X:2 Y:2 Z:0.5" tagindex="0xd9" />
+          <item name="Cylinder X:2 Y:2 Z:1" tagindex="0xdb" />
+          <item name="Cylinder X:2 Y:2 Z:2" tagindex="0xde" />
+          <item name="Cylinder X:2 Y:2 Z:4" tagindex="0xe1" />
+        </category>
+        <category name="Cylinder X:5">
+          <item name="Cylinder X:5 Y:5 Z:0.1" tagindex="0xda" />
+          <item name="Cylinder X:5 Y:5 Z:0.5" tagindex="0xec" />
+          <item name="Cylinder X:5 Y:5 Z:1" tagindex="0xeb" />
+          <item name="Cylinder X:5 Y:5 Z:2" tagindex="0xea" />
+          <item name="Cylinder X:5 Y:5 Z:4" tagindex="0xe9" />
+        </category>
+        <category name="Cylinder X:10">
+          <item name="Cylinder X:10 Y:10 Z:0.1" tagindex="0xe8" />
+          <item name="Cylinder X:10 Y:10 Z:0.5" tagindex="0xe7" />
+          <item name="Cylinder X:10 Y:10 Z:1" tagindex="0xe6" />
+          <item name="Cylinder X:10 Y:10 Z:2" tagindex="0xe5" />
+          <item name="Cylinder X:10 Y:10 Z:4" tagindex="0xe4" />
+        </category>
+        <category name="Cylinder (Half) X:0.5">
+          <category name="Cylinder (Half) X:0.5 Y:0.1">
+            <item name="Cylinder (Half) X:0.5 Y:0.1 Z:1" tagindex="0xef" />
+            <item name="Cylinder (Half) X:0.5 Y:0.1 Z:2" tagindex="0xee" />
+            <item name="Cylinder (Half) X:0.5 Y:0.1 Z:3" tagindex="0xf0" />
+          </category>
+          <category name="Cylinder (Half) X:0.5 Y:1">
+            <item name="Cylinder (Half) X:0.5 Y:1 Z:1" tagindex="0x104" />
+            <item name="Cylinder (Half) X:0.5 Y:1 Z:2" tagindex="0x101" />
+            <item name="Cylinder (Half) X:0.5 Y:1 Z:3" tagindex="0xfe" />
+          </category>
+          <category name="Cylinder (Half) X:0.5 Y:3">
+            <item name="Cylinder (Half) X:0.5 Y:3 Z:1" tagindex="0xf9" />
+            <item name="Cylinder (Half) X:0.5 Y:3 Z:2" tagindex="0x102" />
+            <item name="Cylinder (Half) X:0.5 Y:3 Z:3" tagindex="0xff" />
+          </category>
+          <category name="Cylinder (Half) X:0.5 Y:4">
+            <item name="Cylinder (Half) X:0.5 Y:4 Z:1" tagindex="0xfa" />
+            <item name="Cylinder (Half) X:0.5 Y:4 Z:2" tagindex="0x103" />
+            <item name="Cylinder (Half) X:0.5 Y:4 Z:3" tagindex="0x100" />
+          </category>
+          <category name="Cylinder (Half) X:0.5 Y:10">
+            <item name="Cylinder (Half) X:0.5 Y:10 Z:1" tagindex="0xfb" />
+            <item name="Cylinder (Half) X:0.5 Y:10 Z:2" tagindex="0xfc" />
+            <item name="Cylinder (Half) X:0.5 Y:10 Z:3" tagindex="0xfd" />
+          </category>
+        </category>
+      </category>
+      <category name="Hemispheres">
+          <category name="Hemispheres (round)">
+          <category name="Hemisphere X:2">
+              <item name="Hemisphere X:2 Y:2 Z:0.1" tagindex="0xb9" />
+              <item name="Hemisphere X:2 Y:2 Z:0.5" tagindex="0xb8" />
+              <item name="Hemisphere X:2 Y:2 Z:1" tagindex="0xcf" />
+          </category>
+          <category name="Hemisphere X:5">
+              <item name="Hemisphere X:5 Y:5 Z:0.25" tagindex="0xbf" />
+              <item name="Hemisphere X:5 Y:5 Z:1" tagindex="0xbe" />
+              <item name="Hemisphere X:5 Y:5 Z:2" tagindex="0xbd" />
+          </category>
+          <category name="Hemisphere X:10">
+              <item name="Hemisphere X:10 Y:10 Z:0.5" tagindex="0xc5" />
+              <item name="Hemisphere X:10 Y:10 Z:2" tagindex="0xc4" />
+              <item name="Hemisphere X:10 Y:10 Z:5" tagindex="0xc3" />
+          </category>
+          <category name="Hemisphere X:20">
+              <item name="Hemisphere X:20 Y:20 Z:1" tagindex="0xcb" />
+              <item name="Hemisphere X:20 Y:20 Z:5" tagindex="0xca" />
+              <item name="Hemisphere X:20 Y:20 Z:10" tagindex="0xc9" />
+          </category>
+          </category>
+          <category name="Hemispheres (long)">
+          <category name="Hemisphere X:1">
+              <item name="Hemisphere X:1 Y:2 Z:0.1" tagindex="0xba" />
+              <item name="Hemisphere X:1 Y:2 Z:0.5" tagindex="0xbb" />
+              <item name="Hemisphere X:1 Y:2 Z:1" tagindex="0xbc" />
+          </category>
+          <category name="Hemisphere X:2">
+              <item name="Hemisphere X:2 Y:5 Z:0.25" tagindex="0xc0" />
+              <item name="Hemisphere X:2 Y:5 Z:1" tagindex="0xc1" />
+              <item name="Hemisphere X:2 Y:5 Z:2" tagindex="0xc2" />
+          </category>
+          <category name="Hemisphere X:5">
+              <item name="Hemisphere X:5 Y:10 Z:1" tagindex="0xc6" />
+              <item name="Hemisphere X:5 Y:10 Z:2" tagindex="0xc7" />
+              <item name="Hemisphere X:5 Y:10 Z:5" tagindex="0xc8" />
+          </category>
+          <category name="Hemisphere X:10">
+              <item name="Hemisphere X:10 Y:20 Z:1" tagindex="0xcc" />
+              <item name="Hemisphere X:10 Y:20 Z:5" tagindex="0xcd" />
+              <item name="Hemisphere X:10 Y:20 Z:10" tagindex="0xce" />
+          </category>
+          </category>
+      </category>
+      <category name="Glass">
+        <item name="Glass X:0.1 Y:0.5 Z:0.5" tagindex="0xf8" />
+        <item name="Glass X:0.1 Y:1 Z:1" tagindex="0xd0" />
+        <item name="Glass X:0.1 Y:2 Z:2" tagindex="0xd3" />
+        <item name="Glass X:0.1 Y:10 Z:0.5" tagindex="0xd2" />
+        <item name="Glass X:0.1 Y:10 Z:1" tagindex="0xd1" />
+        <item name="Glass X:0.1 Y:10 Z:2" tagindex="0xd4" />
+      </category>
   </category>
   <category name="Gameplay" id="gameplay">
     <category name="Equipment">
@@ -225,7 +565,7 @@
         <item name="Deployable Cover" tagindex="0x1569" />
         <item name="Power Drain" tagindex="0x1561" />
         <item name="Radar Jammer" tagindex="0x1560" />
-        <item name="Regenerator, Small" tagindex="0x1566" />
+        <item name="Regenerator" tagindex="0x1566" />
         <item name="Trip Mine" tagindex="0x1567" />
       </category>
       <category name="Armor Abilities">
@@ -309,26 +649,23 @@
       <item name="Push Barrier Remover" tagindex="0x5729" />
     </category>
     <category name="Teleporters">
-      <item name="Two-Way (P)" tagindex="0x2ec2" />
-      <item name="Receiver (P)" tagindex="0x2ec1" />
-      <item name="Sender (P)" tagindex="0x2ec0" />
-      <item name="Sender, Vehicle Only (P)" tagindex="0x4451" />
-      <item name="Receiver, Vehicle Only (P)" tagindex="0x4452" />
-      <item name="Two-Way, Vehicle Only (P)" tagindex="0x4453" />
-      <item name="Sender, Vehicle (P)" tagindex="0x444e" />
-      <item name="Receiver, Vehicle (P)" tagindex="0x444f" />
-      <item name="Two-Way, Vehicle (P)" tagindex="0x4450" />
+      <item name="Two-Way" tagindex="0x2ec2" />
+      <item name="Receiver" tagindex="0x2ec1" />
+      <item name="Sender" tagindex="0x2ec0" />
+      <item name="Sender, Vehicle Only" tagindex="0x4451" />
+      <item name="Receiver, Vehicle Only" tagindex="0x4452" />
+      <item name="Two-Way, Vehicle Only" tagindex="0x4453" />
+      <item name="Sender, Vehicle" tagindex="0x444e" />
+      <item name="Receiver, Vehicle" tagindex="0x444f" />
+      <item name="Two-Way, Vehicle" tagindex="0x4450" />
       <item name="Death Teleporter" tagindex="0x2ec1">
         <setter target="teleporter_channel" type="int" value="255" />
       </item>
     </category>
     <category name="Vehicles">
-      <category name="Vehicles Heavy">
         <item name="Scorpion" tagindex="0x1520" />
         <item name="Wraith" tagindex="0x1519" />
         <item name="Wraith, Anti-Air" tagindex="0x4449" />
-      </category>
-      <category name="Vehicles Land">
         <item name="Chopper" tagindex="0x1518" />
         <item name="Ghost" tagindex="0x1517" />
         <item name="Prowler" tagindex="0x5380" />
@@ -344,12 +681,10 @@
         <item name="Warthog, Gauss, Snow" tagindex="0x4444" />
         <item name="Warthog, Troop" tagindex="0x4442" />
         <item name="Warthog, Troop, Snow" tagindex="0x4445" />
-      </category>
-      <category name="Vehicles Flying">
         <item name="Banshee" tagindex="0x151a" />
         <item name="Hornet" tagindex="0x1598" />
         <item name="Hornet, Lite" tagindex="0x159b" />
-      </category>
+		<item name="Elephant" tagindex="0x00005A69" />
     </category>
     <category name="weapons">
       <category name="Assault Rifles">
@@ -407,9 +742,7 @@
         <item name="Machine Gun Turret, Detached" tagindex="0x15b5" />
         <item name="Plasma Cannon" tagindex="0x14fb" />
         <item name="Plasma Cannon, Detached" tagindex="0x150e" />
-        <item name="Missile Pod" tagindex="0x3a18">
-          <setter target="physics" type="int" value="1" />
-        </item>
+        <item name="Missile Pod" tagindex="0x3a18" />
         <item name="Missile Pod, Detached" tagindex="0x1a54" />
       </category>
       <category name="Power Weapons">
