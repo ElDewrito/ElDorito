@@ -80,6 +80,30 @@ namespace
 
 		return true;
 	}
+
+	bool CommandSetCarryType(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		float carryType_;
+		if (Arguments.size() < 1 || !TryParseFloat(Arguments[0], &carryType_))
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		uint8_t carryType = carryType_;
+
+		if (carryType < 0 || carryType > 1)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+
+		const int localPlayerZeroIndex = 0;
+		auto& playerControlGlobals = ElDorito::GetMainTls(0xC4)[0];
+		playerControlGlobals(localPlayerZeroIndex * 0xF8 + 0x3D9).Write<uint8_t>(carryType);
+
+		return true;
+	}
 }
 
 namespace Modules
@@ -93,6 +117,8 @@ namespace Modules
 		AddCommand("Armor.Update", "armor_update", "Update the player's armor.", eCommandFlagsHidden, VariablePlayerArmorUpdate);
 		AddCommand("Armor.SetUiModelPosition", "armor_ui_player_model_position", "Set the position of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelPosition);
 		AddCommand("Armor.SetUiModelRotation", "armor_ui_player_model_rotation", "Set the rotation of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelRotation);
+
+		AddCommand("AlertCarry", "alert_carry", "Set the carry pose to alert if set to 1", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetCarryType);
 
 		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
 		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
