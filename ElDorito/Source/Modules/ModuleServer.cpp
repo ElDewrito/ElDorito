@@ -21,6 +21,7 @@
 #include "../Server/Signaling.hpp"
 #include "../Server/VariableSynchronization.hpp"
 #include "../Patches/Assassination.hpp"
+#include "../Web/Ui/VotingScreen.hpp"
 #include "../Patches/Sprint.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
@@ -1097,6 +1098,9 @@ namespace
 	}
 	bool CommandServerCancelVote(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		if(!ElDorito::Instance().IsDedicated())
+			Web::Ui::Voting::Hide();
+
 		Server::Voting::CancelVoteInProgress();
 		return true;
 	}
