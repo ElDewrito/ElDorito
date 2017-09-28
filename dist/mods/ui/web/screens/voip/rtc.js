@@ -2,6 +2,7 @@ var peerCons = [];
 var peerIds = [];
 var localStream = null;
 var serverCon;
+var hasMic = false;
 var peerConnectionConfig = {
     'iceServers': [{
             'url': 'stun:stun.services.mozilla.com'
@@ -85,7 +86,8 @@ function OnMessage(msg) {
 
 function createPeer(data) {
     peerCons[data.uid] = new RTCPeerConnection(peerConnectionConfig);
-    peerCons[data.uid].addStream(localStream);
+    if (hasMic)
+        peerCons[data.uid].addStream(localStream);
     peerCons[data.uid].onaddstream = remotestream;
     peerCons[data.uid].onicecandidate = sendicecandidate;
     peerCons[data.uid].oniceconnectionstatechange = icechange;
@@ -97,7 +99,8 @@ function createPeer(data) {
     peerCons[data.uid].lastSpoke = 0;
     //needs anonymous function to pass the peer we are reading
     peerCons[data.uid].interval = setInterval(function () {
-            peerLastSpeak(peerCons[data.uid]);
+            if (peerCons[data.uid].connectedState)
+                peerLastSpeak(peerCons[data.uid]);
         }, 1000);
     peerIds.push(data.uid);
 }
@@ -406,11 +409,8 @@ function startConnection(info) {
             }
 
             navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+                hasMic = true;
                 localStream = stream;
-
-                dew.callMethod("voipConnected", {
-                    "value": true
-                });
 
                 var speechEvents = hark(localStream, {
                         "threshold": "-60"
@@ -443,6 +443,31 @@ function startConnection(info) {
                     serverCon.send(JSON.stringify({
                             "broadcast": "garbage"
                         }));
+                    dew.callMethod("voipConnected", {
+                        "value": true
+                    });
+                }
+
+                dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables
+            }).catch (function (err) {
+                hasMic = false;
+
+                serverCon = new WebSocket("ws://" + info.server, "dew-voip");
+                serverCon.onmessage = OnMessage;
+                serverCon.onclose = function (reason) {
+                    console.log("disconnected from signal server: " + reason.reason);
+                    clearConnection();
+                }
+                serverCon.onopen = function () {
+                    //must send the password before the server will accept anything from us
+                    serverCon.send(info.password);
+                    console.log("sent password");
+                    serverCon.send(JSON.stringify({
+                            "broadcast": "garbage"
+                        }));
+                    dew.callMethod("voipConnected", {
+                        "value": true
+                    });
                 }
 
                 dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables
