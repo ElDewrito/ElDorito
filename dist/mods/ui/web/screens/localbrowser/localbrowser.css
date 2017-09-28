@@ -1,0 +1,158 @@
+/*Reset
+-----------------------------*/
+
+*
+{
+	margin: 0;
+	padding: 0;
+}
+
+#container
+{
+	margin: 0 auto;
+	padding: 20px 0 0;
+	width: 960px;
+}
+
+
+iframe
+{
+	margin: 0 10px 20px;
+	width: 250px;
+}
+
+.photo
+{
+	width: 940px;
+}
+
+.column
+{
+	float: left;
+	width: 100%;
+}
+
+.clear
+{
+	clear: both;
+	overflow: hidden;
+	width: 0;
+	height: 0;
+}
+
+	
+
+/*Main
+-----------------------------*/
+
+body
+{
+	background-color: #05152f;
+}
+
+
+.Container
+{
+	margin: 40px 40px 40px 40px;
+	width: auto;
+	padding: 25px 20px 35px 20px;
+	height: auto;
+}
+
+
+
+#players-online {
+    font-size: 24px;
+    opacity: 0.8;
+    font-family:"Raleway", sans-serif;
+        background: -webkit-linear-gradient(#fff, #999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #fff;
+    margin-bottom:15px;
+}
+#browser-title {
+    font-weight: 700;
+    font-size: 50px;
+    padding-top:5px;
+    color: #fff;
+    font-family:"Raleway", sans-serif;
+	color:white;
+    background: -webkit-linear-gradient(#fff, #999);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#refresh {
+	  width:100%;
+	  height:25px;
+	  margin-top: 15px;
+	  margin-bottom: 10px;
+}
+
+a
+{
+	color:White;
+	text-decoration:none;
+}
+
+a:hover 
+{
+	    color:white;
+}
+
+tr:hover 
+{
+	    background-color: rgba(255, 255, 255, 0.1);
+	    color: rgba(255,255,255,0.95);
+	 
+}
+
+#serverlist
+{
+	color:White;
+	margin-bottom:0px;
+	font-size:14px;
+	font-family:"Raleway", sans-serif;
+	background:rgba(255, 255, 255, 0.05);
+	width: 100%;
+}
+
+#serverlist > tbody > tr {
+	cursor: pointer;
+}
+
+#serverlist > thead > tr > th, #refresh {
+	background-color: rgba(255, 255, 255, 0.1);
+	color: rgba(255,255,255,0.95);
+}
+
+#refresh:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+}
+
+.center {
+	text-align: center;
+}
+
+img.center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*Tables	
+-----------------------------*/
+table {
+	margin-bottom:0px;
+	border-spacing:0px;
+}
+th {
+	font-weight:bold;
+	text-align: left;
+}
+
+td, th {
+	padding:15px 10px;
+	border-bottom:1px solid #555555;
+}

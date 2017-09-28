@@ -23,6 +23,7 @@ namespace Modules
 		Command* VarScreenshotsFolder;
 		Command* VarCefMedals;
 		Command* VarFpsLimiter;
+		Command* VarRunListener;
 
 		int DebugFlags;
 

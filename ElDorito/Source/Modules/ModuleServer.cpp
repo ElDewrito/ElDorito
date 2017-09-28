@@ -1274,6 +1274,10 @@ namespace Modules
 		VarServerGamePort->ValueIntMin = 1;
 		VarServerGamePort->ValueIntMax = 0xFFFF;
 
+		VarServerBroadcastPort = AddVariableInt("LanBroadcastPort", "server_broadcast_port", "Used by lan auto discovery, don't change this unless you know what you are doing", eCommandFlagsHidden, 11773);
+		VarServerGamePort->ValueIntMin = 1;
+		VarServerGamePort->ValueIntMax = 0xFFFF;
+
 		VarServerShouldAnnounce = AddVariableInt("ShouldAnnounce", "should_announce", "Controls whether the server will be announced to the master servers", eCommandFlagsArchived, 1, VariableServerShouldAnnounceUpdate);
 		VarServerShouldAnnounce->ValueIntMin = 0;
 		VarServerShouldAnnounce->ValueIntMax = 1;

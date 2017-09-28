@@ -120,6 +120,12 @@
 			"url": "dew://screens/screenshot_notice/",
 			"captureInput": false,
 			"zIndex": 90
+		},
+				{
+			"id": "localbrowser",
+			"url": "dew://screens/localbrowser/",
+			"captureInput": true,
+			"zIndex": 9
 		}
 	]
 }

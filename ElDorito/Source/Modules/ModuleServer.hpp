@@ -18,6 +18,7 @@ namespace Modules
 		Command* VarServerMaxPlayers;
 		Command* VarServerPort;
 		Command* VarServerGamePort;
+		Command* VarServerBroadcastPort;
 		Command* VarServerShouldAnnounce;
 		Command* VarServerSprintEnabled;
 		Command* VarServerSprintEnabledClient;

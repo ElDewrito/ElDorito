@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <title>Local Games Browser</title>
+        <link rel='stylesheet' href='localbrowser.css' type='text/css' media='all' />
+		<script type="text/javascript" src="dew://lib/dew.js"></script>
+		<script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src='localbrowser.js'></script>
+    </head>
+    <body>
+        <div class="Container">
+            <div id="browser-title" class="center">LOCAL GAMES</div>
+			<button id="refresh">Refresh</button>
+            <table id="serverlist">
+                <thead>
+                    <tr>
+                        <th>Server</th>
+                        <th>Address</th>
+                        <th>Game Type</th>
+                        <th>Map</th>
+                        <th>Status</th>
+                        <th>Players</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </body>
+</html>
