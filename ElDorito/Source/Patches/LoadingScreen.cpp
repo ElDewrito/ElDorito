@@ -24,6 +24,9 @@ namespace Patches::LoadingScreen
 
 		// Force a jump so that the loading screen never renders
 		Patch(0x1064E7, { 0xEB }).Apply();
+		// fixes a rare issue were the game wouldn't render anything before the mainmenu finished loading
+		// See issue #323
+		Patch(0x167899, { 0xEB }).Apply();
 	}
 
 	void SetUi(std::shared_ptr<LoadingScreenUi> ui)
