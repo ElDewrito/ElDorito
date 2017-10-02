@@ -81,34 +81,17 @@ namespace
 		return true;
 	}
 
-	bool TryParseInt(const std::string& str, int* value)
-	{
-		if (str.length() == 0)
-			return false;
-		auto c_str = str.c_str();
-		char* endp;
-		*value = std::strtol(c_str, &endp, 10);
-		return endp != c_str;
-	}
-
 	bool CommandSetCarryType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		int carryType;
-		if (Arguments.size() < 1 || !TryParseInt(Arguments[0], &carryType))
+		Pointer &playerCtrlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0](0x3D9);
+		if (Arguments.size() > 0)
 		{
-			returnInfo = "Invalid arguments";
-			return false;
+			Arguments[0] == "1" ? playerCtrlGlobalsPtr.WriteFast<uint8_t>(1) : playerCtrlGlobalsPtr.WriteFast<uint8_t>(0);
+			return true;
 		}
-		if (carryType < 0 || carryType > 1)
-		{
-			returnInfo = "Invalid arguments";
-			return false;
-		}
-
-		Pointer playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
-		playerControlGlobalsPtr(0 * 0xF8 + 0x3D9).Write<uint8_t>(carryType);
-
-		return true;
+		
+		returnInfo = "Invalid arguments";
+		return false;
 	}
 }
 
