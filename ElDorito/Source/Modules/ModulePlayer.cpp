@@ -81,33 +81,10 @@ namespace
 		return true;
 	}
 
-	bool TryParseInt(const std::string& str, int* value)
-	{
-		if (str.length() == 0)
-			return false;
-		auto c_str = str.c_str();
-		char* endp;
-		*value = std::strtol(c_str, &endp, 10);
-		return endp != c_str;
-	}
-
 	bool CommandSetCarryType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		int carryType;
-		if (Arguments.size() < 1 || !TryParseInt(Arguments[0], &carryType))
-		{
-			returnInfo = "Invalid arguments";
-			return false;
-		}
-		if (carryType < 0 || carryType > 1)
-		{
-			returnInfo = "Invalid arguments";
-			return false;
-		}
-
-		Pointer playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
-		playerControlGlobalsPtr(0 * 0xF8 + 0x3D9).Write<uint8_t>(carryType);
-
+		Pointer &playerCtrlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0](0x3D9);
+		playerCtrlGlobalsPtr.WriteFast<uint8_t>(!playerCtrlGlobalsPtr.Read<uint8_t>());
 		return true;
 	}
 }
@@ -124,7 +101,7 @@ namespace Modules
 		AddCommand("Armor.SetUiModelPosition", "armor_ui_player_model_position", "Set the position of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelPosition);
 		AddCommand("Armor.SetUiModelRotation", "armor_ui_player_model_rotation", "Set the rotation of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelRotation);
 
-		AddCommand("AlertCarry", "alert_carry", "Set the carry pose to alert if set to 1", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetCarryType);
+		AddCommand("AlertCarry", "alert_carry", "Toggle the alert carry pose", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetCarryType);
 
 		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
 		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
