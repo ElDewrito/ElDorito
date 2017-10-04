@@ -130,9 +130,10 @@ $(document).ready(function(){
     
     dew.command('Server.VotingEnabled', {}).then(function(x){
         dew.command('Server.VetoSystemEnabled', {}).then(function(y){
-            if(x == '1' && y == '1'){
+            if(x == '0' && y == '1'){
                 $('#sVotingStyle').val('2');
                 $('#voting').hide();
+                $('#veto').show();
             }else if(x == '1' && y == '0'){
                 $('#sVotingStyle').val('1');
                 $('#voting').show();
