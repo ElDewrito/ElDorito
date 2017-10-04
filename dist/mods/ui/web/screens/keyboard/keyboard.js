@@ -66,6 +66,7 @@ $(window).load(function () {
 
     $("html").on("keydown", function (event) {
         if (event.keyCode === 13 /* Enter */) {
+            event.preventDefault();
             $("form").submit();
         } else if (event.keyCode === 27 /* Escape */) {
             dew.cancelVirtualKeyboard().then(() => dew.hide());
