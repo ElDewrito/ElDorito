@@ -444,9 +444,9 @@ namespace Modules
 
 		if (GetActionState(Blam::Input::eGameActionMoveForward)->Ticks > 0 || GetActionState(Blam::Input::eGameActionMoveBack)->Ticks > 0 || (controllerEnabled && controllerAxes.LeftY != 0))
 		{
-			double mod = 1;
+			float mod = 1;
 			if (controllerEnabled)
-				mod = (double)(controllerAxes.LeftY / 32768.0f);
+				mod = controllerAxes.LeftY / 32768.0f;
 			else if (GetActionState(Blam::Input::eGameActionMoveBack)->Ticks > 0)
 				mod = -1;
 
@@ -457,9 +457,9 @@ namespace Modules
 
 		if (GetActionState(Blam::Input::eGameActionMoveLeft)->Ticks > 0 || GetActionState(Blam::Input::eGameActionMoveRight)->Ticks > 0 || (controllerEnabled && controllerAxes.LeftX != 0))
 		{
-			double mod = 1;
+			float mod = 1;
 			if (controllerEnabled)
-				mod = (double)(controllerAxes.LeftX / 32768.0f);
+				mod = controllerAxes.LeftX / 32768.0f;
 			else if (GetActionState(Blam::Input::eGameActionMoveLeft)->Ticks > 0)
 				mod = -1;
 
