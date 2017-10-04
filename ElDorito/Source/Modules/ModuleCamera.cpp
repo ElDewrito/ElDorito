@@ -3,6 +3,8 @@
 #include "../ElDorito.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Patches/Ui.hpp"
+#include "../Blam/BlamInput.hpp"
+#include "ModuleInput.hpp"
 
 namespace
 {
@@ -114,7 +116,7 @@ namespace
 		}
 	}
 
-	
+
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
@@ -430,65 +432,39 @@ namespace Modules
 		float iRight = cos(hLookAngle + 3.14159265359f / 2);
 		float jRight = sin(hLookAngle + 3.14159265359f / 2);
 
-		// TODO: use shockfire's keyboard hooks instead
+		struct ControllerAxes { int16_t LeftX, LeftY, RightX, RightY; };
+		auto& controllerAxes = *(ControllerAxes*)(0x0244D1F0 + 0x2F4);
+		bool controllerEnabled = Pointer::Base(0x204DE98).Read<bool>();
 
-		// down
-		if (GetAsyncKeyState('Q') & 0x8000)
-		{
+		if (GetActionState(Blam::Input::eGameActionUiLeftBumper)->Ticks > 0)
 			zPos -= moveDelta;
-		}
 
-		// up
-		if (GetAsyncKeyState('E') & 0x8000)
-		{
+		if (GetActionState(Blam::Input::eGameActionUiRightBumper)->Ticks > 0)
 			zPos += moveDelta;
+
+		if (GetActionState(Blam::Input::eGameActionMoveForward)->Ticks > 0 || GetActionState(Blam::Input::eGameActionMoveBack)->Ticks > 0 || (controllerEnabled && controllerAxes.LeftY != 0))
+		{
+			double mod = 1;
+			if (controllerEnabled)
+				mod = (double)(controllerAxes.LeftY / 32768.0f);
+			else if (GetActionState(Blam::Input::eGameActionMoveBack)->Ticks > 0)
+				mod = -1;
+
+			xPos += iForward * (moveDelta * mod);
+			yPos += jForward * (moveDelta * mod);
+			zPos += kForward * (moveDelta * mod);
 		}
 
-		// forward
-		if (GetAsyncKeyState('W') & 0x8000)
+		if (GetActionState(Blam::Input::eGameActionMoveLeft)->Ticks > 0 || GetActionState(Blam::Input::eGameActionMoveRight)->Ticks > 0 || (controllerEnabled && controllerAxes.LeftX != 0))
 		{
-			xPos += iForward * moveDelta;
-			yPos += jForward * moveDelta;
-			zPos += kForward * moveDelta;
-		}
+			double mod = 1;
+			if (controllerEnabled)
+				mod = (double)(controllerAxes.LeftX / 32768.0f);
+			else if (GetActionState(Blam::Input::eGameActionMoveLeft)->Ticks > 0)
+				mod = -1;
 
-		// back
-		if (GetAsyncKeyState('S') & 0x8000)
-		{
-			xPos -= iForward * moveDelta;
-			yPos -= jForward * moveDelta;
-			zPos -= kForward * moveDelta;
-		}
-
-		// left
-		if (GetAsyncKeyState('A') & 0x8000)
-		{
-			xPos += iRight * moveDelta;
-			yPos += jRight * moveDelta;
-		}
-
-		// right
-		if (GetAsyncKeyState('D') & 0x8000)
-		{
-			xPos -= iRight * moveDelta;
-			yPos -= jRight * moveDelta;
-		}
-
-		if (GetAsyncKeyState(VK_UP))
-		{
-			// TODO: look up
-		}
-		if (GetAsyncKeyState(VK_DOWN))
-		{
-			// TODO: look down
-		}
-		if (GetAsyncKeyState(VK_LEFT))
-		{
-			// TODO: look left
-		}
-		if (GetAsyncKeyState(VK_RIGHT))
-		{
-			// TODO: look right
+			xPos -= iRight * (moveDelta * mod);
+			yPos -= jRight * (moveDelta * mod);
 		}
 
 		if (GetAsyncKeyState('Z') & 0x8000)
