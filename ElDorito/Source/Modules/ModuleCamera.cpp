@@ -376,7 +376,7 @@ namespace Modules
 
 		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
 		VarCameraFov->ValueFloatMin = 55.f;
-		VarCameraFov->ValueFloatMax = 155.f;
+		VarCameraFov->ValueFloatMax = 120.f;
 
 		VarCameraHideHud = AddVariableInt("HideHUD", "hud", "Toggles the HUD", eCommandFlagsArchived, 0, VariableCameraHideHudUpdate);
 		VarCameraHideHud->ValueIntMin = 0;
