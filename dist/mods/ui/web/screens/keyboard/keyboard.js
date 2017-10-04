@@ -1,13 +1,55 @@
+var pageWidth, pageHeight;
+var basePage = {
+    width: 1280,
+    height: 720,
+    scale: 1,
+    scaleX: 1,
+    scaleY: 1
+};
+
 dew.on("show", function (event) {
     $("#title").text(event.data.title);
     $("#description").text(event.data.description);
     $("#text").val(event.data.defaultValue);
     $(".dialog").show();
     $("#text").focus();
+    
+    if(event.data.title == "Edit Description"){
+        $('#text').attr({'maxlength':'128','rows':'10'});
+    }else{
+        $('#text').attr({'maxlength':'16','rows':'1'});
+    };
 });
 
 dew.on("hide", function (event) {
     $(".dialog").hide();
+});
+
+$(function(){
+    var $page = $('.page_content');
+
+    getPageSize();
+    scalePages($page, pageWidth, pageHeight);
+  
+    $(window).resize(function() {
+        getPageSize();            
+        scalePages($page, pageWidth, pageHeight);
+    });
+  
+    function getPageSize() {
+        pageHeight = $('#container').height();
+        pageWidth = $('#container').width();
+    }
+
+    function scalePages(page, maxWidth, maxHeight) {            
+        var scaleX = 1, scaleY = 1;                      
+        scaleX = maxWidth / basePage.width;
+        scaleY = maxHeight / basePage.height;
+        basePage.scaleX = scaleX;
+        basePage.scaleY = scaleY;
+        basePage.scale = (scaleX > scaleY) ? scaleY : scaleX;
+        page.attr('style', '-webkit-transform:scale(' + basePage.scale + ');');
+    }
 });
 
 $(window).load(function () {
