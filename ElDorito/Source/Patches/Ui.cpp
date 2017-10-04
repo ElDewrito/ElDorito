@@ -142,6 +142,7 @@ namespace
 
 	bool firstHUDDistortionUpdate = true;
 	bool validHUDDistortionTags = false;
+	bool lastDistortionEnabledValue = true;
 	//Distortion direction for spartan, monitor, elite.
 	//If more are added, this needs to be increased or stored differently.
 	float hudDistortionDirection[3]{ 0,0,0 };
@@ -162,6 +163,9 @@ namespace Patches::Ui
 		tagsInitiallyLoaded = true;
 
 		UpdateSpeakingPlayerWidget(true);
+
+		//reset HUD distortion value when tags are reloaded
+		lastDistortionEnabledValue = true;
 		UpdateHUDDistortion();
 	}
 
@@ -254,7 +258,7 @@ namespace Patches::Ui
 
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
-		
+
 		//Fix HUD Distortion in third person.
 		Hook(0x193370, CameraModeChangedHook, HookFlags::IsCall).Apply();
 
@@ -429,7 +433,7 @@ namespace Patches::Ui
 			unic->Data.Elements[dataIndex + speakingPlayerOffset] = static_cast<unsigned char>(tmpValue);
 		}
 	}
-	
+
 	void ApplyMapNameFixes()
 	{
 		uint32_t levelsGlobalPtr = Pointer::Base(0x149E2E0).Read<uint32_t>();
@@ -828,7 +832,6 @@ namespace
 		}
 	}
 
-	bool lastDistortionEnabledValue;
 	void ToggleHUDDistortion(bool enabled)
 	{
 		if (!validHUDDistortionTags)
@@ -1223,7 +1226,7 @@ namespace
 								teamIndex = localDesiredTeam;
 						}
 					}
-					
+
 					if (nameWidget)
 						UI_ColorWidgetWithPlayerColor(nameWidget, teamIndex, true);
 					if (baseColorWidget)
@@ -1469,7 +1472,7 @@ namespace
 	//Called if equipment held
 	__declspec(naked) void StateDataFlags31Hook()
 	{
-		__asm 
+		__asm
 		{
 			call GetBrokenChudStateFlags31Values
 			or [edi + 5ACh], eax
@@ -1584,7 +1587,7 @@ namespace
 
 		auto objectsPtr = (ObjectArray**)ElDorito::GetMainTls(0x448);
 
-		if (!objectsPtr) 
+		if (!objectsPtr)
 			return 0;
 
 		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
@@ -1627,7 +1630,7 @@ namespace
 				flags |= 0x2000; //Bit13, was inactive, now Teams Enabled
 			else
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
-		
+
 		return flags;
 	}
 
