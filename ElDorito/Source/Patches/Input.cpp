@@ -30,6 +30,7 @@ namespace
 	void ProcessMouseBindingsHook(const BindingsTable &bindings, ActionState *actions);
 	void UpdateUiControllerInputHook(int a0);
 	char GetControllerStateHook(int dwUserIndex, int a2, void *a3);
+	DWORD SetControllerStateHook(int dwUserIndex, int motorSpeed, char disable);
 	void SetControllerVibrationHook(int controllerIndex, uint16_t leftMotorSpeed, uint16_t rightMotorSpeed);
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state);
 	void null_stub() {};
@@ -67,6 +68,7 @@ namespace Patches::Input
 		Hook(0x20C040, GetDefaultBindingsHook).Apply();
 		Hook(0x20C4F6, GetKeyboardActionTypeHook).Apply();
 		Hook(0x1128FB, GetControllerStateHook, HookFlags::IsCall).Apply();
+		Hook(0x11298B, SetControllerStateHook, HookFlags::IsCall).Apply();
 		Hook(0x1124F0, SetControllerVibrationHook).Apply();
 		Hook(0x105C58, null_stub, HookFlags::IsCall).Apply(); // remove the hardcoded binding of screenshot to printscreen
 		Patch::NopFill(Pointer::Base(0x6A225B), 2); // Prevent the game from forcing certain binds on load
@@ -438,25 +440,28 @@ namespace
 		return val;
 	}
 
+
+	DWORD SetControllerStateHook(int dwUserIndex, int motorSpeed, char disable)
+	{
+		static auto SetControllerState = (DWORD(*)(int dwUserIndex, int motorSpeed, char disable))(0x65F220);
+		return SetControllerState((dwUserIndex == 0) ? Modules::ModuleInput::Instance().VarInputControllerPort->ValueInt : dwUserIndex, motorSpeed, disable);
+	}
+
 	void SetControllerVibrationHook(int controllerIndex, uint16_t leftMotorSpeed, uint16_t rightMotorSpeed)
 	{
 		struct CONTROLLER_VIBRATION { uint16_t LeftMotorSpeed, RightMotorSpeed; };
 
 		const auto& moduleInput = Modules::ModuleInput::Instance();
-		auto controllerPort = moduleInput.VarInputControllerPort->ValueInt;
 		auto intensity = moduleInput.VarControllerVibrationIntensity->ValueFloat;
 
-		if (controllerIndex == controllerPort)
+		if (s_ControllerVibrationTestTicks > 0)
 		{
-			if (s_ControllerVibrationTestTicks > 0)
-			{
-				leftMotorSpeed = 65535;
-				leftMotorSpeed = 65535;
-			}
-
-			leftMotorSpeed = static_cast<uint16_t>(leftMotorSpeed * intensity);
-			rightMotorSpeed = static_cast<uint16_t>(rightMotorSpeed * intensity);
+			leftMotorSpeed = 65535;
+			rightMotorSpeed = 65535;
 		}
+
+		leftMotorSpeed = static_cast<uint16_t>(leftMotorSpeed * intensity);
+		rightMotorSpeed = static_cast<uint16_t>(rightMotorSpeed * intensity);
 
 		auto& vibration = ((CONTROLLER_VIBRATION*)0x0238E840)[controllerIndex];
 		vibration.LeftMotorSpeed = leftMotorSpeed;
@@ -614,7 +619,7 @@ namespace
 
 		if (*(uint32_t*)(state + 0x18) & 0x10)
 		{
-			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button 
+			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
 			if (*(uint16_t*)GetPlayerControlsAction(localPlayerIndex) == 1)
 				if (isUsingController)
 					s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft];
