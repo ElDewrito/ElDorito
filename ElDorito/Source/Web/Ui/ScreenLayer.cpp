@@ -125,6 +125,25 @@ namespace Web::Ui::ScreenLayer
 			Patches::Input::PushContext(inputContext);
 		}
 	}
+
+	void ShowAlert(const std::string &title, const std::string &body, AlertIcon icon)
+	{
+		const char* iconStrs[] = { "none", "download", "pause", "upload", "checkbox" };
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartObject();
+		writer.Key("icon");
+		writer.String(iconStrs[int(icon)]);
+		writer.Key("title");
+		writer.String(title.c_str());
+		writer.Key("body");
+		writer.String(body.c_str());
+		writer.EndObject();
+
+		Ui::ScreenLayer::Show("alert", buffer.GetString());
+	}
 }
 
 namespace

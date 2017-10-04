@@ -32,6 +32,7 @@
 #include <cassert>
 #include <vector>
 #include <unordered_map>
+#include "../Web/Ui/ScreenLayer.hpp"
 
 using namespace Patches::Ui;
 
@@ -56,6 +57,7 @@ namespace
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
+	void __fastcall c_gui_alert_manager__show(void *thisptr, void *unused, uint32_t name, int a3, wchar_t *customMessage, int profileIndex, bool a6, int a7);
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -277,6 +279,8 @@ namespace Patches::Ui
 		Pointer(0x0169E510).Write(uint32_t(&c_gui_game_variant_category_datasource_init));
 
 		Hook(0x721F03, c_gui_screen_pregame_lobby_switch_network_hook).Apply();
+
+		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1705,6 +1709,51 @@ namespace
 			// jump to cleanup and return
 			mov eax, 0xB21F5B
 			jmp eax
+		}
+	}
+
+	void __fastcall c_gui_alert_manager__show(void *thisptr, void *unused, uint32_t name, int a3, wchar_t *customMessage, int profileIndex, bool a6, int a7)
+	{
+		struct Alert
+		{
+			uint32_t Name;
+			uint8_t Flags;
+			uint8_t Unknown05;
+			uint8_t Icon;
+			uint8_t Unknown07;
+			uint32_t Title;
+			uint32_t Body;
+		};
+
+		const auto ui_get_shared_globals_definition = (uint8_t*(*)())(0x00A84D20);
+		const auto ui_resolve_string = (char*(*)(uint32_t unicTagIndex, uint32_t stringId, int lanquageId))(0x0051E290);
+		const auto ui_get_prefered_lanquage = (int(*)())(0x0052FC40);
+
+		auto wigl = ui_get_shared_globals_definition();
+		if (!wigl)
+			return;
+
+		const auto alertStrings = 0x00000989;
+
+		auto &alerts = *(Blam::Tags::TagBlock<Alert>*)(wigl + 0x9C);
+		for (auto& alert : alerts)
+		{
+			if (alert.Name == name)
+			{
+				auto title = ui_resolve_string(alertStrings, alert.Title, ui_get_prefered_lanquage());
+				auto body = ui_resolve_string(alertStrings, alert.Body, ui_get_prefered_lanquage());
+				if (customMessage)
+				{
+					auto customMessageStr = Utils::String::ThinString(customMessage);
+					Web::Ui::ScreenLayer::ShowAlert(title, customMessageStr.c_str(), Web::Ui::ScreenLayer::AlertIcon(alert.Icon));
+				}
+				else
+				{
+					Web::Ui::ScreenLayer::ShowAlert(title, body, Web::Ui::ScreenLayer::AlertIcon(alert.Icon));
+				}
+
+				return;
+			}
 		}
 	}
 }
