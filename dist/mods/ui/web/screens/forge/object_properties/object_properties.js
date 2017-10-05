@@ -230,6 +230,7 @@ var materialPickerShowTime;
 var quickClosed = false;
 var lastObjectIndex = -1;
 var materialXmlDoc = null;
+var itemsXmlDoc = null;
 var recentSet = {};
 var objectData = {};
 
@@ -371,6 +372,21 @@ function getMaterialsXml(callback) {
 	}
 }
 
+    
+function getItemsXml(callback) {
+    if(!itemsXmlDoc) {
+        $.get('../object_creation/items.xml', function(data) {
+            var parser = new DOMParser();
+            doc = parser.parseFromString(data, "application/xml");
+            itemsXmlDoc = doc;
+            callback(itemsXmlDoc);
+        });
+    }
+    else {
+        return callback(itemsXmlDoc);
+    }
+}
+
 function findMaterialItem(materialIndex) {
 	for(var x = materialXmlDoc.firstChild; x; x = x.nextSibling) {
 		var id = x.getAttribute('id');
@@ -419,48 +435,68 @@ dew.on('show',function(e) {
 	}
 
 	lastObjectIndex = e.data.object_index;
-	
-	getMaterialsXml(function(doc) {
-		 var allMaterials  = Array.prototype.slice.call(doc.getElementsByTagName('item'), 0);
 
-		objectPropertiesWidget.populate({
-			strings: STRINGS,
-			properties: objectPropertyGridData.properties,
-			meta: Object.assign(objectPropertyGridData.meta, {
-				appearance_material: allMaterials.map(m => ({
-					name: m.getAttribute('name'),
-					value: parseInt(m.getAttribute('value'))
-				}))
-			})
-		}, e.data.properties);
-		buildPropertyFilter(e.data);
-		objectPropertiesWidget.setSelectedIndex(0);
+	getItemsXml(function(itemsXmlDoc) {
+	    getMaterialsXml(function(materialsDoc) {
+	        var allMaterials  = Array.prototype.slice.call(materialsDoc.getElementsByTagName('item'), 0);
 
-		materialTreeListWidget.setSource(doc.firstChild);
+	        objectPropertiesWidget.populate({
+	            strings: STRINGS,
+	            properties: objectPropertyGridData.properties,
+	            meta: Object.assign(objectPropertyGridData.meta, {
+	                appearance_material: allMaterials.map(m => ({
+	                    name: m.getAttribute('name'),
+	                    value: parseInt(m.getAttribute('value'))
+	                }))
+	            })
+	        }, e.data.properties);
 
-		budgetPropertiesWidget.populate({
-			strings: STRINGS,
-			properties: [
-				{ name: 'summary_placed_on_map', type: 'static', meta:'summary_placed_on_map'},
-				{ name: 'summary_runtime_minimum', type: 'range', meta:'summary_runtime_minimum' },
-				{ name: 'summary_runtime_maximum', type: 'range', meta:'summary_runtime_maximum' },
-				{ name: 'summary_maximum_allowed', type: 'static', meta: 'summary_maximum_allowed'},
-				{ name: 'summary_total_cost', type: 'static', meta:'summary_total_cost'}
-			],
-			meta: {
-				summary_placed_on_map: e.data.budget.summary_placed_on_map,
-				summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
-				summary_runtime_maximum: { type: 'int', min: 0, max: e.data.budget.summary_maximum_allowed, step: 1},
-				summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
-				summary_total_cost: e.data.budget.summary_total_cost
-			}
-		}, e.data.budget);
-		budgetPropertiesWidget.setSelectedIndex(0);
+	        buildPropertyFilter(e.data);
+
+	        var items = itemsXmlDoc.getElementsByTagName('item');
+	        for(var i = 0; i < items.length; i++) {   
+	            if(parseInt(items[i].getAttribute('tagindex')) === e.data.tag_index) {
+	                for(var x = items[i].firstChild; x; x = x.nextSibling) {
+	                    if(x.nodeName !== 'setter')
+	                        continue;
+
+	                    var target = x.getAttribute('target');
+	                    var isHidden = !!x.getAttribute('hidden');
+	                    if(isHidden)
+	                        objectPropertiesWidget.toggleVisibility(target, false);
+	                }
+	                break;         
+	            }
+	        }
+
+	        objectPropertiesWidget.setSelectedIndex(0);
+
+	        materialTreeListWidget.setSource(materialsDoc.firstChild);
+
+	        budgetPropertiesWidget.populate({
+	            strings: STRINGS,
+	            properties: [
+                    { name: 'summary_placed_on_map', type: 'static', meta:'summary_placed_on_map'},
+                    { name: 'summary_runtime_minimum', type: 'range', meta:'summary_runtime_minimum' },
+                    { name: 'summary_runtime_maximum', type: 'range', meta:'summary_runtime_maximum' },
+                    { name: 'summary_maximum_allowed', type: 'static', meta: 'summary_maximum_allowed'},
+                    { name: 'summary_total_cost', type: 'static', meta:'summary_total_cost'}
+	            ],
+	            meta: {
+	                summary_placed_on_map: e.data.budget.summary_placed_on_map,
+	                summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
+	                summary_runtime_maximum: { type: 'int', min: 0, max: e.data.budget.summary_maximum_allowed, step: 1},
+	                summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
+	                summary_total_cost: e.data.budget.summary_total_cost
+	            }
+	        }, e.data.budget);
+	        budgetPropertiesWidget.setSelectedIndex(0);
 
 		
 		
-		screenManager.clear();
-		screenManager.push('object_properties_list');
+	        screenManager.clear();
+	        screenManager.push('object_properties_list');
+	    });
 	});
    
 });
