@@ -9,6 +9,7 @@
     var objectListNode = null;
     var searchResults = null;
     var doSearch = null;
+    var itemAttributes = {};
   
     loadItems(function(data) {
         var parser = new DOMParser();
@@ -218,41 +219,15 @@
                             var node = null;
                             for(var x = objectListNode.firstChild; x; x = x.nextSibling) {
                                 if(x.nodeName === 'item') {
-                                    if(j++ == index) {
+                                    if(j++ == index)
                                         node = x;
-                                    }
-
                                 }
                             }
 
-                            if(!node)
-                                return;
-
-                            var props = {};
-                            for(var x = node.firstChild; x; x = x.nextSibling) {
-                                if(x.nodeName === 'setter') {
-                                    var target = x.getAttribute('target');
-                                    var value = x.getAttribute('value');
-                                    var type = x.getAttribute('type');
-                                    switch(type) {
-                                        case 'int':
-                                            props[target] = parseInt(value);
-                                            break;
-                                        case 'float':
-                                            props[target] = parseFloat(value);
-                                            break;
-                                    }
-                                    
-                                }
+                            if(node) {
+                                spawnItem(node);
+                                dew.hide();
                             }
-
-                            dew.callMethod('forgeaction',  {
-                                type: 2,
-                                data: props
-                            });
-
-                            dew.command('forge.spawnitem ' + selected.getAttribute('data-tagindex')).then(function() {});
-                            dew.hide();
                         }
                         break;
                     case 10:
@@ -312,8 +287,13 @@
                     case 0:
                         dew.command('Game.PlaySound 0xb00');
                         var selectedElem = searchResultListElement.querySelector('li.selected');
-                        dew.command('forge.spawnitem ' + selectedElem.getAttribute('data-tagindex')).then(function() {});
-                        dew.hide();
+                        var index = $(selectedElem).index();
+                        var itemResult = searchResults[index];
+                        if(itemResult) {
+                            spawnItem(itemResult.node);
+                            dew.hide();
+                        }
+                        
                         break;
                     case 1:
                         if(screenManager.currentScreen().name !== 'main')
@@ -324,6 +304,33 @@
         }
     })
 
+    function spawnItem(itemNode) {
+        var props = {};
+        for(var x = itemNode.firstChild; x; x = x.nextSibling) {
+            if(x.nodeName === 'setter') {
+                var target = x.getAttribute('target');
+                var value = x.getAttribute('value');
+                var type = x.getAttribute('type');
+                switch(type) {
+                    case 'int':
+                        props[target] = parseInt(value);
+                        break;
+                    case 'float':
+                        props[target] = parseFloat(value);
+                        break;
+                }
+                                    
+            }
+        }
+
+        dew.callMethod('forgeaction',  {
+            type: 2,
+            data: props
+        });
+
+        dew.command('forge.spawnitem ' + itemNode.getAttribute('tagindex')).then(function() {});
+    }
+
 
     function buildItemsJson(node) {
         var items = [];
@@ -332,11 +339,18 @@
             if(x.nodeName === 'category' || x.nodeName === 'root')
                 items = items.concat(buildItemsJson(x));
             else if(x.nodeName === 'item') {
+                var tagindex =  parseInt(x.getAttribute('tagindex'));
+                var name = x.getAttribute('name');
                 items.push({
-                    name: x.getAttribute('name'),
+                    name: name,
                     tagindex: x.getAttribute('tagindex'),
                     node: x
                 })
+
+
+                itemAttributes[tagindex] =  {
+                    max_allowed: parseInt(x.getAttribute('max_allowed')) || 255
+                };
             }
         }
 
@@ -400,13 +414,11 @@
             var name = result.name;
             var tagindex = parseInt(result.tagindex);
             var itemBudget = budget[tagindex];
-            var remainingItems = 255;
 
             var category = result.node.parentNode.getAttribute('name');
 
-            if(itemBudget) {  
-                remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
-            }
+            var attr = itemAttributes[tagindex];
+            var remainingItems = attr.max_allowed - (itemBudget ? itemBudget.count_on_map : 0);
 
             var help = getNodeHelp(result.node);
 
@@ -433,15 +445,10 @@
                 var tagindex = parseInt(x.getAttribute('tagindex'));
 
                 var itemBudget = budget[tagindex];
-                var remainingItems = 255;
+ 
+                var attr = itemAttributes[tagindex];
+                var remainingItems = attr.max_allowed - (itemBudget ? itemBudget.count_on_map : 0);
 
-               
-                if(itemBudget) {
-                    
-                    remainingItems = itemBudget.max_allowed - itemBudget.count_on_map;
-                }
-
-                
                 var help = getNodeHelp(x);
 
                 html += `
