@@ -21,6 +21,7 @@ namespace Server::Stats
 	//If we wait for the submit-stats lifecycle state to fire, some of the scores are already reset to 0.
 	time_t sendStatsTime = 0;
 
+	const auto get_lobby_type = (int(__cdecl*)())(0x00435640);
 	// retrieves master server endpoints from dewrito.json
 	void GetStatsEndpoints(std::vector<std::string>& destVect)
 	{
@@ -135,7 +136,7 @@ namespace Server::Stats
 	{
 
 		auto* session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished() || !session->IsHost() || !Patches::Network::IsInfoSocketOpen())
+		if (!session || !session->IsEstablished() || !session->IsHost() || get_lobby_type() != 2 || !Patches::Network::IsInfoSocketOpen())
 			return false;
 
 		std::vector<std::string> statsEndpoints;
