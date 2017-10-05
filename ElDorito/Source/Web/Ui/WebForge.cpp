@@ -41,8 +41,11 @@ namespace
 		General_ShapeBottom,
 		General_ShapeDepth,
 		General_Material,
+		General_Material_ColorR,
+		General_Material_ColorG,
+		General_Material_ColorB,
 		General_Physics,
-
+		
 		Budget_Minimum,
 		Budget_Maximum,
 
@@ -66,7 +69,7 @@ namespace
 		Fx_ColorFloorR,
 		Fx_ColorFloorG,
 		Fx_ColorFloorB,
-		Fx_Tracing
+		Fx_Tracing,
 
 	};
 
@@ -143,6 +146,15 @@ namespace
 			case PropertyTarget::General_Material:
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
+			case PropertyTarget::General_Material_ColorR:
+				 reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::General_Material_ColorG:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::General_Material_ColorB:
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
+				break;
 			case PropertyTarget::General_Physics:
 				SetPhysics(value.ValueInt);
 				break;
@@ -212,6 +224,7 @@ namespace
 			case PropertyTarget::Fx_GammaDecrease:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->GammaDecrease = int(value.ValueFloat * 255);
 				break;
+			
 			}
 		}
 
@@ -599,6 +612,7 @@ namespace
 
 		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
 		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
+		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
@@ -626,6 +640,9 @@ namespace
 		SerializeProperty(writer, "shape_width", properties.ZoneRadiusWidth);
 		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
 		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
+		SerializeProperty(writer, "appearance_material_color_r", reforgeProperties->ColorR / 255.0f);
+		SerializeProperty(writer, "appearance_material_color_g", reforgeProperties->ColorG / 255.0f);
+		SerializeProperty(writer, "appearance_material_color_b", reforgeProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
@@ -674,6 +691,9 @@ namespace
 			{ "team_affiliation",			{ PropertyDataType::Int, PropertyTarget::General_Team }},
 			{ "physics",					{ PropertyDataType::Int, PropertyTarget::General_Physics } },
 			{ "appearance_material",		{ PropertyDataType::Int, PropertyTarget::General_Material } },
+			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
+			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
+			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
 			{ "teleporter_channel",			{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
 			{ "shape_type",					{ PropertyDataType::Int, PropertyTarget::General_ShapeType }},
 			{ "shape_radius",				{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},

@@ -54,6 +54,9 @@ var STRINGS = {
 	appearance: 'Appearance',
 	appearance_lightmap: 'Lightmap',
 	appearance_material: 'Material',
+	appearance_material_color_r: 'Color R',
+	appearance_material_color_g: 'Color G',
+    appearance_material_color_b: 'Color B',
 	budget_screen_action: 'Summary',
 	summary: 'Summary',
 	summary_placed_on_map: 'placed on map',
@@ -136,6 +139,9 @@ var objectPropertyGridData = {
 			{ name: 'Off', value: 0 }
 			
 		],
+		appearance_material_color_r: { min: 0.0, max: 1.0, step: 0.01 },
+		appearance_material_color_g: { min: 0.0, max: 1.0, step: 0.01 },
+		appearance_material_color_b: { min: 0.0, max: 1.0, step: 0.01 },
         physics: [{name:'Default', value: 0}, {name:'Phased', value: 1}],
         light_color_r: { min: 0.0, max: 1.0, step: 0.01 },
         light_color_g: { min: 0.0, max: 1.0, step: 0.01 },
@@ -173,6 +179,9 @@ var objectPropertyGridData = {
 				{ name: 'symmetry', type: 'spinner', meta:'symmetry' }, 
 				{ name: 'physics', type: 'spinner', meta:'physics'},
 				{ name: 'appearance_material', type: 'material', meta:'appearance_material'},
+                { name: 'appearance_material_color_r', type: 'range', meta:'appearance_material_color_r'},
+                { name: 'appearance_material_color_g', type: 'range', meta:'appearance_material_color_g'},
+                { name: 'appearance_material_color_b', type: 'range', meta:'appearance_material_color_b'},
 				
 				
 			]
@@ -422,7 +431,6 @@ dew.on('hide', function() {
 });
 
 dew.on('show',function(e) {
-
 	objectData = { has_material: e.data.has_material };
 
 	if(quickClosed) {
@@ -452,6 +460,8 @@ dew.on('show',function(e) {
 	        }, e.data.properties);
 
 	        buildPropertyFilter(e.data);
+
+	        determineMaterialColorVisibility(e.data.properties.appearance_material);
 
 	        var items = itemsXmlDoc.getElementsByTagName('item');
 	        for(var i = 0; i < items.length; i++) {   
@@ -559,7 +569,7 @@ $(function() {
 	});
 
 	objectPropertiesWidget.on('propertyChange', ({name, value}) => {
-		if(value != undefined)
+		if(value !== undefined)
 			onPropertyChanged(name, value);
 	});
 
@@ -579,7 +589,8 @@ $(function() {
 function onPropertyChanged(name, value) {
 	var changes = {};
 	switch(name) {
-		case 'appearance_material':
+	    case 'appearance_material':
+	        determineMaterialColorVisibility(value);
 			//$('#appearance_material_material_preview').attr('src', objectPropertyGridData.meta['appearance_material'][value].thumbnail);
 		break;
 		case 'shape_type':
@@ -616,6 +627,22 @@ function onPropertyChanged(name, value) {
 	});
 }
 
+
+function determineMaterialColorVisibility(materialIndex) {
+    if(objectData.has_material)
+    {
+        if(materialIndex == 119 || materialIndex == 120) {
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_r', true);
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_g', true);
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_b', true);
+        }
+        else {
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_r', false);
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_g', false);
+            objectPropertiesWidget.toggleVisibility('appearance_material_color_b', false);
+        }
+    }
+}
 
 function buildVisiblePropertyArray(properties, filterSet) {
 	var result = [];
@@ -747,7 +774,7 @@ function buildPropertyFilter(data) {
 		}
 	}
 	else {
-		objectPropertiesWidget.toggleVisibility('teleporter_properties', false);
+		objectPropertiesWidget.toggleVisibility('teleporter_properties', true);
 		objectPropertiesWidget.toggleVisibility('shape_depth', false);
 		objectPropertiesWidget.toggleVisibility('shape_width', false);
 		objectPropertiesWidget.toggleVisibility('shape_top', false);

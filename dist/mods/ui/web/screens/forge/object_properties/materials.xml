@@ -140,69 +140,7 @@
 		<item name="Wood, Planks" value="022" />
 	</category>
 	<category name="Solid Colors">
-		<item name="Indian Red" value="119" />
-		<item name="Light Coral" value="120" />
-		<item name="Salmon" value="121" />
-		<item name="Crimson" value="122" />
-		<item name="Red" value="123" />
-		<item name="FireBrick" value="124" />
-		<item name="Dark Red" value="125" />
-		<item name="Pink" value="126" />
-		<item name="Light Pink" value="127" />
-		<item name="Hot Pink" value="128" />
-		<item name="Deep Pink" value="129" />
-		<item name="Medium Violet Red" value="130" />
-		<item name="Pale Violet Red" value="131" />
-		<item name="Light Salmon" value="132" />
-		<item name="Coral" value="133" />
-		<item name="Tomato" value="134" />
-		<item name="Orange Red" value="135" />
-		<item name="Dark Orange" value="136" />
-		<item name="Orange" value="137" />
-		<item name="Goldenrod" value="138" />
-		<item name="Dark Goldenrod" value="139" />
-		<item name="Gold" value="140" />
-		<item name="Yellow" value="141" />
-		<item name="Light Yellow" value="142" />
-		<item name="Lemon Chiffon" value="143" />
-		<item name="Moccasin" value="144" />
-		<item name="Khaki" value="145" />
-		<item name="Lavender" value="146" />
-		<item name="Plum" value="147" />
-		<item name="Magenta" value="148" />
-		<item name="Blue Violet" value="149" />
-		<item name="Purple" value="150" />
-		<item name="Indigo" value="151" />
-		<item name="Slate Blue" value="152" />
-		<item name="Dark Slate Blue" value="153" />
-		<item name="Lawn Green" value="154" />
-		<item name="Lime Green" value="155" />
-		<item name="Light Green" value="156" />
-		<item name="Sea Green" value="157" />
-		<item name="Forest Green" value="158" />
-		<item name="Dark Green" value="159" />
-		<item name="Olive Drab" value="160" />
-		<item name="Dark Olive Green" value="161" />
-		<item name="Teal" value="162" />
-		<item name="Cyan" value="163" />
-		<item name="Aquamarine" value="164" />
-		<item name="Steel Blue" value="165" />
-		<item name="Light Blue" value="166" />
-		<item name="Dodger Blue" value="167" />
-		<item name="Blue" value="168" />
-		<item name="Navy" value="169" />
-		<item name="Midnight Blue" value="170" />
-		<item name="Cornsilk" value="171" />
-		<item name="Tan" value="172" />
-		<item name="Chocolate" value="173" />
-		<item name="SaddleBrown" value="174" />
-		<item name="Brown" value="175" />
-		<item name="Maroon" value="176" />
-		<item name="White" value="177" />
-		<item name="Light Gray" value="178" />
-		<item name="Gray" value="179" />
-		<item name="Slate Gray" value="180" />
-		<item name="Dark Slate Gray" value="181" />
-		<item name="Black" value="182" />
+		<item name="Metal" value="119" />
+		<item name="Matte" value="120" />
 	</category>
 </root>

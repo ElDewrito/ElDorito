@@ -75,7 +75,11 @@ namespace
 	void* ObjectPropertiesUIAllocateHook(int size);
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
+	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
+
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
+
+
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 	void __cdecl MapVariant_SyncVariantPropertiesHook(Blam::MapVariant::VariantPlacement *placement);
@@ -84,7 +88,6 @@ namespace
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
 	void MapVariant_SpawnObjectHook();
-	void MapVariant_AssignPlacementHook();
 
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
@@ -191,6 +194,8 @@ namespace Patches::Forge
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 
 		Hook(0x639986, ScreenEffectsHook, HookFlags::IsCall).Apply();
+
+		Hook(0x645160, UpdateObjectCachedColorPermutationRenderStateHook).Apply();
 
 		// allow arbitrary data to be stored in variant properties
 		Patch(0x18676E, { 0x90,0x90 }).Apply();
@@ -1677,5 +1682,74 @@ namespace
 
 		if (!is_client())
 			::Forge::KillVolumes::Update();
+	}
+
+	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated)
+	{
+		using ObjectDefinition = Blam::Tags::Objects::Object;
+
+		const auto sub_5A03E0 = (bool(*)(int a1))(0x5A03E0);
+		const auto sub_B31B80 = (void(*)(uint32_t objectIndex, int a2, bool invalidated))(0xB31B80);
+		const auto object_get_render_data = (void*(*)(uint32_t objectIndex))(0x00B2E800);
+		const auto object_get_color_permutation = (bool(*)(uint32_t objectIndex, int index, Blam::Math::RealColorRGB *a3))(0x00B2DE50);
+
+		if (sub_5A03E0(2))
+		{
+			auto object = Blam::Objects::Get(objectIndex);
+			if (!object)
+				return;
+
+			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>('obje');
+			auto cachedRenderStateIndex = *(uint32_t*)object_get_render_data(objectIndex);
+
+			auto mpProperties = object->GetMultiplayerProperties();
+
+			bool isReforgeObject = false;
+
+			if (cachedRenderStateIndex != -1 
+				&& (invalidated || (*((uint8_t*)objectDef + 0x1C) & 1) || (mpProperties && (isReforgeObject = CanThemeObject(objectIndex)))))
+			{
+				uint8_t *cachedRenderStates = nullptr;
+				__asm
+				{
+					mov eax, dword ptr fs : [0x02C]
+					mov eax, dword ptr ds : [eax]
+					mov eax, [eax + 0x3E0]
+					mov cachedRenderStates, eax
+				}
+				auto cachedRenderState = *(uint8_t**)(cachedRenderStates + 0x44) + 0x4D8 * (cachedRenderStateIndex & 0xffff);
+
+				*(int8_t *)(cachedRenderState + 0x474) = 0;
+
+				auto index = 0;
+				auto pColor = (DWORD *)(cachedRenderState + 0x460);
+				do
+				{
+					Blam::Math::RealColorRGB color;
+					if (object_get_color_permutation(objectIndex, ++index, &color))
+					{
+						if (isReforgeObject)
+						{
+							const auto ReforgeProperties = (Forge::ReforgeObjectProperties*)&mpProperties->RadiusWidth;
+							color.Red = ReforgeProperties->ColorR / 255.0f;
+							color.Green = ReforgeProperties->ColorG / 255.0f;
+							color.Blue = ReforgeProperties->ColorB / 255.0f;
+						}
+
+						*pColor = (((signed int)(color.Red * 255.0) & 0xFF) << 16)
+							| (((signed int)(color.Green * 255.0) & 0xFF) << 8)
+							| (signed int)(color.Blue * 255.0) & 0xFF;
+
+
+						++*(int8_t *)(cachedRenderState + 0x474);
+					}
+					++pColor;
+				} while (index < 5);
+			}
+		}
+		else
+		{
+			sub_B31B80(objectIndex, 2, invalidated);
+		}
 	}
 }

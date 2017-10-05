@@ -40,9 +40,16 @@ namespace Forge
 		uint8_t DistanceFalloffFunction : 4;
 		uint8_t TimeEvolutionFunction : 4;
 	};
-
 	static_assert(sizeof(ForgeScreenFxProperties) <= 16, "ForgeScreenFxData must be 16 bytes or less in size");
 
+	struct ReforgeObjectProperties
+	{
+		uint8_t ColorR;
+		uint8_t ColorG;
+		uint8_t ColorB;
+	};
+	static_assert(sizeof(ReforgeObjectProperties) <= 16, "ReforgeObjectProperties must be 16 bytes or less in size");
+	
 	struct ZoneShape
 	{
 		int32_t Shape;
