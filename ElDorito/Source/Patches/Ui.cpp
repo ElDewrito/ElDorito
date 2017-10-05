@@ -1076,10 +1076,8 @@ namespace
 		{
 			auto session = Blam::Network::GetActiveSession();
 
-			if (!session || !session->IsEstablished())
-				return;
-
-			mapID = session->Parameters.MapVariant.MapID;
+			if (session && session->IsEstablished())
+				mapID = session->Parameters.MapVariant.MapID;
 		}
 		else if (name == 67149)
 		{
