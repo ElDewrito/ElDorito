@@ -2,6 +2,7 @@
 
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
+#include "../Blam/BlamData.hpp"
 
 #include "../ThirdParty/dirent.h"
 
@@ -9,6 +10,33 @@
 
 namespace
 {
+	struct c_content_item : Blam::DatumBase
+	{
+		uint16_t Unknown02;
+		uint32_t Unknown04;
+		int ContentType;
+		int LocalProfileIndex;
+		uint8_t ContentHeader[0xF8];
+		uint8_t Unknown108[312];
+	};
+
+	struct c_content_catalog
+	{
+		int LocalProfileIndex;
+		Blam::DataArray<c_content_item> *Items;
+		uint8_t Unknown08[0x2A8];
+	};
+
+	struct c_content_item_overlapped_task
+	{
+		int LocalProfileIndex;
+		uint32_t ContentItemDatumIndex;
+		wchar_t *NewContentName;
+		wchar_t *NewContentDescription;
+		long *CompletionState;
+		long *CompletionStatus;
+	};
+
 	bool IsProfileAvailable();
 	char __stdcall PackageCreateHook(int a1, int a2, int a3, int a4, int a5, int a6, int a7);
 	char __stdcall PackageMountHook(int a1, int a2, int a3, int a4);
@@ -21,6 +49,19 @@ namespace
 	char __fastcall FS_GetFiloForContentItemHook1(uint8_t* contentItem, void* unused, void* filo);
 	wchar_t* __fastcall FS_GetFilePathForContentItemHook(uint8_t* contentItem, void* unused, wchar_t* dest, size_t MaxCount);
 	char __fastcall Game_SetFlagAfterCopyBLFDataHook(uint8_t* flag, void* unused, char flagIdx, char set);
+
+	int content_item_overlapped_task_execute_hook(c_content_item_overlapped_task *task);
+	int file_write_overlapped_task_execute_hook(uint8_t *task);
+	void __fastcall c_gui_screen_pregame_selection__overlapped_task_update_hook(uint8_t *thisptr, void *unused);
+	bool __fastcall c_gui_map_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen);
+	bool __fastcall c_gui_game_variant_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen);
+	void __fastcall c_content_item_delete_hook(void *thisptr, void *unused, int a1);
+
+	struct
+	{
+		bool IsValid;
+		char NewPath[MAX_PATH];
+	} s_ContentItemRenameState;
 }
 
 namespace Patches::ContentItems
@@ -72,6 +113,18 @@ namespace Patches::ContentItems
 		Hook(0x34CCF0, FS_GetFiloForContentItemHook1).Apply();
 
 		Hook(0x34D376, Game_SetFlagAfterCopyBLFDataHook, HookFlags::IsCall).Apply();
+
+		Hook(0x00705388, c_gui_screen_pregame_selection__overlapped_task_update_hook, HookFlags::IsCall).Apply();
+
+
+		Pointer(0x0169E4E4).Write(uint32_t(&c_gui_game_variant_selected_item__get_file_path_hook));
+		Pointer(0x0169E244).Write(uint32_t(&c_gui_map_selected_item__get_file_path_hook));
+		Pointer(0x526E50).Write(uint32_t(&content_item_overlapped_task_execute_hook));
+		Hook(0x1A60E6, c_content_item_delete_hook, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x1277EA), 2);
+		Patch::NopFill(Pointer::Base(0x127490), 2);
+
+		Pointer(0x005AE015 + 1).Write(uint32_t(&file_write_overlapped_task_execute_hook));
 	}
 }
 
@@ -82,7 +135,7 @@ namespace
 
 	bool AddContentItem(wchar_t* itemPath)
 	{
-		uint8_t fileData[0xF0];
+		uint8_t fileData[0xF8];
 
 		FILE* file;
 		if (_wfopen_s(&file, itemPath, L"rb") != 0 || !file)
@@ -108,8 +161,10 @@ namespace
 		}
 
 		fseek(file, 0x40, SEEK_SET);
-		fread(fileData, 1, 0xF0, file);
+		fread(fileData, 1, 0xF8, file);
 		fclose(file);
+
+		const auto sub_525330 = (signed int(*)(int a1))(0x525330);
 
 		typedef int(__cdecl *GlobalsArrayPushFunc)(void* globalArrayPtr);
 		GlobalsArrayPushFunc globalsArrayPush = (GlobalsArrayPushFunc)0x55B410;
@@ -119,11 +174,11 @@ namespace
 		uint8_t* dataPtr = dataBasePtr + (0x240 * (uint16_t)dataIdx);
 
 		*(uint32_t*)(dataPtr + 4) = 0x11;
-		*(uint32_t*)(dataPtr + 8) = 4; // this is a blf/variant/content item type field, but setting it to 4 (slayer) works for everything
+		*(uint32_t*)(dataPtr + 8) = sub_525330(*(uint32_t*)(fileData + 0xB8));
 		*(uint32_t*)(dataPtr + 0xC) = (uint32_t)dataPtr;
 
 
-		memcpy(dataPtr + 0x10, fileData, 0xF0);
+		memcpy(dataPtr + 0x10, fileData, 0xF8);
 		wcscpy_s((wchar_t*)(dataPtr + 0x100), 0xA0, itemPath);
 
 		return true;
@@ -146,8 +201,6 @@ namespace
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\", currentDir, variantName);
 		else
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\", currentDir, variantName);
-
-		SHCreateDirectoryExW(NULL, dest, NULL);
 
 		if (variantType == 10)
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\sandbox.map", currentDir, variantName);
@@ -318,5 +371,152 @@ namespace
 	bool IsProfileAvailable()
 	{
 		return true;
+	}
+
+	char *GetDirectoryPath(char *path, char* buff, int bufflen)
+	{
+		strcpy_s(buff, bufflen, path);
+		auto *filePart = strrchr(buff, '\\');
+		if (filePart)
+		{
+			*filePart = 0;
+			return buff;
+		}
+		return nullptr;
+	}
+
+	wchar_t *GetDirectoryPathW(wchar_t *path, wchar_t* buff, int bufflen)
+	{
+		wcscpy_s(buff, bufflen, path);
+		auto *filePart = wcsrchr(buff, L'\\');
+		if (filePart)
+		{
+			*filePart = 0;
+			return buff;
+		}
+		return nullptr;
+	}
+
+
+	int content_item_overlapped_task_execute_hook(c_content_item_overlapped_task *task)
+	{
+		const auto EditContentHeaderOverlappedTaskFunc = (bool(*)(c_content_item_overlapped_task *task))(0x526E90);
+
+		const auto local_profile_get_content_catalog = (c_content_catalog*(*)(int profileIndex))(0x005A5600);
+		const auto c_content_catalog__get_availability = (uint32_t(__thiscall *)(c_content_catalog *thisptr))(0x005A7A80);
+		const auto c_content_catalog__get_item_filo = (bool(__thiscall *)(c_content_catalog *thisptr, uint32_t contentItemDatumIndex, void *filo))(0x5A6780);
+		const auto string_unicode_to_ascii = (void(*)(wchar_t *src, char *dest, int destlen, void *a4))(0x004EDEA0);
+
+		s_ContentItemRenameState.IsValid = false;
+
+		if (task->NewContentName)
+		{
+			auto catalog = local_profile_get_content_catalog(task->LocalProfileIndex);
+			if (c_content_catalog__get_availability(catalog) != 0xCACACACA)
+			{
+				auto item = catalog->Items->Get(task->ContentItemDatumIndex);
+				if (item)
+				{
+					uint8_t filo[0x208];
+					c_content_catalog__get_item_filo(catalog, task->ContentItemDatumIndex, filo);
+					auto filePath = (char*)(filo + 0x8);
+
+					char oldDirectory[MAX_PATH];
+					wchar_t newDirectoryPath[MAX_PATH];
+					wchar_t newFilePath[MAX_PATH];
+
+					GetDirectoryPath(filePath, oldDirectory, MAX_PATH);
+					GetFilePathForItem(newFilePath, MAX_PATH, task->NewContentName, *(int*)(item->ContentHeader + 0xB8));
+					GetDirectoryPathW(newFilePath, newDirectoryPath, MAX_PATH);
+
+					string_unicode_to_ascii(newFilePath, s_ContentItemRenameState.NewPath, MAX_PATH, nullptr);
+
+					SHCreateDirectoryExW(nullptr, newDirectoryPath, nullptr);
+
+					auto v2 = EditContentHeaderOverlappedTaskFunc(task);
+					if (*task->CompletionStatus == 1)
+					{
+						MoveFileA(filePath, s_ContentItemRenameState.NewPath);
+						RemoveDirectoryA(oldDirectory);
+						s_ContentItemRenameState.IsValid = true;
+					}
+
+					return v2;
+				}
+			}
+		}
+
+		return EditContentHeaderOverlappedTaskFunc(task);
+	}
+
+	void __fastcall c_content_item_delete_hook(void *thisptr, void *unused, int a1)
+	{
+		auto filePath = (wchar_t*)((uint8_t*)thisptr + 0x100);
+
+		wchar_t tmp[MAX_PATH];
+		if (GetDirectoryPathW(filePath, tmp, MAX_PATH))
+		{
+			DeleteFileW(filePath);
+			RemoveDirectoryW(tmp);
+		}
+	}
+
+	void __fastcall c_gui_screen_pregame_selection__overlapped_task_update_hook(uint8_t *thisptr, void *unused)
+	{
+		const auto c_gui_screen_pregame_selection__overlapped_task_update = (void(__thiscall*)(uint8_t *thisptr))(0x00B053D0);
+		const auto c_gui_widget__find_named_child = (void*(__thiscall *)(void *thisptr, uint32_t name))(0x00AB8AA0);
+		const auto c_gui_list_widget__get_ordered_data_source = (void*(__thiscall *)(void *thisptr))(0x00B14FE0);
+		const auto c_gui_list_widget__get_selected_item_index = (int(__thiscall *)(void *thisptr))(0xB150E0);
+		const auto c_filo__set_path = (int(*)(void *a1, char *a2))(0x528880);
+		const auto c_gui_screen_widget__get_local_profile_index = (int(__thiscall *)(void *thisptr))(0x00AB96C0);
+
+		if (*(uint32_t*)(thisptr + 0x1AB0) == -1 && *(uint32_t *)(thisptr + 0x1AB4) != -1)
+		{
+			if (*(uint32_t*)(thisptr + 0x1AC0) == 1 && s_ContentItemRenameState.IsValid)
+			{
+				s_ContentItemRenameState.IsValid = false;
+
+				auto subitem = c_gui_widget__find_named_child(thisptr, 0x102E6);
+				if (subitem)
+				{
+					auto datasource = c_gui_list_widget__get_ordered_data_source(subitem);
+					auto selectedIndex = c_gui_list_widget__get_selected_item_index(subitem);
+					if (selectedIndex != -1)
+					{
+						const auto c_ordered_datasource__get_item_at =
+							(void*(__thiscall*)(void *thisptr, int index))(*(void**)(*(int*)datasource + 0x44));
+
+						auto item = c_ordered_datasource__get_item_at(datasource, selectedIndex);
+						if (item)
+							c_filo__set_path((char*)item + 0x194, s_ContentItemRenameState.NewPath);
+					}
+				}
+			}
+		}
+
+		c_gui_screen_pregame_selection__overlapped_task_update(thisptr);
+	}
+
+	bool __fastcall c_gui_map_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen)
+	{
+		strcpy_s(buff, bufflen, (char*)((uint8_t*)thisptr + 0x19c));
+		return true;
+	}
+
+	bool __fastcall c_gui_game_variant_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen)
+	{
+		strcpy_s(buff, bufflen, (char*)((uint8_t*)thisptr + 0x1A0));
+		return true;
+	}
+
+	int file_write_overlapped_task_execute_hook(uint8_t *task)
+	{
+		const auto file_write_overlapped_task_execute = (int(*)(uint8_t *data))(0x5AF410);
+
+		wchar_t directoryPath[MAX_PATH];
+		if (GetDirectoryPathW((wchar_t*)task, directoryPath, MAX_PATH))
+			SHCreateDirectoryExW(nullptr, directoryPath, nullptr);
+
+		return file_write_overlapped_task_execute(task);
 	}
 }
