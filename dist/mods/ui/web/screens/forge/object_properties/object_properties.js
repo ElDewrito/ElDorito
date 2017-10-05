@@ -750,7 +750,7 @@ function updateTitle() {
 function showMaterialPicker(materialindex) {
 	materialPickerShowTime = Date.now();
 	var materialList = $('.material-tree')[0];
-
+	materialTreeListWidget.gotoRoot();
 	screenManager.push('material_picker');
 }
 
