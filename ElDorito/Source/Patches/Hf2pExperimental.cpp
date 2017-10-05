@@ -110,11 +110,13 @@ namespace
 	void Hf2pShutdownHook();
 	void Hf2pTickHook();
 	void Hf2pLoadPreferencesHook();
-	bool RespawnTimerHook(int hudIndex, wchar_t* buff, int len, int a4);
+	bool SpawnTimerDisplayHook(int hudIndex, wchar_t* buff, int len, int a4);
 
 	void UI_StartMenuScreenWidget_OnDataItemSelectedHook();
 
 	void OnMapLoaded(const char *mapPath);
+
+	void SpawnTimerUpdate();
 }
 
 namespace Patches::Hf2pExperimental
@@ -138,7 +140,7 @@ namespace Patches::Hf2pExperimental
 
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
 
-		Hook(0x6963C6, RespawnTimerHook, HookFlags::IsCall).Apply();
+		Hook(0x6963C6, SpawnTimerDisplayHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnMapLoaded(OnMapLoaded);
 	}
@@ -230,6 +232,8 @@ namespace
 			InitMpDirector();
 			s_MatchStarted = false;
 		}
+
+		SpawnTimerUpdate();
 
 		if (!IsMapLoading())
 		{
@@ -392,13 +396,43 @@ namespace
 		}
 	}
 
-	bool RespawnTimerHook(int hudIndex, wchar_t* buff, int len, int a4)
+	void SpawnTimerUpdate()
 	{
 		const auto ui_play_sound = (void(*)(int index, uint32_t uise))(0x00AA5CD0);
-		static auto game_engine_in_state = (bool(*)(char state))(0x005523A0);
-		static int timeStarted = -1;
-		static int lastTimerBeep = 0;
+		static auto scoreboardShown = false;
+		static auto lastBeep = 0;
 
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		if (playerIndex == Blam::DatumIndex::Null)
+			return;
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (!player)
+			return;
+
+		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
+		auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
+
+		if (!scoreboardShown && !firstTimeSpawning && secondsUntilSpawn > 0 && secondsUntilSpawn < 2)
+		{
+			Web::Ui::WebScoreboard::Show(false, false);
+			scoreboardShown = true;
+		}
+		else if (scoreboardShown && player->SlaveUnit != Blam::DatumIndex::Null)
+		{
+			Web::Ui::WebScoreboard::Hide();
+			scoreboardShown = false;
+		}
+
+		if (secondsUntilSpawn != lastBeep && secondsUntilSpawn < 3)
+		{
+			lastBeep = secondsUntilSpawn;
+			ui_play_sound(13, -1);
+		}
+	}
+
+	bool SpawnTimerDisplayHook(int hudIndex, wchar_t* buff, int len, int a4)
+	{
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
 		const auto sub_6E4AA0 = (bool(__cdecl *)(int a1, wchar_t *DstBuf, int bufflen, char a4))(0x6E4AA0);
 		if (sub_6E4AA0(hudIndex, buff, len, a4))
 			return true;
@@ -409,59 +443,20 @@ namespace
 		if (!player)
 			return false;
 
-		static auto scoreboardShown = false;
-		auto ticksUntilSpawn = Pointer(player)(0x2CB8).Read<int>();
-		if (ticksUntilSpawn > 0)
+		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
+		if (secondsUntilSpawn > 0)
 		{
-			if (timeStarted == -1)
-				timeStarted = Blam::Time::GetGameTicks();
+			if (!game_engine_round_in_progress())
+				return false;
 
-			auto secondsElapsed = Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - timeStarted));
-			auto secondsUntilSpawn = Blam::Time::TicksToSeconds(float(ticksUntilSpawn));
+			auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
 
-			if (secondsUntilSpawn <= 3)
-			{
-				if (int(secondsUntilSpawn) != lastTimerBeep)
-				{
-					lastTimerBeep = int(secondsUntilSpawn);
-					ui_play_sound(13, -1);
-				}
-			}
-
-			if (game_engine_in_state(4))
-			{
-				if (secondsElapsed > 4)
-				{
-					swprintf_s(buff, len, L"Spawn in %d", (int)secondsUntilSpawn + 1);
-					return true;
-				}
-			}
+			if(firstTimeSpawning)
+				swprintf(buff, L"Spawn in %d", secondsUntilSpawn);
 			else
-			{
-				swprintf_s(buff, len, L"Respawn in %d", (int)secondsUntilSpawn);
-
-				if (secondsUntilSpawn <= 2)
-				{
-					if (!scoreboardShown)
-					{
-						Web::Ui::WebScoreboard::Show(false, false);
-						scoreboardShown = true;
-					}
-
-					return false;
-				}
-			}
+				swprintf(buff, L"Respawning in %d", secondsUntilSpawn);
 
 			return true;
-		}
-		else
-		{
-			timeStarted = -1;
-			if (scoreboardShown)
-			{
-				Web::Ui::WebScoreboard::Hide();
-				scoreboardShown = false;
-			}
 		}
 
 		return false;

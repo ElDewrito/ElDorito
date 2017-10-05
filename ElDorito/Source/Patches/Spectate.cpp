@@ -87,9 +87,10 @@ namespace
 		if (player->SlaveUnit != Blam::DatumIndex::Null)
 			return false;
 
-		auto ticksUntilSpawn = Pointer(player)(0x2CB8).Read<int>();
+		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 
-		return ticksUntilSpawn > 0;
+		return player->SlaveUnit == Blam::DatumIndex::Null && secondsUntilSpawn > 1 
+			&& !(Pointer(player)(0x4).Read<uint32_t>() & 8u);
 	}
 
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2)
