@@ -636,11 +636,11 @@ function determineMaterialColorVisibility(materialIndex) {
             objectPropertiesWidget.toggleVisibility('appearance_material_color_g', true);
             objectPropertiesWidget.toggleVisibility('appearance_material_color_b', true);
         }
-        else {
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_r', false);
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_g', false);
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_b', false);
-        }
+    }
+    else {
+        objectPropertiesWidget.toggleVisibility('appearance_material_color_r', false);
+        objectPropertiesWidget.toggleVisibility('appearance_material_color_g', false);
+        objectPropertiesWidget.toggleVisibility('appearance_material_color_b', false);
     }
 }
 
@@ -774,7 +774,7 @@ function buildPropertyFilter(data) {
 		}
 	}
 	else {
-		objectPropertiesWidget.toggleVisibility('teleporter_properties', true);
+		objectPropertiesWidget.toggleVisibility('teleporter_properties', false);
 		objectPropertiesWidget.toggleVisibility('shape_depth', false);
 		objectPropertiesWidget.toggleVisibility('shape_width', false);
 		objectPropertiesWidget.toggleVisibility('shape_top', false);
