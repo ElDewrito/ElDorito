@@ -33,13 +33,11 @@
                     <div class="setting baseNav" onclick="armorShow('armorLeftShoulder',$(this));"><label>Left Shoulder</label></div>
                 </span>
             </div>
-            <div id="playerWindow"></div>
             <form class="armorForm" id="armorHelmet"></form>
             <form class="armorForm" id="armorChest"></form>
             <form class="armorForm" id="armorRightShoulder"></form>
             <form class="armorForm" id="armorLeftShoulder"></form>
             <div id="backgroundLeftSide"></div>
-            <div id="backgroundRightSide"></div>
             <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
         </div>
         
@@ -56,7 +54,6 @@
                 </span>
 
             </div>
-            <div id="playerWindow"></div>
             <form class="colorForm" id="colorsPrimary">
                 <span><label><input type="radio" name="colorsPrimary" value="" onclick="document.getElementById('colorsPrimaryText').click()">Custom <input type="text" name="colorsPrimary" class="setting" id="colorsPrimaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
             </form>
@@ -70,14 +67,14 @@
                 <span><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom <input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
             </form>
             <div id="backgroundLeftSide"></div>
-            <div id="backgroundRightSide"></div>
             <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
         </div>
-        
+        <!--
         <div id="infoBox">
             <div id="infoHeader"></div>
             <div id="infoText"></div>
         </div>
+        -->
     </div>	
     <div class="bottomBar">
         <button id="applyButton"><img class="button">Apply</button>

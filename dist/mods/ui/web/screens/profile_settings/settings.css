@@ -129,7 +129,7 @@ div[id^='page']:target #buttonConatiner{
   left: 50%;
   right: 50%;
   margin-left: -50vw;
-  margin-right: -50vw;
+  margin-right: -5vw;
 	z-index: -1;
 }
 .tabs {
@@ -143,6 +143,7 @@ div[id^='page']:target #buttonConatiner{
 	text-transform: uppercase;
 	box-sizing: border-box;
   background-image: -webkit-linear-gradient( 0deg, rgba(27,41,70,0) 0%, rgba(27,41,70,1) 10%, rgba(27,41,70,1) 90%, rgba(27,41,70,0) 100%);
+      width: 35%;
 }
 .tabs:after{
 	position: absolute;
@@ -675,7 +676,7 @@ input[type=range]:focus {
     display:none;
 	position:absolute;
 	left:0;
-	width:100%;
+	width:55%;
 	height:11.5vh;
 	background-color:#111a44;
 	z-index:-7;
