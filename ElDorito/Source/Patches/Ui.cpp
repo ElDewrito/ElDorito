@@ -434,57 +434,6 @@ namespace Patches::Ui
 		}
 	}
 
-	void ApplyMapNameFixes()
-	{
-		uint32_t levelsGlobalPtr = Pointer::Base(0x149E2E0).Read<uint32_t>();
-		if (!levelsGlobalPtr)
-			return;
-
-		// TODO: map out these global arrays, content items seems to use same format
-
-		uint32_t numLevels = Pointer(levelsGlobalPtr + 0x34).Read<uint32_t>();
-
-		const wchar_t* search[12] = { L"guardian", L"riverworld", L"s3d_avalanche", L"s3d_edge", L"s3d_reactor", L"s3d_turf", L"cyberdyne", L"chill", L"deadlock", L"bunkerworld", L"shrine", L"zanzibar" };
-		const wchar_t* names[12] = { L"Guardian", L"Valhalla", L"Diamondback", L"Edge", L"Reactor", L"Icebox", L"The Pit", L"Narrows", L"High Ground", L"Standoff", L"Sandtrap", L"Last Resort" };
-		// TODO: Get names/descs using string ids? Seems the unic tags have descs for most of the maps
-		const wchar_t* descs[12] = {
-			L"Millennia of tending has produced trees as ancient as the Forerunner structures they have grown around. 2-6 players.",
-			L"The crew of V-398 barely survived their unplanned landing in this gorge...this curious gorge. 6-16 players.",
-			L"Hot winds blow over what should be a dead moon. A reminder of the power Forerunners once wielded. 6-16 players.",
-			L"The remote frontier world of Partition has provided this ancient databank with the safety of seclusion. 6-16 players.",
-			L"Being constructed just prior to the Invasion, its builders had to evacuate before it was completed. 6-16 players.",
-			L"Downtown Tyumen's Precinct 13 offers an ideal context for urban combat training. 4-10 players.",
-			L"Software simulations are held in contempt by the veteran instructors who run these training facilities. 4-10 players.",
-			L"Without cooling systems such as these, excess heat from the Ark's forges would render the construct uninhabitable. 2-8 players.",
-			L"A relic of older conflicts, this base was reactivated after the New Mombasa Slipspace Event. 4-12 players.",
-			L"Once, nearby telescopes listened for a message from the stars. Now, these silos contain our prepared response. 4-12 players.",
-			L"Although the Brute occupiers have been driven from this ancient structure, they left plenty to remember them by. 6-16 players",
-			L"Remote industrial sites like this one are routinely requisitioned and used as part of Spartan training exercises. 4-12 players."
-
-		};
-		for (uint32_t i = 0; i < numLevels; i++)
-		{
-			Pointer levelNamePtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8);
-			Pointer levelDescPtr = Pointer(levelsGlobalPtr + 0x54 + (0x360 * i) + 0x8 + 0x40);
-
-			wchar_t levelName[0x21] = { 0 };
-			levelNamePtr.Read(levelName, sizeof(wchar_t) * 0x20);
-
-			for (uint32_t y = 0; y < sizeof(search) / sizeof(*search); y++)
-			{
-				if (wcscmp(search[y], levelName) == 0)
-				{
-					memset(levelNamePtr, 0, sizeof(wchar_t) * 0x20);
-					wcscpy_s(levelNamePtr, 0x20, names[y]);
-
-					memset(levelDescPtr, 0, sizeof(wchar_t) * 0x80);
-					wcscpy_s(levelDescPtr, 0x80, descs[y]);
-					break;
-				}
-			}
-		}
-	}
-
 	void ApplyUIResolution()
 	{
 		if (Modules::ModuleGraphics::Instance().VarUIScaling->ValueInt == 1) {

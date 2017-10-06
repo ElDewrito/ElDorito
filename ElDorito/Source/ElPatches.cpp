@@ -29,6 +29,7 @@
 #include "Patches\Medals.hpp"
 #include "Patches\Simulation.hpp"
 #include "Patches\Camera.hpp"
+#include "Patches\Maps.hpp"
 #include "Game\Armor.hpp"
 
 namespace
@@ -65,6 +66,7 @@ namespace Patches
 		Medals::ApplyAll();
 		Simulation::ApplyAll();
 		Camera::ApplyAll();
+		Maps::ApplyAll();
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
@@ -89,7 +91,6 @@ namespace Patches
 
 	void ApplyOnFirstTick()
 	{
-		Ui::ApplyMapNameFixes();
 	}
 
 	void ApplyAfterTagsLoaded()

@@ -13,6 +13,7 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
+#include "../Patches/Maps.hpp"
 #include "../Web/WebRenderer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "ModuleServer.hpp"
@@ -434,9 +435,7 @@ namespace
 			return false;
 
 		// Initialize an empty variant for the map
-		typedef void(__thiscall *InitializeMapVariantPtr)(uint8_t *outVariant, int mapId);
-		auto InitializeMapVariant = reinterpret_cast<InitializeMapVariantPtr>(0x581F70);
-		InitializeMapVariant(out, mapId);
+		Patches::Maps::InitializeMapVariant((Blam::MapVariant*)out, mapId);
 
 		// Make sure it actually loaded the map correctly by verifying that the
 		// variant is valid for the map

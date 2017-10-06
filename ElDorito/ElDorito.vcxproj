@@ -95,6 +95,7 @@
     <ClCompile Include="Source\Patches\Input.cpp" />
     <ClCompile Include="Source\Patches\LoadingScreen.cpp" />
     <ClCompile Include="Source\Patches\Logging.cpp" />
+    <ClCompile Include="Source\Patches\Maps.cpp" />
     <ClCompile Include="Source\Patches\Medals.cpp" />
     <ClCompile Include="Source\Patches\Memory.cpp" />
     <ClCompile Include="Source\Patches\Mouse.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="Source\Patches\Input.hpp" />
     <ClInclude Include="Source\Patches\LoadingScreen.hpp" />
     <ClInclude Include="Source\Patches\Logging.hpp" />
+    <ClInclude Include="Source\Patches\Maps.hpp" />
     <ClInclude Include="Source\Patches\Medals.hpp" />
     <ClInclude Include="Source\Patches\Memory.hpp" />
     <ClInclude Include="Source\Patches\Mouse.hpp" />
