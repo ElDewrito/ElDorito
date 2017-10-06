@@ -97,11 +97,6 @@ function createPeer(data) {
     peerCons[data.uid].onclose = removePeer;
     peerCons[data.uid].speakingVolume = -Infinity;
     peerCons[data.uid].lastSpoke = 0;
-    //needs anonymous function to pass the peer we are reading
-    peerCons[data.uid].interval = setInterval(function () {
-            if (peerCons[data.uid].connectedState)
-                peerLastSpeak(peerCons[data.uid]);
-        }, 1000);
     peerIds.push(data.uid);
 }
 
@@ -118,8 +113,6 @@ function removePeer(uid) {
 
     var index = peerIds.indexOf(uid);
     peerIds.splice(index, 1);
-
-    clearInterval(peerCons[uid].interval);
 
     delete peerCons[uid];
     stopSpeak(uid.split("|")[0]);
@@ -206,15 +199,19 @@ function addToSpeakingPlayersList(user) {
     });
 
     setTimeout(function () { //drag in from offscreen
-        $("#" + user).css({
+        $("#" + escapeElementID(user)).css({
             'transform': 'translate(0px, 0px)',
             'transition': 'all 300ms ease'
         });
     }, 25);
 }
 
+function escapeElementID(user) {
+    return user.split(' ').join('\\ ');
+}
+
 function removeFromSpeakingPlayersList(user) {
-    var thisUser = $("#" + user);
+    var thisUser = $("#" + escapeElementID(user));
     var index = thisUser.index();
     if ($("#speaking > p").length > 0) {
         $("#speaking > p").each(function () {
