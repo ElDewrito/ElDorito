@@ -84,6 +84,8 @@ namespace
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 	void __cdecl MapVariant_SyncVariantPropertiesHook(Blam::MapVariant::VariantPlacement *placement);
 	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused);
+	void __fastcall MapVariant_SyncObjectProperties_Object_Properties_Hook(Blam::MapVariant* thisptr, void* unused,
+		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
@@ -157,7 +159,7 @@ namespace Patches::Forge
 		Hook(0x19F4CA, Forge_UpdatePlayerEditorGlobalsHook, HookFlags::IsCall).Apply();
 
 		Hook(0xAD4DD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
-		Hook(0x180E66, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
+		Hook(0x180E66, MapVariant_SyncObjectProperties_Object_Properties_Hook, HookFlags::IsCall).Apply();
 		Hook(0x181326, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x1824EA, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x185BBD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
@@ -1094,6 +1096,9 @@ namespace
 		if (!object)
 			return;
 
+		object->HavokFlags |= 0x200u; // at rest
+		object->HavokFlags &= ~0x100000u;
+
 		// physics
 		if (properties->ZoneShape == 4)
 		{
@@ -1101,24 +1106,37 @@ namespace
 			object->HavokFlags |= 0x2C8;
 			sub_59A620(objectIndex, 1);
 		}
-		else
+	}
+
+	void __fastcall MapVariant_SyncObjectProperties_Object_Properties_Hook(Blam::MapVariant* thisptr, void* unused,
+		Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex)
+	{
+		const auto MapVariant_SyncObjectProperties = (void(__thiscall *)(Blam::MapVariant* thisptr,
+			Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex))(0x00580E80);
+		const auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
+
+		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return;
+
+		// physics
+		if (properties->ZoneShape == 4)
 		{
-			if (object->PlacementIndex != -1)
-			{
-				auto mapv = GetMapVariant();
-				if (mapv->Placements[object->PlacementIndex].PlacementFlags & 2)
-				{
-					if (object->HavokFlags & 0x2C8)
-					{
-						object->HavokFlags &= ~0x2C8;
-						object->HavokFlags &= ~0x100000u;
-						object->HavokFlags |= 0x80;
-						sub_59A620(objectIndex, 1);
-					}
-				}
-			}
+			object->HavokFlags &= ~0x100000u;
+			object->HavokFlags |= 0x2C8;
+			sub_59A620(objectIndex, 1);
+		}
+		else if (object->HavokFlags & 0x2C8)
+		{
+			object->HavokFlags &= ~0x2C8;
+			object->HavokFlags &= ~0x100000u;
+			object->HavokFlags |= 0x80;
+			sub_59A620(objectIndex, 1);
 		}
 	}
+
 
 	SandboxPaletteItem* FindSandboxPaletteItem(uint32_t tagIndex)
 	{
