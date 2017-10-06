@@ -164,9 +164,16 @@ namespace
 		const auto sub_4AFA90 = (int(__cdecl *)(uint32_t tagIndex, int a2, char a3))(0x4AFA90);
 
 		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
-		if (def && int(def->ObjectType) == Blam::Objects::eObjectTypeScenery)
-			return 16;
+		if (def)
 
+		switch (Blam::Objects::ObjectType(def->ObjectType))
+		{
+		case Blam::Objects::eObjectTypeScenery:
+			return 16;
+		case Blam::Objects::eObjectTypeCrate:
+			return (a3 != 0) + 0x10;
+		}
+	
 		return sub_4AFA90(tagIndex, a2, a3);
 	}
 }
