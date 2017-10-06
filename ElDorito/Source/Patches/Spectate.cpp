@@ -30,9 +30,6 @@ namespace Patches::Spectate
 {
 	void ApplyAll()
 	{
-		// fix spectating
-		Patch::NopFill(Pointer::Base(0x192FFD), 6);
-
 		Pointer(0x01671F5C).Write((uint32_t)GameDirectorUpdateHook);
 		Hook(0x32A8D6, GetObserverCameraSensitivityHook, HookFlags::IsCall).Apply();
 	}
