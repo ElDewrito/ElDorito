@@ -64,15 +64,17 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 	{
 		// Get the "address" argument
 		auto s_AddressValue = p_Args.FindMember("address");
-		if (s_AddressValue == p_Args.MemberEnd() || !s_AddressValue->value.IsString())
+		auto s_port = p_Args.FindMember("port");
+
+		if (s_AddressValue == p_Args.MemberEnd() || !s_AddressValue->value.IsString() || s_port == p_Args.MemberEnd() || !s_port->value.IsInt())
 		{
-			*p_Result = "Bad query: An \"address\" argument is required and must be a string";
+			*p_Result = "Bad query: The \"address\" argument must be a string and the \"port\" argument must be an int";
 			return QueryError_BadQuery;
 		}
 
 		// Parse it
 		Blam::Network::NetworkAddress blamAddress;
-		if (!Blam::Network::NetworkAddress::Parse(s_AddressValue->value.GetString(), 11774, &blamAddress))
+		if (!Blam::Network::NetworkAddress::Parse(s_AddressValue->value.GetString(), s_port->value.GetInt(), &blamAddress))
 		{
 			*p_Result = "Invalid argument: The \"address\" argument is not a valid IP address.";
 			return QueryError_InvalidArgument;

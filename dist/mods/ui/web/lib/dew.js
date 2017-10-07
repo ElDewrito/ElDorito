@@ -391,10 +391,11 @@ CommandType = {
      * @param {string} address - The IPv4 address of the server to ping. Must not include a port number.
      * @returns {DewPromise} A promise that will be resolved once the ping is sent.
      */
-    dew.ping = function (address) {
+	 dew.ping = function (address, port=11774) {
         return dew.callMethod("ping", function () {
             return {
-                address: address.toString()
+                address: address.toString(),
+				port: port
             };
         });
     }

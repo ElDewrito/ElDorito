@@ -908,7 +908,7 @@ namespace
 	uint16_t PingId;
 	bool CommandServerPing(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if (Arguments.size() > 1)
+		if (Arguments.size() > 2)
 		{
 			returnInfo = "Invalid arguments";
 			return false;
@@ -922,10 +922,25 @@ namespace
 		}
 
 		// If an IP address was passed, send to that address
-		if (Arguments.size() == 1)
+		if (Arguments.size() > 0)
 		{
 			Blam::Network::NetworkAddress blamAddress;
-			if (!Blam::Network::NetworkAddress::Parse(Arguments[0], 11774, &blamAddress))
+		    uint16_t port = 11774;
+
+			if (Arguments.size() == 2)
+			{
+				try
+				{
+					port = std::atoi(Arguments[1].c_str());
+				}
+				catch (std::logic_error&)
+				{
+					returnInfo = "Invalid Port Supplied";
+					return false;
+				}
+			}
+
+			if (!Blam::Network::NetworkAddress::Parse(Arguments[0], port, &blamAddress))
 			{
 				returnInfo = "Invalid IPv4 address";
 				return false;
