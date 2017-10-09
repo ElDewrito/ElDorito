@@ -683,7 +683,7 @@ namespace Modules
 		AddCommand("FindBind", "findbind", "Finds the key bound to a command passed", eCommandFlagsNone, CommandFindKeybdBinding);
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
-		
+
 		VarControllerVibrationIntensity = AddVariableFloat("ControllerVibrationIntensity", "vibration", "Controls the controller vibration intensity", eCommandFlagsArchived, 1.0f);
 		VarControllerVibrationIntensity->ValueFloatMin = 0.0f;
 		VarControllerVibrationIntensity->ValueFloatMax = 1.0f;
@@ -705,12 +705,6 @@ namespace Modules
 
 		LoadDefaultBindings();
 		BuildSettingsMenu();
-
-		// Default command bindings (TODO: port bind saving code from recode)
-		commandBindings[eKeyCodeA].command = { "ui_btn_press", "0" };      // A
-		commandBindings[eKeyCodeB].command = { "ui_btn_press", "1" };      // B
-		commandBindings[eKeyCodeEnd].command = { "ui_btn_press", "1" };    // B
-		commandBindings[eKeyCodeHome].command = { "ui_btn_press", "2" };   // X
 	}
 
 	BindingsTable* ModuleInput::GetBindings()

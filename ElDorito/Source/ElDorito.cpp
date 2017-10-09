@@ -35,6 +35,7 @@
 #include <TlHelp32.h>
 #include <codecvt>
 #include <detours.h>
+#include "Web/Ui/WebSettings.hpp"
 
 size_t ElDorito::MainThreadID = 0;
 
@@ -206,6 +207,7 @@ void ElDorito::Initialize()
 		Web::Ui::WebLoadingScreen::Init();
 		Web::Ui::Voting::Init();
 		Web::Ui::WebVirtualKeyboard::Init();
+		Web::Ui::WebSettings::Init();
 
 		if (connectToServer)
 		{

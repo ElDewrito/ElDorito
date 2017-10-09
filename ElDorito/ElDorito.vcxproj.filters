@@ -476,6 +476,7 @@
     <ClCompile Include="Source\Forge\KillVolumes.cpp" />
     <ClCompile Include="Source\Patches\Camera.cpp" />
     <ClCompile Include="Source\Patches\Maps.cpp" />
+    <ClCompile Include="Source\Web\Ui\WebSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1115,6 +1116,7 @@
     <ClInclude Include="Source\Forge\KillVolumes.hpp" />
     <ClInclude Include="Source\Patches\Camera.hpp" />
     <ClInclude Include="Source\Patches\Maps.hpp" />
+    <ClInclude Include="Source\Web\Ui\WebSettings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />
