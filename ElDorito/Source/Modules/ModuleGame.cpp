@@ -1132,7 +1132,7 @@ namespace Modules
 
 		AddCommand("Version", "version", "Displays the game's version", eCommandFlagsNone, CommandGameVersion);
 
-		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the server browser is currently open", eCommandFlagsNone, CommandGameSetMenuEnabled);
+		AddCommand("SetMenuEnabled", "set_menu", "Sets whether the server browser is currently open", eCommandFlagsRunOnMainMenu, CommandGameSetMenuEnabled);
 
 		AddCommand("ListMaps", "maps", "List all available map files", eCommandFlagsNone, CommandListMaps);
 
