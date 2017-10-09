@@ -9,6 +9,7 @@ namespace
 	int FmodChannelCountHook();
 	int __stdcall FMOD_System_Init_Hook(void* system, int maxchannels, int flags, int extradriverdata, int a5);
 	bool __fastcall snd_SYSTEM_FMOD_Init_Hook(uint8_t* thisptr, void* unused, int a2, int a3);
+	int sub_661C20_hook(void *sndDef, float pitchModifier, int fallbackIndex);
 
 	const auto s_HaloSoundSystemPtr = (void**)0x018BC9C8;
 }
@@ -46,6 +47,9 @@ namespace Patches::Audio
 
 		Pointer(0x01750794).Write(uint32_t(&FMOD_System_Init_Hook));
 		Pointer(0x0176CA18).Write(uint32_t(&snd_SYSTEM_FMOD_Init_Hook));
+
+		// prevent invalid pitch range index from being returned and causing crashes
+		Hook(0x264E39, sub_661C20_hook, HookFlags::IsCall).Apply();
 	}
 
 	bool SetOutputDevice(int deviceIndex)
@@ -104,5 +108,11 @@ namespace
 			Patches::Audio::SetOutputDevice(outputDevice);
 
 		return true;
+	}
+
+	int sub_661C20_hook(void *sndDef, float pitchModifier, int fallbackIndex)
+	{
+		const auto sub_661C20 = (int(*)(void *sndDef, float pitchModifier, int fallbackIndex))(0x661C20);
+		return std::max(0, sub_661C20(sndDef, pitchModifier, fallbackIndex));
 	}
 }
