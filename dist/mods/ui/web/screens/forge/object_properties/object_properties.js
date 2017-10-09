@@ -82,7 +82,7 @@ var objectPropertyGridData = {
 		respawn_rate: [
 			{name: 'Never', value: 0}, 
 			{name: '1', value: 1},
-			{name: '3', value: 5},
+			{name: '3', value: 3},
 			{name: '5', value: 5},
 			{name: '10', value: 10},
 			{name: '15', value: 15},
