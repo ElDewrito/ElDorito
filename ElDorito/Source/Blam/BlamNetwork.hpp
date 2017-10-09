@@ -158,6 +158,7 @@ namespace Blam::Network
 
 		// Sets the session mode parameter.
 		// TODO: Map out this enum
+		int GetSessionMode();
 		bool SetSessionMode(int mode);
 	};
 	static_assert(sizeof(SessionParameters) == 0xB7924, "Invalid c_network_session_parameters size");

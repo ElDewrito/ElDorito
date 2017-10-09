@@ -271,7 +271,7 @@ namespace Server::Voting
 	void AbstractVotingSystem::GenerateVotingOptionsMessage(int peer)
 	{
 		auto* session = Blam::Network::GetActiveSession();
-		if (!(session && session->IsEstablished() && session->IsHost() && Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt))
+		if (!(session && session->IsEstablished() && session->IsHost() && session->Parameters.GetSessionMode() == 1 && isEnabled()))
 			return;
 
 		VotingMessage newmessage = GenerateVotingOptionsMessage();
@@ -395,10 +395,9 @@ namespace Server::Voting
 			if (numberOfPlayersInGame() > 0)
 			{
 				idle = false;
-				//only start voting if we are in the lobby. Sometimes everyone will leave a game in progress, causing it to go idle, then someone will join before it gets back to the lobby.
-				std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-				if (mapName == "mainmenu")
+				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
 					StartVoting();
+
 			}
 
 			return;
@@ -709,9 +708,7 @@ namespace Server::Voting
 			if (numberOfPlayersInGame() > 0)
 			{
 				idle = false;
-				//only start voting if we are in the lobby. Sometimes everyone will leave a game in progress, causing it to go idle, then someone will join before it gets back to the lobby.
-				std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-				if (mapName == "mainmenu" && Patches::Network::IsInfoSocketOpen())
+				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
 					NewVote();
 			}
 

@@ -156,6 +156,12 @@ namespace Blam::Network
 		return Observer->Channels[MembershipInfo.PeerChannels[MembershipInfo.HostPeerIndex].ChannelIndex].Address;
 	}
 
+	int SessionParameters::GetSessionMode()
+	{
+		typedef int(__thiscall *GetSessionModePtr)(SessionParameters *thisPtr);
+		auto GetSessionMode = reinterpret_cast<GetSessionModePtr>(0x458FE0);
+		return GetSessionMode(this);
+	}
 	bool SessionParameters::SetSessionMode(int mode)
 	{
 		typedef bool(__thiscall *SetSessionModePtr)(SessionParameters *thisPtr, int mode);
