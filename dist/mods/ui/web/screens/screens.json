@@ -11,7 +11,7 @@
 			"id": "console",
 			"url": "dew://screens/console/",
 			"captureInput": true,
-			"zIndex": 10
+			"zIndex": 11
 		},
 		{
 			"id": "chat",
