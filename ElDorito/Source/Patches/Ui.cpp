@@ -974,8 +974,8 @@ namespace
 					ShowLanBrowser();
 					return;
 
-				case 4: // Settings
-					Web::Ui::ScreenLayer::Show("settings", "{}");
+				case 4: // Customization
+					Web::Ui::ScreenLayer::Show("profile_settings", "{}");
 					return;
 
 				case 5: // Exit
