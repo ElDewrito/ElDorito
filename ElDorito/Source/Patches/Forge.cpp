@@ -76,6 +76,7 @@ namespace
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
+	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 
@@ -683,6 +684,12 @@ namespace
 			static auto Update_ObjectTransform = (void(__cdecl *)(float a1, uint32_t objectIndex))(0x0059E9C0);
 			static auto sub_B313E0 = (void(__cdecl *)(int objectIndex, bool arg_4))(0xB313E0);
 
+			auto object = Blam::Objects::Get(objectIndex);
+			if (!object)
+				continue;
+			if (CreateOrGetBudgetForItem(mapv, object->TagIndex) == -1)
+				continue;
+
 			ObjectDetach(objectIndex);
 			AssignPlacement(mapv, objectIndex, -1);
 
@@ -1288,6 +1295,13 @@ namespace
 			budget.RuntimeMax = 0;
 			budget.Cost = sandboxPaletteItem->Cost;
 
+		}
+
+		if (index == -1)
+		{
+			wchar_t buff[256];
+			_swprintf(buff, L"Unable to create budget for 0x%x", tagIndex);
+			PrintKillFeedText(0, buff, 0);
 		}
 
 		return index;
