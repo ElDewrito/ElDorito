@@ -108,7 +108,7 @@ var objectPropertyGridData = {
             {name:'7', value: 7 },
             {name:'8', value: 8 },
             {name:'9', value: 9 },
-            {name:'10', value: 10,},
+            {name:'10', value: 10 },
             {name:'11', value: 11 },
             {name:'12', value: 12 },
             {name:'13', value: 13 },
