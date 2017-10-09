@@ -1716,6 +1716,25 @@ namespace
 			::Forge::KillVolumes::Update();
 	}
 
+	bool ShouldOverrideColorPermutation(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (mpProperties)
+		{
+			if (CanThemeObject(objectIndex))
+				return true;
+
+			if (mpProperties->ObjectType == 0xC)
+				return true;
+		}
+
+		return false;
+	}
+
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated)
 	{
 		using ObjectDefinition = Blam::Tags::Objects::Object;
@@ -1734,13 +1753,15 @@ namespace
 			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>('obje');
 			auto cachedRenderStateIndex = *(uint32_t*)object_get_render_data(objectIndex);
 
-			auto mpProperties = object->GetMultiplayerProperties();
-
-			bool isReforgeObject = false;
+			
+			bool shouldOverride = false;
 
 			if (cachedRenderStateIndex != -1 
-				&& (invalidated || (*((uint8_t*)objectDef + 0x1C) & 1) || (mpProperties && (isReforgeObject = CanThemeObject(objectIndex)))))
+				&& (invalidated || (*((uint8_t*)objectDef + 0x1C) & 1) || (shouldOverride = ShouldOverrideColorPermutation(objectIndex)))) // player respawn location
 			{
+				auto object = Blam::Objects::Get(objectIndex);
+				auto mpProperties = object->GetMultiplayerProperties();
+
 				uint8_t *cachedRenderStates = nullptr;
 				__asm
 				{
@@ -1760,12 +1781,47 @@ namespace
 					Blam::Math::RealColorRGB color;
 					if (object_get_color_permutation(objectIndex, ++index, &color))
 					{
-						if (isReforgeObject)
+						if (shouldOverride && mpProperties)
 						{
-							const auto ReforgeProperties = (Forge::ReforgeObjectProperties*)&mpProperties->RadiusWidth;
-							color.Red = ReforgeProperties->ColorR / 255.0f;
-							color.Green = ReforgeProperties->ColorG / 255.0f;
-							color.Blue = ReforgeProperties->ColorB / 255.0f;
+							auto isReforgeObject = CanThemeObject(objectIndex);
+							if (isReforgeObject)
+							{
+								const auto ReforgeProperties = (Forge::ReforgeObjectProperties*)&mpProperties->RadiusWidth;
+								color.Red = ReforgeProperties->ColorR / 255.0f;
+								color.Green = ReforgeProperties->ColorG / 255.0f;
+								color.Blue = ReforgeProperties->ColorB / 255.0f;
+							}
+							else if (mpProperties->ObjectType == 0xC) // player respawn location
+							{
+								switch (mpProperties->TeamIndex)
+								{
+								case 0: // red 
+									color = { 0.38f, 0.04f, 0.04f };
+									break;
+								case 1: // blue
+									color = { 0.04f, 0.14f, 0.38f };
+									break;
+								case 2: // green
+									color = { 0.12f, 0.21f, 0.01f };
+									break;
+								case 3: // orange
+									color = { 0.73f, 0.30f, 0.00f };
+									break;
+								case 4: // purple
+									color = { 0.11f, 0.06f, 0.32f };
+									break;
+								case 5: // gold
+									color = { 0.65f, 0.47f, 0.03f };
+									break;
+								case 6: // brown
+									color = { 0.10f, 0.05f, 0.00f };
+									break;
+								case 7: // pink
+									color = { 1.00f, 0.30f, 0.54f };
+									break;
+								}
+								
+							}
 						}
 
 						*pColor = (((signed int)(color.Red * 255.0) & 0xFF) << 16)
