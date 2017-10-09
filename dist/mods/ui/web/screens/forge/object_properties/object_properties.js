@@ -81,6 +81,9 @@ var objectPropertyGridData = {
 	meta: {
 		respawn_rate: [
 			{name: 'Never', value: 0}, 
+			{name: '1', value: 1},
+			{name: '3', value: 5},
+			{name: '5', value: 5},
 			{name: '10', value: 10},
 			{name: '15', value: 15},
 			{name: '20', value: 20},
@@ -92,7 +95,7 @@ var objectPropertyGridData = {
 			{name: '150', value: 150},
 			{name: '180', value: 180}
 		],
-		spare_clips: [0, 1, 2],
+		spare_clips: [0,1,2,3,4],
 		on_map_at_start: [{name: 'no', value: 0}, {name: 'yes', value: 1}],
 		teleporter_channel: [
             {name:'0', value: 0,},
@@ -105,6 +108,12 @@ var objectPropertyGridData = {
             {name:'7', value: 7 },
             {name:'8', value: 8 },
             {name:'9', value: 9 },
+            {name:'10', value: 10,},
+            {name:'11', value: 11 },
+            {name:'12', value: 12 },
+            {name:'13', value: 13 },
+            {name:'14', value: 14 },
+            {name:'15', value: 15 },
             {name:'Death', value: 255 }
 		],
 		team_affiliation: [
@@ -130,7 +139,7 @@ var objectPropertyGridData = {
 		shape_depth: { min: 0.5, max: 30.0, step: 0.5 },
 		spawn_order: [0,1,2,3,4,5,6,7,8,9,10],
 		symmetry: [
-			{name: 'Ignore', value: 0},
+			{name: 'Both', value: 0},
 			{name: 'Symetric', value: 1},
 			{name: 'Asymmetric', value: 2}
 		],
@@ -629,19 +638,13 @@ function onPropertyChanged(name, value) {
 
 
 function determineMaterialColorVisibility(materialIndex) {
-    if(objectData.has_material)
-    {
-        if(materialIndex == 119 || materialIndex == 120) {
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_r', true);
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_g', true);
-            objectPropertiesWidget.toggleVisibility('appearance_material_color_b', true);
-        }
-    }
-    else {
-        objectPropertiesWidget.toggleVisibility('appearance_material_color_r', false);
-        objectPropertiesWidget.toggleVisibility('appearance_material_color_g', false);
-        objectPropertiesWidget.toggleVisibility('appearance_material_color_b', false);
-    }
+
+	var visible = objectData.has_material && materialIndex == 119 || materialIndex == 120;
+   
+    objectPropertiesWidget.toggleVisibility('appearance_material_color_r', visible);
+    objectPropertiesWidget.toggleVisibility('appearance_material_color_g', visible);
+    objectPropertiesWidget.toggleVisibility('appearance_material_color_b', visible);
+    
 }
 
 function buildVisiblePropertyArray(properties, filterSet) {

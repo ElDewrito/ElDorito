@@ -140,7 +140,7 @@
 		<item name="Wood, Planks" value="022" />
 	</category>
 	<category name="Solid Colors">
-		<item name="Metal" value="119" />
+		<item name="Glossy" value="119" />
 		<item name="Matte" value="120" />
 	</category>
 </root>
