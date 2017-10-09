@@ -83,7 +83,7 @@ namespace
 
 	bool CommandSetCarryType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Pointer &playerCtrlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0](0x3D9);
+		Pointer &playerCtrlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0](GameGlobals::Input::CarryType);
 		playerCtrlGlobalsPtr.WriteFast<uint8_t>(!playerCtrlGlobalsPtr.Read<uint8_t>());
 		return true;
 	}

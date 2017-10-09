@@ -71,7 +71,7 @@ namespace Blam
 		uint64_t Timestamp;
 		uint32_t Unknown6; // 0
 		uint32_t Unknown7; // -1
-		uint32_t Unknown8; // 0x140 for maps, -1 for variants, 
+		uint32_t Unknown8; // 0x140 for maps, -1 for variants,
 		uint32_t Unknown9; // 0 for maps, 4 for variants
 		uint32_t Unknown10; // -1;
 		uint32_t Unknown11; // 0;
@@ -317,13 +317,14 @@ namespace GameGlobals
 		const unsigned EnableIndex = 0;
 		const unsigned IntensityIndex = 8;
 	}
-	
+
 	namespace Input
 	{
 		const size_t TLSOffset = 0xC4;
 		const size_t DisablePlayerInputIndex = 6;
 		const size_t HorizontalViewAngle = 0x30C;
 		const size_t VerticalViewAngle = 0x310;
+		const size_t CarryType = 0x3D9;
 	}
 
 	namespace GameInfo
