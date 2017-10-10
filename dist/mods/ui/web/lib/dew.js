@@ -359,6 +359,18 @@ CommandType = {
             capture: !!capture
         });
     }
+	
+	/**
+     * Requests to change this screen's pointer capture state.
+     * This is overridden by dew.captureInput
+     *
+     * @param {boolean} capture - true to capture mouse and keyboard input, false to release.
+     */
+    dew.capturePointer = function (capture) {
+        postUiMessage("capturePointer", {
+            capture: !!capture
+        });
+    }
 
     /**
      * (ASYNCHRONOUS) Runs a console command.

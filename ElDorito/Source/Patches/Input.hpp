@@ -36,6 +36,14 @@ namespace Patches::Input
 		// pumped. If this returns false, the input context will be
 		// deactivated.
 		virtual bool UiInputTick() = 0;
+
+		//Called before GameInputTick() and UiInputTick()
+		virtual void InputBlock() { memset(reinterpret_cast<bool*>(0x238DBEB), 1, Blam::Input::InputType::eInputType_Count); }
+		//Called after GameInputTick() and UiInputTick()
+		virtual void InputUnblock() { memset(reinterpret_cast<bool*>(0x238DBEB), 0, Blam::Input::InputType::eInputType_Count); };
+
+		//If the Input context should allow the registered handlers to still fire
+		bool allowHandlers = false;
 	};
 
 	// Pushes a new context onto the input context stack, deactivating the

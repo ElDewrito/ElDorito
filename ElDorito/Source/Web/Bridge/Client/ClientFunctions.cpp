@@ -101,14 +101,21 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 	{
 		// Get the "capture" argument
 		auto s_CaptureValue = p_Args.FindMember("capture");
+		auto s_CapturePointerValue = p_Args.FindMember("capturePointer");
+		bool capturePointer = false;
 		if (s_CaptureValue == p_Args.MemberEnd() || !s_CaptureValue->value.IsBool())
 		{
 			*p_Result = "Bad query: A \"capture\" argument is required and must be a boolean";
 			return QueryError_BadQuery;
 		}
 
+		if (s_CapturePointerValue != p_Args.MemberEnd() && s_CapturePointerValue->value.IsBool())
+		{
+			capturePointer = s_CapturePointerValue->value.GetBool();
+		}
+
 		// Toggle input capture
-		Web::Ui::ScreenLayer::CaptureInput(s_CaptureValue->value.GetBool());
+		Web::Ui::ScreenLayer::CaptureInput(s_CaptureValue->value.GetBool(), capturePointer);
 		return QueryError_Ok;
 	}
 

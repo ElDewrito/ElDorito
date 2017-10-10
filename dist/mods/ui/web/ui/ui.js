@@ -23,8 +23,11 @@
     }
 
     // Controls whether the web overlay captures input.
-    function captureInput(capture) {
-        return dew.callMethod("captureInput", { capture: !!capture });
+    function captureInput(capture, capturePointer=false) {
+        return dew.callMethod("captureInput", { 
+			capture: !!capture, 
+			capturePointer: !!capturePointer 
+		});
     }
 
     // Updates the overlay after a screen has been shown, hidden, or changed.
@@ -34,13 +37,17 @@
         // and find the topmost screen that captures input
         var visible = 0;
         var capture = false;
+		var capturePointer = false;
         var topmostZ = 0;
         var topmostScreen = null;
         $.each(screens, function (id, screen) {
             if (screen.state === ScreenState.VISIBLE) {
                 visible++;
-                if (screen.captureInput) {
-                    capture = true;
+				if(screen.capturePointer)
+					capturePointer = true;
+                if (screen.captureInput)
+					capture = true;
+				if(screen.captureInput || screen.capturePointer) {
                     if (!topmostScreen || screen.zIndex > topmostZ) {
                         topmostScreen = screen;
                         topmostZ = screen.zIndex;
@@ -55,9 +62,9 @@
         } else if (visible === 0) {
             hideOverlay();
         }
-
+		
         // Capture input accordingly
-        captureInput(capture);
+        captureInput(capture, capturePointer);
         if (topmostScreen) {
             topmostScreen.selector.focus();
         }
@@ -167,11 +174,21 @@
     // Changes a screen's input capture state.
     function setCaptureState(screen, capture) {
         screen.captureInput = capture;
+		screen.capturePointer = false; //no matter what we will remove pointer capture
         if (screen.selector !== null) {
             screen.selector.css("pointer-events", capture ? "auto" : "none");
         }
         updateOverlay();
     }
+	
+	//Change a screen's pointer capture only
+	function setPointerCapture(screen, capture) {
+		screen.capturePointer = capture;
+		if (screen.selector !== null) {
+            screen.selector.css("pointer-events", capture ? "auto" : "none");
+        }
+        updateOverlay();
+	}
 
     // Sends an event notification.
     ui.notify = function (event, data, broadcast, fromDew) {
@@ -194,6 +211,7 @@
             url: null,
             fallbackUrl: data.fallbackUrl || null,
             captureInput: data.captureInput || false,
+			capturePointer: data.capturePointer || false,
             zIndex: data.zIndex || 0,
             state: ScreenState.HIDDEN,
             loaded: false,
@@ -321,6 +339,12 @@
                     setCaptureState(screen, !!data.capture);
                 }
                 break;
+			case "capturePointer":
+				//Change pointer capture only
+				if (screen && "capture" in data) {
+                    setPointerCapture(screen, !!data.capture);
+                }
+				break;
 			default:
 				var message = (typeof eventData.message === "string") ? eventData.message : (screen ? screen.id : null);
 				if(message){

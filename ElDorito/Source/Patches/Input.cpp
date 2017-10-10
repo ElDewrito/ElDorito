@@ -187,16 +187,6 @@ namespace
 		}
 	}
 
-	void QuickBlockInput()
-	{
-		memset(reinterpret_cast<bool*>(0x238DBEB), 1, eInputType_Count);
-	}
-
-	void QuickUnblockInput()
-	{
-		memset(reinterpret_cast<bool*>(0x238DBEB), 0, eInputType_Count);
-	}
-
 	void UpdateInputHook()
 	{
 		// If the current context is done, pop it off
@@ -206,15 +196,25 @@ namespace
 			contextDone = false;
 		}
 
+		bool allowHandlers = false;
+
 		if (!contextStack.empty())
 		{
 			// Tick the active context
-			QuickUnblockInput();
+			contextStack.top()->InputUnblock();
 			if (!contextStack.top()->GameInputTick())
 				contextDone = true;
-			QuickBlockInput();
+			contextStack.top()->InputBlock();
+			allowHandlers = contextStack.top()->allowHandlers;
 		}
 		else
+		{
+			// Run default handlers
+			for (auto &&handler : defaultHandlers)
+				handler();
+		}
+
+		if (allowHandlers)
 		{
 			// Run default handlers
 			for (auto &&handler : defaultHandlers)
@@ -231,10 +231,10 @@ namespace
 			return;
 
 		// Tick the active context
-		QuickUnblockInput();
+		contextStack.top()->InputUnblock();
 		if (!contextStack.top()->UiInputTick())
 			contextDone = true;
-		QuickBlockInput();
+		contextStack.top()->InputBlock();
 	}
 
 	void ProcessUiInputHook()

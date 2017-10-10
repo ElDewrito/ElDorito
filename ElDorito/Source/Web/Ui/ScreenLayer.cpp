@@ -21,6 +21,7 @@ namespace
 {
 	HHOOK MessageHook;
 	bool InputCaptured = false;
+	bool PointerCaptured = false;
 
 	void WindowCreated(HWND window);
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
@@ -28,6 +29,9 @@ namespace
 	void ShutdownRenderer();
 	void OnGameInputUpdated();
 	void OnUIInputUpdated();
+
+	void QuickBlockInput();
+	void QuickUnblockInput();
 
 	class WebOverlayInputContext : public Patches::Input::InputContext
 	{
@@ -40,20 +44,44 @@ namespace
 			OnGameInputUpdated();
 			if (!WebRenderer::GetInstance()->IsRendering())
 				InputCaptured = false;
-			return InputCaptured;
+			return InputCaptured || PointerCaptured;
 		}
 
 		bool UiInputTick() override
 		{
 			if (!WebRenderer::GetInstance()->IsRendering())
 				InputCaptured = false;
-
 			if(InputCaptured)
 				OnUIInputUpdated();
 
-			return InputCaptured;
+			return InputCaptured || PointerCaptured;
+		}
+
+		void InputBlock() override
+		{
+			if (!InputCaptured && PointerCaptured)
+			{
+				QuickUnblockInput();
+				return;
+			}
+			QuickBlockInput();
+		}
+
+		void InputUnblock() override
+		{
+			QuickUnblockInput();
 		}
 	};
+
+	void QuickBlockInput()
+	{
+		memset(reinterpret_cast<bool*>(0x238DBEB), 1, eInputType_Count);
+	}
+
+	void QuickUnblockInput()
+	{
+		memset(reinterpret_cast<bool*>(0x238DBEB), 0, eInputType_Count);
+	}
 }
 
 namespace Web::Ui::ScreenLayer
@@ -113,15 +141,18 @@ namespace Web::Ui::ScreenLayer
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
 	}
 
-	void CaptureInput(bool capture)
+	void CaptureInput(bool capture, bool pointerCapture)
 	{
-		if (InputCaptured == capture || (capture && !WebRenderer::GetInstance()->IsRendering()))
+		if ((InputCaptured == capture && PointerCaptured == pointerCapture) || (capture && !WebRenderer::GetInstance()->IsRendering()))
 			return;
+
 		InputCaptured = capture;
-		if (capture)
+		PointerCaptured = pointerCapture;
+		if (capture || pointerCapture)
 		{
 			// Override game input
 			auto inputContext = std::make_shared<WebOverlayInputContext>();
+			inputContext->allowHandlers = PointerCaptured && !InputCaptured;
 			Patches::Input::PushContext(inputContext);
 		}
 	}
@@ -396,7 +427,7 @@ namespace
 
 		// Ignore messages if the web renderer isn't active or if input isn't captured
 		auto webRenderer = WebRenderer::GetInstance();
-		if (!InputCaptured || !webRenderer->IsRendering())
+		if ((!InputCaptured && !PointerCaptured) || !webRenderer->IsRendering())
 			return;
 
 		switch (msg->message)
@@ -419,7 +450,8 @@ namespace
 		case WM_SYSCHAR:
 		case WM_SYSKEYDOWN:
 		case WM_SYSKEYUP:
-			HandleKeyMessage(msg);
+			if(InputCaptured)
+				HandleKeyMessage(msg);
 			break;
 		}
 	}
@@ -451,7 +483,7 @@ namespace
 		if (GetKeyTicks(eKeyCodeF6, eInputTypeUi) == 1)
 		{
 			webRenderer->Reload(true);
-			Web::Ui::ScreenLayer::CaptureInput(false);
+			Web::Ui::ScreenLayer::CaptureInput(false, false);
 		}
 
 		// If F7 is pressed, open the remote debugger in Chrome
