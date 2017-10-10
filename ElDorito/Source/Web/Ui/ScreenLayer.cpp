@@ -54,6 +54,12 @@ namespace
 			if(InputCaptured)
 				OnUIInputUpdated();
 
+			if (!InputCaptured && PointerCaptured)
+			{
+				GetActionState(static_cast<GameAction>(eGameActionFireLeft))->Flags |= eActionStateFlagsHandled;
+				GetActionState(static_cast<GameAction>(eGameActionFireRight))->Flags |= eActionStateFlagsHandled;
+			}
+			
 			return InputCaptured || PointerCaptured;
 		}
 
