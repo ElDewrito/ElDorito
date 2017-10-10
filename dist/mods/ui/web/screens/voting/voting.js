@@ -43,6 +43,14 @@ dew.on("show", function(event) {
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
     });
+    dew.command("Settings.Gamepad", {}).then(function (res) {
+        if (res == 1)
+            dew.captureInput(true);
+        else {
+            dew.captureInput(false);
+            dew.capturePointer(true);
+        }
+    });
     initGamepad();
     itemNumber = 1;
 });
