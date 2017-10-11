@@ -60,6 +60,14 @@ dew.on("hide", function(event) {
     if(repGP){
         window.clearInterval(repGP);
     }
+    if(!isHost){
+        dew.command('Settings.Gamepad', {}).then(function(response){
+            dew.command('Settings.Gamepad 0', {}).then(function(){
+                dew.gameaction(11);
+                dew.command('Settings.Gamepad '+response);
+            });
+        });
+    }
 });
 
 dew.on("Winner", function(event) {
