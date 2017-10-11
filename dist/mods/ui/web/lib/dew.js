@@ -239,6 +239,9 @@ CommandType = {
                     resolve(value);
                 },
                 onFailure: function (code, message) {
+                    if(method=="command"){
+                        method = method+": "+args.command;
+                    }
                     reject(new DewError(message, code, method));
                 }
             });
