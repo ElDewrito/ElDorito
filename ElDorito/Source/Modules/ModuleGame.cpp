@@ -814,7 +814,7 @@ namespace
 		Web::Ui::ScreenLayer::Show(arguments[0].substr(0, pos - 1), buff.GetString());
 		return true;
 	}
-
+	
 	bool CommandListMedalPacks(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
 		Modules::ModuleGame::Instance().MedalPackList.clear();
@@ -1084,6 +1084,15 @@ namespace
 		return true;
 	}
 
+	bool CommandShowFPS(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		float current_fps = Pointer(0x22B47F8).Read<float>(); // for future use
+
+		Pointer &show_fps = Pointer(0x22B47FC);
+		show_fps.WriteFast<bool>(!show_fps.Read<bool>());
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -1153,6 +1162,8 @@ namespace Modules
 		AddCommand("TagAddress", "tag_address", "Gets the address of a tag in memory", eCommandFlagsNone, CommandGetTagAddress);
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
+
+		AddCommand("ShowFPS", "show_fps", "Toggle the on-screen FPS info", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowFPS);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
