@@ -806,6 +806,17 @@ function buildPropertyFilter(data) {
 	} else {
 		objectPropertiesWidget.toggleVisibility('physics', false);
 	}
+
+    // kill volumes
+	switch(data.object_type_mp) {
+	    case MultiplayerObjectType.Teleporter2Way:
+	    case MultiplayerObjectType.TeleporterSender:
+	    case MultiplayerObjectType.TeleporterReceiver:
+	        if(data.properties.teleporter_channel == 0xff)
+	            objectPropertiesWidget.toggleVisibility('team_affiliation', true);
+	        break;
+	}
+	
 }
 
 function handleUiInput(uiButtonCode) {

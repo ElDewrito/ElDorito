@@ -19,6 +19,7 @@ namespace
 	{
 		uint32_t ObjectIndex;
 		ZoneShape Zone;
+		int16_t TeamIndex;
 	};
 
 	struct DamageData
@@ -71,14 +72,23 @@ namespace Forge::KillVolumes
 {
 	void Update()
 	{
-		auto players = Blam::Players::GetPlayers();
-		for (auto it = players.begin(); it != players.end(); ++it)
-			CheckAndKillPlayer(it.CurrentDatumIndex);
+		const auto game_get_current_engine = (void*(*)())(0x005CE150);
 
-		if (Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan)) > SCAN_INTERVAL)
+		if (game_get_current_engine())
 		{
-			FindKillVolumes();
-			s_LastActiveVolumeScan = Blam::Time::GetGameTicks();
+			if (Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan)) > SCAN_INTERVAL)
+			{
+				FindKillVolumes();
+				s_LastActiveVolumeScan = Blam::Time::GetGameTicks();
+			}
+
+			auto players = Blam::Players::GetPlayers();
+			for (auto it = players.begin(); it != players.end(); ++it)
+				CheckAndKillPlayer(it.CurrentDatumIndex);
+		}
+		else
+		{
+			s_LastActiveVolumeScan = 0;
 		}
 	}
 }
@@ -112,7 +122,10 @@ namespace
 		{
 			auto &killVolume = s_KillVolumes[i];
 			if (ZoneShape__ContainsPlayer(&killVolume.Zone, playerIndex))
-				ApplyUnitDamage(killVolume, player->SlaveUnit);
+			{
+				if (killVolume.TeamIndex == player->Properties.TeamIndex || killVolume.TeamIndex == 8)
+					ApplyUnitDamage(killVolume, player->SlaveUnit);
+			}
 		}
 	}
 
@@ -136,6 +149,7 @@ namespace
 			if (mpProperties->TeleporterChannel == int8_t(0xff))
 			{
 				auto &volume = s_KillVolumes[s_ActiveKillVolumeCount++];
+				volume.TeamIndex = mpProperties->TeamIndex;
 				volume.ObjectIndex = it.CurrentDatumIndex;
 				GetObjectZoneShape(it.CurrentDatumIndex, &volume.Zone, 0);
 			}
