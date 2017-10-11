@@ -327,14 +327,14 @@ materialTreeListWidget.on('select', function(node) {
 				$('#material-tree').hide();
 			},
 			handleUiButton: (uiButtonCode) => {
-				if(uiButtonCode == 1) {
-					screenManager.pop();
-					dew.command('Game.PlaySound 0xb01');
-					return;
-				}
 				switch(uiButtonCode) {
 					case 0:
 						dew.command('Game.PlaySound 0xb00');
+						break;
+					case 1:
+						if(materialTreeListWidget.atRoot())
+							screenManager.pop();
+						dew.command('Game.PlaySound 0xb01');
 						break;
 					case 8:
 					case 9:
@@ -473,20 +473,34 @@ dew.on('show',function(e) {
 	        determineMaterialColorVisibility(e.data.properties.appearance_material);
 
 	        var items = itemsXmlDoc.getElementsByTagName('item');
-	        for(var i = 0; i < items.length; i++) {   
+
+	        var matches = [];
+	        for(var i = 0; i < items.length; i++) {
+	        	
 	            if(parseInt(items[i].getAttribute('tagindex')) === e.data.tag_index) {
-	                for(var x = items[i].firstChild; x; x = x.nextSibling) {
+	            	matches.push(items[i]);
+	            }
+
+	            if(matches.length) {
+	            	 for(var x = matches[0].firstChild; x; x = x.nextSibling) {
 	                    if(x.nodeName !== 'setter')
 	                        continue;
-
 	                    var target = x.getAttribute('target');
 	                    var isHidden = !!x.getAttribute('hidden');
 	                    if(isHidden)
 	                        objectPropertiesWidget.toggleVisibility(target, false);
 	                }
-	                break;         
 	            }
 	        }
+
+	        var itemName = 'Unknown';
+         	if(matches.length == 1) {
+            	itemName = `${matches[0].getAttribute('name')} [${parseInt(matches[0].getAttribute('tagindex')).toString(16)}]`;
+            } else if(matches.length) {
+		    	var category = matches[0].parentNode.getAttribute('name');
+		    	itemName = category + ' - Custom';
+            }
+            $('#item-name').text(itemName);
 
 	        objectPropertiesWidget.setSelectedIndex(0);
 

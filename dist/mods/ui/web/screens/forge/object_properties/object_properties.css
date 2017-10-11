@@ -61,6 +61,11 @@ html {
 	display: none;
 }
 
+.panel-header .info {
+	font-size: 0.75em;
+	color: #aaa;
+}
+
 .property-item-group {
 	position: relative;
 	display:block;
