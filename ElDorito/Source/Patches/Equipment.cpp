@@ -19,7 +19,6 @@
 namespace
 {
 	void EquipmentPickupHook();
-	void EquipmentActivationHook();
 	void EquipmentActionStateHook();
 	char __cdecl Unit_EquipmentDetachHook(uint32_t unitObjectIndex, uint32_t equipmentObjectIndex, int a3);
 	void* __cdecl Player_GetArmorAbilitiesCHUDHook(Blam::Players::PlayerDatum* playerDatum);
@@ -35,10 +34,6 @@ namespace Patches::Equipment
 	{
 		// implements the missing functionality in order to pickup equipment
 		Hook(0x139888, EquipmentPickupHook, HookFlags::IsJmpIfNotEqual).Apply();
-
-		// this is needed for object creationional equipment, as we cannot free the equipment slot until-
-		// after the initial animation, or it will cut off abruptly.
-		Hook(0x7A37F9, EquipmentActivationHook, HookFlags::None).Apply();
 
 		// so the unit drops their equipment on death and when swapping
 		Hook(0x0073FC9B, Unit_EquipmentDetachHook, HookFlags::IsCall).Apply();
@@ -59,6 +54,7 @@ namespace Patches::Equipment
 
 		// remove initial equipment use delay
 		Patch::NopFill(Pointer::Base(0x13DC0A), 2);
+		Patch(0x137F20, { 0xB0, 0x01, 0xC3 }).Apply();
 
 		// stop new equipment from destroying the old one
 		Patch(0x78A179, { 0xEB }).Apply();
@@ -67,11 +63,7 @@ namespace Patches::Equipment
 		// mid-function jump table hook for equipment.
 		// this gets executed for each equipment object returned from a cluster search radius-
 		// and is used in order to populate the control globals action structure with the information needed for swapping
-		DWORD oldProtect, tmp;
-		auto pEquipmentJumpTableCase = LPVOID(0x00539E08 + 3 * 4);
-		VirtualProtect(pEquipmentJumpTableCase, 4, PAGE_EXECUTE_READWRITE, &oldProtect);
-		*(uintptr_t*)pEquipmentJumpTableCase = (uintptr_t)&EquipmentActionStateHook;
-		VirtualProtect(pEquipmentJumpTableCase, 4, oldProtect, &tmp);
+		Pointer(0x00539E08 + 3 * 4).Write(uint32_t(&EquipmentActionStateHook));
 
 		// drop grenades on unit death
 		Hook(0x73F562, UnitDeathHook, HookFlags::IsCall).Apply();
@@ -81,23 +73,14 @@ namespace Patches::Equipment
 
 namespace
 {
-	using ObjectArray = Blam::DataArray<Blam::Objects::ObjectHeader>;
-	using PlayerArray = Blam::DataArray<Blam::Players::PlayerDatum>;
-	using Vector3D = Blam::Math::RealVector3D;
+	const auto equipment_get_max_use_duration = (float(*)(uint32_t equipmentObjectIndex))(0x00B889F0);
+	const auto equipment_get_remaining_uses = (int(*)(uint32_t equipmentObjectIndex))(0x00B89190);
+	const auto sub_B87DA0 = (float(*)(int equipmentObjectIndex))(0xB87DA0);
+	const auto IsClient = (bool(*)())(0x00531D70);
 
-	inline ObjectArray* GetObjects()
-	{
-		auto objectsPtr = (ObjectArray**)ElDorito::GetMainTls(0x448);
-		return objectsPtr ? *objectsPtr : nullptr;
-	}
+	using namespace Blam::Math;
 
-	inline PlayerArray* GetPlayers()
-	{
-		auto playersPtr = (PlayerArray**)ElDorito::GetMainTls(0x40);
-		return playersPtr ? *playersPtr : nullptr;
-	}
-
-	void __stdcall DoPickup(uint16_t playerIndex, uint32_t objectIndex)
+	void __stdcall DoPickup(uint32_t playerIndex, uint32_t objectIndex)
 	{
 		struct PickupData
 		{
@@ -106,6 +89,10 @@ namespace
 			uint32_t Unknown08;
 			uint8_t Unknown0C[0x3C];
 		};
+
+		const auto Equipment_PlayPickupSound = (int(__cdecl *)(uint16_t playerIndex, uint32_t eqipTagIndex))(0xB887B0);
+		const auto sub_4B31C0 = (void(_cdecl *)(uint32_t unitObjectIndex, uint32_t eqipTagIndex))(0x4B31C0);
+		const auto Unit_Pickup = (char(__cdecl *)(uint32_t unitIndex, const PickupData *pickupData))(0xB69C50);
 
 		struct HUDIterator
 		{
@@ -119,38 +106,24 @@ namespace
 		PickupData pickupdata = { 0 };
 		pickupdata.Type = 0x3D;
 		pickupdata.ObjectIndex = objectIndex;
-		//pickupdata.Unknown08 = 3;
 
-		auto playerArray = GetPlayers();
-		auto objectArray = GetObjects();
-		assert(objectArray);
-		assert(playerArray);
-
-		auto playerDatum = (Blam::Players::PlayerDatum*)Pointer(playerArray->Data)(playerIndex * playerArray->DatumSize);
+		if (playerIndex == -1)
+			return;
+		auto playerDatum = Blam::Players::GetPlayers().Get(playerIndex);
 		if (!playerDatum)
 			return;
-
-		auto playerUnitObjectIndex = playerDatum->SlaveUnit;
-		auto unitObjectDatum = objectArray->Get(playerUnitObjectIndex);
-
-		if (playerUnitObjectIndex == Blam::DatumIndex::Null || !unitObjectDatum || !unitObjectDatum->Data)
+		auto unitObject = Blam::Objects::Get(playerDatum->SlaveUnit);
+		if (!unitObject)
 			return;
 
-		auto unitObject = unitObjectDatum->Data;
-
-		auto equipmentObjectDatum = objectArray->Get(objectIndex);
-		if (!equipmentObjectDatum || !unitObjectDatum->Data)
+		auto equipmentObject = Blam::Objects::Get(objectIndex);
+		if (!equipmentObject)
 			return;
-
-		auto equipmentTagIndex = Pointer(equipmentObjectDatum->Data).Read<uint32_t>();
 
 		// return if the unit already holds equipment
 		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
 		if (primaryEquipmentObjectIndex != -1)
 			return;
-
-
-		static auto IsClient = (bool(*)())(0x00531D70);
 
 		if (!IsClient())
 		{
@@ -158,93 +131,59 @@ namespace
 			while (hudIterator.Advance())
 			{
 				static auto DisplayPickupMessage = (int(__cdecl*)(uint32_t hudIndex, uint32_t eqipTagIndex))(0xA95850);
-				DisplayPickupMessage(hudIterator.HudIndex, equipmentTagIndex);
+				DisplayPickupMessage(hudIterator.HudIndex, equipmentObject->TagIndex);
 			}
 
-			static auto Equipment_PlayPickupSound = (int(__cdecl *)(uint16_t playerIndex, uint32_t eqipTagIndex))(0xB887B0);
-			Equipment_PlayPickupSound(playerIndex, equipmentTagIndex);
 
-			static auto sub_4B31C0 = (void(_cdecl *)(uint32_t unitObjectIndex, uint32_t eqipTagIndex))(0x4B31C0);
-			sub_4B31C0(playerUnitObjectIndex, equipmentTagIndex);
-		}
-
-		if (!IsClient())
-		{
-			static auto Unit_Pickup = (char(__cdecl *)(uint32_t unitIndex, const PickupData *pickupData))(0xB69C50);
-			Unit_Pickup(playerUnitObjectIndex, &pickupdata);
+			Equipment_PlayPickupSound(playerIndex, equipmentObject->TagIndex);
+			sub_4B31C0(playerDatum->SlaveUnit, equipmentObject->TagIndex);
+			Unit_Pickup(playerDatum->SlaveUnit, &pickupdata);
 		}
 	}
 
-	void __stdcall CleanupEquipment(uint32_t unitObjectIndex)
+	void __stdcall CleanupEquipment(uint32_t unitObjectIndex, int equipmentSlotIndex)
 	{
-		auto objects = GetObjects();
-		assert(objects);
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
+			return;
 
-		auto unitObjectDatum = objects->Get(unitObjectIndex);
-		assert(unitObjectDatum);
+		auto equipmentObjectIndex = Pointer(unitObject)(0x2F0 + 4 * equipmentSlotIndex).Read<uint32_t>();
 
-		auto unitObject = Pointer(unitObjectDatum)[0xC];
-		assert(unitObject);
+		if (equipmentObjectIndex == -1)
+			return;
 
-		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
+		// essentially a copy of sub_B3FC50 with a few tweaks in order to dispose of the equipment correctly
+		static auto sub_B40A70 = (int(__cdecl *)(int a1, int a2, int a3))(0xB40A70);
+		auto sub_4B1E70 = (int(__thiscall *)(void* thisptr, int unitIndex, int a3))(0x4B1E70);
+		auto sub_4B3010 = (int(__cdecl *)(int objectIndex, void* a2))(0x4B3010);
 
-		if (primaryEquipmentObjectIndex != -1)
-		{
-			// essentially a copy of sub_B40A70 with a few tweaks in order to dispose of the equipment correctly
-			static auto sub_B40A70 = (int(__cdecl *)(int a1, int a2, int a3))(0xB40A70);
-			auto sub_4B1E70 = (int(__thiscall *)(void* thisptr, int unitIndex, int a3))(0x4B1E70);
-			auto sub_4B3010 = (int(__cdecl *)(int objectIndex, void* a2))(0x4B3010);
+		sub_B40A70(unitObjectIndex, equipmentObjectIndex, 1);
+		Pointer(unitObject)(0x2F0 + 4 * equipmentSlotIndex).WriteFast<int32_t>(-1);
+		Pointer(unitObject)(0x310).WriteFast<int32_t>(-1);
 
-			sub_B40A70(unitObjectIndex, primaryEquipmentObjectIndex, 1);
-			unitObject(0x2F0).WriteFast<uint32_t>(-1);
-			unitObject(0x310).WriteFast<uint32_t>(-1);
-
-			uint8_t unknown[8] = { 0 };
-			sub_4B1E70(unknown, unitObjectIndex, 0x1Cu);
-			sub_4B3010(unitObjectIndex, unknown);
-		}
+		uint8_t unknown[8] = { 0 };
+		sub_4B1E70(unknown, unitObjectIndex, 0x1Cu);
+		sub_4B3010(unitObjectIndex, unknown);
 	}
 
 	bool __cdecl UnitUpdateHook(uint32_t unitObjectIndex)
 	{
-		static auto UnitUpdate = (bool(__cdecl*)(uint32_t unitObjectIndex))(0xB4C6D0);
+		const auto UnitUpdate = (bool(__cdecl*)(uint32_t unitObjectIndex))(0xB4C6D0);
 
 		auto ret = UnitUpdate(unitObjectIndex);
 
-		auto objects = GetObjects();
-		if (!objects)
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
 			return ret;
 
-		auto unitObjectDatum = objects->Get(unitObjectIndex);
-		assert(unitObjectDatum);
-
-		auto unitObject = unitObjectDatum->Data;
-
-		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
-		if (primaryEquipmentObjectIndex == -1)
-			return ret;
-
-		auto equipmentObjectDatum = objects->Get(primaryEquipmentObjectIndex);
-		if (!equipmentObjectDatum)
-			return ret;
-
-		auto equipmentObjectPtr = Pointer(equipmentObjectDatum)[0xC];
-		auto equipmentDefinitionPtr = Pointer(Blam::Tags::TagInstance(equipmentObjectPtr.Read<uint32_t>()).GetDefinition<void>());
-
-
-		auto maxUseDuration = equipmentDefinitionPtr(0x1D4).Read<float>();
-		auto maxNumberOfUses = equipmentDefinitionPtr(0x1DC).Read<int16_t>();
-
-		auto lastUsedTicks = equipmentObjectPtr(0x194).Read<int32_t>();
-		auto numberOfUses = equipmentObjectPtr(0x198).Read<int32_t>();
-
-		auto deltaTime = Blam::Time::TicksToSeconds(static_cast<float>(Blam::Time::GetGameTicks() - lastUsedTicks));
-		if (maxUseDuration > 0 && lastUsedTicks > 0 && deltaTime >= maxUseDuration)
+		for (auto i = 0; i < 4; i++)
 		{
-			if (maxNumberOfUses <= 1 || numberOfUses >= maxNumberOfUses)
-			{
-				CleanupEquipment(unitObjectIndex);
-			}
+			auto equipmentObjectIndex = Pointer(unitObject)(0x2F0 + 4 * i).Read<uint32_t>();
+			if (equipmentObjectIndex == -1)
+				return ret;
+
+			if (equipment_get_remaining_uses(equipmentObjectIndex) == 0 && sub_B87DA0(equipmentObjectIndex) == 0.0f)
+				CleanupEquipment(unitObjectIndex, i);
 		}
 
 		return ret;
@@ -252,64 +191,35 @@ namespace
 
 	void __cdecl EquipmentUseHook(int unitObjectIndex, int slotIndex, unsigned int isClient)
 	{
-		auto EquipmentUse = (void(__cdecl*)(int unitObjectIndex, int slotIndex, unsigned int isClient))(0x00B4CE90);
+		const auto EquipmentUse = (void(__cdecl*)(int unitObjectIndex, int slotIndex, unsigned int isClient))(0x00B4CE90);
 
-		auto objects = GetObjects();
-		assert(objects);
-		auto unitObjectDatum = objects->Get(unitObjectIndex);
-		assert(unitObjectDatum);
-
-		auto unitObject = unitObjectDatum->Data;
-
-		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
-		if (primaryEquipmentObjectIndex == -1)
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
 			return;
 
-		auto equipmentObjectDatum = objects->Get(primaryEquipmentObjectIndex);
-		if (!equipmentObjectDatum)
+		auto equipmentObjectIndex = Pointer(unitObject)(0x2F0 + 4 * slotIndex).Read<uint32_t>();
+		if (equipmentObjectIndex == -1)
 			return;
 
-		auto equipmentObjectPtr = Pointer(equipmentObjectDatum)[0xC];
-		auto equipmentDefinitionPtr = Pointer(Blam::Tags::TagInstance(equipmentObjectPtr.Read<uint32_t>()).GetDefinition<void>());
-
-		auto maxUseDuration = equipmentDefinitionPtr(0x1D4).Read<float>();
-		auto maxNumberOfUses = equipmentDefinitionPtr(0x1DC).Read<int16_t>();
-
-		auto lastUsedTicks = equipmentObjectPtr(0x194).Read<int32_t>();
-		auto numberOfUses = equipmentObjectPtr(0x198).Read<int32_t>();
-
-		auto deltaTime = Blam::Time::TicksToSeconds(static_cast<float>(Blam::Time::GetGameTicks() - lastUsedTicks));
-		if (maxUseDuration > 0 && lastUsedTicks > 0 && deltaTime < maxUseDuration)
-		{
-			if (maxNumberOfUses <= 1 || numberOfUses >= maxNumberOfUses)
-			{
-				// prevent use
-				return;
-			}
-		}
+		if (equipment_get_remaining_uses(equipmentObjectIndex) == 0 || sub_B87DA0(equipmentObjectIndex) > 0.0f)
+			return;
 
 		EquipmentUse(unitObjectIndex, slotIndex, isClient);
 	}
 
-	void __cdecl UpdateEquipmentActionState(uint32_t playerIndex, uint32_t objectIndex, uint32_t objectType, void* pControlGlobalActionState)
+	void __cdecl UpdateEquipmentActionState(uint32_t playerIndex, uint32_t itemObjectIndex, uint32_t objectType, void* pControlGlobalActionState)
 	{
-		auto objects = GetObjects();
 
-		auto itemObjectDatum = objects->Get(objectIndex);
-		auto itemObject = itemObjectDatum->Data;
-		if (!itemObjectDatum || !itemObject)
+		auto itemObject = Blam::Objects::Get(itemObjectIndex);
+		if (!itemObject)
 			return;
-
-		auto players = GetPlayers();
-		auto player = players->Get(playerIndex);
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
 		if (!player)
 			return;
 
-		auto itemTagIndex = Pointer(itemObject).Read<uint32_t>();
-
 		// ignore grenades and powerups
 		static auto Equipment_GetEquipmentType = (signed int(__cdecl*) (unsigned __int32 eqipTagIndex, int a2))(0x00BA0260);
-		auto equipType = Equipment_GetEquipmentType(itemTagIndex, 0);
+		auto equipType = Equipment_GetEquipmentType(itemObject->TagIndex, 0);
 		if (equipType <= 1)
 			return;
 
@@ -317,31 +227,31 @@ namespace
 		if (unitObjectIndex == -1)
 			return;
 
-		auto unitObjectDatum = objects->Get(unitObjectIndex);
-		auto unitObject = unitObjectDatum->Data;
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
 
 		auto unitRadius = Pointer(unitObject)(0x2c).Read<float>();
 		auto testRadius = unitRadius + 0.1f;
 
-		auto& itemPosition = Pointer(itemObject)(0x20).Read<Vector3D>();
-		auto& unitPosition = Pointer(unitObject)(0x20).Read<Vector3D>();
+		auto& itemPosition = Pointer(itemObject)(0x20).Read<RealVector3D>();
+		auto& unitPosition = Pointer(unitObject)(0x20).Read<RealVector3D>();
 
 		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
 
 		if (primaryEquipmentObjectIndex == -1)
 			return;
 
-		auto primaryEquipmentObjectDatum = objects->Get(primaryEquipmentObjectIndex);
-		if (!primaryEquipmentObjectDatum || !primaryEquipmentObjectDatum->Data)
+		auto primaryEquipmentObject = Blam::Objects::Get(primaryEquipmentObjectIndex);
+		if (!primaryEquipmentObject)
 			return;
 
-		auto primaryEquipmentTagIndex = Pointer(primaryEquipmentObjectDatum->Data).Read<uint32_t>();
+		if (sub_B87DA0(primaryEquipmentObjectIndex) > 0)
+			return;
 
 		// if the equipment under us is not the same tag as the equipment we're holding
-		if (primaryEquipmentTagIndex == itemTagIndex)
+		if (primaryEquipmentObject->TagIndex == itemObject->TagIndex)
 			return;
 
-		auto itemDef = Blam::Tags::TagInstance(itemTagIndex).GetDefinition<Blam::Tags::Items::Item>();
+		auto itemDef = Blam::Tags::TagInstance(itemObject->TagIndex).GetDefinition<Blam::Tags::Items::Item>();
 		if (itemDef->SwapMessage == -1)
 			return;
 
@@ -354,7 +264,7 @@ namespace
 			// sets up the swap action
 			Pointer p(pControlGlobalActionState);
 			p.WriteFast<uint8_t>(2);
-			p(0x4).WriteFast<uint32_t>(objectIndex);
+			p(0x4).WriteFast<uint32_t>(itemObjectIndex);
 		}
 	}
 
@@ -362,14 +272,15 @@ namespace
 	{
 		auto sub_B40A70 = (char(__cdecl*)(unsigned __int32 a1, unsigned __int32 a2, signed int a3))(0xB40A70);
 
-		static auto IsClient = (bool(*)())(0x00531D70);
-
 		// we only want to do this if we're the host. Otherwise, it'll create a duplicate object on the client
 		if (!IsClient())
 		{
 			// passing -1 as the last argument tells the engine to drop the equipment into the world rather than dispose of it
 			// this is needed in order for the unit to drop equipment on death and when swapped	
-			return sub_B40A70(unitObjectIndex, equipmentObjectIndex, -1);
+			if (equipment_get_remaining_uses(equipmentObjectIndex) == 0)
+				return sub_B40A70(unitObjectIndex, equipmentObjectIndex, 1);
+			else
+				return sub_B40A70(unitObjectIndex, equipmentObjectIndex, -1);
 		}
 
 		return sub_B40A70(unitObjectIndex, equipmentObjectIndex, a3);
@@ -418,14 +329,8 @@ namespace
 		static uint8_t data[8];
 		memset(data, 0, sizeof(data));
 
-		auto objects = GetObjects();
-		if (!objects || playerDatum->SlaveUnit == Blam::DatumIndex::Null)
-			return data;
-
-		auto unitObjectDatum = objects->Get(playerDatum->SlaveUnit);
-		auto unitObject = unitObjectDatum->Data;
-
-		if (!unitObjectDatum || !unitObject)
+		auto unitObject = Blam::Objects::Get(playerDatum->SlaveUnit);
+		if (!unitObject)
 			return data;
 
 		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
@@ -433,14 +338,12 @@ namespace
 		if (primaryEquipmentObjectIndex == -1)
 			return data;
 
-		auto itemObjectDatum = objects->Get(primaryEquipmentObjectIndex);
-		if (!itemObjectDatum)
+		auto itemObject = Blam::Objects::Get(primaryEquipmentObjectIndex);
+		if (!itemObject)
 			return data;
 
-		auto itemTagIndex = Pointer(itemObjectDatum->Data).Read<uint32_t>();
-
 		// set the first armor ability slot to the correct equipment
-		data[3] = GetMPGlobalsEquipmentBlockIndex(itemTagIndex);
+		data[3] = GetMPGlobalsEquipmentBlockIndex(itemObject->TagIndex);
 
 		return data;
 	}
@@ -458,19 +361,6 @@ namespace
 			mov edx, [ebp - 04h]
 			mov ebx, 00539DB7h
 			jmp  ebx
-		}
-	}
-
-	__declspec(naked) void EquipmentActivationHook()
-	{
-		__asm
-		{
-			push[ebp + 8] // unit object
-			call CleanupEquipment
-			mov eax, 0x00B2CD10
-			call eax
-			mov eax, 0x00BA37FE
-			jmp eax
 		}
 	}
 
@@ -513,9 +403,9 @@ namespace
 	{
 		__asm
 		{
-			lea eax, [ebp-0x40]
-			push [eax] // object
-			push [eax+0x14] // object index
+			lea eax, [ebp - 0x40]
+			push[eax] // object
+			push[eax + 0x14] // object index
 			call DespawnEquipment
 			mov eax, 0x54EF97
 			jmp eax
@@ -539,31 +429,30 @@ namespace
 			TagReference Projectile;
 		};
 
-		static auto UnitDeath = (void(__cdecl *)(int unitObjectIndex, char a2, char a3))(0xB40410);
+		const auto UnitDeath = (void(__cdecl *)(int unitObjectIndex, char a2, char a3))(0xB40410);
 		UnitDeath(unitObjectIndex, a2, a3);
-	
+
 		// only continue if we're host
 		static auto IsClient = (bool(*)())(0x00531D70);
 		if (IsClient())
 			return;
 
-		auto objects = GetObjects();
-		assert(objects);
-
-		auto unitObjectDatum = objects->Get(unitObjectIndex);
+		auto objects = Blam::Objects::GetObjects();
+		auto unitObjectDatum = objects.Get(unitObjectIndex);
 		if (!unitObjectDatum || !unitObjectDatum->Data || unitObjectDatum->Type != Blam::Objects::eObjectTypeBiped)
 			return;
 
 		auto unitObjectPtr = Pointer(unitObjectDatum->Data);
-		auto& unitPosition = unitObjectPtr(0x20).Read<Vector3D>();
+		auto& unitPosition = unitObjectPtr(0x20).Read<RealVector3D>();
 
 		auto matchGlobalsPtr = Pointer(0x022AAEB8)[0];
-		assert(matchGlobalsPtr);
+		if (!matchGlobalsPtr)
+			return;
 
 		auto grenadeBlock = matchGlobalsPtr(0x12c).Read<TagBlock<GrenadeBlock>>();
 
 		for (auto i = 0; i < 4; i++)
-		{	
+		{
 			auto& blockElem = grenadeBlock.Elements[i];
 			if (blockElem.Equipment.TagIndex == -1)
 				continue;
@@ -574,8 +463,8 @@ namespace
 
 			// spawn a new grenade object for each grenade the unit had
 			for (auto j = 0; j < nadeCount; j++)
-			{		
-				static auto Objects_InitializeNewObject = (void (__cdecl *)(void* objectData, int tagIndex, int objectIndex, int a4))(0x00B31590);
+			{
+				static auto Objects_InitializeNewObject = (void(__cdecl *)(void* objectData, int tagIndex, int objectIndex, int a4))(0x00B31590);
 				static auto Objects_SpawnObject = (uint32_t(__cdecl*)(void* objectData))(0x00B30440);
 				static auto Simulation_SpawnObject = (char(__cdecl *)(unsigned __int32 unitObjectIndex))(0x4B2CD0);
 				static auto ItemDrop = (void(__cdecl*)(uint32_t unitObjectIndex, uint32_t itemObjectIndex, int a3, float a4, int a5))(0xB49580);
@@ -585,10 +474,9 @@ namespace
 				Pointer(objectData)(0x1c).WriteFast(unitPosition);
 
 				auto grenadeObjectIndex = Objects_SpawnObject(objectData);
-				auto grenadeObjectDatum = objects->Get(grenadeObjectIndex);
-				if (grenadeObjectDatum && grenadeObjectDatum->Data)
+				uint8_t *grenadeObject = (uint8_t*)Blam::Objects::Get(grenadeObjectIndex);
+				if (grenadeObject)
 				{
-					auto grenadeObject = (uint8_t*)grenadeObjectDatum->Data;
 					*(uint32_t*)(grenadeObject + 0x180) = Blam::Time::GetGameTicks();
 					*(uint8_t*)(grenadeObject + 0x178) &= 0xFDu;
 					*(uint8_t*)(grenadeObject + 0x179) = 0;
