@@ -27,6 +27,8 @@ var basePage = {
     scaleX: 1,
     scaleY: 1
 };
+var playerTabIndex = -1;
+var playersMatchList = [];
 
 $(function(){
     var $page = $('.page_content');
@@ -195,6 +197,36 @@ $(window).load(function(){
                 dew.show();
             }
         });
+    });
+
+    $("#chatBox").keyup(function (e) {
+        var wordArray = $("#chatBox").val().split(' ');
+        if (e.keyCode == 9) { //tab
+            if (playerTabIndex == -1) {
+                if (wordArray[wordArray.length - 1] != '' && wordArray[wordArray.length - 1].startsWith('@')) {
+                    dew.getScoreboard().then(function (e) {
+                        playersMatchList = [];
+                        $.each(e.players, function (index, obj) {
+                            if (e.players[index].name.toLowerCase().startsWith(wordArray[wordArray.length - 1].substring(1).toLowerCase())) {
+                                playersMatchList.push(e.players[index].name);
+                            }
+                        });
+                        playerTabIndex = 0;
+                        wordArray.splice(wordArray.length - 1, 1);
+                        wordArray.push('@' + playersMatchList[playerTabIndex]);
+                        $("#chatBox").val(wordArray.join(' '));
+                    });
+                }
+            } else {
+                playerTabIndex++;
+                if (playerTabIndex > playersMatchList.length - 1)
+                    playerTabIndex = 0;
+                wordArray.splice(wordArray.length - 1, 1);
+                wordArray.push('@' + playersMatchList[playerTabIndex]);
+                $("#chatBox").val(wordArray.join(' '));
+            }
+        } else
+            playerTabIndex = -1;
     });
 });
 
