@@ -1122,25 +1122,31 @@ namespace
 			Blam::MapVariant::VariantProperties *properties, uint32_t objectIndex))(0x00580E80);
 		const auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
 
-		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
-
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
 			return;
 
-		// physics
-		if (properties->ZoneShape == 4)
+		auto mpProperties = object->GetMultiplayerProperties();
+		auto oldZoneShape = mpProperties->Shape;
+
+		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
+
+		if (oldZoneShape != properties->ZoneShape)
 		{
-			object->HavokFlags &= ~0x100000u;
-			object->HavokFlags |= 0x2C8;
-			sub_59A620(objectIndex, 1);
-		}
-		else if (object->HavokFlags & 0x2C8)
-		{
-			object->HavokFlags &= ~0x2C8;
-			object->HavokFlags &= ~0x100000u;
-			object->HavokFlags |= 0x80;
-			sub_59A620(objectIndex, 1);
+			// physics
+			if (properties->ZoneShape == 4)
+			{
+				object->HavokFlags &= ~0x100000u;
+				object->HavokFlags |= 0x2C8;
+				sub_59A620(objectIndex, 1);
+			}
+			else if (object->HavokFlags & 0x2C8 && oldZoneShape == 4)
+			{
+				object->HavokFlags &= ~0x2C8;
+				object->HavokFlags &= ~0x100000u;
+				object->HavokFlags |= 0x80;
+				sub_59A620(objectIndex, 1);
+			}
 		}
 	}
 
