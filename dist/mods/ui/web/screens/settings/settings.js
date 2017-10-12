@@ -329,10 +329,10 @@ $(document).ready(function(){
     dew.on('controllerinput', function(e){    
         if(hasGP){    
             if(e.data.A == 1){
-                if($('#'+selectedItem).prev()[0].computedRole == 'button'){
-                    $('#'+selectedItem).prev().click();
-                }else if(activePage.endsWith('alertBox')){
+                if(activePage.endsWith('alertBox')){
                     hideAlert(true);
+                }else if($('#'+selectedItem).prev()[0].computedRole == 'button'){
+                    $('#'+selectedItem).prev().click();
                 }else{    
                     toggleSetting();
                 }
@@ -413,7 +413,7 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $('span').has('.setting').mouseover(function(){
+    $(activePage+' span').has('.setting').mouseover(function(){
         if(hasGP){
             itemNumber = $(activePage+' span').has('.setting').index($(this));
             updateSelection(itemNumber, false, false); 
@@ -428,7 +428,7 @@ $(document).ready(function(){
     $('#dismissButton').on('click', function(){
         dismissButton();
     });
-    $('span:has(.setting)').hover(
+    $(activePage+' span:has(.setting)').hover(
         function(){
             $(this).addClass('selectedElement');
             setInfoBox($(this).find('.setting').attr('id'));
