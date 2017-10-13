@@ -4,6 +4,7 @@
 
 #include <wchar.h>
 #include <stdio.h>
+#include <boost\filesystem.hpp>
 
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
@@ -48,9 +49,7 @@ namespace Patches::Weapon
 
 	bool IsNotMainMenu;
 
-	//std::string ConfigPath;
-
-	std::string JSONPath;
+	std::string JSONName;
 	std::map<std::string, uint16_t> weaponIndices;
 	std::map<std::string, RealVector3D> weaponOffsetsDefault;
 	std::map<std::string, RealVector3D> weaponOffsetsModified;
@@ -74,7 +73,7 @@ namespace Patches::Weapon
 
 			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
 			{
-				Config::SaveJSON(JSONPath);
+				Config::SaveJSON(JSONName);
 			}
 
 			Modules::CommandMap::Instance().ExecuteCommand("Weapon.JSON.Load");
@@ -83,8 +82,9 @@ namespace Patches::Weapon
 
 	void ApplyAll()
 	{
-		JSONPath = Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString;
-		Config::LoadJSON(JSONPath);
+		JSONName = Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString;
+		Config::CreateList();
+		Config::LoadJSON(JSONName);
 
 		Patches::Core::OnMapLoaded(MapLoadedCallback);
 
@@ -291,9 +291,74 @@ namespace Patches::Weapon
 
 	namespace Config
 	{
-		bool LoadJSON(std::string JSONPath)
+		bool CreateList()
 		{
-			std::ifstream in(JSONPath, std::ios::in | std::ios::binary);
+			Modules::ModuleWeapon::Instance().WeaponsJSONList.clear();
+
+			if (!boost::filesystem::exists("mods/weapons/offsets.json"))
+			{
+				std::ofstream out("mods/weapons/offsets.json", std::ios::out | std::ios::binary);
+				if (!out.is_open())
+					return false;
+
+				rapidjson::StringBuffer jsonBuffer;
+				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+
+				jsonWriter.StartObject();
+				jsonWriter.Key("offsets");
+				jsonWriter.StartArray();
+				jsonWriter.StartObject();
+
+				jsonWriter.Key("id");
+				jsonWriter.String(JSONName.c_str());
+
+				jsonWriter.EndObject();
+				jsonWriter.EndArray();
+				jsonWriter.EndObject();
+
+				out << jsonBuffer.GetString();
+				if (out.fail())
+					return false;
+
+				out.flush();
+				out.close();
+			}
+
+			std::ifstream in("mods/weapons/offsets.json", std::ios::in | std::ios::binary);
+			if (in && in.is_open())
+			{
+				std::string contents;
+				in.seekg(0, std::ios::end);
+				contents.resize((unsigned int)in.tellg());
+				in.seekg(0, std::ios::beg);
+				in.read(&contents[0], contents.size());
+				in.close();
+
+				rapidjson::Document document;
+				if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
+				{
+					if (!document.HasMember("offsets"))
+						return false;
+
+					const rapidjson::Value& offsets = document["offsets"];
+					for (rapidjson::SizeType i = 0; i < offsets.Size(); i++)
+					{
+						const rapidjson::Value& offsetObject = offsets[i];
+						if (!offsetObject.HasMember("id"))
+							continue;
+
+						std::string offsetId = offsetObject["id"].GetString();
+						Modules::ModuleWeapon::Instance().WeaponsJSONList.push_back(offsetId.c_str());
+					}
+				}
+			}
+
+			return true;
+		}
+
+		bool LoadJSON(std::string Name)
+		{
+			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
 			if (!in || !in.is_open())
 				return false;
 
@@ -330,9 +395,81 @@ namespace Patches::Weapon
 			return true;
 		}
 
-		bool SaveJSON(std::string JSONPath)
+		bool SaveJSON(std::string Name)
 		{
-			std::ofstream out(JSONPath, std::ios::out | std::ios::binary);
+			CreateList();
+
+			if (Name == "default")
+				Name = "default_edited";
+			Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString = Name;
+
+			bool IsCreated = false;
+			for each (std::string offsetName in Modules::ModuleWeapon::Instance().WeaponsJSONList)
+				if (Name == offsetName)
+					IsCreated = true;
+
+			if (!IsCreated)
+			{
+				std::ifstream in("mods/weapons/offsets.json", std::ios::in | std::ios::binary);
+				if (in && in.is_open())
+				{
+					std::string contents;
+					in.seekg(0, std::ios::end);
+					contents.resize((unsigned int)in.tellg());
+					in.seekg(0, std::ios::beg);
+					in.read(&contents[0], contents.size());
+					in.close();
+
+					rapidjson::Document document;
+					if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
+					{
+						if (!document.HasMember("offsets"))
+							return false;
+
+						std::ofstream out("mods/weapons/offsets.json", std::ios::out | std::ios::binary);
+						if (!out.is_open())
+							return false;
+
+						rapidjson::StringBuffer jsonBuffer;
+						rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+						jsonWriter.StartObject();
+						jsonWriter.Key("offsets");
+
+						jsonWriter.StartArray();
+						const rapidjson::Value& offsets = document["offsets"];
+						for (rapidjson::SizeType i = 0; i < offsets.Size(); i++)
+						{
+							const rapidjson::Value& offsetObject = offsets[i];
+							if (!offsetObject.HasMember("id"))
+								continue;
+
+							std::string offsetId = offsetObject["id"].GetString();
+
+							jsonWriter.StartObject();
+							jsonWriter.Key("id");
+							jsonWriter.String(offsetId.c_str());
+							jsonWriter.EndObject();
+						}
+
+						jsonWriter.StartObject();
+						jsonWriter.Key("id");
+						jsonWriter.String(Name.c_str());
+						jsonWriter.EndObject();
+
+						jsonWriter.EndArray();
+						jsonWriter.EndObject();
+
+						out << jsonBuffer.GetString();
+						if (out.fail())
+							return false;
+
+						out.flush();
+						out.close();
+					}
+				}
+			}
+
+			std::ofstream out("mods/weapons/offsets/" + Name + ".json", std::ios::out | std::ios::binary);
 			if (!out.is_open())
 				return false;
 

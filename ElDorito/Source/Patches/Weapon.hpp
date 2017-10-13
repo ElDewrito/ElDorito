@@ -26,11 +26,10 @@ namespace Patches::Weapon
 
 	bool IsOffsetModified(const std::string &weaponName);
 
-	void PrintKillFeed(std::string text);
-
 	namespace Config
 	{
-		bool LoadJSON(std::string JSONPath);
-		bool SaveJSON(std::string JSONPath);
+		bool CreateList();
+		bool LoadJSON(std::string Name);
+		bool SaveJSON(std::string Name);
 	}
 }

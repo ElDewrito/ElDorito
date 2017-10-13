@@ -489,6 +489,20 @@ namespace
 		returnInfo = jsonBuffer.GetString();
 		return true;
 	}
+	
+	bool CommandListWeaponsJSON(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		Patches::Weapon::Config::CreateList();
+
+		// Return a comma-separated list
+		for (auto&& name : Modules::ModuleWeapon::Instance().WeaponsJSONList)
+		{
+			if (returnInfo.length() > 0)
+				returnInfo += ',';
+			returnInfo += name;
+		}
+		return true;
+	}
 }
 
 namespace Modules
@@ -498,9 +512,10 @@ namespace Modules
 		AddCommand("Offset", "weap_off", "This changes weapon offset.", eCommandFlagsNone, CommandWeaponOffset, { "Weapon Name", "I Offset", "J Offset", "K Offset" });
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default.", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
 		VarAutoSaveOnMapLoad = AddVariableInt("AutoSaveOnMapLoad", "weap_auto_save", "This determines if the offsets get saved on map load.", eCommandFlagsArchived, 0);
-		VarWeaponJSON = AddVariableString("JSON.File", "weap_json_file", "The file weapon changes are saved to.", eCommandFlagsArchived, "weapons.json");
+		VarWeaponJSON = AddVariableString("JSON.File", "weap_json_file", "The file weapon changes are saved to.", eCommandFlagsArchived, "default");
 		AddCommand("JSON.Load", "weap_json_load", "This loads weapon offset.", eCommandFlagsNone, CommandLoadWeaponsJSON);
 		AddCommand("JSON.Save", "weap_json_save", "This saves weapon offset.", eCommandFlagsNone, CommandSaveWeaponsJSON);
+		AddCommand("JSON.List", "weap_json_list", "This lists all available weapon offset configs.", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandListWeaponsJSON);
 		AddCommand("List", "weap_list", "Lists all weapons available in the mulg tag.", eCommandFlagsNone, CommandWeaponList);
 		AddCommand("Equipped", "weap_equipped", "Gives info on the currently equipped weapon.", eCommandFlagsNone, CommandGetEquippedWeaponInfo, { "Format: null, json, csv" });
 	}

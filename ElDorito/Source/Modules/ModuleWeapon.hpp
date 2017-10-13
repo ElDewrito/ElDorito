@@ -10,6 +10,8 @@ namespace Modules
 		Command* VarAutoSaveOnMapLoad;
 		Command* VarWeaponJSON;
 
+		std::vector<std::string> WeaponsJSONList;
+
 		ModuleWeapon();
 	};
 }
