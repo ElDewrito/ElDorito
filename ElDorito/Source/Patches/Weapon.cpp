@@ -399,8 +399,6 @@ namespace Patches::Weapon
 		{
 			CreateList();
 
-			if (Name == "default")
-				Name = "default_edited";
 			Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString = Name;
 
 			bool IsCreated = false;
@@ -479,7 +477,7 @@ namespace Patches::Weapon
 				jsonWriter.Key("Weapons");
 
 				jsonWriter.StartArray();
-				for (auto &weaponParams : weaponOffsetsModified)
+				for (auto &weaponParams : (Utils::String::ToLower(Name) == "default" ? weaponOffsetsDefault : weaponOffsetsModified))
 				{
 					std::string weaponName = weaponParams.first;
 					RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
