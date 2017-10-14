@@ -717,10 +717,19 @@ namespace
 	{
 		static auto ObjectDelete = (void(__cdecl*)(uint16_t placementIndex, uint32_t playerIndex))(0x0059A920);
 
-		auto mapv = GetMapVariant();
-		auto deletedObjectIndex = mapv->Placements[placementIndex].ObjectIndex;
+		// prevent from deleting objects behind the held object
+		uint32_t heldObjectIndex, crosshairObjectIndex;
+		auto editorState = GetEditorModeState(playerIndex, &heldObjectIndex, &crosshairObjectIndex);
+		if (heldObjectIndex != -1 && crosshairObjectIndex != -1)
+		{
+			auto heldObject = Blam::Objects::Get(heldObjectIndex);
+			if (placementIndex != heldObject->PlacementIndex)
+				placementIndex = heldObject->PlacementIndex;
+		}
 
+		auto mapv = GetMapVariant();
 		const auto& selection = Forge::Selection::GetSelection();
+		auto deletedObjectIndex = mapv->Placements[placementIndex].ObjectIndex;
 
 		if (selection.Contains(deletedObjectIndex))
 		{
