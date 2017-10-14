@@ -161,6 +161,8 @@ namespace Forge
 
 	void CanvasMap()
 	{
+		const auto c_map_variant_placement__ctor = (void(__thiscall*)(Blam::MapVariant::VariantPlacement *thisptr))(0x004AC1D0);
+
 		auto mapv = GetMapVariant();
 		if (!mapv)
 			return;
@@ -177,7 +179,28 @@ namespace Forge
 			if (budget.TagIndex == -1 || budget.Cost == -1)
 				continue;
 
-			DeleteObject(playerIndex.Index(), i);
+			if(placement.ObjectIndex != -1)
+				DeleteObject(playerIndex.Index(), i);
+			else
+			{
+				if (i < mapv->ScnrPlacementsCount)
+					placement.PlacementFlags |= 0x20u;
+				else
+				{
+					memset(&placement, 0, sizeof(placement));
+					c_map_variant_placement__ctor(&placement);
+				}
+
+				if (--budget.CountOnMap == 0)
+				{
+					budget.TagIndex = -1;
+					budget.Cost = -1;
+					budget.CountOnMap = 0;
+					budget.DesignTimeMax = -1;
+					budget.RuntimeMin = -1;
+					budget.RuntimeMax = -1;
+				}
+			}
 		}
 	}
 }
