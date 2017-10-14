@@ -4,6 +4,7 @@
 #include "Rcon.hpp"
 #include "../Patches/CustomPackets.hpp"
 #include "../Modules/ModuleServer.hpp"
+#include "../Modules/ModuleGame.hpp"
 #include "../Utils/String.hpp"
 #include <unordered_map>
 #include <fstream>
@@ -283,8 +284,9 @@ namespace
 			return;
 
 		// Try to open the log file for appending
-		auto logPath = Modules::ModuleServer::Instance().VarChatLogPath->ValueString;
-		std::ofstream logFile(logPath, std::ios::app);
+		auto LogsLocation = Modules::ModuleGame::Instance().VarLogsLocation->ValueString;
+		auto chatLogFile = Modules::ModuleServer::Instance().VarChatLogFile->ValueString;
+		std::ofstream logFile(LogsLocation + chatLogFile, std::ios::app);
 		if (!logFile)
 			return;
 

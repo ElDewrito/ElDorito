@@ -38,7 +38,7 @@ namespace Modules
 		Command* VarFloodTimeoutSeconds;
 		Command* VarFloodTimeoutResetSeconds;
 		Command* VarChatLogEnabled;
-		Command* VarChatLogPath;
+		Command* VarChatLogFile;
 		Command* VarServerMapVotingTime;
 		Command* VarServerVotingEnabled;
 		Command* VarServerNumberOfRevotesAllowed;

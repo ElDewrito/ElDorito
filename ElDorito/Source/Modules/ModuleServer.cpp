@@ -75,7 +75,7 @@ namespace
 	// retrieves master server endpoints from dewrito.json
 	void GetEndpoints(std::vector<std::string>& destVect, std::string endpointType)
 	{
-		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
+		std::ifstream in("mods/dewrito.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
 		{
 			std::string contents;
@@ -1372,7 +1372,7 @@ namespace Modules
 		VarFloodTimeoutResetSeconds = AddVariableInt("FloodTimeoutResetSeconds", "floodtimeoutreset", "Sets the period in seconds before a spammer's next timeout is reset", eCommandFlagsArchived, 1800);
 
 		VarChatLogEnabled = AddVariableInt("ChatLogEnabled", "chatlog", "Controls whether chat logging is enabled", eCommandFlagsArchived, 1);
-		VarChatLogPath = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
+		VarChatLogFile = AddVariableString("ChatLogFile", "chatlogfile", "Sets the name of the file to log chat to", eCommandFlagsArchived, "chat.log");
 
 		VarServerVotingEnabled = AddVariableInt("VotingEnabled", "voting_enabled", "Controls whether the map voting system is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 0);
 		VarServerVotingEnabled->ValueIntMin = 0;

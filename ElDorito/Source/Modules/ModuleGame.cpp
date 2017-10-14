@@ -1177,6 +1177,8 @@ namespace Modules
 		VarSkipIntroVideos->ValueIntMin = 0;
 		VarSkipIntroVideos->ValueIntMax = 1;
 
+		VarLogsLocation = AddVariableString("LogsLocation", "logs_folder", "Location of stored logs ( must end in / )", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden | eCommandFlagsArchived), "mods/logs/");
+
 		VarLogName = AddVariableString("LogName", "debug_logname", "Filename to store debug log messages", eCommandFlagsArchived, "dorito.log");
 
 		VarRconPort = AddVariableInt("RconPort", "rcon_port", "The port to use for rcon in this instance of the game", eCommandFlagsArchived, 11776);
