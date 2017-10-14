@@ -26,6 +26,7 @@
 #include "../Forge/SelectionRenderer.hpp"
 #include "../Forge/Magnets.hpp"
 #include "../Forge/KillVolumes.hpp"
+#include "../Forge/PrematchCamera.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebForge.hpp"
@@ -245,6 +246,14 @@ namespace Patches::Forge
 	void OnItemSpawned(ItemSpawnedCallback callback)
 	{
 		s_ItemSpawnedCallbacks.push_back(callback);
+	}
+
+	void SetPrematchCamera()
+	{
+		s_SandboxTickCommandQueue.push([=]()
+		{
+			PrematchCamera::PlaceCameraObject();
+		});
 	}
 }
 

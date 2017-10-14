@@ -243,6 +243,12 @@ namespace
 		Patches::Forge::SpawnItem(tagIndex);
 		return true;
 	}
+
+	bool CommandPrematchCamera(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::Forge::SetPrematchCamera();
+		return true;
+	}
 }
 
 namespace Modules
@@ -277,5 +283,7 @@ namespace Modules
 
 		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsNone, CommandDumpPalette);
 		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsNone, CommandSpawnItem);
+
+		AddCommand("SetPrematchCamera", "forge_set_prematch_camera", "Set the position/orientation of the prematch camera", eCommandFlagsHostOnly, CommandPrematchCamera);
 	}
 }

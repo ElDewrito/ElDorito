@@ -1,5 +1,6 @@
 #pragma once
 #include "Hf2pExperimental.hpp"
+#include "../Blam/Math/RealVector3D.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Modules/ModuleSettings.hpp"
 #include "../Modules/ModuleServer.hpp"
@@ -16,6 +17,8 @@
 #include "../Web/Ui/WebScoreboard.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Game/Armor.hpp"
+#include "../Forge/PrematchCamera.hpp"
+#include "../Forge/ForgeUtil.hpp"
 
 namespace
 {
@@ -218,6 +221,11 @@ namespace
 
 	void Hf2pTickHook()
 	{
+		const auto camera_update_scripted = (void(*)(int type, Blam::Math::RealVector3D *position,
+			Blam::Math::RealVector3D *orientation, float a4, __int16 a5, uint32_t objectIndex))(0x0072DD70);
+		const auto MatrixScale4x3_GetEulerAngles = (void(*)(Blam::Math::RealMatrix4x3 *matrix, Blam::Math::RealVector3D *outOrientation))(0x005B3670);
+		const auto sub_592320 = (void(*)(int a1))(0x592320);
+
 		static auto InPrematchState = (bool(*)(char state))(0x005523A0);
 		static auto UpdatePreMatchCamera = (bool(*)())(0x72D580);
 		static auto InitMpDirector = (void(*)())(0x0072D560);
@@ -226,18 +234,42 @@ namespace
 		static auto s_MatchStarted = false;
 		static auto s_TimerStarted = false;
 		static auto s_TimerLastTicked = 0;
+		static auto s_CameraObjectIndex = -1;
 
 		auto secondsUntilPlayerSpawn = GetSecondsRemainingUntilPlayerSpawn();
+
 
 		// update pre-match camera
 		if (InPrematchState(4))
 		{
-			s_MatchStarted = UpdatePreMatchCamera();
+
+			if (s_CameraObjectIndex == -1)
+				s_CameraObjectIndex = Forge::PrematchCamera::FindCameraObject();
+
+			if (s_CameraObjectIndex != -1)
+			{
+				Blam::Math::RealMatrix4x3 cameraObjectTransform;
+				Blam::Math::RealVector3D cameraObjectOrientation;
+				Forge::GetObjectTransformationMatrix(s_CameraObjectIndex, &cameraObjectTransform);
+				MatrixScale4x3_GetEulerAngles(&cameraObjectTransform, &cameraObjectOrientation);
+
+
+				sub_592320(1);
+				camera_update_scripted(0, &cameraObjectTransform.Position, &cameraObjectOrientation, 0, 0, -1);
+			}
+			else
+			{
+				UpdatePreMatchCamera();
+			}
+			
+
+			s_MatchStarted = true;
 		}
 		else if (s_MatchStarted)
 		{
 			InitMpDirector();
 			s_MatchStarted = false;
+			s_CameraObjectIndex = -1;
 		}
 
 		SpawnTimerUpdate();
