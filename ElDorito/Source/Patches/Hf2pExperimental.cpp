@@ -111,6 +111,8 @@ namespace
 	void Hf2pTickHook();
 	void Hf2pLoadPreferencesHook();
 	bool SpawnTimerDisplayHook(int hudIndex, wchar_t* buff, int len, int a4);
+	void game_engine_tick_hook();
+	int game_engine_get_delta_ticks_hook();
 
 	void UI_StartMenuScreenWidget_OnDataItemSelectedHook();
 
@@ -141,6 +143,11 @@ namespace Patches::Hf2pExperimental
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
 
 		Hook(0x6963C6, SpawnTimerDisplayHook, HookFlags::IsCall).Apply();
+
+		// NOTE: this is not a proper fix. The pre-match camera needs to be looked at
+		Hook(0x1527F7, game_engine_tick_hook, HookFlags::IsCall).Apply();
+		// infection
+		Hook(0x5DD4BE, game_engine_get_delta_ticks_hook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnMapLoaded(OnMapLoaded);
 	}
@@ -460,5 +467,33 @@ namespace
 		}
 
 		return false;
+	}
+
+
+	void game_engine_tick_hook()
+	{
+		const auto game_get_current_engine = (void*(*)())(0x005CE150);
+		const auto game_engine_in_state = (bool(*)(uint8_t state))(0x005523A0);
+		auto engine = game_get_current_engine();
+		if (!engine)
+			return;
+
+		if (!game_engine_in_state(4))
+			(*(void(__thiscall **)(void*))(*(DWORD *)engine + 0x68))(engine);
+	}
+
+	int game_engine_get_delta_ticks_hook()
+	{
+		auto engineGobals = ElDorito::GetMainTls(0x48)[0];
+		if (!engineGobals)
+			return 0;
+
+		const auto &moduleServer = Modules::ModuleServer::Instance();
+
+		auto delta = (Blam::Time::GetGameTicks() - engineGobals(0xE10c).Read<int>()) - Blam::Time::SecondsToTicks(moduleServer.VarServerCountdown->ValueInt + 5.0f);
+		if (delta < 0)
+			delta = 0;
+
+		return delta;
 	}
 }
