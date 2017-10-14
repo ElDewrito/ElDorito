@@ -141,6 +141,16 @@ $(document).ready(function(){
         }
         setOptionList('gMedalPack', packArray);
     });
+    dew.command('Weapon.JSON.List', {}).then(function(response) {
+        var offsetArray = [];
+        var offsets = response.split(',');
+        for (i = 0; i < offsets.length; i++){
+            if(offsets[i].indexOf(" ") == -1){
+                offsetArray.push([offsets[i],offsets[i]]);
+            }
+        }
+        setOptionList('wOffsetConfig', offsetArray);
+    });
     $('.tabs li a').click(function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
