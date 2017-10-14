@@ -711,8 +711,6 @@ function buildPropertyFilter(data) {
 	case MultiplayerObjectType.HoldDestinationObjective:
 	case MultiplayerObjectType.InfectionHavenObjective:		
 		hasSpawn = true;
-		hasSpawnOrder = true;
-		break;
 	case MultiplayerObjectType.HillObjective:
 	case MultiplayerObjectType.JuggernautDestinationObjective:
 		hasZone = true;
