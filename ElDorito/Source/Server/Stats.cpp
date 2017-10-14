@@ -25,7 +25,7 @@ namespace Server::Stats
 	// retrieves master server endpoints from dewrito.json
 	void GetStatsEndpoints(std::vector<std::string>& destVect)
 	{
-		std::ifstream in("dewrito.json", std::ios::in | std::ios::binary);
+		std::ifstream in("mods/dewrito.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
 		{
 			std::string contents;

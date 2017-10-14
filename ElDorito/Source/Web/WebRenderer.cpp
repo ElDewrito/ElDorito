@@ -9,6 +9,7 @@
 #include <d3dx9.h>
 #include "Logger.hpp"
 #include "Bridge/WebRendererQueryHandler.hpp"
+#include "../Modules/ModuleGame.hpp"
 
 // 1 to enable multi_threaded_message_loop
 #define MULTITHREADED 1
@@ -87,7 +88,8 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 #endif
 	CefString(&s_Settings.product_version) = "ElDewrito";
 	CefString(&s_Settings.browser_subprocess_path) = "custom_menu.exe";
-	CefString(&s_Settings.log_file) = "custom_menu.log";
+	auto LogsLocation = Modules::ModuleGame::Instance().VarLogsLocation->ValueString;
+	CefString(&s_Settings.log_file) = LogsLocation + "custom_menu.log";
 	s_Settings.no_sandbox = true;
 	s_Settings.pack_loading_disabled = false;
 	s_Settings.windowless_rendering_enabled = true;
