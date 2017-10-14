@@ -6,6 +6,7 @@
 #include "../Blam/BlamPlayers.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Modules/ModuleCamera.hpp"
+#include "../Forge/ForgeUtil.hpp"
 
 namespace
 {
@@ -27,27 +28,29 @@ namespace
 	{
 		using namespace Blam;
 
-		auto& players = Blam::Players::GetPlayers();	
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		auto player = players.Get(playerIndex);
-
-		static auto Forge_GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x0059A6F0);
-
-		// if we're in a h3 ui screen
-		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
-		if (activeScreenCount > 0)
-			return true;
-
-		// if the left mouse button is down
-		if (*(uint8_t*)0x238E6AC > 0)
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
+		if (game_engine_round_in_progress())
 		{
-			DatumIndex heldObjectIndex;
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			Blam::Players::PlayerDatum *player{ nullptr };
+			if (playerIndex == DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+				return false;
 
-			// if we're holding an object
-			return Forge_GetEditorModeState(playerIndex, (uint32_t*)&heldObjectIndex, nullptr) && heldObjectIndex != DatumIndex::Null;
+			// if we're in a h3 ui screen
+			auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
+			if (activeScreenCount > 0)
+				return true;
+
+			// if we're rotating an object
+			uint32_t heldObjectIndex;
+			if (Forge::GetEditorModeState(playerIndex, &heldObjectIndex, nullptr) && heldObjectIndex != -1 && *(uint8_t*)0x238E6AC > 0)
+				return true;
+
+			// if we're spectating
+			return player && player->SlaveUnit == Blam::DatumIndex::Null;
 		}
 
-		return player && player->DeadSlaveUnit != Blam::DatumIndex::Null;
+		return false;
 	}
 
 	bool RawInputHookImpl(RAWINPUT *rwInput)
