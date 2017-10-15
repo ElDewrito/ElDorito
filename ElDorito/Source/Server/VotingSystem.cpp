@@ -52,8 +52,8 @@ namespace Server::Voting
 		"team_slayer",
 		"team_swat",
 		"ctf",
-		"odd_ball",
 		"odd_ball_ffa",
+		"odd_ball",
 		"koth",
 	};
 	const std::string DefaultTypeNames[7] =
@@ -62,7 +62,7 @@ namespace Server::Voting
 		"Team Slayer",
 		"Team Swat",
 		"CTF",
-		"Oddball",
+		"Team Oddball",
 		"FFA Oddball",
 		"Crazy King",
 	};
