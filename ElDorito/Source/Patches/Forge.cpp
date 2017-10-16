@@ -196,6 +196,8 @@ namespace Patches::Forge
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
+		// fix incorrect runtime when reloading
+		Patch(0x14EC1D, { 0xEB }).Apply();
 
 		Hook(0x639986, ScreenEffectsHook, HookFlags::IsCall).Apply();
 
