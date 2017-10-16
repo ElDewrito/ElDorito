@@ -9,7 +9,7 @@ namespace
 	int FmodChannelCountHook();
 	int __stdcall FMOD_System_Init_Hook(void* system, int maxchannels, int flags, int extradriverdata, int a5);
 	bool __fastcall snd_SYSTEM_FMOD_Init_Hook(uint8_t* thisptr, void* unused, int a2, int a3);
-	int sub_661C20_hook(void *sndDef, float pitchModifier, int fallbackIndex);
+	int16_t sub_661C20_hook(void *sndDef, float pitchModifier, int16_t fallbackIndex);
 
 	const auto s_HaloSoundSystemPtr = (void**)0x018BC9C8;
 }
@@ -110,9 +110,12 @@ namespace
 		return true;
 	}
 
-	int sub_661C20_hook(void *sndDef, float pitchModifier, int fallbackIndex)
+	int16_t sub_661C20_hook(void *sndDef, float pitchModifier, int16_t fallbackIndex)
 	{
-		const auto sub_661C20 = (int(*)(void *sndDef, float pitchModifier, int fallbackIndex))(0x661C20);
-		return std::max(0, sub_661C20(sndDef, pitchModifier, fallbackIndex));
+		const auto sub_661C20 = (int16_t(*)(void *sndDef, float pitchModifier, int16_t fallbackIndex))(0x661C20);
+		auto ret = sub_661C20(sndDef, pitchModifier, fallbackIndex);
+		if (ret == -1)
+			ret = 0;
+		return ret;
 	}
 }
