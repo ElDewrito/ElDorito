@@ -568,8 +568,16 @@ namespace
 
 	void LocalPlayerInputHook(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state)
 	{
+		struct ControlGlobalsAction
+		{
+			uint16_t Type;
+			uint16_t Flags;
+			uint32_t ObjectIndex;
+			// ...
+		};
+
 		static auto LocalPlayerInputHook = (void(__cdecl*)(int localPlayerIndex, uint32_t playerIndex, int a3, int a4, int a5, uint8_t* state))(0x5D0C90);
-		static auto GetPlayerControlsAction = (int(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
+		static auto GetPlayerControlsAction = (ControlGlobalsAction*(__cdecl*)(int playerMappingIndex))(0x5D0BD0);
 
 		static bool s_SprintToggled = false;
 		static bool s_ConsumablesLocked = false;
@@ -620,11 +628,14 @@ namespace
 		if (*(uint32_t*)(state + 0x18) & 0x10)
 		{
 			// prevent equipment from being used while picking up/swapping weapons when those actions are bound to the same button
-			if (*(uint16_t*)GetPlayerControlsAction(localPlayerIndex) == 1)
+			auto controlGlobalsAction = GetPlayerControlsAction(localPlayerIndex);
+			if (controlGlobalsAction->Type == 1 && (controlGlobalsAction->Flags & 4 || controlGlobalsAction->Flags & 8)) // only if it's dual-wieldable
+			{
 				if (isUsingController)
 					s_ConsumablesLocked = bindings->ControllerButtons[eGameActionUseConsumable1] == bindings->ControllerButtons[eGameActionPickUpLeft];
 				else
 					s_ConsumablesLocked = HasEqualBindingsDown(eGameActionUseConsumable1, eGameActionPickUpLeft, eInputTypeGame);
+			}
 		}
 		else
 		{
