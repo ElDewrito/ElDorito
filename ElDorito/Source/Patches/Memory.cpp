@@ -2,6 +2,11 @@
 #include <cstdint>
 #include "../Blam/BlamData.hpp"
 
+namespace
+{
+	size_t globalCachIncrease = 100;
+}
+
 namespace Patches::Memory
 {
 	const uint32_t origGlobalDataSize = 0xAE00000;
@@ -87,8 +92,7 @@ namespace Patches::Memory
 	void ExpandMainGlobalMemoryMap()
 	{
 		size_t dataSizeIncrease = 0;
-		size_t cacheSizeIncrease = 1024 * 1024 * 100;
-
+		size_t cacheSizeIncrease = 1024 * 1024 * globalCachIncrease;
 		//dataSizeIncrease += ExpandGameStateGlobals();
 		//dataSizeIncrease += ExpandRuntimeStateGlobals();
 		// TODO: other allocations
@@ -100,9 +104,15 @@ namespace Patches::Memory
 		*reinterpret_cast<uint32_t*>(0x51D699 + 1) = newDataSize + newCacheSize;
 	}
 
-	void ApplyAll()
+	void SetGlobalCacheIncrease(size_t size)
 	{
 		// TODO: more mapping and testing is required before this is ready for prime time
+		globalCachIncrease = size;
+		ExpandMainGlobalMemoryMap();
+	}
+
+	void ApplyAll()
+	{
 		ExpandMainGlobalMemoryMap();
 	}
 }

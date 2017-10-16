@@ -28,6 +28,7 @@
 #include "Server/Voting.hpp"
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
+#include "Patches/Memory.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -165,6 +166,9 @@ void ElDorito::Initialize()
 
 			if (arg.compare(L"-password") == 0 && i < numArgs - 1)
 				serverPassword = Utils::String::ThinString(szArgList[i + 1]);
+
+			if (arg.compare(L"-cache-memory-increase") == 0 && i < numArgs - 1)
+				Patches::Memory::SetGlobalCacheIncrease(std::stoul(szArgList[i + 1]));
 
 			size_t pos = arg.find(L"=");
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
