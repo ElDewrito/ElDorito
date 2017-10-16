@@ -102,8 +102,8 @@ namespace
 		bindings.ControllerButtons[eGameActionVehicleFire]    = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionVehicleAltFire] = eControllerButtonLeftTrigger;
 		bindings.ControllerButtons[eGameActionMeleeFire]      = eControllerButtonB;
-		bindings.ControllerButtons[eGameActionUnk56]          = eControllerButtonDpadDown;
-		bindings.ControllerButtons[eGameActionUnk57]          = eControllerButtonDpadUp;
+		bindings.ControllerButtons[eGameActionNextPlayer]     = eControllerButtonDpadDown;
+		bindings.ControllerButtons[eGameActionPrevPlayer]     = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionUseConsumable1] = eControllerButtonLeftBumper;
 		bindings.ControllerButtons[eGameActionUiStart]        = eControllerButtonStart;
@@ -163,8 +163,8 @@ namespace
 		bindings.PrimaryMouseButtons[eGameActionVehicleAltFire]  = eMouseButtonRight;
 		bindings.PrimaryKeys[eGameActionMeleeFire]               = eKeyCodeQ;
 		bindings.SecondaryKeys[eGameActionMeleeFire]             = eKeyCodeV;
-		bindings.PrimaryKeys[eGameActionUnk56]                   = eKeyCodeD;
-		bindings.PrimaryKeys[eGameActionUnk57]                   = eKeyCodeA;
+		bindings.PrimaryKeys[eGameActionNextPlayer]              = eKeyCodeD;
+		bindings.PrimaryKeys[eGameActionPrevPlayer]              = eKeyCodeA;
 		bindings.PrimaryKeys[eGameActionUnk58]                   = eKeyCodeSpace;
 		bindings.PrimaryKeys[eGameActionMoveForward]             = eKeyCodeW;
 		bindings.SecondaryKeys[eGameActionMoveForward]           = eKeyCodeUp;
@@ -990,10 +990,28 @@ namespace
 		// UI
 		{ "Menu", eGameActionUiStart },
 		{ "Scoreboard", eGameActionUiSelect },
-		{ "ForgeDelete", eGameActionUiY },
+
 		{ "Chat", eGameActionGeneralChat },
 		{ "TeamChat", eGameActionTeamChat },
 		{ "VoiceChat", eGameActionVoiceChat },
+		{ "UiLeftTrigger", eGameActionUiLeftTrigger },
+		{ "UiRightTrigger", eGameActionUiRightTrigger },
+		{ "UiUp", eGameActionUiUp },
+		{ "UiDown", eGameActionUiDown },
+		{ "UiLeft", eGameActionUiLeft },
+		{ "UiRight", eGameActionUiRight },
+		{ "UiLeftStick", eGameActionUiLeftStick },
+		{ "UiRightStick", eGameActionUiRightStick },
+		{ "UiA", eGameActionUiA },
+		{ "UiB", eGameActionUiB },
+		{ "UiX", eGameActionUiX },
+		{ "UiY", eGameActionUiY },
+		{ "UiLeftBumper", eGameActionUiLeftBumper },
+		{ "UiRightBumper", eGameActionUiRightBumper },
+
+		// Observer 
+		{ "NextPlayer", eGameActionNextPlayer },
+		{ "PrevPlayer", eGameActionPrevPlayer },
 	};
 
 	// Macro to prefix a string with "settings_" because the actual string_ids don't include that prefix

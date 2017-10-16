@@ -290,8 +290,8 @@ namespace Blam::Input
 		eGameActionVehicleFire,
 		eGameActionVehicleAltFire,
 		eGameActionVehicleExit,
-		eGameActionUnk56,
-		eGameActionUnk57,
+		eGameActionNextPlayer,
+		eGameActionPrevPlayer,
 		eGameActionUnk58,
 
 		eGameAction_ControllerCount = 59,
