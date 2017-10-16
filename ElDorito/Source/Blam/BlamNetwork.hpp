@@ -375,6 +375,15 @@ namespace Blam::Network
 	// Kicks a player.
 	bool BootPlayer(int playerIndex, int reason);
 
+	// Gets the lobby type. Also known as GetUiGameMode
+	int GetLobbyType();
+
+	// Gets the network mode
+	int GetNetworkMode();
+
+	//Sets the Network Mode.
+	bool SetNetworkMode(int mode);
+
 	// Requests to end the game.
 	bool EndGame();
 

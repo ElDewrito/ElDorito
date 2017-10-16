@@ -20,15 +20,8 @@ namespace Server::Voting
 	//Callback for when the loading screen back to the main menu finishes. We use this to determine when to start a new vote.
 	void MapLoadedCallback(const char *mapPath)
 	{
-		std::string currentMap = mapPath;
-		auto separatorIndex = currentMap.find_first_of("\\/");
-		auto mapName = currentMap.substr(separatorIndex + 1);
-
-		if (mapName == "mainmenu")
-		{
-			// Checking if the info socket is open so it doesnt try to start a vote after the initial load. 
-			if (Patches::Network::IsInfoSocketOpen())
-				StartNewVote();
+		if(Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1 && Blam::Network::GetNetworkMode() == 3){
+			StartNewVote();
 		}
 	}
 
@@ -107,7 +100,7 @@ namespace Server::Voting
 	{
 		//if we aren't in a vote or voting isn't enabled, then do nothing
 		auto* session = Blam::Network::GetActiveSession();
-		if (!(session && session->IsEstablished() && session->IsHost()))
+		if (!(session && session->IsEstablished() && session->IsHost() && Blam::Network::GetLobbyType() == 2))
 			return;
 
 		auto peerIdx = session->MembershipInfo.GetPlayerPeer(playerIndex);
@@ -128,8 +121,7 @@ namespace Server::Voting
 	void StartNewVote() 
 	{
 		auto* session = Blam::Network::GetActiveSession();
-		auto get_game_mode = (int(__cdecl*)())(0x00435640);
-		if (!(session && session->IsEstablished() && session->IsHost() && get_game_mode() == 2))
+		if (!(session && session->IsEstablished() && session->IsHost() && Blam::Network::GetLobbyType() == 2))
 			return;
 
 		for (auto elem : VotingSystems)

@@ -1,12 +1,11 @@
 #include <WS2tcpip.h>
 #include "DedicatedServer.hpp"
 #include "../Modules/ModuleBase.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 namespace Server::DedicatedServer
 {
 	bool needToSetMode = false;
-	auto get_lobby_type = (int(__cdecl*)())(0x00435640);
-	auto set_game_mode = (bool(__cdecl*)(int))(0x00A7F950);
 
 	void Init()
 	{
@@ -18,8 +17,8 @@ namespace Server::DedicatedServer
 		if (!needToSetMode)
 			return;
 
-		if (get_lobby_type() == 2) {
-			if (set_game_mode(3)) {
+		if (Blam::Network::GetLobbyType() == 2) {
+			if (Blam::Network::SetNetworkMode(3)) {
 				needToSetMode = false;
 			}
 		}

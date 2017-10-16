@@ -839,13 +839,13 @@ namespace
 
 	bool CommandServerMode(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto GetNetworkMode = (int(__cdecl*)())(0x00A7F160);
+		
 		if (Arguments.size() < 1 || Arguments.size() > 1) {
-			returnInfo = std::to_string(GetNetworkMode());
+			returnInfo = std::to_string(Blam::Network::GetNetworkMode());
 			return true;
 		}
 
-		auto previous = std::to_string(GetNetworkMode());
+		auto previous = std::to_string(Blam::Network::GetNetworkMode());
 		auto serverMode = -1;
 		try
 		{
@@ -860,8 +860,8 @@ namespace
 			return false;
 		}
 
-		auto set_server_mode = (bool(__cdecl*)(int))(0x00A7F950);
-		bool retVal = set_server_mode(serverMode);
+		
+		bool retVal = Blam::Network::SetNetworkMode(serverMode);
 		if (retVal)
 		{
 			returnInfo = "Changed network mode " + previous + " -> " + std::to_string(serverMode);
@@ -873,13 +873,14 @@ namespace
 
 	bool CommandServerLobbyType(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto GetlobbyType = (int(__cdecl*)())(0x00435640);
+		
+		
 		if (Arguments.size() < 1 || Arguments.size() > 1) {
-			returnInfo = std::to_string(GetlobbyType());
+			returnInfo = std::to_string(Blam::Network::GetLobbyType());
 			return true;
 		}
 
-		auto previous = std::to_string(GetlobbyType());
+		auto previous = std::to_string(Blam::Network::GetLobbyType());
 		auto lobbyType = -1;
 		try
 		{

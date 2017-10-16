@@ -236,6 +236,23 @@ namespace Blam::Network
 		return Network_squad_session_end_game();
 	}
 
+	int GetLobbyType() {
+		auto Get_Type = (int(__cdecl*)())(0x00435640);
+		return Get_Type();
+	}
+
+	// Gets the network mode
+	int GetNetworkMode() {
+		auto Get_Mode = (int(__cdecl*)())(0x00A7F160);
+		return Get_Mode();
+	}
+
+	bool SetNetworkMode(int mode)
+	{
+		auto Set_Network_Mode = (bool(__cdecl*)(int))(0x00A7F950);
+		return Set_Network_Mode(mode);
+	}
+	
 	bool Disconnect()
 	{
 		typedef bool(__cdecl *Network_network_life_cycle_endPtr)();
