@@ -80,30 +80,68 @@ var settingsToLoad = [
     ['sQualityPreset', '', 'Quality Preset', 'Adjusts the overall graphics quality.'],
     ['presetMenu', '', 'Button Layout', 'Changes the button layout.']
 ];
-var binds = ["Sprint", "Jump", "Crouch", "Use", "DualWield", "Fire", "FireLeft", "Reload", "ReloadLeft", "Zoom", "SwitchWeapons", "Melee", "Grenade", "SwitchGrenades", "VehicleAccelerate", "VehicleBrake", "VehicleBoost", "VehicleRaise", "VehicleDive", "VehicleFire", "VehicleAltFire", "BansheeBomb", "Menu", "Scoreboard", "ForgeDelete", "Chat", "TeamChat", "UseEquipment","VoiceChat","Forward","Back","Left","Right"];
+var binds = [
+    ['Sprint','Sprint','Infantry'],
+    ['Jump','Jump','Infantry'],
+    ['Crouch','Crouch','Infantry'],
+    ['Use','Use','Infantry'],
+    ['DualWield','Dual Wield','Infantry'],
+    ['Fire','Fire','Infantry'],
+    ['FireLeft','Fire Left','Infantry'],
+    ['Reload','Reload','Infantry'],
+    ['ReloadLeft','Reload Left','Infantry'],
+    ['Zoom','Zoom','Infantry'],
+    ['SwitchWeapons','Switch Weapons','Infantry'],
+    ['Melee','Melee','Infantry'],
+    ['Grenade','Grenade','Infantry'],
+    ['SwitchGrenades','Switch Grenades','Infantry'],
+    ['VehicleAccelerate','Vehicle Accelerate','Vehicle'],
+    ['VehicleBrake','Vehicle Brake','Vehicle'],
+    ['VehicleBoost','Vehicle Boost','Vehicle'],
+    ['VehicleRaise','Vehicle Raise','Vehicle'],
+    ['VehicleDive','Vehicle Dive','Vehicle'],
+    ['VehicleFire','Vehicle Fire','Vehicle'],
+    ['VehicleAltFire','Vehicle Alt Fire','Vehicle'],
+    ['BansheeBomb','Banshee Bomb','Vehicle'],
+    ['Menu','Menu','UI'],
+    ['Scoreboard','Scoreboard','UI'],
+    ['Chat','Chat','UI'],
+    ['TeamChat','Team Chat','UI'],
+    ['UseEquipment','Use Equipment','Infantry'],
+    ['VoiceChat','Voice Chat PTT','UI'],
+    ['Forward','Forward','UI'],
+    ['Back','Back','UI'],
+    ['Left','Left','UI'],
+    ['Right','Right','UI'],
+    ['NextPlayer','Spectate Next Player','UI'],
+    ['PrevPlayer','Spectate Prev Player','UI'],
+    ['UiLeftBumper','UiLeftBumper','UI'],
+    ['UiRightBumper','UiRightBumper','UI']
+];
+
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 
 var controllerPresets = [
-    ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Southpaw","Right,A,LS,RB,LB,LT,RT,RB,LB,RS,Y,B,RT,LB,,,RT,A,LS,LT,RT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Boxer","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,LT,B,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Green Thumb","Right,A,LS,RB,LB,RT,LT,RB,LB,B,Y,RS,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Bumper Jumper","Right,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,B,Start,Back,Y,,,X,Down"],
-    ["Halo 3 Walkie Talkie","Right,A,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,A,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Up,LB"],
-    ["Halo Reach Default","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,RB,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Southpaw","RB,A,LS,X,B,LT,RT,X,RB,RS,Y,LB,RT,B,,,RT,A,LS,LT,RT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Boxer","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,LT,RB,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Green Thumb","LB,A,LS,X,B,RT,LT,X,LB,RB,Y,RS,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Bumper Jumper","X,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,Y,,,Right,Down"],
-    ["Halo Reach Recon","LB,A,LS,RB,X,RT,LT,RB,LB,RS,Y,B,LT,X,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,Right,Down"],
-    ["Halo 4 Default","LS,A,B,X,LB,RT,LT,X,LB,RS,Y,RB,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Southpaw","LS,A,B,X,RB,LT,RT,X,RB,RS,Y,LB,RT,Right,,,RT,A,B,LT,RT,LB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,Y,,,X,Down"],
-    ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,Y,,,LB,Down"],
-    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,Y,,,LB,Down"]
+    ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,,,LB,Down"],
+    ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
+    ["Halo 3 Southpaw","Right,A,LS,RB,LB,LT,RT,RB,LB,RS,Y,B,RT,LB,,,RT,A,LS,LT,RT,B,Start,Back,,,X,Down"],
+    ["Halo 3 Boxer","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,LT,B,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
+    ["Halo 3 Green Thumb","Right,A,LS,RB,LB,RT,LT,RB,LB,B,Y,RS,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
+    ["Halo 3 Bumper Jumper","Right,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,B,Start,Back,,,X,Down"],
+    ["Halo 3 Walkie Talkie","Right,A,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,A,,,LT,A,LS,RT,LT,B,Start,Back,,,Up,LB"],
+    ["Halo Reach Default","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,RB,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
+    ["Halo Reach Southpaw","RB,A,LS,X,B,LT,RT,X,RB,RS,Y,LB,RT,B,,,RT,A,LS,LT,RT,B,Start,Back,,,Right,Down"],
+    ["Halo Reach Boxer","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,LT,RB,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
+    ["Halo Reach Green Thumb","LB,A,LS,X,B,RT,LT,X,LB,RB,Y,RS,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
+    ["Halo Reach Bumper Jumper","X,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,,,Right,Down"],
+    ["Halo Reach Recon","LB,A,LS,RB,X,RT,LT,RB,LB,RS,Y,B,LT,X,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
+    ["Halo 4 Default","LS,A,B,X,LB,RT,LT,X,LB,RS,Y,RB,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down"],
+    ["Halo 4 Southpaw","LS,A,B,X,RB,LT,RT,X,RB,RS,Y,LB,RT,Right,,,RT,A,B,LT,RT,LB,Start,Back,,,LB,Down"],
+    ["Halo 4 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down"],
+    ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down"],
+    ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,,,X,Down"],
+    ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down"],
+    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,,,LB,Down"]
 ];
 var controllerIconPacks = [
     ['Xbox 360','360'],
@@ -815,8 +853,8 @@ function updateSprint(value){
 function applyBindString(bindString){
     var bindArray = new Array(bindString.split(','));
     for (i = 0; i < bindArray[0].length; i++) { 
-        $('#'+binds[i]).val(bindArray[0][i]);
-        queueBindChange([binds[i],bindArray[0][i]])
+        $('#'+binds[i][0]).val(bindArray[0][i]);
+        queueBindChange([binds[i][0],bindArray[0][i]])
     }
     updateBindLabels();
 }
@@ -824,23 +862,30 @@ function applyBindString(bindString){
 function initializeBindings(){
     dew.command("Input.DumpBindingsJson", {}).then(function(response){
         $('#bindBox tbody').empty();
+        $('#bindBox tbody').each(function(){
+            $(this).append('<tr><th colspan="3">'+$(this).attr('class')+'</th></tr>');
+        });
         var bindDump = JSON.parse(response);
         for (i = 0; i < bindDump.length; i++){
             if(bindDump[i].controllerButton=="Select"){
                 bindDump[i].controllerButton="Back";
             }
             $('#'+bindDump[i].actionName).val(bindDump[i].controllerButton);
-            if($.inArray(bindDump[i].actionName, binds) > -1){
-                var primaryBind = bindDump[i].primaryKey;
-                if(bindDump[i].primaryMouseButton != 'none'){
-                    primaryBind = bindDump[i].primaryMouseButton;
+            $.grep(binds, function(result, index){   
+                if(result){
+                if(result[0] == bindDump[i].actionName){            
+                    var primaryBind = bindDump[i].primaryKey;
+                    if(bindDump[i].primaryMouseButton != 'none'){
+                        primaryBind = bindDump[i].primaryMouseButton;
+                    }
+                    var secondaryBind = bindDump[i].secondaryKey;
+                    if(bindDump[i].secondaryMouseButton != 'none'){
+                        secondaryBind = bindDump[i].secondaryMouseButton;
+                    }
+                    $('#bindBox .'+result[2]).append($('<tr><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
                 }
-                var secondaryBind = bindDump[i].secondaryKey;
-                if(bindDump[i].secondaryMouseButton != 'none'){
-                    secondaryBind = bindDump[i].secondaryMouseButton;
                 }
-                $('#bindBox').find('tbody').append($('<tr><td>'+bindDump[i].actionName+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
-            }
+            })
         }
         updateBindLabels();
         getCurrentBindString();
@@ -973,9 +1018,9 @@ function initializeBindings(){
 
 function updateBindLabels(){
     $('#controllerGraphic').children('div').empty();
-    for (i = 0; i < binds.length-4; i++) { 
-        var bind = document.getElementById(binds[i]).value;
-        var action = binds[i];
+    for (i = 0; i < binds.length-8; i++) { 
+        var bind = document.getElementById(binds[i][0]).value;
+        var action = binds[i][0];
         if(document.getElementById(bind)){
             var actionString = action;
             if(document.getElementById(bind).innerHTML.length > 0){
@@ -988,9 +1033,9 @@ function updateBindLabels(){
 
 function getCurrentBindString(){
     var currentBinds = "";
-    for(var i = 0; i < binds.length-4; i++) {
-        if($('#'+binds[i]).val()){
-            currentBinds += $('#'+binds[i]).val() + ",";
+    for(var i = 0; i < binds.length-8; i++) {
+        if($('#'+binds[i][0]).val()){
+            currentBinds += $('#'+binds[i][0]).val() + ",";
         }else{
             currentBinds += ",";
         }
@@ -1000,8 +1045,8 @@ function getCurrentBindString(){
 }
 
 function setButtonLists(){
-    for(var i = 0; i < binds.length-4; i++) {
-        var sel = document.getElementById(binds[i]);
+    for(var i = 0; i < binds.length-8; i++) {
+        var sel = document.getElementById(binds[i][0]);
         for(var x = 0; x < buttons.length; x++) {
             var opt = document.createElement('option');
             opt.innerHTML = buttons[x];
