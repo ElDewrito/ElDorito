@@ -1144,7 +1144,7 @@ namespace
 		{
 			message += word + " ";
 		}
-		Server::Chat::SendServerMessage(message);
+		Server::Chat::SendAndLogServerMessage(message);
 		return true;
 	}
 	bool CommandServerPM(const std::vector<std::string>& Arguments, std::string& returnInfo)

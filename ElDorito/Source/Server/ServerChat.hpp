@@ -84,6 +84,7 @@ namespace Server::Chat
 	// true if successful.
 	bool SendTeamMessage(const std::string &body);
 	bool SendServerMessage(const std::string &body);
+	bool SendAndLogServerMessage(const std::string &body);
 
 	// Sends a server message to specific peers. Only works if you are
 	// host. Returns true if successful.

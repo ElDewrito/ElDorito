@@ -442,6 +442,23 @@ namespace Server::Chat
 		ChatMessage message(ChatMessageType::Team, body);
 		return SendClientMessage(session, message);
 	}
+
+	bool SendAndLogServerMessage(const std::string &body)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+			return false;
+
+		PeerBitSet p;
+		p.set();
+		ChatMessage message(ChatMessageType::Server, body);
+
+		if (Modules::ModuleServer::Instance().VarSendChatToRconClients->ValueInt == 1)
+			Server::Rcon::SendMessageToClients(GetLogString(session, session->MembershipInfo.LocalPeerIndex, message));
+		LogMessage(session, session->MembershipInfo.LocalPeerIndex, message);
+
+		return BroadcastMessage(session, session->MembershipInfo.LocalPeerIndex, &message, p);
+	}
 	//So I dont have to create a new PeerBitSet all the time when sending it to just one peer
 	bool SendServerMessage(const std::string &body, int peer)
 	{
