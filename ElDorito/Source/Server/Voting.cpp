@@ -73,13 +73,10 @@ namespace Server::Voting
 		}
 	}
 	bool ReloadVotingJson(std::string filename) {
-		for (auto elem : VotingSystems)
-		{
-			if (elem->isEnabled()) {
-				return elem->ReloadVotingJson(filename);
-			}
-		}
-		return false;
+		return votingSystem.ReloadVotingJson(filename);
+	}
+	bool ReloadVetoJson(std::string filename) {
+		return vetoSystem.ReloadVotingJson(filename);
 	}
 	void Tick() 
 	{	

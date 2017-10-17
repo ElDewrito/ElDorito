@@ -115,14 +115,14 @@ namespace Server::Voting
 	bool VotingSystem::isEnabled() {
 		return Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1;
 	}
-	void VotingSystem::Init()
-	{
-		if (!LoadJson((ElDorito::Instance().GetInstanceName() != "") ? "mods/server/voting_" + ElDorito::Instance().GetInstanceName() + ".json" : "mods/server/voting.json"))
+	
+
+	void VotingSystem::Init() {
+		if (!LoadJson(Modules::ModuleServer::Instance().VarVotingJsonPath->ValueString))
 			loadDefaultMapsAndTypes();
 	}
-	void VetoSystem::Init()
-	{
-		if (!LoadJson((ElDorito::Instance().GetInstanceName() != "") ? "mods/server/veto_" + ElDorito::Instance().GetInstanceName() + ".json" : "mods/server/veto.json"))
+	void VetoSystem::Init() {
+		if (!LoadJson(Modules::ModuleServer::Instance().VarVetoJsonPath->ValueString))
 			loadDefaultMapsAndTypes();
 	}
 
@@ -467,7 +467,10 @@ namespace Server::Voting
 		if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
 		{
 			if (!document.HasMember("Types") || !document.HasMember("Maps"))
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json must contain 'Maps' and 'Types' arrays. Using defaults instead");
 				return false;
+			}
 
 			const rapidjson::Value& maps = document["Maps"];
 			// rapidjson uses SizeType instead of size_t :/
@@ -537,9 +540,16 @@ namespace Server::Voting
 
 			}
 		}
-
-		if (gameTypes.size() < 2 || haloMaps.size() < 2)
+		else
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Could not parse voting json. Using defaults instead");
 			return false;
+		}
+		if (gameTypes.size() < 2 || haloMaps.size() < 2)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json must contain at least 2 gametypes and two maps. Using defaults instead.");
+			return false;
+		}
 
 
 		return true;
@@ -641,7 +651,11 @@ namespace Server::Voting
 		if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
 		{
 			if (!document.HasMember("playlist"))
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json does not contain an array named 'playlist'. Using default maps and gametypes. ");
 				return false;
+			}
+				
 
 			const rapidjson::Value& mapAndTypes = document["playlist"];
 			// rapidjson uses SizeType instead of size_t :/
@@ -684,9 +698,18 @@ namespace Server::Voting
 				entirePlaylist.push_back(MapAndType(m, t));
 			}
 		}
+		else
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json is formatted incorrectly. Using default maps and gametypes. ");
+			return false;
+		}
 
 		if (entirePlaylist.size() < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "No items in playlist array. Using default maps and gametypes. ");
 			return false;
+		}
+			
 
 		currentPlaylist = entirePlaylist;
 		return true;

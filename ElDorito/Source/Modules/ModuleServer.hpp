@@ -67,6 +67,8 @@ namespace Modules
 		Command* VarVetoVoteTime;
 		Command* VarVetoWinningOptionShownTime;
 		Command* VarVetoVotePassPercentage;
+		Command* VarVotingJsonPath;
+		Command* VarVetoJsonPath;
 
 		uint8_t SyslinkData[0x176];
 
