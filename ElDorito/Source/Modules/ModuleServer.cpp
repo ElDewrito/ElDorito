@@ -534,6 +534,11 @@ namespace
 			return false;
 		}
 		auto peer = session->MembershipInfo.GetPlayerPeer(playerIdx);
+		if (peer == session->MembershipInfo.HostPeerIndex)
+		{
+			returnInfo = "You cannot kick yourself.";
+			return false;
+		}
 
 		std::stringstream ss;
 		ss << "You have been ";
