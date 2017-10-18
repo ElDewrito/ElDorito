@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <thread>
+#include "../Modules/ModuleGame.hpp"
 
 namespace Utils
 {
