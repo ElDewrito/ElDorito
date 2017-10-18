@@ -134,13 +134,13 @@
 	</category>
 	<category name="Miscellaneous">
 		<item name="Covenant, Destroyed" value="118" />
-		<item name="da Vinci (0x101F)" value="183" />
 		<item name="Plastic, Gray" value="001" />
 		<item name="Plastic, Grid" value="000" thumbnail="..." />
 		<item name="Wood, Planks" value="022" />
 	</category>
-	<category name="Solid Colors">
+	<category name="Special">
 		<item name="Glossy" value="119" />
 		<item name="Matte" value="120" />
+		<item name="Invisible" value="121" />
 	</category>
 </root>

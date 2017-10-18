@@ -17,6 +17,7 @@ namespace Modules
 		Command* VarMagnetsVisible;
 		Command* VarMaxGrabDistance;
 		Command* VarMagnetsStrength;
+		Command* VarShowInvisibles;
 
 		ModuleForge();
 	};

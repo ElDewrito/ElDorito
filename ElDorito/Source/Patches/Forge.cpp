@@ -46,6 +46,7 @@ namespace
 	const auto HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER = 0.1f;
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
 	const auto REFORGE_DEFAULT_SHADER = 0x3ab0;
+	const auto INVISIBLE_MATERIAL_INDEX = 121;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
 	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
@@ -80,7 +81,7 @@ namespace
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
-
+	bool __cdecl sub_980E40_hook(int a1, uint32_t objectIndex);
 
 	void __fastcall MapVariant_SyncObjectPropertiesHook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
@@ -216,6 +217,9 @@ namespace Patches::Forge
 		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
 
 		Patches::Core::OnGameStart(FixRespawnZones);
+
+		// disble projectile collisions on invisible material
+		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -937,31 +941,31 @@ namespace
 
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair)
 	{
-		if (objectIndexUnderCrosshair != -1)
-		{
-			auto& forgeModule = Modules::ModuleForge::Instance();
-			auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
-			auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+	if (objectIndexUnderCrosshair != -1)
+	{
+		auto& forgeModule = Modules::ModuleForge::Instance();
+		auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+		auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
 
-			auto sandboxGlobals = Forge::GetSandboxGlobals();
-			const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
+		auto sandboxGlobals = Forge::GetSandboxGlobals();
+		const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
 
-			auto objectIndexToClone = objectIndexUnderCrosshair;
-			for (auto i = 0; i < cloneMultiplier; i++)
-			{
-				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
-				if (objectIndexToClone == -1)
-					break;
-			}
-		}
-		else
+		auto objectIndexToClone = objectIndexUnderCrosshair;
+		for (auto i = 0; i < cloneMultiplier; i++)
 		{
-			if (Forge::Selection::GetSelection().Any())
-			{
-				if (Forge::Selection::Clone())
-					GrabSelection(playerIndex);
-			}
+			objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
+			if (objectIndexToClone == -1)
+				break;
 		}
+	}
+	else
+	{
+		if (Forge::Selection::GetSelection().Any())
+		{
+			if (Forge::Selection::Clone())
+				GrabSelection(playerIndex);
+		}
+	}
 	}
 
 	bool CanThemeObject(uint32_t objectIndex)
@@ -1015,8 +1019,6 @@ namespace
 		auto sharedStorage = Pointer(mpProps)(0x5).Read<uint8_t>();
 
 		auto materialIndex = int16_t(sharedStorage);
-		if (!materialIndex)
-			return false;
 
 		if (int32_t(materialIndex) >= materialCount)
 			return false;
@@ -1035,6 +1037,13 @@ namespace
 		int16_t materialIndex;
 		if (GetObjectMaterial(renderData, &materialIndex))
 		{
+			if (materialIndex == int16_t(INVISIBLE_MATERIAL_INDEX))
+			{
+				if (!Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt
+					&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
+					return;
+			}
+
 			auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
 			const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
 			const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
@@ -1865,5 +1874,28 @@ namespace
 		{
 			sub_B31B80(objectIndex, 2, invalidated);
 		}
+	}
+
+	bool __cdecl sub_980E40_hook(int a1, uint32_t objectIndex)
+	{
+		const auto sub_980E40 = (bool(*)(int a1, uint32_t objectIndex))(0x980E40);
+		if (!sub_980E40(a1, objectIndex))
+			return false;
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (mpProperties && CanThemeObject(objectIndex))
+		{
+			if (mpProperties->TeleporterChannel == int8_t(INVISIBLE_MATERIAL_INDEX)
+				&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)) // not in monitor mode or you can't grab it
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

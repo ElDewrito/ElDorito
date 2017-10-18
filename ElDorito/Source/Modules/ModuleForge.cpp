@@ -271,6 +271,9 @@ namespace Modules
 		VarMagnetsVisible->ValueIntMax = 1;
 		VarMaxGrabDistance = AddVariableFloat("GrabDistance", "forge_grab_distance", "Controls the maximum distance from which objects can be grabbed", eCommandFlagsArchived, 5.0f);
 		VarMagnetsStrength = AddVariableFloat("MagnetsStrength", "forge_magnets_strength", "Controls the minimum distance at which magnets snap", eCommandFlagsArchived, 0.3f);
+		VarShowInvisibles = AddVariableInt("ShowInvisibles", "forge_show_invisibles", "When enabled forces invisible materials to be visible", eCommandFlagsNone, 0.0f);
+		VarShowInvisibles->ValueIntMin = 0;
+		VarShowInvisibles->ValueIntMax = 1;
 
 		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);
