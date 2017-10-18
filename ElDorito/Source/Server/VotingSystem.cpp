@@ -118,11 +118,14 @@ namespace Server::Voting
 	
 
 	void VotingSystem::Init() {
-		if (!LoadJson(Modules::ModuleServer::Instance().VarVotingJsonPath->ValueString))
+		std::string filename = Modules::ModuleServer::Instance().VarVotingJsonPath->ValueString.empty() ? Modules::ModuleServer::Instance().VarVotingJsonPath->DefaultValueString : Modules::ModuleServer::Instance().VarVotingJsonPath->ValueString;
+		if (!LoadJson(filename))
 			loadDefaultMapsAndTypes();
 	}
 	void VetoSystem::Init() {
-		if (!LoadJson(Modules::ModuleServer::Instance().VarVetoJsonPath->ValueString))
+
+		std::string filename = Modules::ModuleServer::Instance().VarVetoJsonPath->ValueString.empty() ? Modules::ModuleServer::Instance().VarVetoJsonPath->DefaultValueString : Modules::ModuleServer::Instance().VarVetoJsonPath->ValueString;
+		if (!LoadJson(filename))
 			loadDefaultMapsAndTypes();
 	}
 
