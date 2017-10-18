@@ -276,7 +276,7 @@ materialTreeListWidget.on('select', function(node) {
 	
 	screenManager.push('material_picker_material_list', {
 		onSelect: function(item, finished) {
-			if(!item || !item.value)
+		    if(!item || item.value === undefined)
 				return;
 
 			objectPropertiesWidget.setValue('appearance_material', item.value);
