@@ -5,8 +5,8 @@ namespace Server::Voting
 {
 	void Init();
 	void Tick();
-	bool ReloadVetoJson(std::string filename);
-	bool ReloadVotingJson(std::string filenam);
+	bool ReloadVetoJson();
+	bool ReloadVotingJson();
 	void PlayerJoinedVoteInProgress(int playerIndex);
 	void CancelVoteInProgress();
 	void StartNewVote();

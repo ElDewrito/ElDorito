@@ -72,11 +72,11 @@ namespace Server::Voting
 			elem->Init();
 		}
 	}
-	bool ReloadVotingJson(std::string filename) {
-		return votingSystem.ReloadVotingJson(filename);
+	bool ReloadVotingJson() {
+		return votingSystem.ReloadVotingJson(Modules::ModuleServer::Instance().VarVotingJsonPath->ValueString);
 	}
-	bool ReloadVetoJson(std::string filename) {
-		return vetoSystem.ReloadVotingJson(filename);
+	bool ReloadVetoJson() {
+		return vetoSystem.ReloadVotingJson(Modules::ModuleServer::Instance().VarVetoJsonPath->ValueString);
 	}
 	void Tick() 
 	{	

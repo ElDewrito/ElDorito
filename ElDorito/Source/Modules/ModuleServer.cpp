@@ -1176,13 +1176,7 @@ namespace
 	}
 	bool ReloadVetoJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if (Arguments.size() != 1)
-		{
-			returnInfo = "Invalid arguments";
-			return false;
-		}
-
-		if (!Server::Voting::ReloadVetoJson(Arguments[0]))
+		if (!Server::Voting::ReloadVetoJson())
 		{
 			returnInfo = "Failed - Defaults used instead - Check log.";
 			return false;
@@ -1194,13 +1188,7 @@ namespace
 	//At some point voting should be made it's own module, because it is littering the server module pretty hard. 
 	bool ReloadVotingJson(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		if (Arguments.size() != 1)
-		{
-			returnInfo = "Invalid arguments";
-			return false;
-		}
-
-		if (!Server::Voting::ReloadVotingJson(Arguments[0]))
+		if (!Server::Voting::ReloadVotingJson())
 		{
 			returnInfo = "Failed - Defaults used instead - Check log.";
 			return false;
@@ -1456,8 +1444,11 @@ namespace Modules
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
 
-		VarVotingJsonPath = AddVariableString("VotingJsonPath", "voting_json_path", "Voting Json Path", eCommandFlagsArchived, "mods/server/voting.json", ReloadVotingJson);
-		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "VetoJsonPath", eCommandFlagsArchived, "mods/server/veto.json", ReloadVetoJson);
+		VarVotingJsonPath = AddVariableString("VotingJsonPath", "voting_json_path", "Voting Json Path", eCommandFlagsArchived, "mods/server/voting.json");
+		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "VetoJsonPath", eCommandFlagsArchived, "mods/server/veto.json");
+
+		AddCommand("ReloadVotingJson", "reload_voting_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVotingJson);
+		AddCommand("ReloadVetoJson", "reload_veto_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVetoJson);
 
 		AddCommand("WebsocketInfo", "websocketinfo", "Display the websocket password for the current server", eCommandFlagsNone, CommandWebsocketInfo);
 
