@@ -7,26 +7,6 @@ namespace
 	void __fastcall c_map_variant_initialize_default_hook(Blam::MapVariant* thisptr, void* unused, int mapId);
 	int EnumerateMapsHook(int a1);
 
-	const auto CACHE_FILE_HEADER_SIZE = 0x3390;
-	const auto CACHE_FILE_MAP_DATA_SIZE = 0x12E30; // ugh
-	
-	const auto cache_file_valid_header = (bool(*)(uint8_t* header))(0x00501950);
-
-	const auto filo_create = (void*(*)(void *filo, char *filePath, bool a3))(0x00528550);
-	const auto file_open = (bool(*)(void* filo, int flags, int* pLastError))(0x52A220);
-	const auto file_get_size = (bool(*)(void* filo, long* pSize))(0x00529B00);
-	const auto file_read = (long(*)(void* filo, long size, int a3, void* buffer))(0x52A7E0);
-	const auto file_close = (bool(*)(void* filo))(0x00528B60);
-	const auto file_set_position = (bool(*)(void* filo, int offset, char a3))(0x0052B060);
-	const auto blf_file_header_valid = (bool(*)(uint8_t* buff, int size, bool* a3, bool* success))(0x00463540);
-	const auto blf_file_read_tag = (bool(*)(uint8_t* buff, int size, int a3, uint32_t signature, int a4,
-		int* pSize, uint8_t** pData, int a7, int a8, bool*success))(0x004630D0);
-	const auto maps_store_map_info = (bool(*)(uint8_t* mapinfo, char a2, char *mapsPath, char a4))(0x0054A6C0);
-	static auto maps_get_map_path = (void(*)(int campaignId, int mapid, char *buff, int buffLen))(0x0054C040);
-	const auto maps_get_maps_path = (char*(*)())(0x00501FC0);
-	const auto c_map_variant_copy = (void(__thiscall*)(Blam::MapVariant *thisptr, Blam::MapVariant *buff))(0x005860F0);
-	const auto c_map_variant_initialize = (void(__thiscall *)(Blam::MapVariant* thisptr, int mapId))(0x00581F70);
-
 	bool TryLoadDefaultMapVariant(int mapId, Blam::MapVariant* buffer);
 }
 
@@ -37,10 +17,18 @@ namespace Patches::Maps
 		Pointer(0x0054AD9B + 1).Write(uint32_t(&EnumerateMapsHook));
 		Hook(0x6A81CF, c_map_variant_initialize_default_hook, HookFlags::IsCall).Apply();
 		Hook(0x6A7954, c_map_variant_initialize_default_hook, HookFlags::IsCall).Apply();
+		Hook(0x6A77CA, c_map_variant_initialize_default_hook, HookFlags::IsCall).Apply();
+		Hook(0x6A78A3, c_map_variant_initialize_default_hook, HookFlags::IsCall).Apply();
+		Hook(0x6A79D9, c_map_variant_initialize_default_hook, HookFlags::IsCall).Apply();
+		// default to guardian
+		Patch(0x14BCA0, { 0xB8, 0x40, 0x01, 0x00, 0x00, 0xC3 }).Apply();
+
+		Patch(0x7004DF, { 0xEB }).Apply();
 	}
 
 	void InitializeMapVariant(Blam::MapVariant *mapv, int mapid)
 	{
+		const auto c_map_variant_initialize = (void(__thiscall *)(Blam::MapVariant* thisptr, int mapId))(0x00581F70);
 		// if we can't load the variant in the .map file, default to one generated from the scenario
 		if (!TryLoadDefaultMapVariant(mapid, mapv))
 			c_map_variant_initialize(mapv, mapid);
@@ -49,75 +37,53 @@ namespace Patches::Maps
 
 namespace
 {
-	bool ReadCacheFileHeader(void* filo, uint8_t* buff)
-	{
-		long fileSize;
-		if (!file_get_size(filo, &fileSize)
-			|| fileSize < CACHE_FILE_HEADER_SIZE
-			|| !file_read(filo, CACHE_FILE_HEADER_SIZE, 0, buff)
-			|| !cache_file_valid_header(buff))
-		{
-			return false;
-		}
-		return true;
-	}
+	const auto CACHE_FILE_HEADER_SIZE = 0x3390;
+	const auto MAP_INFO_SIZE = 0x89E0;
+	const auto MAPV_SIZE = 0xE0A0;
 
-	bool FindBlfTag(void* filo, uint32_t signature, uint8_t* buff, int buffSize, int offset, uint8_t** ppData)
-	{
-		int tagSize = 0;
-		bool byteswap = true;
-		uint8_t* dataStart;
-		bool eof;
-		bool success = false;
+	const auto filo_create = (void*(*)(void *filo, char *filePath, bool a3))(0x00528550);
+	const auto file_open = (bool(*)(void* filo, int flags, int* pLastError))(0x52A220);
+	const auto file_get_size = (bool(*)(void* filo, long* pSize))(0x00529B00);
+	const auto file_read = (long(*)(void* filo, long size, int a3, void* buffer))(0x52A7E0);
+	const auto file_close = (bool(*)(void* filo))(0x00528B60);
+	const auto file_set_position = (bool(*)(void* filo, int offset, char a3))(0x0052B060);
+	const auto maps_store_map_info = (bool(*)(uint8_t* mapinfo, char a2, char *mapsPath, char a4))(0x0054A6C0);
+	const auto maps_get_map_path = (void(*)(int campaignId, int mapid, char *buff, int buffLen))(0x0054C040);
+	const auto maps_get_maps_path = (char*(*)())(0x00501FC0);
+	const auto cache_file_valid_header = (bool(*)(uint8_t* header))(0x00501950);
 
-		if (blf_file_header_valid(buff, buffSize, &byteswap, (bool *)&tagSize))
-		{
-			uint8_t* p = buff + tagSize;
-			if (blf_file_read_tag(p, buffSize - tagSize, (int)&byteswap, signature, offset, &tagSize, &dataStart, 0, 0, &eof))
-			{
-				while (!eof)
-				{
-					if (dataStart)
-					{
-						*ppData = dataStart;
-						success = true;
-					}
-
-					p += tagSize;
-					if (!blf_file_read_tag(p, (buff - p) + buffSize, byteswap, signature, offset, &tagSize, &dataStart, 0, 0, &eof))
-						break;
-				}
-			}
-		}
-		return success;
-	}
-
-	void DeserializeAndStoreMapInfo(void* filo, char* mapsPath)
+	bool DeserializeAndStoreMapInfo(void* filo, char* mapsPath)
 	{
 		int lastError;
 		long fileSize;
-
-		uint8_t cacheFileHeader[CACHE_FILE_HEADER_SIZE], mapInfo[0x98C0] = { 0 };
+		bool success = false;
 
 		// read the cache file header
-		if (!file_get_size(filo, &fileSize) || fileSize < (CACHE_FILE_HEADER_SIZE + CACHE_FILE_MAP_DATA_SIZE)
+		uint8_t cacheFileHeader[CACHE_FILE_HEADER_SIZE];
+		if (!file_get_size(filo, &fileSize) || fileSize < CACHE_FILE_HEADER_SIZE
 			|| !file_open(filo, 1, &lastError)
 			|| !file_read(filo, CACHE_FILE_HEADER_SIZE, 0, cacheFileHeader) || !cache_file_valid_header(cacheFileHeader))
 		{
 			file_close(filo);
-			return;
+			return false;
 		}
 
-		// find the mapinfo
-		uint8_t buff[CACHE_FILE_MAP_DATA_SIZE];
-		if (file_read(filo, sizeof(buff), 0, buff))
+		uint8_t blfhead[0x30];
+		if ((fileSize - 0x30) <= 0 || !file_read(filo, 0x30, 0, blfhead) || *(uint32_t*)blfhead != 'flb_')
 		{
-			uint8_t* mapInfoStart;
-			if (FindBlfTag(filo, 'levl', buff, sizeof(buff), 0, &mapInfoStart))
-				maps_store_map_info(mapInfoStart - 0xC, 0, mapsPath, 0);
+			file_close(filo);
+			return false;
+		}
+
+		uint8_t mapi[MAP_INFO_SIZE];
+		if ((fileSize - MAP_INFO_SIZE) >= 0 && file_read(filo, MAP_INFO_SIZE, 0, mapi))
+		{
+			maps_store_map_info(mapi, 0, mapsPath, 0);
+			success = true;
 		}
 
 		file_close(filo);
+		return success;
 	}
 
 	bool TryLoadDefaultMapVariant(int mapId, Blam::MapVariant* buffer)
@@ -129,34 +95,23 @@ namespace
 			return false;
 		strcat_s(mapPath, 256, ".map");
 
-		int lastError;
-		long fileSize;
-		uint8_t cacheFileHeader[CACHE_FILE_HEADER_SIZE];
-
 		// create a filo instance and attempt to open the .map
 		uint8_t filo[0x220];
 		filo_create(filo, mapPath, true);
 
-		// read the cache file header
-		if (!file_get_size(filo, &fileSize) || fileSize < CACHE_FILE_HEADER_SIZE
-			|| !file_open(filo, 1, &lastError)
-			|| !file_read(filo, CACHE_FILE_HEADER_SIZE, 0, cacheFileHeader) || !cache_file_valid_header(cacheFileHeader))
-		{
-			file_close(filo);
-			return false;
-		}
-
-		// find the mapv and copy into the supplied buffer
+		int lastError;
+		long fileSize;
 		bool success = false;
-		uint8_t buff[CACHE_FILE_MAP_DATA_SIZE];
-		if (file_read(filo, sizeof(buff), 0, buff))
+
+		const auto offset = CACHE_FILE_HEADER_SIZE + MAP_INFO_SIZE;
+		// read the mapv
+		uint8_t buff[MAPV_SIZE];
+		if (file_get_size(filo, &fileSize) && file_open(filo, 1, &lastError)
+			&& (fileSize - offset) >= MAPV_SIZE && file_set_position(filo, offset, 0)
+			&& file_read(filo, MAPV_SIZE, 0, buff) && *(uint32_t*)buff == 'vpam')
 		{
-			uint8_t* mapvStart;
-			if (FindBlfTag(filo, 'mapv', buff, sizeof(buff), 0xC, &mapvStart))
-			{
-				c_map_variant_copy((Blam::MapVariant*)(mapvStart + 4), buffer);
-				success = true;
-			}
+			memcpy((void*)buffer, buff + 0x10, sizeof(Blam::MapVariant));
+			success = true;
 		}
 
 		file_close(filo);
@@ -175,6 +130,8 @@ namespace
 		const auto sub_52B830 = (wchar_t*(__cdecl*) (int a1, int a2, void *filo))(0x52B830);
 		const auto c_filo_get_file_name_part = (wchar_t *(__cdecl *)(void *filo, int flags, wchar_t *buff, int a4))(0x005286E0);
 		const auto string_util_unicode_to_ascii = (void(__thiscall*)(char* dest, wchar_t* src))(0x004EC470);
+		const auto maps_read_map_cache_file = (void(*)(void *fileo, char *mapsPath))(0x0054C530);
+		const auto maps_read_campaign = (bool(*)(void *filo, wchar_t *path, bool a3))(0x0054C3C0);
 
 		uint8_t filo[0x1000];
 		if (*(uint32_t *)a1)
@@ -197,7 +154,12 @@ namespace
 
 				if (!wcscmp(extension, L"map"))
 				{
-					DeserializeAndStoreMapInfo(filo, asciiFileName);
+					if (!DeserializeAndStoreMapInfo(filo, asciiFileName))
+						maps_read_map_cache_file(filo, asciiFileName);
+				}
+				else if (!wcscmp(extension, L"campaign"))
+				{
+					maps_read_campaign(filo, fileName, 1);
 				}
 			}
 		}
