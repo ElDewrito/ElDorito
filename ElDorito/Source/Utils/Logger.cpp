@@ -1,5 +1,4 @@
 #include "Logger.hpp"
-#include "../Modules/ModuleGame.hpp"
 #include <iomanip>
 #include <fstream>
 #include <sstream>
@@ -132,9 +131,8 @@ namespace Utils
 
 		auto& gameModule = Modules::ModuleGame::Instance();
 
-		auto LogsLocation = Modules::ModuleGame::Instance().VarLogsLocation->ValueString;
 		std::ofstream outfile;
-		outfile.open(LogsLocation + gameModule.VarLogName->ValueString, std::ios_base::app);
+		outfile.open(gameModule.VarLogName->ValueString, std::ios_base::app);
 		if (outfile.fail())
 			return;
 

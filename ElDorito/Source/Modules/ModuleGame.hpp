@@ -10,7 +10,6 @@ namespace Modules
 		Command* VarLanguage;
 		Command* VarSkipTitleSplash;
 		Command* VarSkipIntroVideos;
-		Command* VarLogsLocation;
 		Command* VarLogName;
 		Command* VarMenuURL;
 		Command* VarRconPort;

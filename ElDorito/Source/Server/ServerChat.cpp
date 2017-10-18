@@ -284,9 +284,8 @@ namespace
 			return;
 
 		// Try to open the log file for appending
-		auto LogsLocation = Modules::ModuleGame::Instance().VarLogsLocation->ValueString;
 		auto chatLogFile = Modules::ModuleServer::Instance().VarChatLogFile->ValueString;
-		std::ofstream logFile(LogsLocation + chatLogFile, std::ios::app);
+		std::ofstream logFile(chatLogFile, std::ios::app);
 		if (!logFile)
 			return;
 
