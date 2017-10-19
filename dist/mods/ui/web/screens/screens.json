@@ -110,12 +110,6 @@
 			"zIndex": 2
 		},
         {
-			"id": "timer",
-			"url": "dew://screens/timer/",
-			"captureInput": false,
-			"zIndex": 0
-		},
-        {
 			"id": "weapon_offset",
 			"url": "dew://screens/weapon_offset/",
 			"captureInput": true,
