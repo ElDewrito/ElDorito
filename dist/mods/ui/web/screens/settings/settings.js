@@ -109,10 +109,10 @@ var binds = [
     ['TeamChat','Team Chat','UI'],
     ['UseEquipment','Use Equipment','Infantry'],
     ['VoiceChat','Voice Chat PTT','UI'],
-    ['Forward','Forward','UI'],
-    ['Back','Back','UI'],
-    ['Left','Left','UI'],
-    ['Right','Right','UI'],
+    ['Forward','Forward','Infantry'],
+    ['Back','Back','Infantry'],
+    ['Left','Left','Infantry'],
+    ['Right','Right','Infantry'],
     ['NextPlayer','Spectate Next Player','UI'],
     ['PrevPlayer','Spectate Prev Player','UI'],
     ['UiLeftBumper','UiLeftBumper','UI'],
@@ -801,10 +801,12 @@ function effectReset(){
 
 function applyBinds(){
     for(i=0; i<$('#bindBox tbody tr').length; i++){
-        var action = $('#bindBox tbody tr').eq(i).find('td').eq(0).text();
-        var primaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(0).val();
-        var secondaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(1).val();
-        dew.command('Input.KeyboardAction ' + action + ' ' + primaryKey + ' ' + secondaryKey);
+        if($('#bindBox tbody tr').eq(i).attr('id')){
+            var action = $('#bindBox tbody tr').eq(i).attr('id');
+            var primaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(0).val();
+            var secondaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(1).val();
+            dew.command('Input.KeyboardAction ' + action + ' ' + primaryKey + ' ' + secondaryKey);
+        }
     }
     dew.command('writeconfig');
 }
@@ -882,7 +884,7 @@ function initializeBindings(){
                     if(bindDump[i].secondaryMouseButton != 'none'){
                         secondaryBind = bindDump[i].secondaryMouseButton;
                     }
-                    $('#bindBox .'+result[2]).append($('<tr><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
+                    $('#bindBox .'+result[2]).append($('<tr id="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
                 }
                 }
             })
@@ -920,6 +922,9 @@ function initializeBindings(){
                 if((e.keyCode >= 65 && e.keyCode <= 90) || (e.keyCode >= 48 && e.keyCode < 58))
                     this_.val( String.fromCharCode(e.keyCode));
 
+                if(e.keyCode >= 96 && e.keyCode <=105)
+                    this_.val('Numpad'+String(parseInt(e.keyCode)-96))
+                
                 switch(e.keyCode){
                     case 8: 
                         this_.val('Back'); 
@@ -928,7 +933,11 @@ function initializeBindings(){
                         this_.val('Tab'); 
                     break;
                     case 13:
-                        this_.val('Enter');
+                        if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_NUMPAD){
+                            this_.val('NumpadEnter');
+                        }else{
+                            this_.val('Enter');
+                        }
                     break;
                     case 16: 
                         if(e.originalEvent.location === KeyboardEvent.DOM_KEY_LOCATION_LEFT){
@@ -956,8 +965,65 @@ function initializeBindings(){
                     case 32: 
                         this_.val('Space'); 
                     break;
+                    case 37: 
+                        this_.val('Left'); 
+                    break;
+                    case 38: 
+                        this_.val('Up'); 
+                    break;
+                    case 39: 
+                        this_.val('Right'); 
+                    break;
+                    case 40: 
+                        this_.val('Down'); 
+                    break;
                     case 46: 
                         this_.val('Delete'); 
+                    break;
+                    case 106: 
+                        this_.val('Multiply'); 
+                    break;
+                    case 107: 
+                        this_.val('Add'); 
+                    break;
+                    case 109: 
+                        this_.val('Subtract'); 
+                    break;
+                    case 110: 
+                        this_.val('Decimal'); 
+                    break;
+                    case 111: 
+                        this_.val('Divide'); 
+                    break;
+                    case 186: 
+                        this_.val('Colon'); 
+                    break;
+                    case 187: 
+                        this_.val('Plus'); 
+                    break;
+                    case 188: 
+                        this_.val('Comma'); 
+                    break;
+                    case 189: 
+                        this_.val('Minus'); 
+                    break;
+                    case 190: 
+                        this_.val('Period'); 
+                    break;
+                    case 191: 
+                        this_.val('Question'); 
+                    break;
+                    case 219: 
+                        this_.val('LBracket'); 
+                    break;
+                    case 220: 
+                        this_.val('Pipe'); 
+                    break;
+                    case 221: 
+                        this_.val('RBracket'); 
+                    break;
+                    case 222: 
+                        this_.val('Quote'); 
                     break;
                     default:
                         //console.log(e.keyCode);
