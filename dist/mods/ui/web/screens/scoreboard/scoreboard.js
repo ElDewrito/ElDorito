@@ -224,10 +224,10 @@ $(document).ready(function(){
         callback: function(key, options){
             switch(key){
                 case "kick":
-                    dew.command("Server.KickUid " + flipUID($(this).attr('data-uid')));
+                    dew.command("Server.KickUid " + $(this).attr('data-uid'));
                     break;
                 case "ban":
-                    dew.command("Server.KickBanUid " + flipUID($(this).attr('data-uid')));
+                    dew.command("Server.KickBanUid " + $(this).attr('data-uid'));
                     break;
                 case "mute":
                     setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),0);
@@ -788,16 +788,6 @@ function adjustColor(color, amount){
         }
     }
     return "#" + colorhex[0] + colorhex[1] + colorhex[2];
-}
-
-
-function flipUID(uid){
-    var bits = uid.match(/.{1,2}/g);
-    var newUID = "";
-    for (var i = 0; i < bits.length; i++){
-        newUID = bits[i] + newUID;
-    }
-    return newUID;
 }
 
 function onControllerConnect(){
