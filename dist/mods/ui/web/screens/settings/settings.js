@@ -801,8 +801,9 @@ function effectReset(){
 
 function applyBinds(){
     for(i=0; i<$('#bindBox tbody tr').length; i++){
-        if($('#bindBox tbody tr').eq(i).attr('id')){
-            var action = $('#bindBox tbody tr').eq(i).attr('id');
+        var attr = $('#bindBox tbody tr').eq(i).attr('data-action');
+        if (typeof attr !== typeof undefined){
+            var action = $('#bindBox tbody tr').eq(i).attr('data-action');
             var primaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(0).val();
             var secondaryKey = $('#bindBox tbody tr').eq(i).find('input').eq(1).val();
             dew.command('Input.KeyboardAction ' + action + ' ' + primaryKey + ' ' + secondaryKey);
@@ -884,7 +885,7 @@ function initializeBindings(){
                     if(bindDump[i].secondaryMouseButton != 'none'){
                         secondaryBind = bindDump[i].secondaryMouseButton;
                     }
-                    $('#bindBox .'+result[2]).append($('<tr id="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
+                    $('#bindBox .'+result[2]).append($('<tr data-action="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
                 }
                 }
             })
