@@ -63,7 +63,7 @@ namespace ChatCommands
 	void EndGameCommand::doOnVotePass()
 	{
 		Server::Chat::SendServerMessage("Vote Has Passed");
-		Modules::CommandMap::Instance().ExecuteCommand("game.stop");
+		Modules::CommandMap::Instance().ExecuteCommand("game.end");
 	}
 	bool EndGameCommand::isEnabled()
 	{
