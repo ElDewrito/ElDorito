@@ -26,10 +26,12 @@ namespace
 {
 	bool locked = false;
 	bool postgame = false;
+	bool returningToLobby = false;
+	bool acceptsInput = true;
 	bool pressedLastTick = false;
 	int lastPressedTime = 0;
 	int postgameDisplayed;
-	const time_t postgameDelayTime = 4.7;
+	const float postgameDelayTime = 2;
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
@@ -67,13 +69,94 @@ namespace Web::Ui::WebScoreboard
 
 	void Tick()
 	{
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
+		const auto is_main_menu = (bool(*)())(0x00531E90);
+		static auto previousMapLoadingState = 0;
+		static auto previousEngineState = 0;
+		static bool previousHasUnit = -1;
+
 		if (postgame)
 		{
 			if (Blam::Time::TicksToSeconds((Blam::Time::GetGameTicks() - postgameDisplayed)) > postgameDelayTime)
 			{
 				Web::Ui::WebScoreboard::Show(locked, postgame);
+				acceptsInput = false;
 				postgame = false;
+				returningToLobby = true;
 			}
+		}
+		auto isMainMenu = is_main_menu();
+
+		auto currentMapLoadingState = *(bool*)0x023917F0;
+		if (previousMapLoadingState && !currentMapLoadingState)
+		{
+			
+			if (isMainMenu)
+			{
+				returningToLobby = false;
+				acceptsInput = true;
+				Web::Ui::WebScoreboard::Hide();
+			}
+			else
+			{
+				locked = false;
+				postgame = false;
+				acceptsInput = false;
+				Web::Ui::WebScoreboard::Show(locked, postgame);
+			}
+		}
+		else if (!previousMapLoadingState && currentMapLoadingState && isMainMenu && !returningToLobby)
+		{
+			locked = false;
+			postgame = false;
+			Web::Ui::WebScoreboard::Hide();
+		}
+		previousMapLoadingState = currentMapLoadingState;
+
+		auto engineGlobals = ElDorito::GetMainTls(0x48)[0];
+		if (!engineGlobals)
+			return;
+
+		auto currentEngineState = engineGlobals(0xE110).Read<uint8_t>();	
+		if (previousEngineState & 8 && !(currentEngineState & 8)) // summary ui
+		{
+			locked = false;
+			postgame = false;
+			acceptsInput = true;
+			Web::Ui::WebScoreboard::Hide();
+		}
+		previousEngineState = currentEngineState;
+
+		if (game_engine_round_in_progress())
+		{
+			Blam::Players::PlayerDatum *player{ nullptr };
+			auto playerIndex = Blam::Players::GetLocalPlayer(0);
+			if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+				return;
+
+			auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
+			auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
+
+			if (player->SlaveUnit != Blam::DatumIndex::Null)
+			{
+				if (!previousHasUnit)
+				{
+					acceptsInput = true;
+					Web::Ui::WebScoreboard::Hide();
+				}
+			}
+			else
+			{
+				if (!firstTimeSpawning && secondsUntilSpawn > 0 && secondsUntilSpawn < 2)
+				{
+					locked = false;
+					postgame = false;
+					acceptsInput = false;
+					Web::Ui::WebScoreboard::Show(locked, postgame);
+				}
+			}
+
+			previousHasUnit = player->SlaveUnit != Blam::DatumIndex::Null;
 		}
 	}
 
@@ -241,10 +324,9 @@ namespace
 		//Update the scoreboard whenever an event occurs
 		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
 
-		if (event->NameStringId == 0x4004D)// "general_event_game_over"
+		if (event->NameStringId == 0x4004D || event->NameStringId == 0x4005A) // "general_event_game_over" / "general_event_round_over"
 		{
 			postgameDisplayed = Blam::Time::GetGameTicks();
-			locked = true;
 			postgame = true;
 		}
 	}
@@ -257,34 +339,36 @@ namespace
 
 	void OnGameInputUpdated()
 	{
-		BindingsTable bindings;
-		GetBindings(0, &bindings);
+		if (!acceptsInput)
+			return;
 
 		auto uiSelect = GetActionState(eGameActionUiSelect);
 
-		if (uiSelect->Ticks == 1 && strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") != 0)
+		if (!(uiSelect->Flags & eActionStateFlagsHandled) && uiSelect->Ticks == 1)
 		{
 			uiSelect->Flags |= eActionStateFlagsHandled;
 
-			//If shift is held down or was pressed again within the repeat delay, lock the scoreboard
-			locked = GetKeyTicks(eKeyCodeShift, eInputTypeUi) ||
-				(Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - lastPressedTime) < 0.25f && Modules::ModuleInput::Instance().VarTapScoreboard->ValueInt == 1);
-
-			Web::Ui::WebScoreboard::Show(locked, postgame);
-
-			pressedLastTick = true;
-			lastPressedTime = Blam::Time::GetGameTicks();
-		}
-
-		if (!locked && !postgame)
-		{
-			//Hide the scoreboard when you release tab. Only check when the scoreboard isn't locked.
-			if (pressedLastTick && uiSelect->Ticks == 0)
+			if (strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") != 0)
 			{
-				Web::Ui::WebScoreboard::Hide();
-				pressedLastTick = false;
-				locked = false;
+				//If shift is held down or was pressed again within the repeat delay, lock the scoreboard
+				locked = GetKeyTicks(eKeyCodeShift, eInputTypeUi) || ((GetTickCount() - lastPressedTime) < 250
+					&& Modules::ModuleInput::Instance().VarTapScoreboard->ValueInt == 1);
+
+				Web::Ui::WebScoreboard::Show(locked, postgame);
+
+				lastPressedTime = GetTickCount();
+				pressedLastTick = true;	
 			}
+			else
+			{
+				Web::Ui::WebScoreboard::Show(true, false);
+			}
+		}
+		//Hide the scoreboard when you release tab. Only check when the scoreboard isn't locked.
+		else if(!locked && !postgame && pressedLastTick && uiSelect->Ticks == 0)
+		{		
+			Web::Ui::WebScoreboard::Hide();
+			pressedLastTick = false;		
 		}
 	}
 }

@@ -238,11 +238,9 @@ namespace
 
 		auto secondsUntilPlayerSpawn = GetSecondsRemainingUntilPlayerSpawn();
 
-
 		// update pre-match camera
 		if (InPrematchState(4))
 		{
-
 			if (s_CameraObjectIndex == -1)
 				s_CameraObjectIndex = Forge::PrematchCamera::FindCameraObject();
 
@@ -438,34 +436,25 @@ namespace
 	void SpawnTimerUpdate()
 	{
 		const auto ui_play_sound = (void(*)(int index, uint32_t uise))(0x00AA5CD0);
-		static auto scoreboardShown = false;
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
+
 		static auto lastBeep = 0;
 
+		Blam::Players::PlayerDatum *player{ nullptr };
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null)
-			return;
-		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (!player)
+		if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 			return;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 		auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
 
-		if (!scoreboardShown && !firstTimeSpawning && secondsUntilSpawn > 0 && secondsUntilSpawn < 2)
+		if(game_engine_round_in_progress() || player->SlaveUnit == Blam::DatumIndex::Null)
 		{
-			Web::Ui::WebScoreboard::Show(false, false);
-			scoreboardShown = true;
-		}
-		else if (scoreboardShown && player->SlaveUnit != Blam::DatumIndex::Null)
-		{
-			Web::Ui::WebScoreboard::Hide();
-			scoreboardShown = false;
-		}
-
-		if (secondsUntilSpawn != lastBeep && secondsUntilSpawn < 3)
-		{
-			lastBeep = secondsUntilSpawn;
-			ui_play_sound(13, -1);
+			if (secondsUntilSpawn != lastBeep && secondsUntilSpawn < 3)
+			{
+				lastBeep = secondsUntilSpawn;
+				ui_play_sound(13, -1);
+			}
 		}
 	}
 
