@@ -530,7 +530,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
 
-            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="5" step="1" value="5"></input>')) //voip speaking indicator        
+            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator        
             $.grep(volArray, function(result, index){
                 if(result){
                     if(result[0] == lobby[i].name){
@@ -561,7 +561,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         }      
         $('.volSlider').on('change click', function(e){
             e.stopPropagation();
-            setPlayerVolume($(this).parent().parent().attr('id'),$(this).parent().parent().attr('data-uid'),$(this).val() * 20);
+            setPlayerVolume($(this).parent().parent().attr('id'),$(this).parent().parent().attr('data-uid'),$(this).val());
             displayScoreboard(expandedScoreboard);
         });
         $('.speaker').on('click', function(e){
