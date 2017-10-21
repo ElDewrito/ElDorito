@@ -91,12 +91,19 @@ function createPeer(data) {
     peerCons[data.uid].onaddstream = remotestream;
     peerCons[data.uid].onicecandidate = sendicecandidate;
     peerCons[data.uid].oniceconnectionstatechange = icechange;
+    peerCons[data.uid].onclose = removePeer;
     peerCons[data.uid].connectedState = false;
+    //peer information
     peerCons[data.uid].uid = data.uid;
     peerCons[data.uid].user = data.uid.split("|")[0];
-    peerCons[data.uid].onclose = removePeer;
+    //speaking
     peerCons[data.uid].speakingVolume = -Infinity;
     peerCons[data.uid].lastSpoke = 0;
+    //stream and processing
+    peerCons[data.uid].audioCtx = null;
+    peerCons[data.uid].gainNode = null;
+    peerCons[data.uid].audioObj = null;
+
     peerIds.push(data.uid);
 }
 
@@ -109,10 +116,10 @@ function removePeer(uid) {
     if (!uid)
         uid = this.uid; //if the close handler called us
 
-    removeElement(document.getElementById(uid));
-
     var index = peerIds.indexOf(uid);
     peerIds.splice(index, 1);
+
+    peerCons[uid].audioCtx.close();
 
     delete peerCons[uid];
     stopSpeak(uid.split("|")[0]);
@@ -156,13 +163,27 @@ function sendicecandidate(event) {
 function remotestream(event) {
     this.connectedState = true;
     console.log('got stream from: ' + this.uid);
-    $("#remoteVideos").append("<video id=\"" + this.uid + "\" autoplay=\"true\"></video>");
-    document.getElementById(this.uid).src = window.URL.createObjectURL(event.stream);
+
+    var username = this.user;
+    var peer = this;
+
+    peer.audioCtx = new AudioContext();
+    peer.audioObj = new Audio();
+
+    peer.audioObj.srcObject = event.stream;
+    peer.gainNode = peer.audioCtx.createGain();
+    peer.gainNode.gain.value = 1.0;
+    peer.audioObj.onloadedmetadata = function () {
+        var source = peer.audioCtx.createMediaStreamSource(peer.audioObj.srcObject);
+        peer.audioObj.play();
+        peer.audioObj.muted = true;
+        source.connect(peer.gainNode);
+        peer.gainNode.connect(peer.audioCtx.destination);
+    }
+
     this.speech = window.hark(event.stream, {
             "threshold": "-60"
         });
-    var username = this.user;
-    var peer = this;
     this.speech.on("speaking", function () {
         speak(username, peer);
     });
@@ -474,7 +495,7 @@ function startConnection(info) {
 }
 
 function setVolume(uid, volume) {
-    document.getElementById(uid).volume = volume;
+    peerCons[uid].gainNode.gain.value = volume;
 }
 
 function retry() {
