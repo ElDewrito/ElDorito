@@ -534,7 +534,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             $.grep(volArray, function(result, index){
                 if(result){
                     if(result[0] == lobby[i].name){
-                        $('#'+lobby[i].name).find('.volSlider').val(result[1]);
+                        $('#'+lobby[i].name).find('.volSlider').val(result[2]);
                         if(result[1] < 2){
                             $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
                         }else if(result[1] < 4){
