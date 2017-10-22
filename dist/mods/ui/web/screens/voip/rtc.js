@@ -14,6 +14,8 @@ var peerConnectionConfig = {
 var speaking = [];
 var Microphone, EchoCancellation, AGC, NoiseSupress;
 
+var audioCtx = new AudioContext();
+
 function OnMessage(msg) {
     if (msg.data == "bad password") {
         console.log("bad password");
@@ -100,7 +102,6 @@ function createPeer(data) {
     peerCons[data.uid].speakingVolume = -Infinity;
     peerCons[data.uid].lastSpoke = 0;
     //stream and processing
-    peerCons[data.uid].audioCtx = null;
     peerCons[data.uid].gainNode = null;
     peerCons[data.uid].audioObj = null;
 
@@ -118,8 +119,6 @@ function removePeer(uid) {
 
     var index = peerIds.indexOf(uid);
     peerIds.splice(index, 1);
-
-    peerCons[uid].audioCtx.close();
 
     delete peerCons[uid];
     stopSpeak(uid.split("|")[0]);
@@ -167,18 +166,16 @@ function remotestream(event) {
     var username = this.user;
     var peer = this;
 
-    peer.audioCtx = new AudioContext();
     peer.audioObj = new Audio();
-
     peer.audioObj.srcObject = event.stream;
-    peer.gainNode = peer.audioCtx.createGain();
+    peer.gainNode = audioCtx.createGain();
     peer.gainNode.gain.value = 1.0;
     peer.audioObj.onloadedmetadata = function () {
-        var source = peer.audioCtx.createMediaStreamSource(peer.audioObj.srcObject);
+        var source = audioCtx.createMediaStreamSource(peer.audioObj.srcObject);
         peer.audioObj.play();
         peer.audioObj.muted = true;
         source.connect(peer.gainNode);
-        peer.gainNode.connect(peer.audioCtx.destination);
+        peer.gainNode.connect(audioCtx.destination);
     }
 
     this.speech = window.hark(event.stream, {
