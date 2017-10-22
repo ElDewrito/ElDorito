@@ -552,6 +552,9 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                         $('.teamHeader .name').attr('colspan',6);
                 }
             }
+			else{
+				$('.teamHeader .name').attr('colspan',2);
+			}
 			$("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
 			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .playerRank").prepend('<img class="rankimg" src="'+rankPath+'">');
