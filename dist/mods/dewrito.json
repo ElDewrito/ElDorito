@@ -35,6 +35,7 @@
 	"statsServers":[{
 		"url": "http://new.halostats.click/api/submit"
 	}],
+	"nonAllowedNames":[],
     "masterServers": [{
         "list": "http://158.69.166.144:8080/list",
         "announce": "http://158.69.166.144:8080/announce",

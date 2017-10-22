@@ -1490,5 +1490,36 @@ namespace Modules
 #endif
 
 		PingId = Patches::Network::OnPong(PongReceived);
+		refreshNonAllowedNames();
+	}
+
+	void ModuleServer::refreshNonAllowedNames() {
+
+		NonAllowedNames.clear();
+		std::ifstream in("mods/dewrito.json", std::ios::in | std::ios::binary);
+		if (in && in.is_open())
+		{
+			std::string contents;
+			in.seekg(0, std::ios::end);
+			contents.resize((unsigned int)in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&contents[0], contents.size());
+			in.close();
+
+			rapidjson::Document json;
+			if (!json.Parse<0>(contents.c_str()).HasParseError() && json.IsObject())
+			{
+				if (json.HasMember("nonAllowedNames"))
+				{
+					auto& namesArray = json["nonAllowedNames"];
+					for (rapidjson::SizeType i = 0; i < namesArray.Size(); i++)
+					{
+						std::string name = namesArray[i].GetString();
+						std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+						NonAllowedNames.insert(name);
+					}
+				}
+			}
+		}
 	}
 }

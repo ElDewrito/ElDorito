@@ -2,6 +2,7 @@
 
 #include "ModuleBase.hpp"
 #include <cstdint>
+#include <unordered_set>
 
 namespace Modules
 {
@@ -69,6 +70,9 @@ namespace Modules
 		Command* VarVetoVotePassPercentage;
 		Command* VarVotingJsonPath;
 		Command* VarVetoJsonPath;
+
+		std::unordered_set<std::string> NonAllowedNames = std::unordered_set<std::string>{};
+		void refreshNonAllowedNames();
 
 		uint8_t SyslinkData[0x176];
 

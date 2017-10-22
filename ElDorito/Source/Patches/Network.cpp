@@ -700,7 +700,14 @@ namespace
 		RegisterPacketPtr RegisterPacket = reinterpret_cast<RegisterPacketPtr>(0x4801B0);
 		RegisterPacket(thisPtr, packetId, packetName, arg8, newSize, newSize, serializeFunc, deserializeFunc, arg1C, arg20);
 	}
-
+	bool IsNameNotAllowed(std::string name)
+	{
+		for (std::string s : Modules::ModuleServer::Instance().NonAllowedNames) {
+			if (name.find(s) != std::string::npos)
+				return true;
+		}
+		return false;
+	}
 	void SanitizePlayerName(wchar_t *name)
 	{
 		int i, dest = 0;
@@ -729,6 +736,14 @@ namespace
 		memset(&name[dest], 0, (16 - dest) * sizeof(wchar_t));
 		if (dest == 0)
 			wcscpy_s(name, 16, L"Forgot");
+		else {
+			std::string lowercasename = Utils::String::ThinString(name);
+			std::transform(lowercasename.begin(), lowercasename.end(), lowercasename.begin(), ::tolower);
+			if (IsNameNotAllowed(lowercasename))
+				wcscpy_s(name, 16, L"Filtered");
+		}
+			
+		
 	}
 
 	// Applies player properties data including extended properties
