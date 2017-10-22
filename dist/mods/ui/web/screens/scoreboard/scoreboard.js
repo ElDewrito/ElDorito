@@ -330,6 +330,26 @@ dew.on("voip-user-volume", function(e){
 		displayScoreboard();
     */
     }
+	
+	var uid = "";
+	var level = 0;
+	$.grep(volArray, function(result, index){
+        if(result){
+            if(result[0] == e.data.user){
+				uid = result[1];
+				level = result[2];
+				if(e.data.volume < -75){
+					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
+				}else if(e.data.volume < -50){
+					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
+				}else{
+					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
+				};
+                volArray.splice(index,1);
+            };
+        }
+    });
+    volArray.push([e.data.user, uid, level, e.data.volume]);
 });
 
 dew.on("voip-peers", function(e){
@@ -530,21 +550,22 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
 
-            $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src="dew://assets/emblems/speaker-full.png"><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator        
-            $.grep(volArray, function(result, index){
-                if(result){
-                    if(result[0] == lobby[i].name){
-                        $('#'+lobby[i].name).find('.volSlider').val(result[2]);
-                        if(result[1] < 2){
-                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
-                        }else if(result[1] < 4){
-                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
-                        }else{
-                            $('#'+lobby[i].name).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
-                        };
-                    }
-                }
-            });            
+			var thisSpeakerIcon = "";
+			var isInVoip = false;
+			var volumeLevel = 100;
+			$.grep(volArray, function (result, index) {
+			    if (result) {
+			        if (result[0] == lobby[i].name) {
+			            thisSpeakerIcon = "dew://assets/emblems/speaker-off.png";
+			            isInVoip = true;
+			            volumeLevel = result[2];
+			        }
+			    }
+			});
+			if (isInVoip)
+			    $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker talking" src="' + thisSpeakerIcon + '"><input class="volSlider" type="range" min="0" max="200" step="1" value="' + volumeLevel + '"></input>')) //voip speaking indicator
+			    else
+			        $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src=""><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator
             if(lobby[i].hasObjective){
                 $('.objective').remove();
                 if(gameType == "oddball"||gameType == "assault"||gameType == "ctf"){
@@ -567,8 +588,8 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         $('.speaker').on('click', function(e){
             e.stopPropagation();
             $(this).parent().find('.volSlider').show(); 
-        });  
-    }  
+        });
+    }
 }
 
 function hexToRgb(hex, opacity){
@@ -850,14 +871,16 @@ function checkGamepad(){
 
 var volArray = [];
 function setPlayerVolume(name,uid,level){
+	var speakingLevel = 0;
     $.grep(volArray, function(result, index){
         if(result){
             if(result[0] == name){
+				speakingLevel = result[3];
                 volArray.splice(index,1);
             };
         }
     });
-    volArray.push([name, uid, level]);
+    volArray.push([name, uid, level, speakingLevel]);
     dew.show("voip", {
         volume:{
             uid:name + "|" + uid,
@@ -871,6 +894,6 @@ function isSpeaking(name,visible){
     if(visible){
         $('#'+name).find('.speaker').addClass('talking');
     }else{
-        $('#'+name).find('.speaker').removeClass('talking');  
+        //$('#'+name).find('.speaker').removeClass('talking');  
     }
 }
