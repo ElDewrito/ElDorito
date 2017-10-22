@@ -57,9 +57,13 @@ html {
     display:table-row;
 }
 
-.score{
+.score, .playerRank{
     background-color:rgba(0, 0, 0, 0) !important;
 }
+.playerRank{
+ width:40px;
+}
+
 
 .stat{
     width:80px;
@@ -68,6 +72,12 @@ html {
 .name{
     text-align:left;
     padding-left:1.5%;
+}
+
+.rankimg{
+	height:22px;
+	margin-right:1px;
+    margin-bottom:-5px;
 }
 
 .emblem{
