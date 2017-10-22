@@ -1496,7 +1496,7 @@ namespace Modules
 	void ModuleServer::refreshNonAllowedNames() {
 
 		NonAllowedNames.clear();
-		std::ifstream in("mods/dewrito.json", std::ios::in | std::ios::binary);
+		std::ifstream in("mods/server/server.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
 		{
 			std::string contents;
@@ -1521,5 +1521,25 @@ namespace Modules
 				}
 			}
 		}
+		else {
+			//need to create file
+			std::ofstream outFile("mods/server/server.json", std::ios::out | std::ios::binary);
+			if (outFile.fail())
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Failed to create server.json");
+				return;
+			}
+			rapidjson::StringBuffer s;
+			rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+			writer.StartObject();
+			writer.Key("nonAllowedNames");
+			writer.StartArray();
+			writer.EndArray();
+			writer.EndObject();
+
+			outFile << s.GetString();
+
+		}
+
 	}
 }
