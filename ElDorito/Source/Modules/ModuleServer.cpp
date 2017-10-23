@@ -1386,6 +1386,9 @@ namespace Modules
 		AddCommand("AddBan", "addban", "Adds to the ban list (does NOT kick anyone)", eCommandFlagsNone, CommandServerBan, { "type The ban type (only \"ip\" is supported for now)", "val The value to add to the ban list" });
 		AddCommand("Unban", "unban", "Removes from the ban list", eCommandFlagsNone, CommandServerUnban, { "type The ban type (only \"ip\" is supported for now)", "val The value to remove from the ban list" });
 
+		AddCommand("AddWhiteList", "addwhitelist", "Adds to the whitelist", eCommandFlagsNone, CommandServerWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to add to the whitelist" });
+		AddCommand("UnWhiteList", "unwhitelist", "Removes from the whitelist", eCommandFlagsNone, CommandServerUnWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to remove from the whitelist" });
+
 		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
 		AddCommand("ListPlayersJSON", "listjson", "Returns JSON with data about the players in the game. Intended for server browser use only.", eCommandFlagsHidden, CommandServerListPlayersJSON);
 
