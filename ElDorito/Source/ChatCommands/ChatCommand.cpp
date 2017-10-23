@@ -1,3 +1,6 @@
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+
 #include "ChatCommand.hpp"
 #include "ChatCommandMap.hpp"
 #include "../Server/ServerChat.hpp"
@@ -201,12 +204,16 @@ namespace ChatCommands
 			returnInfo = "You cannot kick the host";
 			return false;
 		}
-		auto ip = std::to_string(Blam::Network::GetActiveSession()->GetPeerAddress(playerToKickIdx).Address.IPv4);
-		auto whiteList = Server::LoadDefaultWhiteList();
-		if (whiteList.ContainsIp(ip))
+		auto inAddr = Blam::Network::GetActiveSession()->GetPeerAddress(playerToKickIdx).ToInAddr();
+		char ipStr[INET_ADDRSTRLEN];
+		if (inet_ntop(AF_INET, &inAddr, ipStr, sizeof(ipStr)))
 		{
-			returnInfo = "You cannot kick a whitelisted player";
-			return false;
+			auto whiteList = Server::LoadDefaultWhiteList();
+			if (whiteList.ContainsIp(ipStr))
+			{
+				returnInfo = "You cannot kick a whitelisted player";
+				return false;
+			}
 		}
 
 

@@ -786,7 +786,7 @@ namespace
 		{
 			auto ip = Arguments[1];
 			WhiteListIp(ip);
-			returnInfo = "Added IP " + ip + " to the ban list";
+			returnInfo = "Added IP " + ip + " to the whitelist";
 			return true;
 		}
 		returnInfo = "Unsupported ban type " + whiteListType;
