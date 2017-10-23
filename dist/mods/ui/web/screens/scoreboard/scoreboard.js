@@ -500,10 +500,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }).append($('<td class="rank">'))
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
+			if(playersInfo[lobby[i].playerIndex]){
+				rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
+			}
             if(lobby[i].isAlive){
-				if(playersInfo[lobby[i].playerIndex]){
-					 rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
-				}
+				
                 if(lobby[i].isHost){
                     emblemPath = 'dew://assets/emblems/crown.png';
                 }else{
