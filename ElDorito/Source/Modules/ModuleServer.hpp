@@ -60,6 +60,7 @@ namespace Modules
 		Command* VarMaxTeamSize;
 		Command* VarSignalServerPort;
 		Command* VarSendChatToRconClients;
+		Command* VarRestrictToWhitelist;
 
 		//Veto System Commands
 		Command* VarNumberOfVetoVotes;
