@@ -1388,6 +1388,9 @@ namespace Modules
 
 		AddCommand("AddWhiteList", "addwhitelist", "Adds to the whitelist", eCommandFlagsNone, CommandServerWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to add to the whitelist" });
 		AddCommand("UnWhiteList", "unwhitelist", "Removes from the whitelist", eCommandFlagsNone, CommandServerUnWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to remove from the whitelist" });
+		VarRestrictToWhitelist = AddVariableInt("RestrictToWhitelist", "restrict_to_whitelist", "Controls whether only players on the whitelist should be able to join the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarRestrictToWhitelist->ValueIntMin = 0;
+		VarRestrictToWhitelist->ValueIntMax = 1;
 
 		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
 		AddCommand("ListPlayersJSON", "listjson", "Returns JSON with data about the players in the game. Intended for server browser use only.", eCommandFlagsHidden, CommandServerListPlayersJSON);
