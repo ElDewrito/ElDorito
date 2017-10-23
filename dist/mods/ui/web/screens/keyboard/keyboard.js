@@ -15,9 +15,9 @@ dew.on("show", function (event) {
     $("#text").focus();
     
     if(event.data.title == "Edit Description"){
-        $('#text').attr({'maxlength':'128','rows':'10'});
+        $('#text').attr({'maxlength':'127','rows':'10'});
     }else{
-        $('#text').attr({'maxlength':'16','rows':'1'});
+        $('#text').attr({'maxlength':'15','rows':'1'});
     };
 });
 
