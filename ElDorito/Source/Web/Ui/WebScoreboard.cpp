@@ -71,9 +71,13 @@ namespace Web::Ui::WebScoreboard
 	{
 		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
 		const auto is_main_menu = (bool(*)())(0x00531E90);
+		const auto is_multiplayer = (bool(*)())(0x00531C00);
 		static auto previousMapLoadingState = 0;
 		static auto previousEngineState = 0;
-		static bool previousHasUnit = -1;
+		static bool previousHasUnit = false;
+
+		if (!is_multiplayer() && !is_main_menu())
+			return;
 
 		if (postgame)
 		{
@@ -90,7 +94,6 @@ namespace Web::Ui::WebScoreboard
 		auto currentMapLoadingState = *(bool*)0x023917F0;
 		if (previousMapLoadingState && !currentMapLoadingState)
 		{
-			
 			if (isMainMenu)
 			{
 				returningToLobby = false;
