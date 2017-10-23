@@ -1,6 +1,7 @@
 #include "ChatCommand.hpp"
 #include "ChatCommandMap.hpp"
 #include "../Server/ServerChat.hpp"
+#include "../Server/WhiteList.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Utils/Utils.hpp"
 #include "../Eldorito.hpp"
@@ -135,6 +136,14 @@ namespace ChatCommands
 			return false;
 		}
 
+		auto ip = std::to_string(Blam::Network::GetActiveSession()->GetPeerAddress(indexToKick).Address.IPv4);
+		auto whiteList = Server::LoadDefaultWhiteList();
+		if (whiteList.ContainsIp(ip))
+		{
+			returnInfo = "You cannot kick a whitelisted player";
+				return false;
+		}
+
 		playerName = kickPlayerName;
 
 		return true;
@@ -190,6 +199,13 @@ namespace ChatCommands
 		if (playerToKickIdx == 0 && !ElDorito::Instance().IsDedicated())
 		{
 			returnInfo = "You cannot kick the host";
+			return false;
+		}
+		auto ip = std::to_string(Blam::Network::GetActiveSession()->GetPeerAddress(playerToKickIdx).Address.IPv4);
+		auto whiteList = Server::LoadDefaultWhiteList();
+		if (whiteList.ContainsIp(ip))
+		{
+			returnInfo = "You cannot kick a whitelisted player";
 			return false;
 		}
 

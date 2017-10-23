@@ -25,6 +25,7 @@
 #include "../Patches/Sprint.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
+#include "../Server/WhiteList.hpp"
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
 #include "../Server/Voting.hpp"
@@ -506,6 +507,22 @@ namespace
 		return true;
 	}
 
+	void WhiteListIp(const std::string &ip)
+	{
+		auto whiteList = Server::LoadDefaultWhiteList();
+		whiteList.AddIp(ip);
+		Server::SaveDefaultWhiteList(whiteList);
+	}
+
+	bool UnWhiteListIp(const std::string &ip)
+	{
+		auto whiteList = Server::LoadDefaultWhiteList();
+		if (!whiteList.RemoveIp(ip))
+			return false;
+		Server::SaveDefaultWhiteList(whiteList);
+		return true;
+	}
+
 	enum class KickType
 	{
 		Kick,
@@ -754,6 +771,48 @@ namespace
 			return true;
 		}
 		returnInfo = "Unsupported ban type " + banType;
+		return false;
+	}
+
+	bool CommandServerWhitelist(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 2)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+		auto whiteListType = Arguments[0];
+		if (whiteListType == "ip")
+		{
+			auto ip = Arguments[1];
+			WhiteListIp(ip);
+			returnInfo = "Added IP " + ip + " to the ban list";
+			return true;
+		}
+		returnInfo = "Unsupported ban type " + whiteListType;
+		return false;
+	}
+
+	bool CommandServerUnWhitelist(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 2)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+		auto whiteListType = Arguments[0];
+		if (whiteListType == "ip")
+		{
+			auto ip = Arguments[1];
+			if (!UnWhiteListIp(ip))
+			{
+				returnInfo = "IP " + ip + " is not whitelisted";
+				return false;
+			}
+			returnInfo = "Removed IP " + ip + " from the whitelist";
+			return true;
+		}
+		returnInfo = "Unsupported whitelist type " + whiteListType;
 		return false;
 	}
 
