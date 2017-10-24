@@ -461,10 +461,11 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $(activePage+' span').has('.setting').mouseover(function(){
-        if(hasGP){
-            itemNumber = $(activePage+' span').has('.setting').index($(this));
+    $('span').has('.setting').mouseover(function(){
+        itemNumber = $(activePage+' span').has('.setting').index($(this));
+        if(itemNumber > -1){
             updateSelection(itemNumber, false, false); 
+            setInfoBox($(this).find('.setting').attr('id'));
         }
     });
     $('#sVsync').on('change', function(){
@@ -476,14 +477,6 @@ $(document).ready(function(){
     $('#dismissButton').on('click', function(){
         dismissButton();
     });
-    $(activePage+' span:has(.setting)').hover(
-        function(){
-            $(this).addClass('selectedElement');
-            setInfoBox($(this).find('.setting').attr('id'));
-        }, function(){
-            $(this).removeClass('selectedElement');
-        }
-    );
 });
 
 function checkGamepad(){
