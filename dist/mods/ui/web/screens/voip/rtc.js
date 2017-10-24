@@ -62,11 +62,14 @@ function OnMessage(msg) {
                 if (data.sdp.type == 'offer') {
                     console.log('got an offer from: ' + data.uid);
                     peerCons[data.uid].createAnswer().then(function (description) {
-                        peerCons[data.uid].setLocalDescription(description).then(function () {
-                            serverCon.send(JSON.stringify({
-                                    'sdp': peerCons[data.uid].localDescription,
-                                    'sendTo': data.uid
-                                }));
+                        dew.command("voip.stereovoice", {}).then(function (stereoResponse) {
+                            description.sdp = setCodecParam(description.sdp, 'opus/48000', 'stereo', stereoResponse);
+                            peerCons[data.uid].setLocalDescription(description).then(function () {
+                                serverCon.send(JSON.stringify({
+                                        'sdp': peerCons[data.uid].localDescription,
+                                        'sendTo': data.uid
+                                    }));
+                            });
                         });
                     });
                 }

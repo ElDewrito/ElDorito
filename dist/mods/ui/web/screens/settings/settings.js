@@ -63,6 +63,7 @@ var settingsToLoad = [
     ['vAGC','VoIP.AGC', 'Automatic Gain Control', 'Controls signal amplitude at its output, despite variation of the amplitude in the input signal.'],
     ['vNoiseSupress','VoIP.NoiseSupress', 'Noise Suppress', 'Removes background noise from the captured signal.'],
     ['vEchoCancelation','VoIP.EchoCancelation', 'Echo Cancellation', 'Removes echo by subtracting it from the transmitted or received signal.'],
+	['vStereoVoice','VoIP.StereoVoice', 'Allow Stereo Voice', 'Enables Stereo audio from other players.'],
     ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding', 'Aggressive Audio Discarding', 'Prioritizies gun sounds over others to make audio cutoff less noticeable.'], 
     ['tDisableFog', 'Tweaks.DisableReactorFog', 'Reacthor', 'Removes some of the fog on Reactor which causes FPS drops indoors.'], 
     ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline', 'Weapon Outline Removal', 'Removes outlines from weapons on the ground.'], 
