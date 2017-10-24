@@ -59,6 +59,7 @@ dew.on("hide", function(event) {
     clearInterval(interval);
     if(repGP){
         window.clearInterval(repGP);
+        repGP = null;
     }
 });
 
@@ -267,8 +268,6 @@ function initGamepad(){
             if(!repGP){
                 repGP = window.setInterval(checkGamepad,1000/60);
             }
-            setButtons();
-            //$('button img,.tabs img').show();
         }else{
             onControllerDisconnect();
             hasGP = false;
@@ -276,7 +275,6 @@ function initGamepad(){
                 window.clearInterval(repGP);
                 repGP = null;
             }
-            //$('button img,.tabs img').hide();
         }
     });
 }
