@@ -46,6 +46,7 @@ button:hover{
     width: 25%;
     font-size: 14pt;
     opacity: 0.8;
+    position: absolute;
 }
 
 #text {

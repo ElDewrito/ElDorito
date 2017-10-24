@@ -7,22 +7,52 @@ var basePage = {
     scaleY: 1
 };
 
-dew.on("show", function (event) {
-    $("#title").text(event.data.title);
-    $("#description").text(event.data.body);
-    $(".dialog").show();
+dew.on("show", function (event) {   
+    var form = $("<form>");
+    
+    form.append( 
+        $("<div>", {
+            id: 'title',
+            text: event.data.title
+        })
+    );
+
+    form.append( 
+        $("<div>", {
+            id: 'description',
+            text: event.data.body
+        })
+    );
+    
+    form.append( 
+        $("<button>", {
+            id: 'ok',
+            text: 'OK',
+            click: function(e){ 
+                e.preventDefault();
+                $(this).parent().parent().remove();
+                if(!$('.dialog').length){
+                    dew.hide();
+                };
+            }
+        })
+    );
+
+    form.wrap( 
+        $("<div>", {
+            class: 'dialog'
+        })
+    );
+    
+    $(".container").append(form.parent());
 });
 
 dew.on("hide", function (event) {
-    $(".dialog").hide();
+    $(".container").empty();
 });
 
 $(window).load(function () {
-    $(".dialog").hide();
-    
-    $("#ok").on("click", function (){
-        dew.hide();
-    });
+
 });
 
 $(function(){
