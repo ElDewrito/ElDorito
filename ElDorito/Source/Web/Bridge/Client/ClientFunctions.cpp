@@ -381,6 +381,14 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 			writer.Key("isHost");
 			writer.Bool(false);
+
+			writer.Key("playerInfo");
+			writer.StartObject();
+			writer.Key("Name");
+			writer.String("");
+			writer.Key("Uid");
+			writer.String("");
+			writer.EndObject();
 		}
 		else
 		{
@@ -392,6 +400,16 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 			writer.Key("isHost");
 			writer.Bool(session->IsHost());
+
+			writer.Key("playerInfo");
+			writer.StartObject();
+			writer.Key("Name");
+			writer.String(Utils::String::ThinString(session->MembershipInfo.GetLocalPlayerSession().Properties.DisplayName).c_str());
+			writer.Key("Uid");
+			char uid[17];
+			Blam::Players::FormatUid(uid, session->MembershipInfo.GetLocalPlayerSession().Properties.Uid);
+			writer.String(uid);
+			writer.EndObject();
 		}
 		writer.Key("mapName");
 		writer.String((char*)Pointer(0x22AB018)(0x1A4));
