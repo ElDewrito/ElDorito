@@ -332,24 +332,53 @@ dew.on("voip-user-volume", function(e){
     }
 	
 	var uid = "";
-	var level = 0;
-	$.grep(volArray, function(result, index){
-        if(result){
-            if(result[0] == e.data.user){
-				uid = result[1];
-				level = result[2];
-				if(e.data.volume < -75){
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
-				}else if(e.data.volume < -50){
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
-				}else{
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
-				};
-                volArray.splice(index,1);
-            };
+	var level = 100;
+	$.grep(volArray, function (result, index) {
+	    if (result) {
+	        if (result[0] == e.data.user) {
+	            uid = result[1];
+	            level = result[2];
+	            if (level == 0) {
+	                $('#' + ownName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+	            } else if (e.data.volume < -75) {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
+	            } else if (e.data.volume < -50) {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
+	            } else {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
+	            };
+	            volArray.splice(index, 1);
+	        };
+	    }
+	});
+	volArray.push([e.data.user, uid, level, e.data.volume]);
+});
+
+dew.on("voip-self-volume", function (e) {
+    dew.getSessionInfo().then(function (info) {
+        if (info.established == true) {
+            var level = 100;
+            $.grep(volArray, function (result, index) {
+                if (result) {
+                    if (result[0] == info.playerInfo.Name) {
+                        uid = result[1];
+                        level = result[2];
+                        if (level == 0) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+                        } else if (e.data.volume < -75) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
+                        } else if (e.data.volume < -50) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
+                        } else {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
+                        };
+                        volArray.splice(index, 1);
+                    };
+                }
+            });
+            volArray.push([info.playerInfo.Name, info.playerInfo.Uid, level, e.data.volume]);
         }
     });
-    volArray.push([e.data.user, uid, level, e.data.volume]);
 });
 
 dew.on("voip-peers", function(e){

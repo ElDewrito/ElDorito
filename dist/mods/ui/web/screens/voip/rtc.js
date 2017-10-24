@@ -445,6 +445,14 @@ function startConnection(info) {
                     }
                 });
 
+                speechEvents.on("volume_change", function (volume) {
+                    var selfVolume = {
+                        volume: volume
+                    }
+
+                    dew.notify("voip-self-volume", selfVolume);
+                });
+
                 serverCon = new WebSocket("ws://" + info.server, "dew-voip");
                 serverCon.onmessage = OnMessage;
                 serverCon.onclose = function (reason) {
