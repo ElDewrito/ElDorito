@@ -81,3 +81,15 @@ $(window).load(function () {
         dew.cancelVirtualKeyboard().then(() => dew.hide());
     });
 });
+
+dew.on('controllerinput', function(e){    
+    if(e.data.A == 1){
+        $("form").submit();
+    }
+    if(e.data.B == 1){
+        dew.cancelVirtualKeyboard().then(() => dew.hide());
+    }
+    if(e.data.Start == 1){
+        $("form").submit();
+    }
+});
