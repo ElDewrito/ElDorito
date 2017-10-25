@@ -221,11 +221,12 @@ namespace
 
 	void RasterizeImplicitGeometryHook()
 	{
+		static const auto RasterizeImplicitGeometry = (void(*)())(0x00A743B0);
+		RasterizeImplicitGeometry();
+
 		if (!s_Enabled)
 			return;
 
-		static const auto RasterizeImplicitGeometry = (void(*)())(0x00A743B0);
-		RasterizeImplicitGeometry();
 		RenderImplicit();
 	}
 }

@@ -99,6 +99,8 @@ namespace
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 
+	void sandbox_zone_shape_render_hook(ZoneShape *zone, float *color, uint32_t objectIndex);
+
 	struct ScreenEffectData;
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
@@ -221,6 +223,8 @@ namespace Patches::Forge
 
 		// disble projectile collisions on invisible material
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x19F0B8, sandbox_zone_shape_render_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -1928,5 +1932,24 @@ namespace
 		}
 
 		return true;
+	}
+
+	void sandbox_zone_shape_render_hook(ZoneShape *zone, float *color, uint32_t objectIndex)
+	{
+		const auto sandbox_zone_shape_render_hook = (void(*)(ZoneShape *zone, float *color, uint32_t objectIndex))(0x00BA0FC0);
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return;
+
+		// ignore forge volumes
+		switch (object->TagIndex)
+		{
+		case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+		case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			return;
+		}
+
+		sandbox_zone_shape_render_hook(zone, color, objectIndex);
+
 	}
 }

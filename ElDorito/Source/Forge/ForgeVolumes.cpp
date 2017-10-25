@@ -3,6 +3,7 @@
 #include "../Blam/Math/RealVector3D.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Modules/ModuleForge.hpp"
 #include "ForgeUtil.hpp"
 #include <unordered_map>
 
@@ -71,6 +72,7 @@ namespace
 	};
 
 	void FindVolumes();
+	void RenderVolumes();
 	void UpdateKillVolume(ForgeVolume &volume);
 	void UpdateGarbageCollectionVolume(ForgeVolume &volume);
 
@@ -107,6 +109,8 @@ namespace Forge::Volumes
 					break;
 				}
 			}
+
+			RenderVolumes();
 		}
 		else
 		{
@@ -318,6 +322,43 @@ namespace
 
 			if (s_ActiveVolumeCount >= MAX_VOLUMES)
 				break;
+		}
+	}
+
+	void RenderVolumes()
+	{
+		const auto zone_render = (void(*)(const ZoneShape *shape, float *color, uint32_t objectIndex))(0x00BA0FC0);
+
+		if (!Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)
+			&& !Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt)
+			return;
+
+		for (auto i = 0; i < MAX_VOLUMES; i++)
+		{
+			const auto &volume = s_Volumes[i];
+			if (volume.Type == eVolumeType_Disabled)
+				continue;
+			if (volume.ObjectIndex == -1 || !Blam::Objects::Get(volume.ObjectIndex))
+				return;
+
+			ZoneShape zone;
+			GetObjectZoneShape(volume.ObjectIndex, &zone, 0);
+
+			switch (volume.Type)
+			{
+			case eVolumeType_GarbageCollection:
+			{
+				float color[] = { 0.1f, 0, 0.5f, 0 };
+				zone_render(&zone, color, volume.ObjectIndex);
+			}
+			break;
+			case eVolumeType_Kill:
+			{
+				float color[] = { 0.1f, 0.5f, 0, 0 };
+				zone_render(&zone, color, volume.ObjectIndex);
+			}
+			break;
+			}
 		}
 	}
 }
