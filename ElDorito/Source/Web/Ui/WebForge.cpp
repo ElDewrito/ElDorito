@@ -71,6 +71,18 @@ namespace
 		Fx_ColorFloorB,
 		Fx_Tracing,
 
+		GarbageVolume_CollectDeadBiped,
+		GarbageVolume_CollectWeapons,
+		GarbageVolume_CollectObjectives,
+		GarbageVolume_CollectGrenades,
+		GarbageVolume_CollectEquipment,
+		GarbageVolume_CollectVehicles,
+		GarbageVolume_Interval,
+
+		Map_DisablePushBarrier,
+		Map_DisableDeathBarrier,
+		
+
 	};
 
 	enum class PropertyDataType
@@ -102,6 +114,8 @@ namespace
 
 		void SetProperty(PropertyTarget target, PropertyValue value)
 		{
+			auto garbageVolumeProperties = reinterpret_cast<Forge::ForgeGarbageVolumeProperties*>(&m_Properties.SharedStorage);
+
 			switch (target)
 			{
 			case PropertyTarget::General_OnMapAtStart:
@@ -224,6 +238,67 @@ namespace
 			case PropertyTarget::Fx_GammaDecrease:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->GammaDecrease = int(value.ValueFloat * 255);
 				break;
+			case PropertyTarget::GarbageVolume_CollectDeadBiped:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
+				if(value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectWeapons:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectObjectives:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectGrenades:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectEquipment:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectVehicles:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_Interval:
+				garbageVolumeProperties->Interval = value.ValueInt & 0x3;
+				break;
+			case PropertyTarget::Map_DisableDeathBarrier:
+			{
+				auto &flags = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth)->Flags;
+				flags &= ~Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
+				if(value.ValueInt)
+					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
+			}
+			break;
+			case PropertyTarget::Map_DisablePushBarrier:
+			{
+				auto &flags = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth)->Flags;
+				flags &= ~Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
+				if (value.ValueInt)
+					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
+			}
+			break;
 			
 			}
 		}
@@ -613,6 +688,8 @@ namespace
 		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
 		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
 		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
+		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.ZoneRadiusWidth);
+		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.SharedStorage);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
@@ -664,6 +741,17 @@ namespace
 		SerializeProperty(writer, "fx_gamma_dec", screenFxProperties->GammaDecrease / 255.0f);
 		SerializeProperty(writer, "fx_range", screenFxProperties->MaximumDistance);
 		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
+		SerializeProperty(writer, "map_disable_push_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier) != 0));
+		SerializeProperty(writer, "map_disable_death_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier) != 0));
+
+		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_objectives", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_grenades", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_equipment", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_vehicles", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles) != 0));
+		SerializeProperty(writer, "garbage_volume_interval", (int)(garbageVolumeProperties->Interval & 0x3));
+
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -722,6 +810,17 @@ namespace
 			{ "fx_gamma_inc",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
 			{ "fx_gamma_dec",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
 			{ "fx_tracing",					{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
+
+			{ "garbage_volume_collect_dead_biped",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectDeadBiped } },
+			{ "garbage_volume_collect_weapons",			{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectWeapons } },
+			{ "garbage_volume_collect_objectives",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectObjectives } },
+			{ "garbage_volume_collect_grenades",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectGrenades } },
+			{ "garbage_volume_collect_equipment",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectEquipment } },
+			{ "garbage_volume_collect_vehicles",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectVehicles } },
+			{ "garbage_volume_interval",				{ PropertyDataType::Int, PropertyTarget::GarbageVolume_Interval } },
+
+			{ "map_disable_push_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
+			{ "map_disable_death_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },
 
 			{ "summary_runtime_minimum",	{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",	{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },

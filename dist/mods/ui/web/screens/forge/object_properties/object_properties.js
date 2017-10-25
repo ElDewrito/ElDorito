@@ -73,6 +73,15 @@ var STRINGS = {
 	light_intensity: 'Intensity',
 	light_radius: 'radius',
 	light_color_intensity: 'Color Intensity',
+	map_disable_push_barrier: 'Push Barrier',
+	map_disable_death_barrier: 'Death Barrier',
+	garbage_volume_collect_dead_biped: 'Dead Biped',
+	garbage_volume_collect_weapons: 'Weapons',
+	garbage_volume_collect_objectives: 'Objectives',
+	garbage_volume_collect_grenades: 'grenades',
+	garbage_volume_collect_equipment: 'Equipment',
+	garbage_volume_collect_vehicles: 'Vehicles',
+    garbage_volume_interval: 'Interval'
 };
 
 
@@ -146,7 +155,6 @@ var objectPropertyGridData = {
 		lightmap: [
 			{ name: 'On', value: 1 },
 			{ name: 'Off', value: 0 }
-			
 		],
 		appearance_material_color_r: { min: 0.0, max: 1.0, step: 0.01 },
 		appearance_material_color_g: { min: 0.0, max: 1.0, step: 0.01 },
@@ -171,7 +179,21 @@ var objectPropertyGridData = {
         fx_color_floor_b: { min: 0, max: 1, step: 0.01 },
         fx_gamma_inc: { min: 0, max: 1, step: 0.01 },
         fx_gamma_dec: { min: 0, max: 1, step: 0.01 },
-        fx_tracing: { min: 0, max: 1, step: 0.01 }
+        fx_tracing: { min: 0, max: 1, step: 0.01 },
+        map_barrier: [
+             { name: 'Disabled', value: 1 },
+             { name: 'Enabled', value: 0 }
+        ],
+        garbage_volume_flag: [
+             { name: 'Collect', value: 1 },
+             { name: 'Allow', value: 0 }
+        ],
+        garbage_volume_interval: [
+            { name: 'Instant', value: 0 },
+            { name: '5 Seconds', value: 1 },
+            { name: '15 Seconds', value: 2 },
+            { name: '30 Seconds', value: 3 },
+        ]
 	},
 	properties: [
 		{ name: 'budget_screen_action', type: 'action'},
@@ -191,10 +213,15 @@ var objectPropertyGridData = {
                 { name: 'appearance_material_color_r', type: 'range', meta:'appearance_material_color_r'},
                 { name: 'appearance_material_color_g', type: 'range', meta:'appearance_material_color_g'},
                 { name: 'appearance_material_color_b', type: 'range', meta:'appearance_material_color_b'},
-				
-				
 			]
 		},
+        {
+            name: 'map_modifier',
+            values: [
+				{ name: 'map_disable_push_barrier', type: 'spinner', meta:'map_barrier' },
+				{ name: 'map_disable_death_barrier', type: 'spinner', meta:'map_barrier' },
+            ]
+        },
 		{
 			name: 'zone',
 			values: [
@@ -235,6 +262,18 @@ var objectPropertyGridData = {
                 { name: 'fx_color_floor_g', type: 'range', meta:'fx_color_floor_g'},
                 { name: 'fx_color_floor_b', type: 'range', meta:'fx_color_floor_b'},
                 { name: 'fx_tracing', type: 'range', meta:'fx_tracing'}
+            ]
+        },
+        {
+            name: 'garbage_collection',
+            values: [
+                { name: 'garbage_volume_interval', type: 'spinner', meta:'garbage_volume_interval' },
+                { name: 'garbage_volume_collect_dead_biped', type: 'spinner', meta:'garbage_volume_flag' },
+                { name: 'garbage_volume_collect_weapons', type: 'spinner', meta:'garbage_volume_flag' },
+                { name: 'garbage_volume_collect_objectives', type: 'spinner', meta:'garbage_volume_flag' },
+                { name: 'garbage_volume_collect_grenades', type: 'spinner', meta:'garbage_volume_flag' },
+                { name: 'garbage_volume_collect_equipment', type: 'spinner', meta:'garbage_volume_flag' },
+                { name: 'garbage_volume_collect_vehicles', type: 'spinner', meta:'garbage_volume_flag' }
             ]
         }
 	]
@@ -440,7 +479,7 @@ dew.on('hide', function() {
 });
 
 dew.on('show',function(e) {
-	objectData = { has_material: e.data.has_material };
+    objectData = { has_material: e.data.has_material };
 
 	if(quickClosed) {
 		quickClosed = false;
@@ -726,6 +765,15 @@ function buildPropertyFilter(data) {
 		break;
 	}
 
+
+	switch(data.tag_index) {
+	    case 0x00005A8E:
+	    case 0x00005A8F:
+	        hasZone = true;
+	        break;
+	}
+
+
 	objectPropertiesWidget.toggleVisibility('deselect_all', data.is_selected);
 	objectPropertiesWidget.toggleVisibility('select_all', !data.is_selected);
 
@@ -805,15 +853,21 @@ function buildPropertyFilter(data) {
 		objectPropertiesWidget.toggleVisibility('physics', false);
 	}
 
-    // kill volumes
-	switch(data.object_type_mp) {
-	    case MultiplayerObjectType.Teleporter2Way:
-	    case MultiplayerObjectType.TeleporterSender:
-	    case MultiplayerObjectType.TeleporterReceiver:
-	        if(data.properties.teleporter_channel == 0xff)
-	            objectPropertiesWidget.toggleVisibility('team_affiliation', true);
-	        break;
-	}
+	var isMapModifier = data.tag_index == 0x5728;
+	objectPropertiesWidget.toggleVisibility('map_modifier',isMapModifier);
+	objectPropertiesWidget.toggleVisibility('map_disable_push_barrier',isMapModifier);
+	objectPropertiesWidget.toggleVisibility('map_disable_death_barrier', isMapModifier);
+	var isGarbageVolume = data.tag_index == 0x00005A8F;
+	objectPropertiesWidget.toggleVisibility('garbage_collection',isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_interval',isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_dead_biped',isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_weapons', isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_objectives',isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_grenades', isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_equipment',isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_vehicles', isGarbageVolume);
+	
+
 	
 }
 

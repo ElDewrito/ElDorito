@@ -16,12 +16,22 @@
       <item name="Icicle, 6 Inch" tagindex="0x000041E9" />
       <item name="Palm Bush, Large" tagindex="0x0000522A" />
       <item name="Palm Bush, Medium" tagindex="0x0000521A" />
-      <item name="Palm Tree, Small" tagindex="0x00005225" />      <!-- tag phased by default ONLY -->
-      <item name="Pine Tree" tagindex="0x000034C3" />      <!-- tag phased by default ONLY -->
-      <item name="Pine Tree, Large" tagindex="0x34c5" />     <!-- tag phased by default ONLY -->
+      <item name="Palm Tree, Small" tagindex="0x00005225" >
+        <!-- tag phased by default ONLY -->
+        <setter target="physics" value="0" type="int" hidden="true" />
+      </item>
+      <item name="Pine Tree" tagindex="0x000034C3" >
+        <!-- tag phased by default ONLY -->
+        <setter target="physics" value="0" type="int" hidden="true" />
+      </item>
+      <item name="Pine Tree, Large" tagindex="0x34c5" >
+        <!-- tag phased by default ONLY -->
+        <setter target="physics" value="0" type="int" hidden="true" />
+      </item>
     </category>
     <category name="Cover">
-      <item name="Awning" tagindex="0x000051EA" />      <!-- tag phased by default -->
+      <item name="Awning" tagindex="0x000051EA" />
+      <!-- tag phased by default -->
       <item name="Barricade" tagindex="0x34aa" />
       <item name="Barricade, Small" tagindex="0x3fd4" />
       <item name="Barrier" tagindex="0x47f2" />
@@ -233,11 +243,15 @@
       <item name="Camping Stool" tagindex="0x2eb2" />
       <item name="Chain Link Gate" tagindex="0x000054A2" />
       <item name="Crowbar" tagindex="0x00005709" />
-      <item name="Drop Bridge" tagindex="0x51c7" />      <!-- tag phased by default ONLY -->
+      <item name="Drop Bridge" tagindex="0x51c7" >
+        <!-- tag phased by default ONLY -->
+        <setter target="physics" value="0" type="int" hidden="true" />
+      </item>
       <item name="Drop Pod, Closed" tagindex="0x34a8" />
       <item name="Drop Pod, Deployed" tagindex="0x0000348E" />
       <item name="Drop Pod, Panel" tagindex="0x34a9" />
-      <item name="Floor Hatch" tagindex="0x00005495" />      <!-- tag phased by default -->
+      <item name="Floor Hatch" tagindex="0x00005495" />
+      <!-- tag phased by default -->
       <item name="Garbage Can" tagindex="0x518e" />
       <item name="Locker" tagindex="0x47e5" />
       <item name="Loudspeaker" tagindex="0x46be" />
@@ -259,8 +273,10 @@
       <item name="Phantom Destroyed, Side, Right" tagindex="0x00005623" />
       <item name="Radio Antennae" tagindex="0x34a5" />
       <item name="Street Cone" tagindex="0x2eb9" />
-      <item name="Swinging Door" tagindex="0x4223" />      <!-- tag phased by default -->
-      <item name="Swinging Lamp" tagindex="0x000051FD" />     <!-- tag phased by default -->
+      <item name="Swinging Door" tagindex="0x4223" />
+      <!-- tag phased by default -->
+      <item name="Swinging Lamp" tagindex="0x000051FD" />
+      <!-- tag phased by default -->
       <item name="Toolbox" tagindex="0x4865" />
       <item name="Toolbox, Small" tagindex="0x4853" />
       <item name="Trash Can" tagindex="0x4226" />
@@ -643,9 +659,21 @@
         <item name="Respawn Area" tagindex="0x2e9f" />
       </category>
     </category>
-    <category name="Map Modifiers">
-      <item name="Kill Barrier Remover" tagindex="0x5728" />
-      <item name="Push Barrier Remover" tagindex="0x5729" />
+    <category name="Map Tools">
+      <item name="Map Modifier" tagindex="0x5728" >
+        <help>Map flags and flags and more flags</help>
+        <setter target="physics" value="1" type="int" hidden="true" />
+      </item>
+      <item name="Prematch Camera" tagindex="0x00005A86">
+        <help>Pretty fucking obvious what this is.</help>
+        <setter target="physics" value="1" type="int" hidden="true" />
+      </item>
+      <item name="Kill Volume" tagindex="0x00005A8E" >
+        <help>This kills people.</help>
+      </item>
+      <item name="Garbage Collection Volume" tagindex="0x00005A8F" >
+        <help>Deletes the selected objects from this volume.</help>
+      </item>
     </category>
     <category name="Teleporters">
       <item name="Two-Way" tagindex="0x2ec2" />
@@ -657,9 +685,6 @@
       <item name="Sender, Vehicle" tagindex="0x444e" />
       <item name="Receiver, Vehicle" tagindex="0x444f" />
       <item name="Two-Way, Vehicle" tagindex="0x4450" />
-      <item name="Death Teleporter" tagindex="0x2ec1">
-        <setter target="teleporter_channel" type="int" value="255" />
-      </item>
     </category>
     <category name="Vehicles">
       <item name="Banshee" tagindex="0x151a" />

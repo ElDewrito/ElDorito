@@ -50,16 +50,53 @@ namespace Forge
 	};
 	static_assert(sizeof(ReforgeObjectProperties) <= 16, "ReforgeObjectProperties must be 16 bytes or less in size");
 	
+
+	struct ForgeMapModifierProperties
+	{
+		enum MapModifierFlags : uint16_t
+		{
+			eMapModifierFlags_DisablePushBarrier = (1 << 0),
+			eMapModifierFlags_DisableDeathBarrier = (1 << 1)
+		};
+		uint16_t Flags;
+	};
+	static_assert(sizeof(ForgeMapModifierProperties) <= 16, "ForgeMapModifierProperties must be 16 bytes or less in size");
+
+	struct ForgeGarbageVolumeProperties
+	{
+		enum GarbageVolumeFlags
+		{
+			eGarbageVolumeFlags_CollectDeadBipeds = (1 << 0),
+			eGarbageVolumeFlags_CollectWeapons = (1 << 1),
+			eGarbageVolumeFlags_CollectObjectives = (1 << 2),
+			eGarbageVolumeFlags_CollectEquipment = (1 << 3),
+			eGarbageVolumeFlags_CollectGrenades = (1 << 4),
+			eGarbageVolumeFlags_CollectVehicles = (1 << 5)
+		};
+
+		enum GarbageVolumeInterval
+		{
+			eGarbageVolumeInterval_Instant = 0,
+			eGarbageVolumeInterval_3_Seconds = 1,
+			eGarbageVolumeInterval_15_Seconds = 2,
+			eGarbageVolumeInterval_30_Seconds = 3,
+		};
+
+		uint8_t Flags : 6;
+		uint8_t Interval : 2;
+	};
+	static_assert(sizeof(ForgeGarbageVolumeProperties) <= 1, "ForgeGarbageVolumeProperties must be 1 bytes or less in size");
+
 	struct ZoneShape
 	{
-		int32_t Shape;
-		float Width;
-		float Depth;
+		int Shape;
+		int ShapeShader;
+		float RadiusWidth;
+		float Length;
 		float Top;
 		float Bottom;
 		Blam::Math::RealMatrix4x3 Transform;
 		float BoundingRadius;
-		uint32_t Unknown4C;
 	};
 	static_assert(sizeof(ZoneShape) == 0x50, "Invalid ZoneShape size");
 

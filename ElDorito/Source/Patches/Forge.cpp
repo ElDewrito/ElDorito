@@ -25,7 +25,7 @@
 #include "../Forge/Selection.hpp"
 #include "../Forge/SelectionRenderer.hpp"
 #include "../Forge/Magnets.hpp"
-#include "../Forge/KillVolumes.hpp"
+#include "../Forge/ForgeVolumes.hpp"
 #include "../Forge/PrematchCamera.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -178,6 +178,7 @@ namespace Patches::Forge
 
 		// facilitate swapping materials based on shared storage
 		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
+		Hook(0x679136, RenderMeshPartHook, HookFlags::IsCall).Apply(); // transparent
 		// disable the lightmap for reforge objects
 		Hook(0x7BEEEE, LightmapHook, HookFlags::IsCall).Apply();
 
@@ -379,9 +380,12 @@ namespace
 				continue;
 			auto tagIndex = header.GetTagIndex().Index();
 			if (tagIndex == 0x5728)
-				killBarriersEnabled = false;
-			else if (tagIndex == 0x5729)
-				pushBarriersEnabled = false;
+			{
+				auto mpProperties = header.Data->GetMultiplayerProperties();
+				auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
+				killBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier);
+				pushBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier);
+			}
 			if (!killBarriersEnabled && !pushBarriersEnabled)
 				break;
 		}
@@ -1030,31 +1034,47 @@ namespace
 
 	void RenderMeshPartHook(void* data, int a2)
 	{
+		const auto is_forge = (bool(*)())(0x0059A780);
+
 		static auto RenderMeshPart = (void(*)(void* data, int a2))(0xA78940);
 
 		auto renderData = Pointer(data)[4];
 
-		int16_t materialIndex;
-		if (GetObjectMaterial(renderData, &materialIndex))
+		auto objectIndex = Pointer(renderData)(0x6c).Read<uint32_t>();
+		auto object = Blam::Objects::Get(objectIndex);
+		if (object)
 		{
-			if (materialIndex == int16_t(INVISIBLE_MATERIAL_INDEX))
+			switch (object->TagIndex)
 			{
-				if (!Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt
-					&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
+			case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
+			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+				if (!is_forge())
 					return;
 			}
 
-			auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
-			const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
-			const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
-			const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
+			int16_t materialIndex;
+			if (GetObjectMaterial(renderData, &materialIndex))
+			{
+				if (materialIndex == int16_t(INVISIBLE_MATERIAL_INDEX))
+				{
+					if (!Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt
+						&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
+						return;
+				}
 
-			auto oldMaterialIndex = *materialIndexPtr;
-			*materialIndexPtr = materialIndex;
-			RenderMeshPart(data, a2);
-			*materialIndexPtr = oldMaterialIndex;
+				auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
+				const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+				const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
+				const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
 
-			return;
+				auto oldMaterialIndex = *materialIndexPtr;
+				*materialIndexPtr = materialIndex;
+				RenderMeshPart(data, a2);
+				*materialIndexPtr = oldMaterialIndex;
+
+				return;
+			}
 		}
 		RenderMeshPart(data, a2);
 	}
@@ -1748,7 +1768,7 @@ namespace
 		const auto is_client = (bool(*)())(0x00531D70);
 
 		if (!is_client())
-			::Forge::KillVolumes::Update();
+			::Forge::Volumes::Update();
 	}
 
 	bool ShouldOverrideColorPermutation(uint32_t objectIndex)
@@ -1885,6 +1905,17 @@ namespace
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
 			return false;
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+		switch (object->TagIndex)
+		{
+		case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
+		case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+		case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+			if (!Forge::GetEditorModeState(playerIndex, nullptr, nullptr))
+				return false;
+		}
 
 		auto mpProperties = object->GetMultiplayerProperties();
 		if (mpProperties && CanThemeObject(objectIndex))
