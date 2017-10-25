@@ -478,6 +478,9 @@
     <ClCompile Include="Source\Patches\Maps.cpp" />
     <ClCompile Include="Source\Web\Ui\WebSettings.cpp" />
     <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
+    <ClCompile Include="Source\Server\WhiteList.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1119,6 +1122,9 @@
     <ClInclude Include="Source\Patches\Maps.hpp" />
     <ClInclude Include="Source\Web\Ui\WebSettings.hpp" />
     <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
+    <ClInclude Include="Source\Server\WhiteList.hpp">
+      <Filter>Server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

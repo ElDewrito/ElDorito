@@ -17,6 +17,7 @@
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Server/BanList.hpp"
+#include "../Server/WhiteList.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
@@ -876,6 +877,22 @@ namespace
 
 				Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Refused join request from banned IP %s", ipStr);
 				return true;
+			}
+
+			else if (Modules::ModuleServer::Instance().VarRestrictToWhitelist->ValueInt != 0)
+			{
+				// Check if the IP is in the ban list
+				auto whitelist = Server::LoadDefaultWhiteList();
+				if (!whitelist.ContainsIp(ipStr))
+				{
+					// Send a join refusal
+					typedef void(__thiscall *Network_session_acknowledge_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, int reason);
+					auto Network_session_acknowledge_join_request = reinterpret_cast<Network_session_acknowledge_join_requestFunc>(0x45A230);
+					Network_session_acknowledge_join_request(thisPtr, address, 0); // TODO: Use a special code for none whitelist and hook the join refusal handler so we can display a message to the player
+
+					Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Info, "Refused join request as your IP is not on the whitelist %s", ipStr);
+					return true;
+				}
 			}
 		}
 

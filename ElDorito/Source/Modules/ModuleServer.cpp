@@ -25,6 +25,7 @@
 #include "../Patches/Sprint.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
+#include "../Server/WhiteList.hpp"
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
 #include "../Server/Voting.hpp"
@@ -506,6 +507,22 @@ namespace
 		return true;
 	}
 
+	void WhiteListIp(const std::string &ip)
+	{
+		auto whiteList = Server::LoadDefaultWhiteList();
+		whiteList.AddIp(ip);
+		Server::SaveDefaultWhiteList(whiteList);
+	}
+
+	bool UnWhiteListIp(const std::string &ip)
+	{
+		auto whiteList = Server::LoadDefaultWhiteList();
+		if (!whiteList.RemoveIp(ip))
+			return false;
+		Server::SaveDefaultWhiteList(whiteList);
+		return true;
+	}
+
 	enum class KickType
 	{
 		Kick,
@@ -754,6 +771,48 @@ namespace
 			return true;
 		}
 		returnInfo = "Unsupported ban type " + banType;
+		return false;
+	}
+
+	bool CommandServerWhitelist(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 2)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+		auto whiteListType = Arguments[0];
+		if (whiteListType == "ip")
+		{
+			auto ip = Arguments[1];
+			WhiteListIp(ip);
+			returnInfo = "Added IP " + ip + " to the whitelist";
+			return true;
+		}
+		returnInfo = "Unsupported ban type " + whiteListType;
+		return false;
+	}
+
+	bool CommandServerUnWhitelist(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() != 2)
+		{
+			returnInfo = "Invalid arguments";
+			return false;
+		}
+		auto whiteListType = Arguments[0];
+		if (whiteListType == "ip")
+		{
+			auto ip = Arguments[1];
+			if (!UnWhiteListIp(ip))
+			{
+				returnInfo = "IP " + ip + " is not whitelisted";
+				return false;
+			}
+			returnInfo = "Removed IP " + ip + " from the whitelist";
+			return true;
+		}
+		returnInfo = "Unsupported whitelist type " + whiteListType;
 		return false;
 	}
 
@@ -1326,6 +1385,12 @@ namespace Modules
 
 		AddCommand("AddBan", "addban", "Adds to the ban list (does NOT kick anyone)", eCommandFlagsNone, CommandServerBan, { "type The ban type (only \"ip\" is supported for now)", "val The value to add to the ban list" });
 		AddCommand("Unban", "unban", "Removes from the ban list", eCommandFlagsNone, CommandServerUnban, { "type The ban type (only \"ip\" is supported for now)", "val The value to remove from the ban list" });
+
+		AddCommand("AddWhiteList", "addwhitelist", "Adds to the whitelist", eCommandFlagsNone, CommandServerWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to add to the whitelist" });
+		AddCommand("UnWhiteList", "unwhitelist", "Removes from the whitelist", eCommandFlagsNone, CommandServerUnWhitelist, { "type The whitelist type (only \"ip\" is supported for now)", "val The value to remove from the whitelist" });
+		VarRestrictToWhitelist = AddVariableInt("RestrictToWhitelist", "restrict_to_whitelist", "Controls whether only players on the whitelist should be able to join the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarRestrictToWhitelist->ValueIntMin = 0;
+		VarRestrictToWhitelist->ValueIntMax = 1;
 
 		AddCommand("ListPlayers", "list", "Lists players in the game", eCommandFlagsNone, CommandServerListPlayers);
 		AddCommand("ListPlayersJSON", "listjson", "Returns JSON with data about the players in the game. Intended for server browser use only.", eCommandFlagsHidden, CommandServerListPlayersJSON);

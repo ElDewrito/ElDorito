@@ -124,6 +124,7 @@
     <ClCompile Include="Source\Server\Voting.cpp" />
     <ClCompile Include="Source\Server\VotingPackets.cpp" />
     <ClCompile Include="Source\Server\VotingSystem.cpp" />
+    <ClCompile Include="Source\Server\WhiteList.cpp" />
     <ClCompile Include="Source\ThirdParty\HttpRequest.cpp" />
     <ClCompile Include="Source\Utils\AntiCheat.cpp" />
     <ClCompile Include="Source\Utils\Assert.cpp" />
@@ -311,6 +312,7 @@
     <ClInclude Include="Source\Server\Voting.hpp" />
     <ClInclude Include="Source\Server\VotingPackets.hpp" />
     <ClInclude Include="Source\Server\VotingSystem.hpp" />
+    <ClInclude Include="Source\Server\WhiteList.hpp" />
     <ClInclude Include="Source\Settings.hpp" />
     <ClInclude Include="Source\ThirdParty\dirent.h" />
     <ClInclude Include="Source\ThirdParty\HttpRequest.hpp" />
