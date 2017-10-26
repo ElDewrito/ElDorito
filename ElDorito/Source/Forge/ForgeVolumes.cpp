@@ -325,21 +325,38 @@ namespace
 		}
 	}
 
+	inline bool SphereInFrustrum(RealVector3D &center, float radius)
+	{
+		const auto frustrum_sphere_intersect = (int(*)(void *frustrum, RealVector3D *center, float radius))(0x0075A860);
+		const auto viewport = (uint8_t**)(0x24E0094);
+		if (!viewport)
+			return false;
+		
+		auto v = frustrum_sphere_intersect(*viewport + 0x94, &center, radius);
+		return v > 0;
+	}
+
 	void RenderVolumes()
 	{
 		const auto zone_render = (void(*)(const ZoneShape *shape, float *color, uint32_t objectIndex))(0x00BA0FC0);
+		
 
 		if (!Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)
 			&& !Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt)
 			return;
 
-		for (auto i = 0; i < MAX_VOLUMES; i++)
+		for (auto i = 0; i < s_ActiveVolumeCount; i++)
 		{
 			const auto &volume = s_Volumes[i];
 			if (volume.Type == eVolumeType_Disabled)
 				continue;
-			if (volume.ObjectIndex == -1 || !Blam::Objects::Get(volume.ObjectIndex))
+
+			Blam::Objects::ObjectBase *volumeObject;
+			if (volume.ObjectIndex == -1 || !(volumeObject = Blam::Objects::Get(volume.ObjectIndex)))
 				return;
+
+			if (!SphereInFrustrum(volumeObject->Center, volume.Zone.BoundingRadius))
+				continue;
 
 			ZoneShape zone;
 			GetObjectZoneShape(volume.ObjectIndex, &zone, 0);
