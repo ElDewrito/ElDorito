@@ -23,6 +23,12 @@ $("html").on("keydown", function(e) {
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
     }
+    if(e.keyCode == 9){
+        dew.show('scoreboard',{'locked':true});
+    }
+     if(e.keyCode == 36){
+        dew.show('settings');
+    }
 });
 
 $("html").on("keyup", function(e) {
@@ -232,6 +238,12 @@ dew.on('controllerinput', function(e){
         if(votingType != 'veto'){
             if(e.data.A == 1){
                 vote(itemNumber);
+            }
+            if(e.data.Select == 1){
+                dew.show('scoreboard',{'locked':true});
+            }
+            if(e.data.Start == 1){
+                dew.show('settings');
             }
             if(e.data.Up == 1){
                 upNav();
