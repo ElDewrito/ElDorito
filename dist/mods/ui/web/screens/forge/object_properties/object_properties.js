@@ -557,7 +557,7 @@ dew.on('show',function(e) {
 	            meta: {
 	                summary_placed_on_map: e.data.budget.summary_placed_on_map,
 	                summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
-	                summary_runtime_maximum: { type: 'int', min: 0, max: e.data.budget.summary_maximum_allowed, step: 1},
+	                summary_runtime_maximum: { type: 'int', min: e.data.budget.summary_placed_on_map, max: e.data.budget.summary_maximum_allowed, step: 1},
 	                summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
 	                summary_total_cost: e.data.budget.summary_total_cost
 	            }

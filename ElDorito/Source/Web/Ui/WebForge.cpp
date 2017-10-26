@@ -176,7 +176,7 @@ namespace
 				SetBudgetMinimum(value.ValueInt);
 				break;
 			case PropertyTarget::Budget_Maximum:
-				SetBudgetMinimum(value.ValueInt);
+				SetBudgetMaximum(value.ValueInt);
 				break;
 			case PropertyTarget::Light_ColorR:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);

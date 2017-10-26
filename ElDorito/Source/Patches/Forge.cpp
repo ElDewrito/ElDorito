@@ -92,6 +92,8 @@ namespace
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
+	void __fastcall c_map_variant_copy_budget_hook(Blam::MapVariant *thisptr, void *unused, Blam::MapVariant *other);
+
 	void MapVariant_SpawnObjectHook();
 
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
@@ -201,7 +203,7 @@ namespace Patches::Forge
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 		// fix incorrect runtime when reloading
-		Patch(0x14EC1D, { 0xEB }).Apply();
+		Hook(0x181CC0, c_map_variant_copy_budget_hook).Apply();
 
 		Hook(0x639986, ScreenEffectsHook, HookFlags::IsCall).Apply();
 
@@ -1393,6 +1395,23 @@ namespace
 			budget.DesignTimeMax = -1;
 			budget.RuntimeMin = -1;
 			budget.RuntimeMax = -1;
+		}
+	}
+
+	void __fastcall c_map_variant_copy_budget_hook(Blam::MapVariant *thisptr, void *unused, Blam::MapVariant *other)
+	{
+		for (auto i = 0; i < other->BudgetEntryCount; i++)
+		{
+			auto &budget = other->Budget[i];
+			if (budget.TagIndex != -1)
+			{
+				auto newBudgetIndex = CreateOrGetBudgetForItem(thisptr, budget.TagIndex);
+				if (newBudgetIndex != -1)
+				{
+					auto &newBudget = thisptr->Budget[newBudgetIndex];
+					newBudget = budget;
+				}
+			}
 		}
 	}
 
