@@ -51,6 +51,7 @@ namespace
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex);
 	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
+	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -433,6 +434,8 @@ namespace Patches::Network
 		Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
 
 		Hook(0x00039AE4, c_network_session_parameter_map_variant__request_change_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -1210,5 +1213,12 @@ namespace
 				callback(mapVariant);
 		}
 		return ret;
+	}
+
+	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3)
+	{
+		Blam::Network::LeaveGame();
+		Web::Ui::ScreenLayer::ShowAlert("Booted", "You were booted from the game", Web::Ui::ScreenLayer::AlertIcon::None);
+		return 0;
 	}
 }
