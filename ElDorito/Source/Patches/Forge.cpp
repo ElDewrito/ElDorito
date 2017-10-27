@@ -108,7 +108,6 @@ namespace
 	void GameEngineTickHook();
 
 
-	void FixRespawnZones();
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
@@ -220,8 +219,6 @@ namespace Patches::Forge
 		Patch::NopFill(Pointer::Base(0x185655), 6);
 
 		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
-
-		Patches::Core::OnGameStart(FixRespawnZones);
 
 		// disble projectile collisions on invisible material
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
@@ -879,58 +876,6 @@ namespace
 		else
 		{
 			Object_Transform(a1, objectIndex, position, forwardVec, upVec);
-		}
-	}
-
-	void FixRespawnZones()
-	{
-		const auto& objects = Blam::Objects::GetObjects();
-		auto mapv = GetMapVariant();
-
-		// loop throught mapv placements
-		for (auto i = 0; i < mapv->UsedPlacementsCount; i++)
-		{
-			const auto& placement = mapv->Placements[i];
-			if (!placement.InUse() || placement.ObjectIndex == -1)
-				continue;
-			// Player Respawn Zone
-			if (placement.Properties.ObjectType != 0xD)
-				continue;
-			auto zoneObject = Blam::Objects::Get(placement.ObjectIndex);
-			if (!zoneObject)
-				continue;
-
-			ZoneShape zoneShape;
-			GetObjectZoneShape(placement.ObjectIndex, &zoneShape, 0);
-
-			for (auto j = 0; j < mapv->UsedPlacementsCount; j++)
-			{
-				auto foundObjectIndex = mapv->Placements[j].ObjectIndex;
-
-				auto foundObject = Blam::Objects::Get(foundObjectIndex);
-				if (!foundObject || foundObjectIndex == placement.ObjectIndex)
-					continue;
-
-				auto mpPropertiesPtr = Pointer(foundObject->GetMultiplayerProperties());
-				if (!mpPropertiesPtr)
-					continue;
-				auto mpObjectType = mpPropertiesPtr(0x2).Read<uint8_t>();
-				auto flags = mpPropertiesPtr.Read<uint16_t>();
-
-				// check if the object's center is inside the zone
-				if (!PointIntersectsZone(&foundObject->Center, &zoneShape))
-					continue;
-				// PlayerSpawnLocation
-				if (mpObjectType != 0xC)
-					continue;
-				// ignore invisible spawns and initial spawns
-				if (foundObject->TagIndex == 0x00002EA6 || flags & (1 << 1))
-					continue;
-
-				// set the team index to match the zone
-				auto zoneTeamIndex = placement.Properties.TeamAffilation;
-				mpPropertiesPtr(0xA).WriteFast<uint8_t>(zoneTeamIndex);
-			}
 		}
 	}
 

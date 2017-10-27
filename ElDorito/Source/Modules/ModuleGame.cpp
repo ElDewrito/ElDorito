@@ -1211,9 +1211,6 @@ namespace Modules
 
 		VarFpsLimiter = AddVariableInt("FPSLimiter", "fps_limiter", "Enable/disable framerate limiter (improves frame timing at the cost of cpu usage)", eCommandFlagsArchived, 1);
 
-		// Level load patch
-		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
-
 		/*EXAMPLES: adds a variable "Game.Name", default value ElDewrito, calls VariableGameNameUpdate when value is updated
 		AddVariableString("Name", "gamename", "Title of the game", "ElDewrito", VariableGameNameUpdate);
 
