@@ -212,7 +212,6 @@ span {
     font-size: 18px;
 }
 form.colorForm {
-    display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 6px;
     width: 100%;

@@ -628,7 +628,7 @@ function colorShow(showMe, element){
     $(activePage+' .selectedElement').removeClass('selectedElement');
     element.addClass('selectedElement');
     $('.colorForm').hide();
-    $('#'+showMe).show();
+    $('#'+showMe).css('display', 'grid')
     $('#infoBox').show();
     $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent().text());
     $.grep(settingsToLoad, function(result, index){
