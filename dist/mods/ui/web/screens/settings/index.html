@@ -16,60 +16,87 @@
         <ul class="tabs">
             <img class="button"></img>
             <img class="button"></img>
-            <li><a href="#page1">Gameplay</a></li>
+            <li><a href="#page1">Game</a></li>
             <li><a href="#page2">Controls</a></li>
-            <li><a href="#page3">Audio/Video</a></li>
-            <li><a href="#page10">Tweaks</a></li>
+            <li><a href="#page3">Video</a></li>
+            <li><a href="#page10">Sound</a></li>
         </ul>
-        
-        <div id="page1">  
+				
+        <div id="page1"> <!-- Game -->
             <div id="buttonConatiner">
+						
+								<span>            
+                    <h3 class="subHeader">HUD</h3>
+                </span>
+								
+								<span>
+                    <label for="cCenteredCrosshair">Centered Crosshair</label>
+                    <input class="setting" type="checkbox" id="cCenteredCrosshair">
+                </span>
+								<span>
+                    <label for="wOffsetConfig">Viewmodel Config</label>
+                    <select id="wOffsetConfig" class="setting wheelable"></select>
+                </span>
                 <span>        
                     <label for="sHudShake">Hud Shake</label>
                     <input class="setting" type="checkbox" id="sHudShake">
-                </span><span>
+                </span>
+								
+								<span>
+                    <label for="cHideHUD">Show HUD</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="cHideHUD">
+                </span>
+								
+								<span>
                     <label for="sPlayerMarkerColors">Player Marker Colors</label>
                     <select id="sPlayerMarkerColors" class="setting wheelable">
                         <option value="default">Default</option>
                         <option value="blue">Ally Blue</option>
                         <option value="armor">Armor Colors</option>
                     </select>
-                </span><span>
-                    <label for="sCameraFOV">Camera FOV</label>
-                    <div class="colorBox">
-                        <input type="text" class="tinySetting" id="sCameraFOVText">
-                        <input type="range" class="setting hasTiny" min="55" max="120" id="sCameraFOV">
-                    </div>
-                </span><span>
-                    <label for="cCenteredCrosshair">Centered Crosshair</label>
-                    <input class="setting" type="checkbox" id="cCenteredCrosshair">
-                </span><span>
-                    <label for="wOffsetConfig">Viewmodel Config</label>
-                    <select id="wOffsetConfig" class="setting wheelable"></select>
-                </span><span>
-                    <label for="cHideHUD">Hide HUD</label>
-                    <input class="setting" type="checkbox" id="cHideHUD">
-                </span><span>
-                    <label for="gMedalPack">Medal Pack</label>
-                    <select id="gMedalPack" class="setting wheelable"></select>
-                </span><span>
-                    <label for="gExpandScoreboard">Always Expand Scoreboard</label>
-                    <input class="setting" type="checkbox" id="gExpandScoreboard">
-                </span><span>
-                    <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label>
-                    <input class="setting" type="checkbox" id="gSuppressJuggling">
-                </span><span>
-                    <label for="gHideChat">Hide Chat</label>
-                    <input class="setting" type="checkbox" id="gHideChat">
-                </span><span>
+                </span>
+								
+								<span> 
+                    <label for="tDisableHitmarkers">Hitmarkers</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="tDisableHitmarkers">
+                </span>
+								<span>  
+                    <label for="tDisableHeadshotEffect">Headshot Effect</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="tDisableHeadshotEffect">
+                </span>
+								<span>  
+                    <label for="tDisableWeapOutline">Weapon Outlines</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="tDisableWeapOutline">
+                </span>
+
+								<span>            
+                    <h3 class="subHeader">Interface</h3>
+                </span>
+
+								<span>
                     <label for="gIconSet">Controller Button Icon Set</label>
                     <select id="gIconSet" class="setting wheelable"></select>
                 </span>
+								
+								<span>
+                    <label for="gExpandScoreboard">Always Expand Scoreboard</label>
+                    <input class="setting" type="checkbox" id="gExpandScoreboard">
+                </span>
+								<span>
+                    <label for="gHideChat">Show Chat</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="gHideChat">
+                </span>
+								
+								<span>
+                    <label for="gMedalPack">Medal Pack</label>
+                    <select id="gMedalPack" class="setting wheelable"></select>
+                </span>
+
             </div>
             <div id="backgroundFill"></div>
         </div>
-        
-        <div id="page2">
+
+        <div id="page2"> <!-- Controls-->
             <div id="buttonConatiner">
                 <span>
                     <label for="sControlsMethod">Control Method</label>
@@ -78,66 +105,80 @@
                         <option value="0">Keyboard</option>
                         <option value="1">Gamepad</option>
                     </select>
-                </span><span>            
-                    <h3 class="subHeader">Infantry Mouse Sensitivity</h3>
-                </span><span>
-                    <label for="sInfantryMouseSensV">Vertical</label>
+                </span>
+								<span>
+                    <label for="sToggleCrouch">Toggle Crouch</label>
+                    <input class="setting" type="checkbox" id="sToggleCrouch">
+                </span>
+
+								<span>            
+                    <h3 class="subHeader">Keyboard & Mouse</h3>
+                </span>
+
+								<span>
+                    <label for="sInfantryMouseSensV">Look Vertical Mouse Sensitivity</label>
                         <div class="colorBox">
                             <input type="text" class="tinySetting" id="sInfantryMouseSensVText">
                             <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensV">
                         </div>
-                </span><span>
-                    <label for="sInfantryMouseSensH">Horizontal</label>
+                </span>
+								<span>
+                    <label for="sInfantryMouseSensH">Look Horizontal Mouse Sensitivity</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="sInfantryMouseSensHText">
                         <input type="range" class="setting hasTiny" min="0" max="100" id="sInfantryMouseSensH">
                     </div>
-                </span><span>
-                    <h3 class="subHeader">Vehicle Mouse Sensitivity</h3>
-                </span><span>
-                    <label for="sVehicleMouseSensV">Vertical</label>
+                </span>
+								<span>
+                    <label for="sVehicleMouseSensV">Vehicle Look Vertical Mouse Sensitivity</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="sVehicleMouseSensVText">
                         <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensV">
                     </div>
-                </span><span>
-                    <label for="sVehicleMouseSensH">Horizontal</label>
+                </span>
+								<span>
+                    <label for="sVehicleMouseSensH">Vehicle Look Horizontal Mouse Sensitivity</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="sVehicleMouseSensHText">
                         <input type="range" class="setting hasTiny" min="0" max="100" id="sVehicleMouseSensH">
                     </div>
-                </span><span>
-                    <label for="sMouseAcceleration">Mouse Acceleration</label>
-                    <div class="colorBox">
-                        <input type="text" class="tinySetting" id="sMouseAccelerationText">
-                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMouseAcceleration">
-                    </div>
-                </span><span>
-                    <label for="sMouseFilter">Mouse Filter</label>
-                    <input class="setting" type="checkbox" id="sMouseFilter">
-                </span><span>
-                    <label for="sInvertMouse">Invert Mouse</label>
-                    <input class="setting" type="checkbox" id="sInvertMouse">
-                </span><span>
-                    <label for="sToggleCrouch">Toggle Crouch</label>
-                    <input class="setting" type="checkbox" id="sToggleCrouch">
-                </span><span>
-                    <label for="iDisableSprint">Toggle Sprint</label>
-                    <input class="setting" type="checkbox" id="iDisableSprint">
-                </span><span>
-                    <label for="inputRaw">Use Raw Input</label>
-                    <input class="setting" type="checkbox" id="inputRaw">
-                </span><span>
+                </span>
+								
+								<span>
                     <label for="iSpectateSens">Spectator Camera Senstivity</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="iSpectateSensText">
                         <input type="range" class="setting hasTiny" min="0" max="2" step="0.1" id="iSpectateSens">
                     </div>
                 </span>
+								
+								<span>
+                    <label for="sInvertMouse">Invert Mouse</label>
+                    <input class="setting" type="checkbox" id="sInvertMouse">
+                </span>
+								
+								<span>
+                    <label for="inputRaw">Raw Input</label>
+                    <input class="setting" type="checkbox" id="inputRaw">
+                </span>
+
+								<span>
+                    <label for="sMouseFilter">Mouse Filter</label>
+                    <input class="setting" type="checkbox" id="sMouseFilter">
+                </span>
+								
+								<span>
+                    <label for="sMouseAcceleration">Mouse Acceleration</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sMouseAccelerationText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMouseAcceleration">
+                    </div>
+                </span>
+
             </div>
             <div id="backgroundFill"></div>
         </div>
-        
+
         <div id="page5">
             <div id="buttonConatiner">
                 <table id="bindBox">
@@ -152,58 +193,48 @@
             <div id="backgroundFill"></div>
         </div>
         
-        <div id="page3">
+        <div id="page3"> <!-- Video -->
             <div id="buttonConatiner">
-                <span>
-                    <label for="sAudioDevice">Audio Device</label>
-                    <select id="sAudioDevice"class="setting wheelable"></select>
-                </span><span>
-                    <label for="sMasterVolume">Master Volume</label>
-                    <div class="colorBox">
-                        <input type="text" class="tinySetting" id="sMasterVolumeText">
-                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
-                    </div>
-                </span><span>
-                    <label for="sSFXVolume">SFX Volume</label>
-                    <div class="colorBox">
-                        <input type="text" class="tinySetting" id="sSFXVolumeText">
-                        <input type="range" class="setting hasTiny" min="0" max="100" id="sSFXVolume">
-                    </div>
-                </span><span>
-                    <label for="sMusicVolume">Music Volume</label>
-                    <div class="colorBox">
-                        <input type="text" class="tinySetting" id="sMusicVolumeText">
-                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMusicVolume">
-                    </div>
-                </span><span>     
+								<span>     
                     <h3 class="subHeader">Video</h3>
-                </span><span>
+                </span>
+								<span>
+                    <label for="sFullscreen">Window Mode</label>
+                    <input class="setting inverted-checkbox" type="checkbox" id="sFullscreen">
+                </span>
+								
+								<span>
                     <label for="sScreenResolution">Screen Resolution</label>
                     <select id="sScreenResolution" class="setting wheelable">
                     </select>
-                </span><span>
+                </span>
+
+								<span>
+                    <label for="sCameraFOV">Field of View</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sCameraFOVText">
+                        <input type="range" class="setting hasTiny" min="55" max="120" id="sCameraFOV">
+                    </div>
+                </span>
+								<span>
                     <label for="sBrightness">Brightness</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="sBrightnessText">
                         <input type="range" class="setting hasTiny" min="1" max="100" id="sBrightness">
                     </div>
-                </span><span>
+                </span>
+								<span>
                     <label for="sContrast">Contrast</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="sContrastText">
                         <input type="range" class="setting hasTiny" min="1" max="100" id="sContrast">
                     </div>
-                </span><span>
-                    <label for="sFullscreen">Fullscreen</label>
-                    <input class="setting" type="checkbox" id="sFullscreen">
-                </span><span>
-                    <label for="sVsync">Vsync</label>
-                    <input class="setting" type="checkbox" id="sVsync">
-                </span><span>
-                    <label for="sAntiAliasing">Anti-Aliasing</label>
-                    <input class="setting" type="checkbox" id="sAntiAliasing">
-                </span><span>    
-                    <label for="sQualityPreset">Quality Preset</label>
+                </span>
+								<span>     
+                    <h3 class="subHeader">Advanced Video</h3>
+                </span>
+								<span>    
+                    <label for="sQualityPreset">Graphics Quality</label>
                     <button class="tinySetting" onclick="switchPage('#page4')">EDIT</button>
                     <select id="sQualityPreset" class="setting hasTiny wheelable">
                         <option value="low">Low</option>
@@ -211,30 +242,15 @@
                         <option value="high">High</option>
                         <option value="custom">Custom</option>
                     </select>
-                </span><span>   
-                    <h3 class="subHeader">VOIP</h3>
-                </span><span>
-                    <label for="vEnabled">VOIP Enabled</label>
-                    <input class="setting voip" type="checkbox" id="vEnabled">
-                </span><span>
-                    <label for="vMicrophoneID">Microphone ID</label>
-                    <select id="vMicrophoneID"class="setting voip wheelable"></select>
-                </span><span>
-                    <label for="vPTTEnable">Push To Talk</label>
-                    <input class="setting voip" type="checkbox" id="vPTTEnable">
-                </span><span>
-                    <label for="vEchoCancelation">Echo Cancelation</label>
-                    <input class="setting voip" type="checkbox" id="vEchoCancelation">
-                </span><span>
-                    <label for="vAGC">Automatic Gain Control</label>
-                    <input class="setting voip" type="checkbox" id="vAGC">
-                </span><span>    
-                    <label for="vNoiseSupress">Noise Supress</label>
-                    <input class="setting voip" type="checkbox" id="vNoiseSupress">
-                </span><span>    
-                    <label for="vStereoVoice">Stereo Voice Chat</label>
-                    <input class="setting voip" type="checkbox" id="vStereoVoice">
-                </span>    
+                </span>
+								<span>
+                    <label for="sAntiAliasing">Anti-Aliasing</label>
+                    <input class="setting" type="checkbox" id="sAntiAliasing">
+                </span>
+								<span>
+                    <label for="sVsync">Fix FPS Stutter</label>
+                    <input class="setting" type="checkbox" id="sVsync">
+                </span>
             </div>
             <div id="backgroundFill"></div>						
         </div>
@@ -305,7 +321,8 @@
                     <label for="presetMenu">Button Layout</label>
                     <button class="tinySetting" onclick="switchPage('#page9')">EDIT</button>
                     <select id="presetMenu" class="setting hasTiny wheelable"></select>
-                </span><span>
+                </span>
+								<span>
                     <label for="stickLayout">Stick Layout</label>
                     <select id="stickLayout" class="setting">
                         <option value="0">Default</option>
@@ -313,17 +330,20 @@
                         <option value="2">Legacy</option>
                         <option value="3">Legacy Southpaw</option>
                     </select>
-                </span><span>
-                    <label for="lookSensitivity">Look Sensitivity (Default is 3)</label>
+                </span>
+								<span>
+                    <label for="lookSensitivity">Look Sensitivity</label>
                     <button class="tinySetting" onclick="switchPage('#page11')">EDIT</button>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="lookSensitivityText" class="setting">
                         <input type="range" min="1" max="15" id="lookSensitivity" class="setting hasTiny">
                     </div>
-                </span><span>
+                </span>
+								<span>
                     <label for="invertLook">Invert Look</label>
                     <input class="setting" type="checkbox" id="invertLook">
-                </span><span>
+                </span>
+								<span>
                     <label for="controllerPort">Port Number (Default is 0)</label>
                     <select id="controllerPort" class="setting">
                         <option value="0">0</option>
@@ -331,7 +351,8 @@
                         <option value="2">2</option>
                         <option value="3">3</option>
                     </select>
-                </span><span>
+                </span>
+								<span>
                     <label for="controllerVibration">Controller Vibration (Default is 1)</label>
                     <div class="colorBox">
                         <input type="text" class="tinySetting" id="controllerVibrationText" class="setting">
@@ -365,13 +386,15 @@
             <div id="buttonConatiner">
                 <span>
                     <h3 class="subHeader">Advanced Controller Sensitivity</h3>
-                </span><span>
+                </span>
+								<span>
                     <label for="xSens">X Axis</label>
                     <div class="colorBox">
                         <input type="text" step="any" class="tinySetting" id="xSensText">
                         <input type="range" class="setting hasTiny" min="0" max="300" step="1" id="xSens">
                     </div>
-                </span><span>
+                </span>
+								<span>
                     <label for="ySens">Y Axis</label>
                     <div class="colorBox">
                         <input type="text" step="any" class="tinySetting" id="ySensText">
@@ -380,7 +403,7 @@
                 </span>
             </div>
             <div id="backgroundFill"></div>
-		</div>	
+				</div>	
         
         <div id="page9">
             <div id="buttonConatiner">
@@ -473,41 +496,79 @@
             <div id="backgroundFill"></div>
         </div>
         
-        <div id="page10">
+        <div id="page10"> <!-- Sound -->
             <div id="buttonConatiner">
-                <span>
-                    <label for="tAgressiveAudioDiscard">Aggressive Audio Discarding (by Dany)</label>
-                    <input class="setting" type="checkbox" id="tAgressiveAudioDiscard">
-                    <p class="desc">Prioritizes gun sounds over others to make audio cutoff less notable</p>
-                </span><span>  
-                    <label for="tDisableFog">Reacthor (by Dany)</label>
-                    <input class="setting" type="checkbox" id="tDisableFog">
-                    <p class="desc">Removes some of the fog on Reactor which causes FPS drops indoors</p>
-                </span><span>  
-                    <label for="tIntelBloomPatch">Bloom Patch</label>
-                    <input class="setting" type="checkbox" id="tIntelBloomPatch">
-                    <p class="desc">Fixes extreme brightness on sunny maps</p>
-                </span><span>  
-                    <label for="tDisableWeapOutline">Weapon Outline Removal (by Dany)</label>
-                    <input class="setting" type="checkbox" id="tDisableWeapOutline">
-                    <p class="desc">Remove outlines from weapons on the ground</p>
-                </span><span>  
-                    <label for="tDisableHeadshotEffect">Disable headshot "ping" sound and effect</label>
-                    <input class="setting" type="checkbox" id="tDisableHeadshotEffect">
-                    <p class="desc">Remove the effect and ping sound you hear when killed by a headshot</p>
-                </span><span> 
-                    <label for="tDisableHitmarkers">Disable weapon hitmarkers</label>
-                    <input class="setting" type="checkbox" id="tDisableHitmarkers">
-                    <p class="desc">Stop red indicators when any of your weapons cause damage</p>
-                </span><span> 
-                    <label for="tGruntBirthdayParty">Grunt Birthday Party (by Bivi) </label>
-                    <input class="setting" type="checkbox" id="tGruntBirthdayParty">
-                    <p class="desc">Confetti flies from heatshots as the children cheer</p>
-                </span><span> 
-                    <label for="tReachFrags">Reach Style Frags (by Bivi)</label>
-                    <input class="setting" type="checkbox" id="tReachFrags">
-                    <p class="desc">Give tossed grenades the orangey-yellow tail ala Halo: Reach</p>
-                </span> 
+								<span>   
+                    <h3 class="subHeader">Volume</h3>
+                </span>
+								<span>
+                    <label for="sAudioDevice">Audio Device</label>
+                    <select id="sAudioDevice"class="setting wheelable"></select>
+                </span>
+								
+								<span>
+                    <label for="sMasterVolume">Master Volume</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sMasterVolumeText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMasterVolume">
+                    </div>
+                </span>
+								
+								<span>
+                    <label for="sSFXVolume">SFX Volume</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sSFXVolumeText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sSFXVolume">
+                    </div>
+                </span>
+								
+								<span>
+                    <label for="sMusicVolume">Music Volume</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sMusicVolumeText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sMusicVolume">
+                    </div>
+                </span>
+
+								<span>
+										<label for="tAgressiveAudioDiscard">Aggressive Audio Discarding</label>
+										<input class="setting" type="checkbox" id="tAgressiveAudioDiscard">
+								</span>
+								<span>
+                    <label for="gSuppressJuggling">Suppress Juggling Announcer Spam</label>
+                    <input class="setting" type="checkbox" id="gSuppressJuggling">
+                </span>
+								<span>   
+                    <h3 class="subHeader">VOIP</h3>
+                </span>
+								<span>
+                    <label for="vEnabled">Voice Chat</label>
+                    <input class="setting voip" type="checkbox" id="vEnabled">
+                </span>
+								<span>
+                    <label for="vPTTEnable">Push To Talk</label>
+                    <input class="setting voip" type="checkbox" id="vPTTEnable">
+                </span>
+
+								<span>
+                    <label for="vMicrophoneID">Microphone Device</label>
+                    <select id="vMicrophoneID"class="setting voip wheelable"></select>
+                </span>
+								
+								<span>
+                    <label for="vEchoCancelation">Echo Cancelation</label>
+                    <input class="setting voip" type="checkbox" id="vEchoCancelation">
+                </span>
+								
+								<span>
+                    <label for="vAGC">Automatic Gain Control</label>
+                    <input class="setting voip" type="checkbox" id="vAGC">
+                </span>
+								
+								<span>    
+                    <label for="vNoiseSupress">Noise Supress</label>
+                    <input class="setting voip" type="checkbox" id="vNoiseSupress">
+                </span>    
             </div>
             <div id="backgroundFill"></div>
         </div>	
@@ -531,6 +592,36 @@
     </div>
 </body>
 </html>
+
+
+
+
+
+
+
+
+<!--
+						<span>  
+								<label for="tDisableFog">Reacthor (by Dany)</label>
+								<input class="setting" type="checkbox" id="tDisableFog">
+								<p class="desc">Removes some of the fog on Reactor which causes FPS drops indoors</p>
+						</span>
+						<span>  
+								<label for="tIntelBloomPatch">Bloom Patch</label>
+								<input class="setting" type="checkbox" id="tIntelBloomPatch">
+								<p class="desc">Fixes extreme brightness on sunny maps</p>
+						</span>
+						<span> 
+								<label for="tGruntBirthdayParty">Grunt Birthday Party (by Bivi) </label>
+								<input class="setting" type="checkbox" id="tGruntBirthdayParty">
+								<p class="desc">Confetti flies from heatshots as the children cheer</p>
+						</span>
+						<span> 
+								<label for="tReachFrags">Reach Style Frags (by Bivi)</label>
+								<input class="setting" type="checkbox" id="tReachFrags">
+								<p class="desc">Give tossed grenades the orangey-yellow tail ala Halo: Reach</p>
+						</span>
+-->
 
 <!--        Template for other control methods
             <label for="sBlah">Spinner</label>

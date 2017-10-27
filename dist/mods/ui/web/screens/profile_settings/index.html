@@ -2,91 +2,106 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+
+		<!-- Common Include -->
+    <link rel="stylesheet" href="dew://lib/css/style-global-include.css"/>
     <script type="text/javascript" src="dew://lib/dew.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="settings.js"></script>
-    <link rel="stylesheet" href="settings.css">
     <link rel="stylesheet" href="dew://lib/jquery-ui.css">
+
+		<!-- Window Resize-->
+    <script src="dew://lib/window-resize.js"></script>
+    <link rel="stylesheet" type="text/css" href="dew://lib/window-resize.css"/>
+
+		<!-- Customization -->
+		<link rel="stylesheet" href="customization.css">
+    <script type="text/javascript" src="customization.js"></script>
 </head>
 <body>
     <div id="blackLayer"></div>
-    <div id="blueHeader"></div>
-    <div id="settingsWindow">
-        <h1 class="header">Customize</h1>
-        <ul class="tabs">
-            <img class="button"></img>
-            <img class="button"></img>
-            <li><a href="#page1">Armory</a></li>
-            <li><a href="#page2">Colors</a></li>
-        </ul>
-                    
-        <div id="page1">
-            <div id="buttonConatiner">
-                <span>
-                    <div class="setting baseNav" onclick="armorShow('armorHelmet',$(this));"><label>Helmet</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="armorShow('armorChest',$(this));"><label>Chest</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="armorShow('armorRightShoulder',$(this));"><label>Right Shoulder</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="armorShow('armorLeftShoulder',$(this));"><label>Left Shoulder</label></div>
-                </span>
-            </div>
-            <form class="armorForm" id="armorHelmet"></form>
-            <form class="armorForm" id="armorChest"></form>
-            <form class="armorForm" id="armorRightShoulder"></form>
-            <form class="armorForm" id="armorLeftShoulder"></form>
-            <div id="backgroundLeftSide"></div>
-            <button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>
-        </div>
-        
-        <div id="page2">
-            <div id="buttonConatiner">
-               <span>
-                    <div class="setting baseNav" onclick="colorShow('colorsPrimary',$(this));"><label>Primary</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="colorShow('colorsSecondary',$(this));"><label>Secondary</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="colorShow('colorsVisor',$(this));"><label>Visor</label></div>
-                </span><span>
-                    <div class="setting baseNav" onclick="colorShow('colorsLights',$(this));"><label>Lights</label></div>
-                </span>
+    <div id="container">
+        <div class="page_content">
+            <div id="settingsWindow" class="menu-fullscreen">
+                <h1 class="header window-side-padding">Customization</h1>
+                <ul class="tabs">
+                    <li><a href="#page1"><img class="button"></img><img class="button"></img><p>Armory</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
+                    <li><a href="#page2"><p>Colors</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
+                </ul>
+                <div class="tabpage-container window-side-padding">
+                  <div id="page1" class="tabpage grid-customization hide">
+                      <div id="buttonConatiner">
+                          <span><div class="setting baseNav button-list" onclick="armorShow('armorHelmet',$(this));"><label>Helmet</label></div></span>
+                          <span><div class="setting baseNav button-list" onclick="armorShow('armorRightShoulder',$(this));"><label>Right Shoulder</label></div></span>
+                          <span><div class="setting baseNav button-list" onclick="armorShow('armorLeftShoulder',$(this));"><label>Left Shoulder</label></div></span>
+                          <span><div class="setting baseNav button-list" onclick="armorShow('armorChest',$(this));"><label>Body</label></div></span>
+                      </div>
+                      <div id="infoBox">
+                        <div class="infobox-header" id="infoHeader"></div>
+                        <div class="infobox-content" id="infoText"></div>
+                      </div>
+                      <div class="side-list has-vertical-scrollbar vertical-gradient-scroll">
+                        <form class="armorForm hide tile-button tile-large" id="armorHelmet"></form>
+                        <form class="armorForm hide tile-button tile-large" id="armorRightShoulder"></form>
+                        <form class="armorForm hide tile-button tile-large" id="armorLeftShoulder"></form>
+                        <form class="armorForm hide tile-button tile-large" id="armorChest"></form>
+                      </div>
 
+                      <!--<button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>-->
+                  </div>
+                  <div id="page2" class="tabpage grid-customization hide">
+                      <div id="buttonConatiner">
+                         <span><div class="setting baseNav button-list" onclick="colorShow('colorsPrimary',$(this));"><label>Armor Primary</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="colorShow('colorsSecondary',$(this));"><label>Armor Secondary</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="colorShow('colorsVisor',$(this));"><label>Armor Visor</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="colorShow('colorsLights',$(this));"><label>Armor Lights</label></div></span>
+                      </div>
+                      <div class="side-list">
+                        <form class="colorForm hide tile-button" id="colorsPrimary">
+                            <span id="customColor"><label><input type="radio" name="colorsPrimary" value="" onclick="document.getElementById('colorsPrimaryText').click()">Custom Color<input type="text" name="colorsPrimary" class="setting" id="colorsPrimaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+                        </form>
+                        <form class="colorForm hide tile-button" id="colorsSecondary">
+                            <span id="customColor"><label><input type="radio" name="colorsSecondary" value="" onclick="document.getElementById('colorsSecondaryText').click()">Custom Color<input type="text" name="colorsSecondary" class="setting" id="colorsSecondaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+                        </form>
+                       <form class="colorForm hide tile-button" id="colorsVisor">
+                            <span id="customColor"><label><input type="radio" name="colorsVisor" value="" onclick="document.getElementById('colorsVisorText').click()">Custom Color<input type="text" name="colorsVisor" id="colorsVisorText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+                        </form>
+                        <form class="colorForm hide tile-button" id="colorsLights">
+                            <span id="customColor"><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom Color<input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
+                        </form>
+                      </div>
+                      <div id="infoBox">
+                          <div class="infobox-header" id="infoHeader"></div>
+                          <div class="infobox-content" id="infoText"></div>
+                      </div>
+                      <!--<button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>-->
+                  </div>
+                  <div id="playerWindow"></div>
+                </div>
+                <div class="bottomBar window-side-padding">
+                    <button id="cancelButton" class="legend-button"><img class="button">Close</button>
+                    <button id="namePrompt" onclick="inputBox()" class="legend-button"><img class="button">Player Name</button>
+                </div>
             </div>
-            <form class="colorForm" id="colorsPrimary">
-                <span><label><input type="radio" name="colorsPrimary" value="" onclick="document.getElementById('colorsPrimaryText').click()">Custom <input type="text" name="colorsPrimary" class="setting" id="colorsPrimaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
-            </form>
-            <form class="colorForm" id="colorsSecondary">
-                <span><label><input type="radio" name="colorsSecondary" value="" onclick="document.getElementById('colorsSecondaryText').click()">Custom <input type="text" name="colorsSecondary" class="setting" id="colorsSecondaryText" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
-            </form>
-           <form class="colorForm" id="colorsVisor">
-                <span><label><input type="radio" name="colorsVisor" value="" onclick="document.getElementById('colorsVisorText').click()">Custom <input type="text" name="colorsVisor" id="colorsVisorText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
-            </form>
-            <form class="colorForm" id="colorsLights">
-                <span><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom <input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
-            </form>
-            <div id="backgroundLeftSide"></div>
-            <button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>
+
+            <div class="popup-window-container" id="inputBox">
+              <div class="popup-window-wrapper" id="inputBox">
+                <div class="popup-window" id="inputBox">
+                    <h1 class="header window-side-padding">Player Name</h1>
+                    <div class="popup-window-area window-side-padding">
+                        <input type="text" class="popup-window-textinput textInput" id="pName" placeholder="...">
+                    </div>
+
+                    <div class="bottomBar window-side-padding">
+                        <button id="okButton" class="legend-button"><img class="button">Ok</button>
+                        <button id="dismissButton" class="legend-button"><img class="button">Cancel</button>
+                    </div>
+                  </div>
+
+
+              </div>
+            </div>
         </div>
-        <!--
-        <div id="infoBox">
-            <div id="infoHeader"></div>
-            <div id="infoText"></div>
-        </div>
-        -->
-    </div>	
-    <div class="bottomBar">
-        <button id="applyButton"><img class="button">Apply</button>
-        <button id="namePrompt" onclick="inputBox()"><img class="button">Player Name</button>
-        <button id="cancelButton"><img class="button">Close</button>
     </div>
-    <div id="inputBox">
-        <div class="wHeader">Player Name</div>
-        <input type="text" class="textInput" id="pName" placeholder="...">
-        <button id="okButton"><img class="button">Ok</button>
-        <button id="dismissButton"><img class="button">Cancel</button>
-    </div>
-    <div id="blueFooter"></div>
 </body>
 </html>
