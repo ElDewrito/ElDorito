@@ -89,7 +89,11 @@ var subPages = [];
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            cancelButton();
+            if(activePage!=location.hash){
+                exitSubform();
+            }else{
+                cancelButton();
+            }
         }
         if (e.keyCode == 44) {
             dew.command('Game.TakeScreenshot');
@@ -98,6 +102,30 @@ $(document).ready(function(){
     $(document).keydown(function(e){
         if(e.keyCode == 192 || e.keyCode == 223){
             dew.show('console');
+        }
+        if(e.keyCode == 37){ //Left
+            leftNav();
+        }
+        if(e.keyCode == 38){ //Up
+            upNav();
+        }
+        if(e.keyCode == 39){ //Right
+            rightNav();
+        }
+        if(e.keyCode == 40){ //Down
+            downNav();
+        }
+        if(!activePage.endsWith('inputBox')){
+            if(e.keyCode == 32 || e.keyCode == 13){ //Space and Enter
+                selectElement();
+            }
+            if(e.keyCode == 8){ //Backspace
+                if(activePage!=location.hash){
+                    exitSubform();
+                }else{
+                    cancelButton();
+                }
+            }
         }
     });
     setRadioList('armorHelmet', armorHelmetList, true);
@@ -115,9 +143,7 @@ $(document).ready(function(){
         activePage = e.target.hash;
         itemNumber = 0;
         $(e).ready(function(){
-            if(hasGP){
                 updateSelection(itemNumber, false, true);
-            }
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
         $('#infoHeader, #infoText').text('');
@@ -125,8 +151,6 @@ $(document).ready(function(){
             $.grep(settingsToLoad, function(result, index){
                 if(result){
                     if(result[0] == $(activePage + ' form:visible').attr('id')){
-                        $('#infoBox #infoHeader').text(result[2]);
-                        $('#infoBox #infoText').text(result[3]);
                         $('.baseNav').removeClass('selectedElement');
                         itemNumber = result[4];
                         $(activePage+' .baseNav').eq(result[4]).addClass('selectedElement');
@@ -140,7 +164,7 @@ $(document).ready(function(){
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.name){
                 dew.command(result[1]+' '+e.target.value);
-                $('#infoBox #infoText').text(result[2]);
+                $('#infoBox #infoText').text(result[3]);
             };
             $('#infoBox #infoHeader').text(e.target.computedName);
         });
@@ -173,7 +197,7 @@ $(document).ready(function(){
                 if(activePage.endsWith('inputBox')){
                     dismissButton();
                 }else if(activePage!=location.hash){
-                    leftNav();
+                    exitSubform();
                 }else{
                     cancelButton();
                 }
@@ -198,7 +222,7 @@ $(document).ready(function(){
                 leftNav();
             }
             if(e.data.Right == 1){
-                selectElement();
+                rightNav();
             }
             if(e.data.LeftBumper == 1){
                 prevPage();
@@ -265,10 +289,10 @@ $(document).ready(function(){
         }
     });
     $('.baseNav').mouseover(function(){
-       activePage = location.hash;
+        activePage = location.hash;
     });
     $('.armorForm, .colorForm').mouseover(function(){
-       activePage = location.hash+' #'+$(this).attr('id');
+        activePage = location.hash+' #'+$(this).attr('id');
     });
     $('span').has('.setting').mouseover(function(){
         if(hasGP){
@@ -312,7 +336,7 @@ function checkGamepad(){
         leftNav();
     }
     if(stickTicks.right == 1 || (shouldUpdateHeld && stickTicks.right > 25)){
-        selectElement();
+        rightNav();
     }
 };
 
@@ -355,6 +379,7 @@ dew.on('show', function(e){
         }
     });
     setControlValues();
+    updateSelection(0,false,true);
 });
 
 function initGamepad(){
@@ -404,6 +429,7 @@ function initActive(){
     $('.tabs li:visible').eq(0).addClass('selected');
     location.hash = $('.selected a')[0].hash;
     activePage = window.location.hash;
+    $('#buttonContainer span:eq(0) div:eq(0)').click();
 }
 
 function setControlValues(){
@@ -559,16 +585,30 @@ function nextPage(){
 }
 
 function upNav(){
-    if(itemNumber > 0){
-        itemNumber--;
-        updateSelection(itemNumber, true, true);
+    if(activePage.startsWith('#page2 #color')){
+        if(itemNumber > 3){
+            itemNumber-=3;
+            updateSelection(itemNumber, true, true);
+        }        
+    }else{
+        if(itemNumber > 0){
+            itemNumber--;
+            updateSelection(itemNumber, true, true);
+        }
     }
 }
 
 function downNav(){
-    if(itemNumber < $(activePage + ' label:visible').length-1){
-        itemNumber++;
-        updateSelection(itemNumber, true, true);
+    if(activePage.startsWith('#page2 #color')){
+        if(itemNumber < $(activePage + ' label:visible').length-3){
+            itemNumber+=3;
+            updateSelection(itemNumber, true, true);
+        }
+    }else{
+        if((activePage.split(' ').length < 2 && itemNumber < 3) || (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+            itemNumber++;
+            updateSelection(itemNumber, true, true);
+        }
     }
 }
 
@@ -578,7 +618,7 @@ function onControllerConnect(){
 }
 
 function onControllerDisconnect(){
-    $('.selectedElement').removeClass();
+    $('.selectedElement').removeClass('selectedElement');
     $('button img, .tabs img').hide();
 }
 
@@ -608,18 +648,10 @@ function armorShow(showMe, element){
     $('.armorForm').hide();
     $('#'+showMe).show();
     $('#infoBox').show();
-    $.grep(settingsToLoad, function(result, index){
-        if(result){
-            if(result[0] == showMe){
-                $('#infoBox #infoHeader').text(result[2]);
-                $('#infoBox #infoText').text(result[3]);
-            }
-        }
-    });
-    if(hasGP){
-        itemNumber = 0;
-        updateSelection(0, false, true);
-    }
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+    updateSelection(itemNumber, false, true);
+    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $('#infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
 }
 
 function colorShow(showMe, element){
@@ -630,27 +662,35 @@ function colorShow(showMe, element){
     $('.colorForm').hide();
     $('#'+showMe).css('display', 'grid')
     $('#infoBox').show();
-    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent().text());
     $.grep(settingsToLoad, function(result, index){
         if(result){
             if(result[0] == showMe){
-                $('#infoBox #infoHeader').text(result[2]);
                 $('#infoBox #infoText').text(result[3]);
             }
         }
     });
-    if(hasGP){
-        itemNumber = 0;
-        updateSelection(0, false, true);
-    }
+    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+    updateSelection(itemNumber, false, true);
 }
 
 function leftNav(){
-    if($(activePage + ' form:visible') && activePage != location.hash){
-        $(activePage+' .selectedElement').removeClass('selectedElement');
-        activePage = location.hash;
-        itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
-        dew.command('Game.PlaySound 0x0B04');
+    if(activePage.startsWith('#page2 #color') && itemNumber % 3 != 1){
+         itemNumber--;
+         updateSelection(itemNumber, true, true);
+    }else{
+        exitSubform();
+    }
+}
+
+function rightNav(){
+    if(activePage.startsWith('#page2 #color')){
+        if(itemNumber % 3 != 0){
+             itemNumber++;
+            updateSelection(itemNumber, true, true);
+        }
+    }else if(activePage.split(' ').length < 2){
+        selectElement();
     }
 }
 
@@ -662,4 +702,13 @@ function selectElement(){
         $(activePage+' .selectedElement').click();
     }
     dew.command('Game.PlaySound 0x0B00');
+}
+
+function exitSubform(){
+        if($(activePage + ' form:visible') && activePage != location.hash){
+            $(activePage+' .selectedElement').removeClass('selectedElement');
+            activePage = location.hash;
+            itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
+            dew.command('Game.PlaySound 0x0B04');
+        }
 }
