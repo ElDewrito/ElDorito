@@ -623,7 +623,7 @@ function onControllerDisconnect(){
 function inputBox(){
     dew.command('Player.Name', {}).then(function(response) {
         $('#inputBox #pName').val(response);
-        $('#inputBox').fadeIn(100);
+        $('#inputBox').fadeIn(50);
         activePage = activePage+'inputBox';
         $('#dismissButton').show();
         $('#pName').focus();
