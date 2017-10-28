@@ -314,10 +314,6 @@ $(document).ready(function(){
     $('#inputBox #dismissButton').on('click', function(){
         hideInputBox(true);
     });
-    dew.command('Player.Name', {}).then(function(response) {
-        $('#inputBox #pName').val(response);
-    });
-
 });
 
 function checkGamepad(){
@@ -358,6 +354,8 @@ var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
+    $('#armorForm, #colorForm').hide();
+    $('#infoHeader, #infoText').text('');
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
@@ -623,9 +621,13 @@ function onControllerDisconnect(){
 }
 
 function inputBox(){
-    $('#inputBox').fadeIn(100);
-    activePage = activePage+'inputBox';
-    $('#dismissButton').show();
+    dew.command('Player.Name', {}).then(function(response) {
+        $('#inputBox #pName').val(response);
+        $('#inputBox').fadeIn(100);
+        activePage = activePage+'inputBox';
+        $('#dismissButton').show();
+        $('#pName').focus();
+    });
 }
 
 function hideInputBox(sound,condition){
