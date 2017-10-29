@@ -1050,7 +1050,7 @@ namespace
 		uint32_t objectIndexUnderCrosshair, heldObjectIndex;
 		if (Forge::GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
-			auto currentObjectIndex = objectIndexUnderCrosshair != -1 ? objectIndexUnderCrosshair : heldObjectIndex;
+			auto currentObjectIndex = heldObjectIndex != -1 ? heldObjectIndex : objectIndexUnderCrosshair;
 			auto currentObject = Blam::Objects::Get(currentObjectIndex);
 			if (currentObject && currentObject->PlacementIndex != -1)
 			{
