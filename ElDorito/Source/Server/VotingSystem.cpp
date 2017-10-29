@@ -46,25 +46,27 @@ namespace Server::Voting
 	};
 
 	//These are just some default gametypes that get loaded if the user doesnt specify any
-	const std::string DefaultTypes[7] =
+	const std::string DefaultTypes[8] =
 	{
 		"slayer",
-		"team_slayer",
-		"team_swat",
-		"ctf",
-		"odd_ball_ffa",
-		"odd_ball",
-		"koth",
+		"team slayer",
+		"multi flag",
+		"team oddball",
+		"oddball",
+		"crazy king",
+		"team king",
+		"assault",
 	};
-	const std::string DefaultTypeNames[7] =
+	const std::string DefaultTypeNames[8] =
 	{
 		"Slayer",
 		"Team Slayer",
-		"Team Swat",
-		"CTF",
+		"Multi Flag",
 		"Team Oddball",
 		"FFA Oddball",
 		"Crazy King",
+		"Team King",
+		"Assault",
 	};
 
 	int numberOfPlayersInGame()
