@@ -89,10 +89,14 @@ var subPages = [];
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            if(activePage!=location.hash){
-                exitSubform();
+            if(activePage.endsWith('inputBox')){
+                dismissButton();
             }else{
-                cancelButton();
+                if(activePage!=location.hash){
+                    exitSubform();
+                }else{
+                    cancelButton();
+                }
             }
         }
         if (e.keyCode == 44) {
@@ -119,12 +123,10 @@ $(document).ready(function(){
             if(e.keyCode == 32 || e.keyCode == 13){ //Space and Enter
                 selectElement();
             }
-            if(e.keyCode == 8){ //Backspace
-                if(activePage!=location.hash){
-                    exitSubform();
-                }else{
-                    cancelButton();
-                }
+        }else{
+            if(e.keyCode == 13){
+                dew.command('Player.Name '+$('#inputBox input').val());
+                dismissButton();
             }
         }
     });
@@ -623,7 +625,7 @@ function onControllerDisconnect(){
 function inputBox(){
     dew.command('Player.Name', {}).then(function(response) {
         $('#inputBox #pName').val(response);
-        $('#inputBox').fadeIn(50);
+        $('#inputBox').fadeIn(100);
         activePage = activePage+'inputBox';
         $('#dismissButton').show();
         $('#pName').focus();
