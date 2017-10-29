@@ -28,5 +28,7 @@ namespace Modules
 		wchar_t UserName[17];
 
 		ModulePlayer();
+
+		static bool ValidServiceTag(const std::string &serviceTag);
 	};
 }

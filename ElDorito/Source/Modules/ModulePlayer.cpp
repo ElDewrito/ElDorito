@@ -5,6 +5,8 @@
 #include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include <iomanip>
+#include <algorithm>
+#include <unordered_set>
 
 namespace
 {
@@ -26,13 +28,21 @@ namespace
 
 	bool VariablePlayerServiceTagUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		const auto valid_service_tag = (bool(*)(const wchar_t *serviceTag))(0x00AA1990);
-
 		if (!Arguments.size())
 			return false;
-		auto str = Utils::String::WidenString(Arguments[0]);
-		if (!valid_service_tag(str.c_str()))
+
+		auto value = Arguments[0];
+		std::transform(value.begin(), value.end(), value.begin(), toupper);
+
+		if (!Modules::ModulePlayer::ValidServiceTag(value))
+		{
+			returnInfo = "Invalid service tag!";
 			return false;
+		}
+
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+		modulePlayer.VarPlayerServiceTag->ValueString = value;
+
 #ifdef _DEBUG
 		Patches::PlayerRepresentation::UpdateLocalRepresentation();
 #endif
@@ -112,6 +122,16 @@ namespace
 		playerCtrlGlobalsPtr.WriteFast<uint8_t>(!playerCtrlGlobalsPtr.Read<uint8_t>());
 		return true;
 	}
+
+	std::string GenerateRandomServiceTag()
+	{
+		std::string tag(4, 0);
+		tag[0] = rand() % 26 + 'A';
+		tag[1] = rand() % 10 + '0';
+		tag[2] = rand() % 10 + '0';
+		tag[3] = rand() % 10 + '0';
+		return tag;
+	}
 }
 
 namespace Modules
@@ -171,5 +191,15 @@ namespace Modules
 		std::string randomName = defaultNames[rand() % _countof(defaultNames)];
 		std::string previousValue;
 		Modules::CommandMap::Instance().SetVariable(VarPlayerName, randomName, previousValue);
+		Modules::CommandMap::Instance().SetVariable(VarPlayerServiceTag, GenerateRandomServiceTag(), previousValue);
+	}
+
+	bool ModulePlayer::ValidServiceTag(const std::string &tag)
+	{
+		static const std::unordered_set<std::string> filter = { };
+
+		return tag.length() > 2 && tag.length() < 5
+			&& all_of(tag.begin(), tag.end(), [](auto c) { return c >= '0' && c <= 'Z'; })
+			&& filter.find(tag) == filter.end();
 	}
 }

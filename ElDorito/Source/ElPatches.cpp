@@ -70,9 +70,7 @@ namespace Patches
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
-#ifdef _DEBUG
 		PlayerRepresentation::ApplyAll();
-#endif
 
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not.
 		bool isdedicated = false;

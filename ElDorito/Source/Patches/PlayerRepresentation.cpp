@@ -15,7 +15,7 @@ namespace
 	struct RepresentationData
 	{
 		uint32_t RepresentationNameId;
-		wchar_t ServiceTag[6];
+		char ServiceTag[5];
 		int8_t Gender;
 	};
 
@@ -24,6 +24,8 @@ namespace
 	protected:
 		void BuildData(int playerIndex, RepresentationData *out) override
 		{
+			memset(out, 0, sizeof(RepresentationData));
+
 			const auto &modulePlayer = Modules::ModulePlayer::Instance();
 			// representation
 			if (modulePlayer.VarRepresentation->ValueString == std::string("elite"))
@@ -31,14 +33,15 @@ namespace
 			else
 				out->RepresentationNameId = 0x129;
 			// service tag
-			auto serviceTag = Utils::String::WidenString(modulePlayer.VarPlayerServiceTag->ValueString);
-			wcsncpy_s(out->ServiceTag, serviceTag.c_str(), 5);
+			if (Modules::ModulePlayer::ValidServiceTag(modulePlayer.VarPlayerServiceTag->ValueString))
+				strncpy_s(out->ServiceTag, modulePlayer.VarPlayerServiceTag->ValueString.c_str(), 4);
 			// gender
 			out->Gender = !modulePlayer.VarPlayerGender->ValueString.compare("female") ? 1 : 0;
 		}
 
 		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const RepresentationData &data) override
 		{
+#ifdef _DEBUG
 			// just elite for now...
 			switch (data.RepresentationNameId)
 			{
@@ -49,8 +52,15 @@ namespace
 				properties->PlayerRepresentation = 0; // spartan
 				break;
 			}
+#endif
+			if(Modules::ModulePlayer::ValidServiceTag(data.ServiceTag))
+			{
+				auto wtag = Utils::String::WidenString(data.ServiceTag);
+				_CrtSetDebugFillThreshold(0);
+				wcsncpy_s(properties->ServiceTag, wtag.c_str(), 4);
+				_CrtSetDebugFillThreshold(SIZE_MAX);
+			}
 
-			wcsncpy_s(properties->ServiceTag, data.ServiceTag, 5);
 			properties->Gender = data.Gender;
 
 			auto activeSession = Blam::Network::GetActiveSession();
@@ -69,6 +79,7 @@ namespace
 
 		void Deserialize(Blam::BitStream *stream, RepresentationData *out) override
 		{
+			memset(out, 0, sizeof(RepresentationData));
 			out->RepresentationNameId = stream->ReadUnsigned<uint32_t>(0, 0xFFFFFFFF);
 			stream->ReadString(out->ServiceTag);
 			out->Gender = stream->ReadBool();
