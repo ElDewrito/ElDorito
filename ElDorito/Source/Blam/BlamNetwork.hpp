@@ -71,10 +71,10 @@ namespace Blam::Network
 		int Unknown0;
 		int Unknown4;
 		int PlayerUpdateCount; // ?
-		int UnknownC;
+		int LeaderPeerIndex;
 		int HostPeerIndex;
 		int Unknown14;
-		int Unknown18;
+		int SessionMaxPlayers;
 		int Unknown1C;
 		int Unknown20;
 		int Unknown24;
