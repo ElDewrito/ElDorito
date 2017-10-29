@@ -24,6 +24,31 @@ namespace
 		return true;
 	}
 
+	bool VariablePlayerServiceTagUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		const auto valid_service_tag = (bool(*)(const wchar_t *serviceTag))(0x00AA1990);
+
+		if (!Arguments.size())
+			return false;
+		auto str = Utils::String::WidenString(Arguments[0]);
+		if (!valid_service_tag(str.c_str()))
+			return false;
+#ifdef _DEBUG
+		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+#endif
+		return true;
+	}
+
+	bool VariablePlayerGenderUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (!Arguments.size() || (Arguments[0].compare("male") && Arguments[0].compare("female")))
+			return false;
+#ifdef _DEBUG
+		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+#endif
+		return true;
+	}
+
 	bool VariablePlayerRepresentationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 #ifdef _DEBUG
@@ -111,6 +136,9 @@ namespace Modules
 		VarRepresentation = AddVariableString("Representation", "player_race", "(DEBUG BUILDS ONLY) The representation to display for the player's render mannequin", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "spartan", VariablePlayerRepresentationUpdate);
 
 		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", eCommandFlagsArchived, "Jasper", VariablePlayerNameUpdate);
+		VarPlayerServiceTag = AddVariableString("ServiceTag", "service_tag", "The players service tag", eCommandFlagsArchived, "117", VariablePlayerServiceTagUpdate);
+		VarPlayerGender = AddVariableString("Gender", "gender", "The players gender", eCommandFlagsArchived, "male", VariablePlayerGenderUpdate);
+
 		// hack to add a small notice before Player.PrivKey in the cfg file
 		AddVariableString("PrivKeyNote", "priv_key_note", "", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "The PrivKey below is used to keep your stats safe. Treat it like a password and don't share it with anyone!");
 		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");

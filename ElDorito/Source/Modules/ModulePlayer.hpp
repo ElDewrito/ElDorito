@@ -20,6 +20,8 @@ namespace Modules
 		Command *VarRepresentation;
 
 		Command* VarPlayerName;
+		Command* VarPlayerGender;
+		Command* VarPlayerServiceTag;
 		Command* VarPlayerPrivKey;
 		Command* VarPlayerPubKey;
 

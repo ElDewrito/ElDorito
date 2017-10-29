@@ -8,12 +8,15 @@
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Patch.hpp"
+#include "../Utils/String.hpp"
 
 namespace
 {
 	struct RepresentationData
 	{
 		uint32_t RepresentationNameId;
+		wchar_t ServiceTag[6];
+		int8_t Gender;
 	};
 
 	class PlayerRepresentationExtensions : public Patches::Network::PlayerPropertiesExtension<RepresentationData>
@@ -21,13 +24,17 @@ namespace
 	protected:
 		void BuildData(int playerIndex, RepresentationData *out) override
 		{
-			auto& representation = Modules::ModulePlayer::Instance().VarRepresentation->ValueString;
-
-			if (representation == std::string("elite"))
+			const auto &modulePlayer = Modules::ModulePlayer::Instance();
+			// representation
+			if (modulePlayer.VarRepresentation->ValueString == std::string("elite"))
 				out->RepresentationNameId = 0xCC;
 			else
 				out->RepresentationNameId = 0x129;
-			
+			// service tag
+			auto serviceTag = Utils::String::WidenString(modulePlayer.VarPlayerServiceTag->ValueString);
+			wcsncpy_s(out->ServiceTag, serviceTag.c_str(), 5);
+			// gender
+			out->Gender = !modulePlayer.VarPlayerGender->ValueString.compare("female") ? 1 : 0;
 		}
 
 		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const RepresentationData &data) override
@@ -43,6 +50,9 @@ namespace
 				break;
 			}
 
+			wcsncpy_s(properties->ServiceTag, data.ServiceTag, 5);
+			properties->Gender = data.Gender;
+
 			auto activeSession = Blam::Network::GetActiveSession();
 			if (activeSession && activeSession->IsEstablished() && activeSession->IsHost())
 			{
@@ -53,11 +63,15 @@ namespace
 		void Serialize(Blam::BitStream *stream, const RepresentationData &data) override
 		{
 			stream->WriteUnsigned<uint32_t>(data.RepresentationNameId, 0, 0xFFFFFFFF);
+			stream->WriteString(data.ServiceTag);
+			stream->WriteBool(data.Gender);
 		}
 
 		void Deserialize(Blam::BitStream *stream, RepresentationData *out) override
 		{
 			out->RepresentationNameId = stream->ReadUnsigned<uint32_t>(0, 0xFFFFFFFF);
+			stream->ReadString(out->ServiceTag);
+			out->Gender = stream->ReadBool();
 		}
 	};
 }
