@@ -356,7 +356,7 @@ var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
-    $('#armorForm, #colorForm').hide();
+    $('.armorForm, .colorForm').hide();
     $('#infoHeader, #infoText').text('');
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
