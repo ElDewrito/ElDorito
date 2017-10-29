@@ -221,6 +221,8 @@ namespace Web::Ui::WebScoreboard
 			// Player information
 			writer.Key("name");
 			writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+			writer.Key("serviceTag");
+			writer.String(Utils::String::ThinString(player.Properties.ServiceTag).c_str());
 			writer.Key("team");
 			writer.Int(player.Properties.TeamIndex);
 			std::stringstream color;
