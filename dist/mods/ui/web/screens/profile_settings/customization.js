@@ -560,7 +560,7 @@ function randomColors(){
 
 function updateSelection(item, sound, move){
     if(item > -1){
-        $(activePage+' .selectedElement').removeClass('selectedElement');
+        $(activePage+' .selectedElement').eq(0).removeClass('selectedElement');
         $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
         if($(activePage+' .selectedElement').length && move){
             $(activePage+' .selectedElement')[0].scrollIntoView(false);
