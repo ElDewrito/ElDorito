@@ -196,7 +196,7 @@ namespace Modules
 
 	bool ModulePlayer::ValidServiceTag(const std::string &tag)
 	{
-		static const std::unordered_set<std::string> filter = { };
+		static const std::unordered_set<std::string> filter = {"ANUS", "ARSE", "CLIT", "COCK", "COON", "CUNT", "DAGO", "DAMN","DICK", "DIKE", "DYKE", "FUCK", "GOOK", "HEEB", "HELL", "HOMO", "JIZZ", "KIKE", "KUNT", "KYKE", "MICK", "MUFF", "PAKI", "PISS", "POON", "PUTO", "SHIT", "SHIZ", "SLUT", "SMEG", "SPIC", "TARD", "TITS", "TWAT", "WANK", "NIGA"};
 
 		return tag.length() > 2 && tag.length() < 5
 			&& all_of(tag.begin(), tag.end(), [](auto c) { return c >= '0' && c <= 'Z'; })
