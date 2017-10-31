@@ -17,6 +17,7 @@ namespace
 	bool __cdecl c_simulation_generic_entity__deserialize2_hook(int a1, int a2, GenericEntitySimulationData *data, Blam::BitStream *stream, char a5);
 	uint32_t __fastcall c_simulation_generic_entity_definition__spawn_object_hook(int thisptr, void *unused, uint8_t *data, GenericEntitySimulationData *simulationData, int a4, uint8_t *newObject);
 	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
+	void ProjectileAttachmentHook();
 
 	void OnMapVariantRequestChange(Blam::MapVariant *mapVariant);
 
@@ -33,6 +34,8 @@ namespace Patches::Simulation
 		Hook(0xC8E91, c_simulation_generic_entity_definition__spawn_object_hook, HookFlags::IsCall).Apply();
 		Patches::Network::OnMapVariantRequestChange(OnMapVariantRequestChange);
 		Hook(0x000B2E1B, ScenerySyncHook, HookFlags::IsCall).Apply();
+
+		Hook(0x0077862A, ProjectileAttachmentHook).Apply();
 	}
 }
 
@@ -175,5 +178,36 @@ namespace
 		}
 	
 		return sub_4AFA90(tagIndex, a2, a3);
+	}
+
+	bool ShouldAttachProjectile(uint32_t parentObjectIndex, uint32_t projectileObjectIndex)
+	{
+		const auto object_is_phased = (bool(*)(uint32_t objectIndex))(0x0059A7B0);
+
+		auto parentObject = Blam::Objects::Get(parentObjectIndex);
+		if (!parentObject)
+			return false;
+
+		return !parentObject->GetMultiplayerProperties() || !object_is_phased(parentObjectIndex);
+	}
+
+	__declspec(naked) void ProjectileAttachmentHook()
+	{
+		__asm
+		{
+			pushad
+			push [ebp+0x8]
+			push [ebp+0xC]
+			call ShouldAttachProjectile
+			add esp, 0x8
+			test al, al
+			popad
+			jnz ATTACH
+			mov eax, 0xB786C8
+			jmp eax
+			ATTACH:
+			mov eax, 0xB78630
+			jmp eax
+		}
 	}
 }
