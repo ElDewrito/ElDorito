@@ -7,14 +7,6 @@ var itemNumber = 0;
 var controllerType;
 var hasGP = false;
 var talkingArray = [];
-var pageWidth, pageHeight;
-var basePage = {
-  width: 1280,
-  height: 720,
-  scale: 1,
-  scaleX: 1,
-  scaleY: 1
-};
 var isVisible = false;
 var lobbyJSON;
 var expandedScoreboard;
@@ -165,33 +157,6 @@ var medalDetails = [
     {name:'Killed Vehicle!', 'string':'vehicle_kill', 'desc':'Destroy an enemy vehicle.'},
     {name:'Headshot!', 'string':'headshot', 'desc':'Kill an enemy with a headshot.'}
 ];
-
-$(function(){
-    var $page = $('.page_content');
-
-    getPageSize();
-    scalePages($page, pageWidth, pageHeight);
-  
-    $(window).resize(function() {
-        getPageSize();            
-        scalePages($page, pageWidth, pageHeight);
-    });
-  
-    function getPageSize() {
-        pageHeight = $('#container').height();
-        pageWidth = $('#container').width();
-    }
-
-    function scalePages(page, maxWidth, maxHeight) {            
-        var scaleX = 1, scaleY = 1;                      
-        scaleX = maxWidth / basePage.width;
-        scaleY = maxHeight / basePage.height;
-        basePage.scaleX = scaleX;
-        basePage.scaleY = scaleY;
-        basePage.scale = (scaleX > scaleY) ? scaleY : scaleX;
-        page.attr('style', '-webkit-transform:scale(' + basePage.scale + ');');
-    }
-});
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
@@ -448,7 +413,7 @@ dew.on("hide", function(e){
 
 function displayScoreboard(){
     dew.getScoreboard().then(function (e){ 
-        var scoreboardheader = '<th></th><th class="name">Players</th>';
+        var scoreboardheader = '<th></th><th class="name">Players</th><th />';
         if(locked || (expandedScoreboard == 1)){
             switch(e.gameType){
                 case "ctf":
@@ -533,7 +498,6 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 				rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
 			}
             if(lobby[i].isAlive){
-				
                 if(lobby[i].isHost){
                     emblemPath = 'dew://assets/emblems/crown.png';
                 }else{
@@ -547,29 +511,30 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 emblemPath = 'dew://assets/emblems/dead.png';   
             }
             $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="serviceTag">').text(lobby[i].serviceTag))
             if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
                     case "oddball":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "infection":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
                             .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
-                        $('.teamHeader .name').attr('colspan',5);
+                        $('.teamHeader .name').attr('colspan',6);
                         break;
                     case "ctf":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "koth":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
                             .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
                             .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
-                        $('.teamHeader .name').attr('colspan',5);
+                        $('.teamHeader .name').attr('colspan',6);
                         break;                   
                     case "vip":
                     case "juggernaut":
@@ -579,13 +544,13 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                             .append($('<td class="stat">').text(lobby[i].assists)) //assists
                             .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
                             .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
-                        $('.teamHeader .name').attr('colspan',6);
+                        $('.teamHeader .name').attr('colspan',7);
                 }
             }
 			else{
-				$('.teamHeader .name').attr('colspan',2);
+				$('.teamHeader .name').attr('colspan',3);
 			}
-			$("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
 			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .playerRank").prepend('<img class="rankimg" src="'+rankPath+'">');
 			
