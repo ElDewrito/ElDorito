@@ -19,6 +19,9 @@ namespace
 	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
 	void ProjectileAttachmentHook();
 
+	void simulation_control_decode(uint8_t *input, uint8_t *output);
+	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output);
+
 	void OnMapVariantRequestChange(Blam::MapVariant *mapVariant);
 
 	Blam::MapVariant::VariantPlacement s_SyncPlacements[640] = { 0 };
@@ -36,6 +39,12 @@ namespace Patches::Simulation
 		Hook(0x000B2E1B, ScenerySyncHook, HookFlags::IsCall).Apply();
 
 		Hook(0x0077862A, ProjectileAttachmentHook).Apply();
+
+		// sync flashlight
+		Hook(0xA7880, simulation_control_decode, HookFlags::IsCall).Apply();
+		Hook(0xA7A17, simulation_control_encode, HookFlags::IsCall).Apply();
+		Hook(0xA77BF, simulation_control_encode, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x74C4E7), 6);
 	}
 }
 
@@ -209,5 +218,28 @@ namespace
 			mov eax, 0xB78630
 			jmp eax
 		}
+	}
+
+
+	void simulation_control_decode(uint8_t *input, uint8_t *output)
+	{
+		const auto sub_4712D0 = (void(*)(uint8_t *input, uint8_t *ouput))(0x4712D0);
+		sub_4712D0(input, output);
+
+		if (*(input + 0x18) & (1 << 5))
+			*(uint32_t*)(output + 0x8) |= 4;
+		else
+			*(uint32_t*)(output + 0x8) &= ~4;
+	}
+
+	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output)
+	{
+		const auto sub_4708F0 = (void(*)(uint8_t *data, int unitObjectIndex, uint8_t *a3))(0x4708F0);
+		sub_4708F0(input, unitObjectIndex, output);
+
+		if (*(uint32_t*)(input + 0x8) & 4)
+			*(output + 0x18) |= (1 << 5);
+		else
+			*(output + 0x18) &= ~(1 << 5);
 	}
 }
