@@ -977,6 +977,7 @@ namespace
 		{ "Melee", eGameActionMelee },
 		{ "Grenade", eGameActionThrowGrenade },
 		{ "SwitchGrenades", eGameActionSwitchGrenades },
+		{ "Flashlight", eGameActionFlashlight },
 
 		// Vehicles
 		{ "VehicleAccelerate", eGameActionVehicleAccelerate },
