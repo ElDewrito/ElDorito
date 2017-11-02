@@ -10,6 +10,7 @@
 #include "../Utils/String.hpp"
 #include "../ElDorito.hpp"
 #include "../Modules/ModuleInput.hpp"
+#include "../Modules/ModuleSettings.hpp"
 #include "../Blam/BlamTime.hpp"
 #include <cstdint>
 
@@ -120,16 +121,23 @@ namespace
 	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity)
 	{
 		auto& moduleInput = Modules::ModuleInput::Instance();
+		auto& moduleSettings = Modules::ModuleSettings::Instance();
 		auto bindings = moduleInput.GetBindings();
 
 		float sens = moduleInput.VarSpectateSensitivity->ValueFloat;
 
 		// the controller defaults are unreasonably sensitive
-		const auto isUsingController = bool(*(uint32_t*)0x0244DE98);
+		const auto isUsingController = *(bool*)0x0244DE98;
 		if (isUsingController)
-			sens *= 0.05f;
-
-		sensitivity[0] = bindings->ControllerSensitivityX * 0.017453292f * sens;
-		sensitivity[1] = bindings->ControllerSensitivityY * 0.017453292f * sens;
+		{
+			sens *= 0.015f;
+			sensitivity[0] = bindings->ControllerSensitivityX * 0.017453292f * sens;
+			sensitivity[1] = bindings->ControllerSensitivityY * 0.017453292f * sens;
+		}
+		else
+		{
+			sensitivity[0] = (moduleSettings.VarMouseSensitivityHorizontal->ValueInt / 100.0f * 360.0f) * 0.017453294f * sens;
+			sensitivity[1] = (moduleSettings.VarMouseSensitivityVertical->ValueInt / 100.0f * 360.0f) * 0.017453294f * sens;
+		}
 	}
 }
