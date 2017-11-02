@@ -92,6 +92,14 @@ namespace Forge
 
 		auto displacedPosition = objectTransform.Position + displacement * depth;
 
+		if (!((displacedPosition.I > mapv->WorldBoundsXMin && displacedPosition.I < mapv->WorldBoundsXMax) &&
+			(displacedPosition.J > mapv->WorldBoundsYMin && displacedPosition.J < mapv->WorldBoundsYMax) &&
+			(displacedPosition.K > mapv->WorldBoundsZMin && displacedPosition.K < mapv->WorldBoundsZMax)))
+		{
+			PrintKillFeedText(0, L"Object of World Bounds", 0);
+			return -1;
+		}
+
 		return SpawnObject(GetMapVariant(), object->TagIndex, 0, -1, &displacedPosition, &objectTransform.Forward,
 			&objectTransform.Up, -1, -1, &variantProperties, 0);
 	}

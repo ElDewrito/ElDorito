@@ -49,7 +49,6 @@ namespace
 	const auto INVISIBLE_MATERIAL_INDEX = 121;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
-	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
 
 	bool barriersEnabledValid = false;
 	bool killBarriersEnabled = true;
@@ -897,31 +896,31 @@ namespace
 
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair)
 	{
-	if (objectIndexUnderCrosshair != -1)
-	{
-		auto& forgeModule = Modules::ModuleForge::Instance();
-		auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
-		auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
-
-		auto sandboxGlobals = Forge::GetSandboxGlobals();
-		const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
-
-		auto objectIndexToClone = objectIndexUnderCrosshair;
-		for (auto i = 0; i < cloneMultiplier; i++)
+		if (objectIndexUnderCrosshair != -1)
 		{
-			objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
-			if (objectIndexToClone == -1)
-				break;
+			auto& forgeModule = Modules::ModuleForge::Instance();
+			auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+			auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+
+			auto sandboxGlobals = Forge::GetSandboxGlobals();
+			const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
+
+			auto objectIndexToClone = objectIndexUnderCrosshair;
+			for (auto i = 0; i < cloneMultiplier; i++)
+			{
+				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
+				if (objectIndexToClone == -1)
+					break;
+			}
 		}
-	}
-	else
-	{
-		if (Forge::Selection::GetSelection().Any())
+		else
 		{
-			if (Forge::Selection::Clone())
-				GrabSelection(playerIndex);
+			if (Forge::Selection::GetSelection().Any())
+			{
+				if (Forge::Selection::Clone())
+					GrabSelection(playerIndex);
+			}
 		}
-	}
 	}
 
 	bool CanThemeObject(uint32_t objectIndex)
