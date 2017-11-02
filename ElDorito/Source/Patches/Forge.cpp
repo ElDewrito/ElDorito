@@ -345,11 +345,14 @@ namespace
 				}
 			}
 
-			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1)
+			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1
+				|| Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Ticks == 1)
 			{
 				auto prevValue = moduleForge.VarMagnetsEnabled->ValueInt;
+				std::string previousValueStr;
+
 				auto& commandMap = Modules::CommandMap::Instance();
-				commandMap.SetVariable(moduleForge.VarMagnetsEnabled, std::to_string(prevValue ? 0 : 1), std::to_string(prevValue));
+				commandMap.SetVariable(moduleForge.VarMagnetsEnabled, std::to_string(prevValue ? 0 : 1), previousValueStr);
 				if (!prevValue)
 					PrintKillFeedText(0, L"Magnets Enabled", 0);
 				else
