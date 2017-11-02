@@ -87,6 +87,8 @@ namespace Forge
 	void SelectionRenderer::SetEnabled(bool enabled)
 	{
 		s_Enabled = enabled;
+		if (!enabled)
+			s_NumActiveItems = 0;
 	}
 
 	void SelectionRenderer::SetRendererType(RendererImplementationType type)

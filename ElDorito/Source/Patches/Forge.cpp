@@ -286,6 +286,7 @@ namespace
 		Forge::Magnets::Shutdown();
 
 		Forge::Selection::Clear();
+		Forge::SelectionRenderer::SetEnabled(false);
 	}
 
 	void SandboxEngineTickHook()
