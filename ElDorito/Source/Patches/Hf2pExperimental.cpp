@@ -194,7 +194,7 @@ namespace
 			auto screenManager = (void*)0x05260F34;
 			const auto start_menu = 0x10084;
 
-			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0))
+			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0) && !UI_ScreenManager_GetScreenWidget(screenManager, 4, 0x000100BE)) // in_progress
 			{
 				uiStartAction->Flags |= eActionStateFlagsHandled;
 				UI_PlaySound(7, -1);
