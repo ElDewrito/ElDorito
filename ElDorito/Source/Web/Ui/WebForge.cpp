@@ -79,6 +79,9 @@ namespace
 		GarbageVolume_CollectVehicles,
 		GarbageVolume_Interval,
 
+		KillVolume_AlwaysVisible,
+		KillVolume_DestroyVehicles,
+
 		Map_DisablePushBarrier,
 		Map_DisableDeathBarrier,
 		
@@ -115,6 +118,7 @@ namespace
 		void SetProperty(PropertyTarget target, PropertyValue value)
 		{
 			auto garbageVolumeProperties = reinterpret_cast<Forge::ForgeGarbageVolumeProperties*>(&m_Properties.SharedStorage);
+			auto killVolumeProperties = reinterpret_cast<Forge::ForgeKillVolumeProperties*>(&m_Properties.SharedStorage);
 
 			switch (target)
 			{
@@ -282,6 +286,16 @@ namespace
 			}
 			case PropertyTarget::GarbageVolume_Interval:
 				garbageVolumeProperties->Interval = value.ValueInt & 0x3;
+				break;
+			case PropertyTarget::KillVolume_AlwaysVisible:
+				killVolumeProperties->Flags &= ~Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible;
+				if (value.ValueInt)
+					killVolumeProperties->Flags |= Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible;
+				break;
+			case PropertyTarget::KillVolume_DestroyVehicles:
+				killVolumeProperties->Flags &= ~Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
+				if (value.ValueInt)
+					killVolumeProperties->Flags |= Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
 				break;
 			case PropertyTarget::Map_DisableDeathBarrier:
 			{
@@ -690,6 +704,7 @@ namespace
 		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
 		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.ZoneRadiusWidth);
 		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.SharedStorage);
+		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.SharedStorage);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
@@ -751,6 +766,9 @@ namespace
 		SerializeProperty(writer, "garbage_volume_collect_equipment", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_vehicles", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles) != 0));
 		SerializeProperty(writer, "garbage_volume_interval", (int)(garbageVolumeProperties->Interval & 0x3));
+
+		SerializeProperty(writer, "kill_volume_destroy_vehicles", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles) != 0));
+		SerializeProperty(writer, "kill_volume_always_visible", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible) != 0));
 
 		writer.EndObject();
 
@@ -818,6 +836,9 @@ namespace
 			{ "garbage_volume_collect_equipment",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectEquipment } },
 			{ "garbage_volume_collect_vehicles",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectVehicles } },
 			{ "garbage_volume_interval",				{ PropertyDataType::Int, PropertyTarget::GarbageVolume_Interval } },
+
+			{ "kill_volume_always_visible",	 { PropertyDataType::Int, PropertyTarget::KillVolume_AlwaysVisible } },
+			{ "kill_volume_destroy_vehicles",{ PropertyDataType::Int, PropertyTarget::KillVolume_DestroyVehicles } },
 
 			{ "map_disable_push_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
 			{ "map_disable_death_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },

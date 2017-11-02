@@ -81,7 +81,9 @@ var STRINGS = {
 	garbage_volume_collect_grenades: 'grenades',
 	garbage_volume_collect_equipment: 'Equipment',
 	garbage_volume_collect_vehicles: 'Vehicles',
-    garbage_volume_interval: 'Interval'
+	garbage_volume_interval: 'Interval',
+	kill_volume_destroy_vehicles: 'Vehicles',
+    kill_volume_always_visible: 'Visible'
 };
 
 
@@ -186,13 +188,21 @@ var objectPropertyGridData = {
         ],
         garbage_volume_flag: [
              { name: 'Collect', value: 1 },
-             { name: 'Allow', value: 0 }
+             { name: 'Ignore', value: 0 }
         ],
         garbage_volume_interval: [
             { name: 'Instant', value: 0 },
             { name: '5 Seconds', value: 1 },
             { name: '15 Seconds', value: 2 },
             { name: '30 Seconds', value: 3 },
+        ],
+        kill_volume_destroy_flag: [
+             { name: 'Destroy', value: 1 },
+             { name: 'Ignore', value: 0 }
+        ],
+        visibility: [
+             { name: 'Never', value: 0 },
+             { name: 'Always', value: 1 }
         ]
 	},
 	properties: [
@@ -274,6 +284,13 @@ var objectPropertyGridData = {
                 { name: 'garbage_volume_collect_grenades', type: 'spinner', meta:'garbage_volume_flag' },
                 { name: 'garbage_volume_collect_equipment', type: 'spinner', meta:'garbage_volume_flag' },
                 { name: 'garbage_volume_collect_vehicles', type: 'spinner', meta:'garbage_volume_flag' }
+            ]
+        },
+        {
+            name: 'kill_volume',
+            values: [
+                { name: 'kill_volume_always_visible', type: 'spinner', meta:'visibility' },
+                { name: 'kill_volume_destroy_vehicles', type: 'spinner', meta:'kill_volume_destroy_flag' }
             ]
         }
 	]
@@ -770,6 +787,7 @@ function buildPropertyFilter(data) {
 	    case 0x00005A8E:
 	    case 0x00005A8F:
 	        hasZone = true;
+	        hasTeam = true;
 	        break;
 	}
 
@@ -858,6 +876,7 @@ function buildPropertyFilter(data) {
 	objectPropertiesWidget.toggleVisibility('map_disable_push_barrier',isMapModifier);
 	objectPropertiesWidget.toggleVisibility('map_disable_death_barrier', isMapModifier);
 	var isGarbageVolume = data.tag_index == 0x00005A8F;
+	var isKillVolume = data.tag_index == 0x00005A8E;
 	objectPropertiesWidget.toggleVisibility('garbage_collection',isGarbageVolume);
 	objectPropertiesWidget.toggleVisibility('garbage_volume_interval',isGarbageVolume);
 	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_dead_biped',isGarbageVolume);
@@ -866,7 +885,10 @@ function buildPropertyFilter(data) {
 	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_grenades', isGarbageVolume);
 	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_equipment',isGarbageVolume);
 	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_vehicles', isGarbageVolume);
-	
+	objectPropertiesWidget.toggleVisibility('garbage_volume_collect_vehicles', isGarbageVolume);
+	objectPropertiesWidget.toggleVisibility('kill_volume', isKillVolume);
+	objectPropertiesWidget.toggleVisibility('kill_volume_always_visible', isKillVolume);
+	objectPropertiesWidget.toggleVisibility('kill_volume_destroy_vehicles', isKillVolume);
 
 	
 }

@@ -4,6 +4,7 @@
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include "../Patches/Core.hpp"
 #include "ForgeUtil.hpp"
 #include <unordered_map>
 
@@ -22,6 +23,11 @@ namespace
 		eVolumeType_Disabled = 0,
 		eVolumeType_Kill,
 		eVolumeType_GarbageCollection
+	};
+
+	enum VolumeFlags : uint16_t
+	{
+		eVolumeFlags_AlwaysVisible = (1 << 0)
 	};
 
 	struct ForgeVolume
@@ -123,6 +129,11 @@ namespace Forge::Volumes
 
 namespace
 {
+	const auto objects_get_in_cluster = (int16_t(*)(int a1, int objectTypeMask, int16_t *pClusterIndex,
+		Blam::Math::RealVector3D *center, float radius, uint32_t *clusterObjects, int16_t maxObjects))(0x00B35B60);
+	const auto zone_intersect_point = (bool(*)(Blam::Math::RealVector3D *point, ZoneShape *zone))(0x00BA11F0);
+	const auto object_get_world_poisition = (void(*)(uint32_t objectIndex, RealVector3D *position))(0x00B2E5A0);
+
 	void ApplyUnitDamage(ForgeVolume &killVolume, uint32_t unitObjectIndex)
 	{
 		const auto InitDamageData = (int(*)(DamageData *damageData, int damageEffectTagIndex))(0x00B50330);
@@ -144,28 +155,68 @@ namespace
 		const auto ZoneShape__ContainsPlayer = (bool(__thiscall *)(void *thisptr, int playerIndex))(0x00765C80);
 		auto players = Blam::Players::GetPlayers();
 
-		auto objects = Blam::Objects::GetObjects();
+		auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
+		if (!volumeObject)
+			return;
 
-		uint8_t playerIterator[0x10];
-		const auto c_player_iterator__ctor = (void(__thiscall *)(void *thisptr))(0x00537400);
-		const auto c_player_iterator__next_with_unit = (bool(__thiscall *)(void *thisptr))(0x00537950);
-		c_player_iterator__ctor(playerIterator);
+		auto properties = (Forge::ForgeKillVolumeProperties*)&volumeObject->GetMultiplayerProperties()->TeleporterChannel;
 
-		while (c_player_iterator__next_with_unit(playerIterator))
+		auto objectTypeMask = 1 << Blam::Objects::eObjectTypeBiped;
+		if (properties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles)
+			objectTypeMask |= (1 << Blam::Objects::eObjectTypeVehicle);
+
+		uint32_t clusterObjects[64];
+		auto clusterObjectCount = objects_get_in_cluster(0, objectTypeMask, &volumeObject->ClusterIndex,
+			&volumeObject->Center, std::abs(volume.Zone.BoundingRadius), clusterObjects, 128);
+
+		for (auto i = 0; i < clusterObjectCount; i++)
 		{
-			auto playerIndex = *(uint32_t*)((uint8_t*)playerIterator + 0x8);
-			auto datum = *(Blam::Players::PlayerDatum**)playerIterator;
-			if (ZoneShape__ContainsPlayer(&volume.Zone, playerIndex))
+			auto clusterObject = Blam::Objects::Get(clusterObjects[i]);
+			if (!clusterObject)
+				return;
+
+			auto objectType = *((uint8_t*)clusterObject + 0x9A);
+
+			if (objectType == Blam::Objects::eObjectTypeBiped)
 			{
-				if (volume.TeamIndex == datum->Properties.TeamIndex || volume.TeamIndex == 8)
-					ApplyUnitDamage(volume, datum->SlaveUnit);
+				auto playerIndex = *(uint32_t*)((uint8_t*)clusterObject + 0x198);
+				Blam::Players::PlayerDatum *player;
+				if (playerIndex != -1 && (player = Blam::Players::GetPlayers().Get(playerIndex))
+					&& player->SlaveUnit != Blam::DatumIndex::Null
+					&& ZoneShape__ContainsPlayer(&volume.Zone, playerIndex))
+				{
+					if (volume.TeamIndex == player->Properties.TeamIndex || volume.TeamIndex == 8)
+						ApplyUnitDamage(volume, player->SlaveUnit);
+				}
+			}
+			else if (objectType == Blam::Objects::eObjectTypeVehicle)
+			{
+				Blam::Math::RealVector3D position;
+				object_get_world_poisition(clusterObjects[i], &position);
+				if (!zone_intersect_point(&position, &volume.Zone))
+					continue;
+
+				auto driverUnitObjectIndex = *(uint32_t*)((uint8_t*)clusterObject + 0x32c);
+				Blam::Objects::ObjectBase *driverUnitObject;
+				if (driverUnitObjectIndex != -1 && (driverUnitObject = Blam::Objects::Get(driverUnitObjectIndex)))
+				{
+					auto playerIndex = *(uint32_t*)((uint8_t*)driverUnitObject + 0x198);
+					Blam::Players::PlayerDatum *player;
+					if (playerIndex != -1 && (player = players.Get(playerIndex))
+						&& player->SlaveUnit != Blam::DatumIndex::Null)
+					{
+						if (volume.TeamIndex != player->Properties.TeamIndex && volume.TeamIndex != 8)
+							continue;
+					}
+				}
+
+				ApplyUnitDamage(volume, clusterObjects[i]);
 			}
 		}
 	}
 
 	const auto multiplayer_globals_get_grenade_index = (int(*)(int tagIndex))(0x0052D1A0);
 	const auto weapons_get_multiplayer_weapon_type = (int16_t(*)(uint32_t objectIndex))(0x00B62DB0);
-
 
 	bool ShouldGarbageCollectObject(uint32_t objectIndex, ForgeVolume &volume)
 	{
@@ -238,10 +289,9 @@ namespace
 
 	void UpdateGarbageCollectionVolume(ForgeVolume &volume)
 	{
-		const auto objects_get_in_cluster = (int16_t(*)(int a1, int objectTypeMask, int16_t *pClusterIndex,
-			Blam::Math::RealVector3D *center, float radius, uint32_t *clusterObjects, int16_t maxObjects))(0x00B35B60);
+
 		const auto objects_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
-		const auto zone_intersect_point = (bool(*)(Blam::Math::RealVector3D *point, ZoneShape *zone))(0x00BA11F0);
+
 
 		auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
 		if (!volumeObject)
@@ -294,9 +344,16 @@ namespace
 			if (!mpProperties)
 				continue;
 
+			auto volumeFlags = 0;
+
 			switch (it->Data->TagIndex)
 			{
 			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			{
+				auto killVolumeProperties = (Forge::ForgeKillVolumeProperties*)&mpProperties->TeleporterChannel;
+				if (killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible)
+					volumeFlags |= eVolumeFlags_AlwaysVisible;
+			}
 			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
 				break;
 			default:
@@ -307,6 +364,7 @@ namespace
 			GetObjectZoneShape(it.CurrentDatumIndex, &volume.Zone, 0);
 			volume.ObjectIndex = it.CurrentDatumIndex;
 			volume.TeamIndex = mpProperties->TeamIndex & 0xff;
+			volume.Flags = volumeFlags;
 
 			switch (it->Data->TagIndex)
 			{
@@ -331,7 +389,7 @@ namespace
 		const auto viewport = (uint8_t**)(0x24E0094);
 		if (!viewport)
 			return false;
-		
+
 		auto v = frustrum_sphere_intersect(*viewport + 0x94, &center, radius);
 		return v > 0;
 	}
@@ -339,11 +397,6 @@ namespace
 	void RenderVolumes()
 	{
 		const auto zone_render = (void(*)(const ZoneShape *shape, float *color, uint32_t objectIndex))(0x00BA0FC0);
-		
-
-		if (!Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)
-			&& !Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt)
-			return;
 
 		for (auto i = 0; i < s_ActiveVolumeCount; i++)
 		{
@@ -354,6 +407,11 @@ namespace
 			Blam::Objects::ObjectBase *volumeObject;
 			if (volume.ObjectIndex == -1 || !(volumeObject = Blam::Objects::Get(volume.ObjectIndex)))
 				return;
+
+			if (!Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)
+				&& !(volume.Flags & eVolumeFlags_AlwaysVisible)
+				&& !Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt)
+				continue;
 
 			if (!SphereInFrustrum(volumeObject->Center, volume.Zone.BoundingRadius))
 				continue;

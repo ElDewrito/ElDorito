@@ -346,7 +346,8 @@ namespace
 			}
 
 			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1
-				|| Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Ticks == 1)
+				|| (!(Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Flags & Blam::Input::eActionStateFlagsHandled)
+					&& Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Ticks == 1))
 			{
 				auto prevValue = moduleForge.VarMagnetsEnabled->ValueInt;
 				std::string previousValueStr;
@@ -1000,8 +1001,14 @@ namespace
 		{
 			switch (object->TagIndex)
 			{
-			case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
 			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			{
+				auto properties = object->GetMultiplayerProperties();
+				if (properties && ((Forge::ForgeKillVolumeProperties*)&properties->TeleporterChannel)->Flags
+					& Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible)
+					break;
+			}
+			case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
 			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
 				if (!is_forge())
 					return;

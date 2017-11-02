@@ -96,7 +96,7 @@ namespace Forge
 			(displacedPosition.J > mapv->WorldBoundsYMin && displacedPosition.J < mapv->WorldBoundsYMax) &&
 			(displacedPosition.K > mapv->WorldBoundsZMin && displacedPosition.K < mapv->WorldBoundsZMax)))
 		{
-			PrintKillFeedText(0, L"Object of World Bounds", 0);
+			PrintKillFeedText(0, L"Object out of World Bounds", 0);
 			return -1;
 		}
 

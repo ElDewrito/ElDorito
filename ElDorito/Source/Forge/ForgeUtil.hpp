@@ -87,6 +87,18 @@ namespace Forge
 	};
 	static_assert(sizeof(ForgeGarbageVolumeProperties) <= 1, "ForgeGarbageVolumeProperties must be 1 bytes or less in size");
 
+	struct ForgeKillVolumeProperties
+	{
+		enum KillVolumeFlags
+		{
+			eKillVolumeFlags_AlwaysVisible = (1 << 0),
+			eKillVolumeFlags_DestroyVehicles = (1 << 1)
+		};
+
+		uint8_t Flags : 8;
+	};
+	static_assert(sizeof(ForgeKillVolumeProperties) <= 1, "ForgeKillVolumeProperties must be 1 bytes or less in size");
+
 	struct ZoneShape
 	{
 		int Shape;
