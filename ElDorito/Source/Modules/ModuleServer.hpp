@@ -56,7 +56,6 @@ namespace Modules
 		Command* VarChatCommandShuffleTeamsEnabled;
 		Command* VarPlayersInfo;
 		Command* VarPlayersInfoClient;
-		Command* VarPlayerInfoEndpoint;
 		Command* VarMaxTeamSize;
 		Command* VarSignalServerPort;
 		Command* VarSendChatToRconClients;
