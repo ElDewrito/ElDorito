@@ -106,6 +106,8 @@ namespace
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
 
+	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
+
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -223,6 +225,9 @@ namespace Patches::Forge
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x19F0B8, sandbox_zone_shape_render_hook, HookFlags::IsCall).Apply();
+
+		// fix jump canceling on forged objects
+		Hook(0x3245FD, sub_724890_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -1925,5 +1930,26 @@ namespace
 
 		sandbox_zone_shape_render_hook(zone, color, objectIndex);
 
+	}
+
+	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix)
+	{
+		const auto sub_724890 = (bool(__thiscall*)(void *thisptr, int a2, int a3, float *matrix))(0x724890);
+		auto ret = sub_724890(thisptr, a2, a3, matrix);
+
+		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+		auto &groundHavokComponentIndex = *(uint32_t*)((uint8_t*)thisptr + 0x1c);
+		uint8_t *groundHavokComponent;
+		if (groundHavokComponentIndex != -1 && (groundHavokComponent = (uint8_t*)havokComponents->Get(groundHavokComponentIndex)))
+		{
+			auto groundObjectIndex = *(uint32_t*)(groundHavokComponent + 0x8);
+			if (groundObjectIndex != -1)
+			{
+				if (ObjectIsPhased(groundObjectIndex))
+					groundHavokComponentIndex = -1;
+			}
+		}
+
+		return ret;
 	}
 }
