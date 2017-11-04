@@ -250,7 +250,7 @@ namespace Server::Stats
 				for (int t = 0; t < 8; t++)
 				{
 					auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
-					writer.Int(teamscore.Score);
+					writer.Int(teamscore.TotalScore);
 				}
 
 			}
