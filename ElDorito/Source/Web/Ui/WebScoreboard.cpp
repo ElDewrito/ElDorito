@@ -2,6 +2,7 @@
 #include "ScreenLayer.hpp"
 #include "../../Blam/BlamNetwork.hpp"
 #include "../../Blam/BlamEvents.hpp"
+#include "../../Blam/BlamTypes.hpp"
 #include "../../Blam/Tags/Objects/Damage.hpp"
 #include "../../Patches/Events.hpp"
 #include "../../Patches/Scoreboard.hpp"
@@ -171,31 +172,47 @@ namespace Web::Ui::WebScoreboard
 		writer.StartObject();
 
 		auto session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished())
+		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+		auto* scoreboard = get_multiplayer_scoreboard();
+		if (!session || !session->IsEstablished() || !scoreboard)
 		{
 			writer.EndObject();
 			return buffer.GetString();
 		}
+		
 		writer.Key("playersInfo");
 		writer.String(Modules::ModuleServer::Instance().VarPlayersInfoClient->ValueString.c_str());
 
 		writer.Key("hasTeams");
 		writer.Bool(session->HasTeams());
-		writer.Key("teamScores");
-		writer.StartArray();
 
-		auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
-		if (engineGlobalsPtr)
-		{
-			auto engineGobals = engineGlobalsPtr[0](0x101F4);
-			for (int t = 0; t < 10; t++)
+		auto get_number_of_rounds = (int(*)())(0x005504C0);
+		auto get_current_round = (int(*)())(0x00550AD0);
+
+		writer.Key("numberOfRounds");
+		writer.Int(get_number_of_rounds());
+
+		writer.Key("currentRound");
+		writer.Int(get_current_round());
+
+		if (session->HasTeams()) {
+			writer.Key("teamScores");
+			writer.StartArray();
+			for (int t = 0; t < 8; t++)
 			{
-				auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
-				writer.Int(teamscore.Score);
+				writer.Int(scoreboard->TeamScores[t].TotalScore);
 			}
-		}
-		writer.EndArray();
+			writer.EndArray();
 
+			writer.Key("roundScores");
+			writer.StartArray();
+			for (int t = 0; t < 8; t++)
+			{
+				writer.Int(scoreboard->TeamScores[t].RoundScore);
+			}
+			writer.EndArray();
+		}
+		
 		int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
 
 		if (variantType >= 0 && variantType < Blam::GameTypeCount)
@@ -215,8 +232,7 @@ namespace Web::Ui::WebScoreboard
 		{
 			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
 			auto playerStats = Blam::Players::GetStats(playerIdx);
-			int16_t score = playersGlobal(0x54 + 0x4046C + (playerIdx * 0x34)).Read<int16_t>();
-			int16_t kills = playersGlobal(0x54 + 0x40470 + (playerIdx * 0x34)).Read<int16_t>();
+
 			writer.StartObject();
 			// Player information
 			writer.Key("name");
@@ -244,19 +260,19 @@ namespace Web::Ui::WebScoreboard
 			writer.Bool(alive == 1);
 			// Generic score information
 			writer.Key("kills");
-			writer.Int(kills);
+			writer.Int(scoreboard->PlayerScores[playerIdx].Kills);
 			writer.Key("assists");
-			writer.Int(playerStats.Assists);
+			writer.Int(scoreboard->PlayerScores[playerIdx].Assists);
 			writer.Key("deaths");
-			writer.Int(playerStats.Deaths);
+			writer.Int(scoreboard->PlayerScores[playerIdx].Deaths);
+			writer.Key("roundScore");
+			writer.Int(scoreboard->PlayerScores[playerIdx].RoundScore);
 			writer.Key("score");
-			writer.Int(score);
+			writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
 			writer.Key("playerIndex");
 			writer.Int(playerIdx);
-			writer.Key("timeSpentAlive");
-			writer.Int(playerStats.TimeSpentAlive);
 			writer.Key("bestStreak");
-			writer.Int(playerStats.BestStreak);
+			writer.Int(scoreboard->PlayerScores[playerIdx].HighestSpree);
 
 			bool hasObjective = false;
 			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
