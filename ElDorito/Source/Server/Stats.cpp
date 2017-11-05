@@ -4,6 +4,7 @@
 #include "../Blam/BlamEvents.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Patches/Events.hpp"
+#include "../Patches/Core.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Utils/Logger.hpp"
@@ -22,7 +23,7 @@ namespace Server::Stats
 	time_t sendStatsTime = 0;
 
 	std::string playersInfoEndpoint;
-
+	int numberOfRounds = 1;
 	// retrieves master server endpoints from dewrito.json
 	void GetStatsEndpoints(std::vector<std::string>& destVect)
 	{
@@ -238,20 +239,23 @@ namespace Server::Stats
 		uint32_t TeamMode = Pointer(0x019A6210).Read<uint32_t>();
 		writer.Key("teamGame");
 		writer.Bool(TeamMode != 0);
-		auto get_number_of_rounds = (int(*)())(0x005504C0);
-		int numberOfRounds = get_number_of_rounds();
-
-		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
-		auto* scoreboard = get_multiplayer_scoreboard();
+		
 		if (TeamMode == 1){
 			writer.Key("teamScores");
 			writer.StartArray();
-			for (int t = 0; t < 8; t++)
+
+			auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
+			if (engineGlobalsPtr)
 			{
-				if (numberOfRounds > 1)
-					writer.Int(scoreboard->TeamScores[t].TotalScore);
-				else
-					writer.Int(scoreboard->TeamScores[t].Score);
+				auto engineGobals = engineGlobalsPtr[0](0x101F4);
+				for (int t = 0; t < 8; t++)
+				{
+					auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
+					if (numberOfRounds > 1)
+						writer.Int(teamscore.TotalScore);
+					else
+						writer.Int(teamscore.Score);
+				}
 			}
 			writer.EndArray();
 		}
@@ -301,10 +305,6 @@ namespace Server::Stats
 				writer.Key("playerGameStats");
 				writer.StartObject();
 				writer.Key("score");
-				if (numberOfRounds > 1)
-					writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
-				else 
-					writer.Int(scoreboard->PlayerScores[playerIdx].Score);
 				writer.Int(playerStats.Score);
 				writer.Key("kills");
 				writer.Int(playerStats.Kills);
@@ -468,6 +468,15 @@ namespace Server::Stats
 
 		}
 	}
+
+	void OnGameStart() {
+		auto* session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished() || !session->IsHost())
+			return;
+
+		auto get_number_of_rounds = (int(*)())(0x005504C0);
+		numberOfRounds = get_number_of_rounds();
+	}
 	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 	{
 		auto* session = Blam::Network::GetActiveSession();
@@ -492,6 +501,7 @@ namespace Server::Stats
 	{
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 		Patches::Events::OnEvent(OnEvent);
+		Patches::Core::OnGameStart(OnGameStart);
 		getPlayersInfoEndpoint();
 	}
 	void Tick()
