@@ -47,7 +47,7 @@ var settingsToLoad = [
     ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 3],
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','The primary armor color will serve you in individual combat but will be overwritten in team scenarios.',0],
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','The secondary armor color accents your primary color and will be overwritten in team scenarios.',1],
-    ['colorsVisor', 'Player.Colors.Visor','Visor Color','Adjust the tint of your spartans visor.',2],
+    ['colorsVisor', 'Player.Colors.Visor','Visor Color','Adjust the tint of your Spartan\'s visor.',2],
     ['colorsLights', 'Player.Colors.Lights','Light Color','Like Christmas, but more subtle.',3]
 ];
 var armorShoulderList = [
