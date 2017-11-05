@@ -92,7 +92,7 @@ namespace Blam
 
 	typedef struct _TEAM_SCORE
 	{
-		int16_t RoundScore;
+		int16_t Score;
 		int16_t TotalScore;
 		int16_t Kills;
 		int16_t Deaths;
@@ -103,7 +103,7 @@ namespace Blam
 	
 	typedef struct _PLAYER_SCOREBOARD_STRUCT
 	{
-		int16_t RoundScore;
+		int16_t Score;
 		int16_t TotalScore;
 		int16_t Kills;
 		int16_t Deaths;

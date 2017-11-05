@@ -238,21 +238,20 @@ namespace Server::Stats
 		uint32_t TeamMode = Pointer(0x019A6210).Read<uint32_t>();
 		writer.Key("teamGame");
 		writer.Bool(TeamMode != 0);
+		auto get_number_of_rounds = (int(*)())(0x005504C0);
+		int numberOfRounds = get_number_of_rounds();
 
+		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+		auto* scoreboard = get_multiplayer_scoreboard();
 		if (TeamMode == 1){
 			writer.Key("teamScores");
 			writer.StartArray();
-
-			auto engineGlobalsPtr = ElDorito::GetMainTls(0x48);
-			if (engineGlobalsPtr)
+			for (int t = 0; t < 8; t++)
 			{
-				auto engineGobals = engineGlobalsPtr[0](0x101F4);
-				for (int t = 0; t < 8; t++)
-				{
-					auto teamscore = engineGobals(t * 0x1A).Read<Blam::TEAM_SCORE>();
-					writer.Int(teamscore.TotalScore);
-				}
-
+				if (numberOfRounds > 1)
+					writer.Int(scoreboard->TeamScores[t].TotalScore);
+				else
+					writer.Int(scoreboard->TeamScores[t].Score);
 			}
 			writer.EndArray();
 		}
@@ -302,6 +301,10 @@ namespace Server::Stats
 				writer.Key("playerGameStats");
 				writer.StartObject();
 				writer.Key("score");
+				if (numberOfRounds > 1)
+					writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
+				else 
+					writer.Int(scoreboard->PlayerScores[playerIdx].Score);
 				writer.Int(playerStats.Score);
 				writer.Key("kills");
 				writer.Int(playerStats.Kills);

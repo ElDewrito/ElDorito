@@ -14,6 +14,9 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var mapName;
+var scoreboardData = null;
+var multiRound;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -277,6 +280,9 @@ dew.on('controllerinput', function(e){
 });
 
 dew.on("scoreboard", function(e){
+    scoreboardData = e.data;
+    mapName = e.data.mapName
+    multiRound = e.data.numberOfRounds == 1 ? false : true;
     if(isVisible){
         displayScoreboard();
     }
@@ -353,6 +359,9 @@ dew.on("voip-speaking", function(e){
 });
 
 dew.on("show", function(e){
+    dew.getScoreboard().then(function (data){ 
+        scoreboardData = data;
+    });
     isVisible = true;
     dew.captureInput(e.data.locked);
     locked = e.data.locked;
@@ -412,36 +421,39 @@ dew.on("hide", function(e){
 });
 
 function displayScoreboard(){
-    dew.getScoreboard().then(function (e){ 
-        var scoreboardheader = '<th></th><th class="name">Players</th><th />';
-        if(locked || (expandedScoreboard == 1)){
-            switch(e.gameType){
-                case "ctf":
-                    scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
-                    break;
-                case "oddball":
-                    scoreboardheader += '<th>Kills</th><th>Ball Kills</th>';    
-                    break;
-                case "infection":
-                    scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
-                    break;
-                case "koth":
-                    scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
-                    break;
-                case "vip":
-                case "juggernaut":
-                case "assault":
-                default:
-                    scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
-            }
-            $('#window').css({'width':'54%','left':'23%'});
-        } else {
-            $('#window').css({'width':'38%','left':'31%'});
+    if(!scoreboardData)
+        return;	
+    var scoreboardheader = '<th></th><th class="name">Players</th><th />';
+    if(locked || (expandedScoreboard == 1)){
+        switch(scoreboardData.gameType){
+            case "ctf":
+                scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
+                break;
+            case "oddball":
+                scoreboardheader += '<th>Kills</th><th>Ball Kills</th>';    
+                break;
+            case "infection":
+                scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
+                break;
+            case "koth":
+                scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
+                break;
+            case "vip":
+            case "juggernaut":
+            case "assault":
+            default:
+                scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
         }
-        scoreboardheader += '<th></th><th>Score</th>'; 
-        $('#header').html(scoreboardheader);
-        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard, e.teamHasObjective);
-    });
+        $('#window').css({'width':'56%','left':'23%'});
+    } else {
+        $('#window').css({'width':'38%','left':'31%'});
+    }
+    scoreboardheader += '<th></th><th>Score</th>'; 
+    if(multiRound){
+        scoreboardheader += '<th>Round</th>';
+    }
+    $('#header').html(scoreboardheader);
+    buildScoreboard(scoreboardData.players, scoreboardData.hasTeams, scoreboardData.teamScores, scoreboardData.gameType, JSON.parse(scoreboardData.playersInfo),expandedScoreboard, scoreboardData.teamHasObjective,scoreboardData.totalScores);
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
@@ -450,7 +462,7 @@ function displayScoreboard(){
     }
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray, totalArray){
     var emblemPath;
 	var rankPath = "dew://assets/ranks/0.png"
     var where = '#singlePlayers';
@@ -463,7 +475,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    if(multiRound){
+                        teamHeader+='<td class="score">'+totalArray[lobby[i].team]+'</td>';
+                    }
+                    teamHeader+='<td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
                     $('#window table').append(teamHeader);    
                     if(objectiveArray[lobby[i].team]){
                         $('#'+teamArray[lobby[i].team].name+' .teamHeader').append('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')                    
@@ -551,7 +567,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 				$('.teamHeader .name').attr('colspan',3);
 			}
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
+            if(multiRound){
+                $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].totalScore)) //Total Score 
+            }    
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score          
 			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .playerRank").prepend('<img class="rankimg" src="'+rankPath+'">');
 			
 			var thisSpeakerIcon = "";
@@ -872,6 +891,7 @@ function checkGamepad(){
         downNav();
     }
 };
+
 
 var volArray = [];
 function setPlayerVolume(name,uid,level){

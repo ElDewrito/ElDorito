@@ -195,23 +195,23 @@ namespace Web::Ui::WebScoreboard
 		writer.Key("currentRound");
 		writer.Int(get_current_round());
 
-		if (session->HasTeams()) {
-			writer.Key("teamScores");
-			writer.StartArray();
-			for (int t = 0; t < 8; t++)
-			{
-				writer.Int(scoreboard->TeamScores[t].TotalScore);
-			}
-			writer.EndArray();
-
-			writer.Key("roundScores");
-			writer.StartArray();
-			for (int t = 0; t < 8; t++)
-			{
-				writer.Int(scoreboard->TeamScores[t].RoundScore);
-			}
-			writer.EndArray();
+		
+		writer.Key("totalScores");
+		writer.StartArray();
+		for (int t = 0; t < 8; t++)
+		{
+			writer.Int(scoreboard->TeamScores[t].TotalScore);
 		}
+		writer.EndArray();
+
+		writer.Key("teamScores");
+		writer.StartArray();
+		for (int t = 0; t < 8; t++)
+		{
+			writer.Int(scoreboard->TeamScores[t].Score);
+		}
+		writer.EndArray();
+		
 		
 		int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
 
@@ -265,9 +265,9 @@ namespace Web::Ui::WebScoreboard
 			writer.Int(scoreboard->PlayerScores[playerIdx].Assists);
 			writer.Key("deaths");
 			writer.Int(scoreboard->PlayerScores[playerIdx].Deaths);
-			writer.Key("roundScore");
-			writer.Int(scoreboard->PlayerScores[playerIdx].RoundScore);
 			writer.Key("score");
+			writer.Int(scoreboard->PlayerScores[playerIdx].Score);
+			writer.Key("totalScore");
 			writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
 			writer.Key("playerIndex");
 			writer.Int(playerIdx);
