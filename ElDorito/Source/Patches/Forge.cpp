@@ -95,6 +95,8 @@ namespace
 
 	void MapVariant_SpawnObjectHook();
 
+	void __fastcall c_game_engine_object_runtime_manager__on_object_spawned_hook(void *thisptr, void *unused, int16_t placementIndex, uint32_t objectIndex);
+
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
@@ -228,6 +230,8 @@ namespace Patches::Forge
 
 		// fix jump canceling on forged objects
 		Hook(0x3245FD, sub_724890_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -1951,5 +1955,12 @@ namespace
 		}
 
 		return ret;
+	}
+
+	void __fastcall c_game_engine_object_runtime_manager__on_object_spawned_hook(void *thisptr, void *unused, int16_t placementIndex, uint32_t objectIndex)
+	{
+		const auto c_game_engine_object_runtime_manager__on_object_spawned = (void(__thiscall*)(void *thisptr, int16_t placementIndex, uint32_t objectIndex))(0x00590600);
+		if (!CanThemeObject(objectIndex)) // ignore reforge
+			c_game_engine_object_runtime_manager__on_object_spawned(thisptr, placementIndex, objectIndex);
 	}
 }
