@@ -660,11 +660,11 @@
       </category>
     </category>
     <category name="Map Tools">
-      <item name="Map Modifier" tagindex="0x5728" >
+      <item name="Map Modifier" tagindex="0x5728" max_allowed="1">
         <help>Map flags and flags and more flags</help>
         <setter target="physics" value="1" type="int" hidden="true" />
       </item>
-      <item name="Prematch Camera" tagindex="0x00005A86">
+      <item name="Prematch Camera" tagindex="0x00005A86" max_allowed="1">
         <help>Pretty fucking obvious what this is.</help>
         <setter target="physics" value="1" type="int" hidden="true" />
       </item>
