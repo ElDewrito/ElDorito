@@ -1,0 +1,153 @@
+﻿@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html {
+    color: #FFF;
+    font-family: "Conduit ITC", sans-serif;
+    font-weight: 500;
+}
+body{
+    padding: 0;
+    margin: 0;
+    overflow:hidden;
+    position: absolute;
+    width: 100%;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    margin-top:-2.5vw;
+	height:58vw;
+
+}
+.container {
+    position:relative;
+    margin-top:10vh;
+    color: #afbed5;
+	width: 20vw;
+	border: 2px solid rgba(112, 128, 144, 0.7);
+	border-left: 0;
+	border-right:0;
+	left: 48vw;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+    z-index: 10;
+}
+.votingOption{
+	background-color: rgba(64, 88, 128, 0.75);
+}
+#title{
+	background-color: rgba(0, 0, 0, 0.53);
+}
+a.boxclose{
+    float:right;
+    margin-top:-15px;
+    margin-right:-15px;
+    cursor:pointer;
+    color: #fff;
+	border: 3px solid rgba(112, 128, 144, 0.9);
+    border-radius: 15px;
+	background-color: rgba(19,35,61,0.6);
+    font-size: 30px;
+    display: inline-block;
+    line-height: 19px;
+    text-align: center;    
+    height:26px;   
+    width: 25px;
+    padding-left:1px;
+}
+a.boxclose:hover
+{
+	background-color:rgba(199, 109, 41, 0.95);
+}
+.button{
+	position:absolute;
+	right:-1.65vw;
+	top: 0;
+    width: 3vw;
+}
+
+a.boxclose img.button{
+	top:-1.55vw;
+	right:-1.55vw;
+	width:3.25vw
+}
+
+.votingOption
+{
+	position:relative;
+	border: 2px solid rgba(112, 128, 144, 0.0);
+	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
+
+}
+#title
+{
+	color:white;
+	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
+}
+.voteTally
+{	   
+	position: absolute;
+	right: 8.5vw;
+	font-size: 4vw;
+	margin-top: 1%;
+	color: rgba(255, 255, 255, 0.7);
+}
+.revoteOption .voteTally
+{
+	right: 2vw;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 2.5vw;
+	bottom: 0vh;
+	margin-top:0%;
+}
+.revoteOption
+{
+	padding:2%;	
+	
+}
+.selected
+{
+	color:white;
+	border: 2px solid rgba(255, 255, 255, 0.9);
+	background-color:rgba(210, 132, 74, 0.79);
+}
+.winner
+{
+	border: 2px solid rgba(0, 255, 0, 1);
+}
+h5,p{
+	font-size: 1.25vw;
+	margin: 0;
+	padding: .3em;
+}
+img
+{
+	width: 85%;
+	margin-bottom:1em;
+}
+h1 {
+	margin: 0;
+	padding: 0;
+}
+.playerStats{
+	position:absolute;
+	bottom:0vh;
+	right:2vh;
+	color:white;
+	font-size:2.5vh;
+	width:25vh;
+    text-align:center;
+}
+
+.playerStats .button{
+	position:absolute;
+	top:-0.6vw;
+}
+
+.playerStats .button:first-of-type{
+	left:0;
+}
+
+.playerStats .button:last-of-type{
+	right:0;
+}

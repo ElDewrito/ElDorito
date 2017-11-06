@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <title>ElDewrito Console</title>
+        <link rel="stylesheet" type="text/css" href="console.css"/>
+        <link rel="stylesheet" href="dew://lib/jquery-ui.css">
+        <script src="dew://lib/dew.js"></script>
+        <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="dew://lib/jquery-ui.js"></script>
+        <script src="console.js"></script>
+    </head>
+    <body>
+        <div class="console"><div class="box titlebar">
+                ElDewrito <span id="version"></span> <span id="memory-usage"></span>
+            </div><div class="box buttons top">
+                <div id="button-size" class="button">
+                    Size
+                </div><div id="button-dock" class="button">
+                    Dock
+                </div><div id="button-hide" class="button">
+                    Close
+                </div>
+            </div><div class="box output" id="output-box">
+                <pre class="info">Enter <span class="command"><b>help</b></span> for a list of available commands or <span class="command"><b>variables</b></span> for a list of available variables. Press Escape to close.<br>Don't forget to use <span class="command">writeconfig</span> to save your changes!</pre>
+            </div><div id="input-box" class="box input">
+                <span class="prompt">
+                    &gt;&nbsp;
+                </span>
+                <input type="text" class="input" id="command" autocomplete="off" spellcheck="false"/>
+            </div><div class="box buttons bottom">
+                <div id="button-help" class="button">
+                    Help
+                </div><div id="button-clear" class="button">
+                    Clear
+                </div><div id="button-reset" class="button">
+                    Reset
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

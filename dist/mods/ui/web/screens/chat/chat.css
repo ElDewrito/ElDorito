@@ -1,0 +1,158 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+body {
+    margin: 0;
+    font-family: "Conduit ITC", sans-serif;
+    overflow: hidden;
+}
+
+#chat{
+    position: absolute;
+    font-size: 19px;
+    line-height: 26px;
+    letter-spacing: 0.3px;
+    color: white;
+    overflow:hidden;
+    zoom: 75%;
+    height: 37.5%;
+}
+
+.inGame #chat{
+    bottom: 41%;
+    left: 7%;  
+    width: 27%;
+}
+
+.inLobby #chat{
+    bottom: 0%;
+    left: 32%; 
+    width: 35%;
+}
+
+#chatWindow{
+    position: absolute;
+    bottom: 26px;
+    width: 100%;
+    text-shadow:
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+         1px 1px 0 #000;
+    letter-spacing: 0.3px;
+    word-wrap: break-word;
+    overflow-y:auto;
+    max-height:65%;
+}
+
+.inGame #chatWindow{
+    background-color: transparent;    
+}
+
+.inLobby #chatWindow{
+    background-color: rgba(0,0,0,0.5);    
+}
+
+#chatWindow p{
+    margin: 0;
+    padding-bottom: 3px;
+}
+
+#chatBox{
+    position: absolute;
+    bottom: 0;
+    border: 2px solid #95bde1;
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    width: calc(100% - 8px);
+    display: none;
+    font-size: 15px;
+    height: 19px;
+    -webkit-backface-visibility: hidden;
+    padding: 2px;
+}
+
+#chatBox:focus{
+    outline: none;
+}
+
+.nameCard{
+    padding: 2px 5px; 
+    color: white; 
+    margin-right: 4px;
+    height: 14px;
+}
+
+.GLOBAL, .TEAM, a{ 
+    color: #95bde1; 
+    text-decoration: none;
+}
+
+a:hover{
+    text-decoration: underline;
+}
+
+.TEAM{
+}
+
+.TEAM span::after{
+    content: " (TEAM)";
+}
+
+.SERVER{
+    color: #FFFF00;
+}
+
+.WHISPER{
+    color: #FF0000;
+}
+
+.WHISPER span::after{
+    content: " (TO YOU)";
+}
+
+.UNKNOWN{
+}
+
+.emote{
+    background-color: transparent !important;
+    font-style: italic;
+    color: white !important;
+}
+
+.mention{
+    color: #33c11e;
+}
+
+.nameCard.emote{
+    margin-right: 0;
+}
+
+#chatWindow::-webkit-scrollbar {
+    width: 20px;
+}
+
+#chatWindow::-webkit-scrollbar-thumb {
+  background-color: #95bde1;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+    visibility : hidden !important;
+}
+
+#container{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width: 100%;
+    height: 100%;
+}
+
+.page_content{
+    position: relative;
+    width:1280px;
+    height:720px;
+    margin-left: calc(-1280px / 2);
+    margin-top: calc(-720px / 2);
+    box-sizing: border-box;
+    transform: scale(1);
+    transform-origin: center center;
+}

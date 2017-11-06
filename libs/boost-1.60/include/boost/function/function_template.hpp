@@ -659,11 +659,11 @@ namespace boost {
 
 #if BOOST_FUNCTION_NUM_ARGS == 1
 
-    , public std::unary_function<T0,R>
+    , public std::function<R(T0)>
 
 #elif BOOST_FUNCTION_NUM_ARGS == 2
 
-    , public std::binary_function<T0,T1,R>
+    , public std::function<R(T0,T1)>
 
 #endif
 

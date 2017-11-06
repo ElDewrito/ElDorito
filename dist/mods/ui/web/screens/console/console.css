@@ -1,0 +1,216 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    margin: -2px;
+}
+
+.console {
+    position: relative;
+    box-sizing: border-box;
+    height: 50%;
+    padding: 6px;
+    color: white;
+    font: 10pt "Consolas", monospace;
+    background-color: rgba(20, 31, 55, 0.85);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+}
+
+.console::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    bottom: -4px;
+    right: -4px;
+    color: rgb(0, 191, 255);
+    background: rgb(0, 191, 255);
+    border-radius: 4px;
+}
+
+.console div.ui-icon-gripsmall-diagonal-se {
+    bottom: -7px;
+    right: -7px;
+    width: 16px;
+    height: 16px;
+}
+
+.console div.ui-resizable-s {
+    height: 10px;
+}
+
+.console div.ui-resizable-e {
+    width: 10px;
+}
+
+.console.ui-draggable-disabled {
+    padding: 7px;
+    border: none;
+}
+
+.console.ui-draggable-disabled::after {
+    display: none;
+}
+
+.console .box {
+    border: 1px solid #2a2d36;
+    border-radius: 2px;
+}
+
+.console .box.titlebar, .console .box.buttons, .console .box.input, .console .box.info {
+    display: inline-block;
+    box-sizing: border-box;
+    height: 30px;
+    padding: 0 4px;
+    line-height: 26px;
+}
+
+.console .box.titlebar, .console .box.input {
+    width: calc(100% - 200px);
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.console .box.input {
+    background: rgba(255,255,255,0.1);
+}
+
+.console .box.input .prompt {
+    float: left;
+    width: 15px;
+    color: #00bfff;
+}
+
+.console #command {
+    display: inline-block;
+    width: calc(100% - 15px);
+    height: 28px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    outline: none;
+    margin: 0;
+    padding: 0;
+}
+
+.console #command::selection {
+    background: #c0c0c0;
+}
+
+.console .box.buttons {
+    height: 30px;
+    padding: 0;
+    margin-right: -5px;
+    text-decoration: none;
+    text-align: right;
+    border: none;
+}
+
+.console .box.buttons .button {
+    display: inline-block;
+    box-sizing: border-box;
+    height: 30px;
+    width: 60px;
+    padding: 0 8px;
+    margin-right: 5px;
+    line-height: 28px;
+    color: #00bfff;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid #2a2d36;
+    border-radius: 2px;
+}
+
+.console .box.buttons .button:hover {
+    color: white;
+    border-color: white;
+}
+
+.console .box.output {
+    height: calc(100% - 72px);
+    /* padding: 5px; */
+    margin-bottom: 5px;
+    background: rgba(0, 0, 0, 0.1);
+    overflow: auto;
+    word-wrap: break-word;
+    -webkit-user-select: text;
+}
+
+.console .box::-webkit-scrollbar {
+    width: 9px;
+}
+
+.console .box::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-left: 1px solid #202020;
+}
+ 
+.console .box::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    background-clip: padding-box;
+}
+ 
+.console .box:hover::-webkit-scrollbar-thumb {
+    background: #202020;
+    background-clip: padding-box;
+}
+
+.console .box.output pre {
+    margin: 0;
+    padding: 2px 5px;
+    white-space: pre-wrap;
+}
+
+.console .box.output pre.info, .console .box.output pre.suggestion {
+    padding: 20px;
+} 
+
+.console .box.output pre.suggestion {
+    background: rgba(255,255,255,0.05);
+}
+
+.console .box.output pre .command {
+    color: #FF9B00;
+}
+
+.console .box.output pre .command:hover,.console .box.output pre .command.selected {
+    text-decoration: underline;
+}
+
+.console .box.output pre .description {
+    color: #ABABAB;
+}
+
+.console .box.output pre:nth-child(even) {
+/*     background: rgba(255,255,255,0.05); */
+}
+
+.console .box.output *::selection {
+    background: #c0c0c0;
+}
+
+.console .box.output pre.command-line {
+    color: #00bfff;
+    background: rgba(255,255,255,0.05);
+}
+
+.console .box.output pre.debug-line {
+    color: #af4444;
+}
+
+.console .box.output pre.error-line {
+    background-color: #af4444;
+}
+
+.console #memory-usage {
+    float: right;
+}

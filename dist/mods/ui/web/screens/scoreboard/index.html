@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+    <head>
+        <title>ElDewrito Scoreboard</title>
+
+        <!-- Common Include -->
+        <script src="dew://lib/dew.js"></script>
+        <script src="dew://lib/jquery-2.2.1.min.js"></script>
+        <script src="dew://lib/jquery-ui.js"></script>
+        
+        <!-- Window Resize-->
+        <script src="dew://lib/window-resize.js"></script>
+        <link rel="stylesheet" type="text/css" href="dew://lib/window-resize.css"/>
+        
+        <!-- Scoreboard -->
+        <script src="scoreboard.js"></script>
+        <link rel="stylesheet" type="text/css" href="scoreboard.css"/>
+        
+        <!-- Context Menu-->
+        <link rel="stylesheet" type="text/css" href="jquery.contextMenu.min.css"/>
+        <script src="jquery.contextMenu.min.js"></script>
+        <script>
+            $(function() {
+                $( "#playerBreakdown" ).draggable({
+                  handle: ".statsHeader"
+                });
+            });
+        </script>
+    </head>
+    <body>
+    <div id="container">
+        <div class="page_content">
+            <div id="window">
+            <div id="winnerText"></div>
+                <table id="scoreboard">
+                    <thead>
+                        <tr id="header"></tr>
+                    </thead>
+                    <tbody id="singlePlayers"></tbody>
+                </table>
+            </div>
+            <div id="playerBreakdown">
+                <div class="statsHeader">Player Stats<button id="windowClose" onclick="$('#playerBreakdown').hide();">X</button></div>
+                <div id="playerName"></div>
+                <div id="playerKills"></div>
+                <div id="playerDeaths"></div>
+                <div id="playerKDSpread"></div>
+                <div id="playerSuicides"></div>
+                <br>
+                <div id="toolOfDestruction"><table><thead><tr><td>Tool of Destruction:</tr></td></thead><tbody></tbody></table></div>
+                <br>
+                <table id="killedMost"><thead><tr><td>Killed Most</td><td style="text-align:center;">Kills</td></tr></thead><tbody></tbody></table>
+                <table id="killedMostBy"><thead><tr><td>Killed Most By</td><td style="text-align:center;">Kills</td></tr></thead><tbody></tbody></table>
+                <div id="bigMedal">
+                    <span class="medalName"></span>
+                    <span class="medalDesc"></span>
+                </div>
+                <div id="medalBox"></div>
+                <div class="bottomButtons">
+                    <button id="previousPlayer">Previous Player</button>
+                    <button id="nextPlayer">Next Player</button>
+                </div>
+            </div>
+            <div id="serverName"></div>
+            <div id="closeButton">Close<img class='button'></div>
+        </div>
+    </div>
+    </body>
+</html>

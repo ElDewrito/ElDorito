@@ -1,0 +1,14 @@
+#medalbox img{
+    opacity: 0;
+    margin: 0.1vw;
+}
+
+#medalbox {
+    position: absolute;
+}
+
+@media screen and (min-aspect-ratio: 20/9) {
+    #medalbox img{
+        width: 2.25vw;
+    }
+}

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -47,6 +47,7 @@
 #include "include/capi/cef_response_capi.h"
 #include "include/capi/cef_response_filter_capi.h"
 #include "include/capi/cef_ssl_info_capi.h"
+#include "include/capi/cef_x509_certificate_capi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +61,7 @@ typedef struct _cef_request_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Continue the url request. If |allow| is true (1) the request will be
@@ -76,6 +77,25 @@ typedef struct _cef_request_callback_t {
 
 
 ///
+// Callback structure used to select a client certificate for authentication.
+///
+typedef struct _cef_select_client_certificate_callback_t {
+  ///
+  // Base structure.
+  ///
+  cef_base_ref_counted_t base;
+
+  ///
+  // Chooses the specified certificate for client certificate authentication.
+  // NULL value means that no client certificate should be used.
+  ///
+  void (CEF_CALLBACK *select)(
+      struct _cef_select_client_certificate_callback_t* self,
+      struct _cef_x509certificate_t* cert);
+} cef_select_client_certificate_callback_t;
+
+
+///
 // Implement this structure to handle events related to browser requests. The
 // functions of this structure will be called on the thread indicated.
 ///
@@ -83,7 +103,7 @@ typedef struct _cef_request_handler_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called on the UI thread before browser navigation. Return true (1) to
@@ -146,12 +166,15 @@ typedef struct _cef_request_handler_t {
   ///
   // Called on the IO thread when a resource load is redirected. The |request|
   // parameter will contain the old URL and other request-related information.
-  // The |new_url| parameter will contain the new URL and can be changed if
-  // desired. The |request| object cannot be modified in this callback.
+  // The |response| parameter will contain the response that resulted in the
+  // redirect. The |new_url| parameter will contain the new URL and can be
+  // changed if desired. The |request| object cannot be modified in this
+  // callback.
   ///
   void (CEF_CALLBACK *on_resource_redirect)(struct _cef_request_handler_t* self,
       struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      struct _cef_request_t* request, cef_string_t* new_url);
+      struct _cef_request_t* request, struct _cef_response_t* response,
+      cef_string_t* new_url);
 
   ///
   // Called on the IO thread when a resource response is received. To allow the
@@ -237,6 +260,26 @@ typedef struct _cef_request_handler_t {
       struct _cef_browser_t* browser, cef_errorcode_t cert_error,
       const cef_string_t* request_url, struct _cef_sslinfo_t* ssl_info,
       struct _cef_request_callback_t* callback);
+
+  ///
+  // Called on the UI thread when a client certificate is being requested for
+  // authentication. Return false (0) to use the default behavior and
+  // automatically select the first certificate available. Return true (1) and
+  // call cef_select_client_certificate_callback_t::Select either in this
+  // function or at a later time to select a certificate. Do not call Select or
+  // call it with NULL to continue without using any certificate. |isProxy|
+  // indicates whether the host is an HTTPS proxy or the origin server. |host|
+  // and |port| contains the hostname and port of the SSL server. |certificates|
+  // is the list of certificates to choose from; this list has already been
+  // pruned by Chromium so that it only contains certificates from issuers that
+  // the server trusts.
+  ///
+  int (CEF_CALLBACK *on_select_client_certificate)(
+      struct _cef_request_handler_t* self, struct _cef_browser_t* browser,
+      int isProxy, const cef_string_t* host, int port,
+      size_t certificatesCount,
+      struct _cef_x509certificate_t* const* certificates,
+      struct _cef_select_client_certificate_callback_t* callback);
 
   ///
   // Called on the browser process UI thread when a plugin has crashed.

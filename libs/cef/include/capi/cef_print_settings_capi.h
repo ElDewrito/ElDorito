@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -52,7 +52,7 @@ typedef struct _cef_print_settings_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is valid. Do not call any other functions
@@ -121,7 +121,7 @@ typedef struct _cef_print_settings_t {
   // Set the page ranges.
   ///
   void (CEF_CALLBACK *set_page_ranges)(struct _cef_print_settings_t* self,
-      size_t rangesCount, cef_page_range_t const* ranges);
+      size_t rangesCount, cef_range_t const* ranges);
 
   ///
   // Returns the number of page ranges that currently exist.
@@ -133,7 +133,7 @@ typedef struct _cef_print_settings_t {
   // Retrieve the page ranges.
   ///
   void (CEF_CALLBACK *get_page_ranges)(struct _cef_print_settings_t* self,
-      size_t* rangesCount, cef_page_range_t* ranges);
+      size_t* rangesCount, cef_range_t* ranges);
 
   ///
   // Set whether only the selection will be printed.

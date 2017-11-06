@@ -1,0 +1,32 @@
+:root {
+  --screen-with: 1280px;
+  --screen-height: 720px;
+}
+body{
+	overflow: hidden;
+	left: 0; right: 0; bottom: 0; top: 0;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+#container{
+	position:fixed;
+	bottom:-50%;
+	right: -50%;
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+.page_content{
+	position: relative;
+	width: var(--screen-with);
+	height: var(--screen-height);
+	margin-left: calc(var(--screen-with) / 2 * -1);
+	margin-top: calc(var(--screen-height) / 2 * -1);
+	box-sizing: border-box;
+	transform: scale(1);
+	transform-origin: center center;
+	overflow:hidden;
+	display: block;
+}

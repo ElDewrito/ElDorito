@@ -1,0 +1,200 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+/* resets */
+* { box-sizing: border-box; }
+ul { padding:0; margin:0; }
+
+
+/* scrollbar */
+::-webkit-scrollbar {
+    width: 1vh;
+}
+ 
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: grey;
+}
+
+
+html {
+   font-family: "Conduit ITC", sans-serif;
+   color: #D8D8D8;
+   font-size: 1.2em;
+}
+
+html, body {
+	padding:0;
+	margin:0;
+	width:100vw;
+	height: 100vh;
+}
+
+
+.container {
+	width:100vw;
+	height: 100vh;
+	display: flex;
+  	align-items: center;
+  	justify-content: center;
+}
+
+/* object browser */
+.object-browser {
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
+	width: 420px;
+	margin-left: auto;
+	margin-right: 100px;
+}
+
+.object-browser .body {
+	display:flex;
+	flex-direction: row;
+}
+
+.object-browser .header {
+	background-color: rgba(2, 8, 13, 0.85);
+	vertical-align: middle;
+	padding: 0.7em 0.7em;
+	text-transform: uppercase;
+}
+
+.object-browser .footer {
+	background-color: rgba(2, 8, 13, 0.85);
+	height: 30px;
+	vertical-align: middle;
+	padding: 1.2em 0.5em;
+	text-transform: uppercase;
+}
+
+.object-browser .help-text {
+	border-top: 1px solid rgba(255,255,255,0.2);
+	background: rgba(0,0,0, 0.4);
+	padding: 0.5em;
+	min-height: 50px;
+	font-size: 0.9em;
+}
+
+.object-browser .help_text {
+	height: 200px;
+}
+
+.object-browser li {
+	display:block;
+	padding: 0.5em;
+	width:100%;
+	text-transform: uppercase;
+}
+
+.object-browser li.selected {
+	background: rgba(200, 120, 40, 0.5);
+}
+
+
+/* category tree */
+#category_tree {
+	padding:0;
+	margin:0;
+	min-height: 350px;
+	height: 400px;
+	width: 100%;
+	overflow-y:auto;
+	overflow-x: hidden;
+}
+
+#category_tree li {
+	width:100%;
+	padding: 0.7em;
+}
+
+
+/* object list */
+.object-list li {
+	position: relative;
+	padding: 0.7em;
+}
+
+.object-list .quota {
+	position: absolute;
+	right: 1em;
+}
+
+#object_list {
+	width: 600px;
+	max-height: 450px;
+	overflow-y:auto;
+	overflow-x: hidden;
+	transition:all 0.1s ease-in;
+	height: 400px;
+}
+
+
+
+/* tabs */
+ul.tabs {
+	list-style: none;
+}
+
+.tabs {
+	display:flex;
+}
+
+.tab-header {
+	padding:10px;
+	margin:0;
+	text-align: center;
+	border-right: 1px solid rgba(255,255,255,0.2);
+	border-bottom: 1px solid rgba(255,255,255,0.2);
+	background: rgba(0,0,0, 0.4);
+	color:rgba(175,188,205, 0.4);
+}
+
+.tab-header.active {
+	border-bottom: none;
+	background: inherit;
+	color: inherit;
+}
+
+.tab-header:hover {
+	color: #dfdfdf;
+}
+
+.search-text-container {
+	width:100%;
+	background: inherit;
+}
+
+.search-text {
+	width:100%;
+	display:block;
+	border: none;
+	background: inherit;
+	padding: 0.9em;
+	font-size: 0.8rem;
+	color: white;
+
+}
+
+#search {
+	width: 600px;
+	
+}
+
+.search-results {
+	height: 400px;
+	max-height: 450px;
+	overflow-y:auto;
+	overflow-x: hidden;
+	transition:all 0.1s ease-in;
+	height: 400px;
+}
+
+.hidden {
+	display:none;
+}
+
+.text-mute {
+	color: rgba(255,255,255,0.4);
+}

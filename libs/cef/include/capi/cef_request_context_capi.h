@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -56,7 +56,7 @@ typedef struct _cef_resolve_callback_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Called after the ResolveHost request has completed. |result| will be the
@@ -89,7 +89,7 @@ typedef struct _cef_request_context_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns true (1) if this object is pointing to the same context as |that|
@@ -279,7 +279,7 @@ CEF_EXPORT cef_request_context_t* cef_request_context_create_context(
 // Creates a new context object that shares storage with |other| and uses an
 // optional |handler|.
 ///
-CEF_EXPORT cef_request_context_t* create_context_shared(
+CEF_EXPORT cef_request_context_t* cef_create_context_shared(
     cef_request_context_t* other,
     struct _cef_request_context_handler_t* handler);
 

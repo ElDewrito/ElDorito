@@ -1,0 +1,212 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script type="text/javascript" src="dew://lib/dew.js"></script>
+    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
+    <script type="text/javascript" src="dew://lib/jquery-ui.js"></script>
+    <script type="text/javascript" src="settings.js"></script>
+    <link rel="stylesheet" href="settings.css">
+    <link rel="stylesheet" href="dew://lib/jquery-ui.css">
+</head>
+<body>
+    <div id="blackLayer"></div>
+    <div id="settingsWindow">
+        <h1 class="header">Settings</h1>
+
+        <ul class="tabs">
+            <img class="button"></img>
+						<img class="button"></img>
+            <li><a href="#page1">Server</a></li>
+        </ul>
+
+        <div id="page1"> 
+            <div id="buttonConatiner">
+            <span>
+                    <h3 class="subHeader">General</h3>
+            </span><span>
+                <label for="sNetworkMode">Network Mode</label>
+                <select id="sNetworkMode" class="setting wheelable">
+                    <option value="3">Online</option>
+                    <option value="4">Offline</option> 
+                </select>
+            </span>
+            <span>
+                <label for="sName">Server Name</label>
+                <input class="setting textInput" type="text" id="sName" placeholder="...">
+            </span><span>
+                <label for="sPass">Password</label>
+                <input class="setting textInput" type="text" id="sPass" placeholder="...">
+            </span><span> 
+                <label for="sMessage">Join Message (\n for new line)</label>
+                <textarea class="setting textInput" type="text" id="sMessage" placeholder="..."></textarea>
+            </span><span>
+                        <label for="sShouldAnnounce">Display Server in Browser</label>
+                <input class="setting" type="checkbox" id="sShouldAnnounce">
+            </span><span>
+                <label for="sUPNP">Universal Plug and Play (UPnP)</label>
+                <input class="setting" type="checkbox" id="sUPNP">
+            </span><span>
+                    <h3 class="subHeader">Gameplay</h3>
+                </span><span>
+                <label for="sMaxPlayers">Max Players</label>
+                <div class="colorBox">
+                    <input type="range" class="setting hasTiny" min="1" max="16" id="sMaxPlayers">
+                    <input type="text" class="tinySetting" id="sMaxPlayersText">
+                </div>
+            </span><span>
+                <label for="sMaxTeamSize">Max Team Size</label>
+                <div class="colorBox">
+                    <input type="range"class="setting hasTiny" min="2" max="16" id="sMaxTeamSize">
+                    <input type="text" class="tinySetting" id="sMaxTeamSizeText">
+                </div>
+            </span><span>	
+            
+                <label for="sTeamShufflingEnabled">Team Shuffle Enabled</label>
+                <input class="setting voting veto" type="checkbox" id="sTeamShufflingEnabled">
+            </span><span>
+                <label for="sCountdown">Match Start Countdown</label>
+                <div class="colorBox">
+                    <input type="text" class="tinySetting" id="sMatchCountdownText">
+                    <input type="range" class="setting hasTiny" min="0" max="20" id="sMatchCountdown">
+                </div>
+            </span><span>
+                <label for="sCountdown">Round Start Countdown</label>
+                <div class="colorBox">
+                    <input type="text" class="tinySetting" id="sCountdownText">
+                    <input type="range" class="setting hasTiny" min="0" max="20" id="sCountdown">
+                </div>
+            </span><span>
+                <label for="sDualWieldEnabled">Dual Wielding</label>
+                <input class="setting" type="checkbox" id="sDualWieldEnabled">
+            </span><span>
+                <label for="sAssassinationEnabled">Assassinations</label>
+                <input class="setting" type="checkbox" id="sAssassinationEnabled">
+            </span><span>	
+
+                <label for="sSprint">Sprinting</label>
+                <select id="sSprint" class="setting wheelable">
+                    <option value="0">Disabled</option> 
+                    <option value="1">Enabled</option>
+                    <option value="2">Unlimited</option>
+                </select>
+            </span><span>            
+                    <h3 class="subHeader">Voting</h3>
+                </span><span>
+
+                <label for="sVotingStyle">Voting Mode</label>
+                <select id="sVotingStyle" class="setting wheelable">
+                    <option value="0">No Voting</option> 
+                    <option value="2">Veto</option>
+                    <option value="1">Vote</option>               
+                </select>
+            </span>
+                <div id="veto">
+                <span>
+                    <h3 class="subHeader veto">Map Veto Options</h3>
+                </span><span>
+                    <label for="sNumOfVetoes">Max Veto Votes Per Round</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sNumOfVetoesText">
+                        <input type="range" class="setting hasTiny" min="0" max="10" id="sNumOfVetoes">
+                    </div>
+                </span><span>    
+                    <label for="sVetoVoteTime">Veto Countdown</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sVetoVoteTimeText">
+                        <input type="range" class="setting hasTiny" min="0" max="200" id="sVetoVoteTime">
+                    </div>
+                </span><span>  
+                    <label for="sVetoWinningShowTime">Winning Vote Display Time</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sVetoWinningShowTimeText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoWinningShowTime">
+                    </div>
+                </span><span>       
+                    <label for="sVetoPassPercentage">Vote Pass Percentage</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sVetoPassPercentageText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sVetoPassPercentage">
+                    </div>
+                </span><span>
+                    <label for="sVetoSystemSelectionType">Veto System Selection Type</label>
+                    <select id="sVetoSystemSelectionType" class="setting wheelable">
+                        <option value="0">Random</option> 
+                        <option value="1">Ordered</option>              
+                    </select>
+
+                </span>
+            </div>
+            <div id="voting">
+                <span>
+                    <h3 class="subHeader voting">Map Voting Options</h3>
+                </span><span>
+                    <label for="sMapVotingTime">Voting Countdown</label>
+									<div class="colorBox">
+                    <input type="text" class="tinySetting" id="sMapVotingTimeText">
+                    <input type="range" class="setting hasTiny" min="0" max="100" id="sMapVotingTime">
+									</div>
+                </span><span>
+                    <label for="sNumOfRevotes">Revotes</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sNumOfRevotesText">
+                        <input type="range" class="setting hasTiny" min="0" max="100" id="sNumOfRevotes">
+                    </div>
+                </span><span>
+                    <label for="sNumberOfVotingOptions">Voting Options</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sNumberOfVotingOptionsText">
+                        <input type="range" class="setting hasTiny" min="1" max="4" id="sNumberOfVotingOptions">
+                    </div>
+                </span><span>
+                    <label for="sVotingDuplicationLevel">Voting Duplication</label>
+                    <select id="sVotingDuplicationLevel" class="setting wheelable voting">
+                    <option value="0">Everything Unique</option>
+                    <option value="1">Gametype or Map Can Repeat</option>
+                    <option value="2">Anything Can Repeat</option>
+                    </select>
+                </span><span>
+                    <label for="sTimeBetweenVoteEndAndGameStart">Winner/Start Time</label>
+                    <div class="colorBox">
+                        <input type="text" class="tinySetting" id="sTimeBetweenVoteEndAndGameStartText">
+                        <input type="range" class="setting hasTiny" min="1" max="100" id="sTimeBetweenVoteEndAndGameStart">
+                    </div>
+                </span>
+            </div>
+
+					</div>
+					<div id="backgroundFill"></div>
+        </div>     
+        <!--        
+        <div id="infoBox">
+            <div id="infoHeader"></div>
+            <div id="infoText"></div>
+        </div>
+        -->
+				<div class="bottomBar">
+					<button id="applyButton"><img class="button">Apply</button>
+					<button id="cancelButton"><img class="button">Close</button>
+				</div>
+    </div>
+    <div id="alertBox">
+        <div class="wHeader">Alert</div>
+        <div id="wDescription"></div>
+        <button id="okButton"><img class="button">Ok</button>
+        <button id="dismissButton"><img class="button">Dismiss</button>
+    </div>
+</body>
+</html>
+
+<!--        Template for other control methods
+            <label for="sBlah">Spinner</label>
+            <input type="number" class="setting" id="sBlah" min="5" max="30" step="5">
+            </span><span>
+            
+            <label for="yText">Text</label>
+            <input class="setting textInput" type="text" id="yText">
+            </span><span>
+
+            <label for="yTextArea">Text Area</label>
+            <textarea class="setting" type="text" id="yTextArea"></textarea>
+            </span><span>
+-->

@@ -1,0 +1,216 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html {
+    cursor: default;    
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    font-family: "Conduit ITC", sans-serif;
+}
+
+.genericLoader .clouds {
+    position: absolute;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        url(dew://assets/ed/cloud_front.png),
+        url(dew://assets/ed/cloud_back.png);
+    background-size: calc(100% + 200px) 55%, calc(100% + 200px) 70%;
+    background-position: 100% 100%, 0% 100%;
+    background-repeat: no-repeat;
+    animation-duration: 10s;
+    animation-delay: 0s;
+    animation-name: clouds;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+.genericLoader .ring {
+    position: absolute;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(dew://assets/ed/ring.png);
+    background-size: cover;
+    background-position: 50% 0%;
+    background-repeat: no-repeat;
+}
+
+.genericLoader .stars {
+    position: absolute;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(dew://assets/ed/stars.jpg);
+    background-size: cover;
+    background-position: 50% 0%;
+    background-repeat: repeat;
+    animation-duration: 100s;
+    animation-delay: 0s;
+    animation-name: stars;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.genericLoader .eldorito {
+    position: absolute;
+    margin: 0;
+    bottom: 42%;
+    width: 100%;
+    height: 15%;
+    background-image: url(dew://assets/ed/EldoritoLogoFinalSmall.png);
+    background-size: auto 100%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.instructionText {
+    position: absolute;
+    bottom: 12vh;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 4.5vh;
+    z-index: 2;
+}
+
+.instructionText img{
+    position: relative;
+    top: 1vh;
+    height: 5vh;
+}
+
+.title {
+    position: absolute;
+    bottom: 32%;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 10vh;
+    z-index: 2;
+}
+
+.legend {
+    position: absolute;
+    width: 32vmin;
+    height: 14vmin;
+    top: 1vw;
+    left: 1vw;
+    border: 2px solid white;
+    background:rgba(0, 0, 0, 0.5);
+}
+
+.legend img{
+    height: 5vmin;
+}
+
+#navigate{
+    position: absolute;
+    top: 0.25vw;
+    width: 100%;
+    text-align: center;
+    font-size: 3vmin;
+    color: white;
+}
+
+#up{
+    position: absolute;
+    left: 20%;
+    top: 28.5%;
+}
+
+#down{
+    position: absolute;
+    left: 20%;
+    top: 55%;  
+}
+
+#left{
+    position: absolute;
+    left: 8%;
+    top: 55%;  
+}
+
+#right{
+    position: absolute;
+    left: 32%;
+    top: 55%;  
+}
+
+#enter{
+    position: absolute;
+    left: 55%;
+    top: 40%;  
+}
+
+#esc{
+    position: absolute;
+    left: 75%;
+    top: 40%;  
+}
+
+#dpad{
+    display:none;
+    position: absolute;
+    left: 15%;
+    top: 30%;
+    height: 5vw;
+}
+
+#announcementBox{
+    display:none;
+    position: absolute;
+    top:20%;
+    left:23.5%;
+    width: 50%;
+    height: 55%;
+    color: white;
+    background:rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    padding:2vw;
+    padding-top:0;
+    border: 2px solid white;
+}
+
+#announcementBox a{
+    color: #95bde1; 
+}
+
+.announcement{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90%;
+    background-color: #14234a;
+    display: none;
+}
+
+#buttonNav{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 10%;
+    width: 100%;
+    background-color: black;
+    color: white;
+}
+
+#buttonNav a{
+    margin-right: 4vh;
+}
+
+#blackLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: black;
+    z-index: 10;
+}

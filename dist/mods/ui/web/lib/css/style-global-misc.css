@@ -1,0 +1,46 @@
+/*Clear*/
+* {all: unset;}
+base, basefont, datalist, head, meta, script, style, title, noembed, param, template {display: none;}
+
+/*Fonts*/
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+* {
+	font-family: "Conduit ITC", sans-serif;
+	-webkit-backface-visibility: hidden;
+}
+
+/*Black Fade-in*/
+#blackLayer{
+	position: absolute;
+	background-color: black;
+	top: 0;	left: 0;	bottom: 0;	right: 0;
+	width: 100%;	height: 100%;
+	opacity: 1;
+	z-index: 10000;
+}
+
+/*Hidden object*/
+.hide{
+	display: none;
+}
+
+/*Scrollbars*/
+.has-vertical-scrollbar{
+  overflow-y: scroll;
+}
+.no-scrollbar{
+  overflow-y: hidden;
+}
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255,255,255,0.2);
+}
+/*--------------------------------------*/

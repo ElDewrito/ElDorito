@@ -1,0 +1,39 @@
+:root {
+  /*Colors*/
+  --color-iceblue: #A5BEDB;
+  --color-white: #EBEBEB;
+  --color-dim: #77879A;
+  --color-inactive: rgba(0,0,0,0.5);
+
+
+  /*Header*/
+  --header-color: var(--color-white);
+  --header-fontsize: 46px;
+
+  --subheader-color: var(--color-white);
+
+  /*Buttons*/
+  --button-list-color: var(--color-iceblue);
+  --button-list-inactive-color: var();
+  --button-list-focus-color: var(--color-white);
+  --button-list-hover-color: var(--color-white);
+  --button-list-fontsize: 24px;
+
+  /*Tile Buttons*/
+  --button-tile-color: var(--color-white);
+  --button-tile-inactive-color: var();
+  --button-tile-focus-color: var(--color-white);
+  --button-tile-hover-color: var(--color-white);
+  --button-tile-large-fontsize: 21px;
+  --button-tile-small-fontsize: 17px;
+
+  /*infoBox*/
+  --infobox-header-color: var(--color-white);
+  --infobox-header-font-size: 24px;
+  --infobox-content-color: var(--color-iceblue);
+  --infobox-content-fontsize: 18px;
+
+  /*Legend Buttons*/
+  --legend-button-normal-color: var(--color-white);
+  --legend-button-fontsize: 20px;
+}

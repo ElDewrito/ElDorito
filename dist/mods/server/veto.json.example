@@ -1,0 +1,26 @@
+{
+  "playlist": [
+    {
+      "map": {
+        "displayName": "Standoff",
+        "mapName": "Standoff H3"
+      },
+      "gametype": {
+        "displayName": "Team King",
+        "typeName": "Team Crazy King",
+        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      }
+    },
+    {
+      "map": {
+        "displayName": "Narrows",
+        "mapName": "Narrows H3"
+      },
+      "gametype": {
+        "displayName": "Team BRs",
+        "typeName": "Team BRs",
+        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      }
+    }
+  ]
+}

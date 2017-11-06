@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -55,7 +55,7 @@ typedef struct _cef_domvisitor_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Method executed for visiting the DOM. The document object passed to this
@@ -77,7 +77,7 @@ typedef struct _cef_domdocument_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the document type.
@@ -177,7 +177,7 @@ typedef struct _cef_domnode_t {
   ///
   // Base structure.
   ///
-  cef_base_t base;
+  cef_base_ref_counted_t base;
 
   ///
   // Returns the type for this node.
@@ -331,6 +331,11 @@ typedef struct _cef_domnode_t {
   // The resulting string must be freed by calling cef_string_userfree_free().
   cef_string_userfree_t (CEF_CALLBACK *get_element_inner_text)(
       struct _cef_domnode_t* self);
+
+  ///
+  // Returns the bounds of the element.
+  ///
+  cef_rect_t (CEF_CALLBACK *get_element_bounds)(struct _cef_domnode_t* self);
 } cef_domnode_t;
 
 

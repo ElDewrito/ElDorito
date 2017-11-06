@@ -1,0 +1,125 @@
+{
+	"screens": [
+		{
+			"id": "browser",
+			"var": "Game.MenuURL",
+			"fallbackUrl": "dew://screens/error/",
+			"captureInput": true,
+			"zIndex": 1
+		},
+		{
+			"id": "console",
+			"url": "dew://screens/console/",
+			"captureInput": true,
+			"zIndex": 11
+		},
+		{
+			"id": "chat",
+			"url": "dew://screens/chat/",
+			"captureInput": false,
+			"zIndex": 10
+		},
+		{
+			"id": "medals",
+			"url": "dew://screens/medals/",
+			"captureInput": false,
+			"zIndex": -10
+		},
+		{
+			"id": "loading",
+			"url": "dew://screens/loading/",
+			"captureInput": false,
+			"zIndex": 0
+		},
+		{
+			"id": "voting",
+			"url": "dew://screens/voting/",
+			"captureInput": true,
+			"zIndex": 0
+		},
+		{
+			"id": "title",
+			"url": "dew://screens/title/",
+			"captureInput": true,
+			"zIndex": 9
+		},
+		{
+			"id": "scoreboard",
+			"url": "dew://screens/scoreboard/",
+			"captureInput": false,
+			"zIndex": 1
+		},
+		{
+			"id": "keyboard",
+			"url": "dew://screens/keyboard/",
+			"captureInput": true,
+			"zIndex": 100
+		},
+        {
+			"id": "alert",
+			"url": "dew://screens/alert/",
+			"captureInput": true,
+			"zIndex": 100
+		},
+        {
+			"id": "settings",
+			"url": "dew://screens/settings/",
+			"captureInput": true,
+			"zIndex": 9
+		},
+        {
+			"id": "profile_settings",
+			"url": "dew://screens/profile_settings/",
+			"captureInput": true,
+			"zIndex": 9
+		},
+        {
+			"id": "server_settings",
+			"url": "dew://screens/server_settings/",
+			"captureInput": true,
+			"zIndex": 9
+		},
+        {
+			"id": "forge",
+			"url": "dew://screens/forge/",
+			"captureInput": true,
+			"zIndex": 8
+		},
+		{
+			"id": "forge_object_properties",
+			"url": "dew://screens/forge/object_properties/",
+			"captureInput": true,
+			"zIndex": 0
+		},
+		{
+			"id": "forge_object_creation",
+			"url": "dew://screens/forge/object_creation/",
+			"captureInput": true,
+			"zIndex": 0
+		},
+        {
+			"id": "spectate",
+			"url": "dew://screens/spectate/",
+			"captureInput": false,
+			"zIndex": -5
+		},
+		{
+			"id": "voip",
+			"url": "dew://screens/voip/",
+			"captureInput": false,
+			"zIndex": 2
+		},
+        {
+			"id": "weapon_offset",
+			"url": "dew://screens/weapon_offset/",
+			"captureInput": true,
+			"zIndex": 1
+		},
+		{
+			"id": "screenshot_notice",
+			"url": "dew://screens/screenshot_notice/",
+			"captureInput": false,
+			"zIndex": 90
+		}
+	]
+}

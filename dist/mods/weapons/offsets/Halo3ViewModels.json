@@ -1,0 +1,212 @@
+{
+  "Weapons": [
+    {
+      "Name": "assault_rifle",
+      "Offset": [ "-0.025", "0", "-0.0035" ]
+    },
+    {
+      "Name": "assault_rifle_v2",
+      "Offset": [ "-0.025", "0", "-0.0035" ]
+    },
+    {
+      "Name": "assault_rifle_v3",
+      "Offset": [ "-0.025", "0", "-0.0035" ]
+    },
+    {
+      "Name": "assault_rifle_v5",
+      "Offset": [ "-0.025", "0", "-0.0035" ]
+    },
+    {
+      "Name": "assault_rifle_v6",
+      "Offset": [ "-0.025", "0", "-0.0035" ]
+    },
+    {
+      "Name": "battle_rifle",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v1",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v2",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v3",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v4",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v5",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "battle_rifle_v6",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "beam_rifle",
+      "Offset": [ "-0.0295", "0", "-0.0035" ]
+    },
+    {
+      "Name": "brute_shot",
+      "Offset": [ "-0.08", "-0.002", "-0.005" ]
+    },
+    {
+      "Name": "carbine",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v1",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v2",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v3",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v4",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v5",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "covenant_carbine_v6",
+      "Offset": [ "-0.01", "0", "-0.005" ]
+    },
+    {
+      "Name": "dmr",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v1",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v2",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v3",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v4",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v5",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "dmr_v6",
+      "Offset": [ "-0.02", "0", "0" ]
+    },
+    {
+      "Name": "energy_sword",
+      "Offset": [ "0", "0", "0" ]
+    },
+    {
+      "Name": "excavator",
+      "Offset": [ "-0.06", "0", "-0.01" ]
+    },
+    {
+      "Name": "excavator_v3",
+      "Offset": [ "-0.06", "0", "-0.01" ]
+    },
+    {
+      "Name": "fuel_rod_gun",
+      "Offset": [ "0", "0", "0.01" ]
+    },
+    {
+      "Name": "gravity_hammer",
+      "Offset": [ "-0.01", "-0.01", "-0.02" ]
+    },
+    {
+      "Name": "magnum",
+      "Offset": [ "-0.035", "0", "0" ]
+    },
+    {
+      "Name": "magnum_v2",
+      "Offset": [ "-0.035", "0", "0" ]
+    },
+    {
+      "Name": "magnum_v3",
+      "Offset": [ "-0.035", "0", "0" ]
+    },
+    {
+      "Name": "needler",
+      "Offset": [ "-0.05", "0", "0" ]
+    },
+    {
+      "Name": "plasma_pistol",
+      "Offset": [ "0.055", "0", "-0.0035" ]
+    },
+    {
+      "Name": "plasma_pistol_v3",
+      "Offset": [ "0.055", "0", "-0.0035" ]
+    },
+    {
+      "Name": "plasma_rifle",
+      "Offset": [ "0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "plasma_rifle_v6",
+      "Offset": [ "0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "rocket_launcher",
+      "Offset": [ "-0.01", "0", "-0.01" ]
+    },
+    {
+      "Name": "sentinel_beam",
+      "Offset": [ "-0.1", "-0.01", "-0.01" ]
+    },
+    {
+      "Name": "shotgun",
+      "Offset": [ "-0.017", "0", "-0.005" ]
+    },
+    {
+      "Name": "smg",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "smg_v1",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "smg_v2",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "smg_v4",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "smg_v6",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    },
+    {
+      "Name": "sniper_rifle",
+      "Offset": [ "-0.035", "0", "-0.0035" ]
+    },
+    {
+      "Name": "spartan_laser",
+      "Offset": [ "-0.025", "0", "-0.005" ]
+    },
+    {
+      "Name": "spike_rifle",
+      "Offset": [ "-0.015", "0", "-0.005" ]
+    }
+  ]
+}

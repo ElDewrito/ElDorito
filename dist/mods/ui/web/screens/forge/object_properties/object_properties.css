@@ -1,0 +1,285 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+* {
+	box-sizing: border-box;
+}
+html {
+    font-family: "Conduit ITC", sans-serif;
+    font-weight: 500;
+    color: #D8D8D8
+}
+
+.object-properties-panel {
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
+	width: 480px;
+	height: 570px;
+	display:flex;
+	flex-flow: column;
+	position: absolute;
+	right: 150px;
+	bottom:150px;
+	opacity:1;
+	padding-bottom: 0.5em;
+}
+
+@media only screen and (max-height: 720px) {
+    .object-properties-panel {
+        zoom: 0.7;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 1vh;
+}
+ 
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: grey;
+}
+
+.panel-body {
+	overflow-y: auto;
+	padding-bottom: 0.2em;
+	flex-grow: 1;
+}
+
+.panel-header {
+	background-color: rgba(2, 8, 13, 0.85);
+	font-size: 1.75em;
+	vertical-align: middle;
+	padding: 0.7em 0.5em;
+	text-transform: uppercase;
+}
+
+.panel-footer {
+	background-color: rgba(2, 8, 13, 0.85);
+	font-size: 1em;
+	padding: 1em;
+	display: none;
+}
+
+.panel-header .info {
+	font-size: 0.75em;
+	color: #aaa;
+}
+
+.property-item-group {
+	position: relative;
+	display:block;
+}
+
+.property-name {
+	text-align: left;
+	font-size: 1.25em;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+
+.property-value {
+	position: absolute;
+	right: 1em;
+	text-align: right;
+}
+
+.property-item-group .group-heading {
+	font-size: 1.75em;
+	padding: 0.25em 0em;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.property-item-group .group-body {
+	padding-bottom: 2px;
+}
+
+.property-item {
+	display:block;
+	position: relative;
+}
+
+.property-item-leaf {
+	padding: 0.7em 1em;
+}
+
+.property-item-leaf.selected {
+	background: rgba(200, 120, 40, 0.5);
+}
+
+.property-item-range output {
+	width: 2em;
+	display:inline-block;
+	position: relative;
+	vertical-align: middle;
+}
+
+.property-item-float input {
+	width: 4.5em;
+	display:inline-block;
+	position: relative;
+	vertical-align: middle;
+}
+
+.property-item-material {
+	height: 72px;
+	line-height: 72px;
+}
+
+.property-item-material img {
+	width: 52px;
+	height: 52px;
+	border: 1px solid rgba(255,255,255, 0.25);
+	vertical-align: baseline;
+	margin-left: 10px;
+}
+.property-item-material .property-name {
+	position: relative;
+	top: -10px;
+}
+
+.property-item-material select {
+	position: relative;
+	top: -16px;
+	background: none;
+	border: none;
+	color: inherit;
+	font-size: 1.25em;
+	text-overflow: ellipsis;
+	margin: 0;
+	text-align-last:right;
+	min-width: auto
+}
+
+select {
+	text-align-last:center;
+	background: none;
+	color: inherit;
+	border: none;
+	font-size: 1.2em;
+	text-transform: uppercase;
+	-webkit-appearance: none;
+	position: relative;
+	min-width: 125px;
+}
+
+select:hover {
+	
+}
+
+select option {
+	color: black;
+	padding: 5px;
+
+}
+
+select:focus {
+	outline:0;
+}
+
+.property-item-material select option {
+	position: relative;
+	background: none;
+	border: none;
+	color: black;
+}
+
+.property-item-material select:focus {
+	outline:0;
+}
+
+.property-item-leaf {
+	min-width:2em;
+	vertical-align: baseline;
+}
+
+.property-item.hidden {
+	display: none;
+}
+
+#material-picker {
+	display: none;
+}
+
+
+
+.screen {
+	display: none;
+}
+
+#budget-screen {
+	display: none;
+}
+#test-screen {
+	display: none;
+}
+
+.object-list {
+	padding: 0;
+	margin: 0;
+}
+
+.object-list li {
+	padding: 10px 20px;
+	list-style-type: none;
+	vertical-align: baseline;
+	border-bottom: 1px solid rgba(255,255,255,0.05);
+	font-size: 1.1em;
+	text-transform: uppercase;
+}
+
+.object-list li.selected {
+	background: rgba(200, 120, 40, 0.5);
+}
+
+.material-list.tree-list {
+	
+}
+
+.material-tree {
+	display: none;
+}
+
+.material-tree.tree-list {
+	font-size: 1.5em;
+}
+
+
+.material-tree.tree-list li {
+	padding: 0.5em;
+	text-transform: uppercase;
+}
+
+.material-tree.tree-list li.selected {
+	background: rgba(200, 120, 40, 0.5);
+}
+
+#material-list {
+	list-style: none;
+	font-size: 1.1em;
+	display: none;
+	margin:0;
+	padding:0;
+}
+
+#material-list li {
+	margin:0;
+	padding: 0.5em 0.7em;
+	text-transform: uppercase;
+}
+#material-list li.selected {
+	background: rgba(200, 120, 40, 0.5);
+}
+
+#material-list li img {
+	width: 64px; 
+	height: 64px;
+	vertical-align:middle;
+}
+
+#material-list li span {
+	margin-left: 0.45em;
+	font-size: 1.25em;
+	text-transform: uppercase;
+}
