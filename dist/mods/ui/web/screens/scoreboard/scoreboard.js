@@ -17,7 +17,7 @@ var lastHeldUpdated = 0;
 var mapName;
 var volArray = [];
 var scoreboardData = null;
-var multiRound;
+var multiRound = false;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -287,7 +287,9 @@ dew.on('controllerinput', function(e){
 dew.on("scoreboard", function(e){
     scoreboardData = e.data;
     mapName = e.data.mapName
-    multiRound = e.data.numberOfRounds == 1 ? false : true;
+    if(e.data.numberOfRounds){
+        multiRound = e.data.numberOfRounds == 1 ? false : true;
+    }
     if(isVisible){
         displayScoreboard();
     }
