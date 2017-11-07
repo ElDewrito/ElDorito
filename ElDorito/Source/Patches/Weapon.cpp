@@ -41,6 +41,11 @@ namespace
 	void DualWieldSprintInputHook();
 	void DualWieldScopeLevelHook();
 	int DualWieldEquipmentCountHook(uint32_t unitIndex, short equipmentIndex);
+
+	void weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	void weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	void weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	bool weapon_update_bloom_hook(uint32_t weaponObjectIndex, int barrelIndex);
 }
 
 namespace Patches::Weapon
@@ -99,6 +104,12 @@ namespace Patches::Weapon
 
 		// fix recoil
 		Pointer(0x0B603E7 + 5).Write<int>(0x214);
+
+		// disable bloom for non-p2w weapons
+		Hook(0x75F0F1, weapon_apply_firing_penalty_hook, HookFlags::IsCall).Apply();
+		Hook(0x761197, weapon_apply_movement_penalty_hook, HookFlags::IsCall).Apply();
+		Hook(0x74A8B7, weapon_apply_turning_penalty_hook, HookFlags::IsCall).Apply();
+		Hook(0x7611A1, weapon_update_bloom_hook, HookFlags::IsCall).Apply();
 	}
 
 	void ApplyAfterTagsLoaded()
@@ -632,5 +643,100 @@ namespace
 		typedef int(__cdecl* GetEquipmentCountFunc)(uint32_t unitIndex, short equipmentIndex);
 		GetEquipmentCountFunc GetEquipmentCount = reinterpret_cast<GetEquipmentCountFunc>(0xB440F0);
 		return GetEquipmentCount(unitIndex, equipmentIndex);
+	}
+
+	enum ProjectilePenaltyType
+	{
+		eProjectilePenalty_Firing,
+		eProjectilePenalty_Moving,
+		eProjectilePenalty_Turning
+	};
+
+	bool weapon_should_apply_bloom(uint32_t weaponObjectIndex, int barrelIndex, ProjectilePenaltyType type)
+	{
+		const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
+		const auto weapon_get_parent_unit = (uint32_t(*)(uint32_t weaponObjectIndex))(0x00B63030);
+
+		using Blam::Tags::Items::Weapon;
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (!weaponObject)
+			return false;
+
+		auto unitObject = Blam::Objects::Get(weapon_get_parent_unit(weaponObjectIndex));
+		if (!unitObject)
+			return false;
+
+		auto isCrouching = *(float*)((uint8_t*)unitObject + 0x418) > 0;
+		auto isDualWielding = weapon_is_being_dual_wielded(weaponObjectIndex);
+
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Weapon>('weap');
+
+		auto functionIndex = 0;
+		switch (type)
+		{
+		case eProjectilePenalty_Firing:
+			functionIndex = isCrouching ? 0 : 1;
+			break;
+		case eProjectilePenalty_Moving:
+			functionIndex = 2;
+			break;
+		case eProjectilePenalty_Turning:
+			functionIndex = 3;
+			break;
+		}
+
+		if (isDualWielding)
+			return (&weaponDefinition->Barrels[barrelIndex].DualFiringPenaltyFunction)[functionIndex].Count > 0;
+		else
+			return (&weaponDefinition->Barrels[barrelIndex].FiringPenaltyFunction)[functionIndex].Count > 0;
+	}
+
+	inline void weapon_set_bloom(uint32_t weaponObjectIndex, int barrelIndex, float value)
+	{
+		if (value > 1.0f) value = 1.0f;
+		if (value < 0) value = 0;
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (weaponObject)
+			*(float*)((uint8_t*)weaponObject + 0x220 + 0x34 * barrelIndex) = value;
+	}
+
+	void __cdecl weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		const auto weapon_apply_firing_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C2E0);
+		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
+			return weapon_apply_firing_penalty(weaponObjectIndex, barrelIndex);
+	}
+
+	void __cdecl weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		const auto weapon_apply_movement_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C450);
+		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Moving))
+			return weapon_apply_movement_penalty(weaponObjectIndex, barrelIndex);
+	}
+
+	void __cdecl weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		const auto weapon_apply_turning_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C630);
+		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Turning))
+			return weapon_apply_turning_penalty(weaponObjectIndex, barrelIndex);
+	}
+
+	bool weapon_update_bloom_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		const auto weapon_update_bloom = (bool(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C870);
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+
+		if (!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing) &&
+			!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Moving) &&
+			!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Turning))
+		{
+			weapon_set_bloom(weaponObjectIndex, barrelIndex, 1.0f);
+			return true;
+		}
+
+		return weapon_update_bloom(weaponObjectIndex, barrelIndex);
 	}
 }
