@@ -668,7 +668,7 @@ namespace
 			return false;
 
 		auto isCrouching = *(float*)((uint8_t*)unitObject + 0x418) > 0;
-		auto isDualWielding = weapon_is_being_dual_wielded(weaponObjectIndex);
+		// auto isDualWielding = weapon_is_being_dual_wielded(weaponObjectIndex);
 
 		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Weapon>();
 
@@ -686,10 +686,10 @@ namespace
 			break;
 		}
 
+		/* dual-wield blocks are always empty
 		if (isDualWielding)
-			return (&weaponDefinition->Barrels[barrelIndex].DualFiringPenaltyFunction)[functionIndex].Count > 0;
-		else
-			return (&weaponDefinition->Barrels[barrelIndex].FiringPenaltyFunction)[functionIndex].Count > 0;
+			return (&weaponDefinition->Barrels[barrelIndex].DualFiringPenaltyFunction)[functionIndex].Count > 0;*/
+		return (&weaponDefinition->Barrels[barrelIndex].FiringPenaltyFunction)[functionIndex].Count > 0;
 	}
 
 	inline void weapon_set_bloom(uint32_t weaponObjectIndex, int barrelIndex, float value)
