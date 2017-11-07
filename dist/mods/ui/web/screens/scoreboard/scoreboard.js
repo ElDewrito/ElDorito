@@ -15,8 +15,9 @@ var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
 var mapName;
+var volArray = [];
 var scoreboardData = null;
-var multiRound;
+var multiRound = false;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -253,6 +254,10 @@ dew.on('controllerinput', function(e){
         if(e.data.Down == 1){
             downNav();
         }
+        if(e.data.Left == 1){
+        }
+        if(e.data.Right == 1){
+        }
         if(e.data.LeftBumper == 1){
             if($('#playerBreakdown').is(":visible")){
                 $('#previousPlayer').click();
@@ -282,7 +287,9 @@ dew.on('controllerinput', function(e){
 dew.on("scoreboard", function(e){
     scoreboardData = e.data;
     mapName = e.data.mapName
-    multiRound = e.data.numberOfRounds == 1 ? false : true;
+    if(e.data.numberOfRounds){
+        multiRound = e.data.numberOfRounds == 1 ? false : true;
+    }
     if(isVisible){
         displayScoreboard();
     }
@@ -360,7 +367,9 @@ dew.on("voip-speaking", function(e){
 
 dew.on("show", function(e){
     dew.getScoreboard().then(function (data){ 
-        scoreboardData = data;
+        if(data.players){
+            scoreboardData = data;
+        }
     });
     isVisible = true;
     dew.captureInput(e.data.locked);
@@ -409,7 +418,11 @@ dew.on("show", function(e){
         dew.getSessionInfo().then(function(i){
             expandedScoreboard = response;
             isHost = i.isHost;
-            displayScoreboard();
+            if(scoreboardData){
+                displayScoreboard();
+            }else{
+                dew.hide();
+            }
         });
     });
 });
@@ -423,7 +436,7 @@ dew.on("hide", function(e){
 function displayScoreboard(){
     if(!scoreboardData)
         return;	
-    var scoreboardheader = '<th></th><th class="name">Players</th><th />';
+    var scoreboardheader = '<th></th><th class="name" colspan="2">Players</th>';
     if(locked || (expandedScoreboard == 1)){
         switch(scoreboardData.gameType){
             case "ctf":
@@ -513,7 +526,9 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 			if(playersInfo[lobby[i].playerIndex]){
 				rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
 			}
-            if(lobby[i].isAlive){
+            if(!lobby[i].isAlive && mapName != 'mainmenu'){
+                emblemPath = 'dew://assets/emblems/dead.png';   
+            }else{
                 if(lobby[i].isHost){
                     emblemPath = 'dew://assets/emblems/crown.png';
                 }else{
@@ -523,9 +538,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                         emblemPath = 'dew://assets/emblems/generic.png'; 
                     }                
                 }
-            } else {
-                emblemPath = 'dew://assets/emblems/dead.png';   
-            }
+            } 
             $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="serviceTag">').text(lobby[i].serviceTag))
             if(locked || (expandedScoreboard == 1)){
@@ -585,10 +598,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 			        }
 			    }
 			});
-			if (isInVoip)
+			if(isInVoip){
 			    $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker talking" src="' + thisSpeakerIcon + '"><input class="volSlider" type="range" min="0" max="200" step="1" value="' + volumeLevel + '"></input>')) //voip speaking indicator
-			    else
+            }else{
 			        $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src=""><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator
+            }
             if(lobby[i].hasObjective){
                 $('.objective').remove();
                 if(gameType == "oddball"||gameType == "assault"||gameType == "ctf"){
@@ -606,7 +620,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         $('.volSlider').on('change click', function(e){
             e.stopPropagation();
             setPlayerVolume($(this).parent().parent().attr('id'),$(this).parent().parent().attr('data-uid'),$(this).val());
-            displayScoreboard(expandedScoreboard);
+            displayScoreboard();
         });
         $('.speaker').on('click', function(e){
             e.stopPropagation();
@@ -892,26 +906,13 @@ function checkGamepad(){
     }
 };
 
-
-var volArray = [];
 function setPlayerVolume(name,uid,level){
-	var speakingLevel = 0;
-    $.grep(volArray, function(result, index){
-        if(result){
-            if(result[0] == name){
-				speakingLevel = result[3];
-                volArray.splice(index,1);
-            };
-        }
-    });
-    volArray.push([name, uid, level, speakingLevel]);
     dew.show("voip", {
         volume:{
             uid:name + "|" + uid,
             vol:level / 100.0
         }
     });
-    console.log(name, uid,level);
 }
 
 function isSpeaking(name,visible){
