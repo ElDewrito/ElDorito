@@ -657,9 +657,6 @@
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp">
-      <Filter>Blam\Tags\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClInclude>
@@ -1119,6 +1116,10 @@
     <ClInclude Include="Source\Web\Ui\WebSettings.hpp" />
     <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
     <ClInclude Include="Source\Forge\ForgeVolumes.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Models\Model.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Enum.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

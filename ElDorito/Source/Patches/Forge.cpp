@@ -15,7 +15,7 @@
 #include "../Blam/Math/RealColorRGB.hpp"
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
 #include "../Blam/Tags/Items/Weapon.hpp"
-#include "../Blam/Tags/Objects//Model.hpp"
+#include "../Blam/Tags/Models/Model.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -1430,7 +1430,7 @@ namespace
 		auto boundingRadius = object->BoundingRadius;
 		if (object->Model.TagIndex != -1)
 		{
-			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Objects::Model>('hlmt');
+			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Models::Model>('hlmt');
 			if (hlmtDef && hlmtDef->ModelObjectData.Count)
 			{
 				const auto &modelobjectData = hlmtDef->ModelObjectData.Elements[0];

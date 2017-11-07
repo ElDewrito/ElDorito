@@ -11,6 +11,7 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
+#include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/BlamObjects.hpp"
@@ -173,8 +174,25 @@ namespace Game::Armor
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::Game::Globals;
 		using Blam::Tags::Game::MultiplayerGlobals;
+		using Blam::Tags::Globals::CacheFileGlobalTags;
 
-		auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
+		auto *cfgt = TagInstance(0x0000).GetDefinition<CacheFileGlobalTags>();
+
+		auto matgTagIndex = -1;
+
+		for (auto &entry : cfgt->GlobalsTags)
+		{
+			if (entry.Tag.GroupTag == 'matg')
+			{
+				matgTagIndex = entry.Tag.TagIndex;
+				break;
+			}
+		}
+
+		if (matgTagIndex == -1)
+			throw std::exception("globals tag (matg) not reference in cache_file_global_tags!");
+
+		auto *matg = TagInstance(matgTagIndex).GetDefinition<Globals>();
 		auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
 
 		for (auto &element : mulg->Universal->SpartanArmorCustomization)

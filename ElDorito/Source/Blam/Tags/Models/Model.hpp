@@ -2,10 +2,8 @@
 #include "../Tags.hpp"
 #include "../../Text/StringID.hpp"
 
-namespace Blam::Tags::Objects
+namespace Blam::Tags::Models
 {
-	using Blam::Text::StringID;
-
 	struct Model : TagGroup<'hlmt'>
 	{
 		struct Variant;
@@ -44,7 +42,7 @@ namespace Blam::Tags::Objects
 		TagReference PrimaryDialogue;
 		TagReference SecondaryDialogue;
 		int32_t Flags;
-		StringID DefaultDialogueEffect;
+		Text::StringID DefaultDialogueEffect;
 		int32_t RenderOnlyNodeFlags1;
 		int32_t RenderOnlyNodeFlags2;
 		int32_t RenderOnlyNodeFlags3;
@@ -80,9 +78,9 @@ namespace Blam::Tags::Objects
 			struct Region;
 			struct Object;
 
-			StringID Name;
+			Text::StringID Name;
 			TagReference VariantDialogue;
-			StringID DefaultDialogEffect;
+			Text::StringID DefaultDialogEffect;
 			int8_t CharacterFilter;
 			int8_t Unknown;
 			int8_t Unknown2;
@@ -113,7 +111,7 @@ namespace Blam::Tags::Objects
 			{
 				struct Permutation;
 
-				StringID Name;
+				Text::StringID Name;
 				int8_t ModelRegionIndex;
 				int8_t Unknown;
 				int16_t ParentVariantIndex;
@@ -124,7 +122,7 @@ namespace Blam::Tags::Objects
 				{
 					struct StateBlock;
 
-					StringID Name;
+					Text::StringID Name;
 					int8_t ModelPermutationIndex;
 					uint8_t Flags;
 					int8_t Unknown;
@@ -137,12 +135,12 @@ namespace Blam::Tags::Objects
 
 					struct StateBlock
 					{
-						StringID Name;
+						Text::StringID Name;
 						int8_t ModelPermutationIndex;
 						uint8_t PropertyFlags;
 						int16_t State;
 						TagReference LoopingEffect;
-						StringID LoopingEffectMarkerName;
+						Text::StringID LoopingEffectMarkerName;
 						float InitialProbability;
 					};
 					TAG_STRUCT_SIZE_ASSERT(StateBlock, 0x20);
@@ -153,9 +151,9 @@ namespace Blam::Tags::Objects
 
 			struct Object
 			{
-				StringID ParentMarker;
-				StringID ChildMarker;
-				StringID ChildVariant;
+				Text::StringID ParentMarker;
+				Text::StringID ChildMarker;
+				Text::StringID ChildVariant;
 				TagReference ChildObject;
 			};
 			TAG_STRUCT_SIZE_ASSERT(Object, 0x1C);
@@ -164,7 +162,7 @@ namespace Blam::Tags::Objects
 
 		struct Unknown
 		{
-			StringID Unknown1;
+			Text::StringID Unknown1;
 		};
 		TAG_STRUCT_SIZE_ASSERT(Unknown, 0x4);
 
@@ -172,7 +170,7 @@ namespace Blam::Tags::Objects
 		{
 			struct InstanceMember;
 
-			StringID Name;
+			Text::StringID Name;
 			int32_t Unknown;
 			TagBlock<InstanceMember> InstanceMembers;
 			float Probability;
@@ -180,7 +178,7 @@ namespace Blam::Tags::Objects
 			struct InstanceMember
 			{
 				int32_t Unknown;
-				StringID InstanceName;
+				Text::StringID InstanceName;
 				float Probability;
 				int32_t InstanceFlags1;
 				int32_t InstanceFlags2;
@@ -193,12 +191,12 @@ namespace Blam::Tags::Objects
 
 		struct Material
 		{
-			StringID Name;
+			Text::StringID Name;
 			int16_t Unknown;
 			int16_t DamageSectionIndex;
 			int16_t Unknown2;
 			int16_t Unknown3;
-			StringID MaterialName;
+			Text::StringID MaterialName;
 			int16_t GlobalMaterialIndex;
 			int16_t Unknown4;
 		};
@@ -212,7 +210,7 @@ namespace Blam::Tags::Objects
 			struct DamageConstraint;
 
 			int32_t Flags;
-			StringID GlobalIndirectMaterialName;
+			Text::StringID GlobalIndirectMaterialName;
 			int16_t IndirectDamageSection;
 			int16_t Unknown;
 			uint32_t Unknown2;
@@ -246,7 +244,7 @@ namespace Blam::Tags::Objects
 			uint32_t Unknown23;
 			uint32_t Unknown24;
 			float MaxShieldVitality;
-			StringID GlobalShieldMaterialName;
+			Text::StringID GlobalShieldMaterialName;
 			float MinStunDamage2;
 			float StunTime2;
 			float ShieldRechargeTime;
@@ -267,7 +265,7 @@ namespace Blam::Tags::Objects
 			{
 				struct InstantRespons;
 
-				StringID Name;
+				Text::StringID Name;
 				int32_t Flags;
 				float VitalityPercentage;
 				TagBlock<InstantRespons> InstantResponses;
@@ -280,7 +278,7 @@ namespace Blam::Tags::Objects
 				float StunTime;
 				float RechargeTime;
 				float Unknown7;
-				StringID ResurrectionRegionName;
+				Text::StringID ResurrectionRegionName;
 				int16_t RessurectionRegionRuntimeIndex;
 				int16_t Unknown8;
 
@@ -288,29 +286,29 @@ namespace Blam::Tags::Objects
 				{
 					int16_t ResponseType;
 					int16_t ConstraintDamageType;
-					StringID Trigger;
+					Text::StringID Trigger;
 					int32_t Flags;
 					float DamageThreshold;
 					TagReference PrimaryTransitionEffect;
 					TagReference SecondaryTransitionEffect;
 					TagReference TransitionDamageEffect;
-					StringID Region;
+					Text::StringID Region;
 					int16_t NewState;
 					int16_t RuntimeRegionIndex;
-					StringID SecondaryRegion;
+					Text::StringID SecondaryRegion;
 					int16_t SecondaryNewState;
 					int16_t SecondaryRuntimeRegionIndex;
 					int16_t Unknown;
 					int16_t UnknownSpecialDamage;
-					StringID SpecialDamageCase;
-					StringID EffectMarkerName;
-					StringID DamageEffectMarkerName;
+					Text::StringID SpecialDamageCase;
+					Text::StringID EffectMarkerName;
+					Text::StringID DamageEffectMarkerName;
 					float ResponseDelay;
 					TagReference DelayEffect;
-					StringID DelayEffectMarkerName;
-					StringID EjectingSeatLabel;
+					Text::StringID DelayEffectMarkerName;
+					Text::StringID EjectingSeatLabel;
 					float SkipFraction;
-					StringID DestroyedChildObjectMarkerName;
+					Text::StringID DestroyedChildObjectMarkerName;
 					float TotalDamageThreshold;
 				};
 				TAG_STRUCT_SIZE_ASSERT(InstantRespons, 0x88);
@@ -331,7 +329,7 @@ namespace Blam::Tags::Objects
 			{
 				struct Unknown;
 
-				StringID SeatLabel;
+				Text::StringID SeatLabel;
 				float DirectDamageScale;
 				float DamageTransferFallOffRadius;
 				float MaximumTransferDamageScale;
@@ -340,7 +338,7 @@ namespace Blam::Tags::Objects
 
 				struct Unknown
 				{
-					StringID Node;
+					Text::StringID Node;
 					uint32_t Unknown1;
 					uint32_t Unknown2;
 					uint32_t Unknown3;
@@ -358,9 +356,9 @@ namespace Blam::Tags::Objects
 
 			struct DamageConstraint
 			{
-				StringID PhysicsModelConstraintName;
-				StringID DamageConstraintName;
-				StringID DamageConstraintGroupName;
+				Text::StringID PhysicsModelConstraintName;
+				Text::StringID DamageConstraintName;
+				Text::StringID DamageConstraintGroupName;
 				float GroupProbabilityScale;
 				int16_t Type;
 				int16_t Index;
@@ -372,7 +370,7 @@ namespace Blam::Tags::Objects
 		struct Target
 		{
 			uint32_t Unknown;
-			StringID MarkerName;
+			Text::StringID MarkerName;
 			float Size;
 			float ConeAngle;
 			int16_t DamageSection;
@@ -381,7 +379,7 @@ namespace Blam::Tags::Objects
 			uint32_t Unknown2;
 			int32_t Flags;
 			float LockOnDistance;
-			StringID TargetFilter;
+			Text::StringID TargetFilter;
 		};
 		TAG_STRUCT_SIZE_ASSERT(Target, 0x28);
 
@@ -389,7 +387,7 @@ namespace Blam::Tags::Objects
 		{
 			struct Permutation;
 
-			StringID Name;
+			Text::StringID Name;
 			int8_t CollisionRegionIndex;
 			int8_t PhysicsRegionIndex;
 			int8_t Unknown;
@@ -398,7 +396,7 @@ namespace Blam::Tags::Objects
 
 			struct Permutation
 			{
-				StringID Name;
+				Text::StringID Name;
 				uint8_t Flags;
 				int8_t CollisionPermutationIndex;
 				int8_t PhysicsPermutationIndex;
@@ -410,7 +408,7 @@ namespace Blam::Tags::Objects
 
 		struct Node
 		{
-			StringID Name;
+			Text::StringID Name;
 			int16_t ParentNode;
 			int16_t FirstChildNode;
 			int16_t NextSiblingNode;
@@ -451,23 +449,23 @@ namespace Blam::Tags::Objects
 
 		struct Unknown6
 		{
-			StringID Region;
-			StringID Permutation;
+			Text::StringID Region;
+			Text::StringID Permutation;
 		};
 		TAG_STRUCT_SIZE_ASSERT(Unknown6, 0x8);
 
 		struct Unknown8
 		{
-			StringID Unknown;
+			Text::StringID Unknown;
 			uint32_t Unknown2;
 		};
 		TAG_STRUCT_SIZE_ASSERT(Unknown8, 0x8);
 
 		struct Unknown10
 		{
-			StringID Marker;
+			Text::StringID Marker;
 			uint32_t Unknown;
-			StringID Marker2;
+			Text::StringID Marker2;
 			uint32_t Unknown2;
 			uint32_t Unknown3;
 		};

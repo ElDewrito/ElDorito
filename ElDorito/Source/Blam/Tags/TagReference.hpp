@@ -19,5 +19,14 @@ namespace Blam::Tags
 		bool operator!=(const TagReference &other) const;
 
 		explicit operator bool() const;
+
+		template <typename T>
+		inline T *GetDefinition()
+		{
+			if (TagIndex == -1)
+				return nullptr;
+
+			return TagInstance(TagIndex).GetDefinition<T>();
+		}
 	};
 }

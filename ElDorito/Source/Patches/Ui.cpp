@@ -573,11 +573,11 @@ namespace
 		for (auto &cfgtInstance : cfgtInstances)
 		{
 			auto *cfgtDefinition = cfgtInstance.GetDefinition<CacheFileGlobalTags>();
-			for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->globalsTags.Count; globalsTagIndex++)
+			for (size_t globalsTagIndex = 0; globalsTagIndex < cfgtDefinition->GlobalsTags.Count; globalsTagIndex++)
 			{
-				if (cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.GroupTag == 'matg')
+				if (cfgtDefinition->GlobalsTags[globalsTagIndex].Tag.GroupTag == 'matg')
 				{
-					auto matgDefinition = TagInstance(cfgtDefinition->globalsTags[globalsTagIndex].globalsTagReference.TagIndex).GetDefinition<Globals>();
+					auto matgDefinition = TagInstance(cfgtDefinition->GlobalsTags[globalsTagIndex].Tag.TagIndex).GetDefinition<Globals>();
 
 					for (size_t interfaceTagsIndex = 0; interfaceTagsIndex < matgDefinition->InterfaceTags.Count; interfaceTagsIndex++)
 					{

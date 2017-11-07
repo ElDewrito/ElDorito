@@ -9,16 +9,16 @@ namespace Blam::Tags::Globals
 
 	struct CacheFileGlobalTags : TagGroup<'cfgt'>
 	{
-		struct GlobalsTags;
+		struct GlobalsTag;
 
-		TagBlock<GlobalsTags> globalsTags;
+		TagBlock<GlobalsTag> GlobalsTags;
 		int Unknown;
 
-		struct GlobalsTags
+		struct GlobalsTag
 		{
-			TagReference globalsTagReference;
+			TagReference Tag;
 		};
-		TAG_STRUCT_SIZE_ASSERT(GlobalsTags, 0x10);
+		TAG_STRUCT_SIZE_ASSERT(GlobalsTag, 0x10);
 	};
 	TAG_STRUCT_SIZE_ASSERT(CacheFileGlobalTags, 0x10);
 }

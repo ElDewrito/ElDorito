@@ -165,6 +165,7 @@
     <ClInclude Include="Source\Blam\BlamTime.hpp" />
     <ClInclude Include="Source\Blam\BlamTypes.hpp" />
     <ClInclude Include="Source\Blam\Cache\StringIdCache.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Enum.hpp" />
     <ClInclude Include="Source\Blam\Math\Angle.hpp" />
     <ClInclude Include="Source\Blam\Math\Bounds.hpp" />
     <ClInclude Include="Source\Blam\Math\ColorARGB.hpp" />
@@ -213,7 +214,7 @@
     <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Objects\Model.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Models\Model.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp" />
