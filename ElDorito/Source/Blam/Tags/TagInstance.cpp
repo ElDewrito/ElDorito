@@ -2,13 +2,15 @@
 
 namespace Blam::Tags
 {
+	std::unordered_map<int32_t, std::string> TagInstance::TagNames = std::unordered_map<int32_t, std::string>();
+
 	TagInstance::TagInstance(const uint16_t index)
 		: Index(index)
 	{
 	}
 
-	uint32_t TagInstance::GetGroupTag()
+	Tag TagInstance::GetGroupTag()
 	{
-		return *(uint32_t*)((*TagTablePtr)[(*TagIndexTablePtr)[Index]] + 0x14);
+		return *(Tag *)((*TagTablePtr)[(*TagIndexTablePtr)[Index]] + 0x14);
 	}
 }

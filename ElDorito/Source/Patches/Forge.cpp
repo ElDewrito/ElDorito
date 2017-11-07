@@ -451,7 +451,7 @@ namespace
 			return;
 
 		Blam::Tags::TagInstance instance(s_SpawnItemTagIndex);
-		auto def = instance.GetDefinition<void>(s_SpawnItemTagIndex);
+		auto def = instance.GetDefinition<void>();
 		auto groupTag = def ? instance.GetGroupTag() : 0;
 
 		s_SpawnItemTagIndex = -1;
@@ -1342,7 +1342,7 @@ namespace
 	
 		if (IsForge())
 		{
-			auto objectDef = Blam::Tags::TagInstance(budget.TagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+			auto objectDef = Blam::Tags::TagInstance(budget.TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 			if (objectDef && objectDef->MultiplayerProperties.Count)
 			{
 				auto engineFlags = objectDef->MultiplayerProperties.Elements[0].EngineFlags;
@@ -1423,14 +1423,14 @@ namespace
 		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4,
 			int a5, const RealVector3D *a6, int a7, int a8, RealVector3D *newPosition, char a10))(0x715E90);
 
-		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 		if (!object)
 			return false;
 
 		auto boundingRadius = object->BoundingRadius;
 		if (object->Model.TagIndex != -1)
 		{
-			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Models::Model>('hlmt');
+			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Models::Model>();
 			if (hlmtDef && hlmtDef->ModelObjectData.Count)
 			{
 				const auto &modelobjectData = hlmtDef->ModelObjectData.Elements[0];
@@ -1792,7 +1792,7 @@ namespace
 			if (!object)
 				return;
 
-			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>('obje');
+			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>();
 			auto cachedRenderStateIndex = *(uint32_t*)object_get_render_data(objectIndex);
 
 			

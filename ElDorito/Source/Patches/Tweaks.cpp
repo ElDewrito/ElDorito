@@ -25,6 +25,8 @@
 
 #include "../Modules/ModuleTweaks.hpp"
 
+#include "../Utils/Logger.hpp"
+
 namespace Patches::Tweaks
 {
 	void ApplyAfterTagsLoaded()
@@ -44,28 +46,46 @@ namespace Patches::Tweaks
 		auto matgTags = TagInstance::GetInstancesInGroup('matg');
 
 		if (matgTags.size() < 1)
-			throw std::exception("no 'globals' tags found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no 'globals' tags found!");
+			return;
+		}
 
 		auto *matgDefinition = matgTags[0].GetDefinition<Globals>();
 
 		if (!matgDefinition)
-			throw std::exception("tag 'globals\\globals.globals' not found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'globals\\globals.globals' not found!");
+			return;
+		}
 
 		if (matgDefinition->SoundGlobals.Count < 1)
-			throw std::exception("no sound globals defined in tag 'globals\\globals.globals'!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no sound globals defined in tag 'globals\\globals.globals'!");
+			return;
+		}
 
 		auto *snclDefinition = matgDefinition->SoundGlobals[0].SoundClasses.GetDefinition<SoundClasses>();
 
 		if (!snclDefinition)
-			throw std::exception("tag 'sound\\sound_classes.sound_classes' not found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'sound\\sound_classes.sound_classes' not found!");
+			return;
+		}
 
 		if (matgDefinition->InterfaceTags.Count < 1)
-			throw std::exception("no interface tags defined in tag 'globals\\globals.globals'!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no interface tags defined in tag 'globals\\globals.globals'!");
+			return;
+		}
 
 		auto *chgdDefinition = matgDefinition->InterfaceTags[0].HudGlobals.GetDefinition<ChudGlobalsDefinition>();
 
 		if (!chgdDefinition)
-			throw std::exception("tag 'ui\\chud\\globals.chud_globals_definition' not found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\globals.chud_globals_definition' not found!");
+			return;
+		}
 
 		auto scnrTags = TagInstance::GetInstancesInGroup('scnr');
 
@@ -122,39 +142,23 @@ namespace Patches::Tweaks
 
 		if (Modules::ModuleTweaks::Instance().VarDisableReactorFog->ValueInt)
 		{
-			auto scnrTagIndex = -1;
+			auto *scnrDefinition = Blam::Tags::Scenario::GetCurrentScenario();
 
-			for (auto &scnrTag : scnrTags)
+			if (scnrDefinition && scnrDefinition->MapId == 700)
 			{
-				auto *scnrDefinition = scnrTag.GetDefinition<Scenario>();
-
-				if (!scnrDefinition)
-					continue;
-
-				if (scnrDefinition->ScenarioZonesetGroups[0].Name == 0x7284) // levels\multi\s3d_reactor\s3d_reactor
-				{
-					scnrTagIndex = scnrTag.Index;
-					break;
-				}
+				scnrDefinition->EffectScenery[01].PaletteIndex = -1;
+				scnrDefinition->EffectScenery[02].PaletteIndex = -1;
+				scnrDefinition->EffectScenery[61].PaletteIndex = -1;
 			}
-
-			if (scnrTagIndex == -1)
-				throw std::exception("tag 'levels\\multi\\s3d_reactor\\s3d_reactor.scenario' not found!");
-
-			auto *scnrDefinition = TagInstance(scnrTagIndex).GetDefinition<Scenario>();
-
-			if (!scnrDefinition)
-				throw std::exception("tag 'levels\\multi\\s3d_reactor\\s3d_reactor.scenario' not found!");
-
-			scnrDefinition->EffectScenery[01].PaletteIndex = -1;
-			scnrDefinition->EffectScenery[02].PaletteIndex = -1;
-			scnrDefinition->EffectScenery[61].PaletteIndex = -1;
 		}
 
 		if (Modules::ModuleTweaks::Instance().VarDisableWeaponOutline->ValueInt)
 		{
 			if (chgdDefinition->HudGlobals.Count < 1)
-				throw std::exception("no hud globals defined in tag 'ui\\chud\\globals.chud_globals_definition'!");
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud globals defined in tag 'ui\\chud\\globals.chud_globals_definition'!");
+				return;
+			}
 
 			for (int c = 30; c < 37; c++)
 			{
@@ -166,17 +170,26 @@ namespace Patches::Tweaks
 		}
 
 		if (matgDefinition->PlayerRepresentation.Count < 1)
-			throw std::exception("no player representations found in tag 'globals\\globals.globals'!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no player representations found in tag 'globals\\globals.globals'!");
+			return;
+		}
 
 		auto *bipdDefinition = matgDefinition->PlayerRepresentation[0].ThirdPersonUnit.GetDefinition<Biped>();
 
 		if (!bipdDefinition)
-			throw std::exception("tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped' not found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped' not found!");
+			return;
+		}
 
 		auto *hlmtDefinition = bipdDefinition->Model.GetDefinition<Model>();
 
 		if (!hlmtDefinition)
-			throw std::exception("tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.model' not found!");
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.model' not found!");
+			return;
+		}
 
 		auto &transitionEffect = hlmtDefinition->NewDamageInfo[0].DamageSections[1].InstantResponses[0].SecondaryTransitionEffect;
 
@@ -189,15 +202,36 @@ namespace Patches::Tweaks
 			transitionEffect.TagIndex = chgdDefinition->BirthdayPartyEffect.TagIndex;
 		}
 
+		if (Modules::ModuleTweaks::Instance().VarReachStyleFrags->ValueInt)
+		{
+			auto fragProjectile = TagInstance::Find('proj', "objects\\weapons\\grenade\\frag_grenade\\frag_grenade");
+			auto bombrunProjectile = TagInstance::Find('proj', "objects\\equipment\\bombrun\\projectiles\\bombrun_grenade");
+
+			if (fragProjectile.Index != 0xFFFF && bombrunProjectile.Index != 0xFFFF)
+			{
+				auto *fragDefinition = fragProjectile.GetDefinition<Projectile>();
+				auto *bombrunDefinition = bombrunProjectile.GetDefinition<Projectile>();
+
+				if (fragDefinition->Attachments.Count > 0 && bombrunDefinition->Attachments.Count > 0)
+					fragDefinition->Attachments[0].Tag = bombrunDefinition->Attachments[0].Tag;
+			}
+		}
+
 		if (Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt)
 		{
 			if (bipdDefinition->HudInterfaces.Count < 1)
-				throw std::exception("no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
+				return;
+			}
 
 			auto *chudDefinition = bipdDefinition->HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
 
 			if (!chudDefinition)
-				throw std::exception("tag 'ui\\chud\\spartan.chud_definition' not found!");
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\spartan.chud_definition' not found!");
+				return;
+			}
 
 			for (auto &hudWidget : chudDefinition->HudWidgets)
 			{

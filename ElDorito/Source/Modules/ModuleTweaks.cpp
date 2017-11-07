@@ -42,6 +42,10 @@ namespace Modules
 		VarGruntBirthdayParty->ValueIntMin = 0;
 		VarGruntBirthdayParty->ValueIntMax = 1;
 
+		VarReachStyleFrags = AddVariableInt("ReachStyleFrags", "reachstylefrags", "Adds a Halo: Reach style trail effect to frag grenades.", eCommandFlagsArchived, 0);
+		VarReachStyleFrags->ValueIntMin = 0;
+		VarReachStyleFrags->ValueIntMax = 1;
+
 		VarFlatHUD = AddVariableInt("FlatHUD", "flathud", "Removes distortion from the HUD.", eCommandFlagsArchived, 0, VariableFlatHUDUpdated);
 		VarFlatHUD->ValueIntMin = 0;
 		VarFlatHUD->ValueIntMax = 1;

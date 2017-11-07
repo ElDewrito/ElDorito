@@ -1,6 +1,7 @@
 #include "ElPatches.hpp"
 
 #include "ElDorito.hpp"
+#include "Blam\Tags\TagInstance.hpp"
 #include "Patches\Core.hpp"
 #include "Patches\Audio.hpp"
 #include "Patches\Mouse.hpp"
@@ -31,6 +32,8 @@
 #include "Patches\Camera.hpp"
 #include "Patches\Maps.hpp"
 #include "Game\Armor.hpp"
+
+#include <fstream>
 
 namespace
 {
@@ -93,6 +96,7 @@ namespace Patches
 
 	void ApplyAfterTagsLoaded()
 	{
+		Blam::Tags::TagInstance::LoadTagNames();
 		Game::Armor::LoadArmorPermutations();
 		Game::Armor::RefreshUiPlayer();
 		Ui::ApplyAfterTagsLoaded(); //No UI calls interacting with tags before this!

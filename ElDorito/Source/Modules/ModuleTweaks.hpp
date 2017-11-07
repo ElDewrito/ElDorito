@@ -13,6 +13,7 @@ namespace Modules
 		Command *VarDisableHeadshotEffect;
 		Command *VarDisableHitMarkers;
 		Command *VarGruntBirthdayParty;
+		Command *VarReachStyleFrags;
 		Command *VarFlatHUD;
 
 		ModuleTweaks();

@@ -1,3 +1,7 @@
+
+// Disable warnings about using "safe" C functions
+#pragma warning (disable : 4996)
+
 #include "Signaling.hpp"
 
 #include <algorithm>

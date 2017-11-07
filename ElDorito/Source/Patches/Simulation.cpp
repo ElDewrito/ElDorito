@@ -175,7 +175,7 @@ namespace
 	{
 		const auto sub_4AFA90 = (int(__cdecl *)(uint32_t tagIndex, int a2, char a3))(0x4AFA90);
 
-		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 		if (def)
 
 		switch (Blam::Objects::ObjectType(def->ObjectType))

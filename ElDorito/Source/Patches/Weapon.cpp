@@ -232,7 +232,7 @@ namespace Patches::Weapon
 				}
 				else
 				{
-					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 					if(weap)
 						return weap->FirstPersonWeaponOffset;
 				}
@@ -256,7 +256,7 @@ namespace Patches::Weapon
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
 				if (weapIndex != 0xFFFF)
 				{
-					auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+					auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 					if(weapon)
 						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
 				}
@@ -289,7 +289,7 @@ namespace Patches::Weapon
 	{
 		if (IsNotMainMenu)
 		{
-			auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+			auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 			if(weapon)
 				weapon->FirstPersonWeaponOffset = weaponOffset;
 		}
@@ -303,7 +303,7 @@ namespace Patches::Weapon
 			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
 			if (weapIndex != 0xFFFF)
 			{
-				auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>('weap');
+				auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 				if(weapon)
 					weapon->FirstPersonWeaponOffset = weaponOffset;
 			}
@@ -670,7 +670,7 @@ namespace
 		auto isCrouching = *(float*)((uint8_t*)unitObject + 0x418) > 0;
 		auto isDualWielding = weapon_is_being_dual_wielded(weaponObjectIndex);
 
-		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Weapon>('weap');
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Weapon>();
 
 		auto functionIndex = 0;
 		switch (type)
