@@ -1,5 +1,6 @@
 #pragma once
-#include "Tag.hpp"
+#include "Blam\Tags\Tag.hpp"
+#include "Definitions\StructDefinition.hpp"
 
 namespace Blam::Tags
 {
@@ -7,5 +8,6 @@ namespace Blam::Tags
 	struct TagGroup
 	{
 		static const Tag GroupTag = GroupTagValue;
+		static const Definitions::StructDefinition Definition;
 	};
 }

@@ -19,11 +19,11 @@ namespace Blam::Tags::Objects
 
 	struct Object : TagGroup<'obje'>
 	{
-		enum class Type : int16_t;
-		enum class Flags : uint16_t;
-		enum class LightmapShadowModeSize : int16_t;
-		enum class SweetenerSize : int8_t;
-		enum class WaterDensity : int8_t;
+		enum class TypeValue : int16_t;
+		enum class FlagsValue : uint16_t;
+		enum class LightmapShadowModeValue : int16_t;
+		enum class SweetenerSizeValue : int8_t;
+		enum class WaterDensityValue : int8_t;
 		struct EarlyMoverProperty;
 		struct AIProperty;
 		struct Function;
@@ -34,16 +34,16 @@ namespace Blam::Tags::Objects
 		struct MultiplayerProperty;
 		struct ModelObjectDatum;
 
-		Object::Type ObjectType : 16;
-		Object::Flags ObjectFlags : 16;
+		Object::TypeValue ObjectType : 16;
+		Object::FlagsValue ObjectFlags : 16;
 		float BoundingRadius;
 		RealPoint3D BoundingOffset;
 		float AccelerationScale;
-		Object::LightmapShadowModeSize LightmapShadowModeSize : 16;
-		Object::SweetenerSize SweetenerSize : 8;
-		Object::WaterDensity WaterDensity : 8;
-		int32_t Unknown1;
-		float DynamicLightSphereRadius;
+		Object::LightmapShadowModeValue LightmapShadowMode : 16;
+		Object::SweetenerSizeValue SweetenerSize : 8;
+		Object::WaterDensityValue WaterDensity : 8;
+		int32_t RuntimeFlags;
+		StringID DynamicLightSphereRadius;
 		RealPoint3D DynamicLightSphereOffset;
 		int32_t DefaultModelVariant;
 		TagReference Model;
@@ -68,7 +68,7 @@ namespace Blam::Tags::Objects
 		uint32_t Unknown5;
 		TagBlock<Object::ModelObjectDatum> ModelObjectData;
 
-		enum class Object::Type : int16_t
+		enum class Object::TypeValue : int16_t
 		{
 			Biped,
 			Vehicle,
@@ -86,7 +86,7 @@ namespace Blam::Tags::Objects
 			EffectScenery
 		};
 
-		enum class Object::Flags : uint16_t
+		enum class Object::FlagsValue : uint16_t
 		{
 			None,
 			DoesNotCastShadow = 1 << 0,
@@ -104,9 +104,35 @@ namespace Blam::Tags::Objects
 			EffectDoNotSpawnObjectsInMP = 1 << 13
 		};
 
+		enum class Object::LightmapShadowModeValue : int16_t
+		{
+			Default,
+			Never,
+			Always,
+			Blur
+		};
+
+		enum class Object::SweetenerSizeValue : int8_t
+		{
+			Small,
+			Medium,
+			Large
+		};
+
+		enum class Object::WaterDensityValue : int8_t
+		{
+			Default,
+			Least,
+			Some,
+			Equal,
+			More,
+			MoreStill,
+			LotsMore
+		};
+
 		struct Object::EarlyMoverProperty
 		{
-			int32_t Name;
+			StringID Name;
 			uint32_t Unknown1;
 			uint32_t Unknown2;
 			uint32_t Unknown3;
@@ -233,8 +259,9 @@ namespace Blam::Tags::Objects
 
 			struct Object::ChangeColor::InitialPermutation
 			{
-				uint32_t Weight;
-				Bounds<RealColorRGB> ColorBounds;
+				float Weight;
+				RealColorRGB ColorLowerBound;
+				RealColorRGB ColorUpperBound;
 				StringID VariantName;
 			};
 			TAG_STRUCT_SIZE_ASSERT(Object::ChangeColor::InitialPermutation, 0x20);
@@ -244,7 +271,8 @@ namespace Blam::Tags::Objects
 				enum class ScaleFlags : int32_t;
 
 				Object::ChangeColor::Function::ScaleFlags ScaleFlags : 32;
-				Bounds<RealColorRGB> ColorBounds;
+				RealColorRGB ColorLowerBound;
+				RealColorRGB ColorUpperBound;
 				StringID DarkenBy;
 				StringID ScaleBy;
 

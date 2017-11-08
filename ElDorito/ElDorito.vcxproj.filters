@@ -478,6 +478,10 @@
     <ClCompile Include="Source\Web\Ui\WebSettings.cpp" />
     <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
     <ClCompile Include="Source\Forge\ForgeVolumes.cpp" />
+    <ClCompile Include="Source\Definitions\EnumDefinition.cpp" />
+    <ClCompile Include="Source\Definitions\FieldDefinition.cpp" />
+    <ClCompile Include="Source\Definitions\StructDefinition.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1120,6 +1124,9 @@
       <Filter>Blam\Tags\Objects</Filter>
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Enum.hpp" />
+    <ClInclude Include="Source\Definitions\EnumDefinition.hpp" />
+    <ClInclude Include="Source\Definitions\FieldDefinition.hpp" />
+    <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

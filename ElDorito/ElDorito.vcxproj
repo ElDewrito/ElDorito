@@ -41,6 +41,7 @@
     <ClCompile Include="Source\Blam\Math\RealVector2D.cpp" />
     <ClCompile Include="Source\Blam\Math\RealVector3D.cpp" />
     <ClCompile Include="Source\Blam\Math\Rectangle2D.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
     <ClCompile Include="Source\Blam\Tags\Tag.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagBlock.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagData.cpp" />
@@ -52,6 +53,9 @@
     <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp" />
     <ClCompile Include="Source\CommandMap.cpp" />
     <ClCompile Include="Source\Console.cpp" />
+    <ClCompile Include="Source\Definitions\EnumDefinition.cpp" />
+    <ClCompile Include="Source\Definitions\FieldDefinition.cpp" />
+    <ClCompile Include="Source\Definitions\StructDefinition.cpp" />
     <ClCompile Include="Source\Forge\ForgeVolumes.cpp" />
     <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
     <ClCompile Include="Source\Patches\BottomlessClip.cpp" />
@@ -238,6 +242,9 @@
     <ClInclude Include="Source\ChatCommands\ChatCommandMap.hpp" />
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
+    <ClInclude Include="Source\Definitions\EnumDefinition.hpp" />
+    <ClInclude Include="Source\Definitions\FieldDefinition.hpp" />
+    <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
     <ClInclude Include="Source\Forge\ForgeVolumes.hpp" />
     <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
     <ClInclude Include="Source\Patches\BottomlessClip.hpp" />
@@ -427,6 +434,14 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir)Source;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)Source;$(SourcePath)</SourcePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(ProjectDir)Source;$(IncludePath)</IncludePath>
+    <SourcePath>$(ProjectDir)Source;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
