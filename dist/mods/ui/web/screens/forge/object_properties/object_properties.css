@@ -22,12 +22,6 @@ html {
 	padding-bottom: 0.5em;
 }
 
-@media only screen and (max-height: 720px) {
-    .object-properties-panel {
-        zoom: 0.7;
-    }
-}
-
 ::-webkit-scrollbar {
     width: 1vh;
 }

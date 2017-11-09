@@ -559,8 +559,9 @@ namespace Web::Ui::WebForge
 			{
 				auto mapv = Forge::GetMapVariant();
 				auto playerIndex = Blam::Players::GetLocalPlayer(0);
-				ImmediatePropertySink sink(playerIndex, currentObject->PlacementIndex);
+				DeferedPropertySink sink;
 				DeserializeObjectProperties(data->value, sink);
+				sink.Apply(playerIndex, currentObject->PlacementIndex);
 			}
 		}
 		break;
