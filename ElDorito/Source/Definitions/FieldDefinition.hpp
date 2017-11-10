@@ -68,6 +68,7 @@ namespace Definitions
 	struct FieldDefinition
 	{
 		const FieldType Type;
+		const FieldType ArrayType;
 		const std::string Name;
 		const long Length;
 		union
@@ -79,9 +80,10 @@ namespace Definitions
 		FieldDefinition(const FieldType &type);
 		FieldDefinition(const FieldType &type, const long length);
 		FieldDefinition(const FieldType &type, const std::string &name);
-		FieldDefinition(const FieldType &type, const std::string &name, const long length);
 		FieldDefinition(const FieldType &type, const std::string &name, const EnumDefinition *enumDef);
 		FieldDefinition(const FieldType &type, const std::string &name, const StructDefinition *structDef);
-		FieldDefinition(const FieldType &type, const std::string &name, const long length, const StructDefinition *structDef);
+		FieldDefinition(const FieldType &type, const FieldType &arrayType, const std::string &name, const long length);
+		FieldDefinition(const FieldType &type, const FieldType &arrayType, const std::string &name, const long length, const EnumDefinition *enumDef);
+		FieldDefinition(const FieldType &type, const FieldType &arrayType, const std::string &name, const long length, const StructDefinition *structDef);
 	};
 }
