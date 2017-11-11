@@ -4,6 +4,7 @@
 #include "../Utils/Logger.hpp"
 #include "../Utils/String.hpp"
 #include "ModuleServer.hpp"
+#include "../Patches/Core.hpp"
 
 static const char* APPLICATION_ID = "378684431830876170";
 
@@ -74,7 +75,7 @@ namespace
 
 		DiscordRichPresence discordPresence;
 		memset(&discordPresence, 0, sizeof(discordPresence));
-		if (!(VariantName.empty() || VariantName == "")) {
+		if (!(BaseMapName == "mainmenu" || VariantName.empty() || VariantName == "")) {
 			discordPresence.state = multiplayerWithServer.c_str();
 			discordPresence.details = detstr.c_str();
 			discordPresence.largeImageKey = BaseMapName.c_str();
@@ -85,6 +86,10 @@ namespace
 			discordPresence.largeImageKey = NULL;
 		}
 		Discord_UpdatePresence(&discordPresence);
+	}
+
+	void UpdatePresenceMap(const char* mapPath) {
+		UpdatePresence();
 	}
 
 	bool CommandTestPresence(const std::vector<std::string>& Arguments, std::string& returnInfo) {
@@ -98,12 +103,15 @@ namespace Modules
 	ModuleDiscord::ModuleDiscord() : ModuleBase("Discord")
 	{
 		TestPresence = AddCommand("TestDiscordRichPresence", "testpres", "Tests the Rich Presence Integration with Discord.", eCommandFlagsNone, CommandTestPresence);
+		Patches::Core::OnGameStart(UpdatePresence);
+		Patches::Core::OnShutdown(UpdatePresence);
+		Patches::Core::OnMapLoaded(UpdatePresenceMap);
 	}
 	void ModuleDiscord::DiscordInit()
 	{
 		::InitDiscord();
 	}
-	void ModuleDiscord::UpdatePresence()
+	void ModuleDiscord::PresenceUpdate()
 	{
 		::UpdatePresence();
 	}

@@ -233,7 +233,7 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	ChatCommands::Init();
 	Server::Stats::Init();
-	//Server::Voting::Init();
+	//Server::Voting::Init(); //UNCOMMENT BEFORE MERGE OR AFTER 0.6 GOES PUBLIC
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
 	Server::Signaling::Initialize();
@@ -306,7 +306,7 @@ void ElDorito::OnMainMenuShown()
 		Web::Ui::ScreenLayer::Show("title", "{}");
 
 	Modules::ModuleDiscord::Instance().DiscordInit();
-	Modules::ModuleDiscord::Instance().UpdatePresence();
+	Modules::ModuleDiscord::Instance().PresenceUpdate();
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

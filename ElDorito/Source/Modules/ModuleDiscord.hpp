@@ -11,6 +11,6 @@ namespace Modules
 		ModuleDiscord();
 		Command* TestPresence;
 		void DiscordInit();
-		void UpdatePresence();
+		void PresenceUpdate();
 	};
 }
