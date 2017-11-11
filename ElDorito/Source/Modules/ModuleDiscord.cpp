@@ -3,6 +3,8 @@
 #include "discord-rpc.h"
 #include "../Utils/Logger.hpp"
 
+static const char* APPLICATION_ID = "378684431830876170";
+
 namespace
 {
 	void DiscordReady()
@@ -54,7 +56,7 @@ namespace
 		handlers.joinGame = handleDiscordJoinGame;
 		handlers.spectateGame = handleDiscordSpectateGame;
 		handlers.joinRequest = handleDiscordJoinRequest;
-		Discord_Initialize("378684431830876170", &handlers, 1, false);
+		Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
 	}
 
 	void UpdatePresence()
@@ -64,6 +66,7 @@ namespace
 		memset(&discordPresence, 0, sizeof(discordPresence));
 		discordPresence.state = "Testing Rich Presence";
 		discordPresence.details = "Learning the ED codebase";
+		Discord_UpdatePresence(&discordPresence);
 	}
 
 	bool CommandTestPresence(const std::vector<std::string>& Arguments, std::string& returnInfo) {
@@ -77,6 +80,9 @@ namespace Modules
 	ModuleDiscord::ModuleDiscord() : ModuleBase("Discord")
 	{
 		TestPresence = AddCommand("TestDiscordRichPresence", "testpres", "Tests the Rich Presence Integration with Discord.", eCommandFlagsNone, CommandTestPresence);
+	}
+	void ModuleDiscord::DiscordInit()
+	{
 		InitDiscord();
 	}
 }

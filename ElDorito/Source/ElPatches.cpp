@@ -32,6 +32,7 @@
 #include "Patches\Camera.hpp"
 #include "Patches\Maps.hpp"
 #include "Game\Armor.hpp"
+#include "Modules\ModuleDiscord.hpp"
 
 #include <fstream>
 
@@ -103,6 +104,8 @@ namespace Patches
 		Ui::ApplyUIResolution();
 		Weapon::ApplyAfterTagsLoaded();
 		Tweaks::ApplyAfterTagsLoaded();
+
+		Modules::ModuleDiscord::DiscordInit();
 	}
 
 	void Tick()
@@ -136,9 +139,9 @@ namespace
 			{
 				//printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
 				Total += MemInfo.RegionSize;
-				VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
+				bool vpsucc = VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
 			}
 		}
-		//printf("\nDone! Unprotected %u bytes of memory\n", Total);
+		printf("\nDone! Unprotected %u bytes of memory\n", Total);
 	}
 }

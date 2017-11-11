@@ -10,5 +10,6 @@ namespace Modules
 	public:
 		ModuleDiscord();
 		Command* TestPresence;
+		static void DiscordInit();
 	};
 }
