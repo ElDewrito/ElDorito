@@ -17,6 +17,8 @@
 		<!-- Customization -->
 		<link rel="stylesheet" href="customization.css">
     <script type="text/javascript" src="customization.js"></script>
+        <script type="text/javascript" src="dew://lib/color-picker.js"></script>
+        <link rel="stylesheet" href="dew://lib/color-picker.css">
 </head>
 <body>
     <div id="blackLayer"></div>
@@ -69,6 +71,7 @@
                         <form class="colorForm hide tile-button" id="colorsLights">
                             <span id="customColor"><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom Color<input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
                         </form>
+                        <form id="colorPicker" class="colorForm"></form>
                       </div>
                       <div id="infoBox">
                           <div class="infobox-header" id="infoHeader"></div>

@@ -85,6 +85,7 @@ var armorChestList = [
     ['Katana','mp_katana','To correctly use the sword, one must make it an extension of one\'s body. This is for the understanding of those intending to be warriors.']
 ];
 var subPages = [];
+var colorPicker;
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
@@ -173,7 +174,21 @@ $(document).ready(function(){
         $('#infoBox #infoText').text($(this).attr('desc'));
     });
     $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
+        $('.colorForm').hide();
+        colorPicker = dew.makeColorPicker(document.querySelector('#colorPicker'));
+        var whichColor = $(this);
         $(this).prev()[0].checked = true;
+        var currentVal = ColorUtil.hexToHsv($(this).val().split('#')[1]);
+        activePage = location.hash+" #colorPicker";
+        $('#colorPicker').show();
+        $('#infoBox #infoHeader').text($(this).val());
+        colorPicker.setColor(currentVal);
+        colorPicker.on('select', function(color) {
+            var currentSelection = ColorUtil.hsvToRgb(color.h, color.s, color.v);
+            whichColor.val('#'+leftPad(ColorUtil.rgbToHex(currentSelection[0],currentSelection[1],currentSelection[2]),6,'0'));
+            whichColor.trigger('change');
+            $('#infoBox #infoHeader').text(whichColor.val());
+        });
     });
     $('.colorForm, .armorForm').submit(function() {
         return false;
@@ -244,33 +259,37 @@ $(document).ready(function(){
                     updateSelection(itemNumber, true, true);
                 }
             }
-            if(e.data.AxisLeftX > axisThreshold){
-                stickTicks.right++;
+            if(activePage.endsWith(' #colorPicker')){
+                colorPicker.controllerInput(e.data);
             }else{
-                stickTicks.right = 0;
-            }
-            if(e.data.AxisLeftX < -axisThreshold){
-                stickTicks.left++;
-            }else{
-                stickTicks.left = 0;
-            }
-            if(e.data.AxisLeftY > axisThreshold){
-                stickTicks.up++;
-            }else{
-                stickTicks.up = 0;
-            }
-            if(e.data.AxisLeftY < -axisThreshold){
-                stickTicks.down++;
-            }else{
-                stickTicks.down = 0;
-            }
-            if(e.data.AxisRightX != 0){
-                if(e.data.AxisRightX > axisThreshold){
-                    rotateBiped('right');
+                if(e.data.AxisLeftX > axisThreshold){
+                    stickTicks.right++;
+                }else{
+                    stickTicks.right = 0;
                 }
-                if(e.data.AxisRightX < -axisThreshold){
-                    rotateBiped('left');
-                };
+                if(e.data.AxisLeftX < -axisThreshold){
+                    stickTicks.left++;
+                }else{
+                    stickTicks.left = 0;
+                }
+                if(e.data.AxisLeftY > axisThreshold){
+                    stickTicks.up++;
+                }else{
+                    stickTicks.up = 0;
+                }
+                if(e.data.AxisLeftY < -axisThreshold){
+                    stickTicks.down++;
+                }else{
+                    stickTicks.down = 0;
+                }
+                if(e.data.AxisRightX != 0){
+                    if(e.data.AxisRightX > axisThreshold){
+                        rotateBiped('right');
+                    }
+                    if(e.data.AxisRightX < -axisThreshold){
+                        rotateBiped('left');
+                    };
+                }
             }
         }
     });
@@ -589,6 +608,9 @@ function upNav(){
         if(itemNumber > 3){
             itemNumber-=3;
             updateSelection(itemNumber, true, true);
+        }else if(itemNumber > 0){
+            itemNumber = 0;
+            updateSelection(itemNumber, true, true);
         }        
     }else{
         if(itemNumber > 0){
@@ -601,7 +623,11 @@ function upNav(){
 function downNav(){
     if(activePage.startsWith('#page2 #color')){
         if(itemNumber < $(activePage + ' label:visible').length-3){
-            itemNumber+=3;
+            if(itemNumber == 0){
+                itemNumber+=1;
+            }else{
+                itemNumber+=3;
+            }
             updateSelection(itemNumber, true, true);
         }
     }else{
@@ -699,20 +725,32 @@ function rightNav(){
 }
 
 function selectElement(){
-    if($(activePage + ' form:visible')){
-        $(activePage+' .selectedElement').find('input').click();
-    }
+    console.log(activePage);
     if(activePage == location.hash){
         $(activePage+' .selectedElement').click();
+    }else if($(activePage + ' form:visible')){
+        $(activePage+' .selectedElement').find('input').click();
     }
     dew.command('Game.PlaySound 0x0B00');
 }
 
 function exitSubform(){
-        if($(activePage + ' form:visible') && activePage != location.hash){
-            $(activePage+' .selectedElement').removeClass('selectedElement');
-            activePage = location.hash;
-            itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
-            dew.command('Game.PlaySound 0x0B04');
-        }
+    if($(activePage + ' form:visible') && activePage != location.hash){
+        $(activePage+' .selectedElement').removeClass('selectedElement');
+        activePage = location.hash;
+        itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
+        colorPicker = null;
+        dew.command('Game.PlaySound 0x0B04');
+    }
+}
+
+function leftPad(val, size, ch) {
+    var result = String(val);
+    if(!ch) {
+        ch = " ";
+    }
+    while (result.length < size) {
+        result = ch + result;
+    }
+    return result;
 }
