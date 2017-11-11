@@ -28,8 +28,10 @@ namespace Blam::Tags::Items
 	using Blam::Tags::Objects::DamageReportingType;
 	using Blam::Tags::Sounds::NoiseLevel;
 
-	struct Weapon : Item, TagGroup<'weap'>
+	struct Weapon : TagGroup<'weap'>
 	{
+		Item Item;
+
 		enum class Flags1 : int32_t;
 		enum class Flags2 : int32_t;
 		enum class SecondaryTriggerMode : int16_t;

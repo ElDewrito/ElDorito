@@ -6,7 +6,7 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"

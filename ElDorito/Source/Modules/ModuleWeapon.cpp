@@ -4,7 +4,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Blam/Math/RealVector3D.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 

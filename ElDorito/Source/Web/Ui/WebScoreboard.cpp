@@ -17,7 +17,7 @@
 
 #include <iomanip>
 #include "../../Blam/BlamObjects.hpp"
-#include "../../Blam/Tags/Items/Weapon.hpp"
+#include "../../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../../Blam/BlamTime.hpp"
 
 using namespace Blam::Input;

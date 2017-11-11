@@ -11,7 +11,7 @@
 #include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam//Tags/Objects/Biped.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
@@ -276,7 +276,8 @@ namespace Patches::Ui
 		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
 
 		//Fix map images in the selection menu.
-		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
+		Hook(0x6DA0FE, MenuSelectedMapIDChangedHook).Apply();
+
 		// remove recent maps, fileshare menu items
 		Pointer(0x0169E270).Write(uint32_t(&c_gui_map_category_datasource_init));
 		// remove game variants, fileshare menu items
@@ -618,13 +619,13 @@ namespace
 
 						auto *bipd = TagInstance(bipdIndex).GetDefinition<Biped>();
 
-						if (bipd->HudInterfaces.Count < 1)
+						if (bipd->Unit.HudInterfaces.Count < 1)
 							continue;
 
 						switch (matgDefinition->PlayerRepresentation[playerRepresentationIndex].Name)
 						{
 						case 4376: //mp_spartan
-							spartanChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
+							spartanChdtIndex = bipd->Unit.HudInterfaces[0].UnitHudInterface.TagIndex;
 							break;
 							//case 4377: //mp_elite
 							//	eliteChdtIndex = bipd->HudInterfaces[0].UnitHudInterface.TagIndex;
@@ -1237,16 +1238,16 @@ namespace
 		auto actionWeapDef = Blam::Tags::TagInstance(actionWeapObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
 		if (action->Flags & 1)
-			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupMessage, -1, 0);
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->Item.PickupMessage, -1, 0);
 		else if (action->Flags & 2)
-			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapMessage, -1, 0);
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->Item.SwapMessage, -1, 0);
 		else
 			HUD_DisplayHUDMessage(playerMappingIndex, -1, -1, 0);
 
 		if (action->Flags & 4)
-			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->PickupOrDualWieldMessage, -1, 1);
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->Item.PickupOrDualWieldMessage, -1, 1);
 		else if (action->Flags & 8)
-			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->SwapOrDualWieldMessage, -1, 1);
+			HUD_DisplayHUDMessage(playerMappingIndex, actionWeapDef->Item.SwapOrDualWieldMessage, -1, 1);
 		else
 			HUD_DisplayHUDMessage(playerMappingIndex, -1, -1, 1);
 

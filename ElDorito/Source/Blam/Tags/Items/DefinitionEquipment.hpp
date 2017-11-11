@@ -32,8 +32,10 @@ namespace Blam
 			using Blam::Tags::Objects::DamageReportingType;
 			using Blam::Tags::Sounds::NoiseLevel;
 
-			struct Equipment : Item, TagGroup<'eqip'>
+			struct Equipment : TagGroup<'eqip'>
 			{
+				Item Item;
+
 				//Tagblocks
 				struct EquipmentCameraBlock;
 				struct CameraTrack;
