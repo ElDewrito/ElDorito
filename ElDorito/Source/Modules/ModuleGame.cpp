@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <codecvt>
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
+#include "discord-rpc.h"
 
 namespace
 {
@@ -214,6 +215,7 @@ namespace
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		Patches::Core::ExecuteShutdownCallbacks();
+		Discord_Shutdown(); //This can be moved into above after public release.
 		std::exit(0);
 		return true;
 	}

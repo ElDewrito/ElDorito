@@ -30,6 +30,7 @@
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
 #include "Blam/Cache/StringIdCache.hpp"
+#include "Modules/ModuleDiscord.hpp"
 
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -303,6 +304,9 @@ void ElDorito::OnMainMenuShown()
 		Server::DedicatedServer::Init();
 	else
 		Web::Ui::ScreenLayer::Show("title", "{}");
+
+	Modules::ModuleDiscord::Instance().DiscordInit();
+	Modules::ModuleDiscord::Instance().UpdatePresence();
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

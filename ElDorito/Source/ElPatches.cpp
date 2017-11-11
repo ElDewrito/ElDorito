@@ -32,7 +32,6 @@
 #include "Patches\Camera.hpp"
 #include "Patches\Maps.hpp"
 #include "Game\Armor.hpp"
-#include "Modules\ModuleDiscord.hpp"
 
 #include <fstream>
 
@@ -104,8 +103,6 @@ namespace Patches
 		Ui::ApplyUIResolution();
 		Weapon::ApplyAfterTagsLoaded();
 		Tweaks::ApplyAfterTagsLoaded();
-
-		Modules::ModuleDiscord::DiscordInit();
 	}
 
 	void Tick()
