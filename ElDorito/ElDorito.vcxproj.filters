@@ -482,6 +482,9 @@
     <ClCompile Include="Source\Definitions\FieldDefinition.cpp" />
     <ClCompile Include="Source\Definitions\StructDefinition.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
+    <ClCompile Include="Source\Modules\ModuleDiscord.cpp">
+      <Filter>Modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1127,6 +1130,9 @@
     <ClInclude Include="Source\Definitions\EnumDefinition.hpp" />
     <ClInclude Include="Source\Definitions\FieldDefinition.hpp" />
     <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
+    <ClInclude Include="Source\Modules\ModuleDiscord.hpp">
+      <Filter>Modules</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

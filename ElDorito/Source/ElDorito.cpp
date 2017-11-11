@@ -29,7 +29,6 @@
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
-
 #include "Blam/Cache/StringIdCache.hpp"
 
 #include <Windows.h>
@@ -233,7 +232,7 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	ChatCommands::Init();
 	Server::Stats::Init();
-	Server::Voting::Init();
+	//Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
 	Server::Signaling::Initialize();
