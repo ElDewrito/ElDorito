@@ -37,4 +37,7 @@ namespace Patches::Network
 
 	typedef std::function<void(Blam::MapVariant*)> MapVariantRequestChangeCallback;
 	void OnMapVariantRequestChange(MapVariantRequestChangeCallback callback);
+
+	typedef std::function<void(int isOnline)> NetworkModeChangedCallback;
+	void OnNetworkModeChanged(NetworkModeChangedCallback callback);
 }
