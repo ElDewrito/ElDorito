@@ -41,10 +41,13 @@ var h3ColorArray = [
     ['Khaki','#E0BEA2']
 ];
 var settingsToLoad = [
-    ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head.', 0],
-    ['armorChest', 'Player.Armor.Chest','Body','From arm to arm.', 1],
-    ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder.', 2],
-    ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 3],
+    ['playerName', 'Player.Name','Name','Your name.', 2],
+    ['serviceTag', 'Player.ServiceTag','Service Tag','Your Service Tag.', 3],
+    ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head.', 2],
+    ['armorChest', 'Player.Armor.Chest','Body','From arm to arm.', 3],
+    ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder.', 4],
+    ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 5],
+    ['gender', 'Player.Gender','Gender','Gender Desc', 6],
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','The primary armor color will serve you in individual combat but will be overwritten in team scenarios.',0],
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','The secondary armor color accents your primary color and will be overwritten in team scenarios.',1],
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Adjust the tint of your Spartan\'s visor.',2],
@@ -86,6 +89,10 @@ var armorChestList = [
 ];
 var subPages = [];
 var colorPicker;
+var genderList = [
+    ['Male','male','Male desc'],
+    ['Female','female','Female desc']    
+];
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
@@ -135,10 +142,13 @@ $(document).ready(function(){
     setRadioList('armorChest', armorChestList, true);
     setRadioList('armorRightShoulder', armorShoulderList, true);
     setRadioList('armorLeftShoulder', armorShoulderList, true);
+    setRadioList('gender', genderList, true);
     setRadioList('colorsPrimary', h3ColorArray);
     setRadioList('colorsSecondary', h3ColorArray);
     setRadioList('colorsVisor', h3ColorArray);
     setRadioList('colorsLights', h3ColorArray);
+    $('.randomizer').hide();
+    $('#randomArmor').show();
     $('.tabs li a').click(function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
@@ -161,6 +171,7 @@ $(document).ready(function(){
                 }
             });
         }
+
         dew.command('Game.PlaySound 0x0B00');
     });
     $('.colorForm input, .armorForm input').on('change click', function(e){
@@ -259,7 +270,7 @@ $(document).ready(function(){
                     updateSelection(itemNumber, true, true);
                 }
             }
-            if(activePage.endsWith(' #colorPicker')){
+            if(activePage && activePage.endsWith(' #colorPicker')){
                 colorPicker.controllerInput(e.data);
             }else{
                 if(e.data.AxisLeftX > axisThreshold){
@@ -329,7 +340,11 @@ $(document).ready(function(){
         }
     });
     $('#inputBox #okButton').on('click', function(){
-        dew.command('Player.Name "'+$('#inputBox input').val()+'"');
+        if($('#inputBox #pName').is(':visible')){
+            dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
+        }else if($('#inputBox #sTag').is(':visible')){
+            dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
+        }
         hideInputBox(true);
     });
     $('#inputBox #dismissButton').on('click', function(){
@@ -631,7 +646,7 @@ function downNav(){
             updateSelection(itemNumber, true, true);
         }
     }else{
-        if((activePage.split(' ').length < 2 && itemNumber < 3) || (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
             itemNumber++;
             updateSelection(itemNumber, true, true);
         }
@@ -648,14 +663,29 @@ function onControllerDisconnect(){
     $('button img, .tabs img').hide();
 }
 
-function inputBox(){
-    dew.command('Player.Name', {}).then(function(response) {
-        $('#inputBox #pName').val(response);
-        $('#inputBox').fadeIn(100);
-        activePage = activePage+'inputBox';
-        $('#dismissButton').show();
-        $('#pName').focus();
-    });
+function inputBox(type){
+    $('#inputBox .textInput').hide();
+    if(type=='playerName'){
+       $('#pName').show();
+       $('#inputBox .header').text('Player Name');
+        dew.command('Player.Name', {}).then(function(response) {
+            $('#inputBox #pName').val(response);
+            $('#inputBox').fadeIn(100);
+            activePage = activePage+'inputBox';
+            $('#dismissButton').show();
+            $('#pName').focus();
+        });
+    }else if(type=='serviceTag'){
+       $('#sTag').show();
+       $('#inputBox .header').text('Service Tag');
+        dew.command('Player.ServiceTag', {}).then(function(response) {
+            $('#inputBox #sTag').val(response);
+            $('#inputBox').fadeIn(100);
+            activePage = activePage+'inputBox';
+            $('#dismissButton').show();
+            $('#sTag').focus();
+        });
+    }
 }
 
 function hideInputBox(sound,condition){
@@ -708,8 +738,6 @@ function leftNav(){
     if(activePage.startsWith('#page2 #color') && itemNumber % 3 != 1){
          itemNumber--;
          updateSelection(itemNumber, true, true);
-    }else{
-        exitSubform();
     }
 }
 
@@ -719,8 +747,6 @@ function rightNav(){
              itemNumber++;
             updateSelection(itemNumber, true, true);
         }
-    }else if(activePage.split(' ').length < 2){
-        selectElement();
     }
 }
 
