@@ -136,9 +136,9 @@ namespace
 			{
 				//printf("%0X\n", (size_t)((uint8_t*)GetBasePointer() + Offset));
 				Total += MemInfo.RegionSize;
-				bool vpsucc = VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
+				VirtualProtect(MemInfo.BaseAddress, MemInfo.RegionSize, PAGE_EXECUTE_READWRITE, &MemInfo.Protect);
 			}
 		}
-		printf("\nDone! Unprotected %u bytes of memory\n", Total);
+		//printf("\nDone! Unprotected %u bytes of memory\n", Total);
 	}
 }
