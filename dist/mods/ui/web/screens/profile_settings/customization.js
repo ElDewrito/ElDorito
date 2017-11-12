@@ -406,13 +406,12 @@ dew.on('show', function(e){
                 initGamepad();
             }).fadeOut(200);
         }else{
-            $('#settingsWindow').show();
-            initActive();
-            initGamepad();
+            dew.hide();
         }
     });
     setControlValues();
     updateSelection(0,false,true);
+    adjustBiped();
 });
 
 function initGamepad(){
@@ -752,7 +751,6 @@ function rightNav(){
 }
 
 function selectElement(){
-    console.log(activePage);
     if(activePage == location.hash){
         $(activePage+' .selectedElement').click();
     }else if($(activePage + ' form:visible')){
@@ -780,4 +778,22 @@ function leftPad(val, size, ch) {
         result = ch + result;
     }
     return result;
+}
+
+function getAspectRatio(){
+    function gcd (a, b) {
+        return (b == 0) ? a : gcd (b, a%b);
+    }
+    var w = screen.width;
+    var h = screen.height;
+    var r = gcd (w, h);
+    return w/r+":"+h/r;
+}
+
+function adjustBiped(){
+    if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
+        dew.command('Player.Armor.SetUiModelPosition 74.058 -101.826 11.65'); //moved to the left
+    }else{
+        dew.command('Player.Armor.SetUiModelPosition 74.108 -101.926 11.65'); //default
+    }    
 }
