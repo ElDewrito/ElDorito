@@ -13,6 +13,7 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Forge.hpp"
+#include "../Patches/ContentItems.hpp"
 #include "../Patches/Maps.hpp"
 #include "../Web/WebRenderer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -24,9 +25,15 @@
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/HttpRequest.hpp"
 #include <unordered_map>
 #include <codecvt>
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
+#include "../Web/Ui/WebVirtualKeyboard.hpp"
+#include "../Blam/BlamInput.hpp"
+#include "../Patches/VirtualKeyboard.hpp"
+
+#include <ShlObj.h>
 
 namespace
 {
@@ -1056,6 +1063,57 @@ namespace
 
 	}
 
+	bool CommandDownloadVariant(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 1)
+			return false;
+		returnInfo = "Trying to download:" + Arguments[0] + "\n";
+		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
+		if (!req.SendRequest(Utils::String::WidenString(Arguments[0]), L"GET", L"", L"", L"", NULL, 0))
+		{
+			returnInfo += "Error fetching variant file. Error code: " + std::to_string(req.lastError);
+			return false;
+		}
+
+		// mapv = Map Variant, mpvr = Game Mode (Multiplayer) Variant
+		std::string variantFormat = std::string(&req.responseBody.at(312), &req.responseBody.at(316));
+		returnInfo += "Variant Format Header (" + variantFormat + ")\n";
+
+		if (req.responseBody.size() != 0x1000 && req.responseBody.size() != 0xF000)
+		{
+			returnInfo += "Incorrect variant file size (" + std::to_string(req.responseBody.size()) + " bytes)";
+			return false;
+		}
+		returnInfo += "Response variant file size (" + std::to_string(req.responseBody.size()) + " bytes)\n";
+		std::string header = std::string(&req.responseBody.at(0x0), &req.responseBody.at(0x4));
+		bool valid = (header == "_blf");
+
+		BYTE variant_name[0x20];
+		// Default entire array to 0
+		std::fill_n(variant_name, 0x20, 0);
+
+		for (int i = 0; i <= 31; i++)
+			variant_name[i] = req.responseBody[i + 72];
+
+		if (valid) {
+			auto game = &Modules::ModuleGame::Instance();
+			std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
+
+			game->variant_vector = req.responseBody;
+			game->variant_name = std::wstring(reinterpret_cast<wchar_t*>(variant_name));
+
+			returnInfo += "game->variant_vector size (" + std::to_string(req.responseBody.size()) + " bytes)\n";
+			returnInfo += "game->variant_name (" + Utils::String::ThinString(game->variant_name) + ")\n";
+
+			Web::Ui::WebVirtualKeyboard::Show("Save Variant As", "", wstring_to_string.to_bytes(game->variant_name));
+			return true;
+		}
+		else {
+			returnInfo += "File is not a valid game or map variant";
+			return false;
+		}
+	}
+
 	bool VariableLanguageUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
 	{
 		if (arguments.size() < 1)
@@ -1165,6 +1223,8 @@ namespace Modules
 
 		AddCommand("ShowFPS", "show_fps", "Toggle the on-screen FPS info", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowFPS);
 
+		AddCommand("DownloadVariant", "download_variant", "Download a Game or Map Variant file", eCommandFlagsNone, CommandDownloadVariant);
+
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
 		VarLanguage = AddVariableString("Language", "language", "The language to use", eCommandFlagsArchived, "english", VariableLanguageUpdated);
@@ -1257,5 +1317,50 @@ namespace Modules
 			FindClose(handle);
 			std::sort(MapList.begin(), MapList.end());
 		}
+	}
+
+	void ModuleGame::onVKeyboardInput(std::wstring input)
+	{
+		if (!variant_vector.size())
+			return;
+		input.substr(0, 15);
+		if (input != mapVariant_name) {
+			const char* new_name = reinterpret_cast<const char*>(input.c_str());
+
+			// Offset for current variant name - original name will remain untouched
+			int string_offset_1 = 0x48;
+
+			for (int i = 0; i <= 31; i++) {
+				char current_char = 0;
+				if (i <= input.size() * 2)
+					current_char = new_name[i];
+				variant_vector[string_offset_1] = current_char;
+				string_offset_1++;
+			}
+		}
+		wchar_t filepath[0x100];
+		if (variant_vector.size() == 0xF000)
+		{
+			Patches::ContentItems::GetFilePathForMap(input, filepath, true);
+		}
+		else if (variant_vector.size() == 0x1000)
+		{
+			Patches::ContentItems::GetFilePathForGameVariant(input, filepath, (int)variant_vector[248], true);
+		}
+		else
+		{
+			// We want to follow the strict file size guidelines for now
+			return;
+		}
+
+		FILE* file;
+		if (_wfopen_s(&file, filepath, L"wb") != 0 || !file)
+			return;
+		BYTE* map_data = variant_vector.data();
+		fwrite(map_data, sizeof(BYTE), variant_vector.size(), file);
+		fclose(file);
+		Patches::ContentItems::LoadBLF(filepath);
+		variant_vector.clear();
+		return;
 	}
 }

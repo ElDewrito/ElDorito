@@ -7,6 +7,7 @@
 #include "../../Blam/BlamInput.hpp"
 #include "../../Patches/VirtualKeyboard.hpp"
 #include "../../Utils/String.hpp"
+#include "../../Modules/ModuleGame.hpp"
 
 namespace
 {
@@ -23,14 +24,15 @@ namespace Web::Ui::WebVirtualKeyboard
 
 	void Submit(std::wstring& value)
 	{
-		if (!CurrentKeyboard)
-			return;
-
 		//Strip illegal characters
 		std::string illegal = "\\/:?\"<>|";
 		for (auto it = value.begin(); it < value.end(); ++it)
 			if (illegal.find(*it) != std::wstring::npos)
 				*it = ' ';
+		if (!CurrentKeyboard) {
+			Modules::ModuleGame::Instance().onVKeyboardInput(value);
+			return;
+		}
 
 		CurrentKeyboard->SetValue(value.c_str());
 		CurrentKeyboard->Finish();
@@ -44,17 +46,9 @@ namespace Web::Ui::WebVirtualKeyboard
 		CurrentKeyboard->Reset();
 		CurrentKeyboard = nullptr;
 	}
-}
 
-namespace
-{
-	void WebVirtualKeyboardHandler(Blam::Input::VirtualKeyboard* keyboard)
+	void Show(std::string title, std::string description, std::string defaultValue)
 	{
-		CurrentKeyboard = keyboard;
-		auto title = Utils::String::ThinString(CurrentKeyboard->Title);
-		auto description = Utils::String::ThinString(CurrentKeyboard->Description);
-		auto defaultValue = Utils::String::ThinString(CurrentKeyboard->DefaultValue);
-
 		// Screen parameters
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
@@ -67,7 +61,20 @@ namespace
 		jsonWriter.String(defaultValue.c_str());
 		jsonWriter.EndObject();
 
-		CurrentKeyboard->Start();
 		Web::Ui::ScreenLayer::Show("keyboard", jsonBuffer.GetString());
+	}
+}
+
+namespace
+{
+	void WebVirtualKeyboardHandler(Blam::Input::VirtualKeyboard* keyboard)
+	{
+		CurrentKeyboard = keyboard;
+		auto title = Utils::String::ThinString(CurrentKeyboard->Title);
+		auto description = Utils::String::ThinString(CurrentKeyboard->Description);
+		auto defaultValue = Utils::String::ThinString(CurrentKeyboard->DefaultValue);
+
+		Web::Ui::WebVirtualKeyboard::Show(title, description, defaultValue);
+		CurrentKeyboard->Start();
 	}
 }

@@ -3,8 +3,11 @@
 #include "../ElDorito.hpp"
 #include "../Patch.hpp"
 #include "../Blam/BlamData.hpp"
+#include "../Blam/BlamTypes.hpp"
 
 #include "../ThirdParty/dirent.h"
+
+#include "../Utils/Logger.hpp"
 
 #include <ShlObj.h>
 
@@ -72,6 +75,11 @@ namespace
 		bool IsValid;
 		char NewPath[MAX_PATH];
 	} s_ContentItemRenameState;
+
+	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, const wchar_t* variantName, int variantMode, int variantType);
+	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, const wchar_t* variantName, int variantMode, int variantType, bool bIsDownload);
+	bool AddContentItem(wchar_t* itemPath);
+	wchar_t* GameTypeString(int variantType);
 }
 
 namespace Patches::ContentItems
@@ -136,6 +144,26 @@ namespace Patches::ContentItems
 		Hook(0x1276C5, free, HookFlags::IsCall).Apply();
 		Hook(0x127500, malloc, HookFlags::IsCall).Apply();
 		Hook(0x1275E0, free, HookFlags::IsCall).Apply();
+	}
+	void GetFilePathForMap(std::wstring name, wchar_t *path)
+	{
+		GetFilePathForItem(path, 0x100, name.c_str(), 0, 0);
+	}
+	void GetFilePathForMap(std::wstring name, wchar_t *path, bool bIsDownload)
+	{
+		GetFilePathForItem(path, 0x100, name.c_str(), 0, 0, bIsDownload);
+	}
+	void GetFilePathForGameVariant(std::wstring name, wchar_t *path, int variantType)
+	{
+		GetFilePathForItem(path, 0x100, name.c_str(), 1, variantType);
+	}
+	void GetFilePathForGameVariant(std::wstring name, wchar_t *path, int variantType, bool bIsDownload)
+	{
+		GetFilePathForItem(path, 0x100, name.c_str(), 1, variantType, bIsDownload);
+	}
+	bool LoadBLF(wchar_t* itemPath)
+	{
+		return AddContentItem(itemPath);
 	}
 }
 
@@ -202,19 +230,81 @@ namespace
 		return AddContentItem((wchar_t*)unicode.c_str());
 	}
 
-	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, wchar_t* variantName, int variantType)
+	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, const wchar_t* variantName, int variantMode, int variantType)
 	{
+		// variantMode: 0 = Map; 1 = GameMode
+		// variantType: 0 = UNK; 1 = CTF; 2 = Slayer; ect...
 		wchar_t currentDir[256];
 		memset(currentDir, 0, 256 * sizeof(wchar_t));
 		GetCurrentDirectoryW(256, currentDir);
 
-		if (variantType == 10)
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Attempting to Get File Path For Item");
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Name: " + Utils::String::ThinString(variantName));
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Mode: " + std::to_string(variantMode));
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Type: " + std::to_string(variantType));
+
+		if (variantMode == 0)
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\", currentDir, variantName);
 		else
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\", currentDir, variantName);
 
-		if (variantType == 10)
+		if (variantMode == 0)
+		{
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\sandbox.map", currentDir, variantName);
+		}
+		else if (variantMode == 1)
+		{
+			// If anything here is going to have any problems, this is the most likely one so allow the ability to print some info about what's going on
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Destination >> " + Utils::String::ThinString(dest));
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "MaxCount >> " + std::to_string(MaxCount));
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "File Path String >> " + Utils::String::ThinString(currentDir) + "\\mods\\variants\\" + Utils::String::ThinString(variantName) + "\\variant." + Utils::String::ThinString(GameTypeString(variantType)));
+			
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\variant.%ls", currentDir, variantName, GameTypeString(variantType));
+		}
+		else
+		{
+			typedef wchar_t*(__cdecl *FS_GetFileNameForItemTypeFunc)(uint32_t type);
+			FS_GetFileNameForItemTypeFunc FS_GetFileNameForItemType = (FS_GetFileNameForItemTypeFunc)0x526550;
+			wchar_t* fileName = FS_GetFileNameForItemType(variantType);
+
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\%ls", currentDir, variantName, fileName);
+		}
+	}
+
+	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, const wchar_t* variantName, int variantMode, int variantType, bool bIsDownload)
+	{
+		// variantMode: 0 = Map; 1 = GameMode
+		// variantType: 0 = UNK; 1 = CTF; 2 = Slayer; ect...
+		wchar_t currentDir[256];
+		memset(currentDir, 0, 256 * sizeof(wchar_t));
+		GetCurrentDirectoryW(256, currentDir);
+
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Attempting to Get File Path For Item");
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Name: " + Utils::String::ThinString(variantName));
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Mode: " + std::to_string(variantMode));
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Variant Type: " + std::to_string(variantType));
+
+		if (variantMode == 0)
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\", currentDir, variantName);
+		else
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\", currentDir, variantName);
+
+		// We overloaded just for this - wow, optimize please!
+		SHCreateDirectoryExW(NULL, dest, NULL);
+
+		if (variantMode == 0)
+		{
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\sandbox.map", currentDir, variantName);
+		}
+		else if (variantMode == 1)
+		{
+			// If anything here is going to have any problems, this is the most likely one so allow the ability to print some info about what's going on
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Destination >> " + Utils::String::ThinString(dest));
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "MaxCount >> " + std::to_string(MaxCount));
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "File Path String >> " + Utils::String::ThinString(currentDir) + "\\mods\\variants\\" + Utils::String::ThinString(variantName) + "\\variant." + Utils::String::ThinString(GameTypeString(variantType)));
+
+			swprintf_s(dest, MaxCount, L"%ls\\mods\\variants\\%ls\\variant.%ls", currentDir, variantName, GameTypeString(variantType));
+		}
 		else
 		{
 			typedef wchar_t*(__cdecl *FS_GetFileNameForItemTypeFunc)(uint32_t type);
@@ -276,8 +366,19 @@ namespace
 	{
 		wchar_t* variantName = (wchar_t*)(contentItem + 0x18);
 		uint32_t variantType = *(uint32_t*)(contentItem + 0xC8);
+		uint32_t variantMode = *(uint32_t*)(contentItem + 0xF4);
 
-		GetFilePathForItem(dest, MaxCount, variantName, variantType);
+		std::string debugInfo = "variantName:" + Utils::String::ThinString(variantName) + "\nvariantType:" + std::to_string(variantType) + "\nvariantMode:" + std::to_string(variantMode);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "GetFilePathForContentItem >> " + debugInfo);
+
+		// mapv = 1987076461
+		// mpvr = 1920364653
+		if (variantMode == 0)
+			variantMode = 0;
+		else
+			variantMode = 1;
+
+		GetFilePathForItem(dest, MaxCount, variantName, variantMode, variantType);
 	}
 
 	char __fastcall FS_GetFiloForContentItemHook(c_content_item *contentItem, void* unused, void* filo)
@@ -306,8 +407,19 @@ namespace
 
 		wchar_t* variantName = (wchar_t*)(blfStart + 0x48); // when saving forge maps we only get the variant name, not the blf data :s
 		int variantType = *(uint32_t*)(blfStart + 0xF8);
+		int variantMode = *(int*)(blfStart + 0x124);//0x168);
 
-		GetFilePathForItem(Src, MaxCount, variantName, variantType);
+		std::string debugInfo = "variantName:" + Utils::String::ThinString(variantName) + "\nvariantType:" + std::to_string(variantType) + "\nvariantMode:" + std::to_string(variantMode);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "SaveFileGetNameHook >> " + debugInfo);
+
+		// mapv = 1987076461
+		// mpvr = 1920364653
+		if (variantMode == 0)
+			variantMode = 0;
+		else
+			variantMode = 1;
+
+		GetFilePathForItem(Src, MaxCount, variantName, variantMode, variantType);
 
 		return 1;
 	}
@@ -363,6 +475,38 @@ namespace
 		return true;
 	}
 
+	wchar_t* GameTypeString(int variantType)
+	{
+		// Perhaps move this into Blam/BlamTypes as GameTypeFileExtension as not all extensions match UI names
+		switch (variantType)
+		{
+		case 0:
+			return L"unk";
+		case 1:
+			return L"ctf";
+		case 2:
+			return L"slayer";
+		case 3:
+			return L"oddball";
+		case 4:
+			return L"koth";
+		case 5:
+			return L"forge";
+		case 6:
+			return L"vip";
+		case 7:
+			return L"jugg";
+		case 8:
+			return L"terries";
+		case 9:
+			return L"assault";
+		case 10:
+			return L"zombiez";
+		default:
+			return L"default";
+		}
+	}
+
 	char *GetDirectoryPath(char *path, char* buff, int bufflen)
 	{
 		strcpy_s(buff, bufflen, path);
@@ -410,13 +554,23 @@ namespace
 					uint8_t filo[0x208];
 					c_content_catalog__get_item_filo(catalog, task->ContentItemDatumIndex, filo);
 					auto filePath = (char*)(filo + 0x8);
-
+					// filo is pointing to /mods/variants/ when it should be /mods/maps/
 					char oldDirectory[MAX_PATH];
 					wchar_t newDirectoryPath[MAX_PATH];
 					wchar_t newFilePath[MAX_PATH];
 
+					// ContentHeader = Pos 60 (40h) to 311 (137h), next 4 bytes after this are variantMode
+					// ContentHeader can't access this so we're going to do a janky hack instead
+					// If next int from pos 289(121h) is 0 then there was missing mpvr data and no mpvr game mode variant menu order set
+					// Chances are it's a map file if this is 0 then... need to just read for mpvr/mapv at 312 eventually
+					int variantMode = *(int*)(item->ContentHeader + 0xE4);
+					if (variantMode == 0)
+						variantMode = 0;
+					else
+						variantMode = 1;
+
 					GetDirectoryPath(filePath, oldDirectory, MAX_PATH);
-					GetFilePathForItem(newFilePath, MAX_PATH, task->NewContentName, *(int*)(item->ContentHeader + 0xB8));
+					GetFilePathForItem(newFilePath, MAX_PATH, task->NewContentName, variantMode, *(int*)(item->ContentHeader + 0xB8));
 					GetDirectoryPathW(newFilePath, newDirectoryPath, MAX_PATH);
 
 					string_unicode_to_ascii(newFilePath, s_ContentItemRenameState.NewPath, MAX_PATH, nullptr);
