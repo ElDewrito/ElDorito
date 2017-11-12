@@ -1,7 +1,6 @@
 var activePage;
 var itemNumber = 0;
 var tabIndex = 0;
-var commandValues = [];
 var hasGP = false;
 var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
@@ -147,8 +146,6 @@ $(document).ready(function(){
     setRadioList('colorsSecondary', h3ColorArray);
     setRadioList('colorsVisor', h3ColorArray);
     setRadioList('colorsLights', h3ColorArray);
-    $('.randomizer').hide();
-    $('#randomArmor').show();
     $('.tabs li a').click(function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
@@ -156,7 +153,7 @@ $(document).ready(function(){
         activePage = e.target.hash;
         itemNumber = 0;
         $(e).ready(function(){
-                updateSelection(itemNumber, false, true);
+            updateSelection(itemNumber, false, true);
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
         $('#infoHeader, #infoText').text('');
@@ -175,6 +172,8 @@ $(document).ready(function(){
         dew.command('Game.PlaySound 0x0B00');
     });
     $('.colorForm input, .armorForm input').on('change click', function(e){
+        $(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
+        $(this).parent().parent().addClass('chosenElement');
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.name){
                 dew.command(result[1]+' '+e.target.value);
@@ -467,17 +466,19 @@ function initActive(){
 }
 
 function setControlValues(){
-    commandValues = [];
     dew.getCommands().then(function (commands){
         for(i = 0; i < commands.length; i++){
             var setValue = commands[i].value;
             $.grep(settingsToLoad, function(result){
                 if(result[1] == commands[i].name){
-                    commandValues.push([result[0],commands[i].name,commands[i].value]);
                     if($('#'+result[0]).is('form')){
                         $('#'+result[0]+' :radio[value=""]').attr('checked',true);
                         $('#'+result[0]+' :radio[value="'+setValue+'"]').attr('checked',true);
-                        $('#'+result[0]+' :radio[value="'+setValue+'"]').parent().parent().addClass('selectedElement');
+                        if( $('#'+result[0]+' :radio[value="'+setValue+'"]').length){
+                            $('#'+result[0]+' :radio[value="'+setValue+'"]').parent().parent().addClass('chosenElement');
+                        }else{
+                            $('#'+result[0]+' :radio[value=""]').parent().parent().addClass('chosenElement');
+                        }
                         $('#'+result[0]+'Text').val(setValue);
                     }else{
                         if($('#'+result[0]).hasClass('tinySetting')){
