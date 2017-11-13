@@ -279,6 +279,8 @@ namespace Patches::Network
 							writer.StartObject();
 							writer.Key("name");
 							writer.String(name.c_str());
+							writer.Key("serviceTag");
+							writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
 							writer.Key("team");
 							writer.Int(team);
 							char uid[17];
