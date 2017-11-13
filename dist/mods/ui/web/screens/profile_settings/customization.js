@@ -40,13 +40,13 @@ var h3ColorArray = [
     ['Khaki','#E0BEA2']
 ];
 var settingsToLoad = [
-    ['playerName', 'Player.Name','Name','Your name.', 2],
-    ['serviceTag', 'Player.ServiceTag','Service Tag','Your Service Tag.', 3],
+    ['playerName', 'Player.Name','Name','', 2],
+    ['serviceTag', 'Player.ServiceTag','Service Tag','', 3],
     ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head.', 2],
     ['armorChest', 'Player.Armor.Chest','Body','From arm to arm.', 3],
     ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder.', 4],
     ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 5],
-    ['gender', 'Player.Gender','Gender','Gender Desc', 6],
+    ['gender', 'Player.Gender','Gender','', 6],
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','The primary armor color will serve you in individual combat but will be overwritten in team scenarios.',0],
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','The secondary armor color accents your primary color and will be overwritten in team scenarios.',1],
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Adjust the tint of your Spartan\'s visor.',2],
@@ -86,11 +86,10 @@ var armorChestList = [
     ['Hayabusa','mp_ryu','In late 2536, RKD-an Earth-based think tank-presented the UNSC Ordnance Committee with its answer to the self-contained powered armor problem: Project: HAYABUSA.'],
     ['Katana','mp_katana','To correctly use the sword, one must make it an extension of one\'s body. This is for the understanding of those intending to be warriors.']
 ];
-var subPages = [];
 var colorPicker;
 var genderList = [
-    ['Male','male','Male desc'],
-    ['Female','female','Female desc']    
+    ['Male','male','State your gender. This will not be displayed to other players, but combat effects will be tailored to your gender.'],
+    ['Female','female','State your gender. This will not be displayed to other players, but combat effects will be tailored to your gender.']    
 ];
 
 $(document).ready(function(){
@@ -155,7 +154,6 @@ $(document).ready(function(){
             updateSelection(itemNumber, false, true);
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
-        $('#infoHeader, #infoText').text('');
         if($(activePage + ' form:visible')){
             $.grep(settingsToLoad, function(result, index){
                 if(result){
@@ -175,11 +173,11 @@ $(document).ready(function(){
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.name){
                 dew.command(result[1]+' '+e.target.value);
-                $('#infoBox #infoText').text(result[3]);
+                $(location.hash+' #infoBox #infoText').text(result[3]);
             };
-            $('#infoBox #infoHeader').text(e.target.computedName);
+            $(location.hash+' #infoBox #infoHeader').text(e.target.computedName);
         });
-        $('#infoBox #infoText').text($(this).attr('desc'));
+        $(location.hash+' #infoBox #infoText').text($(this).attr('desc'));
     });
     $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
         $('.colorForm').hide();
@@ -189,13 +187,13 @@ $(document).ready(function(){
         var currentVal = ColorUtil.hexToHsv($(this).val().split('#')[1]);
         activePage = location.hash+" #colorPicker";
         $('#colorPicker').show();
-        $('#infoBox #infoHeader').text($(this).val());
+        $(location.hash+' #infoBox #infoHeader').text($(this).val());
         colorPicker.setColor(currentVal);
         colorPicker.on('select', function(color) {
             var currentSelection = ColorUtil.hsvToRgb(color.h, color.s, color.v);
             whichColor.val('#'+leftPad(ColorUtil.rgbToHex(currentSelection[0],currentSelection[1],currentSelection[2]),6,'0'));
             whichColor.trigger('change');
-            $('#infoBox #infoHeader').text(whichColor.val());
+            $(location.hash+' #infoBox #infoHeader').text(whichColor.val());
         });
     });
     $('.colorForm, .armorForm').submit(function() {
@@ -708,8 +706,8 @@ function armorShow(showMe, element){
     $('#infoBox').show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
-    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
-    $('#infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
+    $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $(location.hash+' #infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
 }
 
 function colorShow(showMe, element){
@@ -723,11 +721,11 @@ function colorShow(showMe, element){
     $.grep(settingsToLoad, function(result, index){
         if(result){
             if(result[0] == showMe){
-                $('#infoBox #infoText').text(result[3]);
+                $(location.hash+' #infoBox #infoText').text(result[3]);
             }
         }
     });
-    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
 }
