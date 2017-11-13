@@ -1,11 +1,4 @@
-var pageWidth, pageHeight;
-var basePage = {
-    width: 1280,
-    height: 720,
-    scale: 1,
-    scaleX: 1,
-    scaleY: 1
-};
+var hasGP = false;
 
 dew.on("show", function (event) {   
     var form = $("<form>");
@@ -45,39 +38,37 @@ dew.on("show", function (event) {
     );
     
     $(".container").append(form.parent());
+    
+    dew.command('Settings.Gamepad', {}).then(function(result){
+        if(result == 1){
+            hasGP = true;
+        }else{
+            hasGP = false;
+        }
+    });
 });
 
 dew.on("hide", function (event) {
     $(".container").empty();
 });
 
-$(window).load(function () {
-
+$(document).ready(function(){
+    $(document).keyup(function (e) {
+        if (e.keyCode === 27) {
+            $('.dialog:eq(0) button').click(); 
+        }
+    });
+   $(document).keydown(function (e) {
+        if (e.keyCode === 13 || e.keyCode === 32) {
+            $('.dialog:eq(0) button').click(); 
+        }
+    });
 });
 
-$(function(){
-    var $page = $('.page_content');
-
-    getPageSize();
-    scalePages($page, pageWidth, pageHeight);
-  
-    $(window).resize(function() {
-        getPageSize();            
-        scalePages($page, pageWidth, pageHeight);
-    });
-  
-    function getPageSize() {
-        pageHeight = $('#container').height();
-        pageWidth = $('#container').width();
-    }
-
-    function scalePages(page, maxWidth, maxHeight) {            
-        var scaleX = 1, scaleY = 1;                      
-        scaleX = maxWidth / basePage.width;
-        scaleY = maxHeight / basePage.height;
-        basePage.scaleX = scaleX;
-        basePage.scaleY = scaleY;
-        basePage.scale = (scaleX > scaleY) ? scaleY : scaleX;
-        page.attr('style', '-webkit-transform:scale(' + basePage.scale + ');');
+dew.on('controllerinput', function(e){       
+    if(hasGP){
+        if(e.data.A == 1 || e.data.B == 1){
+            $('.dialog:eq(0) button').click(); 
+        }
     }
 });
