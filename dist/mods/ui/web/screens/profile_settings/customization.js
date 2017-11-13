@@ -131,9 +131,8 @@ $(document).ready(function(){
                 selectElement();
             }
         }else{
-            if(e.keyCode == 13){
-                dew.command('Player.Name '+$('#inputBox input').val());
-                dismissButton();
+            if(e.keyCode == 13){ //Enter to submit inputBox
+                $('#inputBox #okButton').click();
             }
         }
     });
@@ -168,7 +167,6 @@ $(document).ready(function(){
                 }
             });
         }
-
         dew.command('Game.PlaySound 0x0B00');
     });
     $('.colorForm input, .armorForm input').on('change click', function(e){
