@@ -11,3 +11,11 @@ body{
 .ed-color-picker__detail{
     color: var(--color-iceblue)
 }
+
+#buttonConatiner{
+    height:230px;
+}
+
+#infoBox{
+    height:140px;
+}
