@@ -21,11 +21,6 @@ namespace Patches::Ui
 	// Registers a function to be called when the game window is created.
 	void OnCreateWindow(CreateWindowCallback callback);
 
-	//function that should be called when the game mode changes
-	typedef std::function<void(int gameMode)> GameModeChangedCallback;
-
-	void OnGameModeChanged(GameModeChangedCallback callback);
-
 	void *ShowDialog(const Blam::Text::StringID p_DialogID, const int32_t p_Arg1 = 0, const int32_t p_Flags = 4, const Blam::Text::StringID p_ParentID = 0);
 
 	void FindUiTagData();

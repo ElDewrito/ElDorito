@@ -97,8 +97,6 @@ namespace
 	int GetBrokenChudStateFlags33Values();
 	void MenuSelectedMapIDChangedHook();
 
-	void GetGameModeHook();
-
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
 	void FindHUDDistortionTagData();
@@ -110,7 +108,6 @@ namespace
 	void c_gui_screen_pregame_lobby_switch_network_hook();
 
 	std::vector<CreateWindowCallback> createWindowCallbacks;
-	std::vector<GameModeChangedCallback> gameModeChangedCallbacks;
 
 	Patch unused; // for some reason a patch field is needed here (on release builds) otherwise the game crashes while loading map/game variants, wtf?
 
@@ -285,9 +282,6 @@ namespace Patches::Ui
 		// remove game variants, fileshare menu items
 		Pointer(0x0169E510).Write(uint32_t(&c_gui_game_variant_category_datasource_init));
 
-		//runs when the getGameMode func calls
-		Hook(0xA821F5, GetGameModeHook, HookFlags::IsCall).Apply();
-
 		Hook(0x721F03, c_gui_screen_pregame_lobby_switch_network_hook).Apply();
 
 		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
@@ -314,12 +308,7 @@ namespace Patches::Ui
 	{
 		createWindowCallbacks.push_back(callback);
 	}
-
-	void OnGameModeChanged(GameModeChangedCallback callback)
-	{
-		gameModeChangedCallbacks.push_back(callback);
-	}
-
+	
 	//Functions that interact with Tags
 
 	void FindUiTagData()
@@ -1659,30 +1648,6 @@ namespace
 	void __stdcall OnLobbySwitchNetworkMode()
 	{
 		Web::Ui::ScreenLayer::Show("server_settings", "{}");
-	}
-
-	auto GetGameMode = (int(__cdecl*)())(0x00435640);
-	int lastGameMode = 0;
-
-	void CheckGameModeChanged()
-	{
-		int gameMode = GetGameMode();
-		if (gameMode != lastGameMode)
-		{
-			for (auto &&callback : gameModeChangedCallbacks)
-				callback(gameMode);
-		}
-	}
-
-	__declspec(naked) void GetGameModeHook()
-	{
-		__asm
-		{
-			call CheckGameModeChanged
-
-			mov eax, 0x435640
-			jmp eax
-		}
 	}
 
 	__declspec(naked) void c_gui_screen_pregame_lobby_switch_network_hook()

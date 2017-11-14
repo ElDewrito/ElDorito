@@ -130,6 +130,7 @@
     <ClCompile Include="Source\Server\VotingPackets.cpp" />
     <ClCompile Include="Source\Server\VotingSystem.cpp" />
     <ClCompile Include="Source\ThirdParty\HttpRequest.cpp" />
+    <ClCompile Include="Source\ThirdParty\ratelimiter\rate_limiter.cpp" />
     <ClCompile Include="Source\Utils\AntiCheat.cpp" />
     <ClCompile Include="Source\Utils\Assert.cpp" />
     <ClCompile Include="Source\Utils\Cryptography.cpp" />
@@ -352,6 +353,8 @@
     <ClInclude Include="Source\ThirdParty\rapidjson\reader.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\writer.h" />
+    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter.hpp" />
+    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter_interface.hpp" />
     <ClInclude Include="Source\Utils\AntiCheat.hpp" />
     <ClInclude Include="Source\Utils\Assert.hpp" />
     <ClInclude Include="Source\Utils\Bits.hpp" />

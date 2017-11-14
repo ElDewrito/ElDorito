@@ -85,6 +85,9 @@
     <Filter Include="ThirdParty\rapidjson\msinttypes">
       <UniqueIdentifier>{5fb94ac4-6f54-4e53-8bd4-2926ddf3ae43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ThirdParty\ratelimiter">
+      <UniqueIdentifier>{4872b027-4415-4e5c-bc6a-98f3134440d6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Blam\BitStream.cpp">
@@ -484,6 +487,9 @@
     <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
     <ClCompile Include="Source\Modules\ModuleDiscord.cpp">
       <Filter>Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ThirdParty\ratelimiter\rate_limiter.cpp">
+      <Filter>ThirdParty\ratelimiter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1132,6 +1138,12 @@
     <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
     <ClInclude Include="Source\Modules\ModuleDiscord.hpp">
       <Filter>Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter.hpp">
+      <Filter>ThirdParty\ratelimiter</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter_interface.hpp">
+      <Filter>ThirdParty\ratelimiter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

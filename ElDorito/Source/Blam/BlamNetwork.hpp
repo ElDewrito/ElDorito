@@ -144,7 +144,7 @@ namespace Blam::Network
 		uint8_t Unknown1[0x2A0B4];
 
 		// Gets the current variant data, or null if not available.
-		void* Get() const;
+		MapVariant* Get() const;
 	};
 	static_assert(sizeof(MapVariantSessionParameter) == 0x2A1D0, "Invalid c_network_session_parameter_map_variant size");
 

@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "BlamNetwork.hpp"
+#include "../Modules/ModuleDiscord.hpp"
 #include "../Pointer.hpp"
 
 namespace
@@ -183,9 +184,9 @@ namespace Blam::Network
 		return GetGameVariant(this);
 	}
 
-	void* MapVariantSessionParameter::Get() const
+	MapVariant* MapVariantSessionParameter::Get() const
 	{
-		typedef void*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
+		typedef MapVariant*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
 		auto GetMapVariant = reinterpret_cast<GetMapVariantPtr>(0x456410);
 		return GetMapVariant(this);
 	}
@@ -250,7 +251,12 @@ namespace Blam::Network
 	bool SetNetworkMode(int mode)
 	{
 		auto Set_Network_Mode = (bool(__cdecl*)(int))(0x00A7F950);
-		return Set_Network_Mode(mode);
+		bool success = Set_Network_Mode(mode);
+
+		//Let Discord Know
+		Modules::ModuleDiscord::Instance().PresenceUpdate();
+
+		return success;
 	}
 	
 	bool Disconnect()

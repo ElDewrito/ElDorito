@@ -60,8 +60,6 @@ namespace
 	std::vector<Patches::Network::LifeCycleStateChangedCallback> lifeCycleStateChangedCallbacks;
 	void LifeCycleStateChangedHook();
 
-	std::vector<Patches::Network::NetworkModeChangedCallback> networkModeChangedCallbacks;
-
 	void GetTextureDimensionsHook();
 
 	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
@@ -560,11 +558,6 @@ namespace Patches::Network
 	{
 		mapVariantRequestChangeCallbacks.push_back(callback);
 	}
-
-	void OnNetworkModeChanged(NetworkModeChangedCallback callback)
-	{
-		networkModeChangedCallbacks.push_back(callback);
-	}
 }
 
 namespace
@@ -577,9 +570,6 @@ namespace
 		typedef DWORD(__cdecl *Network_managed_session_create_session_internalFunc)(int a1, int a2);
 		Network_managed_session_create_session_internalFunc Network_managed_session_create_session_internal = (Network_managed_session_create_session_internalFunc)0x481550;
 		auto retval = Network_managed_session_create_session_internal(a1, a2);
-
-		for (auto &&callback : networkModeChangedCallbacks)
-			callback(static_cast<int>(isOnline));
 
 		if (!isHost)
 			return retval;
