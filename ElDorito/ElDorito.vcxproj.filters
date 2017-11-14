@@ -88,6 +88,9 @@
     <Filter Include="Definitions">
       <UniqueIdentifier>{b85b9a06-904f-4e35-8aa6-7381611a2d2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Discord">
+      <UniqueIdentifier>{43beaab3-8907-457d-a9fd-de5498aeed9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Blam\BitStream.cpp">
@@ -537,6 +540,9 @@
     </ClCompile>
     <ClCompile Include="Source\Blam\Tags\Items\DefinitionEquipment.cpp">
       <Filter>Blam\Tags\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Discord\DiscordRPC.cpp">
+      <Filter>Discord</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1213,6 +1219,9 @@
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp">
       <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Discord\DiscordRPC.h">
+      <Filter>Discord</Filter>
     </ClInclude>
     <ClInclude Include="Source\ThirdParty\rapidjson\fwd.h">
       <Filter>ThirdParty\rapidjson</Filter>

@@ -29,6 +29,7 @@
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
+#include "Discord/DiscordRPC.h"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -259,6 +260,7 @@ void ElDorito::Tick()
 	Server::Stats::Tick();
 	Server::Voting::Tick();
 	ChatCommands::Tick();
+	Discord::DiscordRPC::Instance().Update();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
