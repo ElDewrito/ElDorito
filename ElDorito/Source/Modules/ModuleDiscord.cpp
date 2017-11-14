@@ -31,6 +31,7 @@ namespace
 	std::string HasTeamsString;
 	Blam::Network::PlayerSession localPlayerSession;
 	Blam::Players::PlayerProperties localPlayerProperties;
+	uint32_t gameType;
 	int localPlayerTeamIndex;
 	int localPlayerIndex;
 
@@ -119,7 +120,6 @@ namespace
 		DiscordRichPresence discordPresence;
 		memset(&discordPresence, 0, sizeof(discordPresence));
 
-		Blam::GameType gameType = (Blam::GameType)(int32_t)Pointer(0x023DAF18);
 		auto* session = Blam::Network::GetActiveSession();
 		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
 
@@ -154,6 +154,7 @@ namespace
 
 		if (session && BaseMapName != "mainmenu")
 		{
+			gameType = session->Parameters.GameVariant.Get()->GameType;
 			VariantMapName = Utils::String::ThinString(session->Parameters.MapVariant.Get()->ContentHeader.Name);
 			localPlayerSession = session->MembershipInfo.GetLocalPlayerSession();
 			auto* scoreboard = get_multiplayer_scoreboard();
@@ -236,7 +237,8 @@ namespace
 		std::string InGameStateString = (LobbyTypeString + " on " + (isOnline == true ? (ServerNameClient) : " Local"));
 		std::string InGameDetailString = (GameVariantName + " | " + localPlayerScore + " to " + enemyScore);
 		std::string InGameLargeImageTextString = "Map: " + (VariantMapName.empty() ? BaseMapName : VariantMapName);
-		std::string InGameSmallImageString = "game_" + Blam::GameTypeNames[(gameType + 1)];
+		//changes the color of the image depending on the team color
+		std::string InGameSmallImageString = (session->HasTeams() ? Utils::String::ToLower(gameType != 10U ? TeamColor[localPlayerTeamIndex] : InfectionColor[localPlayerTeamIndex]) : "red" ) + "_" + Blam::GameTypeNames[(int)(gameType)];
 		std::string InGameSmallImageTextString = HasTeamsString;
 
 		if (BaseMapName == "mainmenu")
