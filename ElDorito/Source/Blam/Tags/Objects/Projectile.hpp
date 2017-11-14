@@ -17,7 +17,7 @@ namespace Blam::Tags::Objects
 		struct NodeMap;
 		struct MultiplayerObjectProperty;
 		struct ModelObjectDatum;
-		struct MaterialRespons;
+		struct MaterialResponse;
 		struct ImpactProperty;
 		struct Unknown16;
 		struct ShotgunProperty;
@@ -114,7 +114,7 @@ namespace Blam::Tags::Objects
 		float TargetedLeadingFraction;
 		uint32_t Unknown14;
 		uint32_t Unknown15;
-		TagBlock<MaterialRespons> MaterialResponses;
+		TagBlock<MaterialResponse> MaterialResponses;
 		TagBlock<ImpactProperty> ImpactProperties;
 		TagBlock<Unknown16> Unknown17;
 		TagBlock<ShotgunProperty> ShotgunProperties;
@@ -259,7 +259,7 @@ namespace Blam::Tags::Objects
 		};
 		TAG_STRUCT_SIZE_ASSERT(ModelObjectDatum, 0x14);
 
-		struct MaterialRespons
+		struct MaterialResponse
 		{
 			uint16_t Flags;
 			int16_t Response;
@@ -282,7 +282,7 @@ namespace Blam::Tags::Objects
 			float ParallelFriction;
 			float PerpendicularFriction;
 		};
-		TAG_STRUCT_SIZE_ASSERT(MaterialRespons, 0x40);
+		TAG_STRUCT_SIZE_ASSERT(MaterialResponse, 0x40);
 
 		struct ImpactProperty
 		{

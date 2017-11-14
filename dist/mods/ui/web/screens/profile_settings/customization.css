@@ -3,3 +3,19 @@ body{
   background-repeat: no-repeat;
   background-size:100% 100%;
 }
+
+.ed-color-picker__hue-slider-wrapper{
+    height:25px;
+}
+
+.ed-color-picker__detail{
+    color: var(--color-iceblue)
+}
+
+#buttonConatiner{
+    height:230px;
+}
+
+#infoBox{
+    height:140px;
+}

@@ -18,8 +18,10 @@ namespace Blam::Tags::Objects
 	using Blam::Tags::TagReference;
 	using Blam::Text::StringID;
 
-	struct Unit : Object, TagGroup<'unit'>
+	struct Unit : TagGroup<'unit'>
 	{
+		Object Object;
+
 		struct MetagameProperty;
 		struct CameraTrackBlock;
 		struct UnknownBlock;

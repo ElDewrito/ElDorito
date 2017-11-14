@@ -85,8 +85,11 @@
     <Filter Include="ThirdParty\rapidjson\msinttypes">
       <UniqueIdentifier>{5fb94ac4-6f54-4e53-8bd4-2926ddf3ae43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty\ratelimiter">
-      <UniqueIdentifier>{4872b027-4415-4e5c-bc6a-98f3134440d6}</UniqueIdentifier>
+    <Filter Include="Definitions">
+      <UniqueIdentifier>{b85b9a06-904f-4e35-8aa6-7381611a2d2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Discord">
+      <UniqueIdentifier>{43beaab3-8907-457d-a9fd-de5498aeed9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -207,13 +210,7 @@
     <ClCompile Include="Source\ChatCommands\ChatCommandMap.cpp">
       <Filter>ChatCommands</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Patches\DirectXHook.cpp">
-      <Filter>Patches</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Forge\ForgeUtil.cpp">
-      <Filter>Forge</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Forge\Magnets.cpp">
       <Filter>Forge</Filter>
     </ClCompile>
     <ClCompile Include="Source\Forge\Prefab.cpp">
@@ -466,30 +463,86 @@
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Patch.cpp" />
     <ClCompile Include="Source\Pointer.cpp" />
-    <ClCompile Include="Source\Web\Ui\WebForge.cpp" />
     <ClCompile Include="Source\Game\Armor.cpp">
       <Filter>Patches</Filter>
     </ClCompile>
     <ClCompile Include="Source\Server\Stats.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Server\DedicatedServer.cpp" />
-    <ClCompile Include="Source\Patches\Medals.cpp" />
-    <ClCompile Include="Source\Patches\Simulation.cpp" />
-    <ClCompile Include="Source\Patches\Camera.cpp" />
-    <ClCompile Include="Source\Patches\Maps.cpp" />
-    <ClCompile Include="Source\Web\Ui\WebSettings.cpp" />
-    <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
-    <ClCompile Include="Source\Forge\ForgeVolumes.cpp" />
-    <ClCompile Include="Source\Definitions\EnumDefinition.cpp" />
-    <ClCompile Include="Source\Definitions\FieldDefinition.cpp" />
-    <ClCompile Include="Source\Definitions\StructDefinition.cpp" />
-    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
-    <ClCompile Include="Source\Modules\ModuleDiscord.cpp">
-      <Filter>Modules</Filter>
+    <ClCompile Include="Source\Blam\Tags\Camera\AreaScreenEffect.cpp">
+      <Filter>Blam\Tags\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="Source\ThirdParty\ratelimiter\rate_limiter.cpp">
-      <Filter>ThirdParty\ratelimiter</Filter>
+    <ClCompile Include="Source\Server\DedicatedServer.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebForge.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Web\Ui\WebSettings.cpp">
+      <Filter>Web\Ui</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Definitions\StructDefinition.cpp">
+      <Filter>Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Definitions\FieldDefinition.cpp">
+      <Filter>Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Definitions\EnumDefinition.cpp">
+      <Filter>Definitions</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\ForgeVolumes.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\Magnets.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Forge\PrematchCamera.cpp">
+      <Filter>Forge</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Simulation.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Camera.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\DirectXHook.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Maps.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Patches\Medals.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Items\Item.cpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Items\Vehicle.cpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Objects\Biped.cpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Objects\Unit.cpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Objects\Projectile.cpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.cpp">
+      <Filter>Blam\Tags\Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Items\DefinitionWeapon.cpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Items\DefinitionEquipment.cpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Discord\DiscordRPC.cpp">
+      <Filter>Discord</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -652,13 +705,7 @@
     <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
       <Filter>Blam\Tags\Globals</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Items\Equipment.hpp">
-      <Filter>Blam\Tags\Items</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Items\Item.hpp">
-      <Filter>Blam\Tags\Items</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp">
       <Filter>Blam\Tags\Items</Filter>
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp">
@@ -734,12 +781,6 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Forge\ForgeUtil.hpp">
-      <Filter>Forge</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Forge\Geoemetry.hpp">
-      <Filter>Forge</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Forge\Magnets.hpp">
       <Filter>Forge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Forge\ObjectSet.hpp">
@@ -1113,37 +1154,95 @@
     <ClInclude Include="Source\Pointer.hpp" />
     <ClInclude Include="Source\resource.h" />
     <ClInclude Include="Source\Settings.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp" />
-    <ClInclude Include="Source\Web\Ui\WebForge.hpp" />
     <ClInclude Include="Source\Game\Armor.hpp">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Server\Stats.hpp">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Server\DedicatedServer.hpp" />
-    <ClInclude Include="Source\Patches\Medals.hpp" />
-    <ClInclude Include="Source\Patches\Simulation.hpp" />
-    <ClInclude Include="Source\Patches\Camera.hpp" />
-    <ClInclude Include="Source\Patches\Maps.hpp" />
-    <ClInclude Include="Source\Web\Ui\WebSettings.hpp" />
-    <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
-    <ClInclude Include="Source\Forge\ForgeVolumes.hpp" />
     <ClInclude Include="Source\Blam\Tags\Models\Model.hpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Enum.hpp" />
-    <ClInclude Include="Source\Definitions\EnumDefinition.hpp" />
-    <ClInclude Include="Source\Definitions\FieldDefinition.hpp" />
-    <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
-    <ClInclude Include="Source\Modules\ModuleDiscord.hpp">
-      <Filter>Modules</Filter>
+    <ClInclude Include="Source\Blam\Tags\Camera\AreaScreenEffect.hpp">
+      <Filter>Blam\Tags\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter.hpp">
-      <Filter>ThirdParty\ratelimiter</Filter>
+    <ClInclude Include="Source\Server\DedicatedServer.hpp">
+      <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter_interface.hpp">
-      <Filter>ThirdParty\ratelimiter</Filter>
+    <ClInclude Include="Source\Web\Ui\WebForge.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Web\Ui\WebSettings.hpp">
+      <Filter>Web\Ui</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Definitions\StructDefinition.hpp">
+      <Filter>Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Definitions\FieldDefinition.hpp">
+      <Filter>Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Definitions\EnumDefinition.hpp">
+      <Filter>Definitions</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\ForgeVolumes.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Geoemetry.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Magnets.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\PrematchCamera.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Simulation.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Camera.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Medals.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\Maps.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Enum.hpp">
+      <Filter>Blam\Tags</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\Vehicle.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\DefinitionWeapon.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp">
+      <Filter>Blam\Tags\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Discord\DiscordRPC.h">
+      <Filter>Discord</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\fwd.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\istreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\ostreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\schema.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\stream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\regex.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\swap.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

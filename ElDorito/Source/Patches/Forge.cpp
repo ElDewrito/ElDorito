@@ -14,7 +14,7 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Blam/Math/RealColorRGB.hpp"
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Models/Model.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
@@ -1556,7 +1556,7 @@ namespace
 		float Turbulance;
 	};
 
-	void FillScreenEffectRenderData(Blam::Tags::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
+	void FillScreenEffectRenderData(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
 	{
 		auto v29 = data->LightIntensity;
 		if (data->LightIntensity <= (t * screenEffectDef.LightIntensity))
@@ -1631,7 +1631,7 @@ namespace
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex)
 	{
 		const auto sub_683190 = (void(*)(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *data, int a4, int a5))(0x683190);
-		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
+		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
 		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, int a3, float a4, int a5, void * a6))(0x682A90);
 		const auto sub_A44FD0 = (bool(*)(int localPlayerIndex, uint32_t objectIndex))(0xA44FD0);
 		const auto sub_4EEC40 = (float(*)(RealVector3D *position, RealVector3D *forward))(0x4EEC40);
@@ -1660,10 +1660,10 @@ namespace
 		auto &screenEffectDatumArray = ElDorito::GetMainTls(0x338)[0].Read<Blam::DataArray<ScreenEffectDatum>>();
 		for (auto &screenEffectDatum : screenEffectDatumArray)
 		{
-			auto sefc = Blam::Tags::TagInstance(screenEffectDatum.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
-			if (!sefc || sefc->ScreenEffect2.Count <= 0)
+			auto sefc = Blam::Tags::TagInstance(screenEffectDatum.TagIndex).GetDefinition<Blam::Tags::Camera::AreaScreenEffect>();
+			if (!sefc || sefc->ScreenEffects.Count <= 0)
 				continue;
-			auto screenEffectDef = sefc->ScreenEffect2.Elements[0];
+			auto screenEffectDef = sefc->ScreenEffects.Elements[0];
 			if (screenEffectDef.Duration > 0 && screenEffectDatum.SecondsAlive > screenEffectDef.Duration)
 				continue;
 

@@ -27,7 +27,6 @@
 #include <unordered_map>
 #include <codecvt>
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
-#include "discord-rpc.h"
 
 namespace
 {
@@ -215,7 +214,6 @@ namespace
 	bool CommandGameExit(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		Patches::Core::ExecuteShutdownCallbacks();
-		Discord_Shutdown(); //This can be moved into above after public release.
 		std::exit(0);
 		return true;
 	}
@@ -1046,10 +1044,10 @@ namespace
 			return false;
 		}
 
-		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
+		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::Camera::AreaScreenEffect>();
 		if(sefc)
 		{
-			sefc->ScreenEffect2[index].MaximumDistance = range;
+			sefc->ScreenEffects[index].MaximumDistance = range;
 			return true;
 		}
 

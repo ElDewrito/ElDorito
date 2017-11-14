@@ -17,6 +17,8 @@
 		<!-- Customization -->
 		<link rel="stylesheet" href="customization.css">
     <script type="text/javascript" src="customization.js"></script>
+        <script type="text/javascript" src="dew://lib/color-picker.js"></script>
+        <link rel="stylesheet" href="dew://lib/color-picker.css">
 </head>
 <body>
     <div id="blackLayer"></div>
@@ -31,10 +33,13 @@
                 <div class="tabpage-container window-side-padding">
                   <div id="page1" class="tabpage grid-customization hide">
                       <div id="buttonConatiner">
+                            <span><div class="setting baseNav button-list" onclick="inputBox('playerName');"><label>Player Name</label></div></span>
+                          <span><div class="setting baseNav button-list" onclick="inputBox('serviceTag');"><label>Service Tag</label></div></span>
                           <span><div class="setting baseNav button-list" onclick="armorShow('armorHelmet',$(this));"><label>Helmet</label></div></span>
                           <span><div class="setting baseNav button-list" onclick="armorShow('armorRightShoulder',$(this));"><label>Right Shoulder</label></div></span>
                           <span><div class="setting baseNav button-list" onclick="armorShow('armorLeftShoulder',$(this));"><label>Left Shoulder</label></div></span>
                           <span><div class="setting baseNav button-list" onclick="armorShow('armorChest',$(this));"><label>Body</label></div></span>
+                            <span><div class="setting baseNav button-list" onclick="armorShow('gender',$(this));"><label>Gender</label></div></span>
                       </div>
                       <div id="infoBox">
                         <div class="infobox-header" id="infoHeader"></div>
@@ -45,9 +50,9 @@
                         <form class="armorForm hide tile-button tile-large" id="armorRightShoulder"></form>
                         <form class="armorForm hide tile-button tile-large" id="armorLeftShoulder"></form>
                         <form class="armorForm hide tile-button tile-large" id="armorChest"></form>
+                        <form class="armorForm hide tile-button tile-large" id="gender"></form>
                       </div>
 
-                      <!--<button id="randomArmor" onclick="randomArmor();"><img class="button">Random Armor</button>-->
                   </div>
                   <div id="page2" class="tabpage grid-customization hide">
                       <div id="buttonConatiner">
@@ -69,27 +74,31 @@
                         <form class="colorForm hide tile-button" id="colorsLights">
                             <span id="customColor"><label><input type="radio" name="colorsLights" value="" onclick="document.getElementById('colorsLightsText').click()">Custom Color<input type="text" name="colorsLights" id="colorsLightsText" class="setting" value="#FFFFFF" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$">​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​</label></span>
                         </form>
+                        <form id="colorPicker" class="colorForm"></form>
                       </div>
                       <div id="infoBox">
                           <div class="infobox-header" id="infoHeader"></div>
                           <div class="infobox-content" id="infoText"></div>
                       </div>
-                      <!--<button id="randomColors" onclick="randomColors();"><img class="button">Random Colors</button>-->
                   </div>
                   <div id="playerWindow"></div>
                 </div>
                 <div class="bottomBar window-side-padding">
                     <button id="cancelButton" class="legend-button"><img class="button">Close</button>
-                    <button id="namePrompt" onclick="inputBox()" class="legend-button"><img class="button">Player Name</button>
+                    <!--
+                    <button id="randomColors"  class="legend-button randomizer" onclick="randomColors();"><img class="button">Random Colors</button>
+                    <button id="randomArmor"  class="legend-button randomizer" onclick="randomArmor();"><img class="button">Random Armor</button>
+                    -->
                 </div>
             </div>
 
             <div class="popup-window-container" id="inputBox">
               <div class="popup-window-wrapper">
                 <div class="popup-window">
-                    <h1 class="header window-side-padding">Player Name</h1>
+                    <h1 class="header window-side-padding"></h1>
                     <div class="popup-window-area window-side-padding">
                         <input type="text" class="popup-window-textinput textInput" id="pName" placeholder="..." spellcheck="false">
+                        <input type="text" class="popup-window-textinput textInput" id="sTag" placeholder="..." spellcheck="false" maxlength="4" pattern="[a-zA-Z0-9]+">
                     </div>
 
                     <div class="bottomBar window-side-padding">

@@ -34,6 +34,7 @@ namespace Patches::Network
 	// changed.
 	void OnLifeCycleStateChanged(LifeCycleStateChangedCallback callback);
 
+
 	typedef std::function<void(Blam::MapVariant*)> MapVariantRequestChangeCallback;
 	void OnMapVariantRequestChange(MapVariantRequestChangeCallback callback);
 }

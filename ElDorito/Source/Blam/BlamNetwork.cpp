@@ -2,8 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 
 #include "BlamNetwork.hpp"
-#include "../Modules/ModuleDiscord.hpp"
 #include "../Pointer.hpp"
+#include "../Discord/DiscordRPC.h"
 
 namespace
 {
@@ -254,7 +254,7 @@ namespace Blam::Network
 		bool success = Set_Network_Mode(mode);
 
 		//Let Discord Know
-		Modules::ModuleDiscord::Instance().PresenceUpdate();
+		Discord::DiscordRPC::Instance().UpdatePresence();
 
 		return success;
 	}

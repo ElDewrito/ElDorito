@@ -183,7 +183,7 @@ namespace Patches::Tweaks
 			return;
 		}
 
-		auto *hlmtDefinition = bipdDefinition->Model.GetDefinition<Model>();
+		auto *hlmtDefinition = bipdDefinition->Unit.Object.Model.GetDefinition<Model>();
 
 		if (!hlmtDefinition)
 		{
@@ -219,13 +219,13 @@ namespace Patches::Tweaks
 
 		if (Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt)
 		{
-			if (bipdDefinition->HudInterfaces.Count < 1)
+			if (bipdDefinition->Unit.HudInterfaces.Count < 1)
 			{
 				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
 				return;
 			}
 
-			auto *chudDefinition = bipdDefinition->HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
+			auto *chudDefinition = bipdDefinition->Unit.HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
 
 			if (!chudDefinition)
 			{

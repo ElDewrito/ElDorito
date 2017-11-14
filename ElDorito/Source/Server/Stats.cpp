@@ -120,6 +120,8 @@ namespace Server::Stats
 
 				writer.Key("name");
 				writer.String(name.c_str());
+				writer.Key("serviceTag");
+				writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
 				writer.Key("playerIndex");
 				writer.Int(playerIdx);
 				writer.Key("uid");
@@ -274,7 +276,6 @@ namespace Server::Stats
 				auto playerStats = Blam::Players::GetStats(playerIdx);
 				writer.StartObject();
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-				std::string name = Utils::String::ThinString(player->Properties.DisplayName);
 
 				struct in_addr inAddr;
 				inAddr.S_un.S_addr = session->GetPeerAddress(peerIdx).ToInAddr();
@@ -289,7 +290,11 @@ namespace Server::Stats
 				Pointer pvpBase(0x23F5A98);
 
 				writer.Key("name");
-				writer.String(name.c_str());
+				writer.String(Utils::String::ThinString(player->Properties.DisplayName).c_str());
+				writer.Key("clientName");
+				writer.String(Utils::String::ThinString(player->Properties.ClientProperties.DisplayName).c_str());
+				writer.Key("serviceTag");
+				writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
 				writer.Key("ip");
 				writer.String(ipStr);
 				writer.Key("team");

@@ -41,7 +41,16 @@
     <ClCompile Include="Source\Blam\Math\RealVector2D.cpp" />
     <ClCompile Include="Source\Blam\Math\RealVector3D.cpp" />
     <ClCompile Include="Source\Blam\Math\Rectangle2D.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Camera\AreaScreenEffect.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Items\DefinitionEquipment.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Items\Item.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Items\Vehicle.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Items\DefinitionWeapon.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Biped.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Projectile.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Unit.cpp" />
     <ClCompile Include="Source\Blam\Tags\Tag.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagBlock.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagData.cpp" />
@@ -56,9 +65,9 @@
     <ClCompile Include="Source\Definitions\EnumDefinition.cpp" />
     <ClCompile Include="Source\Definitions\FieldDefinition.cpp" />
     <ClCompile Include="Source\Definitions\StructDefinition.cpp" />
+    <ClCompile Include="Source\Discord\DiscordRPC.cpp" />
     <ClCompile Include="Source\Forge\ForgeVolumes.cpp" />
     <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
-    <ClCompile Include="Source\Modules\ModuleDiscord.cpp" />
     <ClCompile Include="Source\Patches\BottomlessClip.cpp" />
     <ClCompile Include="Source\Patches\Camera.cpp" />
     <ClCompile Include="Source\Patches\DirectXHook.cpp" />
@@ -130,7 +139,6 @@
     <ClCompile Include="Source\Server\VotingPackets.cpp" />
     <ClCompile Include="Source\Server\VotingSystem.cpp" />
     <ClCompile Include="Source\ThirdParty\HttpRequest.cpp" />
-    <ClCompile Include="Source\ThirdParty\ratelimiter\rate_limiter.cpp" />
     <ClCompile Include="Source\Utils\AntiCheat.cpp" />
     <ClCompile Include="Source\Utils\Assert.cpp" />
     <ClCompile Include="Source\Utils\Cryptography.cpp" />
@@ -214,9 +222,10 @@
     <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Items\Equipment.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Items\Weapon.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\Vehicle.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\DefinitionWeapon.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
@@ -247,9 +256,9 @@
     <ClInclude Include="Source\Definitions\EnumDefinition.hpp" />
     <ClInclude Include="Source\Definitions\FieldDefinition.hpp" />
     <ClInclude Include="Source\Definitions\StructDefinition.hpp" />
+    <ClInclude Include="Source\Discord\DiscordRPC.h" />
     <ClInclude Include="Source\Forge\ForgeVolumes.hpp" />
     <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
-    <ClInclude Include="Source\Modules\ModuleDiscord.hpp" />
     <ClInclude Include="Source\Patches\BottomlessClip.hpp" />
     <ClInclude Include="Source\Patches\Camera.hpp" />
     <ClInclude Include="Source\Patches\DirectXHook.hpp" />
@@ -333,6 +342,7 @@
     <ClInclude Include="Source\ThirdParty\rapidjson\error\error.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\filereadstream.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\filewritestream.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\fwd.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\biginteger.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\diyfp.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\dtoa.h" />
@@ -340,21 +350,25 @@
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\itoa.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\meta.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\pow10.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\regex.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\stack.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\strfunc.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\strtod.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\swap.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\istreamwrapper.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\memorybuffer.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\memorystream.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\inttypes.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\ostreamwrapper.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\pointer.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\prettywriter.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\rapidjson.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\reader.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\schema.h" />
+    <ClInclude Include="Source\ThirdParty\rapidjson\stream.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\writer.h" />
-    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter.hpp" />
-    <ClInclude Include="Source\ThirdParty\ratelimiter\rate_limiter_interface.hpp" />
     <ClInclude Include="Source\Utils\AntiCheat.hpp" />
     <ClInclude Include="Source\Utils\Assert.hpp" />
     <ClInclude Include="Source\Utils\Bits.hpp" />
@@ -450,7 +464,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libs\directx\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs\directx\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;$(SolutionDir)libs\discord-rpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Debug/</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -481,7 +495,7 @@
     <Link>
       <AdditionalOptions>%(AdditionalOptions)  /machine:X86 /ignore:4099</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;discord-rpc.lib;libcef_dll_wrapperd.lib;cppnetlib-uri-d.lib;iphlpapi.lib;miniupnpc.lib;Xinput9_1_0.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);$(SolutionDir)libs/discord-rpc/lib;$(SolutionDir)libs/discord-rpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>$(SolutionDir)/Debug/mtndew.lib</ImportLibrary>
@@ -497,7 +511,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)libs\directx\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\include;$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs\directx\Include;$(SolutionDir)libs\detours\include;$(SolutionDir)libs\openssl-1.1.0e\include;$(SolutionDir)libs\websocketpp\include;$(SolutionDir)libs\cef;$(SolutionDir)libs\cef\include;$(SolutionDir)libs\cppnetlib\include;$(SolutionDir)libs\boost-1.60\include;$(SolutionDir)libs\miniupnpc\include;$(SolutionDir)libs\discord-rpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>Release/</AssemblerListingLocation>
       <CompileAs>CompileAsCpp</CompileAs>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -527,8 +541,8 @@
     </Midl>
     <Link>
       <AdditionalOptions>%(AdditionalOptions)  /machine:X86 /NODEFAULTLIB:libcmtd.lib /ignore:4099</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;discord-rpc.lib;libcef_dll_wrapper.lib;cppnetlib-uri.lib;iphlpapi.lib;miniupnpc.lib;Xinput9_1_0.lib;discord-rpc.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\lib;$(SolutionDir)libs\discord-rpc-2.0.1\win32-dynamic\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;d3d9.lib;d3dx9.lib;Version.lib;ws2_32.lib;detours.lib;libeay32MT.lib;psapi.lib;winmm.lib;libcef.lib;discord-rpc.lib;libcef_dll_wrapper.lib;cppnetlib-uri.lib;iphlpapi.lib;miniupnpc.lib;Xinput9_1_0.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs/directx/lib.X86;$(SolutionDir)libs/directx/lib.X86/$(Configuration);$(SolutionDir)libs/detours/lib.X86;$(SolutionDir)libs/detours/lib.X86/$(Configuration);$(SolutionDir)libs/openssl-1.1.0e/lib;$(SolutionDir)libs/openssl-1.1.0e/lib/$(Configuration);$(SolutionDir)libs/cef/lib;$(SolutionDir)libs/cef/lib/$(Configuration);$(SolutionDir)libs/cppnetlib/lib;$(SolutionDir)libs/cppnetlib/lib/$(Configuration);$(SolutionDir)libs/boost-1.60/lib;$(SolutionDir)libs/boost-1.60/lib/$(Configuration);$(SolutionDir)libs/miniupnpc/lib;$(SolutionDir)libs/miniupnpc/lib/$(Configuration);$(SolutionDir)libs/discord-rpc/lib;$(SolutionDir)libs/discord-rpc/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImportLibrary>$(SolutionDir)/Release/mtndew.lib</ImportLibrary>

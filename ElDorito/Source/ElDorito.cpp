@@ -29,8 +29,9 @@
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
+#include "Discord/DiscordRPC.h"
+
 #include "Blam/Cache/StringIdCache.hpp"
-#include "Modules/ModuleDiscord.hpp"
 
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -233,7 +234,7 @@ void ElDorito::Initialize()
 	Server::Chat::Initialize();
 	ChatCommands::Init();
 	Server::Stats::Init();
-	//Server::Voting::Init(); //UNCOMMENT BEFORE MERGE OR AFTER 0.6 GOES PUBLIC
+	Server::Voting::Init();
 	Server::VariableSynchronization::Initialize();
 	Server::Rcon::Initialize();
 	Server::Signaling::Initialize();
@@ -259,6 +260,7 @@ void ElDorito::Tick()
 	Server::Stats::Tick();
 	Server::Voting::Tick();
 	ChatCommands::Tick();
+	Discord::DiscordRPC::Instance().Update();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
@@ -294,6 +296,8 @@ std::string ElDorito::GetDirectory()
 	return Dir;
 }
 
+bool firstShow = true;
+
 void ElDorito::OnMainMenuShown()
 {
 	if (GameHasMenuShown)
@@ -305,8 +309,10 @@ void ElDorito::OnMainMenuShown()
 	else
 		Web::Ui::ScreenLayer::Show("title", "{}");
 
-	Modules::ModuleDiscord::Instance().DiscordInit();
-	Modules::ModuleDiscord::Instance().PresenceUpdate();
+	if (firstShow) {
+		// Initialize Discord
+		Discord::DiscordRPC::Instance();
+	}
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)

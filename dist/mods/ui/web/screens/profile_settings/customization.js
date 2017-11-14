@@ -1,7 +1,6 @@
 var activePage;
 var itemNumber = 0;
 var tabIndex = 0;
-var commandValues = [];
 var hasGP = false;
 var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
@@ -41,10 +40,13 @@ var h3ColorArray = [
     ['Khaki','#E0BEA2']
 ];
 var settingsToLoad = [
-    ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head.', 0],
-    ['armorChest', 'Player.Armor.Chest','Body','From arm to arm.', 1],
-    ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder.', 2],
-    ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 3],
+    ['playerName', 'Player.Name','Name','', 2],
+    ['serviceTag', 'Player.ServiceTag','Service Tag','', 3],
+    ['armorHelmet', 'Player.Armor.Helmet','Helmet','The thing that goes on your head.', 2],
+    ['armorChest', 'Player.Armor.Chest','Body','From arm to arm.', 3],
+    ['armorRightShoulder', 'Player.Armor.RightShoulder','Right Shoulder','Right there on that shoulder.', 4],
+    ['armorLeftShoulder', 'Player.Armor.LeftShoulder','Left Shoulder','The only shoulder that\'s left.', 5],
+    ['gender', 'Player.Gender','Gender','', 6],
     ['colorsPrimary', 'Player.Colors.Primary','Primary Color','The primary armor color will serve you in individual combat but will be overwritten in team scenarios.',0],
     ['colorsSecondary', 'Player.Colors.Secondary','Secondary Color','The secondary armor color accents your primary color and will be overwritten in team scenarios.',1],
     ['colorsVisor', 'Player.Colors.Visor','Visor Color','Adjust the tint of your Spartan\'s visor.',2],
@@ -84,7 +86,11 @@ var armorChestList = [
     ['Hayabusa','mp_ryu','In late 2536, RKD-an Earth-based think tank-presented the UNSC Ordnance Committee with its answer to the self-contained powered armor problem: Project: HAYABUSA.'],
     ['Katana','mp_katana','To correctly use the sword, one must make it an extension of one\'s body. This is for the understanding of those intending to be warriors.']
 ];
-var subPages = [];
+var colorPicker;
+var genderList = [
+    ['Male','male','State your gender. This will not be displayed to other players, but combat effects will be tailored to your gender.'],
+    ['Female','female','State your gender. This will not be displayed to other players, but combat effects will be tailored to your gender.']    
+];
 
 $(document).ready(function(){
     $(document).keyup(function (e) {
@@ -124,9 +130,8 @@ $(document).ready(function(){
                 selectElement();
             }
         }else{
-            if(e.keyCode == 13){
-                dew.command('Player.Name '+$('#inputBox input').val());
-                dismissButton();
+            if(e.keyCode == 13){ //Enter to submit inputBox
+                $('#inputBox #okButton').click();
             }
         }
     });
@@ -134,6 +139,7 @@ $(document).ready(function(){
     setRadioList('armorChest', armorChestList, true);
     setRadioList('armorRightShoulder', armorShoulderList, true);
     setRadioList('armorLeftShoulder', armorShoulderList, true);
+    setRadioList('gender', genderList, true);
     setRadioList('colorsPrimary', h3ColorArray);
     setRadioList('colorsSecondary', h3ColorArray);
     setRadioList('colorsVisor', h3ColorArray);
@@ -145,10 +151,9 @@ $(document).ready(function(){
         activePage = e.target.hash;
         itemNumber = 0;
         $(e).ready(function(){
-                updateSelection(itemNumber, false, true);
+            updateSelection(itemNumber, false, true);
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
-        $('#infoHeader, #infoText').text('');
         if($(activePage + ' form:visible')){
             $.grep(settingsToLoad, function(result, index){
                 if(result){
@@ -163,17 +168,33 @@ $(document).ready(function(){
         dew.command('Game.PlaySound 0x0B00');
     });
     $('.colorForm input, .armorForm input').on('change click', function(e){
+        $(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
+        $(this).parent().parent().addClass('chosenElement');
         $.grep(settingsToLoad, function(result){
             if(result[0] == e.target.name){
                 dew.command(result[1]+' '+e.target.value);
-                $('#infoBox #infoText').text(result[3]);
+                $(location.hash+' #infoBox #infoText').text(result[3]);
             };
-            $('#infoBox #infoHeader').text(e.target.computedName);
+            $(location.hash+' #infoBox #infoHeader').text(e.target.computedName);
         });
-        $('#infoBox #infoText').text($(this).attr('desc'));
+        $(location.hash+' #infoBox #infoText').text($(this).attr('desc'));
     });
     $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
+        $('.colorForm').hide();
+        colorPicker = dew.makeColorPicker(document.querySelector('#colorPicker'));
+        var whichColor = $(this);
         $(this).prev()[0].checked = true;
+        var currentVal = ColorUtil.hexToHsv($(this).val().split('#')[1]);
+        activePage = location.hash+" #colorPicker";
+        $('#colorPicker').show();
+        $(location.hash+' #infoBox #infoHeader').text($(this).val());
+        colorPicker.setColor(currentVal);
+        colorPicker.on('select', function(color) {
+            var currentSelection = ColorUtil.hsvToRgb(color.h, color.s, color.v);
+            whichColor.val('#'+leftPad(ColorUtil.rgbToHex(currentSelection[0],currentSelection[1],currentSelection[2]),6,'0'));
+            whichColor.trigger('change');
+            $(location.hash+' #infoBox #infoHeader').text(whichColor.val());
+        });
     });
     $('.colorForm, .armorForm').submit(function() {
         return false;
@@ -244,33 +265,37 @@ $(document).ready(function(){
                     updateSelection(itemNumber, true, true);
                 }
             }
-            if(e.data.AxisLeftX > axisThreshold){
-                stickTicks.right++;
+            if(activePage && activePage.endsWith(' #colorPicker')){
+                colorPicker.controllerInput(e.data);
             }else{
-                stickTicks.right = 0;
-            }
-            if(e.data.AxisLeftX < -axisThreshold){
-                stickTicks.left++;
-            }else{
-                stickTicks.left = 0;
-            }
-            if(e.data.AxisLeftY > axisThreshold){
-                stickTicks.up++;
-            }else{
-                stickTicks.up = 0;
-            }
-            if(e.data.AxisLeftY < -axisThreshold){
-                stickTicks.down++;
-            }else{
-                stickTicks.down = 0;
-            }
-            if(e.data.AxisRightX != 0){
-                if(e.data.AxisRightX > axisThreshold){
-                    rotateBiped('right');
+                if(e.data.AxisLeftX > axisThreshold){
+                    stickTicks.right++;
+                }else{
+                    stickTicks.right = 0;
                 }
-                if(e.data.AxisRightX < -axisThreshold){
-                    rotateBiped('left');
-                };
+                if(e.data.AxisLeftX < -axisThreshold){
+                    stickTicks.left++;
+                }else{
+                    stickTicks.left = 0;
+                }
+                if(e.data.AxisLeftY > axisThreshold){
+                    stickTicks.up++;
+                }else{
+                    stickTicks.up = 0;
+                }
+                if(e.data.AxisLeftY < -axisThreshold){
+                    stickTicks.down++;
+                }else{
+                    stickTicks.down = 0;
+                }
+                if(e.data.AxisRightX != 0){
+                    if(e.data.AxisRightX > axisThreshold){
+                        rotateBiped('right');
+                    }
+                    if(e.data.AxisRightX < -axisThreshold){
+                        rotateBiped('left');
+                    };
+                }
             }
         }
     });
@@ -310,7 +335,11 @@ $(document).ready(function(){
         }
     });
     $('#inputBox #okButton').on('click', function(){
-        dew.command('Player.Name "'+$('#inputBox input').val()+'"');
+        if($('#inputBox #pName').is(':visible')){
+            dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
+        }else if($('#inputBox #sTag').is(':visible')){
+            dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
+        }
         hideInputBox(true);
     });
     $('#inputBox #dismissButton').on('click', function(){
@@ -373,13 +402,12 @@ dew.on('show', function(e){
                 initGamepad();
             }).fadeOut(200);
         }else{
-            $('#settingsWindow').show();
-            initActive();
-            initGamepad();
+            dew.hide();
         }
     });
     setControlValues();
     updateSelection(0,false,true);
+    adjustBiped();
 });
 
 function initGamepad(){
@@ -433,17 +461,19 @@ function initActive(){
 }
 
 function setControlValues(){
-    commandValues = [];
     dew.getCommands().then(function (commands){
         for(i = 0; i < commands.length; i++){
             var setValue = commands[i].value;
             $.grep(settingsToLoad, function(result){
                 if(result[1] == commands[i].name){
-                    commandValues.push([result[0],commands[i].name,commands[i].value]);
                     if($('#'+result[0]).is('form')){
                         $('#'+result[0]+' :radio[value=""]').attr('checked',true);
                         $('#'+result[0]+' :radio[value="'+setValue+'"]').attr('checked',true);
-                        $('#'+result[0]+' :radio[value="'+setValue+'"]').parent().parent().addClass('selectedElement');
+                        if( $('#'+result[0]+' :radio[value="'+setValue+'"]').length){
+                            $('#'+result[0]+' :radio[value="'+setValue+'"]').parent().parent().addClass('chosenElement');
+                        }else{
+                            $('#'+result[0]+' :radio[value=""]').parent().parent().addClass('chosenElement');
+                        }
                         $('#'+result[0]+'Text').val(setValue);
                     }else{
                         if($('#'+result[0]).hasClass('tinySetting')){
@@ -589,6 +619,9 @@ function upNav(){
         if(itemNumber > 3){
             itemNumber-=3;
             updateSelection(itemNumber, true, true);
+        }else if(itemNumber > 0){
+            itemNumber = 0;
+            updateSelection(itemNumber, true, true);
         }        
     }else{
         if(itemNumber > 0){
@@ -601,11 +634,15 @@ function upNav(){
 function downNav(){
     if(activePage.startsWith('#page2 #color')){
         if(itemNumber < $(activePage + ' label:visible').length-3){
-            itemNumber+=3;
+            if(itemNumber == 0){
+                itemNumber+=1;
+            }else{
+                itemNumber+=3;
+            }
             updateSelection(itemNumber, true, true);
         }
     }else{
-        if((activePage.split(' ').length < 2 && itemNumber < 3) || (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
             itemNumber++;
             updateSelection(itemNumber, true, true);
         }
@@ -622,14 +659,29 @@ function onControllerDisconnect(){
     $('button img, .tabs img').hide();
 }
 
-function inputBox(){
-    dew.command('Player.Name', {}).then(function(response) {
-        $('#inputBox #pName').val(response);
-        $('#inputBox').fadeIn(100);
-        activePage = activePage+'inputBox';
-        $('#dismissButton').show();
-        $('#pName').focus();
-    });
+function inputBox(type){
+    $('#inputBox .textInput').hide();
+    if(type=='playerName'){
+       $('#pName').show();
+       $('#inputBox .header').text('Player Name');
+        dew.command('Player.Name', {}).then(function(response) {
+            $('#inputBox #pName').val(response);
+            $('#inputBox').fadeIn(100);
+            activePage = activePage+'inputBox';
+            $('#dismissButton').show();
+            $('#pName').focus();
+        });
+    }else if(type=='serviceTag'){
+       $('#sTag').show();
+       $('#inputBox .header').text('Service Tag');
+        dew.command('Player.ServiceTag', {}).then(function(response) {
+            $('#inputBox #sTag').val(response);
+            $('#inputBox').fadeIn(100);
+            activePage = activePage+'inputBox';
+            $('#dismissButton').show();
+            $('#sTag').focus();
+        });
+    }
 }
 
 function hideInputBox(sound,condition){
@@ -654,8 +706,8 @@ function armorShow(showMe, element){
     $('#infoBox').show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
-    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
-    $('#infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
+    $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $(location.hash+' #infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
 }
 
 function colorShow(showMe, element){
@@ -669,11 +721,11 @@ function colorShow(showMe, element){
     $.grep(settingsToLoad, function(result, index){
         if(result){
             if(result[0] == showMe){
-                $('#infoBox #infoText').text(result[3]);
+                $(location.hash+' #infoBox #infoText').text(result[3]);
             }
         }
     });
-    $('#infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
 }
@@ -682,8 +734,6 @@ function leftNav(){
     if(activePage.startsWith('#page2 #color') && itemNumber % 3 != 1){
          itemNumber--;
          updateSelection(itemNumber, true, true);
-    }else{
-        exitSubform();
     }
 }
 
@@ -693,26 +743,53 @@ function rightNav(){
              itemNumber++;
             updateSelection(itemNumber, true, true);
         }
-    }else if(activePage.split(' ').length < 2){
-        selectElement();
     }
 }
 
 function selectElement(){
-    if($(activePage + ' form:visible')){
-        $(activePage+' .selectedElement').find('input').click();
-    }
     if(activePage == location.hash){
         $(activePage+' .selectedElement').click();
+    }else if($(activePage + ' form:visible')){
+        $(activePage+' .selectedElement').find('input').click();
     }
     dew.command('Game.PlaySound 0x0B00');
 }
 
 function exitSubform(){
-        if($(activePage + ' form:visible') && activePage != location.hash){
-            $(activePage+' .selectedElement').removeClass('selectedElement');
-            activePage = location.hash;
-            itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
-            dew.command('Game.PlaySound 0x0B04');
-        }
+    if($(activePage + ' form:visible') && activePage != location.hash){
+        $(activePage+' .selectedElement').removeClass('selectedElement');
+        activePage = location.hash;
+        itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
+        colorPicker = null;
+        dew.command('Game.PlaySound 0x0B04');
+    }
+}
+
+function leftPad(val, size, ch) {
+    var result = String(val);
+    if(!ch) {
+        ch = " ";
+    }
+    while (result.length < size) {
+        result = ch + result;
+    }
+    return result;
+}
+
+function getAspectRatio(){
+    function gcd (a, b) {
+        return (b == 0) ? a : gcd (b, a%b);
+    }
+    var w = screen.width;
+    var h = screen.height;
+    var r = gcd (w, h);
+    return w/r+":"+h/r;
+}
+
+function adjustBiped(){
+    if(getAspectRatio() == '4:3' || getAspectRatio() == '5:4' ){
+        dew.command('Player.Armor.SetUiModelPosition 74.058 -101.826 11.65'); //moved to the left
+    }else{
+        dew.command('Player.Armor.SetUiModelPosition 74.108 -101.926 11.65'); //default
+    }    
 }
