@@ -1,5 +1,7 @@
 #include <discord-rpc.h>
 #include "../Utils/Singleton.hpp"
+#include "../Blam/BlamEvents.hpp"
+#include "../Blam/BlamNetwork.hpp"
 
 namespace Discord
 {

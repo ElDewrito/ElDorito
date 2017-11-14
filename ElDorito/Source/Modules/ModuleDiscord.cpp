@@ -1,30 +1,28 @@
-#include "DiscordRPC.h"
-
-#include <string.h>
-#include <time.h>
-
-#include "../Blam/BlamEvents.hpp"
-#include "../Blam/BlamNetwork.hpp"
+#include "ModuleDiscord.hpp"
+#include "ModuleServer.hpp"
+#include "discord-rpc.h"
+#include "../ElDorito.hpp"
+#include "../Utils/Logger.hpp"
+#include "../Utils/String.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamTypes.hpp"
+#include "../Blam/BlamEvents.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Events.hpp"
 #include "../Patches/Network.hpp"
-#include "../Modules/ModuleServer.hpp"
-#include "../Web/Ui/ScreenLayer.hpp"
-#include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../ThirdParty/rapidjson/writer.h"
-#include "../Pointer.hpp"
-#include "../CommandMap.hpp"
-#include "../Utils/String.hpp"
+#include "../ThirdParty/ratelimiter/rate_limiter_interface.hpp"
+#include "../ThirdParty/ratelimiter/rate_limiter.hpp"
 
-#include "../Utils/Logger.hpp"
+#include <ctime>
 
-//This applicationID is owned by Luke#4157 . Please DM if you need an image added.
 static const char* APPLICATION_ID = "378684431830876170";
 
 namespace
 {
+	//The hook used for lobby type runs every frame. This limits that.
+	RateLimiterInterface* lobbyLimiter = new RateLimiter();
+
 	std::string VariantMapName;
 	std::string LobbyTypeString;
 	std::string isOnlineString;
@@ -63,49 +61,61 @@ namespace
 		"Pink"
 	};
 
-	void handleDiscordReady()
+	void DiscordReady()
 	{
-		//stub
+#ifdef _DEBUG
+		printf("Discord Rich Presence is ready!");
+#endif 
 	}
 
-	void handleDiscordDisconnected(int errorCode, const char *message)
+	void handleDiscordError(int errorCode, const char* message)
 	{
-		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Discord-RPC: %s", std::string(message));
+		std::string output = "-Discord Error-\nCode: " + std::to_string(errorCode) + "\nMessage: " + message;
+		Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Error, output);
 	}
 
-	void handleDiscordError(int errorCode, const char *message)
+	void handleDiscordDisconnected(int errorCode, const char* message)
 	{
-		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Discord-RPC: %s", std::string(message));
+		std::string output = "-Discord Error-\nCode: " + std::to_string(errorCode) + "\nMessage: " + message;
+		Utils::Logger::Instance().Log(Utils::LogTypes::Network, Utils::LogLevel::Warning, output);
 	}
 
-	void handleDiscordJoin(const char *joinSecret)
+	/* This handles joining games. handleDiscordJoinRequest sends discord a secret,
+	   which is then sent to the other game and is handled by this message. */
+	void handleDiscordJoinGame(const char* joinSecret)
 	{
-		Modules::CommandMap::Instance().ExecuteCommand("connect " + std::string(joinSecret));
+		/* Not yet implemented. You need to be approved to use this feature, but it
+		   is feasable. Probably can just send the IP in clear unless auth is
+		   implemented someday. */
 	}
 
-	void handleDiscordSpectate(const char *spectateSecret)
+	void handleDiscordSpectateGame(const char* spectateSecret)
 	{
-		//rip
+		//Unimplemented, won't ever be implemented.
 	}
 
-	void handleDiscordJoinRequest(const DiscordJoinRequest *joinRequest)
-	{
-		rapidjson::StringBuffer jsonBuffer;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(jsonBuffer);
-		
-		writer.StartObject();
-		writer.Key("userId");
-		writer.String(joinRequest->userId);
-		writer.Key("username");
-		writer.String(joinRequest->username);
-		writer.Key("avatar");
-		writer.String(joinRequest->avatar);
-		writer.EndObject();
-
-		Web::Ui::ScreenLayer::Notify("discord-joinrequest", jsonBuffer.GetString(), true);
+	/* This handles recieving requests from discord. It replies to discord with a
+		secret, which is then accepted by the other game's handleDiscordJoinGame. */
+	void handleDiscordJoinRequest(const DiscordJoinRequest* request) {
+		//Unimplemented yet
 	}
 
-	void PresenceUpdate()
+	void InitDiscord()
+	{
+		DiscordEventHandlers handlers;
+		memset(&handlers, 0, sizeof(handlers));
+		handlers.ready = DiscordReady;
+		handlers.errored = handleDiscordError;
+		handlers.disconnected = handleDiscordDisconnected;
+		handlers.joinGame = handleDiscordJoinGame;
+		handlers.spectateGame = handleDiscordSpectateGame;
+		handlers.joinRequest = handleDiscordJoinRequest;
+		Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
+
+		lobbyLimiter->set_rate(2.0);
+	}
+
+	void UpdatePresence()
 	{
 		DiscordRichPresence discordPresence;
 		memset(&discordPresence, 0, sizeof(discordPresence));
@@ -127,8 +137,6 @@ namespace
 		int PlayerCount = 0;
 		int TeamPlayerCount[8];
 
-		int enemyPlayerIdx = 0;
-
 		std::string GameVariantName(Utils::String::ThinString((wchar_t*)Pointer(0x23DAF4C)));
 		std::string BaseMapName((char*)Pointer(0x22AB018)(0x1A4));
 		std::string ServerNameClient = Modules::ModuleServer::Instance().VarServerNameClient->ValueString;
@@ -137,12 +145,10 @@ namespace
 		//It uses peers - 1 so that it can work in lobbies
 		if (session && (isOnline == true || BaseMapName != "mainmenu")) {
 			int playerIdx = session->MembershipInfo.FindFirstPlayer();
-			localPlayerIndex = session->MembershipInfo.GetPeerPlayer(localPlayerSession.PeerIndex);
 			while (playerIdx != -1)
 			{
 				PlayerCount++;
 				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-				enemyPlayerIdx = (localPlayerIndex + 1 > 15 ? 0 : localPlayerIndex + 1);
 			}
 		}
 
@@ -194,15 +200,12 @@ namespace
 					if (scoreboard->PlayerScores[t].Score > scoreboard->PlayerScores[TopScoreIndex].Score) TopScoreIndex = t;
 					else if (scoreboard->PlayerScores[t].Score > scoreboard->PlayerScores[SecondScoreIndex].Score || PlayerCount == 2) SecondScoreIndex = t;
 				}
-				if (PlayerCount > 2) {
-					if (localPlayerIndex == TopScoreIndex) {
-						enemyScore = std::to_string(scoreboard->PlayerScores[SecondScoreIndex].Score);
-					}
-					else {
-						enemyScore = std::to_string(scoreboard->PlayerScores[TopScoreIndex].Score);
-					}
+				if (localPlayerIndex == TopScoreIndex) {
+					enemyScore = std::to_string(scoreboard->PlayerScores[SecondScoreIndex].Score);
 				}
-				else enemyScore = std::to_string(scoreboard->PlayerScores[enemyPlayerIdx].Score);
+				else {
+					enemyScore = std::to_string(scoreboard->PlayerScores[TopScoreIndex].Score);
+				}
 				localPlayerScore = std::to_string(scoreboard->PlayerScores[localPlayerIndex].Score);
 			}
 		}
@@ -235,7 +238,7 @@ namespace
 		std::string InGameDetailString = (GameVariantName + " | " + localPlayerScore + " to " + enemyScore);
 		std::string InGameLargeImageTextString = "Map: " + (VariantMapName.empty() ? BaseMapName : VariantMapName);
 		//changes the color of the image depending on the team color
-		std::string InGameSmallImageString = (session->HasTeams() ? Utils::String::ToLower(gameType != 10U ? TeamColor[localPlayerTeamIndex] : InfectionColor[localPlayerTeamIndex]) : "red") + "_" + Blam::GameTypeNames[(int)(gameType)];
+		std::string InGameSmallImageString = (session->HasTeams() ? Utils::String::ToLower(gameType != 10U ? TeamColor[localPlayerTeamIndex] : InfectionColor[localPlayerTeamIndex]) : "red" ) + "_" + Blam::GameTypeNames[(int)(gameType)];
 		std::string InGameSmallImageTextString = HasTeamsString;
 
 		if (BaseMapName == "mainmenu")
@@ -267,59 +270,53 @@ namespace
 		Discord_UpdatePresence(&discordPresence);
 	}
 
-	void MapLoaded(const char* mappath)
-	{
-		PresenceUpdate();
+	void UpdatePresenceStart() {
+		UpdatePresence();
 	}
 
-	void Event(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
-	{
-		PresenceUpdate();
+	void UpdatePresenceMap(const char* mapPath) {
+		UpdatePresence();
 	}
 
-	void Lifecycle(Blam::Network::LifeCycleState newState)
+	void UpdatePresenceLifecycleChanged(Blam::Network::LifeCycleState newState)
 	{
-		PresenceUpdate();
+		UpdatePresence();
+	}
+
+	void UpdatePresenceOnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
+	{
+		UpdatePresence();
+	}
+
+	void DiscordShutdown()
+	{
+		Discord_Shutdown();
+	}
+
+	bool CommandTestPresence(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		UpdatePresence();
+		return true;
 	}
 }
 
-namespace Discord
+namespace Modules
 {
-
-	void DiscordRPC::UpdatePresence()
+	ModuleDiscord::ModuleDiscord() : ModuleBase("Discord")
 	{
-		PresenceUpdate();
+		TestPresence = AddCommand("TestDiscordRichPresence", "testpres", "Tests the Rich Presence Integration with Discord.", eCommandFlagsNone, CommandTestPresence);
+		Patches::Core::OnGameStart(UpdatePresenceStart);
+		Patches::Core::OnShutdown(DiscordShutdown);
+		Patches::Core::OnMapLoaded(UpdatePresenceMap);
+		Patches::Events::OnEvent(UpdatePresenceOnEvent);
+		Patches::Network::OnLifeCycleStateChanged(UpdatePresenceLifecycleChanged);
 	}
-
-	DiscordRPC::DiscordRPC()
+	void ModuleDiscord::DiscordInit()
 	{
-		DiscordEventHandlers handlers;
-		memset(&handlers, 0, sizeof(handlers));
-		handlers.ready = handleDiscordReady;
-		handlers.disconnected = handleDiscordDisconnected;
-		handlers.errored = handleDiscordError;
-		handlers.joinGame = handleDiscordJoin;
-		handlers.spectateGame = handleDiscordSpectate;
-		handlers.joinRequest = handleDiscordJoinRequest;
-		Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
-
-		Patches::Core::OnShutdown(Discord_Shutdown);
-		Patches::Core::OnGameStart(PresenceUpdate);
-		Patches::Core::OnMapLoaded(MapLoaded);
-		Patches::Events::OnEvent(Event);
-		Patches::Network::OnLifeCycleStateChanged(Lifecycle);
+		::InitDiscord();
 	}
-
-	void DiscordRPC::ReplyToJoinRequest(const char* userId, int reply)
+	void ModuleDiscord::PresenceUpdate()
 	{
-		Discord_Respond(userId, reply);
-	}
-
-	void DiscordRPC::Update()
-	{
-#ifdef DISCORD_DISABLE_IO_THREAD
-		Discord_UpdateConnection();
-#endif
-		Discord_RunCallbacks();
+		::UpdatePresence();
 	}
 }
