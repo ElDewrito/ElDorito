@@ -1214,6 +1214,27 @@
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp">
       <Filter>Blam\Tags\Items</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\fwd.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\istreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\ostreamwrapper.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\schema.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\stream.h">
+      <Filter>ThirdParty\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\regex.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ThirdParty\rapidjson\internal\swap.h">
+      <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />
