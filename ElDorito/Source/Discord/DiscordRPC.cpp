@@ -20,8 +20,7 @@
 
 #include "../Utils/Logger.hpp"
 
-//This applicationID is owned by Luke#4157 . Please DM if you need an image added.
-static const char* APPLICATION_ID = "378684431830876170";
+static const char* APPLICATION_ID = "378984448022020112";
 
 namespace
 {
@@ -36,10 +35,6 @@ namespace
 	uint32_t gameType;
 	int localPlayerTeamIndex;
 	int localPlayerIndex;
-
-	bool isOnline;
-	int lobbyType;
-	int serverPlayerLimit = 0;
 
 	const std::string TeamColor[] = {
 		"Red",
@@ -107,11 +102,14 @@ namespace
 
 	void PresenceUpdate()
 	{
-		DiscordRichPresence discordPresence;
-		memset(&discordPresence, 0, sizeof(discordPresence));
+		memset(&Discord::DiscordRPC::Instance().discordPresence, 0, sizeof(Discord::DiscordRPC::discordPresence));
 
 		auto* session = Blam::Network::GetActiveSession();
 		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+
+		bool isOnline;
+		int lobbyType;
+		int serverPlayerLimit = 0;
 
 		//2 = Multiplayer, 3 = Forge
 		lobbyType = Blam::Network::GetLobbyType();
@@ -228,7 +226,7 @@ namespace
 			break;
 		}
 
-		discordPresence.largeImageKey = "default";
+		Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
 		std::string LobbyStateString = ("In an " + isOnlineString + " " + LobbyTypeString + " Lobby");
 		std::string LobbyConnectedServerString = ("Connected to " + ServerNameClient);
 		std::string InGameStateString = (LobbyTypeString + " on " + (isOnline == true ? (ServerNameClient) : " Local"));
@@ -241,30 +239,30 @@ namespace
 		if (BaseMapName == "mainmenu")
 		{
 			if (!(lobbyType == 2 || lobbyType == 3))
-				discordPresence.state = "At The Main Menu";
+				Discord::DiscordRPC::Instance().discordPresence.state = "At The Main Menu";
 			else
 			{
-				discordPresence.state = LobbyStateString.c_str();
+				Discord::DiscordRPC::Instance().discordPresence.state = LobbyStateString.c_str();
 				if (isOnline == true)
-					discordPresence.details = LobbyConnectedServerString.c_str();
+					Discord::DiscordRPC::Instance().discordPresence.details = LobbyConnectedServerString.c_str();
 			}
 		}
 		else
 		{
-			discordPresence.state = InGameStateString.c_str();
-			discordPresence.details = InGameDetailString.c_str();
-			discordPresence.largeImageKey = BaseMapName.c_str();
-			discordPresence.largeImageText = InGameLargeImageTextString.c_str();
-			discordPresence.smallImageKey = InGameSmallImageString.c_str();
-			discordPresence.smallImageText = InGameSmallImageTextString.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.state = InGameStateString.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.details = InGameDetailString.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.largeImageKey = BaseMapName.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.largeImageText = InGameLargeImageTextString.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.smallImageKey = InGameSmallImageString.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.smallImageText = InGameSmallImageTextString.c_str();
 		}
 
 		if (isOnline && (lobbyType == 2 || lobbyType == 3)) {
-			discordPresence.partySize = PlayerCount;
-			discordPresence.partyMax = serverPlayerLimit;
+			Discord::DiscordRPC::Instance().discordPresence.partySize = PlayerCount;
+			Discord::DiscordRPC::Instance().discordPresence.partyMax = serverPlayerLimit;
 		}
 
-		Discord_UpdatePresence(&discordPresence);
+		Discord_UpdatePresence(&Discord::DiscordRPC::Instance().discordPresence);
 	}
 
 	void MapLoaded(const char* mappath)

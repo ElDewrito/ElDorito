@@ -308,11 +308,6 @@ void ElDorito::OnMainMenuShown()
 		Server::DedicatedServer::Init();
 	else
 		Web::Ui::ScreenLayer::Show("title", "{}");
-
-	if (firstShow) {
-		// Initialize Discord
-		Discord::DiscordRPC::Instance();
-	}
 }
 
 // This is for the watermark in the bottom right corner (hidden by default)
