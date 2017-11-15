@@ -32,8 +32,14 @@ namespace Modules
 		std::vector<std::string> FiltersExclude;
 		std::vector<std::string> FiltersInclude;
 
+		std::vector<BYTE> variant_vector;
+		std::wstring mapVariant_name;
+		std::wstring gameVariant_name;
+		std::wstring variant_name;
+
 		ModuleGame();
 		void UpdateMapList();
 		void UpdateCustomMapList();
+		void onVKeyboardInput(std::wstring input);
 	};
 }
