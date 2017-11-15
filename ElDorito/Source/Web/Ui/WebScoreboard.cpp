@@ -30,6 +30,7 @@ namespace
 	bool returningToLobby = false;
 	bool acceptsInput = true;
 	bool pressedLastTick = false;
+	bool spawningSoon = false;
 	int lastPressedTime = 0;
 	int postgameDisplayed;
 	const float postgameDelayTime = 2;
@@ -143,6 +144,8 @@ namespace Web::Ui::WebScoreboard
 
 			if (player->SlaveUnit != Blam::DatumIndex::Null)
 			{
+				spawningSoon = false;
+
 				if (!previousHasUnit)
 				{
 					acceptsInput = true;
@@ -151,8 +154,9 @@ namespace Web::Ui::WebScoreboard
 			}
 			else
 			{
-				if (!firstTimeSpawning && secondsUntilSpawn > 0 && secondsUntilSpawn < 2)
+				if (!spawningSoon && !firstTimeSpawning && secondsUntilSpawn > 0 && secondsUntilSpawn < 2)
 				{
+					spawningSoon = true;
 					locked = false;
 					postgame = false;
 					acceptsInput = false;
