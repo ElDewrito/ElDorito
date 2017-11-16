@@ -1,6 +1,5 @@
 #include "DiscordRPC.h"
 
-#include <string.h>
 #include <time.h>
 
 #include "../Blam/BlamEvents.hpp"
@@ -20,38 +19,10 @@
 
 #include "../Utils/Logger.hpp"
 
-static const char* APPLICATION_ID = "378684431830876170";
+static const char* APPLICATION_ID = "378984448022020112";
 
 namespace
 {
-
-	const std::string TeamColor[] = {
-		"Red",
-		"Blue",
-		"Green",
-		"Orange",
-		"Purple",
-		"Gold",
-		"Brown",
-		"Pink"
-	};
-
-	const std::string InfectionColor[] = {
-		"Human",
-		"Zombie",
-		"Green",
-		"Orange",
-		"Purple",
-		"Gold",
-		"Brown",
-		"Pink"
-	};
-
-	void handleDiscordReady()
-	{
-		//stub
-	}
-
 	void handleDiscordDisconnected(int errorCode, const char *message)
 	{
 		Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Discord-RPC: %s", std::string(message));
@@ -76,7 +47,7 @@ namespace
 	{
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(jsonBuffer);
-		
+
 		writer.StartObject();
 		writer.Key("userId");
 		writer.String(joinRequest->userId);
@@ -91,199 +62,64 @@ namespace
 
 	void PresenceUpdate()
 	{
+		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+		Discord::DiscordRPC::Instance().detailString.clear();
+		memset(&Discord::DiscordRPC::Instance().discordPresence, 0, sizeof(Discord::DiscordRPC::discordPresence));
 
 		auto* session = Blam::Network::GetActiveSession();
-		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
-
-		bool isOnline = (Blam::Network::GetNetworkMode() == 3);
-		int lobbyType;
-		int serverPlayerLimit = 0;
-
-		//2 = Multiplayer, 3 = Forge
-		lobbyType = Blam::Network::GetLobbyType();
-
-		//These are used both for FFA and Teams.
-		int TopScoreIndex = 0;
-		int SecondScoreIndex = 0;
-		int PlayerCount = 0;
-		int TeamPlayerCount[8];
-
-		Blam::Network::PlayerSession localPlayerSession;
-		Blam::Players::PlayerProperties localPlayerProperties;
-		int localPlayerTeamIndex;
-		int localPlayerIndex;
-
-		//Games with two teams/players are a special case for the score grabber
-		int enemyPlayerIdx = 0;
-		int enemyTeamIdx; //This will be used for enemy score in the case there is only one team.
-
-		std::string GameVariantName(Utils::String::ThinString((wchar_t*)Pointer(0x23DAF4C)));
-		std::string BaseMapName((char*)Pointer(0x22AB018)(0x1A4));
-		std::string ServerNameClient = Modules::ModuleServer::Instance().VarServerNameClient->ValueString;
-		std::string VariantMapName;
-		std::string isOnlineString;
-		std::string localPlayerScore;
-		std::string enemyScore;
-		std::string HasTeamsString;
-		uint32_t gameType;
-		auto* scoreboard = get_multiplayer_scoreboard();
-
-		if (session->IsEstablished()) {
-			serverPlayerLimit = session->MembershipInfo.SessionMaxPlayers;
-			localPlayerSession = session->MembershipInfo.GetLocalPlayerSession();
-			localPlayerProperties = localPlayerSession.Properties;
-			localPlayerTeamIndex = localPlayerProperties.TeamIndex;
-			localPlayerIndex = session->MembershipInfo.GetPeerPlayer(localPlayerSession.PeerIndex);
-			enemyTeamIdx = (localPlayerIndex + 1 > 7 ? 0 : localPlayerIndex + 1);
-			VariantMapName = Utils::String::ThinString(session->Parameters.MapVariant.Get()->ContentHeader.Name);
-			gameType = session->Parameters.GameVariant.Get()->GameType;
-
-			//This is used in both lobbies count and in the FFA section below.
-			//It uses peers - 1 so that it can work in lobbies
-			//also used to find the other player (or an empty player) if the number of players <= 2
-			if (isOnline == true || BaseMapName != "mainmenu") {
-				int playerIdx = session->MembershipInfo.FindFirstPlayer();
-				int teamIdx;
-				bool enemyIdxSet = false;
-				while (playerIdx != -1)
-				{
-					PlayerCount++;
-					if (!enemyIdxSet && PlayerCount < 3)
-					{
-						enemyPlayerIdx = (playerIdx != localPlayerIndex ? playerIdx : localPlayerIndex + 1);
-						enemyIdxSet = true;
-					}
-					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-
-					if (session->HasTeams())
-					{
-						teamIdx = session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex;
-						TeamPlayerCount[teamIdx]++;
-						if (teamIdx != localPlayerTeamIndex) enemyTeamIdx = teamIdx;
-						playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-					}
-				}
-			}
-
-			if (BaseMapName != "mainmenu")
-			{
-
-				localPlayerIndex = session->MembershipInfo.GetPeerPlayer(localPlayerSession.PeerIndex);
-
-				//this if/else is the aforementioned score grabber
-				if (session->HasTeams())
-				{
-					HasTeamsString = ((gameType != 10U ? TeamColor[localPlayerTeamIndex] : InfectionColor[localPlayerTeamIndex]) + " Team");
-					int TeamCount = 0;
-					for (int t = 0; t < 8; t++)
-						if (TeamPlayerCount[t] > 0) TeamCount++;
-					for (int t = 0; t < 8; t++) {
-						if (scoreboard->TeamScores[t].Score > scoreboard->TeamScores[TopScoreIndex].Score) TopScoreIndex = t;
-						else if (scoreboard->TeamScores[t].Score > scoreboard->TeamScores[SecondScoreIndex].Score) SecondScoreIndex = t;
-					}
-					if (TeamCount > 2) {
-						if (localPlayerTeamIndex == TopScoreIndex) {
-							enemyScore = std::to_string(scoreboard->TeamScores[SecondScoreIndex].Score);
-						}
-						else {
-							enemyScore = std::to_string(scoreboard->TeamScores[TopScoreIndex].Score);
-						}
-					}
-					else enemyScore = std::to_string(scoreboard->TeamScores[enemyTeamIdx].Score);
-					localPlayerScore = std::to_string(scoreboard->TeamScores[localPlayerTeamIndex].Score);
-				}
-				else
-				{
-					HasTeamsString = "FFA";
-					for (int t = 0; t < 16; t++) {
-						if (scoreboard->PlayerScores[t].Score > scoreboard->PlayerScores[TopScoreIndex].Score) TopScoreIndex = t;
-						else if (scoreboard->PlayerScores[t].Score > scoreboard->PlayerScores[SecondScoreIndex].Score || PlayerCount == 2) SecondScoreIndex = t;
-					}
-					if (PlayerCount > 2) {
-						if (localPlayerIndex == TopScoreIndex) {
-							enemyScore = std::to_string(scoreboard->PlayerScores[SecondScoreIndex].Score);
-						}
-						else {
-							enemyScore = std::to_string(scoreboard->PlayerScores[TopScoreIndex].Score);
-						}
-					}
-					else enemyScore = std::to_string(scoreboard->PlayerScores[enemyPlayerIdx].Score);
-					localPlayerScore = std::to_string(scoreboard->PlayerScores[localPlayerIndex].Score);
-				}
-			}
-		}
-
-		std::stringstream ss;
-		ss << "In an ";
-		if (isOnline)
-			ss << "Online";
-		else
-			ss << "Offline";
-
-		switch (Blam::Network::GetLobbyType())
+		if (session && session->IsEstablished())
 		{
-		case 2:
-			ss << " MP";
-			break;
-		case 3:
-			ss << " Forge";
-			break;
-		default:
-			ss << " Undefined";
-		}
-		Discord::DiscordRPC::Instance().discordPresence.state = NULL;
-
-		std::string InGameStateString = ss.str() + " on " + (isOnline == true ? (ServerNameClient) : " Local");
-		ss << " Lobby";
-		std::string temp = ss.str();
-		Discord::DiscordRPC::Instance().discordPresence.state = temp.c_str();
-
-		std::string LobbyConnectedServerString = ("Connected to " + ServerNameClient);
-
-		std::string InGameDetailString = (GameVariantName + " | " + localPlayerScore + " to " + enemyScore);
-		std::string InGameLargeImageTextString = "Map: " + (VariantMapName.empty() ? BaseMapName : VariantMapName);
-		//changes the color of the image depending on the team color
-		//this line is some hot ternary trash. Todo: make not gross and also put it somewhere less expensive
-		std::string InGameSmallImageString = BaseMapName != "mainmenu" ? ((session->HasTeams() ? Utils::String::ToLower(gameType != 10U ? TeamColor[localPlayerTeamIndex] : InfectionColor[localPlayerTeamIndex]) : "red") + "_" + Blam::GameTypeNames[(int)(gameType)]) : "";
-		std::string InGameSmallImageTextString = HasTeamsString;
-
-		if (BaseMapName == "mainmenu")
-		{
-			Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
-			if (!(lobbyType == 2 || lobbyType == 3))
+			if (strcmp((char*)Pointer(0x22AB018)(0x1A4), "mainmenu") == 0)
 			{
-				Discord::DiscordRPC::Instance().discordPresence.details = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.largeImageText = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.partyMax = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.partySize = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.smallImageKey = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.smallImageText = NULL;
-				Discord::DiscordRPC::Instance().discordPresence.state = "At The Main Menu";
+				Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
+				Discord::DiscordRPC::Instance().discordPresence.largeImageText = "Mainmenu";
+				Discord::DiscordRPC::Instance().discordPresence.details = "In an Online Lobby";
 			}
 			else
 			{
-				if (isOnline == true)
-					Discord::DiscordRPC::Instance().discordPresence.details = LobbyConnectedServerString.c_str();
+				Discord::DiscordRPC::Instance().discordPresence.largeImageKey = (char*)Pointer(0x22AB018)(0x1A4);
+				Discord::DiscordRPC::Instance().discordPresence.largeImageText = (char*)Pointer(0x22AB018)(0x1A4);
+				auto game = session->Parameters.GameVariant.Get();
+				auto map = session->Parameters.MapVariant.Get();
+
+				if (game && map)
+				{
+					std::stringstream ss;
+					ss << Utils::String::ThinString(game->Name) << " on " << Utils::String::ThinString(map->ContentHeader.Name);
+					Discord::DiscordRPC::Instance().detailString = ss.str(); //Need a variable that will stay active
+					Discord::DiscordRPC::Instance().discordPresence.details = Discord::DiscordRPC::Instance().detailString.c_str();
+					Discord::DiscordRPC::Instance().discordPresence.smallImageKey = Blam::GameTypeNames[game->GameType].c_str();
+					Discord::DiscordRPC::Instance().discordPresence.smallImageText = Blam::GameTypeNames[game->GameType].c_str();
+				}
 			}
+			int players = 0;
+			int plyIndex = session->MembershipInfo.FindFirstPlayer();
+			while (plyIndex != -1)
+			{
+				players++;
+				plyIndex = session->MembershipInfo.FindNextPlayer(plyIndex);
+			}
+
+			Discord::DiscordRPC::Instance().discordPresence.partySize = players;
+			Discord::DiscordRPC::Instance().discordPresence.partyMax = session->MembershipInfo.SessionMaxPlayers;
+			Discord::DiscordRPC::Instance().discordPresence.state = Modules::ModuleServer::Instance().VarServerNameClient->ValueString.c_str();
 		}
 		else
 		{
-			Discord::DiscordRPC::Instance().discordPresence.state = InGameStateString.c_str();
-			Discord::DiscordRPC::Instance().discordPresence.details = InGameDetailString.c_str();
-			Discord::DiscordRPC::Instance().discordPresence.largeImageKey = BaseMapName.c_str();
-			Discord::DiscordRPC::Instance().discordPresence.largeImageText = InGameLargeImageTextString.c_str();
-			Discord::DiscordRPC::Instance().discordPresence.partyMax = NULL;
-			Discord::DiscordRPC::Instance().discordPresence.partySize = NULL;
-			Discord::DiscordRPC::Instance().discordPresence.smallImageKey = InGameSmallImageString.c_str();
-			Discord::DiscordRPC::Instance().discordPresence.smallImageText = InGameSmallImageTextString.c_str();
-		}
-
-		if (isOnline && (lobbyType == 2 || lobbyType == 3)) {
-			Discord::DiscordRPC::Instance().discordPresence.partySize = PlayerCount;
-			Discord::DiscordRPC::Instance().discordPresence.partyMax = serverPlayerLimit;
+			Discord::DiscordRPC::Instance().discordPresence.state = "At the Mainmenu";
+			Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
+			Discord::DiscordRPC::Instance().discordPresence.largeImageText = (char*)Pointer(0x22AB018)(0x1A4);
+			Discord::DiscordRPC::Instance().discordPresence.details = "Alone";
+			Discord::DiscordRPC::Instance().discordPresence.partySize = 1;
+			Discord::DiscordRPC::Instance().discordPresence.partyMax = 1;
 		}
 
 		Discord_UpdatePresence(&Discord::DiscordRPC::Instance().discordPresence);
+	}
+
+	void handleDiscordReady()
+	{
+		PresenceUpdate();
 	}
 
 	void MapLoaded(const char* mappath)
