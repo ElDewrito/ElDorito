@@ -296,6 +296,8 @@ std::string ElDorito::GetDirectory()
 	return Dir;
 }
 
+bool firstShow = true;
+
 void ElDorito::OnMainMenuShown()
 {
 	if (GameHasMenuShown)
