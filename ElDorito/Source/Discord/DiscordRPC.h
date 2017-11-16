@@ -6,7 +6,7 @@ namespace Discord
 	{
 	public:
 		DiscordRichPresence discordPresence;
-		std::string detailString
+		std::string detailString;
 
 		void Update();
 		void UpdatePresence();
