@@ -102,8 +102,6 @@ namespace
 		//2 = Multiplayer, 3 = Forge
 		lobbyType = Blam::Network::GetLobbyType();
 
-		serverPlayerLimit = Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt;
-
 		//These are used both for FFA and Teams.
 		int TopScoreIndex = 0;
 		int SecondScoreIndex = 0;
@@ -131,6 +129,7 @@ namespace
 		auto* scoreboard = get_multiplayer_scoreboard();
 
 		if (session->IsEstablished()) {
+			serverPlayerLimit = session->MembershipInfo.SessionMaxPlayers;
 			localPlayerSession = session->MembershipInfo.GetLocalPlayerSession();
 			localPlayerProperties = localPlayerSession.Properties;
 			localPlayerTeamIndex = localPlayerProperties.TeamIndex;
