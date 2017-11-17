@@ -81,6 +81,9 @@ namespace
 		float weaponSensitivity = Pointer::Base(0x4CDEF14).Read<float>();
 		float maxVertAngle = Pointer::Base(0x14B49E4).Read<float>();
 
+		if (weaponSensitivity <= 0.000099999997f)
+			return true;
+
 		Pointer SettingsPtr = ElDorito::GetMainTls(GameGlobals::GameSettings::TLSOffset)[0];
 		if (SettingsPtr == 0) // game itself does this the same way, not sure why it'd be 0 in TLS data though since the game is also meant to set it in TLS if its 0
 			SettingsPtr = Pointer(0x22C0128);
