@@ -238,23 +238,24 @@ function removeFromSpeakingPlayersList(user) {
         $("#speaking > p").each(function () {
             if ($(this).index() < index)
                 return; //this user does not need to move
-
-            y = $(this).height() * $(this).index() - $(this).height();
-            $(this).css({
-                'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-                'transition': 'all 300ms ease'
-            });
+            else if ($(this).index() > index) {
+                y = $(this).height() * $(this).index() - $(this).height();
+                $(this).css({
+                    'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+                    'transition': 'all 300ms ease'
+                });
+            } else {
+                y = $(this).height() * ($(this).index() + 1) - $(this).height();
+                thisUser.css({
+                    'transform': 'translate(-200px, ' + y + 'px)', //offscreen
+                    'transition': 'all 300ms ease'
+                });
+                setTimeout(function () {
+                    thisUser.remove();
+                }, 300);
+            }
         });
     }
-    var unParsed = thisUser.prop('style').transform.substring(10);
-    var y = parseInt(unParsed.split(",")[1].split("px")[0]);
-    thisUser.css({
-        'transform': 'translate(-200px, ' + y + 'px)', //offscreen
-        'transition': 'all 300ms ease'
-    });
-    setTimeout(function () {
-        thisUser.remove();
-    }, 300);
 }
 
 function populateSpeakingPlayersList() {
