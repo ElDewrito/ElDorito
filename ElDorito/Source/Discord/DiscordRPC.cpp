@@ -73,7 +73,10 @@ namespace
 			{
 				Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
 				Discord::DiscordRPC::Instance().discordPresence.largeImageText = "Mainmenu";
-				Discord::DiscordRPC::Instance().discordPresence.details = "In an Online Lobby";
+				if (Blam::Network::GetNetworkMode() == 3)
+					Discord::DiscordRPC::Instance().discordPresence.details = "In an Online Lobby";
+				else
+					Discord::DiscordRPC::Instance().discordPresence.details = "In an Offline Lobby";
 			}
 			else
 			{
