@@ -59,6 +59,8 @@ namespace
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
 	void __fastcall c_gui_alert_manager__show(void *thisptr, void *unused, uint32_t name, int a3, wchar_t *customMessage, int profileIndex, bool a6, int a7);
 
+	void __fastcall c_hud_camera_view__render_outlines_hook(void *thisptr, void *unused, int localPlayerIndex, int playerMappingIndex, void *a3);
+
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
 	{
@@ -286,6 +288,8 @@ namespace Patches::Ui
 		Hook(0x721F03, c_gui_screen_pregame_lobby_switch_network_hook).Apply();
 
 		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
+
+		Hook(0x62D58D, c_hud_camera_view__render_outlines_hook, HookFlags::IsCall).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -1705,6 +1709,23 @@ namespace
 
 				return;
 			}
+		}
+	}
+
+	void __fastcall c_hud_camera_view__render_outlines_hook(void *thisptr, void *unused, int localProfileIndex, int playerMappingIndex, void *a3)
+	{
+		const auto c_hud_camera_view__render_outlines_hook = (void(__thiscall*)(void *thisptr, int localProfileIndex, int playerMappingIndex, void *a3))(0xA2E620);
+
+		const auto &moduleTweaks = Modules::ModuleTweaks::Instance();
+		const auto playerIndex = Blam::Players::GetLocalPlayer(0); // no need to map until splitscreen is supported
+		Blam::Players::PlayerDatum *player;
+
+		if (playerIndex != Blam::DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))
+			&& player->SlaveUnit != Blam::DatumIndex::Null && Blam::Objects::Get(player->SlaveUnit)
+			&& !moduleTweaks.VarDisableWeaponOutline->ValueInt)
+		{
+			// outlines are only rendered if we have a unit regardless
+			c_hud_camera_view__render_outlines_hook(thisptr, localProfileIndex, playerMappingIndex, a3);
 		}
 	}
 }
