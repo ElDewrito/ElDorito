@@ -18,6 +18,7 @@ var mapName;
 var volArray = [];
 var scoreboardData = null;
 var multiRound = false;
+var lastRound = true;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -289,6 +290,7 @@ dew.on("scoreboard", function(e){
     mapName = e.data.mapName
     if(e.data.numberOfRounds){
         multiRound = e.data.numberOfRounds == 1 ? false : true;
+        lastRound = e.data.numberOfRounds == e.data.currentRound + 1 ? true : false;
     }
     if(isVisible){
         displayScoreboard();
@@ -409,7 +411,7 @@ dew.on("show", function(e){
     }else{
         $('#closeButton').hide();
     }
-    if(e.data.postgame){
+    if(e.data.postgame && lastRound){
         $('#winnerText').show();
     }else{
         $('#winnerText').hide();
