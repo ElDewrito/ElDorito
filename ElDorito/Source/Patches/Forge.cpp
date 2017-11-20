@@ -246,10 +246,7 @@ namespace Patches::Forge
 
 	void Tick()
 	{
-		const auto game_engine_get = (void*(*)())(0x005CE150);
-
-		if(game_engine_get())
-			UpdateMapModifier();
+		UpdateMapModifier();
 	}
 
 	bool SavePrefab(const std::string& name, const std::string& path)
@@ -390,7 +387,6 @@ namespace
 	void UpdateMapModifier()
 	{
 		// Scan the object table to check if map modifier is spawned
-		bool found = false;
 		for (auto &&header : Blam::Objects::GetObjects())
 		{
 			if (header.Type != eObjectTypeScenery)

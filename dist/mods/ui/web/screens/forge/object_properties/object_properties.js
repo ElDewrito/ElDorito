@@ -876,6 +876,7 @@ $(function() {
         objectPropertiesWidget.toggleVisibility('light_color_g', data.is_light);
         objectPropertiesWidget.toggleVisibility('light_color_b', data.is_light);
         objectPropertiesWidget.toggleVisibility('light_intensity', data.is_light);
+        objectPropertiesWidget.toggleVisibility('light_color_action', data.is_light);
 
 
         objectPropertiesWidget.toggleVisibility('fx', data.is_screenfx);
