@@ -54,7 +54,7 @@ namespace
 	bool killBarriersEnabled = true;
 	bool pushBarriersEnabled = true;
 
-	void UpdateBarriersEnabled();
+	void UpdateMapModifier();
 	bool CheckKillTriggersHook(int a0, void *a1);
 	bool ObjectSafeZoneHook(void *a0);
 	void* PushBarriersGetStructureDesignHook(int index);
@@ -110,6 +110,8 @@ namespace
 
 	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
+	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
+
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -136,6 +138,12 @@ namespace
 		uint8_t Unknown1C[0x14];
 	};
 	static_assert(sizeof(SandboxPaletteItem) == 0x30, "Invalid SandboxPaletteItem size");
+
+	struct {
+		float Exposure;
+		float LightIntensity;
+		float BloomIntensity;
+	} s_CameraFxSettings;
 }
 
 namespace Patches::Forge
@@ -232,12 +240,16 @@ namespace Patches::Forge
 		Hook(0x3245FD, sub_724890_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
 	{
-		// Require a rescan for barrier disabler objects each tick
-		barriersEnabledValid = false;
+		const auto game_engine_get = (void*(*)())(0x005CE150);
+
+		if(game_engine_get())
+			UpdateMapModifier();
 	}
 
 	bool SavePrefab(const std::string& name, const std::string& path)
@@ -375,23 +387,12 @@ namespace
 		}
 	}
 
-	void UpdateBarriersEnabled()
+	void UpdateMapModifier()
 	{
-		if (barriersEnabledValid)
-			return; // Don't scan multiple times per tick
-
-		// Scan the object table to check if the barrier disablers are spawned
-		auto objectHeadersPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset);
-		auto objectHeaders = objectHeadersPtr.Read<const DataArray<ObjectHeader>*>();
-		if (!objectHeaders)
-			return;
-		killBarriersEnabled = true;
-		pushBarriersEnabled = true;
-		for (auto &&header : *objectHeaders)
+		// Scan the object table to check if map modifier is spawned
+		bool found = false;
+		for (auto &&header : Blam::Objects::GetObjects())
 		{
-			// The objects are identified by tag index.
-			// scen 0x5728 disables kill barriers
-			// scen 0x5729 disables push barriers
 			if (header.Type != eObjectTypeScenery)
 				continue;
 			auto tagIndex = header.GetTagIndex().Index();
@@ -399,18 +400,36 @@ namespace
 			{
 				auto mpProperties = header.Data->GetMultiplayerProperties();
 				auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
+
 				killBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier);
 				pushBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier);
+
+				s_CameraFxSettings.Exposure = std::pow((float)mapModifierProperties->CameraFxExposure * 0.05f, 2.2f) * 0.01f;
+				auto expScale = s_CameraFxSettings.Exposure;
+				if (std::abs(s_CameraFxSettings.Exposure) < 0.0001f)
+					expScale = 1.0f;
+				s_CameraFxSettings.LightIntensity = ((float)mapModifierProperties->CameraFxLightIntensity / expScale) * 0.07f;
+				if (s_CameraFxSettings.LightIntensity > 20000.0f)
+					s_CameraFxSettings.LightIntensity = 20000.0f;
+				s_CameraFxSettings.BloomIntensity = ((float)mapModifierProperties->CameraFxBloom / expScale) * 0.07f;
+				if (s_CameraFxSettings.BloomIntensity > 20000.0f)
+					s_CameraFxSettings.BloomIntensity = 20000.0f;
+
+				return;
 			}
-			if (!killBarriersEnabled && !pushBarriersEnabled)
-				break;
 		}
-		barriersEnabledValid = true;
+
+		// not found
+		killBarriersEnabled = true;
+		pushBarriersEnabled = true;
+
+		s_CameraFxSettings.Exposure = 0;
+		s_CameraFxSettings.LightIntensity = 0;
+		s_CameraFxSettings.BloomIntensity = 0;
 	}
 
 	bool CheckKillTriggersHook(int a0, void *a1)
 	{
-		UpdateBarriersEnabled();
 		if (!killBarriersEnabled)
 			return false;
 
@@ -421,7 +440,6 @@ namespace
 
 	bool ObjectSafeZoneHook(void *a0)
 	{
-		UpdateBarriersEnabled();
 		if (!killBarriersEnabled)
 			return true;
 
@@ -432,7 +450,6 @@ namespace
 
 	void* PushBarriersGetStructureDesignHook(int index)
 	{
-		UpdateBarriersEnabled();
 		if (!pushBarriersEnabled)
 			return nullptr; // Return a null sddt if push barriers are disabled
 
@@ -1507,17 +1524,16 @@ namespace
 
 			auto v23 = lightDefPtr(0x74).Read<float>();
 			auto v22 = lightDefPtr(0x14).Read<float>();
-			auto v18 = lightDefPtr(0x70).Read<float>();
 
-			intensity = ((lightProperties->Intensity / 255.0f)) * 10.0f;
-			auto colorIntensity = lightProperties->ColorIntensity / 255.0f * 100.0f;
+			intensity = ((lightProperties->Intensity / 255.0f)) * 250.0f * intensity;
 			RealColorRGB color(
-				intensity + colorIntensity * (lightProperties->ColorR / 255.0f),
-				intensity + colorIntensity * (lightProperties->ColorG / 255.0f),
-				intensity + colorIntensity * (lightProperties->ColorB / 255.0f)
+				intensity * (lightProperties->ColorR / 255.0f),
+				intensity * (lightProperties->ColorG / 255.0f),
+				intensity * (lightProperties->ColorB / 255.0f)
 			);
 
-			sub_A66900(a4, light->Center, color, v18, lightProperties->Range, light->field_A4, v2, v23, v22);
+			sub_A66900(a4, light->Center, color, 6.0f, lightProperties->Range, light->field_A4, v2, v23, v22);
+
 			return;
 		}
 
@@ -1962,5 +1978,18 @@ namespace
 		const auto c_game_engine_object_runtime_manager__on_object_spawned = (void(__thiscall*)(void *thisptr, int16_t placementIndex, uint32_t objectIndex))(0x00590600);
 		if (!CanThemeObject(objectIndex)) // ignore reforge
 			c_game_engine_object_runtime_manager__on_object_spawned(thisptr, placementIndex, objectIndex);
+	}
+
+	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2)
+	{
+		const auto sub_A3B990 = (void(__thiscall*)(void *thisptr, void *a2))(0xA3B990);
+		sub_A3B990(thisptr, a2);
+
+		if (std::abs(s_CameraFxSettings.Exposure) > 0.0001f)
+			*(float*)((uint8_t*)thisptr + 0x29C) = s_CameraFxSettings.Exposure;
+		if (std::abs(s_CameraFxSettings.LightIntensity) > 0.0001f)
+			*(float*)((uint8_t*)thisptr + 0x1E48) = s_CameraFxSettings.LightIntensity;
+		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
+			*(float*)((uint8_t*)thisptr + 0x2A0) = s_CameraFxSettings.BloomIntensity;
 	}
 }

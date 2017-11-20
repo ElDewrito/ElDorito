@@ -11,7 +11,7 @@ namespace Forge
 		uint8_t ColorR;
 		uint8_t ColorG;
 		uint8_t ColorB;
-		uint8_t ColorIntensity;
+		uint8_t Unused0;
 		uint8_t Intensity;
 		uint8_t Unused1;
 		uint8_t Unused2;
@@ -59,6 +59,10 @@ namespace Forge
 			eMapModifierFlags_DisableDeathBarrier = (1 << 1)
 		};
 		uint16_t Flags;
+		uint8_t CameraFxExposure;
+		uint8_t CameraFxLightIntensity;
+		uint8_t CameraFxBloom;
+		uint8_t _PADDING;
 	};
 	static_assert(sizeof(ForgeMapModifierProperties) <= 16, "ForgeMapModifierProperties must be 16 bytes or less in size");
 

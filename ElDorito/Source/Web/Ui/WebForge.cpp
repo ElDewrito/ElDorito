@@ -45,14 +45,13 @@ namespace
 		General_Material_ColorG,
 		General_Material_ColorB,
 		General_Physics,
-		
+
 		Budget_Minimum,
 		Budget_Maximum,
 
 		Light_ColorR,
 		Light_ColorG,
 		Light_ColorB,
-		Light_ColorIntensity,
 		Light_Intensity,
 		Light_Radius,
 
@@ -84,8 +83,10 @@ namespace
 
 		Map_DisablePushBarrier,
 		Map_DisableDeathBarrier,
-		
 
+		CameraFx_Exposure,
+		CameraFx_LightIntensity,
+		CameraFx_Bloom
 	};
 
 	enum class PropertyDataType
@@ -119,6 +120,7 @@ namespace
 		{
 			auto garbageVolumeProperties = reinterpret_cast<Forge::ForgeGarbageVolumeProperties*>(&m_Properties.SharedStorage);
 			auto killVolumeProperties = reinterpret_cast<Forge::ForgeKillVolumeProperties*>(&m_Properties.SharedStorage);
+			auto mapModifierProperties = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth);
 
 			switch (target)
 			{
@@ -165,7 +167,7 @@ namespace
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
 			case PropertyTarget::General_Material_ColorR:
-				 reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::General_Material_ColorG:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
@@ -190,9 +192,6 @@ namespace
 				break;
 			case PropertyTarget::Light_ColorB:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
-				break;
-			case PropertyTarget::Light_ColorIntensity:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorIntensity = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Light_Intensity:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Intensity = int(value.ValueFloat * 255);
@@ -245,7 +244,7 @@ namespace
 			case PropertyTarget::GarbageVolume_CollectDeadBiped:
 			{
 				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
-				if(value.ValueInt)
+				if (value.ValueInt)
 					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
 				break;
 			}
@@ -301,7 +300,7 @@ namespace
 			{
 				auto &flags = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth)->Flags;
 				flags &= ~Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
-				if(value.ValueInt)
+				if (value.ValueInt)
 					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
 			}
 			break;
@@ -313,7 +312,16 @@ namespace
 					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
 			}
 			break;
-			
+			case PropertyTarget::CameraFx_Exposure:
+				mapModifierProperties->CameraFxExposure = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_LightIntensity:
+				mapModifierProperties->CameraFxLightIntensity = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_Bloom:
+				mapModifierProperties->CameraFxBloom = int(value.ValueFloat * 255.0f);
+				break;
+
 			}
 		}
 
@@ -468,7 +476,11 @@ namespace
 	void DeserializeObjectProperties(const rapidjson::Value &json, IObjectPropertySink& sink);
 
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
-	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) { writer.Key(key); writer.Double(value); };
+	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) 
+	{ 
+		if(!std::isnan(value) && !std::isinf(value))
+			writer.Key(key); writer.Double(value);
+	};
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
 	uint32_t s_CurrentObjectIndex = -1;
@@ -740,7 +752,6 @@ namespace
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
 		SerializeProperty(writer, "light_color_r", lightProperties->ColorR / 255.0f);
-		SerializeProperty(writer, "light_color_intensity", lightProperties->ColorIntensity / 255.0f);
 		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
 		SerializeProperty(writer, "light_radius", lightProperties->Range);
 		SerializeProperty(writer, "fx_color_filter_r", screenFxProperties->ColorFilterR / 255.0f);
@@ -759,6 +770,10 @@ namespace
 		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
 		SerializeProperty(writer, "map_disable_push_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier) != 0));
 		SerializeProperty(writer, "map_disable_death_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier) != 0));
+
+		SerializeProperty(writer, "camera_fx_exposure", mapModifierProperties->CameraFxExposure / 255.0f);
+		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
+		SerializeProperty(writer, "camera_fx_light_intensity", mapModifierProperties->CameraFxLightIntensity / 255.0f);
 
 		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
@@ -790,62 +805,65 @@ namespace
 	{
 		const static std::unordered_map<std::string, PropertyInfo> s_PropertyTypeLookup =
 		{
-			{ "on_map_at_start",			{ PropertyDataType::Int, PropertyTarget::General_OnMapAtStart }},
-			{ "symmetry",					{ PropertyDataType::Int, PropertyTarget::General_Symmetry }},
-			{ "respawn_rate",				{ PropertyDataType::Int, PropertyTarget::General_RespawnRate }},
-			{ "spare_clips",				{ PropertyDataType::Int, PropertyTarget::General_SpareClips }},
-			{ "spawn_order",				{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder }},
-			{ "team_affiliation",			{ PropertyDataType::Int, PropertyTarget::General_Team }},
-			{ "physics",					{ PropertyDataType::Int, PropertyTarget::General_Physics } },
-			{ "appearance_material",		{ PropertyDataType::Int, PropertyTarget::General_Material } },
+			{ "on_map_at_start",{ PropertyDataType::Int, PropertyTarget::General_OnMapAtStart } },
+			{ "symmetry",{ PropertyDataType::Int, PropertyTarget::General_Symmetry } },
+			{ "respawn_rate",{ PropertyDataType::Int, PropertyTarget::General_RespawnRate } },
+			{ "spare_clips",{ PropertyDataType::Int, PropertyTarget::General_SpareClips } },
+			{ "spawn_order",{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder } },
+			{ "team_affiliation",{ PropertyDataType::Int, PropertyTarget::General_Team } },
+			{ "physics",{ PropertyDataType::Int, PropertyTarget::General_Physics } },
+			{ "appearance_material",{ PropertyDataType::Int, PropertyTarget::General_Material } },
 			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
 			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
 			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
-			{ "teleporter_channel",			{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
-			{ "shape_type",					{ PropertyDataType::Int, PropertyTarget::General_ShapeType }},
-			{ "shape_radius",				{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},
-			{ "shape_width",				{ PropertyDataType::Float, PropertyTarget::General_ShapeWidth }},
-			{ "shape_top",					{ PropertyDataType::Float, PropertyTarget::General_ShapeTop }},
-			{ "shape_bottom",				{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom }},
-			{ "shape_depth",				{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth }},
-			{ "light_color_r",				{ PropertyDataType::Float, PropertyTarget::Light_ColorR }},
-			{ "light_color_g",				{ PropertyDataType::Float, PropertyTarget::Light_ColorG }},
-			{ "light_color_b",				{ PropertyDataType::Float, PropertyTarget::Light_ColorB }},
-			{ "light_color_intensity",		{ PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
-			{ "light_intensity",			{ PropertyDataType::Float, PropertyTarget::Light_Intensity }},
-			{ "light_radius",				{ PropertyDataType::Float, PropertyTarget::Light_Radius }},
+			{ "teleporter_channel",{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel } },
+			{ "shape_type",{ PropertyDataType::Int, PropertyTarget::General_ShapeType } },
+			{ "shape_radius",{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius } },
+			{ "shape_width",{ PropertyDataType::Float, PropertyTarget::General_ShapeWidth } },
+			{ "shape_top",{ PropertyDataType::Float, PropertyTarget::General_ShapeTop } },
+			{ "shape_bottom",{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom } },
+			{ "shape_depth",{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth } },
+			{ "light_color_r",{ PropertyDataType::Float, PropertyTarget::Light_ColorR } },
+			{ "light_color_g",{ PropertyDataType::Float, PropertyTarget::Light_ColorG } },
+			{ "light_color_b",{ PropertyDataType::Float, PropertyTarget::Light_ColorB } },
+			{ "light_intensity",{ PropertyDataType::Float, PropertyTarget::Light_Intensity } },
+			{ "light_radius",{ PropertyDataType::Float, PropertyTarget::Light_Radius } },
 
-			{ "fx_range",					{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
-			{ "fx_hue",						{ PropertyDataType::Float, PropertyTarget::Fx_Hue}},
-			{ "fx_light_intensity",			{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
-			{ "fx_saturation",				{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
-			{ "fx_desaturation",			{ PropertyDataType::Float, PropertyTarget::Fx_Desaturation } },
-			{ "fx_color_filter_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterR } },
-			{ "fx_color_filter_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterG } },
-			{ "fx_color_filter_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterB } },
-			{ "fx_color_floor_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorR } },
-			{ "fx_color_floor_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorG } },
-			{ "fx_color_floor_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorB } },
-			{ "fx_gamma_inc",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
-			{ "fx_gamma_dec",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
-			{ "fx_tracing",					{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
+			{ "fx_range",{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
+			{ "fx_hue",{ PropertyDataType::Float, PropertyTarget::Fx_Hue } },
+			{ "fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
+			{ "fx_saturation",{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
+			{ "fx_desaturation",{ PropertyDataType::Float, PropertyTarget::Fx_Desaturation } },
+			{ "fx_color_filter_r",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterR } },
+			{ "fx_color_filter_g",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterG } },
+			{ "fx_color_filter_b",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterB } },
+			{ "fx_color_floor_r",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorR } },
+			{ "fx_color_floor_g",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorG } },
+			{ "fx_color_floor_b",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorB } },
+			{ "fx_gamma_inc",{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
+			{ "fx_gamma_dec",{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
+			{ "fx_tracing",{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
 
-			{ "garbage_volume_collect_dead_biped",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectDeadBiped } },
-			{ "garbage_volume_collect_weapons",			{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectWeapons } },
-			{ "garbage_volume_collect_objectives",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectObjectives } },
-			{ "garbage_volume_collect_grenades",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectGrenades } },
-			{ "garbage_volume_collect_equipment",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectEquipment } },
-			{ "garbage_volume_collect_vehicles",		{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectVehicles } },
-			{ "garbage_volume_interval",				{ PropertyDataType::Int, PropertyTarget::GarbageVolume_Interval } },
+			{ "garbage_volume_collect_dead_biped",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectDeadBiped } },
+			{ "garbage_volume_collect_weapons",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectWeapons } },
+			{ "garbage_volume_collect_objectives",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectObjectives } },
+			{ "garbage_volume_collect_grenades",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectGrenades } },
+			{ "garbage_volume_collect_equipment",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectEquipment } },
+			{ "garbage_volume_collect_vehicles",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectVehicles } },
+			{ "garbage_volume_interval",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_Interval } },
 
-			{ "kill_volume_always_visible",	 { PropertyDataType::Int, PropertyTarget::KillVolume_AlwaysVisible } },
+			{ "kill_volume_always_visible",{ PropertyDataType::Int, PropertyTarget::KillVolume_AlwaysVisible } },
 			{ "kill_volume_destroy_vehicles",{ PropertyDataType::Int, PropertyTarget::KillVolume_DestroyVehicles } },
 
-			{ "map_disable_push_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
-			{ "map_disable_death_barrier",	{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },
+			{ "map_disable_push_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
+			{ "map_disable_death_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },
 
-			{ "summary_runtime_minimum",	{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
-			{ "summary_runtime_maximum",	{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
+			{ "camera_fx_exposure",{ PropertyDataType::Float, PropertyTarget::CameraFx_Exposure } },
+			{ "camera_fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightIntensity } },
+			{ "camera_fx_bloom",{ PropertyDataType::Float, PropertyTarget::CameraFx_Bloom } },
+
+			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
+			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)
@@ -865,7 +883,7 @@ namespace
 				value.ValueInt = it->value.GetInt();
 				break;
 			case PropertyDataType::Float:
-				value.ValueFloat = it->value.GetDouble();
+				value.ValueFloat = static_cast<float>(it->value.GetDouble());
 				break;
 			}
 

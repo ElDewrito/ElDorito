@@ -70,7 +70,6 @@ var STRINGS = {
     light_color_b: 'B',
     light_intensity: 'Intensity',
     light_radius: 'radius',
-    light_color_intensity: 'Color Intensity',
     map_disable_push_barrier: 'Push Barrier',
     map_disable_death_barrier: 'Death Barrier',
     garbage_volume_collect_dead_biped: 'Dead Biped',
@@ -85,7 +84,11 @@ var STRINGS = {
     material_color_picker: 'Material Color',
     light_color_picker: 'Light Color',
     material_color_action: 'Change Color',
-    light_color_action: 'Change Color'
+    light_color_action: 'Change Color',
+    camera_fx: 'Camera FX',
+    camera_fx_exposure: 'Exposure',
+    camera_fx_light_intensity: 'Dynamic Light Intensity',
+    camera_fx_bloom: 'Bloom',
 };
 
 
@@ -168,7 +171,6 @@ var objectPropertyGridData = {
         light_color_g: { min: 0.0, max: 1.0, step: 0.01 },
         light_color_b: { min: 0.0, max: 1.0, step: 0.01 },
         light_intensity: { min: 0.0, max: 1.0, step: 0.01 },
-        light_color_intensity: { min: 0.0, max: 1.0, step: 0.01 },
         light_radius: { min: 0, max: 50, step: 0.01 },
         fx_range: { min: 1, max: 255, step: 1 },
         fx_light_intensity: { min: 0, max: 1, step: 0.01 },
@@ -184,6 +186,9 @@ var objectPropertyGridData = {
         fx_gamma_inc: { min: 0, max: 1, step: 0.01 },
         fx_gamma_dec: { min: 0, max: 1, step: 0.01 },
         fx_tracing: { min: 0, max: 1, step: 0.01 },
+        camera_fx_exposure: { min: 0, max: 1.0, step: 0.01 },
+        camera_fx_light_intensity: { min: 0, max: 1.0, step: 0.01 },
+        camera_fx_bloom: { min: 0, max: 1.0, step: 0.01 },
         map_barrier: [
             {name: 'Disabled', value: 1},
             {name: 'Enabled', value: 0}
@@ -206,6 +211,7 @@ var objectPropertyGridData = {
             {name:'Never', value: 0},
             {name:'Always', value: 1}
         ]
+        
     },
     properties: [
         { name: 'budget_screen_action', type: 'action'},
@@ -229,7 +235,15 @@ var objectPropertyGridData = {
             name: 'map_modifier',
             values: [
                 { name: 'map_disable_push_barrier', type: 'spinner', meta:'map_barrier' },
-                { name: 'map_disable_death_barrier', type: 'spinner', meta:'map_barrier' },
+                { name: 'map_disable_death_barrier', type: 'spinner', meta:'map_barrier' }
+            ]
+        },
+        {
+            name: 'camera_fx',
+            values: [
+                { name: 'camera_fx_exposure', type: 'range', meta:'camera_fx_exposure'},
+                { name: 'camera_fx_light_intensity', type: 'range', meta:'camera_fx_light_intensity'},
+                { name: 'camera_fx_bloom', type: 'range', meta:'camera_fx_bloom'}
             ]
         },
         {
@@ -249,7 +263,6 @@ var objectPropertyGridData = {
             values: [
                 { name: 'light_radius', type: 'range', meta:'light_radius'},
                 { name: 'light_intensity', type: 'range', meta:'light_intensity'},
-                { name: 'light_color_intensity', type: 'range', meta:'light_color_intensity'},
                 { name: 'light_color_action', type: 'action' },
             ]
         },
@@ -862,7 +875,6 @@ $(function() {
         objectPropertiesWidget.toggleVisibility('light_color_r', data.is_light);
         objectPropertiesWidget.toggleVisibility('light_color_g', data.is_light);
         objectPropertiesWidget.toggleVisibility('light_color_b', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_color_intensity', data.is_light);
         objectPropertiesWidget.toggleVisibility('light_intensity', data.is_light);
 
 
@@ -937,6 +949,13 @@ $(function() {
         objectPropertiesWidget.toggleVisibility('map_modifier',isMapModifier);
         objectPropertiesWidget.toggleVisibility('map_disable_push_barrier',isMapModifier);
         objectPropertiesWidget.toggleVisibility('map_disable_death_barrier', isMapModifier);
+        objectPropertiesWidget.toggleVisibility('camera_fx', isMapModifier);
+        objectPropertiesWidget.toggleVisibility('camera_fx_light_intensity', isMapModifier);
+        objectPropertiesWidget.toggleVisibility('camera_fx_bloom', isMapModifier);
+        objectPropertiesWidget.toggleVisibility('camera_fx_exposure', isMapModifier);
+
+
+
         var isGarbageVolume = data.tag_index == 0x00005A8F;
         var isKillVolume = data.tag_index == 0x00005A8E;
         objectPropertiesWidget.toggleVisibility('garbage_collection',isGarbageVolume);
