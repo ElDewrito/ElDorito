@@ -176,24 +176,7 @@ namespace Game::Armor
 		using Blam::Tags::Game::MultiplayerGlobals;
 		using Blam::Tags::Globals::CacheFileGlobalTags;
 
-		auto *cfgt = TagInstance(0x0000).GetDefinition<CacheFileGlobalTags>();
-
-		auto matgTagIndex = -1;
-
-		for (auto &entry : cfgt->GlobalsTags)
-		{
-			if (entry.Tag.GroupTag == 'matg')
-			{
-				matgTagIndex = entry.Tag.TagIndex;
-				break;
-			}
-		}
-
-		if (matgTagIndex == -1)
-			throw std::exception("globals tag (matg) not reference in cache_file_global_tags!");
-
-		auto *matg = TagInstance(matgTagIndex).GetDefinition<Globals>();
-		auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+		auto *mulg = TagInstance::GetDefinition<MultiplayerGlobals>("multiplayer\\multiplayer_globals");
 
 		for (auto &element : mulg->Universal->SpartanArmorCustomization)
 		{
@@ -235,6 +218,8 @@ namespace Game::Armor
 
 	void CustomizeBiped(uint32_t bipedObject)
 	{
+		using Blam::Tags::TagInstance;
+
 		auto &playerVars = Modules::ModulePlayer::Instance();
 
 		// Generate customization data
@@ -259,7 +244,7 @@ namespace Game::Armor
 		UpdateArmorColors(bipedObject);
 
 		// Pose the biped with the assault rifle
-		PoseWithWeapon(bipedObject, 0x151E);
+		PoseWithWeapon(bipedObject, TagInstance::Find('weap', "objects\\weapons\\rifle\\assault_rifle\\assault_rifle").Index);
 	}
 
 	static const auto Object_SetTransform = (void(*)(int objectIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *right, Blam::Math::RealVector3D *up, int a5))(0x00B33530);

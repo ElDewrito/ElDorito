@@ -64,6 +64,12 @@ namespace Blam::Tags
 			return reinterpret_cast<T *>(tagHeader + *(uint32_t*)(tagHeader + 0x10));
 		}
 
+		template <typename T>
+		inline static T *GetDefinition(const std::string &tagName)
+		{
+			return TagInstance::Find(T::GroupTag, tagName).GetDefinition<T>();
+		}
+
 		// Gets all valid tag instances
 		inline static std::vector<TagInstance> GetInstances()
 		{
