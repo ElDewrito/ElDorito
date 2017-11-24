@@ -1,14 +1,14 @@
-#include "Blam\Tags\Items\Vehicle.hpp"
+#include "Blam\Tags\Objects\Vehicle.hpp"
 #include "Definitions\EnumDefinition.hpp"
 
-using namespace Blam::Tags::Items;
+using namespace Blam::Tags::Objects;
 using namespace Definitions;
 
 namespace Blam::Tags
 {
 	const StructDefinition EarlyMoverPropertiesStruct =
 	{
-		"EarlyMoverProperty", sizeof(Vehicle::EarlyMoverProperty),
+		"EarlyMoverProperty", sizeof(Object::EarlyMoverProperty),
 		{
 			{ FieldType::StringID, "Name" },
 			{ FieldType::DwordInteger, "Unknown" },
@@ -20,12 +20,12 @@ namespace Blam::Tags
 			{ FieldType::DwordInteger, "Unknown7" },
 			{ FieldType::DwordInteger, "Unknown8" },
 			{ FieldType::DwordInteger, "Unknown9" }
-		}						
+		}
 	};
 
 	const StructDefinition AiPropertiesStruct =
 	{
-		"AiProperty", sizeof(Vehicle::AiProperty),
+		"AiProperty", sizeof(Object::AIProperty),
 		{
 			{ FieldType::LongInteger, "Flags" },
 			{ FieldType::StringID, "AiTypeName" },
@@ -36,7 +36,7 @@ namespace Blam::Tags
 
 	const StructDefinition FunctionsStruct =
 	{
-		"Function", sizeof(Vehicle::Function),
+		"Function", sizeof(Object::Function),
 		{
 			{ FieldType::StringID, "Flags" },
 			{ FieldType::StringID, "ImportName" },
@@ -50,7 +50,7 @@ namespace Blam::Tags
 
 	const StructDefinition AttachmentsStruct =
 	{
-		"Attachment", sizeof(Vehicle::Attachment),
+		"Attachment", sizeof(Object::Attachment),
 		{
 			{ FieldType::LongInteger, "AtlasFlags" },
 			{ FieldType::TagReference, "Attachment_1" },
@@ -64,7 +64,7 @@ namespace Blam::Tags
 
 	const StructDefinition WidgetsStruct =
 	{
-		"Widget", sizeof(Vehicle::Widget),
+		"Widget", sizeof(Object::Widget),
 		{
 			{ FieldType::TagReference, "Type" }
 		}
@@ -72,7 +72,7 @@ namespace Blam::Tags
 
 	const StructDefinition ChangeColorsInitialPermutationStruct =
 	{
-		"InitialPermutation", sizeof(Vehicle::ChangeColor::InitialPermutation),
+		"InitialPermutation", sizeof(Object::ChangeColor::InitialPermutation),
 		{
 			{ FieldType::DwordInteger, "Weight" },
 			{ FieldType::Real, "ColorLowerBoundR" },
@@ -87,7 +87,7 @@ namespace Blam::Tags
 
 	const StructDefinition ChangeColorsFunctionsStruct =
 	{
-		"Functions", sizeof(Vehicle::ChangeColor::Function),
+		"Functions", sizeof(Object::ChangeColor::Function),
 		{
 			{ FieldType::DwordInteger, "ScaleFlags" },
 			{ FieldType::Real, "ColorLowerBoundR" },
@@ -103,7 +103,7 @@ namespace Blam::Tags
 
 	const StructDefinition ChangeColorsStruct =
 	{
-		"ChangeColor", sizeof(Vehicle::ChangeColor),
+		"ChangeColor", sizeof(Object::ChangeColor),
 		{
 			{ FieldType::Block, "DialogueVariants", &ChangeColorsInitialPermutationStruct },
 			{ FieldType::Block, "DialogueVariants", &ChangeColorsFunctionsStruct }
@@ -112,7 +112,7 @@ namespace Blam::Tags
 
 	const StructDefinition NodeMapsStruct =
 	{
-		"NodeMap", sizeof(Vehicle::NodeMap),
+		"NodeMap", sizeof(Object::NodeMap),
 		{
 			{ FieldType::CharInteger, "TargetNode" }
 		}
@@ -120,7 +120,7 @@ namespace Blam::Tags
 
 	const StructDefinition MultiplayerObjectPropertiesStruct =
 	{
-		"MultiplayerObjectProperty", sizeof(Vehicle::MultiplayerObjectProperty),
+		"MultiplayerObjectProperty", sizeof(Object::MultiplayerProperties),
 		{
 			{ FieldType::WordInteger, "EngineFlags" },
 			{ FieldType::CharInteger, "ObjectType" },
@@ -154,7 +154,7 @@ namespace Blam::Tags
 
 	const StructDefinition ModelObjectDataStruct =
 	{
-		"ModelObjectDatum", sizeof(Vehicle::ModelObjectDatum),
+		"ModelObjectDatum", sizeof(Object::ModelObjectDatum),
 		{
 			{ FieldType::ShortInteger, "Type" },
 			{ FieldType::ShortInteger, "Unknown" },
@@ -167,7 +167,7 @@ namespace Blam::Tags
 
 	const StructDefinition MetagamePropertiesStruct =
 	{
-		"MetagameProperty", sizeof(Vehicle::MetagameProperty),
+		"MetagameProperty", sizeof(Unit::MetagameProperty),
 		{
 			{ FieldType::ByteInteger, "Flags" },
 			{ FieldType::CharInteger, "Unit" },
@@ -180,7 +180,7 @@ namespace Blam::Tags
 
 	const StructDefinition CameraTracksStruct =
 	{
-		"CameraTrack", sizeof(Vehicle::CameraTrack),
+		"CameraTrack", sizeof(Unit::CameraTrackBlock),
 		{
 			{ FieldType::TagReference, "Track" }
 		}
@@ -212,14 +212,6 @@ namespace Blam::Tags
 		}
 	};
 
-	const StructDefinition CameraTracks2Struct =
-	{
-		"CameraTrack2", sizeof(Vehicle::CameraTrack2),
-		{
-			{ FieldType::TagReference, "Track" }
-		}
-	};
-
 	const StructDefinition Unknown16Struct =
 	{
 		"Unknown16", sizeof(Vehicle::Unknown16),
@@ -248,7 +240,7 @@ namespace Blam::Tags
 
 	const StructDefinition PosturesStruct =
 	{
-		"Posture", sizeof(Vehicle::Posture),
+		"Posture", sizeof(Unit::Posture),
 		{
 			{ FieldType::StringID, "Name" },
 			{ FieldType::Real, "PillOffsetI" },
@@ -259,7 +251,7 @@ namespace Blam::Tags
 
 	const StructDefinition HudInterfacesStruct =
 	{
-		"HudInterface", sizeof(Vehicle::HudInterface),
+		"HudInterface", sizeof(Unit::HudInterface),
 		{
 			{ FieldType::TagReference, "UnitHudInterface" }
 		}
@@ -267,7 +259,7 @@ namespace Blam::Tags
 
 	const StructDefinition DialogueVariantsStruct =
 	{
-		"DialogueVariant", sizeof(Vehicle::DialogueVariant),
+		"DialogueVariant", sizeof(Unit::DialogueVariant),
 		{
 			{ FieldType::ShortInteger, "VariantNumber" },
 			{ FieldType::ShortInteger, "Unknown" },
@@ -277,7 +269,7 @@ namespace Blam::Tags
 
 	const StructDefinition PoweredSeatsStruct =
 	{
-		"PoweredSeat", sizeof(Vehicle::PoweredSeat),
+		"PoweredSeat", sizeof(Unit::PoweredSeat),
 		{
 			{ FieldType::Real, "DriverPowerupTime" },
 			{ FieldType::Real, "DriverPowerdownTime" }
@@ -286,7 +278,7 @@ namespace Blam::Tags
 
 	const StructDefinition WeaponsStruct =
 	{
-		"Weapon", sizeof(Vehicle::Weapon),
+		"Weapon", sizeof(Unit::Weapon),
 		{
 			{ FieldType::TagReference, "Weapon_1" }
 		}
@@ -294,7 +286,7 @@ namespace Blam::Tags
 
 	const StructDefinition TrackingTypeStruct =
 	{
-		"TrackingType", sizeof(Vehicle::TargetTracking::TrackingType),
+		"TrackingType", sizeof(Unit::TargetTrackingBlock::TrackingType),
 		{
 			{ FieldType::StringID, "TrackingType_1" }
 		}
@@ -302,7 +294,7 @@ namespace Blam::Tags
 
 	const StructDefinition TargetTrackingStruct =
 	{
-		"TargetTracking", sizeof(Vehicle::TargetTracking),
+		"TargetTracking", sizeof(Unit::TargetTrackingBlock),
 		{
 			{ FieldType::Block, "TrackingTypes", &TrackingTypeStruct },
 			{ FieldType::Real, "AcquireTime" },
@@ -313,17 +305,9 @@ namespace Blam::Tags
 		}
 	};
 
-	const StructDefinition SeatsCameraTrackStruct =
-	{
-		"CameraTrack", sizeof(Vehicle::Seat::CameraTrack),
-		{
-			{ FieldType::TagReference, "Track" }
-		}
-	};
-
 	const StructDefinition SeatsUnknown7Struct =
 	{
-		"Unknown7", sizeof(Vehicle::Seat::Unknown7),
+		"Unknown7", sizeof(Unit::Seat::Unknown7),
 		{
 			{ FieldType::DwordInteger, "Unknown" },
 			{ FieldType::DwordInteger, "Unknown2" },
@@ -349,7 +333,7 @@ namespace Blam::Tags
 
 	const StructDefinition SeatsUnitHudInterfaceStruct =
 	{
-		"UnitHudInterface", sizeof(Vehicle::Seat::UnitHudInterface),
+		"UnitHudInterface", sizeof(Unit::Seat::UnitHudInterface),
 		{
 			{ FieldType::TagReference, "UnitHudInterface_1" }
 		}
@@ -357,7 +341,7 @@ namespace Blam::Tags
 
 	const StructDefinition SeatsStruct =
 	{
-		"Seat", sizeof(Vehicle::Seat),
+		"Seat", sizeof(Unit::Seat),
 		{
 			{ FieldType::LongInteger, "UnitHudInterface_1" },
 			{ FieldType::StringID, "SeatAnimation" },
@@ -393,7 +377,7 @@ namespace Blam::Tags
 			{ FieldType::Real, "PitchAutoLevel" },
 			{ FieldType::Real, "PitchRangeMin" },
 			{ FieldType::Real, "PitchRangeMax" },
-			{ FieldType::Block, "CameraTracks", &SeatsCameraTrackStruct },
+			{ FieldType::Block, "CameraTracks", &CameraTracksStruct },
 			{ FieldType::Real, "Unknown4" },
 			{ FieldType::Real, "Unknown5" },
 			{ FieldType::Real, "Unknown6" },
@@ -611,7 +595,7 @@ namespace Blam::Tags
 	const StructDefinition HelicopterMotionPropertiesStruct =
 	{
 		"HelicopterMotionProperty", sizeof(Vehicle::HelicopterMotionProperty),
-		{ 
+		{
 			{ FieldType::Real, "MaximumLeftTurn" },
 			{ FieldType::Real, "MaximumRightTurnNegative" },
 			{ FieldType::Real, "Unknown" },
@@ -781,7 +765,7 @@ namespace Blam::Tags
 		}
 	};
 
-	const StructDefinition PhantomShapePartStruct = 
+	const StructDefinition PhantomShapePartStruct =
 	{
 		"PhantomShapePart", sizeof(Vehicle::PhantomShape::PhantomShapePart),
 		{
@@ -919,7 +903,7 @@ namespace Blam::Tags
 			{ FieldType::Real, "PitchAutoLevel2" },
 			{ FieldType::Real, "PitchRangeMin2" },
 			{ FieldType::Real, "PitchRangeMax2" },
-			{ FieldType::Block, "CameraTracks2", &CameraTracks2Struct },
+			{ FieldType::Block, "CameraTracks2", &CameraTracksStruct },
 			{ FieldType::Real, "Unknown13" },
 			{ FieldType::Real, "Unknown14" },
 			{ FieldType::Real, "Unknown15" },

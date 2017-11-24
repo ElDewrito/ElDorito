@@ -517,19 +517,19 @@
     <ClCompile Include="Source\Blam\Tags\Items\Item.cpp">
       <Filter>Blam\Tags\Items</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Blam\Tags\Items\Vehicle.cpp">
-      <Filter>Blam\Tags\Items</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Blam\Tags\Objects\Biped.cpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Blam\Tags\Objects\Unit.cpp">
+    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Blam\Tags\Objects\Projectile.cpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp">
+    <ClCompile Include="Source\Blam\Tags\Objects\Unit.cpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Blam\Tags\Objects\Vehicle.cpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClCompile>
     <ClCompile Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.cpp">
@@ -726,6 +726,9 @@
     <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp">
       <Filter>Blam\Tags\Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\Objects\Vehicle.hpp">
+      <Filter>Blam\Tags\Objects</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp">
       <Filter>Blam\Tags\Scenario</Filter>
     </ClInclude>
@@ -762,6 +765,9 @@
     <ClInclude Include="Source\Blam\Tags\UI\ChudGlobalsDefinition.hpp">
       <Filter>Blam\Tags\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp">
+      <Filter>Blam\Tags\UI</Filter>
+    </ClInclude>
     <ClInclude Include="Source\Blam\Tags\UI\GuiSkinWidgetDefinition.hpp">
       <Filter>Blam\Tags\UI</Filter>
     </ClInclude>
@@ -781,6 +787,12 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Forge\ForgeUtil.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Geoemetry.hpp">
+      <Filter>Forge</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Forge\Magnets.hpp">
       <Filter>Forge</Filter>
     </ClInclude>
     <ClInclude Include="Source\Forge\ObjectSet.hpp">
@@ -847,6 +859,9 @@
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Patches\Audio.hpp">
+      <Filter>Patches</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\BottomlessClip.hpp">
       <Filter>Patches</Filter>
     </ClInclude>
     <ClInclude Include="Source\Patches\ContentItems.hpp">
@@ -1119,14 +1134,6 @@
     <ClInclude Include="Source\Web\Ui\WebVirtualKeyboard.hpp">
       <Filter>Web\Ui</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Forge\Geoemetry.hpp" />
-    <ClInclude Include="Source\Forge\Magnets.hpp" />
-    <ClInclude Include="Source\Patches\BottomlessClip.hpp">
-      <Filter>Patches</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp">
-      <Filter>Blam\Tags\Globals</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Web\WebRenderer.hpp">
       <Filter>Web</Filter>
     </ClInclude>
@@ -1141,9 +1148,6 @@
     </ClInclude>
     <ClInclude Include="Source\Web\WebRendererSchemeHandlerFactory.hpp">
       <Filter>Web</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\UI\GfxTexturesList.hpp">
-      <Filter>Blam\Tags\UI</Filter>
     </ClInclude>
     <ClInclude Include="Source\CommandMap.hpp" />
     <ClInclude Include="Source\Console.hpp" />
@@ -1210,9 +1214,6 @@
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Enum.hpp">
       <Filter>Blam\Tags</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Blam\Tags\Items\Vehicle.hpp">
-      <Filter>Blam\Tags\Items</Filter>
     </ClInclude>
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionWeapon.hpp">
       <Filter>Blam\Tags\Items</Filter>

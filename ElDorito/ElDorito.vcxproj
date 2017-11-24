@@ -44,13 +44,13 @@
     <ClCompile Include="Source\Blam\Tags\Camera\AreaScreenEffect.cpp" />
     <ClCompile Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.cpp" />
     <ClCompile Include="Source\Blam\Tags\Items\DefinitionEquipment.cpp" />
-    <ClCompile Include="Source\Blam\Tags\Items\Item.cpp" />
-    <ClCompile Include="Source\Blam\Tags\Items\Vehicle.cpp" />
     <ClCompile Include="Source\Blam\Tags\Items\DefinitionWeapon.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Items\Item.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Biped.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Object.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Projectile.cpp" />
     <ClCompile Include="Source\Blam\Tags\Objects\Unit.cpp" />
+    <ClCompile Include="Source\Blam\Tags\Objects\Vehicle.cpp" />
     <ClCompile Include="Source\Blam\Tags\Tag.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagBlock.cpp" />
     <ClCompile Include="Source\Blam\Tags\TagData.cpp" />
@@ -223,9 +223,8 @@
     <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
-    <ClInclude Include="Source\Blam\Tags\Items\Vehicle.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionWeapon.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Biped.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Damage.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Medal.hpp" />
@@ -233,6 +232,7 @@
     <ClInclude Include="Source\Blam\Tags\Objects\Object.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Projectile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Objects\Unit.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Objects\Vehicle.hpp" />
     <ClInclude Include="Source\Blam\Tags\Scenario\Scenario.hpp" />
     <ClInclude Include="Source\Blam\Tags\Sounds\Noise.hpp" />
     <ClInclude Include="Source\Blam\Tags\Sounds\SoundClasses.hpp" />

@@ -33,7 +33,7 @@
 
 #include "../ThirdParty/rapidjson/document.h"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
-#include "../ThirdParty/rapidjson/writer.h"
+#include "../ThirdParty/rapidjson/prettywriter.h"
 
 namespace
 {
@@ -53,7 +53,10 @@ namespace Patches::Weapon
 	using Blam::Math::RealVector3D;
 	using Blam::Tags::TagInstance;
 
-	bool IsNotMainMenu;
+	bool IsMainMenu;
+
+	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices);
+	std::map<std::string, std::string> weaponNames;
 
 	std::string JSONName;
 	std::map<std::string, uint16_t> weaponIndices;
@@ -69,11 +72,11 @@ namespace Patches::Weapon
 
 		if (mapName == "mainmenu")
 		{
-			IsNotMainMenu = false;
+			IsMainMenu = true;
 		}
 		else
 		{
-			IsNotMainMenu = true;
+			IsMainMenu = false;
 
 			SetDefaultOffsets();
 
@@ -114,37 +117,12 @@ namespace Patches::Weapon
 
 	void ApplyAfterTagsLoaded()
 	{
-		using Blam::Tags::Game::Globals;
-		using Blam::Tags::Game::MultiplayerGlobals;
-		using Blam::Tags::Globals::CacheFileGlobalTags;
+		if (!IsMainMenu)
+			AddSupportedWeapons(weaponNames, weaponIndices);
 
-		auto *cfgt = TagInstance(0x0000).GetDefinition<CacheFileGlobalTags>();
-
-		auto matgTagIndex = -1;
-
-		for (auto &entry : cfgt->GlobalsTags)
-		{
-			if (entry.Tag.GroupTag == 'matg')
-			{
-				matgTagIndex = entry.Tag.TagIndex;
-				break;
-			}
-		}
-
-		if (matgTagIndex == -1)
-			throw std::exception("globals tag (matg) not reference in cache_file_global_tags!");
-
-		auto *matg = TagInstance(matgTagIndex).GetDefinition<Globals>();
-		auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
-
-		for (auto &element : mulg->Universal->GameVariantWeapons)
-		{
-			auto string = std::string(Blam::Cache::StringIDCache::Instance.GetString(element.Name));
-			auto index = (uint16_t)element.Weapon.TagIndex;
-
-			if (index != 0xFFFF)
-				weaponIndices.emplace(string, index);
-		}
+		//// Debug info
+		//for (auto weapon : weaponNames)
+		//	Console::WriteLine(weapon.first + ", " + weapon.second);
 	}
 
 	std::map<std::string, uint16_t> GetIndices()
@@ -178,7 +156,7 @@ namespace Patches::Weapon
 			}
 		}
 		if (indexExists == false)
-			return "NotFoundInMULG";
+			return "Weapon not supported.";
 
 		return weaponName;
 	}
@@ -256,9 +234,9 @@ namespace Patches::Weapon
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
 				if (weapIndex != 0xFFFF)
 				{
-					auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if(weapon)
-						weaponOffsetsDefault.emplace(selected, weapon->FirstPersonWeaponOffset);
+					auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+					if(weaponDeinition)
+						weaponOffsetsDefault.emplace(selected, weaponDeinition->FirstPersonWeaponOffset);
 				}
 			}
 		}
@@ -266,8 +244,7 @@ namespace Patches::Weapon
 
 	bool SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
-		if (!IsNotMainMenu)
-			return false;
+		if (IsMainMenu) return false;
 
 		auto result = weaponOffsetsDefault.find(weaponName);
 
@@ -287,25 +264,25 @@ namespace Patches::Weapon
 
 	void ApplyOffsetByIndex(uint16_t &weaponIndex, RealVector3D &weaponOffset)
 	{
-		if (IsNotMainMenu)
+		if (!IsMainMenu)
 		{
-			auto *weapon = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if(weapon)
-				weapon->FirstPersonWeaponOffset = weaponOffset;
+			auto *weaponDeinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if(weaponDeinition)
+				weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
 		}
 	}
 
 	void ApplyOffsetByName(std::string &weaponName, RealVector3D &weaponOffset)
 	{
-		if (IsNotMainMenu)
+		if (!IsMainMenu)
 		{
 
 			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
 			if (weapIndex != 0xFFFF)
 			{
-				auto *weapon = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if(weapon)
-					weapon->FirstPersonWeaponOffset = weaponOffset;
+				auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				if(weaponDeinition)
+					weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
 			}
 		}
 	}
@@ -318,6 +295,41 @@ namespace Patches::Weapon
 		return true;
 	}
 
+	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices)
+	{
+		std::ifstream in("mods/weapons/supported_weapons.json", std::ios::in | std::ios::binary);
+		if (in && in.is_open())
+		{
+			std::string contents;
+			in.seekg(0, std::ios::end);
+			contents.resize((unsigned int)in.tellg());
+			in.seekg(0, std::ios::beg);
+			in.read(&contents[0], contents.size());
+			in.close();
+
+			rapidjson::Document document;
+			if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
+			{
+				if (!document.HasMember("supported_weapons")) return false;
+				const rapidjson::Value& weaponNames = document["supported_weapons"];
+
+				for (rapidjson::SizeType i = 0; i < weaponNames.Size(); i++)
+				{
+					const rapidjson::Value& weaponsObject = weaponNames[i];
+					if (!weaponsObject.HasMember("name") || !weaponsObject.HasMember("name")) continue;
+
+					std::string weaponname = weaponsObject["name"].GetString();
+					std::string tagname = weaponsObject["tagname"].GetString();
+
+					weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
+					weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+				}
+			}
+		}
+
+		return true;
+	}
+
 	namespace Config
 	{
 		bool CreateList()
@@ -326,7 +338,7 @@ namespace Patches::Weapon
 
 			if (!boost::filesystem::exists("mods/weapons/offsets.json"))
 			{
-				std::ofstream out("mods/weapons/offsets.json", std::ios::out | std::ios::binary);
+				std::ofstream out("mods/weapons/offsets.json", std::ios::trunc);
 				if (!out.is_open())
 					return false;
 
@@ -415,9 +427,8 @@ namespace Patches::Weapon
 
 					std::string weapName = weapObject["Name"].GetString();
 					const rapidjson::Value& offsets = weapObject["Offset"];
-					RealVector3D weapOffset = { std::stof(offsets[0].GetString()), std::stof(offsets[1].GetString()), std::stof(offsets[2].GetString()) };
 
-					SetOffsetModified(weapName, weapOffset);
+					SetOffsetModified(weapName, RealVector3D(offsets[0].GetFloat(), offsets[1].GetFloat(), offsets[2].GetFloat()));
 				}
 			}
 
@@ -450,15 +461,13 @@ namespace Patches::Weapon
 					rapidjson::Document document;
 					if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
 					{
-						if (!document.HasMember("offsets"))
-							return false;
+						if (!document.HasMember("offsets")) return false;
 
-						std::ofstream out("mods/weapons/offsets.json", std::ios::out | std::ios::binary);
-						if (!out.is_open())
-							return false;
+						std::ofstream out("mods/weapons/offsets.json", std::ios::trunc);
+						if (!out.is_open()) return false;
 
 						rapidjson::StringBuffer jsonBuffer;
-						rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+						rapidjson::PrettyWriter<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 						jsonWriter.StartObject();
 						jsonWriter.Key("offsets");
 
@@ -496,45 +505,47 @@ namespace Patches::Weapon
 				}
 			}
 
-			std::ofstream out("mods/weapons/offsets/" + Name + ".json", std::ios::out | std::ios::binary);
+			std::ofstream out("mods/weapons/offsets/" + Name + ".json", std::ios::trunc);
 			if (!out.is_open())
 				return false;
 
-				rapidjson::StringBuffer jsonBuffer;
-				rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+			rapidjson::StringBuffer jsonBuffer;
+			rapidjson::PrettyWriter<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+
+
+			jsonWriter.StartObject();
+			jsonWriter.Key("Weapons");
+
+			jsonWriter.StartArray();
+			for (auto &weaponParams : (Utils::String::ToLower(Name) == "default" ? weaponOffsetsDefault : weaponOffsetsModified))
+			{
+				std::string weaponName = weaponParams.first;
+				RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
+
 				jsonWriter.StartObject();
-				jsonWriter.Key("Weapons");
 
+				jsonWriter.Key("Name");
+				jsonWriter.String(weaponName.c_str());
+
+				jsonWriter.Key("Offset");
 				jsonWriter.StartArray();
-				for (auto &weaponParams : (Utils::String::ToLower(Name) == "default" ? weaponOffsetsDefault : weaponOffsetsModified))
-				{
-					std::string weaponName = weaponParams.first;
-					RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
-
-					jsonWriter.StartObject();
-
-					jsonWriter.Key("Name");
-					jsonWriter.String(weaponName.c_str());
-
-					jsonWriter.Key("Offset");
-					jsonWriter.StartArray();
-					jsonWriter.String(std::to_string(weaponOffset.I).c_str());
-					jsonWriter.String(std::to_string(weaponOffset.J).c_str());
-					jsonWriter.String(std::to_string(weaponOffset.K).c_str());
-					jsonWriter.EndArray();
-
-					jsonWriter.EndObject();
-				}
-
+				jsonWriter.SetMaxDecimalPlaces(6);
+				jsonWriter.Double(weaponOffset.I);
+				jsonWriter.Double(weaponOffset.J);
+				jsonWriter.Double(weaponOffset.K);
 				jsonWriter.EndArray();
+
 				jsonWriter.EndObject();
+			}
 
-				out << jsonBuffer.GetString();
-				if (out.fail())
-					return false;
+			jsonWriter.EndArray();
+			jsonWriter.EndObject();
 
-				out.flush();
-				out.close();
+			out << jsonBuffer.GetString();
+			if (out.fail()) return false;
+
+			out.flush();
+			out.close();
 
 			return true;
 		}
@@ -595,9 +606,9 @@ namespace
 			return 0;
 
 		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		auto *weapon = TagInstance(index).GetDefinition<Weapon>();
+		auto *weaponDeinition = TagInstance(index).GetDefinition<Weapon>();
 
-		return ((int32_t)weapon->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
+		return ((int32_t)weaponDeinition->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void DualWieldSprintInputHook()

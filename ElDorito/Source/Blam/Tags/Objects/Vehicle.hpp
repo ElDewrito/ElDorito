@@ -2,35 +2,16 @@
 #include "../../Math/RealPoint3D.hpp"
 #include "../../Text/StringID.hpp"
 #include "../Tags.hpp"
-#include "Item.hpp"
+#include "Unit.hpp"
 
-namespace Blam::Tags::Items
+namespace Blam::Tags::Objects
 {
 	struct Vehicle : TagGroup<'vehi'>
 	{
-		Item Item;
+		Unit Unit;
 
-		struct EarlyMoverProperty;
-		struct AiProperty;
-		struct Function;
-		struct Attachment;
-		struct Widget;
-		struct ChangeColor;
-		struct NodeMap;
-		struct MultiplayerObjectProperty;
-		struct ModelObjectDatum;
-		struct MetagameProperty;
-		struct CameraTrack;
 		struct Unknown10;
-		struct CameraTrack2;
 		struct Unknown16;
-		struct Posture;
-		struct HudInterface;
-		struct DialogueVariant;
-		struct PoweredSeat;
-		struct Weapon;
-		struct TargetTracking;
-		struct Seat;
 		struct TankEngineMotionProperty;
 		struct EngineMotionProperty;
 		struct DropshipMotionProperty;
@@ -44,48 +25,44 @@ namespace Blam::Tags::Items
 		struct FrictionPoint;
 		struct PhantomShape;
 
-		int16_t ObjectType;
-		uint16_t Flags;
+		Object::TypeValue ObjectType : 16;
+		Object::FlagsValue ObjectFlags : 16;
 		float BoundingRadius;
-		float BoundingOffsetX;
-		float BoundingOffsetY;
-		float BoundingOffsetZ;
+		RealPoint3D BoundingOffset;
 		float AccelerationScale;
-		int16_t LightmapShadowModeSize;
-		int8_t SweetenerSize;
-		int8_t WaterDensity;
+		Object::LightmapShadowModeValue LightmapShadowMode : 16;
+		Object::SweetenerSizeValue SweetenerSize : 8;
+		Object::WaterDensityValue WaterDensity : 8;
 		int32_t Unknown;
-		float DynamicLightSphereRadius;
-		float DynamicLightSphereOffsetX;
-		float DynamicLightSphereOffsetY;
-		float DynamicLightSphereOffsetZ;
+		StringID DynamicLightSphereRadius;
+		RealPoint3D DynamicLightSphereOffset;
 		Text::StringID DefaultModelVariant;
 		TagReference Model;
 		TagReference CrateObject;
 		TagReference CollisionDamage;
-		TagBlock<EarlyMoverProperty> EarlyMoverProperties;
+		TagBlock<Object::EarlyMoverProperty> EarlyMoverProperties;
 		TagReference CreationEffect;
 		TagReference MaterialEffects;
 		TagReference ArmorSounds;
 		TagReference MeleeImpact;
-		TagBlock<AiProperty> AiProperties;
-		TagBlock<Function> Functions;
+		TagBlock<Object::AIProperty> AiProperties;
+		TagBlock<Object::Function> Functions;
 		int16_t HudTextMessageIndex;
 		int16_t Unknown2;
-		TagBlock<Attachment> Attachments;
-		TagBlock<Widget> Widgets;
-		TagBlock<ChangeColor> ChangeColors;
-		TagBlock<NodeMap> NodeMaps;
-		TagBlock<MultiplayerObjectProperty> MultiplayerObjectProperties;
+		TagBlock<Object::Attachment> Attachments;
+		TagBlock<Object::Widget> Widgets;
+		TagBlock<Object::ChangeColor> ChangeColors;
+		TagBlock<Object::NodeMap> NodeMaps;
+		TagBlock<Object::MultiplayerProperty> MultiplayerProperties;
 		uint32_t Unknown3;
 		uint32_t Unknown4;
 		uint32_t Unknown5;
-		TagBlock<ModelObjectDatum> ModelObjectData;
+		TagBlock<Object::ModelObjectDatum> ModelObjectData;
 		int32_t Flags2;
 		int16_t DefaultTeam;
 		int16_t ConstantSoundVolume;
 		TagReference HologramUnit;
-		TagBlock<MetagameProperty> MetagameProperties;
+		TagBlock<Unit::MetagameProperty> MetagameProperties;
 		TagReference IntegratedLightToggle;
 		float CameraFieldOfView;
 		float CameraStiffness;
@@ -96,11 +73,11 @@ namespace Blam::Tags::Items
 		float PitchAutoLevel;
 		float PitchRangeMin;
 		float PitchRangeMax;
-		TagBlock<CameraTrack> CameraTracks;
+		TagBlock<Unit::CameraTrackBlock> CameraTracks;
 		float Unknown7;
 		float Unknown8;
 		float Unknown9;
-		TagBlock<Unknown10> Unknown11;
+		TagBlock<Vehicle::Unknown10> Unknown11;
 		int16_t Flags4;
 		int16_t Unknown12;
 		Text::StringID CameraMarkerName2;
@@ -108,11 +85,11 @@ namespace Blam::Tags::Items
 		float PitchAutoLevel2;
 		float PitchRangeMin2;
 		float PitchRangeMax2;
-		TagBlock<CameraTrack2> CameraTracks2;
+		TagBlock<Unit::CameraTrackBlock> CameraTracks2;
 		float Unknown13;
 		float Unknown14;
 		float Unknown15;
-		TagBlock<Unknown16> Unknown17;
+		TagBlock<Vehicle::Unknown16> Unknown17;
 		TagReference AssassinationResponse;
 		TagReference AssassinationWeapon;
 		Text::StringID AssasinationToolStowAnchor;
@@ -158,9 +135,9 @@ namespace Blam::Tags::Items
 		TagReference AssassinationDamage;
 		int16_t MotionSensorBlipSize;
 		int16_t ItemScale;
-		TagBlock<Posture> Postures;
-		TagBlock<HudInterface> HudInterfaces;
-		TagBlock<DialogueVariant> DialogueVariants;
+		TagBlock<Unit::Posture> Postures;
+		TagBlock<Unit::HudInterface> HudInterfaces;
+		TagBlock<Unit::DialogueVariant> DialogueVariants;
 		float Unknown18;
 		float Unknown19;
 		float Unknown20;
@@ -168,10 +145,10 @@ namespace Blam::Tags::Items
 		float GrenadeVelocity;
 		int16_t GrenadeType;
 		int16_t GrenadeCount;
-		TagBlock<PoweredSeat> PoweredSeats;
-		TagBlock<Weapon> Weapons;
-		TagBlock<TargetTracking> TargetTracking2;
-		TagBlock<Seat> Seats;
+		TagBlock<Unit::PoweredSeat> PoweredSeats;
+		TagBlock<Unit::Weapon> Weapons;
+		TagBlock<Unit::TargetTrackingBlock> TargetTrackings;
+		TagBlock<Unit::Seat> Seats;
 		float EmpRadius;
 		TagReference EmpEffect;
 		TagReference BoostCollisionDamage;
@@ -185,18 +162,18 @@ namespace Blam::Tags::Items
 		TagReference DetachDamage;
 		TagReference DetachedWeapon;
 		int32_t Flags5;
-		TagBlock<TankEngineMotionProperty> TankEngineMotionProperties;
-		TagBlock<EngineMotionProperty> EngineMotionProperties;
-		TagBlock<DropshipMotionProperty> DropshipMotionProperties;
-		TagBlock<AntigravityMotionProperty> AntigravityMotionProperties;
-		TagBlock<JetEngineMotionProperty> JetEngineMotionProperties;
-		TagBlock<TurretProperty> TurretProperties;
+		TagBlock<Vehicle::TankEngineMotionProperty> TankEngineMotionProperties;
+		TagBlock<Vehicle::EngineMotionProperty> EngineMotionProperties;
+		TagBlock<Vehicle::DropshipMotionProperty> DropshipMotionProperties;
+		TagBlock<Vehicle::AntigravityMotionProperty> AntigravityMotionProperties;
+		TagBlock<Vehicle::JetEngineMotionProperty> JetEngineMotionProperties;
+		TagBlock<Vehicle::TurretProperty> TurretProperties;
 		uint32_t Unknown22;
 		uint32_t Unknown23;
 		uint32_t Unknown24;
-		TagBlock<HelicopterMotionProperty> HelicopterMotionProperties;
-		TagBlock<AntigravityEngineMotionProperty> AntigravityEngineMotionProperties;
-		TagBlock<AutoturretEquipment> AutoturretEquipment2;
+		TagBlock<Vehicle::HelicopterMotionProperty> HelicopterMotionProperties;
+		TagBlock<Vehicle::AntigravityEngineMotionProperty> AntigravityEngineMotionProperties;
+		TagBlock<Vehicle::AutoturretEquipment> AutoturretEquipments;
 		int32_t Flags6;
 		float GroundFriction;
 		float GroundDepth;
@@ -212,9 +189,9 @@ namespace Blam::Tags::Items
 		float Unknown26;
 		float Unknown27;
 		float Unknown28;
-		TagBlock<AntiGravityPoint> AntiGravityPoints;
-		TagBlock<FrictionPoint> FrictionPoints;
-		TagBlock<PhantomShape> PhantomShapes;
+		TagBlock<Vehicle::AntiGravityPoint> AntiGravityPoints;
+		TagBlock<Vehicle::FrictionPoint> FrictionPoints;
+		TagBlock<Vehicle::PhantomShape> PhantomShapes;
 		int8_t PlayerTrainingVehicleType;
 		int8_t VehicleSize;
 		int8_t Unknown29;
@@ -234,164 +211,7 @@ namespace Blam::Tags::Items
 		uint32_t Unknown33;
 		uint32_t Unknown34;
 
-		struct EarlyMoverProperty
-		{
-			Text::StringID Name;
-			uint32_t Unknown;
-			uint32_t Unknown2;
-			uint32_t Unknown3;
-			uint32_t Unknown4;
-			uint32_t Unknown5;
-			uint32_t Unknown6;
-			uint32_t Unknown7;
-			uint32_t Unknown8;
-			uint32_t Unknown9;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct EarlyMoverProperty, 0x28);
-
-		struct AiProperty
-		{
-			int32_t Flags;
-			Text::StringID AiTypeName;
-			int16_t Size;
-			int16_t LeapJumpSpeed;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct AiProperty, 0xC);
-
-		struct Function
-		{
-			int32_t Flags;
-			Text::StringID ImportName;
-			Text::StringID ExportName;
-			Text::StringID TurnOffWith;
-			float MinimumValue;
-			TagData<uint8_t> DefaultFunction;
-			Text::StringID ScaleBy;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Function, 0x2C);
-
-		struct Attachment
-		{
-			int32_t AtlasFlags;
-			TagReference Attachment_1;
-			Text::StringID Marker;
-			int16_t ChangeColor;
-			int16_t Unknown;
-			Text::StringID PrimaryScale;
-			Text::StringID SecondaryScale;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Attachment, 0x24);
-
-		struct Widget
-		{
-			TagReference Type;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Widget, 0x10);
-
-		struct ChangeColor
-		{
-			struct InitialPermutation;
-			struct Function;
-
-			TagBlock<InitialPermutation> InitialPermutations;
-			TagBlock<Function> Functions;
-
-			struct InitialPermutation
-			{
-				uint32_t Weight;
-				float ColorLowerBoundR;
-				float ColorLowerBoundG;
-				float ColorLowerBoundB;
-				float ColorUpperBoundR;
-				float ColorUpperBoundG;
-				float ColorUpperBoundB;
-				Text::StringID VariantName;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct InitialPermutation, 0x20);
-
-			struct Function
-			{
-				int32_t ScaleFlags;
-				float ColorLowerBoundR;
-				float ColorLowerBoundG;
-				float ColorLowerBoundB;
-				float ColorUpperBoundR;
-				float ColorUpperBoundG;
-				float ColorUpperBoundB;
-				Text::StringID DarkenBy;
-				Text::StringID ScaleBy;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct Function, 0x24);
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct ChangeColor, 0x18);
-
-		struct NodeMap
-		{
-			int8_t TargetNode;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct NodeMap, 0x1);
-
-		struct MultiplayerObjectProperty
-		{
-			uint16_t EngineFlags;
-			int8_t ObjectType;
-			uint8_t TeleporterFlags;
-			uint16_t Flags;
-			int8_t Shape;
-			int8_t SpawnTimerMode;
-			int16_t SpawnTime;
-			int16_t AbandonTime;
-			float RadiusWidth;
-			float Length;
-			float Top;
-			float Bottom;
-			float Unknown;
-			float Unknown2;
-			float Unknown3;
-			int32_t Unknown4;
-			int32_t Unknown5;
-			TagReference ChildObject;
-			int32_t Unknown6;
-			TagReference ShapeShader;
-			TagReference UnknownShader;
-			TagReference Unknown7;
-			TagReference Unknown8;
-			TagReference Unknown9;
-			TagReference Unknown10;
-			TagReference Unknown11;
-			TagReference Unknown12;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct MultiplayerObjectProperty, 0xC4);
-
-		struct ModelObjectDatum
-		{
-			int16_t Type;
-			int16_t Unknown;
-			float OffsetX;
-			float OffsetY;
-			float OffsetZ;
-			float Radius;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct ModelObjectDatum, 0x14);
-
-		struct MetagameProperty
-		{
-			uint8_t Flags;
-			int8_t Unit;
-			int8_t Classification;
-			int8_t Unknown;
-			int16_t Points;
-			int16_t Unknown2;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct MetagameProperty, 0x8);
-
-		struct CameraTrack
-		{
-			TagReference Track;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct CameraTrack, 0x10);
-
-		struct Unknown10
+		struct Vehicle::Unknown10
 		{
 			uint32_t Unknown;
 			uint32_t Unknown2;
@@ -413,15 +233,9 @@ namespace Blam::Tags::Items
 			uint32_t Unknown18;
 			uint32_t Unknown19;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct Unknown10, 0x4C);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::Unknown10, 0x4C);
 
-		struct CameraTrack2
-		{
-			TagReference Track;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct CameraTrack2, 0x10);
-
-		struct Unknown16
+		struct Vehicle::Unknown16
 		{
 			uint32_t Unknown;
 			uint32_t Unknown2;
@@ -443,159 +257,9 @@ namespace Blam::Tags::Items
 			uint32_t Unknown18;
 			uint32_t Unknown19;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct Unknown16, 0x4C);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::Unknown16, 0x4C);
 
-		struct Posture
-		{
-			Text::StringID Name;
-			float PillOffsetI;
-			float PillOffsetJ;
-			float PillOffsetK;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Posture, 0x10);
-
-		struct HudInterface
-		{
-			TagReference UnitHudInterface;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct HudInterface, 0x10);
-
-		struct DialogueVariant
-		{
-			int16_t VariantNumber;
-			int16_t Unknown;
-			TagReference Dialogue;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct DialogueVariant, 0x14);
-
-		struct PoweredSeat
-		{
-			float DriverPowerupTime;
-			float DriverPowerdownTime;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct PoweredSeat, 0x8);
-
-		struct Weapon
-		{
-			TagReference Weapon_1;
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Weapon, 0x10);
-
-		struct TargetTracking
-		{
-			struct TrackingType;
-
-			TagBlock<TrackingType> TrackingTypes;
-			float AcquireTime;
-			float GraceTime;
-			float DecayTime;
-			TagReference TrackingSound;
-			TagReference LockedSound;
-
-			struct TrackingType
-			{
-				Text::StringID TrackingType_1;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct TrackingType, 0x4);
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct TargetTracking, 0x38);
-
-		struct Seat
-		{
-			struct CameraTrack;
-			struct Unknown7;
-			struct UnitHudInterface;
-
-			int32_t Flags;
-			Text::StringID SeatAnimation;
-			Text::StringID SeatMarkerName;
-			Text::StringID EntryMarkerSName;
-			Text::StringID BoardingGrenadeMarker;
-			Text::StringID BoardingGrenadeString;
-			Text::StringID BoardingMeleeString;
-			Text::StringID DetachWeaponString;
-			float PingScale;
-			float TurnoverTime;
-			float AccelerationRangeI;
-			float AccelerationRangeJ;
-			float AccelerationRangeK;
-			float AccelerationActionScale;
-			float AccelerationAttachScale;
-			float AiScariness;
-			int16_t AiSeatType;
-			int16_t BoardingSeat;
-			float ListenerInterpolationFactor;
-			float YawRateBoundsMin;
-			float YawRateBoundsMax;
-			float PitchRateBoundsMin;
-			float PitchRateBoundsMax;
-			float Unknown;
-			float MinimumSpeedReference;
-			float MaximumSpeedReference;
-			float SpeedExponent;
-			int16_t Unknown2;
-			int16_t Unknown3;
-			Text::StringID CameraMarkerName;
-			Text::StringID CameraSubmergedMarkerName;
-			float PitchAutoLevel;
-			float PitchRangeMin;
-			float PitchRangeMax;
-			TagBlock<CameraTrack> CameraTracks;
-			float Unknown4;
-			float Unknown5;
-			float Unknown6;
-			TagBlock<Unknown7> Unknown8;
-			TagBlock<UnitHudInterface> UnitHudInterface2;
-			Text::StringID EnterSeatString;
-			float YawRangeMin;
-			float YawRangeMax;
-			TagReference BuiltInGunner;
-			float EntryRadius;
-			float EntryMarkerConeAngle;
-			float EntryMarkerFacingAngle;
-			float MaximumRelativeVelocity;
-			Text::StringID InvisibleSeatRegion;
-			int32_t RuntimeInvisibleSeatRegionIndex;
-
-			struct CameraTrack
-			{
-				TagReference Track;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct CameraTrack, 0x10);
-
-			struct Unknown7
-			{
-				float Unknown;
-				float Unknown2;
-				float Unknown3;
-				float Unknown4;
-				float Unknown5;
-				float Unknown6;
-				float Unknown7_1;
-				float Unknown8;
-				float Unknown9;
-				float Unknown10;
-				float Unknown11;
-				float Unknown12;
-				float Unknown13;
-				float Unknown14;
-				float Unknown15;
-				float Unknown16;
-				float Unknown17;
-				float Unknown18;
-				float Unknown19;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct Unknown7, 0x4C);
-
-			struct UnitHudInterface
-			{
-				TagReference UnitHudInterface_1;
-			};
-			TAG_STRUCT_SIZE_ASSERT(struct UnitHudInterface, 0x10);
-		};
-		TAG_STRUCT_SIZE_ASSERT(struct Seat, 0xE4);
-
-		struct TankEngineMotionProperty
+		struct Vehicle::TankEngineMotionProperty
 		{
 			struct Gear;
 
@@ -612,12 +276,12 @@ namespace Blam::Tags::Items
 			float TurningSpeedRight2;
 			float EngineMomentum;
 			float EngineMaximumAngularVelocity;
-			TagBlock<Gear> Gears;
+			TagBlock<Vehicle::TankEngineMotionProperty::Gear> Gears;
 			TagReference ChangeGearSound;
 			float Unknown2;
 			float Unknown3;
 
-			struct Gear
+			struct Vehicle::TankEngineMotionProperty::Gear
 			{
 				float MinTorque;
 				float MaxTorque;
@@ -637,11 +301,11 @@ namespace Blam::Tags::Items
 				float MinTimeToDownshift;
 				float EngineDownshiftScale;
 			};
-			TAG_STRUCT_SIZE_ASSERT(struct Gear, 0x44);
+			TAG_STRUCT_SIZE_ASSERT(Vehicle::TankEngineMotionProperty::Gear, 0x44);
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct TankEngineMotionProperty, 0x58);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::TankEngineMotionProperty, 0x58);
 
-		struct EngineMotionProperty
+		struct Vehicle::EngineMotionProperty
 		{
 			struct Gear;
 
@@ -652,12 +316,12 @@ namespace Blam::Tags::Items
 			float TurnRate;
 			float EngineMomentum;
 			float EngineMaximumAngularVelocity;
-			TagBlock<Gear> Gears;
+			TagBlock<Vehicle::EngineMotionProperty::Gear> Gears;
 			TagReference ChangeGearSound;
 			uint32_t Unknown;
 			uint32_t Unknown2;
 
-			struct Gear
+			struct Vehicle::EngineMotionProperty::Gear
 			{
 				float MinTorque;
 				float MaxTorque;
@@ -677,11 +341,11 @@ namespace Blam::Tags::Items
 				float MinTimeToDownshift;
 				float EngineDownshiftScale;
 			};
-			TAG_STRUCT_SIZE_ASSERT(struct Gear, 0x44);
+			TAG_STRUCT_SIZE_ASSERT(Vehicle::EngineMotionProperty::Gear, 0x44);
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct EngineMotionProperty, 0x40);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::EngineMotionProperty, 0x40);
 
-		struct DropshipMotionProperty
+		struct Vehicle::DropshipMotionProperty
 		{
 			float ForwardAcceleration;
 			float BackwardAcceleration;
@@ -703,9 +367,9 @@ namespace Blam::Tags::Items
 			float Unknown12;
 			float Unknown13;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct DropshipMotionProperty, 0x4C);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::DropshipMotionProperty, 0x4C);
 
-		struct AntigravityMotionProperty
+		struct Vehicle::AntigravityMotionProperty
 		{
 			float SteeringOverdampenCuspAngle;
 			float SteeringOverdamenExponent;
@@ -739,9 +403,9 @@ namespace Blam::Tags::Items
 			float Unknown18;
 			float Unknown19;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct AntigravityMotionProperty, 0x70);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::AntigravityMotionProperty, 0x70);
 
-		struct JetEngineMotionProperty
+		struct Vehicle::JetEngineMotionProperty
 		{
 			float SteeringOverdampenCuspAngle;
 			float SteeringOverdamenExponent;
@@ -770,16 +434,15 @@ namespace Blam::Tags::Items
 			float IdleForward;
 			uint32_t Unknown7;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct JetEngineMotionProperty, 0x68);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::JetEngineMotionProperty, 0x68);
 
-		struct TurretProperty
+		struct Vehicle::TurretProperty
 		{
 			uint32_t Unknown;
-			uint32_t Unknown2;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct TurretProperty, 0x8);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::TurretProperty, 0x4);
 
-		struct HelicopterMotionProperty
+		struct Vehicle::HelicopterMotionProperty
 		{
 			float MaximumLeftTurn;
 			float MaximumRightTurnNegative;
@@ -811,9 +474,9 @@ namespace Blam::Tags::Items
 			float Unknown23;
 			float Unknown24;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct HelicopterMotionProperty, 0x74);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::HelicopterMotionProperty, 0x74);
 
-		struct AntigravityEngineMotionProperty
+		struct Vehicle::AntigravityEngineMotionProperty
 		{
 			struct Gear;
 
@@ -824,7 +487,7 @@ namespace Blam::Tags::Items
 			float TurnRate;
 			float EngineMomentum;
 			float EngineMaximumAngularVelocity;
-			TagBlock<Gear> Gears;
+			TagBlock<Vehicle::AntigravityEngineMotionProperty::Gear> Gears;
 			TagReference ChangeGearSound;
 			float Unknown;
 			Text::StringID Unknown2;
@@ -841,7 +504,7 @@ namespace Blam::Tags::Items
 			float Unknown13;
 			float Unknown14;
 
-			struct Gear
+			struct Vehicle::AntigravityEngineMotionProperty::Gear
 			{
 				float MinTorque;
 				float MaxTorque;
@@ -861,11 +524,11 @@ namespace Blam::Tags::Items
 				float MinTimeToDownshift;
 				float EngineDownshiftScale;
 			};
-			TAG_STRUCT_SIZE_ASSERT(struct Gear, 0x44);
+			TAG_STRUCT_SIZE_ASSERT(Vehicle::AntigravityEngineMotionProperty::Gear, 0x44);
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct AntigravityEngineMotionProperty, 0x70);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::AntigravityEngineMotionProperty, 0x70);
 
-		struct AutoturretEquipment
+		struct Vehicle::AutoturretEquipment
 		{
 			float Unknown;
 			float Unknown2;
@@ -880,9 +543,9 @@ namespace Blam::Tags::Items
 			float Unknown11;
 			float Unknown12;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct AutoturretEquipment, 0x30);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::AutoturretEquipment, 0x30);
 
-		struct AntiGravityPoint
+		struct Vehicle::AntiGravityPoint
 		{
 			Text::StringID MarkerName;
 			int32_t Flags;
@@ -905,9 +568,9 @@ namespace Blam::Tags::Items
 			float MajorDamageError;
 			float DestroyedStateError;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct AntiGravityPoint, 0x4C);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::AntiGravityPoint, 0x4C);
 
-		struct FrictionPoint
+		struct Vehicle::FrictionPoint
 		{
 			Text::StringID MarkerName;
 			int32_t Flags;
@@ -931,9 +594,9 @@ namespace Blam::Tags::Items
 			Text::StringID RegionName;
 			int32_t RegionIndex;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct FrictionPoint, 0x4C);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::FrictionPoint, 0x4C);
 
-		struct PhantomShape
+		struct Vehicle::PhantomShape
 		{
 			struct PhantomShapePart
 			{
@@ -1002,7 +665,7 @@ namespace Blam::Tags::Items
 			uint32_t Unknown48;
 			uint32_t Unknown49;
 		};
-		TAG_STRUCT_SIZE_ASSERT(struct PhantomShape, 0x3D0);
+		TAG_STRUCT_SIZE_ASSERT(Vehicle::PhantomShape, 0x3D0);
 	};
-	TAG_STRUCT_SIZE_ASSERT(struct Vehicle, 0x704);
+	TAG_STRUCT_SIZE_ASSERT(Vehicle, 0x918);
 }

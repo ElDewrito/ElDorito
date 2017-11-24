@@ -1,10 +1,22 @@
 {
-  "offsets": [
-    { "id": "default" },
-    { "id": "CenteredCrosshair" },
-    { "id": "Halo3ViewModels" },
-    { "id": "H390FOV" },
-    { "id": "H2A" },
-    { "id": "120FOV_Centered" }
-  ]
+    "offsets": [
+        {
+            "id": "default"
+        },
+        {
+            "id": "CenteredCrosshair"
+        },
+        {
+            "id": "Halo3ViewModels"
+        },
+        {
+            "id": "H390FOV"
+        },
+        {
+            "id": "H2A"
+        },
+        {
+            "id": "120FOV_Centered"
+        }
+    ]
 }
