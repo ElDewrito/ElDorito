@@ -10,7 +10,7 @@ namespace ChatCommands
 	{
 	public:
 
-		virtual void doOnVotePass() = 0;
+		virtual void doOnVotePass(std::string name) = 0;
 		virtual void doOnVoteStart(std::string starterName) = 0;
 		virtual bool isValidArgument(std::string s, std::string& returnInfo) = 0;
 		virtual void doOnVoteFail() = 0;
@@ -45,7 +45,7 @@ namespace ChatCommands
 	{
 	public:
 		virtual void doOnVoteStart(std::string starterName);
-		virtual void doOnVotePass();
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
 		virtual bool isEnabled();
@@ -56,7 +56,7 @@ namespace ChatCommands
 	{
 	public:
 		virtual void doOnVoteStart(std::string starterName);
-		virtual void doOnVotePass();
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
 		virtual bool isEnabled();
@@ -68,7 +68,7 @@ namespace ChatCommands
 	{
 	public:
 		virtual void doOnVoteStart(std::string starterName);
-		virtual void doOnVotePass();
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isEnabled();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
@@ -82,7 +82,7 @@ namespace ChatCommands
 	{
 	public:
 		virtual void doOnVoteStart(std::string starterName);
-		virtual void doOnVotePass();
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isEnabled();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);

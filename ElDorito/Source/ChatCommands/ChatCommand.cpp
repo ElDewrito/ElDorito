@@ -30,9 +30,9 @@ namespace ChatCommands
 
 	ShuffleTeamsCommand::ShuffleTeamsCommand() : AbstractChatCommand("shuffleTeams", "Starts a vote to shuffle the teams. Type !yes to vote."){}
 
-	void ShuffleTeamsCommand::doOnVotePass()
+	void ShuffleTeamsCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Vote Has Passed.");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote Has Passed.");
 		Modules::CommandMap::Instance().ExecuteCommand("server.shuffleteams");
 	}
 	bool ShuffleTeamsCommand::isEnabled()
@@ -60,9 +60,9 @@ namespace ChatCommands
 
 	EndGameCommand::EndGameCommand() : AbstractChatCommand("endGame", "Starts a vote to end the current game. Type !yes to vote."){}
 
-	void EndGameCommand::doOnVotePass()
+	void EndGameCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Vote Has Passed");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote Has Passed");
 		Modules::CommandMap::Instance().ExecuteCommand("game.end");
 	}
 	bool EndGameCommand::isEnabled()
@@ -82,9 +82,9 @@ namespace ChatCommands
 
 	KickIndexCommand::KickIndexCommand() : AbstractChatCommand("kickIndex", "Starts a vote to kick a player by index.") {}
 
-	void KickIndexCommand::doOnVotePass()
+	void KickIndexCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Vote Has Passed. " + playerName + " has been kicked and temporarily banned.");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". " + playerName + " has been kicked and temporarily banned.");
 		Modules::CommandMap::Instance().ExecuteCommand("server.KickTempBanPlayer " + playerName);
 
 		playerName = "";
@@ -142,9 +142,9 @@ namespace ChatCommands
 
 	KickPlayerCommand::KickPlayerCommand() : AbstractChatCommand("kick", "Starts a vote to kick a player."){}
 
-	void KickPlayerCommand::doOnVotePass()
+	void KickPlayerCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Vote Has Passed. " + playerName + " has been kicked and temporarily banned.");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". " + playerName + " has been kicked and temporarily banned.");
 		Modules::CommandMap::Instance().ExecuteCommand("server.KickTempBanPlayer " + playerName);
 
 		playerName = "";
@@ -261,6 +261,7 @@ namespace ChatCommands
 			time(&voteTimeStarted);
 
 			doOnVoteStart(name);
+			processVote(sender, "yes");
 		}
 		else
 		{
@@ -294,7 +295,7 @@ namespace ChatCommands
 
 			if (yesVoters.size() >= votesNeeded)
 			{
-				doOnVotePass();
+				doOnVotePass(name);
 				endVoting();
 			}
 			else
