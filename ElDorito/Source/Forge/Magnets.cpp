@@ -289,21 +289,15 @@ namespace
 
 	void MagnetManager::Render()
 	{
-		using Blam::Tags::TagInstance;
-
 		static const auto UseDefaultShader = (bool(*)(int defaultShaderIndex, int a2, int a3, int a4))(0x00A23300);
 		static const auto sub_A3CA60 = (void(*)(uint32_t shaderTagIndex, void* shaderDef, int a3, unsigned int a4, int a5, int a6))(0xA3CA60);
 
+		const auto SHADER_TAGINDEX = 0x303c;
 		if (!UseDefaultShader(64, 0x14, 0, 0))
 			return;
 
-		auto shaderTag = TagInstance::Find('asdf', "objects\\multi\\shaders\\multiplayer_object_plasma");
-
-		if (shaderTag.Index == 0xFFFF)
-			return;
-
-		auto shaderDef = shaderTag.GetDefinition<void>();
-		sub_A3CA60(shaderTag.Index, shaderDef, 20, 0, Geoemetry::PT_TRIANGLESTRIP, 1);
+		auto shaderDef = Blam::Tags::TagInstance(SHADER_TAGINDEX).GetDefinition<void>();
+		sub_A3CA60(SHADER_TAGINDEX, shaderDef, 20, 0, Geoemetry::PT_TRIANGLESTRIP, 1);
 
 		for (auto i = 0; i < m_NumDestMagnets; i++)
 			RenderMagnet(m_DestMagnets[i]);
