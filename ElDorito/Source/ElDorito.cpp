@@ -171,7 +171,7 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-cache-memory-increase") == 0 && i < numArgs - 1)
 				Patches::Memory::SetGlobalCacheIncrease(std::stoul(szArgList[i + 1]));
 
-			size_t pos = arg.find(L"=");
+			size_t pos = arg.find(L'=');
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
 

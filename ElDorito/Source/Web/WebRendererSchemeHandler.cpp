@@ -158,7 +158,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 	{
 		// Parse the range info.
 		std::string s_Range = s_RangeIt->second.ToString();
-		auto s_Sep = s_Range.find("=");
+		auto s_Sep = s_Range.find('=');
 
 		if (s_Sep != std::string::npos)
 		{
