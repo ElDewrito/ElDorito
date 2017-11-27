@@ -507,7 +507,7 @@ namespace Patches::Ui
 		if (!validHUDDistortionTags)
 			return;
 
-		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
 
 		if (Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt != 0)

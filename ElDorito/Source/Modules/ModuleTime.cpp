@@ -9,7 +9,7 @@ namespace
 	bool VariableGameSpeedUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto speed = Modules::ModuleTime::Instance().VarSpeedClient->ValueFloat;
-		Pointer &gameTimeGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Time::TLSOffset)[0];
+		Pointer gameTimeGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Time::TLSOffset)[0]);
 		gameTimeGlobalsPtr(GameGlobals::Time::GameSpeedIndex).Write(speed);
 
 		std::stringstream ss;
