@@ -57,7 +57,7 @@ namespace
 	{
 		memset(out, 0, sizeof(PlayerCustomization));
 
-		memset(out->Colors, 0, 5 * sizeof(uint32_t));
+		memset(out->Colors, 0, sizeof(out->Colors));
 
 		uint32_t temp = 0;
 
