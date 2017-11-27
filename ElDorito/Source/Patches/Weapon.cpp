@@ -316,7 +316,7 @@ namespace Patches::Weapon
 				for (rapidjson::SizeType i = 0; i < weaponNames.Size(); i++)
 				{
 					const rapidjson::Value& weaponsObject = weaponNames[i];
-					if (!weaponsObject.HasMember("name") || !weaponsObject.HasMember("name")) continue;
+					if (!weaponsObject.HasMember("name") || !weaponsObject.HasMember("tagname")) continue;
 
 					std::string weaponname = weaponsObject["name"].GetString();
 					std::string tagname = weaponsObject["tagname"].GetString();
