@@ -130,7 +130,7 @@ namespace
 
 		// Allocate a new string for the name
 		result = (PlayerNameString*)Allocate(sizeof(PlayerNameString));
-		memset(result, 0, sizeof(result));
+		memset(result, 0, sizeof(PlayerNameString));
 		result->header.refCount = 1;
 		playerNames[index] = result;
 
