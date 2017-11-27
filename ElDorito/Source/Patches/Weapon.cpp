@@ -665,10 +665,14 @@ namespace
 
 	bool weapon_should_apply_bloom(uint32_t weaponObjectIndex, int barrelIndex, ProjectilePenaltyType type)
 	{
+		const auto weapon_is_held = (bool(*)(uint32_t weaponObjectIndex))(0x00B63EA0);
 		const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
 		const auto weapon_get_parent_unit = (uint32_t(*)(uint32_t weaponObjectIndex))(0x00B63030);
 
 		using Blam::Tags::Items::Weapon;
+
+		if (!weapon_is_held(weaponObjectIndex))
+			return false;
 
 		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
 		if (!weaponObject)
@@ -696,6 +700,9 @@ namespace
 			functionIndex = 3;
 			break;
 		}
+
+		if (barrelIndex < 0 || barrelIndex >= weaponDefinition->Barrels.Count)
+			return false;
 
 		/* dual-wield blocks are always empty
 		if (isDualWielding)
