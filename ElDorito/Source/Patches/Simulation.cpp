@@ -149,10 +149,6 @@ namespace
 				*(RealVector3D*)(newObject + 0x34) = placement.UpVector;
 			}
 		}
-		else
-		{
-			s_SyncPlacements[placementIndex].PlacementFlags = 0;
-		}
 
 		auto objectIndex = c_simulation_generic_entity_definition__spawn_object(thisptr, data, simulationData, a4, newObject);
 		if (placementIndex != -1 && objectIndex != -1)
