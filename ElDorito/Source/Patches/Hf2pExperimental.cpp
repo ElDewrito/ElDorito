@@ -146,6 +146,8 @@ namespace Patches::Hf2pExperimental
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
 
 		Hook(0x6963C6, SpawnTimerDisplayHook, HookFlags::IsCall).Apply();
+		// fixes race condition with client respawn timer
+		Patch(0x1391B5, { 0xEB }).Apply();
 
 		// NOTE: this is not a proper fix. The pre-match camera needs to be looked at
 		Hook(0x1527F7, game_engine_tick_hook, HookFlags::IsCall).Apply();
@@ -472,7 +474,7 @@ namespace
 			return false;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
-		if (secondsUntilSpawn > 0)
+		if (player->SlaveUnit == Blam::DatumIndex::Null && secondsUntilSpawn > 0)
 		{
 			if (!game_engine_round_in_progress())
 				return false;
