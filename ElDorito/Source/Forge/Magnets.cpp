@@ -287,12 +287,30 @@ namespace
 		sub_A232D0(v14);
 	}
 
+	static uint16_t GetPlasmaShaderTagIndex()
+	{
+		static bool tagLookup = true;
+		static uint16_t tagIndex = 0xFFFF;
+
+		if (tagLookup && (tagIndex == 0xFFFF))
+		{
+			// lookup the multiplayer_object_plasma tag instance
+			tagIndex = Blam::Tags::TagInstance::Find('rmsh', "objects\\multi\\shaders\\multiplayer_object_plasma").Index;
+
+			// tag instance was not found, don't attempt to look it up again
+			if (tagIndex == 0xFFFF)
+				tagLookup = false;
+		}
+
+		return tagIndex;
+	}
+
 	void MagnetManager::Render()
 	{
 		static const auto UseDefaultShader = (bool(*)(int defaultShaderIndex, int a2, int a3, int a4))(0x00A23300);
 		static const auto sub_A3CA60 = (void(*)(uint32_t shaderTagIndex, void* shaderDef, int a3, unsigned int a4, int a5, int a6))(0xA3CA60);
 
-		const auto SHADER_TAGINDEX = 0x303c;
+		const auto SHADER_TAGINDEX = GetPlasmaShaderTagIndex();
 		if (!UseDefaultShader(64, 0x14, 0, 0))
 			return;
 

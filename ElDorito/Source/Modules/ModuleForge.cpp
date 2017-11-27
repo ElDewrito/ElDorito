@@ -231,7 +231,6 @@ namespace
 		return endp != c_str;
 	}
 
-
 	bool CommandSpawnItem(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		uint32_t tagIndex;
