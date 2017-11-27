@@ -478,8 +478,10 @@ namespace
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) 
 	{ 
-		if(!std::isnan(value) && !std::isinf(value))
-			writer.Key(key); writer.Double(value);
+        if(!std::isnan(value) && !std::isinf(value))
+        {
+            writer.Key(key); writer.Double(value);
+        }
 	};
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
