@@ -356,8 +356,9 @@ namespace
 			if (m_NumSourceMagnets >= MAX_SOURCE_MAGNETS)
 				return;
 
-			m_SourceMagnets[m_NumSourceMagnets++].Position =
+			m_SourceMagnets[m_NumSourceMagnets].Position =
 				RealVector3D::Transform(markers[i], objectRotation) + objectTransform.Position;
+            ++m_NumSourceMagnets;
 		}
 	}
 
@@ -378,8 +379,9 @@ namespace
 			if (m_NumDestMagnets >= MAX_DEST_MAGNETS)
 				return;
 
-			m_DestMagnets[m_NumDestMagnets++].Position =
+			m_DestMagnets[m_NumDestMagnets].Position =
 				RealVector3D::Transform(markers[i], objectRotation) + objectTransform.Position;
+            ++m_NumDestMagnets;
 		}
 	}
 }
