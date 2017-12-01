@@ -68,6 +68,9 @@ namespace Patches::Equipment
 		// drop grenades on unit death
 		Hook(0x73F562, UnitDeathHook, HookFlags::IsCall).Apply();
 		Hook(0x14EE29, DespawnEquipmentHook, HookFlags::IsJmpIfNotEqual).Apply();
+
+		// prevent movement depowering active camo
+		Patch(0x74A0FB, { 0xEB }).Apply();
 	}
 }
 
