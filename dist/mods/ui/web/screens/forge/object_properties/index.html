@@ -1,42 +1,64 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Forge - Search</title>
-    <link rel="stylesheet" type="text/css" href="dew://lib/normalize.min.css">
-    <link rel="stylesheet" type="text/css" href="dew://lib/color-picker.css" />
-    <link rel="stylesheet" type="text/css" href="object_properties.css">
-    <link rel="stylesheet" type="text/css" href="../shared/treeListWidget.css">
-    <script type="text/javascript" src="dew://lib/dew.js"></script>
-    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
-    <script src="dew://lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="dew://lib/color-picker.js"></script>
-    <script type="text/javascript" src="../shared/util.js"></script>
-    <script type="text/javascript" src="../shared/screenManager.js"></script>
-    <script type="text/javascript" src="../shared/listController.js"></script>
-    <script type="text/javascript" src="../shared/treeListWidget.js"></script>
-    <script type="text/javascript" src="propertyGrid.js"></script>
-    <script type="text/javascript" src="object_properties.js"></script>
+    <title>Forge - Object Properties</title>
+    <link rel="stylesheet" href="dew://lib/color-picker.css">
+    <link rel="stylesheet" href="object_properties.css">
+    <link rel="stylesheet" href="materials.css">
 </head>
+
 <body>
     <div class="container">
-        <div class="object-properties-panel">
-            <div class="panel-header">
-                <span id="title" class="title"></span><br />
-                <span class="info" id="item-name"></span>
+        <div class="window">
+            <div class="header">
+                <div class="title">OBJECT PROPERTIES</div>
+                <div class="subtitle"></div>
             </div>
-            <div class="panel-body">
-                <div id="budget-screen">
+            <div class="body">
+                <div class="screen main-screen">
+                    <div class="list property-grid"></div>
                 </div>
-                <div id="test-screen">
+                <div class="screen color-picker-screen">
+                    <div class="color-picker"></div>
                 </div>
-                <ul id="material-tree" class="material-tree tree-list"></ul>
-                <ul id="material-list" class="hidden"></ul>
-                <div id="object-properties-list">
+                <div class="screen summary-screen">
+                    <div class="summary-property-grid property-grid"></div>
                 </div>
-                <div id="color-picker" style="display:none"></div>
+                <div class="screen material-picker-screen">
+                    <div class="screen tree material-category-tree">
+                    </div>
+                    <div class="screen list material-list">
+                    </div>
+                </div>
+                <div class="screen engine-flags-screen">
+                    <div class="list engine-list"></div>
+                </div>
+            </div>
+            <div class="info-box"></div>
+            <div class="footer">
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_A.png" />Select
+                </div>
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_B.png" />Back
+                </div>
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_X.png" />Hide
+                </div>
             </div>
         </div>
     </div>
+    </div>
+    <script src="dew://lib/dew.js"></script>
+    <script src="lib/ui.js"></script>
+    <script src="lib/list-widget.js"></script>
+    <script src="lib/property-grid-widget.js"></script>
+    <script src="lib/tree-list-widget.js"></script>
+    <script src="dew://lib/color-picker.js"></script>
+    <script src="lib/screen-manager.js"></script>
+    <script src="object_properties.js"></script>
 </body>
+
 </html>
