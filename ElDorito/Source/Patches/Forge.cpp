@@ -1135,6 +1135,11 @@ namespace
 		if (!object)
 			return;
 
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
+
+
 		object->HavokFlags |= 0x200u; // at rest
 		object->HavokFlags &= ~0x100000u;
 
@@ -1160,6 +1165,9 @@ namespace
 
 		auto mpProperties = object->GetMultiplayerProperties();
 		auto oldZoneShape = mpProperties->Shape;
+
+		if(properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
 
 		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
 
