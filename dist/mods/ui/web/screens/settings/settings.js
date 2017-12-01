@@ -1190,7 +1190,7 @@ function leftToggle(){
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(document.getElementById(selectedItem).value > document.getElementById(selectedItem).min){
+        if(parseInt(document.getElementById(selectedItem).value) > document.getElementById(selectedItem).min){
             document.getElementById(selectedItem).stepDown();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
             $('#'+selectedItem).trigger('change');
