@@ -26,6 +26,7 @@ namespace
 	void __cdecl EquipmentUseHook(int unitObjectIndex, int slotIndex, unsigned int isClient);
 	void __cdecl UnitDeathHook(int unitObjectIndex, int a2, int a3);
 	void DespawnEquipmentHook();
+	void OvershieldDecayHook();
 }
 
 namespace Patches::Equipment
@@ -71,6 +72,8 @@ namespace Patches::Equipment
 
 		// prevent movement depowering active camo
 		Patch(0x74A0FB, { 0xEB }).Apply();
+		// fix overshield decay
+		Pointer(0x00B5620F).Write(uint32_t(OvershieldDecayHook) - 0x00B5620F - 4);
 	}
 }
 
@@ -491,6 +494,37 @@ namespace
 				// notify clients that an object has been spawned
 				Simulation_SpawnObject(grenadeObjectIndex);
 			}
+		}
+	}
+
+	void OvershieldDecay(uint32_t unitObjectIndex)
+	{
+		const auto sub_4B1E10 = (void(__thiscall *)(void *thisptr, int objectIndex, unsigned int a3))(0x4B1E10);
+		const auto sub_4B3010 = (void(*)(int unitObjectIndex, void *eventData))(0x4B3010);
+
+		const auto DECAY_RATE = 0.025f;
+
+		auto unitObject = (uint8_t*)Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
+			return;
+
+		*(float*)(unitObject + 0x100) -= DECAY_RATE * Blam::Time::GetSecondsPerTick();
+
+		// simulation
+		uint8_t unknown[0x8] = { 0 };
+		sub_4B1E10(unknown, unitObjectIndex, 7u);
+		sub_4B3010(unitObjectIndex, unknown);
+	}
+
+	__declspec(naked) void OvershieldDecayHook()
+	{
+		__asm
+		{
+			push ebx // unit object index
+			call OvershieldDecay
+			add esp, 4
+			push 0x00B56462
+			retn
 		}
 	}
 }
