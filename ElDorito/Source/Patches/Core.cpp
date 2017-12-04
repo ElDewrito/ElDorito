@@ -11,6 +11,7 @@
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "../Console.hpp"
 #include "boost/filesystem.hpp"
 #include <codecvt>
 #include <Shlobj.h>
@@ -31,6 +32,7 @@ namespace
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
+	void __cdecl HsPrintHook(const char *message);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -134,15 +136,18 @@ namespace Patches::Core
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
 
-#ifndef _DEBUG
-		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
-		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
-#endif
-
 		Hook(0x20F4AD, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 		Hook(0x20F44B, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
+
+#ifndef _DEBUG
+		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
+		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
+#else
+		// hsc print functionality
+		Hook(0x22FE9A, HsPrintHook, HookFlags::IsCall).Apply();
+#endif
 	}
 
 	void OnShutdown(ShutdownCallback callback)
@@ -388,6 +393,7 @@ namespace
 			call DirtyDiskErrorHookImpl;
 		}
 	}
+
 	int __cdecl GetScreenshotFolderHook(wchar_t *path)
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
@@ -403,5 +409,13 @@ namespace
 		dir = boost::filesystem::weakly_canonical(dir);
 		wcsncpy(path, dir.c_str(), 0x100);
 		return SHCreateDirectoryExW(NULL, path, NULL);
+	}
+
+	void __cdecl HsPrintHook(const char *message)
+	{
+		if (message == nullptr)
+			return;
+
+		Console::WriteLine(message);
 	}
 }
