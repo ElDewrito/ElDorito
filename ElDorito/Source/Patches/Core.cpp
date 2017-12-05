@@ -146,7 +146,7 @@ namespace Patches::Core
 		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
 #else
 		// hsc print functionality
-		Hook(0x22FE9A, HsPrintHook, HookFlags::IsCall).Apply();
+		Hook(0x32FE9A, HsPrintHook, HookFlags::IsCall).Apply();
 #endif
 	}
 
