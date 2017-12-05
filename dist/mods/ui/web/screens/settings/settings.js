@@ -68,7 +68,6 @@ var settingsToLoad = [
     ['tDisableFog', 'Tweaks.DisableReactorFog', 'Reacthor', 'Removes some of the fog on Reactor which causes FPS drops indoors.'], 
     ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline', 'Weapon Outline Removal', 'Removes outlines from weapons on the ground.'], 
     ['tDisableHeadshotEffect', 'Tweaks.DisableHeadshotEffect', 'Disable headshot "ping" sound and effect', 'Removes the effect and ping sound you hear when killed by a headshot.'],
-    ['tDisableHitmarkers', 'Tweaks.DisableHitMarkers', 'Disable weapon hitmarkers', 'Stops red indicators when any of your weapons cause damage.'], 
     ['tGruntBirthdayParty', 'Tweaks.GruntBirthdayParty', 'Grunt Birthday Party', 'Confetti flies from headshots as the children cheer.'],
     ['tReachFrags','Tweaks.ReachStyleFrags', 'Reach Style Frags', 'Give tossed grenades a Halo: Reach styled orangey-yellow trail.'],
     ['tIntelBloomPatch','Tweaks.IntelBloomPatch', 'Bloom Patch', 'Fixes extreme brightness on sunny maps.'],

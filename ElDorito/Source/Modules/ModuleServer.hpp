@@ -9,6 +9,8 @@ namespace Modules
 	class ModuleServer : public Utils::Singleton<ModuleServer>, public ModuleBase
 	{
 	public:
+		Command* VarHitMarkersEnabled;
+		Command* VarHitMarkersEnabledClient;
 		Command* VarServerName;
 		Command* VarServerNameClient;
 		Command* VarServerMessage;

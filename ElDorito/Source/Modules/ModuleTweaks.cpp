@@ -34,10 +34,6 @@ namespace Modules
 		VarDisableHeadshotEffect->ValueIntMin = 0;
 		VarDisableHeadshotEffect->ValueIntMax = 1;
 
-		VarDisableHitMarkers = AddVariableInt("DisableHitMarkers", "disablehitmarkers", "Disables weapon hitmarkers.", eCommandFlagsArchived, 0);
-		VarDisableHitMarkers->ValueIntMin = 0;
-		VarDisableHitMarkers->ValueIntMax = 1;
-
 		VarGruntBirthdayParty = AddVariableInt("GruntBirthdayParty", "gruntbirthdayparty", "Hooray! Tweaks.DisableHeadshotEffect will disable this.", eCommandFlagsArchived, 0);
 		VarGruntBirthdayParty->ValueIntMin = 0;
 		VarGruntBirthdayParty->ValueIntMax = 1;

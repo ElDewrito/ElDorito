@@ -23,6 +23,7 @@
 #include "../Patches/Assassination.hpp"
 #include "../Web/Ui/VotingScreen.hpp"
 #include "../Patches/Sprint.hpp"
+#include "../Patches/Tweaks.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
@@ -1060,6 +1061,14 @@ namespace
 		Console::WriteLine(message);
 	}
 
+	bool HitmarkersEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarHitMarkersEnabledClient->ValueInt != 0;
+		Patches::Tweaks::EnableHitmarkers(enabled);
+		return true;
+	}
+
 	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto &serverModule = Modules::ModuleServer::Instance();
@@ -1355,6 +1364,10 @@ namespace Modules
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 0, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
+		VarHitMarkersEnabled = AddVariableInt("HitMarkersEnabled", "hitmarkersenabled", "Controls whether or not hitmarkers are enabled on this server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarHitMarkersEnabledClient = AddVariableInt("HitMarkersEnabledClient", "hitmarkersenabled_client", "", eCommandFlagsInternal, 0, HitmarkersEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarHitMarkersEnabled, VarHitMarkersEnabledClient);
+		
 		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
 		VarServerBottomlessClipEnabledClient = AddVariableInt("BottomlessClipEnabledClient", "bottomlessclip_client", "", eCommandFlagsInternal, 0, BottomlessClipEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerBottomlessClipEnabled, VarServerBottomlessClipEnabledClient);
