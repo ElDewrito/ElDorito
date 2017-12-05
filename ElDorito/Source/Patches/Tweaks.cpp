@@ -63,7 +63,7 @@ namespace Patches::Tweaks
 		{
 			if (hudWidget.NameStringID == 0x2AAD) // hit_marker
 			{
-				if (enabled) {
+				if (enabled && Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt != 1) {
 					hudWidget.PlacementData[0].ScaleX = 1.75;
 					hudWidget.PlacementData[0].ScaleY = 1.75;
 				}
