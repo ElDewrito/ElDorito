@@ -1190,7 +1190,7 @@ function leftToggle(){
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(parseInt(document.getElementById(selectedItem).value) > document.getElementById(selectedItem).min){
+        if(parseFloat(document.getElementById(selectedItem).value) > document.getElementById(selectedItem).min){
             document.getElementById(selectedItem).stepDown();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
             $('#'+selectedItem).trigger('change');
@@ -1219,7 +1219,7 @@ function rightToggle(){
         } 
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(parseInt(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
+        if(parseFloat(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
             document.getElementById(selectedItem).stepUp();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
             $('#'+selectedItem).trigger('change');
