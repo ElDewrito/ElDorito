@@ -319,7 +319,7 @@ dew.on("voip-user-volume", function(e){
 	            uid = result[1];
 	            level = result[2];
 	            if (level == 0) {
-	                $('#' + ownName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
 	            } else if (e.data.volume < -75) {
 	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
 	            } else if (e.data.volume < -50) {
@@ -626,7 +626,14 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         });
         $('.speaker').on('click', function(e){
             e.stopPropagation();
-            $(this).parent().find('.volSlider').show(); 
+            $(this).parent().find('.volSlider').show();
+
+            $.grep(volArray, function (result, index) {
+                if (result) {
+                    if (result[0] == $(this).parent().parent().attr('id'))
+                        $(this).value(result[2]);
+                }
+            });
         });
     }
 }
@@ -915,6 +922,12 @@ function setPlayerVolume(name,uid,level){
             vol:level / 100.0
         }
     });
+	
+	$.grep(volArray, function (result, index) {
+	    if (result && result[0] == name)
+	        volArray.splice(index, 1);
+	});
+	volArray.push([name, uid, level, 0]);
 }
 
 function isSpeaking(name,visible){
