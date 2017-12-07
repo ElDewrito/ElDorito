@@ -1370,6 +1370,7 @@ namespace
 		}
 	}
 
+	//Flags probably hooks need to be updated to support split screen/theater at some point.
 	__declspec(naked) void StateDataFlags2Hook()
 	{
 		__asm
@@ -1573,6 +1574,9 @@ namespace
 
 	int GetBrokenChudStateFlags33Values()
 	{
+		using Blam::Players::PlayerDatum;
+		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+
 		int flags = 0;
 
 		//Team and FFA flags that were in Flags 1 in halo 3 are now here.
@@ -1582,6 +1586,9 @@ namespace
 				flags |= 0x2000; //Bit13, was inactive, now Teams Enabled
 			else
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
+
+		if (playerDatum->DepletedStamina > 0)
+			flags |= 0x4000; //Bit14, was inactive, now StaminaNotFull
 
 		return flags;
 	}
