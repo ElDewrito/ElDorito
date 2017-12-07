@@ -360,8 +360,9 @@ namespace
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5)
 	{
 		static auto& modulePlayer = Modules::ModulePlayer::Instance();
+		static const auto *fps = reinterpret_cast<float *>(0x22B47F8);
 
-		Pointer(a3)(0xAC).WriteFast<float>(0.5f);
+		Pointer(a3)(0xAC).WriteFast<float>(30.0f / *fps);
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);
