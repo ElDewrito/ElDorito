@@ -322,12 +322,8 @@ $(document).ready(function(){
         activePage = location.hash+' #'+$(this).attr('id');
     });
     $('span').has('.setting').mouseover(function(){
-        if(hasGP){
-            itemNumber = $(activePage+' span').has('.setting').index($(this));
-            updateSelection(itemNumber, false, false);
-        }else{
-            $(this).addClass('selectedElement');
-        }
+        itemNumber = $(activePage+' span').has('.setting').index($(this));
+        updateSelection(itemNumber, false, false);
     });
     $('span').has('.setting').mouseout(function(){
         if(!hasGP){
