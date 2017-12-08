@@ -202,6 +202,9 @@ $(document).ready(function(){
                 case "mute":
                     setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),0);
                     break;
+                case "unmute":
+                    setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),100);
+                    break;
                 default:
                     console.log(key + " " + $(this).attr('data-name') + " " + $(this).attr('data-uid'));
             }
@@ -221,6 +224,9 @@ $(document).ready(function(){
             },
             "mute": {
                 name: "Mute"
+            },
+            "unmute": {
+                name: "Unmute"
             }
         }
     });
@@ -246,7 +252,19 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.X == 1){
             if(!$('#playerBreakdown').is(":visible")){
-                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                $.grep(volArray, function (result, index) {
+                    if (result) {
+                        if (result[0] == $('.clickable').eq(itemNumber).attr('id')) {
+                            uid = result[1];
+                            level = result[2];
+                            if (level == 0) {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),100);
+                            } else {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                            };
+                        };
+                    }
+                });
             }
         }
         if(e.data.Up == 1){
@@ -298,17 +316,12 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("voip-user-volume", function(e){
-	//console.log(e);
 	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
 	}else{
 		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
         isSpeaking(e.data.user,false);
-	
-	/*if(isVisible)
-		displayScoreboard();
-    */
     }
 	
 	var uid = "";
