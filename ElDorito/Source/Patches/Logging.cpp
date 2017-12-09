@@ -257,10 +257,10 @@ namespace
 
 		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, std::string(msg));
 
-		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, 
-			"Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x, last tag accessed: 0x%x, last script op: 0x%x",
-			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, 
-			except->ExceptionAddress, except->NumberParameters, lastTagIndex, lastScriptOpcode);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error,
+			"Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x, last tag accessed: 0x%x,  last tag resource: 0x%x, last script op: 0x%x",
+			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord,
+			except->ExceptionAddress, except->NumberParameters, lastTagIndex, *(uint32_t*)0x0190E460, lastScriptOpcode);
 
 		// identify problematic module, log the location and dump its contents
 		auto modules = GetLoadedModules();
