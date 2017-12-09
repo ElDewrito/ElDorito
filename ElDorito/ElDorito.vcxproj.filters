@@ -544,6 +544,9 @@
     <ClCompile Include="Source\Discord\DiscordRPC.cpp">
       <Filter>Discord</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Patches\FpsCounter.cpp">
+      <Filter>Patches</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1244,6 +1247,9 @@
     </ClInclude>
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\swap.h">
       <Filter>ThirdParty\rapidjson\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Patches\FpsCounter.hpp">
+      <Filter>Patches</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

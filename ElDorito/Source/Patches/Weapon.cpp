@@ -234,9 +234,9 @@ namespace Patches::Weapon
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
 				if (weapIndex != 0xFFFF)
 				{
-					auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if(weaponDeinition)
-						weaponOffsetsDefault.emplace(selected, weaponDeinition->FirstPersonWeaponOffset);
+					auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+					if(weaponDefinition)
+						weaponOffsetsDefault.emplace(selected, weaponDefinition->FirstPersonWeaponOffset);
 				}
 			}
 		}
@@ -266,9 +266,9 @@ namespace Patches::Weapon
 	{
 		if (!IsMainMenu)
 		{
-			auto *weaponDeinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if(weaponDeinition)
-				weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
+			auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if(weaponDefinition)
+				weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 		}
 	}
 
@@ -280,9 +280,9 @@ namespace Patches::Weapon
 			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
 			if (weapIndex != 0xFFFF)
 			{
-				auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if(weaponDeinition)
-					weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
+				auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				if(weaponDefinition)
+					weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 			}
 		}
 	}
@@ -321,8 +321,14 @@ namespace Patches::Weapon
 					std::string weaponname = weaponsObject["name"].GetString();
 					std::string tagname = weaponsObject["tagname"].GetString();
 
-					weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
-					weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+					try {
+						weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
+						weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+					} catch (const std::exception&) {
+						std::stringstream ss;
+						ss << "Unable to add " << weaponname.c_str() << " to supported list." << std::endl;
+						Console::WriteLine(ss.str());
+					}
 				}
 			}
 		}
@@ -606,9 +612,9 @@ namespace
 			return 0;
 
 		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		auto *weaponDeinition = TagInstance(index).GetDefinition<Weapon>();
+		auto *weaponDefinition = TagInstance(index).GetDefinition<Weapon>();
 
-		return ((int32_t)weaponDeinition->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
+		return ((int32_t)weaponDefinition->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void DualWieldSprintInputHook()

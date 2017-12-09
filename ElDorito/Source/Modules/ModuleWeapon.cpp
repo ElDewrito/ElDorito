@@ -47,9 +47,9 @@ namespace
 			}
 		}
 
-		auto *weaponDeinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		auto weaponOffset = weaponDeinition->FirstPersonWeaponOffset;
+		auto weaponOffset = weaponDefinition->FirstPersonWeaponOffset;
 
 		if (Arguments.size() != 4) {
 			std::stringstream ss;
@@ -98,9 +98,9 @@ namespace
 			}
 		}
 
-		auto *weaponDeinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		weaponDeinition->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(true, weaponName);
+		weaponDefinition->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(true, weaponName);
 		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffsetByName(true, weaponName));
 
 		std::stringstream ss;
@@ -155,15 +155,15 @@ namespace
 
 		auto equippedWeaponName = Patches::Weapon::GetEquippedWeaponName();
 
-		auto *weaponDeinition = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-		auto equippedWeaponOffset = weaponDeinition->FirstPersonWeaponOffset;
+		auto *weaponDefinition = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto equippedWeaponOffset = weaponDefinition->FirstPersonWeaponOffset;
 
 		std::stringstream index_;
 		index_ << "0x" << std::hex << equippedWeaponIndex;
 		std::string Index = index_.str();
 
 		std::string MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType;
-		GetTypes(weaponDeinition, MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType);
+		GetTypes(weaponDefinition, MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType);
 
 		std::string format;
 		if (Arguments.size() == 0)
@@ -245,15 +245,15 @@ namespace
 		auto equippedWeaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 		auto equippedWeaponName = Patches::Weapon::GetEquippedWeaponName();
 
-		auto *weaponDeinition = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-		auto equippedWeaponOffset = weaponDeinition->FirstPersonWeaponOffset;
+		auto *weaponDefinition = TagInstance(equippedWeaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto equippedWeaponOffset = weaponDefinition->FirstPersonWeaponOffset;
 
 		std::stringstream temp;
 		temp << "0x" << std::hex << equippedWeaponIndex;
 		std::string Index = temp.str();
 
 		std::string MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType;
-		GetTypes(weaponDeinition, MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType);
+		GetTypes(weaponDefinition, MultiplayerWeaponType, WeaponType, TrackingType, SpecialHUDType);
 
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
