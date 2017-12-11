@@ -381,11 +381,7 @@ dew.on("voip-speaking", function(e){
 });
 
 dew.on("show", function(e){
-    dew.getScoreboard().then(function (data){ 
-        if(data.players){
-            scoreboardData = data;
-        }
-    });
+	
     isVisible = true;
     dew.captureInput(e.data.locked);
     locked = e.data.locked;
@@ -449,7 +445,7 @@ dew.on("hide", function(e){
 });
 
 function displayScoreboard(){
-    if(!scoreboardData)
+    if(jQuery.isEmptyObject(scoreboardData))
         return;	
     var scoreboardheader = '<th></th><th class="name" colspan="2">Players</th>';
     if(locked || (expandedScoreboard == 1)){

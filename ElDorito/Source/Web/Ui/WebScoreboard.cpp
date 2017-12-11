@@ -34,10 +34,11 @@ namespace
 	int lastPressedTime = 0;
 	int postgameDisplayed;
 	const float postgameDelayTime = 2;
+	time_t scoreboardSentTime = 0;
+
 
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
-	void OnScoreUpdate();
 }
 
 namespace Web::Ui::WebScoreboard
@@ -46,7 +47,7 @@ namespace Web::Ui::WebScoreboard
 	{
 		Patches::Events::OnEvent(OnEvent);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-		Patches::Scoreboard::OnScoreUpdate(OnScoreUpdate);
+		time(&scoreboardSentTime);
 	}
 
 	void Show(bool locked, bool postgame)
@@ -81,6 +82,7 @@ namespace Web::Ui::WebScoreboard
 		if (!is_multiplayer() && !is_main_menu())
 			return;
 
+
 		if (postgame)
 		{
 			if (Blam::Time::TicksToSeconds((Blam::Time::GetGameTicks() - postgameDisplayed)) > postgameDelayTime)
@@ -92,6 +94,16 @@ namespace Web::Ui::WebScoreboard
 			}
 		}
 		auto isMainMenu = is_main_menu();
+
+		if (!postgame && !isMainMenu) {
+			time_t curTime1;
+			time(&curTime1);
+			if (scoreboardSentTime != 0 && curTime1 - scoreboardSentTime > 1)
+			{
+				Web::Ui::ScreenLayer::Notify("scoreboard", getScoreboard(), true);
+				time(&scoreboardSentTime);
+			}
+		}
 
 		auto currentMapLoadingState = *(bool*)0x023917F0;
 		if (previousMapLoadingState && !currentMapLoadingState)
@@ -346,21 +358,15 @@ namespace
 {
 	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition)
 	{
-		//Update the scoreboard whenever an event occurs
-		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
-
 		if (event->NameStringId == 0x4004D || event->NameStringId == 0x4005A) // "general_event_game_over" / "general_event_round_over"
 		{
+			Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
+
 			postgameDisplayed = Blam::Time::GetGameTicks();
 			postgame = true;
 		}
 	}
 
-	void OnScoreUpdate()
-	{
-		//Update the scoreboard whenever an event occurs
-		Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
-	}
 
 	void OnGameInputUpdated()
 	{
