@@ -61,7 +61,6 @@ dew.ui = (function () {
             var tagIndex = getUiSoundTagIndex(index);
             if (tagIndex == -1)
                 return;
-
             dew.command('Game.PlaySound 0x' + tagIndex.toString(16));
         },
 
@@ -116,10 +115,11 @@ dew.ui = (function () {
         if (_keyStates[38]) _keyTicks[UiAction.Up]++; else _keyTicks[UiAction.Up] = 0;
         if (_keyStates[37]) _keyTicks[UiAction.Left]++; else _keyTicks[UiAction.Left] = 0;
         if (_keyStates[39]) _keyTicks[UiAction.Right]++; else _keyTicks[UiAction.Right] = 0;
-        if (_keyStates[32]) _keyTicks[UiAction.A]++; else _keyTicks[UiAction.A] = 0;
+        if (_keyStates[32] || _keyStates[13]) _keyTicks[UiAction.A]++; else _keyTicks[UiAction.A] = 0;
         if (_keyStates[27]) _keyTicks[UiAction.B]++; else _keyTicks[UiAction.B] = 0;
         if (_keyStates[33]) _keyTicks[UiAction.LeftTrigger]++; else _keyTicks[UiAction.LeftTrigger] = 0;
         if (_keyStates[34]) _keyTicks[UiAction.RightTrigger]++; else _keyTicks[UiAction.RightTrigger] = 0;
+        if (_keyStates[46]) _keyTicks[UiAction.Y]++; else _keyTicks[UiAction.Y] = 0;
 
         if (_stickTicks.right > 255) _stickTicks.right = 255;
         if (_stickTicks.left > 255) _stickTicks.left = 255;
@@ -185,13 +185,14 @@ dew.ui = (function () {
             }
         }
 
-        if (controller.A == 1) emit('action', UiAction.A);
-        if (controller.B == 1) emit('action', UiAction.B);
-        if (controller.X == 1) emit('action', UiAction.X);
+        if (controller.A == 1) emit('action', { inputType: 'controller', action: UiAction.A });
+        if (controller.B == 1) emit('action', { inputType: 'controller', action: UiAction.B });
+        if (controller.X == 1) emit('action', { inputType: 'controller', action: UiAction.X });
+        if (controller.Y == 1) emit('action', { inputType: 'controller', action: UiAction.Y });
 
         for (var i = 0; i < 16; i++) {
             if (_keyTicks[i] == 1) {
-                emit('action', i);
+                emit('action', { inputType: 'keyboard', action: i });
             }
         }
     }

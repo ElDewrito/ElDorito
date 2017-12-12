@@ -1,9 +1,9 @@
 (function () {
-    let _containerElement = document.querySelector('.container');
-    let _windowElement = document.querySelector('.window');
-    let _descriptionElement = _windowElement.querySelector('.info-box');
-    let _titleElement = _windowElement.querySelector('.header .title');
-    let _subtitleElement = _windowElement.querySelector('.header .subtitle');
+    let _containerElement = document.getElementById('main_container');
+    let _windowElement = document.getElementById('main_window');
+    let _descriptionElement = _windowElement.querySelector('.window-info-box');
+    let _titleElement = _windowElement.querySelector('.window-title');
+    let _subtitleElement = _windowElement.querySelector('.window-subtitle');
     let _screenManager = dew.makeScreenManager();
     let _hidden = false;
     let _lastObjectIndex = -1;
@@ -13,13 +13,17 @@
         main: makeMainScreen(_screenManager),
         color_picker: makeColorPickerScreen(_screenManager),
         summary: makeSummaryScreen(_screenManager),
-        material_picker: makeMaterialPickerScreen(_screenManager),
-        engine_flags: makeEngineFlagsScreen(_screenManager)
+        material_picker: makeMaterialCategoryScreen(_screenManager),
+        material_picker_list: makeMaterialListScreen(_screenManager),
+        engine_flags: makeEngineFlagsScreen(_screenManager),
+        save_prefab: makeSavePrefabScreen(_screenManager)
     });
     _screenManager.push('main');
 
     document.addEventListener('mousedown', function (e) {
         if (e.target == _containerElement) {
+            e.preventDefault();
+            e.stopPropagation();
             hide();
         }
     }, false);
@@ -33,19 +37,18 @@
     });
 
     function makeMainScreen(screenManager) {
-        let _screenElement = document.querySelector('.main-screen');
+        let _screenElement = document.getElementById('main_screen');
         let _propertryGrid = dew.makePropertyGrid(document.querySelector('.property-grid'));
         let _active = false;
         let _materialsDOM = null;
         let _data = null;
-        let _selectAll = false;
         let _items = null;
+        let _lastSelected = false;
 
         dew.on('show', e => {
-            handleScaling();
-
-            if (_hidden && _lastObjectIndex === e.data.object_index)
+            if (_hidden && _lastObjectIndex === e.data.object_index && _lastSelected === e.data.is_selected)
                 return;
+            _lastSelected = e.data.is_selected;
             _hidden = false;
             _lastObjectIndex = e.data.object_index;
 
@@ -57,8 +60,8 @@
             });
 
             fetchItems((err, items) => {
-                var item = _items[_data.tag_index];
-                setSubtitle(truncateItemPath(`${item.path} > ${item.name} [${item.tagIndex.toString(16)}]`));
+                var item = _items[_data.tag_index] || { name: 'Unknown', type: 'Unknown', tagIndex: _data.tag_index };
+                setSubtitle(`${item.name} [${item.type}] [${item.tagIndex.toString(16)}]`);
             });
         });
 
@@ -71,13 +74,17 @@
                 setTitle('');
                 _propertryGrid.focus();
             },
-            deactivate: function () {
+            deactivate: function (props) {
+                if (!props.noHide)
+                    _screenElement.classList.remove('active');
                 _active = false;
-                _screenElement.classList.remove('active');
                 _propertryGrid.blur();
             },
-            onAction: function (action) {
+            onAction: function ({ action }) {
                 switch (action) {
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
                     case dew.ui.Actions.B:
                         dew.ui.playSound(dew.ui.Sounds.B);
                         addRecentMaterial();
@@ -172,7 +179,7 @@
             let model = _propertryGrid.createModel();
 
             model.add({
-                type: 'action', label: '[ Summary ]', meta: {},
+                type: 'action', label: '{Summary}', meta: {},
                 action: (item) => {
                     screenManager.push('summary', {
                         data: data.budget
@@ -182,28 +189,34 @@
 
             if (!data.is_selected) {
                 model.add({
-                    type: 'action', label: '[ Select All ]', meta: {}, action: () => {
+                    type: 'action', label: '{Select All}', meta: {}, action: () => {
                         dew.command('Forge.SelectAll');
                         data.is_selected = true;
                         _propertryGrid.setModel(buildModel(_data));
                     },
                     description: 'Selects all of this item on the map'
                 });
+
             } else {
                 model.add({
-                    type: 'action', label: '[ Deselect All ]', meta: {}, action: () => {
+                    type: 'action', label: '{Deselect All}', meta: {}, action: () => {
                         dew.command('Forge.DeselectAllOf');
                         data.is_selected = false;
                         _propertryGrid.setModel(buildModel(_data));
                     },
                     description: 'Deselect all of this item on the map'
                 });
-
+                model.add({
+                    type: 'action', label: '{Save Prefab}', meta: {}, action: () => {
+                        screenManager.push('save_prefab', { noHide: true });
+                    },
+                    description: 'Save the selected objects'
+                });
             }
 
             model.group('General', model => {
                 model.add({
-                    type: 'action', label: '[ Gametypes ]', meta: {},
+                    type: 'action', label: '{Gametypes}', meta: {},
                     action: (item) => {
                         screenManager.push('engine_flags', {
                             engineFlags: properties.engine_flags,
@@ -233,7 +246,7 @@
                         { label: '180', value: 180 }
                     ], ' This controls how many seconds it will take for this type of item to respawn on the map.'))
                     model.add(makeProperty('on_map_at_start', 'Placed at Start', 'spinner',
-                        [{ label: 'no', value: 0 }, { label: 'yes', value: 1 }], 'This controls whether the item is on the map from the start of the game.'));
+                        [{ label: 'No', value: 0 }, { label: 'Yes', value: 1 }], 'This controls whether the item is on the map from the start of the game.'));
                 }
 
                 if (data.has_spare_clips)
@@ -407,7 +420,7 @@
 
             if (data.is_light) {
                 model.group('Light', (m) => {
-                    m.add(makeProperty('light_radius', 'Radius', 'range', { min: 0, max: 50, step: 0.1 }));
+                    m.add(makeProperty('light_radius', 'Radius', 'range', { min: 0, max: 50, step: 0.05 }));
                     m.add(makeProperty('light_intensity', 'Intensity', 'range', { min: 0, max: 1.0, step: 0.01 }));
                     m.add({
                         type: 'color',
@@ -611,13 +624,16 @@
             function visitItem(node) {
                 let name = node.getAttribute('name');
                 let tagIndex = parseInt(node.getAttribute('tagindex'))
+                let type = node.getAttribute('type');
+
                 if (_pathStack.length > 2) {
                     _pathStack = _pathStack.slice(_pathStack.length - 2);
                 }
                 _result.push({
-                    path: _pathStack.join(' > '),
+                    path: _pathStack,
                     name: name,
-                    tagIndex: tagIndex
+                    tagIndex: tagIndex,
+                    type: type
                 })
             }
 
@@ -664,11 +680,11 @@
     }
 
     function makeColorPickerScreen(screenManager) {
-        let _elem = document.querySelector('.color-picker-screen');
+        let _screenElement = document.getElementById('color_picker_screen');
         let _active = false;
         let _onColorSelected;
 
-        let _colorPicker = dew.makeColorPicker(_elem.querySelector('.color-picker'));
+        let _colorPicker = dew.makeColorPicker(_screenElement.querySelector('.color-picker'));
         dew.on('controllerinput', function (e) {
             if (!_active)
                 return;
@@ -686,19 +702,23 @@
                 _onColorSelected = props.onColorSelected;
                 let c = ColorUtil.rgbToHsv(props.initialColor.r, props.initialColor.g, props.initialColor.b);
                 _colorPicker.setColor({ h: c.h * 360, s: c.s, v: c.v });
-                _elem.classList.add('active');
+                _screenElement.classList.add('active');
                 if (props.title) {
                     setTitle(props.title);
                 }
             },
             deactivate: function () {
                 _active = false;
-                _elem.classList.remove('active');
+                _screenElement.classList.remove('active');
             },
-            onAction: function (action) {
+            onAction: function ({ action }) {
                 switch (action) {
                     case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
                         screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
                         break;
                 }
             }
@@ -706,8 +726,8 @@
     }
 
     function makeSummaryScreen(screenManager) {
-        let _elem = document.querySelector('.summary-screen');
-        let _grid = dew.makePropertyGrid(_elem.querySelector('.summary-property-grid'));
+        let _screenElement = document.querySelector('.summary-screen');
+        let _grid = dew.makePropertyGrid(_screenElement.querySelector('.summary-property-grid'));
         let _active = false;
         let _summaryData = {};
 
@@ -715,7 +735,7 @@
 
         return {
             activate: function (props) {
-                _elem.classList.add('active');
+                _screenElement.classList.add('active');
                 _active = true;
                 _grid.focus();
                 _summaryData = props.data;
@@ -723,13 +743,17 @@
                 setTitle('Summary');
 
             }, deactivate: function () {
-                _elem.classList.remove('active');
+                _screenElement.classList.remove('active');
                 _active = false;
                 _grid.blur();
             },
-            onAction: function (action) {
+            onAction: function ({ action }) {
                 switch (action) {
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
                     case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
                         screenManager.pop();
                         break;
                 }
@@ -769,74 +793,11 @@
         }
     }
 
-    function makeMaterialPickerScreen(screenManager) {
-        let _screenElement = document.querySelector('.material-picker-screen');
+    function makeMaterialCategoryScreen(screenManager) {
+        let _screenElement = document.querySelector('#material_picker_screen');
         let _categoryTreeElement = _screenElement.querySelector('.material-category-tree');
-        let _materialListElement = _screenElement.querySelector('.material-list');
-        let _materials = [];
-
-
         let _treeList = dew.makeTreeList(_categoryTreeElement);
-        let _materialList = dew.makeListWidget(_materialListElement, {
-            itemSelector: 'li',
-            hoverClass: 'selected',
-            hoverSelection: true,
-            wrapAround: true
-        });
-
-        _materialList.on('select', function ({ index, element }) {
-            let materialIndex = parseInt(element.getAttribute('data-value'));
-            if (_onMaterialSelected) {
-                let item = _materials[index];
-                _onMaterialSelected(item);
-            }
-        });
-
-        let subScreenManager = dew.makeScreenManager();
-        subScreenManager.setModel({
-            main: {
-                activate: function () {
-                    _categoryTreeElement.classList.add('active');
-                    _treeList.focus();
-                    setTitle('Material');
-                },
-                deactivate: function () {
-                    _categoryTreeElement.classList.remove('active');
-                    _materialListElement.classList.remove('active');
-                    _categoryTreeElement.classList.remove('active');
-                    _treeList.blur();
-                },
-                onAction: function (action) {
-                    switch (action) {
-                        case dew.ui.Actions.B:
-                            subScreenManager.pop();
-                            break;
-                    }
-                }
-            },
-            list: {
-                activate: function (props) {
-                    _materialListElement.classList.add('active');
-                    _materials = props.materials;
-                    renderMaterialList(_materialListElement);
-                    _materialList.focus();
-                    _materialList.setSelected(0);
-                },
-                deactivate: function () {
-                    _materialListElement.classList.remove('active');
-                    _materialList.blur();
-
-                },
-                onAction: function (action) {
-                    switch (action) {
-                        case dew.ui.Actions.B:
-                            subScreenManager.pop();
-                            break;
-                    }
-                }
-            }
-
-        })
+        let _onMaterialSelected = null;
 
         _treeList.on('select', function ({ index, element, path }) {
             if (path.getElementsByTagName('category').length)
@@ -853,30 +814,84 @@
                         value: parseInt(x.getAttribute('value'))
                     }));
             }
-            subScreenManager.push('list', { materials: items });
+            screenManager.push('material_picker_list', { materials: items, onMaterialSelected: _onMaterialSelected });
         });
 
         return {
             activate: function (props) {
-                _onMaterialSelected = props.onMaterialSelected;
-
                 _screenElement.classList.add('active');
-                _treeList.setSource(props.materials.firstChild);
+                if (props && props.materials) {
+                    _onMaterialSelected = props.onMaterialSelected;
+                    _treeList.setSource(props.materials.firstChild);
+                    _treeList.gotoRoot();
+                }
                 _treeList.focus();
-                _treeList.gotoRoot();
-                subScreenManager.push('main');
+                setTitle('Material');
             },
             deactivate: function () {
                 _screenElement.classList.remove('active');
-                subScreenManager.popAll();
+                _treeList.blur();
             },
-            onAction: function (action) {
+            onAction: function ({ action }) {
                 switch (action) {
                     case dew.ui.Actions.B:
-                        if (subScreenManager.count() <= 1 && _treeList.atRoot()) {
-                            subScreenManager.popAll();
+                        if (_treeList.atRoot())
                             screenManager.pop();
-                        }
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
+                }
+            }
+        };
+    }
+
+    function makeMaterialListScreen(screenManager) {
+        let _screenElement = document.querySelector('.material-picker-list-screen');
+        let _materialListElement = _screenElement.querySelector('.material-list');
+        let _materials = [];
+        let _materialList = dew.makeListWidget(_materialListElement, {
+            itemSelector: 'li',
+            hoverClass: 'selected',
+            hoverSelection: true,
+            wrapAround: true
+        });
+        let _onMaterialSelected = null;
+
+        _materialList.on('select', function ({ index, element }) {
+            let materialIndex = parseInt(element.getAttribute('data-value'));
+            if (_onMaterialSelected) {
+                let item = _materials[index];
+                _onMaterialSelected(item);
+            }
+        });
+
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                if (props.materials) {
+                    _onMaterialSelected = props.onMaterialSelected;
+                    _materials = props.materials;
+                    renderMaterialList(_materialListElement);
+                    _materialList.focus();
+                    _materialList.setSelected(0);
+                }
+                else {
+                    _materialList.focus();
+                }
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _materialList.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
                         break;
                 }
             }
@@ -912,7 +927,7 @@
             'Infection',
         ]
 
-        let _screenElement = document.querySelector('.engine-flags-screen');
+        let _screenElement = document.getElementById('engine_flags_screen');
         let _engineListElement = _screenElement.querySelector('.engine-list');
         let _onChange = null;
         let _engineFlags = 0;
@@ -953,10 +968,14 @@
                 _screenElement.classList.remove('active');
                 _engineList.blur();
             },
-            onAction: function (action) {
+            onAction: function ({ action }) {
                 switch (action) {
                     case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
                         screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
                         break;
                 }
             }
@@ -971,21 +990,80 @@
         }
     }
 
-    function truncateItemPath(path) {
-        const maxlen = 40;
-        let truncated = false;
-        while (path.length > maxlen) {
-            var nextIndex = path.indexOf(' > ');
-            if (nextIndex == -1)
-                break;
-            path = path.slice(nextIndex + 2);
-            truncated = true;
+    function makeSavePrefabScreen(screenManager) {
+        let _screenElement = document.querySelector('#save_prefab_screen')
+        let _overlay = document.querySelector('.modal-overlay');
+        let _nameInputElement = _screenElement.querySelector('input');
+        let _errorStatusElement = _screenElement.querySelector('.error');
+
+        _screenElement.addEventListener("animationend", () => {
+            _screenElement.classList.remove('shake');
+        }, false);
+
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                _overlay.classList.remove('hidden');
+                _nameInputElement.addEventListener('keydown', onKeyDown);
+                _errorStatusElement.classList.add('hidden');
+                _nameInputElement.focus();
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _overlay.classList.add('hidden');
+                _nameInputElement.value = '';
+                _nameInputElement.removeEventListener('keydown', onKeyDown);
+                _nameInputElement.blur();
+            },
+            onAction: function ({ inputType, action }) {
+                switch (action) {
+                    case dew.ui.Actions.A:
+                        if (inputType === 'controller')
+                            onConfirm();
+                        break;
+                    case dew.ui.Actions.B:
+                        onReject();
+                        break;
+                }
+            }
+        };
+
+        function onConfirm() {
+            let value = _nameInputElement.value.trim();
+            if (!value.length) {
+                dispalyError("Prefab name can't be empty");
+                return;
+            }
+
+            if (!value.match(/^[^\\/:\*\?"<>\|]+$/)) {
+                dispalyError("Prefab name can't contain \\/:*?\"<>|");
+                return;
+            }
+
+            dew.command(`Forge.SavePrefab "${_nameInputElement.value}"`)
+                .then(response => {
+                    showToast('Prefab Saved');
+                    setTimeout(() => screenManager.pop(), 1);
+                })
+                .catch(error => dispalyError(error.message));
         }
 
-        if (truncated)
-            path = ' ... ' + path;
+        function onReject() {
+            dew.ui.playSound(dew.ui.Sounds.B);
+            screenManager.pop();
+        }
 
-        return path;
+        function onKeyDown(e) {
+            if (e.which == 13)
+                onConfirm();
+        }
+
+        function dispalyError(message) {
+            _errorStatusElement.textContent = message;
+            _screenElement.classList.add('shake');
+            _errorStatusElement.classList.remove('hidden');
+            dew.ui.playSound(dew.ui.Sounds.Error);
+        }
     }
 
     function setTitle(text) {
@@ -1006,15 +1084,13 @@
         dew.hide();
     }
 
-    function handleScaling() {
-        const baseWidth = 1920;
-        const baseHeight = 1080;
-
-        let bounds = _containerElement.getBoundingClientRect();
-        let scaleX = bounds.width / baseWidth;
-        let scaleY = bounds.height / baseHeight;
-        
-        //_windowElement.style.transform = `scale(${scaleY},${scaleX})`;
+    function showToast(message) {
+        let toastElement = document.querySelector('.toast');
+        toastElement.querySelector('div').innerHTML = message;
+        toastElement.classList.add('toast-show');
+        setTimeout(function () {
+            toastElement.classList.remove('toast-show');
+        }, 3000);
     }
 
 })();

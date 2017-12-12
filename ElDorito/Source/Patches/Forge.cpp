@@ -121,8 +121,7 @@ namespace
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	RealVector3D s_GrabOffset;
 
-	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
-	int s_MonitorMovementSpeedIndex = 3;
+	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f, 4.0f };
 
 
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
@@ -509,6 +508,7 @@ namespace
 		using namespace Blam::Input;
 
 		static auto Object_SetVelocity = (void(__cdecl *)(uint32_t objectIndex, RealVector3D* a2, RealVector3D *a3))(0x00B34040);
+		static auto& moduleForge = Modules::ModuleForge::Instance();
 
 		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
 		if (!player)
@@ -520,11 +520,13 @@ namespace
 		{
 			movementSpeedAction->Flags |= Blam::Input::eActionStateFlagsHandled;
 
-			s_MonitorMovementSpeedIndex = (s_MonitorMovementSpeedIndex + 1) %
+			auto currentSpeed = moduleForge.VarMonitorSpeed->ValueInt;
+
+			currentSpeed = (currentSpeed + 1) %
 				(sizeof(MONITOR_MOVEMENT_SPEEDS) / sizeof(MONITOR_MOVEMENT_SPEEDS[0]));
 
 			wchar_t buff[256];
-			switch (s_MonitorMovementSpeedIndex)
+			switch (currentSpeed)
 			{
 			case 0:
 				swprintf_s(buff, 256, L"Movement Speed: 0.001 (Z-Fight Fixer)");
@@ -541,7 +543,13 @@ namespace
 			case 4:
 				swprintf_s(buff, 256, L"Movement Speed: Fast");
 				break;
+			case 5:
+				swprintf_s(buff, 256, L"Movement Speed: Faster");
+				break;
 			}
+
+			std::string prev;
+			Modules::CommandMap::Instance().SetVariable(moduleForge.VarMonitorSpeed, std::to_string(currentSpeed), prev);
 
 			RealVector3D v1 = {}, v2 = {};
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
@@ -555,7 +563,7 @@ namespace
 		static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
 
 		static auto& moduleForge = Modules::ModuleForge::Instance();
-		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		const auto currentSnap = moduleForge.VarRotationSnap->ValueInt;
 		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
 
 		if (DatumIndex(playerIndex) != Blam::Players::GetLocalPlayer(0))
@@ -570,7 +578,7 @@ namespace
 
 		HandleRotationReset();
 
-		if (snapAngleDegrees < 1)
+		if (currentSnap < 1)
 		{
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
@@ -838,8 +846,7 @@ namespace
 		{
 			auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& monitorSpeed = *(float*)(a2 + 0x150);
-			monitorSpeed *= moduleForge.VarMonitorSpeed->ValueFloat;
-			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[s_MonitorMovementSpeedIndex];
+			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[moduleForge.VarMonitorSpeed->ValueInt];
 
 			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
 

@@ -132,6 +132,19 @@ namespace
 		return true;
 	}
 
+	bool CommandDeletePrefab(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		boost::filesystem::path prefabDirectory(PREFAB_DIR);
+		auto p = (prefabDirectory / Arguments[0]).replace_extension(PREFAB_EXT);
+		if (!boost::filesystem::exists(p))
+		{
+			returnInfo = "prefab with that name does not exist";
+			return false;
+		}
+		boost::filesystem::remove(p);
+		return true;
+	}
+
 	bool CommandDumpPalette(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		using namespace Blam::Tags;
@@ -256,9 +269,13 @@ namespace Modules
 	{
 		VarCloneDepth = AddVariableFloat("CloneDepth", "forge_clone_depth", "Depth at which the object will be cloned", eCommandFlagsNone, 1.0f);
 		VarCloneMultiplier = AddVariableInt("CloneMultiplier", "forge_clone_multiplier", "Number of consecutive times the object will be cloned", eCommandFlagsNone, 1);
-		VarRotationSnap = AddVariableFloat("RotationSnap", "forge_rotation_snap", "Angle in degrees at which object rotation will be snapped", eCommandFlagsNone, 0);
+		VarRotationSnap = AddVariableInt("RotationSnap", "forge_rotation_snap", "Angle at which object rotation will be snapped", eCommandFlagsNone, 0);
+		VarRotationSnap->ValueIntMin = 0;
+		VarRotationSnap->ValueIntMax = 6;
 		VarRotationSensitivity = AddVariableFloat("RotationSensitivity", "forge_rotation_sensitivity", "Controls the sensitivity of object rotation", eCommandFlagsArchived, 1.0f);
-		VarMonitorSpeed = AddVariableFloat("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 1.0f);
+		VarMonitorSpeed = AddVariableInt("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 3);
+		VarMonitorSpeed->ValueIntMin = 0;
+		VarMonitorSpeed->ValueIntMax = 5;
 		VarSelectionRenderer = AddVariableInt("SelectionRenderer", "forge_selection_renderer", "Set the selection renderer to use", eCommandFlagsArchived, 0);
 		VarSelectionRenderer->ValueIntMin = 0;
 		VarSelectionRenderer->ValueIntMax = 1;
@@ -282,7 +299,7 @@ namespace Modules
 		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", eCommandFlagsNone, CommandSavePrefab);
 		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", eCommandFlagsNone, CommandLoadPrefab);
 		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsNone, CommandDumpPrefabs);
-
+		AddCommand("DeletePrefab", "forge_prefab_delete", "Delete a saved prefab", eCommandFlagsNone, CommandDeletePrefab);
 		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsNone, CommandDumpPalette);
 		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsNone, CommandSpawnItem);
 

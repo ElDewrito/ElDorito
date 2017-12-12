@@ -16,7 +16,7 @@ dew.makeScreenManager = function (settings) {
         if ((Date.now() - _lastTimeRequestHandled) < 70)
             return;
         _lastTimeRequestHandled = Date.now();
-        
+
         while (_queue.length)
             _queue.shift()();
     });
@@ -32,12 +32,12 @@ dew.makeScreenManager = function (settings) {
             while (_screenStack.length > (includeRoot ? 0 : 1)) {
                 var screen = _screenStack.pop();
                 if (screen) {
-                    screen.deactivate();
+                    screen.deactivate({});
                 }
             }
 
             if (!includeRoot && _screenStack.length)
-                _screenStack[_screenStack.length - 1].activate();
+                _screenStack[_screenStack.length - 1].activate({});
 
 
         },
@@ -58,7 +58,7 @@ dew.makeScreenManager = function (settings) {
             }
             screen.name = name;
             if (_screenStack.length)
-                _screenStack[_screenStack.length - 1].deactivate();
+                _screenStack[_screenStack.length - 1].deactivate(props);
             _screenStack.push(screen);
             screen.activate(props);
         });
@@ -71,9 +71,7 @@ dew.makeScreenManager = function (settings) {
 
             var screen = _screenStack.pop();
             if (screen)
-                screen.deactivate();
-
-            dew.ui.playSound(dew.ui.Sounds.B);
+                screen.deactivate({});
 
             var current = _screenStack[_screenStack.length - 1];
             current.activate(null);

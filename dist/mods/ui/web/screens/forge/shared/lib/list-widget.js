@@ -21,7 +21,12 @@ dew.makeListWidget = function (_elem, settings) {
     return {
         navigate: navigate,
         setSelected: function (index) {
-            setSelectedIndex(index);
+            if (index == -1) {
+                clearSelection();
+                render();
+            } else {
+                setSelectedIndex(index);
+            }
         },
         getSelected: function () {
             if (!_currentNode)
@@ -47,6 +52,7 @@ dew.makeListWidget = function (_elem, settings) {
             _elem.removeEventListener('mousedown', onMouseDown);
             _elem.classList.remove('has-focus');
         },
+        hasFocus: () => _hasFocus,
         refresh: function () {
             cacheItemNodes();
             render();
@@ -83,20 +89,23 @@ dew.makeListWidget = function (_elem, settings) {
             }
         });
 
-        dew.ui.on('action', function (action) {
+        dew.ui.on('action', function ({ action }) {
             if (!_hasFocus)
                 return;
             switch (action) {
                 case dew.ui.Actions.A:
-                    dew.ui.playSound(dew.ui.Sounds.A);
-                    emit('select', { index: _itemNodes.indexOf(_currentNode), element: _currentNode });
+                    if (_currentNode) {
+                        dew.ui.playSound(dew.ui.Sounds.A);
+                        emit('select', { index: _itemNodes.indexOf(_currentNode), element: _currentNode });
+                    }
                     break;
             }
         });
     }
 
     function onMouseDown(e) {
-        if (!_hasFocus) return;
+        if (!_hasFocus)
+            return;
 
         var node = getParentItemNode(e.target);
         if (node) {
@@ -104,6 +113,7 @@ dew.makeListWidget = function (_elem, settings) {
             if (!_settings.mouseDownFilterSelector || !e.target.matches(_settings.mouseDownFilterSelector)) {
                 dew.ui.playSound(dew.ui.Sounds.A);
                 emit('select', { index: _itemNodes.indexOf(node), element: _currentNode });
+                e.preventDefault();
             }
         }
     }
@@ -115,12 +125,16 @@ dew.makeListWidget = function (_elem, settings) {
             if (!_settings.hoverSelection)
                 return;
             var parent = getParentItemNode(e.target);
+            if (parent === _elem)
+                return;
+            if (e.target === _elem)
+                return;
             setCurrentNode(parent, true);
         }, false);
 
         _domObserver = new MutationObserver(function (mutations) {
             cacheItemNodes();
-        });
+        }), false;
         _domObserver.observe(_elem, { childList: true, subtree: true });
     }
 
@@ -132,7 +146,7 @@ dew.makeListWidget = function (_elem, settings) {
     }
 
     function clearSelection() {
-        _currentNode = null;
+        setCurrentNode(null);
         render();
     }
 
@@ -157,11 +171,16 @@ dew.makeListWidget = function (_elem, settings) {
         setCurrentNode(item, notify);
         if (_currentNode)
             _currentNode.scrollIntoView(false);
+
+        return index;
     }
 
     function navigate(count) {
-        dew.ui.playSound(dew.ui.Sounds.VerticalNavigation);
-        setSelectedIndex(_itemNodes.indexOf(_currentNode) + count, true);
+        let oldIndex = _itemNodes.indexOf(_currentNode);
+        let newIndex = setSelectedIndex(_itemNodes.indexOf(_currentNode) + count, true);
+        if (oldIndex != -1 && newIndex != -1 && oldIndex != newIndex) {
+            dew.ui.playSound(dew.ui.Sounds.VerticalNavigation);
+        }
     }
 
     function render() {
@@ -177,8 +196,10 @@ dew.makeListWidget = function (_elem, settings) {
     function getParentItemNode(node) {
         var prevNode = node;
         while ((node = node.parentNode) && node != _elem) {
+
             prevNode = node;
         }
+
         if (_itemNodes.indexOf(prevNode) == -1)
             return null;
         return prevNode;
