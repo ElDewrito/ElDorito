@@ -101,7 +101,6 @@ namespace
 
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
-	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
 	void FindMapImages();
 
@@ -142,13 +141,6 @@ namespace
 	float HUDMotionSensorOffsetX = 0;
 	float HUDBottomVisorOffsetY = 0;
 
-	bool firstHUDDistortionUpdate = true;
-	bool validHUDDistortionTags = false;
-	bool lastDistortionEnabledValue = true;
-	//Distortion direction for spartan, monitor, elite.
-	//If more are added, this needs to be increased or stored differently.
-	float hudDistortionDirection[3]{ 0,0,0 };
-
 	bool speakingPlayerStringFound = false;
 	uint32_t speakingPlayerOffset; //The offset of speaker_name in memory.
 }
@@ -165,10 +157,6 @@ namespace Patches::Ui
 		tagsInitiallyLoaded = true;
 
 		UpdateSpeakingPlayerWidget(true);
-
-		//reset HUD distortion value when tags are reloaded
-		lastDistortionEnabledValue = true;
-		UpdateHUDDistortion();
 	}
 
 	void ApplyAll()
@@ -320,7 +308,6 @@ namespace Patches::Ui
 	{
 		FindUiTagIndices(); //Call me first.
 		FindVoiceChatSpeakingPlayerTagData();
-		FindHUDDistortionTagData();
 		FindHUDResolutionTagData();
 		FindMapImages();
 	}
@@ -502,9 +489,11 @@ namespace Patches::Ui
 		}
 	}
 
+	//xorpd xmm0,xmm0 & nop
+	Patch DisableHUDDistortion(0x6C521F, { 0x66, 0x0F, 0x57, 0xC0, 0x90 });
 	void UpdateHUDDistortion()
 	{
-		if (!validHUDDistortionTags)
+		if (!tagsInitiallyLoaded)
 			return;
 
 		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
@@ -512,7 +501,7 @@ namespace Patches::Ui
 
 		if (Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt != 0)
 		{
-			ToggleHUDDistortion(true);
+			DisableHUDDistortion.Reset();
 			return;
 		}
 
@@ -523,25 +512,25 @@ namespace Patches::Ui
 			//01672920 - c_authored_camera
 			//0165A64C - c_director?
 
-		case 0x16724D4: //c_following_camera
-		case 0x16725DC: //c_dead_camera
-		case 0x167265C: //c_orbiting_camera
-		case 0x167280C: //c_scripted_camera
-			ToggleHUDDistortion(false);
-			break;
+			case 0x16724D4: //c_following_camera
+			case 0x16725DC: //c_dead_camera
+			case 0x167265C: //c_orbiting_camera
+				DisableHUDDistortion.Apply();
+				break;
+				
+			case 0x167280C: //c_scripted_camera
+			case 0x166ACB0: //c_first_person_camera
+				if (Modules::ModuleGraphics::Instance().VarFlatHUD->ValueInt == 1)
+					DisableHUDDistortion.Apply();
+				else
+					DisableHUDDistortion.Reset();
+				break;
 
-		case 0x166ACB0: //c_first_person_camera
-			if (Modules::ModuleTweaks::Instance().VarFlatHUD->ValueInt == 1)
-				ToggleHUDDistortion(false);
-			else
-				ToggleHUDDistortion(true);
-			break;
-
-		case 0x165A6E4: //c_null_camera
-		case 0x16726D0: //c_flying_camera
-		case 0x16728A8: //c_static_camera
-		default:
-			ToggleHUDDistortion(true);
+			case 0x165A6E4: //c_null_camera
+			case 0x16726D0: //c_flying_camera
+			case 0x16728A8: //c_static_camera
+			default:
+				DisableHUDDistortion.Reset();
 		}
 	}
 
@@ -735,27 +724,6 @@ namespace
 			speakingPlayerStringFound = false;
 	}
 
-	void FindHUDDistortionTagData()
-	{
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::TagInstance;
-
-		if (!TagInstance::IsLoaded('chgd', chgdIndex))
-			return;
-
-		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-
-		for each (ChudGlobalsDefinition::HudGlobal hudGlobal in chgd->HudGlobals)
-		{
-			if (hudGlobal.HudAttributes.Count < 1)
-				continue;
-
-			hudDistortionDirection[hudGlobal.Biped] = hudGlobal.HudAttributes[0].WarpDirection;
-		}
-		firstHUDDistortionUpdate = false;
-		validHUDDistortionTags = true;
-	}
-
 	void FindHUDResolutionTagData()
 	{
 		using Blam::Tags::TagInstance;
@@ -784,33 +752,6 @@ namespace
 				HUDBottomVisorOffsetY = widget.PlacementData[0].OffsetY;
 			}
 		}
-	}
-
-	void ToggleHUDDistortion(bool enabled)
-	{
-		if (!validHUDDistortionTags)
-			return;
-
-		if (enabled == lastDistortionEnabledValue)
-			return;
-
-		using Blam::Tags::UI::ChudGlobalsDefinition;
-		using Blam::Tags::TagInstance;
-
-		//Return if the tag cant be found, happens during loading.
-		if (!TagInstance::IsLoaded('chgd', chgdIndex))
-			return;
-
-		auto *chgd = Blam::Tags::TagInstance(chgdIndex).GetDefinition<ChudGlobalsDefinition>();
-
-		for (size_t hudGlobalsIndex = 0; hudGlobalsIndex < chgd->HudGlobals.Count; hudGlobalsIndex++)
-		{
-			if (chgd->HudGlobals[hudGlobalsIndex].HudAttributes.Count < 1)
-				continue;
-
-			chgd->HudGlobals[hudGlobalsIndex].HudAttributes[0].WarpDirection = enabled ? hudDistortionDirection[chgd->HudGlobals[hudGlobalsIndex].Biped] : 0;
-		}
-		lastDistortionEnabledValue = enabled;
 	}
 
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad)

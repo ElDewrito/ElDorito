@@ -153,6 +153,12 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
+
+	bool VariableFlatHUDUpdated(const std::vector<std::string>& arguments, std::string& returnInfo)
+	{
+		Patches::Ui::UpdateHUDDistortion();
+		return true;
+	}
 }
 
 namespace Modules
@@ -192,6 +198,10 @@ namespace Modules
 		VarUIScaling = AddVariableInt("UIScaling", "uiscaling", "Enables proper UI scaling to match your monitor's resolution.", eCommandFlagsArchived, 1, VariableUIScalingUpdate);
 		VarUIScaling->ValueIntMin = 0;
 		VarUIScaling->ValueIntMax = 1;
+
+		VarFlatHUD = AddVariableInt("FlatHUD", "flathud", "Removes distortion from the HUD.", eCommandFlagsArchived, 0, VariableFlatHUDUpdated);
+		VarFlatHUD->ValueIntMin = 0;
+		VarFlatHUD->ValueIntMax = 1;
 
 		AddCommand("SupportedResolutions", "supported_resolutions", "List the supported screen resolutions", eCommandFlagsNone, CommandSupportedResolutions);
 	}
