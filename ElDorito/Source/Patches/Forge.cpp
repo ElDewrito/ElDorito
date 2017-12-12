@@ -1716,20 +1716,30 @@ namespace
 					auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
 					if (properties)
 					{
-						screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
-						screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
-						screenEffectDef.Saturation = properties->Saturation / 255.0f;
-						screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
-						screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
-						screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
-						screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
-						screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
-						screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
-						screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
-						screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
-						screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
-						screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
-						screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+						Blam::Players::PlayerDatum *player;
+						if ((playerIndex != DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))) &&
+							player->Properties.TeamIndex != props->TeamIndex && props->TeamIndex != 8)
+						{
+							screenEffectDef.MaximumDistance = 0;
+						}
+						else
+						{
+							screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
+							screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
+							screenEffectDef.Saturation = properties->Saturation / 255.0f;
+							screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
+							screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
+							screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
+							screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
+							screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
+							screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
+							screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
+							screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
+							screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
+							screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
+							screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						}
 					}
 				}
 

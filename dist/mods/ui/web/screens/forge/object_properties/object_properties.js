@@ -176,6 +176,9 @@
                 hasZone = true;
             }
 
+            if(data.is_screenfx)
+                hasTeam = true;
+
             let model = _propertryGrid.createModel();
 
             model.add({
