@@ -7,6 +7,7 @@
 #include <Windows.h>
 
 #include "../Blam/Text/StringID.hpp"
+#include "../Patch.hpp"
 
 namespace Patches::Ui
 {
@@ -32,4 +33,9 @@ namespace Patches::Ui
 	void UpdateHUDDistortion();
 
 	void ShowLanBrowser();
+
+	extern Hook customHUDColorsHook;
+	extern Hook customWeaponOutlineColorHook;
+	extern int customPrimaryHUDColor;
+	extern int customSecondaryHUDColor;
 }

@@ -98,6 +98,8 @@ namespace
 	int GetBrokenChudStateFlags31Values();
 	int GetBrokenChudStateFlags33Values();
 	void MenuSelectedMapIDChangedHook();
+	void GetGlobalDynamicColorHook();
+	void GetWeaponOutlineColorHook();
 
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
@@ -155,6 +157,11 @@ namespace
 
 namespace Patches::Ui
 {
+	Hook customHUDColorsHook = Hook(0x6D5B5F, GetGlobalDynamicColorHook);
+	Hook customWeaponOutlineColorHook = Hook(0x6CA009, GetWeaponOutlineColorHook);
+	int customPrimaryHUDColor = -1;
+	int customSecondaryHUDColor = 0;
+
 	void ApplyAfterTagsLoaded()
 	{
 		if (!tagsInitiallyLoaded)
@@ -1584,6 +1591,72 @@ namespace
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
 
 		return flags;
+	}
+
+	__declspec(naked) void GetGlobalDynamicColorHook()
+	{
+		_asm
+		{
+				cmp[ebp + 0xC], 0x0
+				je secondary_color
+				cmp[ebp + 0xC], 0x1
+				je secondary_color
+				cmp[ebp + 0xC], 0x2
+				je primary_color
+				cmp[ebp + 0xC], 0x4
+				je primary_color
+				cmp[ebp + 0xC], 0x8
+				je primary_color
+				cmp[ebp + 0xC], 0xA
+				je primary_color
+				cmp[ebp + 0xC], 0xB
+				je primary_color
+				cmp[ebp + 0xC], 0xC
+				je primary_color
+				cmp[ebp + 0xC], 0xF
+				je primary_color
+
+				mov eax, [eax + edi * 4 + 4]
+				jmp eldorado_return
+
+			primary_color :
+				mov eax, Patches::Ui::customPrimaryHUDColor
+				jmp eldorado_return
+
+			secondary_color :
+				mov eax, Patches::Ui::customSecondaryHUDColor
+				jmp eldorado_return
+
+			eldorado_return :
+				pop edi
+				pop esi
+				pop ebx
+				pop ebp
+				ret 8
+		}
+	}
+
+	__declspec(naked) void GetWeaponOutlineColorHook()
+	{
+		_asm
+		{
+				cmp ecx, 0
+				je custom_color
+
+			tag_color:
+				push [eax+ecx*4+0x7C]
+				jmp eldorado_return
+
+			custom_color:
+				push customPrimaryHUDColor
+
+			eldorado_return:
+				mov ebx, 0xAC9AA0
+				call ebx
+				add esp, 0xC
+				pop ebp
+				retn
+		}
 	}
 
 	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource)

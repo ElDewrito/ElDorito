@@ -18,6 +18,10 @@ namespace Modules
 		Command* VarDepthOfField;
 		Command* VarLetterbox;
 
+		Command* VarCustomHUDColorsEnabled;
+		Command* VarCustomHUDColorsPrimary;
+		Command* VarCustomHUDColorsSecondary;
+
 		Command* VarUIScaling;
 
 		ModuleGraphics();
