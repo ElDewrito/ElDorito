@@ -343,16 +343,6 @@ namespace Server::Stats
 						writer.EndObject();
 					}
 				}
-				//The sniper headshots medal is broken, so lets get it manually by grabbing the headshots from each sniper
-				uint16_t SniperRifleHeadshots = p((playerIdx * 0x438) + 0x1F6).Read<uint16_t>();
-				uint16_t BeamRifleHeadshots = p((playerIdx * 0x438) + 0x202).Read<uint16_t>();
-
-				writer.StartObject();
-				writer.Key("medalName");
-				writer.String("SniperHeadshots");
-				writer.Key("count");
-				writer.Int(SniperRifleHeadshots + BeamRifleHeadshots);
-				writer.EndObject();
 
 				writer.EndArray();
 
