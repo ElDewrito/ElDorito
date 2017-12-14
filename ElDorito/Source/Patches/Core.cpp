@@ -8,6 +8,7 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include "../Patches/FpsCounter.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
@@ -30,6 +31,7 @@ namespace
 	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
+	void __cdecl BipedFeetZoneOffsetHook(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *position, float *height, float *radius);
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
@@ -134,6 +136,9 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
 		Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
+		// Fixes an issue where biped feet are just below the zone bottom causing 
+		// it not to register flag caps, teleporter usage etc..
+		Hook(0x7A111B, BipedFeetZoneOffsetHook, HookFlags::IsCall).Apply();
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
 
@@ -368,6 +373,15 @@ namespace
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);
+	}
+
+	void __cdecl BipedFeetZoneOffsetHook(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *position, float *height, float *radius)
+	{
+		const auto sub_B6E850 = (void(*)(uint32_t unitObjectIndex, Blam::Math::RealVector3D *outPosition, float *a3, float *outRadius))(0xB6E850);
+		sub_B6E850(bipedObjectIndex, position, height, radius);
+		auto bipedObject = Blam::Objects::Get(bipedObjectIndex);
+		if (bipedObject)
+			*position += bipedObject->Up * 0.05f; // offset feet
 	}
 
 	const auto GetBinkVideoPath = reinterpret_cast<char(*)(int, char*)>(0xA99120);
