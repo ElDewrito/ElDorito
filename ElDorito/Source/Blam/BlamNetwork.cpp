@@ -248,6 +248,12 @@ namespace Blam::Network
 		return Get_Mode();
 	}
 
+	bool SetLobbyType(int type)
+	{
+		auto set_server_lobby_type = (bool(__cdecl*)(int))(0x00A7EE70);
+		return set_server_lobby_type(type);
+	}
+	
 	bool SetNetworkMode(int mode)
 	{
 		auto Set_Network_Mode = (bool(__cdecl*)(int))(0x00A7F950);

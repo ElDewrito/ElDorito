@@ -381,6 +381,9 @@ namespace Blam::Network
 	// Gets the network mode
 	int GetNetworkMode();
 
+	//Sets the lobbyType
+	bool SetLobbyType(int type);
+
 	//Sets the Network Mode.
 	bool SetNetworkMode(int mode);
 
