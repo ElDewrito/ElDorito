@@ -349,7 +349,7 @@ namespace Patches::Ui
 	}
 
 	std::vector<std::string> speakingPlayers;
-	char* chud_talking_player_name = new char[64];
+	char16_t chud_talking_player_name[32] = {};
 	void ToggleSpeakingPlayerName(std::string name, bool speaking)
 	{
 		//Always remove, in case of duplicates.
@@ -361,18 +361,21 @@ namespace Patches::Ui
 			}
 		}
 
+		if (speaking)
+			speakingPlayers.push_back(name);
+
+		//Empty the HUD chud_talking_player_name string.
+		//If someone is talking it will be reassigned below.
+		memset(chud_talking_player_name, 0, sizeof(chud_talking_player_name));
+
 		//Setup HUD string.
 		if (speakingPlayers.size() < 1)
 			return;
 		else if (speakingPlayers[speakingPlayers.size() - 1].length() < 15) // player names are limited to 15 anyway.
 		{
-			chud_talking_player_name = new char[64];
 			std::string hud_name = speakingPlayers[speakingPlayers.size() - 1];
 			for (size_t i = 0; i < hud_name.length(); i++)
-			{
-				chud_talking_player_name[(i*2)] = hud_name[i];
-				chud_talking_player_name[(i * 2) + 1] = 0x00;
-			}
+				chud_talking_player_name[i] = hud_name[i];
 		}
 		else 
 			return;
@@ -1398,7 +1401,7 @@ namespace
 				}
 			}
 			else
-				flags |= 0x40; //taling_disabled
+				flags |= 0x40; //talking_disabled
 		}
 
 		return flags;
