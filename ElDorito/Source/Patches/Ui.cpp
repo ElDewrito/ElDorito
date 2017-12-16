@@ -157,8 +157,8 @@ namespace
 
 namespace Patches::Ui
 {
-	Hook customHUDColorsHook = Hook(0x6D5B5F, GetGlobalDynamicColorHook);
-	Hook customWeaponOutlineColorHook = Hook(0x6CA009, GetWeaponOutlineColorHook);
+	bool enableCustomHUDColors = false;
+	bool enableAllyBlueWaypointsFix = false;
 	int customPrimaryHUDColor = -1;
 	int customSecondaryHUDColor = 0;
 
@@ -277,6 +277,10 @@ namespace Patches::Ui
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
+
+		//Various color fixes.
+		Hook(0x6D5B5F, GetGlobalDynamicColorHook).Apply();
+		Hook(0x6CA009, GetWeaponOutlineColorHook).Apply();
 
 		// use the correct hud globals for the player representation
 		Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
@@ -1597,6 +1601,17 @@ namespace
 	{
 		_asm
 		{
+			ally_blue:
+				cmp enableAllyBlueWaypointsFix, 1
+				jne custom_colors
+				cmp[ebp + 0xC], 0xF
+				jne custom_colors
+				mov eax, [eax + 19 * 4 + 4]
+				jmp eldorado_return
+
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
 				cmp[ebp + 0xC], 0x0
 				je secondary_color
 				cmp[ebp + 0xC], 0x1
@@ -1611,11 +1626,10 @@ namespace
 				je primary_color
 				cmp[ebp + 0xC], 0xB
 				je primary_color
-				cmp[ebp + 0xC], 0xC
-				je primary_color
 				cmp[ebp + 0xC], 0xF
 				je primary_color
 
+			tag_color:
 				mov eax, [eax + edi * 4 + 4]
 				jmp eldorado_return
 
@@ -1640,15 +1654,18 @@ namespace
 	{
 		_asm
 		{
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
 				cmp ecx, 0
-				je custom_color
+				je secondary_color
 
 			tag_color:
 				push [eax+ecx*4+0x7C]
 				jmp eldorado_return
 
-			custom_color:
-				push customPrimaryHUDColor
+			secondary_color:
+				push customSecondaryHUDColor
 
 			eldorado_return:
 				mov ebx, 0xAC9AA0

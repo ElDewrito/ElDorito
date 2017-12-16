@@ -123,15 +123,9 @@ namespace
 	bool VariableCustomHUDColorsEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Modules::ModuleGraphics::Instance().VarCustomHUDColorsEnabled->ValueInt == 1)
-		{
-			Patches::Ui::customHUDColorsHook.Apply();
-			Patches::Ui::customWeaponOutlineColorHook.Apply();
-		}
+			Patches::Ui::enableCustomHUDColors = true;
 		else
-		{
-			Patches::Ui::customHUDColorsHook.Reset();
-			Patches::Ui::customWeaponOutlineColorHook.Reset();
-		}
+			Patches::Ui::enableCustomHUDColors = false;
 		return true;
 	}
 
