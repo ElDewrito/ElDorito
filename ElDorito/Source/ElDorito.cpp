@@ -254,7 +254,7 @@ void ElDorito::Tick()
 		Web::Ui::ScreenLayer::Tick();
 		Web::Ui::WebScoreboard::Tick();
 	}
-	else
+	else if (GameHasMenuShown)
 		Server::DedicatedServer::Tick();
 
 	Server::Stats::Tick();
