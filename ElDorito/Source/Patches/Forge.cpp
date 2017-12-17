@@ -111,7 +111,7 @@ namespace
 	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
 	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
-
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -241,6 +241,7 @@ namespace Patches::Forge
 		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
+		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -2012,5 +2013,18 @@ namespace
 			*(float*)((uint8_t*)thisptr + 0x1E48) = s_CameraFxSettings.LightIntensity;
 		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
 			*(float*)((uint8_t*)thisptr + 0x2A0) = s_CameraFxSettings.BloomIntensity;
+	}
+
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data)
+	{
+		const auto rasterizer_set_pixel_shader_constant = (void(*)(int id, int count, float *data))(0x00A66270);
+		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
+		{
+			data[12] *= s_CameraFxSettings.BloomIntensity;
+			data[13] *= s_CameraFxSettings.BloomIntensity;
+			data[14] *= s_CameraFxSettings.BloomIntensity;
+			data[15] *= s_CameraFxSettings.BloomIntensity;
+		}
+		rasterizer_set_pixel_shader_constant(id, count, data);
 	}
 }
