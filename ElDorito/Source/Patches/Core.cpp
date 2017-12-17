@@ -24,6 +24,7 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	double AspectRatioHook();
+	void ActiveCamoViewModelClipHook(float *nearPlane, float *farPlane);
 	void GrenadeLoadoutHook();
 	void ShutdownHook();
 	const char *GetMapsFolderHook();
@@ -109,6 +110,7 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x25FA79), 10);
 		Patch::NopFill(Pointer::Base(0x25FA86), 5);
 		Hook(0x10CA02, FovHook).Apply();
+		Hook(0x663B36, ActiveCamoViewModelClipHook, HookFlags::IsCall).Apply();
 
 		//Fix aspect ratio not matching resolution
 		Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
@@ -307,6 +309,29 @@ namespace
 			push 0x50CA08
 			ret
 		}
+	}
+
+	void ActiveCamoViewModelClipHook(float *nearPlane, float *farPlane)
+	{
+		// not a proper fix, but it'll work for now
+
+		const auto view_get_clip_planes = (void(*)(float *nearPlane, float *farPlane))(0x00A25AA0);
+
+		const auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		const Blam::Players::PlayerDatum *player;
+		if (playerIndex != Blam::DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex)))
+		{
+			auto unitObject = Blam::Objects::Get(player->SlaveUnit);
+			float activeCamoPower = 0.0f;
+			if (unitObject && (activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+			{
+				*nearPlane = *(float*)0x0191068C * 3.25f;
+				*farPlane = *(float*)0x01910690;
+				return;
+			}
+		}
+
+		view_get_clip_planes(nearPlane, farPlane);
 	}
 
 	void GrenadeLoadoutHookImpl(uint8_t* unit)
