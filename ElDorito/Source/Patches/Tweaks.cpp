@@ -239,17 +239,6 @@ namespace Patches::Tweaks
 			return;
 		}
 
-		auto &transitionEffect = hlmtDefinition->NewDamageInfo[0].DamageSections[1].InstantResponses[0].SecondaryTransitionEffect;
-
-		if (Modules::ModuleTweaks::Instance().VarDisableHeadshotEffect->ValueInt)
-		{
-			transitionEffect.TagIndex = -1;
-		}
-		else if (Modules::ModuleTweaks::Instance().VarGruntBirthdayParty->ValueInt)
-		{
-			transitionEffect.TagIndex = chgdDefinition->BirthdayPartyEffect.TagIndex;
-		}
-
 		if (Modules::ModuleTweaks::Instance().VarReachStyleFrags->ValueInt)
 		{
 			auto fragProjectile = TagInstance::Find('proj', "objects\\weapons\\grenade\\frag_grenade\\frag_grenade");

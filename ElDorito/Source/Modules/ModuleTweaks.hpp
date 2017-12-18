@@ -10,9 +10,7 @@ namespace Modules
 		Command *VarAggressiveAudioDiscarding;
 		Command *VarDisableReactorFog;
 		Command *VarDisableWeaponOutline;
-		Command *VarDisableHeadshotEffect;
 		Command *VarDisableHitMarkers;
-		Command *VarGruntBirthdayParty;
 		Command *VarReachStyleFrags;
 		Command *VarFlatHUD;
 
