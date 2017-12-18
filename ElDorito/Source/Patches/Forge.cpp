@@ -242,6 +242,9 @@ namespace Patches::Forge
 
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
+
+		// fix ragdolls falling through objects
+		Patch(0x00317269, { 0xD }).Apply();
 	}
 
 	void Tick()
