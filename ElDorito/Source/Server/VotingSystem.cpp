@@ -69,14 +69,8 @@ namespace Server::Voting
 		"Assault",
 	};
 
-	int numberOfPlayersInGame()
-	{
-		int numPlayers = 0;
-		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-		for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
-			numPlayers++;
-		return numPlayers;
-
+	int getVoteNeededToPass() {
+			return (1 + (((Patches::Network::GetNumPlayers() - 1) * Modules::ModuleServer::Instance().VarVetoVotePassPercentage->ValueInt) / 100));		
 	}
 
 	//Gets the mapId for the given forge map
@@ -178,6 +172,20 @@ namespace Server::Voting
 		else
 			mapVotes.insert(std::make_pair(name, vote));
 
+		SendVoteCountsToEveryone();
+
+	}
+	void VetoSystem::SendVoteCountsToEveryone() {
+		countVotes();
+
+		//create a message to send to all of the players with the new vote counts
+		VotingMessage newmessage(VotingMessageType::VoteTally);
+		newmessage.votes[0] = currentNumberOfVotes;
+		newmessage.votes[1] = currentNumberOfVotes;
+		newmessage.votesNeededToPass = getVoteNeededToPass();
+		BroadcastVotingMessage(newmessage);
+	}
+	void VotingSystem::SendVoteCountsToEveryone() {
 		countVotes();
 
 		//create a message to send to all of the players with the new vote counts
@@ -188,6 +196,7 @@ namespace Server::Voting
 			optionIndex++;
 			option.Count = 0;
 		}
+		newmessage.votesNeededToPass = 0;
 		BroadcastVotingMessage(newmessage);
 
 	}
@@ -261,10 +270,14 @@ namespace Server::Voting
 		newmessage.votingOptions[0].mapId = currentVetoOption.haloMap.mapId;
 		newmessage.votingOptions[0].canVeto = currentVetoOption.canveto;
 
-		if (currentVetoOption.canveto)
+		if (currentVetoOption.canveto) {
 			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
-		else
+			newmessage.votesNeededToPass = getVoteNeededToPass();
+		}
+		else {
 			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
+			newmessage.votesNeededToPass = 0;
+		}
 
 		return newmessage;
 	}
@@ -394,7 +407,7 @@ namespace Server::Voting
 
 		if (idle)
 		{
-			if (numberOfPlayersInGame() > 0)
+			if (Patches::Network::GetNumPlayers() > 0)
 			{
 				idle = false;
 				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
@@ -404,7 +417,7 @@ namespace Server::Voting
 
 			return;
 		}
-		else if (numberOfPlayersInGame() == 0)
+		else if (Patches::Network::GetNumPlayers() == 0)
 		{
 			idle = true;
 			Reset();
@@ -601,8 +614,7 @@ namespace Server::Voting
 	{
 		countVotes();
 
-		auto numPlayers = numberOfPlayersInGame();
-		if (currentNumberOfVotes >= (1 + (((numPlayers - 1) * Modules::ModuleServer::Instance().VarVetoVotePassPercentage->ValueInt) / 100))) {
+		if (currentNumberOfVotes >= getVoteNeededToPass()){
 			revoteFlag = true;
 		}
 		else {
@@ -730,7 +742,7 @@ namespace Server::Voting
 
 		if (idle)
 		{
-			if (numberOfPlayersInGame() > 0)
+			if (Patches::Network::GetNumPlayers() > 0)
 			{
 				idle = false;
 				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
@@ -739,7 +751,7 @@ namespace Server::Voting
 
 			return;
 		}
-		else if (numberOfPlayersInGame() == 0)
+		else if (Patches::Network::GetNumPlayers() == 0)
 		{
 
 			idle = true;
@@ -798,13 +810,7 @@ namespace Server::Voting
 		else
 			mapVotes.insert(std::make_pair(name, vote));
 
-		countVotes();
-
-		//create a message to send to all of the players with the new vote counts
-		VotingMessage newmessage(VotingMessageType::VoteTally);
-		newmessage.votes[0] = currentNumberOfVotes;
-		newmessage.votes[1] = currentNumberOfVotes;
-		BroadcastVotingMessage(newmessage);
+		SendVoteCountsToEveryone();
 
 	}
 	void VetoSystem::NewVote() {

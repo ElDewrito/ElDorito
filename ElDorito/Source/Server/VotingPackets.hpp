@@ -55,6 +55,8 @@ namespace Server::Voting
 		int Vote; // The user's vote
 
 		int winner; 
+		
+		int votesNeededToPass;
 
 
 	};

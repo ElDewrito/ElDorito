@@ -108,6 +108,7 @@ namespace Server::Voting
 			{
 				if (elem->isEnabled()) {
 					elem->GenerateVotingOptionsMessage(peerIdx);
+					elem->SendVoteCountsToEveryone();
 				}
 			}
 		}

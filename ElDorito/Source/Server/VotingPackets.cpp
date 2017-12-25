@@ -49,6 +49,9 @@ namespace
 				}
 			}
 
+			if(data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
+				stream->WriteUnsigned<uint8_t>(data->votesNeededToPass, 0, 16);
+
 			if (data->Type == VotingMessageType::Winner)
 				stream->WriteUnsigned<uint8_t>(data->winner, 0, 5);
 		}
@@ -85,6 +88,10 @@ namespace
 					data->votes[i] = stream->ReadUnsigned<uint8_t>(0, Blam::Network::MaxPlayers);
 				}
 			}
+
+
+			if (data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
+				data->votesNeededToPass = stream->ReadUnsigned<uint8_t>(0, 16);
 
 			if (data->Type == VotingMessageType::Winner)
 				data->winner = stream->ReadUnsigned<uint8_t>(0, 5);
