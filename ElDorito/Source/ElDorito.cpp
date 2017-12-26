@@ -96,13 +96,6 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-instance") == 0 && i < numArgs - 1)
 			{
 				instanceName = Utils::String::ThinString(szArgList[i + 1]);
-
-				std::wstringstream wss;
-				wss << "preferences_" << szArgList[i + 1] << ".dat";
-				std::wstring preferencesName = wss.str();
-				wchar_t* str = new wchar_t[preferencesName.size()];
-				wcscpy(str, preferencesName.c_str());
-				Pointer(0x189D3F0).Write<wchar_t*>(str);
 			}
 		}
 	}
