@@ -35,6 +35,7 @@
 
 #include <Windows.h>
 #include <TlHelp32.h>
+#include <ShlObj.h>
 #include <codecvt>
 #include <detours.h>
 #include "Web/Ui/WebSettings.hpp"
@@ -111,17 +112,35 @@ void ElDorito::Initialize()
 	Modules::ElModules::Instance();
 	Server::TempBanList::Instance();
 
+	//Get the local appdata folder
+	PWSTR localAppdata;
+	SHGetKnownFolderPath(FOLDERID_LocalAppData, NULL, NULL, &localAppdata);
+	auto wide_ed_appdata = std::wstring(localAppdata);
+	auto ed_appdata = Utils::String::ThinString(wide_ed_appdata);
+	ed_appdata += "\\ElDewrito";
+	::CreateDirectoryA(ed_appdata.c_str(), NULL);
+
 	// load variables/commands from cfg file
 	// If instancing is enabled then load the instanced dewrito_prefs.cfg
 	if (instanceName != "")
 	{
 		std::stringstream ss;
-		ss << "Execute dewrito_prefs_" << instanceName << ".cfg";
+		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
+		
+		std::stringstream keystream;
+		keystream << "Execute dewrito_prefs_" << instanceName << ".cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	else
 	{
-		Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
+		std::stringstream ss;
+		ss << "Execute " << ed_appdata << "\\keys.cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
+		
+		std::stringstream keystream;
+		keystream << "Execute dewrito_prefs.cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 

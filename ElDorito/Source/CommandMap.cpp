@@ -373,6 +373,19 @@ namespace Modules
 		return ss.str();
 	}
 
+	std::string CommandMap::SaveKeys()
+	{
+		std::stringstream ss;
+		for (auto cmd : Commands)
+		{
+			if (cmd.Type == eCommandTypeCommand || !(cmd.Flags & eCommandFlagsWriteToKeys) || (cmd.Flags & eCommandFlagsInternal))
+				continue;
+
+			ss << cmd.Name << " \"" << cmd.ValueString << "\"" << std::endl;
+		}
+		return ss.str();
+	}
+
 	std::string CommandMap::ExecuteCommands(std::string& commands, bool isUserInput)
 	{
 		std::istringstream stream(commands);
