@@ -106,7 +106,6 @@
     <ClCompile Include="Source\Patches\Equipment.cpp" />
     <ClCompile Include="Source\Patches\Events.cpp" />
     <ClCompile Include="Source\Patches\Forge.cpp" />
-    <ClCompile Include="Source\Patches\FpsCounter.cpp" />
     <ClCompile Include="Source\Patches\Hf2pExperimental.cpp" />
     <ClCompile Include="Source\Patches\Input.cpp" />
     <ClCompile Include="Source\Patches\LoadingScreen.cpp" />
@@ -299,7 +298,6 @@
     <ClInclude Include="Source\Patches\Equipment.hpp" />
     <ClInclude Include="Source\Patches\Events.hpp" />
     <ClInclude Include="Source\Patches\Forge.hpp" />
-    <ClInclude Include="Source\Patches\FpsCounter.hpp" />
     <ClInclude Include="Source\Patches\Hf2pExperimental.hpp" />
     <ClInclude Include="Source\Patches\Input.hpp" />
     <ClInclude Include="Source\Patches\LoadingScreen.hpp" />

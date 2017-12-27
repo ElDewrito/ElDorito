@@ -9,7 +9,6 @@
 #include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Blam/BlamObjects.hpp"
-#include "../Patches/FpsCounter.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
@@ -151,8 +150,6 @@ namespace Patches::Core
 		Hook(0x20F44B, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
-
-		Patches::FpsCounter::ShortForm(true);
 
 #ifndef _DEBUG
 		// Dirty disk error at 0x0xA9F6D0 is disabled in this build

@@ -27,7 +27,6 @@
 #include <unordered_map>
 #include <codecvt>
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
-#include "../Patches/FpsCounter.hpp"
 
 namespace
 {
@@ -1085,34 +1084,17 @@ namespace
 		return true;
 	}
 
-	bool ShortFormBool = true;
-	bool CommandShowFPS(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool TickrateUI()
 	{
-		bool ShowFps = Pointer(0x22B47FC).Read<bool>();
+		auto Tickrate = Pointer(0x22B47FC);
+		Tickrate.Write(!Tickrate.Read<bool>());
+		return Tickrate.Read<bool>();
+	}
+
+	bool CommandShowTickrate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
 		std::stringstream ss;
-
-		if (Arguments.size() == 0)
-		{
-			Patches::FpsCounter::Enable(!ShowFps);
-			ss << "Fps ui: " << (!ShowFps ? "enabled." : "disabled.");
-		}
-
-		if (Arguments.size() == 1)
-		{
-			if (Utils::String::ToLower(Arguments[0]) == "full")
-				ShortFormBool = false;
-			else if (Utils::String::ToLower(Arguments[0]) == "minimal")
-				ShortFormBool = true;
-			else
-			{
-				returnInfo = "Invalid argument, only \"full\" and \"minimal\" are valid.";
-				return false;
-			}
-
-			Patches::FpsCounter::ShortForm(ShortFormBool);
-			ss << "Fps ui: " << (ShortFormBool ? "minimal." : "full.");
-		}
-
+		ss << "Tickrate ui: " << (TickrateUI() ? "enabled." : "disabled.");
 		returnInfo = ss.str();
 		return true;
 	}
@@ -1187,7 +1169,7 @@ namespace Modules
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
-		AddCommand("ShowFPS", "show_fps", "Toggle the on-screen FPS info", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowFPS);
+		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate UI", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowTickrate);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
