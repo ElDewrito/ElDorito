@@ -95,7 +95,7 @@ namespace Server::Voting
 		virtual bool isEnabled() = 0;
 		virtual void SendVoteCountsToEveryone() = 0;
 			
-			
+		virtual bool ShouldSendVotingOptions();
 		virtual VotingMessage GenerateVotingOptionsMessage() = 0;
 		virtual void LogVote(const VotingMessage &message, std::string name) = 0; //TODO abstract VotingMessage out of VotingSystem
 		void GenerateVotingOptionsMessage(int peer);

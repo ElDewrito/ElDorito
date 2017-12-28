@@ -260,6 +260,9 @@ namespace Server::Voting
 		return MapAndType(map, gametype);
 	}
 
+	bool AbstractVotingSystem::ShouldSendVotingOptions() {
+		return voteStartedTime != 0;
+	}
 	//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
 	VotingMessage VetoSystem::GenerateVotingOptionsMessage()
 	{
