@@ -1444,11 +1444,11 @@ namespace Modules
 		VarChatCommandVoteTime->ValueIntMin = 1;
 		VarChatCommandVoteTime->ValueIntMax = 200;
 
-		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 4);
+		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how many seconds to wait after a vote passes before calling 'game.start'. ", eCommandFlagsArchived, 4);
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMin = 1;
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMax = 100;
 
-		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsHostOnly, 1);
+		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsArchived, 1);
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
