@@ -273,12 +273,14 @@ namespace Server::Voting
 		newmessage.votingOptions[0].mapId = currentVetoOption.haloMap.mapId;
 		newmessage.votingOptions[0].canVeto = currentVetoOption.canveto;
 
+		time_t curTime;
+		time(&curTime);
 		if (currentVetoOption.canveto) {
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt - (curTime - voteStartedTime);
 			newmessage.votesNeededToPass = getVoteNeededToPass();
 		}
 		else {
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt - (curTime - startime);
 			newmessage.votesNeededToPass = 0;
 		}
 
@@ -306,7 +308,9 @@ namespace Server::Voting
 			newmessage.votingOptions[i].mapId = option.haloMap.mapId;
 			i++;
 		}
-		newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt;
+		time_t curTime;
+		time(&curTime);
+		newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt - (curTime - voteStartedTime);
 		return newmessage;
 	}
 

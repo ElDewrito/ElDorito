@@ -106,9 +106,10 @@ namespace Server::Voting
 
 			for (auto elem : VotingSystems)
 			{
-				if (elem->isEnabled() && elem->ShouldSendVotingOptions()) {
+				if (elem->isEnabled()) {
 					elem->GenerateVotingOptionsMessage(peerIdx);
-					elem->SendVoteCountsToEveryone();
+					if(elem->ShouldSendVotingOptions())
+						elem->SendVoteCountsToEveryone();
 				}
 			}
 		}
