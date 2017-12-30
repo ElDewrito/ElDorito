@@ -12,7 +12,7 @@ var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
-var consoleAutoCompleteMode = eAutoCompleteMode.Prefix;
+var consoleAutoCompleteMode = eAutoCompleteMode.Substring;
 
 function isset(val) {
      return !!val;
@@ -72,7 +72,7 @@ function resetConsole() {
     invertConsole(1, true)
     transparencyConsole(85, true);
     opacityConsole(100, true);
-    autoCompleteModeConsole(eAutoCompleteMode.Prefix, true);
+    autoCompleteModeConsole(eAutoCompleteMode.Substring, true);
     clearConsole();
     clearInput();
 }
@@ -117,7 +117,7 @@ function getConsoleHelp() {
             "shortName": "console_autocompletemode",
             "description": "Toggle between the Console auto complete modes. Options: 0, 1, 2, Prefix, or Substring. Setting it to 0 will toggle between Prefix and Substring modes",
             "value": consoleAutoCompleteMode,
-            "defaultValue": eAutoCompleteMode.Prefix,
+            "defaultValue": eAutoCompleteMode.Substring,
             "hidden": false,
             "arguments": [
                 "autocompletemode(int) Options: 0, 1, 2, prefix, substring. 1 = prefix, 2 = substring, 0 toggles between 1 and 2."
