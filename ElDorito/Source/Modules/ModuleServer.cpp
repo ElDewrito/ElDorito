@@ -1494,6 +1494,10 @@ namespace Modules
 		VarVetoSystemSelectionType->ValueIntMax = 1;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
+		VarHttpServerCacheTime = AddVariableInt("Http.CacheTime", "http.cache_time", "Time in seconds the server should cache the http server response", eCommandFlagsArchived, 5);
+		VarHttpServerCacheTime->ValueIntMin = 0;
+		VarHttpServerCacheTime->ValueIntMax = 20;
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);

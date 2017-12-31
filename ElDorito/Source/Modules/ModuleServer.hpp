@@ -61,6 +61,7 @@ namespace Modules
 		Command* VarMaxTeamSize;
 		Command* VarSignalServerPort;
 		Command* VarSendChatToRconClients;
+		Command* VarHttpServerCacheTime;
 
 		//Veto System Commands
 		Command* VarNumberOfVetoVotes;

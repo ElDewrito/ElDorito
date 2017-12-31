@@ -73,6 +73,9 @@ namespace Patches::Network
 	time_t lastAnnounce = 0;
 	const time_t serverContactTimeLimit = 30 + (2 * 60);
 
+	std::string httpServerCache;
+	time_t timeSinceLastPoll = 0;
+
 	bool IsInfoSocketOpen() { return infoSocketOpen; }
 
 	int GetNumPlayers()
@@ -92,11 +95,11 @@ namespace Patches::Network
 
 	int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		time_t curTime;
+		time(&curTime);
 		// TODO: move this somewhere better, it seems fine here though, always announces every "serverContactTimeLimit" seconds even when window isn't focused
 		if (infoSocketOpen && Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt)
 		{
-			time_t curTime;
-			time(&curTime);
 			if (curTime - lastAnnounce > serverContactTimeLimit) // re-announce every "serverContactTimeLimit" seconds
 			{
 				lastAnnounce = curTime;
@@ -148,188 +151,192 @@ namespace Patches::Network
 
 			if (msg == WM_INFOSERVER)
 			{
-				std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-				std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
-				std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
-				std::string xnkid;
-				std::string xnaddr;
-				std::string gameVersion((char*)Pointer(0x199C0F0));
-				std::string status = "InGame";
-				Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-				Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
-
-				Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
-				uint32_t gameMode = gameModePtr.Read<uint32_t>();
-				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
-				if (gameMode == 3)
+				std::string replyData;
+				if (curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
 				{
-					if (mapName == "mainmenu")
+					timeSinceLastPoll = curTime;
+
+					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+					std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
+					std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+					std::string xnkid;
+					std::string xnaddr;
+					std::string gameVersion((char*)Pointer(0x199C0F0));
+					std::string status = "InGame";
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+					Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+					uint32_t gameMode = gameModePtr.Read<uint32_t>();
+					int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+					if (gameMode == 3)
 					{
-						status = "InLobby";
-						// on mainmenu so we'll have to read other data
-						mapName = std::string((char*)Pointer(0x19A5E49));
-						variantName = std::wstring((wchar_t*)Pointer(0x179254));
-						variantType = Pointer(0x179250).Read<uint32_t>();
-					}
-					else // TODO: find how to get the variant name/type while it's on the loading screen
-						status = "Loading";
-				}
-
-				rapidjson::StringBuffer s;
-				rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-				writer.StartObject();
-				writer.Key("name");
-				writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
-				writer.Key("port");
-				writer.Int(Pointer(0x1860454).Read<uint32_t>());
-				writer.Key("hostPlayer");
-				writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
-				writer.Key("sprintEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
-				writer.Key("sprintUnlimitedEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
-				writer.Key("dualWielding");
-				writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
-				writer.Key("assassinationEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
-				writer.Key("votingEnabled");
-				writer.Bool(Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1 || Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt == 1);
-
-				auto session = Blam::Network::GetActiveSession();
-				if (session && session->IsEstablished()){
-					writer.Key("teams");
-					writer.Bool(session->HasTeams());
-				}
-				writer.Key("map");
-				writer.String(Utils::String::ThinString(mapVariantName).c_str());
-				writer.Key("mapFile");
-				writer.String(mapName.c_str());
-				writer.Key("variant");
-				writer.String(Utils::String::ThinString(variantName).c_str());
-				if (variantType >= 0 && variantType < Blam::GameTypeCount)
-				{
-					writer.Key("variantType");
-					writer.String(Blam::GameTypeNames[variantType].c_str());
-				}
-				writer.Key("status");
-				writer.String(status.c_str());
-				writer.Key("numPlayers");
-				writer.Int(GetNumPlayers());
-
-				std::ifstream file("fmmRequired.dat");
-				std::string temp;
-
-				writer.Key("mods");
-				writer.StartArray();
-				while (std::getline(file, temp))
-					writer.String(temp.c_str());
-				writer.EndArray();
-
-				// TODO: find how to get actual max players from the game, since our variable might be wrong
-				writer.Key("maxPlayers");
-				writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
-
-				bool authenticated = true;
-				if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
-				{
-					std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
-					authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
-					authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
-				}
-
-				if(authenticated)
-				{
-					writer.Key("xnkid");
-					writer.String(xnkid.c_str());
-					writer.Key("xnaddr");
-					writer.String(xnaddr.c_str());
-					if (session->HasTeams())
-					{
-						writer.Key("teamScores");
-						writer.StartArray();
-						uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
-						for (int t = 0; t < 8; t++)
+						if (mapName == "mainmenu")
 						{
-							writer.Int(scores[t]);
+							status = "InLobby";
+							// on mainmenu so we'll have to read other data
+							mapName = std::string((char*)Pointer(0x19A5E49));
+							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantType = Pointer(0x179250).Read<uint32_t>();
+						}
+						else // TODO: find how to get the variant name/type while it's on the loading screen
+							status = "Loading";
+					}
+
+					rapidjson::StringBuffer s;
+					rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+					writer.StartObject();
+					writer.Key("name");
+					writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+					writer.Key("port");
+					writer.Int(Pointer(0x1860454).Read<uint32_t>());
+					writer.Key("hostPlayer");
+					writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+					writer.Key("sprintEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
+					writer.Key("sprintUnlimitedEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+					writer.Key("dualWielding");
+					writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
+					writer.Key("assassinationEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
+					writer.Key("votingEnabled");
+					writer.Bool(Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1 || Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt == 1);
+
+					auto session = Blam::Network::GetActiveSession();
+					if (session && session->IsEstablished()) {
+						writer.Key("teams");
+						writer.Bool(session->HasTeams());
+					}
+					writer.Key("map");
+					writer.String(Utils::String::ThinString(mapVariantName).c_str());
+					writer.Key("mapFile");
+					writer.String(mapName.c_str());
+					writer.Key("variant");
+					writer.String(Utils::String::ThinString(variantName).c_str());
+					if (variantType >= 0 && variantType < Blam::GameTypeCount)
+					{
+						writer.Key("variantType");
+						writer.String(Blam::GameTypeNames[variantType].c_str());
+					}
+					writer.Key("status");
+					writer.String(status.c_str());
+					writer.Key("numPlayers");
+					writer.Int(GetNumPlayers());
+
+					std::ifstream file("fmmRequired.dat");
+					std::string temp;
+
+					writer.Key("mods");
+					writer.StartArray();
+					while (std::getline(file, temp))
+						writer.String(temp.c_str());
+					writer.EndArray();
+
+					// TODO: find how to get actual max players from the game, since our variable might be wrong
+					writer.Key("maxPlayers");
+					writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+
+					bool authenticated = true;
+					if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+					{
+						std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+						authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+						authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
+					}
+
+					if (authenticated)
+					{
+						writer.Key("xnkid");
+						writer.String(xnkid.c_str());
+						writer.Key("xnaddr");
+						writer.String(xnaddr.c_str());
+						if (session->HasTeams())
+						{
+							writer.Key("teamScores");
+							writer.StartArray();
+							uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
+							for (int t = 0; t < 8; t++)
+							{
+								writer.Int(scores[t]);
+							}
+							writer.EndArray();
+						}
+
+						writer.Key("players");
+
+						writer.StartArray();
+						uint32_t playerInfoBase = 0x2162E08;
+						uint32_t playerStatusBase = 0x2161808;
+
+
+						int peerIdx = session->MembershipInfo.FindFirstPeer();
+						while (peerIdx != -1)
+						{
+							int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+							if (playerIdx != -1)
+							{
+								auto playerStats = Blam::Players::GetStats(playerIdx);
+								auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+								std::string name = Utils::String::ThinString(player->Properties.DisplayName);
+								uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
+
+								uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
+
+								writer.StartObject();
+								writer.Key("name");
+								writer.String(name.c_str());
+								writer.Key("serviceTag");
+								writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
+								writer.Key("team");
+								writer.Int(team);
+								char uid[17];
+								Blam::Players::FormatUid(uid, player->Properties.Uid);
+								writer.Key("uid");
+								writer.String(uid);
+								std::stringstream color;
+								color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+								writer.Key("primaryColor");
+								writer.String(color.str().c_str());
+								writer.Key("isAlive");
+								writer.Bool(alive == 1);
+								writer.Key("score");
+								writer.Int(playerStats.Score);
+								writer.Key("kills");
+								writer.Int(playerStats.Kills);
+								writer.Key("assists");
+								writer.Int(playerStats.Assists);
+								writer.Key("deaths");
+								writer.Int(playerStats.Deaths);
+								writer.Key("betrayals");
+								writer.Int(playerStats.Betrayals);
+								writer.Key("timeSpentAlive");
+								writer.Int(playerStats.TimeSpentAlive);
+								writer.Key("suicides");
+								writer.Int(playerStats.Suicides);
+								writer.Key("bestStreak");
+								writer.Int(playerStats.BestStreak);
+								writer.EndObject();
+							}
+							peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 						}
 						writer.EndArray();
 					}
-
-					writer.Key("players");
-
-					writer.StartArray();
-					uint32_t playerInfoBase = 0x2162E08;
-					uint32_t playerStatusBase = 0x2161808;
-
-
-					int peerIdx = session->MembershipInfo.FindFirstPeer();
-					while (peerIdx != -1)
+					else
 					{
-						int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-						if (playerIdx != -1)
-						{
-
-							auto playerStats = Blam::Players::GetStats(playerIdx);
-							auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-							std::string name = Utils::String::ThinString(player->Properties.DisplayName);
-							uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
-
-							uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
-
-							writer.StartObject();
-							writer.Key("name");
-							writer.String(name.c_str());
-							writer.Key("serviceTag");
-							writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
-							writer.Key("team");
-							writer.Int(team);
-							char uid[17];
-							Blam::Players::FormatUid(uid, player->Properties.Uid);
-							writer.Key("uid");
-							writer.String(uid);
-							std::stringstream color;
-							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-							writer.Key("primaryColor");
-							writer.String(color.str().c_str());
-							writer.Key("isAlive");
-							writer.Bool(alive == 1);
-							writer.Key("score");
-							writer.Int(playerStats.Score);
-							writer.Key("kills");
-							writer.Int(playerStats.Kills);
-							writer.Key("assists");
-							writer.Int(playerStats.Assists);
-							writer.Key("deaths");
-							writer.Int(playerStats.Deaths);
-							writer.Key("betrayals");
-							writer.Int(playerStats.Betrayals);
-							writer.Key("timeSpentAlive");
-							writer.Int(playerStats.TimeSpentAlive);
-							writer.Key("suicides");
-							writer.Int(playerStats.Suicides);
-							writer.Key("bestStreak");
-							writer.Int(playerStats.BestStreak);
-							writer.EndObject();
-
-						}
-						peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+						writer.Key("passworded");
+						writer.Bool(true);
 					}
-					writer.EndArray();
+					writer.Key("isDedicated");
+					writer.Bool(ElDorito::Instance().IsDedicated());
+					writer.Key("gameVersion");
+					writer.String(gameVersion.c_str());
+					writer.Key("eldewritoVersion");
+					writer.String(Utils::Version::GetVersionString().c_str());
+					writer.EndObject();
+					httpServerCache = s.GetString();
 				}
-				else
-				{
-					writer.Key("passworded");
-					writer.Bool(true);
-				}
-				writer.Key("isDedicated");
-				writer.Bool(ElDorito::Instance().IsDedicated());
-				writer.Key("gameVersion");
-				writer.String(gameVersion.c_str());
-				writer.Key("eldewritoVersion");
-				writer.String(Utils::Version::GetVersionString().c_str());
-				writer.EndObject();
-
-				std::string replyData = s.GetString();
+				replyData = httpServerCache;
 				std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
 				send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 			}
