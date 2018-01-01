@@ -264,7 +264,7 @@ namespace Server::Voting
 		return voteStartedTime != 0;
 	}
 	//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
-	VotingMessage VetoSystem::GenerateVotingOptionsMessage()
+	VotingMessage VetoSystem::GenerateVotingOptionsMessage(bool updateTime)
 	{
 		VotingMessage newmessage(VotingMessageType::VetoOption);
 
@@ -276,11 +276,18 @@ namespace Server::Voting
 		time_t curTime;
 		time(&curTime);
 		if (currentVetoOption.canveto) {
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt - (curTime - voteStartedTime);
+			if (updateTime && voteStartedTime > 0) 
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt - (int)difftime(curTime,voteStartedTime);
+			else
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
+
 			newmessage.votesNeededToPass = getVoteNeededToPass();
 		}
 		else {
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt - (curTime - startime);
+			if (updateTime && startime > 0)
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt - (int)difftime(curTime,startime);
+			else
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
 			newmessage.votesNeededToPass = 0;
 		}
 
@@ -294,11 +301,11 @@ namespace Server::Voting
 		if (!(session && session->IsEstablished() && session->IsHost() && session->Parameters.GetSessionMode() == 1 && isEnabled()))
 			return;
 
-		VotingMessage newmessage = GenerateVotingOptionsMessage();
+		VotingMessage newmessage = GenerateVotingOptionsMessage(true);
 		SendVotingMessageToPeer(newmessage, peer);
 	}
 	//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
-	VotingMessage VotingSystem::GenerateVotingOptionsMessage()
+	VotingMessage VotingSystem::GenerateVotingOptionsMessage(bool updateTime)
 	{
 		VotingMessage newmessage(VotingMessageType::VotingOptions);
 		int i = 0;
@@ -310,7 +317,11 @@ namespace Server::Voting
 		}
 		time_t curTime;
 		time(&curTime);
-		newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt - (curTime - voteStartedTime);
+		if (updateTime)
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt - (int)difftime(curTime,voteStartedTime);
+		else 
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt;
+		
 		return newmessage;
 	}
 
@@ -403,7 +414,7 @@ namespace Server::Voting
 			currentVotingOptions.push_back(revote);
 		}
 		time(&voteStartedTime);
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 	}
 	void VotingSystem::Tick()
@@ -603,7 +614,7 @@ namespace Server::Voting
 		currentVetoOption = GenerateVotingOption();
 		currentVetoOption.canveto = true;
 		SetGameAndMap();
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 
 		time(&voteStartedTime);
@@ -647,7 +658,7 @@ namespace Server::Voting
 
 	void VetoSystem::SetStartTimer()
 	{
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 		time(&startime);
 	}
