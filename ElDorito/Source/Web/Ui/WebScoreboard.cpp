@@ -305,10 +305,11 @@ namespace Web::Ui::WebScoreboard
 						{
 							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
 							hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
-							if (hasObjective)
+							if (hasObjective && session->HasTeams()) {
 								teamObjective[player.Properties.TeamIndex] = true;
-								if (hasObjective && session->HasTeams() && session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
-								hasObjective = false;
+								if(session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
+									hasObjective = false;
+							}		
 						}
 					}
 				}
@@ -340,13 +341,16 @@ namespace Web::Ui::WebScoreboard
 		}
 		writer.EndArray();
 
-		writer.Key("teamHasObjective");
-		writer.StartArray();
-		for (int i = 0; i < 10; i++)
-		{
-			writer.Bool(teamObjective[i]);
+		if (session->HasTeams()) {
+			writer.Key("teamHasObjective");
+			writer.StartArray();
+			for (int i = 0; i < 10; i++)
+			{
+				writer.Bool(teamObjective[i]);
+			}
+			writer.EndArray();
 		}
-		writer.EndArray();
+		
 
 		writer.EndObject();
 
