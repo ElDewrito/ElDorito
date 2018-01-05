@@ -290,6 +290,9 @@ namespace Patches::Ui
 		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
 
 		Hook(0x62D58D, c_hud_camera_view__render_outlines_hook, HookFlags::IsCall).Apply();
+
+		// fix 'none' game variant weapon option
+		Patch(0x1CE52D, { 0xEB }).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
