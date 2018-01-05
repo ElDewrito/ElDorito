@@ -30,6 +30,7 @@
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
 #include "Discord/DiscordRPC.h"
+#include "ThirdParty/SOP.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
@@ -82,6 +83,11 @@ void ElDorito::killProcessByName(const char *filename, int ourProcessID)
 void ElDorito::Initialize()
 {
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
+
+	if (!SOP_CheckProfile("ElDewrito"))
+	{
+		SOP_SetProfile("ElDewrito", "eldorado.exe");
+	}
 
 	// Parse command-line commands
 	int numArgs = 0;
