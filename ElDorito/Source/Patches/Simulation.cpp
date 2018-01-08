@@ -18,6 +18,7 @@ namespace
 	uint32_t __fastcall c_simulation_generic_entity_definition__spawn_object_hook(int thisptr, void *unused, uint8_t *data, GenericEntitySimulationData *simulationData, int a4, uint8_t *newObject);
 	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
 	void ProjectileAttachmentHook();
+	void SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
 
 	void simulation_control_decode(uint8_t *input, uint8_t *output);
 	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output);
@@ -35,6 +36,7 @@ namespace Patches::Simulation
 		Hook(0xC928C, c_simulation_generic_entity__serialize2_hook, HookFlags::IsCall).Apply();
 		Hook(0xC913A, c_simulation_generic_entity__deserialize2_hook, HookFlags::IsCall).Apply();
 		Hook(0xC8E91, c_simulation_generic_entity_definition__spawn_object_hook, HookFlags::IsCall).Apply();
+
 		Patches::Network::OnMapVariantRequestChange(OnMapVariantRequestChange);
 		Hook(0x000B2E1B, ScenerySyncHook, HookFlags::IsCall).Apply();
 
@@ -45,6 +47,11 @@ namespace Patches::Simulation
 		Hook(0xA7A17, simulation_control_encode, HookFlags::IsCall).Apply();
 		Hook(0xA77BF, simulation_control_encode, HookFlags::IsCall).Apply();
 		Patch::NopFill(Pointer::Base(0x74C4E7), 6);
+
+		// fixes nade jumping, hammer boosting, etc..
+		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
+		// prevent from sending duplicate damage aftermath events
+		Patch(0x00754226, 0x90, 12).Apply();
 	}
 }
 
@@ -149,10 +156,6 @@ namespace
 				*(RealVector3D*)(newObject + 0x34) = placement.UpVector;
 			}
 		}
-		else
-		{
-			s_SyncPlacements[placementIndex].PlacementFlags = 0;
-		}
 
 		auto objectIndex = c_simulation_generic_entity_definition__spawn_object(thisptr, data, simulationData, a4, newObject);
 		if (placementIndex != -1 && objectIndex != -1)
@@ -241,5 +244,14 @@ namespace
 			*(output + 0x18) |= (1 << 5);
 		else
 			*(output + 0x18) &= ~(1 << 5);
+	}
+
+
+	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data)
+	{
+		Pointer(data)(0xA).WriteFast<uint8_t>(1); // flag the direction vector to be serialized
+
+		auto simulation_broadcast_event = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
+		simulation_broadcast_event(a1, a2, a3, playerIndex, size, data);
 	}
 }

@@ -61,9 +61,6 @@ namespace
 	void LifeCycleStateChangedHook();
 
 	void GetTextureDimensionsHook();
-
-	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
-	float __cdecl Objects_GetInstantaneousAccelerationScaleHook(uint32_t objectIndex);
 }
 
 namespace Patches::Network
@@ -435,9 +432,6 @@ namespace Patches::Network
 		// "received initial update, clearing"
 		Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
 		Hook(0x683D45, Network_session_parameter_countdown_timer_request_change_hook, HookFlags::IsCall).Apply();
-
-		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
-		Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
 
 		//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
 		Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
@@ -1164,30 +1158,6 @@ namespace
 		typedef int(__fastcall *Network_session_parameters_clearFunc)(void* thisPtr, int unused);
 		Network_session_parameters_clearFunc Network_session_parameters_clear = reinterpret_cast<Network_session_parameters_clearFunc>(0x486580);
 		return Network_session_parameters_clear(thisPtr, unused);
-	}
-
-	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data)
-	{
-		Pointer(data)(0xA).WriteFast<uint8_t>(1); // flag the direction vector to be serialized
-
-		auto SendSimulationDamageAftermathEvent = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
-		SendSimulationDamageAftermathEvent(a1, a2, a3, playerIndex, size, data);
-	}
-
-	float __cdecl Objects_GetInstantaneousAccelerationScaleHook(uint32_t objectIndex)
-	{
-		auto Objects_GetInstantaneousAccelerationScale = (float(__cdecl*)(uint32_t objectIndex))(0xB529A0);
-		auto IsClient = (bool(*)())(0x00531D70);
-
-		auto acc = Objects_GetInstantaneousAccelerationScale(objectIndex);
-
-		if (IsClient())
-		{
-			// approximation of host's acceleration (may need to be tweaked)
-			acc *= 0.485f;
-		}
-
-		return acc;
 	}
 
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex)
