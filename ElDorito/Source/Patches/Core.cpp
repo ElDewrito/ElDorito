@@ -37,6 +37,7 @@ namespace
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
 	void __cdecl HsPrintHook(const char *message);
+	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -150,6 +151,9 @@ namespace Patches::Core
 		Hook(0x20F44B, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
+
+		// fixes the amd freeze
+		Hook(0x65806D, ContrailSystemRenderSetStreamSourceHook, HookFlags::IsCall).Apply();
 
 #ifndef _DEBUG
 		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
@@ -466,5 +470,15 @@ namespace
 			return;
 
 		Console::WriteLine(message);
+	}
+
+	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset)
+	{
+		const auto rasterizer_set_stream_source = (void(*)(void *vb, int offset))(0x00A5DB90);
+
+		if (offset < 0)
+			offset = 0;
+
+		rasterizer_set_stream_source(vb, offset);
 	}
 }
