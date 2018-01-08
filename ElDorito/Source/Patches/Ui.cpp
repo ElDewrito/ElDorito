@@ -98,6 +98,8 @@ namespace
 	int GetBrokenChudStateFlags31Values();
 	int GetBrokenChudStateFlags33Values();
 	void MenuSelectedMapIDChangedHook();
+	void GetGlobalDynamicColorHook();
+	void GetWeaponOutlineColorHook();
 
 	void FindUiTagIndices();
 	void FindVoiceChatSpeakingPlayerTagData();
@@ -155,6 +157,11 @@ namespace
 
 namespace Patches::Ui
 {
+	bool enableCustomHUDColors = false;
+	bool enableAllyBlueWaypointsFix = false;
+	int customPrimaryHUDColor = -1;
+	int customSecondaryHUDColor = 0;
+
 	void ApplyAfterTagsLoaded()
 	{
 		if (!tagsInitiallyLoaded)
@@ -270,6 +277,10 @@ namespace Patches::Ui
 		Hook(0x687094, StateDataFlags5Hook).Apply();
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
+
+		//Various color fixes.
+		Hook(0x6D5B5F, GetGlobalDynamicColorHook).Apply();
+		Hook(0x6CA009, GetWeaponOutlineColorHook).Apply();
 
 		// use the correct hud globals for the player representation
 		Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
@@ -1587,6 +1598,85 @@ namespace
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
 
 		return flags;
+	}
+
+	__declspec(naked) void GetGlobalDynamicColorHook()
+	{
+		_asm
+		{
+			ally_blue:
+				cmp enableAllyBlueWaypointsFix, 1
+				jne custom_colors
+				cmp[ebp + 0xC], 0xF
+				jne custom_colors
+				mov eax, [eax + 19 * 4 + 4]
+				jmp eldorado_return
+
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
+				cmp[ebp + 0xC], 0x0
+				je secondary_color
+				cmp[ebp + 0xC], 0x1
+				je secondary_color
+				cmp[ebp + 0xC], 0x2
+				je primary_color
+				cmp[ebp + 0xC], 0x4
+				je primary_color
+				cmp[ebp + 0xC], 0x8
+				je primary_color
+				cmp[ebp + 0xC], 0xA
+				je primary_color
+				cmp[ebp + 0xC], 0xB
+				je primary_color
+				cmp[ebp + 0xC], 0xF
+				je primary_color
+
+			tag_color:
+				mov eax, [eax + edi * 4 + 4]
+				jmp eldorado_return
+
+			primary_color :
+				mov eax, Patches::Ui::customPrimaryHUDColor
+				jmp eldorado_return
+
+			secondary_color :
+				mov eax, Patches::Ui::customSecondaryHUDColor
+				jmp eldorado_return
+
+			eldorado_return :
+				pop edi
+				pop esi
+				pop ebx
+				pop ebp
+				ret 8
+		}
+	}
+
+	__declspec(naked) void GetWeaponOutlineColorHook()
+	{
+		_asm
+		{
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
+				cmp ecx, 0
+				je secondary_color
+
+			tag_color:
+				push [eax+ecx*4+0x7C]
+				jmp eldorado_return
+
+			secondary_color:
+				push customSecondaryHUDColor
+
+			eldorado_return:
+				mov ebx, 0xAC9AA0
+				call ebx
+				add esp, 0xC
+				pop ebp
+				retn
+		}
 	}
 
 	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource)
