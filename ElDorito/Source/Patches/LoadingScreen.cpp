@@ -1,5 +1,6 @@
 #include "LoadingScreen.hpp"
 #include "../Patch.hpp"
+#include "../Modules/ModuleBase.hpp"
 
 using namespace Patches::LoadingScreen;
 
@@ -72,6 +73,8 @@ namespace
 		typedef void(*HideLoadingScreenPtr)();
 		auto HideLoadingScreen = reinterpret_cast<HideLoadingScreenPtr>(0x52EE20);
 		HideLoadingScreen();
+
+		Modules::CommandMap::Instance().ExecuteCommand("game.hideh3ui 0");
 
 		if (ActiveUi)
 			ActiveUi->Hide();
