@@ -362,11 +362,19 @@
                     if (model.meta.isInteger) {
                         value = Math.floor(value);
                         range.value = value;
-                        input.value = value;
 
+                        if(model.meta.displayTextOverride) {
+                            input.value = model.meta.displayTextOverride(value);
+                        } else {
+                            input.value = value;
+                        }
                     } else {
                         range.value = value;
-                        input.value = value.toFixed(2);
+                        if(model.meta.displayTextOverride) {
+                            input.value = model.meta.displayTextOverride(value);
+                        } else {
+                            input.value = value.toFixed(2);
+                        }
                     }
 
                     if (notifyModel)
