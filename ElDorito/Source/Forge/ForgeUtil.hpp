@@ -63,6 +63,16 @@ namespace Forge
 		uint8_t CameraFxLightIntensity;
 		uint8_t CameraFxBloom;
 		uint8_t _PADDING;
+		struct  {
+			uint8_t Flags : 4;
+			uint8_t Weather : 4;
+			uint8_t FogColorR;
+			uint8_t FogColorG;
+			uint8_t FogColorB;
+			uint8_t FogDensity;
+			uint8_t FogVisibility;
+			uint8_t Brightness;
+		} AtmosphereProperties;
 	};
 	static_assert(sizeof(ForgeMapModifierProperties) <= 16, "ForgeMapModifierProperties must be 16 bytes or less in size");
 

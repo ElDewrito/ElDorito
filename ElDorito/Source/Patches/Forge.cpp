@@ -112,6 +112,8 @@ namespace
 
 	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
+	void RenderAtmosphereHook(short bspIndex, void *state);
+	void BspWeatherEffectUpdateHook(int a1, int a2, int a3);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -138,6 +140,20 @@ namespace
 		float LightIntensity;
 		float BloomIntensity;
 	} s_CameraFxSettings;
+
+	struct {
+		uint32_t Flags;
+		uint32_t WeatherEffectTagIndex;
+		Blam::Math::RealColorRGB FogColor;
+		float FogDensity;
+		float FogVisibility;
+		float Brightness;
+		
+	} s_AtmosphereSettings = { 0 };
+
+
+	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
 }
 
 namespace Patches::Forge
@@ -236,6 +252,9 @@ namespace Patches::Forge
 		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
+		Hook(0x00639AC1, RenderAtmosphereHook, HookFlags::IsCall).Apply();
+		// prevent weather from being reset
+		Hook(0x00273949, BspWeatherEffectUpdateHook, HookFlags::IsCall).Apply();
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 
 		// fix ragdolls falling through objects
@@ -245,7 +264,7 @@ namespace Patches::Forge
 
 	void Tick()
 	{
-		UpdateMapModifier();
+		
 	}
 
 	void OnItemSpawned(ItemSpawnedCallback callback)
@@ -348,6 +367,8 @@ namespace
 
 	void UpdateMapModifier()
 	{
+		s_AtmosphereSettings.Flags &= ~(1 << 0);
+
 		// Scan the object table to check if map modifier is spawned
 		for (auto &&header : Blam::Objects::GetObjects())
 		{
@@ -373,6 +394,48 @@ namespace
 				if (s_CameraFxSettings.BloomIntensity > 20000.0f)
 					s_CameraFxSettings.BloomIntensity = 20000.0f;
 
+				auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+				auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+			
+
+
+				uint32_t newWeatherEffectTagIndex = -1;
+				switch (mapModifierProperties->AtmosphereProperties.Weather)
+				{
+				case 0:
+					newWeatherEffectTagIndex = -1;
+					break;
+				case 1:
+					newWeatherEffectTagIndex = 0x443a; // snow
+					break;
+				}
+
+
+				if (s_AtmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
+					 && currentWeatherEffectDatumIndex != -1)
+				{
+					FreeWeatherEffect(currentWeatherEffectDatumIndex);
+					currentWeatherEffectDatumIndex = -1;
+				}
+
+				if (currentWeatherEffectDatumIndex == -1 && newWeatherEffectTagIndex != -1)
+				{
+					currentWeatherEffectDatumIndex = SpawnWeatherEffect(newWeatherEffectTagIndex);
+				}
+
+				s_AtmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
+
+				if (mapModifierProperties->AtmosphereProperties.Flags & 1)
+				{
+					s_AtmosphereSettings.Flags |= (1 << 0);
+					s_AtmosphereSettings.FogColor.Red = mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f;
+					s_AtmosphereSettings.FogColor.Green = mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f;
+					s_AtmosphereSettings.FogColor.Blue = mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f;
+					s_AtmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 50.0f;
+					s_AtmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
+					s_AtmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
+
+				}
 				return;
 			}
 		}
@@ -384,6 +447,8 @@ namespace
 		s_CameraFxSettings.Exposure = 0;
 		s_CameraFxSettings.LightIntensity = 0;
 		s_CameraFxSettings.BloomIntensity = 0;
+		s_AtmosphereSettings.WeatherEffectTagIndex = -1;
+		
 	}
 
 	bool CheckKillTriggersHook(int a0, void *a1)
@@ -1907,6 +1972,8 @@ namespace
 	{
 		const auto is_client = (bool(*)())(0x00531D70);
 
+		UpdateMapModifier();
+
 		if (!is_client())
 			::Forge::Volumes::Update();
 	}
@@ -2142,4 +2209,111 @@ namespace
 		}
 		rasterizer_set_pixel_shader_constant(id, count, data);
 	}
+
+	void RenderAtmosphereHook(short bspIndex, void *state)
+	{
+		struct sky_atm_parameters_properties_definition
+		{
+			uint16_t Flags;
+			uint16_t Unknown;
+			uint32_t Name;
+			float LightSourceY;
+			float LightSourceX;
+			Blam::Math::RealColorRGB FogColor;
+			float Brightness;
+			float FogGradientThreshold;
+			float LightIntensity;
+			float SkyinvisiblilityThroughFog;
+			float Unknown2C;
+			float Unknown30;
+			float LightSourceSpread;
+			float Unknown38;
+			float FogIntensity;
+			float Unknown40;
+			float TintCyan;
+			float TintMagenta;
+			float TintYellow;
+			float FogIntensityCyan;
+			float FogIntensityMagenta;
+			float FogIntensityYellow;
+			float BackgroundColorRed;
+			float BackgroundColorGreen;
+			float BackgroundColorBlue;
+			float TintRed;
+			float TintGreen;
+			float TintBlue;
+			float FogIntensity2;
+			float StartDistance;
+			float EndDistance;
+			float FogVelocityX;
+			float FogVelocityY;
+			float FogVelocityZ;
+			Blam::Tags::TagReference Weather;
+			float Unknown9C;
+			uint32_t UnknownA0;
+		};
+		static_assert(sizeof(sky_atm_parameters_properties_definition) == 0xA4, "");
+
+
+		const auto sub_6739A0 = (void(*)(short bspIndex, void *state))(0x6739A0);
+		const auto sub_671D90 = (void(*)(__int16 sbspIndex, sky_atm_parameters_properties_definition *atmosphereProperties,
+			void *state, float intensity))(0x671D90);
+
+		// TODO: cleanup
+		if (s_AtmosphereSettings.Flags & 1)
+		{
+			sky_atm_parameters_properties_definition props = { 0 };
+			props.Flags = 7;
+			props.Name = 26116;
+			props.LightSourceY = 56;
+			props.LightSourceX = 30;
+			props.FogColor = s_AtmosphereSettings.FogColor;
+			props.Brightness = s_AtmosphereSettings.Brightness;
+			props.FogGradientThreshold = -10.0f + s_AtmosphereSettings.FogVisibility;
+			props.LightIntensity = 100;
+			props.SkyinvisiblilityThroughFog = 25;
+			props.Unknown2C = 0.08f;
+			props.Unknown30 = 2.5f;
+			props.LightSourceSpread = 0.75f;
+			props.Unknown38 = 1.0f;
+			props.FogIntensity = -20.0f + s_AtmosphereSettings.FogDensity;
+			props.Unknown40 = 65535;
+			props.TintCyan = 0.0009897007f;
+			props.TintMagenta = 0.0009897007f;
+			props.TintYellow = 0.0009897007f;
+			props.FogIntensityCyan = 0.1970554f;
+			props.FogIntensityMagenta = 0.1970554f;
+			props.FogIntensityYellow = 0.1970554f;
+			props.BackgroundColorBlue = (float)6.008439E-05;
+			props.BackgroundColorGreen = (float)6.008439E-05;
+			props.BackgroundColorRed = (float)6.008439E-05;
+			props.TintRed = 0.04638588f;
+			props.TintGreen = 0.04638588f;
+			props.TintBlue = 0.04638588f;
+			props.FogIntensity2 = 500;
+			props.StartDistance = 18.5f;
+			props.EndDistance = 19.75f;
+			props.FogVelocityX = 0;
+			props.FogVelocityY = 0.2f;
+			props.FogVelocityZ = 0.1f;
+			sub_671D90(bspIndex, &props, state, 1.0f);
+		}
+		else
+		{
+			sub_6739A0(bspIndex, state);
+		}
+	}
+
+	void BspWeatherEffectUpdateHook(int a1, int a2, int a3)
+	{
+		const auto BspWeatherEffectUpdate = (void(*)(int a1, int a2, int a3))(0x672230);
+
+		if (s_AtmosphereSettings.WeatherEffectTagIndex != -1)
+		{
+			return;
+		}
+
+		BspWeatherEffectUpdate(a1, a2, a3);
+	}
+
 }

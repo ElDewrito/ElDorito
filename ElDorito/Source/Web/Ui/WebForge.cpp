@@ -87,7 +87,16 @@ namespace
 
 		CameraFx_Exposure,
 		CameraFx_LightIntensity,
-		CameraFx_Bloom
+		CameraFx_Bloom,
+
+		AtmosphereProperties_Enabled,
+		AtmosphereProperties_Weather,
+		AtmosphereProperties_Brightness,
+		AtmosphereProperties_FogDensity,
+		AtmosphereProperties_FogVisibility,
+		AtmosphereProperties_FogColorR,
+		AtmosphereProperties_FogColorG,
+		AtmosphereProperties_FogColorB
 	};
 
 	enum class PropertyDataType
@@ -325,7 +334,33 @@ namespace
 			case PropertyTarget::CameraFx_Bloom:
 				mapModifierProperties->CameraFxBloom = int(value.ValueFloat * 255.0f);
 				break;
-
+			case PropertyTarget::AtmosphereProperties_Enabled:
+				if (value.ValueInt)
+					mapModifierProperties->AtmosphereProperties.Flags |= (1 << 0);
+				else
+					mapModifierProperties->AtmosphereProperties.Flags &= ~(1 << 0);
+				break;
+			case PropertyTarget::AtmosphereProperties_Weather:
+				mapModifierProperties->AtmosphereProperties.Weather = value.ValueInt;
+				break;
+			case PropertyTarget::AtmosphereProperties_Brightness:
+				mapModifierProperties->AtmosphereProperties.Brightness = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogDensity:
+				mapModifierProperties->AtmosphereProperties.FogDensity = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogVisibility:
+				mapModifierProperties->AtmosphereProperties.FogVisibility = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorR:
+				mapModifierProperties->AtmosphereProperties.FogColorR = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorG:
+				mapModifierProperties->AtmosphereProperties.FogColorG = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorB:
+				mapModifierProperties->AtmosphereProperties.FogColorB = int(value.ValueFloat * 255);
+				break;
 			}
 		}
 
@@ -783,6 +818,15 @@ namespace
 		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
 		SerializeProperty(writer, "camera_fx_light_intensity", mapModifierProperties->CameraFxLightIntensity / 255.0f);
 
+		SerializeProperty(writer, "atmosphere_properties_enabled", int((mapModifierProperties->AtmosphereProperties.Flags & 1) != 0));
+		SerializeProperty(writer, "atmosphere_properties_weather", (mapModifierProperties->AtmosphereProperties.Weather));
+		SerializeProperty(writer, "atmosphere_properties_brightness", mapModifierProperties->AtmosphereProperties.Brightness / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_density", mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_visibility", mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_r", mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_g", mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_b", mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f);
+
 		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_objectives", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives) != 0));
@@ -870,6 +914,15 @@ namespace
 			{ "camera_fx_exposure",{ PropertyDataType::Float, PropertyTarget::CameraFx_Exposure } },
 			{ "camera_fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightIntensity } },
 			{ "camera_fx_bloom",{ PropertyDataType::Float, PropertyTarget::CameraFx_Bloom } },
+
+			{ "atmosphere_properties_enabled",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Enabled } },
+			{ "atmosphere_properties_weather",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Weather } },
+			{ "atmosphere_properties_brightness",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_Brightness } },
+			{ "atmosphere_properties_fog_density",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogDensity } },
+			{ "atmosphere_properties_fog_visibility",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogVisibility } },
+			{ "atmosphere_properties_fog_color_r",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorR } },
+			{ "atmosphere_properties_fog_color_g",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorG } },
+			{ "atmosphere_properties_fog_color_b",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorB } },
 
 			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
