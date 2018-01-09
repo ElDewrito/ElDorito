@@ -46,6 +46,7 @@ namespace
 	void weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	bool weapon_update_bloom_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	bool SupportWeaponStartHook(int weaponObjectIndex);
 }
 
 namespace Patches::Weapon
@@ -113,6 +114,9 @@ namespace Patches::Weapon
 		Hook(0x761197, weapon_apply_movement_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x74A8B7, weapon_apply_turning_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x7611A1, weapon_update_bloom_hook, HookFlags::IsCall).Apply();
+
+		// allow spawning with primary support weapon and keep secondary weapon
+		Hook(0x13809E, SupportWeaponStartHook, HookFlags::IsCall).Apply();
 	}
 
 	void ApplyAfterTagsLoaded()
@@ -762,5 +766,10 @@ namespace
 		}
 
 		return weapon_update_bloom(weaponObjectIndex, barrelIndex);
+	}
+
+	bool SupportWeaponStartHook(int weaponObjectIndex)
+	{
+		return false;
 	}
 }
