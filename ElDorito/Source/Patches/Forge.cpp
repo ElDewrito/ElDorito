@@ -240,6 +240,7 @@ namespace Patches::Forge
 
 		// fix ragdolls falling through objects
 		Patch(0x00317269, { 0xD }).Apply();
+		Patch(0x7D8A59, { 0xEB }).Apply();
 	}
 
 	void Tick()

@@ -19,6 +19,7 @@ namespace
 	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
 	void ProjectileAttachmentHook();
 	void SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
+	void ClientRagdollDamageHook(int objectIndex, char *damageData);
 
 	void simulation_control_decode(uint8_t *input, uint8_t *output);
 	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output);
@@ -52,6 +53,9 @@ namespace Patches::Simulation
 		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
 		// prevent from sending duplicate damage aftermath events
 		Patch(0x00754226, 0x90, 12).Apply();
+
+		// restore h3 backflips
+		Hook(0x007543DF, ClientRagdollDamageHook, HookFlags::IsCall).Apply();
 	}
 }
 
@@ -253,5 +257,12 @@ namespace
 
 		auto simulation_broadcast_event = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
 		simulation_broadcast_event(a1, a2, a3, playerIndex, size, data);
+	}
+
+	void ClientRagdollDamageHook(int objectIndex, char *damageData)
+	{
+		const auto object_deal_damage = (void(*)(int objectIndex, char *damageData))(0x00B52C50);
+		*(int*)(damageData + 0x54) = 1;
+		object_deal_damage(objectIndex, damageData);
 	}
 }
