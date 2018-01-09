@@ -297,6 +297,7 @@
                 model.group('Map options', (m) => {
                     m.add(makeProperty('map_disable_push_barrier', 'Push Barrier', 'spinner', barrierOptions));
                     m.add(makeProperty('map_disable_death_barrier', 'Death Barrier', 'spinner', barrierOptions));
+                    m.add(makeProperty('map_physics_gravity', 'Gravity', 'range', { min: 0, max: 1, step: 0.01, displayTextOverride: value => (1.0-value).toFixed(2) } ));
                 });
 
                 let cameraFxRange = { min: 0, max: 1.0, step: 0.01 };

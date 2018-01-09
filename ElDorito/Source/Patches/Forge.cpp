@@ -436,6 +436,9 @@ namespace
 					s_AtmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
 
 				}
+
+				const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
+				physics_set_gravity_scale(1.0f - (mapModifierProperties->PhysicsGravity / 255.0f));
 				return;
 			}
 		}

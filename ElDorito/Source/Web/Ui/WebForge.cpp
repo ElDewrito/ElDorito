@@ -84,6 +84,7 @@ namespace
 
 		Map_DisablePushBarrier,
 		Map_DisableDeathBarrier,
+		Map_PhysicsGravity,
 
 		CameraFx_Exposure,
 		CameraFx_LightIntensity,
@@ -325,6 +326,9 @@ namespace
 					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
 			}
 			break;
+			case PropertyTarget::Map_PhysicsGravity:
+				mapModifierProperties->PhysicsGravity = int(value.ValueFloat * 255.0f);
+				break;
 			case PropertyTarget::CameraFx_Exposure:
 				mapModifierProperties->CameraFxExposure = int(value.ValueFloat * 255.0f);
 				break;
@@ -813,6 +817,7 @@ namespace
 		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
 		SerializeProperty(writer, "map_disable_push_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier) != 0));
 		SerializeProperty(writer, "map_disable_death_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier) != 0));
+		SerializeProperty(writer, "map_physics_gravity", mapModifierProperties->PhysicsGravity / 255.0f);
 
 		SerializeProperty(writer, "camera_fx_exposure", mapModifierProperties->CameraFxExposure / 255.0f);
 		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
@@ -910,6 +915,7 @@ namespace
 
 			{ "map_disable_push_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
 			{ "map_disable_death_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },
+			{ "map_physics_gravity",{ PropertyDataType::Float, PropertyTarget::Map_PhysicsGravity } },
 
 			{ "camera_fx_exposure",{ PropertyDataType::Float, PropertyTarget::CameraFx_Exposure } },
 			{ "camera_fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightIntensity } },

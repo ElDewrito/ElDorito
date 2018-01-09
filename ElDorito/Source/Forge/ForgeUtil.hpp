@@ -72,7 +72,10 @@ namespace Forge
 			uint8_t FogDensity;
 			uint8_t FogVisibility;
 			uint8_t Brightness;
+			uint8_t Reserved1;
+			uint8_t Reserved2;
 		} AtmosphereProperties;
+		uint8_t PhysicsGravity;
 	};
 	static_assert(sizeof(ForgeMapModifierProperties) <= 16, "ForgeMapModifierProperties must be 16 bytes or less in size");
 
