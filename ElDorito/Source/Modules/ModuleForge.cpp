@@ -8,7 +8,6 @@
 #include "../Blam/Tags/TagBlock.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Objects/Object.hpp"
-#include <unordered_map>
 
 namespace
 {
@@ -260,6 +259,13 @@ namespace
 		moduleForge.CommandState.SetPrematchCamera = true;
 		return true;
 	}
+
+	bool CommandResetRuntime(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.RuntimeReset = true;
+		return true;
+	}
 }
 
 namespace Modules
@@ -292,6 +298,7 @@ namespace Modules
 
 		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandDeleteAll);
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", CommandFlags(eCommandFlagsHostOnly| eCommandFlagsForge), CommandCanvas);
+		AddCommand("ResetRuntime", "forge_reset_runtime", "Respawn any abandoned/despawned objects", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandResetRuntime);
 		AddCommand("SelectAll", "forge_select_all", "Select all objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSelectAll);
 		AddCommand("DeselectAll", "forge_deselect_all", "Deselect all selected objects", eCommandFlagsForge, CommandDeselectAll);
 		AddCommand("DeselectAllOf", "forge_deselect_all_of", "Deselect all selected objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandDeselectAllOf);

@@ -460,6 +460,38 @@ namespace
 		}
 	}
 
+	void ResetRuntime()
+	{
+		struct c_game_engine_object_runtime_state
+		{
+			uint32_t Flags;
+			int PlacementIndex;
+			int ObjectIndex;
+			int16_t TimeRemaining;
+			uint16_t Unknown0E;
+		};
+
+		const auto c_game_engine_object_runtime_manager__respawn = (void(__thiscall *)(void*, bool a1))(0x00590CE0);
+		const auto object_dispose = (void(*)(int objectIndex))(0x00B2CD10);
+
+		auto runtime = (c_game_engine_object_runtime_state*)((uint8_t*)ElDorito::GetMainTls(0x48)[0] + 0x1059c);
+
+		for (auto i = 0; i < 512; i++)
+		{
+			auto objectRuntime = &runtime[i];
+			if (objectRuntime->PlacementIndex == -1 || objectRuntime->TimeRemaining == 0x7FFF)
+				continue;
+
+			if (objectRuntime->ObjectIndex != -1)
+			{
+				object_dispose(objectRuntime->ObjectIndex);
+				objectRuntime->ObjectIndex = -1;
+			}
+
+			c_game_engine_object_runtime_manager__respawn(objectRuntime, true);
+		}
+	}
+
 	void HandlePrefabCommands()
 	{
 		auto &moduleForge = Modules::ModuleForge::Instance();
@@ -484,16 +516,6 @@ namespace
 				PrintKillFeedText(0, L"ERROR: Failed to save prefab.", 0);
 			}
 			moduleForge.CommandState.Prefabs.SavePrefab = false;
-		}
-	}
-
-	void HandleMapCanvas()
-	{
-		auto &moduleForge = Modules::ModuleForge::Instance();
-		if (moduleForge.CommandState.MapCanvas)
-		{
-			CanvasMap();
-			moduleForge.CommandState.MapCanvas = false;
 		}
 	}
 
@@ -532,6 +554,27 @@ namespace
 		Forge_SendMessage(&msg);
 	}
 
+	void HandleRuntimeReset()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.RuntimeReset)
+		{
+			ResetRuntime();
+			moduleForge.CommandState.RuntimeReset = false;
+		}
+	}
+
+	void HandleMapCanvas()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.MapCanvas)
+		{
+			ResetRuntime();
+			CanvasMap();
+			moduleForge.CommandState.MapCanvas = false;
+		}
+	}
+
 	void HandleSetPrematchCamera()
 	{
 		auto &moduleForge = Modules::ModuleForge::Instance();
@@ -556,6 +599,7 @@ namespace
 	void HandleCommands()
 	{
 		HandleMapCanvas();
+		HandleRuntimeReset();
 		HandleSpawnItem();
 		HandleSetPrematchCamera();
 		HandlePrefabCommands();
