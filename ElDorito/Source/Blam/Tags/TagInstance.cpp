@@ -12,9 +12,13 @@ namespace Blam::Tags
 	Tag TagInstance::GetGroupTag()
 	{
 		auto tagTableIndex = (*TagIndexTablePtr)[Index];
+
+		if ((tagTableIndex > *MaxTagCountPtr) || (tagTableIndex == -1))
+			return -1;
+
 		auto *tagTableEntry = (*TagTablePtr)[tagTableIndex];
 
-		if (tagTableEntry == nullptr)
+		if ((tagTableEntry == nullptr) || ((uint32_t)tagTableEntry < 0x400000))
 			return -1;
 
 		return *(Tag *)(tagTableEntry + 0x14);
