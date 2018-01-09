@@ -366,12 +366,6 @@
         let _results = [];
         let _active = false;
 
-        dew.on('show', e => {
-            if (_active) {
-                _searchInputElement.focus();
-            }
-        });
-
         _searchResultList.on('select', ({ index, element }) => {
             spawnItem(_results[index]);
         });
@@ -428,10 +422,13 @@
                 _footerElement.querySelector('.list-legend').classList.remove('hidden');
                 _active = true;
                 _screenElement.classList.add('active');
-                _searchInputElement.focus();
-                _searchResultList.refresh();
                 if (props.initialQuery) {
+                    _searchInputElement.focus();
                     _searchInputElement.value = props.initialQuery;
+                    _searchResultList.refresh();
+                } else {
+                    _searchResultList.refresh();
+                    _searchResultList.focus();
                 }
             },
             deactivate: function () {
