@@ -12,6 +12,7 @@ namespace
 	void __fastcall chud_update_h3_medal_animation_hook(int thisptr, void* unused, int a2);
 	void __fastcall chud_update_saber_medal_animation_hook(int thisptr, void* unused, int a2);
 	void sound_enqueue_announcer_sound_hook(uint32_t sndTagIndex, int delayTicks);
+	void HeadshotHook();
 }
 
 namespace Patches::Medals
@@ -24,6 +25,8 @@ namespace Patches::Medals
 		Hook(0x6970D6, chud_update_h3_medal_animation_hook, HookFlags::IsCall).Apply();
 		Hook(0x6970DE, chud_update_saber_medal_animation_hook, HookFlags::IsCall).Apply();
 		Hook(0x2E41D1, sound_enqueue_announcer_sound_hook, HookFlags::IsCall).Apply();
+		// disable headshot medal for non-sniper kills
+		Hook(0x1A1E70, HeadshotHook).Apply();
 	}
 }
 
@@ -98,5 +101,26 @@ namespace
 
 		if (!Modules::ModuleGame::Instance().VarCefMedals->ValueInt)
 			sound_enqueue_announcer_sound(sndTagIndex, delayTicks);
+	}
+
+	__declspec(naked) void HeadshotHook()
+	{
+		__asm
+		{
+			cmp eax, 1
+			jnz NO_MEDAL
+			mov eax, [ebp + 0x18]
+			mov ax, word ptr[eax]
+			cmp ax, 0x10
+			jz DEFAULT
+			cmp ax, 0x11
+			jz DEFAULT
+			NO_MEDAL:
+			push 0x005A1ED5
+			retn
+			DEFAULT:
+			push 0x005A1E75
+			retn
+		}
 	}
 }

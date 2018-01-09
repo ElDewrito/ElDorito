@@ -1,10 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CefProcess", "CefProcess/CefProcess.vcxproj", "{261CC8A8-EF80-3FD6-8094-9295652437EC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CefProcess", "CefProcess\CefProcess.vcxproj", "{261CC8A8-EF80-3FD6-8094-9295652437EC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElDorito", "ElDorito/ElDorito.vcxproj", "{715A189F-024C-3E8E-8462-9036BF583FA1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ElDorito", "ElDorito\ElDorito.vcxproj", "{715A189F-024C-3E8E-8462-9036BF583FA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,5 +23,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D4A13913-5316-44F7-8E1D-A52896CDB729}
 	EndGlobalSection
 EndGlobal

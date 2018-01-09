@@ -61,6 +61,8 @@ namespace
 
 	void __fastcall c_hud_camera_view__render_outlines_hook(void *thisptr, void *unused, int localPlayerIndex, int playerMappingIndex, void *a3);
 
+	void chud_talking_player_name_hook();
+
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
 	{
@@ -98,9 +100,10 @@ namespace
 	int GetBrokenChudStateFlags31Values();
 	int GetBrokenChudStateFlags33Values();
 	void MenuSelectedMapIDChangedHook();
+	void GetGlobalDynamicColorHook();
+	void GetWeaponOutlineColorHook();
 
 	void FindUiTagIndices();
-	void FindVoiceChatSpeakingPlayerTagData();
 	void FindHUDDistortionTagData();
 	void FindHUDResolutionTagData();
 	void FindMapImages();
@@ -125,8 +128,6 @@ namespace
 	uint32_t pttLsndIndex;
 
 	bool tagsInitiallyLoaded = false;
-	const std::string SPEAKING_PLAYER_STRING_NAME = "speaking_player";
-	int32_t speakingPlayerStringID;
 
 	int localDesiredTeam = -1;
 	int teamChangeTicks = 0;
@@ -148,13 +149,15 @@ namespace
 	//Distortion direction for spartan, monitor, elite.
 	//If more are added, this needs to be increased or stored differently.
 	float hudDistortionDirection[3]{ 0,0,0 };
-
-	bool speakingPlayerStringFound = false;
-	uint32_t speakingPlayerOffset; //The offset of speaker_name in memory.
 }
 
 namespace Patches::Ui
 {
+	bool enableCustomHUDColors = false;
+	bool enableAllyBlueWaypointsFix = false;
+	int customPrimaryHUDColor = -1;
+	int customSecondaryHUDColor = 0;
+
 	void ApplyAfterTagsLoaded()
 	{
 		if (!tagsInitiallyLoaded)
@@ -163,8 +166,6 @@ namespace Patches::Ui
 		}
 
 		tagsInitiallyLoaded = true;
-
-		UpdateSpeakingPlayerWidget(true);
 
 		//reset HUD distortion value when tags are reloaded
 		lastDistortionEnabledValue = true;
@@ -271,8 +272,15 @@ namespace Patches::Ui
 		Hook(0x687BF0, StateDataFlags21Hook).Apply();
 		Hook(0x685A5A, StateDataFlags31Hook).Apply();
 
+		//Various color fixes.
+		Hook(0x6D5B5F, GetGlobalDynamicColorHook).Apply();
+		Hook(0x6CA009, GetWeaponOutlineColorHook).Apply();
+
 		// use the correct hud globals for the player representation
 		Hook(0x6895E7, UI_GetHUDGlobalsIndexHook).Apply();
+
+		//Show the talking player's name on the HUD
+		Hook(0x6CA978, chud_talking_player_name_hook, HookFlags::IsCall).Apply();
 
 		//Fix map images in lobby.
 		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
@@ -290,6 +298,9 @@ namespace Patches::Ui
 		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
 
 		Hook(0x62D58D, c_hud_camera_view__render_outlines_hook, HookFlags::IsCall).Apply();
+
+		// fix 'none' game variant weapon option
+		Patch(0x1CE52D, { 0xEB }).Apply();
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -319,7 +330,6 @@ namespace Patches::Ui
 	void FindUiTagData()
 	{
 		FindUiTagIndices(); //Call me first.
-		FindVoiceChatSpeakingPlayerTagData();
 		FindHUDDistortionTagData();
 		FindHUDResolutionTagData();
 		FindMapImages();
@@ -353,9 +363,7 @@ namespace Patches::Ui
 	}
 
 	std::vector<std::string> speakingPlayers;
-	static const char* const hex = "0123456789ABCDEF";
-	std::stringstream hexStringStream;
-
+	char16_t chud_talking_player_name[32] = {};
 	void ToggleSpeakingPlayerName(std::string name, bool speaking)
 	{
 		//Always remove, in case of duplicates.
@@ -370,73 +378,21 @@ namespace Patches::Ui
 		if (speaking)
 			speakingPlayers.push_back(name);
 
-		UpdateSpeakingPlayerWidget(false);
-	}
+		//Empty the HUD chud_talking_player_name string.
+		//If someone is talking it will be reassigned below.
+		memset(chud_talking_player_name, 0, sizeof(chud_talking_player_name));
 
-	void UpdateSpeakingPlayerWidget(bool mapLoaded)
-	{
-		if ((IsMapLoading() || IsMainMenu()) && !mapLoaded)
+		//Setup HUD string.
+		if (speakingPlayers.size() < 1)
 			return;
-
-		if (!tagsInitiallyLoaded)
-			return;
-
-		if (!speakingPlayerStringFound)
-			return;
-
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::UI::MultilingualUnicodeStringList;
-		using Blam::Tags::UI::ChudDefinition;
-
-		if (!TagInstance::IsLoaded('unic', hudMessagesUnicIndex))
-			return;
-
-		auto *unic = Blam::Tags::TagInstance(hudMessagesUnicIndex).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
-
-		std::string newName;
-
-		if (speakingPlayers.size() < 1) return;
 		else if (speakingPlayers[speakingPlayers.size() - 1].length() < 15) // player names are limited to 15 anyway.
 		{
-			newName = speakingPlayers[speakingPlayers.size() - 1];
+			std::string hud_name = speakingPlayers[speakingPlayers.size() - 1];
+			for (size_t i = 0; i < hud_name.length(); i++)
+				chud_talking_player_name[i] = hud_name[i];
 		}
-		else return;
-
-		std::string newHudMessagesStrings;
-		newHudMessagesStrings.reserve(30);
-
-		for (size_t i = 0; i < newName.length(); ++i)
-		{
-			const unsigned char c = newName[i];
-			newHudMessagesStrings.push_back(hex[c >> 4]);
-			newHudMessagesStrings.push_back(hex[c & 15]);
-		}
-
-		//if the speaker name is less than 15 characters, fill the rest of the string with 0.
-		if (newName.length() < (size_t)15)
-			for (int i = newName.length() * 2; i < 30; ++i)
-				newHudMessagesStrings.push_back('0');
-
-		//Now convert the hex string to a byte array and poke!
-		hexStringStream >> std::hex;
-		for (size_t strIndex = 0, dataIndex = 0; strIndex < (size_t)newHudMessagesStrings.length(); ++dataIndex)
-		{
-			// Read out and convert the string two characters at a time
-			const char tmpStr[3] = { newHudMessagesStrings[strIndex++], newHudMessagesStrings[strIndex++], 0 };
-
-			// Reset and fill the string stream
-			hexStringStream.clear();
-			hexStringStream.str(tmpStr);
-
-			// Do the conversion
-			int tmpValue = 0;
-			hexStringStream >> tmpValue;
-
-			if (unic->Data.Size < (dataIndex + speakingPlayerOffset) - 1)
-				return;
-
-			unic->Data.Elements[dataIndex + speakingPlayerOffset] = static_cast<unsigned char>(tmpValue);
-		}
+		else 
+			return;
 	}
 
 	void ApplyUIResolution()
@@ -707,32 +663,6 @@ namespace
 		invalid_gfxt:
 			continue;
 		}
-	}
-
-	void FindVoiceChatSpeakingPlayerTagData()
-	{
-		using Blam::Tags::TagInstance;
-		using Blam::Tags::UI::MultilingualUnicodeStringList;
-
-		if (!TagInstance::IsLoaded('unic', hudMessagesUnicIndex))
-			return;
-
-		auto *unic = Blam::Tags::TagInstance(hudMessagesUnicIndex).GetDefinition<Blam::Tags::UI::MultilingualUnicodeStringList>();
-
-		//go through string blocks backwards to find speaking_player, as it should be at the end.
-		for (int stringBlockIndex = unic->Strings.Count - 1; stringBlockIndex > -1; stringBlockIndex--)
-			if (SPEAKING_PLAYER_STRING_NAME == (std::string)unic->Strings[stringBlockIndex].StringIDStr)
-			{
-				speakingPlayerOffset = unic->Strings[stringBlockIndex].Offsets[0]; //read the english offset,
-				speakingPlayerStringID = unic->Strings[stringBlockIndex].StringID;
-				break;
-			}
-
-		//If the speaking_player string cannot be found, RIP. This shouldn't happen unless tags don't have correct modifications.
-		if (speakingPlayerOffset != NULL)
-			speakingPlayerStringFound = true;
-		else
-			speakingPlayerStringFound = false;
 	}
 
 	void FindHUDDistortionTagData()
@@ -1370,6 +1300,7 @@ namespace
 		}
 	}
 
+	//Flags probably hooks need to be updated to support split screen/theater at some point.
 	__declspec(naked) void StateDataFlags2Hook()
 	{
 		__asm
@@ -1485,7 +1416,7 @@ namespace
 				}
 			}
 			else
-				flags |= 0x40; //taling_disabled
+				flags |= 0x40; //talking_disabled
 		}
 
 		return flags;
@@ -1573,6 +1504,9 @@ namespace
 
 	int GetBrokenChudStateFlags33Values()
 	{
+		using Blam::Players::PlayerDatum;
+		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+
 		int flags = 0;
 
 		//Team and FFA flags that were in Flags 1 in halo 3 are now here.
@@ -1583,7 +1517,89 @@ namespace
 			else
 				flags |= 0x1000; //Bit12, was inactive, now Teams Disabled
 
+		if (playerDatum->DepletedStamina > 0)
+			flags |= 0x4000; //Bit14, was inactive, now StaminaNotFull
+
 		return flags;
+	}
+
+	__declspec(naked) void GetGlobalDynamicColorHook()
+	{
+		_asm
+		{
+			ally_blue:
+				cmp enableAllyBlueWaypointsFix, 1
+				jne custom_colors
+				cmp[ebp + 0xC], 0xF
+				jne custom_colors
+				mov eax, [eax + 19 * 4 + 4]
+				jmp eldorado_return
+
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
+				cmp[ebp + 0xC], 0x0
+				je secondary_color
+				cmp[ebp + 0xC], 0x1
+				je secondary_color
+				cmp[ebp + 0xC], 0x2
+				je primary_color
+				cmp[ebp + 0xC], 0x4
+				je primary_color
+				cmp[ebp + 0xC], 0x8
+				je primary_color
+				cmp[ebp + 0xC], 0xA
+				je primary_color
+				cmp[ebp + 0xC], 0xB
+				je primary_color
+				cmp[ebp + 0xC], 0xF
+				je primary_color
+
+			tag_color:
+				mov eax, [eax + edi * 4 + 4]
+				jmp eldorado_return
+
+			primary_color :
+				mov eax, Patches::Ui::customPrimaryHUDColor
+				jmp eldorado_return
+
+			secondary_color :
+				mov eax, Patches::Ui::customSecondaryHUDColor
+				jmp eldorado_return
+
+			eldorado_return :
+				pop edi
+				pop esi
+				pop ebx
+				pop ebp
+				ret 8
+		}
+	}
+
+	__declspec(naked) void GetWeaponOutlineColorHook()
+	{
+		_asm
+		{
+			custom_colors:
+				cmp enableCustomHUDColors, 1
+				jne tag_color
+				cmp ecx, 0
+				je secondary_color
+
+			tag_color:
+				push [eax+ecx*4+0x7C]
+				jmp eldorado_return
+
+			secondary_color:
+				push customSecondaryHUDColor
+
+			eldorado_return:
+				mov ebx, 0xAC9AA0
+				call ebx
+				add esp, 0xC
+				pop ebp
+				retn
+		}
 	}
 
 	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource)
@@ -1726,6 +1742,19 @@ namespace
 		{
 			// outlines are only rendered if we have a unit regardless
 			c_hud_camera_view__render_outlines_hook(thisptr, localProfileIndex, playerMappingIndex, a3);
+		}
+	}
+
+	__declspec(naked) void chud_talking_player_name_hook()
+	{
+		_asm
+		{
+			add eax, 0xC7C
+			mov edi, eax
+			lea esi, chud_talking_player_name
+			mov ecx, 64
+			repe movsb
+			ret
 		}
 	}
 }

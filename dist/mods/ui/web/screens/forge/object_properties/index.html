@@ -1,42 +1,100 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Forge - Search</title>
-    <link rel="stylesheet" type="text/css" href="dew://lib/normalize.min.css">
-    <link rel="stylesheet" type="text/css" href="dew://lib/color-picker.css" />
-    <link rel="stylesheet" type="text/css" href="object_properties.css">
-    <link rel="stylesheet" type="text/css" href="../shared/treeListWidget.css">
-    <script type="text/javascript" src="dew://lib/dew.js"></script>
-    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
-    <script src="dew://lib/jquery-ui.js"></script>
-    <script type="text/javascript" src="dew://lib/color-picker.js"></script>
-    <script type="text/javascript" src="../shared/util.js"></script>
-    <script type="text/javascript" src="../shared/screenManager.js"></script>
-    <script type="text/javascript" src="../shared/listController.js"></script>
-    <script type="text/javascript" src="../shared/treeListWidget.js"></script>
-    <script type="text/javascript" src="propertyGrid.js"></script>
-    <script type="text/javascript" src="object_properties.js"></script>
+    <title>Forge - Object Properties</title>
+    <link rel="stylesheet" href="dew://lib/color-picker.css">
+    <link rel="stylesheet" href="../shared/css/forge-shared.css">
+    <link rel="stylesheet" href="object_properties.css">
+    <link rel="stylesheet" href="materials.css">
 </head>
+
 <body>
-    <div class="container">
-        <div class="object-properties-panel">
-            <div class="panel-header">
-                <span id="title" class="title"></span><br />
-                <span class="info" id="item-name"></span>
+
+    <div class="modal-overlay hidden"></div>
+    <div class="toast-container">
+        <div class="toast info">
+            <div class="toast-content"></div>
+        </div>
+    </div>
+    <div class="container" id="main_container">
+
+        <div class="window save-prefab-screen" id="save_prefab_screen">
+            <div class="window-header">
+                <div class="window-title">PREFAB NAME</div>
             </div>
-            <div class="panel-body">
-                <div id="budget-screen">
+            <div class="window-body">
+                <p>Enter a name for your prefab</p>
+                <div>
+                    <input class="modal-input" maxlength="15"></input>
                 </div>
-                <div id="test-screen">
+                <span class="error"></span>
+            </div>
+            <div class="window-footer">
+                <div class="legend">
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_A.png" />Confirm
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" />Cancel
+                    </div>
                 </div>
-                <ul id="material-tree" class="material-tree tree-list"></ul>
-                <ul id="material-list" class="hidden"></ul>
-                <div id="object-properties-list">
+            </div>
+        </div>
+        <div class="window" id="main_window">
+            <div class="window-header">
+                <div class="window-title">OBJECT PROPERTIES</div>
+                <div class="window-subtitle"></div>
+            </div>
+            <div class="window-body">
+                <div class="screen main-screen" id="main_screen">
+                    <div class="list property-grid"></div>
                 </div>
-                <div id="color-picker" style="display:none"></div>
+                <div class="screen color-picker-screen" id="color_picker_screen">
+                    <div class="color-picker"></div>
+                </div>
+                <div class="screen summary-screen" id="summary_screen">
+                    <div class="summary-property-grid property-grid"></div>
+                </div>
+                <div class="screen material-picker-screen" id="material_picker_screen">
+                    <div class="tree material-category-tree">
+                    </div>
+                </div>
+                <div class="screen list material-picker-list-screen">
+                    <div class="material-list">
+                    </div>
+                </div>
+                <div class="screen engine-flags-screen" id="engine_flags_screen">
+                    <div class="list engine-list"></div>
+                </div>
+
+            </div>
+            <div class="window-info-box"></div>
+            <div class="window-footer legend ">
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_A.png" />Select
+                </div>
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_B.png" />Back
+                </div>
+                <div class="legend-item">
+                    <img src="dew://assets/buttons/360_X.png" />Hide
+                </div>
             </div>
         </div>
     </div>
+
+    </div>
+    </div>
+    <script src="dew://lib/dew.js"></script>
+    <script src="../shared/lib/ui.js"></script>
+    <script src="../shared/lib/list-widget.js"></script>
+    <script src="../shared/lib/property-grid-widget.js"></script>
+    <script src="../shared/lib/tree-list-widget.js"></script>
+    <script src="dew://lib/color-picker.js"></script>
+    <script src="../shared/lib/screen-manager.js"></script>
+    <script src="object_properties.js"></script>
 </body>
+
 </html>

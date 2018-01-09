@@ -234,9 +234,9 @@ namespace Patches::Weapon
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
 				if (weapIndex != 0xFFFF)
 				{
-					auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if(weaponDeinition)
-						weaponOffsetsDefault.emplace(selected, weaponDeinition->FirstPersonWeaponOffset);
+					auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+					if(weaponDefinition)
+						weaponOffsetsDefault.emplace(selected, weaponDefinition->FirstPersonWeaponOffset);
 				}
 			}
 		}
@@ -266,9 +266,9 @@ namespace Patches::Weapon
 	{
 		if (!IsMainMenu)
 		{
-			auto *weaponDeinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if(weaponDeinition)
-				weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
+			auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if(weaponDefinition)
+				weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 		}
 	}
 
@@ -280,9 +280,9 @@ namespace Patches::Weapon
 			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
 			if (weapIndex != 0xFFFF)
 			{
-				auto *weaponDeinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if(weaponDeinition)
-					weaponDeinition->FirstPersonWeaponOffset = weaponOffset;
+				auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				if(weaponDefinition)
+					weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 			}
 		}
 	}
@@ -321,8 +321,14 @@ namespace Patches::Weapon
 					std::string weaponname = weaponsObject["name"].GetString();
 					std::string tagname = weaponsObject["tagname"].GetString();
 
-					weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
-					weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+					try {
+						weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
+						weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+					} catch (const std::exception&) {
+						std::stringstream ss;
+						ss << "Unable to add " << weaponname.c_str() << " to supported list." << std::endl;
+						Console::WriteLine(ss.str());
+					}
 				}
 			}
 		}
@@ -606,9 +612,9 @@ namespace
 			return 0;
 
 		auto index = *(uint32_t*)GetObjectDataAddress(objectIndex);
-		auto *weaponDeinition = TagInstance(index).GetDefinition<Weapon>();
+		auto *weaponDefinition = TagInstance(index).GetDefinition<Weapon>();
 
-		return ((int32_t)weaponDeinition->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
+		return ((int32_t)weaponDefinition->WeaponFlags1 & (int32_t)Weapon::Flags1::CanBeDualWielded) != 0;
 	}
 
 	__declspec(naked) void DualWieldSprintInputHook()
@@ -665,10 +671,14 @@ namespace
 
 	bool weapon_should_apply_bloom(uint32_t weaponObjectIndex, int barrelIndex, ProjectilePenaltyType type)
 	{
+		const auto weapon_is_held = (bool(*)(uint32_t weaponObjectIndex))(0x00B63EA0);
 		const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
 		const auto weapon_get_parent_unit = (uint32_t(*)(uint32_t weaponObjectIndex))(0x00B63030);
 
 		using Blam::Tags::Items::Weapon;
+
+		if (!weapon_is_held(weaponObjectIndex))
+			return false;
 
 		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
 		if (!weaponObject)
@@ -696,6 +706,9 @@ namespace
 			functionIndex = 3;
 			break;
 		}
+
+		if (barrelIndex < 0 || barrelIndex >= weaponDefinition->Barrels.Count)
+			return false;
 
 		/* dual-wield blocks are always empty
 		if (isDualWielding)

@@ -202,6 +202,9 @@ $(document).ready(function(){
                 case "mute":
                     setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),0);
                     break;
+                case "unmute":
+                    setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),100);
+                    break;
                 default:
                     console.log(key + " " + $(this).attr('data-name') + " " + $(this).attr('data-uid'));
             }
@@ -221,6 +224,9 @@ $(document).ready(function(){
             },
             "mute": {
                 name: "Mute"
+            },
+            "unmute": {
+                name: "Unmute"
             }
         }
     });
@@ -246,7 +252,19 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.X == 1){
             if(!$('#playerBreakdown').is(":visible")){
-                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                $.grep(volArray, function (result, index) {
+                    if (result) {
+                        if (result[0] == $('.clickable').eq(itemNumber).attr('id')) {
+                            uid = result[1];
+                            level = result[2];
+                            if (level == 0) {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),100);
+                            } else {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                            };
+                        };
+                    }
+                });
             }
         }
         if(e.data.Up == 1){
@@ -298,17 +316,12 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("voip-user-volume", function(e){
-	//console.log(e);
 	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
 	}else{
 		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
         isSpeaking(e.data.user,false);
-	
-	/*if(isVisible)
-		displayScoreboard();
-    */
     }
 	
 	var uid = "";
@@ -319,7 +332,7 @@ dew.on("voip-user-volume", function(e){
 	            uid = result[1];
 	            level = result[2];
 	            if (level == 0) {
-	                $('#' + ownName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
 	            } else if (e.data.volume < -75) {
 	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
 	            } else if (e.data.volume < -50) {
@@ -368,11 +381,7 @@ dew.on("voip-speaking", function(e){
 });
 
 dew.on("show", function(e){
-    dew.getScoreboard().then(function (data){ 
-        if(data.players){
-            scoreboardData = data;
-        }
-    });
+	
     isVisible = true;
     dew.captureInput(e.data.locked);
     locked = e.data.locked;
@@ -436,7 +445,7 @@ dew.on("hide", function(e){
 });
 
 function displayScoreboard(){
-    if(!scoreboardData)
+    if(jQuery.isEmptyObject(scoreboardData))
         return;	
     var scoreboardheader = '<th></th><th class="name" colspan="2">Players</th>';
     if(locked || (expandedScoreboard == 1)){
@@ -626,7 +635,14 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         });
         $('.speaker').on('click', function(e){
             e.stopPropagation();
-            $(this).parent().find('.volSlider').show(); 
+            $(this).parent().find('.volSlider').show();
+
+            $.grep(volArray, function (result, index) {
+                if (result) {
+                    if (result[0] == $(this).parent().parent().attr('id'))
+                        $(this).value(result[2]);
+                }
+            });
         });
     }
 }
@@ -915,6 +931,12 @@ function setPlayerVolume(name,uid,level){
             vol:level / 100.0
         }
     });
+	
+	$.grep(volArray, function (result, index) {
+	    if (result && result[0] == name)
+	        volArray.splice(index, 1);
+	});
+	volArray.push([name, uid, level, 0]);
 }
 
 function isSpeaking(name,visible){

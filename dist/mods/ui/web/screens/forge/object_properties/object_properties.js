@@ -1,1210 +1,1099 @@
-var MultiplayerObjectType =
-{
-    Ordinary : 0x0,
-    Weapon : 0x1,
-    Grenade : 0x2,
-    Projectile : 0x3,
-    Powerup : 0x4,
-    Equipment : 0x5,
-    LightLandVehicle : 0x6,
-    HeavyLandVehicle : 0x7,
-    FlyingVehicle : 0x8,
-    Teleporter2Way : 0x9,
-    TeleporterSender : 0xA,
-    TeleporterReceiver : 0xB,
-    PlayerSpawnLocation : 0xC,
-    PlayerRespawnZone : 0xD,
-    HoldSpawnObjective : 0xE,
-    CaptureSpawnObjective : 0xF,
-    HoldDestinationObjective : 0x10,
-    CaptureDestinationObjective : 0x11,
-    HillObjective : 0x12,
-    InfectionHavenObjective : 0x13,
-    TerritoryObjective : 0x14,
-    VIPBoundaryObjective : 0x15,
-    VIPDestinationObjective : 0x16,
-    JuggernautDestinationObjective : 0x17,
-};
+(function () {
+    let _containerElement = document.getElementById('main_container');
+    let _windowElement = document.getElementById('main_window');
+    let _descriptionElement = _windowElement.querySelector('.window-info-box');
+    let _titleElement = _windowElement.querySelector('.window-title');
+    let _subtitleElement = _windowElement.querySelector('.window-subtitle');
+    let _screenManager = dew.makeScreenManager();
+    let _hidden = false;
+    let _lastObjectIndex = -1;
+    let _recentMaterials = [];
 
-var STRINGS = {
-    object_properties: 'Object Properties',
-    respawn_rate: 'Respawn Rate',
-    spare_clips: 'Spare Clips',
-    on_map_at_start: 'Place at Start',
-    teleporter_channel: 'Channel',
-    team_affiliation: 'Team',
-    shape_type: 'Shape',
-    shape_radius: 'Radius',
-    shape_top: 'Top',
-    shape_bottom: 'bottom',
-    shape_width: 'Width',
-    shape_depth: 'Depth',
-    spawn_order: 'Spawn Order',
-    symmetry: 'Symmetry',
-    physics: 'Physics',
-    general: 'General',
-    coordinates: 'Coordinates',
-    coordinates_pos_x: 'X',
-    coordinates_pos_y: 'Y',
-    coordinates_pos_z: 'Z',
-    coordinates_yaw: 'Yaw',
-    coordinates_pitch: 'Pitch',
-    coordinates_roll: 'Roll',
-    zone: ' ',
-    appearance: 'Appearance',
-    appearance_lightmap: 'Lightmap',
-    appearance_material: 'Material',
-    appearance_material_color: 'Material Color',
-    budget_screen_action: 'Summary',
-    summary: 'Summary',
-    summary_placed_on_map: 'placed on map',
-    summary_runtime_minimum: 'run-time minimum',
-    summary_runtime_maximum: 'run-time maximum',
-    summary_maximum_allowed: 'maximum allowed',
-    summary_total_cost: 'total cost',
-    select_all: '[ select all ]',
-    deselect_all: '[ deselect all ]',
-    light: 'light',
-    light_color_r: 'R',
-    light_color_g: 'G',
-    light_color_b: 'B',
-    light_intensity: 'Intensity',
-    light_radius: 'radius',
-    map_disable_push_barrier: 'Push Barrier',
-    map_disable_death_barrier: 'Death Barrier',
-    garbage_volume_collect_dead_biped: 'Dead Biped',
-    garbage_volume_collect_weapons: 'Weapons',
-    garbage_volume_collect_objectives: 'Objectives',
-    garbage_volume_collect_grenades: 'grenades',
-    garbage_volume_collect_equipment: 'Equipment',
-    garbage_volume_collect_vehicles: 'Vehicles',
-    garbage_volume_interval: 'Interval',
-    kill_volume_destroy_vehicles: 'Vehicles',
-    kill_volume_always_visible: 'Visible',
-    material_color_picker: 'Material Color',
-    light_color_picker: 'Light Color',
-    material_color_action: 'Change Color',
-    light_color_action: 'Change Color',
-    camera_fx: 'Camera FX',
-    camera_fx_exposure: 'Exposure',
-    camera_fx_light_intensity: 'Dynamic Light Intensity',
-    camera_fx_bloom: 'Bloom',
-};
-
-
-var objectPropertyGridData = {
-    strings: STRINGS,
-    meta: {
-        respawn_rate: [
-            {name: 'Never', value: 0},
-            {name: '1', value: 1},
-            {name: '3', value: 3},
-            {name: '5', value: 5},
-            {name: '10', value: 10},
-            {name: '15', value: 15},
-            {name: '20', value: 20},
-            {name: '30', value: 30},
-            {name: '45', value: 45},
-            {name: '60', value: 60},
-            {name: '90', value: 90},
-            {name: '120', value: 120},
-            {name: '150', value: 150},
-            {name: '180', value: 180}
-        ],
-        spare_clips: [0,1,2,3,4],
-        on_map_at_start: [{name: 'no', value: 0}, {name: 'yes', value: 1}],
-        teleporter_channel: [
-            {name:'0', value: 0,},
-            {name:'1', value: 1 },
-            {name:'2', value: 2 },
-            {name:'3', value: 3 },
-            {name:'4', value: 4 },
-            {name:'5', value: 5 },
-            {name:'6', value: 6 },
-            {name:'7', value: 7 },
-            {name:'8', value: 8 },
-            {name:'9', value: 9 },
-            {name:'10', value: 10 },
-            {name:'11', value: 11 },
-            {name:'12', value: 12 },
-            {name:'13', value: 13 },
-            {name:'14', value: 14 },
-            {name:'15', value: 15 },
-            {name:'Death', value: 255 }
-        ],
-        team_affiliation: [
-            {name: 'Neutral', value: 8},
-            {name: 'Defender', value: 0},
-            {name: 'Attacker', value: 1},
-            {name: '3rd Team', value: 2},
-            {name: '4th Team', value: 3},
-            {name: '5th Team', value: 4},
-            {name: '6th Team', value: 5},
-            {name: '7th Team', value: 6},
-            {name: '8th Team', value: 7},
-        ],
-        shape_type: [
-            {name: 'Sphere', value: 1},
-            {name: 'Cylinder', value: 2},
-            {name: 'Box', value: 3}
-        ],
-        shape_radius: { min: 0.5, max: 30.0, step: 0.5 },
-        shape_top: { min: 0.5, max: 30.0, step: 0.5 },
-        shape_bottom: { min: 0.5, max: 30.0, step: 0.5 },
-        shape_width: { min: 0.5, max: 30.0, step: 0.5 },
-        shape_depth: { min: 0.5, max: 30.0, step: 0.5 },
-        spawn_order: [0,1,2,3,4,5,6,7,8,9,10],
-        symmetry: [
-            {name: 'Both', value: 0},
-            {name: 'Symetric', value: 1},
-            {name: 'Asymmetric', value: 2}
-        ],
-        lightmap: [
-            {name: 'On', value: 1 },
-            {name: 'Off', value: 0 }
-        ],
-        appearance_material_color_r: { min: 0.0, max: 1.0, step: 0.01 },
-        appearance_material_color_g: { min: 0.0, max: 1.0, step: 0.01 },
-        appearance_material_color_b: { min: 0.0, max: 1.0, step: 0.01 },
-        physics: [{name:'Default', value: 0}, {name:'Phased', value: 1}],
-        light_color_r: { min: 0.0, max: 1.0, step: 0.01 },
-        light_color_g: { min: 0.0, max: 1.0, step: 0.01 },
-        light_color_b: { min: 0.0, max: 1.0, step: 0.01 },
-        light_intensity: { min: 0.0, max: 1.0, step: 0.01 },
-        light_radius: { min: 0, max: 50, step: 0.01 },
-        fx_range: { min: 1, max: 255, step: 1 },
-        fx_light_intensity: { min: 0, max: 1, step: 0.01 },
-        fx_hue: { min: 0, max: 1, step: 0.01 },
-        fx_saturation: { min: 0, max: 1, step: 0.01 },
-        fx_desaturation: { min: 0, max: 1, step: 0.01 },
-        fx_color_filter_r: { min: 0, max: 1, step: 0.01 },
-        fx_color_filter_g: { min: 0, max: 1, step: 0.01 },
-        fx_color_filter_b: { min: 0, max: 1, step: 0.01 },
-        fx_color_floor_r: { min: 0, max: 1, step: 0.01 },
-        fx_color_floor_g: { min: 0, max: 1, step: 0.01 },
-        fx_color_floor_b: { min: 0, max: 1, step: 0.01 },
-        fx_gamma_inc: { min: 0, max: 1, step: 0.01 },
-        fx_gamma_dec: { min: 0, max: 1, step: 0.01 },
-        fx_tracing: { min: 0, max: 1, step: 0.01 },
-        camera_fx_exposure: { min: 0, max: 1.0, step: 0.01 },
-        camera_fx_light_intensity: { min: 0, max: 1.0, step: 0.01 },
-        camera_fx_bloom: { min: 0, max: 1.0, step: 0.01 },
-        map_barrier: [
-            {name: 'Disabled', value: 1},
-            {name: 'Enabled', value: 0}
-        ],
-        garbage_volume_flag: [
-            { name: 'Collect', value: 1},
-            { name: 'Ignore', value: 0}
-        ],
-        garbage_volume_interval: [
-            {name: 'Instant', value: 0},
-            {name: '5 Seconds', value: 1},
-            {name: '15 Seconds', value: 2},
-            {name: '30 Seconds', value: 3},
-        ],
-        kill_volume_destroy_flag: [
-            {name:'Destroy', value: 1},
-            {name:'Ignore', value: 0}
-        ],
-        visibility: [
-            {name:'Never', value: 0},
-            {name:'Always', value: 1}
-        ]
-        
-    },
-    properties: [
-        { name: 'budget_screen_action', type: 'action'},
-        { name: 'select_all', type: 'action'},
-        { name: 'deselect_all', type: 'action'},
-        {
-            name: 'general',
-            values: [
-            { name: 'respawn_rate', type: 'spinner', meta:'respawn_rate' },
-            { name: 'spare_clips', type: 'spinner', meta:'spare_clips' },
-            { name: 'on_map_at_start', type: 'spinner', meta:'on_map_at_start' },
-            { name: 'team_affiliation', type: 'spinner', meta:'team_affiliation' },
-            { name: 'spawn_order', type: 'spinner', meta:'spawn_order' },
-            { name: 'symmetry', type: 'spinner', meta:'symmetry' },
-            { name: 'physics', type: 'spinner', meta:'physics'},
-            { name: 'appearance_material', type: 'material', meta:'appearance_material'},
-            { name: 'material_color_action', type: 'action' },
-            ]
-        },
-        {
-            name: 'map_modifier',
-            values: [
-                { name: 'map_disable_push_barrier', type: 'spinner', meta:'map_barrier' },
-                { name: 'map_disable_death_barrier', type: 'spinner', meta:'map_barrier' }
-            ]
-        },
-        {
-            name: 'camera_fx',
-            values: [
-                { name: 'camera_fx_exposure', type: 'range', meta:'camera_fx_exposure'},
-                { name: 'camera_fx_light_intensity', type: 'range', meta:'camera_fx_light_intensity'},
-                { name: 'camera_fx_bloom', type: 'range', meta:'camera_fx_bloom'}
-            ]
-        },
-        {
-            name: 'zone',
-            values: [
-                { name: 'teleporter_channel', type: 'spinner', meta:'teleporter_channel' },
-                { name: 'shape_type', type: 'spinner', meta:'shape_type' },
-                { name: 'shape_radius', type: 'range', meta:'shape_radius' },
-                { name: 'shape_top', type: 'range', meta:'shape_top' },
-                { name: 'shape_bottom', type: 'range', meta:'shape_top' },
-                { name: 'shape_width', type: 'range', meta:'shape_width' },
-                { name: 'shape_depth', type: 'range', meta:'shape_depth' }
-            ]
-        },
-        {
-            name: 'light',
-            values: [
-                { name: 'light_radius', type: 'range', meta:'light_radius'},
-                { name: 'light_intensity', type: 'range', meta:'light_intensity'},
-                { name: 'light_color_action', type: 'action' },
-            ]
-        },
-        {
-            name: 'fx',
-            values: [
-                { name: 'fx_range', type: 'range', meta:'fx_range'},
-                { name: 'fx_hue', type: 'range', meta:'fx_hue'},
-                { name: 'fx_light_intensity', type: 'range', meta:'fx_light_intensity'},
-                { name: 'fx_saturation', type: 'range', meta:'fx_saturation'},
-                { name: 'fx_desaturation', type: 'range', meta:'fx_desaturation'},
-                { name: 'fx_gamma_inc', type: 'range', meta:'fx_gamma_inc'},
-                { name: 'fx_gamma_dec', type: 'range', meta:'fx_gamma_dec'},
-                { name: 'fx_color_filter_r', type: 'range', meta:'fx_color_filter_r'},
-                { name: 'fx_color_filter_g', type: 'range', meta:'fx_color_filter_g'},
-                { name: 'fx_color_filter_b', type: 'range', meta:'fx_color_filter_b'},
-                { name: 'fx_color_floor_r', type: 'range', meta:'fx_color_floor_r'},
-                { name: 'fx_color_floor_g', type: 'range', meta:'fx_color_floor_g'},
-                { name: 'fx_color_floor_b', type: 'range', meta:'fx_color_floor_b'},
-                { name: 'fx_tracing', type: 'range', meta:'fx_tracing'}
-            ]
-        },
-        {
-            name: 'garbage_collection',
-            values: [
-                { name: 'garbage_volume_interval', type: 'spinner', meta:'garbage_volume_interval' },
-                { name: 'garbage_volume_collect_dead_biped', type: 'spinner', meta:'garbage_volume_flag' },
-                { name: 'garbage_volume_collect_weapons', type: 'spinner', meta:'garbage_volume_flag' },
-                { name: 'garbage_volume_collect_objectives', type: 'spinner', meta:'garbage_volume_flag' },
-                { name: 'garbage_volume_collect_grenades', type: 'spinner', meta:'garbage_volume_flag' },
-                { name: 'garbage_volume_collect_equipment', type: 'spinner', meta:'garbage_volume_flag' },
-                { name: 'garbage_volume_collect_vehicles', type: 'spinner', meta:'garbage_volume_flag' }
-            ]
-        },
-        {
-            name: 'kill_volume',
-            values: [
-                { name: 'kill_volume_always_visible', type: 'spinner', meta:'visibility' },
-                { name: 'kill_volume_destroy_vehicles', type: 'spinner', meta:'kill_volume_destroy_flag' }
-            ]
-        }
-    ]
-};
-
-$(function() {
-
-    var objectPropertiesWidget;
-    var budgetPropertiesWidget;
-    var materialPickerShowTime;
-    var quickClosed = false;
-    var lastObjectIndex = -1;
-    var materialXmlDoc = null;
-    var itemsXmlDoc = null;
-    var recentSet = {};
-    var objectData = {};
-
-    $(document).mousedown(function(e) {
-        var container = $(".container");
-        if (!container.is(e.target) && container.has(e.target).length === 0) {
-            quickClose();
-        }
+    _screenManager.setModel({
+        main: makeMainScreen(_screenManager),
+        color_picker: makeColorPickerScreen(_screenManager),
+        summary: makeSummaryScreen(_screenManager),
+        material_picker: makeMaterialCategoryScreen(_screenManager),
+        material_picker_list: makeMaterialListScreen(_screenManager),
+        engine_flags: makeEngineFlagsScreen(_screenManager),
+        save_prefab: makeSavePrefabScreen(_screenManager)
     });
+    _screenManager.push('main');
 
-    var materialListElement = $('#material-tree');
-    var materialTreeListWidget = makeTreeList(materialListElement[0]);
-    $(materialListElement).on('click', function() {
-        handleUiInput(0);
-    })
+    document.addEventListener('mousedown', function (e) {
+        if (e.target == _containerElement) {
+            e.preventDefault();
+            e.stopPropagation();
+            hide();
+        }
+    }, false);
 
-    var _colorPicker = dew.makeColorPicker($('#color-picker')[0]);
-    _colorPicker.on('select', function(color) {
-        var rgb = ColorUtil.hsvToRgb(color.h, color.s, color.v);
-        var data = null;
-        switch( screenManager.currentScreen().name) {
-            case 'material_color_picker':
-                data = {
-                    appearance_material_color_r: rgb[0] / 255.0,
-                    appearance_material_color_g: rgb[1] / 255.0,
-                    appearance_material_color_b: rgb[2] / 255.0
-                }
-                break;
-            case 'light_color_picker':
-                data = {
-                    light_color_r: rgb[0] / 255.0,
-                    light_color_g: rgb[1] / 255.0,
-                    light_color_b: rgb[2] / 255.0
-                }
+    dew.ui.on('action', function (action) {
+        switch (action) {
+            case dew.ui.Actions.X:
+                hide();
                 break;
         }
+    });
 
-        if(!data)
-            return;
-        dew.callMethod('forgeaction', {
-            type: 1,
-            data: data
+    function makeMainScreen(screenManager) {
+        let _screenElement = document.getElementById('main_screen');
+        let _propertryGrid = dew.makePropertyGrid(document.querySelector('.property-grid'));
+        let _active = false;
+        let _materialsDOM = null;
+        let _data = null;
+        let _items = null;
+        let _lastSelected = false;
+
+        dew.on('show', e => {
+            if (_hidden && _lastObjectIndex === e.data.object_index && _lastSelected === e.data.is_selected)
+                return;
+            _lastSelected = e.data.is_selected;
+            _hidden = false;
+            _lastObjectIndex = e.data.object_index;
+
+            _screenManager.popAll(false);
+
+            _data = e.data;
+            fetchMaterials((err, materials) => {
+                _propertryGrid.setModel(buildModel(_data));
+            });
+
+            fetchItems((err, items) => {
+                var item = _items[_data.tag_index] || { name: 'Unknown', type: 'Unknown', tagIndex: _data.tag_index };
+                setSubtitle(`${item.name} [${item.type}] [${item.tagIndex.toString(16)}]`);
+            });
         });
-    });
 
-    materialTreeListWidget.on('select', function(node) {
+        _propertryGrid.on('selectionChange', item => setDescription(item.model.description));
 
-        if(node.getElementsByTagName('category').length)
-            return;
-
-        renderMaterialList($('#material-list')[0], node);
-
-        screenManager.push('material_picker_material_list', {
-            onSelect: function(item, finished) {
-                if(!item || item.value === undefined)
-                    return;
-
-                objectPropertiesWidget.setValue('appearance_material', item.value);
-                if(finished) {
-                    for(var i = 0; i < 8; i++) {
-                        var currentScreen = screenManager.currentScreen();
-                        if(currentScreen && currentScreen.name === 'material_picker_material_list')
-                            screenManager.pop();
+        return {
+            activate: function () {
+                _active = true;
+                _screenElement.classList.add('active');
+                setTitle('');
+                _propertryGrid.focus();
+            },
+            deactivate: function (props) {
+                if (!props.noHide)
+                    _screenElement.classList.remove('active');
+                _active = false;
+                _propertryGrid.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.X:
+                        hide();
                         break;
-                    }
-                }
-
-                onPropertyChanged('appearance_material', item.value);
-            },
-            onBack: function(finished) {
-                screenManager.pop();
-            }
-        });
-    });
-
-    var screenManager = makeScreenManager({
-        object_properties_list: {
-            title: 'object_properties',
-            activate: () => {
-                $('#object-properties-list').show();
-            },
-            deactivate: () => {
-                $('#object-properties-list').hide();
-            },
-            handleUiButton: (uiButtonCode) => {
-                switch(uiButtonCode) {
-                    case 1:
-                        screenManager.pop();
-                        dew.command('Game.PlaySound 0xb01');
-                        break;
-                    default:
-                        objectPropertiesWidget.handleUiInput(uiButtonCode);
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        addRecentMaterial();
+                        dew.hide();
                         break;
                 }
             }
-        },
-        material_picker: {
-            title: 'appearance_material',
-            activate: () => {
-                $('#material-tree').show();
-            },
-            deactivate: () => {
-                $('#material-tree').hide();
-            },
-            handleUiButton: (uiButtonCode) => {
-                switch(uiButtonCode) {
-                    case 0:
-                        dew.command('Game.PlaySound 0xb00');
-                        break;
-                    case 1:
-                        if(materialTreeListWidget.atRoot())
-                            screenManager.pop();
-                        dew.command('Game.PlaySound 0xb01');
-                        break;
-                    case 8:
-                    case 9:
-                        dew.command('Game.PlaySound 0xafe');
-                        break;
+        }
 
-                }
-
-                materialTreeListWidget.handleInput(uiButtonCode);
-            }
-        },
-        material_picker_material_list: makeMaterialListScreens(),
-        material_color_picker: makeMaterialColorScreen(),
-        light_color_picker: makeLightColorPickerScreen(),
-        budget: {
-            title: 'summary',
-            activate: () => {
-                $('#budget-screen').show();
-            },
-            deactivate: () => {
-                $('#budget-screen').hide();
-            },
-            handleUiButton: (uiButtonCode) => {
-                switch(uiButtonCode) {
-                    case 1:
-                        screenManager.pop();
-                        dew.command('Game.PlaySound 0xb01');
-                        break;
-                    default:
-                        budgetPropertiesWidget.handleUiInput(uiButtonCode);
-
-                }
-            }
-        },
-
-    });
-
-    screenManager.on('screenChange', () => {
-        updateTitle();
-    });
-
-
-    function getMaterialsXml(callback) {
-        if(!materialXmlDoc) {
-            $.get('materials.xml', function(data) {
-                var parser = new DOMParser();
-                doc = parser.parseFromString(data, "application/xml");
-                materialXmlDoc = doc;
-                callback(materialXmlDoc);
+        function onPropertyChange(properties) {
+            Object.assign(_data.properties, properties);
+            dew.callMethod('forgeaction', {
+                type: 1,
+                data: properties
             });
         }
-        else {
-            return callback(materialXmlDoc);
-        }
-    }
 
-
-    function getItemsXml(callback) {
-        if(!itemsXmlDoc) {
-            $.get('../object_creation/items.xml', function(data) {
-                var parser = new DOMParser();
-                doc = parser.parseFromString(data, "application/xml");
-                itemsXmlDoc = doc;
-                callback(itemsXmlDoc);
-            });
-        }
-        else {
-            return callback(itemsXmlDoc);
-        }
-    }
-
-    function findMaterialItem(materialIndex) {
-        for(var x = materialXmlDoc.firstChild; x; x = x.nextSibling) {
-            var id = x.getAttribute('id');
-            if(id == 'recent')
-                continue;
-
-            var items = x.getElementsByTagName('item');
-            for(var i = 0; i < items.length; i++) {
-                if(parseInt(items[i].getAttribute('value')) == materialIndex)
-                    return items[i];
-            }
-        }
-    }
-
-    dew.on('hide', function() {
-        if(objectData.has_material) {
-            var selectedMaterialIndex = objectPropertiesWidget.getValue('appearance_material');
-            if(selectedMaterialIndex == -1)
+        function buildModel(data) {
+            if (!data)
                 return;
 
-            var recentNode = materialXmlDoc.getElementById('recent');
+            let properties = data.properties;
 
-            var item = findMaterialItem(selectedMaterialIndex);
-            if(!recentSet[selectedMaterialIndex]) {
-                recentSet[selectedMaterialIndex] = true;
-                item = item.cloneNode(true);
+            function makeProperty(name, label, type, meta, description) {
+                return {
+                    label: label,
+                    type: type,
+                    getValue: () => properties[name],
+                    setValue: (value) => onPropertyChange({ [name]: value }),
+                    meta: meta,
+                    description: description
+                };
+            }
+
+            let isGarbageVolume = data.tag_index == 0x00005A8F;
+            let isKillVolume = data.tag_index == 0x00005A8E;
+            let hasSpawn = false, hasSymmetry = false,
+                hasZone = false, hasTeam = false,
+                hasSpawnOrder = false,
+                isTeleporter = false;
+
+            switch (data.object_type_mp) {
+                case 0x0://ordinary
+                case 0x1://weapon
+                case 0x2://grenade
+                case 0x3://projectile
+                case 0x4://powerup
+                case 0x5://equipment
+                case 0x6://land vehicle
+                case 0x7://heavy land vehicle
+                case 0x8://flying vehicle
+                    hasSpawn = true;
+                    hasSymmetry = true;
+                    break;
+                case 0xD://player respawn zone
+                    hasSpawnOrder = true;
+                    hasZone = true;
+                    hasTeam = true;
+                    hasSymmetry = true;
+                    break;
+                case 0x9://teleporter two way
+                case 0xA://teleporter sender
+                case 0xB://teleporter receiver
+                    hasZone = true;
+                    isTeleporter = true;
+                    hasSymmetry = true;
+                    break;
+                case 0x16://vip dest objective
+                    hasSymmetry = true;
+                case 0x10://hold dest objective
+                case 0x13://infection haven
+                    hasSpawn = true;
+                case 0x12://hill objective
+                case 0x17://juggernaut objective
+                    hasZone = true;
+                    hasSpawnOrder = true;
+                    break;
+                case 0x11://capture dest objective
+                case 0xF://capture spawn objective
+                case 0x14://territory objective
+                case 0x15://vip boundry objective
+                case 0xC://player spawn location
+                    hasTeam = true;
+                    hasSymmetry = true;
+                    break;
+            }
+
+            if (isGarbageVolume || isKillVolume) {
+                hasZone = true;
+            }
+
+            if(data.is_screenfx)
+                hasTeam = true;
+
+            let model = _propertryGrid.createModel();
+
+            model.add({
+                type: 'action', label: '{Summary}', meta: {},
+                action: (item) => {
+                    screenManager.push('summary', {
+                        data: data.budget
+                    });
+                }
+            });
+
+            if (!data.is_selected) {
+                model.add({
+                    type: 'action', label: '{Select All}', meta: {}, action: () => {
+                        dew.command('Forge.SelectAll');
+                        data.is_selected = true;
+                        _propertryGrid.setModel(buildModel(_data));
+                    },
+                    description: 'Selects all of this item on the map'
+                });
+
             } else {
-                recentNode.removeChild(item);
+                model.add({
+                    type: 'action', label: '{Deselect All}', meta: {}, action: () => {
+                        dew.command('Forge.DeselectAllOf');
+                        data.is_selected = false;
+                        _propertryGrid.setModel(buildModel(_data));
+                    },
+                    description: 'Deselect all of this item on the map'
+                });
+                model.add({
+                    type: 'action', label: '{Save Prefab}', meta: {}, action: () => {
+                        screenManager.push('save_prefab', { noHide: true });
+                    },
+                    description: 'Save the selected objects'
+                });
             }
 
-            recentNode.prepend(item);
-        }
-    });
+            model.group('General', model => {
+                model.add({
+                    type: 'action', label: '{Gametypes}', meta: {},
+                    action: (item) => {
+                        screenManager.push('engine_flags', {
+                            engineFlags: properties.engine_flags,
+                            onChange: (flags) => {
+                                onPropertyChange({ ['engine_flags']: flags });
+                            }
+                        });
+                    },
+                    description: 'This determines which gametypes this item will spawn in'
+                });
 
-    dew.on('show',function(e) {
-        objectData = { has_material: e.data.has_material };
-
-        if(quickClosed) {
-            quickClosed = false;
-            if(lastObjectIndex == e.data.object_index)
-                return;
-            else {
-                screenManager.closeAll();
-            }
-        }
-
-        lastObjectIndex = e.data.object_index;
-
-        getItemsXml(function(itemsXmlDoc) {
-            getMaterialsXml(function(materialsDoc) {
-                var allMaterials = Array.prototype.slice.call(materialsDoc.getElementsByTagName('item'), 0);
-
-                objectPropertiesWidget.populate({
-                    strings: STRINGS,
-                    properties: objectPropertyGridData.properties,
-                    meta: Object.assign(objectPropertyGridData.meta, {
-                        appearance_material: allMaterials.map(m => ({
-                            name: m.getAttribute('name'),
-                            value: parseInt(m.getAttribute('value'))
-                        }))
-                    })
-                }, e.data.properties);
-
-                buildPropertyFilter(e.data);
-
-                if(e.data.has_material) {
-                    var r = e.data.properties.appearance_material_color_r;
-                    var g = e.data.properties.appearance_material_color_g;
-                    var b = e.data.properties.appearance_material_color_b;
-                    var hsv = ColorUtil.rgbToHsv(Math.floor(r*255), Math.floor(g*255), Math.floor(b*255));
-                    _colorPicker.setColor({h:hsv.h * 360, s: hsv.s, v: hsv.v});
-                }
-                else if(e.data.is_light) {
-                    var r = e.data.properties.light_color_r;
-                    var g = e.data.properties.light_color_g;
-                    var b = e.data.properties.light_color_b;
-                    var hsv = ColorUtil.rgbToHsv(Math.floor(r*255), Math.floor(g*255), Math.floor(b*255));
-                    _colorPicker.setColor({h:hsv.h * 360, s: hsv.s, v: hsv.v});
+                if (hasSpawn) {
+                    model.add(makeProperty('respawn_rate', 'Respawn Rate', 'spinner', [
+                        { label: 'Never', value: 0 },
+                        { label: '1', value: 1 },
+                        { label: '3', value: 3 },
+                        { label: '5', value: 5 },
+                        { label: '10', value: 10 },
+                        { label: '15', value: 15 },
+                        { label: '20', value: 20 },
+                        { label: '30', value: 30 },
+                        { label: '45', value: 45 },
+                        { label: '60', value: 60 },
+                        { label: '90', value: 90 },
+                        { label: '120', value: 120 },
+                        { label: '150', value: 150 },
+                        { label: '180', value: 180 }
+                    ], ' This controls how many seconds it will take for this type of item to respawn on the map.'))
+                    model.add(makeProperty('on_map_at_start', 'Placed at Start', 'spinner',
+                        [{ label: 'No', value: 0 }, { label: 'Yes', value: 1 }], 'This controls whether the item is on the map from the start of the game.'));
                 }
 
+                if (data.has_spare_clips)
+                    model.add(makeProperty('spare_clips', 'Spare Clips', 'spinner', [0, 1, 2, 3, 4], 'This controls how many clips of ammunition are available for this item.'))
 
-                determineMaterialColorVisibility(e.data.properties.appearance_material);
-
-                var items = itemsXmlDoc.getElementsByTagName('item');
-
-                var matches = [];
-                for(var i = 0; i < items.length; i++) {
-
-                    if(parseInt(items[i].getAttribute('tagindex')) === e.data.tag_index) {
-                        matches.push(items[i]);
-                    }
-
-                    if(matches.length) {
-                        for(var x = matches[0].firstChild; x; x = x.nextSibling) {
-                            if(x.nodeName !== 'setter')
-                                continue;
-                            var target = x.getAttribute('target');
-                            var isHidden = !!x.getAttribute('hidden');
-                            if(isHidden)
-                                objectPropertiesWidget.toggleVisibility(target, false);
-                        }
-                    }
+                if (hasTeam) {
+                    model.add(makeProperty('team_affiliation', 'Team', 'spinner', [
+                        { label: 'Neutral', value: 8 },
+                        { label: 'Defender', value: 0 },
+                        { label: 'Attacker', value: 1 },
+                        { label: '3rd Team', value: 2 },
+                        { label: '4th Team', value: 3 },
+                        { label: '5th Team', value: 4 },
+                        { label: '6th Team', value: 5 },
+                        { label: '7th Team', value: 6 },
+                        { label: '8th Team', value: 7 },
+                    ], 'This item will belong to the selected team.'));
                 }
 
-                var itemName = 'Unknown';
-                if(matches.length == 1) {
-                    itemName = `${matches[0].getAttribute('name')} [${parseInt(matches[0].getAttribute('tagindex')).toString(16)}]`;
-                } else if(matches.length) {
-                    var category = matches[0].parentNode.getAttribute('name');
-                    itemName = category + ' - Custom';
+                if (hasSpawnOrder) {
+                    model.add(makeProperty('spawn_order', 'Spawn Order', 'spinner', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'This allows you to set the order in which this item becomes active.'))
                 }
-                $('#item-name').text(itemName);
 
-                objectPropertiesWidget.setSelectedIndex(0);
-
-                materialTreeListWidget.setSource(materialsDoc.firstChild);
-
-                budgetPropertiesWidget.populate({
-                    strings: STRINGS,
-                    properties: [
-                    { name: 'summary_placed_on_map', type: 'static', meta:'summary_placed_on_map'},
-                    { name: 'summary_runtime_minimum', type: 'range', meta:'summary_runtime_minimum' },
-                    { name: 'summary_runtime_maximum', type: 'range', meta:'summary_runtime_maximum' },
-                    { name: 'summary_maximum_allowed', type: 'static', meta: 'summary_maximum_allowed'},
-                    { name: 'summary_total_cost', type: 'static', meta:'summary_total_cost'}
-                    ],
-                    meta: {
-                        summary_placed_on_map: e.data.budget.summary_placed_on_map,
-                        summary_runtime_minimum: { type: 'int', min: 0, max: e.data.budget.summary_placed_on_map, step: 1},
-                        summary_runtime_maximum: { type: 'int', min: e.data.budget.summary_placed_on_map, max: e.data.budget.summary_maximum_allowed, step: 1},
-                        summary_maximum_allowed: e.data.budget.summary_maximum_allowed,
-                        summary_total_cost: e.data.budget.summary_total_cost
-                    }
-                }, e.data.budget);
-                budgetPropertiesWidget.setSelectedIndex(0);
-
-
-
-                screenManager.clear();
-                screenManager.push('object_properties_list');
+                if (hasSymmetry) {
+                    model.add(makeProperty('symmetry', 'Symmetry', 'spinner', [
+                        { label: 'Both', value: 0 },
+                        { label: 'Symetric', value: 1 },
+                        { label: 'Asymmetric', value: 2 }
+                    ], 'This controls whether this object spawns in symmetric games, asymmetric games, or both.'))
+                }
             });
-        });
 
-    });
 
-    $(function() {
-        $(window).on('keydown', function(e) {
-            var preventDefault = false;
-
-            if(e.target.nodeName !== 'INPUT') {
-                e.preventDefault();
-                e.stopPropagation();
+            if (!hasZone && !data.has_material) {
+                model.add(makeProperty('physics', 'Physics', 'spinner',
+                    [{ label: 'Default', value: 0 }, { label: 'Phased', value: 1 }], 'Overrides this items physical properties'));
             }
 
-            var currentScreen = screenManager.currentScreen();
+            let isMapModifier = data.tag_index == 0x5728;
+            if (isMapModifier) {
+                let barrierOptions = [
+                    { label: 'Disabled', value: 1 },
+                    { label: 'Enabled', value: 0 }
+                ];
+                model.group('Map options', (m) => {
+                    m.add(makeProperty('map_disable_push_barrier', 'Push Barrier', 'spinner', barrierOptions));
+                    m.add(makeProperty('map_disable_death_barrier', 'Death Barrier', 'spinner', barrierOptions));
+                });
 
-            switch(e.keyCode) {
-                case 27:
+                let cameraFxRange = { min: 0, max: 1.0, step: 0.01 };
+                model.group('Camera FX', (m) => {
+                    m.add(makeProperty('camera_fx_exposure', 'Exposure', 'range', cameraFxRange));
+                    m.add(makeProperty('camera_fx_light_intensity', 'Light Intensity', 'range', cameraFxRange));
+                    m.add(makeProperty('camera_fx_bloom', 'Bloom', 'range', cameraFxRange));
+                });
+            }
 
-                    handleUiInput(1);
-                    break;
-                case 38:
-                case 40:
-                    handleUiInput(e.keyCode == 38 ? 8 : 9);
-                    break;
-                case 37:
-                case 39:
-                    handleUiInput(e.keyCode == 37 ? 10 : 11);
-                    break;
-                case 32:
-                case 13:
-                    handleUiInput(0);
-                    break;
+            if (isTeleporter) {
+                model.add(makeProperty('teleporter_channel', 'Channel', 'spinner', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]))
+            }
+
+            if (data.has_material) {
+
+                model.group('Material', m => {
+                    let supportsColor = properties.appearance_material == 119 || properties.appearance_material == 120;
+
+                    let allMaterials = [];
+                    let materialNodes = _materialsDOM.getElementsByTagName('item');
+                    for (let i = 0; i < materialNodes.length; i++) {
+                        let node = materialNodes[i];
+                        allMaterials.push({
+                            label: node.getAttribute('name'),
+                            value: parseInt(node.getAttribute('value'))
+                        });
+                    }
+
+                    m.add(Object.assign(makeProperty('appearance_material', 'Material', 'spinner', allMaterials, 'Material for this object'), {
+                        action: (item) => {
+                            addRecentMaterial();
+                            screenManager.push('material_picker', {
+                                materials: _materialsDOM,
+                                onMaterialSelected: (material) => {
+                                    let props = { ['appearance_material']: material.value };
+                                    if (material.color) {
+                                        Object.assign(props, {
+                                            appearance_material_color_r: material.color.r / 255,
+                                            appearance_material_color_g: material.color.g / 255,
+                                            appearance_material_color_b: material.color.b / 255
+                                        });
+                                    }
+                                    onPropertyChange(props);
+                                    _propertryGrid.setModel(buildModel(_data));
+                                }
+                            });
+                        },
+                        setValue: (value) => {
+                            onPropertyChange({ ['appearance_material']: value });
+                            if (supportsColor != (properties.appearance_material == 120 || properties.appearance_material == 119)) {
+                                _propertryGrid.setModel(buildModel(_data));
+                            }
+                        }
+                    }));
+
+                    if (supportsColor) {
+                        m.add({
+                            type: 'color',
+                            label: 'Material Color',
+                            description: 'Material color for this object',
+                            meta: {},
+                            getValue: () => {
+                                return {
+                                    r: Math.floor(properties.appearance_material_color_r * 255),
+                                    g: Math.floor(properties.appearance_material_color_g * 255),
+                                    b: Math.floor(properties.appearance_material_color_b * 255)
+                                };
+                            },
+                            setValue: (color) => {
+                                onPropertyChange({
+                                    appearance_material_color_r: color.r / 255,
+                                    appearance_material_color_g: color.g / 255,
+                                    appearance_material_color_b: color.b / 255
+                                })
+                            },
+                            action: (item) => {
+                                screenManager.push('color_picker', {
+                                    title: 'Material Color',
+                                    initialColor: item.model.getValue(),
+                                    onColorSelected: item.setValue
+                                });
+                            },
+                        });
+                    }
+                })
 
             }
-        });
 
-        budgetPropertiesWidget = makePropertyGridWidget($('#budget-screen'));
-
-        objectPropertiesWidget = makePropertyGridWidget($('#object-properties-list'));
-        objectPropertiesWidget.on('select', function(name) {
-            switch(name) {
-                case 'appearance_material':
-                    var value = objectPropertiesWidget.getValue(name);
-                    showMaterialPicker(value);
-                    break;
-                case 'budget_screen_action':
-                    screenManager.push('budget');
-                    break;
-                case 'material_color_action':
-                    screenManager.push('material_color_picker', {
-                        colorPicker:_colorPicker,
-                        onBack: function() {
-                            screenManager.pop();
+            if (hasZone) {
+                model.group('Zone', (m) => {
+                    m.add({
+                        label: 'Shape',
+                        type: 'spinner',
+                        description: 'This determines the shape of the zone for this item.',
+                        meta: [
+                            { label: 'Sphere', value: 1 },
+                            { label: 'Cylinder', value: 2 },
+                            { label: 'Box', value: 3 }
+                        ],
+                        getValue: () => properties.shape_type,
+                        setValue: (value) => {
+                            onPropertyChange({ ['shape_type']: value });
+                            _propertryGrid.setModel(buildModel(_data));
                         }
                     });
-                    break;
-                case 'light_color_action':
-                    screenManager.push('light_color_picker', {
-                        colorPicker:_colorPicker,
-                        onBack: function() {
-                            screenManager.pop();
-                        },
-                    });
-                    break;
-                case 'select_all':
-                    dew.command('Forge.SelectAll');
-                    objectPropertiesWidget.setSelectedIndex(0);
-                    objectPropertiesWidget.toggleVisibility('select_all', false);
-                    objectPropertiesWidget.toggleVisibility('deselect_all', true);
-                    objectPropertiesWidget.setSelectedIndex(1);
-                    break;
-                case 'deselect_all':
-                    dew.command('Forge.DeselectAllOf');
-                    objectPropertiesWidget.setSelectedIndex(0);
-                    objectPropertiesWidget.toggleVisibility('select_all', true);
-                    objectPropertiesWidget.toggleVisibility('deselect_all', false);
-                    objectPropertiesWidget.setSelectedIndex(1);
-                    break;
-                case 'delete_all':
-                    dew.command('Forge.DeleteAll');
-                    screenManager.pop();
-                    break;
+
+                    switch (properties.shape_type) {
+                        case 3:
+                            m.add(makeProperty('shape_width', 'Width', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how wide the zone is for this item.'));
+                            m.add(makeProperty('shape_depth', 'Depth', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how deep the zone is for this item.'));
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of zone is for this item.'));
+                            break;
+                        case 2:
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of the zone is for this item.'));
+                        case 1:
+                            m.add(makeProperty('shape_radius', 'Radius', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines the radius of the zone for this item.'));
+                            break;
+                    }
+                });
             }
-        });
 
-        objectPropertiesWidget.on('propertyChange', ({name, value}) => {
-            if(value !== undefined)
-                onPropertyChanged(name, value);
-        });
+            if (data.is_light) {
+                model.group('Light', (m) => {
+                    m.add(makeProperty('light_radius', 'Radius', 'range', { min: 0, max: 50, step: 0.05 }));
+                    m.add(makeProperty('light_intensity', 'Intensity', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                    m.add({
+                        type: 'color',
+                        label: 'Light Color',
+                        description: '',
+                        meta: {},
+                        getValue: () => {
+                            return {
+                                r: Math.floor(properties.light_color_r * 255),
+                                g: Math.floor(properties.light_color_g * 255),
+                                b: Math.floor(properties.light_color_b * 255)
+                            };
+                        },
+                        setValue: (color) => {
+                            onPropertyChange({
+                                light_color_r: color.r / 255,
+                                light_color_g: color.g / 255,
+                                light_color_b: color.b / 255
+                            });
+                        },
+                        action: (item) => {
+                            screenManager.push('color_picker', {
+                                title: 'Light Color',
+                                initialColor: item.model.getValue(),
+                                onColorSelected: item.setValue
+                            });
+                        },
 
-        budgetPropertiesWidget.on('propertyChange', ({name, value}) => {
-            onPropertyChanged(name, value);
-        });
+                    });
+                });
+            }
 
-        $('#material-picker').on('mouseover', 'li', function(e) {
-            if((Date.now() - materialPickerShowTime) < 150)
+            if (data.is_screenfx) {
+                model.group('Screen Fx', (m) => {
+                    let normalRange = { min: 0, max: 1, step: 0.01 };
+                    m.add(makeProperty('fx_range', 'Range', 'range', { min: 0, max: 255, step: 1 }));
+                    m.add(makeProperty('fx_light_intensity', 'Light Intensity', 'range', normalRange));
+                    m.add(makeProperty('fx_saturation', 'Saturation', 'range', normalRange));
+                    m.add(makeProperty('fx_desaturation', 'Desaturation', 'range', normalRange));
+                    m.add(makeProperty('fx_gamma_inc', 'Gamma Decrease', 'range', normalRange));
+                    m.add(makeProperty('fx_gamma_dec', 'Gamma Increase', 'range', normalRange));
+                    m.add(makeProperty('fx_tracing', 'Tracing', 'range', normalRange));
+                    m.add({
+                        type: 'color',
+                        label: 'Filter Color',
+                        description: '',
+                        meta: {},
+                        getValue: () => {
+                            return {
+                                r: Math.floor(properties.fx_color_filter_r * 255),
+                                g: Math.floor(properties.fx_color_filter_g * 255),
+                                b: Math.floor(properties.fx_color_filter_b * 255)
+                            };
+                        },
+                        setValue: (color) => {
+
+                            onPropertyChange({
+                                fx_color_filter_r: color.r / 255,
+                                fx_color_filter_g: color.g / 255,
+                                fx_color_filter_b: color.b / 255
+                            });
+                        },
+                        action: (item) => {
+                            screenManager.push('color_picker', {
+                                title: 'Filter Color',
+                                initialColor: item.model.getValue(),
+                                onColorSelected: (color) => {
+                                    item.setValue(color);
+                                }
+                            });
+                        },
+
+                    });
+
+                    m.add({
+                        type: 'color',
+                        label: 'Floor Color',
+                        description: '',
+                        meta: {},
+                        getValue: () => {
+                            return {
+                                r: Math.floor(properties.fx_color_floor_r * 255),
+                                g: Math.floor(properties.fx_color_floor_g * 255),
+                                b: Math.floor(properties.fx_color_floor_b * 255)
+                            };
+                        },
+                        setValue: (color) => {
+                            onPropertyChange({
+                                fx_color_floor_r: color.r / 255,
+                                fx_color_floor_g: color.g / 255,
+                                fx_color_floor_b: color.b / 255
+                            });
+                        },
+                        action: (item) => {
+                            screenManager.push('color_picker', {
+                                title: 'Floor Color',
+                                initialColor: item.model.getValue(),
+                                onColorSelected: (color) => {
+                                    item.setValue(color);
+                                }
+                            });
+                        },
+
+                    });
+                });
+            }
+
+            if (isGarbageVolume) {
+                let collectionOptions = [{ label: 'Collect', value: 1 }, { label: 'Ignore', value: 0 }];
+
+                model.group('Garbage Collection', (m) => {
+                    m.add(makeProperty('garbage_volume_interval', 'Interval', 'spinner', [
+                        { label: 'Instant', value: 0 },
+                        { label: '5 Seconds', value: 1 },
+                        { label: '15 Seconds', value: 2 },
+                        { label: '30 Seconds', value: 3 },
+                    ], 'The time delay between collections'));
+                    m.add(makeProperty('garbage_volume_collect_dead_biped', 'Dead Bodies', 'spinner', collectionOptions));
+                    m.add(makeProperty('garbage_volume_collect_weapons', 'weapons', 'spinner', collectionOptions));
+                    m.add(makeProperty('garbage_volume_collect_objectives', 'Objectives', 'spinner', collectionOptions));
+                    m.add(makeProperty('garbage_volume_collect_grenades', 'Grenades', 'spinner', collectionOptions));
+                    m.add(makeProperty('garbage_volume_collect_equipment', 'Equipment', 'spinner', collectionOptions));
+                    m.add(makeProperty('garbage_volume_collect_vehicles', 'Vehicles', 'spinner', collectionOptions));
+                });
+            }
+
+            if (isKillVolume) {
+                model.group('Kill Volume', (m) => {
+                    m.add(makeProperty('kill_volume_always_visible', 'Visibility', 'spinner',
+                        [{ label: 'Never', value: 0 }, { label: 'Always', value: 1 }], 'Determines whether the volume will be visible outside of forge'), );
+                    m.add(makeProperty('kill_volume_destroy_vehicles', 'Vehicles', 'spinner',
+                        [{ label: 'Ignore', value: 0 }, { label: 'Destroy', value: 1 }], 'Destroys vehicles'));
+                });
+            }
+
+            return model;
+        }
+
+        function fetchMaterials(callback) {
+            if (_materialsDOM)
+                return callback(null, _materialsDOM);
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', './materials.xml', true);
+            xhr.onload = function (e) {
+                if (this.status === 200) {
+                    let domParser = new DOMParser();
+                    _materialsDOM = domParser.parseFromString(this.responseText, "text/xml");
+                    callback(null, _materialsDOM);
+                } else {
+                    callback({ code: this.status, message: this.statusText });
+                }
+            }
+            xhr.send();
+        }
+
+        function fetchItems(callback) {
+            if (_items)
+                return callback(null, _items);
+
+            var items = {};
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', './../object_creation/items.xml', true);
+            xhr.onload = function (e) {
+                if (this.status === 200) {
+                    let domParser = new DOMParser();
+                    let dom = domParser.parseFromString(this.responseText, "text/xml");
+                    var flattened = flattenItems(dom);
+
+                    for (let item of flattened) {
+                        if (items[item.tagIndex]) {
+                            items[item.tagIndex].name = 'Custom';
+                            continue;
+                        }
+                        items[item.tagIndex] = item;
+                    }
+                    _items = items;
+                    callback(null, items);
+                } else {
+                    callback({ code: this.status, message: this.statusText });
+                }
+            }
+            xhr.send();
+        }
+
+        function flattenItems(itemDom) {
+            let _result = [];
+            let _pathStack = [];
+            let _nodeVisitors = {
+                item: visitItem,
+                category: visitCategory
+            }
+
+            flatternInternal(itemDom.firstChild);
+            return _result;
+
+            function flatternInternal(node) {
+                for (let x of node.children)
+                    _nodeVisitors[x.nodeName](x);
+            }
+
+            function visitItem(node) {
+                let name = node.getAttribute('name');
+                let tagIndex = parseInt(node.getAttribute('tagindex'))
+                let type = node.getAttribute('type');
+
+                if (_pathStack.length > 2) {
+                    _pathStack = _pathStack.slice(_pathStack.length - 2);
+                }
+                _result.push({
+                    path: _pathStack,
+                    name: name,
+                    tagIndex: tagIndex,
+                    type: type
+                })
+            }
+
+            function visitCategory(node) {
+                _pathStack.push(node.getAttribute('name'));
+                flatternInternal(node);
+                _pathStack.pop();
+            }
+        }
+
+
+        function getMaterialName(materialIndex) {
+            let items = _materialsDOM.getElementsByTagName('item');
+            for (let item of items) {
+                if (parseInt(item.getAttribute('value')) === materialIndex)
+                    return item.getAttribute('name') || 'Unknown';
+            }
+            return null;
+        }
+
+        function addRecentMaterial() {
+
+            let materialColor = {
+                r: (_data.properties.appearance_material_color_r * 255) | 0,
+                g: (_data.properties.appearance_material_color_g * 255) | 0,
+                b: (_data.properties.appearance_material_color_b * 255) | 0
+            };
+
+            if (!_recentMaterials.find(x => x.value === _data.properties.appearance_material
+                && (!x.color || (x.color.r === materialColor.r && x.color.g === materialColor.g && x.color.b === materialColor.b)))) {
+
+                let materialName = getMaterialName(_data.properties.appearance_material);
+                let recentItem = {
+                    label: materialName,
+                    value: _data.properties.appearance_material,
+                };
+                if (recentItem.value == 120 || recentItem.value == 119) {
+                    recentItem.color = materialColor;
+                }
+
+                _recentMaterials.unshift(recentItem);
+            }
+        }
+    }
+
+    function makeColorPickerScreen(screenManager) {
+        let _screenElement = document.getElementById('color_picker_screen');
+        let _active = false;
+        let _onColorSelected;
+
+        let _colorPicker = dew.makeColorPicker(_screenElement.querySelector('.color-picker'));
+        dew.on('controllerinput', function (e) {
+            if (!_active)
                 return;
-            $('#material-picker li').removeClass('selected');
-            $(this).addClass('selected');
+            _colorPicker.controllerInput(e.data);
         });
 
-    });
+        _colorPicker.on('select', function (color) {
+            let rgb = ColorUtil.hsvToRgb(color.h, color.s, color.v);
+            _onColorSelected({ r: rgb[0], g: rgb[1], b: rgb[2] });
+        });
 
-    function onPropertyChanged(name, value) {
-        var changes = {};
-        switch(name) {
-            case 'appearance_material':
-                determineMaterialColorVisibility(value);
-                //$('#appearance_material_material_preview').attr('src', objectPropertyGridData.meta['appearance_material'][value].thumbnail);
-                break;
-            case 'shape_type':
-                switch (value)
-                {
-                    case 1:
-                        objectPropertiesWidget.toggleVisibility('shape_top', false);
-                        objectPropertiesWidget.toggleVisibility('shape_bottom', false);
-                        objectPropertiesWidget.toggleVisibility('shape_depth', false);
-                        objectPropertiesWidget.toggleVisibility('shape_width', false);
-                        objectPropertiesWidget.toggleVisibility('shape_radius', true);
+        return {
+            activate: function (props) {
+                _active = true;
+                _onColorSelected = props.onColorSelected;
+                let c = ColorUtil.rgbToHsv(props.initialColor.r, props.initialColor.g, props.initialColor.b);
+                _colorPicker.setColor({ h: c.h * 360, s: c.s, v: c.v });
+                _screenElement.classList.add('active');
+                if (props.title) {
+                    setTitle(props.title);
+                }
+            },
+            deactivate: function () {
+                _active = false;
+                _screenElement.classList.remove('active');
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        screenManager.pop();
                         break;
-                    case 2:
-                        objectPropertiesWidget.toggleVisibility('shape_top', true);
-                        objectPropertiesWidget.toggleVisibility('shape_bottom', true);
-                        objectPropertiesWidget.toggleVisibility('shape_depth', false);
-                        objectPropertiesWidget.toggleVisibility('shape_width', false);
-                        objectPropertiesWidget.toggleVisibility('shape_radius', true);
-                        break;
-                    case 3:
-                        objectPropertiesWidget.toggleVisibility('shape_top', true);
-                        objectPropertiesWidget.toggleVisibility('shape_bottom', true);
-                        objectPropertiesWidget.toggleVisibility('shape_depth', true);
-                        objectPropertiesWidget.toggleVisibility('shape_width', true);
-                        objectPropertiesWidget.toggleVisibility('shape_radius', false);
+                    case dew.ui.Actions.X:
+                        hide();
                         break;
                 }
-                break;
-        }
-
-        dew.callMethod('forgeaction', {
-            type: 1,
-            data: { [name]: value }
-        });
-    }
-
-
-    function determineMaterialColorVisibility(materialIndex) {
-
-        var visible = objectData.has_material && materialIndex == 119 || materialIndex == 120;
-
-        objectPropertiesWidget.toggleVisibility('material_color_action', visible);
-
-    }
-
-    function buildVisiblePropertyArray(properties, filterSet) {
-        var result = [];
-        for(var i = 0; i < properties.length; i++){
-            var property = properties[i];
-            if(filterSet && !filterSet[property])
-                continue;
-            result.push(property);
-        }
-        return result;
-    }
-
-    function buildPropertyFilter(data) {
-        var isTeleporter = false;
-        var hasZone = false;
-        var hasSpawnOrder = false;
-        var hasTeam = false;
-        var hasSpawn = false;
-        var hasSymmetry = false;
-
-        switch(data.object_type_mp) {
-            case MultiplayerObjectType.Weapon:
-            case MultiplayerObjectType.Ordinary:
-            case MultiplayerObjectType.Grenade:
-            case MultiplayerObjectType.Projectile:
-            case MultiplayerObjectType.Powerup:
-            case MultiplayerObjectType.Equipment:
-            case MultiplayerObjectType.LightLandVehicle:
-            case MultiplayerObjectType.HeavyLandVehicle:
-            case MultiplayerObjectType.FlyingVehicle:
-                hasSpawn = true;
-                hasSymmetry = true;
-                break;
-            case MultiplayerObjectType.PlayerRespawnZone:
-                hasSpawnOrder = true;
-                hasZone = true;
-                hasTeam = true;
-                hasSymmetry = true;
-                break;
-            case MultiplayerObjectType.Teleporter2Way:
-            case MultiplayerObjectType.TeleporterSender:
-            case MultiplayerObjectType.TeleporterReceiver:
-                hasZone = true;
-                isTeleporter = true;
-                hasSymmetry = true;
-                break;
-            case MultiplayerObjectType.VIPDestinationObjective:
-                hasSymmetry = true;
-            case MultiplayerObjectType.HoldDestinationObjective:
-            case MultiplayerObjectType.InfectionHavenObjective:
-                hasSpawn = true;
-            case MultiplayerObjectType.HillObjective:
-            case MultiplayerObjectType.JuggernautDestinationObjective:
-                hasZone = true;
-                hasSpawnOrder = true;
-                break;
-            case MultiplayerObjectType.CaptureDestinationObjective:
-            case MultiplayerObjectType.CaptureSpawnObjective:
-            case MultiplayerObjectType.TerritoryObjective:
-            case MultiplayerObjectType.VIPBoundaryObjective:
-            case MultiplayerObjectType.PlayerSpawnLocation:
-                hasTeam = true;
-                hasSymmetry = true;
-                break;
-        }
-
-        switch(data.tag_index) {
-            case 0x00005A8E:
-            case 0x00005A8F:
-                hasZone = true;
-                hasTeam = true;
-                break;
-        }
-
-        objectPropertiesWidget.toggleVisibility('deselect_all', data.is_selected);
-        objectPropertiesWidget.toggleVisibility('select_all', !data.is_selected);
-
-        objectPropertiesWidget.toggleVisibility('light', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_radius', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_color_r', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_color_g', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_color_b', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_intensity', data.is_light);
-        objectPropertiesWidget.toggleVisibility('light_color_action', data.is_light);
-
-
-        objectPropertiesWidget.toggleVisibility('fx', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_hue', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_saturation', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_desaturation', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_light_intensity', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_filter_r', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_filter_g', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_filter_b', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_floor_r', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_floor_g', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_color_floor_b', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_gamma_inc', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_gamma_dec', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_range', data.is_screenfx);
-        objectPropertiesWidget.toggleVisibility('fx_tracing', data.is_screenfx);
-
-        if(!hasSpawn) {
-            objectPropertiesWidget.toggleVisibility('on_map_at_start', false);
-            objectPropertiesWidget.toggleVisibility('respawn_rate', false);
-        }
-        if(!hasSymmetry)
-            objectPropertiesWidget.toggleVisibility('symmetry', false);
-        if(!hasTeam)
-            objectPropertiesWidget.toggleVisibility('team_affiliation', false);
-        if(!hasSpawnOrder)
-            objectPropertiesWidget.toggleVisibility('spawn_order', false);
-        if(!isTeleporter)
-            objectPropertiesWidget.toggleVisibility('teleporter_channel', false);
-        if(!data.has_spare_clips)
-            objectPropertiesWidget.toggleVisibility('spare_clips', false);
-
-        if(hasZone) {
-            objectPropertiesWidget.toggleVisibility('physics', false);
-            switch (data.properties.shape_type)
-            {
-                case 1:
-                    objectPropertiesWidget.toggleVisibility('shape_top', false);
-                    objectPropertiesWidget.toggleVisibility('shape_bottom', false);
-                    objectPropertiesWidget.toggleVisibility('shape_depth', false);
-                    objectPropertiesWidget.toggleVisibility('shape_width', false);
-                    break;
-                case 2:
-                    objectPropertiesWidget.toggleVisibility('shape_depth', false);
-                    objectPropertiesWidget.toggleVisibility('shape_width', false);
-                    break;
-                case 3:
-                    objectPropertiesWidget.toggleVisibility('shape_radius', false);
-                    break;
             }
         }
-        else {
-            objectPropertiesWidget.toggleVisibility('teleporter_properties', false);
-            objectPropertiesWidget.toggleVisibility('shape_depth', false);
-            objectPropertiesWidget.toggleVisibility('shape_width', false);
-            objectPropertiesWidget.toggleVisibility('shape_top', false);
-            objectPropertiesWidget.toggleVisibility('shape_bottom', false);
-            objectPropertiesWidget.toggleVisibility('shape_radius', false);
-            objectPropertiesWidget.toggleVisibility('shape_bottom', false);
-            objectPropertiesWidget.toggleVisibility('shape_type', false);
-        }
-
-        if(!data.has_material) {
-            objectPropertiesWidget.toggleVisibility('appearance_material', false);
-        } else {
-            objectPropertiesWidget.toggleVisibility('physics', false);
-        }
-
-        var isMapModifier = data.tag_index == 0x5728;
-        objectPropertiesWidget.toggleVisibility('map_modifier',isMapModifier);
-        objectPropertiesWidget.toggleVisibility('map_disable_push_barrier',isMapModifier);
-        objectPropertiesWidget.toggleVisibility('map_disable_death_barrier', isMapModifier);
-        objectPropertiesWidget.toggleVisibility('camera_fx', isMapModifier);
-        objectPropertiesWidget.toggleVisibility('camera_fx_light_intensity', isMapModifier);
-        objectPropertiesWidget.toggleVisibility('camera_fx_bloom', isMapModifier);
-        objectPropertiesWidget.toggleVisibility('camera_fx_exposure', isMapModifier);
-
-
-
-        var isGarbageVolume = data.tag_index == 0x00005A8F;
-        var isKillVolume = data.tag_index == 0x00005A8E;
-        objectPropertiesWidget.toggleVisibility('garbage_collection',isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_interval',isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_dead_biped',isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_weapons', isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_objectives',isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_grenades', isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_equipment',isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_vehicles', isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('garbage_volume_collect_vehicles', isGarbageVolume);
-        objectPropertiesWidget.toggleVisibility('kill_volume', isKillVolume);
-        objectPropertiesWidget.toggleVisibility('kill_volume_always_visible', isKillVolume);
-        objectPropertiesWidget.toggleVisibility('kill_volume_destroy_vehicles', isKillVolume);
     }
 
-    function handleUiInput(uiButtonCode) {
-        var current = screenManager.currentScreen();
-        if(!current)
-            return;
-        switch(uiButtonCode) {
-            case 2:
-                quickClose();
-                break;
+    function makeSummaryScreen(screenManager) {
+        let _screenElement = document.querySelector('.summary-screen');
+        let _grid = dew.makePropertyGrid(_screenElement.querySelector('.summary-property-grid'));
+        let _active = false;
+        let _summaryData = {};
+
+        _grid.on('selectionChange', item => setDescription(item.model.description));
+
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                _active = true;
+                _grid.focus();
+                _summaryData = props.data;
+                _grid.setModel(buildModel());
+                setTitle('Summary');
+
+            }, deactivate: function () {
+                _screenElement.classList.remove('active');
+                _active = false;
+                _grid.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        screenManager.pop();
+                        break;
+                }
+            }
         }
-        current.handleUiButton(uiButtonCode);
+
+        function onPropertyChange(properties) {
+            Object.assign(_summaryData, properties);
+            dew.callMethod('forgeaction', {
+                type: 1,
+                data: properties
+            });
+        }
+
+        function makeProperty(name, label, type, meta, description) {
+            return {
+                label: label,
+                type: type,
+                getValue: () => _summaryData[name],
+                setValue: (value) => onPropertyChange({ [name]: value }),
+                meta: meta,
+                description: description
+            };
+        }
+
+        function buildModel() {
+            let model = _grid.createModel();
+            model.add(makeProperty('summary_runtime_minimum', 'Runtime Min', 'range', { min: 0, max: _summaryData.summary_placed_on_map, step: 1, isInteger: true },
+                'The item will automatically spawn if the number of this type of item ever falls below the minimum.'));
+            model.add(makeProperty('summary_runtime_maximum', 'Runtime Max', 'range',
+                { min: _summaryData.summary_placed_on_map, max: _summaryData.summary_maximum_allowed, step: 1, isInteger: true },
+                'This sets the maximum number of this type of item that can be on the map.'));
+            model.add(makeProperty('summary_placed_on_map', 'Placed On Map', 'static', {}, 'This displays how many of this type of item are currently placed on the map.'));
+            model.add(makeProperty('summary_maximum_allowed', 'Design Time Max', 'static', {}, 'This displays the maximum number of this type of item that can ever be on the map.'));
+            model.add(makeProperty('summary_total_cost', 'Total Cost', 'static', {}, 'This displays the total amount of budget that you are using for this type of item.'));
+            return model;
+        }
     }
 
-    function updateTitle() {
-        var screens = screenManager.pushedScreens();
-        var title = screens.slice(0, 2).map(screen => STRINGS[screen.title]).join(' - ');
-        $('#title').text(title);
+    function makeMaterialCategoryScreen(screenManager) {
+        let _screenElement = document.querySelector('#material_picker_screen');
+        let _categoryTreeElement = _screenElement.querySelector('.material-category-tree');
+        let _treeList = dew.makeTreeList(_categoryTreeElement);
+        let _onMaterialSelected = null;
+
+        _treeList.on('select', function ({ index, element, path }) {
+            if (path.getElementsByTagName('category').length)
+                return;
+
+            let items = null;
+            if (path.getAttribute('id') === 'recent') {
+                items = _recentMaterials;
+            }
+            else {
+                items = Array.prototype.slice.call(path.children)
+                    .map(x => ({
+                        label: x.getAttribute('name'),
+                        value: parseInt(x.getAttribute('value'))
+                    }));
+            }
+            screenManager.push('material_picker_list', { materials: items, onMaterialSelected: _onMaterialSelected });
+        });
+
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                if (props && props.materials) {
+                    _onMaterialSelected = props.onMaterialSelected;
+                    _treeList.setSource(props.materials.firstChild);
+                    _treeList.gotoRoot();
+                }
+                _treeList.focus();
+                setTitle('Material');
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _treeList.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.B:
+                        if (_treeList.atRoot())
+                            screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
+                }
+            }
+        };
     }
 
+    function makeMaterialListScreen(screenManager) {
+        let _screenElement = document.querySelector('.material-picker-list-screen');
+        let _materialListElement = _screenElement.querySelector('.material-list');
+        let _materials = [];
+        let _materialList = dew.makeListWidget(_materialListElement, {
+            itemSelector: 'li',
+            hoverClass: 'selected',
+            hoverSelection: true,
+            wrapAround: true
+        });
+        let _onMaterialSelected = null;
 
-    function showMaterialPicker(materialindex) {
-        materialPickerShowTime = Date.now();
-        var materialList = $('.material-tree')[0];
-        materialTreeListWidget.gotoRoot();
-        screenManager.push('material_picker');
+        _materialList.on('select', function ({ index, element }) {
+            let materialIndex = parseInt(element.getAttribute('data-value'));
+            if (_onMaterialSelected) {
+                let item = _materials[index];
+                _onMaterialSelected(item);
+            }
+        });
+
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                if (props.materials) {
+                    _onMaterialSelected = props.onMaterialSelected;
+                    _materials = props.materials;
+                    renderMaterialList(_materialListElement);
+                    _materialList.focus();
+                    _materialList.setSelected(0);
+                }
+                else {
+                    _materialList.focus();
+                }
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _materialList.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
+                }
+            }
+        }
+
+        function renderMaterialList(element) {
+            let html = '';
+            for (let i = 0; i < _materials.length; i++) {
+                let item = _materials[i];
+                html += `<li data-value="${item.value}">`;
+                if (item.color) {
+                    let colorHex = ((item.color.r << 16) | (item.color.g << 8) | item.color.b).toString(16).padStart(6, '0');
+                    html += `<div>${item.label} - <span class="mute">#${colorHex}</span></div><div class="preview" style="background:#${colorHex}"></div>`;
+                } else {
+                    html += ` <div>${item.label}</div><div class="preview material-thumb material-thumb-${item.value}"></div>`;
+                }
+                html += `</li>`;
+            }
+            element.innerHTML = html;
+        }
     }
 
-    function renderMaterialList(element, node) {
-        var html = '';
-        for(var x = node.firstChild; x; x = x.nextSibling) {
-            if(x.nodeName !== 'item') continue;
-            var thumbnail = x.getAttribute('thumbnail');
-            html += `<li data-value="${x.getAttribute('value')}"><img src="${thumbnail}"></img> <span>${x.getAttribute('name')}</span></li>`;
+    function makeEngineFlagsScreen(screenManager) {
+        const engineNames = [
+            'Capture The Flag',
+            'Slayer',
+            'Oddball',
+            'King Of The Hill',
+            'Juggernaut',
+            'Territories',
+            'Assault',
+            'VIP',
+            'Infection',
+        ]
+
+        let _screenElement = document.getElementById('engine_flags_screen');
+        let _engineListElement = _screenElement.querySelector('.engine-list');
+        let _onChange = null;
+        let _engineFlags = 0;
+        let _engineList = dew.makeListWidget(_engineListElement, {
+            itemSelector: 'li',
+            hoverClass: 'selected',
+            hoverSelection: true,
+            wrapAround: true
+        });
+
+        _engineList.on('select', function ({ index, element }) {
+            let mask = (1 << index);
+            if (_engineFlags & mask) _engineFlags &= ~mask;
+            else _engineFlags |= mask;
+
+            render();
+            _engineList.refresh();
+            _engineList.setSelected(index);
+
+            if (_onChange)
+                _onChange(_engineFlags);
+        });
+
+        return {
+            activate: function (props) {
+                _engineFlags = props.engineFlags;
+                _onChange = props.onChange
+
+                _screenElement.classList.add('active');
+                render();
+                _engineList.focus();
+                _engineList.setSelected(0);
+
+                setTitle('Gametypes');
+
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _engineList.blur();
+            },
+            onAction: function ({ action }) {
+                switch (action) {
+                    case dew.ui.Actions.B:
+                        dew.ui.playSound(dew.ui.Sounds.B);
+                        screenManager.pop();
+                        break;
+                    case dew.ui.Actions.X:
+                        hide();
+                        break;
+                }
+            }
         }
-        element.innerHTML = html;
+
+        function render() {
+            let html = '';
+            for (let i = 0; i < 9; i++) {
+                html += `<li class="${((1 << i) & _engineFlags) ? 'checked' : ''}"><div class="checkbox"></div><div>${engineNames[i]}</div></li>`;
+            }
+            _engineListElement.innerHTML = html;
+        }
     }
 
-    var stickTicks = { left: 0, right: 0, up: 0, down: 0 }
-    var axisThreshold = .5;
-    var lastHeldUpdate = 0;
+    function makeSavePrefabScreen(screenManager) {
+        let _screenElement = document.querySelector('#save_prefab_screen')
+        let _overlay = document.querySelector('.modal-overlay');
+        let _nameInputElement = _screenElement.querySelector('input');
+        let _errorStatusElement = _screenElement.querySelector('.error');
 
-    dew.on('controllerinput', function(e){
-        if(e.data.AxisLeftX > axisThreshold)
-            stickTicks.right++;
-        else
-            stickTicks.right = 0;
+        _screenElement.addEventListener("animationend", () => {
+            _screenElement.classList.remove('shake');
+        }, false);
 
-        if(e.data.AxisLeftX < -axisThreshold)
-            stickTicks.left++;
-        else
-            stickTicks.left = 0;
+        return {
+            activate: function (props) {
+                _screenElement.classList.add('active');
+                _overlay.classList.remove('hidden');
+                _nameInputElement.addEventListener('keydown', onKeyDown);
+                _errorStatusElement.classList.add('hidden');
+                _nameInputElement.focus();
+            },
+            deactivate: function () {
+                _screenElement.classList.remove('active');
+                _overlay.classList.add('hidden');
+                _nameInputElement.value = '';
+                _nameInputElement.removeEventListener('keydown', onKeyDown);
+                _nameInputElement.blur();
+            },
+            onAction: function ({ inputType, action }) {
+                switch (action) {
+                    case dew.ui.Actions.A:
+                        if (inputType === 'controller')
+                            onConfirm();
+                        break;
+                    case dew.ui.Actions.B:
+                        onReject();
+                        break;
+                }
+            }
+        };
 
+        function onConfirm() {
+            let value = _nameInputElement.value.trim();
+            if (!value.length) {
+                dispalyError("Prefab name can't be empty");
+                return;
+            }
 
-        if(e.data.AxisLeftY > axisThreshold)
-            stickTicks.up++;
-        else
-            stickTicks.up = 0;
-        if(e.data.AxisLeftY < -axisThreshold)
-            stickTicks.down++;
-        else
-            stickTicks.down = 0;
+            if (!value.match(/^[^\\/:\*\?"<>\|]+$/)) {
+                dispalyError("Prefab name can't contain \\/:*?\"<>|");
+                return;
+            }
 
-        var holding =
-        stickTicks.up > 0 && (stickTicks.up * e.data.secondsPerTick) > .5 ||
-        stickTicks.down > 0 && (stickTicks.down * e.data.secondsPerTick) > .5 ||
-        stickTicks.left > 0 && (stickTicks.left * e.data.secondsPerTick) > .5 ||
-        stickTicks.right > 0 && (stickTicks.right * e.data.secondsPerTick) > .5;
-
-
-        if(stickTicks.up == 1 || (stickTicks.up > 1 && holding && (e.data.gameTicks - lastHeldUpdate) * e.data.secondsPerTick > 0.1)) {
-            lastHeldUpdate = e.data.gameTicks;
-            handleUiInput(8);
+            dew.command(`Forge.SavePrefab "${_nameInputElement.value}"`)
+                .then(response => {
+                    showToast('Prefab Saved');
+                    setTimeout(() => screenManager.pop(), 1);
+                })
+                .catch(error => dispalyError(error.message));
         }
-        else if(stickTicks.down == 1 || (stickTicks.down > 1 && holding && (e.data.gameTicks - lastHeldUpdate) * e.data.secondsPerTick > 0.1)) {
-            lastHeldUpdate = e.data.gameTicks;
-            handleUiInput(9);
-        }
-        else if(stickTicks.left == 1 || (stickTicks.left > 1 && holding && (e.data.gameTicks - lastHeldUpdate) * e.data.secondsPerTick > 0.1)) {
-            lastHeldUpdate = e.data.gameTicks;
-            handleUiInput(10);
-        }
-        else if(stickTicks.right == 1 || (stickTicks.right > 1 && holding && (e.data.gameTicks - lastHeldUpdate) * e.data.secondsPerTick > 0.1)) {
-            lastHeldUpdate = e.data.gameTicks;
-            handleUiInput(11);
+
+        function onReject() {
+            dew.ui.playSound(dew.ui.Sounds.B);
+            screenManager.pop();
         }
 
-        if(e.data.A == 1) handleUiInput(0);
-        else if(e.data.B == 1) handleUiInput(1);
-        else if(e.data.X == 1) handleUiInput(2);
-        else if(e.data.Y == 1) handleUiInput(3);
-        else if(e.data.RightBumper == 1) handleUiInput(4);
-        else if(e.data.LeftBumper == 1) handleUiInput(5);
-        else if(e.data.Up == 1) handleUiInput(8);
-        else if(e.data.Down == 1) handleUiInput(9);
-        else if(e.data.Left == 1) handleUiInput(10);
-        else if(e.data.Right == 1) handleUiInput(11);
+        function onKeyDown(e) {
+            if (e.which == 13)
+                onConfirm();
+        }
 
-        var currentScreen = screenManager.currentScreen();
-        if(currentScreen && currentScreen.controllerInput)
-            currentScreen.controllerInput(e.data);
-    });
+        function dispalyError(message) {
+            _errorStatusElement.textContent = message;
+            _screenElement.classList.add('shake');
+            _errorStatusElement.classList.remove('hidden');
+            dew.ui.playSound(dew.ui.Sounds.Error);
+        }
+    }
 
-    function quickClose() {
-        quickClosed = true;
-        dew.command('Game.PlaySound 0xb01');
+    function setTitle(text) {
+        _titleElement.innerHTML = 'Object Properties ' + (text ? (' - ' + text) : '');
+    }
+
+    function setSubtitle(text) {
+        _subtitleElement.innerHTML = text || '';
+    }
+
+    function setDescription(text) {
+        _descriptionElement.innerHTML = text || '';
+    }
+
+    function hide() {
+        _hidden = true;
+        dew.ui.playSound(dew.ui.Sounds.B);
         dew.hide();
     }
 
-});
-
-
-function makeMaterialListScreens() {
-    var _materialListElement = $('#material-list');
-    var _onSelectCallback = null;
-    var _onBack = null;
-
-    var materialListController = makeListWidgetController('material_iist', { wrapAround: true }, {
-        count: () => _materialListElement.find('li').length
-    });
-
-    materialListController.on('selectedIndexChanged', function({index, userInput}) {
-        var selectedElement = _materialListElement.find('li').removeClass('selected').eq(index);
-        selectedElement.addClass('selected');
-        if(userInput)
-            selectedElement[0].scrollIntoView(false);
-        onMaterialSelect(false);
-    });
-
-    _materialListElement.on('mouseover', 'li', function(e) {
-        if(e.target.nodeName == 'LI') {
-            materialListController.setSelectedIndex($(e.target).index(), true);
-        }
-    });
-
-    _materialListElement.on('click', 'li', function(e) {
-        handleUiInput(0);
-    });
-
-    return {
-        name: 'material_picker_material_list',
-        activate: (props) => {
-            _onSelectCallback = props.onSelect;
-            _onBack = props.onBack;
-
-            materialListController.setSelectedIndex(props.selectedIndex || 0);
-            _materialListElement.show();
-        },
-        deactivate: () => {
-            _materialListElement.hide();
-        },
-        handleUiButton: handleUiInput
+    function showToast(message) {
+        let toastElement = document.querySelector('.toast');
+        toastElement.querySelector('div').innerHTML = message;
+        toastElement.classList.add('toast-show');
+        setTimeout(function () {
+            toastElement.classList.remove('toast-show');
+        }, 3000);
     }
 
-    function onMaterialSelect(finished) {
-        var selectedElement = _materialListElement.find('li').eq(materialListController.selectedIndex());
-        var value = parseInt(selectedElement.data('value'));
-        if(_onSelectCallback)
-            _onSelectCallback({ name: selectedElement.text(), value: value }, finished);
-
-    }
-
-    function handleUiInput(uiButtonCode) {
-        switch(uiButtonCode) {
-            case 0:
-                onMaterialSelect(true);
-                dew.command('Game.PlaySound 0xb00');
-                _onBack(true);
-                break;
-            case 1:
-                _onBack();
-                dew.command('Game.PlaySound 0xb01');
-                break;
-            case 8:
-            case 9:
-                materialListController.navigate(uiButtonCode == 8 ? -1 : 1);
-                dew.command('Game.PlaySound 0xafe');
-                break;
-        }
-    }
-}
-
-function makeMaterialColorScreen() {
-    var _colorPicker = null;
-    return {
-        title: 'material_color_picker',
-        name: 'material_color_picker',
-        activate: (props) => {
-            _onBack = props.onBack;
-            _colorPicker = props.colorPicker;
-            $('#color-picker').show();
-            _colorPicker.refresh();
-        },
-        deactivate: () => {
-            $('#color-picker').hide();
-        },
-        handleUiButton: function(uiButtonCode) {
-            switch(uiButtonCode) {
-                case 1:
-                    _onBack();
-                    dew.command('Game.PlaySound 0xb01');
-                    break;
-            }
-        },
-        controllerInput: function(e) {
-            _colorPicker.controllerInput(e);
-        }
-    }
-}
-
-function makeLightColorPickerScreen() {
-    var _colorPicker = null;
-    return {
-        title: 'light_color_picker',
-        name: 'light_color_picker',
-        activate: (props) => {
-            _onBack = props.onBack;
-            _colorPicker = props.colorPicker;
-            $('#color-picker').show();
-            _colorPicker.refresh();
-        },
-        deactivate: () => {
-            $('#color-picker').hide();
-        },
-        handleUiButton: function(uiButtonCode) {
-            switch(uiButtonCode) {
-                case 1:
-                    _onBack();
-                    dew.command('Game.PlaySound 0xb01');
-                    break;
-            }
-        },
-        controllerInput: function(e) {
-            _colorPicker.controllerInput(e);
-        }
-    }
-}
+})();

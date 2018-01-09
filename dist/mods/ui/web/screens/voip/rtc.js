@@ -283,7 +283,10 @@ function speak(user, peer) {
         isSpeaking: true
     }
     dew.notify("voip-speaking", speaker);
-
+    
+    if(peer.gainNode.gain.value == 0) //prevent name from showing if they are muted
+        return;
+    
     dew.getSessionInfo().then(function (info) {
         dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
             dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {

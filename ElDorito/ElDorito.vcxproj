@@ -369,6 +369,7 @@
     <ClInclude Include="Source\ThirdParty\rapidjson\stream.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\stringbuffer.h" />
     <ClInclude Include="Source\ThirdParty\rapidjson\writer.h" />
+    <ClInclude Include="Source\ThirdParty\SOP.hpp" />
     <ClInclude Include="Source\Utils\AntiCheat.hpp" />
     <ClInclude Include="Source\Utils\Assert.hpp" />
     <ClInclude Include="Source\Utils\Bits.hpp" />

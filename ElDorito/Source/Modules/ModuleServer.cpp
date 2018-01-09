@@ -23,6 +23,7 @@
 #include "../Patches/Assassination.hpp"
 #include "../Web/Ui/VotingScreen.hpp"
 #include "../Patches/Sprint.hpp"
+#include "../Patches/Tweaks.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
@@ -1060,6 +1061,14 @@ namespace
 		Console::WriteLine(message);
 	}
 
+	bool HitmarkersEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarHitMarkersEnabledClient->ValueInt != 0;
+		Patches::Tweaks::EnableHitmarkers(enabled);
+		return true;
+	}
+
 	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto &serverModule = Modules::ModuleServer::Instance();
@@ -1355,6 +1364,10 @@ namespace Modules
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 0, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
+		VarHitMarkersEnabled = AddVariableInt("HitMarkersEnabled", "hitmarkersenabled", "Controls whether or not hitmarkers are enabled on this server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarHitMarkersEnabledClient = AddVariableInt("HitMarkersEnabledClient", "hitmarkersenabled_client", "", eCommandFlagsInternal, 0, HitmarkersEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarHitMarkersEnabled, VarHitMarkersEnabledClient);
+		
 		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
 		VarServerBottomlessClipEnabledClient = AddVariableInt("BottomlessClipEnabledClient", "bottomlessclip_client", "", eCommandFlagsInternal, 0, BottomlessClipEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerBottomlessClipEnabled, VarServerBottomlessClipEnabledClient);
@@ -1431,11 +1444,11 @@ namespace Modules
 		VarChatCommandVoteTime->ValueIntMin = 1;
 		VarChatCommandVoteTime->ValueIntMax = 200;
 
-		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 4);
+		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how many seconds to wait after a vote passes before calling 'game.start'. ", eCommandFlagsArchived, 4);
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMin = 1;
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMax = 100;
 
-		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsHostOnly, 1);
+		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsArchived, 1);
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
@@ -1481,6 +1494,10 @@ namespace Modules
 		VarVetoSystemSelectionType->ValueIntMax = 1;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
+		VarHttpServerCacheTime = AddVariableInt("Http.CacheTime", "http.cache_time", "Time in seconds the server should cache the http server response", eCommandFlagsArchived, 5);
+		VarHttpServerCacheTime->ValueIntMin = 0;
+		VarHttpServerCacheTime->ValueIntMax = 20;
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);

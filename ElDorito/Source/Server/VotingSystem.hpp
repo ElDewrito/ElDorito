@@ -93,9 +93,10 @@ namespace Server::Voting
 		virtual void Reset() = 0;
 		virtual void StartVoting() = 0;
 		virtual bool isEnabled() = 0;
+		virtual void SendVoteCountsToEveryone() = 0;
 			
-			
-		virtual VotingMessage GenerateVotingOptionsMessage() = 0;
+		virtual bool ShouldSendVotingOptions();
+		virtual VotingMessage GenerateVotingOptionsMessage(bool updateTimeRemaining) = 0;
 		virtual void LogVote(const VotingMessage &message, std::string name) = 0; //TODO abstract VotingMessage out of VotingSystem
 		void GenerateVotingOptionsMessage(int peer);
 		bool ReloadVotingJson(std::string filename);
@@ -124,8 +125,9 @@ namespace Server::Voting
 		virtual void Tick();
 		virtual void Reset();
 		virtual void StartVoting();
-		virtual VotingMessage GenerateVotingOptionsMessage();
+		virtual VotingMessage GenerateVotingOptionsMessage(bool updateTimeRemaining);
 		virtual bool isEnabled();
+		virtual void SendVoteCountsToEveryone();
 			
 			
 		virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
@@ -159,9 +161,10 @@ namespace Server::Voting
 		virtual void Init();
 		virtual void NewVote();
 		virtual void Tick();
+		virtual void SendVoteCountsToEveryone();
 		virtual void Reset();
 		virtual void StartVoting();
-		virtual VotingMessage GenerateVotingOptionsMessage();
+		virtual VotingMessage GenerateVotingOptionsMessage(bool updateTimeRemaining);
 		virtual bool isEnabled();
 		virtual void LogVote(const VotingMessage &message, std::string name); //TODO abstract VotingMessage out of VotingSystem
 		VetoSystem();

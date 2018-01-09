@@ -81,6 +81,8 @@ public:
 
 			jsonWriter.Key("timeRemaining");
 			jsonWriter.Int(message.voteTime);
+			jsonWriter.Key("votesNeededToPass");
+			jsonWriter.Int(message.votesNeededToPass);
 			jsonWriter.Key("vetoOption");
 			jsonWriter.StartObject();
 
@@ -120,7 +122,11 @@ public:
 		{
 			rapidjson::StringBuffer jsonBuffer;
 			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+			jsonWriter.StartObject();
+			jsonWriter.Key("votesNeededToPass");
+			jsonWriter.Int(message.votesNeededToPass);
 
+			jsonWriter.Key("voteCounts");
 			jsonWriter.StartArray();
 			for (int i = 0; i < 5; i++){
 				jsonWriter.StartObject();
@@ -133,6 +139,7 @@ public:
 			}
 
 			jsonWriter.EndArray();
+			jsonWriter.EndObject();
 			Web::Ui::ScreenLayer::Notify("VoteCountsUpdated", jsonBuffer.GetString(), true);
 
 		}

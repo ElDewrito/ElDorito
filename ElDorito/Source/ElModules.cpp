@@ -17,6 +17,7 @@
 #include "Modules/ModuleForge.hpp"
 #include "Modules/ModuleVoIP.hpp"
 #include "Modules/ModuleTweaks.hpp"
+#include <ShlObj.h>
 
 namespace
 {
@@ -77,12 +78,28 @@ namespace
 
 	bool CommandWriteConfig(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		PWSTR localAppdata;
+		SHGetKnownFolderPath(FOLDERID_LocalAppData, NULL, NULL, &localAppdata);
+		auto wide_ed_appdata = std::wstring(localAppdata);
+		auto ed_appdata = Utils::String::ThinString(wide_ed_appdata);
+		ed_appdata += "\\ElDewrito";
+
+		std::string keyFile;
 		std::string prefsName = "dewrito_prefs.cfg";
 		if (ElDorito::Instance().GetInstanceName() != "")
 		{
 			std::stringstream ss;
 			ss << "dewrito_prefs_" << ElDorito::Instance().GetInstanceName() << ".cfg";
 			prefsName = ss.str();
+			std::stringstream keystream;
+			keystream << ed_appdata << "\\keys_" << ElDorito::Instance().GetInstanceName() << ".cfg";
+			keyFile = keystream.str();
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << ed_appdata << "\\keys.cfg";
+			keyFile = ss.str();
 		}
 		if (Arguments.size() > 0)
 			prefsName = Arguments[0];
@@ -96,7 +113,16 @@ namespace
 		outFile << Modules::CommandMap::Instance().SaveVariables();
 		outFile << "\n" << Modules::ModuleInput::Instance().ExportBindings();
 
-		returnInfo = "Wrote config to " + prefsName;
+		std::ofstream outKeys(keyFile, std::ios::trunc);
+		if (outKeys.fail())
+		{
+			returnInfo += "\nFailed to write keys to " + keyFile;
+			return false;
+		}
+		outKeys << Modules::CommandMap::Instance().SaveKeys();
+
+
+		returnInfo = "Wrote config to " + prefsName + "\n" + "Wrote Key File to " + keyFile;
 		return true;
 	}
 }

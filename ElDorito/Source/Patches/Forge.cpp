@@ -111,7 +111,7 @@ namespace
 	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
 	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
-
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -121,8 +121,7 @@ namespace
 	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
 	RealVector3D s_GrabOffset;
 
-	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
-	int s_MonitorMovementSpeedIndex = 3;
+	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f, 4.0f };
 
 
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
@@ -242,6 +241,10 @@ namespace Patches::Forge
 		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
+		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
+
+		// fix ragdolls falling through objects
+		Patch(0x00317269, { 0xD }).Apply();
 	}
 
 	void Tick()
@@ -509,6 +512,7 @@ namespace
 		using namespace Blam::Input;
 
 		static auto Object_SetVelocity = (void(__cdecl *)(uint32_t objectIndex, RealVector3D* a2, RealVector3D *a3))(0x00B34040);
+		static auto& moduleForge = Modules::ModuleForge::Instance();
 
 		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
 		if (!player)
@@ -520,11 +524,13 @@ namespace
 		{
 			movementSpeedAction->Flags |= Blam::Input::eActionStateFlagsHandled;
 
-			s_MonitorMovementSpeedIndex = (s_MonitorMovementSpeedIndex + 1) %
+			auto currentSpeed = moduleForge.VarMonitorSpeed->ValueInt;
+
+			currentSpeed = (currentSpeed + 1) %
 				(sizeof(MONITOR_MOVEMENT_SPEEDS) / sizeof(MONITOR_MOVEMENT_SPEEDS[0]));
 
 			wchar_t buff[256];
-			switch (s_MonitorMovementSpeedIndex)
+			switch (currentSpeed)
 			{
 			case 0:
 				swprintf_s(buff, 256, L"Movement Speed: 0.001 (Z-Fight Fixer)");
@@ -541,7 +547,13 @@ namespace
 			case 4:
 				swprintf_s(buff, 256, L"Movement Speed: Fast");
 				break;
+			case 5:
+				swprintf_s(buff, 256, L"Movement Speed: Faster");
+				break;
 			}
+
+			std::string prev;
+			Modules::CommandMap::Instance().SetVariable(moduleForge.VarMonitorSpeed, std::to_string(currentSpeed), prev);
 
 			RealVector3D v1 = {}, v2 = {};
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
@@ -555,7 +567,7 @@ namespace
 		static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
 
 		static auto& moduleForge = Modules::ModuleForge::Instance();
-		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		const auto currentSnap = moduleForge.VarRotationSnap->ValueInt;
 		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
 
 		if (DatumIndex(playerIndex) != Blam::Players::GetLocalPlayer(0))
@@ -570,7 +582,7 @@ namespace
 
 		HandleRotationReset();
 
-		if (snapAngleDegrees < 1)
+		if (currentSnap < 1)
 		{
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
@@ -838,8 +850,7 @@ namespace
 		{
 			auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& monitorSpeed = *(float*)(a2 + 0x150);
-			monitorSpeed *= moduleForge.VarMonitorSpeed->ValueFloat;
-			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[s_MonitorMovementSpeedIndex];
+			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[moduleForge.VarMonitorSpeed->ValueInt];
 
 			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
 
@@ -1135,6 +1146,11 @@ namespace
 		if (!object)
 			return;
 
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
+
+
 		object->HavokFlags |= 0x200u; // at rest
 		object->HavokFlags &= ~0x100000u;
 
@@ -1160,6 +1176,9 @@ namespace
 
 		auto mpProperties = object->GetMultiplayerProperties();
 		auto oldZoneShape = mpProperties->Shape;
+
+		if(properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
 
 		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
 
@@ -1701,20 +1720,30 @@ namespace
 					auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
 					if (properties)
 					{
-						screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
-						screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
-						screenEffectDef.Saturation = properties->Saturation / 255.0f;
-						screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
-						screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
-						screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
-						screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
-						screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
-						screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
-						screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
-						screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
-						screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
-						screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
-						screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+						Blam::Players::PlayerDatum *player;
+						if ((playerIndex != DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))) &&
+							player->Properties.TeamIndex != props->TeamIndex && props->TeamIndex != 8)
+						{
+							screenEffectDef.MaximumDistance = 0;
+						}
+						else
+						{
+							screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
+							screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
+							screenEffectDef.Saturation = properties->Saturation / 255.0f;
+							screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
+							screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
+							screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
+							screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
+							screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
+							screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
+							screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
+							screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
+							screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
+							screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
+							screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						}
 					}
 				}
 
@@ -1987,5 +2016,18 @@ namespace
 			*(float*)((uint8_t*)thisptr + 0x1E48) = s_CameraFxSettings.LightIntensity;
 		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
 			*(float*)((uint8_t*)thisptr + 0x2A0) = s_CameraFxSettings.BloomIntensity;
+	}
+
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data)
+	{
+		const auto rasterizer_set_pixel_shader_constant = (void(*)(int id, int count, float *data))(0x00A66270);
+		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
+		{
+			data[12] *= s_CameraFxSettings.BloomIntensity;
+			data[13] *= s_CameraFxSettings.BloomIntensity;
+			data[14] *= s_CameraFxSettings.BloomIntensity;
+			data[15] *= s_CameraFxSettings.BloomIntensity;
+		}
+		rasterizer_set_pixel_shader_constant(id, count, data);
 	}
 }

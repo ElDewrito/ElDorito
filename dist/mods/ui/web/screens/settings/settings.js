@@ -64,6 +64,7 @@ var settingsToLoad = [
     ['vNoiseSupress','VoIP.NoiseSupress', 'Noise Suppress', 'Removes background noise from the captured signal.'],
     ['vEchoCancelation','VoIP.EchoCancelation', 'Echo Cancellation', 'Removes echo by subtracting it from the transmitted or received signal.'],
     ['vStereoVoice','VoIP.StereoVoice', 'Allow Stereo Voice', 'Enables Stereo audio from other players.'],
+	['vPTTSound','VoIP.PTTSoundEnabled', 'Enable PTT Noise', 'Play a noise when pressing the push to talk button'],
     ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding', 'Aggressive Audio Discarding', 'Prioritizies gun sounds over others to make audio cutoff less noticeable.'], 
     ['tDisableFog', 'Tweaks.DisableReactorFog', 'Reacthor', 'Removes some of the fog on Reactor which causes FPS drops indoors.'], 
     ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline', 'Weapon Outline Removal', 'Removes outlines from weapons on the ground.'], 
@@ -1190,7 +1191,7 @@ function leftToggle(){
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(document.getElementById(selectedItem).value > document.getElementById(selectedItem).min){
+        if(parseFloat(document.getElementById(selectedItem).value) > document.getElementById(selectedItem).min){
             document.getElementById(selectedItem).stepDown();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
             $('#'+selectedItem).trigger('change');
@@ -1219,7 +1220,7 @@ function rightToggle(){
         } 
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(parseInt(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
+        if(parseFloat(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
             document.getElementById(selectedItem).stepUp();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
             $('#'+selectedItem).trigger('change');

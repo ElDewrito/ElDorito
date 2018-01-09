@@ -107,8 +107,10 @@ namespace Blam::Players
 		DatumIndex DeadSlaveUnit;
 		uint8_t Unknown34[0x38];
 		PlayerProperties Properties;
-		uint8_t Unknown1690[0x1724];
-		int16_t SpawnGrenadeSetting;
+		uint8_t Unknown1690[0x165a];
+		int16_t DepletedStamina;
+		uint8_t Unknown2CEA[0xc6];
+		int16_t SpawnGrenadeSetting; //2db4
 		uint8_t Unknown2DB6[0x152];
 	};
 	static_assert(sizeof(PlayerDatum) == 0x2F08, "Invalid PlayerDatum size");

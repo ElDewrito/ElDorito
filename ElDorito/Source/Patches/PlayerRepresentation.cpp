@@ -41,7 +41,7 @@ namespace
 
 		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const RepresentationData &data) override
 		{
-#ifdef _DEBUG
+		#ifdef _DEBUG
 			// just elite for now...
 			switch (data.RepresentationNameId)
 			{
@@ -52,7 +52,7 @@ namespace
 				properties->PlayerRepresentation = 0; // spartan
 				break;
 			}
-#endif
+		#endif
 			if(Modules::ModulePlayer::ValidServiceTag(data.ServiceTag))
 			{
 				auto wtag = Utils::String::WidenString(data.ServiceTag);

@@ -24,13 +24,61 @@
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
 
 #include "../Modules/ModuleTweaks.hpp"
+#include "../Modules/ModuleServer.hpp"
 
 #include "../Utils/Logger.hpp"
 
 namespace Patches::Tweaks
 {
+	bool tagsloaded = false;
+
+	void EnableHitmarkers(bool enabled)
+	{
+		if (!tagsloaded)
+			return;
+
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::Objects::Biped;
+		using Blam::Tags::UI::ChudDefinition;
+
+		auto matgTags = TagInstance::GetInstancesInGroup('matg');
+		auto *matgDefinition = matgTags[0].GetDefinition<Globals>();
+		auto *bipdDefinition = matgDefinition->PlayerRepresentation[0].ThirdPersonUnit.GetDefinition<Biped>();
+		if (bipdDefinition->Unit.HudInterfaces.Count < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
+			return;
+		}
+
+		auto *chudDefinition = bipdDefinition->Unit.HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
+
+		if (!chudDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\spartan.chud_definition' not found!");
+			return;
+		}
+
+		for (auto &hudWidget : chudDefinition->HudWidgets)
+		{
+			if (hudWidget.NameStringID == 0x2AAD) // hit_marker
+			{
+				if (enabled && Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt != 1) {
+					hudWidget.PlacementData[0].ScaleX = 1.75;
+					hudWidget.PlacementData[0].ScaleY = 1.75;
+				}
+				else {
+					hudWidget.PlacementData[0].ScaleX = 0;
+					hudWidget.PlacementData[0].ScaleY = 0;
+				}
+				
+				break;
+			}
+		}
+	}
 	void ApplyAfterTagsLoaded()
 	{
+		tagsloaded = true;
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::Models::Model;
 		using Blam::Tags::Game::Globals;
@@ -191,17 +239,6 @@ namespace Patches::Tweaks
 			return;
 		}
 
-		auto &transitionEffect = hlmtDefinition->NewDamageInfo[0].DamageSections[1].InstantResponses[0].SecondaryTransitionEffect;
-
-		if (Modules::ModuleTweaks::Instance().VarDisableHeadshotEffect->ValueInt)
-		{
-			transitionEffect.TagIndex = -1;
-		}
-		else if (Modules::ModuleTweaks::Instance().VarGruntBirthdayParty->ValueInt)
-		{
-			transitionEffect.TagIndex = chgdDefinition->BirthdayPartyEffect.TagIndex;
-		}
-
 		if (Modules::ModuleTweaks::Instance().VarReachStyleFrags->ValueInt)
 		{
 			auto fragProjectile = TagInstance::Find('proj', "objects\\weapons\\grenade\\frag_grenade\\frag_grenade");
@@ -217,31 +254,6 @@ namespace Patches::Tweaks
 			}
 		}
 
-		if (Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt)
-		{
-			if (bipdDefinition->Unit.HudInterfaces.Count < 1)
-			{
-				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
-				return;
-			}
-
-			auto *chudDefinition = bipdDefinition->Unit.HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
-
-			if (!chudDefinition)
-			{
-				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\spartan.chud_definition' not found!");
-				return;
-			}
-
-			for (auto &hudWidget : chudDefinition->HudWidgets)
-			{
-				if (hudWidget.NameStringID == 0x2AAD) // hit_marker
-				{
-					hudWidget.PlacementData[0].ScaleX = 0;
-					hudWidget.PlacementData[0].ScaleY = 0;
-					break;
-				}
-			}
-		}
+		EnableHitmarkers(Modules::ModuleServer::Instance().VarHitMarkersEnabledClient->ValueInt != 0);
 	}
 }

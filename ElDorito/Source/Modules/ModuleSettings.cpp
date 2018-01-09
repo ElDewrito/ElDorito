@@ -2,6 +2,7 @@
 #include "../Patches/Audio.hpp"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include "../Patches/Ui.hpp"
 
 namespace
 {
@@ -376,7 +377,16 @@ namespace
 
 		auto intValue = value == "default" ? 0 : value == "blue" ? 1 : 2;
 
-		SSL_SetTeamColor(intValue);
+		if (intValue == 1)
+		{
+			Patches::Ui::enableAllyBlueWaypointsFix = true;
+			SSL_SetTeamColor(0);
+		}
+		else
+		{ 
+			Patches::Ui::enableAllyBlueWaypointsFix = false;
+			SSL_SetTeamColor(intValue);
+		}
 
 		std::stringstream ss;
 		ss << "Player Marker Colors set to " << value << ".";

@@ -208,7 +208,7 @@ dew.on("VotingOptionsUpdated", function(event) {
 });
 
 dew.on("VoteCountsUpdated", function(event) {
-    event.data.forEach(function(entry, i) {
+    event.data.voteCounts.forEach(function(entry, i) {
         if (entry.Count == 0)
             $("#voteTally" + entry.OptionIndex).text("");
         else

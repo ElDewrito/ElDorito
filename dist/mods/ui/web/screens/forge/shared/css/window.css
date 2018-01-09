@@ -1,0 +1,121 @@
+.window {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 420px;
+    border-radius: 4px;
+    background-image: -webkit-linear-gradient(-90deg, rgba(27, 41, 70, 0.95) 0%, rgba(24, 39, 69, 0.9) 20%, rgba(24, 39, 69, 0.9) 20%, rgba(6, 16, 37, 0.9) 100%);
+    box-shadow: 10px 11px 48px 0 rgba(0, 0, 0, 0.19);
+}
+
+.window-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.window-header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 10px;
+    height: var(--header-height);
+    background: var(--header-footer-background);
+}
+
+.window-header:before {
+    content: '';
+    position: absolute;
+    bottom: 1px;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.window-title {
+    text-transform: uppercase;
+    font-size: 1.4em;
+}
+
+.window-subtitle {
+    font-size: 1em;
+    color: rgba(200, 200, 200, 0.5);
+    margin-top: 5px;
+    text-transform: uppercase;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
+.window-footer {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: var(--footer-height);
+    padding: 0 10px;
+    background: var(--header-footer-background);
+}
+
+.window-footer:before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent);
+    z-index: 1;
+}
+
+.window-info-box {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.2);
+    height: 60px;
+    padding: 10px 10px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: #77879a;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+}
+
+.window-info-box:before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background-image: radial-gradient(circle, rgba(200, 200, 200, 0.3), transparent);
+    box-shadow: 0 6px 75px 4px rgba(0, 0, 0, 0.5);
+}
+
+.legend {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.legend .legend-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.legend .legend-item img {
+    height: 26px;
+    margin-right: 4px;
+}
+
+.legend .legend-item a:hover {
+    text-decoration: underline;
+}

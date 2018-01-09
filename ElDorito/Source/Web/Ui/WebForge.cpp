@@ -45,6 +45,7 @@ namespace
 		General_Material_ColorG,
 		General_Material_ColorB,
 		General_Physics,
+		General_EngineFlags,
 
 		Budget_Minimum,
 		Budget_Maximum,
@@ -177,6 +178,9 @@ namespace
 				break;
 			case PropertyTarget::General_Physics:
 				SetPhysics(value.ValueInt);
+				break;
+			case PropertyTarget::General_EngineFlags:
+				m_Properties.EngineFlags = value.ValueInt;
 				break;
 			case PropertyTarget::Budget_Minimum:
 				SetBudgetMinimum(value.ValueInt);
@@ -477,11 +481,12 @@ namespace
 
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) 
-	{ 
-        if(!std::isnan(value) && !std::isinf(value))
-        {
-            writer.Key(key); writer.Double(value);
-        }
+	{
+		if (!std::isnan(value) && !std::isinf(value))
+		{
+			writer.Key(key);
+			writer.Double(value);
+		}
 	};
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
@@ -739,6 +744,7 @@ namespace
 		SerializeProperty(writer, "spawn_order", properties.SharedStorage);
 		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
 		SerializeProperty(writer, "team_affiliation", properties.TeamAffilation);
+		SerializeProperty(writer, "engine_flags", properties.EngineFlags);
 		SerializeProperty(writer, "teleporter_channel", properties.SharedStorage);
 		SerializeProperty(writer, "shape_type", properties.ZoneShape);
 		SerializeProperty(writer, "shape_radius", properties.ZoneRadiusWidth);
@@ -813,6 +819,7 @@ namespace
 			{ "spare_clips",{ PropertyDataType::Int, PropertyTarget::General_SpareClips } },
 			{ "spawn_order",{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder } },
 			{ "team_affiliation",{ PropertyDataType::Int, PropertyTarget::General_Team } },
+			{ "engine_flags", {PropertyDataType::Int, PropertyTarget::General_EngineFlags } },
 			{ "physics",{ PropertyDataType::Int, PropertyTarget::General_Physics } },
 			{ "appearance_material",{ PropertyDataType::Int, PropertyTarget::General_Material } },
 			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },

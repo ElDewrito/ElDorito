@@ -30,17 +30,9 @@ namespace Modules
 		VarDisableWeaponOutline->ValueIntMin = 0;
 		VarDisableWeaponOutline->ValueIntMax = 1;
 
-		VarDisableHeadshotEffect = AddVariableInt("DisableHeadshotEffect", "disableheadshoteffect", "Disables the *ping* effect and sound on headshots.", eCommandFlagsArchived, 0);
-		VarDisableHeadshotEffect->ValueIntMin = 0;
-		VarDisableHeadshotEffect->ValueIntMax = 1;
-
 		VarDisableHitMarkers = AddVariableInt("DisableHitMarkers", "disablehitmarkers", "Disables weapon hitmarkers.", eCommandFlagsArchived, 0);
 		VarDisableHitMarkers->ValueIntMin = 0;
 		VarDisableHitMarkers->ValueIntMax = 1;
-
-		VarGruntBirthdayParty = AddVariableInt("GruntBirthdayParty", "gruntbirthdayparty", "Hooray! Tweaks.DisableHeadshotEffect will disable this.", eCommandFlagsArchived, 0);
-		VarGruntBirthdayParty->ValueIntMin = 0;
-		VarGruntBirthdayParty->ValueIntMax = 1;
 
 		VarReachStyleFrags = AddVariableInt("ReachStyleFrags", "reachstylefrags", "Adds a Halo: Reach style trail effect to frag grenades.", eCommandFlagsArchived, 0);
 		VarReachStyleFrags->ValueIntMin = 0;

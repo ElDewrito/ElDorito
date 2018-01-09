@@ -1245,6 +1245,9 @@
     <ClInclude Include="Source\ThirdParty\rapidjson\internal\swap.h">
       <Filter>ThirdParty\rapidjson\internal</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ThirdParty\SOP.hpp">
+      <Filter>ThirdParty</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />
