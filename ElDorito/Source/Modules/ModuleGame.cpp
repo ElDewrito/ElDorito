@@ -792,13 +792,13 @@ namespace
 			returnInfo = "Usage: Game.ShowScreen <screen name> <opt json>";
 			return false;
 		}
-		if (arguments[0].find(" ") == std::string::npos)
+		if (arguments[0].find(' ') == std::string::npos)
 		{
 			Web::Ui::ScreenLayer::Show(arguments[0], "{}");
 			return true;
 		}
 
-		int pos = arguments[0].find(" ") + 1;
+		int pos = arguments[0].find(' ') + 1;
 		std::string jsonArg = arguments[0].substr(pos);
 		rapidjson::Document doc;
 		doc.Parse(jsonArg.c_str());

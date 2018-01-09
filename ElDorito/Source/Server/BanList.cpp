@@ -57,7 +57,7 @@ namespace Server
 
 			// Remove any comment in the line
 			auto commentStart = line.find('#');
-			if (commentStart >= 0)
+			if (commentStart != std::string::npos)
 				line = line.substr(0, commentStart);
 
 			// Trim whitespace and split the line

@@ -14,7 +14,7 @@ namespace
 	bool VariableSaturationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto saturation = Modules::ModuleGraphics::Instance().VarSaturation->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::SaturationIndex).Write(saturation);
 
@@ -28,7 +28,7 @@ namespace
 	bool VariableRedHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto redHue = Modules::ModuleGraphics::Instance().VarRedHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 0).Write(redHue);
 
@@ -42,7 +42,7 @@ namespace
 	bool VariableGreenHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto greenHue = Modules::ModuleGraphics::Instance().VarGreenHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 1).Write(greenHue);
 
@@ -56,7 +56,7 @@ namespace
 	bool VariableBlueHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto blueHue = Modules::ModuleGraphics::Instance().VarBlueHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 2).Write(blueHue);
 
@@ -71,7 +71,7 @@ namespace
 	{
 		auto bloom = Modules::ModuleGraphics::Instance().VarBloom->ValueFloat;
 
-		Pointer &atmoFogGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0];
+		Pointer atmoFogGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0]);
 		atmoFogGlobalsPtr(GameGlobals::Bloom::EnableIndex).Write(1L);
 		atmoFogGlobalsPtr(GameGlobals::Bloom::IntensityIndex).Write(bloom);
 
@@ -86,7 +86,7 @@ namespace
 	{
 		auto dof = Modules::ModuleGraphics::Instance().VarDepthOfField->ValueFloat;
 
-		Pointer &dofGlobals = ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0];
+		Pointer dofGlobals(ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0]);
 		dofGlobals(GameGlobals::DepthOfField::EnableIndex).Write(true);
 		dofGlobals(GameGlobals::DepthOfField::IntensityIndex).Write(dof);
 
@@ -101,7 +101,7 @@ namespace
 	{
 		auto enabled = Modules::ModuleGraphics::Instance().VarLetterbox->ValueInt;
 
-		Pointer &cinematicGlobals = ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0];
+		Pointer cinematicGlobals(ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0]);
 		cinematicGlobals(GameGlobals::Cinematic::LetterboxIndex).Write(enabled);
 
 		std::stringstream ss;

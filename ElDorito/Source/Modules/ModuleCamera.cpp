@@ -199,7 +199,7 @@ namespace
 	//}
 
 	bool VariableCameraPositionUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo) {
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 
 		if (Arguments.size() < 3) {
 			std::stringstream ss;
@@ -240,10 +240,10 @@ namespace
 		Modules::ModuleCamera::Instance().StaticKLookVectorPatch.Apply(mode != "static");
 
 		// disable player movement while in flycam
-		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
+		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
 		playerControlGlobalsPtr(GameGlobals::Input::DisablePlayerInputIndex).Write(mode == "flying");
 
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 
 		// get new camera perspective function offset
 		size_t offset = 0x166ACB0;
@@ -311,7 +311,7 @@ namespace
 		*/
 
 		// update camera perspective function
-		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 		size_t oldOffset = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
 		directorPtr(GameGlobals::Director::CameraFunctionIndex).Write(offset);
 
@@ -404,8 +404,8 @@ namespace Modules
 		if (mode.compare("flying"))
 			return;
 
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
-		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
+		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
 
 		float moveDelta = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;
 		float lookDelta = 0.01f;	// not used yet
