@@ -147,6 +147,18 @@ namespace Modules
 			}
 		}
 
+		if (cmd->Flags & eCommandFlagsForge)
+		{
+			const auto game_options_is_valid = (bool(*)())(0x005314B0);
+			const auto game_engine_is_forge = (bool(*)())(0x0059A780);
+
+			if (!game_options_is_valid() || !game_engine_is_forge())
+			{
+				*output = "This command can only be run in forge";
+				return false;
+			}
+		}
+
 		std::vector<std::string> argsVect;
 		if (numArgs > 1)
 			for (int i = 1; i < numArgs; i++)

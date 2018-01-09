@@ -19,6 +19,21 @@ namespace Modules
 		Command* VarMagnetsStrength;
 		Command* VarShowInvisibles;
 
+		struct 
+		{
+			bool MapCanvas;
+			bool SetPrematchCamera;
+			uint32_t SpawnItem;
+			struct
+			{
+				bool SavePrefab;
+				bool LoadPrefab;
+				std::string Path;
+				std::string Name;
+			} Prefabs;
+
+		} CommandState = { 0 };
+
 		ModuleForge();
 	};
 }

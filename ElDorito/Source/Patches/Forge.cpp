@@ -116,17 +116,12 @@ namespace
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
-	void HandleSpawnItem();
-
-	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
+	void HandleCommands();
+	
+	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 	RealVector3D s_GrabOffset;
 
 	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f, 4.0f };
-
-
-	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
-	uint32_t s_SpawnItemTagIndex = -1;
-	uint32_t s_SpawnItemPlayerIndex = -1;
 
 	struct SandboxPaletteItem
 	{
@@ -252,38 +247,9 @@ namespace Patches::Forge
 		UpdateMapModifier();
 	}
 
-	bool SavePrefab(const std::string& name, const std::string& path)
-	{
-		return ::Forge::Prefabs::Save(name, path);
-	}
-
-	bool LoadPrefab(const std::string& path)
-	{
-		s_SandboxTickCommandQueue.push([=]()
-		{
-			::Forge::Prefabs::Load(path);
-			GrabSelection(Blam::Players::GetLocalPlayer(0));
-		});
-
-		return true;
-	}
-
-	void SpawnItem(uint32_t tagIndex)
-	{
-		s_SpawnItemTagIndex = tagIndex;
-	}
-
 	void OnItemSpawned(ItemSpawnedCallback callback)
 	{
 		s_ItemSpawnedCallbacks.push_back(callback);
-	}
-
-	void SetPrematchCamera()
-	{
-		s_SandboxTickCommandQueue.push([=]()
-		{
-			PrematchCamera::PlaceCameraObject();
-		});
 	}
 }
 
@@ -304,7 +270,6 @@ namespace
 		SandboxEngineShutdown();
 
 		Forge::Magnets::Shutdown();
-
 		Forge::Selection::Clear();
 		Forge::SelectionRenderer::SetEnabled(false);
 	}
@@ -317,13 +282,6 @@ namespace
 		Forge::SelectionRenderer::Update();
 		Forge::Magnets::Update();
 
-		while (!s_SandboxTickCommandQueue.empty())
-		{
-			auto cmd = s_SandboxTickCommandQueue.front();
-			cmd();
-			s_SandboxTickCommandQueue.pop();
-		}
-
 		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
 		if (activeScreenCount > 0)
 			return;
@@ -332,7 +290,7 @@ namespace
 		if (playerIndex == DatumIndex::Null)
 			return;
 
-		HandleSpawnItem();
+		HandleCommands();
 
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 
@@ -457,20 +415,100 @@ namespace
 		return GetStructureDesign(index);
 	}
 
-	void HandleSpawnItem()
+	void CanvasMap()
 	{
-		if (s_SpawnItemTagIndex == -1)
+		const auto c_map_variant_placement__ctor = (void(__thiscall*)(Blam::MapVariant::VariantPlacement *thisptr))(0x004AC1D0);
+
+		auto mapv = GetMapVariant();
+		if (!mapv)
+			return;
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+		for (auto i = 0; i < 640; i++)
+		{
+			auto& placement = mapv->Placements[i];
+			if (!placement.InUse())
+				continue;
+
+			auto& budget = mapv->Budget[placement.BudgetIndex];
+			if (budget.TagIndex == -1 || budget.Cost == -1)
+				continue;
+
+			if (placement.ObjectIndex != -1)
+				DeleteObject(playerIndex.Index(), i);
+			else
+			{
+				if (i < mapv->ScnrPlacementsCount)
+					placement.PlacementFlags |= 0x20u;
+				else
+				{
+					memset(&placement, 0, sizeof(placement));
+					c_map_variant_placement__ctor(&placement);
+				}
+
+				if (--budget.CountOnMap == 0)
+				{
+					budget.TagIndex = -1;
+					budget.Cost = -1;
+					budget.CountOnMap = 0;
+					budget.DesignTimeMax = -1;
+					budget.RuntimeMin = -1;
+					budget.RuntimeMax = -1;
+				}
+			}
+		}
+	}
+
+	void HandlePrefabCommands()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.Prefabs.LoadPrefab)
+		{
+			if (Prefabs::Load(moduleForge.CommandState.Prefabs.Path))
+			{
+				GrabSelection(Blam::Players::GetLocalPlayer(0));
+			}
+			else
+			{
+				PrintKillFeedText(0, L"ERROR: Failed to load prefab.", 0);
+			}
+
+			moduleForge.CommandState.Prefabs.LoadPrefab = false;
+		}
+
+		if (moduleForge.CommandState.Prefabs.SavePrefab)
+		{
+			if (!Prefabs::Save(moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
+			{
+				PrintKillFeedText(0, L"ERROR: Failed to save prefab.", 0);
+			}
+			moduleForge.CommandState.Prefabs.SavePrefab = false;
+		}
+	}
+
+	void HandleMapCanvas()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.MapCanvas)
+		{
+			CanvasMap();
+			moduleForge.CommandState.MapCanvas = false;
+		}
+	}
+
+	void SpawnItem(int tagIndex)
+	{
+		if (tagIndex == -1)
 			return;
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
 		if (playerIndex == DatumIndex::Null || !GetEditorModeState(playerIndex, nullptr, nullptr))
 			return;
 
-		Blam::Tags::TagInstance instance(s_SpawnItemTagIndex);
+		Blam::Tags::TagInstance instance(tagIndex);
 		auto def = instance.GetDefinition<void>();
 		auto groupTag = def ? instance.GetGroupTag() : 0;
-
-		s_SpawnItemTagIndex = -1;
 
 		if (!def || !(groupTag == 'weap' || groupTag == 'vehi' || groupTag == 'eqip'
 			|| groupTag == 'scen' || groupTag == 'bloc' || groupTag == 'crea'
@@ -479,7 +517,7 @@ namespace
 			|| groupTag == 'ssce'))
 		{
 			wchar_t buff[256];
-			swprintf_s(buff, L"Tag not loaded or not a valid forge object [0x%X4]", instance.Index);
+			swprintf_s(buff, L"Tag not loaded or not a valid forge object [0x%04x]", instance.Index);
 			PrintKillFeedText(0, buff, 0);
 			return;
 		}
@@ -492,6 +530,35 @@ namespace
 
 		static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
 		Forge_SendMessage(&msg);
+	}
+
+	void HandleSetPrematchCamera()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.SetPrematchCamera)
+		{
+			::PrematchCamera::PlaceCameraObject();
+			moduleForge.CommandState.SetPrematchCamera = false;
+		}
+	}
+
+	void HandleSpawnItem()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		auto &itemTagIndex = moduleForge.CommandState.SpawnItem;
+		if (itemTagIndex != -1)
+		{
+			SpawnItem(itemTagIndex);
+			itemTagIndex = -1;
+		}
+	}
+	
+	void HandleCommands()
+	{
+		HandleMapCanvas();
+		HandleSpawnItem();
+		HandleSetPrematchCamera();
+		HandlePrefabCommands();
 	}
 
 	void HandleRotationReset()
@@ -1452,7 +1519,7 @@ namespace
 
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
 	{
-		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4,
+		const auto sub_715E90 = (char(__cdecl *)(float a1, float boundingRadius, int a3, int a4,
 			int a5, const RealVector3D *a6, int a7, int a8, RealVector3D *newPosition, char a10))(0x715E90);
 
 		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>();
@@ -1663,7 +1730,7 @@ namespace
 	{
 		const auto sub_683190 = (void(*)(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *data, int a4, int a5))(0x683190);
 		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
-		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, int a3, float a4, int a5, void * a6))(0x682A90);
+		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, float a3, float a4, int a5, void * a6))(0x682A90);
 		const auto sub_A44FD0 = (bool(*)(int localPlayerIndex, uint32_t objectIndex))(0xA44FD0);
 		const auto sub_4EEC40 = (float(*)(RealVector3D *position, RealVector3D *forward))(0x4EEC40);
 		const auto sub_5F0C20 = (void(__thiscall *)(void *thisptr))(0x005F0C20);
@@ -1733,7 +1800,7 @@ namespace
 							screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
 							screenEffectDef.Saturation = properties->Saturation / 255.0f;
 							screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
-							screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
+							screenEffectDef.PrimaryHue = uint32_t(properties->Hue / 255.0f * 360);
 							screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
 							screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
 							screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;

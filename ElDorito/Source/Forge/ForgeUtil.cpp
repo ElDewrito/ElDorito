@@ -166,49 +166,4 @@ namespace Forge
 
 		return RealVector3D(0, 0, 0);
 	}
-
-	void CanvasMap()
-	{
-		const auto c_map_variant_placement__ctor = (void(__thiscall*)(Blam::MapVariant::VariantPlacement *thisptr))(0x004AC1D0);
-
-		auto mapv = GetMapVariant();
-		if (!mapv)
-			return;
-
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-
-		for (auto i = 0; i < 640; i++)
-		{
-			auto& placement = mapv->Placements[i];
-			if (!placement.InUse())
-				continue;
-
-			auto& budget = mapv->Budget[placement.BudgetIndex];
-			if (budget.TagIndex == -1 || budget.Cost == -1)
-				continue;
-
-			if(placement.ObjectIndex != -1)
-				DeleteObject(playerIndex.Index(), i);
-			else
-			{
-				if (i < mapv->ScnrPlacementsCount)
-					placement.PlacementFlags |= 0x20u;
-				else
-				{
-					memset(&placement, 0, sizeof(placement));
-					c_map_variant_placement__ctor(&placement);
-				}
-
-				if (--budget.CountOnMap == 0)
-				{
-					budget.TagIndex = -1;
-					budget.Cost = -1;
-					budget.CountOnMap = 0;
-					budget.DesignTimeMax = -1;
-					budget.RuntimeMin = -1;
-					budget.RuntimeMax = -1;
-				}
-			}
-		}
-	}
 }
