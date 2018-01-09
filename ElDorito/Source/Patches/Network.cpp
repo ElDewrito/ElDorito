@@ -480,6 +480,31 @@ namespace Patches::Network
 		*(uint8_t*)0x0244F970 = 1; // g_IsDedicatedServer
 		*(uint8_t*)0x0244F971 = 1; // g_SoundDisabled
 
+		// dedicated server server optimization
+		Patch(0x1075A0, { 0xC3 }).Apply(); // main_render_thread_proc
+		Patch(0x24E190, { 0xC3 }).Apply(); // disable sound halo system/fmod (prevents output thread from being created up)
+		Patch(0x112690, { 0xC3 }).Apply(); // xinput, mouse, keyboard
+		Patch(0x20D880, { 0xC3 }).Apply(); // input bindings handler
+		Patch(0x215BA0, { 0xC3 }).Apply(); // controller feedback
+		Patch(0x726710, { 0xC3 }).Apply(); // saber
+		Patch(0x2173A0, { 0xC3 }).Apply(); // bink
+		Patch(0x68AAE0, { 0xC3 }).Apply(); // chud state
+		Patch(0x1D4990, { 0xC3 }).Apply(); // local input    
+		Patch(0x219770, { 0xC3 }).Apply(); // fileshare ui
+		Patch(0x219C00, { 0xC3 }).Apply(); // spartan rank/milestone ui
+		Patch(0x151780, { 0xC3 }).Apply(); // betrayal boot ui
+		Patch::NopFill(Pointer::Base(0x00684F3F), 5); // ui input
+		Patch::NopFill(Pointer::Base(0x00684F44), 5); // display adapter preferences
+		Patch::NopFill(Pointer::Base(0x00684F49), 5); // null_sub
+		Patch::NopFill(Pointer::Base(0x00684F4E), 5); // scoreboard ui
+		Patch(0x0067FE50, { 0xC3 }).Apply(); // campaign ui
+		Patch(0x1926C0, { 0xC3 }).Apply(); // director update
+		Patch(0x213A60, { 0xC3 }).Apply(); // observer update
+		Patch(0x69EDF0, { 0xC3 }).Apply(); // fp weapon transform
+		// bitmap resource allocation
+		Patch(0x5DFBC0, { 0xC3 }).Apply();
+		Patch(0x5DFAF0, { 0xC3 }).Apply();
+
 	}
 
 	bool StartInfoServer()
