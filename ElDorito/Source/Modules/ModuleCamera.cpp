@@ -119,17 +119,8 @@ namespace
 
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
-
-		std::string status = "disabled.";
-		bool statusBool = value != 0;
-		if (statusBool)
-			status = "enabled.";
-
-		Modules::ModuleCamera::Instance().CenteredCrosshairFirstPersonPatch.Apply(!statusBool);
-		Modules::ModuleCamera::Instance().CenteredCrosshairThirdPersonPatch.Apply(!statusBool);
-
-		returnInfo = "Centered crosshair " + status;
+		Modules::ModuleCamera::Instance().CenteredCrosshairFirstPersonPatch.Apply(!Modules::ModuleCamera::Instance().VarCameraCenteredCrosshairFirst->ValueInt);
+		Modules::ModuleCamera::Instance().CenteredCrosshairThirdPersonPatch.Apply(!Modules::ModuleCamera::Instance().VarCameraCenteredCrosshairThird->ValueInt);
 		return true;
 	}
 
@@ -370,9 +361,13 @@ namespace Modules
 	{
 		// TODO: commands for setting camera speed, positions, save/restore etc.
 
-		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
-		VarCameraCrosshair->ValueIntMin = 0;
-		VarCameraCrosshair->ValueIntMax = 1;
+		VarCameraCenteredCrosshairFirst = AddVariableInt("CenteredCrosshairFirst", "crosshair_first", "Controls whether the crosshair should be centered in first person", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
+		VarCameraCenteredCrosshairFirst->ValueIntMin = 0;
+		VarCameraCenteredCrosshairFirst->ValueIntMax = 1;
+
+		VarCameraCenteredCrosshairThird = AddVariableInt("CenteredCrosshairThird", "crosshair_third", "Controls whether the crosshair should be centered in first person", eCommandFlagsArchived, 1, VariableCameraCrosshairUpdate);
+		VarCameraCenteredCrosshairThird->ValueIntMin = 0;
+		VarCameraCenteredCrosshairThird->ValueIntMax = 1;
 
 		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
 		VarCameraFov->ValueFloatMin = 55.f;
