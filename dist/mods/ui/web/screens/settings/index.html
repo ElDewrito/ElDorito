@@ -29,11 +29,15 @@
                     <h3 class="subHeader">HUD</h3>
                 </span>
 								
-								<span>
-                    <label for="cCenteredCrosshair">Centered Crosshair</label>
-                    <input class="setting" type="checkbox" id="cCenteredCrosshair">
+                <span>
+                    <label for="cCenteredCrosshairFirst">Centered Crosshair (First Person)</label>
+                    <input class="setting" type="checkbox" id="cCenteredCrosshairFirst">
                 </span>
-								<span>
+                <span>
+                    <label for="cCenteredCrosshairThird">Centered Crosshair (Third Person)</label>
+                    <input class="setting" type="checkbox" id="cCenteredCrosshairThird">
+                </span>
+                <span>
                     <label for="wOffsetConfig">Viewmodel Config</label>
                     <select id="wOffsetConfig" class="setting wheelable"></select>
                 </span>
@@ -250,6 +254,10 @@
 								<span>
                     <label for="sVsync">Fix FPS Stutter</label>
                     <input class="setting" type="checkbox" id="sVsync">
+                </span>
+                <span>
+                    <label for="tIntelBloomPatch">Bloom (Brightness) Patch</label>
+                    <input class="setting" type="checkbox" id="tIntelBloomPatch">
                 </span>
             </div>
             <div id="backgroundFill"></div>						
