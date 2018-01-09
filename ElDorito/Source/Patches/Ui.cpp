@@ -282,6 +282,9 @@ namespace Patches::Ui
 		//Show the talking player's name on the HUD
 		Hook(0x6CA978, chud_talking_player_name_hook, HookFlags::IsCall).Apply();
 
+		//Fixes monitor crosshair position.
+		Patch(0x25F9D5, { 0x4c }).Apply();
+
 		//Fix map images in lobby.
 		Pointer(0x016A6240).Write(uint32_t(&c_gui_bitmap_widget_update_render_data_hook));
 
