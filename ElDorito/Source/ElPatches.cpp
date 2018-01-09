@@ -24,6 +24,7 @@
 #include "Patches\PlayerRepresentation.hpp"
 #include "Patches\Hf2pExperimental.hpp"
 #include "Patches\Weapon.hpp"
+#include "Patches\BottomlessClip.hpp"
 #include "Patches\Spectate.hpp"
 #include "Patches\Tweaks.hpp"
 #include "Patches\DirectXHook.hpp"
@@ -65,6 +66,7 @@ namespace Patches
 		LoadingScreen::ApplyAll();
 		Equipment::ApplyAll();
 		Weapon::ApplyAll();
+		Patches::BottomlessClip::ApplyAll();
 		Spectate::ApplyAll();
 		Medals::ApplyAll();
 		Simulation::ApplyAll();
