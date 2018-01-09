@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ef0bd5a95e3c494b7b80f9be249017ec1b27db9d$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_TRACE_CAPI_H_
@@ -46,6 +44,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Implement this structure to receive notification when tracing has completed.
@@ -63,10 +62,11 @@ typedef struct _cef_end_tracing_callback_t {
   // the path at which tracing data was written. The client is responsible for
   // deleting |tracing_file|.
   ///
-  void(CEF_CALLBACK* on_end_tracing_complete)(
+  void (CEF_CALLBACK *on_end_tracing_complete)(
       struct _cef_end_tracing_callback_t* self,
       const cef_string_t* tracing_file);
 } cef_end_tracing_callback_t;
+
 
 ///
 // Start tracing events on all processes. Tracing is initialized asynchronously
@@ -86,7 +86,7 @@ typedef struct _cef_end_tracing_callback_t {
 // This function must be called on the browser process UI thread.
 ///
 CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
-                                 struct _cef_completion_callback_t* callback);
+    struct _cef_completion_callback_t* callback);
 
 ///
 // Stop tracing events on all processes.
@@ -102,7 +102,7 @@ CEF_EXPORT int cef_begin_tracing(const cef_string_t* categories,
 // This function must be called on the browser process UI thread.
 ///
 CEF_EXPORT int cef_end_tracing(const cef_string_t* tracing_file,
-                               cef_end_tracing_callback_t* callback);
+    cef_end_tracing_callback_t* callback);
 
 ///
 // Returns the current system trace time or, if none is defined, the current

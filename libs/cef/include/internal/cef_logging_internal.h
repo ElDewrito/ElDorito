@@ -31,8 +31,6 @@
 #define CEF_INCLUDE_INTERNAL_CEF_LOGGING_INTERNAL_H_
 #pragma once
 
-#include <stddef.h>
-
 #include "include/internal/cef_export.h"
 
 #ifdef __cplusplus

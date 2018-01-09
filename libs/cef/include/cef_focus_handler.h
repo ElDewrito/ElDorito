@@ -59,7 +59,8 @@ class CefFocusHandler : public virtual CefBaseRefCounted {
   // if the browser is giving focus to the previous component.
   ///
   /*--cef()--*/
-  virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next) {}
+  virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser,
+                           bool next) {}
 
   ///
   // Called when the browser component is requesting focus. |source| indicates
@@ -67,9 +68,8 @@ class CefFocusHandler : public virtual CefBaseRefCounted {
   // focus to be set or true to cancel setting the focus.
   ///
   /*--cef()--*/
-  virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source) {
-    return false;
-  }
+  virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
+                          FocusSource source) { return false; }
 
   ///
   // Called when the browser component has received focus.

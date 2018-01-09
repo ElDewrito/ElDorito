@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=535e4054d3df18b1bd18fd44dc00eb3a9cbc0ab1$
-//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_DELEGATE_CAPI_H_
@@ -67,7 +65,7 @@ typedef struct _cef_browser_view_delegate_t {
   // is called for |browser| and before on_popup_browser_view_created() is
   // called for |browser|'s parent delegate if |browser| is a popup.
   ///
-  void(CEF_CALLBACK* on_browser_created)(
+  void (CEF_CALLBACK *on_browser_created)(
       struct _cef_browser_view_delegate_t* self,
       struct _cef_browser_view_t* browser_view,
       struct _cef_browser_t* browser);
@@ -78,7 +76,7 @@ typedef struct _cef_browser_view_delegate_t {
   // |browser| after this callback returns. This function will be called before
   // cef_life_span_handler_t::on_before_close() is called for |browser|.
   ///
-  void(CEF_CALLBACK* on_browser_destroyed)(
+  void (CEF_CALLBACK *on_browser_destroyed)(
       struct _cef_browser_view_delegate_t* self,
       struct _cef_browser_view_t* browser_view,
       struct _cef_browser_t* browser);
@@ -90,13 +88,12 @@ typedef struct _cef_browser_view_delegate_t {
   // if the popup will be a DevTools browser. Return the delegate that will be
   // used for the new popup BrowserView.
   ///
-  struct _cef_browser_view_delegate_t*(
-      CEF_CALLBACK* get_delegate_for_popup_browser_view)(
+  struct _cef_browser_view_delegate_t* (
+      CEF_CALLBACK *get_delegate_for_popup_browser_view)(
       struct _cef_browser_view_delegate_t* self,
       struct _cef_browser_view_t* browser_view,
       const struct _cef_browser_settings_t* settings,
-      struct _cef_client_t* client,
-      int is_devtools);
+      struct _cef_client_t* client, int is_devtools);
 
   ///
   // Called after |popup_browser_view| is created. This function will be called
@@ -107,12 +104,12 @@ typedef struct _cef_browser_view_delegate_t {
   // yourself and return true (1). Otherwise return false (0) and a default
   // cef_window_t will be created for the popup.
   ///
-  int(CEF_CALLBACK* on_popup_browser_view_created)(
+  int (CEF_CALLBACK *on_popup_browser_view_created)(
       struct _cef_browser_view_delegate_t* self,
       struct _cef_browser_view_t* browser_view,
-      struct _cef_browser_view_t* popup_browser_view,
-      int is_devtools);
+      struct _cef_browser_view_t* popup_browser_view, int is_devtools);
 } cef_browser_view_delegate_t;
+
 
 #ifdef __cplusplus
 }

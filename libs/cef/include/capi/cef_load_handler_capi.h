@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=94b07e1d76b57fbd125f0cc8d78298ff119f1822$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_LOAD_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_LOAD_HANDLER_CAPI_H_
@@ -47,6 +45,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Implement this structure to handle events related to browser load status. The
@@ -66,11 +65,9 @@ typedef struct _cef_load_handler_t {
   // of failure. It will be called before any calls to OnLoadStart and after all
   // calls to OnLoadError and/or OnLoadEnd.
   ///
-  void(CEF_CALLBACK* on_loading_state_change)(struct _cef_load_handler_t* self,
-                                              struct _cef_browser_t* browser,
-                                              int isLoading,
-                                              int canGoBack,
-                                              int canGoForward);
+  void (CEF_CALLBACK *on_loading_state_change)(struct _cef_load_handler_t* self,
+      struct _cef_browser_t* browser, int isLoading, int canGoBack,
+      int canGoForward);
 
   ///
   // Called after a navigation has been committed and before the browser begins
@@ -84,10 +81,9 @@ typedef struct _cef_load_handler_t {
   // navigations that fail or are canceled before commit. For notification of
   // overall browser load status use OnLoadingStateChange instead.
   ///
-  void(CEF_CALLBACK* on_load_start)(struct _cef_load_handler_t* self,
-                                    struct _cef_browser_t* browser,
-                                    struct _cef_frame_t* frame,
-                                    cef_transition_type_t transition_type);
+  void (CEF_CALLBACK *on_load_start)(struct _cef_load_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      cef_transition_type_t transition_type);
 
   ///
   // Called when the browser is done loading a frame. The |frame| value will
@@ -99,10 +95,9 @@ typedef struct _cef_load_handler_t {
   // For notification of overall browser load status use OnLoadingStateChange
   // instead.
   ///
-  void(CEF_CALLBACK* on_load_end)(struct _cef_load_handler_t* self,
-                                  struct _cef_browser_t* browser,
-                                  struct _cef_frame_t* frame,
-                                  int httpStatusCode);
+  void (CEF_CALLBACK *on_load_end)(struct _cef_load_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      int httpStatusCode);
 
   ///
   // Called when a navigation fails or is canceled. This function may be called
@@ -111,13 +106,12 @@ typedef struct _cef_load_handler_t {
   // error text and |failedUrl| is the URL that failed to load. See
   // net\base\net_error_list.h for complete descriptions of the error codes.
   ///
-  void(CEF_CALLBACK* on_load_error)(struct _cef_load_handler_t* self,
-                                    struct _cef_browser_t* browser,
-                                    struct _cef_frame_t* frame,
-                                    cef_errorcode_t errorCode,
-                                    const cef_string_t* errorText,
-                                    const cef_string_t* failedUrl);
+  void (CEF_CALLBACK *on_load_error)(struct _cef_load_handler_t* self,
+      struct _cef_browser_t* browser, struct _cef_frame_t* frame,
+      cef_errorcode_t errorCode, const cef_string_t* errorText,
+      const cef_string_t* failedUrl);
 } cef_load_handler_t;
+
 
 #ifdef __cplusplus
 }

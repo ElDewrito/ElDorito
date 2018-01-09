@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=0a8f009404aedce3f63f83864f754df60c36b293$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_CRASH_UTIL_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_CRASH_UTIL_CAPI_H_
@@ -45,6 +43,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Crash reporting is configured using an INI-style config file named
@@ -144,7 +143,7 @@ CEF_EXPORT int cef_crash_reporting_enabled();
 // Sets or clears a specific key-value pair from the crash metadata.
 ///
 CEF_EXPORT void cef_set_crash_key_value(const cef_string_t* key,
-                                        const cef_string_t* value);
+    const cef_string_t* value);
 
 #ifdef __cplusplus
 }

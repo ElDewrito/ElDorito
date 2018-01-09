@@ -48,12 +48,12 @@
 #include <list>
 
 #include "include/base/cef_basictypes.h"
-#include "include/base/cef_build.h"
 #include "include/base/cef_callback.h"
+#include "include/base/internal/cef_callback_internal.h"
+#include "include/base/cef_build.h"
 #include "include/base/cef_logging.h"
 #include "include/base/cef_macros.h"
 #include "include/base/cef_scoped_ptr.h"
-#include "include/base/internal/cef_callback_internal.h"
 
 // OVERVIEW:
 //
@@ -120,7 +120,9 @@ class CallbackListBase {
    public:
     Subscription(CallbackListBase<CallbackType>* list,
                  typename std::list<CallbackType>::iterator iter)
-        : list_(list), iter_(iter) {}
+        : list_(list),
+          iter_(iter) {
+    }
 
     ~Subscription() {
       if (list_->active_iterator_count_) {
@@ -165,12 +167,14 @@ class CallbackListBase {
   class Iterator {
    public:
     explicit Iterator(CallbackListBase<CallbackType>* list)
-        : list_(list), list_iter_(list_->callbacks_.begin()) {
+        : list_(list),
+          list_iter_(list_->callbacks_.begin()) {
       ++list_->active_iterator_count_;
     }
 
     Iterator(const Iterator& iter)
-        : list_(iter.list_), list_iter_(iter.list_iter_) {
+        : list_(iter.list_),
+          list_iter_(iter.list_iter_) {
       ++list_->active_iterator_count_;
     }
 
@@ -206,7 +210,9 @@ class CallbackListBase {
 
   // Returns an instance of a CallbackListBase::Iterator which can be used
   // to run callbacks.
-  Iterator GetIterator() { return Iterator(this); }
+  Iterator GetIterator() {
+    return Iterator(this);
+  }
 
   // Compact the list: remove any entries which were NULLed out during
   // iteration.
@@ -236,12 +242,11 @@ class CallbackListBase {
 
 }  // namespace cef_internal
 
-template <typename Sig>
-class CallbackList;
+template <typename Sig> class CallbackList;
 
 template <>
 class CallbackList<void(void)>
-    : public cef_internal::CallbackListBase<Callback<void(void)>> {
+    : public cef_internal::CallbackListBase<Callback<void(void)> > {
  public:
   typedef Callback<void(void)> CallbackType;
 
@@ -262,7 +267,7 @@ class CallbackList<void(void)>
 
 template <typename A1>
 class CallbackList<void(A1)>
-    : public cef_internal::CallbackListBase<Callback<void(A1)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1)> > {
  public:
   typedef Callback<void(A1)> CallbackType;
 
@@ -283,7 +288,7 @@ class CallbackList<void(A1)>
 
 template <typename A1, typename A2>
 class CallbackList<void(A1, A2)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2)> > {
  public:
   typedef Callback<void(A1, A2)> CallbackType;
 
@@ -305,7 +310,7 @@ class CallbackList<void(A1, A2)>
 
 template <typename A1, typename A2, typename A3>
 class CallbackList<void(A1, A2, A3)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3)> > {
  public:
   typedef Callback<void(A1, A2, A3)> CallbackType;
 
@@ -328,7 +333,7 @@ class CallbackList<void(A1, A2, A3)>
 
 template <typename A1, typename A2, typename A3, typename A4>
 class CallbackList<void(A1, A2, A3, A4)>
-    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4)> > {
  public:
   typedef Callback<void(A1, A2, A3, A4)> CallbackType;
 
@@ -352,8 +357,7 @@ class CallbackList<void(A1, A2, A3, A4)>
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5>
 class CallbackList<void(A1, A2, A3, A4, A5)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4, A5)> > {
  public:
   typedef Callback<void(A1, A2, A3, A4, A5)> CallbackType;
 
@@ -376,15 +380,11 @@ class CallbackList<void(A1, A2, A3, A4, A5)>
   DISALLOW_COPY_AND_ASSIGN(CallbackList);
 };
 
-template <typename A1,
-          typename A2,
-          typename A3,
-          typename A4,
-          typename A5,
-          typename A6>
+template <typename A1, typename A2, typename A3, typename A4, typename A5,
+    typename A6>
 class CallbackList<void(A1, A2, A3, A4, A5, A6)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5, A6)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4, A5,
+        A6)> > {
  public:
   typedef Callback<void(A1, A2, A3, A4, A5, A6)> CallbackType;
 
@@ -408,16 +408,11 @@ class CallbackList<void(A1, A2, A3, A4, A5, A6)>
   DISALLOW_COPY_AND_ASSIGN(CallbackList);
 };
 
-template <typename A1,
-          typename A2,
-          typename A3,
-          typename A4,
-          typename A5,
-          typename A6,
-          typename A7>
+template <typename A1, typename A2, typename A3, typename A4, typename A5,
+    typename A6, typename A7>
 class CallbackList<void(A1, A2, A3, A4, A5, A6, A7)>
-    : public cef_internal::CallbackListBase<
-          Callback<void(A1, A2, A3, A4, A5, A6, A7)>> {
+    : public cef_internal::CallbackListBase<Callback<void(A1, A2, A3, A4, A5, A6,
+        A7)> > {
  public:
   typedef Callback<void(A1, A2, A3, A4, A5, A6, A7)> CallbackType;
 

@@ -57,8 +57,9 @@ class CefEndTracingCallback : public virtual CefBaseRefCounted {
   // deleting |tracing_file|.
   ///
   /*--cef()--*/
-  virtual void OnEndTracingComplete(const CefString& tracing_file) = 0;
+  virtual void OnEndTracingComplete(const CefString& tracing_file) =0;
 };
+
 
 ///
 // Start tracing events on all processes. Tracing is initialized asynchronously

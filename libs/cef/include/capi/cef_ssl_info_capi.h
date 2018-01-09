@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=3aae2c2e717093121c6236d799cd4d7334cb153c$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SSL_INFO_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_SSL_INFO_CAPI_H_
@@ -47,6 +45,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Structure representing SSL information.
@@ -61,14 +60,16 @@ typedef struct _cef_sslinfo_t {
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
   ///
-  cef_cert_status_t(CEF_CALLBACK* get_cert_status)(struct _cef_sslinfo_t* self);
+  cef_cert_status_t (CEF_CALLBACK *get_cert_status)(
+      struct _cef_sslinfo_t* self);
 
   ///
   // Returns the X.509 certificate.
   ///
-  struct _cef_x509certificate_t*(CEF_CALLBACK* get_x509certificate)(
+  struct _cef_x509certificate_t* (CEF_CALLBACK *get_x509certificate)(
       struct _cef_sslinfo_t* self);
 } cef_sslinfo_t;
+
 
 ///
 // Returns true (1) if the certificate status has any error, major or minor.

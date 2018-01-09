@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=d9cedd8c411dd064eacde55a95d6e05303dea365$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_DOWNLOAD_HANDLER_CAPI_H_
@@ -47,6 +45,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Callback structure used to asynchronously continue a download.
@@ -63,10 +62,10 @@ typedef struct _cef_before_download_callback_t {
   // suggested name and the default temp directory. Set |show_dialog| to true
   // (1) if you do wish to show the default "Save As" dialog.
   ///
-  void(CEF_CALLBACK* cont)(struct _cef_before_download_callback_t* self,
-                           const cef_string_t* download_path,
-                           int show_dialog);
+  void (CEF_CALLBACK *cont)(struct _cef_before_download_callback_t* self,
+      const cef_string_t* download_path, int show_dialog);
 } cef_before_download_callback_t;
+
 
 ///
 // Callback structure used to asynchronously cancel a download.
@@ -80,18 +79,19 @@ typedef struct _cef_download_item_callback_t {
   ///
   // Call to cancel the download.
   ///
-  void(CEF_CALLBACK* cancel)(struct _cef_download_item_callback_t* self);
+  void (CEF_CALLBACK *cancel)(struct _cef_download_item_callback_t* self);
 
   ///
   // Call to pause the download.
   ///
-  void(CEF_CALLBACK* pause)(struct _cef_download_item_callback_t* self);
+  void (CEF_CALLBACK *pause)(struct _cef_download_item_callback_t* self);
 
   ///
   // Call to resume the download.
   ///
-  void(CEF_CALLBACK* resume)(struct _cef_download_item_callback_t* self);
+  void (CEF_CALLBACK *resume)(struct _cef_download_item_callback_t* self);
 } cef_download_item_callback_t;
+
 
 ///
 // Structure used to handle file downloads. The functions of this structure will
@@ -110,8 +110,7 @@ typedef struct _cef_download_handler_t {
   // download if desired. Do not keep a reference to |download_item| outside of
   // this function.
   ///
-  void(CEF_CALLBACK* on_before_download)(
-      struct _cef_download_handler_t* self,
+  void (CEF_CALLBACK *on_before_download)(struct _cef_download_handler_t* self,
       struct _cef_browser_t* browser,
       struct _cef_download_item_t* download_item,
       const cef_string_t* suggested_name,
@@ -124,12 +123,12 @@ typedef struct _cef_download_handler_t {
   // download if desired. Do not keep a reference to |download_item| outside of
   // this function.
   ///
-  void(CEF_CALLBACK* on_download_updated)(
-      struct _cef_download_handler_t* self,
+  void (CEF_CALLBACK *on_download_updated)(struct _cef_download_handler_t* self,
       struct _cef_browser_t* browser,
       struct _cef_download_item_t* download_item,
       struct _cef_download_item_callback_t* callback);
 } cef_download_handler_t;
+
 
 #ifdef __cplusplus
 }

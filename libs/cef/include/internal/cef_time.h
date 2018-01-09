@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-#include <time.h>
 #include "include/internal/cef_export.h"
+#include <time.h>
 
 ///
 // Time information. Values should always be in UTC.

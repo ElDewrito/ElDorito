@@ -42,6 +42,7 @@
 #include "include/cef_browser.h"
 #include "include/cef_download_item.h"
 
+
 ///
 // Callback interface used to asynchronously continue a download.
 ///
@@ -55,8 +56,9 @@ class CefBeforeDownloadCallback : public virtual CefBaseRefCounted {
   // if you do wish to show the default "Save As" dialog.
   ///
   /*--cef(capi_name=cont,optional_param=download_path)--*/
-  virtual void Continue(const CefString& download_path, bool show_dialog) = 0;
+  virtual void Continue(const CefString& download_path, bool show_dialog) =0;
 };
+
 
 ///
 // Callback interface used to asynchronously cancel a download.
@@ -68,20 +70,21 @@ class CefDownloadItemCallback : public virtual CefBaseRefCounted {
   // Call to cancel the download.
   ///
   /*--cef()--*/
-  virtual void Cancel() = 0;
+  virtual void Cancel() =0;
 
   ///
   // Call to pause the download.
   ///
   /*--cef()--*/
-  virtual void Pause() = 0;
+  virtual void Pause() =0;
 
   ///
   // Call to resume the download.
   ///
   /*--cef()--*/
-  virtual void Resume() = 0;
+  virtual void Resume() =0;
 };
+
 
 ///
 // Class used to handle file downloads. The methods of this class will called
@@ -102,7 +105,7 @@ class CefDownloadHandler : public virtual CefBaseRefCounted {
       CefRefPtr<CefBrowser> browser,
       CefRefPtr<CefDownloadItem> download_item,
       const CefString& suggested_name,
-      CefRefPtr<CefBeforeDownloadCallback> callback) = 0;
+      CefRefPtr<CefBeforeDownloadCallback> callback) =0;
 
   ///
   // Called when a download's status or progress information has been updated.
@@ -112,9 +115,10 @@ class CefDownloadHandler : public virtual CefBaseRefCounted {
   // this method.
   ///
   /*--cef()--*/
-  virtual void OnDownloadUpdated(CefRefPtr<CefBrowser> browser,
-                                 CefRefPtr<CefDownloadItem> download_item,
-                                 CefRefPtr<CefDownloadItemCallback> callback) {}
+  virtual void OnDownloadUpdated(
+      CefRefPtr<CefBrowser> browser,
+      CefRefPtr<CefDownloadItem> download_item,
+      CefRefPtr<CefDownloadItemCallback> callback) {}
 };
 
 #endif  // CEF_INCLUDE_CEF_DOWNLOAD_HANDLER_H_

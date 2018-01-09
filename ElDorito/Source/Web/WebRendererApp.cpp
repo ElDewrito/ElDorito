@@ -41,10 +41,8 @@ void WebRendererApp::OnBeforeCommandLineProcessing(const CefString& process_type
 
 	// These switches make performance significantly faster, especially at high resolutions
 	// See https://bitbucket.org/chromiumembedded/cef/commits/e3c1d8632eb43c1c2793d71639f3f5695696a5e8
-	//command_line->AppendSwitch("disable-gpu");
-	//command_line->AppendSwitch("disable-gpu-compositing");
-	command_line->AppendSwitch("enable-gpu");
-	command_line->AppendSwitch("off-screen-rendering-enabled");
+	command_line->AppendSwitch("disable-gpu");
+	command_line->AppendSwitch("disable-gpu-compositing");
 	command_line->AppendSwitch("enable-begin-frame-scheduling");
 	command_line->AppendSwitch("enable-experimental-web-platform-features");
 	command_line->AppendSwitch("enable-media-stream");

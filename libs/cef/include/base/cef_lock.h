@@ -125,7 +125,9 @@ class AutoLock {
  public:
   struct AlreadyAcquired {};
 
-  explicit AutoLock(Lock& lock) : lock_(lock) { lock_.Acquire(); }
+  explicit AutoLock(Lock& lock) : lock_(lock) {
+    lock_.Acquire();
+  }
 
   AutoLock(Lock& lock, const AlreadyAcquired&) : lock_(lock) {
     lock_.AssertAcquired();
@@ -151,7 +153,9 @@ class AutoUnlock {
     lock_.Release();
   }
 
-  ~AutoUnlock() { lock_.Acquire(); }
+  ~AutoUnlock() {
+    lock_.Acquire();
+  }
 
  private:
   Lock& lock_;

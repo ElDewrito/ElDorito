@@ -58,6 +58,7 @@
 #define ENABLE_THREAD_CHECKER 0
 #endif
 
+
 namespace base {
 
 namespace cef_internal {
@@ -68,7 +69,9 @@ namespace cef_internal {
 // right version for your build configuration.
 class ThreadCheckerDoNothing {
  public:
-  bool CalledOnValidThread() const { return true; }
+  bool CalledOnValidThread() const {
+    return true;
+  }
 
   void DetachFromThread() {}
 };
@@ -107,9 +110,11 @@ class ThreadCheckerDoNothing {
 //
 // In Release mode, CalledOnValidThread will always return true.
 #if ENABLE_THREAD_CHECKER
-class ThreadChecker : public cef_internal::ThreadCheckerImpl {};
+class ThreadChecker : public cef_internal::ThreadCheckerImpl {
+};
 #else
-class ThreadChecker : public cef_internal::ThreadCheckerDoNothing {};
+class ThreadChecker : public cef_internal::ThreadCheckerDoNothing {
+};
 #endif  // ENABLE_THREAD_CHECKER
 
 #undef ENABLE_THREAD_CHECKER

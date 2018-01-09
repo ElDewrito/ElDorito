@@ -84,7 +84,9 @@ class CefBrowserProcessHandler : public virtual CefBaseRefCounted {
   // provided then printing will not be supported on the Linux platform.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() { return NULL; }
+  virtual CefRefPtr<CefPrintHandler> GetPrintHandler() {
+    return NULL;
+  }
 
   ///
   // Called from any thread when work has been scheduled for the browser process

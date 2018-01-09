@@ -134,7 +134,7 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 	s_BrowserSettings.application_cache = STATE_ENABLED;
 	s_BrowserSettings.file_access_from_file_urls = STATE_DISABLED;
 	s_BrowserSettings.javascript_close_windows = STATE_DISABLED;
-	//s_BrowserSettings.javascript_open_windows = STATE_DISABLED;
+	s_BrowserSettings.javascript_open_windows = STATE_DISABLED;
 	s_BrowserSettings.javascript_access_clipboard = STATE_DISABLED;
 	s_BrowserSettings.universal_access_from_file_urls = STATE_DISABLED;
 	s_BrowserSettings.remote_fonts = STATE_ENABLED;
@@ -156,7 +156,7 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 
 	WriteLog("Container Path: %s.", s_ContainerPath.c_str());
 
-	s_WindowInfo.SetAsWindowless(s_Parameters.hFocusWindow);
+	s_WindowInfo.SetAsWindowless(s_Parameters.hFocusWindow, true);
 
 	m_RenderHandler = new WebRendererHandler(m_Device, s_Parameters.hFocusWindow);
 	if (!m_RenderHandler)
@@ -183,7 +183,6 @@ bool WebRenderer::Init(const std::string &p_Url, bool p_EnableDebugging)
 		return false;
 	}
 
-	
 	uint32_t s_Width = 0, s_Height = 0;
 	if (!m_RenderHandler->GetViewportInformation(s_Width, s_Height))
 	{

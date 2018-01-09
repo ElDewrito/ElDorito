@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,8 +33,6 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
-// $hash=ce250b3a07931595bbf0028fb56c11b6160f836e$
-//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_HANDLER_CAPI_H_
@@ -45,6 +43,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 ///
 // Structure used to implement a custom resource bundle structure. See
@@ -63,9 +62,8 @@ typedef struct _cef_resource_bundle_handler_t {
   // return true (1). To use the default translation return false (0). Include
   // cef_pack_strings.h for a listing of valid string ID values.
   ///
-  int(CEF_CALLBACK* get_localized_string)(
-      struct _cef_resource_bundle_handler_t* self,
-      int string_id,
+  int (CEF_CALLBACK *get_localized_string)(
+      struct _cef_resource_bundle_handler_t* self, int string_id,
       cef_string_t* string);
 
   ///
@@ -76,10 +74,8 @@ typedef struct _cef_resource_bundle_handler_t {
   // resident in memory. Include cef_pack_resources.h for a listing of valid
   // resource ID values.
   ///
-  int(CEF_CALLBACK* get_data_resource)(
-      struct _cef_resource_bundle_handler_t* self,
-      int resource_id,
-      void** data,
+  int (CEF_CALLBACK *get_data_resource)(
+      struct _cef_resource_bundle_handler_t* self, int resource_id, void** data,
       size_t* data_size);
 
   ///
@@ -90,13 +86,11 @@ typedef struct _cef_resource_bundle_handler_t {
   // not be copied and must remain resident in memory. Include
   // cef_pack_resources.h for a listing of valid resource ID values.
   ///
-  int(CEF_CALLBACK* get_data_resource_for_scale)(
-      struct _cef_resource_bundle_handler_t* self,
-      int resource_id,
-      cef_scale_factor_t scale_factor,
-      void** data,
-      size_t* data_size);
+  int (CEF_CALLBACK *get_data_resource_for_scale)(
+      struct _cef_resource_bundle_handler_t* self, int resource_id,
+      cef_scale_factor_t scale_factor, void** data, size_t* data_size);
 } cef_resource_bundle_handler_t;
+
 
 #ifdef __cplusplus
 }
