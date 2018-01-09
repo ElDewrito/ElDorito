@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=2af1552c0d2dada94c325be8249bfd889b22ca58$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_GEOLOCATION_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_GEOLOCATION_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Implement this structure to receive geolocation updates. The functions of
@@ -59,11 +60,10 @@ typedef struct _cef_get_geolocation_callback_t {
   // Called with the 'best available' location information or, if the location
   // update failed, with error information.
   ///
-  void (CEF_CALLBACK *on_location_update)(
+  void(CEF_CALLBACK* on_location_update)(
       struct _cef_get_geolocation_callback_t* self,
       const struct _cef_geoposition_t* position);
 } cef_get_geolocation_callback_t;
-
 
 ///
 // Request a one-time geolocation update. This function bypasses any user

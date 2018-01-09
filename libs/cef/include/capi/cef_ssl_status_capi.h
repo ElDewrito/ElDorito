@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=4a448fc89af9db6e12499d3284b2b1309f889cfb$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_SSL_STATUS_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_SSL_STATUS_CAPI_H_
@@ -46,7 +48,6 @@
 extern "C" {
 #endif
 
-
 ///
 // Structure representing the SSL information for a navigation entry.
 ///
@@ -59,34 +60,33 @@ typedef struct _cef_sslstatus_t {
   ///
   // Returns true (1) if the status is related to a secure SSL/TLS connection.
   ///
-  int (CEF_CALLBACK *is_secure_connection)(struct _cef_sslstatus_t* self);
+  int(CEF_CALLBACK* is_secure_connection)(struct _cef_sslstatus_t* self);
 
   ///
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
   ///
-  cef_cert_status_t (CEF_CALLBACK *get_cert_status)(
+  cef_cert_status_t(CEF_CALLBACK* get_cert_status)(
       struct _cef_sslstatus_t* self);
 
   ///
   // Returns the SSL version used for the SSL connection.
   ///
-  cef_ssl_version_t (CEF_CALLBACK *get_sslversion)(
+  cef_ssl_version_t(CEF_CALLBACK* get_sslversion)(
       struct _cef_sslstatus_t* self);
 
   ///
   // Returns a bitmask containing the page security content status.
   ///
-  cef_ssl_content_status_t (CEF_CALLBACK *get_content_status)(
+  cef_ssl_content_status_t(CEF_CALLBACK* get_content_status)(
       struct _cef_sslstatus_t* self);
 
   ///
   // Returns the X.509 certificate.
   ///
-  struct _cef_x509certificate_t* (CEF_CALLBACK *get_x509certificate)(
+  struct _cef_x509certificate_t*(CEF_CALLBACK* get_x509certificate)(
       struct _cef_sslstatus_t* self);
 } cef_sslstatus_t;
-
 
 #ifdef __cplusplus
 }

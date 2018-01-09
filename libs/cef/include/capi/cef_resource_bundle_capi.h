@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=439cc7c4ac7f2178ab0b445ab91df66b6759335f$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_RESOURCE_BUNDLE_CAPI_H_
@@ -43,7 +45,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // Structure used for retrieving resources from the resource bundle (*.pak)
@@ -64,8 +65,9 @@ typedef struct _cef_resource_bundle_t {
   // of valid string ID values.
   ///
   // The resulting string must be freed by calling cef_string_userfree_free().
-  cef_string_userfree_t (CEF_CALLBACK *get_localized_string)(
-      struct _cef_resource_bundle_t* self, int string_id);
+  cef_string_userfree_t(CEF_CALLBACK* get_localized_string)(
+      struct _cef_resource_bundle_t* self,
+      int string_id);
 
   ///
   // Retrieves the contents of the specified scale independent |resource_id|. If
@@ -75,8 +77,10 @@ typedef struct _cef_resource_bundle_t {
   // memory and should not be freed. Include cef_pack_resources.h for a listing
   // of valid resource ID values.
   ///
-  int (CEF_CALLBACK *get_data_resource)(struct _cef_resource_bundle_t* self,
-      int resource_id, void** data, size_t* data_size);
+  int(CEF_CALLBACK* get_data_resource)(struct _cef_resource_bundle_t* self,
+                                       int resource_id,
+                                       void** data,
+                                       size_t* data_size);
 
   ///
   // Retrieves the contents of the specified |resource_id| nearest the scale
@@ -88,17 +92,18 @@ typedef struct _cef_resource_bundle_t {
   // memory and should not be freed. Include cef_pack_resources.h for a listing
   // of valid resource ID values.
   ///
-  int (CEF_CALLBACK *get_data_resource_for_scale)(
-      struct _cef_resource_bundle_t* self, int resource_id,
-      cef_scale_factor_t scale_factor, void** data, size_t* data_size);
+  int(CEF_CALLBACK* get_data_resource_for_scale)(
+      struct _cef_resource_bundle_t* self,
+      int resource_id,
+      cef_scale_factor_t scale_factor,
+      void** data,
+      size_t* data_size);
 } cef_resource_bundle_t;
-
 
 ///
 // Returns the global resource bundle instance.
 ///
 CEF_EXPORT cef_resource_bundle_t* cef_resource_bundle_get_global();
-
 
 #ifdef __cplusplus
 }

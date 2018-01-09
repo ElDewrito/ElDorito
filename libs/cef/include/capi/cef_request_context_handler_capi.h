@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=52978f64fe2a612c05fc42a91ec53df6ff42079d$
+//
 
 #ifndef CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
 #define CEF_INCLUDE_CAPI_CEF_REQUEST_CONTEXT_HANDLER_CAPI_H_
@@ -46,6 +48,7 @@
 extern "C" {
 #endif
 
+struct _cef_request_context_t;
 
 ///
 // Implement this structure to provide handler implementations. The handler
@@ -59,11 +62,19 @@ typedef struct _cef_request_context_handler_t {
   cef_base_ref_counted_t base;
 
   ///
+  // Called on the browser process UI thread immediately after the request
+  // context has been initialized.
+  ///
+  void(CEF_CALLBACK* on_request_context_initialized)(
+      struct _cef_request_context_handler_t* self,
+      struct _cef_request_context_t* request_context);
+
+  ///
   // Called on the browser process IO thread to retrieve the cookie manager. If
   // this function returns NULL the default cookie manager retrievable via
   // cef_request_tContext::get_default_cookie_manager() will be used.
   ///
-  struct _cef_cookie_manager_t* (CEF_CALLBACK *get_cookie_manager)(
+  struct _cef_cookie_manager_t*(CEF_CALLBACK* get_cookie_manager)(
       struct _cef_request_context_handler_t* self);
 
   ///
@@ -85,14 +96,15 @@ typedef struct _cef_request_context_handler_t {
   // trigger new calls to this function call
   // cef_request_tContext::PurgePluginListCache.
   ///
-  int (CEF_CALLBACK *on_before_plugin_load)(
+  int(CEF_CALLBACK* on_before_plugin_load)(
       struct _cef_request_context_handler_t* self,
-      const cef_string_t* mime_type, const cef_string_t* plugin_url,
-      int is_main_frame, const cef_string_t* top_origin_url,
+      const cef_string_t* mime_type,
+      const cef_string_t* plugin_url,
+      int is_main_frame,
+      const cef_string_t* top_origin_url,
       struct _cef_web_plugin_info_t* plugin_info,
       cef_plugin_policy_t* plugin_policy);
 } cef_request_context_handler_t;
-
 
 #ifdef __cplusplus
 }

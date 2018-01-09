@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2018 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -33,6 +33,8 @@
 // by hand. See the translator.README.txt file in the tools directory for
 // more information.
 //
+// $hash=7a39a45655ac73c2727cc8b51dd9a4bdc0b7b511$
+//
 
 #ifndef CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
 #define CEF_INCLUDE_CAPI_VIEWS_CEF_BROWSER_VIEW_CAPI_H_
@@ -45,7 +47,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 ///
 // A View hosting a cef_browser_t instance. Methods must be called on the
@@ -61,7 +62,7 @@ typedef struct _cef_browser_view_t {
   // Returns the cef_browser_t hosted by this BrowserView. Will return NULL if
   // the browser has not yet been created or has already been destroyed.
   ///
-  struct _cef_browser_t* (CEF_CALLBACK *get_browser)(
+  struct _cef_browser_t*(CEF_CALLBACK* get_browser)(
       struct _cef_browser_view_t* self);
 
   ///
@@ -73,17 +74,17 @@ typedef struct _cef_browser_view_t {
   // only be triggered if the event is not handled by web content or by
   // cef_keyboard_handler_t. The default value is false (0).
   ///
-  void (CEF_CALLBACK *set_prefer_accelerators)(struct _cef_browser_view_t* self,
-      int prefer_accelerators);
+  void(CEF_CALLBACK* set_prefer_accelerators)(struct _cef_browser_view_t* self,
+                                              int prefer_accelerators);
 } cef_browser_view_t;
-
 
 ///
 // Create a new BrowserView. The underlying cef_browser_t will not be created
 // until this view is added to the views hierarchy.
 ///
 CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
-    struct _cef_client_t* client, const cef_string_t* url,
+    struct _cef_client_t* client,
+    const cef_string_t* url,
     const struct _cef_browser_settings_t* settings,
     struct _cef_request_context_t* request_context,
     struct _cef_browser_view_delegate_t* delegate);
@@ -93,7 +94,6 @@ CEF_EXPORT cef_browser_view_t* cef_browser_view_create(
 ///
 CEF_EXPORT cef_browser_view_t* cef_browser_view_get_for_browser(
     struct _cef_browser_t* browser);
-
 
 #ifdef __cplusplus
 }
