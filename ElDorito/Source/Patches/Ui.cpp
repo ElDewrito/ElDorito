@@ -55,6 +55,7 @@ namespace
 	void GetActionButtonNameHook();
 	void UI_GetHUDGlobalsIndexHook();
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
+	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
 	void __fastcall c_gui_bitmap_widget_update_render_data_hook(void* thisptr, void* unused, void* renderData, int a3, int a4, int a5, int a6, int a7);
 	void __fastcall c_gui_alert_manager__show(void *thisptr, void *unused, uint32_t name, int a3, wchar_t *customMessage, int profileIndex, bool a6, int a7);
@@ -257,6 +258,11 @@ namespace Patches::Ui
 		Patch(0x6BC5D7, { 0x98,0xDE, 0x44, 0x02, 01 }).Apply();
 
 		Pointer(0x0169FCE0).Write(uint32_t(&c_main_menu_screen_widget_item_select_hook));
+
+		// fix change team/gametype spinner display value
+		Pointer(0x016A0158).Write(uint32_t(&c_start_menu_pane_screen_widget__handle_spinner_chosen_hook)); // game_editor
+		Pointer(0x0169FFE8).Write(uint32_t(&c_start_menu_pane_screen_widget__handle_spinner_chosen_hook)); // multiplayer
+
 		Hook(0x2047BF, c_ui_view_draw_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
@@ -1755,6 +1761,63 @@ namespace
 			mov ecx, 64
 			repe movsb
 			ret
+		}
+	}
+
+	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget)
+	{
+		const auto c_gui_list_widget__set_selected = (void(__thiscall *)(void *thisptr, int target, int value, char a5))(0xB16170);
+		const auto game_engine_get_map_variant = (uint8_t*(*)())(0x00583230);
+		const auto _string_id_value = 0x111;
+
+		switch (*(uint32_t*)(widget + 0x40))
+		{
+		case 0x10E: //  change_teams
+		{
+			auto teamIndex = *(int*)((uint8_t*)0x019A03D8 + 0x167C);
+			if (teamIndex < 0)
+				teamIndex = 0;
+			c_gui_list_widget__set_selected(widget, 0x111, teamIndex, 0);
+		}
+		break;
+		case 0x105B9: // change_gametype
+			auto selectedGametype = 0;
+			auto contentType = *(int*)(game_engine_get_map_variant() + 0x11c);
+			switch (contentType)
+			{
+			case 0:
+				selectedGametype = 1;
+				break;
+			case 1:
+				selectedGametype = 2;
+				break;
+			case 2:
+				selectedGametype = 3;
+				break;
+			case 3:
+				selectedGametype = 4;
+				break;
+			case 4:
+				selectedGametype = 7;
+				break;
+			case 5:
+				selectedGametype = 8;
+				break;
+			case 6:
+				selectedGametype = 9;
+				break;
+			case 7:
+				selectedGametype = 6;
+				break;
+			case 8:
+				selectedGametype = 10;
+				break;
+			case 10:
+				selectedGametype = 0;
+				break;
+			}
+			c_gui_list_widget__set_selected(widget, 0x111, selectedGametype, 0);
+			break;
 		}
 	}
 }
