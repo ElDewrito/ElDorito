@@ -1159,11 +1159,11 @@ namespace
 			return false;
 
 		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
-		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		if (!materialCount || firstMaterialShaderTagRef.TagIndex != REFORGE_DEFAULT_SHADER)
+		if (!materialCount)
 			return false;
 
-		return true;
+		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
+		return firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER;
 	}
 
 	bool GetObjectMaterial(void* renderData, int16_t* pMaterialIndex)

@@ -53,7 +53,7 @@ namespace Blam::Tags
 
 			auto tagTableIndex = (*TagIndexTablePtr)[Index];
 
-			if (tagTableIndex == -1 && tagTableIndex >= maxTagCount * 4)
+			if (tagTableIndex == -1 || tagTableIndex >= maxTagCount * 4)
 				return nullptr;
 
 			auto tagHeader = (*TagTablePtr)[tagTableIndex];
