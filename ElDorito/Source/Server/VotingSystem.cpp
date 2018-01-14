@@ -104,7 +104,12 @@ namespace Server::Voting
 
 		return mapId;
 	}
-
+	int getMapID(std::string mapName) {
+		auto mapID = getDefaultMapId(mapName);
+		if (mapID < 0)
+			mapID = getCustomMapID(mapName);
+		return mapID;
+	}
 	AbstractVotingSystem::AbstractVotingSystem(){}
 	VotingSystem::VotingSystem() : AbstractVotingSystem() {}
 
@@ -482,8 +487,6 @@ namespace Server::Voting
 		//clear the current contents
 		haloMaps.clear();
 		gameTypes.clear();
-		auto &customMaps = Modules::ModuleGame::Instance().CustomMapList;
-		auto &defaultMaps = Modules::ModuleGame::Instance().MapList;
 
 		std::ifstream in(filename, std::ios::in | std::ios::binary);
 		if (!in || !in.is_open())
@@ -515,15 +518,12 @@ namespace Server::Voting
 
 				//Check to make sure that the map exists
 				std::string mapName = mapObject["mapName"].GetString();
-				if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
-					haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getDefaultMapId(mapName)));
-
-				else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
-					haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getCustomMapID(mapName)));
-
-				else
+				auto mapID = getMapID(mapName);
+				if (mapID < 0) {
 					Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
-
+					continue;
+				}
+				haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), mapID));
 
 			}
 
@@ -559,13 +559,12 @@ namespace Server::Voting
 								continue;
 
 							std::string mapName = map["mapName"].GetString();
-							if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
-								ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getDefaultMapId(mapName)));
-
-							else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
-								ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getCustomMapID(mapName)));
-							else
+							auto mapID = getMapID(mapName);
+							if (mapID < 0) {
 								Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+								continue;
+							}
+							ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), mapID));
 						}
 					}
 				}
@@ -707,11 +706,8 @@ namespace Server::Voting
 				if (!gametype.HasMember("typeName") || !gametype.HasMember("displayName") || !map.HasMember("mapName") || !map.HasMember("displayName"))
 					continue;
 				std::string mapName = map["mapName"].GetString();
-				auto mapID = getDefaultMapId(mapName);
-				if (mapID < 0)
-					mapID = getCustomMapID(mapName);
-
-				if (mapID < 0){
+				auto mapID = getMapID(mapName);
+				if (mapID < 0) {
 					Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
 					continue;
 				}

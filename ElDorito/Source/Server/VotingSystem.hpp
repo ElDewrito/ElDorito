@@ -30,7 +30,10 @@ namespace Server::Voting
 		HaloMap() {}
 		HaloMap(std::string m, std::string dn, int id) {
 			mapName = m;
-			mapDisplayName = dn;
+			if (dn.length() > 16)
+				mapDisplayName = dn.substr(0,16);
+			else
+				mapDisplayName = dn;
 			mapId = id;
 		}
 	};
@@ -43,7 +46,10 @@ namespace Server::Voting
 		HaloType() {}
 		HaloType(std::string t, std::string dn) {
 			typeName = t;
-			typeDisplayName = dn;
+			if (dn.length() > 16)
+				typeDisplayName = dn.substr(0,16);
+			else
+				typeDisplayName = dn;
 		}
 
 	};
