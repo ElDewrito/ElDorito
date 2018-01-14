@@ -901,9 +901,7 @@ namespace
 			return false;
 		}
 
-
-		auto set_server_lobby_type = (bool(__cdecl*)(int))(0x00A7EE70);
-		bool retVal = set_server_lobby_type(lobbyType);
+		bool retVal = Blam::Network::SetLobbyType(lobbyType);
 		if (retVal)
 		{
 			returnInfo = "Changed lobby type " + previous + " -> " + std::to_string(lobbyType);
