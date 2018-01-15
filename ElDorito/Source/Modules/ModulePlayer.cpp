@@ -122,7 +122,18 @@ namespace
 		playerCtrlGlobalsPtr.WriteFast<uint8_t>(!playerCtrlGlobalsPtr.Read<uint8_t>());
 		return true;
 	}
-
+	bool GenerateTimestamp(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+		std::string encryptedString;
+		time_t now = time(0);
+		std::tm* now_tm = gmtime(&now);
+		char buf[42];
+		strftime(buf, 42, "%Y%m%d %X", now_tm);
+		Utils::Cryptography::PrivateEncrypt(Utils::Cryptography::ReformatKey(true, modulePlayer.VarPlayerPrivKey->ValueString), buf, strlen(buf), encryptedString);
+		returnInfo = encryptedString;
+		return true;
+	}
 	std::string GenerateRandomServiceTag()
 	{
 		std::string tag(4, 0);
@@ -166,6 +177,8 @@ namespace Modules
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
+		AddCommand("EncryptGmtTimestamp", "encryptgmttimestamp", "encrypts a timestamp using the player's private key.", eCommandFlagsNone, GenerateTimestamp);
+
 
 		// patch Game_GetPlayerName to get the name from our field
 		Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);

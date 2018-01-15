@@ -59,7 +59,27 @@ namespace Utils::Cryptography
 		ss << "-----BEGIN " << keyType << "-----\n" << returnKey << "-----END " << keyType << "-----\n";
 		return ss.str();
 	}
+	bool PrivateEncrypt(std::string privateKey, void* data, size_t dataSize, std::string& encrypted)
+	{
+		BIO* privKeyBuff = BIO_new_mem_buf((void*)privateKey.c_str(), privateKey.length());
+		if (!privKeyBuff)
+			return false;
 
+		RSA* rsa = PEM_read_bio_RSAPrivateKey(privKeyBuff, 0, 0, 0);
+		if (!rsa)
+			return false;
+
+		unsigned char buf[4098] = {};
+		int retVal = RSA_private_encrypt(dataSize, (unsigned char*)data, buf, rsa, RSA_PKCS1_PADDING);
+		RSA_free(rsa);
+		BIO_free_all(privKeyBuff);
+
+		if (retVal == -1)
+			return false;
+
+		encrypted = Utils::String::Base64Encode(buf, retVal);
+		return true;
+	}
 	bool CreateRSASignature(std::string privateKey, void* data, size_t dataSize, std::string& signature)
 	{
 		// privateKey has to be reformatted with -----RSA PRIVATE KEY----- header/footer and newlines after every 64 chars
