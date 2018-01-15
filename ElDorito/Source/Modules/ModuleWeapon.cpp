@@ -128,6 +128,12 @@ namespace
 
 	bool CommandWeaponList(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		if (IsMainMenu())
+		{
+			returnInfo = "This command is unavailable at the moment, please try again when not on the mainmenu.";
+			return false;
+		}
+
 		std::stringstream ss;
 
 		for (auto &entry : Patches::Weapon::GetIndices())
@@ -147,7 +153,7 @@ namespace
 
 		auto equippedWeaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
 
-		if(equippedWeaponIndex == 0xFFFF)
+		if (equippedWeaponIndex == 0xFFFF)
 		{
 			returnInfo = "Equipped weapon not supported.";
 			return false;

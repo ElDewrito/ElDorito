@@ -79,6 +79,8 @@ namespace Patches::Weapon
 		{
 			IsMainMenu = false;
 
+			AddSupportedWeapons(weaponNames, weaponIndices);
+
 			SetDefaultOffsets();
 
 			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
@@ -121,9 +123,6 @@ namespace Patches::Weapon
 
 	void ApplyAfterTagsLoaded()
 	{
-		if (!IsMainMenu)
-			AddSupportedWeapons(weaponNames, weaponIndices);
-
 		//// Debug info
 		//for (auto weapon : weaponNames)
 		//	Console::WriteLine(weapon.first + ", " + weapon.second);
@@ -326,11 +325,15 @@ namespace Patches::Weapon
 					std::string tagname = weaponsObject["tagname"].GetString();
 
 					try {
-						weapon_indices.emplace(weaponname.c_str(), TagInstance::Find('weap', tagname.c_str()).Index);
-						weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+						uint16_t tagindex = TagInstance::Find('weap', tagname.c_str()).Index;
+						if (tagindex != 0xFFFF) {
+							weapon_indices.emplace(weaponname.c_str(), tagindex);
+							weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+						}
 					} catch (const std::exception&) {
 						std::stringstream ss;
-						ss << "Unable to add " << weaponname.c_str() << " to supported list." << std::endl;
+						ss << "Unable to add " << weaponname.c_str() << ", " << tagname.c_str() << " to supported list." << std::endl;
+						ss << "Please check the tagname is correct." << std::endl;
 						Console::WriteLine(ss.str());
 					}
 				}
