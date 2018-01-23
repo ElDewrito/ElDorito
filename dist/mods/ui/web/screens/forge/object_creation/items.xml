@@ -653,7 +653,7 @@
         <item type="weapon" name="ASSAULT RIFLE, RATE OF FIRE" tagindex="0x1582" />
       </category>
       <category name="BATTLE RIFLES">
-        <item name="BATTLE RIFLE" tagindex="0x157c" />
+        <item type="weapon" name="BATTLE RIFLE" tagindex="0x157c" />
         <item type="weapon" name="BATTLE RIFLE, ACCURACY" tagindex="0x15bc" />
         <item type="weapon" name="BATTLE RIFLE, AMMO" tagindex="0x1585" />
         <item type="weapon" name="BATTLE RIFLE, DAMAGE" tagindex="0x1586" />
