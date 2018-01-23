@@ -29,6 +29,7 @@
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
+#include "Patches/Camera.hpp"
 #include "Discord/DiscordRPC.h"
 #include "ThirdParty/SOP.hpp"
 
@@ -188,6 +189,9 @@ void ElDorito::Initialize()
 
 			if (arg.compare(L"-cache-memory-increase") == 0 && i < numArgs - 1)
 				Patches::Memory::SetGlobalCacheIncrease(std::stoul(szArgList[i + 1]));
+
+			if (arg.compare(L"-lod-increase") == 0)
+				Patches::Camera::IncreaseLOD();
 
 			size_t pos = arg.find(L'=');
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =

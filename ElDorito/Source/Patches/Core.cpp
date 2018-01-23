@@ -154,12 +154,7 @@ namespace Patches::Core
 
 		// fixes the amd freeze
 		Hook(0x65806D, ContrailSystemRenderSetStreamSourceHook, HookFlags::IsCall).Apply();
-
-		// LOD patches compliments of zedd
-		// Patch for lod dword_176DB40 (2.0) -> dword_176DB50 (10.0)
-		Patch(0x665EB7 + 4, { 0x50 }).Apply();
-		// Patch to apply cine lod to everything
-		Patch::NopFill(Pointer::Base(0x61962C), 2);
+		
 
 #ifndef _DEBUG
 		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
