@@ -367,7 +367,7 @@ CommandType = {
      * Requests to change this screen's pointer capture state.
      * This is overridden by dew.captureInput
      *
-     * @param {boolean} capture - true to capture mouse and keyboard input, false to release.
+     * @param {boolean} capture - true to only capture mouse input, false to release.
      */
     dew.capturePointer = function (capture) {
         postUiMessage("capturePointer", {
@@ -553,7 +553,7 @@ CommandType = {
      */
 
     /**
-     * nformation about a weapon's use in the current game
+     * Information about a weapon's use in the current game
      *
      * @typedef {object} WeaponStats
      * @property {number} BetrayalsWith - How many times the player used this weapon to betray their teammates.
@@ -725,13 +725,13 @@ CommandType = {
      */
 
     /**
-     * Fired when a chat message is recieved.
+     * Fired when a chat message is received.
      *
      * @event chat
      * @type {object}
      * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
      * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
-     * @property {string} chatType - The type of message that was recieved. Can be "GLOBAL", "TEAM", "WHISPER", or "SERVER".
+     * @property {string} chatType - The type of message that was received. Can be "GLOBAL", "TEAM", "WHISPER", or "SERVER".
      * @property {number} teamIndex - The team index of the player. Not included when chatType is "SERVER".
      * @property {string} UID - The UID of the player. Not included when chatType is "SERVER".
      * @property {string} color - The hex color of the player's primary armor color. Not included when chatType is "SERVER".
