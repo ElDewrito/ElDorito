@@ -636,6 +636,7 @@ CommandType = {
      * @see event:console
      * @see event:mpevent
      * @see event:loadprogress
+	 * @see event:signal-ready
      */
     dew.on = function (event, callback) {
         registerEvent(event, callback);
@@ -651,98 +652,110 @@ CommandType = {
 			key: actionIndex
 		});
 	}
+	
+	//This is a workaround for a bug in jsdoc. Event definitions must be inside a named function
+	dew.functionforevents = function() {
+		/**
+		 * A callback function for responding to events.
+		 *
+		 * @callback EventCallback
+		 * @param {object} event - The event information.
+		 * @param {string} event.event - The name of the event.
+		 * @param {string} event.screen - The ID of the screen the event was sent to.
+		 * @param {string} event.data - Event-specific data.
+		 */
 
-    /**
-     * A callback function for responding to events.
-     *
-     * @callback EventCallback
-     * @param {object} event - The event information.
-     * @param {string} event.event - The name of the event.
-     * @param {string} event.screen - The ID of the screen the event was sent to.
-     * @param {string} event.data - Event-specific data.
-     */
+		/**
+		 * Fired after the current screen is shown.
+		 * The data passed to this event is the data that was passed to {@link dew.show}.
+		 *
+		 * @event show
+		 * @type {object}
+		 */
 
-    /**
-     * Fired after the current screen is shown.
-     * The data passed to this event is the data that was passed to {@link dew.show}.
-     *
-     * @event show
-     * @type {object}
-     */
+		/**
+		 * Fired after the current screen is hidden.
+		 *
+		 * @event hide
+		 * @type {object}
+		 */
 
-    /**
-     * Fired after the current screen is hidden.
-     *
-     * @event hide
-     * @type {object}
-     */
+		/**
+		 * Fired when a server replies to a [ping]{@link dew.ping}.
+		 * This can only be received while the screen is active.
+		 *
+		 * @event pong
+		 * @type {object}
+		 * @property {string} address - The IP address of the server.
+		 * @property {number} latency - The round-trip time of the ping in milliseconds.
+		 * @property {number} timestamp - A timestamp value representing when the ping was sent.
+		 */
 
-    /**
-     * Fired when a server replies to a [ping]{@link dew.ping}.
-     * This can only be received while the screen is active.
-     *
-     * @event pong
-     * @type {object}
-     * @property {string} address - The IP address of the server.
-     * @property {number} latency - The round-trip time of the ping in milliseconds.
-     * @property {number} timestamp - A timestamp value representing when the ping was sent.
-     */
+		/**
+		 * Fired when a line is written to the in-game console.
+		 *
+		 * @event console
+		 * @type {object}
+		 * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
+		 */
 
-    /**
-     * Fired when a line is written to the in-game console.
-     *
-     * @event console
-     * @type {object}
-     * @property {string} line - The line that was written. **Make sure to escape this properly before displaying it.**
-     */
+		/**		
+		 * Fires when the scoreboard is updated		
+		 *		
+		 * @event scoreboard		
+		 * @type {ScoreboardInfo}		
+		 */
+	 
+		/**
+		 * Fired when a multiplayer event occurs that affects the local player.
+		 *
+		 * @event mpevent
+		 * @type {object}
+		 * @property {string} name - The internal name of the event.
+		 * @property {MPEventCategory} category - The event's category.
+		 * @property {MPEventAudience} audience - The audience that the event is intended for.
+		 */
 
-	/**		
-     * Fires when the scoreboard is updated		
-     *		
-     * @event scoreboard		
-     * @type {ScoreboardInfo}		
-     */
- 
-    /**
-     * Fired when a multiplayer event occurs that affects the local player.
-     *
-     * @event mpevent
-     * @type {object}
-     * @property {string} name - The internal name of the event.
-     * @property {MPEventCategory} category - The event's category.
-     * @property {MPEventAudience} audience - The audience that the event is intended for.
-     */
+		/**
+		 * Fired when the loading screen is active and the loading progress changes.
+		 *
+		 * This event is only sent to visible screens.
+		 *
+		 * @event loadprogress
+		 * @type {object}
+		 * @property {number} currentBytes - The current number of bytes that have been decompressed.
+		 * @property {number} totalBytes - The total number of bytes that need to be decompressed.
+		 */
 
-    /**
-     * Fired when the loading screen is active and the loading progress changes.
-     *
-     * This event is only sent to visible screens.
-     *
-     * @event loadprogress
-     * @type {object}
-     * @property {number} currentBytes - The current number of bytes that have been decompressed.
-     * @property {number} totalBytes - The total number of bytes that need to be decompressed.
-     */
+		/**
+		 * Fired when a chat message is received.
+		 *
+		 * @event chat
+		 * @type {object}
+		 * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
+		 * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
+		 * @property {string} chatType - The type of message that was received. Can be "GLOBAL", "TEAM", "WHISPER", or "SERVER".
+		 * @property {number} teamIndex - The team index of the player. Not included when chatType is "SERVER".
+		 * @property {string} UID - The UID of the player. Not included when chatType is "SERVER".
+		 * @property {string} color - The hex color of the player's primary armor color. Not included when chatType is "SERVER".
+		 */
 
-    /**
-     * Fired when a chat message is received.
-     *
-     * @event chat
-     * @type {object}
-     * @property {string} message - The chat message. **Make sure to escape this properly before displaying it.**
-     * @property {string} sender - The username that sent this message. **Make sure to escape this properly before displaying it.**
-     * @property {string} chatType - The type of message that was received. Can be "GLOBAL", "TEAM", "WHISPER", or "SERVER".
-     * @property {number} teamIndex - The team index of the player. Not included when chatType is "SERVER".
-     * @property {string} UID - The UID of the player. Not included when chatType is "SERVER".
-     * @property {string} color - The hex color of the player's primary armor color. Not included when chatType is "SERVER".
-     */
-
-     /**
-      * Fired when attempting to connect to a server and when the connection succeeds or fails.
-      *
-      * @event serverconnect
-      * @type {object}
-      * @property {boolean} connecting - True if the client is currently trying to connect to the server.
-      * @property {boolean} success - True if the client successfully connected to the server. Will always be false if connecting is true.
-      */
+		 /**
+		  * Fired when attempting to connect to a server and when the connection succeeds or fails.
+		  *
+		  * @event serverconnect
+		  * @type {object}
+		  * @property {boolean} connecting - True if the client is currently trying to connect to the server.
+		  * @property {boolean} success - True if the client successfully connected to the server. Will always be false if connecting is true.
+		  */
+		  
+		 /**
+		  * Fired when the game client receives the websocket connection information packet.
+		  * 
+		  * @event signal-ready
+		  * @type {object}
+		  * @property {string} server - The ip + port of the signal server in the format ip:port
+		  * @property {string} password - The password assigned for the client to connect with
+		  */
+	}
 })();
