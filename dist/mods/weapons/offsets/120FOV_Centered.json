@@ -1,6 +1,14 @@
 {
     "Weapons": [
         {
+            "Name": "assault_bomb",
+            "Offset": [
+                -0.08,
+                0.0,
+                -0.02
+            ]
+        },
+        {
             "Name": "assault_rifle",
             "Offset": [
                 -0.045,
@@ -241,6 +249,14 @@
             ]
         },
         {
+            "Name": "flag",
+            "Offset": [
+                -0.025,
+                0,
+                -0.03
+            ]
+        },
+        {
             "Name": "flak_cannon",
             "Offset": [
                 -0.035,
@@ -302,6 +318,14 @@
                 -0.07,
                 -0.004999,
                 -0.009999
+            ]
+        },
+        {
+            "Name": "oddball",
+            "Offset": [
+                -0.05,
+                0,
+                -0.04
             ]
         },
         {
