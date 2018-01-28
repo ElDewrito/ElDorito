@@ -32,7 +32,6 @@ namespace
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
 	void __cdecl BipedFeetZoneOffsetHook(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *position, float *height, float *radius);
-	uint32_t MeleeDamageHook(uint8_t *damageData, uint32_t unitObjectIndex, int a3);
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
@@ -142,8 +141,6 @@ namespace Patches::Core
 		// Fixes an issue where biped feet are just below the zone bottom causing 
 		// it not to register flag caps, teleporter usage etc..
 		Hook(0x7A111B, BipedFeetZoneOffsetHook, HookFlags::IsCall).Apply();
-		// fix melee damage acceleration
-		Hook(0x73D10A, MeleeDamageHook, HookFlags::IsCall).Apply();
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
 
@@ -412,13 +409,6 @@ namespace
 		auto bipedObject = Blam::Objects::Get(bipedObjectIndex);
 		if (bipedObject)
 			*position += bipedObject->Up * 0.05f; // offset feet
-	}
-
-	uint32_t MeleeDamageHook(uint8_t *damageData, uint32_t unitObjectIndex, int a3)
-	{
-		const auto sub_B542A0 = (uint32_t(*)(uint8_t *damageData, uint32_t unitObjectIndex, int a3))(0xB542A0);
-		*(float*)(damageData + 0x54) = 1.0f; // acceleration scale, scale
-		return sub_B542A0(damageData, unitObjectIndex, a3);
 	}
 
 	const auto GetBinkVideoPath = reinterpret_cast<char(*)(int, char*)>(0xA99120);

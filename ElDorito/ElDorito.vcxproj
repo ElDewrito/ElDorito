@@ -70,6 +70,7 @@
     <ClCompile Include="Source\Forge\PrematchCamera.cpp" />
     <ClCompile Include="Source\Patches\BottomlessClip.cpp" />
     <ClCompile Include="Source\Patches\Camera.cpp" />
+    <ClCompile Include="Source\Patches\DamageSystem.cpp" />
     <ClCompile Include="Source\Patches\DirectXHook.cpp" />
     <ClCompile Include="Source\ElDorito.cpp" />
     <ClCompile Include="Source\ElModules.cpp" />
@@ -115,6 +116,7 @@
     <ClCompile Include="Source\Patches\Memory.cpp" />
     <ClCompile Include="Source\Patches\Mouse.cpp" />
     <ClCompile Include="Source\Patches\Network.cpp" />
+    <ClCompile Include="Source\Patches\GameEngineSettings.cpp" />
     <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp" />
     <ClCompile Include="Source\Patches\PlayerRepresentation.cpp" />
     <ClCompile Include="Source\Patches\PlayerUid.cpp" />
@@ -261,6 +263,7 @@
     <ClInclude Include="Source\Forge\PrematchCamera.hpp" />
     <ClInclude Include="Source\Patches\BottomlessClip.hpp" />
     <ClInclude Include="Source\Patches\Camera.hpp" />
+    <ClInclude Include="Source\Patches\DamageSystem.hpp" />
     <ClInclude Include="Source\Patches\DirectXHook.hpp" />
     <ClInclude Include="Source\ElDorito.hpp" />
     <ClInclude Include="Source\ElModules.hpp" />
@@ -307,6 +310,7 @@
     <ClInclude Include="Source\Patches\Memory.hpp" />
     <ClInclude Include="Source\Patches\Mouse.hpp" />
     <ClInclude Include="Source\Patches\Network.hpp" />
+    <ClInclude Include="Source\Patches\GameEngineSettings.hpp" />
     <ClInclude Include="Source\Patches\PlayerPropertiesExtension.hpp" />
     <ClInclude Include="Source\Patches\PlayerRepresentation.hpp" />
     <ClInclude Include="Source\Patches\PlayerUid.hpp" />

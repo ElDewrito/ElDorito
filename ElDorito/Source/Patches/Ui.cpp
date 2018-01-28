@@ -63,6 +63,7 @@ namespace
 	void __fastcall c_hud_camera_view__render_outlines_hook(void *thisptr, void *unused, int localPlayerIndex, int playerMappingIndex, void *a3);
 
 	void chud_talking_player_name_hook();
+	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -287,6 +288,8 @@ namespace Patches::Ui
 
 		//Show the talking player's name on the HUD
 		Hook(0x6CA978, chud_talking_player_name_hook, HookFlags::IsCall).Apply();
+		// allow hiding nametags
+		Hook(0x68AA21, chud_add_player_marker_hook, HookFlags::IsCall).Apply();
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -1765,6 +1768,21 @@ namespace
 			repe movsb
 			ret
 		}
+	}
+
+	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data)
+	{
+		const auto chud_add_player_marker = (void(__thiscall*)(void *thisptr, uint8_t *data))(0xAAF9D0);
+
+		auto playerIndex = *(uint32_t*)data;
+		if (playerIndex != -1)
+		{
+			auto player = (uint8_t*)Blam::Players::GetPlayers().Get(playerIndex);
+			if (player && *(uint8_t*)(player + 0x2DC1) == 4) // waypoint
+				return;
+		}
+
+		chud_add_player_marker(thisptr, data);
 	}
 
 	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget)

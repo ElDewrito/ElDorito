@@ -544,6 +544,8 @@
     <ClCompile Include="Source\Discord\DiscordRPC.cpp">
       <Filter>Discord</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Patches\GameEngineSettings.cpp" />
+    <ClCompile Include="Source\Patches\DamageSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1248,6 +1250,8 @@
     <ClInclude Include="Source\ThirdParty\SOP.hpp">
       <Filter>ThirdParty</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Patches\GameEngineSettings.hpp" />
+    <ClInclude Include="Source\Patches\DamageSystem.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

@@ -32,6 +32,8 @@
 #include "Patches\Simulation.hpp"
 #include "Patches\Camera.hpp"
 #include "Patches\Maps.hpp"
+#include "Patches\GameEngineSettings.hpp"
+#include "Patches\DamageSystem.hpp"
 #include "Game\Armor.hpp"
 
 #include <fstream>
@@ -72,6 +74,8 @@ namespace Patches
 		Simulation::ApplyAll();
 		Camera::ApplyAll();
 		Maps::ApplyAll();
+		GameEngineSettings::ApplyAll();
+		DamageSystem::ApplyAll();
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 

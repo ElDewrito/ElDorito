@@ -18,12 +18,6 @@ namespace Patches::BottomlessClip
 {
 	void ApplyAll()
 	{
-		Patch(0x1CB9A1 + 2, { 0x3 }).Apply();
-		Patch(0x1CBF32 + 2, { 0x3 }).Apply();
-		Patch(0x1CE01A + 2, { 0x3 }).Apply();
-		Patch(0x1CD586 + 2, { 0x3 }).Apply();
-		Patch(0x1CCBED + 2, { 0x3 }).Apply();
-		Patch(0x1CAE69 + 2, { 0x3 }).Apply();
 		Hook(0x75FACD, weapon_round_subtract_hook).Apply();
 		Hook(0x7601DA, weapon_heat_generation_hook).Apply();
 		Hook(0x151E50, player_has_infnite_ammo_hook).Apply();
