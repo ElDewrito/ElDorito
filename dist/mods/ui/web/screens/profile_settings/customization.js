@@ -98,7 +98,7 @@ $(document).ready(function(){
             if(activePage.endsWith('inputBox')){
                 dismissButton();
             }else{
-                if(activePage!=location.hash && activePage!=""){
+                if(activePage.includes(" ")){
                     exitSubform();
                 }else{
                     cancelButton();
@@ -221,7 +221,7 @@ $(document).ready(function(){
             if(e.data.B == 1){
                 if(activePage.endsWith('inputBox')){
                     dismissButton();
-                }else if(activePage!=location.hash){
+                }else if(activePage.includes(" ")){
                     exitSubform();
                 }else{
                     cancelButton();
