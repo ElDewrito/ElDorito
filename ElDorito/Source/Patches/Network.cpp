@@ -784,10 +784,10 @@ namespace
 		bool isNewMember = false;
 		auto session = Blam::Network::GetActiveSession();
 
-		// If the player already has a name and isn't host, then use that instead of the one in the packet
+		// If the player already has a name, then use that instead of the one in the packet
 		// This prevents people from changing their name mid-game by forcing a player properties update
 		// The player name is stored at the beginning of the player-properties packet (TODO: Map it out properly!)
-		if (properties->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
+		if (properties->DisplayName[0])
 			memcpy(reinterpret_cast<wchar_t*>(data), properties->DisplayName, sizeof(properties->DisplayName));
 		else
 		{
@@ -800,14 +800,7 @@ namespace
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
 		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{
-			int teamSizes[8] = { 0 };
-			int playerIdx = session->MembershipInfo.FindFirstPlayer();
-			while (playerIdx > -1)
-			{
-				teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
-				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-			}
-			if (teamSizes[packetProperties->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+			if (packetProperties->TeamIndex > Modules::ModuleServer::Instance().VarNumTeams->ValueInt - 1)
 			{
 				packetProperties->TeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
 			}
@@ -834,34 +827,18 @@ namespace
 				teamSizes[prop->TeamIndex]--; //ignore one place for the default team they were placed on
 
 				//check joining teams size
-				if (teamSizes[prop->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+				int smallest = Blam::Network::MaxPlayers + 1;
+				int smallIndex = 0;
+				for (int i = 0; i < Modules::ModuleServer::Instance().VarNumTeams->ValueInt; i++)
 				{
-					int smallest = Blam::Network::MaxPlayers + 1;
-					int smallIndex = 0;
-					for (int i = 0; i < 8; i++)
+					if (teamSizes[i] < smallest)
 					{
-						if (teamSizes[i] != 0 && teamSizes[i] < smallest)
-						{
-							smallest = teamSizes[i];
-							smallIndex = i;
-						}
+						smallest = teamSizes[i];
+						smallIndex = i;
 					}
-
-					//put us on a new team since others are full
-					if (smallest >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-					{
-						for (int i = 0; i < 8; i++)
-						{
-							if (teamSizes[i] == 0)
-							{
-								smallIndex = i;
-								break;
-							}
-						}
-					}
-					prop->ClientProperties.TeamIndex = smallIndex;
-					session->MembershipInfo.Update();
 				}
+				prop->ClientProperties.TeamIndex = smallIndex;
+				session->MembershipInfo.Update();
 			}
 		}
 

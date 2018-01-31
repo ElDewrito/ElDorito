@@ -997,8 +997,8 @@ namespace
 		// Build an array of active player indices
 		int players[Blam::Network::MaxPlayers];
 		auto numPlayers = 0;
-		auto &membership = session->MembershipInfo;
-		for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
+		auto membership = &session->MembershipInfo;
+		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
 		{
 			players[numPlayers] = player;
 			numPlayers++;
@@ -1021,23 +1021,16 @@ namespace
 		static std::mt19937 urng(rng());
 		std::shuffle(&players[0], &players[numPlayers], urng);
 
-
-		int playerIndex = 0;
-		int numTeams = ceil((double)numPlayers / Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt);
-		if (numTeams == 1)
-			numTeams = 2;
-		int playersPerTeam = ceil((double)numPlayers / numTeams);
-		if (playersPerTeam < 1) // Can't fill each team, put one on each team
-			playersPerTeam = 1;
-		for (int team = 0; team < numTeams; team++)
+		int teamIndex = 0;
+		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
 		{
-			for (int numTeamPlayers = 0; numTeamPlayers < playersPerTeam && playerIndex < numPlayers; numTeamPlayers++)
-			{
-				membership.PlayerSessions[players[playerIndex]].Properties.ClientProperties.TeamIndex = team;
-				playerIndex++;
-			}
+			membership->PlayerSessions[players[player]].Properties.ClientProperties.TeamIndex = teamIndex;
+
+			teamIndex++;
+			if (teamIndex == Modules::ModuleServer::Instance().VarNumTeams->ValueInt)
+				teamIndex = 0;
 		}
-		membership.Update();
+		membership->Update();
 
 		// Send a chat message to notify players about the shuffle
 		Server::Chat::PeerBitSet peers;
@@ -1231,51 +1224,6 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
-	bool CommandMaxTeamSize(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		auto *session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished())
-		{
-			returnInfo = "Session not established";
-			return false;
-		}
-
-		int teamSizes[8] = { 0 };
-		int playerIdx = session->MembershipInfo.FindFirstPlayer();
-		while (playerIdx > -1)
-		{
-			teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
-			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-		}
-
-		//loop again but now we know team sizes
-		playerIdx = session->MembershipInfo.FindFirstPlayer();
-		while (playerIdx > -1)
-		{
-			if (teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex] > Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-			{
-				//find next available team
-				for (int i = 0; i < 8; i++)
-				{
-					if (teamSizes[i] < Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-					{
-						teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]--;
-						session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex = i;
-						teamSizes[i]++;
-						break;
-					}
-				}
-			}
-			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-		}
-		session->MembershipInfo.Update();
-
-		std::stringstream ss;
-		ss << "Max team size has been changed to: " << Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt;
-
-		returnInfo = ss.str();
-		return true;
-	}
 }
 
 namespace Modules
@@ -1341,9 +1289,9 @@ namespace Modules
 
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
 
-		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8, CommandMaxTeamSize);
-		VarMaxTeamSize->ValueIntMin = 2;
-		VarMaxTeamSize->ValueIntMax = 16;
+		VarNumTeams = AddVariableInt("NumberOfTeams", "num_teams", "Set the desired number of teams", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 2);
+		VarNumTeams->ValueIntMin = 1;
+		VarNumTeams->ValueIntMax = 8;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
 		AddCommand("PM", "pm", "Sends a pm to a player as the server. First argument is the player name, second is the message in quotes", eCommandFlagsHostOnly, CommandServerPM);
