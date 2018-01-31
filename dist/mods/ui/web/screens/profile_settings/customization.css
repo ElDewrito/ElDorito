@@ -17,5 +17,6 @@ body{
 }
 
 #infoBox{
+    display:none;
     height:140px;
 }

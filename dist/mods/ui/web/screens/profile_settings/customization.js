@@ -385,6 +385,7 @@ dew.on('show', function(e){
     $('#blueHeader, #blueFooter,#blackLayer').hide();
     $('.armorForm, .colorForm').hide();
     $('#infoHeader, #infoText').text('');
+    $('#infoBox').hide();
     bipedRotate = 270;
     dew.getSessionInfo().then(function(i){
         if(i.mapName == "mainmenu"){
@@ -701,11 +702,11 @@ function armorShow(showMe, element){
     element.addClass('selectedElement');
     $('.armorForm').hide();
     $('#'+showMe).show();
-    $('#infoBox').show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
     $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
     $(location.hash+' #infoBox #infoText').text($('#'+showMe+' input:checked').attr('desc'));
+    $(location.hash+' #infoBox').show();
 }
 
 function colorShow(showMe, element){
@@ -715,7 +716,6 @@ function colorShow(showMe, element){
     element.addClass('selectedElement');
     $('.colorForm').hide();
     $('#'+showMe).css('display', 'grid')
-    $('#infoBox').show();
     $.grep(settingsToLoad, function(result, index){
         if(result){
             if(result[0] == showMe){
@@ -724,6 +724,7 @@ function colorShow(showMe, element){
         }
     });
     $(location.hash+' #infoBox #infoHeader').text($('#'+showMe+' input:checked').parent()[0].innerText);
+    $(location.hash+' #infoBox').show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
     updateSelection(itemNumber, false, true);
 }
