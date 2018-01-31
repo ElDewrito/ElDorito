@@ -1,4 +1,4 @@
-var activePage;
+var activePage = "";
 var itemNumber = 0;
 var tabIndex = 0;
 var hasGP = false;
@@ -98,7 +98,7 @@ $(document).ready(function(){
             if(activePage.endsWith('inputBox')){
                 dismissButton();
             }else{
-                if(activePage!=location.hash){
+                if(activePage!=location.hash && activePage!=""){
                     exitSubform();
                 }else{
                     cancelButton();
@@ -148,7 +148,9 @@ $(document).ready(function(){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
         window.location.href = e.target.href;
-        activePage = e.target.hash;
+        if(e.target.hash){
+            activePage = e.target.hash;
+        }
         itemNumber = 0;
         $(e).ready(function(){
             updateSelection(itemNumber, false, true);
