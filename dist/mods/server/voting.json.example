@@ -45,12 +45,12 @@
     {
       "displayName": "Team King",
       "typeName": "Team Crazy King",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
     },
     {
       "displayName": "Team SWAT",
       "typeName": "Team SWAT",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"],
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"],
       "SpecificMaps": [
         {
           "displayName": "Valhalla",
@@ -77,22 +77,22 @@
     {
       "displayName": "Team Snipers",
       "typeName": "Team Snipers",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
     },
     {
       "displayName": "Team BRs",
       "typeName": "Team BRs",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
     },
     {
       "displayName": "Team BRs",
       "typeName": "Team BRs",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
     },
     {
       "displayName": "Team DMRs",
       "typeName": "Team DMRs",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
     },
     {
       "displayName": "Team Fiesta",
@@ -105,7 +105,7 @@
     {
       "displayName": "Multi Flag",
       "typeName": "Team CTF",
-      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"],
+      "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"],
       "SpecificMaps": [
         {
           "displayName": "Sandtrap",
