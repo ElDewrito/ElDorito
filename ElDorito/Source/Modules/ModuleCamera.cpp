@@ -236,6 +236,8 @@ namespace
 
 		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 
+		Pointer disablePlayerMovement(ElDorito::GetMainTls(0x44)[0](5));
+
 		// get new camera perspective function offset
 		size_t offset = 0x166ACB0;
 		if (!mode.compare("first")) // c_first_person_camera
@@ -268,6 +270,7 @@ namespace
 			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
+			disablePlayerMovement.Write(true);
 		}
 		else if (!mode.compare("static")) // c_static_camera
 		{
@@ -279,6 +282,8 @@ namespace
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
+		else if (mode.compare("flying"))
+			disablePlayerMovement.Write(false);
 
 		/*
 		else if (!mode.compare("dead")) // c_dead_camera
