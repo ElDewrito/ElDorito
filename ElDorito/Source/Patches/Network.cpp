@@ -887,6 +887,9 @@ namespace
 			}
 		}
 
+		const auto network_generate_identifier = (__int64(*)())(0x00431010);
+		*(uint64_t*)((uint8_t*)request+0x1D0) = network_generate_identifier(); // replace player identifier (local ipv4, port) with something more unique
+
 		// Continue the join process
 		typedef bool(__thiscall *Network_session_handle_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, void *request);
 		auto Network_session_handle_join_request = reinterpret_cast<Network_session_handle_join_requestFunc>(0x4DA410);
