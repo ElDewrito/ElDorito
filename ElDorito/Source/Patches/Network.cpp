@@ -52,6 +52,7 @@ namespace
 	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
 	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
+	void network_session_interface_add_local_user_hook(int localUserIndex, uint8_t *playerIdentifier);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -439,6 +440,8 @@ namespace Patches::Network
 		Hook(0x00039AE4, c_network_session_parameter_map_variant__request_change_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x67DB29, network_session_interface_add_local_user_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -887,9 +890,6 @@ namespace
 			}
 		}
 
-		const auto network_generate_identifier = (__int64(*)())(0x00431010);
-		*(uint64_t*)((uint8_t*)request+0x1D0) = network_generate_identifier(); // replace player identifier (local ipv4, port) with something more unique
-
 		// Continue the join process
 		typedef bool(__thiscall *Network_session_handle_join_requestFunc)(Blam::Network::Session *thisPtr, const Blam::Network::NetworkAddress &address, void *request);
 		auto Network_session_handle_join_request = reinterpret_cast<Network_session_handle_join_requestFunc>(0x4DA410);
@@ -1204,5 +1204,12 @@ namespace
 		Blam::Network::LeaveGame();
 		Web::Ui::ScreenLayer::ShowAlert("Booted", "You were booted from the game", Web::Ui::ScreenLayer::AlertIcon::None);
 		return 0;
+	}
+
+	void network_session_interface_add_local_user_hook(int localUserIndex, uint8_t *playerIdentifier)
+	{
+		const auto network_session_interface_add_local_user = (void(*)(int localUserIndex, uint8_t *playerIdentifier))(0x00436000);
+		auto xnaddr = (uint8_t*)0x199FAB2; // use the first 64 bits of the xnaddr (128 bit guid in eldorado)
+		network_session_interface_add_local_user(localUserIndex, xnaddr);
 	}
 }
