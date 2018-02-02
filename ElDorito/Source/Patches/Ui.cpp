@@ -926,8 +926,7 @@ namespace
 					return;
 
 				case 5: // Exit
-					Patches::Core::ExecuteShutdownCallbacks();
-					std::exit(0);
+					Web::Ui::ScreenLayer::Show("exit", "{}");
 					return;
 				}
 			}
