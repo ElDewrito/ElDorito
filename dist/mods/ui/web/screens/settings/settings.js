@@ -734,7 +734,9 @@ function cancelButton(){
         initializeBindings(); 
         switchPage('#page2'); 
         $('#cancelButton').html('<img class="button">Close');
-        $('#applyButton').hide();
+        if(!changeArray.length){
+            $('#applyButton').hide();
+        }
         if(hasGP){
             setButtons();
             $('button img,.tabs img').show();
