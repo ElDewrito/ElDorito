@@ -761,6 +761,8 @@ function exitSubform(){
         itemNumber = $(activePage+' span').has('.setting').index($('span:has(.selectedElement)'));
         colorPicker = null;
         dew.command('Game.PlaySound 0x0B04');
+        $(activePage + ' form:visible').hide();
+        $(activePage + ' #infoBox').hide();
     }
 }
 
