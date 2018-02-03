@@ -52,7 +52,7 @@ namespace
 	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
 	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
-	void network_session_interface_add_local_user_hook(int localUserIndex, uint8_t *playerIdentifier);
+	uint64_t local_user_get_identifier_hook();
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -441,7 +441,7 @@ namespace Patches::Network
 
 		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
 
-		Hook(0x67DB29, network_session_interface_add_local_user_hook, HookFlags::IsCall).Apply();
+		Hook(0x67E01F, local_user_get_identifier_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -1206,10 +1206,8 @@ namespace
 		return 0;
 	}
 
-	void network_session_interface_add_local_user_hook(int localUserIndex, uint8_t *playerIdentifier)
+	uint64_t local_user_get_identifier_hook()
 	{
-		const auto network_session_interface_add_local_user = (void(*)(int localUserIndex, uint8_t *playerIdentifier))(0x00436000);
-		auto xnaddr = (uint8_t*)0x199FAB2; // use the first 64 bits of the xnaddr (128 bit guid in eldorado)
-		network_session_interface_add_local_user(localUserIndex, xnaddr);
+		return *(uint64_t*)0x199FAB2; // use the first 64 bits of the xnkaddr (128 bit guid in eldorado)
 	}
 }
