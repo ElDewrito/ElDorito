@@ -8,7 +8,7 @@ html, body {
 
 body {
     background: rgba(0, 0, 0, 0.8);
-    font-family: "Conduit ITC", sans-serif;
+    font-family: "Conduit ITC";
 }
 
 .container {
@@ -72,6 +72,7 @@ button:hover{
 }
 
 button img{
+    display: none;
     width: 25px;
     position:relative;
 	margin-bottom:-8px;
