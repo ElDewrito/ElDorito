@@ -109,9 +109,6 @@ namespace
 				plyIndex = session->MembershipInfo.FindNextPlayer(plyIndex);
 			}
 
-			std::stringstream uidStream;
-			uidStream << session->MembershipInfo.GetLocalPlayerSession().Properties.Uid;
-			Discord::DiscordRPC::Instance().partyId = uidStream.str();
 			Discord::DiscordRPC::Instance().discordPresence.partyId = Modules::ModuleServer::Instance().VarServerNameClient->ValueString.c_str();
 			Discord::DiscordRPC::Instance().discordPresence.matchSecret = Discord::DiscordRPC::Instance().matchSecret.c_str();
 			Discord::DiscordRPC::Instance().discordPresence.partySize = players;

@@ -9,7 +9,6 @@ namespace Discord
 	public:
 		DiscordRichPresence discordPresence;
 		std::string detailString;
-		std::string partyId;
 		std::string matchSecret; //random for now
 
 		std::mutex joinMtx;
