@@ -112,7 +112,7 @@ namespace
 			std::stringstream uidStream;
 			uidStream << session->MembershipInfo.GetLocalPlayerSession().Properties.Uid;
 			Discord::DiscordRPC::Instance().partyId = uidStream.str();
-			Discord::DiscordRPC::Instance().discordPresence.partyId = Discord::DiscordRPC::Instance().partyId.c_str();
+			Discord::DiscordRPC::Instance().discordPresence.partyId = Modules::ModuleServer::Instance().VarServerNameClient->ValueString.c_str();
 			Discord::DiscordRPC::Instance().discordPresence.matchSecret = Discord::DiscordRPC::Instance().matchSecret.c_str();
 			Discord::DiscordRPC::Instance().discordPresence.partySize = players;
 			Discord::DiscordRPC::Instance().discordPresence.partyMax = session->MembershipInfo.SessionMaxPlayers;
