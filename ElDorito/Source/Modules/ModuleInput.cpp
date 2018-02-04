@@ -802,7 +802,13 @@ namespace Modules
 			const auto binding = &commandBindings[i];
 			if (binding->command.size() == 0)
 				continue; // Key is not bound
-			std::string bound_command = binding->command[0];
+			std::string bound_command = "";
+			if (binding->command[1] == "")
+				bound_command = binding->command[0];
+			else
+			{
+				bound_command = binding->command[0] + " " + binding->command[1];
+			}
 			std::transform(bound_command.begin(), bound_command.end(), bound_command.begin(), ::tolower);
 			if (command.compare(bound_command) == 0)
 				return true;
