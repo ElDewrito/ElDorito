@@ -2,43 +2,47 @@
   "Maps": [
     {
       "displayName": "Standoff",
-      "mapName": "Standoff (TS)"
+      "mapName": "Bunkerworld"
     },
     {
       "displayName": "Sandtrap",
-      "mapName": "Sandtrap (TS)"
+      "mapName": "Shrine"
     },
     {
       "displayName": "Icebox",
-      "mapName": "Turf (TS)"
+      "mapName": "s3d_turf"
+    },
+	{
+      "displayName": "Reactor",
+      "mapName": "s3d_reactor"
     },
     {
       "displayName": "Narrows",
-      "mapName": "Narrows (TS)"
+      "mapName": "Chill"
     },
     {
       "displayName": "High Ground",
-      "mapName": "HighGroundTS"
+      "mapName": "Deadlock"
     },
     {
       "displayName": "Last Resort",
-      "mapName": "LastResortTS"
+      "mapName": "Zanzibar"
     },
     {
       "displayName": "Valhalla",
-      "mapName": "Valhalla (FS)"
+      "mapName": "riverworld"
     },
     {
       "displayName": "The Pit",
-      "mapName": "The Pit (TS)"
+      "mapName": "Cyberdyne"
     },
     {
       "displayName": "Guardian",
-      "mapName": "Guardian (TS)"
+      "mapName": "guardian"
     },
     {
       "displayName": "Diamondback",
-      "mapName": "DiamondbackFS"
+      "mapName": "s3d_avalanche"
     }
   ],
   "Types": [
