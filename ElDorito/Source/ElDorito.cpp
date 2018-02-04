@@ -147,6 +147,8 @@ void ElDorito::Initialize()
 	// maybe use an unordered_map here
 	if (!Modules::ModuleInput::Instance().IsCommandBound("game.takescreenshot"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen discord"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind F4 Game.ShowScreen discord");
 
 	mapsFolder = "maps\\";
 

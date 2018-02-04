@@ -260,7 +260,7 @@ namespace Blam::Network
 		bool success = Set_Network_Mode(mode);
 
 		//Let Discord Know
-		Discord::DiscordRPC::Instance().UpdatePresence();
+		Discord::DiscordRPC::Instance().UpdatePresence(mode);
 
 		return success;
 	}

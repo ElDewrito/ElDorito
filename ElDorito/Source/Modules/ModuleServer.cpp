@@ -30,6 +30,7 @@
 #include "ModulePlayer.hpp"
 #include "../Server/Voting.hpp"
 #include "../Utils/Logger.hpp"
+#include "../Discord/DiscordRPC.h"
 
 namespace
 {
@@ -440,6 +441,10 @@ namespace
 		Pointer::Base(0x1E40BB4).Write(xnetInfo, 0x10);
 		Pointer::Base(0x1E40BD4).Write(xnetInfo + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
+
+		std::stringstream discordStringStream;
+		discordStringStream << host << ":" << httpPort << " " << password;
+		Discord::DiscordRPC::Instance().joinString = discordStringStream.str();
 
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;

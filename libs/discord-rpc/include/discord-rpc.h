@@ -44,11 +44,12 @@ typedef struct DiscordRichPresence {
 typedef struct DiscordJoinRequest {
     const char* userId;
     const char* username;
+    const char* discriminator;
     const char* avatar;
 } DiscordJoinRequest;
 
 typedef struct DiscordEventHandlers {
-    void (*ready)();
+    void (*ready)(void);
     void (*disconnected)(int errorCode, const char* message);
     void (*errored)(int errorCode, const char* message);
     void (*joinGame)(const char* joinSecret);
@@ -75,6 +76,7 @@ DISCORD_EXPORT void Discord_UpdateConnection(void);
 #endif
 
 DISCORD_EXPORT void Discord_UpdatePresence(const DiscordRichPresence* presence);
+DISCORD_EXPORT void Discord_ClearPresence(void);
 
 DISCORD_EXPORT void Discord_Respond(const char* userid, /* DISCORD_REPLY_ */ int reply);
 
