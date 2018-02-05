@@ -6,6 +6,24 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var changeEmblemAPI = '/api/changeemblem';
+var getEmblemAPI = '/api/getemblem';
+var apiServer = 'new.halostats.click';
+var emblemGenerator = "http://new.halostats.click/emblem/emblem.php";
+var lastEmblem = "";
+var emblemToggle = 1;
+var playerPubKey = "";
+var playerName = "";
+var playerUID = "";
+var needApply = false;
+
+swal.setDefaults({
+    customClass: "alertWindow",
+    confirmButtonClass: "alertConfirm",
+    cancelButtonClass: "alertCancel",
+    buttonsStyling: false,
+    html: true
+})
 
 var h3ColorArray = [
     ['Steel','#626262'],
@@ -135,6 +153,8 @@ $(document).ready(function(){
             }
         }
     });
+	SetupEmblems(function() {
+		
     setRadioList('armorHelmet', armorHelmetList, true);
     setRadioList('armorChest', armorChestList, true);
     setRadioList('armorRightShoulder', armorShoulderList, true);
@@ -169,7 +189,10 @@ $(document).ready(function(){
         }
         dew.command('Game.PlaySound 0x0B00');
     });
-    $('.colorForm input, .armorForm input').on('change click', function(e){
+    $('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
+    $('#applyEmblemButton').show();
+    });
+    $('.colorForm input, .armorForm input, .emblemForm input').on('change click', function(e){
         $(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
         $(this).parent().parent().addClass('chosenElement');
         $.grep(settingsToLoad, function(result){
@@ -180,6 +203,7 @@ $(document).ready(function(){
             $(location.hash+' #infoBox #infoHeader').text(e.target.computedName);
         });
         $(location.hash+' #infoBox #infoText').text($(this).attr('desc'));
+		setUrl(false);
     });
     $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
         $('.colorForm').hide();
@@ -198,7 +222,7 @@ $(document).ready(function(){
             $(location.hash+' #infoBox #infoHeader').text(whichColor.val());
         });
     });
-    $('.colorForm, .armorForm').submit(function() {
+    $('.colorForm, .armorForm, .emblemForm').submit(function() {
         return false;
     });
     $('#applyButton').on('click', function(e){
@@ -320,7 +344,7 @@ $(document).ready(function(){
     $('.baseNav').mouseover(function(){
         activePage = location.hash;
     });
-    $('.armorForm, .colorForm').mouseover(function(){
+    $('.armorForm, .colorForm, .emblemForm').mouseover(function(){
         activePage = location.hash+' #'+$(this).attr('id');
     });
     $('span').has('.setting').mouseover(function(){
@@ -343,6 +367,7 @@ $(document).ready(function(){
     $('#inputBox #dismissButton').on('click', function(){
         hideInputBox(true);
     });
+	});
 });
 
 function checkGamepad(){
@@ -383,7 +408,7 @@ var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
-    $('.armorForm, .colorForm').hide();
+    $('.armorForm, .colorForm, .emblemForm').hide();
     $('#infoHeader, #infoText').text('');
     $('#infoBox').hide();
     bipedRotate = 270;
@@ -488,6 +513,7 @@ function setControlValues(){
             });
         }
     })
+	$("#toggleButton").hide();
 }
 
 function cancelButton(){
@@ -793,4 +819,307 @@ function adjustBiped(){
     }else{
         dew.command('Player.Armor.SetUiModelPosition 74.108 -101.926 11.65'); //default
     }    
+}
+
+var emblemJsonData;
+
+function SetupEmblems(callbackFunction){
+	$("#applyEmblemButton").hide();
+	
+	ping(apiServer, function(response){
+		if(response == 'timeout'){
+			var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+			callbackFunction();
+		}else{
+			dew.command("Player.Name").then(function (name){playerName = name;});
+			dew.command("Player.PrintUID").then(function (uid) {playerUID = uid.substr(14);});
+			dew.command("Player.PubKey").then(function (pubkey){playerPubKey = pubkey;});
+			dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
+				var jsonObj = new Object();
+				jsonObj.playerName = playerName;
+				jsonObj.uid = playerUID;
+				jsonObj.encryptedTimestamp = encryptedVal;
+				jsonObj.publicKey = playerPubKey;
+				var jsonString = JSON.stringify(jsonObj);
+				
+				$.ajax({
+				contentType: 'application/json',
+				data: jsonString,
+				dataType: 'json',
+				success: function(data){
+					var embList = JSON.parse(data.emblemList);
+					emblemJsonData = embList;
+					setEmblemIconRadioList('emblemIcon', embList, true);
+					setEmblemBackgroundIconRadioList('emblemBackgroundImage', embList, true);
+					setRadioList('colorsEmblemPrimary', h3ColorArray);
+					setRadioList('colorsEmblemSecondary', h3ColorArray);
+					setRadioList('colorsEmblemImage', h3ColorArray);
+					setRadioList('colorsEmblemBackground', h3ColorArray);
+					callbackFunction();
+					setEmblem(data.emblem);
+					lastEmblem = data.emblem;
+				},
+				error: function(){		
+					var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+					callbackFunction();
+				},
+				type: 'POST',
+				url: 'http://' + apiServer + getEmblemAPI
+				});			
+			});
+		}
+	});
+}
+
+function setItemValues(item, value){
+	$('#'+item+' :radio[value=""]').attr('checked',true);
+	$('#'+item+' :radio[value="'+value+'"]').attr('checked',true);
+	if( $('#'+item+' :radio[value="'+value+'"]').length){
+		$('#'+item+' :radio[value="'+value+'"]').parent().parent().addClass('chosenElement');
+	}else{
+		$('#'+item+' :radio[value=""]').parent().parent().addClass('chosenElement');
+	}
+	$('#'+item+'Text').val(value);
+
+}
+
+function getProperEmblemIndex(emblem){
+	for(var x = 0; x < emblemJsonData.emblemList.length; x++){
+		var value = emblemJsonData.emblemList[x][1];
+		if(value == emblem){
+			return x;
+		}
+	}
+	return 0;
+}
+
+function getProperBackgroundIndex(emblem){
+	for(var x = 0; x < emblemJsonData.backgroundEmblems.length; x++){
+		var value = emblemJsonData.backgroundEmblems[x][1];
+		if(value == emblem){
+			return x;
+		}
+	}
+	return 0;
+}
+
+function getQueryVariable(url, variable) {
+    var vars = url.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+}
+
+function setEmblem(url){
+	setItemValues('emblemIcon', emblemJsonData.emblemList[getProperEmblemIndex(parseInt(getQueryVariable(url,'fi')))][1]);
+	setItemValues('emblemBackgroundImage', emblemJsonData.backgroundEmblems[getProperEmblemIndex(parseInt(getQueryVariable(url,'bi')))][1]);
+	setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(url,'3'))][1]);
+	setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(url,'2'))][1]);
+	setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(url,'1'))][1]);
+	setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(url,'0'))][1]);
+	emblemToggle = parseInt(getQueryVariable(url,'fl'));
+	setUrl(false);
+}
+
+function setEmblemIconRadioList(ElementID, Json, hasImage){
+    var sel = document.getElementById(ElementID);
+    for(var i = 0; i < Json.emblemList.length; i++){
+        var span = document.createElement("span");
+        var label = document.createElement("label");
+        var radio = document.createElement("input");
+        radio.setAttribute('type', 'radio');
+        radio.setAttribute('name', ElementID);
+        radio.setAttribute('class', 'setting');
+        if(Json.emblemList[i][2]){
+            radio.setAttribute('desc', Json.emblemList[i][2]);
+        }
+        radio.value = Json.emblemList[i][1];
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(Json.emblemList[i][0]));
+        span.appendChild(label);
+        if(hasImage){
+            var img = document.createElement("img");
+            img.setAttribute('src', Json.emblemList[i][2]);
+            span.appendChild(img);
+        }
+        sel.appendChild(span);
+    }
+}
+
+function setEmblemBackgroundIconRadioList(ElementID, Json, hasImage){
+    var sel = document.getElementById(ElementID);
+    for(var i = 0; i < Json.backgroundEmblems.length; i++){
+        var span = document.createElement("span");
+        var label = document.createElement("label");
+        var radio = document.createElement("input");
+        radio.setAttribute('type', 'radio');
+        radio.setAttribute('name', ElementID);
+        radio.setAttribute('class', 'setting');
+        if(Json.backgroundEmblems[i][2]){
+            radio.setAttribute('desc', Json.backgroundEmblems[i][2]);
+        }
+        radio.value = Json.backgroundEmblems[i][1];
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(Json.backgroundEmblems[i][0]));
+        span.appendChild(label);
+        if(hasImage){
+            var img = document.createElement("img");
+            img.setAttribute('src', Json.backgroundEmblems[i][2]);
+            span.appendChild(img);
+        }
+        sel.appendChild(span);
+    }
+}
+
+function emblemColorShow(showMe, element){
+    activePage = '#page3 #'+showMe;
+    $('.baseNav').removeClass('selectedElement');
+    $(activePage+' .selectedElement').removeClass('selectedElement');
+    element.addClass('selectedElement');
+    $('.colorForm').hide();
+	$('.emblemForm').hide();
+    $('#'+showMe).css('display', 'grid')
+    $('#infoBox').show();
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+	$(location.hash+' #infoBox').show();
+    updateSelection(itemNumber, false, true);
+}
+
+function emblemShow(showMe, element){
+    activePage = '#page3 #'+showMe;
+    $('.baseNav').removeClass('selectedElement');
+    $(activePage+' .selectedElement').removeClass('selectedElement');
+    element.addClass('selectedElement');
+    $('.emblemForm').hide();
+	$('.colorForm').hide();
+    $('#'+showMe).show();
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+	$(location.hash+' #infoBox').show();
+    updateSelection(itemNumber, false, true);
+}
+
+function setUrl(isLastEmblem){
+	var primary = $('#colorsEmblemPrimary span').index($('#colorsEmblemPrimary input:checked').parent().parent());
+	var secondary = $('#colorsEmblemSecondary span').index($('#colorsEmblemSecondary input:checked').parent().parent());
+	var imageb = $('#colorsEmblemImage span').index($('#colorsEmblemImage input:checked').parent().parent());
+	var background = $('#colorsEmblemBackground span').index($('#colorsEmblemBackground input:checked').parent().parent());
+	var icon = $('#emblemIcon input:checked').val();
+	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
+	var toggle = emblemToggle;
+
+	var emblemurl =  "?s=100&0=" + (background < 0 ? 0 : background) + 
+	"&1=" + (imageb < 0 ? 0 : imageb) + 
+	"&2=" + (secondary < 0 ? 0 : secondary) + 
+	"&3=" + (primary < 0 ? 0 : primary) + 
+	"&fi=" + (icon == undefined ? 0 : icon) + 
+	"&bi=" + (backgroundimg < 0 ? 0 : backgroundimg) + 
+	"&fl=" + (toggle < 0 ? 0 : toggle) + 
+	"&m=1";
+
+	if(isLastEmblem){
+		lastEmblem = emblemurl;
+	}
+	if(lastEmblem == emblemurl){
+		$("#applyEmblemButton").hide();
+	}
+	
+	document.getElementById("emblemBox").src = emblemGenerator + emblemurl;
+}
+
+function ApplyEmblem() {
+	var primary = $('#colorsEmblemPrimary span').index($('#colorsEmblemPrimary input:checked').parent().parent());
+	var secondary = $('#colorsEmblemSecondary span').index($('#colorsEmblemSecondary input:checked').parent().parent());
+	var imageb = $('#colorsEmblemImage span').index($('#colorsEmblemImage input:checked').parent().parent());
+	var background = $('#colorsEmblemBackground span').index($('#colorsEmblemBackground input:checked').parent().parent());
+	var icon = $('#emblemIcon input:checked').val();
+	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
+	var toggle = emblemToggle;
+	
+	dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
+		var jsonObj = new Object();
+		jsonObj.playerName = playerName;
+		jsonObj.uid = playerUID;
+		jsonObj.encryptedTimestamp = encryptedVal;
+		jsonObj.publicKey = playerPubKey;
+		
+		var emblemObj = new Object();
+		emblemObj.s = 100;
+		emblemObj.zero = (background < 0 ? 0 : background);
+		emblemObj.one = (imageb < 0 ? 0 : imageb);
+		emblemObj.two = (secondary < 0 ? 0 : secondary);
+		emblemObj.three = (primary < 0 ? 0 : primary);
+		emblemObj.fi = (icon == undefined ? 0 : icon);
+		emblemObj.bi = (backgroundimg < 0 ? 0 : backgroundimg);
+		emblemObj.fl = (toggle < 0 ? 0 : toggle);
+		emblemObj.m = 1;
+	
+		jsonObj.emblem = emblemObj;
+		var jsonString = JSON.stringify(jsonObj);
+		
+		$.ajax({
+		contentType: 'application/json',
+		data: jsonString,
+		success: function(data){
+			$('#applyEmblemButton').hide();
+			swal({   
+                title: "Success",
+                text: "Your emblem has been successfully changed"
+			});
+			setUrl(true);
+		},
+		error: function(data){
+			swal({   
+                title: "Failed",
+                text: "Your emblem has failed to change. Please check your internet connection",
+				type: "error"
+			});
+		},
+		type: 'POST',
+		url: 'http://' + apiServer + changeEmblemAPI
+		});			
+	});
+}
+
+function toggleIcon(){
+	if(emblemToggle == 1)
+		emblemToggle = 0;
+	else
+		emblemToggle = 1;
+	$('#applyEmblemButton').show();
+	setUrl(false);
+}
+
+function ping(ip, callback) {
+
+    if (!this.inUse) {
+        this.status = 'unchecked';
+        this.inUse = true;
+        this.callback = callback;
+        this.ip = ip;
+        var _that = this;
+        this.img = new Image();
+        this.img.onload = function () {
+            _that.inUse = false;
+            _that.callback('responded');
+
+        };
+        this.img.onerror = function (e) {
+            if (_that.inUse) {
+                _that.inUse = false;
+                _that.callback('responded', e);
+            }
+
+        };
+        this.start = new Date().getTime();
+        this.img.src = "http://" + ip;
+        this.timer = setTimeout(function () {
+            if (_that.inUse) {
+                _that.inUse = false;
+                _that.callback('timeout');
+            }
+        }, 1500);
+    }
 }

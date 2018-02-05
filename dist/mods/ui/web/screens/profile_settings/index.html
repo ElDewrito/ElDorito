@@ -9,6 +9,9 @@
     <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
     <script type="text/javascript" src="dew://lib/jquery-ui.js"></script>
     <link rel="stylesheet" href="dew://lib/jquery-ui.css">
+    <script src="sweetalert.min.js"></script> 
+    <link rel="stylesheet" type="text/css" href="sweetalert.css">  
+	<link rel="stylesheet" type="text/css" href="eldorito.css"> 
 
 		<!-- Window Resize-->
     <script src="dew://lib/window-resize.js"></script>
@@ -29,6 +32,7 @@
                 <ul class="tabs">
                     <li><a href="#page1"><img class="button"></img><img class="button"></img><p>Armory</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
                     <li><a href="#page2"><p>Colors</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
+					<li id="EmblemTab" ><a id="EmblemTabLink" href="#page3"><p>Emblem</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
                 </ul>
                 <div class="tabpage-container window-side-padding">
                   <div id="page1" class="tabpage grid-customization hide">
@@ -81,10 +85,38 @@
                           <div class="infobox-content" id="infoText"></div>
                       </div>
                   </div>
+				  <div id="page3" class="tabpage grid-customization hide">
+                      <div id="buttonConatiner">
+					     <span><div class="setting baseNav button-list" onclick="emblemShow('emblemIcon',$(this));"><label>Icon</label></div></span>
+					     <span><div class="setting baseNav button-list" onclick="emblemShow('emblemBackgroundImage',$(this));"><label>Background Image</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemPrimary',$(this));"><label>Primary Color</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemSecondary',$(this));"><label>Secondary Color</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemImage',$(this));"><label>Image Color</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemBackground',$(this));"><label>Background Color</label></div></span>
+						 <span><div class="setting baseNav button-list" onclick="toggleIcon();"><label>Toggle Icon</label></div></span>
+                      </div>
+                      <div class="emblemBox" id="infoBox">
+						<img id="emblemBox" src="" />
+                      </div>
+                      <div class="side-list has-vertical-scrollbar vertical-gradient-scroll">
+						<form class="emblemForm hide tile-button tile-large emblem-tile" id="emblemIcon"></form>
+						<form class="emblemForm hide tile-button tile-large emblem-tile" id="emblemBackgroundImage"></form>
+                        <form class="colorForm hide tile-button" id="colorsEmblemPrimary"></form>
+						<form class="colorForm hide tile-button" id="colorsEmblemSecondary"></form>
+						<form class="colorForm hide tile-button" id="colorsEmblemImage"></form>
+						<form class="colorForm hide tile-button" id="colorsEmblemBackground"></form>
+                      </div>
+                  </div>
+				  <div id="unavailable" class="tabpage grid-customization hide">
+                      <div id="buttonConatiner">
+					     <span><div class="setting baseNav button-list"><label>Currently Unavailable</label></div></span>
+                      </div>
+                  </div>
                   <div id="playerWindow"></div>
                 </div>
                 <div class="bottomBar window-side-padding">
                     <button id="cancelButton" class="legend-button"><img class="button">Close</button>
+					<button id="applyEmblemButton"  class="legend-button" onclick="ApplyEmblem();"><img class="button">Submit Emblem</button>
                     <!--
                     <button id="randomColors"  class="legend-button randomizer" onclick="randomColors();"><img class="button">Random Colors</button>
                     <button id="randomArmor"  class="legend-button randomizer" onclick="randomArmor();"><img class="button">Random Armor</button>

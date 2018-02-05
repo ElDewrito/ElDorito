@@ -20,3 +20,35 @@ body{
     display:none;
     height:140px;
 }
+
+.emblem-tile img{
+    width: 30% !important;
+    padding-left: 70%;
+} 
+
+.emblemBox{
+	display: inline !important;
+	height:140px;
+}
+
+.emblemForm label{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    box-sizing: border-box;
+}
+.emblemForm label{
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    font-size: var(--button-tile-large-fontsize);
+    text-transform: uppercase;
+    color: var(--button-tile-color);
+}
+
+.emblemBox img{
+	height: 150px;
+	margin-left: 25%;
+	box-shadow: 0px 0px 0px 2px rgba(0,0,0,1), 0px 0px 0px 4px rgba(200,200,200,1), 0px 0px 24px 4px rgba(0,0,0,0.6);
+}
