@@ -9,7 +9,7 @@ var lastHeldUpdated = 0;
 var changeEmblemAPI = '/api/changeemblem';
 var getEmblemAPI = '/api/getemblem';
 var apiServer = 'new.halostats.click';
-var emblemGenerator = "http://new.halostats.click/emblem/emblem.php";
+var emblemGeneratorAPI = "/emblem/emblem.php";
 var lastEmblem = "";
 var emblemToggle = 1;
 var playerPubKey = "";
@@ -1018,7 +1018,7 @@ function setUrl(isLastEmblem){
 		$("#applyEmblemButton").hide();
 	}
 	
-	document.getElementById("emblemBox").src = emblemGenerator + emblemurl;
+	document.getElementById("emblemBox").src = 'http://' + apiServer + emblemGeneratorAPI + emblemurl;
 }
 
 function ApplyEmblem() {
@@ -1049,11 +1049,10 @@ function ApplyEmblem() {
 		emblemObj.m = 1;
 	
 		jsonObj.emblem = emblemObj;
-		var jsonString = JSON.stringify(jsonObj);
 		
 		$.ajax({
 		contentType: 'application/json',
-		data: jsonString,
+		data: JSON.stringify(jsonObj),
 		success: function(data){
 			$('#applyEmblemButton').hide();
 			dew.show('alert', {
@@ -1077,16 +1076,12 @@ function ApplyEmblem() {
 }
 
 function toggleIcon(){
-	if(emblemToggle == 1)
-		emblemToggle = 0;
-	else
-		emblemToggle = 1;
+	emblemToggle = 1 - emblemToggle;
 	$('#applyEmblemButton').show();
 	setUrl(false);
 }
 
 function ping(ip, callback) {
-
     if (!this.inUse) {
         this.status = 'unchecked';
         this.inUse = true;
