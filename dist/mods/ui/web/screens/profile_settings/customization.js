@@ -17,14 +17,6 @@ var playerName = "";
 var playerUID = "";
 var needApply = false;
 
-swal.setDefaults({
-    customClass: "alertWindow",
-    confirmButtonClass: "alertConfirm",
-    cancelButtonClass: "alertCancel",
-    buttonsStyling: false,
-    html: true
-})
-
 var h3ColorArray = [
     ['Steel','#626262'],
     ['Silver','#B0B0B0'],
@@ -1064,18 +1056,19 @@ function ApplyEmblem() {
 		data: jsonString,
 		success: function(data){
 			$('#applyEmblemButton').hide();
-			swal({   
-                title: "Success",
-                text: "Your emblem has been successfully changed"
-			});
+			dew.show('alert', {
+                        icon: 0,
+                        title: "Success",
+                        body: "Your emblem has been successfully changed"
+            });
 			setUrl(true);
 		},
 		error: function(data){
-			swal({   
-                title: "Failed",
-                text: "Your emblem has failed to change. Please check your internet connection",
-				type: "error"
-			});
+			dew.show('alert', {
+                        icon: 0,
+                        title: "Failed",
+                        body: "Your emblem has failed to change. Please check your internet connection"
+            });
 		},
 		type: 'POST',
 		url: 'http://' + apiServer + changeEmblemAPI
