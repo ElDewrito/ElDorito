@@ -813,8 +813,6 @@ function adjustBiped(){
     }    
 }
 
-var emblemJsonData;
-
 function SetupEmblems(callbackFunction){
 	$("#applyEmblemButton").hide();
 	
@@ -832,23 +830,30 @@ function SetupEmblems(callbackFunction){
 				jsonObj.uid = playerUID;
 				jsonObj.encryptedTimestamp = encryptedVal;
 				jsonObj.publicKey = playerPubKey;
-				var jsonString = JSON.stringify(jsonObj);
 				
 				$.ajax({
 				contentType: 'application/json',
-				data: jsonString,
+				data: JSON.stringify(jsonObj),
 				dataType: 'json',
 				success: function(data){
 					var embList = JSON.parse(data.emblemList);
-					emblemJsonData = embList;
-					setEmblemIconRadioList('emblemIcon', embList, true);
-					setEmblemBackgroundIconRadioList('emblemBackgroundImage', embList, true);
+					setEmblemRadioList('emblemIcon',embList.emblemList,true);
+					setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems,true);
 					setRadioList('colorsEmblemPrimary', h3ColorArray);
 					setRadioList('colorsEmblemSecondary', h3ColorArray);
 					setRadioList('colorsEmblemImage', h3ColorArray);
 					setRadioList('colorsEmblemBackground', h3ColorArray);
 					callbackFunction();
-					setEmblem(data.emblem);
+					
+					setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
+					setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
+					setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
+					setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'2'))][1]);
+					setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
+					setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
+					emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
+					setUrl(false);
+					
 					lastEmblem = data.emblem;
 				},
 				error: function(){		
@@ -875,19 +880,9 @@ function setItemValues(item, value){
 
 }
 
-function getProperEmblemIndex(emblem){
-	for(var x = 0; x < emblemJsonData.emblemList.length; x++){
-		var value = emblemJsonData.emblemList[x][1];
-		if(value == emblem){
-			return x;
-		}
-	}
-	return 0;
-}
-
-function getProperBackgroundIndex(emblem){
-	for(var x = 0; x < emblemJsonData.backgroundEmblems.length; x++){
-		var value = emblemJsonData.backgroundEmblems[x][1];
+function getProperIndex(emblem, array){
+	for(var x = 0; x < array.length; x++){
+		var value = array[x][1];
 		if(value == emblem){
 			return x;
 		}
@@ -905,61 +900,25 @@ function getQueryVariable(url, variable) {
     }
 }
 
-function setEmblem(url){
-	setItemValues('emblemIcon', emblemJsonData.emblemList[getProperEmblemIndex(parseInt(getQueryVariable(url,'fi')))][1]);
-	setItemValues('emblemBackgroundImage', emblemJsonData.backgroundEmblems[getProperEmblemIndex(parseInt(getQueryVariable(url,'bi')))][1]);
-	setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(url,'3'))][1]);
-	setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(url,'2'))][1]);
-	setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(url,'1'))][1]);
-	setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(url,'0'))][1]);
-	emblemToggle = parseInt(getQueryVariable(url,'fl'));
-	setUrl(false);
-}
-
-function setEmblemIconRadioList(ElementID, Json, hasImage){
+function setEmblemRadioList(ElementID, Json, hasImage){
     var sel = document.getElementById(ElementID);
-    for(var i = 0; i < Json.emblemList.length; i++){
+    for(var i = 0; i < Json.length; i++){
         var span = document.createElement("span");
         var label = document.createElement("label");
         var radio = document.createElement("input");
         radio.setAttribute('type', 'radio');
         radio.setAttribute('name', ElementID);
         radio.setAttribute('class', 'setting');
-        if(Json.emblemList[i][2]){
-            radio.setAttribute('desc', Json.emblemList[i][2]);
+        if(Json[i][2]){
+            radio.setAttribute('desc', Json[i][2]);
         }
-        radio.value = Json.emblemList[i][1];
+        radio.value = Json[i][1];
         label.appendChild(radio);
-        label.appendChild(document.createTextNode(Json.emblemList[i][0]));
+        label.appendChild(document.createTextNode(Json[i][0]));
         span.appendChild(label);
         if(hasImage){
             var img = document.createElement("img");
-            img.setAttribute('src', Json.emblemList[i][2]);
-            span.appendChild(img);
-        }
-        sel.appendChild(span);
-    }
-}
-
-function setEmblemBackgroundIconRadioList(ElementID, Json, hasImage){
-    var sel = document.getElementById(ElementID);
-    for(var i = 0; i < Json.backgroundEmblems.length; i++){
-        var span = document.createElement("span");
-        var label = document.createElement("label");
-        var radio = document.createElement("input");
-        radio.setAttribute('type', 'radio');
-        radio.setAttribute('name', ElementID);
-        radio.setAttribute('class', 'setting');
-        if(Json.backgroundEmblems[i][2]){
-            radio.setAttribute('desc', Json.backgroundEmblems[i][2]);
-        }
-        radio.value = Json.backgroundEmblems[i][1];
-        label.appendChild(radio);
-        label.appendChild(document.createTextNode(Json.backgroundEmblems[i][0]));
-        span.appendChild(label);
-        if(hasImage){
-            var img = document.createElement("img");
-            img.setAttribute('src', Json.backgroundEmblems[i][2]);
+            img.setAttribute('src', Json[i][2]);
             span.appendChild(img);
         }
         sel.appendChild(span);
