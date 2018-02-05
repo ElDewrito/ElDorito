@@ -28,7 +28,7 @@
                 <ul class="tabs">
                     <li><a href="#page1"><img class="button"></img><img class="button"></img><p>Armory</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
                     <li><a href="#page2"><p>Colors</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
-					<li id="EmblemTab" ><a id="EmblemTabLink" href="#page3"><p>Emblem</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
+					<li id="EmblemTab" onclick="emblemTabSelected()"><a id="EmblemTabLink" href="#page3"><p>Emblem</p><div class="tab-bg"><div class="tab-shadow left"></div><div class="tab-shadow right"></div></div></a></li>
                 </ul>
                 <div class="tabpage-container window-side-padding">
                   <div id="page1" class="tabpage grid-customization hide">
@@ -112,7 +112,7 @@
                 </div>
                 <div class="bottomBar window-side-padding">
                     <button id="cancelButton" class="legend-button"><img class="button">Close</button>
-					<button id="applyEmblemButton"  class="legend-button" onclick="ApplyEmblem();"><img class="button">Submit Emblem</button>
+					<button id="applyEmblemButton"  class="legend-button" onclick="ApplyEmblem(true);"><img class="button">Submit Emblem</button>
                     <!--
                     <button id="randomColors"  class="legend-button randomizer" onclick="randomColors();"><img class="button">Random Colors</button>
                     <button id="randomArmor"  class="legend-button randomizer" onclick="randomArmor();"><img class="button">Random Armor</button>

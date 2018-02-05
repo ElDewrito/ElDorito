@@ -10,6 +10,7 @@ var changeEmblemAPI = '/api/changeemblem';
 var getEmblemAPI = '/api/getemblem';
 var apiServer = 'new.halostats.click';
 var emblemGeneratorAPI = "/emblem/emblem.php";
+var hasValidConnection = true;
 var lastEmblem = "";
 var emblemToggle = 1;
 var playerPubKey = "";
@@ -145,7 +146,7 @@ $(document).ready(function(){
             }
         }
     });
-	SetupEmblems(function() {
+	SetupEmblems(false, true, true, function() {
 		
     setRadioList('armorHelmet', armorHelmetList, true);
     setRadioList('armorChest', armorChestList, true);
@@ -179,6 +180,7 @@ $(document).ready(function(){
                 }
             });
         }
+		
         dew.command('Game.PlaySound 0x0B00');
     });
     $('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
@@ -351,6 +353,11 @@ $(document).ready(function(){
     $('#inputBox #okButton').on('click', function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
+			if(hasValidConnection){
+				SetupEmblems(false, false, false, function(){
+					ApplyEmblem(false);
+				});
+			}
         }else if($('#inputBox #sTag').is(':visible')){
             dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
         }
@@ -813,12 +820,13 @@ function adjustBiped(){
     }    
 }
 
-function SetupEmblems(callbackFunction){
+function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem, callbackFunction){
 	$("#applyEmblemButton").hide();
 	
 	ping(apiServer, function(response){
 		if(response == 'timeout'){
 			var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+			hasValidConnection = false;
 			callbackFunction();
 		}else{
 			dew.command("Player.Name").then(function (name){playerName = name;});
@@ -837,27 +845,37 @@ function SetupEmblems(callbackFunction){
 				dataType: 'json',
 				success: function(data){
 					var embList = JSON.parse(data.emblemList);
-					setEmblemRadioList('emblemIcon',embList.emblemList,true);
-					setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems,true);
-					setRadioList('colorsEmblemPrimary', h3ColorArray);
-					setRadioList('colorsEmblemSecondary', h3ColorArray);
-					setRadioList('colorsEmblemImage', h3ColorArray);
-					setRadioList('colorsEmblemBackground', h3ColorArray);
+					if(resetEmblemList){
+						setEmblemRadioList('emblemIcon',embList.emblemList, true, true);
+						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems, true, true);
+					}
+					
+					if(setRadiosLists){
+						setEmblemRadioList('emblemIcon',embList.emblemList,true, false);
+						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems,true, false);
+						setRadioList('colorsEmblemPrimary', h3ColorArray);
+						setRadioList('colorsEmblemSecondary', h3ColorArray);
+						setRadioList('colorsEmblemImage', h3ColorArray);
+						setRadioList('colorsEmblemBackground', h3ColorArray);
+					}
 					callbackFunction();
 					
-					setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
-					setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
-					setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
-					setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'2'))][1]);
-					setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
-					setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
-					emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
-					setUrl(false);
-					
-					lastEmblem = data.emblem;
+					if(SetEmblem){
+						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
+						setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
+						setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
+						setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'2'))][1]);
+						setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
+						setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
+						emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
+						setUrl(false);
+						
+						lastEmblem = data.emblem;
+					}
 				},
 				error: function(){		
 					var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+					hasValidConnection = false;
 					callbackFunction();
 				},
 				type: 'POST',
@@ -900,8 +918,15 @@ function getQueryVariable(url, variable) {
     }
 }
 
-function setEmblemRadioList(ElementID, Json, hasImage){
+function setEmblemRadioList(ElementID, Json, hasImage, shouldReset){
     var sel = document.getElementById(ElementID);
+	
+	if(shouldReset){
+		while(sel.firstChild){
+			sel.removeChild(sel.firstChild);
+		}
+	}
+	
     for(var i = 0; i < Json.length; i++){
         var span = document.createElement("span");
         var label = document.createElement("label");
@@ -980,7 +1005,7 @@ function setUrl(isLastEmblem){
 	document.getElementById("emblemBox").src = 'http://' + apiServer + emblemGeneratorAPI + emblemurl;
 }
 
-function ApplyEmblem() {
+function ApplyEmblem(ShowAlert) {
 	var primary = $('#colorsEmblemPrimary span').index($('#colorsEmblemPrimary input:checked').parent().parent());
 	var secondary = $('#colorsEmblemSecondary span').index($('#colorsEmblemSecondary input:checked').parent().parent());
 	var imageb = $('#colorsEmblemImage span').index($('#colorsEmblemImage input:checked').parent().parent());
@@ -989,6 +1014,9 @@ function ApplyEmblem() {
 	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
 	var toggle = emblemToggle;
 	
+	dew.command("Player.Name").then(function (name){playerName = name;});
+	dew.command("Player.PrintUID").then(function (uid) {playerUID = uid.substr(14);});
+	dew.command("Player.PubKey").then(function (pubkey){playerPubKey = pubkey;});
 	dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
 		var jsonObj = new Object();
 		jsonObj.playerName = playerName;
@@ -1014,19 +1042,23 @@ function ApplyEmblem() {
 		data: JSON.stringify(jsonObj),
 		success: function(data){
 			$('#applyEmblemButton').hide();
-			dew.show('alert', {
-                        icon: 0,
-                        title: "Success",
-                        body: "Your emblem has been successfully changed"
-            });
+			if(ShowAlert){
+				dew.show('alert', {
+							icon: 0,
+							title: "Success",
+							body: "Your emblem has been successfully changed"
+				});
+			}
 			setUrl(true);
 		},
 		error: function(data){
-			dew.show('alert', {
-                        icon: 0,
-                        title: "Failed",
-                        body: "Your emblem has failed to change. Please check your internet connection"
-            });
+			if(ShowAlert){
+				dew.show('alert', {
+							icon: 0,
+							title: "Failed",
+							body: "Your emblem has failed to change. Please check your internet connection"
+				});
+			}
 		},
 		type: 'POST',
 		url: 'http://' + apiServer + changeEmblemAPI
@@ -1038,6 +1070,12 @@ function toggleIcon(){
 	emblemToggle = 1 - emblemToggle;
 	$('#applyEmblemButton').show();
 	setUrl(false);
+}
+
+function emblemTabSelected(){
+	SetupEmblems(true, false, true, function(){
+		console.log("Emblem Updated");
+	});	
 }
 
 function ping(ip, callback) {
