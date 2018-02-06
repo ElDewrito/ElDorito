@@ -349,7 +349,7 @@ $(document).ready(function(){
         if(!hasGP){
             $(this).removeClass('selectedElement');
         }
-    });
+    }); 
     $('#inputBox #okButton').on('click', function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
@@ -848,25 +848,29 @@ function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem, callbackFuncti
 					if(resetEmblemList){
 						setEmblemRadioList('emblemIcon',embList.emblemList, true, true);
 						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems, true, true);
-							
-							$('.emblemForm input').on('change click', function(e){
-								$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
-								$(this).parent().parent().addClass('chosenElement');
-								$.grep(settingsToLoad, function(result){
-									if(result[0] == e.target.name){
-										dew.command(result[1]+' '+e.target.value);
-									};
-								});
-								setUrl(false);
+						$('.emblemForm input').on('change click', function(e){
+							$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
+							$(this).parent().parent().addClass('chosenElement');
+							$.grep(settingsToLoad, function(result){
+								if(result[0] == e.target.name){
+									dew.command(result[1]+' '+e.target.value);
+								};
 							});
-							$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
-								$('#applyEmblemButton').show();
-							});
-							$('span').has('.setting').mouseout(function(){
-								if(!hasGP){
-									$(this).removeClass('selectedElement');
-								}
-							});
+							setUrl(false);
+						});
+						
+						$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
+							$('#applyEmblemButton').show();
+						});
+						$('span').has('.setting').mouseover(function(){
+							itemNumber = $(activePage+' span').has('.setting').index($(this));
+							updateSelection(itemNumber, false, false);
+						});
+						$('span').has('.setting').mouseout(function(){
+							if(!hasGP){
+								$(this).removeClass('selectedElement');
+							}
+						}); 
 					}
 					
 					if(setRadiosLists){
