@@ -13,9 +13,6 @@ var emblemGeneratorAPI = "/emblem/emblem.php";
 var hasValidConnection = true;
 var lastEmblem = "";
 var emblemToggle = 1;
-var playerPubKey = "";
-var playerName = "";
-var playerUID = "";
 var needApply = false;
 
 var h3ColorArray = [
@@ -357,7 +354,7 @@ $(document).ready(function(){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
 			if(hasValidConnection){
 				SetupEmblems(false, false, false, function(){
-				ApplyEmblem(false);
+					ApplyEmblem(false);
 				},true);
 			}
         }else if($('#inputBox #sTag').is(':visible')){
@@ -856,27 +853,25 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 			hasValidConnection = false;
 		}else{
 			var elem = document.getElementById("EmblemTabLink").href = "#page3";
-			dew.command("Player.Name").then(function (name){playerName = name;});
-			dew.command("Player.PrintUID").then(function (uid) {playerUID = uid.substr(14);});
-			dew.command("Player.PubKey").then(function (pubkey){playerPubKey = pubkey;});
+						
+			var jsonObj = new Object();
+			dew.command("Player.Name").then(function (name){jsonObj.playerName = name;});
+			dew.command("Player.ServiceTag").then(function (srvtag){jsonObj.serviceTag = srvtag;});
+			dew.command("Player.PrintUID").then(function (uid) {jsonObj.uid = uid.substr(14);});
+			dew.command("Player.PubKey").then(function (pubkey){jsonObj.publicKey = pubkey});
 			dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
-				var jsonObj = new Object();
-				jsonObj.playerName = playerName;
-				jsonObj.uid = playerUID;
 				jsonObj.encryptedTimestamp = encryptedVal;
-				jsonObj.publicKey = playerPubKey;
 				
+				console.log("CALLING GETEMBLEM API");
 				$.ajax({
 				contentType: 'application/json',
 				data: JSON.stringify(jsonObj),
 				dataType: 'json',
 				success: function(data){
-
 					var embList = JSON.parse(data.emblemList);
 					if(resetEmblemList){
 						setEmblemRadioList('emblemIcon',embList.emblemList, true, true);
 						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems, true, true);
-
 						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray,true);
 						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray,true);
 						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray,true);
@@ -1091,15 +1086,13 @@ function ApplyEmblem(ShowAlert) {
 	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
 	var toggle = emblemToggle;
 	
-	dew.command("Player.Name").then(function (name){playerName = name;});
-	dew.command("Player.PrintUID").then(function (uid) {playerUID = uid.substr(14);});
-	dew.command("Player.PubKey").then(function (pubkey){playerPubKey = pubkey;});
+	var jsonObj = new Object();
+	dew.command("Player.Name").then(function (name){jsonObj.playerName = name;});
+	dew.command("Player.ServiceTag").then(function (srvtag){jsonObj.serviceTag = srvtag;});
+	dew.command("Player.PrintUID").then(function (uid) {jsonObj.uid = uid.substr(14);});
+	dew.command("Player.PubKey").then(function (pubkey){jsonObj.publicKey = pubkey});
 	dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
-		var jsonObj = new Object();
-		jsonObj.playerName = playerName;
-		jsonObj.uid = playerUID;
 		jsonObj.encryptedTimestamp = encryptedVal;
-		jsonObj.publicKey = playerPubKey;
 		
 		var emblemObj = new Object();
 		emblemObj.s = 100;
