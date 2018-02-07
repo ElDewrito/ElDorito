@@ -146,7 +146,7 @@ $(document).ready(function(){
             }
         }
     });
-	SetupEmblems(false, true, true, function() {
+	SetupEmblems(false, true, true);// function() {
 		
     setRadioList('armorHelmet', armorHelmetList, true);
     setRadioList('armorChest', armorChestList, true);
@@ -183,10 +183,7 @@ $(document).ready(function(){
 		
         dew.command('Game.PlaySound 0x0B00');
     });
-    $('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
-    $('#applyEmblemButton').show();
-    });
-    $('.colorForm input, .armorForm input, .emblemForm input').on('change click', function(e){
+    $('.colorForm input, .armorForm input').on('change click', function(e){
         $(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
         $(this).parent().parent().addClass('chosenElement');
         $.grep(settingsToLoad, function(result){
@@ -216,7 +213,7 @@ $(document).ready(function(){
             $(location.hash+' #infoBox #infoHeader').text(whichColor.val());
         });
     });
-    $('.colorForm, .armorForm, .emblemForm').submit(function() {
+    $('.colorForm, .armorForm').submit(function() {
         return false;
     });
     $('#applyButton').on('click', function(e){
@@ -252,6 +249,11 @@ $(document).ready(function(){
                     randomColors();
                 }
             }
+			if(e.data.Y == 1){
+				if(activePage.startsWith('#page3') && needApply){
+					ApplyEmblem(true);
+				}
+			}
             if(e.data.Y == 1){
                 inputBox();
             }
@@ -338,7 +340,7 @@ $(document).ready(function(){
     $('.baseNav').mouseover(function(){
         activePage = location.hash;
     });
-    $('.armorForm, .colorForm, .emblemForm').mouseover(function(){
+    $('.armorForm, .colorForm').mouseover(function(){
         activePage = location.hash+' #'+$(this).attr('id');
     });
     $('span').has('.setting').mouseover(function(){
@@ -354,9 +356,9 @@ $(document).ready(function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
 			if(hasValidConnection){
-				SetupEmblems(false, false, false, function(){
+				SetupEmblems(false, false, false);//, function(){
 					ApplyEmblem(false);
-				});
+				//});
 			}
         }else if($('#inputBox #sTag').is(':visible')){
             dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
@@ -366,7 +368,7 @@ $(document).ready(function(){
     $('#inputBox #dismissButton').on('click', function(){
         hideInputBox(true);
     });
-	});
+
 });
 
 function checkGamepad(){
@@ -395,6 +397,7 @@ function setButtons(){
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_X.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#namePrompt img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
@@ -407,7 +410,7 @@ var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
-    $('.armorForm, .colorForm, .emblemForm').hide();
+    $('.armorForm, .colorForm, .emblemForm, .emblemColorForm').hide();
     $('#infoHeader, #infoText').text('');
     $('#infoBox').hide();
     bipedRotate = 270;
@@ -639,6 +642,12 @@ function nextPage(){
 }
 
 function upNav(){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber >= 3){
+            itemNumber-=3;
+            updateSelection(itemNumber, true, true);
+        }  
+	}else
     if(activePage.startsWith('#page2 #color')){
         if(itemNumber > 3){
             itemNumber-=3;
@@ -656,7 +665,13 @@ function upNav(){
 }
 
 function downNav(){
-    if(activePage.startsWith('#page2 #color')){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber < $(activePage + ' label:visible').length-3){
+			itemNumber+=3;
+            updateSelection(itemNumber, true, true);
+        }
+	}else
+    if(activePage.startsWith('#page2 #color') ){
         if(itemNumber < $(activePage + ' label:visible').length-3){
             if(itemNumber == 0){
                 itemNumber+=1;
@@ -666,7 +681,7 @@ function downNav(){
             updateSelection(itemNumber, true, true);
         }
     }else{
-        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || ((activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page3')) || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
             itemNumber++;
             updateSelection(itemNumber, true, true);
         }
@@ -755,14 +770,26 @@ function colorShow(showMe, element){
 }
 
 function leftNav(){
-    if(activePage.startsWith('#page2 #color') && itemNumber % 3 != 1){
+	if(activePage.startsWith('#page3 #color') ){
+		if(itemNumber % 3 != 0){
+			itemNumber--;
+			updateSelection(itemNumber, true, true);
+		}
+	}
+    if((activePage.startsWith('#page2 #color') && itemNumber % 3 != 1)){
          itemNumber--;
          updateSelection(itemNumber, true, true);
     }
 }
 
 function rightNav(){
-    if(activePage.startsWith('#page2 #color')){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber % 3 != 2){
+			itemNumber++;
+			updateSelection(itemNumber, true, true);
+		}
+	}
+    if(activePage.startsWith('#page2 #color') ){
         if(itemNumber % 3 != 0){
              itemNumber++;
             updateSelection(itemNumber, true, true);
@@ -820,15 +847,15 @@ function adjustBiped(){
     }    
 }
 
-function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem, callbackFunction){
+function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem){
 	$("#applyEmblemButton").hide();
 	
 	ping(apiServer, function(response){
 		if(response == 'timeout'){
 			var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
 			hasValidConnection = false;
-			callbackFunction();
 		}else{
+			var elem = document.getElementById("EmblemTabLink").href = "#page3";
 			dew.command("Player.Name").then(function (name){playerName = name;});
 			dew.command("Player.PrintUID").then(function (uid) {playerUID = uid.substr(14);});
 			dew.command("Player.PubKey").then(function (pubkey){playerPubKey = pubkey;});
@@ -844,44 +871,45 @@ function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem, callbackFuncti
 				data: JSON.stringify(jsonObj),
 				dataType: 'json',
 				success: function(data){
+
 					var embList = JSON.parse(data.emblemList);
 					if(resetEmblemList){
 						setEmblemRadioList('emblemIcon',embList.emblemList, true, true);
 						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems, true, true);
-						$('.emblemForm input').on('change click', function(e){
-							$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
-							$(this).parent().parent().addClass('chosenElement');
-							$.grep(settingsToLoad, function(result){
-								if(result[0] == e.target.name){
-									dew.command(result[1]+' '+e.target.value);
-								};
-							});
-							setUrl(false);
-						});
-						
-						$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
-							$('#applyEmblemButton').show();
-						});
-						$('span').has('.setting').mouseover(function(){
-							itemNumber = $(activePage+' span').has('.setting').index($(this));
-							updateSelection(itemNumber, false, false);
-						});
-						$('span').has('.setting').mouseout(function(){
-							if(!hasGP){
-								$(this).removeClass('selectedElement');
-							}
-						}); 
+
+						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray,true);
 					}
 					
 					if(setRadiosLists){
 						setEmblemRadioList('emblemIcon',embList.emblemList,true, false);
 						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems,true, false);
-						setRadioList('colorsEmblemPrimary', h3ColorArray);
-						setRadioList('colorsEmblemSecondary', h3ColorArray);
-						setRadioList('colorsEmblemImage', h3ColorArray);
-						setRadioList('colorsEmblemBackground', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray);
 					}
-					callbackFunction();
+					
+					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
+						$('#applyEmblemButton').show();
+						needApply = true;
+					});
+					
+					$('.emblemForm input, .emblemColorForm input').on('change click', function(e){
+						$(this).parent().parent().parent().find('.selectedElement').removeClass('selectedElement');
+						$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
+						$(this).parent().parent().addClass('chosenElement');
+						setUrl(false);
+					});
+									
+					$('.emblemForm, .emblemColorForm').submit(function() {
+						return false;
+					});
+					$('.emblemForm, .emblemColorForm').mouseover(function(){
+						activePage = location.hash+' #'+$(this).attr('id');
+					});
 					
 					if(SetEmblem){
 						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
@@ -899,7 +927,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem, callbackFuncti
 				error: function(){		
 					var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
 					hasValidConnection = false;
-					callbackFunction();
 				},
 				type: 'POST',
 				url: 'http://' + apiServer + getEmblemAPI
@@ -973,17 +1000,42 @@ function setEmblemRadioList(ElementID, Json, hasImage, shouldReset){
     }
 }
 
+function setEmblemColorRadioList(ElementID, ArrayVar, shouldReset){
+    var sel = document.getElementById(ElementID);
+	
+	if(shouldReset){
+		while(sel.firstChild){
+			sel.removeChild(sel.firstChild);
+		}
+	}
+	
+    for(var i = 0; i < ArrayVar.length; i++){
+        var span = document.createElement("span");
+        var label = document.createElement("label");
+        var radio = document.createElement("input");
+        radio.setAttribute('type', 'radio');
+        radio.setAttribute('name', ElementID);
+        radio.setAttribute('class', 'setting');
+        if(ArrayVar[i][2]){
+            radio.setAttribute('desc', ArrayVar[i][2]);
+        }
+        radio.value = ArrayVar[i][1];
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(ArrayVar[i][0]));
+        span.appendChild(label);
+        sel.appendChild(span);
+    }
+}
+
 function emblemColorShow(showMe, element){
     activePage = '#page3 #'+showMe;
     $('.baseNav').removeClass('selectedElement');
     $(activePage+' .selectedElement').removeClass('selectedElement');
     element.addClass('selectedElement');
-    $('.colorForm').hide();
+    $('.emblemColorForm').hide();
 	$('.emblemForm').hide();
     $('#'+showMe).css('display', 'grid')
-    $('#infoBox').show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
-	$(location.hash+' #infoBox').show();
     updateSelection(itemNumber, false, true);
 }
 
@@ -993,10 +1045,9 @@ function emblemShow(showMe, element){
     $(activePage+' .selectedElement').removeClass('selectedElement');
     element.addClass('selectedElement');
     $('.emblemForm').hide();
-	$('.colorForm').hide();
+	$('.emblemColorForm').hide();
     $('#'+showMe).show();
     itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
-	$(location.hash+' #infoBox').show();
     updateSelection(itemNumber, false, true);
 }
 
@@ -1022,6 +1073,7 @@ function setUrl(isLastEmblem){
 		lastEmblem = emblemurl;
 	}
 	if(lastEmblem == emblemurl){
+		needApply = false;
 		$("#applyEmblemButton").hide();
 	}
 	
@@ -1092,13 +1144,12 @@ function ApplyEmblem(ShowAlert) {
 function toggleIcon(){
 	emblemToggle = 1 - emblemToggle;
 	$('#applyEmblemButton').show();
+	needApply = true;
 	setUrl(false);
 }
 
 function emblemTabSelected(){
-	SetupEmblems(true, false, true, function(){
-		console.log("Emblem Updated");
-	});	
+	SetupEmblems(true, false, true);	
 }
 
 function ping(ip, callback) {
