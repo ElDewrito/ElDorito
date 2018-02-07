@@ -46,6 +46,12 @@ namespace
 
 	void handleDiscordJoinRequest(const DiscordJoinRequest *joinRequest)
 	{
+		if (Modules::ModuleGame::Instance().VarDiscordAutoAccept->ValueInt == 1)
+		{
+			Discord_Respond(joinRequest->userId, DISCORD_REPLY_YES);
+			return;
+		}
+
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(jsonBuffer);
 

@@ -24,6 +24,7 @@ namespace Modules
 		Command* VarCefMedals;
 		Command* VarFpsLimiter;
 		Command* VarDiscordEnable;
+		Command* VarDiscordAutoAccept;
 
 		int DebugFlags;
 
