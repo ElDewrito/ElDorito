@@ -81,7 +81,9 @@ var settingsToLoad = [
     ['xSens', 'Input.ControllerSensitivityX', 'Controller Sensitivity - X Axis', 'Adjusts the controller sensitivity on the X-axis.'],
     ['ySens', 'Input.ControllerSensitivityY', 'Controller Sensitivity - Y Axis', 'Adjusts the controller sensitivity on the Y-axis.'],
     ['sQualityPreset', '', 'Quality Preset', 'Adjusts the overall graphics quality.'],
-    ['presetMenu', '', 'Button Layout', 'Changes the button layout.']
+    ['presetMenu', '', 'Button Layout', 'Changes the button layout.'],
+    ['gdEnabled','Game.Discord.Enable', 'Discord Rich Presence Enabled', 'Toggles Rich Presense in Discord'],
+    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests']
 ];
 var binds = [
     ['Sprint','Sprint','Infantry'],
