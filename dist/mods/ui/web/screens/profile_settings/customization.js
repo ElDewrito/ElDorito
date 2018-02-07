@@ -124,16 +124,16 @@ $(document).ready(function(){
         if(e.keyCode == 192 || e.keyCode == 223){
             dew.show('console');
         }
-        if(e.keyCode == 37){ //Left
+        if(e.keyCode == 37 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Left
             leftNav();
         }
-        if(e.keyCode == 38){ //Up
+        if(e.keyCode == 38 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Up
             upNav();
         }
-        if(e.keyCode == 39){ //Right
+        if(e.keyCode == 39 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Right
             rightNav();
         }
-        if(e.keyCode == 40){ //Down
+        if(e.keyCode == 40 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Down
             downNav();
         }
         if(!activePage.endsWith('inputBox')){
