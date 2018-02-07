@@ -146,7 +146,7 @@ $(document).ready(function(){
             }
         }
     });
-	SetupEmblems(false, true, true);// function() {
+	SetupEmblems(false, true, true);
 		
     setRadioList('armorHelmet', armorHelmetList, true);
     setRadioList('armorChest', armorChestList, true);
@@ -356,9 +356,9 @@ $(document).ready(function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
 			if(hasValidConnection){
-				SetupEmblems(false, false, false);//, function(){
-					ApplyEmblem(false);
-				//});
+				SetupEmblems(false, false, false, function(){
+				ApplyEmblem(false);
+				},true);
 			}
         }else if($('#inputBox #sTag').is(':visible')){
             dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
@@ -847,7 +847,7 @@ function adjustBiped(){
     }    
 }
 
-function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem){
+function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runFinish){
 	$("#applyEmblemButton").hide();
 	
 	ping(apiServer, function(response){
@@ -911,7 +911,7 @@ function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem){
 						activePage = location.hash+' #'+$(this).attr('id');
 					});
 					
-					if(SetEmblem){
+					if(setEmblem){
 						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
 						setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
 						setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
@@ -923,6 +923,8 @@ function SetupEmblems(resetEmblemList, setRadiosLists, SetEmblem){
 						
 						lastEmblem = data.emblem;
 					}
+					if(runFinish)
+					onFinish();
 				},
 				error: function(){		
 					var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
