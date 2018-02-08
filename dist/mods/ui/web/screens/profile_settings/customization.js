@@ -220,6 +220,7 @@ $(document).ready(function(){
         cancelButton();
     });
     setControlValues();
+	var hasPressed = false;
     dew.on('controllerinput', function(e){
         if(hasGP){
             if(e.data.A == 1){
@@ -273,17 +274,43 @@ $(document).ready(function(){
                 nextPage();
             }
             if(e.data.LeftTrigger != 0){
+				if(activePage.startsWith('#page3')){
+					if(!hasPressed){
+						if(itemNumber - 5 >= 0) {
+							itemNumber -= 5;
+							updateSelection(itemNumber, true, true);
+						}else{
+							itemNumber = 0;
+							updateSelection(itemNumber, true, true);
+						}
+						hasPressed = true;
+					}
+				}else
                 if(itemNumber > 0){
                     itemNumber = 0;
                     updateSelection(itemNumber, true, true);
                 }
-            }
+            }else
             if(e.data.RightTrigger != 0){
+				if(activePage.startsWith('#page3')){
+					if(!hasPressed){
+						if(itemNumber+5 <= $(activePage + ' label:visible').length-1){
+							itemNumber += 5;
+							updateSelection(itemNumber, true, true);
+						}else{
+							itemNumber = $(activePage + ' label:visible').length-1;
+							updateSelection(itemNumber, true, true);
+						}
+						hasPressed = true;
+					}
+				}else
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
                     updateSelection(itemNumber, true, true);
                 }
-            }
+            }else{
+				hasPressed = false;
+			}
             if(activePage && activePage.endsWith(' #colorPicker')){
                 colorPicker.controllerInput(e.data);
             }else{
