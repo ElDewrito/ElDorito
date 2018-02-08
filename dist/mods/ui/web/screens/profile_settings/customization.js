@@ -6,6 +6,14 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var changeEmblemAPI = '/api/changeemblem';
+var getEmblemAPI = '/api/getemblem';
+var apiServer = 'new.halostats.click';
+var emblemGeneratorAPI = "/emblem/emblem.php";
+var hasValidConnection = true;
+var lastEmblem = "";
+var emblemToggle = 1;
+var needApply = false;
 
 var h3ColorArray = [
     ['Steel','#626262'],
@@ -113,16 +121,16 @@ $(document).ready(function(){
         if(e.keyCode == 192 || e.keyCode == 223){
             dew.show('console');
         }
-        if(e.keyCode == 37){ //Left
+        if(e.keyCode == 37 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Left
             leftNav();
         }
-        if(e.keyCode == 38){ //Up
+        if(e.keyCode == 38 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Up
             upNav();
         }
-        if(e.keyCode == 39){ //Right
+        if(e.keyCode == 39 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Right
             rightNav();
         }
-        if(e.keyCode == 40){ //Down
+        if(e.keyCode == 40 && !(activePage.startsWith('#page2 #color') || activePage.startsWith('#page3 #color'))){ //Down
             downNav();
         }
         if(!activePage.endsWith('inputBox')){
@@ -135,6 +143,8 @@ $(document).ready(function(){
             }
         }
     });
+	SetupEmblems(false, true, true);
+		
     setRadioList('armorHelmet', armorHelmetList, true);
     setRadioList('armorChest', armorChestList, true);
     setRadioList('armorRightShoulder', armorShoulderList, true);
@@ -167,6 +177,7 @@ $(document).ready(function(){
                 }
             });
         }
+		
         dew.command('Game.PlaySound 0x0B00');
     });
     $('.colorForm input, .armorForm input').on('change click', function(e){
@@ -180,6 +191,7 @@ $(document).ready(function(){
             $(location.hash+' #infoBox #infoHeader').text(e.target.computedName);
         });
         $(location.hash+' #infoBox #infoText').text($(this).attr('desc'));
+		setUrl(false);
     });
     $('#colorsPrimaryText, #colorsSecondaryText,#colorsVisorText,#colorsLightsText').on('click', function(e){
         $('.colorForm').hide();
@@ -234,6 +246,11 @@ $(document).ready(function(){
                     randomColors();
                 }
             }
+			if(e.data.Y == 1){
+				if(activePage.startsWith('#page3') && needApply){
+					ApplyEmblem(true);
+				}
+			}
             if(e.data.Y == 1){
                 inputBox();
             }
@@ -331,10 +348,15 @@ $(document).ready(function(){
         if(!hasGP){
             $(this).removeClass('selectedElement');
         }
-    });
+    }); 
     $('#inputBox #okButton').on('click', function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
+			if(hasValidConnection){
+				SetupEmblems(false, false, false, function(){
+					ApplyEmblem(false);
+				},true);
+			}
         }else if($('#inputBox #sTag').is(':visible')){
             dew.command('Player.ServiceTag "'+$('#inputBox #sTag').val().toUpperCase()+'"');
         }
@@ -343,6 +365,7 @@ $(document).ready(function(){
     $('#inputBox #dismissButton').on('click', function(){
         hideInputBox(true);
     });
+
 });
 
 function checkGamepad(){
@@ -371,6 +394,7 @@ function setButtons(){
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_X.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#namePrompt img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
@@ -383,7 +407,7 @@ var bipedRotate = 270;
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blueHeader, #blueFooter,#blackLayer').hide();
-    $('.armorForm, .colorForm').hide();
+    $('.armorForm, .colorForm, .emblemForm, .emblemColorForm').hide();
     $('#infoHeader, #infoText').text('');
     $('#infoBox').hide();
     bipedRotate = 270;
@@ -488,6 +512,7 @@ function setControlValues(){
             });
         }
     })
+	$("#toggleButton").hide();
 }
 
 function cancelButton(){
@@ -614,6 +639,12 @@ function nextPage(){
 }
 
 function upNav(){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber >= 3){
+            itemNumber-=3;
+            updateSelection(itemNumber, true, true);
+        }  
+	}else
     if(activePage.startsWith('#page2 #color')){
         if(itemNumber > 3){
             itemNumber-=3;
@@ -631,7 +662,13 @@ function upNav(){
 }
 
 function downNav(){
-    if(activePage.startsWith('#page2 #color')){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber < $(activePage + ' label:visible').length-3){
+			itemNumber+=3;
+            updateSelection(itemNumber, true, true);
+        }
+	}else
+    if(activePage.startsWith('#page2 #color') ){
         if(itemNumber < $(activePage + ' label:visible').length-3){
             if(itemNumber == 0){
                 itemNumber+=1;
@@ -641,7 +678,7 @@ function downNav(){
             updateSelection(itemNumber, true, true);
         }
     }else{
-        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || ((activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page3')) || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
             itemNumber++;
             updateSelection(itemNumber, true, true);
         }
@@ -730,14 +767,26 @@ function colorShow(showMe, element){
 }
 
 function leftNav(){
-    if(activePage.startsWith('#page2 #color') && itemNumber % 3 != 1){
+	if(activePage.startsWith('#page3 #color') ){
+		if(itemNumber % 3 != 0){
+			itemNumber--;
+			updateSelection(itemNumber, true, true);
+		}
+	}
+    if((activePage.startsWith('#page2 #color') && itemNumber % 3 != 1)){
          itemNumber--;
          updateSelection(itemNumber, true, true);
     }
 }
 
 function rightNav(){
-    if(activePage.startsWith('#page2 #color')){
+	if(activePage.startsWith('#page3 #color')){
+		if(itemNumber % 3 != 2){
+			itemNumber++;
+			updateSelection(itemNumber, true, true);
+		}
+	}
+    if(activePage.startsWith('#page2 #color') ){
         if(itemNumber % 3 != 0){
              itemNumber++;
             updateSelection(itemNumber, true, true);
@@ -793,4 +842,338 @@ function adjustBiped(){
     }else{
         dew.command('Player.Armor.SetUiModelPosition 74.108 -101.926 11.65'); //default
     }    
+}
+
+function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runFinish){
+	$("#applyEmblemButton").hide();
+	
+	ping(apiServer, function(response){
+		if(response == 'timeout'){
+			var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+			hasValidConnection = false;
+		}else{
+			var elem = document.getElementById("EmblemTabLink").href = "#page3";
+						
+			var jsonObj = new Object();
+			dew.command("Player.Name").then(function (name){jsonObj.playerName = name;});
+			dew.command("Player.ServiceTag").then(function (srvtag){jsonObj.serviceTag = srvtag;});
+			dew.command("Player.PrintUID").then(function (uid) {jsonObj.uid = uid.substr(14);});
+			dew.command("Player.PubKey").then(function (pubkey){jsonObj.publicKey = pubkey});
+			dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
+				jsonObj.encryptedTimestamp = encryptedVal;
+				
+				console.log("CALLING GETEMBLEM API");
+				$.ajax({
+				contentType: 'application/json',
+				data: JSON.stringify(jsonObj),
+				dataType: 'json',
+				success: function(data){
+					var embList = JSON.parse(data.emblemList);
+					if(resetEmblemList){
+						setEmblemRadioList('emblemIcon',embList.emblemList, true, true);
+						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems, true, true);
+						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray,true);
+						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray,true);
+					}
+					
+					if(setRadiosLists){
+						setEmblemRadioList('emblemIcon',embList.emblemList,true, false);
+						setEmblemRadioList('emblemBackgroundImage', embList.backgroundEmblems,true, false);
+						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray);
+						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray);
+					}
+					
+					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
+						$('#applyEmblemButton').show();
+						needApply = true;
+					});
+					
+					$('.emblemForm input, .emblemColorForm input').on('change click', function(e){
+						$(this).parent().parent().parent().find('.selectedElement').removeClass('selectedElement');
+						$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
+						$(this).parent().parent().addClass('chosenElement');
+						setUrl(false);
+					});
+									
+					$('.emblemForm, .emblemColorForm').submit(function() {
+						return false;
+					});
+					$('.emblemForm, .emblemColorForm').mouseover(function(){
+						activePage = location.hash+' #'+$(this).attr('id');
+					});
+					
+					if(setEmblem){
+						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
+						setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
+						setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
+						setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'2'))][1]);
+						setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
+						setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
+						emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
+						setUrl(false);
+						
+						lastEmblem = data.emblem;
+					}
+					if(runFinish)
+					onFinish();
+				},
+				error: function(){		
+					var elem = document.getElementById("EmblemTabLink").href = "#unavailable";
+					hasValidConnection = false;
+				},
+				type: 'POST',
+				url: 'http://' + apiServer + getEmblemAPI
+				});			
+			});
+		}
+	});
+}
+
+function setItemValues(item, value){
+	$('#'+item+' :radio[value=""]').attr('checked',true);
+	$('#'+item+' :radio[value="'+value+'"]').attr('checked',true);
+	if( $('#'+item+' :radio[value="'+value+'"]').length){
+		$('#'+item+' :radio[value="'+value+'"]').parent().parent().addClass('chosenElement');
+	}else{
+		$('#'+item+' :radio[value=""]').parent().parent().addClass('chosenElement');
+	}
+	$('#'+item+'Text').val(value);
+
+}
+
+function getProperIndex(emblem, array){
+	for(var x = 0; x < array.length; x++){
+		var value = array[x][1];
+		if(value == emblem){
+			return x;
+		}
+	}
+	return 0;
+}
+
+function getQueryVariable(url, variable) {
+    var vars = url.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+}
+
+function setEmblemRadioList(ElementID, Json, hasImage, shouldReset){
+    var sel = document.getElementById(ElementID);
+	
+	if(shouldReset){
+		while(sel.firstChild){
+			sel.removeChild(sel.firstChild);
+		}
+	}
+	
+    for(var i = 0; i < Json.length; i++){
+        var span = document.createElement("span");
+        var label = document.createElement("label");
+        var radio = document.createElement("input");
+        radio.setAttribute('type', 'radio');
+        radio.setAttribute('name', ElementID);
+        radio.setAttribute('class', 'setting');
+        if(Json[i][2]){
+            radio.setAttribute('desc', Json[i][2]);
+        }
+        radio.value = Json[i][1];
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(Json[i][0]));
+        span.appendChild(label);
+        if(hasImage){
+            var img = document.createElement("img");
+            img.setAttribute('src', Json[i][2]);
+            span.appendChild(img);
+        }
+        sel.appendChild(span);
+    }
+}
+
+function setEmblemColorRadioList(ElementID, ArrayVar, shouldReset){
+    var sel = document.getElementById(ElementID);
+	
+	if(shouldReset){
+		while(sel.firstChild){
+			sel.removeChild(sel.firstChild);
+		}
+	}
+	
+    for(var i = 0; i < ArrayVar.length; i++){
+        var span = document.createElement("span");
+        var label = document.createElement("label");
+        var radio = document.createElement("input");
+        radio.setAttribute('type', 'radio');
+        radio.setAttribute('name', ElementID);
+        radio.setAttribute('class', 'setting');
+        if(ArrayVar[i][2]){
+            radio.setAttribute('desc', ArrayVar[i][2]);
+        }
+        radio.value = ArrayVar[i][1];
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(ArrayVar[i][0]));
+        span.appendChild(label);
+        sel.appendChild(span);
+    }
+}
+
+function emblemColorShow(showMe, element){
+    activePage = '#page3 #'+showMe;
+    $('.baseNav').removeClass('selectedElement');
+    $(activePage+' .selectedElement').removeClass('selectedElement');
+    element.addClass('selectedElement');
+    $('.emblemColorForm').hide();
+	$('.emblemForm').hide();
+    $('#'+showMe).css('display', 'grid')
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+    updateSelection(itemNumber, false, true);
+}
+
+function emblemShow(showMe, element){
+    activePage = '#page3 #'+showMe;
+    $('.baseNav').removeClass('selectedElement');
+    $(activePage+' .selectedElement').removeClass('selectedElement');
+    element.addClass('selectedElement');
+    $('.emblemForm').hide();
+	$('.emblemColorForm').hide();
+    $('#'+showMe).show();
+    itemNumber = $('#'+showMe+' span').index($('#'+showMe+' input:checked').parent().parent());
+    updateSelection(itemNumber, false, true);
+}
+
+function setUrl(isLastEmblem){
+	var primary = $('#colorsEmblemPrimary span').index($('#colorsEmblemPrimary input:checked').parent().parent());
+	var secondary = $('#colorsEmblemSecondary span').index($('#colorsEmblemSecondary input:checked').parent().parent());
+	var imageb = $('#colorsEmblemImage span').index($('#colorsEmblemImage input:checked').parent().parent());
+	var background = $('#colorsEmblemBackground span').index($('#colorsEmblemBackground input:checked').parent().parent());
+	var icon = $('#emblemIcon input:checked').val();
+	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
+	var toggle = emblemToggle;
+
+	var emblemurl =  "?s=100&0=" + (background < 0 ? 0 : background) + 
+	"&1=" + (imageb < 0 ? 0 : imageb) + 
+	"&2=" + (secondary < 0 ? 0 : secondary) + 
+	"&3=" + (primary < 0 ? 0 : primary) + 
+	"&fi=" + (icon == undefined ? 0 : icon) + 
+	"&bi=" + (backgroundimg < 0 ? 0 : backgroundimg) + 
+	"&fl=" + (toggle < 0 ? 0 : toggle) + 
+	"&m=1";
+
+	if(isLastEmblem){
+		lastEmblem = emblemurl;
+	}
+	if(lastEmblem == emblemurl){
+		needApply = false;
+		$("#applyEmblemButton").hide();
+	}
+	
+	document.getElementById("emblemBox").src = 'http://' + apiServer + emblemGeneratorAPI + emblemurl;
+}
+
+function ApplyEmblem(ShowAlert) {
+	var primary = $('#colorsEmblemPrimary span').index($('#colorsEmblemPrimary input:checked').parent().parent());
+	var secondary = $('#colorsEmblemSecondary span').index($('#colorsEmblemSecondary input:checked').parent().parent());
+	var imageb = $('#colorsEmblemImage span').index($('#colorsEmblemImage input:checked').parent().parent());
+	var background = $('#colorsEmblemBackground span').index($('#colorsEmblemBackground input:checked').parent().parent());
+	var icon = $('#emblemIcon input:checked').val();
+	var backgroundimg = $('#emblemBackgroundImage span').index($('#emblemBackgroundImage input:checked').parent().parent());
+	var toggle = emblemToggle;
+	
+	var jsonObj = new Object();
+	dew.command("Player.Name").then(function (name){jsonObj.playerName = name;});
+	dew.command("Player.ServiceTag").then(function (srvtag){jsonObj.serviceTag = srvtag;});
+	dew.command("Player.PrintUID").then(function (uid) {jsonObj.uid = uid.substr(14);});
+	dew.command("Player.PubKey").then(function (pubkey){jsonObj.publicKey = pubkey});
+	dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
+		jsonObj.encryptedTimestamp = encryptedVal;
+		
+		var emblemObj = new Object();
+		emblemObj.s = 100;
+		emblemObj.zero = (background < 0 ? 0 : background);
+		emblemObj.one = (imageb < 0 ? 0 : imageb);
+		emblemObj.two = (secondary < 0 ? 0 : secondary);
+		emblemObj.three = (primary < 0 ? 0 : primary);
+		emblemObj.fi = (icon == undefined ? 0 : icon);
+		emblemObj.bi = (backgroundimg < 0 ? 0 : backgroundimg);
+		emblemObj.fl = (toggle < 0 ? 0 : toggle);
+		emblemObj.m = 1;
+	
+		jsonObj.emblem = emblemObj;
+		
+		$.ajax({
+		contentType: 'application/json',
+		data: JSON.stringify(jsonObj),
+		success: function(data){
+			$('#applyEmblemButton').hide();
+			if(ShowAlert){
+				dew.show('alert', {
+							icon: 0,
+							title: "Success",
+							body: "Your emblem has been successfully changed"
+				});
+			}
+			setUrl(true);
+		},
+		error: function(data){
+			if(ShowAlert){
+				dew.show('alert', {
+							icon: 0,
+							title: "Failed",
+							body: "Your emblem has failed to change. Please check your internet connection"
+				});
+			}
+		},
+		type: 'POST',
+		url: 'http://' + apiServer + changeEmblemAPI
+		});			
+	});
+}
+
+function toggleIcon(){
+	emblemToggle = 1 - emblemToggle;
+	$('#applyEmblemButton').show();
+	needApply = true;
+	setUrl(false);
+}
+
+function emblemTabSelected(){
+	SetupEmblems(true, false, true);	
+}
+
+function ping(ip, callback) {
+    if (!this.inUse) {
+        this.status = 'unchecked';
+        this.inUse = true;
+        this.callback = callback;
+        this.ip = ip;
+        var _that = this;
+        this.img = new Image();
+        this.img.onload = function () {
+            _that.inUse = false;
+            _that.callback('responded');
+
+        };
+        this.img.onerror = function (e) {
+            if (_that.inUse) {
+                _that.inUse = false;
+                _that.callback('responded', e);
+            }
+
+        };
+        this.start = new Date().getTime();
+        this.img.src = "http://" + ip;
+        this.timer = setTimeout(function () {
+            if (_that.inUse) {
+                _that.inUse = false;
+                _that.callback('timeout');
+            }
+        }, 1500);
+    }
 }

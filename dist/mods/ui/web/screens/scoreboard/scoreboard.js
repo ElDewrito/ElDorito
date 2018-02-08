@@ -488,6 +488,7 @@ function displayScoreboard(){
 
 function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray, totalArray){
     var emblemPath;
+	var hostPath = 'dew://assets/emblems/crown.png';
 	var rankPath = "dew://assets/ranks/0.png"
     var where = '#singlePlayers';
     if(lobby.length > 0){
@@ -540,17 +541,15 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             if(!lobby[i].isAlive && mapName != 'mainmenu'){
                 emblemPath = 'dew://assets/emblems/dead.png';   
             }else{
-                if(lobby[i].isHost){
-                    emblemPath = 'dew://assets/emblems/crown.png';
-                }else{
-                    if(playersInfo[lobby[i].playerIndex]){
-                        emblemPath = playersInfo[lobby[i].playerIndex].e;
-                    }else{
-                        emblemPath = 'dew://assets/emblems/generic.png'; 
-                    }                
-                }
+				if(playersInfo[lobby[i].playerIndex]){
+					emblemPath = playersInfo[lobby[i].playerIndex].e;
+				}else{
+					emblemPath = 'dew://assets/emblems/generic.png'; 
+				}                
             } 
             $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
+			if(lobby[i].isHost)
+			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" src="'+hostPath+'">');
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="serviceTag">').text(lobby[i].serviceTag))
             if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
