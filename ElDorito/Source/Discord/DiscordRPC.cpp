@@ -6,8 +6,6 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/BlamTypes.hpp"
-#include "../Patches/Core.hpp"
-#include "../Patches/Events.hpp"
 #include "../Patches/Network.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleGame.hpp"
@@ -48,6 +46,12 @@ namespace
 
 	void handleDiscordJoinRequest(const DiscordJoinRequest *joinRequest)
 	{
+		if (Modules::ModuleGame::Instance().VarDiscordAutoAccept->ValueInt == 1)
+		{
+			Discord_Respond(joinRequest->userId, DISCORD_REPLY_YES);
+			return;
+		}
+
 		rapidjson::StringBuffer jsonBuffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(jsonBuffer);
 
@@ -120,10 +124,11 @@ namespace
 		{
 			Discord::DiscordRPC::Instance().discordPresence.state = "At the Mainmenu";
 			Discord::DiscordRPC::Instance().discordPresence.largeImageKey = "default";
-			Discord::DiscordRPC::Instance().discordPresence.largeImageText = (char*)Pointer(0x22AB018)(0x1A4);
+			Discord::DiscordRPC::Instance().discordPresence.largeImageText = "Mainmenu";
 			Discord::DiscordRPC::Instance().discordPresence.details = "Alone";
 			Discord::DiscordRPC::Instance().discordPresence.partySize = 1;
 			Discord::DiscordRPC::Instance().discordPresence.partyMax = 1;
+			Discord::DiscordRPC::Instance().SetJoinString("");
 		}
 		Discord::DiscordRPC::Instance().joinMtx.lock();
 		Discord::DiscordRPC::Instance().discordPresence.joinSecret = Discord::DiscordRPC::Instance().joinString.c_str();
@@ -133,7 +138,7 @@ namespace
 
 	void handleDiscordReady()
 	{
-		UpdateRichPresence();
+		Discord::DiscordRPC::Instance().Update();
 	}
 
 	DWORD WINAPI DiscordRetrieveExternalIP_Thread(LPVOID lpParam)
@@ -181,6 +186,12 @@ namespace Discord
 		time(&curTime);
 		if (curTime - lastUpdate > discordUpdateTime)
 		{
+			if (Modules::ModuleGame::Instance().VarDiscordEnable->ValueInt == 0)
+			{
+				Discord_ClearPresence();
+				return;
+			}
+
 			lastUpdate = curTime;
 			UpdateRichPresence();
 		}
@@ -188,6 +199,12 @@ namespace Discord
 
 	void DiscordRPC::UpdatePresence(int networkMode)
 	{
+		if (Modules::ModuleGame::Instance().VarDiscordEnable->ValueInt == 0)
+		{
+			Discord_ClearPresence();
+			return;
+		}
+
 		auto session = Blam::Network::GetActiveSession();
 		if (networkMode == 3 && session->IsHost())
 		{
@@ -195,7 +212,7 @@ namespace Discord
 		}
 		else
 		{
-			Discord::DiscordRPC::Instance().joinString = "";
+			joinString = "";
 		}
 		UpdatePresence();
 	}

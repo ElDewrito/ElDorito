@@ -124,6 +124,14 @@ BOOL InitInstance(HINSTANCE hModule)
 {
 	//Disable Windows DPI scaling
 	SetProcessDPIAware();
+
+	//Make sure our working directory is in the ED root folder
+	char appPath[MAX_PATH];
+	GetModuleFileNameA(hModule, appPath, MAX_PATH);
+	std::string EDPath = std::string(appPath);
+	EDPath = EDPath.substr(0, EDPath.find_last_of("\\"));
+	SetCurrentDirectoryA(EDPath.c_str());
+
 	//Check for read/write priveledges in the current directory
 	if (!CanAccessFolder(".", GENERIC_READ | GENERIC_WRITE))
 	{

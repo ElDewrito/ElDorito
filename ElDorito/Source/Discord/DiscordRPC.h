@@ -22,6 +22,6 @@ namespace Discord
 		DiscordRPC();
 	private:
 		time_t lastUpdate = 0;
-		const time_t discordUpdateTime = 10;
+		const time_t discordUpdateTime = 20;
 	};
 }
