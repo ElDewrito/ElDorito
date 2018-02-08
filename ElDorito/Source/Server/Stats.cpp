@@ -106,8 +106,6 @@ namespace Server::Stats
 			{
 				writer.StartObject();
 				auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-				std::string name = Utils::String::ThinString(player->Properties.DisplayName);
-
 				uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
 
 				struct in_addr inAddr;
@@ -117,9 +115,10 @@ namespace Server::Stats
 
 				char uid[17];
 				Blam::Players::FormatUid(uid, player->Properties.Uid);
-
 				writer.Key("name");
-				writer.String(name.c_str());
+				writer.String(Utils::String::ThinString(player->Properties.ClientProperties.DisplayName).c_str());
+				writer.Key("filteredName");
+				writer.String(Utils::String::ThinString(player->Properties.DisplayName).c_str());
 				writer.Key("serviceTag");
 				writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
 				writer.Key("playerIndex");
