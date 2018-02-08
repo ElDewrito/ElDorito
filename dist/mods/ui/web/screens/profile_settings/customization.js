@@ -1170,8 +1170,14 @@ function toggleIcon(){
 	setUrl(false);
 }
 
-function emblemTabSelected(){
+function page3(){
 	SetupEmblems(true, false, true);	
+}
+function page2(){
+	$("#applyEmblemButton").hide();
+}
+function page1(){
+	$("#applyEmblemButton").hide();
 }
 
 function ping(ip, callback) {
