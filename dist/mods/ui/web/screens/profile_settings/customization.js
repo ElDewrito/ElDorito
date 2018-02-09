@@ -889,7 +889,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 			dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
 				jsonObj.encryptedTimestamp = encryptedVal;
 				
-				console.log("CALLING GETEMBLEM API");
 				$.ajax({
 				contentType: 'application/json',
 				data: JSON.stringify(jsonObj),
@@ -936,6 +935,12 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
                         itemNumber = $(activePage+' span').has('.setting').index($(this));
                         updateSelection(itemNumber, false, false);
                     });
+					
+					$('span').has('.setting').mouseout(function(){
+						if(!hasGP){
+							$(this).removeClass('selectedElement');
+						}
+					}); 
 					
 					if(setEmblem){
 						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);

@@ -22,8 +22,8 @@ body{
 }
 
 .emblem-tile img{
-    width: 30% !important;
-    padding-left: 70%;
+    width: 25% !important;
+    padding-left: 74%;
 } 
 
 .emblemBox{
@@ -62,4 +62,8 @@ form.emblemColorForm {
 .emblemColorForm span {
     box-sizing: border-box;
     display: block;
+}
+
+::-webkit-scrollbar {
+    width: 10px !important;
 }
