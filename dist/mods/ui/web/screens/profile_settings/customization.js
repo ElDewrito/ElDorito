@@ -932,6 +932,10 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 					$('.emblemForm, .emblemColorForm').mouseover(function(){
 						activePage = location.hash+' #'+$(this).attr('id');
 					});
+                    $('span').has('.setting').mouseover(function(){
+                        itemNumber = $(activePage+' span').has('.setting').index($(this));
+                        updateSelection(itemNumber, false, false);
+                    });
 					
 					if(setEmblem){
 						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
