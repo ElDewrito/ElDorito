@@ -889,7 +889,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 			dew.command("Player.EncryptGMTTimestamp").then(function (encryptedVal) {
 				jsonObj.encryptedTimestamp = encryptedVal;
 				
-				console.log("CALLING GETEMBLEM API");
 				$.ajax({
 				contentType: 'application/json',
 				data: JSON.stringify(jsonObj),
