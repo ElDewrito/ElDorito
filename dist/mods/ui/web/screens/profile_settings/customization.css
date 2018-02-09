@@ -63,3 +63,7 @@ form.emblemColorForm {
     box-sizing: border-box;
     display: block;
 }
+
+::-webkit-scrollbar {
+    width: 10px !important;
+}

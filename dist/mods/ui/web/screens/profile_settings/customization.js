@@ -936,6 +936,12 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
                         updateSelection(itemNumber, false, false);
                     });
 					
+					$('span').has('.setting').mouseout(function(){
+						if(!hasGP){
+							$(this).removeClass('selectedElement');
+						}
+					}); 
+					
 					if(setEmblem){
 						setItemValues('emblemIcon', embList.emblemList[getProperIndex(parseInt(getQueryVariable(data.emblem,'fi')),embList.emblemList)][1]);
 						setItemValues('emblemBackgroundImage', embList.backgroundEmblems[getProperIndex(parseInt(getQueryVariable(data.emblem,'bi')),embList.backgroundEmblems)][1]);
