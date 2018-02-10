@@ -47,7 +47,6 @@ body {
 	padding-left: 0.52%;
 	padding-right: 0.52%;
 	padding-bottom: 3.7%;
-	text-align: center;
 }
 
 #discord-container .discord-user img {
@@ -59,6 +58,11 @@ body {
 	border: 2px solid #222222;
 	height: 67.37%;
 	width: auto;
+}
+
+#discord-container .discord-user img.selected {
+	border-radius: 25%;
+	border: 2px solid green;
 }
 
 #discord-container .discord-user img:hover {

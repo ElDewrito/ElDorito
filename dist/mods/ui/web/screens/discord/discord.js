@@ -4,6 +4,7 @@ var DISCORD_IGNORE = 2;
 
 var playersJoinRequests = 0;
 var isFirstShow = true;
+var selectedIndex = -1;
 
 function fadeOut(userElement, reply) {
 	playersJoinRequests--;
@@ -70,6 +71,22 @@ $(document).ready(function () {
 			$('#discord-container').css("top", "0px");
 			$("#notification").hide();
 			dew.captureInput(true);
+			
+			dew.command("settings.gamepad").then(function(resp){
+				if(resp == 1){
+					$('#discord-container .discord-user img').each(function(){
+						$(this).removeClass("selected");
+					});
+					
+					if($('#discord-container .discord-user img').length > 0){
+						selectedIndex = 0;
+						$('#discord-container .discord-user img').eq(0).addClass("selected");
+					}
+					else{
+						selectedIndex = -1;
+					}
+				}
+			});
 		}
 	});
 	
@@ -122,6 +139,61 @@ $(document).ready(function () {
 		if(e.keyCode === 27){ //escape
 			$('#discord-container').css("top", -$('#discord-container').height());
 			dew.captureInput(false);
+		}
+	});
+	
+	dew.on('controllerinput', function(e){
+		if(e.data.Left == 1){
+			var selector = $('#discord-container .discord-user img');
+			selector.eq(selectedIndex).removeClass("selected");
+			if(selectedIndex == 0){
+				selectedIndex = selector.length - 1;
+			}
+			else{
+				selectedIndex--;
+			}
+			selector.eq(selectedIndex).addClass("selected");
+		}
+		else if(e.data.Right == 1){
+			var selector = $('#discord-container .discord-user img');
+			selector.eq(selectedIndex).removeClass("selected");
+			if(selectedIndex == selector.length - 1){
+				selectedIndex = 0;
+			}
+			else{
+				selectedIndex++;
+			}
+			selector.eq(selectedIndex).addClass("selected");
+		}
+		else if(e.data.A == 1){
+			fadeOut($('#discord-container .discord-user img').eq(selectedIndex), DISCORD_ACCEPT);
+			if(selectedIndex > 0)
+				selectedIndex--;
+			$('#discord-container .discord-user img').eq(selectedIndex).addClass("selected");
+		}
+		else if(e.data.X == 1){
+			fadeOut($('#discord-container .discord-user img').eq(selectedIndex), DISCORD_DECLINE);
+			if(selectedIndex > 0)
+				selectedIndex--;
+			$('#discord-container .discord-user img').eq(selectedIndex).addClass("selected");
+		}
+		else if(e.data.Y == 1){
+			fadeOut($('#discord-container .discord-user img').eq(selectedIndex), DISCORD_IGNORE);
+			if(selectedIndex > 0)
+				selectedIndex--;
+			$('#discord-container .discord-user img').eq(selectedIndex).addClass("selected");
+		}
+		else if(e.data.B == 1){
+			$('#discord-container').css("top", -$('#discord-container').height());
+			dew.captureInput(false);
+			
+			if(playersJoinRequests > 0) {
+				$("#notification").text(playersJoinRequests + " player(s) asking to join");
+				$("#notification").show();
+			}
+			else{
+				$("#notification").hide();
+			}
 		}
 	});
 	
