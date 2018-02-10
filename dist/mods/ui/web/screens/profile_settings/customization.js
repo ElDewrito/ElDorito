@@ -950,9 +950,7 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
 						setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
 						emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
-						setUrl(false);
-						
-						lastEmblem = data.emblem;
+						setUrl(true);
 					}
 					if(runFinish)
 					onFinish();
