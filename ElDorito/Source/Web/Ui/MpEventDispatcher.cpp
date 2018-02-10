@@ -11,7 +11,7 @@ using namespace Blam::Events;
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
+	void OnEvent(Blam::DatumHandle player, const Event *event, const EventDefinition *definition);
 	std::string GetEventName(uint32_t stringId);
 
 	extern std::unordered_map<uint32_t, std::string> EventNames;
@@ -27,7 +27,7 @@ namespace Web::Ui::MpEventDispatcher
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition)
+	void OnEvent(Blam::DatumHandle player, const Event *event, const EventDefinition *definition)
 	{
 		// Ignore the event if it's not targeted at the local player
 		typedef uint32_t(*GetLocalPlayerPtr)(int index);

@@ -2,11 +2,10 @@
 
 namespace Blam
 {
-	const DatumIndex DatumIndex::Null;
 
-	DatumBase* DataArrayBase::Get(DatumIndex index) const
+	DatumBase* DataArrayBase::Get(DatumHandle index) const
 	{
-		typedef DatumBase*(*DataArrayGetPtr)(const DataArrayBase *data, DatumIndex index);
+		typedef DatumBase*(*DataArrayGetPtr)(const DataArrayBase *data, DatumHandle index);
 		auto DataArrayGet = reinterpret_cast<DataArrayGetPtr>(0x55B6D0);
 		return DataArrayGet(this, index);
 	}

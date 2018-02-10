@@ -55,7 +55,7 @@ namespace Forge::RotationSnap
 			s_RotationSnapState.StartRotation = RealQuaternion();
 			s_RotationSnapState.EndRotation = s_RotationSnapState.StartRotation;
 			s_RotationSnapState.Current = 1.0f;
-			s_RotationSnapState.ObjectIndex = DatumIndex::Null;
+			s_RotationSnapState.ObjectIndex = DatumHandle::Null;
 		}
 
 		s_RotationSnapState.Current += Blam::Time::GetSecondsPerTick() / DURATION_SECONDS;

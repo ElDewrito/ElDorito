@@ -567,12 +567,12 @@ namespace Patches::Weapon
 
 namespace
 {
-	bool UnitIsDualWielding(Blam::DatumIndex unitIndex)
+	bool UnitIsDualWielding(Blam::DatumHandle unitHandle)
 	{
-		if (!unitIndex)
+		if (!unitHandle)
 			return false;
 		auto objectHeaderArrayPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset)[0];
-		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitIndex.Index() * 0x10)(0xC)[0];
+		auto unitDatumPtr = objectHeaderArrayPtr(0x44)[0](unitHandle.Index * 0x10)(0xC)[0];
 
 		if (!unitDatumPtr)
 			return false;
@@ -585,10 +585,10 @@ namespace
 		typedef uint32_t(*UnitGetWeaponPtr)(uint32_t unitObject, short weaponIndex);
 		auto UnitGetWeapon = reinterpret_cast<UnitGetWeaponPtr>(0xB454D0);
 
-		return UnitGetWeapon(unitIndex, dualWieldWeaponIndex) != 0xFFFFFFFF;
+		return UnitGetWeapon(unitHandle, dualWieldWeaponIndex) != 0xFFFFFFFF;
 	}
 
-	bool PlayerIsDualWielding(Blam::DatumIndex playerIndex)
+	bool PlayerIsDualWielding(Blam::DatumHandle playerIndex)
 	{
 		auto &players = Blam::Players::GetPlayers();
 		return UnitIsDualWielding(players[playerIndex].SlaveUnit);
@@ -597,7 +597,7 @@ namespace
 	bool LocalPlayerIsDualWielding()
 	{
 		auto localPlayer = Blam::Players::GetLocalPlayer(0);
-		if (localPlayer == Blam::DatumIndex::Null)
+		if (localPlayer == Blam::DatumHandle::Null)
 			return false;
 		return PlayerIsDualWielding(localPlayer);
 	}

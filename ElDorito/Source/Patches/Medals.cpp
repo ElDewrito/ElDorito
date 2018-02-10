@@ -8,7 +8,7 @@
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition);
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition);
 	void __fastcall chud_update_h3_medal_animation_hook(int thisptr, void* unused, int a2);
 	void __fastcall chud_update_saber_medal_animation_hook(int thisptr, void* unused, int a2);
 	void sound_enqueue_announcer_sound_hook(uint32_t sndTagIndex, int delayTicks);
@@ -32,7 +32,7 @@ namespace Patches::Medals
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 	{
 		if (Modules::ModuleGame::Instance().VarCefMedals->ValueInt)
 			return;

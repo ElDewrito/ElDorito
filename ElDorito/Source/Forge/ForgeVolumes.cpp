@@ -182,7 +182,7 @@ namespace
 				auto playerIndex = *(uint32_t*)((uint8_t*)clusterObject + 0x198);
 				Blam::Players::PlayerDatum *player;
 				if (playerIndex != -1 && (player = Blam::Players::GetPlayers().Get(playerIndex))
-					&& player->SlaveUnit != Blam::DatumIndex::Null
+					&& player->SlaveUnit != Blam::DatumHandle::Null
 					&& ZoneShape__ContainsPlayer(&volume.Zone, playerIndex))
 				{
 					if (volume.TeamIndex == player->Properties.TeamIndex || volume.TeamIndex == 8)
@@ -203,7 +203,7 @@ namespace
 					auto playerIndex = *(uint32_t*)((uint8_t*)driverUnitObject + 0x198);
 					Blam::Players::PlayerDatum *player;
 					if (playerIndex != -1 && (player = players.Get(playerIndex))
-						&& player->SlaveUnit != Blam::DatumIndex::Null)
+						&& player->SlaveUnit != Blam::DatumHandle::Null)
 					{
 						if (volume.TeamIndex != player->Properties.TeamIndex && volume.TeamIndex != 8)
 							continue;
@@ -260,7 +260,7 @@ namespace
 				return false;
 
 			for (auto player : Blam::Players::GetPlayers())
-				if (player.SlaveUnit == Blam::DatumIndex(objectIndex))
+				if (player.SlaveUnit == Blam::DatumHandle(objectIndex))
 					return false;
 			return true;
 		}

@@ -321,7 +321,7 @@ namespace
 
 		const auto playerIndex = Blam::Players::GetLocalPlayer(0);
 		const Blam::Players::PlayerDatum *player;
-		if (playerIndex != Blam::DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex)))
+		if (playerIndex != Blam::DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex)))
 		{
 			auto unitObject = Blam::Objects::Get(player->SlaveUnit);
 			float activeCamoPower = 0.0f;

@@ -41,6 +41,7 @@
     <ClCompile Include="Source\Blam\Math\RealVector2D.cpp" />
     <ClCompile Include="Source\Blam\Math\RealVector3D.cpp" />
     <ClCompile Include="Source\Blam\Math\Rectangle2D.cpp" />
+    <ClCompile Include="Source\Blam\Memory\DatumHandle.cpp" />
     <ClCompile Include="Source\Blam\Tags\Camera\AreaScreenEffect.cpp" />
     <ClCompile Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.cpp" />
     <ClCompile Include="Source\Blam\Tags\Items\DefinitionEquipment.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Source\Blam\BlamTime.hpp" />
     <ClInclude Include="Source\Blam\BlamTypes.hpp" />
     <ClInclude Include="Source\Blam\Cache\StringIdCache.hpp" />
+    <ClInclude Include="Source\Blam\Memory\DatumHandle.hpp" />
     <ClInclude Include="Source\Blam\Tags\Enum.hpp" />
     <ClInclude Include="Source\Blam\Math\Angle.hpp" />
     <ClInclude Include="Source\Blam\Math\Bounds.hpp" />
@@ -422,7 +424,7 @@
     <Platform>Win32</Platform>
     <ProjectName>ElDorito</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

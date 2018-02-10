@@ -25,7 +25,7 @@ namespace ChatCommands
 	ShuffleTeamsCommand shuffleTeamsCommand;
 
 
-	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 	{
 
 		if (event->NameStringId == 262221) //Game Ended event

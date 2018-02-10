@@ -307,7 +307,7 @@ namespace
 			return;
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null)
+		if (playerIndex == DatumHandle::Null)
 			return;
 
 		HandleCommands();
@@ -374,7 +374,7 @@ namespace
 		{
 			if (header.Type != eObjectTypeScenery)
 				continue;
-			auto tagIndex = header.GetTagIndex().Index();
+			auto tagIndex = header.GetTagHandle().Index;
 			if (tagIndex == 0x5728)
 			{
 				auto mpProperties = header.Data->GetMultiplayerProperties();
@@ -492,7 +492,7 @@ namespace
 		if (!mapv)
 			return;
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
 
 		for (auto i = 0; i < 640; i++)
 		{
@@ -505,7 +505,7 @@ namespace
 				continue;
 
 			if (placement.ObjectIndex != -1)
-				DeleteObject(playerIndex.Index(), i);
+				DeleteObject(playerHandle.Index, i);
 			else
 			{
 				if (i < mapv->ScnrPlacementsCount)
@@ -593,8 +593,8 @@ namespace
 		if (tagIndex == -1)
 			return;
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null || !GetEditorModeState(playerIndex, nullptr, nullptr))
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+		if (playerHandle == DatumHandle::Null || !GetEditorModeState(playerHandle, nullptr, nullptr))
 			return;
 
 		Blam::Tags::TagInstance instance(tagIndex);
@@ -615,9 +615,9 @@ namespace
 
 		ForgeMessage msg = { 0 };
 		msg.Type = 0;
-		msg.PlayerIndex = playerIndex;
+		msg.PlayerIndex = playerHandle;
 		msg.TagIndex = instance.Index;
-		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
 		static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
 		Forge_SendMessage(&msg);
@@ -750,7 +750,7 @@ namespace
 		const auto currentSnap = moduleForge.VarRotationSnap->ValueInt;
 		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
 
-		if (DatumIndex(playerIndex) != Blam::Players::GetLocalPlayer(0))
+		if (DatumHandle(playerIndex) != Blam::Players::GetLocalPlayer(0))
 		{
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
@@ -901,7 +901,7 @@ namespace
 			return;
 
 		std::stack<uint32_t> detachStack;
-		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumIndex::Null;)
+		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
 		{
 			auto object = Blam::Objects::Get(objectIndex);
 			if (!object)
@@ -1026,7 +1026,7 @@ namespace
 		auto& players = Blam::Players::GetPlayers();
 		auto player = players.Get(playerIndex);
 
-		if (player && player->SlaveUnit == DatumIndex(unitObjectIndex) && GetEditorModeState(playerIndex, nullptr, nullptr))
+		if (player && player->SlaveUnit == DatumHandle(unitObjectIndex) && GetEditorModeState(playerIndex, nullptr, nullptr))
 		{
 			auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& monitorSpeed = *(float*)(a2 + 0x150);
@@ -1080,14 +1080,14 @@ namespace
 		if (!heldObject)
 			return;
 
-		DatumIndex playerIndex = GetPlayerHoldingObject(objectIndex);
+		DatumHandle playerHandle = GetPlayerHoldingObject(objectIndex);
 
 		const auto& selection = Forge::Selection::GetSelection();
 
 		if (ObjectIsPhased(objectIndex))
 		{
 			auto offset = heldObject->Center - heldObject->Position - s_GrabOffset;
-			auto newPos = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()] - offset;
+			auto newPos = GetSandboxGlobals().CrosshairPoints[playerHandle.Index] - offset;
 			Object_Transform(a1, objectIndex, &newPos, forwardVec, upVec);
 		}
 		else
@@ -1296,7 +1296,7 @@ namespace
 	{
 		static auto Forge_UpdatePlayerEditorGlobals = (bool(*)(int16_t playerIndex, uint32_t* pObjectIndex))(0x0059E720);
 
-		if (Blam::Players::GetLocalPlayer(0).Index() == playerIndex)
+		if (Blam::Players::GetLocalPlayer(0).Index == playerIndex)
 		{
 			auto& editorGlobals = Forge::GetSandboxGlobals();
 
@@ -1902,7 +1902,7 @@ namespace
 					{
 						auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
 						Blam::Players::PlayerDatum *player;
-						if ((playerIndex != DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))) &&
+						if ((playerIndex != DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))) &&
 							player->Properties.TeamIndex != props->TeamIndex && props->TeamIndex != 8)
 						{
 							screenEffectDef.MaximumDistance = 0;

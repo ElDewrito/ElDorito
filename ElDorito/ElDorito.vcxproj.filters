@@ -546,6 +546,7 @@
     </ClCompile>
     <ClCompile Include="Source\Patches\GameEngineSettings.cpp" />
     <ClCompile Include="Source\Patches\DamageSystem.cpp" />
+    <ClCompile Include="Source\Blam\Memory\DatumHandle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Blam\BitStream.hpp">
@@ -1252,6 +1253,7 @@
     </ClInclude>
     <ClInclude Include="Source\Patches\GameEngineSettings.hpp" />
     <ClInclude Include="Source\Patches\DamageSystem.hpp" />
+    <ClInclude Include="Source\Blam\Memory\DatumHandle.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

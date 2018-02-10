@@ -37,7 +37,7 @@ namespace
 	time_t scoreboardSentTime = 0;
 
 
-	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
+	void OnEvent(Blam::DatumHandle player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
 }
 
@@ -148,13 +148,13 @@ namespace Web::Ui::WebScoreboard
 		{
 			Blam::Players::PlayerDatum *player{ nullptr };
 			auto playerIndex = Blam::Players::GetLocalPlayer(0);
-			if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+			if (playerIndex == Blam::DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 				return;
 
 			auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 			auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
 
-			if (player->SlaveUnit != Blam::DatumIndex::Null)
+			if (player->SlaveUnit != Blam::DatumHandle::Null)
 			{
 				spawningSoon = false;
 
@@ -176,7 +176,7 @@ namespace Web::Ui::WebScoreboard
 				}
 			}
 
-			previousHasUnit = player->SlaveUnit != Blam::DatumIndex::Null;
+			previousHasUnit = player->SlaveUnit != Blam::DatumHandle::Null;
 		}
 	}
 
@@ -292,7 +292,7 @@ namespace Web::Ui::WebScoreboard
 
 			bool hasObjective = false;
 			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
-			if (playerDatum.GetSalt() && playerDatum.SlaveUnit != Blam::DatumIndex::Null)
+			if (playerDatum.GetSalt() && playerDatum.SlaveUnit != Blam::DatumHandle::Null)
 			{
 				auto unitObjectPtr = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
 				if (unitObjectPtr)
@@ -360,7 +360,7 @@ namespace Web::Ui::WebScoreboard
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Event *event, const EventDefinition *definition)
+	void OnEvent(Blam::DatumHandle player, const Event *event, const EventDefinition *definition)
 	{
 		if (event->NameStringId == 0x4004D || event->NameStringId == 0x4005A) // "general_event_game_over" / "general_event_round_over"
 		{

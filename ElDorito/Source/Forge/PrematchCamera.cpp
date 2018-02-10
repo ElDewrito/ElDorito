@@ -33,7 +33,7 @@ namespace Forge::PrematchCamera
 
 		Blam::Players::PlayerDatum *player{ nullptr };
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+		if (playerIndex == Blam::DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 			return;
 
 		auto mapv = Forge::GetMapVariant();

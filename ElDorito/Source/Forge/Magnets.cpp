@@ -143,7 +143,7 @@ namespace
 			RealVector3D *center, float radius, uint32_t* result, uint16_t maxObjects))(0x00B35B60);
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null)
+		if (playerIndex == DatumHandle::Null)
 			return;
 
 		uint32_t heldObjectIndex;
@@ -163,7 +163,7 @@ namespace
 		if (selection.Contains(heldObjectIndex))
 		{
 			const auto& heldObject = Blam::Objects::Get(heldObjectIndex);
-			for (auto objectIndex = heldObject->FirstChild; objectIndex != DatumIndex::Null
+			for (auto objectIndex = heldObject->FirstChild; objectIndex != DatumHandle::Null
 				&& m_NumSourceMagnets < MAX_SOURCE_MAGNETS;)
 			{
 				auto object = Blam::Objects::Get(objectIndex);

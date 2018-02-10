@@ -88,8 +88,8 @@ namespace Forge
 		if (!mapv)
 			return;
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		auto objectIndex = GetSandboxGlobals().CrosshairObjects[playerIndex.Index()];
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+		auto objectIndex = GetSandboxGlobals().CrosshairObjects[playerHandle.Index];
 
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
@@ -105,7 +105,7 @@ namespace Forge
 			if (budget.TagIndex != object->TagIndex)
 				continue;
 
-			Forge::DeleteObject(playerIndex.Index(), i);
+			Forge::DeleteObject(playerHandle.Index, i);
 		}
 	}
 
@@ -136,9 +136,9 @@ namespace Forge
 		auto& selection = Forge::Selection::GetSelection();
 		selection.Clear();
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
 
-		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 		const auto& referencePoint = referenceObject->Position;
 
 		while (!cloneStack.empty())

@@ -444,13 +444,13 @@ namespace
 
 		Blam::Players::PlayerDatum *player{ nullptr };
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+		if (playerIndex == Blam::DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 			return;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 		auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
 
-		if(game_engine_round_in_progress() || player->SlaveUnit == Blam::DatumIndex::Null)
+		if(game_engine_round_in_progress() || player->SlaveUnit == Blam::DatumHandle::Null)
 		{
 			if (secondsUntilSpawn != lastBeep && secondsUntilSpawn < 3)
 			{
@@ -467,14 +467,14 @@ namespace
 		if (sub_6E4AA0(hudIndex, buff, len, a4))
 			return true;
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null)
+		if (playerIndex == Blam::DatumHandle::Null)
 			return false;
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
 		if (!player)
 			return false;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
-		if (player->SlaveUnit == Blam::DatumIndex::Null && secondsUntilSpawn > 0)
+		if (player->SlaveUnit == Blam::DatumHandle::Null && secondsUntilSpawn > 0)
 		{
 			if (!game_engine_round_in_progress())
 				return false;

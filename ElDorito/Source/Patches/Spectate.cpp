@@ -19,7 +19,7 @@ namespace
 	struct SpectateState
 	{
 		bool IsSpectating;
-		Blam::DatumIndex DirectedPlayerIndex;
+		Blam::DatumHandle DirectedPlayerIndex;
 	}
 	s_SpectateState;
 
@@ -38,7 +38,7 @@ namespace Patches::Spectate
 
 namespace
 {
-	void NotifyPlayerChanged(Blam::DatumIndex playerDatumIndex)
+	void NotifyPlayerChanged(Blam::DatumHandle playerDatumIndex)
 	{
 		auto& players = Blam::Players::GetPlayers();
 		auto player = players.Get(playerDatumIndex);
@@ -78,16 +78,16 @@ namespace
 			return false;
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
-		if (playerIndex == Blam::DatumIndex::Null)
+		if (playerIndex == Blam::DatumHandle::Null)
 			return false;
 
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (player->SlaveUnit != Blam::DatumIndex::Null)
+		if (player->SlaveUnit != Blam::DatumHandle::Null)
 			return false;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 
-		return player->SlaveUnit == Blam::DatumIndex::Null && secondsUntilSpawn > 1 
+		return player->SlaveUnit == Blam::DatumHandle::Null && secondsUntilSpawn > 1 
 			&& !(Pointer(player)(0x4).Read<uint32_t>() & 8u);
 	}
 
@@ -105,7 +105,7 @@ namespace
 				s_SpectateState.DirectedPlayerIndex = -1;
 			}
 
-			auto directedPlayerIndex = Blam::DatumIndex(Pointer(thisptr)(0x144).Read<uint32_t>());
+			auto directedPlayerIndex = Blam::DatumHandle(Pointer(thisptr)(0x144).Read<uint32_t>());
 			if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
 				NotifyPlayerChanged(directedPlayerIndex);
 			s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;

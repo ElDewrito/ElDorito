@@ -1382,7 +1382,7 @@ namespace
 
 		auto sub_53A6F0 = (void*(*)(uint32_t))(0x53A6F0);
 
-		void* playerRepresentation = sub_53A6F0(Blam::Players::GetLocalPlayer(0).Index());
+		void* playerRepresentation = sub_53A6F0(Blam::Players::GetLocalPlayer(0).Index);
 
 		auto nameId = *(uint32_t*)playerRepresentation;
 		switch (nameId)
@@ -1747,8 +1747,8 @@ namespace
 		const auto playerIndex = Blam::Players::GetLocalPlayer(0); // no need to map until splitscreen is supported
 		Blam::Players::PlayerDatum *player;
 
-		if (playerIndex != Blam::DatumIndex::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))
-			&& player->SlaveUnit != Blam::DatumIndex::Null && Blam::Objects::Get(player->SlaveUnit)
+		if (playerIndex != Blam::DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))
+			&& player->SlaveUnit != Blam::DatumHandle::Null && Blam::Objects::Get(player->SlaveUnit)
 			&& !moduleTweaks.VarDisableWeaponOutline->ValueInt)
 		{
 			// outlines are only rendered if we have a unit regardless

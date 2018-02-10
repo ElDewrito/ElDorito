@@ -103,8 +103,8 @@ namespace Blam::Players
 	struct PlayerDatum : DatumBase
 	{
 		uint8_t Unknown2[0x2E];
-		DatumIndex SlaveUnit;
-		DatumIndex DeadSlaveUnit;
+		DatumHandle SlaveUnit;
+		DatumHandle DeadSlaveUnit;
 		uint8_t Unknown34[0x38];
 		PlayerProperties Properties;
 		uint8_t Unknown1690[0x165a];
@@ -170,16 +170,16 @@ namespace Blam::Players
 	DataArray<PlayerDatum>& GetPlayers();
 
 	// Gets the datum index for a local player (0-3).
-	DatumIndex GetLocalPlayer(int index);
+	DatumHandle GetLocalPlayer(int index);
 
 	// Gets a player's kill count.
-	int GetKills(DatumIndex player);
+	int GetKills(DatumHandle player);
 
 	// Gets a player's death count.
-	int GetDeaths(DatumIndex player);
+	int GetDeaths(DatumHandle player);
 
 	// Gets a player's assist count.
-	int GetAssists(DatumIndex player);
+	int GetAssists(DatumHandle player);
 
 	// Gets a player's stats.
 	PLAYER_STATS GetStats(int playerIndex);

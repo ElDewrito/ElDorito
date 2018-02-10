@@ -33,7 +33,7 @@ namespace
 		{
 			auto playerIndex = Blam::Players::GetLocalPlayer(0);
 			Blam::Players::PlayerDatum *player{ nullptr };
-			if (playerIndex == DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+			if (playerIndex == DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 				return false;
 
 			// if we're in a h3 ui screen
@@ -47,7 +47,7 @@ namespace
 				return true;
 
 			// if we're spectating
-			return player && player->SlaveUnit == Blam::DatumIndex::Null;
+			return player && player->SlaveUnit == Blam::DatumHandle::Null;
 		}
 
 		return false;
