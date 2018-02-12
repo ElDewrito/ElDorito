@@ -87,8 +87,7 @@
 					     <span><div class="setting baseNav button-list" onclick="emblemShow('emblemBackgroundImage',$(this));"><label>Background Image</label></div></span>
                          <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemPrimary',$(this));"><label>Primary Color</label></div></span>
                          <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemSecondary',$(this));"><label>Secondary Color</label></div></span>
-                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemImage',$(this));"><label>Image Color</label></div></span>
-						 <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemBackground',$(this));"><label>Background Color</label></div></span>
+                         <span><div class="setting baseNav button-list" onclick="emblemColorShow('colorsEmblemImage',$(this));"><label>Background Color</label></div></span>
                       </div>
                       <div class="emblemBox" id="infoBox">
 						<img id="emblemBox" src="" />
@@ -101,7 +100,6 @@
                         <form class="emblemColorForm hide tile-button" id="colorsEmblemPrimary"></form>
 						<form class="emblemColorForm hide tile-button" id="colorsEmblemSecondary"></form>
 						<form class="emblemColorForm hide tile-button" id="colorsEmblemImage"></form>
-						<form class="emblemColorForm hide tile-button" id="colorsEmblemBackground"></form>
                       </div>
                   </div>
 				  <div id="unavailable" class="tabpage grid-customization hide">
@@ -114,11 +112,11 @@
                 <div class="bottomBar window-side-padding">
                     <button id="cancelButton" class="legend-button"><img class="button">Close</button>
 					<button id="toggleIconButton"  class="legend-button" onclick="toggleIcon();"><img class="button">Toggle Icon</button>
+					<button id="randomEmblem"  class="legend-button randomizer" onclick="randomEmblem();"><img class="button">Random Emblem</button>
 					<button id="applyEmblemButton"  class="legend-button" onclick="ApplyEmblem(true);"><img class="button">Submit Emblem</button>
-                    <!--
                     <button id="randomColors"  class="legend-button randomizer" onclick="randomColors();"><img class="button">Random Colors</button>
                     <button id="randomArmor"  class="legend-button randomizer" onclick="randomArmor();"><img class="button">Random Armor</button>
-                    -->
+					
                 </div>
             </div>
 
