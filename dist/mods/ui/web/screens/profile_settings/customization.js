@@ -143,6 +143,7 @@ $(document).ready(function(){
             }
         }
     });
+	$("#randomColors").hide();
 	SetupEmblems(false, true, true);
 		
     setRadioList('armorHelmet', armorHelmetList, true);
@@ -241,15 +242,22 @@ $(document).ready(function(){
                 }
             }
             if(e.data.X == 1){
-                if(activePage.startsWith('#page1')){
+                if(activePage.startsWith('#page3')){
+					toggleIcon();
+				}
+            }
+			if(e.data.Start == 1){
+				if(activePage.startsWith('#page3') && needApply){
+					ApplyEmblem(true);
+				}
+			}
+			if(e.data.Y == 1){
+				if(activePage.startsWith('#page1')){
                     randomArmor();
                 }else if(activePage.startsWith('#page2')){
                     randomColors();
-                }
-            }
-			if(e.data.Y == 1){
-				if(activePage.startsWith('#page3') && needApply){
-					ApplyEmblem(true);
+                }else if(activePage.startsWith('#page3')){
+					randomEmblem();
 				}
 			}
             if(e.data.Y == 1){
@@ -417,11 +425,13 @@ function checkGamepad(){
 
 function setButtons(){
     dew.command('Game.IconSet', {}).then(function(response){
-        $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_X.png');
-        $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_X.png');
+        $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_Y.png');
+        $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
-		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
+		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Start.png');
+		$('#toggleIconButton img').attr('src','dew://assets/buttons/'+ response + '_X.png');
+		$('#randomEmblem img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#namePrompt img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
@@ -546,6 +556,7 @@ function cancelButton(){
     itemNumber = 0;
     dew.command('writeconfig');
     effectReset();
+	page1();
 }
 
 function dismissButton(){
@@ -616,12 +627,37 @@ function randomArmor(){
         var $options = $('#'+armorArray[i]).find('input'),
             random = ~~(Math.random() * $options.length);
         $options.eq(random).prop('checked', true);
+		$options.eq(random).click();
+		itemNumber = random;
+		updateSelection(itemNumber,false,true, '#page1 #' + armorArray[i]);
         $.grep(settingsToLoad, function(result){
             if(result[0] == armorArray[i]){
                 dew.command(result[1] + ' ' + $('#'+armorArray[i]+' input:checked').val());
             };
         });
     }
+}
+
+function randomEmblem(){
+    var emblemArray = ['emblemIcon','emblemBackgroundImage',];
+    for(var i = 0; i < emblemArray.length; i++) {
+        var $options = $('#'+emblemArray[i]).find('input'),
+            random = ~~(Math.random() * $options.length);
+        $options.eq(random).prop('checked', true);
+		$options.eq(random).click();
+		itemNumber = random;
+		updateSelection(itemNumber,false,true, '#page3 #' + emblemArray[i]);
+    }
+	var colorArray = ['colorsEmblemPrimary','colorsEmblemSecondary','colorsEmblemImage'];
+    for(var i = 0; i < colorArray.length; i++) {
+        var random = ~~(Math.random() * 30);
+		$('#'+colorArray[i]+' input').eq(random).prop('checked', true);
+		$('#'+colorArray[i]+' input').eq(random).click();
+		itemNumber = random;
+		updateSelection(itemNumber,false,true, '#page3 #' + colorArray[i]);
+		
+    }
+   	setUrl(false);
 }
 
 function randomColors(){
@@ -639,12 +675,14 @@ function randomColors(){
     }
 }
 
-function updateSelection(item, sound, move){
+function updateSelection(item, sound, move, direct){
+	var elem = (direct ? direct : activePage);
+
     if(item > -1){
-        $(activePage+' .selectedElement').eq(0).removeClass('selectedElement');
-        $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
-        if($(activePage+' .selectedElement').length && move){
-            $(activePage+' .selectedElement')[0].scrollIntoView(false);
+        $(elem+' .selectedElement').eq(0).removeClass('selectedElement');
+        $(elem + ' label:visible').eq(item).parent().addClass('selectedElement');
+        if($(elem+' .selectedElement').length && move){
+            $(elem+' .selectedElement')[0].scrollIntoView(false);
         }
         if(sound){
             dew.command('Game.PlaySound 0xAFE');
@@ -705,7 +743,7 @@ function downNav(){
             updateSelection(itemNumber, true, true);
         }
     }else{
-        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || ((activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page3')) || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
+        if((activePage.split(' ').length < 2 && itemNumber < 3 && activePage == '#page2') || ((activePage.split(' ').length < 2 && itemNumber < 5 && activePage == '#page3')) || (activePage.split(' ').length < 2 && itemNumber < 6 && activePage == '#page1') ||  (activePage.split(' ').length > 1 && itemNumber < $(activePage + ' label:visible').length-1)){
             itemNumber++;
             updateSelection(itemNumber, true, true);
         }
@@ -812,6 +850,7 @@ function rightNav(){
 			itemNumber++;
 			updateSelection(itemNumber, true, true);
 		}
+		
 	}
     if(activePage.startsWith('#page2 #color') ){
         if(itemNumber % 3 != 0){
@@ -873,6 +912,8 @@ function adjustBiped(){
 
 function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runFinish){
 	$("#applyEmblemButton").hide();
+	$("#toggleIconButton").hide();
+	$("#randomEmblem").hide();
 	
 	ping(apiServer, function(response){
 		if(response == 'timeout'){
@@ -901,7 +942,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray,true);
 						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray,true);
 						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray,true);
-						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray,true);
 					}
 					
 					if(setRadiosLists){
@@ -910,7 +950,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						setEmblemColorRadioList('colorsEmblemPrimary', h3ColorArray);
 						setEmblemColorRadioList('colorsEmblemSecondary', h3ColorArray);
 						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray);
-						setEmblemColorRadioList('colorsEmblemBackground', h3ColorArray);
 					}
 					
 					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').on('change click', function(e) {
@@ -928,6 +967,11 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 					$('.emblemForm, .emblemColorForm').submit(function() {
 						return false;
 					});
+					
+					$('.emblemForm, .emblemColorForm').unbind("mouseover");
+					$('span').has('.setting').unbind("mouseover");
+					$('span').has('.setting').unbind("mouseout");
+					
 					$('.emblemForm, .emblemColorForm').mouseover(function(){
 						activePage = location.hash+' #'+$(this).attr('id');
 					});
@@ -948,7 +992,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						setItemValues('colorsEmblemPrimary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'3'))][1]);
 						setItemValues('colorsEmblemSecondary', h3ColorArray[parseInt(getQueryVariable(data.emblem,'2'))][1]);
 						setItemValues('colorsEmblemImage', h3ColorArray[parseInt(getQueryVariable(data.emblem,'1'))][1]);
-						setItemValues('colorsEmblemBackground', h3ColorArray[parseInt(getQueryVariable(data.emblem,'0'))][1]);
 						emblemToggle = parseInt(getQueryVariable(data.emblem,'fl'));
 						setUrl(true);
 					}
@@ -1178,13 +1221,25 @@ function toggleIcon(){
 }
 
 function page3(){
-	SetupEmblems(true, false, true);	
+	SetupEmblems(true, false, true);
+	$("#toggleIconButton").show();
+	$("#randomArmor").hide();
+	$("#randomColors").hide();
+	$("#randomEmblem").show();
 }
 function page2(){
 	$("#applyEmblemButton").hide();
+	$("#toggleIconButton").hide();
+	$("#randomArmor").hide();
+	$("#randomColors").show();
+	$("#randomEmblem").hide();
 }
 function page1(){
 	$("#applyEmblemButton").hide();
+	$("#toggleIconButton").hide();
+	$("#randomArmor").show();
+	$("#randomColors").hide();
+	$("#randomEmblem").hide();
 }
 
 function ping(ip, callback) {
