@@ -503,10 +503,6 @@ namespace Server::Stats
 		case 0x4004D: // general_event_game_over
 			time(&sendStatsTime);
 			break;
-
-		case 0x40046: // general_event_player_joined
-			CreateThread(NULL, 0, GetPlayersInfo_Thread, (LPVOID)"", 0, NULL);
-			break;
 		}
 	}
 }
@@ -519,6 +515,11 @@ namespace Server::Stats
 		Patches::Events::OnEvent(OnEvent);
 		Patches::Core::OnGameStart(OnGameStart);
 		GetPlayersInfoEndpoint();
+	}
+
+	void NewPlayerJoined()
+	{
+		auto thread = CreateThread(NULL, 0, GetPlayersInfo_Thread, (LPVOID)"", 0, NULL);
 	}
 
 	void Tick()

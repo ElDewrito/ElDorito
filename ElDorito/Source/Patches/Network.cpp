@@ -21,6 +21,7 @@
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Server/Voting.hpp"
+#include "../Server/Stats.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Server/Signaling.hpp"
@@ -797,6 +798,7 @@ namespace
 			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
 			Server::Signaling::SendPeerPassword(playerIndex);
 			Server::Voting::PlayerJoinedVoteInProgress(playerIndex);
+			Server::Stats::NewPlayerJoined();
 			isNewMember = true;
 		}
 
