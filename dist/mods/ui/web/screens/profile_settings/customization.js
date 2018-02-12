@@ -242,22 +242,22 @@ $(document).ready(function(){
                 }
             }
             if(e.data.X == 1){
-                if(activePage.startsWith('#page1')){
-                    randomArmor();
-                }else if(activePage.startsWith('#page2')){
-                    randomColors();
-                }else if(activePage.startsWith('#page3')){
+                if(activePage.startsWith('#page3')){
 					toggleIcon();
 				}
             }
 			if(e.data.Start == 1){
-				if(activePage.startsWith('#page3')){
-					randomEmblem();
+				if(activePage.startsWith('#page3') && needApply){
+					ApplyEmblem(true);
 				}
 			}
 			if(e.data.Y == 1){
-				if(activePage.startsWith('#page3') && needApply){
-					ApplyEmblem(true);
+				if(activePage.startsWith('#page1')){
+                    randomArmor();
+                }else if(activePage.startsWith('#page2')){
+                    randomColors();
+                }else if(activePage.startsWith('#page3')){
+					randomEmblem();
 				}
 			}
             if(e.data.Y == 1){
@@ -425,13 +425,13 @@ function checkGamepad(){
 
 function setButtons(){
     dew.command('Game.IconSet', {}).then(function(response){
-        $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_X.png');
-        $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_X.png');
+        $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_Y.png');
+        $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
-		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
+		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Start.png');
 		$('#toggleIconButton img').attr('src','dew://assets/buttons/'+ response + '_X.png');
-		$('#randomEmblem img').attr('src','dew://assets/buttons/'+ response + '_Start.png');
+		$('#randomEmblem img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#namePrompt img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
