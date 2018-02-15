@@ -1106,9 +1106,8 @@ namespace
 				auto teamIndex = 0;
 				if (teamsEnabled && UI_OrderedDataSource_Get(data, itemIndex, str_team, &teamIndex) && teamIndex >= 0)
 				{
-					//TODO: find a less expensive way of checking for the player's widget
-					wchar_t* widgetPlayerName = reinterpret_cast<wchar_t*>(reinterpret_cast<uint8_t*>(data) + itemIndex * 0x1678 + 0x168);
-					if (Utils::String::ThinString(widgetPlayerName) == Utils::String::ThinString(session->MembershipInfo.GetLocalPlayerSession().Properties.DisplayName))
+					int playerWidgetIndex = *reinterpret_cast<uint32_t*>(reinterpret_cast<int>(data) + itemIndex * 0x1678 + 0x11C);
+					if (playerWidgetIndex == session->MembershipInfo.GetPeerPlayer(session->MembershipInfo.LocalPeerIndex))
 					{
 						if (localDesiredTeam > -1 && localDesiredTeam < 8)
 						{
