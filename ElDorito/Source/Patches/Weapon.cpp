@@ -16,6 +16,7 @@
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/BlamTime.hpp"
 
 #include "../Blam/Cache/StringIdCache.hpp"
 
@@ -45,7 +46,7 @@ namespace
 	void weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
-	bool weapon_update_bloom_hook(uint32_t weaponObjectIndex, int barrelIndex);
+
 	bool SupportWeaponStartHook(int weaponObjectIndex);
 }
 
@@ -108,14 +109,13 @@ namespace Patches::Weapon
 		Hook(0x1D50CB, DualWieldScopeLevelHook).Apply();
 		Hook(0x7A21D4, DualWieldEquipmentCountHook, HookFlags::IsCall).Apply();
 
-		// fix recoil
+		// fix recoil - use fire rate acceleration instead. TODO: find correct decay for h3
 		Pointer(0x0B603E7 + 5).Write<int>(0x214);
 
 		// disable bloom for non-p2w weapons
 		Hook(0x75F0F1, weapon_apply_firing_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x761197, weapon_apply_movement_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x74A8B7, weapon_apply_turning_penalty_hook, HookFlags::IsCall).Apply();
-		Hook(0x7611A1, weapon_update_bloom_hook, HookFlags::IsCall).Apply();
 
 		// allow spawning with primary support weapon and keep secondary weapon
 		Hook(0x13809E, SupportWeaponStartHook, HookFlags::IsCall).Apply();
@@ -723,21 +723,28 @@ namespace
 		return (&weaponDefinition->Barrels[barrelIndex].FiringPenaltyFunction)[functionIndex].Count > 0;
 	}
 
-	inline void weapon_set_bloom(uint32_t weaponObjectIndex, int barrelIndex, float value)
-	{
-		if (value > 1.0f) value = 1.0f;
-		if (value < 0) value = 0;
-
-		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
-		if (weaponObject)
-			*(float*)((uint8_t*)weaponObject + 0x220 + 0x34 * barrelIndex) = value;
-	}
-
 	void __cdecl weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
 	{
 		const auto weapon_apply_firing_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C2E0);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
-			return weapon_apply_firing_penalty(weaponObjectIndex, barrelIndex);
+		{
+			weapon_apply_firing_penalty(weaponObjectIndex, barrelIndex);
+		}
+		else
+		{
+			auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+			if (weaponObject)
+			{
+				auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				if (barrelIndex < weaponDefinition->Barrels.Count)
+				{
+					auto &error = *(float*)((uint8_t*)weaponObject + 0x220 + 0x34 * barrelIndex);
+					error += weaponDefinition->Barrels[barrelIndex].Unknown2 * Blam::Time::GetSecondsPerTick();
+					if (error > 1.0f) error = 1.0f;
+					if (error < 0.0f) error = 0.0f;
+				}
+			}
+		}
 	}
 
 	void __cdecl weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
@@ -752,23 +759,6 @@ namespace
 		const auto weapon_apply_turning_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C630);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Turning))
 			return weapon_apply_turning_penalty(weaponObjectIndex, barrelIndex);
-	}
-
-	bool weapon_update_bloom_hook(uint32_t weaponObjectIndex, int barrelIndex)
-	{
-		const auto weapon_update_bloom = (bool(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C870);
-
-		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
-
-		if (!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing) &&
-			!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Moving) &&
-			!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Turning))
-		{
-			weapon_set_bloom(weaponObjectIndex, barrelIndex, 1.0f);
-			return true;
-		}
-
-		return weapon_update_bloom(weaponObjectIndex, barrelIndex);
 	}
 
 	bool SupportWeaponStartHook(int weaponObjectIndex)
