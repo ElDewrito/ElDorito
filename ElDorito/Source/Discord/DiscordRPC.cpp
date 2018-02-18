@@ -7,6 +7,7 @@
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Patches/Network.hpp"
+#include "../Patches/Core.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -169,6 +170,11 @@ namespace
 		Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
 		return true;
 	}
+
+	void OnShutdown()
+	{
+		Discord::DiscordRPC::Instance().Shutdown();
+	}
 }
 
 namespace Discord
@@ -237,11 +243,18 @@ namespace Discord
 		handlers.spectateGame = handleDiscordSpectate;
 		handlers.joinRequest = handleDiscordJoinRequest;
 		Discord_Initialize(APPLICATION_ID, &handlers, 1, NULL);
+
+		Patches::Core::OnShutdown(OnShutdown);
 	}
 
 	void DiscordRPC::ReplyToJoinRequest(const char* userId, int reply)
 	{
 		Discord_Respond(userId, reply);
+	}
+
+	void DiscordRPC::Shutdown()
+	{
+		Discord_Shutdown();
 	}
 
 	void DiscordRPC::Update()

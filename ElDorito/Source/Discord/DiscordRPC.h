@@ -19,6 +19,7 @@ namespace Discord
 		void UpdatePresence();
 		void UpdatePresence(int networkMode);
 		void ReplyToJoinRequest(const char* userId, int reply);
+		void Shutdown();
 		DiscordRPC();
 	private:
 		time_t lastUpdate = 0;
