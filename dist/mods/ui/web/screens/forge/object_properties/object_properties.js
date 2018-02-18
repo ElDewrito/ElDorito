@@ -176,6 +176,10 @@
                 hasZone = true;
             }
 
+            if(isKillVolume) {
+                hasTeam = true;
+            }
+
             if(data.is_screenfx)
                 hasTeam = true;
 
@@ -593,6 +597,8 @@
                         [{ label: 'Never', value: 0 }, { label: 'Always', value: 1 }], 'Determines whether the volume will be visible outside of forge'), );
                     m.add(makeProperty('kill_volume_destroy_vehicles', 'Vehicles', 'spinner',
                         [{ label: 'Ignore', value: 0 }, { label: 'Destroy', value: 1 }], 'Destroys vehicles'));
+                      m.add(makeProperty('kill_volume_damage_cause', 'Damage Cause', 'spinner',
+                        [{ label: 'Default', value: 0 }, { label: 'Guardians', value: 1 },  { label: 'Falling', value: 2 }], 'Determines the cause of damage'));
                 });
             }
 

@@ -81,6 +81,7 @@ namespace
 
 		KillVolume_AlwaysVisible,
 		KillVolume_DestroyVehicles,
+		KillVolume_DamageCause,
 
 		Map_DisablePushBarrier,
 		Map_DisableDeathBarrier,
@@ -309,6 +310,9 @@ namespace
 				killVolumeProperties->Flags &= ~Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
 				if (value.ValueInt)
 					killVolumeProperties->Flags |= Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
+				break;
+			case PropertyTarget::KillVolume_DamageCause:
+				killVolumeProperties->DamageCause = value.ValueInt;
 				break;
 			case PropertyTarget::Map_DisableDeathBarrier:
 			{
@@ -842,6 +846,7 @@ namespace
 
 		SerializeProperty(writer, "kill_volume_destroy_vehicles", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles) != 0));
 		SerializeProperty(writer, "kill_volume_always_visible", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible) != 0));
+		SerializeProperty(writer, "kill_volume_damage_cause", int(killVolumeProperties->DamageCause));
 
 		writer.EndObject();
 
@@ -912,6 +917,7 @@ namespace
 
 			{ "kill_volume_always_visible",{ PropertyDataType::Int, PropertyTarget::KillVolume_AlwaysVisible } },
 			{ "kill_volume_destroy_vehicles",{ PropertyDataType::Int, PropertyTarget::KillVolume_DestroyVehicles } },
+			{ "kill_volume_damage_cause",{ PropertyDataType::Int, PropertyTarget::KillVolume_DamageCause } },
 
 			{ "map_disable_push_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
 			{ "map_disable_death_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },

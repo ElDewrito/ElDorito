@@ -112,7 +112,15 @@ namespace Forge
 			eKillVolumeFlags_DestroyVehicles = (1 << 1)
 		};
 
-		uint8_t Flags : 8;
+		enum KillVolumeDamageCause
+		{
+			eKillVolumeDamageCause_Default = 0,
+			eKillVolumeDamageCause_Guardians,
+			eKillVolumeDamageCause_Falling
+		};
+
+		uint8_t Flags : 6;
+		uint8_t DamageCause : 2;
 	};
 	static_assert(sizeof(ForgeKillVolumeProperties) <= 1, "ForgeKillVolumeProperties must be 1 bytes or less in size");
 

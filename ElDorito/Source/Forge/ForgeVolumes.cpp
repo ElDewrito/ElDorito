@@ -3,6 +3,8 @@
 #include "../Blam/Math/RealVector3D.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
+#include "../Blam/Tags/TagInstance.hpp"
+#include "../Blam/Tags/Game/Globals.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Patches/Core.hpp"
 #include "ForgeUtil.hpp"
@@ -15,8 +17,6 @@ namespace
 
 	const auto MAX_VOLUMES = 64;
 	const auto SCAN_INTERVAL = 1;
-	const auto DAMAGE_EFFECT_TAG_INDEX = 0x000001ED;
-	const auto DAMAGE_CAUSE_TYPE = 1; // guardians
 
 	enum VolumeType : uint8_t
 	{
@@ -92,9 +92,9 @@ namespace Forge::Volumes
 {
 	void Update()
 	{
-		const auto game_get_current_engine = (void*(*)())(0x005CE150);
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
 
-		if (game_get_current_engine())
+		if (game_engine_round_in_progress())
 		{
 			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan) > SCAN_INTERVAL)
 			{
@@ -136,17 +136,45 @@ namespace
 
 	void ApplyUnitDamage(ForgeVolume &killVolume, uint32_t unitObjectIndex)
 	{
-		const auto InitDamageData = (int(*)(DamageData *damageData, int damageEffectTagIndex))(0x00B50330);
-		const auto ApplyDamage = (void(*)(DamageData *a1, int unitObjectIndex, int a3))(0xB542A0);
+		const auto damage_data_new = (int(*)(DamageData *damageData, int damageEffectTagIndex))(0x00B50330);
+		const auto unit_cause_damage = (void(*)(DamageData *a1, int unitObjectIndex, int a3))(0xB542A0);
+		const auto damage_determine_cause = (void(*)(uint32_t objectIndex, void *data))(0xB770E0);
 
 		if (unitObjectIndex == -1)
 			return;
+		auto volumeObject = Blam::Objects::Get(killVolume.ObjectIndex);
+		if (!volumeObject)
+			return;
+		auto mpProperties = volumeObject->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
 
-		DamageData damage;
-		InitDamageData(&damage, DAMAGE_EFFECT_TAG_INDEX);
-		damage.field_8C = DAMAGE_CAUSE_TYPE;
-		damage.Flags |= 4u;
-		ApplyDamage(&damage, unitObjectIndex, 5);
+		auto damageEffectTagIndex = 0x000001ED;
+		auto damageCauseType = 0;
+
+		auto killVolumeProperties = (Forge::ForgeKillVolumeProperties*)&mpProperties->TeleporterChannel;
+		switch (killVolumeProperties->DamageCause)
+		{
+		case Forge::ForgeKillVolumeProperties::eKillVolumeDamageCause_Guardians:
+			damageCauseType = 1;
+			break;
+		case Forge::ForgeKillVolumeProperties::eKillVolumeDamageCause_Falling:
+			auto matg = *(Blam::Tags::Game::Globals**)0x022AAEB8;
+			damageEffectTagIndex = matg->PlayerFallingDamage.Elements[0].DistanceDamage.TagIndex;
+			damageCauseType = 2;
+			break;
+		}
+
+		if (damageEffectTagIndex != -1)
+		{
+			DamageData damage;
+			damage_data_new(&damage, damageEffectTagIndex);
+			if (damageCauseType != 1)
+				damage_determine_cause(unitObjectIndex, (void*)&damage.PlayerIndex);
+			damage.field_8C = damageCauseType;
+			damage.Flags |= 4u;
+			unit_cause_damage(&damage, unitObjectIndex, 5);
+		}
 	}
 
 
@@ -158,8 +186,11 @@ namespace
 		auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
 		if (!volumeObject)
 			return;
+		auto mpProperties = volumeObject->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
 
-		auto properties = (Forge::ForgeKillVolumeProperties*)&volumeObject->GetMultiplayerProperties()->TeleporterChannel;
+		auto properties = (Forge::ForgeKillVolumeProperties*)&mpProperties->TeleporterChannel;
 
 		auto objectTypeMask = 1 << Blam::Objects::eObjectTypeBiped;
 		if (properties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles)
