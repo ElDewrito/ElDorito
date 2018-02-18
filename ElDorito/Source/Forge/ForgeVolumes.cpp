@@ -96,10 +96,10 @@ namespace Forge::Volumes
 
 		if (game_get_current_engine())
 		{
-			if (Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan)) > SCAN_INTERVAL)
+			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan) > SCAN_INTERVAL)
 			{
-				FindVolumes();
 				s_LastActiveVolumeScan = Blam::Time::GetGameTicks();
+				FindVolumes();
 			}
 
 			for (auto i = 0; i < s_ActiveVolumeCount; i++)
@@ -302,7 +302,7 @@ namespace
 		int collectionIntervals[] = { 0, 3, 15, 30 };
 		auto interval = collectionIntervals[garbageVolumeProperties->Interval];
 
-		if (Blam::Time::TicksToSeconds(float(Blam::Time::GetGameTicks() - s_GarbageCollectionTimes[volume.ObjectIndex])) < float(interval))
+		if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - s_GarbageCollectionTimes[volume.ObjectIndex]) < float(interval))
 			return;
 
 		s_GarbageCollectionTimes[volume.ObjectIndex] = Blam::Time::GetGameTicks();

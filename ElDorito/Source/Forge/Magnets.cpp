@@ -175,7 +175,7 @@ namespace
 			}
 		}
 
-		if (Blam::Time::TicksToSeconds(static_cast<float>(Blam::Time::GetGameTicks() - m_LastCheck)) > 0.3f)
+		if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - m_LastCheck) > 0.3f)
 		{
 			m_LastCheck = Blam::Time::GetGameTicks();
 

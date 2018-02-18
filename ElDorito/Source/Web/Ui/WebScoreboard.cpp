@@ -32,7 +32,7 @@ namespace
 	bool pressedLastTick = false;
 	bool spawningSoon = false;
 	int lastPressedTime = 0;
-	int postgameDisplayed;
+	uint32_t postgameDisplayed;
 	const float postgameDelayTime = 2;
 	time_t scoreboardSentTime = 0;
 
@@ -85,7 +85,7 @@ namespace Web::Ui::WebScoreboard
 
 		if (postgame)
 		{
-			if (Blam::Time::TicksToSeconds((Blam::Time::GetGameTicks() - postgameDisplayed)) > postgameDelayTime)
+			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - postgameDisplayed) > postgameDelayTime)
 			{
 				Web::Ui::WebScoreboard::Show(locked, postgame);
 				acceptsInput = false;

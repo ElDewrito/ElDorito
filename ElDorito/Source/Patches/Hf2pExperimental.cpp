@@ -513,7 +513,7 @@ namespace
 
 		const auto &moduleServer = Modules::ModuleServer::Instance();
 
-		auto delta = (Blam::Time::GetGameTicks() - engineGobals(0xE10c).Read<int>()) - Blam::Time::SecondsToTicks(moduleServer.VarServerCountdown->ValueInt + 5.0f);
+		auto delta = (Blam::Time::GetGameTicks() - engineGobals(0xE10c).Read<uint32_t>()) - Blam::Time::SecondsToTicks(moduleServer.VarServerCountdown->ValueInt + 5.0f);
 		if (delta < 0)
 			delta = 0;
 

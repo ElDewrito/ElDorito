@@ -75,6 +75,7 @@ namespace
 
 		auto medals = (s_chud_h3_medal_state*)thisptr;
 
+		const auto fadeOutDuration = Blam::Time::SecondsToTicks(1);
 		for (auto i = 0; i < 4; i++)
 		{
 			if (medals[i].Active && medals[i].InAnimationFinished)
@@ -82,14 +83,17 @@ namespace
 				auto dt = Blam::Time::GetGameTicks() - medals[i].StartTime;
 				if (dt > 250)
 				{
-					auto nticks = 1.0f / Blam::Time::GetSecondsPerTick();
-					auto n = (Blam::Time::TicksToSeconds(nticks - (dt - 250)) / 1.0f);
-					if (n < 0)
+					
+					auto fadeOutDelta = dt - 250;
+					if (fadeOutDelta > fadeOutDuration)
 					{
 						medals[i].Active = 0;
-						n = 0;
 					}
-					medals[i].Opacity = n;
+
+					auto &opacity = medals[i].Opacity;
+					opacity = 1.0f - fadeOutDelta / float(fadeOutDuration);
+					if (opacity < 0.0f)
+						opacity = 0.0f;
 				}
 			}
 		}
