@@ -17,19 +17,41 @@ dew.on("show", function (event) {
         })
     );
     
+	var ok = 'OK';
+	if(event.data.type == "url") ok = 'YES';
+	
     form.append( 
         $("<button>", {
             id: 'ok',
-            text: 'OK',
+            text: ok,
             click: function(e){ 
                 e.preventDefault();
                 $(this).parent().parent().remove();
                 if(!$('.dialog').length){
+					if(event.data.type == "url"){
+						window.open(event.data.url, '_blank');
+					}
                     dew.hide();
                 };
             }
         })
     );
+	
+	if(event.data.type == "url"){
+		form.append( 
+			$("<button>", {
+				id: 'cancel',
+				text: 'CANCEL',
+				click: function(e){ 
+					e.preventDefault();
+					$(this).parent().parent().remove();
+					if(!$('.dialog').length){
+						dew.hide();
+					};
+				}
+			})
+		);
+	}
 
     form.wrap( 
         $("<div>", {
