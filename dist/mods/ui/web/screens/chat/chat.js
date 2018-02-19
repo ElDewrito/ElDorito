@@ -196,6 +196,18 @@ $(window).load(function(){
             if(!hideChat){
                 dew.show();
             }
+			
+			$("a").on("click",function(e){				
+				e.preventDefault();
+				dew.show('alert', {
+					icon: 0,
+					title: "Warning",
+					body: "This link goes to " + this.href + " Are you sure you want to open this?",
+					url: this.href,
+					type: "url"
+				});
+			});
+    
         });
     });
 

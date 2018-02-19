@@ -36,6 +36,7 @@ function fadeOut(userElement, reply) {
 }
 
 $(document).ready(function () {
+	$("#notification").hide();
 	$.contextMenu({
 		selector: '#discord-container .discord-user img',
 		trigger: 'right',
