@@ -50,9 +50,6 @@ namespace
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
 
-	bool barriersEnabledValid = false;
-	bool killBarriersEnabled = true;
-	bool pushBarriersEnabled = true;
 
 	void UpdateMapModifier();
 	bool CheckKillTriggersHook(int a0, void *a1);
@@ -113,12 +110,13 @@ namespace
 	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 	void RenderAtmosphereHook(short bspIndex, void *state);
-	void BspWeatherEffectUpdateHook(int a1, int a2, int a3);
+	void BspWeatherHook();
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
 	void HandleCommands();
+	bool UpdateWeatherEffects();
 	
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 	RealVector3D s_GrabOffset;
@@ -136,21 +134,28 @@ namespace
 	static_assert(sizeof(SandboxPaletteItem) == 0x30, "Invalid SandboxPaletteItem size");
 
 	struct {
-		float Exposure;
-		float LightIntensity;
-		float BloomIntensity;
-	} s_CameraFxSettings;
-
-	struct {
-		uint32_t Flags;
-		uint32_t WeatherEffectTagIndex;
-		Blam::Math::RealColorRGB FogColor;
-		float FogDensity;
-		float FogVisibility;
-		float Brightness;
-		
-	} s_AtmosphereSettings = { 0 };
-
+		bool IsValid = false;
+		bool IsActive = false;
+		struct {
+			bool KillBarriersEnabled;
+			bool PushBarriersEnabled;
+		} MapBarriers;
+		struct {
+			bool Enabled;
+			float Exposure;
+			float LightIntensity;
+			float BloomIntensity;
+		} CameraFx;
+		struct {
+			bool Enabled;
+			uint32_t WeatherEffectTagIndex = -1;
+			Blam::Math::RealColorRGB FogColor;
+			float FogDensity;
+			float FogVisibility;
+			float Brightness;
+		} Atmosphere;	
+	} 
+	mapModifierState;
 
 	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
@@ -254,7 +259,7 @@ namespace Patches::Forge
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
 		Hook(0x00639AC1, RenderAtmosphereHook, HookFlags::IsCall).Apply();
 		// prevent weather from being reset
-		Hook(0x00273949, BspWeatherEffectUpdateHook, HookFlags::IsCall).Apply();
+		Hook(0x272230, BspWeatherHook).Apply();
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 
 		// fix ragdolls falling through objects
@@ -264,7 +269,23 @@ namespace Patches::Forge
 
 	void Tick()
 	{
-		
+		const auto game_options_is_valid = (bool(*)())(0x00532650);
+		if (!game_options_is_valid())
+		{
+			mapModifierState.IsValid = false;
+		}
+		else
+		{
+			if (!mapModifierState.IsValid)
+			{
+				memset(&mapModifierState, 0, sizeof(mapModifierState));
+				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
+				mapModifierState.MapBarriers.KillBarriersEnabled = true;
+				mapModifierState.MapBarriers.PushBarriersEnabled = true;
+				mapModifierState.IsValid = true;
+				mapModifierState.IsActive = false;
+			}
+		}
 	}
 
 	void OnItemSpawned(ItemSpawnedCallback callback)
@@ -365,98 +386,126 @@ namespace
 		}
 	}
 
+	uint32_t FindMapModifierObject()
+	{
+		auto objects = Blam::Objects::GetObjects();
+		// Scan the object table to check if map modifier is spawned
+		for(auto it = objects.begin(); it != objects.end(); ++it)
+		{
+			if (it->Type != eObjectTypeScenery)
+				continue;
+
+			auto tagIndex = it->GetTagHandle().Index;
+			if (tagIndex == 0x5728)
+				return it.CurrentDatumIndex;
+		}
+
+		return -1;
+	}
+
 	void UpdateMapModifier()
 	{
-		s_AtmosphereSettings.Flags &= ~(1 << 0);
+		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
 
-		// Scan the object table to check if map modifier is spawned
-		for (auto &&header : Blam::Objects::GetObjects())
+		auto mapModifierObjectIndex = FindMapModifierObject();
+		if (mapModifierObjectIndex == -1)
 		{
-			if (header.Type != eObjectTypeScenery)
-				continue;
-			auto tagIndex = header.GetTagHandle().Index;
-			if (tagIndex == 0x5728)
+			// the map modifier was previously spawned, but has been deleted
+			if (mapModifierState.IsActive)
 			{
-				auto mpProperties = header.Data->GetMultiplayerProperties();
-				auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
+				// state will be reset next tick
+				mapModifierState.IsValid = false;
 
-				killBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier);
-				pushBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier);
-
-				s_CameraFxSettings.Exposure = std::pow((float)mapModifierProperties->CameraFxExposure * 0.05f, 2.2f) * 0.01f;
-				auto expScale = s_CameraFxSettings.Exposure;
-				if (std::abs(s_CameraFxSettings.Exposure) < 0.0001f)
-					expScale = 1.0f;
-				s_CameraFxSettings.LightIntensity = ((float)mapModifierProperties->CameraFxLightIntensity / expScale) * 0.07f;
-				if (s_CameraFxSettings.LightIntensity > 20000.0f)
-					s_CameraFxSettings.LightIntensity = 20000.0f;
-				s_CameraFxSettings.BloomIntensity = ((float)mapModifierProperties->CameraFxBloom / expScale) * 0.07f;
-				if (s_CameraFxSettings.BloomIntensity > 20000.0f)
-					s_CameraFxSettings.BloomIntensity = 20000.0f;
-
-				auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
-				auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
-			
-
-
-				uint32_t newWeatherEffectTagIndex = -1;
-				switch (mapModifierProperties->AtmosphereProperties.Weather)
+				// delete any weather effects
+				if (mapModifierState.Atmosphere.WeatherEffectTagIndex != -1)
 				{
-				case 0:
-					newWeatherEffectTagIndex = -1;
-					break;
-				case 1:
-					newWeatherEffectTagIndex = 0x443a; // snow
-					break;
-				}
-
-
-				if (s_AtmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
-					 && currentWeatherEffectDatumIndex != -1)
-				{
+					auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+					auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
 					FreeWeatherEffect(currentWeatherEffectDatumIndex);
 					currentWeatherEffectDatumIndex = -1;
 				}
 
-				if (currentWeatherEffectDatumIndex == -1 && newWeatherEffectTagIndex != -1)
-				{
-					currentWeatherEffectDatumIndex = SpawnWeatherEffect(newWeatherEffectTagIndex);
-				}
-
-				s_AtmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
-
-				if (mapModifierProperties->AtmosphereProperties.Flags & 1)
-				{
-					s_AtmosphereSettings.Flags |= (1 << 0);
-					s_AtmosphereSettings.FogColor.Red = mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f;
-					s_AtmosphereSettings.FogColor.Green = mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f;
-					s_AtmosphereSettings.FogColor.Blue = mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f;
-					s_AtmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 50.0f;
-					s_AtmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
-					s_AtmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
-
-				}
-
-				const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
-				physics_set_gravity_scale(1.0f - (mapModifierProperties->PhysicsGravity / 255.0f));
-				return;
+				physics_set_gravity_scale(1.0f);
 			}
+
+			return;
 		}
 
-		// not found
-		killBarriersEnabled = true;
-		pushBarriersEnabled = true;
+		mapModifierState.IsActive = true;
 
-		s_CameraFxSettings.Exposure = 0;
-		s_CameraFxSettings.LightIntensity = 0;
-		s_CameraFxSettings.BloomIntensity = 0;
-		s_AtmosphereSettings.WeatherEffectTagIndex = -1;
-		
+		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
+
+		auto mpProperties = mapModifierObject->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
+
+		auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
+
+		mapModifierState.MapBarriers.KillBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier);
+		mapModifierState.MapBarriers.PushBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier);
+
+		const auto kMaxLightIntensity = 20000.0f;
+		const auto kMaxBloomIntensity = 20000.0f;
+
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
+
+		cameraFxSettings.Enabled = true;
+		cameraFxSettings.Exposure = std::pow((float)mapModifierProperties->CameraFxExposure * 0.05f, 2.2f) * 0.01f;
+		auto expScale = cameraFxSettings.Exposure;
+		if (std::abs(cameraFxSettings.Exposure) < 0.0001f)
+			expScale = 1.0f;
+		cameraFxSettings.LightIntensity = ((float)mapModifierProperties->CameraFxLightIntensity / expScale) * 0.07f;
+		if (cameraFxSettings.LightIntensity > kMaxLightIntensity)
+			cameraFxSettings.LightIntensity = kMaxLightIntensity;
+		cameraFxSettings.BloomIntensity = ((float)mapModifierProperties->CameraFxBloom / expScale) * 0.07f;
+		if (cameraFxSettings.BloomIntensity > kMaxBloomIntensity)
+			cameraFxSettings.BloomIntensity = kMaxBloomIntensity;
+
+		auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+
+		uint32_t newWeatherEffectTagIndex = -1;
+		switch (mapModifierProperties->AtmosphereProperties.Weather)
+		{
+		case 0:
+			newWeatherEffectTagIndex = -1;
+			break;
+		case 1:
+			newWeatherEffectTagIndex = 0x443a; // snow
+			break;
+		}
+
+		if (atmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
+			&& currentWeatherEffectDatumIndex != -1)
+		{
+			atmosphereSettings.WeatherEffectTagIndex = -1;
+			FreeWeatherEffect(currentWeatherEffectDatumIndex);
+			currentWeatherEffectDatumIndex = -1;
+		}
+		else
+		{
+			atmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
+			UpdateWeatherEffects();
+		}
+
+		if (mapModifierProperties->AtmosphereProperties.Flags & 1)
+		{
+			atmosphereSettings.Enabled = true;
+			atmosphereSettings.FogColor.Red = mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f;
+			atmosphereSettings.FogColor.Green = mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f;
+			atmosphereSettings.FogColor.Blue = mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f;
+			atmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 50.0f;
+			atmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
+			atmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
+		}
+
+		physics_set_gravity_scale(1.0f - (mapModifierProperties->PhysicsGravity / 255.0f));
 	}
 
 	bool CheckKillTriggersHook(int a0, void *a1)
 	{
-		if (!killBarriersEnabled)
+		if (!mapModifierState.MapBarriers.KillBarriersEnabled)
 			return false;
 
 		typedef bool(*CheckKillTriggersPtr)(int a0, void *a1);
@@ -466,7 +515,7 @@ namespace
 
 	bool ObjectSafeZoneHook(void *a0)
 	{
-		if (!killBarriersEnabled)
+		if (!mapModifierState.MapBarriers.KillBarriersEnabled)
 			return true;
 
 		typedef bool(*CheckSafeZonesPtr)(void *a0);
@@ -476,7 +525,7 @@ namespace
 
 	void* PushBarriersGetStructureDesignHook(int index)
 	{
-		if (!pushBarriersEnabled)
+		if (!mapModifierState.MapBarriers.PushBarriersEnabled)
 			return nullptr; // Return a null sddt if push barriers are disabled
 
 		typedef void*(*GetStructureDesignPtr)(int index);
@@ -2192,23 +2241,30 @@ namespace
 		const auto sub_A3B990 = (void(__thiscall*)(void *thisptr, void *a2))(0xA3B990);
 		sub_A3B990(thisptr, a2);
 
-		if (std::abs(s_CameraFxSettings.Exposure) > 0.0001f)
-			*(float*)((uint8_t*)thisptr + 0x29C) = s_CameraFxSettings.Exposure;
-		if (std::abs(s_CameraFxSettings.LightIntensity) > 0.0001f)
-			*(float*)((uint8_t*)thisptr + 0x1E48) = s_CameraFxSettings.LightIntensity;
-		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
-			*(float*)((uint8_t*)thisptr + 0x2A0) = s_CameraFxSettings.BloomIntensity;
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+
+		if (cameraFxSettings.Enabled)
+		{
+			if (std::abs(mapModifierState.CameraFx.Exposure) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x29C) = cameraFxSettings.Exposure;
+			if (std::abs(cameraFxSettings.LightIntensity) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x1E48) = cameraFxSettings.LightIntensity;
+			if (std::abs(cameraFxSettings.BloomIntensity) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x2A0) = cameraFxSettings.BloomIntensity;
+		}
 	}
 
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data)
 	{
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+
 		const auto rasterizer_set_pixel_shader_constant = (void(*)(int id, int count, float *data))(0x00A66270);
-		if (std::abs(s_CameraFxSettings.BloomIntensity) > 0.0001f)
+		if (cameraFxSettings.Enabled && std::abs(cameraFxSettings.BloomIntensity) > 0.0001f)
 		{
-			data[12] *= s_CameraFxSettings.BloomIntensity;
-			data[13] *= s_CameraFxSettings.BloomIntensity;
-			data[14] *= s_CameraFxSettings.BloomIntensity;
-			data[15] *= s_CameraFxSettings.BloomIntensity;
+			data[12] *= cameraFxSettings.BloomIntensity;
+			data[13] *= cameraFxSettings.BloomIntensity;
+			data[14] *= cameraFxSettings.BloomIntensity;
+			data[15] *= cameraFxSettings.BloomIntensity;
 		}
 		rasterizer_set_pixel_shader_constant(id, count, data);
 	}
@@ -2262,24 +2318,25 @@ namespace
 		const auto sub_671D90 = (void(*)(__int16 sbspIndex, sky_atm_parameters_properties_definition *atmosphereProperties,
 			void *state, float intensity))(0x671D90);
 
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
 		// TODO: cleanup
-		if (s_AtmosphereSettings.Flags & 1)
+		if (atmosphereSettings.Enabled)
 		{
 			sky_atm_parameters_properties_definition props = { 0 };
 			props.Flags = 7;
 			props.Name = 26116;
 			props.LightSourceY = 56;
 			props.LightSourceX = 30;
-			props.FogColor = s_AtmosphereSettings.FogColor;
-			props.Brightness = s_AtmosphereSettings.Brightness;
-			props.FogGradientThreshold = -10.0f + s_AtmosphereSettings.FogVisibility;
+			props.FogColor = atmosphereSettings.FogColor;
+			props.Brightness = atmosphereSettings.Brightness;
+			props.FogGradientThreshold = -10.0f + atmosphereSettings.FogVisibility;
 			props.LightIntensity = 100;
 			props.SkyinvisiblilityThroughFog = 25;
 			props.Unknown2C = 0.08f;
 			props.Unknown30 = 2.5f;
 			props.LightSourceSpread = 0.75f;
 			props.Unknown38 = 1.0f;
-			props.FogIntensity = -20.0f + s_AtmosphereSettings.FogDensity;
+			props.FogIntensity = -20.0f + atmosphereSettings.FogDensity;
 			props.Unknown40 = 65535;
 			props.TintCyan = 0.0009897007f;
 			props.TintMagenta = 0.0009897007f;
@@ -2307,16 +2364,53 @@ namespace
 		}
 	}
 
-	void BspWeatherEffectUpdateHook(int a1, int a2, int a3)
-	{
-		const auto BspWeatherEffectUpdate = (void(*)(int a1, int a2, int a3))(0x672230);
 
-		if (s_AtmosphereSettings.WeatherEffectTagIndex != -1)
+
+	bool UpdateWeatherEffects()
+	{
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
+
+		if (mapModifierState.IsValid && atmosphereSettings.WeatherEffectTagIndex != -1)
 		{
-			return;
+			const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
+			const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+
+			auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+			auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+
+			if (currentWeatherEffectDatumIndex == -1)
+			{
+				currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
+
+				if (currentWeatherEffectDatumIndex != -1)
+				{
+					uint16_t scenarioLocation = 0;
+					sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				}
+			}
+
+			return true;
 		}
 
-		BspWeatherEffectUpdate(a1, a2, a3);
+		return false;
 	}
 
+	__declspec(naked) void BspWeatherHook()
+	{
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			call UpdateWeatherEffects
+			test al, al
+			jne disabled
+			mov al, [0x18BE9E0]
+			push 0x00672238
+			retn
+			disabled:
+			mov esp, ebp
+			pop ebp
+			ret
+		}
+	}
 }
