@@ -222,6 +222,7 @@ namespace Patches::Forge
 		Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
 		// slow down in/out movement
 		Pointer(0x0059FA7A + 4).Write((float*)&HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER);
+		Patch(0x19FACC, { 0x90,0x90 }).Apply(); // allow object to be extended fully
 
 		// enable teleporter volume editing compliments of zedd
 		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
