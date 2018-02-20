@@ -413,9 +413,11 @@ namespace Patches::Weapon
 
 		bool LoadJSON(std::string Name)
 		{
-			// Clear previous weapon offsets
-			if (Name == "default") {
+			// Load offsets from json file
+			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
+			if (!in || !in.is_open() || Name == "default") {
 
+				// Clear previous weapon offsets
 				for (std::map<std::string, RealVector3D>::iterator it = weaponOffsetsModified.begin(); it != weaponOffsetsModified.end(); ++it)
 				{
 					std::string weapName = it->first;
@@ -425,13 +427,8 @@ namespace Patches::Weapon
 
 				weaponOffsetsModified.clear();
 
-				return true;
-			}
-
-			// Load offsets from json file
-			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
-			if (!in || !in.is_open())
 				return false;
+			}
 
 			std::string contents;
 			in.seekg(0, std::ios::end);
