@@ -564,6 +564,7 @@
       <category name="INFECTION">
         <item type="infection" name="STARTING POINT" tagindex="0x2ea7" />
         <item type="infection" name="RESPAWN AREA" tagindex="0x2ea8" />
+        <item type="infection" name="SAFE HAVEN" tagindex="0x2EDC" />
       </category>
       <category name="JUGGERNAUT">
         <item type="juggernaut" name="GO TO POINT" tagindex="0x2ec7" />
