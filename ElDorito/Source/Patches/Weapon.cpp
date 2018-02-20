@@ -214,7 +214,7 @@ namespace Patches::Weapon
 				else
 				{
 					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if(weap)
+					if (weap)
 						return weap->FirstPersonWeaponOffset;
 				}
 			}
@@ -231,14 +231,14 @@ namespace Patches::Weapon
 
 	void SetDefaultOffsets()
 	{
-		if (weaponOffsetsDefault.empty()) {
+		if (!weaponOffsetsDefault.empty()) {
 			for (auto &element : weaponIndices) {
 				std::string selected = element.first;
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
 				if (weapIndex != 0xFFFF)
 				{
 					auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if(weaponDefinition)
+					if (weaponDefinition)
 						weaponOffsetsDefault.emplace(selected, weaponDefinition->FirstPersonWeaponOffset);
 				}
 			}
@@ -270,7 +270,7 @@ namespace Patches::Weapon
 		if (!IsMainMenu)
 		{
 			auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if(weaponDefinition)
+			if (weaponDefinition)
 				weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 		}
 	}
@@ -284,7 +284,7 @@ namespace Patches::Weapon
 			if (weapIndex != 0xFFFF)
 			{
 				auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if(weaponDefinition)
+				if (weaponDefinition)
 					weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
 			}
 		}
@@ -330,7 +330,8 @@ namespace Patches::Weapon
 							weapon_indices.emplace(weaponname.c_str(), tagindex);
 							weapon_names.emplace(weaponname.c_str(), tagname.c_str());
 						}
-					} catch (const std::exception&) {
+					}
+					catch (const std::exception&) {
 						std::stringstream ss;
 						ss << "Unable to add " << weaponname.c_str() << ", " << tagname.c_str() << " to supported list." << std::endl;
 						ss << "Please check the tagname is correct." << std::endl;
@@ -412,9 +413,14 @@ namespace Patches::Weapon
 
 		bool LoadJSON(std::string Name)
 		{
+			// Load offsets from json file
 			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
-			if (!in || !in.is_open())
+			if (!in || !in.is_open()) {
+
+				SetDefaultOffsets();
+
 				return false;
+			}
 
 			std::string contents;
 			in.seekg(0, std::ios::end);
@@ -634,7 +640,7 @@ namespace
 			pop		eax
 			jz		enable // leave sprint enabled(for now) if not dual wielding
 			and		ax, 0FEFFh // disable by removing the 8th bit indicating no sprint input press
-		enable:
+			enable :
 			mov		dword ptr ds : [esi + 8], eax
 				mov		ecx, edi
 				push	046DFC0h
@@ -656,7 +662,7 @@ namespace
 			pop		eax
 			jnz		noscope // prevent scoping when dual wielding
 			mov		word ptr ds : [edi + esi + 32Ah], ax // otherwise use intended scope level
-		noscope:
+			noscope :
 			push	05D50D3h
 				ret
 		}
