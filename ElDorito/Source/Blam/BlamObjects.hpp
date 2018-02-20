@@ -92,11 +92,9 @@ namespace Blam::Objects
 		float Scale;
 		uint32_t Unknown94;
 		uint32_t Unknown98;
-		ObjectType ObjectType;
-		uint8_t Unknown9B;
 		uint16_t ObjectNameIndex;
 		uint16_t Unknown9E;
-		uint16_t HavokComponent;
+		uint32_t HavokComponent;
 		uint32_t UnknownA4;
 		uint32_t UnknownA8;
 		uint32_t HavokFlags;

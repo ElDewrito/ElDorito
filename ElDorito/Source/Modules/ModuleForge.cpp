@@ -281,6 +281,7 @@ namespace Modules
 		VarMonitorSpeed = AddVariableInt("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 3);
 		VarMonitorSpeed->ValueIntMin = 0;
 		VarMonitorSpeed->ValueIntMax = 5;
+		VarMonitorNoclip = AddVariableInt("MonitorNoclip", "forge_monitor_noclip", "Allows the monitor to pass through bsp and other objects", eCommandFlagsHostOnly, 0);
 		VarSelectionRenderer = AddVariableInt("SelectionRenderer", "forge_selection_renderer", "Set the selection renderer to use", eCommandFlagsArchived, 0);
 		VarSelectionRenderer->ValueIntMin = 0;
 		VarSelectionRenderer->ValueIntMax = 1;

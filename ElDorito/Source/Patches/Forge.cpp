@@ -112,16 +112,15 @@ namespace
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
-	
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
 	void HandleCommands();
 	bool UpdateWeatherEffects();
-	
+	void OnMonitorModeChange(bool isMonitor);
+
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
-	RealVector3D s_GrabOffset;
 
 	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f, 4.0f };
 
@@ -158,6 +157,12 @@ namespace
 		} Atmosphere;	
 	} 
 	mapModifierState;
+
+	struct {
+		bool IsValid = false;
+		bool MonitorLastTick = false;
+		RealVector3D GrabOffset;
+	} monitorState;
 
 	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
@@ -277,6 +282,7 @@ namespace Patches::Forge
 		if (!game_options_is_valid())
 		{
 			mapModifierState.IsValid = false;
+			monitorState.IsValid = false;
 		}
 		else
 		{
@@ -289,6 +295,14 @@ namespace Patches::Forge
 				mapModifierState.IsValid = true;
 				mapModifierState.IsActive = false;
 			}
+
+			if (!monitorState.IsValid)
+			{
+				monitorState.GrabOffset = RealVector3D(0, 0, 0);
+				monitorState.MonitorLastTick = false;
+				monitorState.IsValid = true;
+			}
+			
 		}
 	}
 
@@ -339,7 +353,16 @@ namespace
 
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 
-		if (GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
+
+		auto isMonitor = GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair);
+
+		if (isMonitor != monitorState.MonitorLastTick)
+		{
+			OnMonitorModeChange(isMonitor);
+			monitorState.MonitorLastTick = isMonitor;
+		}
+
+		if (isMonitor)
 		{
 			const auto& moduleForge = Modules::ModuleForge::Instance();
 
@@ -865,7 +888,7 @@ namespace
 
 	void ApplyGrabOffset(uint32_t playerIndex, uint32_t objectIndex)
 	{
-		s_GrabOffset = RealVector3D(0, 0, 0);
+		monitorState.GrabOffset = RealVector3D(0, 0, 0);
 
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
 		auto objectPtr = Pointer(Blam::Objects::GetObjects().Get(objectIndex))[0xC];
@@ -881,7 +904,7 @@ namespace
 		const auto crosshairPoint = sandboxGlobals.CrosshairPoints[playerIndex & 0xFFFF];
 		auto& heldObjectDistance = sandboxGlobals.HeldObjectDistances[playerIndex & 0xFFFF];
 
-		s_GrabOffset = objectPtr(0x20).Read<RealVector3D>() - crosshairPoint;
+		monitorState.GrabOffset = objectPtr(0x20).Read<RealVector3D>() - crosshairPoint;
 		heldObjectDistance = (unitPos - crosshairPoint).Length();
 	}
 
@@ -1045,7 +1068,7 @@ namespace
 		auto& sandboxGlobals = GetSandboxGlobals();
 
 		if (playerIndex = Blam::Players::GetLocalPlayer(0))
-			s_GrabOffset = RealVector3D(0, 0, 0);
+			monitorState.GrabOffset = RealVector3D(0, 0, 0);
 
 		ObjectSpawned(tagIndex, playerIndex, position);
 	}
@@ -1143,7 +1166,7 @@ namespace
 
 		if (ObjectIsPhased(objectIndex))
 		{
-			auto offset = heldObject->Center - heldObject->Position - s_GrabOffset;
+			auto offset = heldObject->Center - heldObject->Position - monitorState.GrabOffset;
 			auto newPos = GetSandboxGlobals().CrosshairPoints[playerHandle.Index] - offset;
 			Object_Transform(a1, objectIndex, &newPos, forwardVec, upVec);
 		}
@@ -2494,6 +2517,37 @@ namespace
 			mov esp, ebp
 			pop ebp
 			ret
+		}
+	}
+
+	void ActivateNoclip()
+	{
+		const auto c_havok_component__set_collision_filter = (void(__thiscall*)(void *thisptr, uint32_t filter))(0x005EE4E0);
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		if (playerIndex == Blam::DatumHandle::Null)
+			return;
+
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (!player)
+			return;
+
+		auto unitObject = Blam::Objects::Get(player->SlaveUnit.Handle);
+		if (!unitObject)
+			return;
+		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+		auto havokComponent = havokComponents->Get(unitObject->HavokComponent);
+		if (havokComponent)
+			c_havok_component__set_collision_filter(havokComponent, 19);
+	}
+
+	void OnMonitorModeChange(bool isMonitor)
+	{
+		const auto &moduleForge = Modules::ModuleForge::Instance();
+		if (isMonitor)
+		{
+			if (moduleForge.VarMonitorNoclip->ValueInt)
+				ActivateNoclip();
 		}
 	}
 }

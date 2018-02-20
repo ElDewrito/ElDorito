@@ -800,6 +800,7 @@
 
         let preload = {
             'Forge.MonitorSpeed': true,
+            'Forge.MonitorNoclip': true,
             'Forge.SelectionRenderer': true,
             'Forge.ShowInvisibles': true,
             'Forge.GrabDistance': true,
@@ -836,6 +837,10 @@
                 { label: 'Normal', value: 3 },
                 { label: 'Fast', value: 4 },
                 { label: 'Faster', value: 5 }
+            ]));
+            m.add(makeDewProperty('Forge.MonitorNoclip', 'Noclip', 'spinner', [
+                { label: 'Disabled', value: 0 },
+                { label: 'Enabled', value: 1 }
             ]));
 
 

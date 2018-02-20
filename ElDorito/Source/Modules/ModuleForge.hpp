@@ -12,6 +12,7 @@ namespace Modules
 		Command* VarRotationSnap;
 		Command* VarRotationSensitivity;
 		Command* VarMonitorSpeed;
+		Command* VarMonitorNoclip;
 		Command* VarSelectionRenderer;
 		Command* VarMagnetsEnabled;
 		Command* VarMagnetsVisible;
