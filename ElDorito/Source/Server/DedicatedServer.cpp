@@ -9,13 +9,18 @@ namespace Server::DedicatedServer
 
 	void Init()
 	{
-		Modules::CommandMap::Instance().ExecuteCommand("Server.LobbyType 2");
+		Blam::Network::SetLobbyType(2);
 		needToSetMode = true;
 	}
 	void Tick()
 	{
-		if (!needToSetMode)
+		if (!needToSetMode) {
+			if (Blam::Network::GetLobbyType() != 2) {
+				Blam::Network::SetLobbyType(2);
+				needToSetMode = true;
+			}
 			return;
+		}
 
 		if (Blam::Network::GetLobbyType() == 2) {
 			if (Blam::Network::SetNetworkMode(3)) {

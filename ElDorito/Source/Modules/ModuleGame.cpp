@@ -792,13 +792,13 @@ namespace
 			returnInfo = "Usage: Game.ShowScreen <screen name> <opt json>";
 			return false;
 		}
-		if (arguments[0].find(" ") == std::string::npos)
+		if (arguments[0].find(' ') == std::string::npos)
 		{
 			Web::Ui::ScreenLayer::Show(arguments[0], "{}");
 			return true;
 		}
 
-		int pos = arguments[0].find(" ") + 1;
+		int pos = arguments[0].find(' ') + 1;
 		std::string jsonArg = arguments[0].substr(pos);
 		rapidjson::Document doc;
 		doc.Parse(jsonArg.c_str());
@@ -1044,10 +1044,10 @@ namespace
 			return false;
 		}
 
-		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>('sefc');
+		auto sefc = Blam::Tags::TagInstance(sefcIndex.TagIndex).GetDefinition<Blam::Tags::Camera::AreaScreenEffect>();
 		if(sefc)
 		{
-			sefc->ScreenEffect2[index].MaximumDistance = range;
+			sefc->ScreenEffects[index].MaximumDistance = range;
 			return true;
 		}
 
@@ -1084,12 +1084,18 @@ namespace
 		return true;
 	}
 
-	bool CommandShowFPS(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	bool TickrateUI()
 	{
-		float current_fps = Pointer(0x22B47F8).Read<float>(); // for future use
+		auto Tickrate = Pointer(0x22B47FC);
+		Tickrate.Write(!Tickrate.Read<bool>());
+		return Tickrate.Read<bool>();
+	}
 
-		Pointer &show_fps = Pointer(0x22B47FC);
-		show_fps.WriteFast<bool>(!show_fps.Read<bool>());
+	bool CommandShowTickrate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		std::stringstream ss;
+		ss << "Tickrate ui: " << (TickrateUI() ? "enabled." : "disabled.");
+		returnInfo = ss.str();
 		return true;
 	}
 
@@ -1163,7 +1169,7 @@ namespace Modules
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
-		AddCommand("ShowFPS", "show_fps", "Toggle the on-screen FPS info", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowFPS);
+		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate UI", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowTickrate);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
@@ -1211,8 +1217,8 @@ namespace Modules
 
 		VarFpsLimiter = AddVariableInt("FPSLimiter", "fps_limiter", "Enable/disable framerate limiter (improves frame timing at the cost of cpu usage)", eCommandFlagsArchived, 1);
 
-		// Level load patch
-		Patch::NopFill(Pointer::Base(0x2D26DF), 5);
+		VarDiscordEnable = AddVariableInt("Discord.Enable", "discord.enable", "Enable/disable discord integration", eCommandFlagsArchived, 1);
+		VarDiscordAutoAccept = AddVariableInt("Discord.AutoAccept", "discord.auto_accept", "Allow auto accepting join requests", eCommandFlagsArchived, 0);
 
 		/*EXAMPLES: adds a variable "Game.Name", default value ElDewrito, calls VariableGameNameUpdate when value is updated
 		AddVariableString("Name", "gamename", "Title of the game", "ElDewrito", VariableGameNameUpdate);

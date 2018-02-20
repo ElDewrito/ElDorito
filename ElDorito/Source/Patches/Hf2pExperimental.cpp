@@ -146,6 +146,8 @@ namespace Patches::Hf2pExperimental
 		Hook(0x6F740E, UI_StartMenuScreenWidget_OnDataItemSelectedHook).Apply();
 
 		Hook(0x6963C6, SpawnTimerDisplayHook, HookFlags::IsCall).Apply();
+		// fixes race condition with client respawn timer
+		Patch(0x1391B5, { 0xEB }).Apply();
 
 		// NOTE: this is not a proper fix. The pre-match camera needs to be looked at
 		Hook(0x1527F7, game_engine_tick_hook, HookFlags::IsCall).Apply();
@@ -194,7 +196,7 @@ namespace
 			auto screenManager = (void*)0x05260F34;
 			const auto start_menu = 0x10084;
 
-			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0))
+			if (!UI_ScreenManager_AnyActiveScreens(screenManager, 0) && !UI_ScreenManager_GetScreenWidget(screenManager, 4, 0x000100BE)) // in_progress
 			{
 				uiStartAction->Flags |= eActionStateFlagsHandled;
 				UI_PlaySound(7, -1);
@@ -442,13 +444,13 @@ namespace
 
 		Blam::Players::PlayerDatum *player{ nullptr };
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+		if (playerIndex == Blam::DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 			return;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 		auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
 
-		if(game_engine_round_in_progress() || player->SlaveUnit == Blam::DatumIndex::Null)
+		if(game_engine_round_in_progress() || player->SlaveUnit == Blam::DatumHandle::Null)
 		{
 			if (secondsUntilSpawn != lastBeep && secondsUntilSpawn < 3)
 			{
@@ -465,14 +467,14 @@ namespace
 		if (sub_6E4AA0(hudIndex, buff, len, a4))
 			return true;
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumIndex::Null)
+		if (playerIndex == Blam::DatumHandle::Null)
 			return false;
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
 		if (!player)
 			return false;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
-		if (secondsUntilSpawn > 0)
+		if (player->SlaveUnit == Blam::DatumHandle::Null && secondsUntilSpawn > 0)
 		{
 			if (!game_engine_round_in_progress())
 				return false;
@@ -511,7 +513,7 @@ namespace
 
 		const auto &moduleServer = Modules::ModuleServer::Instance();
 
-		auto delta = (Blam::Time::GetGameTicks() - engineGobals(0xE10c).Read<int>()) - Blam::Time::SecondsToTicks(moduleServer.VarServerCountdown->ValueInt + 5.0f);
+		auto delta = (Blam::Time::GetGameTicks() - engineGobals(0xE10c).Read<uint32_t>()) - Blam::Time::SecondsToTicks(moduleServer.VarServerCountdown->ValueInt + 5.0f);
 		if (delta < 0)
 			delta = 0;
 

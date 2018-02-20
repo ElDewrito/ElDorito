@@ -23,6 +23,12 @@ $("html").on("keydown", function(e) {
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
     }
+    if(e.keyCode == 9){
+        dew.show('scoreboard',{'locked':true});
+    }
+     if(e.keyCode == 36){
+        dew.show('settings');
+    }
 });
 
 $("html").on("keyup", function(e) {
@@ -59,6 +65,7 @@ dew.on("hide", function(event) {
     clearInterval(interval);
     if(repGP){
         window.clearInterval(repGP);
+        repGP = null;
     }
 });
 
@@ -201,7 +208,7 @@ dew.on("VotingOptionsUpdated", function(event) {
 });
 
 dew.on("VoteCountsUpdated", function(event) {
-    event.data.forEach(function(entry, i) {
+    event.data.voteCounts.forEach(function(entry, i) {
         if (entry.Count == 0)
             $("#voteTally" + entry.OptionIndex).text("");
         else
@@ -231,6 +238,12 @@ dew.on('controllerinput', function(e){
         if(votingType != 'veto'){
             if(e.data.A == 1){
                 vote(itemNumber);
+            }
+            if(e.data.Select == 1){
+                dew.show('scoreboard',{'locked':true});
+            }
+            if(e.data.Start == 1){
+                dew.show('settings');
             }
             if(e.data.Up == 1){
                 upNav();
@@ -267,8 +280,6 @@ function initGamepad(){
             if(!repGP){
                 repGP = window.setInterval(checkGamepad,1000/60);
             }
-            setButtons();
-            //$('button img,.tabs img').show();
         }else{
             onControllerDisconnect();
             hasGP = false;
@@ -276,7 +287,6 @@ function initGamepad(){
                 window.clearInterval(repGP);
                 repGP = null;
             }
-            //$('button img,.tabs img').hide();
         }
     });
 }

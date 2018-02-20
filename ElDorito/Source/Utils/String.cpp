@@ -156,7 +156,7 @@ namespace Utils::String
 
 	void RemoveCharsFromString(std::string &str, char* charsToRemove)
 	{
-		for (unsigned int i = 0; i < strlen(charsToRemove); ++i)
+		for (unsigned int i = 0, j = strlen(charsToRemove); i < j; ++i)
 			str.erase(remove(str.begin(), str.end(), charsToRemove[i]), str.end());
 	}
 

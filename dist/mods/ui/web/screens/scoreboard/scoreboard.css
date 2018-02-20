@@ -57,17 +57,27 @@ html {
     display:table-row;
 }
 
-.score{
+.score, .playerRank , .serviceTag{
     background-color:rgba(0, 0, 0, 0) !important;
 }
 
+.playerRank{
+    width:40px;
+}
+
 .stat{
-    width:80px;
+    width:70px;
 }
 
 .name{
     text-align:left;
     padding-left:1.5%;
+}
+
+.rankimg{
+	height:22px;
+	margin-right:1px;
+    margin-bottom:-5px;
 }
 
 .emblem{
@@ -319,23 +329,4 @@ html {
 
 #killedMost tbody tr td:last-of-type, #killedMostBy tbody tr td:last-of-type, #killedMost thead tr td:last-of-type, #killedMostBy thead tr td:last-of-type{
 	width: 20%;
-}
-
-#container{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width: 100%;
-    height: 100%;
-}
-
-.page_content{
-    position: relative;
-    width:1280px;
-    height:720px;
-    margin-left: calc(-1280px / 2);
-    margin-top: calc(-720px / 2);
-    box-sizing: border-box;
-    transform: scale(1);
-    transform-origin: center center;
 }

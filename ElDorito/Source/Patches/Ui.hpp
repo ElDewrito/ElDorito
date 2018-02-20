@@ -7,6 +7,7 @@
 #include <Windows.h>
 
 #include "../Blam/Text/StringID.hpp"
+#include "../Patch.hpp"
 
 namespace Patches::Ui
 {
@@ -32,4 +33,12 @@ namespace Patches::Ui
 	void UpdateHUDDistortion();
 
 	void ShowLanBrowser();
+
+	//These basically duplicate existing data from modules.
+	//However they make accessing in hooks a whole lot easier...
+	//Probably needs refactoring.
+	extern bool enableCustomHUDColors;
+	extern bool enableAllyBlueWaypointsFix;
+	extern int customPrimaryHUDColor;
+	extern int customSecondaryHUDColor;
 }

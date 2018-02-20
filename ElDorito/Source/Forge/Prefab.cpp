@@ -63,8 +63,8 @@ namespace Forge::Prefabs
 
 		auto mapv = Forge::GetMapVariant();
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
 		for (auto i = 0; i < 640; i++)
 		{
@@ -97,8 +97,8 @@ namespace Forge::Prefabs
 		if (!mapv)
 			return false;
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
 		auto& objectSet = Forge::Selection::GetSelection();
 		objectSet.Clear();

@@ -11,9 +11,6 @@ namespace
 	void GLScoreboardPlayerConstructorHook();
 	void ScoreboardUpdateHook();
 	void SetLocalPlayerHook();
-	void __cdecl UpdateScoreboardEventHookHost(int a1, unsigned int a2, int a3, int a4);
-	char __cdecl UpdateScoreboardEventHook(int a1, int a2, int a3);
-	std::vector<Patches::Scoreboard::ScoreUpdateCallback> ScoreCallbacks;
 }
 
 namespace Patches::Scoreboard
@@ -39,41 +36,12 @@ namespace Patches::Scoreboard
 		Patch::NopFill(Pointer::Base(0x2E3241), 4);    // nop out leftover data
 		Patch(0x2E3248, { 0x31, 0xC0 }).Apply();       // xor eax, eax
 		Patch::NopFill(Pointer::Base(0x2E324A), 5);    // nop out leftover data
-		Hook(0x2E5A24, UpdateScoreboardEventHookHost, HookFlags::IsCall).Apply();
-		Hook(0xC654D, UpdateScoreboardEventHook, HookFlags::IsCall).Apply();
-	}
-
-	void OnScoreUpdate(ScoreUpdateCallback callback)
-	{
-		ScoreCallbacks.push_back(callback);
 	}
 }
 
 namespace
 {
-	void __cdecl UpdateScoreboardEventHookHost(int a1, unsigned int a2, int a3, int a4)
-	{
 
-		// Dispatch the event to handlers
-		for (auto &&callback : ScoreCallbacks)
-			callback();
-
-		typedef char(*UpdateScoreboard)(int a1, unsigned int a2, int a3, int a4);
-		UpdateScoreboard Update = reinterpret_cast<UpdateScoreboard>(0x5704A0);
-		Update(a1, a2, a3, a4);
-
-	}
-	char __cdecl UpdateScoreboardEventHook(int a1, int a2, int a3)
-	{
-		// Dispatch the event to handlers
-		for (auto &&callback : ScoreCallbacks)
-			callback();
-
-		typedef char(*UpdateScoreboard)(int a1, int a2, int a3);
-		UpdateScoreboard Update = reinterpret_cast<UpdateScoreboard>(0x566070);
-		return Update(a1, a2, a3);
-
-	}
 	struct SslWStringHeader
 	{
 		int refCount;
@@ -130,7 +98,7 @@ namespace
 
 		// Allocate a new string for the name
 		result = (PlayerNameString*)Allocate(sizeof(PlayerNameString));
-		memset(result, 0, sizeof(result));
+		memset(result, 0, sizeof(PlayerNameString));
 		result->header.refCount = 1;
 		playerNames[index] = result;
 

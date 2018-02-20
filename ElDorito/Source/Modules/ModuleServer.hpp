@@ -9,6 +9,8 @@ namespace Modules
 	class ModuleServer : public Utils::Singleton<ModuleServer>, public ModuleBase
 	{
 	public:
+		Command* VarHitMarkersEnabled;
+		Command* VarHitMarkersEnabledClient;
 		Command* VarServerName;
 		Command* VarServerNameClient;
 		Command* VarServerMessage;
@@ -56,10 +58,10 @@ namespace Modules
 		Command* VarChatCommandShuffleTeamsEnabled;
 		Command* VarPlayersInfo;
 		Command* VarPlayersInfoClient;
-		Command* VarPlayerInfoEndpoint;
-		Command* VarMaxTeamSize;
+		Command* VarNumTeams;
 		Command* VarSignalServerPort;
 		Command* VarSendChatToRconClients;
+		Command* VarHttpServerCacheTime;
 
 		//Veto System Commands
 		Command* VarNumberOfVetoVotes;

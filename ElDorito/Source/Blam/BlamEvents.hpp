@@ -41,9 +41,9 @@ namespace Blam::Events
 		uint32_t NameStringId;   // A string_id representing the event name
 		int Unknown8;
 		int UnknownC;
-		DatumIndex CausePlayer;  // The player that "caused" the event
+		DatumHandle CausePlayer;  // The player that "caused" the event
 		int CauseTeam;           // The team index that "caused" the event, or -1 for none
-		DatumIndex EffectPlayer; // The player that the event "effects"
+		DatumHandle EffectPlayer; // The player that the event "effects"
 		int EffectTeam;          // The team index that the event "effects", or -1 for none
 		int Unknown20;
 		short Unknown24;

@@ -20,11 +20,15 @@ namespace Modules
 		Command *VarRepresentation;
 
 		Command* VarPlayerName;
+		Command* VarPlayerGender;
+		Command* VarPlayerServiceTag;
 		Command* VarPlayerPrivKey;
 		Command* VarPlayerPubKey;
 
 		wchar_t UserName[17];
 
 		ModulePlayer();
+
+		static bool ValidServiceTag(const std::string &serviceTag);
 	};
 }

@@ -8,10 +8,11 @@
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition);
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition);
 	void __fastcall chud_update_h3_medal_animation_hook(int thisptr, void* unused, int a2);
 	void __fastcall chud_update_saber_medal_animation_hook(int thisptr, void* unused, int a2);
 	void sound_enqueue_announcer_sound_hook(uint32_t sndTagIndex, int delayTicks);
+	void HeadshotHook();
 }
 
 namespace Patches::Medals
@@ -24,12 +25,14 @@ namespace Patches::Medals
 		Hook(0x6970D6, chud_update_h3_medal_animation_hook, HookFlags::IsCall).Apply();
 		Hook(0x6970DE, chud_update_saber_medal_animation_hook, HookFlags::IsCall).Apply();
 		Hook(0x2E41D1, sound_enqueue_announcer_sound_hook, HookFlags::IsCall).Apply();
+		// disable headshot medal for non-sniper kills
+		Hook(0x1A1E70, HeadshotHook).Apply();
 	}
 }
 
 namespace
 {
-	void OnEvent(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
 	{
 		if (Modules::ModuleGame::Instance().VarCefMedals->ValueInt)
 			return;
@@ -72,6 +75,7 @@ namespace
 
 		auto medals = (s_chud_h3_medal_state*)thisptr;
 
+		const auto fadeOutDuration = Blam::Time::SecondsToTicks(1);
 		for (auto i = 0; i < 4; i++)
 		{
 			if (medals[i].Active && medals[i].InAnimationFinished)
@@ -79,14 +83,17 @@ namespace
 				auto dt = Blam::Time::GetGameTicks() - medals[i].StartTime;
 				if (dt > 250)
 				{
-					auto nticks = 1.0f / Blam::Time::GetSecondsPerTick();
-					auto n = (Blam::Time::TicksToSeconds(nticks - (dt - 250)) / 1.0f);
-					if (n < 0)
+					
+					auto fadeOutDelta = dt - 250;
+					if (fadeOutDelta > fadeOutDuration)
 					{
 						medals[i].Active = 0;
-						n = 0;
 					}
-					medals[i].Opacity = n;
+
+					auto &opacity = medals[i].Opacity;
+					opacity = 1.0f - fadeOutDelta / float(fadeOutDuration);
+					if (opacity < 0.0f)
+						opacity = 0.0f;
 				}
 			}
 		}
@@ -98,5 +105,26 @@ namespace
 
 		if (!Modules::ModuleGame::Instance().VarCefMedals->ValueInt)
 			sound_enqueue_announcer_sound(sndTagIndex, delayTicks);
+	}
+
+	__declspec(naked) void HeadshotHook()
+	{
+		__asm
+		{
+			cmp eax, 1
+			jnz NO_MEDAL
+			mov eax, [ebp + 0x18]
+			mov ax, word ptr[eax]
+			cmp ax, 0x10
+			jz DEFAULT
+			cmp ax, 0x11
+			jz DEFAULT
+			NO_MEDAL:
+			push 0x005A1ED5
+			retn
+			DEFAULT:
+			push 0x005A1E75
+			retn
+		}
 	}
 }

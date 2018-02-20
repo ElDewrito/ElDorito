@@ -37,6 +37,9 @@ dew.on("show", function(e){
                             })).append($('<p>',{
                                 class: 'announceContent',
                                 html: data.announcements[i].content
+                            })).append($('<img>',{
+                                class: 'announceImage',
+                                src: 'dew://assets/announcements/'+data.announcements[i].image
                             }))
                         );
                     }

@@ -10,8 +10,8 @@ namespace ChatCommands
 	{
 	public:
 
-		virtual void doOnVotePass() = 0;
-		virtual void doOnVoteStart() = 0;
+		virtual void doOnVotePass(std::string name) = 0;
+		virtual void doOnVoteStart(std::string starterName) = 0;
 		virtual bool isValidArgument(std::string s, std::string& returnInfo) = 0;
 		virtual void doOnVoteFail() = 0;
 		virtual bool isEnabled() = 0;
@@ -44,8 +44,8 @@ namespace ChatCommands
 	class EndGameCommand : public AbstractChatCommand
 	{
 	public:
-		virtual void doOnVoteStart();
-		virtual void doOnVotePass();
+		virtual void doOnVoteStart(std::string starterName);
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
 		virtual bool isEnabled();
@@ -55,8 +55,8 @@ namespace ChatCommands
 	class ShuffleTeamsCommand : public AbstractChatCommand
 	{
 	public:
-		virtual void doOnVoteStart();
-		virtual void doOnVotePass();
+		virtual void doOnVoteStart(std::string starterName);
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
 		virtual bool isEnabled();
@@ -67,8 +67,8 @@ namespace ChatCommands
 	class KickPlayerCommand : public AbstractChatCommand
 	{
 	public:
-		virtual void doOnVoteStart();
-		virtual void doOnVotePass();
+		virtual void doOnVoteStart(std::string starterName);
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isEnabled();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);
@@ -81,8 +81,8 @@ namespace ChatCommands
 	class KickIndexCommand : public AbstractChatCommand
 	{
 	public:
-		virtual void doOnVoteStart();
-		virtual void doOnVotePass();
+		virtual void doOnVoteStart(std::string starterName);
+		virtual void doOnVotePass(std::string name);
 		virtual void doOnVoteFail();
 		virtual bool isEnabled();
 		virtual bool isValidArgument(std::string s, std::string& returnInfo);

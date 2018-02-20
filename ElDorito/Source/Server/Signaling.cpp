@@ -1,3 +1,7 @@
+
+// Disable warnings about using "safe" C functions
+#pragma warning (disable : 4996)
+
 #include "Signaling.hpp"
 
 #include <algorithm>
@@ -143,6 +147,8 @@ namespace Server::Signaling
 	void RemovePeer(int peerIndex)
 	{
 		ResetPassword(peerIndex);
+
+		std::vector<websocketpp::connection_hdl> handlesToClose;
 		for each (auto client in connectedSockets)
 		{
 			if (client.second.peerIdx == peerIndex)
@@ -161,8 +167,13 @@ namespace Server::Signaling
 						signalServer.get_con_from_hdl(otherClient.first)->send(buffer.GetString());
 					}
 				}
-				signalServer.get_con_from_hdl(client.first)->close(websocketpp::close::status::normal, "Left session");
+				handlesToClose.push_back(client.first);
 			}
+		}
+
+		for each (auto hdl in handlesToClose)
+		{
+			signalServer.get_con_from_hdl(hdl)->close(websocketpp::close::status::normal, "Left session");
 		}
 	}
 

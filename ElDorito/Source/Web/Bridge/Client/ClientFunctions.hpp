@@ -25,4 +25,5 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 	QueryError OnIsMapLoading(const rapidjson::Value &p_Args, std::string *p_Result);
 	QueryError OnForgeAction(const rapidjson::Value &p_Args, std::string *p_Result);
 	QueryError OnShowLan(const rapidjson::Value &p_Args, std::string *p_Result);
+	QueryError OnDiscordReply(const rapidjson::Value &p_Args, std::string *p_Result);
 }

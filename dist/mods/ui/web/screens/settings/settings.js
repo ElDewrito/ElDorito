@@ -43,7 +43,8 @@ var settingsToLoad = [
     ['sHudShake','Settings.HUDShake', 'HUD Shake', 'Enables/Disables HUD shake.'],
     ['sPlayerMarkerColors','Settings.PlayerMarkerColors', 'Player Marker Colors', 'Changes the colour scheme of over-head player markers.'],
     ['sCameraFOV','Camera.FOV', 'Camera FOV', 'Adjusts the first person field of view.'],
-    ['cCenteredCrosshair' , 'Camera.Crosshair', 'Centered Crosshair', 'Centers the crosshair.'], 
+    ['cCenteredCrosshairFirst', 'Camera.CenteredCrosshairFirst', 'Centered Crosshair (First Person)', 'Centers the crosshair in first person.'], 
+    ['cCenteredCrosshairThird', 'Camera.CenteredCrosshairThird', 'Centered Crosshair (Third Person)', 'Centers the crosshair in third person.'], 
     ['cHideHUD', 'Camera.HideHUD', 'Hide HUD', 'Hides the HUD.'], 
     ['inputRaw','Input.RawInput', 'Use Raw Input', 'Uses raw input, bypassing Windows mouse acceleration.'],  
     ['lookSensitivity', 'Input.ControllerSensitivityY', 'Look Sensitivity', 'Adjusts the sensitivity of the look joystick.'], 
@@ -63,6 +64,8 @@ var settingsToLoad = [
     ['vAGC','VoIP.AGC', 'Automatic Gain Control', 'Controls signal amplitude at its output, despite variation of the amplitude in the input signal.'],
     ['vNoiseSupress','VoIP.NoiseSupress', 'Noise Suppress', 'Removes background noise from the captured signal.'],
     ['vEchoCancelation','VoIP.EchoCancelation', 'Echo Cancellation', 'Removes echo by subtracting it from the transmitted or received signal.'],
+    ['vStereoVoice','VoIP.StereoVoice', 'Allow Stereo Voice', 'Enables Stereo audio from other players.'],
+	['vPTTSound','VoIP.PTTSoundEnabled', 'Enable PTT Noise', 'Play a noise when pressing the push to talk button'],
     ['tAgressiveAudioDiscard', 'Tweaks.AggressiveAudioDiscarding', 'Aggressive Audio Discarding', 'Prioritizies gun sounds over others to make audio cutoff less noticeable.'], 
     ['tDisableFog', 'Tweaks.DisableReactorFog', 'Reacthor', 'Removes some of the fog on Reactor which causes FPS drops indoors.'], 
     ['tDisableWeapOutline', 'Tweaks.DisableWeaponOutline', 'Weapon Outline Removal', 'Removes outlines from weapons on the ground.'], 
@@ -78,7 +81,9 @@ var settingsToLoad = [
     ['xSens', 'Input.ControllerSensitivityX', 'Controller Sensitivity - X Axis', 'Adjusts the controller sensitivity on the X-axis.'],
     ['ySens', 'Input.ControllerSensitivityY', 'Controller Sensitivity - Y Axis', 'Adjusts the controller sensitivity on the Y-axis.'],
     ['sQualityPreset', '', 'Quality Preset', 'Adjusts the overall graphics quality.'],
-    ['presetMenu', '', 'Button Layout', 'Changes the button layout.']
+    ['presetMenu', '', 'Button Layout', 'Changes the button layout.'],
+    ['gdEnabled','Game.Discord.Enable', 'Discord Rich Presence Enabled', 'Toggles Rich Presense in Discord'],
+    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests']
 ];
 var binds = [
     ['Sprint','Sprint','Infantry'],
@@ -109,6 +114,7 @@ var binds = [
     ['TeamChat','Team Chat','UI'],
     ['UseEquipment','Use Equipment','Infantry'],
     ['VoiceChat','Voice Chat PTT','UI'],
+    ['Flashlight','Toggle Flashlight','Infantry'],
     ['Forward','Forward','Infantry'],
     ['Back','Back','Infantry'],
     ['Left','Left','Infantry'],
@@ -122,26 +128,26 @@ var binds = [
 var buttons = ["","A","B","X","Y","RB","LB","LT","RT","Start","Back","LS","RS","Left","Right","Up","Down"];
 
 var controllerPresets = [
-    ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,,,LB,Down"],
-    ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
-    ["Halo 3 Southpaw","Right,A,LS,RB,LB,LT,RT,RB,LB,RS,Y,B,RT,LB,,,RT,A,LS,LT,RT,B,Start,Back,,,X,Down"],
-    ["Halo 3 Boxer","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,LT,B,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
-    ["Halo 3 Green Thumb","Right,A,LS,RB,LB,RT,LT,RB,LB,B,Y,RS,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down"],
-    ["Halo 3 Bumper Jumper","Right,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,B,Start,Back,,,X,Down"],
-    ["Halo 3 Walkie Talkie","Right,A,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,A,,,LT,A,LS,RT,LT,B,Start,Back,,,Up,LB"],
-    ["Halo Reach Default","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,RB,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
-    ["Halo Reach Southpaw","RB,A,LS,X,B,LT,RT,X,RB,RS,Y,LB,RT,B,,,RT,A,LS,LT,RT,B,Start,Back,,,Right,Down"],
-    ["Halo Reach Boxer","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,LT,RB,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
-    ["Halo Reach Green Thumb","LB,A,LS,X,B,RT,LT,X,LB,RB,Y,RS,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
-    ["Halo Reach Bumper Jumper","X,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,,,Right,Down"],
-    ["Halo Reach Recon","LB,A,LS,RB,X,RT,LT,RB,LB,RS,Y,B,LT,X,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down"],
-    ["Halo 4 Default","LS,A,B,X,LB,RT,LT,X,LB,RS,Y,RB,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down"],
-    ["Halo 4 Southpaw","LS,A,B,X,RB,LT,RT,X,RB,RS,Y,LB,RT,Right,,,RT,A,B,LT,RT,LB,Start,Back,,,LB,Down"],
-    ["Halo 4 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down"],
-    ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down"],
-    ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,,,X,Down"],
-    ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down"],
-    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,,,LB,Down"]
+    ["Halo Online Default","LS,A,X,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,X,RT,LT,B,Start,Back,,,LB,Down,Up"],
+    ["Halo 3 Default","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down,Up"],
+    ["Halo 3 Southpaw","Right,A,LS,RB,LB,LT,RT,RB,LB,RS,Y,B,RT,LB,,,RT,A,LS,LT,RT,B,Start,Back,,,X,Down,Up"],
+    ["Halo 3 Boxer","Right,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,LT,B,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down,Up"],
+    ["Halo 3 Green Thumb","Right,A,LS,RB,LB,RT,LT,RB,LB,B,Y,RS,LT,LB,,,LT,A,LS,RT,LT,B,Start,Back,,,X,Down,Up"],
+    ["Halo 3 Bumper Jumper","Right,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,,,X,Down,Up"],
+    ["Halo 3 Walkie Talkie","Right,A,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,A,,,LT,A,LS,RT,LT,B,Start,Back,,,Up,LB,Up"],
+    ["Halo Reach Default","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,RB,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down,Up"],
+    ["Halo Reach Southpaw","RB,A,LS,X,B,LT,RT,X,RB,RS,Y,LB,RT,B,,,RT,A,LS,LT,RT,B,Start,Back,,,Right,Down,Up"],
+    ["Halo Reach Boxer","LB,A,LS,X,B,RT,LT,X,LB,RS,Y,LT,RB,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down,Up"],
+    ["Halo Reach Green Thumb","LB,A,LS,X,B,RT,LT,X,LB,RB,Y,RS,LT,B,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down,Up"],
+    ["Halo Reach Bumper Jumper","X,LB,LS,B,A,RT,LT,B,A,RS,Y,RB,LT,A,,,LT,LB,LS,RT,LT,RB,Start,Back,,,Right,Down,Up"],
+    ["Halo Reach Recon","LB,A,LS,RB,X,RT,LT,RB,LB,RS,Y,B,LT,X,,,LT,A,LS,RT,LT,B,Start,Back,,,Right,Down,Up"],
+    ["Halo 4 Default","LS,A,B,X,LB,RT,LT,X,LB,RS,Y,RB,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down,Up"],
+    ["Halo 4 Southpaw","LS,A,B,X,RB,LT,RT,X,RB,RS,Y,LB,RT,Right,,,RT,A,B,LT,RT,LB,Start,Back,,,LB,Down,Up"],
+    ["Halo 4 Boxer","B,A,LS,X,LB,RT,LT,X,LB,RS,Y,LT,RB,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down,Up"],
+    ["Halo 4 Green Thumb","LS,A,B,X,LB,RT,LT,X,LB,RB,Y,RS,LT,Right,,,LT,A,B,RT,LT,RB,Start,Back,,,LB,Down,Up"],
+    ["Halo 4 Bumper Jumper","A,LB,LS,B,X,RT,LT,B,X,RS,Y,RB,LT,Right,,,LT,LB,LS,RT,LT,RB,Start,Back,,,X,Down,Up"],
+    ["Halo 4 Recon","X,A,LS,RB,LB,RT,LT,RB,LB,RS,Y,B,LT,Right,,,LT,A,LS,RT,LT,B,Start,Back,,,LB,Down,Up"],
+    ["Halo 4 Fishstick","LS,A,B,X,LB,RT,LT,X,LB,LT,Y,RS,RB,Right,,,LT,A,B,RT,LT,RS,Start,Back,,,LB,Down,Up"]
 ];
 var controllerIconPacks = [
     ['Xbox 360','360'],
@@ -461,10 +467,11 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $(activePage+' span').has('.setting').mouseover(function(){
-        if(hasGP){
-            itemNumber = $(activePage+' span').has('.setting').index($(this));
+    $('span').has('.setting').mouseover(function(){
+        itemNumber = $(activePage+' span').has('.setting').index($(this));
+        if(itemNumber > -1){
             updateSelection(itemNumber, false, false); 
+            setInfoBox($(this).find('.setting').attr('id'));
         }
     });
     $('#sVsync').on('change', function(){
@@ -476,14 +483,6 @@ $(document).ready(function(){
     $('#dismissButton').on('click', function(){
         dismissButton();
     });
-    $(activePage+' span:has(.setting)').hover(
-        function(){
-            $(this).addClass('selectedElement');
-            setInfoBox($(this).find('.setting').attr('id'));
-        }, function(){
-            $(this).removeClass('selectedElement');
-        }
-    );
 });
 
 function checkGamepad(){
@@ -737,7 +736,9 @@ function cancelButton(){
         initializeBindings(); 
         switchPage('#page2'); 
         $('#cancelButton').html('<img class="button">Close');
-        $('#applyButton').hide();
+        if(!changeArray.length){
+            $('#applyButton').hide();
+        }
         if(hasGP){
             setButtons();
             $('button img,.tabs img').show();
@@ -1195,7 +1196,7 @@ function leftToggle(){
         }
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(document.getElementById(selectedItem).value > document.getElementById(selectedItem).min){
+        if(parseFloat(document.getElementById(selectedItem).value) > document.getElementById(selectedItem).min){
             document.getElementById(selectedItem).stepDown();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value; 
             $('#'+selectedItem).trigger('change');
@@ -1224,7 +1225,7 @@ function rightToggle(){
         } 
     }
     if(document.getElementById(selectedItem).computedRole == "slider"){
-        if(parseInt(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
+        if(parseFloat(document.getElementById(selectedItem).value) < document.getElementById(selectedItem).max){
             document.getElementById(selectedItem).stepUp();
             document.querySelector('#'+selectedItem +'Text').value = document.getElementById(selectedItem).value;   
             $('#'+selectedItem).trigger('change');

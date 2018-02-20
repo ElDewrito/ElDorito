@@ -17,6 +17,15 @@ namespace Patches::Camera
 		Hook(0x32990C, ThirdPersonFovHook, HookFlags::IsCall).Apply();
 		Hook(0x2122C5, DeadCameraFovHook).Apply();
 	}
+
+	void IncreaseLOD()
+	{
+		// LOD patches compliments of zedd
+		// Patch for lod dword_176DB40 (2.0) -> dword_176DB50 (10.0)
+		Patch(0x665EB7 + 4, { 0x50 }).Apply();
+		// Patch to apply cine lod to everything
+		Patch::NopFill(Pointer::Base(0x61962C), 2);
+	}
 }
 
 namespace

@@ -1,56 +1,188 @@
 #include "Tweaks.hpp"
+
 #include <vector>
+
 #include "../Blam/Tags/TagInstance.hpp"
+
 #include "../Blam/Tags/Camera/CameraFxSettings.hpp"
+
+#include "../Blam/Tags/Game/Globals.hpp"
+#include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
+
+#include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
+
+#include "../Blam/Tags/Models/Model.hpp"
+
+#include "../Blam/Tags/Objects/Biped.hpp"
+#include "../Blam/Tags/Objects/Projectile.hpp"
+
 #include "../Blam/Tags/Sounds/SoundClasses.hpp"
+
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
 #include "../Blam/Tags/UI/ChudDefinition.hpp"
-#include "../Blam/Tags/Objects/Projectile.hpp"
-#include "../Blam/Tags/Objects/Model.hpp"
+
 #include "../Modules/ModuleTweaks.hpp"
+#include "../Modules/ModuleServer.hpp"
+
+#include "../Utils/Logger.hpp"
 
 namespace Patches::Tweaks
 {
+	bool tagsloaded = false;
 
+	void EnableHitmarkers(bool enabled)
+	{
+		if (!tagsloaded)
+			return;
+
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::Objects::Biped;
+		using Blam::Tags::UI::ChudDefinition;
+
+		auto matgTags = TagInstance::GetInstancesInGroup('matg');
+		auto *matgDefinition = matgTags[0].GetDefinition<Globals>();
+		auto *bipdDefinition = matgDefinition->PlayerRepresentation[0].ThirdPersonUnit.GetDefinition<Biped>();
+		if (bipdDefinition->Unit.HudInterfaces.Count < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud interfaces defined in tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped'!");
+			return;
+		}
+
+		auto *chudDefinition = bipdDefinition->Unit.HudInterfaces[0].UnitHudInterface.GetDefinition<ChudDefinition>();
+
+		if (!chudDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\spartan.chud_definition' not found!");
+			return;
+		}
+
+		for (auto &hudWidget : chudDefinition->HudWidgets)
+		{
+			if (hudWidget.NameStringID == 0x2AAD) // hit_marker
+			{
+				if (enabled && Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt != 1) {
+					hudWidget.PlacementData[0].ScaleX = 1.75;
+					hudWidget.PlacementData[0].ScaleY = 1.75;
+				}
+				else {
+					hudWidget.PlacementData[0].ScaleX = 0;
+					hudWidget.PlacementData[0].ScaleY = 0;
+				}
+				
+				break;
+			}
+		}
+	}
 	void ApplyAfterTagsLoaded()
 	{
-		using namespace Blam::Tags;
+		tagsloaded = true;
+		using Blam::Tags::TagInstance;
+		using Blam::Tags::Models::Model;
+		using Blam::Tags::Game::Globals;
+		using Blam::Tags::Game::MultiplayerGlobals;
+		using Blam::Tags::Objects::Biped;
+		using Blam::Tags::Objects::Projectile;
+		using Blam::Tags::Scenario::Scenario;
+		using Blam::Tags::UI::ChudDefinition;
+		using Blam::Tags::UI::ChudGlobalsDefinition;
+		using CameraFxSettings = Blam::Tags::Camera::FxSettings;
+		using SoundClasses = Blam::Tags::Sounds::Classes;
+
+		auto matgTags = TagInstance::GetInstancesInGroup('matg');
+
+		if (matgTags.size() < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no 'globals' tags found!");
+			return;
+		}
+
+		auto *matgDefinition = matgTags[0].GetDefinition<Globals>();
+
+		if (!matgDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'globals\\globals.globals' not found!");
+			return;
+		}
+
+		if (matgDefinition->SoundGlobals.Count < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no sound globals defined in tag 'globals\\globals.globals'!");
+			return;
+		}
+
+		auto *snclDefinition = matgDefinition->SoundGlobals[0].SoundClasses.GetDefinition<SoundClasses>();
+
+		if (!snclDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'sound\\sound_classes.sound_classes' not found!");
+			return;
+		}
+
+		if (matgDefinition->InterfaceTags.Count < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no interface tags defined in tag 'globals\\globals.globals'!");
+			return;
+		}
+
+		auto *chgdDefinition = matgDefinition->InterfaceTags[0].HudGlobals.GetDefinition<ChudGlobalsDefinition>();
+
+		if (!chgdDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'ui\\chud\\globals.chud_globals_definition' not found!");
+			return;
+		}
+
+		auto scnrTags = TagInstance::GetInstancesInGroup('scnr');
 
 		if (Modules::ModuleTweaks::Instance().VarIntelBloomPatch->ValueInt)
 		{
-			//TODO: Don't hardcode tag offsets, get these from scnr->CameraFx
-			const std::vector<uint16_t> camera_fx_settings{
-				0x2EF8, 0x34CD, 0x3AA9, 0x3E0D, 0x3FD1, 0x3FD2, 0x4228, 0x4A00, 0x4BCE, 0x4F0E, 0x523F, 0x54E1, 0x571D
-			};
-
-			for (auto &camera_fx_setting : camera_fx_settings)
+			for (auto &scnrTag : scnrTags)
 			{
-				auto cfxs = TagInstance(camera_fx_setting).GetDefinition<Blam::Tags::Camera::FxSettings>('cfxs');
-				if (cfxs)
-					cfxs->Flags = 16;
+				auto *scnrDefinition = scnrTag.GetDefinition<Scenario>();
+
+				if (!scnrDefinition)
+					continue;
+
+				for (auto &cameraFx : scnrDefinition->CameraFx)
+				{
+					if (cameraFx.Tag.TagIndex == -1)
+						continue;
+
+					auto *cfxsDefinition = cameraFx.Tag.GetDefinition<CameraFxSettings>();
+
+					if (!cfxsDefinition)
+						continue;
+
+					cfxsDefinition->Flags = CameraFxSettings::FlagsValue::Bit4;
+				}
 			}
 		}
 
 		if (Modules::ModuleTweaks::Instance().VarAggressiveAudioDiscarding->ValueInt)
 		{
-			auto *sounds = TagInstance(0x019F).GetDefinition<Sounds::Classes>();
-			for (int i = 0; i <= 64; i++) {
-				sounds->Unknown2[i].CacheMissMode = Sounds::Classes::CacheMissMode::Discard;
-				sounds->Unknown2[i].Priority = 0;
+			for (int i = 0; i <= 64; i++)
+			{
+				snclDefinition->Unknown2[i].CacheMissMode = SoundClasses::CacheMissMode::Discard;
+				snclDefinition->Unknown2[i].Priority = 0;
+
 				switch (i)
 				{
 				case 4:
-					sounds->Unknown2[i].MaxSoundsPerTag = 32;
-					sounds->Unknown2[i].MaxSoundsPerObject = 4;
+					snclDefinition->Unknown2[i].MaxSoundsPerTag = 32;
+					snclDefinition->Unknown2[i].MaxSoundsPerObject = 4;
 					break;
+
 				case 23:
-					sounds->Unknown2[i].MaxSoundsPerTag = 16;
-					sounds->Unknown2[i].MaxSoundsPerObject = 8;
+					snclDefinition->Unknown2[i].MaxSoundsPerTag = 16;
+					snclDefinition->Unknown2[i].MaxSoundsPerObject = 8;
 					break;
+
 				default:
-					sounds->Unknown2[i].MaxSoundsPerTag = 1;
-					sounds->Unknown2[i].MaxSoundsPerObject = 1;
+					snclDefinition->Unknown2[i].MaxSoundsPerTag = 1;
+					snclDefinition->Unknown2[i].MaxSoundsPerObject = 1;
 					break;
 				}
 			}
@@ -58,52 +190,70 @@ namespace Patches::Tweaks
 
 		if (Modules::ModuleTweaks::Instance().VarDisableReactorFog->ValueInt)
 		{
-			// Reactor scnr is only loaded when playing on that map
-			auto scenario = TagInstance(0x3F83).GetDefinition<Scenario::Scenario>('scnr');
-			if (scenario)
+			auto *scnrDefinition = Blam::Tags::Scenario::GetCurrentScenario();
+
+			if (scnrDefinition && scnrDefinition->MapId == 700)
 			{
-				scenario->EffectScenery[01].PaletteIndex = -1;
-				scenario->EffectScenery[02].PaletteIndex = -1;
-				scenario->EffectScenery[61].PaletteIndex = -1;
+				scnrDefinition->EffectScenery[01].PaletteIndex = -1;
+				scnrDefinition->EffectScenery[02].PaletteIndex = -1;
+				scnrDefinition->EffectScenery[61].PaletteIndex = -1;
 			}
 		}
 
 		if (Modules::ModuleTweaks::Instance().VarDisableWeaponOutline->ValueInt)
 		{
-			auto *chgd = TagInstance(0x1BD).GetDefinition<UI::ChudGlobalsDefinition>();
+			if (chgdDefinition->HudGlobals.Count < 1)
+			{
+				Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no hud globals defined in tag 'ui\\chud\\globals.chud_globals_definition'!");
+				return;
+			}
+
 			for (int c = 30; c < 37; c++)
 			{
-				chgd->HudGlobals[0].GlobalDynamicColors[c].Alpha = 0;
-				chgd->HudGlobals[0].GlobalDynamicColors[c].R = 0;
-				chgd->HudGlobals[0].GlobalDynamicColors[c].G = 0;
-				chgd->HudGlobals[0].GlobalDynamicColors[c].B = 0;
+				chgdDefinition->HudGlobals[0].GlobalDynamicColors[c].Alpha = 0;
+				chgdDefinition->HudGlobals[0].GlobalDynamicColors[c].R = 0;
+				chgdDefinition->HudGlobals[0].GlobalDynamicColors[c].G = 0;
+				chgdDefinition->HudGlobals[0].GlobalDynamicColors[c].B = 0;
 			}
+		}
+
+		if (matgDefinition->PlayerRepresentation.Count < 1)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "no player representations found in tag 'globals\\globals.globals'!");
+			return;
+		}
+
+		auto *bipdDefinition = matgDefinition->PlayerRepresentation[0].ThirdPersonUnit.GetDefinition<Biped>();
+
+		if (!bipdDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.biped' not found!");
+			return;
+		}
+
+		auto *hlmtDefinition = bipdDefinition->Unit.Object.Model.GetDefinition<Model>();
+
+		if (!hlmtDefinition)
+		{
+			Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Warning, "tag 'objects\\characters\\masterchief\\mp_masterchief\\mp_masterchief.model' not found!");
+			return;
 		}
 
 		if (Modules::ModuleTweaks::Instance().VarReachStyleFrags->ValueInt)
 		{
-			auto *projectile = TagInstance(0x01AD).GetDefinition<Blam::Tags::Objects::Projectile>();
-			projectile->Attachments[0].Tag.TagIndex = 0x1B3A;
-		}
+			auto fragProjectile = TagInstance::Find('proj', "objects\\weapons\\grenade\\frag_grenade\\frag_grenade");
+			auto bombrunProjectile = TagInstance::Find('proj', "objects\\equipment\\bombrun\\projectiles\\bombrun_grenade");
 
-		auto *model = TagInstance(0x1348).GetDefinition<Blam::Tags::Objects::Model>();
-		if (Modules::ModuleTweaks::Instance().VarDisableHeadshotEffect->ValueInt)
-			model->NewDamageInfo[0].DamageSections[1].InstantResponses[0].SecondaryTransitionEffect.TagIndex = 0;
-		else if (Modules::ModuleTweaks::Instance().VarGruntBirthdayParty->ValueInt)
-			model->NewDamageInfo[0].DamageSections[1].InstantResponses[0].SecondaryTransitionEffect.TagIndex = 0x12FE;
-
-		if (Modules::ModuleTweaks::Instance().VarDisableHitMarkers->ValueInt)
-		{
-			auto *chud = Blam::Tags::TagInstance(0x0C1E).GetDefinition<Blam::Tags::UI::ChudDefinition>();
-			for (auto &widget : chud->HudWidgets)
+			if (fragProjectile.Index != 0xFFFF && bombrunProjectile.Index != 0xFFFF)
 			{
-				if (widget.NameStringID == 0x2AAD) // hit_marker
-				{
-					widget.PlacementData[0].ScaleX = 0;
-					widget.PlacementData[0].ScaleY = 0;
-					break;
-				}
+				auto *fragDefinition = fragProjectile.GetDefinition<Projectile>();
+				auto *bombrunDefinition = bombrunProjectile.GetDefinition<Projectile>();
+
+				if (fragDefinition->Attachments.Count > 0 && bombrunDefinition->Attachments.Count > 0)
+					fragDefinition->Attachments[0].Tag = bombrunDefinition->Attachments[0].Tag;
 			}
 		}
+
+		EnableHitmarkers(Modules::ModuleServer::Instance().VarHitMarkersEnabledClient->ValueInt != 0);
 	}
 }

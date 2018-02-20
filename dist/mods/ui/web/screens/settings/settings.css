@@ -555,14 +555,24 @@ select option{
 input[type=checkbox]{
  -webkit-appearance:none;
 }
-input[type=checkbox]:after{
+input[type="checkbox"]:checked {
+}
+
+input[type="checkbox"]:checked.inverted-checkbox:after {
 	content: "Disabled";
 	text-transform: uppercase;
 }
-input[type="checkbox"]:checked {
+input[type=checkbox].inverted-checkbox:after{
+	content: "Enabled";
+	text-transform: uppercase;
 }
+
 input[type="checkbox"]:checked:after {
 	content: "Enabled";
+	text-transform: uppercase;
+}
+input[type=checkbox]:after{
+	content: "Disabled";
 	text-transform: uppercase;
 }
 input[type=range]:focus {

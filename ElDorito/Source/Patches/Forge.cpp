@@ -14,8 +14,8 @@
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Blam/Math/RealColorRGB.hpp"
 #include "../Blam/Tags/Camera/AreaScreenEffect.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
-#include "../Blam/Tags/Objects//Model.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
+#include "../Blam/Tags/Models/Model.hpp"
 #include "../ElDorito.hpp"
 #include "Core.hpp"
 #include "../Forge/Prefab.hpp"
@@ -25,7 +25,7 @@
 #include "../Forge/Selection.hpp"
 #include "../Forge/SelectionRenderer.hpp"
 #include "../Forge/Magnets.hpp"
-#include "../Forge/KillVolumes.hpp"
+#include "../Forge/ForgeVolumes.hpp"
 #include "../Forge/PrematchCamera.hpp"
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
@@ -49,13 +49,9 @@ namespace
 	const auto INVISIBLE_MATERIAL_INDEX = 121;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
-	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
 
-	bool barriersEnabledValid = false;
-	bool killBarriersEnabled = true;
-	bool pushBarriersEnabled = true;
 
-	void UpdateBarriersEnabled();
+	void UpdateMapModifier();
 	bool CheckKillTriggersHook(int a0, void *a1);
 	bool ObjectSafeZoneHook(void *a0);
 	void* PushBarriersGetStructureDesignHook(int index);
@@ -92,34 +88,40 @@ namespace
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
+	void __fastcall c_map_variant_copy_budget_hook(Blam::MapVariant *thisptr, void *unused, Blam::MapVariant *other);
+
 	void MapVariant_SpawnObjectHook();
+
+	void __fastcall c_game_engine_object_runtime_manager__on_object_spawned_hook(void *thisptr, void *unused, int16_t placementIndex, uint32_t objectIndex);
 
 	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4);
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
 
+	void sandbox_zone_shape_render_hook(ZoneShape *zone, float *color, uint32_t objectIndex);
+
 	struct ScreenEffectData;
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
 
+	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
-	void FixRespawnZones();
+	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2);
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
+	void RenderAtmosphereHook(short bspIndex, void *state);
+	void BspWeatherHook();
+
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
-	void HandleSpawnItem();
-
-	std::queue<std::function<void()>> s_SandboxTickCommandQueue;
+	void HandleCommands();
+	bool UpdateWeatherEffects();
+	
+	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 	RealVector3D s_GrabOffset;
 
-	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f };
-	int s_MonitorMovementSpeedIndex = 3;
-
-
-	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
-	uint32_t s_SpawnItemTagIndex = -1;
-	uint32_t s_SpawnItemPlayerIndex = -1;
+	const float MONITOR_MOVEMENT_SPEEDS[] = { 0.001f, 0.05f, 0.25f, 1.0f, 2.0f, 4.0f };
 
 	struct SandboxPaletteItem
 	{
@@ -130,6 +132,33 @@ namespace
 		uint8_t Unknown1C[0x14];
 	};
 	static_assert(sizeof(SandboxPaletteItem) == 0x30, "Invalid SandboxPaletteItem size");
+
+	struct {
+		bool IsValid = false;
+		bool IsActive = false;
+		struct {
+			bool KillBarriersEnabled;
+			bool PushBarriersEnabled;
+		} MapBarriers;
+		struct {
+			bool Enabled;
+			float Exposure;
+			float LightIntensity;
+			float BloomIntensity;
+		} CameraFx;
+		struct {
+			bool Enabled;
+			uint32_t WeatherEffectTagIndex = -1;
+			Blam::Math::RealColorRGB FogColor;
+			float FogDensity;
+			float FogVisibility;
+			float Brightness;
+		} Atmosphere;	
+	} 
+	mapModifierState;
+
+	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
 }
 
 namespace Patches::Forge
@@ -178,6 +207,7 @@ namespace Patches::Forge
 
 		// facilitate swapping materials based on shared storage
 		Hook(0x678B9E, RenderMeshPartHook, HookFlags::IsCall).Apply();
+		Hook(0x679136, RenderMeshPartHook, HookFlags::IsCall).Apply(); // transparent
 		// disable the lightmap for reforge objects
 		Hook(0x7BEEEE, LightmapHook, HookFlags::IsCall).Apply();
 
@@ -198,7 +228,7 @@ namespace Patches::Forge
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
 		// fix incorrect runtime when reloading
-		Patch(0x14EC1D, { 0xEB }).Apply();
+		Hook(0x181CC0, c_map_variant_copy_budget_hook).Apply();
 
 		Hook(0x639986, ScreenEffectsHook, HookFlags::IsCall).Apply();
 
@@ -216,50 +246,51 @@ namespace Patches::Forge
 
 		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
 
-		Patches::Core::OnGameStart(FixRespawnZones);
-
 		// disble projectile collisions on invisible material
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x19F0B8, sandbox_zone_shape_render_hook, HookFlags::IsCall).Apply();
+
+		// fix jump canceling on forged objects
+		Hook(0x3245FD, sub_724890_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x19004E, c_game_engine_object_runtime_manager__on_object_spawned_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
+		Hook(0x00639AC1, RenderAtmosphereHook, HookFlags::IsCall).Apply();
+		// prevent weather from being reset
+		Hook(0x272230, BspWeatherHook).Apply();
+		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
+
+		// fix ragdolls falling through objects
+		Patch(0x00317269, { 0xD }).Apply();
+		Patch(0x7D8A59, { 0xEB }).Apply();
 	}
 
 	void Tick()
 	{
-		// Require a rescan for barrier disabler objects each tick
-		barriersEnabledValid = false;
-	}
-
-	bool SavePrefab(const std::string& name, const std::string& path)
-	{
-		return ::Forge::Prefabs::Save(name, path);
-	}
-
-	bool LoadPrefab(const std::string& path)
-	{
-		s_SandboxTickCommandQueue.push([=]()
+		const auto game_options_is_valid = (bool(*)())(0x00532650);
+		if (!game_options_is_valid())
 		{
-			::Forge::Prefabs::Load(path);
-			GrabSelection(Blam::Players::GetLocalPlayer(0));
-		});
-
-		return true;
-	}
-
-	void SpawnItem(uint32_t tagIndex)
-	{
-		s_SpawnItemTagIndex = tagIndex;
+			mapModifierState.IsValid = false;
+		}
+		else
+		{
+			if (!mapModifierState.IsValid)
+			{
+				memset(&mapModifierState, 0, sizeof(mapModifierState));
+				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
+				mapModifierState.MapBarriers.KillBarriersEnabled = true;
+				mapModifierState.MapBarriers.PushBarriersEnabled = true;
+				mapModifierState.IsValid = true;
+				mapModifierState.IsActive = false;
+			}
+		}
 	}
 
 	void OnItemSpawned(ItemSpawnedCallback callback)
 	{
 		s_ItemSpawnedCallbacks.push_back(callback);
-	}
-
-	void SetPrematchCamera()
-	{
-		s_SandboxTickCommandQueue.push([=]()
-		{
-			PrematchCamera::PlaceCameraObject();
-		});
 	}
 }
 
@@ -280,8 +311,8 @@ namespace
 		SandboxEngineShutdown();
 
 		Forge::Magnets::Shutdown();
-
 		Forge::Selection::Clear();
+		Forge::SelectionRenderer::SetEnabled(false);
 	}
 
 	void SandboxEngineTickHook()
@@ -292,22 +323,15 @@ namespace
 		Forge::SelectionRenderer::Update();
 		Forge::Magnets::Update();
 
-		while (!s_SandboxTickCommandQueue.empty())
-		{
-			auto cmd = s_SandboxTickCommandQueue.front();
-			cmd();
-			s_SandboxTickCommandQueue.pop();
-		}
-
 		auto activeScreenCount = Pointer(0x05260F34)[0](0x3c).Read<int16_t>();
 		if (activeScreenCount > 0)
 			return;
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null)
+		if (playerIndex == DatumHandle::Null)
 			return;
 
-		HandleSpawnItem();
+		HandleCommands();
 
 		uint32_t heldObjectIndex = -1, objectIndexUnderCrosshair = -1;
 
@@ -341,11 +365,15 @@ namespace
 				}
 			}
 
-			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1)
+			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1
+				|| (!(Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Flags & Blam::Input::eActionStateFlagsHandled)
+					&& Blam::Input::GetActionState(Blam::Input::eGameActionUiDown)->Ticks == 1))
 			{
 				auto prevValue = moduleForge.VarMagnetsEnabled->ValueInt;
+				std::string previousValueStr;
+
 				auto& commandMap = Modules::CommandMap::Instance();
-				commandMap.SetVariable(moduleForge.VarMagnetsEnabled, std::to_string(prevValue ? 0 : 1), std::to_string(prevValue));
+				commandMap.SetVariable(moduleForge.VarMagnetsEnabled, std::to_string(prevValue ? 0 : 1), previousValueStr);
 				if (!prevValue)
 					PrintKillFeedText(0, L"Magnets Enabled", 0);
 				else
@@ -358,40 +386,130 @@ namespace
 		}
 	}
 
-	void UpdateBarriersEnabled()
+	uint32_t FindMapModifierObject()
 	{
-		if (barriersEnabledValid)
-			return; // Don't scan multiple times per tick
-
-		// Scan the object table to check if the barrier disablers are spawned
-		auto objectHeadersPtr = ElDorito::GetMainTls(GameGlobals::ObjectHeader::TLSOffset);
-		auto objectHeaders = objectHeadersPtr.Read<const DataArray<ObjectHeader>*>();
-		if (!objectHeaders)
-			return;
-		killBarriersEnabled = true;
-		pushBarriersEnabled = true;
-		for (auto &&header : *objectHeaders)
+		auto objects = Blam::Objects::GetObjects();
+		// Scan the object table to check if map modifier is spawned
+		for(auto it = objects.begin(); it != objects.end(); ++it)
 		{
-			// The objects are identified by tag index.
-			// scen 0x5728 disables kill barriers
-			// scen 0x5729 disables push barriers
-			if (header.Type != eObjectTypeScenery)
+			if (it->Type != eObjectTypeScenery)
 				continue;
-			auto tagIndex = header.GetTagIndex().Index();
+
+			auto tagIndex = it->GetTagHandle().Index;
 			if (tagIndex == 0x5728)
-				killBarriersEnabled = false;
-			else if (tagIndex == 0x5729)
-				pushBarriersEnabled = false;
-			if (!killBarriersEnabled && !pushBarriersEnabled)
-				break;
+				return it.CurrentDatumIndex;
 		}
-		barriersEnabledValid = true;
+
+		return -1;
+	}
+
+	void UpdateMapModifier()
+	{
+		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
+
+		auto mapModifierObjectIndex = FindMapModifierObject();
+		if (mapModifierObjectIndex == -1)
+		{
+			// the map modifier was previously spawned, but has been deleted
+			if (mapModifierState.IsActive)
+			{
+				// state will be reset next tick
+				mapModifierState.IsValid = false;
+
+				// delete any weather effects
+				if (mapModifierState.Atmosphere.WeatherEffectTagIndex != -1)
+				{
+					auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+					auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+					FreeWeatherEffect(currentWeatherEffectDatumIndex);
+					currentWeatherEffectDatumIndex = -1;
+				}
+
+				physics_set_gravity_scale(1.0f);
+			}
+
+			return;
+		}
+
+		mapModifierState.IsActive = true;
+
+		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
+
+		auto mpProperties = mapModifierObject->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
+
+		auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
+
+		mapModifierState.MapBarriers.KillBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier);
+		mapModifierState.MapBarriers.PushBarriersEnabled = !(mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier);
+
+		const auto kMaxLightIntensity = 20000.0f;
+		const auto kMaxBloomIntensity = 20000.0f;
+
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
+
+		cameraFxSettings.Enabled = true;
+		cameraFxSettings.Exposure = std::pow((float)mapModifierProperties->CameraFxExposure * 0.05f, 2.2f) * 0.01f;
+		auto expScale = cameraFxSettings.Exposure;
+		if (std::abs(cameraFxSettings.Exposure) < 0.0001f)
+			expScale = 1.0f;
+		cameraFxSettings.LightIntensity = ((float)mapModifierProperties->CameraFxLightIntensity / expScale) * 0.07f;
+		if (cameraFxSettings.LightIntensity > kMaxLightIntensity)
+			cameraFxSettings.LightIntensity = kMaxLightIntensity;
+		cameraFxSettings.BloomIntensity = ((float)mapModifierProperties->CameraFxBloom / expScale) * 0.07f;
+		if (cameraFxSettings.BloomIntensity > kMaxBloomIntensity)
+			cameraFxSettings.BloomIntensity = kMaxBloomIntensity;
+
+		auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+
+		uint32_t newWeatherEffectTagIndex = -1;
+		switch (mapModifierProperties->AtmosphereProperties.Weather)
+		{
+		case 0:
+			newWeatherEffectTagIndex = -1;
+			break;
+		case 1:
+			newWeatherEffectTagIndex = 0x443a; // snow
+			break;
+		}
+
+		if (atmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
+			&& currentWeatherEffectDatumIndex != -1)
+		{
+			atmosphereSettings.WeatherEffectTagIndex = -1;
+			FreeWeatherEffect(currentWeatherEffectDatumIndex);
+			currentWeatherEffectDatumIndex = -1;
+		}
+		else
+		{
+			atmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
+			UpdateWeatherEffects();
+		}
+
+		if (mapModifierProperties->AtmosphereProperties.Flags & 1)
+		{
+			atmosphereSettings.Enabled = true;
+			atmosphereSettings.FogColor.Red = mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f;
+			atmosphereSettings.FogColor.Green = mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f;
+			atmosphereSettings.FogColor.Blue = mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f;
+			atmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 50.0f;
+			atmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
+			atmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
+		}
+		else
+		{
+			atmosphereSettings.Enabled = false;
+		}
+
+		physics_set_gravity_scale(1.0f - (mapModifierProperties->PhysicsGravity / 255.0f));
 	}
 
 	bool CheckKillTriggersHook(int a0, void *a1)
 	{
-		UpdateBarriersEnabled();
-		if (!killBarriersEnabled)
+		if (!mapModifierState.MapBarriers.KillBarriersEnabled)
 			return false;
 
 		typedef bool(*CheckKillTriggersPtr)(int a0, void *a1);
@@ -401,8 +519,7 @@ namespace
 
 	bool ObjectSafeZoneHook(void *a0)
 	{
-		UpdateBarriersEnabled();
-		if (!killBarriersEnabled)
+		if (!mapModifierState.MapBarriers.KillBarriersEnabled)
 			return true;
 
 		typedef bool(*CheckSafeZonesPtr)(void *a0);
@@ -412,8 +529,7 @@ namespace
 
 	void* PushBarriersGetStructureDesignHook(int index)
 	{
-		UpdateBarriersEnabled();
-		if (!pushBarriersEnabled)
+		if (!mapModifierState.MapBarriers.PushBarriersEnabled)
 			return nullptr; // Return a null sddt if push barriers are disabled
 
 		typedef void*(*GetStructureDesignPtr)(int index);
@@ -421,20 +537,122 @@ namespace
 		return GetStructureDesign(index);
 	}
 
-	void HandleSpawnItem()
+	void CanvasMap()
 	{
-		if (s_SpawnItemTagIndex == -1)
+		const auto c_map_variant_placement__ctor = (void(__thiscall*)(Blam::MapVariant::VariantPlacement *thisptr))(0x004AC1D0);
+
+		auto mapv = GetMapVariant();
+		if (!mapv)
 			return;
 
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null || !GetEditorModeState(playerIndex, nullptr, nullptr))
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+
+		for (auto i = 0; i < 640; i++)
+		{
+			auto& placement = mapv->Placements[i];
+			if (!placement.InUse())
+				continue;
+
+			auto& budget = mapv->Budget[placement.BudgetIndex];
+			if (budget.TagIndex == -1 || budget.Cost == -1)
+				continue;
+
+			if (placement.ObjectIndex != -1)
+				DeleteObject(playerHandle.Index, i);
+			else
+			{
+				if (i < mapv->ScnrPlacementsCount)
+					placement.PlacementFlags |= 0x20u;
+				else
+				{
+					memset(&placement, 0, sizeof(placement));
+					c_map_variant_placement__ctor(&placement);
+				}
+
+				if (--budget.CountOnMap == 0)
+				{
+					budget.TagIndex = -1;
+					budget.Cost = -1;
+					budget.CountOnMap = 0;
+					budget.DesignTimeMax = -1;
+					budget.RuntimeMin = -1;
+					budget.RuntimeMax = -1;
+				}
+			}
+		}
+	}
+
+	void ResetRuntime()
+	{
+		struct c_game_engine_object_runtime_state
+		{
+			uint32_t Flags;
+			int PlacementIndex;
+			int ObjectIndex;
+			int16_t TimeRemaining;
+			uint16_t Unknown0E;
+		};
+
+		const auto c_game_engine_object_runtime_manager__respawn = (void(__thiscall *)(void*, bool a1))(0x00590CE0);
+		const auto object_dispose = (void(*)(int objectIndex))(0x00B2CD10);
+
+		auto runtime = (c_game_engine_object_runtime_state*)((uint8_t*)ElDorito::GetMainTls(0x48)[0] + 0x1059c);
+
+		for (auto i = 0; i < 512; i++)
+		{
+			auto objectRuntime = &runtime[i];
+			if (objectRuntime->PlacementIndex == -1 || objectRuntime->TimeRemaining == 0x7FFF)
+				continue;
+
+			if (objectRuntime->ObjectIndex != -1)
+			{
+				object_dispose(objectRuntime->ObjectIndex);
+				objectRuntime->ObjectIndex = -1;
+			}
+
+			c_game_engine_object_runtime_manager__respawn(objectRuntime, true);
+		}
+	}
+
+	void HandlePrefabCommands()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.Prefabs.LoadPrefab)
+		{
+			if (Prefabs::Load(moduleForge.CommandState.Prefabs.Path))
+			{
+				GrabSelection(Blam::Players::GetLocalPlayer(0));
+			}
+			else
+			{
+				PrintKillFeedText(0, L"ERROR: Failed to load prefab.", 0);
+			}
+
+			moduleForge.CommandState.Prefabs.LoadPrefab = false;
+		}
+
+		if (moduleForge.CommandState.Prefabs.SavePrefab)
+		{
+			if (!Prefabs::Save(moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
+			{
+				PrintKillFeedText(0, L"ERROR: Failed to save prefab.", 0);
+			}
+			moduleForge.CommandState.Prefabs.SavePrefab = false;
+		}
+	}
+
+	void SpawnItem(int tagIndex)
+	{
+		if (tagIndex == -1)
 			return;
 
-		Blam::Tags::TagInstance instance(s_SpawnItemTagIndex);
-		auto def = instance.GetDefinition<void>(s_SpawnItemTagIndex);
+		auto playerHandle = Blam::Players::GetLocalPlayer(0);
+		if (playerHandle == DatumHandle::Null || !GetEditorModeState(playerHandle, nullptr, nullptr))
+			return;
+
+		Blam::Tags::TagInstance instance(tagIndex);
+		auto def = instance.GetDefinition<void>();
 		auto groupTag = def ? instance.GetGroupTag() : 0;
-
-		s_SpawnItemTagIndex = -1;
 
 		if (!def || !(groupTag == 'weap' || groupTag == 'vehi' || groupTag == 'eqip'
 			|| groupTag == 'scen' || groupTag == 'bloc' || groupTag == 'crea'
@@ -443,19 +661,70 @@ namespace
 			|| groupTag == 'ssce'))
 		{
 			wchar_t buff[256];
-			swprintf_s(buff, L"Tag not loaded or not a valid forge object [0x%X4]", instance.Index);
+			swprintf_s(buff, L"Tag not loaded or not a valid forge object [0x%04x]", instance.Index);
 			PrintKillFeedText(0, buff, 0);
 			return;
 		}
 
 		ForgeMessage msg = { 0 };
 		msg.Type = 0;
-		msg.PlayerIndex = playerIndex;
+		msg.PlayerIndex = playerHandle;
 		msg.TagIndex = instance.Index;
-		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()];
+		msg.CrosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
 		static auto Forge_SendMessage = (void(*)(ForgeMessage*))(0x004735D0);
 		Forge_SendMessage(&msg);
+	}
+
+	void HandleRuntimeReset()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.RuntimeReset)
+		{
+			ResetRuntime();
+			moduleForge.CommandState.RuntimeReset = false;
+		}
+	}
+
+	void HandleMapCanvas()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.MapCanvas)
+		{
+			ResetRuntime();
+			CanvasMap();
+			moduleForge.CommandState.MapCanvas = false;
+		}
+	}
+
+	void HandleSetPrematchCamera()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (moduleForge.CommandState.SetPrematchCamera)
+		{
+			::PrematchCamera::PlaceCameraObject();
+			moduleForge.CommandState.SetPrematchCamera = false;
+		}
+	}
+
+	void HandleSpawnItem()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		auto &itemTagIndex = moduleForge.CommandState.SpawnItem;
+		if (itemTagIndex != -1)
+		{
+			SpawnItem(itemTagIndex);
+			itemTagIndex = -1;
+		}
+	}
+	
+	void HandleCommands()
+	{
+		HandleMapCanvas();
+		HandleRuntimeReset();
+		HandleSpawnItem();
+		HandleSetPrematchCamera();
+		HandlePrefabCommands();
 	}
 
 	void HandleRotationReset()
@@ -476,6 +745,7 @@ namespace
 		using namespace Blam::Input;
 
 		static auto Object_SetVelocity = (void(__cdecl *)(uint32_t objectIndex, RealVector3D* a2, RealVector3D *a3))(0x00B34040);
+		static auto& moduleForge = Modules::ModuleForge::Instance();
 
 		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
 		if (!player)
@@ -487,11 +757,13 @@ namespace
 		{
 			movementSpeedAction->Flags |= Blam::Input::eActionStateFlagsHandled;
 
-			s_MonitorMovementSpeedIndex = (s_MonitorMovementSpeedIndex + 1) %
+			auto currentSpeed = moduleForge.VarMonitorSpeed->ValueInt;
+
+			currentSpeed = (currentSpeed + 1) %
 				(sizeof(MONITOR_MOVEMENT_SPEEDS) / sizeof(MONITOR_MOVEMENT_SPEEDS[0]));
 
 			wchar_t buff[256];
-			switch (s_MonitorMovementSpeedIndex)
+			switch (currentSpeed)
 			{
 			case 0:
 				swprintf_s(buff, 256, L"Movement Speed: 0.001 (Z-Fight Fixer)");
@@ -508,7 +780,13 @@ namespace
 			case 4:
 				swprintf_s(buff, 256, L"Movement Speed: Fast");
 				break;
+			case 5:
+				swprintf_s(buff, 256, L"Movement Speed: Faster");
+				break;
 			}
+
+			std::string prev;
+			Modules::CommandMap::Instance().SetVariable(moduleForge.VarMonitorSpeed, std::to_string(currentSpeed), prev);
 
 			RealVector3D v1 = {}, v2 = {};
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
@@ -522,10 +800,10 @@ namespace
 		static auto RotateHeldObject = (void(__stdcall*)(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot))(0x0059DD50);
 
 		static auto& moduleForge = Modules::ModuleForge::Instance();
-		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		const auto currentSnap = moduleForge.VarRotationSnap->ValueInt;
 		const auto rotationSensitvity = moduleForge.VarRotationSensitivity->ValueFloat;
 
-		if (DatumIndex(playerIndex) != Blam::Players::GetLocalPlayer(0))
+		if (DatumHandle(playerIndex) != Blam::Players::GetLocalPlayer(0))
 		{
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
@@ -537,7 +815,7 @@ namespace
 
 		HandleRotationReset();
 
-		if (snapAngleDegrees < 1)
+		if (currentSnap < 1)
 		{
 			RotateHeldObject(playerIndex, objectIndex, xRot, yRot, zRot);
 			return;
@@ -676,7 +954,7 @@ namespace
 			return;
 
 		std::stack<uint32_t> detachStack;
-		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumIndex::Null;)
+		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
 		{
 			auto object = Blam::Objects::Get(objectIndex);
 			if (!object)
@@ -801,12 +1079,11 @@ namespace
 		auto& players = Blam::Players::GetPlayers();
 		auto player = players.Get(playerIndex);
 
-		if (player && player->SlaveUnit == DatumIndex(unitObjectIndex) && GetEditorModeState(playerIndex, nullptr, nullptr))
+		if (player && player->SlaveUnit == DatumHandle(unitObjectIndex) && GetEditorModeState(playerIndex, nullptr, nullptr))
 		{
 			auto& moduleForge = Modules::ModuleForge::Instance();
 			auto& monitorSpeed = *(float*)(a2 + 0x150);
-			monitorSpeed *= moduleForge.VarMonitorSpeed->ValueFloat;
-			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[s_MonitorMovementSpeedIndex];
+			monitorSpeed *= MONITOR_MOVEMENT_SPEEDS[moduleForge.VarMonitorSpeed->ValueInt];
 
 			UnitFlying(unitObjectIndex, a2, a3, a4, a5, a6, a7);
 
@@ -856,71 +1133,19 @@ namespace
 		if (!heldObject)
 			return;
 
-		DatumIndex playerIndex = GetPlayerHoldingObject(objectIndex);
+		DatumHandle playerHandle = GetPlayerHoldingObject(objectIndex);
 
 		const auto& selection = Forge::Selection::GetSelection();
 
 		if (ObjectIsPhased(objectIndex))
 		{
 			auto offset = heldObject->Center - heldObject->Position - s_GrabOffset;
-			auto newPos = GetSandboxGlobals().CrosshairPoints[playerIndex.Index()] - offset;
+			auto newPos = GetSandboxGlobals().CrosshairPoints[playerHandle.Index] - offset;
 			Object_Transform(a1, objectIndex, &newPos, forwardVec, upVec);
 		}
 		else
 		{
 			Object_Transform(a1, objectIndex, position, forwardVec, upVec);
-		}
-	}
-
-	void FixRespawnZones()
-	{
-		const auto& objects = Blam::Objects::GetObjects();
-		auto mapv = GetMapVariant();
-
-		// loop throught mapv placements
-		for (auto i = 0; i < mapv->UsedPlacementsCount; i++)
-		{
-			const auto& placement = mapv->Placements[i];
-			if (!placement.InUse() || placement.ObjectIndex == -1)
-				continue;
-			// Player Respawn Zone
-			if (placement.Properties.ObjectType != 0xD)
-				continue;
-			auto zoneObject = Blam::Objects::Get(placement.ObjectIndex);
-			if (!zoneObject)
-				continue;
-
-			ZoneShape zoneShape;
-			GetObjectZoneShape(placement.ObjectIndex, &zoneShape, 0);
-
-			for (auto j = 0; j < mapv->UsedPlacementsCount; j++)
-			{
-				auto foundObjectIndex = mapv->Placements[j].ObjectIndex;
-
-				auto foundObject = Blam::Objects::Get(foundObjectIndex);
-				if (!foundObject || foundObjectIndex == placement.ObjectIndex)
-					continue;
-
-				auto mpPropertiesPtr = Pointer(foundObject->GetMultiplayerProperties());
-				if (!mpPropertiesPtr)
-					continue;
-				auto mpObjectType = mpPropertiesPtr(0x2).Read<uint8_t>();
-				auto flags = mpPropertiesPtr.Read<uint16_t>();
-
-				// check if the object's center is inside the zone
-				if (!PointIntersectsZone(&foundObject->Center, &zoneShape))
-					continue;
-				// PlayerSpawnLocation
-				if (mpObjectType != 0xC)
-					continue;
-				// ignore invisible spawns and initial spawns
-				if (foundObject->TagIndex == 0x00002EA6 || flags & (1 << 1))
-					continue;
-
-				// set the team index to match the zone
-				auto zoneTeamIndex = placement.Properties.TeamAffilation;
-				mpPropertiesPtr(0xA).WriteFast<uint8_t>(zoneTeamIndex);
-			}
 		}
 	}
 
@@ -941,31 +1166,31 @@ namespace
 
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair)
 	{
-	if (objectIndexUnderCrosshair != -1)
-	{
-		auto& forgeModule = Modules::ModuleForge::Instance();
-		auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
-		auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
-
-		auto sandboxGlobals = Forge::GetSandboxGlobals();
-		const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
-
-		auto objectIndexToClone = objectIndexUnderCrosshair;
-		for (auto i = 0; i < cloneMultiplier; i++)
+		if (objectIndexUnderCrosshair != -1)
 		{
-			objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
-			if (objectIndexToClone == -1)
-				break;
+			auto& forgeModule = Modules::ModuleForge::Instance();
+			auto cloneDepth = forgeModule.VarCloneDepth->ValueFloat;
+			auto cloneMultiplier = forgeModule.VarCloneMultiplier->ValueInt;
+
+			auto sandboxGlobals = Forge::GetSandboxGlobals();
+			const RealVector3D& intersectNormal = sandboxGlobals.CrosshairIntersectNormals[playerIndex & 0xF];
+
+			auto objectIndexToClone = objectIndexUnderCrosshair;
+			for (auto i = 0; i < cloneMultiplier; i++)
+			{
+				objectIndexToClone = CloneObject(playerIndex, objectIndexToClone, cloneDepth, intersectNormal);
+				if (objectIndexToClone == -1)
+					break;
+			}
 		}
-	}
-	else
-	{
-		if (Forge::Selection::GetSelection().Any())
+		else
 		{
-			if (Forge::Selection::Clone())
-				GrabSelection(playerIndex);
+			if (Forge::Selection::GetSelection().Any())
+			{
+				if (Forge::Selection::Clone())
+					GrabSelection(playerIndex);
+			}
 		}
-	}
 	}
 
 	bool CanThemeObject(uint32_t objectIndex)
@@ -987,11 +1212,11 @@ namespace
 			return false;
 
 		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
-		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		if (!materialCount || firstMaterialShaderTagRef.TagIndex != REFORGE_DEFAULT_SHADER)
+		if (!materialCount)
 			return false;
 
-		return true;
+		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
+		return firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER;
 	}
 
 	bool GetObjectMaterial(void* renderData, int16_t* pMaterialIndex)
@@ -1030,31 +1255,53 @@ namespace
 
 	void RenderMeshPartHook(void* data, int a2)
 	{
+		const auto is_forge = (bool(*)())(0x0059A780);
+
 		static auto RenderMeshPart = (void(*)(void* data, int a2))(0xA78940);
 
 		auto renderData = Pointer(data)[4];
 
-		int16_t materialIndex;
-		if (GetObjectMaterial(renderData, &materialIndex))
+		auto objectIndex = Pointer(renderData)(0x6c).Read<uint32_t>();
+		auto object = Blam::Objects::Get(objectIndex);
+		if (object)
 		{
-			if (materialIndex == int16_t(INVISIBLE_MATERIAL_INDEX))
+			switch (object->TagIndex)
 			{
-				if (!Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt
-					&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
+			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			{
+				auto properties = object->GetMultiplayerProperties();
+				if (properties && ((Forge::ForgeKillVolumeProperties*)&properties->TeleporterChannel)->Flags
+					& Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible)
+					break;
+			}
+			case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
+			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+				if (!is_forge())
 					return;
 			}
 
-			auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
-			const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
-			const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
-			const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
+			int16_t materialIndex;
+			if (GetObjectMaterial(renderData, &materialIndex))
+			{
+				if (materialIndex == int16_t(INVISIBLE_MATERIAL_INDEX))
+				{
+					if (!Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt
+						&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
+						return;
+				}
 
-			auto oldMaterialIndex = *materialIndexPtr;
-			*materialIndexPtr = materialIndex;
-			RenderMeshPart(data, a2);
-			*materialIndexPtr = oldMaterialIndex;
+				auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
+				const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+				const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
+				const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
 
-			return;
+				auto oldMaterialIndex = *materialIndexPtr;
+				*materialIndexPtr = materialIndex;
+				RenderMeshPart(data, a2);
+				*materialIndexPtr = oldMaterialIndex;
+
+				return;
+			}
 		}
 		RenderMeshPart(data, a2);
 	}
@@ -1079,7 +1326,7 @@ namespace
 		uint32_t objectIndexUnderCrosshair, heldObjectIndex;
 		if (Forge::GetEditorModeState(playerIndex, &heldObjectIndex, &objectIndexUnderCrosshair))
 		{
-			auto currentObjectIndex = objectIndexUnderCrosshair != -1 ? objectIndexUnderCrosshair : heldObjectIndex;
+			auto currentObjectIndex = heldObjectIndex != -1 ? heldObjectIndex : objectIndexUnderCrosshair;
 			auto currentObject = Blam::Objects::Get(currentObjectIndex);
 			if (currentObject && currentObject->PlacementIndex != -1)
 			{
@@ -1102,7 +1349,7 @@ namespace
 	{
 		static auto Forge_UpdatePlayerEditorGlobals = (bool(*)(int16_t playerIndex, uint32_t* pObjectIndex))(0x0059E720);
 
-		if (Blam::Players::GetLocalPlayer(0).Index() == playerIndex)
+		if (Blam::Players::GetLocalPlayer(0).Index == playerIndex)
 		{
 			auto& editorGlobals = Forge::GetSandboxGlobals();
 
@@ -1132,6 +1379,11 @@ namespace
 		if (!object)
 			return;
 
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
+
+
 		object->HavokFlags |= 0x200u; // at rest
 		object->HavokFlags &= ~0x100000u;
 
@@ -1157,6 +1409,9 @@ namespace
 
 		auto mpProperties = object->GetMultiplayerProperties();
 		auto oldZoneShape = mpProperties->Shape;
+
+		if(properties->EngineFlags)
+			mpProperties->EngineFlags = properties->EngineFlags;
 
 		MapVariant_SyncObjectProperties(thisptr, properties, objectIndex);
 
@@ -1352,7 +1607,7 @@ namespace
 	
 		if (IsForge())
 		{
-			auto objectDef = Blam::Tags::TagInstance(budget.TagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+			auto objectDef = Blam::Tags::TagInstance(budget.TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 			if (objectDef && objectDef->MultiplayerProperties.Count)
 			{
 				auto engineFlags = objectDef->MultiplayerProperties.Elements[0].EngineFlags;
@@ -1369,6 +1624,23 @@ namespace
 			budget.DesignTimeMax = -1;
 			budget.RuntimeMin = -1;
 			budget.RuntimeMax = -1;
+		}
+	}
+
+	void __fastcall c_map_variant_copy_budget_hook(Blam::MapVariant *thisptr, void *unused, Blam::MapVariant *other)
+	{
+		for (auto i = 0; i < other->BudgetEntryCount; i++)
+		{
+			auto &budget = other->Budget[i];
+			if (budget.TagIndex != -1)
+			{
+				auto newBudgetIndex = CreateOrGetBudgetForItem(thisptr, budget.TagIndex);
+				if (newBudgetIndex != -1)
+				{
+					auto &newBudget = thisptr->Budget[newBudgetIndex];
+					newBudget = budget;
+				}
+			}
 		}
 	}
 
@@ -1413,17 +1685,17 @@ namespace
 
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex)
 	{
-		const auto sub_715E90 = (char(__cdecl *)(int a1, float boundingRadius, int a3, int a4,
+		const auto sub_715E90 = (char(__cdecl *)(float a1, float boundingRadius, int a3, int a4,
 			int a5, const RealVector3D *a6, int a7, int a8, RealVector3D *newPosition, char a10))(0x715E90);
 
-		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		auto object = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 		if (!object)
 			return false;
 
 		auto boundingRadius = object->BoundingRadius;
 		if (object->Model.TagIndex != -1)
 		{
-			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Objects::Model>('hlmt');
+			auto hlmtDef = Blam::Tags::TagInstance(object->Model.TagIndex).GetDefinition<Blam::Tags::Models::Model>();
 			if (hlmtDef && hlmtDef->ModelObjectData.Count)
 			{
 				const auto &modelobjectData = hlmtDef->ModelObjectData.Elements[0];
@@ -1500,17 +1772,16 @@ namespace
 
 			auto v23 = lightDefPtr(0x74).Read<float>();
 			auto v22 = lightDefPtr(0x14).Read<float>();
-			auto v18 = lightDefPtr(0x70).Read<float>();
 
-			intensity = ((lightProperties->Intensity / 255.0f)) * 10.0f;
-			auto colorIntensity = lightProperties->ColorIntensity / 255.0f * 100.0f;
+			intensity = ((lightProperties->Intensity / 255.0f)) * 250.0f * intensity;
 			RealColorRGB color(
-				intensity + colorIntensity * (lightProperties->ColorR / 255.0f),
-				intensity + colorIntensity * (lightProperties->ColorG / 255.0f),
-				intensity + colorIntensity * (lightProperties->ColorB / 255.0f)
+				intensity * (lightProperties->ColorR / 255.0f),
+				intensity * (lightProperties->ColorG / 255.0f),
+				intensity * (lightProperties->ColorB / 255.0f)
 			);
 
-			sub_A66900(a4, light->Center, color, v18, lightProperties->Range, light->field_A4, v2, v23, v22);
+			sub_A66900(a4, light->Center, color, 6.0f, lightProperties->Range, light->field_A4, v2, v23, v22);
+
 			return;
 		}
 
@@ -1549,7 +1820,7 @@ namespace
 		float Turbulance;
 	};
 
-	void FillScreenEffectRenderData(Blam::Tags::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
+	void FillScreenEffectRenderData(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
 	{
 		auto v29 = data->LightIntensity;
 		if (data->LightIntensity <= (t * screenEffectDef.LightIntensity))
@@ -1624,8 +1895,8 @@ namespace
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex)
 	{
 		const auto sub_683190 = (void(*)(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *data, int a4, int a5))(0x683190);
-		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
-		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, int a3, float a4, int a5, void * a6))(0x682A90);
+		const auto sub_682C10 = (float(__thiscall *)(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect *screenEffect, float distance, float a3, float secondsAlive, float *a5))(0x682C10);
+		const auto sub_682A90 = (unsigned __int32(__thiscall *)(void *thisptr, void *a2, float a3, float a4, int a5, void * a6))(0x682A90);
 		const auto sub_A44FD0 = (bool(*)(int localPlayerIndex, uint32_t objectIndex))(0xA44FD0);
 		const auto sub_4EEC40 = (float(*)(RealVector3D *position, RealVector3D *forward))(0x4EEC40);
 		const auto sub_5F0C20 = (void(__thiscall *)(void *thisptr))(0x005F0C20);
@@ -1653,10 +1924,10 @@ namespace
 		auto &screenEffectDatumArray = ElDorito::GetMainTls(0x338)[0].Read<Blam::DataArray<ScreenEffectDatum>>();
 		for (auto &screenEffectDatum : screenEffectDatumArray)
 		{
-			auto sefc = Blam::Tags::TagInstance(screenEffectDatum.TagIndex).GetDefinition<Blam::Tags::AreaScreenEffect>();
-			if (!sefc || sefc->ScreenEffect2.Count <= 0)
+			auto sefc = Blam::Tags::TagInstance(screenEffectDatum.TagIndex).GetDefinition<Blam::Tags::Camera::AreaScreenEffect>();
+			if (!sefc || sefc->ScreenEffects.Count <= 0)
 				continue;
-			auto screenEffectDef = sefc->ScreenEffect2.Elements[0];
+			auto screenEffectDef = sefc->ScreenEffects.Elements[0];
 			if (screenEffectDef.Duration > 0 && screenEffectDatum.SecondsAlive > screenEffectDef.Duration)
 				continue;
 
@@ -1682,20 +1953,30 @@ namespace
 					auto properties = (ForgeScreenFxProperties*)((uint8_t*)props + 0x14);
 					if (properties)
 					{
-						screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
-						screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
-						screenEffectDef.Saturation = properties->Saturation / 255.0f;
-						screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
-						screenEffectDef.PrimaryHue = properties->Hue / 255.0f * 360;
-						screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
-						screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
-						screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
-						screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
-						screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
-						screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
-						screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
-						screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
-						screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+						Blam::Players::PlayerDatum *player;
+						if ((playerIndex != DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))) &&
+							player->Properties.TeamIndex != props->TeamIndex && props->TeamIndex != 8)
+						{
+							screenEffectDef.MaximumDistance = 0;
+						}
+						else
+						{
+							screenEffectDef.MaximumDistance = properties->MaximumDistance / 255.0f * 255.0f;
+							screenEffectDef.LightIntensity = properties->LightIntensity / 255.0f * 5.0f;
+							screenEffectDef.Saturation = properties->Saturation / 255.0f;
+							screenEffectDef.Desaturation = properties->Desaturation / 255.0f;
+							screenEffectDef.PrimaryHue = uint32_t(properties->Hue / 255.0f * 360);
+							screenEffectDef.GammaIncrease = properties->GammaIncrease / 255.0f;
+							screenEffectDef.GammaDecrease = properties->GammaDecrease / 255.0f;
+							screenEffectDef.ColorFilter.Red = properties->ColorFilterR / 255.0f;
+							screenEffectDef.ColorFilter.Green = properties->ColorFilterG / 255.0f;
+							screenEffectDef.ColorFilter.Blue = properties->ColorFilterB / 255.0f;
+							screenEffectDef.ColorFloor.Red = properties->ColorFloorR / 255.0f;
+							screenEffectDef.ColorFloor.Green = properties->ColorFloorG / 255.0f;
+							screenEffectDef.ColorFloor.Blue = properties->ColorFloorB / 255.0f;
+							screenEffectDef.Tracing = properties->Tracing / 100.0f;
+						}
 					}
 				}
 
@@ -1747,8 +2028,10 @@ namespace
 	{
 		const auto is_client = (bool(*)())(0x00531D70);
 
+		UpdateMapModifier();
+
 		if (!is_client())
-			::Forge::KillVolumes::Update();
+			::Forge::Volumes::Update();
 	}
 
 	bool ShouldOverrideColorPermutation(uint32_t objectIndex)
@@ -1785,7 +2068,7 @@ namespace
 			if (!object)
 				return;
 
-			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>('obje');
+			auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<ObjectDefinition>();
 			auto cachedRenderStateIndex = *(uint32_t*)object_get_render_data(objectIndex);
 
 			
@@ -1886,6 +2169,17 @@ namespace
 		if (!object)
 			return false;
 
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+		switch (object->TagIndex)
+		{
+		case Forge::PrematchCamera::CAMERA_OBJECT_TAG_INDEX:
+		case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+		case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+			if (!Forge::GetEditorModeState(playerIndex, nullptr, nullptr))
+				return false;
+		}
+
 		auto mpProperties = object->GetMultiplayerProperties();
 		if (mpProperties && CanThemeObject(objectIndex))
 		{
@@ -1897,5 +2191,230 @@ namespace
 		}
 
 		return true;
+	}
+
+	void sandbox_zone_shape_render_hook(ZoneShape *zone, float *color, uint32_t objectIndex)
+	{
+		const auto sandbox_zone_shape_render_hook = (void(*)(ZoneShape *zone, float *color, uint32_t objectIndex))(0x00BA0FC0);
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return;
+
+		// ignore forge volumes
+		switch (object->TagIndex)
+		{
+		case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
+		case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			return;
+		}
+
+		sandbox_zone_shape_render_hook(zone, color, objectIndex);
+
+	}
+
+	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix)
+	{
+		const auto sub_724890 = (bool(__thiscall*)(void *thisptr, int a2, int a3, float *matrix))(0x724890);
+		auto ret = sub_724890(thisptr, a2, a3, matrix);
+
+		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+		auto &groundHavokComponentIndex = *(uint32_t*)((uint8_t*)thisptr + 0x1c);
+		uint8_t *groundHavokComponent;
+		if (groundHavokComponentIndex != -1 && (groundHavokComponent = (uint8_t*)havokComponents->Get(groundHavokComponentIndex)))
+		{
+			auto groundObjectIndex = *(uint32_t*)(groundHavokComponent + 0x8);
+			if (groundObjectIndex != -1)
+			{
+				if (ObjectIsPhased(groundObjectIndex))
+					groundHavokComponentIndex = -1;
+			}
+		}
+
+		return ret;
+	}
+
+	void __fastcall c_game_engine_object_runtime_manager__on_object_spawned_hook(void *thisptr, void *unused, int16_t placementIndex, uint32_t objectIndex)
+	{
+		const auto c_game_engine_object_runtime_manager__on_object_spawned = (void(__thiscall*)(void *thisptr, int16_t placementIndex, uint32_t objectIndex))(0x00590600);
+		if (!CanThemeObject(objectIndex)) // ignore reforge
+			c_game_engine_object_runtime_manager__on_object_spawned(thisptr, placementIndex, objectIndex);
+	}
+
+	void __fastcall CameraFxHook(void *thisptr, void *unused, void *a2)
+	{
+		const auto sub_A3B990 = (void(__thiscall*)(void *thisptr, void *a2))(0xA3B990);
+		sub_A3B990(thisptr, a2);
+
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+
+		if (cameraFxSettings.Enabled)
+		{
+			if (std::abs(mapModifierState.CameraFx.Exposure) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x29C) = cameraFxSettings.Exposure;
+			if (std::abs(cameraFxSettings.LightIntensity) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x1E48) = cameraFxSettings.LightIntensity;
+			if (std::abs(cameraFxSettings.BloomIntensity) > 0.0001f)
+				*(float*)((uint8_t*)thisptr + 0x2A0) = cameraFxSettings.BloomIntensity;
+		}
+	}
+
+	void __cdecl ShieldImpactBloomHook(int id, int count, float *data)
+	{
+		auto &cameraFxSettings = mapModifierState.CameraFx;
+
+		const auto rasterizer_set_pixel_shader_constant = (void(*)(int id, int count, float *data))(0x00A66270);
+		if (cameraFxSettings.Enabled && std::abs(cameraFxSettings.BloomIntensity) > 0.0001f)
+		{
+			data[12] *= cameraFxSettings.BloomIntensity;
+			data[13] *= cameraFxSettings.BloomIntensity;
+			data[14] *= cameraFxSettings.BloomIntensity;
+			data[15] *= cameraFxSettings.BloomIntensity;
+		}
+		rasterizer_set_pixel_shader_constant(id, count, data);
+	}
+
+	void RenderAtmosphereHook(short bspIndex, void *state)
+	{
+		struct sky_atm_parameters_properties_definition
+		{
+			uint16_t Flags;
+			uint16_t Unknown;
+			uint32_t Name;
+			float LightSourceY;
+			float LightSourceX;
+			Blam::Math::RealColorRGB FogColor;
+			float Brightness;
+			float FogGradientThreshold;
+			float LightIntensity;
+			float SkyinvisiblilityThroughFog;
+			float Unknown2C;
+			float Unknown30;
+			float LightSourceSpread;
+			float Unknown38;
+			float FogIntensity;
+			float Unknown40;
+			float TintCyan;
+			float TintMagenta;
+			float TintYellow;
+			float FogIntensityCyan;
+			float FogIntensityMagenta;
+			float FogIntensityYellow;
+			float BackgroundColorRed;
+			float BackgroundColorGreen;
+			float BackgroundColorBlue;
+			float TintRed;
+			float TintGreen;
+			float TintBlue;
+			float FogIntensity2;
+			float StartDistance;
+			float EndDistance;
+			float FogVelocityX;
+			float FogVelocityY;
+			float FogVelocityZ;
+			Blam::Tags::TagReference Weather;
+			float Unknown9C;
+			uint32_t UnknownA0;
+		};
+		static_assert(sizeof(sky_atm_parameters_properties_definition) == 0xA4, "");
+
+
+		const auto sub_6739A0 = (void(*)(short bspIndex, void *state))(0x6739A0);
+		const auto sub_671D90 = (void(*)(__int16 sbspIndex, sky_atm_parameters_properties_definition *atmosphereProperties,
+			void *state, float intensity))(0x671D90);
+
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
+		// TODO: cleanup
+		if (atmosphereSettings.Enabled)
+		{
+			sky_atm_parameters_properties_definition props = { 0 };
+			props.Flags = 7;
+			props.Name = 26116;
+			props.LightSourceY = 56;
+			props.LightSourceX = 30;
+			props.FogColor = atmosphereSettings.FogColor;
+			props.Brightness = atmosphereSettings.Brightness;
+			props.FogGradientThreshold = -10.0f + atmosphereSettings.FogVisibility;
+			props.LightIntensity = 100;
+			props.SkyinvisiblilityThroughFog = 25;
+			props.Unknown2C = 0.08f;
+			props.Unknown30 = 2.5f;
+			props.LightSourceSpread = 0.75f;
+			props.Unknown38 = 1.0f;
+			props.FogIntensity = -20.0f + atmosphereSettings.FogDensity;
+			props.Unknown40 = 65535;
+			props.TintCyan = 0.0009897007f;
+			props.TintMagenta = 0.0009897007f;
+			props.TintYellow = 0.0009897007f;
+			props.FogIntensityCyan = 0.1970554f;
+			props.FogIntensityMagenta = 0.1970554f;
+			props.FogIntensityYellow = 0.1970554f;
+			props.BackgroundColorBlue = (float)6.008439E-05;
+			props.BackgroundColorGreen = (float)6.008439E-05;
+			props.BackgroundColorRed = (float)6.008439E-05;
+			props.TintRed = 0.04638588f;
+			props.TintGreen = 0.04638588f;
+			props.TintBlue = 0.04638588f;
+			props.FogIntensity2 = 500;
+			props.StartDistance = 18.5f;
+			props.EndDistance = 19.75f;
+			props.FogVelocityX = 0;
+			props.FogVelocityY = 0.2f;
+			props.FogVelocityZ = 0.1f;
+			sub_671D90(bspIndex, &props, state, 1.0f);
+		}
+		else
+		{
+			sub_6739A0(bspIndex, state);
+		}
+	}
+
+
+
+	bool UpdateWeatherEffects()
+	{
+		auto &atmosphereSettings = mapModifierState.Atmosphere;
+
+		if (mapModifierState.IsValid && atmosphereSettings.WeatherEffectTagIndex != -1)
+		{
+			const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
+			const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+
+			auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+			auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+
+			if (currentWeatherEffectDatumIndex == -1)
+			{
+				currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
+
+				if (currentWeatherEffectDatumIndex != -1)
+				{
+					uint16_t scenarioLocation = 0;
+					sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	__declspec(naked) void BspWeatherHook()
+	{
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			call UpdateWeatherEffects
+			test al, al
+			jne disabled
+			mov al, [0x18BE9E0]
+			push 0x00672238
+			retn
+			disabled:
+			mov esp, ebp
+			pop ebp
+			ret
+		}
 	}
 }

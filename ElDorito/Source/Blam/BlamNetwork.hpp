@@ -71,10 +71,10 @@ namespace Blam::Network
 		int Unknown0;
 		int Unknown4;
 		int PlayerUpdateCount; // ?
-		int UnknownC;
+		int LeaderPeerIndex;
 		int HostPeerIndex;
 		int Unknown14;
-		int Unknown18;
+		int SessionMaxPlayers;
 		int Unknown1C;
 		int Unknown20;
 		int Unknown24;
@@ -144,7 +144,7 @@ namespace Blam::Network
 		uint8_t Unknown1[0x2A0B4];
 
 		// Gets the current variant data, or null if not available.
-		void* Get() const;
+		MapVariant* Get() const;
 	};
 	static_assert(sizeof(MapVariantSessionParameter) == 0x2A1D0, "Invalid c_network_session_parameter_map_variant size");
 
@@ -380,6 +380,9 @@ namespace Blam::Network
 
 	// Gets the network mode
 	int GetNetworkMode();
+
+	//Sets the lobbyType
+	bool SetLobbyType(int type);
 
 	//Sets the Network Mode.
 	bool SetNetworkMode(int mode);

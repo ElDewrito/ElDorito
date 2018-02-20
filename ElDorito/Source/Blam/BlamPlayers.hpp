@@ -86,10 +86,14 @@ namespace Blam::Players
 		wchar_t DisplayName[16];
 		int TeamIndex;
 		uint32_t Unknown5C;
-		uint8_t Unknown60;
+		uint8_t Gender;
 		uint8_t PlayerRepresentation;
 		uint16_t Unknown62;
-		uint8_t Unknown64[0x664];
+		uint8_t Unknown64[1616];
+		wchar_t ServiceTag[6];
+		uint16_t Unknown6C0;
+		uint16_t Unknown6C2;
+		uint16_t Unknown6C6;
 		PlayerCustomization Customization;
 		uint8_t Unknown6E4[0xF38];
 	};
@@ -99,12 +103,14 @@ namespace Blam::Players
 	struct PlayerDatum : DatumBase
 	{
 		uint8_t Unknown2[0x2E];
-		DatumIndex SlaveUnit;
-		DatumIndex DeadSlaveUnit;
+		DatumHandle SlaveUnit;
+		DatumHandle DeadSlaveUnit;
 		uint8_t Unknown34[0x38];
 		PlayerProperties Properties;
-		uint8_t Unknown1690[0x1724];
-		int16_t SpawnGrenadeSetting;
+		uint8_t Unknown1690[0x165a];
+		int16_t DepletedStamina;
+		uint8_t Unknown2CEA[0xc6];
+		int16_t SpawnGrenadeSetting; //2db4
 		uint8_t Unknown2DB6[0x152];
 	};
 	static_assert(sizeof(PlayerDatum) == 0x2F08, "Invalid PlayerDatum size");
@@ -164,16 +170,16 @@ namespace Blam::Players
 	DataArray<PlayerDatum>& GetPlayers();
 
 	// Gets the datum index for a local player (0-3).
-	DatumIndex GetLocalPlayer(int index);
+	DatumHandle GetLocalPlayer(int index);
 
 	// Gets a player's kill count.
-	int GetKills(DatumIndex player);
+	int GetKills(DatumHandle player);
 
 	// Gets a player's death count.
-	int GetDeaths(DatumIndex player);
+	int GetDeaths(DatumHandle player);
 
 	// Gets a player's assist count.
-	int GetAssists(DatumIndex player);
+	int GetAssists(DatumHandle player);
 
 	// Gets a player's stats.
 	PLAYER_STATS GetStats(int playerIndex);

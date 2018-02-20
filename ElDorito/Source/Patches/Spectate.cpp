@@ -10,6 +10,7 @@
 #include "../Utils/String.hpp"
 #include "../ElDorito.hpp"
 #include "../Modules/ModuleInput.hpp"
+#include "../Modules/ModuleSettings.hpp"
 #include "../Blam/BlamTime.hpp"
 #include <cstdint>
 
@@ -18,7 +19,7 @@ namespace
 	struct SpectateState
 	{
 		bool IsSpectating;
-		Blam::DatumIndex DirectedPlayerIndex;
+		Blam::DatumHandle DirectedPlayerIndex;
 	}
 	s_SpectateState;
 
@@ -37,7 +38,7 @@ namespace Patches::Spectate
 
 namespace
 {
-	void NotifyPlayerChanged(Blam::DatumIndex playerDatumIndex)
+	void NotifyPlayerChanged(Blam::DatumHandle playerDatumIndex)
 	{
 		auto& players = Blam::Players::GetPlayers();
 		auto player = players.Get(playerDatumIndex);
@@ -77,16 +78,16 @@ namespace
 			return false;
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
-		if (playerIndex == Blam::DatumIndex::Null)
+		if (playerIndex == Blam::DatumHandle::Null)
 			return false;
 
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (player->SlaveUnit != Blam::DatumIndex::Null)
+		if (player->SlaveUnit != Blam::DatumHandle::Null)
 			return false;
 
 		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
 
-		return player->SlaveUnit == Blam::DatumIndex::Null && secondsUntilSpawn > 1 
+		return player->SlaveUnit == Blam::DatumHandle::Null && secondsUntilSpawn > 1 
 			&& !(Pointer(player)(0x4).Read<uint32_t>() & 8u);
 	}
 
@@ -104,7 +105,7 @@ namespace
 				s_SpectateState.DirectedPlayerIndex = -1;
 			}
 
-			auto directedPlayerIndex = Blam::DatumIndex(Pointer(thisptr)(0x144).Read<uint32_t>());
+			auto directedPlayerIndex = Blam::DatumHandle(Pointer(thisptr)(0x144).Read<uint32_t>());
 			if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
 				NotifyPlayerChanged(directedPlayerIndex);
 			s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
@@ -120,16 +121,23 @@ namespace
 	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity)
 	{
 		auto& moduleInput = Modules::ModuleInput::Instance();
+		auto& moduleSettings = Modules::ModuleSettings::Instance();
 		auto bindings = moduleInput.GetBindings();
 
 		float sens = moduleInput.VarSpectateSensitivity->ValueFloat;
 
 		// the controller defaults are unreasonably sensitive
-		const auto isUsingController = bool(*(uint32_t*)0x0244DE98);
+		const auto isUsingController = *(bool*)0x0244DE98;
 		if (isUsingController)
-			sens *= 0.05f;
-
-		sensitivity[0] = bindings->ControllerSensitivityX * 0.017453292f * sens;
-		sensitivity[1] = bindings->ControllerSensitivityY * 0.017453292f * sens;
+		{
+			sens *= 0.015f;
+			sensitivity[0] = bindings->ControllerSensitivityX * 0.017453292f * sens;
+			sensitivity[1] = bindings->ControllerSensitivityY * 0.017453292f * sens;
+		}
+		else
+		{
+			sensitivity[0] = (moduleSettings.VarMouseSensitivityHorizontal->ValueInt / 100.0f * 360.0f) * 0.017453294f * sens;
+			sensitivity[1] = (moduleSettings.VarMouseSensitivityVertical->ValueInt / 100.0f * 360.0f) * 0.017453294f * sens;
+		}
 	}
 }

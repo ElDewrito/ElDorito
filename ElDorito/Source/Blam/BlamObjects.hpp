@@ -66,9 +66,9 @@ namespace Blam::Objects
 		uint32_t TagIndex;
 		uint32_t Flags;
 		uint32_t Unknown08;
-		DatumIndex NextSibling;
-		DatumIndex FirstChild;
-		DatumIndex Parent;
+		DatumHandle NextSibling;
+		DatumHandle FirstChild;
+		DatumHandle Parent;
 		int16_t ParentMatrixIndex;
 		int16_t ScnrPlacementBlockIndex;
 		int16_t PlacementIndex;
@@ -108,7 +108,7 @@ namespace Blam::Objects
 		uint32_t UnknownC4;
 		uint32_t UnknownC8;
 		uint32_t UnknownCC;
-		DatumIndex SimulationEntity;
+		DatumHandle SimulationEntity;
 		// ...
 
 		MultiplayerProperties* GetMultiplayerProperties() const
@@ -131,11 +131,11 @@ namespace Blam::Objects
 		ObjectBase *Data;          // Pointer to the object data in the pool
 
 		// Gets the tag index of the object.
-		// Returns DatumIndex::Null if the Data pointer is null.
-		DatumIndex GetTagIndex() const
+		// Returns DatumHandle::Null if the Data pointer is null.
+		DatumHandle GetTagHandle() const
 		{
 			if (!Data)
-				return DatumIndex::Null;
+				return DatumHandle::Null;
 
 			return Data->TagIndex;
 		}

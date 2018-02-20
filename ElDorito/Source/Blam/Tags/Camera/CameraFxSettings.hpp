@@ -1,10 +1,12 @@
 #pragma once
+#include "..\Enum.hpp"
 #include "..\Tags.hpp"
 
 namespace Blam::Tags::Camera
 {
 	struct FxSettings : TagGroup<'cfxs'>
 	{
+		enum class FlagsValue : uint16_t;
 		struct Unknown33;
 		struct Unknown35;
 		struct Unknown37;
@@ -12,7 +14,7 @@ namespace Blam::Tags::Camera
 		struct Unknown41;
 		struct Unknown43;
 
-		uint16_t Flags;
+		Enum<uint16_t, FlagsValue> Flags;
 		int16_t Unknown;
 		float OverexposureAmount;
 		float OverexposureUnknown;
@@ -109,6 +111,27 @@ namespace Blam::Tags::Camera
 		float Unknown48;
 		float Unknown49;
 		float Unknown50;
+
+		enum class FlagsValue : uint16_t
+		{
+			None = 0,
+			DisableBrightness = 1 << 0,
+			Bit1 = 1 << 1,
+			DisableOverexposure = 1 << 2,
+			Bit3 = 1 << 3,
+			Bit4 = 1 << 4,
+			Bit5 = 1 << 5,
+			Bit6 = 1 << 6,
+			Bit7 = 1 << 7,
+			Bit8 = 1 << 8,
+			Bit9 = 1 << 9,
+			Bit10 = 1 << 10,
+			Bit11 = 1 << 11,
+			Bit12 = 1 << 12,
+			Bit13 = 1 << 13,
+			Bit14 = 1 << 14,
+			Bit15 = 1 << 15
+		};
 
 		struct Unknown33
 		{

@@ -1,41 +1,154 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Forge - Object Browser</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src="dew://lib/dew.js"></script>
-    <script type="text/javascript" src="dew://lib/jquery-2.2.1.min.js"></script>
-    <script type="text/javascript" src="dew://lib/fuse.min.js"></script>
+    <title>Forge - Object Properties</title>
+    <link rel="stylesheet" href="../shared/css/forge-shared.css">
+    <link rel="stylesheet" href="object_creation.css">
 </head>
+
 <body>
-    <main class="container">
-        <div class="object-browser">
-            <header class="header">OBJECT BROWSER</header>
-            <nav>
-                <ul id="main_tabs" class="tabs">
-                    <li class="tab-header" data-target="props">props</li>
-                    <li class="tab-header" data-target="structure">structure</li>
-                    <li class="tab-header" data-target="gameplay">gameplay</li>
-                </ul>
-            </nav>
-            <div class="body">
-                <ul id="category_tree" class="hidden"></ul>
-                <ul id="object_list" class="object-list hidden"></ul>
-                <div id="search" class="search hidden">
-                    <div class="search-text-container">
-                        <input class="search-text" type="text">
+    <div class="container" id="container">
+        <div class="window" id="main_window">
+            <div class="window-header">
+                <div class="window-title">OBJECT BROWSER</div>
+                <div class="window-subtitle"></div>
+            </div>
+            <div class="window-body">
+                <div class="screen main-screen">
+                    <div class="category-header"></div>
+                    <div class="category-tree"> </div>
+                    <div class="window-info-box"></div>
+                </div>
+                <div class="screen items-screen">
+                    <div class="category-header no-transition"></div>
+                    <div class="item-list"></div>
+                    <div class="window-info-box"></div>
+                </div>
+                <div class="screen search-screen">
+                    <div class="search-box">
+                        <input type="text" class="search-textbox" placeholder="Fusion Coil...">
                     </div>
-                    <ul class="search-results object-list"></ul>
+                    <ul class="item-list search-results"></ul>
+                </div>
+                <div class="screen prefabs-screen">
+                    <ul class="prefab-list"></ul>
+                </div>
+                <div class="screen modal-screen">
+                    <div class="modal-box">
+                        <div class="modal-header">
+                            <div class="modal-title"></div>
+                        </div>
+                        <div class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                        </div>
+                    </div>
+                </div>
+                <div class="screen tool-settings-screen">
+                    <div class="property-grid"></div>
+                    <div class="window-info-box"></div>
                 </div>
             </div>
-            <div id="help_text" class="help-text"></div>
-            <footer class="footer"></footer>
+            <div class="window-footer">
+                <div class="legend main-legend hidden">
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_A.png" class="controller-only" />Select
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" class="controller-only" />
+                        <a rel="back">Back</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_X.png" class="controller-only" />
+                        <a rel="hide">Hide</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_Y.png" class="controller-only" />
+                        <a rel="tool_settings">Tool Settings</a>
+                    </div>
+                </div>
+                <div class="legend list-legend hidden">
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_A.png" class="controller-only" />Place
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" class="controller-only" />
+                        <a rel="back">Back</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_X.png" class="controller-only" />
+                        <a rel="hide">Hide</a>
+                    </div>
+                </div>
+                <div class="legend prefab-legend hidden">
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_A.png" class="controller-only" />Place
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" class="controller-only" />
+                        <a rel="back">Back</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_X.png" class="controller-only" />
+                        <a rel="hide">Hide</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_Y.png" class="controller-only" />Delete
+                        <span class="kbm-only"> [DELETE]</span>
+                    </div>
+                </div>
+                <div class="legend confirm-legend hidden">
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_A.png" class="controller-only" />
+                        <a rel="confirm">
+                            Confirm
+                            <span class="kbm-only"> [ENTER]</span>
+                        </a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" class="controller-only" />
+                        <a rel="cancel">
+                            Cancel
+                            <span class="kbm-only"> [ESC]</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="legend tool-settings-legend hidden">
+                    <div class="legend-item controller-only">
+                        <img src="dew://assets/buttons/360_A.png" class="controller-only" />Select
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_B.png" class="controller-only" />
+                        <a rel="back">Back</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_X.png" class="controller-only" />
+                        <a rel="hide">Hide</a>
+                    </div>
+                    <div class="legend-item">
+                        <img src="dew://assets/buttons/360_Y.png" class="controller-only" />
+                        <a rel="save_settings">Save Settings</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </main>
-    <script src="../shared/util.js"></script>
-    <script src="../shared/screenManager.js"></script>
-    <script src="../shared/listController.js"></script>
-    <script src="app.js"></script>
+        <div class="toast-container">
+            <div class="toast info">
+                <div class="toast-content"></div>
+            </div>
+        </div>
+    </div>
+    <script src="dew://lib/fuse.min.js"></script>
+    <script src="dew://lib/dew.js"></script>
+    <script src="../shared/lib/ui.js"></script>
+    <script src="../shared/lib/list-widget.js"></script>
+    <script src="../shared/lib/property-grid-widget.js"></script>
+    <script src="../shared/lib/tree-list-widget.js"></script>
+    <script src="dew://lib/color-picker.js"></script>
+    <script src="../shared/lib/screen-manager.js"></script>
+    <script src="object_creation.js"></script>
 </body>
+
 </html>

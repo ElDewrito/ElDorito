@@ -45,14 +45,14 @@ namespace
 		General_Material_ColorG,
 		General_Material_ColorB,
 		General_Physics,
-		
+		General_EngineFlags,
+
 		Budget_Minimum,
 		Budget_Maximum,
 
 		Light_ColorR,
 		Light_ColorG,
 		Light_ColorB,
-		Light_ColorIntensity,
 		Light_Intensity,
 		Light_Radius,
 
@@ -71,6 +71,34 @@ namespace
 		Fx_ColorFloorB,
 		Fx_Tracing,
 
+		GarbageVolume_CollectDeadBiped,
+		GarbageVolume_CollectWeapons,
+		GarbageVolume_CollectObjectives,
+		GarbageVolume_CollectGrenades,
+		GarbageVolume_CollectEquipment,
+		GarbageVolume_CollectVehicles,
+		GarbageVolume_Interval,
+
+		KillVolume_AlwaysVisible,
+		KillVolume_DestroyVehicles,
+		KillVolume_DamageCause,
+
+		Map_DisablePushBarrier,
+		Map_DisableDeathBarrier,
+		Map_PhysicsGravity,
+
+		CameraFx_Exposure,
+		CameraFx_LightIntensity,
+		CameraFx_Bloom,
+
+		AtmosphereProperties_Enabled,
+		AtmosphereProperties_Weather,
+		AtmosphereProperties_Brightness,
+		AtmosphereProperties_FogDensity,
+		AtmosphereProperties_FogVisibility,
+		AtmosphereProperties_FogColorR,
+		AtmosphereProperties_FogColorG,
+		AtmosphereProperties_FogColorB
 	};
 
 	enum class PropertyDataType
@@ -102,6 +130,10 @@ namespace
 
 		void SetProperty(PropertyTarget target, PropertyValue value)
 		{
+			auto garbageVolumeProperties = reinterpret_cast<Forge::ForgeGarbageVolumeProperties*>(&m_Properties.SharedStorage);
+			auto killVolumeProperties = reinterpret_cast<Forge::ForgeKillVolumeProperties*>(&m_Properties.SharedStorage);
+			auto mapModifierProperties = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth);
+
 			switch (target)
 			{
 			case PropertyTarget::General_OnMapAtStart:
@@ -147,7 +179,7 @@ namespace
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
 			case PropertyTarget::General_Material_ColorR:
-				 reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::General_Material_ColorG:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
@@ -158,11 +190,14 @@ namespace
 			case PropertyTarget::General_Physics:
 				SetPhysics(value.ValueInt);
 				break;
+			case PropertyTarget::General_EngineFlags:
+				m_Properties.EngineFlags = value.ValueInt;
+				break;
 			case PropertyTarget::Budget_Minimum:
 				SetBudgetMinimum(value.ValueInt);
 				break;
 			case PropertyTarget::Budget_Maximum:
-				SetBudgetMinimum(value.ValueInt);
+				SetBudgetMaximum(value.ValueInt);
 				break;
 			case PropertyTarget::Light_ColorR:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
@@ -172,9 +207,6 @@ namespace
 				break;
 			case PropertyTarget::Light_ColorB:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
-				break;
-			case PropertyTarget::Light_ColorIntensity:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorIntensity = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Light_Intensity:
 				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Intensity = int(value.ValueFloat * 255);
@@ -224,7 +256,119 @@ namespace
 			case PropertyTarget::Fx_GammaDecrease:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->GammaDecrease = int(value.ValueFloat * 255);
 				break;
-			
+			case PropertyTarget::GarbageVolume_CollectDeadBiped:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectWeapons:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectObjectives:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectGrenades:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectEquipment:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_CollectVehicles:
+			{
+				garbageVolumeProperties->Flags &= ~Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles;
+				if (value.ValueInt)
+					garbageVolumeProperties->Flags |= Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles;
+				break;
+			}
+			case PropertyTarget::GarbageVolume_Interval:
+				garbageVolumeProperties->Interval = value.ValueInt & 0x3;
+				break;
+			case PropertyTarget::KillVolume_AlwaysVisible:
+				killVolumeProperties->Flags &= ~Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible;
+				if (value.ValueInt)
+					killVolumeProperties->Flags |= Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible;
+				break;
+			case PropertyTarget::KillVolume_DestroyVehicles:
+				killVolumeProperties->Flags &= ~Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
+				if (value.ValueInt)
+					killVolumeProperties->Flags |= Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles;
+				break;
+			case PropertyTarget::KillVolume_DamageCause:
+				killVolumeProperties->DamageCause = value.ValueInt;
+				break;
+			case PropertyTarget::Map_DisableDeathBarrier:
+			{
+				auto &flags = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth)->Flags;
+				flags &= ~Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
+				if (value.ValueInt)
+					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier;
+			}
+			break;
+			case PropertyTarget::Map_DisablePushBarrier:
+			{
+				auto &flags = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth)->Flags;
+				flags &= ~Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
+				if (value.ValueInt)
+					flags |= Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier;
+			}
+			break;
+			case PropertyTarget::Map_PhysicsGravity:
+				mapModifierProperties->PhysicsGravity = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_Exposure:
+				mapModifierProperties->CameraFxExposure = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_LightIntensity:
+				mapModifierProperties->CameraFxLightIntensity = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_Bloom:
+				mapModifierProperties->CameraFxBloom = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::AtmosphereProperties_Enabled:
+				if (value.ValueInt)
+					mapModifierProperties->AtmosphereProperties.Flags |= (1 << 0);
+				else
+					mapModifierProperties->AtmosphereProperties.Flags &= ~(1 << 0);
+				break;
+			case PropertyTarget::AtmosphereProperties_Weather:
+				mapModifierProperties->AtmosphereProperties.Weather = value.ValueInt;
+				break;
+			case PropertyTarget::AtmosphereProperties_Brightness:
+				mapModifierProperties->AtmosphereProperties.Brightness = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogDensity:
+				mapModifierProperties->AtmosphereProperties.FogDensity = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogVisibility:
+				mapModifierProperties->AtmosphereProperties.FogVisibility = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorR:
+				mapModifierProperties->AtmosphereProperties.FogColorR = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorG:
+				mapModifierProperties->AtmosphereProperties.FogColorG = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_FogColorB:
+				mapModifierProperties->AtmosphereProperties.FogColorB = int(value.ValueFloat * 255);
+				break;
 			}
 		}
 
@@ -379,7 +523,14 @@ namespace
 	void DeserializeObjectProperties(const rapidjson::Value &json, IObjectPropertySink& sink);
 
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, int value) { writer.Key(key); writer.Int(value); };
-	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) { writer.Key(key); writer.Double(value); };
+	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, float value) 
+	{
+		if (!std::isnan(value) && !std::isinf(value))
+		{
+			writer.Key(key);
+			writer.Double(value);
+		}
+	};
 	void SerializeProperty(rapidjson::Writer<rapidjson::StringBuffer>& writer, const char* key, bool value) { writer.Key(key); writer.Bool(value); };
 
 	uint32_t s_CurrentObjectIndex = -1;
@@ -470,8 +621,9 @@ namespace Web::Ui::WebForge
 			{
 				auto mapv = Forge::GetMapVariant();
 				auto playerIndex = Blam::Players::GetLocalPlayer(0);
-				ImmediatePropertySink sink(playerIndex, currentObject->PlacementIndex);
+				DeferedPropertySink sink;
 				DeserializeObjectProperties(data->value, sink);
+				sink.Apply(playerIndex, currentObject->PlacementIndex);
 			}
 		}
 		break;
@@ -613,6 +765,9 @@ namespace
 		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
 		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
 		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
+		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.ZoneRadiusWidth);
+		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.SharedStorage);
+		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.SharedStorage);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
@@ -632,6 +787,7 @@ namespace
 		SerializeProperty(writer, "spawn_order", properties.SharedStorage);
 		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
 		SerializeProperty(writer, "team_affiliation", properties.TeamAffilation);
+		SerializeProperty(writer, "engine_flags", properties.EngineFlags);
 		SerializeProperty(writer, "teleporter_channel", properties.SharedStorage);
 		SerializeProperty(writer, "shape_type", properties.ZoneShape);
 		SerializeProperty(writer, "shape_radius", properties.ZoneRadiusWidth);
@@ -647,7 +803,6 @@ namespace
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
 		SerializeProperty(writer, "light_color_r", lightProperties->ColorR / 255.0f);
-		SerializeProperty(writer, "light_color_intensity", lightProperties->ColorIntensity / 255.0f);
 		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
 		SerializeProperty(writer, "light_radius", lightProperties->Range);
 		SerializeProperty(writer, "fx_color_filter_r", screenFxProperties->ColorFilterR / 255.0f);
@@ -664,6 +819,35 @@ namespace
 		SerializeProperty(writer, "fx_gamma_dec", screenFxProperties->GammaDecrease / 255.0f);
 		SerializeProperty(writer, "fx_range", screenFxProperties->MaximumDistance);
 		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
+		SerializeProperty(writer, "map_disable_push_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier) != 0));
+		SerializeProperty(writer, "map_disable_death_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier) != 0));
+		SerializeProperty(writer, "map_physics_gravity", mapModifierProperties->PhysicsGravity / 255.0f);
+
+		SerializeProperty(writer, "camera_fx_exposure", mapModifierProperties->CameraFxExposure / 255.0f);
+		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
+		SerializeProperty(writer, "camera_fx_light_intensity", mapModifierProperties->CameraFxLightIntensity / 255.0f);
+
+		SerializeProperty(writer, "atmosphere_properties_enabled", int((mapModifierProperties->AtmosphereProperties.Flags & 1) != 0));
+		SerializeProperty(writer, "atmosphere_properties_weather", (mapModifierProperties->AtmosphereProperties.Weather));
+		SerializeProperty(writer, "atmosphere_properties_brightness", mapModifierProperties->AtmosphereProperties.Brightness / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_density", mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_visibility", mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_r", mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_g", mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_fog_color_b", mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f);
+
+		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_objectives", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_grenades", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectGrenades) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_equipment", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectEquipment) != 0));
+		SerializeProperty(writer, "garbage_volume_collect_vehicles", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectVehicles) != 0));
+		SerializeProperty(writer, "garbage_volume_interval", (int)(garbageVolumeProperties->Interval & 0x3));
+
+		SerializeProperty(writer, "kill_volume_destroy_vehicles", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles) != 0));
+		SerializeProperty(writer, "kill_volume_always_visible", (int)((killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible) != 0));
+		SerializeProperty(writer, "kill_volume_damage_cause", int(killVolumeProperties->DamageCause));
+
 		writer.EndObject();
 
 		writer.Key("budget");
@@ -683,48 +867,77 @@ namespace
 	{
 		const static std::unordered_map<std::string, PropertyInfo> s_PropertyTypeLookup =
 		{
-			{ "on_map_at_start",			{ PropertyDataType::Int, PropertyTarget::General_OnMapAtStart }},
-			{ "symmetry",					{ PropertyDataType::Int, PropertyTarget::General_Symmetry }},
-			{ "respawn_rate",				{ PropertyDataType::Int, PropertyTarget::General_RespawnRate }},
-			{ "spare_clips",				{ PropertyDataType::Int, PropertyTarget::General_SpareClips }},
-			{ "spawn_order",				{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder }},
-			{ "team_affiliation",			{ PropertyDataType::Int, PropertyTarget::General_Team }},
-			{ "physics",					{ PropertyDataType::Int, PropertyTarget::General_Physics } },
-			{ "appearance_material",		{ PropertyDataType::Int, PropertyTarget::General_Material } },
+			{ "on_map_at_start",{ PropertyDataType::Int, PropertyTarget::General_OnMapAtStart } },
+			{ "symmetry",{ PropertyDataType::Int, PropertyTarget::General_Symmetry } },
+			{ "respawn_rate",{ PropertyDataType::Int, PropertyTarget::General_RespawnRate } },
+			{ "spare_clips",{ PropertyDataType::Int, PropertyTarget::General_SpareClips } },
+			{ "spawn_order",{ PropertyDataType::Int, PropertyTarget::General_SpawnOrder } },
+			{ "team_affiliation",{ PropertyDataType::Int, PropertyTarget::General_Team } },
+			{ "engine_flags", {PropertyDataType::Int, PropertyTarget::General_EngineFlags } },
+			{ "physics",{ PropertyDataType::Int, PropertyTarget::General_Physics } },
+			{ "appearance_material",{ PropertyDataType::Int, PropertyTarget::General_Material } },
 			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
 			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
 			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
-			{ "teleporter_channel",			{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel }},
-			{ "shape_type",					{ PropertyDataType::Int, PropertyTarget::General_ShapeType }},
-			{ "shape_radius",				{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius}},
-			{ "shape_width",				{ PropertyDataType::Float, PropertyTarget::General_ShapeWidth }},
-			{ "shape_top",					{ PropertyDataType::Float, PropertyTarget::General_ShapeTop }},
-			{ "shape_bottom",				{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom }},
-			{ "shape_depth",				{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth }},
-			{ "light_color_r",				{ PropertyDataType::Float, PropertyTarget::Light_ColorR }},
-			{ "light_color_g",				{ PropertyDataType::Float, PropertyTarget::Light_ColorG }},
-			{ "light_color_b",				{ PropertyDataType::Float, PropertyTarget::Light_ColorB }},
-			{ "light_color_intensity",		{ PropertyDataType::Float, PropertyTarget::Light_ColorIntensity }},
-			{ "light_intensity",			{ PropertyDataType::Float, PropertyTarget::Light_Intensity }},
-			{ "light_radius",				{ PropertyDataType::Float, PropertyTarget::Light_Radius }},
+			{ "teleporter_channel",{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel } },
+			{ "shape_type",{ PropertyDataType::Int, PropertyTarget::General_ShapeType } },
+			{ "shape_radius",{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius } },
+			{ "shape_width",{ PropertyDataType::Float, PropertyTarget::General_ShapeWidth } },
+			{ "shape_top",{ PropertyDataType::Float, PropertyTarget::General_ShapeTop } },
+			{ "shape_bottom",{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom } },
+			{ "shape_depth",{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth } },
+			{ "light_color_r",{ PropertyDataType::Float, PropertyTarget::Light_ColorR } },
+			{ "light_color_g",{ PropertyDataType::Float, PropertyTarget::Light_ColorG } },
+			{ "light_color_b",{ PropertyDataType::Float, PropertyTarget::Light_ColorB } },
+			{ "light_intensity",{ PropertyDataType::Float, PropertyTarget::Light_Intensity } },
+			{ "light_radius",{ PropertyDataType::Float, PropertyTarget::Light_Radius } },
 
-			{ "fx_range",					{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
-			{ "fx_hue",						{ PropertyDataType::Float, PropertyTarget::Fx_Hue}},
-			{ "fx_light_intensity",			{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
-			{ "fx_saturation",				{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
-			{ "fx_desaturation",			{ PropertyDataType::Float, PropertyTarget::Fx_Desaturation } },
-			{ "fx_color_filter_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterR } },
-			{ "fx_color_filter_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterG } },
-			{ "fx_color_filter_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterB } },
-			{ "fx_color_floor_r",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorR } },
-			{ "fx_color_floor_g",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorG } },
-			{ "fx_color_floor_b",			{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorB } },
-			{ "fx_gamma_inc",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
-			{ "fx_gamma_dec",				{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
-			{ "fx_tracing",					{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
+			{ "fx_range",{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
+			{ "fx_hue",{ PropertyDataType::Float, PropertyTarget::Fx_Hue } },
+			{ "fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::Fx_LightIntensity } },
+			{ "fx_saturation",{ PropertyDataType::Float, PropertyTarget::Fx_Saturation } },
+			{ "fx_desaturation",{ PropertyDataType::Float, PropertyTarget::Fx_Desaturation } },
+			{ "fx_color_filter_r",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterR } },
+			{ "fx_color_filter_g",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterG } },
+			{ "fx_color_filter_b",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFilterB } },
+			{ "fx_color_floor_r",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorR } },
+			{ "fx_color_floor_g",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorG } },
+			{ "fx_color_floor_b",{ PropertyDataType::Float, PropertyTarget::Fx_ColorFloorB } },
+			{ "fx_gamma_inc",{ PropertyDataType::Float, PropertyTarget::Fx_GammaIncrease } },
+			{ "fx_gamma_dec",{ PropertyDataType::Float, PropertyTarget::Fx_GammaDecrease } },
+			{ "fx_tracing",{ PropertyDataType::Float, PropertyTarget::Fx_Tracing } },
 
-			{ "summary_runtime_minimum",	{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
-			{ "summary_runtime_maximum",	{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
+			{ "garbage_volume_collect_dead_biped",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectDeadBiped } },
+			{ "garbage_volume_collect_weapons",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectWeapons } },
+			{ "garbage_volume_collect_objectives",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectObjectives } },
+			{ "garbage_volume_collect_grenades",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectGrenades } },
+			{ "garbage_volume_collect_equipment",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectEquipment } },
+			{ "garbage_volume_collect_vehicles",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_CollectVehicles } },
+			{ "garbage_volume_interval",{ PropertyDataType::Int, PropertyTarget::GarbageVolume_Interval } },
+
+			{ "kill_volume_always_visible",{ PropertyDataType::Int, PropertyTarget::KillVolume_AlwaysVisible } },
+			{ "kill_volume_destroy_vehicles",{ PropertyDataType::Int, PropertyTarget::KillVolume_DestroyVehicles } },
+			{ "kill_volume_damage_cause",{ PropertyDataType::Int, PropertyTarget::KillVolume_DamageCause } },
+
+			{ "map_disable_push_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisablePushBarrier } },
+			{ "map_disable_death_barrier",{ PropertyDataType::Int, PropertyTarget::Map_DisableDeathBarrier } },
+			{ "map_physics_gravity",{ PropertyDataType::Float, PropertyTarget::Map_PhysicsGravity } },
+
+			{ "camera_fx_exposure",{ PropertyDataType::Float, PropertyTarget::CameraFx_Exposure } },
+			{ "camera_fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightIntensity } },
+			{ "camera_fx_bloom",{ PropertyDataType::Float, PropertyTarget::CameraFx_Bloom } },
+
+			{ "atmosphere_properties_enabled",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Enabled } },
+			{ "atmosphere_properties_weather",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Weather } },
+			{ "atmosphere_properties_brightness",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_Brightness } },
+			{ "atmosphere_properties_fog_density",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogDensity } },
+			{ "atmosphere_properties_fog_visibility",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogVisibility } },
+			{ "atmosphere_properties_fog_color_r",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorR } },
+			{ "atmosphere_properties_fog_color_g",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorG } },
+			{ "atmosphere_properties_fog_color_b",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorB } },
+
+			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
+			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
 		};
 
 		for (auto it = json.MemberBegin(); it != json.MemberEnd(); ++it)
@@ -744,7 +957,7 @@ namespace
 				value.ValueInt = it->value.GetInt();
 				break;
 			case PropertyDataType::Float:
-				value.ValueFloat = it->value.GetDouble();
+				value.ValueFloat = static_cast<float>(it->value.GetDouble());
 				break;
 			}
 

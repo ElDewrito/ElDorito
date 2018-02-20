@@ -15,9 +15,9 @@ dew.on("show", function (event) {
     $("#text").focus();
     
     if(event.data.title == "Edit Description"){
-        $('#text').attr({'maxlength':'128','rows':'10'});
+        $('#text').attr({'maxlength':'127','rows':'10'});
     }else{
-        $('#text').attr({'maxlength':'16','rows':'1'});
+        $('#text').attr({'maxlength':'15','rows':'1'});
     };
 });
 
@@ -80,4 +80,16 @@ $(window).load(function () {
     $("#cancel").on("click", function (){
         dew.cancelVirtualKeyboard().then(() => dew.hide());
     });
+});
+
+dew.on('controllerinput', function(e){    
+    if(e.data.A == 1){
+        $("form").submit();
+    }
+    if(e.data.B == 1){
+        dew.cancelVirtualKeyboard().then(() => dew.hide());
+    }
+    if(e.data.Start == 1){
+        $("form").submit();
+    }
 });

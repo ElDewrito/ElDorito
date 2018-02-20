@@ -23,12 +23,14 @@
 #include "../Patches/Assassination.hpp"
 #include "../Web/Ui/VotingScreen.hpp"
 #include "../Patches/Sprint.hpp"
+#include "../Patches/Tweaks.hpp"
 #include "../Patches/BottomlessClip.hpp"
 #include "../Server/BanList.hpp"
 #include "../Server/ServerChat.hpp"
 #include "ModulePlayer.hpp"
 #include "../Server/Voting.hpp"
 #include "../Utils/Logger.hpp"
+#include "../Discord/DiscordRPC.h"
 
 namespace
 {
@@ -439,6 +441,10 @@ namespace
 		Pointer::Base(0x1E40BB4).Write(xnetInfo, 0x10);
 		Pointer::Base(0x1E40BD4).Write(xnetInfo + 0x10, 0x10);
 		Pointer::Base(0x1E40BE4).Write<uint32_t>(1);
+
+		std::stringstream discordStringStream;
+		discordStringStream << host << ":" << httpPort << " " << password;
+		Discord::DiscordRPC::Instance().joinString = discordStringStream.str();
 
 		returnInfo = "Attempting connection to " + address + "...";
 		return true;
@@ -900,9 +906,7 @@ namespace
 			return false;
 		}
 
-
-		auto set_server_lobby_type = (bool(__cdecl*)(int))(0x00A7EE70);
-		bool retVal = set_server_lobby_type(lobbyType);
+		bool retVal = Blam::Network::SetLobbyType(lobbyType);
 		if (retVal)
 		{
 			returnInfo = "Changed lobby type " + previous + " -> " + std::to_string(lobbyType);
@@ -998,8 +1002,8 @@ namespace
 		// Build an array of active player indices
 		int players[Blam::Network::MaxPlayers];
 		auto numPlayers = 0;
-		auto &membership = session->MembershipInfo;
-		for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
+		auto membership = &session->MembershipInfo;
+		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
 		{
 			players[numPlayers] = player;
 			numPlayers++;
@@ -1022,23 +1026,16 @@ namespace
 		static std::mt19937 urng(rng());
 		std::shuffle(&players[0], &players[numPlayers], urng);
 
-
-		int playerIndex = 0;
-		int numTeams = ceil((double)numPlayers / Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt);
-		if (numTeams == 1)
-			numTeams = 2;
-		int playersPerTeam = ceil((double)numPlayers / numTeams);
-		if (playersPerTeam < 1) // Can't fill each team, put one on each team
-			playersPerTeam = 1;
-		for (int team = 0; team < numTeams; team++)
+		int teamIndex = 0;
+		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
 		{
-			for (int numTeamPlayers = 0; numTeamPlayers < playersPerTeam && playerIndex < numPlayers; numTeamPlayers++)
-			{
-				membership.PlayerSessions[players[playerIndex]].Properties.ClientProperties.TeamIndex = team;
-				playerIndex++;
-			}
+			membership->PlayerSessions[players[player]].Properties.ClientProperties.TeamIndex = teamIndex;
+
+			teamIndex++;
+			if (teamIndex == Modules::ModuleServer::Instance().VarNumTeams->ValueInt)
+				teamIndex = 0;
 		}
-		membership.Update();
+		membership->Update();
 
 		// Send a chat message to notify players about the shuffle
 		Server::Chat::PeerBitSet peers;
@@ -1058,6 +1055,14 @@ namespace
 		auto ipStr = from.ToString();
 		auto message = "PONG " + ipStr + " " + std::to_string(timestamp) + " " + std::to_string(latency) + "ms";
 		Console::WriteLine(message);
+	}
+
+	bool HitmarkersEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &serverModule = Modules::ModuleServer::Instance();
+		auto enabled = serverModule.VarHitMarkersEnabledClient->ValueInt != 0;
+		Patches::Tweaks::EnableHitmarkers(enabled);
+		return true;
 	}
 
 	bool SprintEnabledChanged(const std::vector<std::string>& Arguments, std::string& returnInfo)
@@ -1224,51 +1229,6 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
-	bool CommandMaxTeamSize(const std::vector<std::string>& Arguments, std::string& returnInfo)
-	{
-		auto *session = Blam::Network::GetActiveSession();
-		if (!session || !session->IsEstablished())
-		{
-			returnInfo = "Session not established";
-			return false;
-		}
-
-		int teamSizes[8] = { 0 };
-		int playerIdx = session->MembershipInfo.FindFirstPlayer();
-		while (playerIdx > -1)
-		{
-			teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
-			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-		}
-
-		//loop again but now we know team sizes
-		playerIdx = session->MembershipInfo.FindFirstPlayer();
-		while (playerIdx > -1)
-		{
-			if (teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex] > Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-			{
-				//find next available team
-				for (int i = 0; i < 8; i++)
-				{
-					if (teamSizes[i] < Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-					{
-						teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]--;
-						session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex = i;
-						teamSizes[i]++;
-						break;
-					}
-				}
-			}
-			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-		}
-		session->MembershipInfo.Update();
-
-		std::stringstream ss;
-		ss << "Max team size has been changed to: " << Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt;
-
-		returnInfo = ss.str();
-		return true;
-	}
 }
 
 namespace Modules
@@ -1334,9 +1294,9 @@ namespace Modules
 
 		AddCommand("ShuffleTeams", "shuffleteams", "Evenly distributes players between the red and blue teams", eCommandFlagsHostOnly, CommandServerShuffleTeams);
 
-		VarMaxTeamSize = AddVariableInt("MaxTeamSize", "maxteamsize", "Set the maximum size of a team", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 8, CommandMaxTeamSize);
-		VarMaxTeamSize->ValueIntMin = 2;
-		VarMaxTeamSize->ValueIntMax = 16;
+		VarNumTeams = AddVariableInt("NumberOfTeams", "num_teams", "Set the desired number of teams", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 2);
+		VarNumTeams->ValueIntMin = 1;
+		VarNumTeams->ValueIntMax = 8;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
 		AddCommand("PM", "pm", "Sends a pm to a player as the server. First argument is the player name, second is the message in quotes", eCommandFlagsHostOnly, CommandServerPM);
@@ -1355,6 +1315,10 @@ namespace Modules
 		VarServerSprintEnabledClient = AddVariableInt("SprintEnabledClient", "sprint_client", "", eCommandFlagsInternal, 0, SprintEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerSprintEnabled, VarServerSprintEnabledClient);
 
+		VarHitMarkersEnabled = AddVariableInt("HitMarkersEnabled", "hitmarkersenabled", "Controls whether or not hitmarkers are enabled on this server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
+		VarHitMarkersEnabledClient = AddVariableInt("HitMarkersEnabledClient", "hitmarkersenabled_client", "", eCommandFlagsInternal, 0, HitmarkersEnabledChanged);
+		Server::VariableSynchronization::Synchronize(VarHitMarkersEnabled, VarHitMarkersEnabledClient);
+		
 		VarServerBottomlessClipEnabled = AddVariableInt("BottomlessClipEnabled", "bottomlessclip", "Controls whether bottomless clip is enabled on the server", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsReplicated), 0);
 		VarServerBottomlessClipEnabledClient = AddVariableInt("BottomlessClipEnabledClient", "bottomlessclip_client", "", eCommandFlagsInternal, 0, BottomlessClipEnabledChanged);
 		Server::VariableSynchronization::Synchronize(VarServerBottomlessClipEnabled, VarServerBottomlessClipEnabledClient);
@@ -1403,7 +1367,6 @@ namespace Modules
 		VarServerNumberOfVotingOptions->ValueIntMax = 4;
 
 		VarRconPassword = AddVariableString("RconPassword", "rconpassword", "Password for the remote console", eCommandFlagsArchived, "");
-		VarPlayerInfoEndpoint = AddVariableString("PlayerInfoEndpoint", "player_info_endpoint", "URL to request player info from", eCommandFlagsArchived, "");
 		VarChatCommandKickPlayerEnabled = AddVariableInt("ChatCommandKickPlayerEnabled", "chat_command_kick_player_enabled", "Controls whether or not players can vote to kick someone. ", eCommandFlagsArchived, 1);
 		VarChatCommandKickPlayerEnabled->ValueIntMin = 0;
 		VarChatCommandKickPlayerEnabled->ValueIntMax = 1;
@@ -1432,11 +1395,11 @@ namespace Modules
 		VarChatCommandVoteTime->ValueIntMin = 1;
 		VarChatCommandVoteTime->ValueIntMax = 200;
 
-		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how long the vote lasts for Map Voting. ", eCommandFlagsHostOnly, 4);
+		VarServerTimeBetweenVoteEndAndGameStart = AddVariableInt("TimeBetweenVoteEndAndGameStart", "time_between_vote_end_and_game_start", "Controls how many seconds to wait after a vote passes before calling 'game.start'. ", eCommandFlagsArchived, 4);
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMin = 1;
 		VarServerTimeBetweenVoteEndAndGameStart->ValueIntMax = 100;
 
-		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsHostOnly, 1);
+		VarServerVotingDuplicationLevel = AddVariableInt("VotingDuplicationLevel", "voting_duplication_level", "Whether duplicate voting options will be allowed.", eCommandFlagsArchived, 1);
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
@@ -1482,6 +1445,10 @@ namespace Modules
 		VarVetoSystemSelectionType->ValueIntMax = 1;
 
 		AddCommand("CancelVote", "cancelvote", "Cancels the vote", eCommandFlagsHostOnly, CommandServerCancelVote);
+		VarHttpServerCacheTime = AddVariableInt("Http.CacheTime", "http.cache_time", "Time in seconds the server should cache the http server response", eCommandFlagsArchived, 5);
+		VarHttpServerCacheTime->ValueIntMin = 0;
+		VarHttpServerCacheTime->ValueIntMax = 20;
+
 #ifdef _DEBUG
 		// Synchronization system testing
 		auto syncTestServer = AddVariableInt("SyncTest", "synctest", "Sync test server", eCommandFlagsHidden);

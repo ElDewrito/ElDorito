@@ -1,5 +1,4 @@
 #include "ModuleForge.hpp"
-#include "../Patches/Forge.hpp"
 #include "boost\filesystem.hpp"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
@@ -9,7 +8,6 @@
 #include "../Blam/Tags/TagBlock.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Objects/Object.hpp"
-#include <unordered_map>
 
 namespace
 {
@@ -24,7 +22,8 @@ namespace
 
 	bool CommandCanvas(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Forge::CanvasMap();
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.MapCanvas = true;
 		return true;
 	}
 
@@ -66,11 +65,10 @@ namespace
 			return false;
 		}
 
-		if (!Patches::Forge::SavePrefab(name, p.string()))
-		{
-			returnInfo = "failed to save prefab";
-			return false;
-		}
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.Prefabs.Path = p.string();
+		moduleForge.CommandState.Prefabs.Name = name;
+		moduleForge.CommandState.Prefabs.SavePrefab = true;
 
 		returnInfo = "prefab saved";
 		return true;
@@ -93,11 +91,9 @@ namespace
 			return false;
 		}
 
-		if (!Patches::Forge::LoadPrefab(p.string()))
-		{
-			returnInfo = "failed to load prefab";
-			return false;
-		}
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.Prefabs.Path = p.string();
+		moduleForge.CommandState.Prefabs.LoadPrefab = true;
 
 		returnInfo = "prefab loaded";
 		return true;
@@ -129,6 +125,19 @@ namespace
 		writer.EndArray();
 
 		returnInfo = buffer.GetString();
+		return true;
+	}
+
+	bool CommandDeletePrefab(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		boost::filesystem::path prefabDirectory(PREFAB_DIR);
+		auto p = (prefabDirectory / Arguments[0]).replace_extension(PREFAB_EXT);
+		if (!boost::filesystem::exists(p))
+		{
+			returnInfo = "prefab with that name does not exist";
+			return false;
+		}
+		boost::filesystem::remove(p);
 		return true;
 	}
 
@@ -231,7 +240,6 @@ namespace
 		return endp != c_str;
 	}
 
-
 	bool CommandSpawnItem(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		uint32_t tagIndex;
@@ -240,13 +248,22 @@ namespace
 			return false;
 		}
 
-		Patches::Forge::SpawnItem(tagIndex);
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.SpawnItem = tagIndex;
 		return true;
 	}
 
 	bool CommandPrematchCamera(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Forge::SetPrematchCamera();
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.SetPrematchCamera = true;
+		return true;
+	}
+
+	bool CommandResetRuntime(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.RuntimeReset = true;
 		return true;
 	}
 }
@@ -257,9 +274,13 @@ namespace Modules
 	{
 		VarCloneDepth = AddVariableFloat("CloneDepth", "forge_clone_depth", "Depth at which the object will be cloned", eCommandFlagsNone, 1.0f);
 		VarCloneMultiplier = AddVariableInt("CloneMultiplier", "forge_clone_multiplier", "Number of consecutive times the object will be cloned", eCommandFlagsNone, 1);
-		VarRotationSnap = AddVariableFloat("RotationSnap", "forge_rotation_snap", "Angle in degrees at which object rotation will be snapped", eCommandFlagsNone, 0);
+		VarRotationSnap = AddVariableInt("RotationSnap", "forge_rotation_snap", "Angle at which object rotation will be snapped", eCommandFlagsNone, 0);
+		VarRotationSnap->ValueIntMin = 0;
+		VarRotationSnap->ValueIntMax = 6;
 		VarRotationSensitivity = AddVariableFloat("RotationSensitivity", "forge_rotation_sensitivity", "Controls the sensitivity of object rotation", eCommandFlagsArchived, 1.0f);
-		VarMonitorSpeed = AddVariableFloat("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 1.0f);
+		VarMonitorSpeed = AddVariableInt("MonitorSpeed", "forge_monitor_speed", "Controls the movement speed of the monitor", eCommandFlagsArchived, 3);
+		VarMonitorSpeed->ValueIntMin = 0;
+		VarMonitorSpeed->ValueIntMax = 5;
 		VarSelectionRenderer = AddVariableInt("SelectionRenderer", "forge_selection_renderer", "Set the selection renderer to use", eCommandFlagsArchived, 0);
 		VarSelectionRenderer->ValueIntMin = 0;
 		VarSelectionRenderer->ValueIntMax = 1;
@@ -271,22 +292,23 @@ namespace Modules
 		VarMagnetsVisible->ValueIntMax = 1;
 		VarMaxGrabDistance = AddVariableFloat("GrabDistance", "forge_grab_distance", "Controls the maximum distance from which objects can be grabbed", eCommandFlagsArchived, 5.0f);
 		VarMagnetsStrength = AddVariableFloat("MagnetsStrength", "forge_magnets_strength", "Controls the minimum distance at which magnets snap", eCommandFlagsArchived, 0.3f);
-		VarShowInvisibles = AddVariableInt("ShowInvisibles", "forge_show_invisibles", "When enabled forces invisible materials to be visible", eCommandFlagsNone, 0.0f);
+		VarShowInvisibles = AddVariableInt("ShowInvisibles", "forge_show_invisibles", "When enabled forces invisible materials to be visible", eCommandFlagsNone, 0);
 		VarShowInvisibles->ValueIntMin = 0;
 		VarShowInvisibles->ValueIntMax = 1;
 
-		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", eCommandFlagsHostOnly, CommandDeleteAll);
-		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", eCommandFlagsHostOnly, CommandCanvas);
-		AddCommand("SelectAll", "forge_select_all", "Select all objects that are the same as the object under the crosshair", eCommandFlagsNone, CommandSelectAll);
-		AddCommand("DeselectAll", "forge_deselect_all", "Deselect all selected objects", eCommandFlagsNone, CommandDeselectAll);
-		AddCommand("DeselectAllOf", "forge_deselect_all_of", "Deselect all selected objects that are the same as the object under the crosshair", eCommandFlagsNone, CommandDeselectAllOf);
-		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", eCommandFlagsNone, CommandSavePrefab);
-		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", eCommandFlagsNone, CommandLoadPrefab);
-		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsNone, CommandDumpPrefabs);
+		AddCommand("DeleteAll", "forge_delete_all", "Delete all objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandDeleteAll);
+		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", CommandFlags(eCommandFlagsHostOnly| eCommandFlagsForge), CommandCanvas);
+		AddCommand("ResetRuntime", "forge_reset_runtime", "Respawn any abandoned/despawned objects", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandResetRuntime);
+		AddCommand("SelectAll", "forge_select_all", "Select all objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSelectAll);
+		AddCommand("DeselectAll", "forge_deselect_all", "Deselect all selected objects", eCommandFlagsForge, CommandDeselectAll);
+		AddCommand("DeselectAllOf", "forge_deselect_all_of", "Deselect all selected objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandDeselectAllOf);
+		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSavePrefab);
+		AddCommand("LoadPrefab", "forge_prefab_load", "Load prefab from a file", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandLoadPrefab);
+		AddCommand("DumpPrefabs", "forge_prefab_dump", "Dump a list of saved prefabs in json", eCommandFlagsForge, CommandDumpPrefabs);
+		AddCommand("DeletePrefab", "forge_prefab_delete", "Delete a saved prefab", eCommandFlagsForge, CommandDeletePrefab);
+		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsForge, CommandDumpPalette);
+		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsForge, CommandSpawnItem);
 
-		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsNone, CommandDumpPalette);
-		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsNone, CommandSpawnItem);
-
-		AddCommand("SetPrematchCamera", "forge_set_prematch_camera", "Set the position/orientation of the prematch camera", eCommandFlagsHostOnly, CommandPrematchCamera);
+		AddCommand("SetPrematchCamera", "forge_set_prematch_camera", "Set the position/orientation of the prematch camera", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandPrematchCamera);
 	}
 }
