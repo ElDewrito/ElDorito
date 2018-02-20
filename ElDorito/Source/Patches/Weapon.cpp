@@ -231,7 +231,7 @@ namespace Patches::Weapon
 
 	void SetDefaultOffsets()
 	{
-		if (weaponOffsetsDefault.empty()) {
+		if (!weaponOffsetsDefault.empty()) {
 			for (auto &element : weaponIndices) {
 				std::string selected = element.first;
 				auto weapIndex = Patches::Weapon::GetIndex(selected);
@@ -415,17 +415,9 @@ namespace Patches::Weapon
 		{
 			// Load offsets from json file
 			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
-			if (!in || !in.is_open() || Name == "default") {
+			if (!in || !in.is_open()) {
 
-				// Clear previous weapon offsets
-				for (std::map<std::string, RealVector3D>::iterator it = weaponOffsetsModified.begin(); it != weaponOffsetsModified.end(); ++it)
-				{
-					std::string weapName = it->first;
-
-					SetOffsetModified(weapName, RealVector3D(0.0f, 0.0f, 0.0f));
-				}
-
-				weaponOffsetsModified.clear();
+				SetDefaultOffsets();
 
 				return false;
 			}
