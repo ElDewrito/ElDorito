@@ -444,7 +444,7 @@ function displayScoreboard(){
         } else {
             $('#window').css({'width':'38%','left':'31%'});
         }
-        scoreboardheader += '<th>Score</th>'; 
+        scoreboardheader += '<th></th><th>Score</th>'; 
         $('#header').html(scoreboardheader);
         buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard, e.teamHasObjective);
     });
@@ -458,6 +458,7 @@ function displayScoreboard(){
 
 function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray){
     var emblemPath;
+	var rankPath = "dew://assets/ranks/0.png"
     var where = '#singlePlayers';
     if(lobby.length > 0){
         $('#singlePlayers').empty();
@@ -499,7 +500,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }).append($('<td class="rank">'))
                 .append($('<td class="name">').text(lobby[i].name)) //name
             );   
+			if(playersInfo[lobby[i].playerIndex]){
+				rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
+			}
             if(lobby[i].isAlive){
+				
                 if(lobby[i].isHost){
                     emblemPath = 'dew://assets/emblems/crown.png';
                 }else{
@@ -518,24 +523,24 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     case "oddball":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
-                        $('.teamHeader .name').attr('colspan',3);
+                        $('.teamHeader .name').attr('colspan',4);
                         break;
                     case "infection":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
                             .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "ctf":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
-                        $('.teamHeader .name').attr('colspan',3);
+                        $('.teamHeader .name').attr('colspan',4);
                         break;
                     case "koth":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
                             .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
                             .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;                   
                     case "vip":
                     case "juggernaut":
@@ -545,11 +550,16 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                             .append($('<td class="stat">').text(lobby[i].assists)) //assists
                             .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
                             .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
-                        $('.teamHeader .name').attr('colspan',5);
+                        $('.teamHeader .name').attr('colspan',6);
                 }
             }
+			else{
+				$('.teamHeader .name').attr('colspan',2);
+			}
+			$("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
-
+			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .playerRank").prepend('<img class="rankimg" src="'+rankPath+'">');
+			
 			var thisSpeakerIcon = "";
 			var isInVoip = false;
 			var volumeLevel = 100;
