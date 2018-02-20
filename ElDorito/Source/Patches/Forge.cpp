@@ -64,6 +64,7 @@ namespace
 	void ObjectPropertiesChangeHook(uint32_t playerIndex, uint16_t placementIndex, MapVariant::VariantProperties* properties);
 	void UnitFlyingHook(uint32_t unitObjectIndex, int a2, int a3, int a4, int a5, int a6, int a7);
 	void UpdateHeldObjectTransformHook(int a1, uint32_t objectIndex, RealVector3D* position, RealVector3D* forwardVec, RealVector3D* upVec);
+	bool HeldObjectHitTestHook(int a1, int a2, RealVector3D *start, RealVector3D *end, int objectIndexA, int objectIndexB, void *results);
 	bool Forge_UpdatePlayerEditorGlobalsHook(int16_t playerIndex, uint32_t* pObjectIndex);
 	bool Forge_SpawnItemCheckHook(uint32_t tagIndex, RealVector3D *position, uint32_t unitObjectIndex);
 	void SandboxEngineInitHook();
@@ -223,6 +224,8 @@ namespace Patches::Forge
 		// slow down in/out movement
 		Pointer(0x0059FA7A + 4).Write((float*)&HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER);
 		Patch(0x19FACC, { 0x90,0x90 }).Apply(); // allow object to be extended fully
+		// Prevent held object from clipping with bsp and other objects when no clipping
+		Hook(0x19E8AD, HeldObjectHitTestHook, HookFlags::IsCall).Apply();
 
 		// enable teleporter volume editing compliments of zedd
 		Patch::NopFill(Pointer::Base(0x6E4796), 0x66);
@@ -1175,6 +1178,17 @@ namespace
 		{
 			Object_Transform(a1, objectIndex, position, forwardVec, upVec);
 		}
+	}
+
+	bool HeldObjectHitTestHook(int a1, int a2, RealVector3D *start, RealVector3D *end, int objectIndexA, int objectIndexB, void *results)
+	{
+		const auto sub_6D7190 = (bool(*)(unsigned int flags, int a2, char a3, RealVector3D *start, RealVector3D *end, int a6, int a7, int a8, void *results))(0x6D7190);
+
+		const auto &moduleForge = Modules::ModuleForge::Instance();
+		if (objectIndexA != -1 && moduleForge.VarMonitorNoclip->ValueInt) // if we're holding an object in noclip
+			return false;
+
+		return sub_6D7190(a1, a2, 0, start, end, objectIndexA, objectIndexB, -1, results);
 	}
 
 	void GrabSelection(uint32_t playerIndex)
