@@ -33,7 +33,7 @@ namespace
 		{
 			auto playerIndex = Blam::Players::GetLocalPlayer(0);
 			Blam::Players::PlayerDatum *player{ nullptr };
-			if (playerIndex == DatumIndex::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
+			if (playerIndex == DatumHandle::Null || !(player = Blam::Players::GetPlayers().Get(playerIndex)))
 				return false;
 
 			// if we're in a h3 ui screen
@@ -47,7 +47,7 @@ namespace
 				return true;
 
 			// if we're spectating
-			return player && player->SlaveUnit == Blam::DatumIndex::Null;
+			return player && player->SlaveUnit == Blam::DatumHandle::Null;
 		}
 
 		return false;
@@ -80,6 +80,9 @@ namespace
 		float currentVert = vertPtr.Read<float>();
 		float weaponSensitivity = Pointer::Base(0x4CDEF14).Read<float>();
 		float maxVertAngle = Pointer::Base(0x14B49E4).Read<float>();
+
+		if (weaponSensitivity <= 0.000099999997f)
+			return true;
 
 		Pointer SettingsPtr = ElDorito::GetMainTls(GameGlobals::GameSettings::TLSOffset)[0];
 		if (SettingsPtr == 0) // game itself does this the same way, not sure why it'd be 0 in TLS data though since the game is also meant to set it in TLS if its 0

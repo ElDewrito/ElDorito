@@ -11,7 +11,7 @@ using namespace Patches::Events;
 
 namespace
 {
-	void RunEventHook(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
+	void RunEventHook(Blam::DatumHandle player, const Event *event, const EventDefinition *definition);
 	std::vector<EventCallback> OnEventCallbacks;
 
 }
@@ -33,14 +33,14 @@ namespace Patches::Events
 
 namespace
 {
-	void RunEventHook(Blam::DatumIndex player, const Event *event, const EventDefinition *definition)
+	void RunEventHook(Blam::DatumHandle player, const Event *event, const EventDefinition *definition)
 	{
 		// Dispatch the event to handlers
 		for (auto &&callback : OnEventCallbacks)
 			callback(player, event, definition);
 
 		// Call the original function
-		typedef void(*RunEventPtr)(Blam::DatumIndex player, const Event *event, const EventDefinition *definition);
+		typedef void(*RunEventPtr)(Blam::DatumHandle player, const Event *event, const EventDefinition *definition);
 		auto RunEvent = reinterpret_cast<RunEventPtr>(0x5666B0);
 		RunEvent(player, event, definition);
 	}

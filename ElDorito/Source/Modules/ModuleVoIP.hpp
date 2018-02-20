@@ -14,6 +14,7 @@ namespace Modules
 		Command* VarNoiseSupress;
 		Command* VarPTTSoundEnabled;
 		Command* VarSpeakingPlayerOnHUD;
+		Command* VarStereoVoice;
 
 		bool voipConnected = false;
 		bool voiceDetected = false;

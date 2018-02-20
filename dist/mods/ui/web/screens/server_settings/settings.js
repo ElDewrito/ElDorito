@@ -17,7 +17,7 @@ var settingsToLoad = [
 	['sMatchCountdown', 'Server.CountdownLobby', 'Match Start Countdown', 'Desc'], 
     ['sCountdown', 'Server.Countdown', 'Round Start Countdown', 'Desc'], 
     ['sMaxPlayers', 'Server.MaxPlayers', 'Max Players', 'Desc'], 
-    ['sMaxTeamSize', 'Server.MaxTeamSize', 'Max Team Size', 'Desc'], 
+    ['sNumberTeams', 'Server.NumberOfTeams', 'The desired number of teams', 'Desc'], 
     ['sShouldAnnounce', 'Server.ShouldAnnounce', 'Display Server in Browser', 'Desc'],
     ['sDualWieldEnabled', 'Server.DualWieldEnabled', 'Dual Wielding', 'Desc'], 
     ['sAssassinationEnabled', 'Server.AssassinationEnabled', 'Assassinations', 'Desc'], 

@@ -51,7 +51,7 @@ namespace
 	bool queuedGameAction[eGameAction_KeyboardMouseCount] = {};
 
 	BindingsTable s_ForgeMonitorModeBindings;
-	int32_t s_ControllerVibrationTestTicks = 0;
+	uint32_t s_ControllerVibrationTestTicks = 0;
 }
 
 namespace Patches::Input
@@ -221,8 +221,8 @@ namespace
 				handler();
 		}
 
-		if (s_ControllerVibrationTestTicks-- < 0)
-			s_ControllerVibrationTestTicks = 0;
+		if (s_ControllerVibrationTestTicks > 0)
+			s_ControllerVibrationTestTicks--;
 	}
 
 	void UiInputTick()

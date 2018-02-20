@@ -591,8 +591,15 @@ bool WebRenderer::Shutdown()
 	CefClearSchemeHandlerFactories();
 	CefShutdown();
 
-	// Set us back to our disabled state
-	SetState(RendererState_Disabled);
+	try
+	{
+		// Set us back to our disabled state
+		SetState(RendererState_Disabled);
+	}
+	catch (...)
+	{
+		return false;
+	}
 
 	return true;
 }

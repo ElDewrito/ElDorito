@@ -7,6 +7,9 @@
 #include "../ElDorito.hpp"
 #include "../Modules/ModuleGame.hpp"
 
+// Disable warnings about possible data loss
+#pragma warning (disable : 4244)
+
 namespace
 {
 	LPDIRECT3DDEVICE9 pDevice;

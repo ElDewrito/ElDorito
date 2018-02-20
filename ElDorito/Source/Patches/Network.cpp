@@ -21,6 +21,7 @@
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleUPnP.hpp"
 #include "../Server/Voting.hpp"
+#include "../Server/Stats.hpp"
 #include "../Utils/Logger.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Server/Signaling.hpp"
@@ -51,6 +52,8 @@ namespace
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex);
 	bool __fastcall Network_session_parameter_countdown_timer_request_change_hook(void* thisPtr, void* unused, int state, int value);
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
+	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
+	uint64_t local_user_get_identifier_hook();
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -60,9 +63,6 @@ namespace
 	void LifeCycleStateChangedHook();
 
 	void GetTextureDimensionsHook();
-
-	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
-	float __cdecl Objects_GetInstantaneousAccelerationScaleHook(uint32_t objectIndex);
 }
 
 namespace Patches::Network
@@ -71,6 +71,9 @@ namespace Patches::Network
 	bool infoSocketOpen = false;
 	time_t lastAnnounce = 0;
 	const time_t serverContactTimeLimit = 30 + (2 * 60);
+
+	std::string httpServerCache;
+	time_t timeSinceLastPoll = 0;
 
 	bool IsInfoSocketOpen() { return infoSocketOpen; }
 
@@ -91,11 +94,11 @@ namespace Patches::Network
 
 	int __stdcall networkWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		time_t curTime;
+		time(&curTime);
 		// TODO: move this somewhere better, it seems fine here though, always announces every "serverContactTimeLimit" seconds even when window isn't focused
 		if (infoSocketOpen && Modules::ModuleServer::Instance().VarServerShouldAnnounce->ValueInt)
 		{
-			time_t curTime;
-			time(&curTime);
 			if (curTime - lastAnnounce > serverContactTimeLimit) // re-announce every "serverContactTimeLimit" seconds
 			{
 				lastAnnounce = curTime;
@@ -147,186 +150,192 @@ namespace Patches::Network
 
 			if (msg == WM_INFOSERVER)
 			{
-				std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
-				std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
-				std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
-				std::string xnkid;
-				std::string xnaddr;
-				std::string gameVersion((char*)Pointer(0x199C0F0));
-				std::string status = "InGame";
-				Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
-				Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
-
-				Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
-				uint32_t gameMode = gameModePtr.Read<uint32_t>();
-				int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
-				if (gameMode == 3)
+				std::string replyData;
+				if (curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
 				{
-					if (mapName == "mainmenu")
+					timeSinceLastPoll = curTime;
+
+					std::string mapName((char*)Pointer(0x22AB018)(0x1A4));
+					std::wstring mapVariantName((wchar_t*)Pointer(0x1863ACA));
+					std::wstring variantName((wchar_t*)Pointer(0x23DAF4C));
+					std::string xnkid;
+					std::string xnaddr;
+					std::string gameVersion((char*)Pointer(0x199C0F0));
+					std::string status = "InGame";
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b80), 0x10, xnkid);
+					Utils::String::BytesToHexString((char*)Pointer(0x2247b90), 0x10, xnaddr);
+
+					Pointer &gameModePtr = ElDorito::GetMainTls(GameGlobals::GameInfo::TLSOffset)[0](GameGlobals::GameInfo::GameMode);
+					uint32_t gameMode = gameModePtr.Read<uint32_t>();
+					int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+					if (gameMode == 3)
 					{
-						status = "InLobby";
-						// on mainmenu so we'll have to read other data
-						mapName = std::string((char*)Pointer(0x19A5E49));
-						variantName = std::wstring((wchar_t*)Pointer(0x179254));
-						variantType = Pointer(0x179250).Read<uint32_t>();
-					}
-					else // TODO: find how to get the variant name/type while it's on the loading screen
-						status = "Loading";
-				}
-
-				rapidjson::StringBuffer s;
-				rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-				writer.StartObject();
-				writer.Key("name");
-				writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
-				writer.Key("port");
-				writer.Int(Pointer(0x1860454).Read<uint32_t>());
-				writer.Key("hostPlayer");
-				writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
-				writer.Key("sprintEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
-				writer.Key("sprintUnlimitedEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
-				writer.Key("dualWielding");
-				writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
-				writer.Key("assassinationEnabled");
-				writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
-				writer.Key("votingEnabled");
-				writer.Bool(Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1 || Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt == 1);
-
-				auto session = Blam::Network::GetActiveSession();
-				if (session && session->IsEstablished()){
-					writer.Key("teams");
-					writer.Bool(session->HasTeams());
-				}
-				writer.Key("map");
-				writer.String(Utils::String::ThinString(mapVariantName).c_str());
-				writer.Key("mapFile");
-				writer.String(mapName.c_str());
-				writer.Key("variant");
-				writer.String(Utils::String::ThinString(variantName).c_str());
-				if (variantType >= 0 && variantType < Blam::GameTypeCount)
-				{
-					writer.Key("variantType");
-					writer.String(Blam::GameTypeNames[variantType].c_str());
-				}
-				writer.Key("status");
-				writer.String(status.c_str());
-				writer.Key("numPlayers");
-				writer.Int(GetNumPlayers());
-
-				std::ifstream file("fmmRequired.dat");
-				std::string temp;
-
-				writer.Key("mods");
-				writer.StartArray();
-				while (std::getline(file, temp))
-					writer.String(temp.c_str());
-				writer.EndArray();
-
-				// TODO: find how to get actual max players from the game, since our variable might be wrong
-				writer.Key("maxPlayers");
-				writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
-
-				bool authenticated = true;
-				if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
-				{
-					std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
-					authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
-					authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
-				}
-
-				if(authenticated)
-				{
-					writer.Key("xnkid");
-					writer.String(xnkid.c_str());
-					writer.Key("xnaddr");
-					writer.String(xnaddr.c_str());
-					if (session->HasTeams())
-					{
-						writer.Key("teamScores");
-						writer.StartArray();
-						uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
-						for (int t = 0; t < 8; t++)
+						if (mapName == "mainmenu")
 						{
-							writer.Int(scores[t]);
+							status = "InLobby";
+							// on mainmenu so we'll have to read other data
+							mapName = std::string((char*)Pointer(0x19A5E49));
+							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantType = Pointer(0x179250).Read<uint32_t>();
+						}
+						else // TODO: find how to get the variant name/type while it's on the loading screen
+							status = "Loading";
+					}
+
+					rapidjson::StringBuffer s;
+					rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+					writer.StartObject();
+					writer.Key("name");
+					writer.String(Modules::ModuleServer::Instance().VarServerName->ValueString.c_str());
+					writer.Key("port");
+					writer.Int(Pointer(0x1860454).Read<uint32_t>());
+					writer.Key("hostPlayer");
+					writer.String(Modules::ModulePlayer::Instance().VarPlayerName->ValueString.c_str());
+					writer.Key("sprintEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintEnabled->ValueString.c_str());
+					writer.Key("sprintUnlimitedEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerSprintUnlimited->ValueString.c_str());
+					writer.Key("dualWielding");
+					writer.String(Modules::ModuleServer::Instance().VarServerDualWieldEnabled->ValueString.c_str());
+					writer.Key("assassinationEnabled");
+					writer.String(Modules::ModuleServer::Instance().VarServerAssassinationEnabled->ValueString.c_str());
+					writer.Key("votingEnabled");
+					writer.Bool(Modules::ModuleServer::Instance().VarServerVotingEnabled->ValueInt == 1 || Modules::ModuleServer::Instance().VarVetoSystemEnabled->ValueInt == 1);
+
+					auto session = Blam::Network::GetActiveSession();
+					if (session && session->IsEstablished()) {
+						writer.Key("teams");
+						writer.Bool(session->HasTeams());
+					}
+					writer.Key("map");
+					writer.String(Utils::String::ThinString(mapVariantName).c_str());
+					writer.Key("mapFile");
+					writer.String(mapName.c_str());
+					writer.Key("variant");
+					writer.String(Utils::String::ThinString(variantName).c_str());
+					if (variantType >= 0 && variantType < Blam::GameTypeCount)
+					{
+						writer.Key("variantType");
+						writer.String(Blam::GameTypeNames[variantType].c_str());
+					}
+					writer.Key("status");
+					writer.String(status.c_str());
+					writer.Key("numPlayers");
+					writer.Int(GetNumPlayers());
+
+					std::ifstream file("fmmRequired.dat");
+					std::string temp;
+
+					writer.Key("mods");
+					writer.StartArray();
+					while (std::getline(file, temp))
+						writer.String(temp.c_str());
+					writer.EndArray();
+
+					// TODO: find how to get actual max players from the game, since our variable might be wrong
+					writer.Key("maxPlayers");
+					writer.Int(Modules::ModuleServer::Instance().VarServerMaxPlayers->ValueInt);
+
+					bool authenticated = true;
+					if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty())
+					{
+						std::string authString = "dorito:" + Modules::ModuleServer::Instance().VarServerPassword->ValueString;
+						authString = "Authorization: Basic " + Utils::String::Base64Encode((const unsigned char*)authString.c_str(), authString.length()) + "\r\n";
+						authenticated = std::string(inDataBuffer).find(authString) != std::string::npos;
+					}
+
+					if (authenticated)
+					{
+						writer.Key("xnkid");
+						writer.String(xnkid.c_str());
+						writer.Key("xnaddr");
+						writer.String(xnaddr.c_str());
+						if (session->HasTeams())
+						{
+							writer.Key("teamScores");
+							writer.StartArray();
+							uint32_t* scores = &Pointer(0x01879DA8).Read<uint32_t>();
+							for (int t = 0; t < 8; t++)
+							{
+								writer.Int(scores[t]);
+							}
+							writer.EndArray();
+						}
+
+						writer.Key("players");
+
+						writer.StartArray();
+						uint32_t playerInfoBase = 0x2162E08;
+						uint32_t playerStatusBase = 0x2161808;
+
+
+						int peerIdx = session->MembershipInfo.FindFirstPeer();
+						while (peerIdx != -1)
+						{
+							int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
+							if (playerIdx != -1)
+							{
+								auto playerStats = Blam::Players::GetStats(playerIdx);
+								auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
+								std::string name = Utils::String::ThinString(player->Properties.DisplayName);
+								uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
+
+								uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
+
+								writer.StartObject();
+								writer.Key("name");
+								writer.String(name.c_str());
+								writer.Key("serviceTag");
+								writer.String(Utils::String::ThinString(player->Properties.ServiceTag).c_str());
+								writer.Key("team");
+								writer.Int(team);
+								char uid[17];
+								Blam::Players::FormatUid(uid, player->Properties.Uid);
+								writer.Key("uid");
+								writer.String(uid);
+								std::stringstream color;
+								color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+								writer.Key("primaryColor");
+								writer.String(color.str().c_str());
+								writer.Key("isAlive");
+								writer.Bool(alive == 1);
+								writer.Key("score");
+								writer.Int(playerStats.Score);
+								writer.Key("kills");
+								writer.Int(playerStats.Kills);
+								writer.Key("assists");
+								writer.Int(playerStats.Assists);
+								writer.Key("deaths");
+								writer.Int(playerStats.Deaths);
+								writer.Key("betrayals");
+								writer.Int(playerStats.Betrayals);
+								writer.Key("timeSpentAlive");
+								writer.Int(playerStats.TimeSpentAlive);
+								writer.Key("suicides");
+								writer.Int(playerStats.Suicides);
+								writer.Key("bestStreak");
+								writer.Int(playerStats.BestStreak);
+								writer.EndObject();
+							}
+							peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
 						}
 						writer.EndArray();
 					}
-
-					writer.Key("players");
-
-					writer.StartArray();
-					uint32_t playerInfoBase = 0x2162E08;
-					uint32_t playerStatusBase = 0x2161808;
-
-
-					int peerIdx = session->MembershipInfo.FindFirstPeer();
-					while (peerIdx != -1)
+					else
 					{
-						int playerIdx = session->MembershipInfo.GetPeerPlayer(peerIdx);
-						if (playerIdx != -1)
-						{
-
-							auto playerStats = Blam::Players::GetStats(playerIdx);
-							auto* player = &session->MembershipInfo.PlayerSessions[playerIdx];
-							std::string name = Utils::String::ThinString(player->Properties.DisplayName);
-							uint16_t team = Pointer(playerInfoBase + (5696 * playerIdx) + 32).Read<uint16_t>();
-
-							uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
-
-							writer.StartObject();
-							writer.Key("name");
-							writer.String(name.c_str());
-							writer.Key("team");
-							writer.Int(team);
-							char uid[17];
-							Blam::Players::FormatUid(uid, player->Properties.Uid);
-							writer.Key("uid");
-							writer.String(uid);
-							std::stringstream color;
-							color << "#" << std::setw(6) << std::setfill('0') << std::hex << player->Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-							writer.Key("primaryColor");
-							writer.String(color.str().c_str());
-							writer.Key("isAlive");
-							writer.Bool(alive == 1);
-							writer.Key("score");
-							writer.Int(playerStats.Score);
-							writer.Key("kills");
-							writer.Int(playerStats.Kills);
-							writer.Key("assists");
-							writer.Int(playerStats.Assists);
-							writer.Key("deaths");
-							writer.Int(playerStats.Deaths);
-							writer.Key("betrayals");
-							writer.Int(playerStats.Betrayals);
-							writer.Key("timeSpentAlive");
-							writer.Int(playerStats.TimeSpentAlive);
-							writer.Key("suicides");
-							writer.Int(playerStats.Suicides);
-							writer.Key("bestStreak");
-							writer.Int(playerStats.BestStreak);
-							writer.EndObject();
-
-						}
-						peerIdx = session->MembershipInfo.FindNextPeer(peerIdx);
+						writer.Key("passworded");
+						writer.Bool(true);
 					}
-					writer.EndArray();
+					writer.Key("isDedicated");
+					writer.Bool(ElDorito::Instance().IsDedicated());
+					writer.Key("gameVersion");
+					writer.String(gameVersion.c_str());
+					writer.Key("eldewritoVersion");
+					writer.String(Utils::Version::GetVersionString().c_str());
+					writer.EndObject();
+					httpServerCache = s.GetString();
 				}
-				else
-				{
-					writer.Key("passworded");
-					writer.Bool(true);
-				}
-				writer.Key("isDedicated");
-				writer.Bool(ElDorito::Instance().IsDedicated());
-				writer.Key("gameVersion");
-				writer.String(gameVersion.c_str());
-				writer.Key("eldewritoVersion");
-				writer.String(Utils::Version::GetVersionString().c_str());
-				writer.EndObject();
-
-				std::string replyData = s.GetString();
+				replyData = httpServerCache;
 				std::string reply = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nServer: ElDewrito/" + Utils::Version::GetVersionString() + "\r\nContent-Length: " + std::to_string(replyData.length()) + "\r\nConnection: close\r\n\r\n" + replyData;
 				send((SOCKET)wParam, reply.c_str(), reply.length(), 0);
 			}
@@ -426,13 +435,14 @@ namespace Patches::Network
 		Hook(0x899AF, Network_session_parameters_clearHook, HookFlags::IsCall).Apply();
 		Hook(0x683D45, Network_session_parameter_countdown_timer_request_change_hook, HookFlags::IsCall).Apply();
 
-		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
-		Hook(0x752A59, Objects_GetInstantaneousAccelerationScaleHook, HookFlags::IsCall).Apply();
-
 		//Hook(0x4F16F, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //Client on connect calls own peer index of server
 		Hook(0x4FF3E, Network_session_remove_peerHook, HookFlags::IsCall).Apply(); //server
 
 		Hook(0x00039AE4, c_network_session_parameter_map_variant__request_change_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
+
+		Hook(0x67E01F, local_user_get_identifier_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -473,6 +483,31 @@ namespace Patches::Network
 
 		*(uint8_t*)0x0244F970 = 1; // g_IsDedicatedServer
 		*(uint8_t*)0x0244F971 = 1; // g_SoundDisabled
+
+		// dedicated server server optimization
+		Patch(0x1075A0, { 0xC3 }).Apply(); // main_render_thread_proc
+		Patch(0x24E190, { 0xC3 }).Apply(); // disable sound halo system/fmod (prevents output thread from being created up)
+		Patch(0x112690, { 0xC3 }).Apply(); // xinput, mouse, keyboard
+		Patch(0x20D880, { 0xC3 }).Apply(); // input bindings handler
+		Patch(0x215BA0, { 0xC3 }).Apply(); // controller feedback
+		Patch(0x726710, { 0xC3 }).Apply(); // saber
+		Patch(0x2173A0, { 0xC3 }).Apply(); // bink
+		Patch(0x68AAE0, { 0xC3 }).Apply(); // chud state
+		Patch(0x1D4990, { 0xC3 }).Apply(); // local input    
+		Patch(0x219770, { 0xC3 }).Apply(); // fileshare ui
+		Patch(0x219C00, { 0xC3 }).Apply(); // spartan rank/milestone ui
+		Patch(0x151780, { 0xC3 }).Apply(); // betrayal boot ui
+		Patch::NopFill(Pointer::Base(0x00684F3F), 5); // ui input
+		Patch::NopFill(Pointer::Base(0x00684F44), 5); // display adapter preferences
+		Patch::NopFill(Pointer::Base(0x00684F49), 5); // null_sub
+		Patch::NopFill(Pointer::Base(0x00684F4E), 5); // scoreboard ui
+		Patch(0x0067FE50, { 0xC3 }).Apply(); // campaign ui
+		Patch(0x1926C0, { 0xC3 }).Apply(); // director update
+		Patch(0x213A60, { 0xC3 }).Apply(); // observer update
+		Patch(0x69EDF0, { 0xC3 }).Apply(); // fp weapon transform
+		// bitmap resource allocation
+		Patch(0x5DFBC0, { 0xC3 }).Apply();
+		Patch(0x5DFAF0, { 0xC3 }).Apply();
 
 	}
 
@@ -753,30 +788,24 @@ namespace
 		bool isNewMember = false;
 		auto session = Blam::Network::GetActiveSession();
 
-		// If the player already has a name and isn't host, then use that instead of the one in the packet
+		// If the player already has a name, then use that instead of the one in the packet
 		// This prevents people from changing their name mid-game by forcing a player properties update
 		// The player name is stored at the beginning of the player-properties packet (TODO: Map it out properly!)
-		if (properties->DisplayName[0] && !thisPtr->Peers[thisPtr->HostPeerIndex].OwnsPlayer(playerIndex))
+		if (properties->DisplayName[0])
 			memcpy(reinterpret_cast<wchar_t*>(data), properties->DisplayName, sizeof(properties->DisplayName));
 		else
 		{
 			SanitizePlayerName(reinterpret_cast<wchar_t*>(data));
 			Server::Signaling::SendPeerPassword(playerIndex);
 			Server::Voting::PlayerJoinedVoteInProgress(playerIndex);
+			Server::Stats::NewPlayerJoined();
 			isNewMember = true;
 		}
 
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
 		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{
-			int teamSizes[8] = { 0 };
-			int playerIdx = session->MembershipInfo.FindFirstPlayer();
-			while (playerIdx > -1)
-			{
-				teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
-				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-			}
-			if (teamSizes[packetProperties->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+			if (packetProperties->TeamIndex > Modules::ModuleServer::Instance().VarNumTeams->ValueInt - 1)
 			{
 				packetProperties->TeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
 			}
@@ -803,34 +832,18 @@ namespace
 				teamSizes[prop->TeamIndex]--; //ignore one place for the default team they were placed on
 
 				//check joining teams size
-				if (teamSizes[prop->TeamIndex] >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
+				int smallest = Blam::Network::MaxPlayers + 1;
+				int smallIndex = 0;
+				for (int i = 0; i < Modules::ModuleServer::Instance().VarNumTeams->ValueInt; i++)
 				{
-					int smallest = Blam::Network::MaxPlayers + 1;
-					int smallIndex = 0;
-					for (int i = 0; i < 8; i++)
+					if (teamSizes[i] < smallest)
 					{
-						if (teamSizes[i] != 0 && teamSizes[i] < smallest)
-						{
-							smallest = teamSizes[i];
-							smallIndex = i;
-						}
+						smallest = teamSizes[i];
+						smallIndex = i;
 					}
-
-					//put us on a new team since others are full
-					if (smallest >= Modules::ModuleServer::Instance().VarMaxTeamSize->ValueInt)
-					{
-						for (int i = 0; i < 8; i++)
-						{
-							if (teamSizes[i] == 0)
-							{
-								smallIndex = i;
-								break;
-							}
-						}
-					}
-					prop->ClientProperties.TeamIndex = smallIndex;
-					session->MembershipInfo.Update();
 				}
+				prop->ClientProperties.TeamIndex = smallIndex;
+				session->MembershipInfo.Update();
 			}
 		}
 
@@ -1154,30 +1167,6 @@ namespace
 		return Network_session_parameters_clear(thisPtr, unused);
 	}
 
-	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data)
-	{
-		Pointer(data)(0xA).WriteFast<uint8_t>(1); // flag the direction vector to be serialized
-
-		auto SendSimulationDamageAftermathEvent = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
-		SendSimulationDamageAftermathEvent(a1, a2, a3, playerIndex, size, data);
-	}
-
-	float __cdecl Objects_GetInstantaneousAccelerationScaleHook(uint32_t objectIndex)
-	{
-		auto Objects_GetInstantaneousAccelerationScale = (float(__cdecl*)(uint32_t objectIndex))(0xB529A0);
-		auto IsClient = (bool(*)())(0x00531D70);
-
-		auto acc = Objects_GetInstantaneousAccelerationScale(objectIndex);
-
-		if (IsClient())
-		{
-			// approximation of host's acceleration (may need to be tweaked)
-			acc *= 0.485f;
-		}
-
-		return acc;
-	}
-
 	int __fastcall Network_session_remove_peerHook(Blam::Network::SessionMembership *membership, void *unused, int peerIndex)
 	{
 		if (membership->HostPeerIndex == membership->LocalPeerIndex)
@@ -1210,5 +1199,17 @@ namespace
 				callback(mapVariant);
 		}
 		return ret;
+	}
+
+	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3)
+	{
+		Blam::Network::LeaveGame();
+		Web::Ui::ScreenLayer::ShowAlert("Booted", "You were booted from the game", Web::Ui::ScreenLayer::AlertIcon::None);
+		return 0;
+	}
+
+	uint64_t local_user_get_identifier_hook()
+	{
+		return *(uint64_t*)0x199FAB2; // use the first 64 bits of the xnkaddr (128 bit guid in eldorado)
 	}
 }

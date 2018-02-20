@@ -147,6 +147,10 @@ namespace Modules
 		VarSpeakingPlayerOnHUD->ValueIntMin = 0;
 		VarSpeakingPlayerOnHUD->ValueIntMax = 1;
 
+		VarStereoVoice = AddVariableInt("StereoVoice", "stereo_voice", "Allow stereo voice chat", eCommandFlagsArchived, 1);
+		VarStereoVoice->ValueIntMin = 0;
+		VarStereoVoice->ValueIntMax = 1;
+
 		Patches::Core::OnMapLoaded(RendererStarted);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
 		Patches::Input::RegisterMenuUIInputHandler(OnUiInputUpdated);

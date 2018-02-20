@@ -13,7 +13,7 @@ namespace Patches::Events
 	void ApplyAll();
 
 	// Callback for a Blam event handler.
-	typedef std::function<void(Blam::DatumIndex player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)> EventCallback;
+	typedef std::function<void(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)> EventCallback;
 
 	// Registers a callback to be run when a Blam event fires.
 	void OnEvent(EventCallback callback);

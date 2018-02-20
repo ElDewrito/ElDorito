@@ -26,4 +26,3 @@ namespace Patches::Core
 	// Registers a function to be called when a game/round is about to start.
 	void OnGameStart(GameStartCallback callback);
 }
-

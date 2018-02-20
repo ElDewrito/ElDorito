@@ -31,8 +31,8 @@ namespace Server::Voting
 	};
 	struct VotingOption
 	{
-		char mapName[16];  // The Display Name of the map to show in the UI
-		char typeName[16]; // The Display Name of the gametype to show in the UI
+		char mapName[17];  // The Display Name of the map to show in the UI
+		char typeName[17]; // The Display Name of the gametype to show in the UI
 		bool canVeto;
 		int mapId;		   // mapId, used to determine which image to show
 	};
@@ -55,6 +55,8 @@ namespace Server::Voting
 		int Vote; // The user's vote
 
 		int winner; 
+		
+		int votesNeededToPass;
 
 
 	};

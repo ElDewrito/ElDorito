@@ -119,17 +119,8 @@ namespace
 
 	bool VariableCameraCrosshairUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		unsigned long value = Modules::ModuleCamera::Instance().VarCameraCrosshair->ValueInt;
-
-		std::string status = "disabled.";
-		bool statusBool = value != 0;
-		if (statusBool)
-			status = "enabled.";
-
-		Modules::ModuleCamera::Instance().CenteredCrosshairFirstPersonPatch.Apply(!statusBool);
-		Modules::ModuleCamera::Instance().CenteredCrosshairThirdPersonPatch.Apply(!statusBool);
-
-		returnInfo = "Centered crosshair " + status;
+		Modules::ModuleCamera::Instance().CenteredCrosshairFirstPersonPatch.Apply(!Modules::ModuleCamera::Instance().VarCameraCenteredCrosshairFirst->ValueInt);
+		Modules::ModuleCamera::Instance().CenteredCrosshairThirdPersonPatch.Apply(!Modules::ModuleCamera::Instance().VarCameraCenteredCrosshairThird->ValueInt);
 		return true;
 	}
 
@@ -199,7 +190,7 @@ namespace
 	//}
 
 	bool VariableCameraPositionUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo) {
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 
 		if (Arguments.size() < 3) {
 			std::stringstream ss;
@@ -240,10 +231,12 @@ namespace
 		Modules::ModuleCamera::Instance().StaticKLookVectorPatch.Apply(mode != "static");
 
 		// disable player movement while in flycam
-		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
+		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
 		playerControlGlobalsPtr(GameGlobals::Input::DisablePlayerInputIndex).Write(mode == "flying");
 
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
+
+		Pointer disablePlayerMovement(ElDorito::GetMainTls(0x44)[0](5));
 
 		// get new camera perspective function offset
 		size_t offset = 0x166ACB0;
@@ -277,6 +270,7 @@ namespace
 			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
+			disablePlayerMovement.Write(true);
 		}
 		else if (!mode.compare("static")) // c_static_camera
 		{
@@ -288,6 +282,8 @@ namespace
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
+		else if (mode.compare("flying"))
+			disablePlayerMovement.Write(false);
 
 		/*
 		else if (!mode.compare("dead")) // c_dead_camera
@@ -311,7 +307,7 @@ namespace
 		*/
 
 		// update camera perspective function
-		Pointer &directorPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
+		Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 		size_t oldOffset = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
 		directorPtr(GameGlobals::Director::CameraFunctionIndex).Write(offset);
 
@@ -366,13 +362,17 @@ namespace Modules
 		HideHudPatch(0x12B5A5C, { 0xC3, 0xF5, 0x48, 0x40 }), // 3.14f in hex form
 		CenteredCrosshairFirstPersonPatch(0x25FA43, { 0x31, 0xC0, 0x90, 0x90 }),
 		CenteredCrosshairThirdPersonPatch(0x32989C, { 0x31, 0xC0, 0x90, 0x90 }),
-		ShowCoordinatesPatch(0x192064, { 0x00 })
+		ShowCoordinatesPatch(0x192064, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 })
 	{
 		// TODO: commands for setting camera speed, positions, save/restore etc.
 
-		VarCameraCrosshair = AddVariableInt("Crosshair", "crosshair", "Controls whether the crosshair should be centered", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
-		VarCameraCrosshair->ValueIntMin = 0;
-		VarCameraCrosshair->ValueIntMax = 1;
+		VarCameraCenteredCrosshairFirst = AddVariableInt("CenteredCrosshairFirst", "crosshair_first", "Controls whether the crosshair should be centered in first person", eCommandFlagsArchived, 0, VariableCameraCrosshairUpdate);
+		VarCameraCenteredCrosshairFirst->ValueIntMin = 0;
+		VarCameraCenteredCrosshairFirst->ValueIntMax = 1;
+
+		VarCameraCenteredCrosshairThird = AddVariableInt("CenteredCrosshairThird", "crosshair_third", "Controls whether the crosshair should be centered in first person", eCommandFlagsArchived, 1, VariableCameraCrosshairUpdate);
+		VarCameraCenteredCrosshairThird->ValueIntMin = 0;
+		VarCameraCenteredCrosshairThird->ValueIntMax = 1;
 
 		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
 		VarCameraFov->ValueFloatMin = 55.f;
@@ -404,8 +404,8 @@ namespace Modules
 		if (mode.compare("flying"))
 			return;
 
-		Pointer &directorGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0];
-		Pointer &playerControlGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0];
+		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
+		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
 
 		float moveDelta = Modules::ModuleCamera::Instance().VarCameraSpeed->ValueFloat;
 		float lookDelta = 0.01f;	// not used yet

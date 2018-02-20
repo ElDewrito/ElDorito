@@ -1,0 +1,81 @@
+@import 'window.css';
+@import 'property-grid.css';
+@import 'toast.css';
+:root {
+    --color-ice-blue: #77879A;
+    --color-error: rgb(240, 67, 67);
+    --header-footer-background: rgba(0, 0, 0, 0.5);
+    --footer-height: 60px;
+    --header-height: 70px;
+    --max-list-height: 470px;
+    --list-item-height: 38px;
+    --list-item-horizontal-padding: 10px;
+    --list-item-vertical-padding: 10px;
+    --list-item-font-size: 1.1em;
+    --list-item-primary-color: hsl(0, 0%, 68%);
+    --list-item-secondary-color: var( --color-ice-blue);
+    --list-item-selected-background: -webkit-linear-gradient(left, rgba(200, 120, 40, 0.5) 0%, transparent 150%);
+    --list-item-selected-primary-color: hsl(0, 0%, 80%);
+    --list-item-selected-secondary-color: hsl(213, 23%, 70%);
+}
+
+@font-face {
+    font-family: 'Conduit ITC';
+    src: url(dew://lib/Conduit-ITC.woff);
+}
+
+* {
+    all: unset;
+    box-sizing: border-box;
+}
+
+base,
+basefont,
+datalist,
+head,
+meta,
+script,
+style,
+title,
+noembed,
+param,
+template {
+    display: none;
+}
+
+html,
+body {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    font-family: 'Conduit ITC', sans-serif;
+    font-size: 12pt;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: grey;
+}
+
+.hidden {
+    display: none;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #adadad;
+    font-size: 13.2pt;
+    width: 100vw;
+    height: 100vh;
+}

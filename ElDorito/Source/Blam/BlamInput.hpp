@@ -268,7 +268,7 @@ namespace Blam::Input
 		eGameActionUnk31,
 		eGameActionUnk32,
 		eGameActionSprint,
-		eGameActionUnk34,
+		eGameActionFlashlight,
 		eGameActionUnk35,
 		eGameActionUnk36,
 		eGameActionUnk37,

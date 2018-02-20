@@ -89,7 +89,7 @@ namespace
 		bindings.ControllerButtons[eGameActionUnk31]          = eControllerButtonDpadLeft;
 		bindings.ControllerButtons[eGameActionUnk32]          = eControllerButtonDpadRight;
 		bindings.ControllerButtons[eGameActionSprint]         = eControllerButtonLeftStick;
-		bindings.ControllerButtons[eGameActionUnk34]          = eControllerButtonX;
+		bindings.ControllerButtons[eGameActionFlashlight]     = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk35]          = eControllerButtonDpadDown;
 		bindings.ControllerButtons[eGameActionUnk36]          = eControllerButtonDpadUp;
 		bindings.ControllerButtons[eGameActionUnk37]          = eControllerButtonDpadLeft;
@@ -175,6 +175,7 @@ namespace
 		bindings.PrimaryKeys[eGameActionMoveRight]               = eKeyCodeD;
 		bindings.SecondaryKeys[eGameActionMoveRight]             = eKeyCodeRight;
 		bindings.SecondaryKeys[eGameActionUseConsumable1]		 = eKeyCode1;
+		bindings.SecondaryKeys[eGameActionFlashlight]            = eKeyCode2;
 
 		Modules::ModuleInput::UpdateBindings();
 	}
@@ -801,7 +802,13 @@ namespace Modules
 			const auto binding = &commandBindings[i];
 			if (binding->command.size() == 0)
 				continue; // Key is not bound
-			std::string bound_command = binding->command[0];
+			std::string bound_command = "";
+			if (binding->command[1] == "")
+				bound_command = binding->command[0];
+			else
+			{
+				bound_command = binding->command[0] + " " + binding->command[1];
+			}
 			std::transform(bound_command.begin(), bound_command.end(), bound_command.begin(), ::tolower);
 			if (command.compare(bound_command) == 0)
 				return true;
@@ -976,6 +983,7 @@ namespace
 		{ "Melee", eGameActionMelee },
 		{ "Grenade", eGameActionThrowGrenade },
 		{ "SwitchGrenades", eGameActionSwitchGrenades },
+		{ "Flashlight", eGameActionFlashlight },
 
 		// Vehicles
 		{ "VehicleAccelerate", eGameActionVehicleAccelerate },

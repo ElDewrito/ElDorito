@@ -2,6 +2,12 @@
 Code was used from NoFaTe (http://nofate.me)
 */
 
+// Disable warnings about using "safe" C functions
+#pragma warning (disable : 4996)
+
+// Disable warnings from boost
+#pragma warning (disable : 4348)
+
 #include "WebRendererSchemeHandler.hpp"
 #include "Logger.hpp"
 
@@ -9,9 +15,6 @@ Code was used from NoFaTe (http://nofate.me)
 #define WIN32_LEAN_AND_MEAN
 
 #pragma warning (push)
-
-// Disable warnings from boost
-#pragma warning (disable : 4348)
 
 #include <boost/network/uri.hpp>
 #include <boost/format.hpp>
@@ -155,7 +158,7 @@ void WebRendererSchemeHandler::ProcessRequestInternal(CefRefPtr<CefRequest> p_Re
 	{
 		// Parse the range info.
 		std::string s_Range = s_RangeIt->second.ToString();
-		auto s_Sep = s_Range.find("=");
+		auto s_Sep = s_Range.find('=');
 
 		if (s_Sep != std::string::npos)
 		{

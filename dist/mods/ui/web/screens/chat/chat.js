@@ -196,6 +196,18 @@ $(window).load(function(){
             if(!hideChat){
                 dew.show();
             }
+			
+			$("a").on("click",function(e){				
+				e.preventDefault();
+				dew.show('alert', {
+					icon: 0,
+					title: "Warning",
+					body: "This link goes to " + this.href + " Are you sure you want to open this?",
+					url: this.href,
+					type: "url"
+				});
+			});
+    
         });
     });
 
@@ -204,11 +216,11 @@ $(window).load(function(){
         if (e.keyCode == 9) { //tab
             if (playerTabIndex == -1) {
                 if (wordArray[wordArray.length - 1] != '' && wordArray[wordArray.length - 1].startsWith('@')) {
-                    dew.getScoreboard().then(function (e) {
+                    dew.command('Server.ListPlayersJSON', {}).then(function (e) {
                         playersMatchList = [];
-                        $.each(e.players, function (index, obj) {
-                            if (e.players[index].name.toLowerCase().startsWith(wordArray[wordArray.length - 1].substring(1).toLowerCase())) {
-                                playersMatchList.push(e.players[index].name);
+                        $.each(JSON.parse(e), function (index, obj) {
+                            if (JSON.parse(e)[index].name.toLowerCase().startsWith(wordArray[wordArray.length - 1].substring(1).toLowerCase())) {
+                                playersMatchList.push(JSON.parse(e)[index].name);
                             }
                         });
                         playerTabIndex = 0;

@@ -6,6 +6,7 @@
 #include "../../Ui/WebScoreboard.hpp"
 #include "../../../CommandMap.hpp"
 #include "../../../Blam/BlamNetwork.hpp"
+#include "../../../Discord/DiscordRPC.h"
 #include "../../../Patches/Network.hpp"
 #include "../../../Patches/Input.hpp"
 #include "../../../Patches/Ui.hpp"
@@ -381,6 +382,14 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 			writer.Key("isHost");
 			writer.Bool(false);
+
+			writer.Key("playerInfo");
+			writer.StartObject();
+			writer.Key("Name");
+			writer.String("");
+			writer.Key("Uid");
+			writer.String("");
+			writer.EndObject();
 		}
 		else
 		{
@@ -392,6 +401,16 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 			writer.Key("isHost");
 			writer.Bool(session->IsHost());
+
+			writer.Key("playerInfo");
+			writer.StartObject();
+			writer.Key("Name");
+			writer.String(Utils::String::ThinString(session->MembershipInfo.GetLocalPlayerSession().Properties.DisplayName).c_str());
+			writer.Key("Uid");
+			char uid[17];
+			Blam::Players::FormatUid(uid, session->MembershipInfo.GetLocalPlayerSession().Properties.Uid);
+			writer.String(uid);
+			writer.EndObject();
 		}
 		writer.Key("mapName");
 		writer.String((char*)Pointer(0x22AB018)(0x1A4));
@@ -630,6 +649,25 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 	QueryError OnShowLan(const rapidjson::Value &p_Args, std::string *p_Result)
 	{
 		Patches::Ui::ShowLanBrowser();
+		return QueryError_Ok;
+	}
+
+	QueryError OnDiscordReply(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		auto userId = p_Args.FindMember("userId");
+		auto replyValue = p_Args.FindMember("reply");
+		if (userId == p_Args.MemberEnd() || !userId->value.IsString())
+		{
+			*p_Result = "Bad query : A \"userId\" argument is required and must be a string";
+			return QueryError_BadQuery;
+		}
+		else if (replyValue == p_Args.MemberEnd() || !replyValue->value.IsNumber())
+		{
+			*p_Result = "Bad query : A \"reply\" argument is required and must be a number";
+			return QueryError_BadQuery;
+		}
+
+		Discord::DiscordRPC::Instance().ReplyToJoinRequest(userId->value.GetString(), replyValue->value.GetInt());
 		return QueryError_Ok;
 	}
 }

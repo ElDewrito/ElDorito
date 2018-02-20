@@ -8,12 +8,15 @@
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/Cache/StringIdCache.hpp"
 #include "../Patch.hpp"
+#include "../Utils/String.hpp"
 
 namespace
 {
 	struct RepresentationData
 	{
 		uint32_t RepresentationNameId;
+		char ServiceTag[5];
+		int8_t Gender;
 	};
 
 	class PlayerRepresentationExtensions : public Patches::Network::PlayerPropertiesExtension<RepresentationData>
@@ -21,17 +24,24 @@ namespace
 	protected:
 		void BuildData(int playerIndex, RepresentationData *out) override
 		{
-			auto& representation = Modules::ModulePlayer::Instance().VarRepresentation->ValueString;
+			memset(out, 0, sizeof(RepresentationData));
 
-			if (representation == std::string("elite"))
+			const auto &modulePlayer = Modules::ModulePlayer::Instance();
+			// representation
+			if (modulePlayer.VarRepresentation->ValueString == std::string("elite"))
 				out->RepresentationNameId = 0xCC;
 			else
 				out->RepresentationNameId = 0x129;
-			
+			// service tag
+			if (Modules::ModulePlayer::ValidServiceTag(modulePlayer.VarPlayerServiceTag->ValueString))
+				strncpy_s(out->ServiceTag, modulePlayer.VarPlayerServiceTag->ValueString.c_str(), 4);
+			// gender
+			out->Gender = !modulePlayer.VarPlayerGender->ValueString.compare("female") ? 1 : 0;
 		}
 
 		void ApplyData(int playerIndex, Blam::Players::PlayerProperties *properties, const RepresentationData &data) override
 		{
+		#ifdef _DEBUG
 			// just elite for now...
 			switch (data.RepresentationNameId)
 			{
@@ -42,6 +52,16 @@ namespace
 				properties->PlayerRepresentation = 0; // spartan
 				break;
 			}
+		#endif
+			if(Modules::ModulePlayer::ValidServiceTag(data.ServiceTag))
+			{
+				auto wtag = Utils::String::WidenString(data.ServiceTag);
+				_CrtSetDebugFillThreshold(0);
+				wcsncpy_s(properties->ServiceTag, wtag.c_str(), 4);
+				_CrtSetDebugFillThreshold(SIZE_MAX);
+			}
+
+			properties->Gender = data.Gender;
 
 			auto activeSession = Blam::Network::GetActiveSession();
 			if (activeSession && activeSession->IsEstablished() && activeSession->IsHost())
@@ -53,11 +73,16 @@ namespace
 		void Serialize(Blam::BitStream *stream, const RepresentationData &data) override
 		{
 			stream->WriteUnsigned<uint32_t>(data.RepresentationNameId, 0, 0xFFFFFFFF);
+			stream->WriteString(data.ServiceTag);
+			stream->WriteBool(data.Gender);
 		}
 
 		void Deserialize(Blam::BitStream *stream, RepresentationData *out) override
 		{
+			memset(out, 0, sizeof(RepresentationData));
 			out->RepresentationNameId = stream->ReadUnsigned<uint32_t>(0, 0xFFFFFFFF);
+			stream->ReadString(out->ServiceTag);
+			out->Gender = stream->ReadBool();
 		}
 	};
 }

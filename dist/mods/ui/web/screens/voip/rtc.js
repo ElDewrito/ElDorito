@@ -62,11 +62,14 @@ function OnMessage(msg) {
                 if (data.sdp.type == 'offer') {
                     console.log('got an offer from: ' + data.uid);
                     peerCons[data.uid].createAnswer().then(function (description) {
-                        peerCons[data.uid].setLocalDescription(description).then(function () {
-                            serverCon.send(JSON.stringify({
-                                    'sdp': peerCons[data.uid].localDescription,
-                                    'sendTo': data.uid
-                                }));
+                        dew.command("voip.stereovoice", {}).then(function (stereoResponse) {
+                            description.sdp = setCodecParam(description.sdp, 'opus/48000', 'stereo', stereoResponse);
+                            peerCons[data.uid].setLocalDescription(description).then(function () {
+                                serverCon.send(JSON.stringify({
+                                        'sdp': peerCons[data.uid].localDescription,
+                                        'sendTo': data.uid
+                                    }));
+                            });
                         });
                     });
                 }
@@ -235,23 +238,24 @@ function removeFromSpeakingPlayersList(user) {
         $("#speaking > p").each(function () {
             if ($(this).index() < index)
                 return; //this user does not need to move
-
-            y = $(this).height() * $(this).index() - $(this).height();
-            $(this).css({
-                'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
-                'transition': 'all 300ms ease'
-            });
+            else if ($(this).index() > index) {
+                y = $(this).height() * $(this).index() - $(this).height();
+                $(this).css({
+                    'transform': 'translate(' + 0 + 'px, ' + y + 'px)',
+                    'transition': 'all 300ms ease'
+                });
+            } else {
+                y = $(this).height() * ($(this).index() + 1) - $(this).height();
+                thisUser.css({
+                    'transform': 'translate(-200px, ' + y + 'px)', //offscreen
+                    'transition': 'all 300ms ease'
+                });
+                setTimeout(function () {
+                    thisUser.remove();
+                }, 300);
+            }
         });
     }
-    var unParsed = thisUser.prop('style').transform.substring(10);
-    var y = parseInt(unParsed.split(",")[1].split("px")[0]);
-    thisUser.css({
-        'transform': 'translate(-200px, ' + y + 'px)', //offscreen
-        'transition': 'all 300ms ease'
-    });
-    setTimeout(function () {
-        thisUser.remove();
-    }, 300);
 }
 
 function populateSpeakingPlayersList() {
@@ -279,7 +283,10 @@ function speak(user, peer) {
         isSpeaking: true
     }
     dew.notify("voip-speaking", speaker);
-
+    
+    if(peer.gainNode.gain.value == 0) //prevent name from showing if they are muted
+        return;
+    
     dew.getSessionInfo().then(function (info) {
         dew.callMethod("isMapLoading", {}).then(function (mapLoadingRes) {
             dew.command('VoIP.SpeakingPlayerOnHUD').then(function (hudToggleRes) {
@@ -443,6 +450,14 @@ function startConnection(info) {
                             "value": false
                         });
                     }
+                });
+
+                speechEvents.on("volume_change", function (volume) {
+                    var selfVolume = {
+                        volume: volume
+                    }
+
+                    dew.notify("voip-self-volume", selfVolume);
                 });
 
                 serverCon = new WebSocket("ws://" + info.server, "dew-voip");

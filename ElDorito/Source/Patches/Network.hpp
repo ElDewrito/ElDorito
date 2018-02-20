@@ -12,6 +12,7 @@ namespace Patches::Network
 
 	bool StartInfoServer();
 	bool StopInfoServer();
+	int GetNumPlayers();
 
 	bool IsInfoSocketOpen();
 

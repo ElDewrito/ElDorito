@@ -1,0 +1,26 @@
+.legend-button{
+	position: relative;
+	z-index: 3;
+
+	font-size: var(--legend-button-fontsize);
+	color: var(--legend-button-normal-color);
+
+
+    line-height: 32px;
+    vertical-align: middle;
+
+    display: flex;
+    float: left;
+    margin-right: 16px;
+    height: 32px;
+		padding: 12px;
+		padding-left: 0;
+}
+.legend-button img{
+	display: none;
+	position:relative;
+	height: 32px;
+}
+.legend-button:hover{
+	text-decoration: underline;
+}

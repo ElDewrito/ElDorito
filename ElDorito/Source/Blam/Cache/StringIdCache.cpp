@@ -13,10 +13,10 @@ namespace Blam::Cache
 	StringIDCache::~StringIDCache()
 	{
 		if (Strings != nullptr)
-			delete Strings;
+			delete[] Strings;
 
 		if (Data != nullptr)
-			delete Data;
+			delete[] Data;
 	}
 
 	bool StringIDCache::Load(const std::string &path)
@@ -51,7 +51,7 @@ namespace Blam::Cache
 		}
 
 		stream.close();
-		delete stringOffsets;
+		delete[] stringOffsets;
 
 		return true;
 	}

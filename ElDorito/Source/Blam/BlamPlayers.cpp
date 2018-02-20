@@ -14,30 +14,30 @@ namespace Blam::Players
 		return *ElDorito::Instance().GetMainTls(PlayersTlsOffset).Read<DataArray<PlayerDatum>*>();
 	}
 
-	DatumIndex GetLocalPlayer(int index)
+	DatumHandle GetLocalPlayer(int index)
 	{
 		typedef uint32_t(*GetLocalPlayerPtr)(int index);
 		auto GetLocalPlayer = reinterpret_cast<GetLocalPlayerPtr>(0x589C30);
 		return GetLocalPlayer(index);
 	}
 
-	int GetKills(DatumIndex player)
+	int GetKills(DatumHandle player)
 	{
-		typedef int(*GetPlayerKillsPtr)(DatumIndex player);
+		typedef int(*GetPlayerKillsPtr)(DatumHandle player);
 		auto GetPlayerKills = reinterpret_cast<GetPlayerKillsPtr>(0x550620);
 		return GetPlayerKills(player);
 	}
 
-	int GetDeaths(DatumIndex player)
+	int GetDeaths(DatumHandle player)
 	{
-		typedef int(*GetPlayerDeathsPtr)(DatumIndex player);
+		typedef int(*GetPlayerDeathsPtr)(DatumHandle player);
 		auto GetPlayerDeaths = reinterpret_cast<GetPlayerDeathsPtr>(0x550580);
 		return GetPlayerDeaths(player);
 	}
 
-	int GetAssists(DatumIndex player)
+	int GetAssists(DatumHandle player)
 	{
-		typedef int(*GetPlayerAssistsPtr)(DatumIndex player);
+		typedef int(*GetPlayerAssistsPtr)(DatumHandle player);
 		auto GetPlayerAssists = reinterpret_cast<GetPlayerAssistsPtr>(0x5504E0);
 		return GetPlayerAssists(player);
 	}

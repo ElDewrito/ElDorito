@@ -4,58 +4,23 @@
 #include <type_traits>
 #include "Tags\Tag.hpp"
 
+#include "Memory\DatumHandle.hpp"
+
 namespace Blam
 {
-	int CalculateDatumArraySize(int datumSize, int datumCount, int alignmentBits);
-
-	// A unique handle used to refer to data.
-	struct DatumIndex
-	{
-		// Represents a null datum index.
-		static const DatumIndex Null;
-
-		typedef uint16_t TSalt;  // Type of a salt value
-		typedef uint16_t TIndex; // Type of an index value
-
-		// Creates a null datum index.
-		DatumIndex() : Handle(0xFFFFFFFF) { }
-
-		// Creates a datum index from a handle.
-		DatumIndex(uint32_t handle) : Handle(handle) { }
-
-		// Creates a datum index from a salt and an index.
-		DatumIndex(TSalt salt, TIndex index)
-		{
-			Handle = (salt << 16) | index;
-		}
-
-		// The value of the datum index as a 32-bit integer.
-		uint32_t Handle;
-
-		// Gets the datum index's salt value.
-		TSalt Salt() const { return Handle >> 16; }
-
-		// Gets the datum index's index value.
-		TIndex Index() const { return Handle & 0xFFFF; }
-
-		bool operator==(const DatumIndex other) const { return Handle == other.Handle; }
-		bool operator!=(const DatumIndex other) const { return !(*this == other); }
-		operator uint32_t() const { return Handle; }
-		operator bool() const { return *this != Null; }
-	};
-	static_assert(sizeof(DatumIndex) == 4, "Invalid DatumIndex size");
+	int CalculateDatumArraySize(int datumCount, int datumSize, int alignmentBits);
 
 	// Base for structures in a data array.
 	struct DatumBase
 	{
 	private:
-		DatumIndex::TSalt salt;
+		uint16_t salt;
 
 	public:
-		explicit DatumBase(DatumIndex::TSalt salt) : salt(salt) { }
+		explicit DatumBase(uint16_t salt) : salt(salt) { }
 
 		// Gets the datum's salt value.
-		DatumIndex::TSalt GetSalt() const { return salt; }
+		uint16_t GetSalt() const { return salt; }
 
 		// Returns true if the datum is null.
 		bool IsNull() const { return salt == 0; }
@@ -77,8 +42,8 @@ namespace Blam
 		int NextIndex;                 // Index to start searching at to allocate a new datum
 		int FirstUnallocated;          // Data starting at this index is guaranteed to be unallocated
 		int ActualCount;               // Number of indices that are actually used
-		DatumIndex::TSalt NextSalt;    // Next salt value to use
-		DatumIndex::TSalt AltNextSalt; // Alternate next salt value to use (apparently used mainly by effects)
+		uint16_t NextSalt;    // Next salt value to use
+		uint16_t AltNextSalt; // Alternate next salt value to use (apparently used mainly by effects)
 		void *Data;                    // The data objects
 		uint32_t *ActiveIndices;       // Bitarray with 1 bit per index, where 1 = used and 0 = unused
 		int HeaderSize;                // Size of this object, including padding for alignment
@@ -86,14 +51,14 @@ namespace Blam
 
 		// Gets a pointer to the datum corresponding to a datum index.
 		// Returns null if the datum index does not match a valid datum.
-		DatumBase* Get(DatumIndex index) const;
+		DatumBase* Get(DatumHandle index) const;
 
 		// Gets a pointer to the datum corresponding to a datum index.
 		// The datum index is NOT checked for validity and this will always succeed.
 		// Use Get() if you need validity checking.
-		DatumBase* GetAddress(DatumIndex index) const
+		DatumBase* GetAddress(DatumHandle index) const
 		{
-			auto address = static_cast<uint8_t*>(Data) + index.Index() * DatumSize;
+			auto address = static_cast<uint8_t*>(Data) + index.Index * DatumSize;
 			return reinterpret_cast<DatumBase*>(address);
 		}
 	};
@@ -152,14 +117,14 @@ namespace Blam
 	struct DataIteratorBase
 	{
 		// Creates a data iterator for an array.
-		explicit DataIteratorBase(const DataArrayBase *data) : Array(data), CurrentDatumIndex(DatumIndex::Null), CurrentIndex(-1) { }
+		explicit DataIteratorBase(const DataArrayBase *data) : Array(data), CurrentDatumIndex(DatumHandle::Null), CurrentIndex(-1) { }
 
 		// Moves to the next datum and returns a pointer to it.
 		// Returns null if at the end of the array.
 		DatumBase* Next();
 
 		const DataArrayBase *Array;   // The data array that the iterator operates on
-		DatumIndex CurrentDatumIndex; // The datum index of the current datum
+		DatumHandle CurrentDatumIndex; // The datum index of the current datum
 		int CurrentIndex;             // The index of the current datum
 	};
 	static_assert(sizeof(DataIteratorBase) == 0xC, "Invalid DataIteratorBase size");
@@ -176,12 +141,12 @@ namespace Blam
 
 		// Gets a pointer to the datum corresponding to a datum index.
 		// Returns null if the datum index does not match a valid datum.
-		TDatum* Get(DatumIndex index) const { return static_cast<TDatum*>(DataArrayBase::Get(index)); }
+		TDatum* Get(DatumHandle index) const { return static_cast<TDatum*>(DataArrayBase::Get(index)); }
 
 		// Gets a reference to the datum corresponding to a datum index.
 		// The datum index is NOT checked for validity and this will always succeed.
 		// Use Get() if you need validity checking.
-		TDatum& operator[](DatumIndex index) const { return *static_cast<TDatum*>(GetAddress(index)); }
+		TDatum& operator[](DatumHandle index) const { return *static_cast<TDatum*>(GetAddress(index)); }
 
 		// Gets an iterator pointing to the beginning of this data array.
 		DataIterator<TDatum> begin()

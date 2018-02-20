@@ -7,13 +7,14 @@
 #include "../Patches/Ui.hpp"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include <boost/regex.hpp>
 
 namespace
 {
 	bool VariableSaturationUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto saturation = Modules::ModuleGraphics::Instance().VarSaturation->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::SaturationIndex).Write(saturation);
 
@@ -27,7 +28,7 @@ namespace
 	bool VariableRedHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto redHue = Modules::ModuleGraphics::Instance().VarRedHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 0).Write(redHue);
 
@@ -41,7 +42,7 @@ namespace
 	bool VariableGreenHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto greenHue = Modules::ModuleGraphics::Instance().VarGreenHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 1).Write(greenHue);
 
@@ -55,7 +56,7 @@ namespace
 	bool VariableBlueHueUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		auto blueHue = Modules::ModuleGraphics::Instance().VarBlueHue->ValueFloat;
-		Pointer &hueSaturationControlPtr = ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0];
+		Pointer hueSaturationControlPtr(ElDorito::GetMainTls(GameGlobals::Graphics::TLSOffset)[0]);
 		hueSaturationControlPtr(GameGlobals::Graphics::GraphicsOverrideIndex).Write(true);
 		hueSaturationControlPtr(GameGlobals::Graphics::ColorIndex + sizeof(float) * 2).Write(blueHue);
 
@@ -70,7 +71,7 @@ namespace
 	{
 		auto bloom = Modules::ModuleGraphics::Instance().VarBloom->ValueFloat;
 
-		Pointer &atmoFogGlobalsPtr = ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0];
+		Pointer atmoFogGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Bloom::TLSOffset)[0]);
 		atmoFogGlobalsPtr(GameGlobals::Bloom::EnableIndex).Write(1L);
 		atmoFogGlobalsPtr(GameGlobals::Bloom::IntensityIndex).Write(bloom);
 
@@ -85,7 +86,7 @@ namespace
 	{
 		auto dof = Modules::ModuleGraphics::Instance().VarDepthOfField->ValueFloat;
 
-		Pointer &dofGlobals = ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0];
+		Pointer dofGlobals(ElDorito::GetMainTls(GameGlobals::DepthOfField::TLSOffset)[0]);
 		dofGlobals(GameGlobals::DepthOfField::EnableIndex).Write(true);
 		dofGlobals(GameGlobals::DepthOfField::IntensityIndex).Write(dof);
 
@@ -100,7 +101,7 @@ namespace
 	{
 		auto enabled = Modules::ModuleGraphics::Instance().VarLetterbox->ValueInt;
 
-		Pointer &cinematicGlobals = ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0];
+		Pointer cinematicGlobals(ElDorito::GetMainTls(GameGlobals::Cinematic::TLSOffset)[0]);
 		cinematicGlobals(GameGlobals::Cinematic::LetterboxIndex).Write(enabled);
 
 		std::stringstream ss;
@@ -116,6 +117,39 @@ namespace
 			returnInfo = "The changes will apply on game restart";
 		else if(ElDorito::Instance().GameHasMenuShown) //If the user comes to their senses and turns UI scaling back on then apply the change. Running before the main menu has shown may result in a crash.
 			Patches::Ui::ApplyUIResolution();
+		return true;
+	}
+
+	bool VariableCustomHUDColorsEnabledUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Modules::ModuleGraphics::Instance().VarCustomHUDColorsEnabled->ValueInt == 1)
+			Patches::Ui::enableCustomHUDColors = true;
+		else
+			Patches::Ui::enableCustomHUDColors = false;
+		return true;
+	}
+
+	bool VariableCustomHUDColorsUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		boost::cmatch what;
+		boost::regex expression("#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})");
+
+		if (boost::regex_match(Modules::ModuleGraphics::Instance().VarCustomHUDColorsPrimary->ValueString.c_str(), what, expression))
+			Patches::Ui::customPrimaryHUDColor = std::stoi(Modules::ModuleGraphics::Instance().VarCustomHUDColorsPrimary->ValueString.substr(1), 0, 16);
+		else
+		{
+			returnInfo = "Invalid Primary Color";
+			return false;
+		}
+
+		if (boost::regex_match(Modules::ModuleGraphics::Instance().VarCustomHUDColorsSecondary->ValueString.c_str(), what, expression))
+			Patches::Ui::customSecondaryHUDColor = std::stoi(Modules::ModuleGraphics::Instance().VarCustomHUDColorsSecondary->ValueString.substr(1), 0, 16);
+		else
+		{
+			returnInfo = "Invalid Secondary Color";
+			return false;
+		}
+
 		return true;
 	}
 
@@ -192,6 +226,13 @@ namespace Modules
 		VarUIScaling = AddVariableInt("UIScaling", "uiscaling", "Enables proper UI scaling to match your monitor's resolution.", eCommandFlagsArchived, 1, VariableUIScalingUpdate);
 		VarUIScaling->ValueIntMin = 0;
 		VarUIScaling->ValueIntMax = 1;
+
+		VarCustomHUDColorsEnabled = AddVariableInt("CustomHUDColorsEnabled", "hud_colors", "Enables custom heads up display colors.", eCommandFlagsArchived, 0, VariableCustomHUDColorsEnabledUpdate);
+		VarCustomHUDColorsEnabled->ValueIntMin = 0;
+		VarCustomHUDColorsEnabled->ValueIntMax = 1;
+
+		VarCustomHUDColorsPrimary = AddVariableString("CustomHUDColorsPrimary", "hud_colors_1", "Change the primary custom HUD color.", eCommandFlagsArchived, "#0E6249", VariableCustomHUDColorsUpdate);
+		VarCustomHUDColorsSecondary = AddVariableString("CustomHUDColorsSecondary", "hud_colors_2", "Change the primary custom HUD color.", eCommandFlagsArchived, "#27CB9B", VariableCustomHUDColorsUpdate);
 
 		AddCommand("SupportedResolutions", "supported_resolutions", "List the supported screen resolutions", eCommandFlagsNone, CommandSupportedResolutions);
 	}

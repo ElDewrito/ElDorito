@@ -11,6 +11,7 @@
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/Game/Globals.hpp"
 #include "../Blam/Tags/Game/MultiplayerGlobals.hpp"
+#include "../Blam/Tags/Globals/CacheFileGlobalTags.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Modules/ModulePlayer.hpp"
 #include "../Blam/BlamObjects.hpp"
@@ -56,7 +57,7 @@ namespace
 	{
 		memset(out, 0, sizeof(PlayerCustomization));
 
-		memset(out->Colors, 0, 5 * sizeof(uint32_t));
+		memset(out->Colors, 0, sizeof(out->Colors));
 
 		uint32_t temp = 0;
 
@@ -173,9 +174,9 @@ namespace Game::Armor
 		using Blam::Tags::TagInstance;
 		using Blam::Tags::Game::Globals;
 		using Blam::Tags::Game::MultiplayerGlobals;
+		using Blam::Tags::Globals::CacheFileGlobalTags;
 
-		auto *matg = TagInstance(0x0016).GetDefinition<Globals>();
-		auto *mulg = TagInstance(matg->MultiplayerGlobals.TagIndex).GetDefinition<MultiplayerGlobals>();
+		auto *mulg = TagInstance::GetDefinition<MultiplayerGlobals>("multiplayer\\multiplayer_globals");
 
 		for (auto &element : mulg->Universal->SpartanArmorCustomization)
 		{
@@ -217,6 +218,8 @@ namespace Game::Armor
 
 	void CustomizeBiped(uint32_t bipedObject)
 	{
+		using Blam::Tags::TagInstance;
+
 		auto &playerVars = Modules::ModulePlayer::Instance();
 
 		// Generate customization data
@@ -241,7 +244,7 @@ namespace Game::Armor
 		UpdateArmorColors(bipedObject);
 
 		// Pose the biped with the assault rifle
-		PoseWithWeapon(bipedObject, 0x151E);
+		PoseWithWeapon(bipedObject, TagInstance::Find('weap', "objects\\weapons\\rifle\\assault_rifle\\assault_rifle").Index);
 	}
 
 	static const auto Object_SetTransform = (void(*)(int objectIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *right, Blam::Math::RealVector3D *up, int a5))(0x00B33530);

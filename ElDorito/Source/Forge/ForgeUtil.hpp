@@ -11,7 +11,7 @@ namespace Forge
 		uint8_t ColorR;
 		uint8_t ColorG;
 		uint8_t ColorB;
-		uint8_t ColorIntensity;
+		uint8_t Unused0;
 		uint8_t Intensity;
 		uint8_t Unused1;
 		uint8_t Unused2;
@@ -50,16 +50,90 @@ namespace Forge
 	};
 	static_assert(sizeof(ReforgeObjectProperties) <= 16, "ReforgeObjectProperties must be 16 bytes or less in size");
 	
+
+	struct ForgeMapModifierProperties
+	{
+		enum MapModifierFlags : uint16_t
+		{
+			eMapModifierFlags_DisablePushBarrier = (1 << 0),
+			eMapModifierFlags_DisableDeathBarrier = (1 << 1)
+		};
+		uint16_t Flags;
+		uint8_t CameraFxExposure;
+		uint8_t CameraFxLightIntensity;
+		uint8_t CameraFxBloom;
+		uint8_t _PADDING;
+		struct  {
+			uint8_t Flags : 4;
+			uint8_t Weather : 4;
+			uint8_t FogColorR;
+			uint8_t FogColorG;
+			uint8_t FogColorB;
+			uint8_t FogDensity;
+			uint8_t FogVisibility;
+			uint8_t Brightness;
+			uint8_t Reserved1;
+			uint8_t Reserved2;
+		} AtmosphereProperties;
+		uint8_t PhysicsGravity;
+	};
+	static_assert(sizeof(ForgeMapModifierProperties) <= 16, "ForgeMapModifierProperties must be 16 bytes or less in size");
+
+	struct ForgeGarbageVolumeProperties
+	{
+		enum GarbageVolumeFlags
+		{
+			eGarbageVolumeFlags_CollectDeadBipeds = (1 << 0),
+			eGarbageVolumeFlags_CollectWeapons = (1 << 1),
+			eGarbageVolumeFlags_CollectObjectives = (1 << 2),
+			eGarbageVolumeFlags_CollectEquipment = (1 << 3),
+			eGarbageVolumeFlags_CollectGrenades = (1 << 4),
+			eGarbageVolumeFlags_CollectVehicles = (1 << 5)
+		};
+
+		enum GarbageVolumeInterval
+		{
+			eGarbageVolumeInterval_Instant = 0,
+			eGarbageVolumeInterval_3_Seconds = 1,
+			eGarbageVolumeInterval_15_Seconds = 2,
+			eGarbageVolumeInterval_30_Seconds = 3,
+		};
+
+		uint8_t Flags : 6;
+		uint8_t Interval : 2;
+	};
+	static_assert(sizeof(ForgeGarbageVolumeProperties) <= 1, "ForgeGarbageVolumeProperties must be 1 bytes or less in size");
+
+	struct ForgeKillVolumeProperties
+	{
+		enum KillVolumeFlags
+		{
+			eKillVolumeFlags_AlwaysVisible = (1 << 0),
+			eKillVolumeFlags_DestroyVehicles = (1 << 1)
+		};
+
+		enum KillVolumeDamageCause
+		{
+			eKillVolumeDamageCause_Default = 0,
+			eKillVolumeDamageCause_Guardians,
+			eKillVolumeDamageCause_Falling
+		};
+
+		uint8_t Flags : 6;
+		uint8_t DamageCause : 2;
+	};
+	static_assert(sizeof(ForgeKillVolumeProperties) <= 1, "ForgeKillVolumeProperties must be 1 bytes or less in size");
+
 	struct ZoneShape
 	{
-		int32_t Shape;
-		float Width;
-		float Depth;
+		int Shape;
+		int ShapeShader;
+		float RadiusWidth;
+		float Length;
 		float Top;
 		float Bottom;
 		Blam::Math::RealMatrix4x3 Transform;
 		float BoundingRadius;
-		uint32_t Unknown4C;
 	};
 	static_assert(sizeof(ZoneShape) == 0x50, "Invalid ZoneShape size");
 
@@ -117,6 +191,7 @@ namespace Forge
 	const auto GetEditorModeState = (bool(__cdecl *)(uint32_t playerIndex, uint32_t* heldObjectIndex, uint32_t* objectIndexUnderCrosshair))(0x59A6F0);
 	const auto GetSandboxGlobals = (SandboxGlobals&(*)())(0x0059BC10);
 	const auto ObjectIsPhased = (bool(*)(uint32_t objectIndex))(0x0059A7B0);
+	const auto PrintKillFeedText = (void(__cdecl *)(int hudIndex, wchar_t *text, int a3))(0x00A95920);
 
 	Blam::MapVariant* GetMapVariant();
 
@@ -126,6 +201,4 @@ namespace Forge
 	void DeleteObject(uint16_t playerIndex, int16_t placementIndex);
 	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth, const Blam::Math::RealVector3D &normal);
 	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float throwForce);
-	void CanvasMap();
-	bool ObjectIsForgeLight(uint32_t objectTagIndex);
 }

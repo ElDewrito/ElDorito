@@ -104,7 +104,7 @@ namespace Blam::Tags::Objects
 		"killjoy",
 		"laser_kill",
 		"grenade_stick",
-		"headshot",
+		"sniper_kill",
 		"assassin",
 		"beat_down",
 		"incineration",

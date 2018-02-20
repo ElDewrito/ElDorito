@@ -32,44 +32,11 @@ namespace Blam
 			//using Blam::Tags::Objects::DamageReportingType;
 			//using Blam::Tags::Sounds::NoiseLevel;
 
-			struct Biped : Unit, TagGroup<'bipd'>
+			struct Biped : TagGroup<'bipd'>
 			{
-				enum LockOnFlagsValue : int32_t
-				{
-					None = 0,
-					LockedByHumanTargeting = 1 << 0,
-					LockedByPlasmaTargeting = 1 << 1,
-					AlwaysLockedByHumanTargeting = 1 << 2,
-					Bit3 = 1 << 3,
-					Bit4 = 1 << 4,
-					Bit5 = 1 << 5,
-					Bit6 = 1 << 6,
-					Bit7 = 1 << 7,
-					Bit8 = 1 << 8,
-					Bit9 = 1 << 9,
-					Bit10 = 1 << 10,
-					Bit11 = 1 << 11,
-					Bit12 = 1 << 12,
-					Bit13 = 1 << 13,
-					Bit14 = 1 << 14,
-					Bit15 = 1 << 15,
-					Bit16 = 1 << 16,
-					Bit17 = 1 << 17,
-					Bit18 = 1 << 18,
-					Bit19 = 1 << 19,
-					Bit20 = 1 << 20,
-					Bit21 = 1 << 21,
-					Bit22 = 1 << 22,
-					Bit23 = 1 << 23,
-					Bit24 = 1 << 24,
-					Bit25 = 1 << 25,
-					Bit26 = 1 << 26,
-					Bit27 = 1 << 27,
-					Bit28 = 1 << 28,
-					Bit29 = 1 << 29,
-					Bit30 = 1 << 30,
-					Bit31 = 1 << 31
-				};
+				Unit Unit;
+
+				enum LockOnFlagsValue : int32_t;
 
 				struct WeaponCameraHeightBlock;
 				struct UnknownBlock3;
@@ -198,6 +165,43 @@ namespace Blam
 				float Unknown76;
 				uint32_t Unknown77;
 
+				enum LockOnFlagsValue : int32_t
+				{
+					None = 0,
+					LockedByHumanTargeting = 1 << 0,
+					LockedByPlasmaTargeting = 1 << 1,
+					AlwaysLockedByHumanTargeting = 1 << 2,
+					Bit3 = 1 << 3,
+					Bit4 = 1 << 4,
+					Bit5 = 1 << 5,
+					Bit6 = 1 << 6,
+					Bit7 = 1 << 7,
+					Bit8 = 1 << 8,
+					Bit9 = 1 << 9,
+					Bit10 = 1 << 10,
+					Bit11 = 1 << 11,
+					Bit12 = 1 << 12,
+					Bit13 = 1 << 13,
+					Bit14 = 1 << 14,
+					Bit15 = 1 << 15,
+					Bit16 = 1 << 16,
+					Bit17 = 1 << 17,
+					Bit18 = 1 << 18,
+					Bit19 = 1 << 19,
+					Bit20 = 1 << 20,
+					Bit21 = 1 << 21,
+					Bit22 = 1 << 22,
+					Bit23 = 1 << 23,
+					Bit24 = 1 << 24,
+					Bit25 = 1 << 25,
+					Bit26 = 1 << 26,
+					Bit27 = 1 << 27,
+					Bit28 = 1 << 28,
+					Bit29 = 1 << 29,
+					Bit30 = 1 << 30,
+					Bit31 = 1 << 31
+				};
+
 				struct WeaponCameraHeightBlock
 				{
 					StringID Class;
@@ -258,9 +262,7 @@ namespace Blam
 					uint32_t Unknown9;
 					uint32_t Unknown10;
 					uint32_t Unknown11;
-					float TranslationI;
-					float TranslationJ;
-					float TranslationK;
+					Blam::Math::RealVector3D Translation;
 					float TranslationRadius;
 				};
 
@@ -287,13 +289,9 @@ namespace Blam
 					uint32_t Unknown4;
 					uint32_t Unknown5;
 					uint32_t Unknown6;
-					float BottomI;
-					float BottomJ;
-					float BottomK;
+					Blam::Math::RealVector3D Bottom;
 					float BottomRadius;
-					float TopI;
-					float TopJ;
-					float TopK;
+					Blam::Math::RealVector3D Top;
 					float TopRadius;
 				};
 
@@ -329,9 +327,7 @@ namespace Blam
 					uint32_t Unknown9;
 					uint32_t Unknown10;
 					uint32_t Unknown11;
-					float TranslationI;
-					float TranslationJ;
-					float TranslationK;
+					Blam::Math::RealVector3D Translation;
 					float TranslationRadius;
 				};
 

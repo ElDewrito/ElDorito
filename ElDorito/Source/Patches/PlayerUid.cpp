@@ -51,6 +51,10 @@ namespace Patches::PlayerUid
 		// Override the "get UID" function to pull the UID from preferences
 		Hook(0x67E005, GetPlayerUidHook, HookFlags::IsCall).Apply();
 
+		// the last two bytes of the uid determine whether the profile is a guest
+		// return false to prevent certain functions from not working, such as the option to save maps being hidden
+		Patch(0x67D810, { 0x30, 0xC0, 0xC3 }).Apply(); // c_local_profile::is_guest
+
 		// Register the player-properties packet extension
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<UidExtension>());
 	}

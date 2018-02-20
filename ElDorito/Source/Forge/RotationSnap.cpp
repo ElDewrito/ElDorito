@@ -16,8 +16,6 @@ namespace
 	const auto DURATION_SECONDS = 0.3f;
 	const float SNAP_ANGLES[] = { 0, 3, 5, 15, 30, 45, 90 };
 
-	int s_SnapAngleIndex = 0;
-
 	struct
 	{
 		uint32_t ObjectIndex;
@@ -42,7 +40,11 @@ namespace Forge::RotationSnap
 		HandleInput();
 
 		static auto& moduleForge = Modules::ModuleForge::Instance();
-		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		auto currentSnapIndex = moduleForge.VarRotationSnap->ValueInt;
+		if (currentSnapIndex < 0 || currentSnapIndex > 6)
+			currentSnapIndex = 0;
+
+		const auto snapAngleDegrees = SNAP_ANGLES[currentSnapIndex];
 
 		if (snapAngleDegrees < 1 && !s_RotationSnapState.IsScripted)
 			return;
@@ -53,7 +55,7 @@ namespace Forge::RotationSnap
 			s_RotationSnapState.StartRotation = RealQuaternion();
 			s_RotationSnapState.EndRotation = s_RotationSnapState.StartRotation;
 			s_RotationSnapState.Current = 1.0f;
-			s_RotationSnapState.ObjectIndex = DatumIndex::Null;
+			s_RotationSnapState.ObjectIndex = DatumHandle::Null;
 		}
 
 		s_RotationSnapState.Current += Blam::Time::GetSecondsPerTick() / DURATION_SECONDS;
@@ -90,7 +92,8 @@ namespace Forge::RotationSnap
 	void RotateSnapped(const Blam::Math::RealVector3D& axis)
 	{
 		static auto& moduleForge = Modules::ModuleForge::Instance();
-		const auto snapAngleDegrees = moduleForge.VarRotationSnap->ValueFloat;
+		auto currentSnap = moduleForge.VarRotationSnap->ValueInt;
+		const auto snapAngleDegrees = SNAP_ANGLES[currentSnap];
 		const auto snapAngleRadians = snapAngleDegrees / 180.0f * Blam::Math::PI;
 
 		if (s_RotationSnapState.Current < 1)
@@ -121,18 +124,19 @@ namespace Forge::RotationSnap
 
 namespace
 {
-	void SetSnapAngle(float angle)
+	void SetSnap(int value)
 	{
 		static auto& moduleForge = Modules::ModuleForge::Instance();
 
-		if (angle < 0 || angle >= 360)
-			angle = 0;
+		if (value < 0) value = 0;
+		if (value > 6) value = 6;
 
-		moduleForge.VarRotationSnap->ValueFloat = angle;
+		std::string prev;
+		Modules::CommandMap::Instance().SetVariable(moduleForge.VarRotationSnap, std::to_string(value), prev);
 
 		wchar_t buff[256];
-		if (angle > 0)
-			swprintf_s(buff, 256, L"Rotation Snap: %.2f\n", angle);
+		if (value > 0)
+			swprintf_s(buff, 256, L"Rotation Snap: %.2f\n", SNAP_ANGLES[value]);
 		else
 			swprintf_s(buff, 256, L"Rotation Snap: OFF");
 
@@ -144,26 +148,29 @@ namespace
 	{
 		using namespace Blam::Input;
 
+		static auto& moduleForge = Modules::ModuleForge::Instance();
+
 		auto uiLeftAction = GetActionState(eGameActionUiLeft);
 		auto uiRightAction = GetActionState(eGameActionUiRight);
 
 		int snapAngleCount = sizeof(SNAP_ANGLES) / sizeof(SNAP_ANGLES[0]);
+		auto currentSnap = static_cast<int>(moduleForge.VarRotationSnap->ValueInt);
 
 		if (!(uiLeftAction->Flags & eActionStateFlagsHandled) && uiLeftAction->Ticks == 1)
 		{
-			if (--s_SnapAngleIndex < 0)
-				s_SnapAngleIndex = snapAngleCount - 1;
+			if (--currentSnap < 0)
+				currentSnap = snapAngleCount - 1;
 
 			uiLeftAction->Flags |= eActionStateFlagsHandled;
-			SetSnapAngle(SNAP_ANGLES[s_SnapAngleIndex]);
+			SetSnap(currentSnap);
 		}
 		if (!(uiRightAction->Flags & eActionStateFlagsHandled) &&  uiRightAction->Ticks == 1)
 		{
-			if (++s_SnapAngleIndex >= snapAngleCount)
-				s_SnapAngleIndex = 0;
+			if (++currentSnap >= snapAngleCount)
+				currentSnap = 0;
 
 			uiRightAction->Flags |= eActionStateFlagsHandled;
-			SetSnapAngle(SNAP_ANGLES[s_SnapAngleIndex]);
+			SetSnap(currentSnap);
 		}
 	}
 }

@@ -93,12 +93,38 @@ namespace Blam
 	typedef struct _TEAM_SCORE
 	{
 		int16_t Score;
-		int16_t Unkn;
+		int16_t TotalScore;
 		int16_t Kills;
 		int16_t Deaths;
 		int16_t Assists;
 		int8_t Unknown0[0x10];
 	} TEAM_SCORE;
+	static_assert(sizeof(TEAM_SCORE) == 0x1A, "Invalid Team Score size");
+	
+	typedef struct _PLAYER_SCOREBOARD_STRUCT
+	{
+		int16_t Score;
+		int16_t TotalScore;
+		int16_t Kills;
+		int16_t Deaths;
+		int16_t Suicides;
+		int16_t Betrayals;
+		int16_t Assists;
+		int16_t UnknownE[0x5];
+		int16_t ConsecutiveKills;
+		int16_t HighestSpree;
+		int16_t Unknown1C[0xC];
+	} PLAYER_SCORE;
+	static_assert(sizeof(PLAYER_SCORE) == 0x34, "Invalid Player Score size");
+
+	struct MutiplayerScoreboard
+	{
+		uint32_t unknown;
+		PLAYER_SCORE PlayerScores[16];
+		TEAM_SCORE TeamScores[8];
+		uint32_t unknown414[3];
+	};
+	static_assert(sizeof(MutiplayerScoreboard) == 0x420, "Invalid Scoreboard Size");
 
 	// todo: safely make this into a C++ struct without any padding/packing etc
 	typedef struct _BLAM_GAME_VARIANT

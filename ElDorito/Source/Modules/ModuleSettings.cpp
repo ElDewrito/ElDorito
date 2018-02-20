@@ -2,6 +2,7 @@
 #include "../Patches/Audio.hpp"
 #include "../ThirdParty/rapidjson/stringbuffer.h"
 #include "../ThirdParty/rapidjson/writer.h"
+#include "../Patches/Ui.hpp"
 
 namespace
 {
@@ -376,7 +377,16 @@ namespace
 
 		auto intValue = value == "default" ? 0 : value == "blue" ? 1 : 2;
 
-		SSL_SetTeamColor(intValue);
+		if (intValue == 1)
+		{
+			Patches::Ui::enableAllyBlueWaypointsFix = true;
+			SSL_SetTeamColor(0);
+		}
+		else
+		{ 
+			Patches::Ui::enableAllyBlueWaypointsFix = false;
+			SSL_SetTeamColor(intValue);
+		}
 
 		std::stringstream ss;
 		ss << "Player Marker Colors set to " << value << ".";
@@ -630,7 +640,7 @@ namespace Modules
 		VarEffectsQuality = AddVariableString("EffectsQuality", "effects", "Controls whether the effects Quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsEffectsQualityUpdate);
 		VarFullscreen = AddVariableInt("Fullscreen", "fullscreen", "Controls whether the game is windowed (0) or fullscreen (1)", eCommandFlagsArchived, 1, VariableSettingsFullscreenUpdate);
 		VarScreenResolution = AddVariableString("ScreenResolution", "resolution", "Controls the screen resolution", eCommandFlagsArchived, "default", VariableSettingsScreenResolutionUpdate);
-		VarHUDShake = AddVariableInt("HUDShake", "hud_shake", "Controls whether hud shake is enabled (1) or disabled (0)", eCommandFlagsArchived, 1, VariableSettingsHUDShakeUpdate);
+		VarHUDShake = AddVariableInt("HUDShake", "hud_shake", "Controls whether hud shake is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsHUDShakeUpdate);
 		VarInvertLook = AddVariableInt("InvertLook", "invert_look", "Controls whether look-inversion is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsInvertLookUpdate);
 		VarInvertMouse = AddVariableInt("InvertMouse", "invert_mouse", "Controls whether mouse-inversion is enabled (1) or disabled (0)", eCommandFlagsArchived, 0, VariableSettingsInvertMouseUpdate);
 		VarLightingQuality = AddVariableString("LightingQuality", "lighting", "Controls whether the lighting quality level is low, medium or high", eCommandFlagsArchived, "high", VariableSettingsLightingQualityUpdate);

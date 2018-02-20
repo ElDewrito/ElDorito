@@ -1,0 +1,65 @@
+body{
+  background-image: url("dew://assets/blur/customization-blur.png");
+  background-repeat: no-repeat;
+  background-size:100% 100%;
+}
+
+.ed-color-picker__hue-slider-wrapper{
+    height:25px;
+}
+
+.ed-color-picker__detail{
+    color: var(--color-iceblue)
+}
+
+#buttonConatiner{
+    height:230px;
+}
+
+#infoBox{
+    display:none;
+    height:140px;
+}
+
+.emblem-tile img{
+    width: 25% !important;
+    padding-left: 74%;
+} 
+
+.emblemBox{
+	display: inline !important;
+	height:140px;
+}
+
+.emblemForm label{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    box-sizing: border-box;
+}
+.emblemForm label{
+    display: flex;
+    align-items: flex-end;
+    padding: 12px;
+    font-size: var(--button-tile-large-fontsize);
+    text-transform: uppercase;
+    color: var(--button-tile-color);
+}
+
+.emblemBox img{
+	height: 130px;
+    margin-left: 30%;
+	margin-top: -40px;
+}
+
+form.emblemColorForm {
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 6px;
+    width: 100%;
+    height: 100%;
+}
+.emblemColorForm span {
+    box-sizing: border-box;
+    display: block;
+}

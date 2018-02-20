@@ -13,8 +13,10 @@ namespace Blam::Tags::Items
 	using Blam::Text::StringID;
 	using Blam::Tags::Objects::Object;
 
-	struct Item : Object, TagGroup<'item'>
+	struct Item : TagGroup<'item'>
 	{
+		Object Object;
+
 		enum class Flags : int32_t;
 		struct PredictedBitmap;
 

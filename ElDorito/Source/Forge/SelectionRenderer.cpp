@@ -37,6 +37,12 @@ namespace
 
 	void RasterizeImplicitGeometryHook();
 	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes);
+	void VisionTracingShaderConstants1_Hook(int startRegister, int rows, float *data);
+	void VisionTracingShaderConstants2_Hook(int startRegister, int rows, float *data);
+	void VisionTracingColorHook(int type, float *color);
+	void VisionMaskHook(int sampler, uint32_t bitmapTagIndex, int bitmapIndex);
+
+	const auto MAX_TRACE_DISTANCE = 400.0f;
 }
 
 namespace Forge
@@ -45,6 +51,10 @@ namespace Forge
 	{
 		Hook(0x62E760, SpecialWeaponHUDHook, HookFlags::IsCall).Apply();
 		Hook(0x63B409, RasterizeImplicitGeometryHook, HookFlags::IsCall).Apply();
+		Hook(0x10E6A00, VisionTracingShaderConstants1_Hook, HookFlags::IsCall).Apply();
+		Hook(0x10E6A10, VisionTracingShaderConstants2_Hook, HookFlags::IsCall).Apply();
+		Hook(0x10E6A66, VisionTracingColorHook, HookFlags::IsCall).Apply();
+		Hook(0x10E6B40, VisionMaskHook, HookFlags::IsCall).Apply();
 	}
 
 	void SelectionRenderer::Update()
@@ -68,9 +78,9 @@ namespace Forge
 
 				Forge::GetObjectTransformationMatrix(it.CurrentDatumIndex, &item.Transform);
 
-				item.Transform.Forward *= (boundingBox->MaxX - boundingBox->MinX) * 1.01f;
-				item.Transform.Left *= (boundingBox->MaxY - boundingBox->MinY) * 1.01f;
-				item.Transform.Up *= (boundingBox->MaxZ - boundingBox->MinZ) * 1.01f;
+				item.Transform.Forward *= (boundingBox->MaxX - boundingBox->MinX) * 1.02f;
+				item.Transform.Left *= (boundingBox->MaxY - boundingBox->MinY) * 1.02f;
+				item.Transform.Up *= (boundingBox->MaxZ - boundingBox->MinZ) * 1.02f;
 				item.Transform.Position = it->Data->Center;
 
 				item.Width = boundingBox->MaxX - boundingBox->MinX;
@@ -78,15 +88,20 @@ namespace Forge
 				item.Height = boundingBox->MaxZ - boundingBox->MinZ;
 			}
 
+			static const auto PI2 = PI * 2.0f;
 			s_SelectionColorCounter += Blam::Time::GetSecondsPerTick() / 1.0f;
-			if (s_SelectionColorCounter > PI * 2.0f)
-				s_SelectionColorCounter -= PI * 2.0f;
+			if (s_SelectionColorCounter > PI2)
+				s_SelectionColorCounter -= PI2;
 		}
+
+
 	}
 
 	void SelectionRenderer::SetEnabled(bool enabled)
 	{
 		s_Enabled = enabled;
+		if (!enabled)
+			s_NumActiveItems = 0;
 	}
 
 	void SelectionRenderer::SetRendererType(RendererImplementationType type)
@@ -99,9 +114,6 @@ namespace
 {
 	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes)
 	{
-		if (s_RendererType != eRendererSpecialHud)
-			return;
-
 		static auto sub_A2CAA0 = (void(__cdecl*)(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objects, int16_t objectCount, BYTE *result))(0xA2CAA0);
 
 		static auto sub_686FD0 = (void(__cdecl*)())(0x686FD0);
@@ -116,7 +128,7 @@ namespace
 
 		sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
 
-		if (!s_Enabled)
+		if (!s_Enabled || s_RendererType != eRendererSpecialHud)
 			return;
 
 		auto mapv = Forge::GetMapVariant();
@@ -221,11 +233,74 @@ namespace
 
 	void RasterizeImplicitGeometryHook()
 	{
+		static const auto RasterizeImplicitGeometry = (void(*)())(0x00A743B0);
+		RasterizeImplicitGeometry();
+
 		if (!s_Enabled)
 			return;
 
-		static const auto RasterizeImplicitGeometry = (void(*)())(0x00A743B0);
-		RasterizeImplicitGeometry();
 		RenderImplicit();
+	}
+
+	const auto rasterizer_set_pixel_shader_constant_real = (void(*)(int startRegister, int Vector4fCount, float *pConstantData))(0x00A66270);
+
+	void VisionTracingShaderConstants1_Hook(int startRegister, int rows, float *data)
+	{
+		if (s_Enabled && s_RendererType == eRendererSpecialHud)
+		{
+			data[0] = 8.0f / MAX_TRACE_DISTANCE;
+		}
+		rasterizer_set_pixel_shader_constant_real(startRegister, rows, data);
+	}
+
+	void VisionTracingShaderConstants2_Hook(int startRegister, int rows, float *data)
+	{
+		if (s_Enabled && s_RendererType == eRendererSpecialHud)
+		{
+			data[1] = MAX_TRACE_DISTANCE;
+			data[0] = MAX_TRACE_DISTANCE;
+		}
+		rasterizer_set_pixel_shader_constant_real(startRegister, rows, data);
+	}
+
+	void VisionTracingColorHook(int type, float *color)
+	{
+		const auto chud_get_vision_trace_color = (void(*)(int type, float *color))(0x00AC9FD0);
+
+		if (s_Enabled && s_RendererType == eRendererSpecialHud)
+		{
+			if (type == 6)
+			{
+				color[0] = 1.0f;
+				color[1] = 1.0f;
+				color[2] = 0;
+				color[3] = 1.0f;
+			}
+			else
+			{
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 0;
+				color[3] = 0;
+			}
+		}
+		else
+		{
+			chud_get_vision_trace_color(type, color);
+		}
+	}
+
+	void VisionMaskHook(int sampler, uint32_t bitmapTagIndex, int bitmapIndex)
+	{
+		const auto rasterizer_set_bitmap = (void(*)(int sampler, uint32_t bitmapTagIndex, int bitmapIndex))(0x00A3D130);
+
+		if (s_RendererType == eRendererSpecialHud && s_Enabled)
+		{
+			rasterizer_set_bitmap(sampler, 0x0000037B, bitmapIndex); // shaders\default_bitmaps\bitmaps\alpha_white
+		}
+		else
+		{
+			rasterizer_set_bitmap(sampler, bitmapTagIndex, bitmapIndex);
+		}
 	}
 }

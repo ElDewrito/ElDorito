@@ -120,6 +120,18 @@
 			"url": "dew://screens/screenshot_notice/",
 			"captureInput": false,
 			"zIndex": 90
+		},
+		{
+			"id": "exit",
+			"url": "dew://screens/exit/",
+			"captureInput": true,
+			"zIndex": 1
+		},
+		{
+			"id": "discord",
+			"url": "dew://screens/discord/",
+			"captureInput": false,
+			"zIndex": 10
 		}
 	]
 }

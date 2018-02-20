@@ -3,6 +3,7 @@
 
 #include "BlamNetwork.hpp"
 #include "../Pointer.hpp"
+#include "../Discord/DiscordRPC.h"
 
 namespace
 {
@@ -183,9 +184,9 @@ namespace Blam::Network
 		return GetGameVariant(this);
 	}
 
-	void* MapVariantSessionParameter::Get() const
+	MapVariant* MapVariantSessionParameter::Get() const
 	{
-		typedef void*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
+		typedef MapVariant*(__thiscall *GetMapVariantPtr)(const MapVariantSessionParameter *thisPtr);
 		auto GetMapVariant = reinterpret_cast<GetMapVariantPtr>(0x456410);
 		return GetMapVariant(this);
 	}
@@ -247,10 +248,21 @@ namespace Blam::Network
 		return Get_Mode();
 	}
 
+	bool SetLobbyType(int type)
+	{
+		auto set_server_lobby_type = (bool(__cdecl*)(int))(0x00A7EE70);
+		return set_server_lobby_type(type);
+	}
+	
 	bool SetNetworkMode(int mode)
 	{
 		auto Set_Network_Mode = (bool(__cdecl*)(int))(0x00A7F950);
-		return Set_Network_Mode(mode);
+		bool success = Set_Network_Mode(mode);
+
+		//Let Discord Know
+		Discord::DiscordRPC::Instance().UpdatePresence(mode);
+
+		return success;
 	}
 	
 	bool Disconnect()

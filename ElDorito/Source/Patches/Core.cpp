@@ -6,11 +6,13 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
-#include "../Blam/Tags/Items/Weapon.hpp"
+#include "../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include "../Modules/ModuleGame.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModulePlayer.hpp"
+#include "../Console.hpp"
 #include "boost/filesystem.hpp"
 #include <codecvt>
 #include <Shlobj.h>
@@ -21,6 +23,7 @@ namespace
 	void TagsLoadedHook();
 	void FovHook();
 	double AspectRatioHook();
+	void ActiveCamoViewModelClipHook(float *nearPlane, float *farPlane);
 	void GrenadeLoadoutHook();
 	void ShutdownHook();
 	const char *GetMapsFolderHook();
@@ -28,9 +31,12 @@ namespace
 	void LoadLevelHook(uint8_t* data, char n2, int n3, int n4);
 	void GameStartHook();
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5);
+	void __cdecl BipedFeetZoneOffsetHook(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *position, float *height, float *radius);
 	char GetBinkVideoPathHook(int p_VideoID, char *p_DestBuf);
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
+	void __cdecl HsPrintHook(const char *message);
+	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset);
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -104,6 +110,7 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x25FA79), 10);
 		Patch::NopFill(Pointer::Base(0x25FA86), 5);
 		Hook(0x10CA02, FovHook).Apply();
+		Hook(0x663B36, ActiveCamoViewModelClipHook, HookFlags::IsCall).Apply();
 
 		//Fix aspect ratio not matching resolution
 		Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
@@ -131,18 +138,28 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x106057), 5);*/
 
 		Hook(0x324701, EdgeDropHook, HookFlags::IsCall).Apply();
+		// Fixes an issue where biped feet are just below the zone bottom causing 
+		// it not to register flag caps, teleporter usage etc..
+		Hook(0x7A111B, BipedFeetZoneOffsetHook, HookFlags::IsCall).Apply();
 
 		Hook(0x10590B, GetBinkVideoPathHook, HookFlags::IsCall).Apply();
-
-#ifndef _DEBUG
-		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
-		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
-#endif
 
 		Hook(0x20F4AD, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 		Hook(0x20F44B, GetScreenshotFolderHook, HookFlags::IsCall).Apply();
 
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
+
+		// fixes the amd freeze
+		Hook(0x65806D, ContrailSystemRenderSetStreamSourceHook, HookFlags::IsCall).Apply();
+		
+
+#ifndef _DEBUG
+		// Dirty disk error at 0x0xA9F6D0 is disabled in this build
+		Hook(0x69F6C0, DirtyDiskErrorHook).Apply();
+#else
+		// hsc print functionality
+		Hook(0x32FE9A, HsPrintHook, HookFlags::IsCall).Apply();
+#endif
 	}
 
 	void OnShutdown(ShutdownCallback callback)
@@ -296,6 +313,29 @@ namespace
 		}
 	}
 
+	void ActiveCamoViewModelClipHook(float *nearPlane, float *farPlane)
+	{
+		// not a proper fix, but it'll work for now
+
+		const auto view_get_clip_planes = (void(*)(float *nearPlane, float *farPlane))(0x00A25AA0);
+
+		const auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		const Blam::Players::PlayerDatum *player;
+		if (playerIndex != Blam::DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex)))
+		{
+			auto unitObject = Blam::Objects::Get(player->SlaveUnit);
+			float activeCamoPower = 0.0f;
+			if (unitObject && (activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+			{
+				*nearPlane = *(float*)0x0191068C * 3.25f;
+				*farPlane = *(float*)0x01910690;
+				return;
+			}
+		}
+
+		view_get_clip_planes(nearPlane, farPlane);
+	}
+
 	void GrenadeLoadoutHookImpl(uint8_t* unit)
 	{
 		// Based off of 0x8227B48C in H3 non-TU
@@ -355,11 +395,20 @@ namespace
 	void __fastcall EdgeDropHook(void* thisptr, void* unused, int a2, int a3, int a4, float* a5)
 	{
 		static auto& modulePlayer = Modules::ModulePlayer::Instance();
-
+		
 		Pointer(a3)(0xAC).WriteFast<float>(0.5f);
 
 		static auto sub_724BB0 = (void(__thiscall*)(void* thisptr, int a2, int a3, int a4, float* a5))(0x724BB0);
 		sub_724BB0(thisptr, a2, a3, a4, a5);
+	}
+
+	void __cdecl BipedFeetZoneOffsetHook(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *position, float *height, float *radius)
+	{
+		const auto sub_B6E850 = (void(*)(uint32_t unitObjectIndex, Blam::Math::RealVector3D *outPosition, float *a3, float *outRadius))(0xB6E850);
+		sub_B6E850(bipedObjectIndex, position, height, radius);
+		auto bipedObject = Blam::Objects::Get(bipedObjectIndex);
+		if (bipedObject)
+			*position += bipedObject->Up * 0.05f; // offset feet
 	}
 
 	const auto GetBinkVideoPath = reinterpret_cast<char(*)(int, char*)>(0xA99120);
@@ -388,6 +437,7 @@ namespace
 			call DirtyDiskErrorHookImpl;
 		}
 	}
+
 	int __cdecl GetScreenshotFolderHook(wchar_t *path)
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
@@ -403,5 +453,23 @@ namespace
 		dir = boost::filesystem::weakly_canonical(dir);
 		wcsncpy(path, dir.c_str(), 0x100);
 		return SHCreateDirectoryExW(NULL, path, NULL);
+	}
+
+	void __cdecl HsPrintHook(const char *message)
+	{
+		if (message == nullptr)
+			return;
+
+		Console::WriteLine(message);
+	}
+
+	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset)
+	{
+		const auto rasterizer_set_stream_source = (void(*)(void *vb, int offset))(0x00A5DB90);
+
+		if (offset < 0)
+			offset = 0;
+
+		rasterizer_set_stream_source(vb, offset);
 	}
 }

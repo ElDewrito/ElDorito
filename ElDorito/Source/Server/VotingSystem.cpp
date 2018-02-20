@@ -15,13 +15,9 @@
 #include "VotingSystem.hpp"
 #include "boost/filesystem.hpp"
 #include "../patch.hpp"
-#include "../Patches/CustomPackets.hpp"
-#include "../Server/VariableSynchronization.hpp"
 #include "../Modules/ModuleServer.hpp"
 #include "../Modules/ModuleGame.hpp"
-#include "../Web/Ui/VotingScreen.hpp"
 #include "../Patches/Network.hpp"
-#include "../Patches/Core.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../ElDorito.hpp"
 #include "../ThirdParty/rapidjson/writer.h"
@@ -46,35 +42,31 @@ namespace Server::Voting
 	};
 
 	//These are just some default gametypes that get loaded if the user doesnt specify any
-	const std::string DefaultTypes[7] =
+	const std::string DefaultTypes[8] =
 	{
 		"slayer",
-		"team_slayer",
-		"team_swat",
-		"ctf",
-		"odd_ball_ffa",
-		"odd_ball",
-		"koth",
+		"team slayer",
+		"multi flag",
+		"team oddball",
+		"oddball",
+		"crazy king",
+		"team king",
+		"assault",
 	};
-	const std::string DefaultTypeNames[7] =
+	const std::string DefaultTypeNames[8] =
 	{
 		"Slayer",
 		"Team Slayer",
-		"Team Swat",
-		"CTF",
+		"Multi Flag",
 		"Team Oddball",
 		"FFA Oddball",
 		"Crazy King",
+		"Team King",
+		"Assault",
 	};
 
-	int numberOfPlayersInGame()
-	{
-		int numPlayers = 0;
-		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-		for (auto player = membership.FindFirstPlayer(); player >= 0; player = membership.FindNextPlayer(player))
-			numPlayers++;
-		return numPlayers;
-
+	int getVoteNeededToPass() {
+			return (1 + (((Patches::Network::GetNumPlayers() - 1) * Modules::ModuleServer::Instance().VarVetoVotePassPercentage->ValueInt) / 100));		
 	}
 
 	//Gets the mapId for the given forge map
@@ -108,7 +100,12 @@ namespace Server::Voting
 
 		return mapId;
 	}
-
+	int getMapID(std::string mapName) {
+		auto mapID = getDefaultMapId(mapName);
+		if (mapID < 0)
+			mapID = getCustomMapID(mapName);
+		return mapID;
+	}
 	AbstractVotingSystem::AbstractVotingSystem(){}
 	VotingSystem::VotingSystem() : AbstractVotingSystem() {}
 
@@ -176,6 +173,20 @@ namespace Server::Voting
 		else
 			mapVotes.insert(std::make_pair(name, vote));
 
+		SendVoteCountsToEveryone();
+
+	}
+	void VetoSystem::SendVoteCountsToEveryone() {
+		countVotes();
+
+		//create a message to send to all of the players with the new vote counts
+		VotingMessage newmessage(VotingMessageType::VoteTally);
+		newmessage.votes[0] = currentNumberOfVotes;
+		newmessage.votes[1] = currentNumberOfVotes;
+		newmessage.votesNeededToPass = getVoteNeededToPass();
+		BroadcastVotingMessage(newmessage);
+	}
+	void VotingSystem::SendVoteCountsToEveryone() {
 		countVotes();
 
 		//create a message to send to all of the players with the new vote counts
@@ -186,6 +197,7 @@ namespace Server::Voting
 			optionIndex++;
 			option.Count = 0;
 		}
+		newmessage.votesNeededToPass = 0;
 		BroadcastVotingMessage(newmessage);
 
 	}
@@ -249,8 +261,11 @@ namespace Server::Voting
 		return MapAndType(map, gametype);
 	}
 
+	bool AbstractVotingSystem::ShouldSendVotingOptions() {
+		return voteStartedTime != 0;
+	}
 	//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
-	VotingMessage VetoSystem::GenerateVotingOptionsMessage()
+	VotingMessage VetoSystem::GenerateVotingOptionsMessage(bool updateTime)
 	{
 		VotingMessage newmessage(VotingMessageType::VetoOption);
 
@@ -259,10 +274,23 @@ namespace Server::Voting
 		newmessage.votingOptions[0].mapId = currentVetoOption.haloMap.mapId;
 		newmessage.votingOptions[0].canVeto = currentVetoOption.canveto;
 
-		if (currentVetoOption.canveto)
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
-		else
-			newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
+		time_t curTime;
+		time(&curTime);
+		if (currentVetoOption.canveto) {
+			if (updateTime && voteStartedTime > 0) 
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt - (int)difftime(curTime,voteStartedTime);
+			else
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoVoteTime->ValueInt;
+
+			newmessage.votesNeededToPass = getVoteNeededToPass();
+		}
+		else {
+			if (updateTime && startime > 0)
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt - (int)difftime(curTime,startime);
+			else
+				newmessage.voteTime = Modules::ModuleServer::Instance().VarVetoWinningOptionShownTime->ValueInt;
+			newmessage.votesNeededToPass = 0;
+		}
 
 		return newmessage;
 	}
@@ -274,11 +302,11 @@ namespace Server::Voting
 		if (!(session && session->IsEstablished() && session->IsHost() && session->Parameters.GetSessionMode() == 1 && isEnabled()))
 			return;
 
-		VotingMessage newmessage = GenerateVotingOptionsMessage();
+		VotingMessage newmessage = GenerateVotingOptionsMessage(true);
 		SendVotingMessageToPeer(newmessage, peer);
 	}
 	//Creates the message to send to peers. TODO abstract VotingMessage out of VotingSystem
-	VotingMessage VotingSystem::GenerateVotingOptionsMessage()
+	VotingMessage VotingSystem::GenerateVotingOptionsMessage(bool updateTime)
 	{
 		VotingMessage newmessage(VotingMessageType::VotingOptions);
 		int i = 0;
@@ -288,7 +316,13 @@ namespace Server::Voting
 			newmessage.votingOptions[i].mapId = option.haloMap.mapId;
 			i++;
 		}
-		newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt;
+		time_t curTime;
+		time(&curTime);
+		if (updateTime)
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt - (int)difftime(curTime,voteStartedTime);
+		else 
+			newmessage.voteTime = Modules::ModuleServer::Instance().VarServerMapVotingTime->ValueInt;
+		
 		return newmessage;
 	}
 
@@ -381,7 +415,7 @@ namespace Server::Voting
 			currentVotingOptions.push_back(revote);
 		}
 		time(&voteStartedTime);
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 	}
 	void VotingSystem::Tick()
@@ -392,7 +426,7 @@ namespace Server::Voting
 
 		if (idle)
 		{
-			if (numberOfPlayersInGame() > 0)
+			if (Patches::Network::GetNumPlayers() > 0)
 			{
 				idle = false;
 				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
@@ -402,7 +436,7 @@ namespace Server::Voting
 
 			return;
 		}
-		else if (numberOfPlayersInGame() == 0)
+		else if (Patches::Network::GetNumPlayers() == 0)
 		{
 			idle = true;
 			Reset();
@@ -449,8 +483,6 @@ namespace Server::Voting
 		//clear the current contents
 		haloMaps.clear();
 		gameTypes.clear();
-		auto &customMaps = Modules::ModuleGame::Instance().CustomMapList;
-		auto &defaultMaps = Modules::ModuleGame::Instance().MapList;
 
 		std::ifstream in(filename, std::ios::in | std::ios::binary);
 		if (!in || !in.is_open())
@@ -482,15 +514,12 @@ namespace Server::Voting
 
 				//Check to make sure that the map exists
 				std::string mapName = mapObject["mapName"].GetString();
-				if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
-					haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getDefaultMapId(mapName)));
-
-				else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
-					haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), getCustomMapID(mapName)));
-
-				else
+				auto mapID = getMapID(mapName);
+				if (mapID < 0) {
 					Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
-
+					continue;
+				}
+				haloMaps.push_back(HaloMap(mapName, mapObject["displayName"].GetString(), mapID));
 
 			}
 
@@ -526,13 +555,12 @@ namespace Server::Voting
 								continue;
 
 							std::string mapName = map["mapName"].GetString();
-							if (std::find(defaultMaps.begin(), defaultMaps.end(), mapName) != defaultMaps.end())
-								ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getDefaultMapId(mapName)));
-
-							else if (std::find(customMaps.begin(), customMaps.end(), mapName) != customMaps.end())
-								ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), getCustomMapID(mapName)));
-							else
+							auto mapID = getMapID(mapName);
+							if (mapID < 0) {
 								Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
+								continue;
+							}
+							ht.specificMaps.push_back(HaloMap(mapName, map["displayName"].GetString(), mapID));
 						}
 					}
 				}
@@ -581,7 +609,7 @@ namespace Server::Voting
 		currentVetoOption = GenerateVotingOption();
 		currentVetoOption.canveto = true;
 		SetGameAndMap();
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 
 		time(&voteStartedTime);
@@ -599,8 +627,7 @@ namespace Server::Voting
 	{
 		countVotes();
 
-		auto numPlayers = numberOfPlayersInGame();
-		if (currentNumberOfVotes >= (1 + (((numPlayers - 1) * Modules::ModuleServer::Instance().VarVetoVotePassPercentage->ValueInt) / 100))) {
+		if (currentNumberOfVotes >= getVoteNeededToPass()){
 			revoteFlag = true;
 		}
 		else {
@@ -626,7 +653,7 @@ namespace Server::Voting
 
 	void VetoSystem::SetStartTimer()
 	{
-		auto message = GenerateVotingOptionsMessage();
+		auto message = GenerateVotingOptionsMessage(false);
 		BroadcastVotingMessage(message);
 		time(&startime);
 	}
@@ -675,11 +702,8 @@ namespace Server::Voting
 				if (!gametype.HasMember("typeName") || !gametype.HasMember("displayName") || !map.HasMember("mapName") || !map.HasMember("displayName"))
 					continue;
 				std::string mapName = map["mapName"].GetString();
-				auto mapID = getDefaultMapId(mapName);
-				if (mapID < 0)
-					mapID = getCustomMapID(mapName);
-
-				if (mapID < 0){
+				auto mapID = getMapID(mapName);
+				if (mapID < 0) {
 					Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Invalid Map: " + mapName + ", skipping..");
 					continue;
 				}
@@ -728,7 +752,7 @@ namespace Server::Voting
 
 		if (idle)
 		{
-			if (numberOfPlayersInGame() > 0)
+			if (Patches::Network::GetNumPlayers() > 0)
 			{
 				idle = false;
 				if (Blam::Network::GetActiveSession()->Parameters.GetSessionMode() == 1)
@@ -737,7 +761,7 @@ namespace Server::Voting
 
 			return;
 		}
-		else if (numberOfPlayersInGame() == 0)
+		else if (Patches::Network::GetNumPlayers() == 0)
 		{
 
 			idle = true;
@@ -796,13 +820,7 @@ namespace Server::Voting
 		else
 			mapVotes.insert(std::make_pair(name, vote));
 
-		countVotes();
-
-		//create a message to send to all of the players with the new vote counts
-		VotingMessage newmessage(VotingMessageType::VoteTally);
-		newmessage.votes[0] = currentNumberOfVotes;
-		newmessage.votes[1] = currentNumberOfVotes;
-		BroadcastVotingMessage(newmessage);
+		SendVoteCountsToEveryone();
 
 	}
 	void VetoSystem::NewVote() {

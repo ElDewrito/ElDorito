@@ -1,6 +1,7 @@
 #include "ElPatches.hpp"
 
 #include "ElDorito.hpp"
+#include "Blam\Tags\TagInstance.hpp"
 #include "Patches\Core.hpp"
 #include "Patches\Audio.hpp"
 #include "Patches\Mouse.hpp"
@@ -23,6 +24,7 @@
 #include "Patches\PlayerRepresentation.hpp"
 #include "Patches\Hf2pExperimental.hpp"
 #include "Patches\Weapon.hpp"
+#include "Patches\BottomlessClip.hpp"
 #include "Patches\Spectate.hpp"
 #include "Patches\Tweaks.hpp"
 #include "Patches\DirectXHook.hpp"
@@ -30,7 +32,11 @@
 #include "Patches\Simulation.hpp"
 #include "Patches\Camera.hpp"
 #include "Patches\Maps.hpp"
+#include "Patches\GameEngineSettings.hpp"
+#include "Patches\DamageSystem.hpp"
 #include "Game\Armor.hpp"
+
+#include <fstream>
 
 namespace
 {
@@ -62,17 +68,18 @@ namespace Patches
 		LoadingScreen::ApplyAll();
 		Equipment::ApplyAll();
 		Weapon::ApplyAll();
+		Patches::BottomlessClip::ApplyAll();
 		Spectate::ApplyAll();
 		Medals::ApplyAll();
 		Simulation::ApplyAll();
 		Camera::ApplyAll();
 		Maps::ApplyAll();
+		GameEngineSettings::ApplyAll();
+		DamageSystem::ApplyAll();
 
 		Network::PlayerPropertiesExtender::Instance().Add(std::make_shared<Game::Armor::ArmorExtension>());
 
-#ifdef _DEBUG
 		PlayerRepresentation::ApplyAll();
-#endif
 
 		//Since these patches are happening before ED gets initalized, we dont know if we are in dedi mode or not.
 		bool isdedicated = false;
@@ -95,6 +102,7 @@ namespace Patches
 
 	void ApplyAfterTagsLoaded()
 	{
+		Blam::Tags::TagInstance::LoadTagNames();
 		Game::Armor::LoadArmorPermutations();
 		Game::Armor::RefreshUiPlayer();
 		Ui::ApplyAfterTagsLoaded(); //No UI calls interacting with tags before this!

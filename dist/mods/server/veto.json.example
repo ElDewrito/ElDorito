@@ -8,7 +8,7 @@
       "gametype": {
         "displayName": "Team King",
         "typeName": "Team Crazy King",
-        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
       }
     },
     {
@@ -19,7 +19,7 @@
       "gametype": {
         "displayName": "Team BRs",
         "typeName": "Team BRs",
-        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.MaxTeamSize 8"]
+        "commands": ["Server.SprintEnabled 0", "Server.AssassinationEnabled 0", "Server.NumberOfTeams 2"]
       }
     }
   ]

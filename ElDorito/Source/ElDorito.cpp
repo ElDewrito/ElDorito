@@ -29,11 +29,15 @@
 #include "ChatCommands/ChatCommandMap.hpp"
 #include "Patches/Weapon.hpp"
 #include "Patches/Memory.hpp"
+#include "Patches/Camera.hpp"
+#include "Discord/DiscordRPC.h"
+#include "ThirdParty/SOP.hpp"
 
 #include "Blam/Cache/StringIdCache.hpp"
 
 #include <Windows.h>
 #include <TlHelp32.h>
+#include <ShlObj.h>
 #include <codecvt>
 #include <detours.h>
 #include "Web/Ui/WebSettings.hpp"
@@ -81,6 +85,11 @@ void ElDorito::Initialize()
 {
 	::CreateDirectoryA(GetDirectory().c_str(), NULL);
 
+	if (!SOP_CheckProfile("ElDewrito"))
+	{
+		SOP_SetProfile("ElDewrito", "eldorado.exe");
+	}
+
 	// Parse command-line commands
 	int numArgs = 0;
 	LPWSTR* szArgList = CommandLineToArgvW(GetCommandLineW(), &numArgs);
@@ -94,13 +103,6 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-instance") == 0 && i < numArgs - 1)
 			{
 				instanceName = Utils::String::ThinString(szArgList[i + 1]);
-
-				std::wstringstream wss;
-				wss << "preferences_" << szArgList[i + 1] << ".dat";
-				std::wstring preferencesName = wss.str();
-				wchar_t* str = new wchar_t[preferencesName.size()];
-				wcscpy(str, preferencesName.c_str());
-				Pointer(0x189D3F0).Write<wchar_t*>(str);
 			}
 		}
 	}
@@ -110,23 +112,43 @@ void ElDorito::Initialize()
 	Modules::ElModules::Instance();
 	Server::TempBanList::Instance();
 
+	//Get the local appdata folder
+	PWSTR localAppdata;
+	SHGetKnownFolderPath(FOLDERID_LocalAppData, NULL, NULL, &localAppdata);
+	auto wide_ed_appdata = std::wstring(localAppdata);
+	auto ed_appdata = Utils::String::ThinString(wide_ed_appdata);
+	ed_appdata += "\\ElDewrito";
+	::CreateDirectoryA(ed_appdata.c_str(), NULL);
+
 	// load variables/commands from cfg file
 	// If instancing is enabled then load the instanced dewrito_prefs.cfg
 	if (instanceName != "")
 	{
 		std::stringstream ss;
-		ss << "Execute dewrito_prefs_" << instanceName << ".cfg";
+		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
+		
+		std::stringstream keystream;
+		keystream << "Execute dewrito_prefs_" << instanceName << ".cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	else
 	{
-		Modules::CommandMap::Instance().ExecuteCommand("Execute dewrito_prefs.cfg");
+		std::stringstream ss;
+		ss << "Execute " << ed_appdata << "\\keys.cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
+		
+		std::stringstream keystream;
+		keystream << "Execute dewrito_prefs.cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
 
 	// maybe use an unordered_map here
 	if (!Modules::ModuleInput::Instance().IsCommandBound("game.takescreenshot"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen discord"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind F4 Game.ShowScreen discord");
 
 	mapsFolder = "maps\\";
 
@@ -170,7 +192,10 @@ void ElDorito::Initialize()
 			if (arg.compare(L"-cache-memory-increase") == 0 && i < numArgs - 1)
 				Patches::Memory::SetGlobalCacheIncrease(std::stoul(szArgList[i + 1]));
 
-			size_t pos = arg.find(L"=");
+			if (arg.compare(L"-lod-increase") == 0)
+				Patches::Camera::IncreaseLOD();
+
+			size_t pos = arg.find(L'=');
 			if( pos == std::wstring::npos || arg.length() <= pos + 1 ) // if it doesn't contain an =, or there's nothing after the =
 				continue;
 
@@ -253,12 +278,13 @@ void ElDorito::Tick()
 		Web::Ui::ScreenLayer::Tick();
 		Web::Ui::WebScoreboard::Tick();
 	}
-	else
+	else if (GameHasMenuShown)
 		Server::DedicatedServer::Tick();
 
 	Server::Stats::Tick();
 	Server::Voting::Tick();
 	ChatCommands::Tick();
+	Discord::DiscordRPC::Instance().Update();
 
 	// TODO: refactor this elsewhere
 	Modules::ModuleCamera::Instance().UpdatePosition();
@@ -293,6 +319,8 @@ std::string ElDorito::GetDirectory()
 	Dir = Dir.substr(0, std::string(Dir).find_last_of('\\') + 1);
 	return Dir;
 }
+
+bool firstShow = true;
 
 void ElDorito::OnMainMenuShown()
 {

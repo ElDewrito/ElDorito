@@ -60,6 +60,7 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("isMapLoading", Bridge::ClientFunctions::OnIsMapLoading);
 		m_QueryHandler->AddMethod("forgeaction", Bridge::ClientFunctions::OnForgeAction);
 		m_QueryHandler->AddMethod("showlan", Bridge::ClientFunctions::OnShowLan);
+		m_QueryHandler->AddMethod("discord-reply", Bridge::ClientFunctions::OnDiscordReply);
 
 		m_BrowserRouter->AddHandler(m_QueryHandler.get(), true);
 	}

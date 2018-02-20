@@ -25,6 +25,8 @@ namespace
 	int __cdecl globalDataInitializePoolHook(Blam::DataPoolBase* dataPool, const char* name, int size, int unk, void** allocator);
 	void** __cdecl globalDataInitializeCacheHook(Blam::LruvCacheBase* lruvCache, const char* name, int unk1, void* unk2, void* unk3, void* unk4, void* unk5, void** allocator, int unk7);
 	void* __stdcall virtualAllocHook(void* address, size_t size, uint32_t allocationType, uint32_t protect);
+	void GetTagDefinitionHook();
+	void HsEvalHook();
 
 	void LogPhysicalMemoryAllocationRequestHook();
 	void LogSuccessfulPhysicalMemoryAllocationResultHook();
@@ -47,6 +49,8 @@ namespace
 	Hook MemoryGlobalInitializeCacheHook(0x567AD0, globalDataInitializeCacheHook);
 
 	uint32_t origVirtualAllocAddress;
+	uint32_t lastTagIndex = -1;
+	int16_t lastScriptOpcode = -1;
 }
 
 namespace Patches::Logging
@@ -84,6 +88,10 @@ namespace Patches::Logging
 		Hook(0x11D186, LogPhysicalMemoryAllocationRequestHook).Apply();
 		Hook(0x11D1E0, LogFailedPhysicalMemoryAllocationResultHook).Apply();
 		Hook(0x11D266, LogSuccessfulPhysicalMemoryAllocationResultHook).Apply();
+#if !defined(ELDEWRITO_RELEASE)
+		Hook(0x103370, GetTagDefinitionHook).Apply();
+		Hook(0x198CEE, HsEvalHook).Apply();
+#endif
 	}
 }
 
@@ -249,8 +257,10 @@ namespace
 
 		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, std::string(msg));
 
-		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error, "Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x",
-			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord, except->ExceptionAddress, except->NumberParameters);
+		Utils::Logger::Instance().Log(Utils::LogTypes::Debug, Utils::LogLevel::Error,
+			"Code: 0x%x, flags: 0x%x, record: 0x%x, addr: 0x%x, numparams: 0x%x, last tag accessed: 0x%x,  last tag resource: 0x%x, last script op: 0x%x",
+			except->ExceptionCode, except->ExceptionFlags, except->ExceptionRecord,
+			except->ExceptionAddress, except->NumberParameters, lastTagIndex, *(uint32_t*)0x0190E460, lastScriptOpcode);
 
 		// identify problematic module, log the location and dump its contents
 		auto modules = GetLoadedModules();
@@ -443,5 +453,45 @@ namespace
 	{
 		Utils::Logger::Instance().Log(Utils::LogTypes::Memory, Utils::LogLevel::Info, "PhysicalMapAllocResult - Address: 0x%08X, Size: 0x%08X",
 			address, endAddress - address);
+	}
+
+	__declspec(naked) void GetTagDefinitionHook()
+	{
+		__asm
+		{
+			push    ebp
+			mov     ebp, esp
+			movzx   ecx, word ptr[ebp + 0xC]
+			mov     dword ptr lastTagIndex, ecx
+			mov     eax, 0x022AAFFC
+			mov     eax, [eax]
+			mov     ecx, [eax + ecx * 4]
+			cmp     ecx, 0x0FFFFFFFF
+			jnz     loc_503388
+			xor     eax, eax
+			pop     ebp
+			ret
+			loc_503388:
+			mov     eax, 0x022AAFF8
+			mov     eax, [eax]
+			mov     ecx, [eax + ecx * 4]
+			mov     eax, [ecx + 0x10]
+			add     eax, ecx
+			pop     ebp
+			ret
+		}
+	}
+
+	__declspec(naked) void HsEvalHook()
+	{
+		__asm
+		{
+			mov lastScriptOpcode, ax
+			mov eax, [4 * eax + 0x18ED378]
+			mov eax, [eax + 4]
+			call eax
+			push 0x598D06
+			retn
+		}
 	}
 }

@@ -7,14 +7,6 @@ var itemNumber = 0;
 var controllerType;
 var hasGP = false;
 var talkingArray = [];
-var pageWidth, pageHeight;
-var basePage = {
-  width: 1280,
-  height: 720,
-  scale: 1,
-  scaleX: 1,
-  scaleY: 1
-};
 var isVisible = false;
 var lobbyJSON;
 var expandedScoreboard;
@@ -22,6 +14,11 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var mapName;
+var volArray = [];
+var scoreboardData = null;
+var multiRound = false;
+var lastRound = true;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -166,33 +163,6 @@ var medalDetails = [
     {name:'Headshot!', 'string':'headshot', 'desc':'Kill an enemy with a headshot.'}
 ];
 
-$(function(){
-    var $page = $('.page_content');
-
-    getPageSize();
-    scalePages($page, pageWidth, pageHeight);
-  
-    $(window).resize(function() {
-        getPageSize();            
-        scalePages($page, pageWidth, pageHeight);
-    });
-  
-    function getPageSize() {
-        pageHeight = $('#container').height();
-        pageWidth = $('#container').width();
-    }
-
-    function scalePages(page, maxWidth, maxHeight) {            
-        var scaleX = 1, scaleY = 1;                      
-        scaleX = maxWidth / basePage.width;
-        scaleY = maxHeight / basePage.height;
-        basePage.scaleX = scaleX;
-        basePage.scaleY = scaleY;
-        basePage.scale = (scaleX > scaleY) ? scaleY : scaleX;
-        page.attr('style', '-webkit-transform:scale(' + basePage.scale + ');');
-    }
-});
-
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
@@ -232,6 +202,9 @@ $(document).ready(function(){
                 case "mute":
                     setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),0);
                     break;
+                case "unmute":
+                    setPlayerVolume($(this).attr('id'),$(this).attr('data-uid'),100);
+                    break;
                 default:
                     console.log(key + " " + $(this).attr('data-name') + " " + $(this).attr('data-uid'));
             }
@@ -251,6 +224,9 @@ $(document).ready(function(){
             },
             "mute": {
                 name: "Mute"
+            },
+            "unmute": {
+                name: "Unmute"
             }
         }
     });
@@ -276,7 +252,19 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.X == 1){
             if(!$('#playerBreakdown').is(":visible")){
-                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                $.grep(volArray, function (result, index) {
+                    if (result) {
+                        if (result[0] == $('.clickable').eq(itemNumber).attr('id')) {
+                            uid = result[1];
+                            level = result[2];
+                            if (level == 0) {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),100);
+                            } else {
+                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
+                            };
+                        };
+                    }
+                });
             }
         }
         if(e.data.Up == 1){
@@ -284,6 +272,10 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.Down == 1){
             downNav();
+        }
+        if(e.data.Left == 1){
+        }
+        if(e.data.Right == 1){
         }
         if(e.data.LeftBumper == 1){
             if($('#playerBreakdown').is(":visible")){
@@ -312,44 +304,74 @@ dew.on('controllerinput', function(e){
 });
 
 dew.on("scoreboard", function(e){
+    scoreboardData = e.data;
+    mapName = e.data.mapName
+    if(e.data.numberOfRounds){
+        multiRound = e.data.numberOfRounds == 1 ? false : true;
+        lastRound = e.data.numberOfRounds == e.data.currentRound + 1 ? true : false;
+    }
     if(isVisible){
         displayScoreboard();
     }
 });
 
 dew.on("voip-user-volume", function(e){
-	//console.log(e);
 	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
 	}else{
 		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
         isSpeaking(e.data.user,false);
-	
-	/*if(isVisible)
-		displayScoreboard();
-    */
     }
 	
 	var uid = "";
-	var level = 0;
-	$.grep(volArray, function(result, index){
-        if(result){
-            if(result[0] == e.data.user){
-				uid = result[1];
-				level = result[2];
-				if(e.data.volume < -75){
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-off.png');
-				}else if(e.data.volume < -50){
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-low.png');
-				}else{
-					$('#'+e.data.user).find('.speaker').attr('src','dew://assets/emblems/speaker-full.png');
-				};
-                volArray.splice(index,1);
-            };
+	var level = 100;
+	$.grep(volArray, function (result, index) {
+	    if (result) {
+	        if (result[0] == e.data.user) {
+	            uid = result[1];
+	            level = result[2];
+	            if (level == 0) {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+	            } else if (e.data.volume < -75) {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
+	            } else if (e.data.volume < -50) {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
+	            } else {
+	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
+	            };
+	            volArray.splice(index, 1);
+	        };
+	    }
+	});
+	volArray.push([e.data.user, uid, level, e.data.volume]);
+});
+
+dew.on("voip-self-volume", function (e) {
+    dew.getSessionInfo().then(function (info) {
+        if (info.established == true) {
+            var level = 100;
+            $.grep(volArray, function (result, index) {
+                if (result) {
+                    if (result[0] == info.playerInfo.Name) {
+                        uid = result[1];
+                        level = result[2];
+                        if (level == 0) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+                        } else if (e.data.volume < -75) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
+                        } else if (e.data.volume < -50) {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
+                        } else {
+                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
+                        };
+                        volArray.splice(index, 1);
+                    };
+                }
+            });
+            volArray.push([info.playerInfo.Name, info.playerInfo.Uid, level, e.data.volume]);
         }
     });
-    volArray.push([e.data.user, uid, level, e.data.volume]);
 });
 
 dew.on("voip-peers", function(e){
@@ -359,6 +381,7 @@ dew.on("voip-speaking", function(e){
 });
 
 dew.on("show", function(e){
+	
     isVisible = true;
     dew.captureInput(e.data.locked);
     locked = e.data.locked;
@@ -397,7 +420,7 @@ dew.on("show", function(e){
     }else{
         $('#closeButton').hide();
     }
-    if(e.data.postgame){
+    if(e.data.postgame && lastRound){
         $('#winnerText').show();
     }else{
         $('#winnerText').hide();
@@ -406,7 +429,11 @@ dew.on("show", function(e){
         dew.getSessionInfo().then(function(i){
             expandedScoreboard = response;
             isHost = i.isHost;
-            displayScoreboard();
+            if(scoreboardData){
+                displayScoreboard();
+            }else{
+                dew.hide();
+            }
         });
     });
 });
@@ -418,36 +445,39 @@ dew.on("hide", function(e){
 });
 
 function displayScoreboard(){
-    dew.getScoreboard().then(function (e){ 
-        var scoreboardheader = '<th></th><th class="name">Players</th>';
-        if(locked || (expandedScoreboard == 1)){
-            switch(e.gameType){
-                case "ctf":
-                    scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
-                    break;
-                case "oddball":
-                    scoreboardheader += '<th>Kills</th><th>Ball Kills</th>';    
-                    break;
-                case "infection":
-                    scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
-                    break;
-                case "koth":
-                    scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
-                    break;
-                case "vip":
-                case "juggernaut":
-                case "assault":
-                default:
-                    scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
-            }
-            $('#window').css({'width':'54%','left':'23%'});
-        } else {
-            $('#window').css({'width':'38%','left':'31%'});
+    if(jQuery.isEmptyObject(scoreboardData))
+        return;	
+    var scoreboardheader = '<th></th><th class="name" colspan="2">Players</th>';
+    if(locked || (expandedScoreboard == 1)){
+        switch(scoreboardData.gameType){
+            case "ctf":
+                scoreboardheader += '<th>Kills</th><th>Flag Kills</th>';  
+                break;
+            case "oddball":
+                scoreboardheader += '<th>Kills</th><th>Ball Kills</th>';    
+                break;
+            case "infection":
+                scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
+                break;
+            case "koth":
+                scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
+                break;
+            case "vip":
+            case "juggernaut":
+            case "assault":
+            default:
+                scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
         }
-        scoreboardheader += '<th></th><th>Score</th>'; 
-        $('#header').html(scoreboardheader);
-        buildScoreboard(e.players, e.hasTeams, e.teamScores, e.gameType, JSON.parse(e.playersInfo),expandedScoreboard, e.teamHasObjective);
-    });
+        $('#window').css({'width':'56%','left':'23%'});
+    } else {
+        $('#window').css({'width':'38%','left':'31%'});
+    }
+    scoreboardheader += '<th></th><th>Score</th>'; 
+    if(multiRound){
+        scoreboardheader += '<th>Round</th>';
+    }
+    $('#header').html(scoreboardheader);
+    buildScoreboard(scoreboardData.players, scoreboardData.hasTeams, scoreboardData.teamScores, scoreboardData.gameType, JSON.parse(scoreboardData.playersInfo),expandedScoreboard, scoreboardData.teamHasObjective,scoreboardData.totalScores);
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
@@ -456,8 +486,9 @@ function displayScoreboard(){
     }
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray, totalArray){
     var emblemPath;
+	var hostPath = 'dew://assets/emblems/crown.png';
 	var rankPath = "dew://assets/ranks/0.png"
     var where = '#singlePlayers';
     if(lobby.length > 0){
@@ -469,7 +500,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td><td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    if(multiRound){
+                        teamHeader+='<td class="score">'+totalArray[lobby[i].team]+'</td>';
+                    }
+                    teamHeader+='<td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
                     $('#window table').append(teamHeader);    
                     if(objectiveArray[lobby[i].team]){
                         $('#'+teamArray[lobby[i].team].name+' .teamHeader').append('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')                    
@@ -503,44 +538,42 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 			if(playersInfo[lobby[i].playerIndex]){
 				rankPath = "dew://assets/ranks/" + playersInfo[lobby[i].playerIndex].r + ".png";
 			}
-            if(lobby[i].isAlive){
-				
-                if(lobby[i].isHost){
-                    emblemPath = 'dew://assets/emblems/crown.png';
-                }else{
-                    if(playersInfo[lobby[i].playerIndex]){
-                        emblemPath = playersInfo[lobby[i].playerIndex].e;
-                    }else{
-                        emblemPath = 'dew://assets/emblems/generic.png'; 
-                    }                
-                }
-            } else {
+            if(!lobby[i].isAlive && mapName != 'mainmenu'){
                 emblemPath = 'dew://assets/emblems/dead.png';   
-            }
+            }else{
+				if(playersInfo[lobby[i].playerIndex]){
+					emblemPath = playersInfo[lobby[i].playerIndex].e;
+				}else{
+					emblemPath = 'dew://assets/emblems/generic.png'; 
+				}                
+            } 
             $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
+			if(lobby[i].isHost)
+			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" src="'+hostPath+'">');
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="serviceTag">').text(lobby[i].serviceTag))
             if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
                     case "oddball":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //ball kills
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "infection":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].humansInfected)) //infected
                             .append($('<td class="stat">').text(lobby[i].zombiesKilled)) //zombies killed  
-                        $('.teamHeader .name').attr('colspan',5);
+                        $('.teamHeader .name').attr('colspan',6);
                         break;
                     case "ctf":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                             .append($('<td class="stat">').text(lobby[i].ballKills)) //flag kills
-                        $('.teamHeader .name').attr('colspan',4);
+                        $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "koth":
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
                             .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
                             .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
-                        $('.teamHeader .name').attr('colspan',5);
+                        $('.teamHeader .name').attr('colspan',6);
                         break;                   
                     case "vip":
                     case "juggernaut":
@@ -550,14 +583,17 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                             .append($('<td class="stat">').text(lobby[i].assists)) //assists
                             .append($('<td class="stat">').text(lobby[i].deaths)) //deaths 
                             .append($('<td class="stat">').text(lobby[i].bestStreak)) //best streak 
-                        $('.teamHeader .name').attr('colspan',6);
+                        $('.teamHeader .name').attr('colspan',7);
                 }
             }
 			else{
-				$('.teamHeader .name').attr('colspan',2);
+				$('.teamHeader .name').attr('colspan',3);
 			}
-			$("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
-            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score  
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="playerRank">'))
+            if(multiRound){
+                $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].totalScore)) //Total Score 
+            }    
+            $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat score">').text(lobby[i].score)) //score          
 			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .playerRank").prepend('<img class="rankimg" src="'+rankPath+'">');
 			
 			var thisSpeakerIcon = "";
@@ -572,10 +608,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 			        }
 			    }
 			});
-			if (isInVoip)
+			if(isInVoip){
 			    $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker talking" src="' + thisSpeakerIcon + '"><input class="volSlider" type="range" min="0" max="200" step="1" value="' + volumeLevel + '"></input>')) //voip speaking indicator
-			    else
+            }else{
 			        $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src=""><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator
+            }
             if(lobby[i].hasObjective){
                 $('.objective').remove();
                 if(gameType == "oddball"||gameType == "assault"||gameType == "ctf"){
@@ -593,11 +630,18 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
         $('.volSlider').on('change click', function(e){
             e.stopPropagation();
             setPlayerVolume($(this).parent().parent().attr('id'),$(this).parent().parent().attr('data-uid'),$(this).val());
-            displayScoreboard(expandedScoreboard);
+            displayScoreboard();
         });
         $('.speaker').on('click', function(e){
             e.stopPropagation();
-            $(this).parent().find('.volSlider').show(); 
+            $(this).parent().find('.volSlider').show();
+
+            $.grep(volArray, function (result, index) {
+                if (result) {
+                    if (result[0] == $(this).parent().parent().attr('id'))
+                        $(this).value(result[2]);
+                }
+            });
         });
     }
 }
@@ -879,25 +923,19 @@ function checkGamepad(){
     }
 };
 
-var volArray = [];
 function setPlayerVolume(name,uid,level){
-	var speakingLevel = 0;
-    $.grep(volArray, function(result, index){
-        if(result){
-            if(result[0] == name){
-				speakingLevel = result[3];
-                volArray.splice(index,1);
-            };
-        }
-    });
-    volArray.push([name, uid, level, speakingLevel]);
     dew.show("voip", {
         volume:{
             uid:name + "|" + uid,
             vol:level / 100.0
         }
     });
-    console.log(name, uid,level);
+	
+	$.grep(volArray, function (result, index) {
+	    if (result && result[0] == name)
+	        volArray.splice(index, 1);
+	});
+	volArray.push([name, uid, level, 0]);
 }
 
 function isSpeaking(name,visible){

@@ -5,6 +5,8 @@
 #include "../Patches/PlayerRepresentation.hpp"
 #include "../Patches/PlayerUid.hpp"
 #include <iomanip>
+#include <algorithm>
+#include <unordered_set>
 
 namespace
 {
@@ -21,6 +23,39 @@ namespace
 		auto nameW = Utils::String::WidenString(name);
 		wcsncpy_s(modulePlayer.UserName, nameW.c_str(), 16);
 		modulePlayer.UserName[15] = 0;
+		return true;
+	}
+
+	bool VariablePlayerServiceTagUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (!Arguments.size())
+			return false;
+
+		auto value = Arguments[0];
+		std::transform(value.begin(), value.end(), value.begin(), toupper);
+
+		if (!Modules::ModulePlayer::ValidServiceTag(value))
+		{
+			returnInfo = "Invalid service tag!";
+			return false;
+		}
+
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+		modulePlayer.VarPlayerServiceTag->ValueString = value;
+
+#ifdef _DEBUG
+		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+#endif
+		return true;
+	}
+
+	bool VariablePlayerGenderUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (!Arguments.size() || (Arguments[0].compare("male") && Arguments[0].compare("female")))
+			return false;
+#ifdef _DEBUG
+		Patches::PlayerRepresentation::UpdateLocalRepresentation();
+#endif
 		return true;
 	}
 
@@ -87,6 +122,27 @@ namespace
 		playerCtrlGlobalsPtr.WriteFast<uint8_t>(!playerCtrlGlobalsPtr.Read<uint8_t>());
 		return true;
 	}
+	bool GenerateTimestamp(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+		std::string encryptedString;
+		time_t now = time(0);
+		std::tm* now_tm = gmtime(&now);
+		char buf[42];
+		strftime(buf, 42, "%Y%m%d %X", now_tm);
+		Utils::Cryptography::PrivateEncrypt(Utils::Cryptography::ReformatKey(true, modulePlayer.VarPlayerPrivKey->ValueString), buf, strlen(buf), encryptedString);
+		returnInfo = encryptedString;
+		return true;
+	}
+	std::string GenerateRandomServiceTag()
+	{
+		std::string tag(4, 0);
+		tag[0] = rand() % 26 + 'A';
+		tag[1] = rand() % 10 + '0';
+		tag[2] = rand() % 10 + '0';
+		tag[3] = rand() % 10 + '0';
+		return tag;
+	}
 }
 
 namespace Modules
@@ -111,13 +167,18 @@ namespace Modules
 		VarRepresentation = AddVariableString("Representation", "player_race", "(DEBUG BUILDS ONLY) The representation to display for the player's render mannequin", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "spartan", VariablePlayerRepresentationUpdate);
 
 		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", eCommandFlagsArchived, "Jasper", VariablePlayerNameUpdate);
+		VarPlayerServiceTag = AddVariableString("ServiceTag", "service_tag", "The players service tag", eCommandFlagsArchived, "117", VariablePlayerServiceTagUpdate);
+		VarPlayerGender = AddVariableString("Gender", "gender", "The players gender", eCommandFlagsArchived, "male", VariablePlayerGenderUpdate);
+
 		// hack to add a small notice before Player.PrivKey in the cfg file
-		AddVariableString("PrivKeyNote", "priv_key_note", "", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "The PrivKey below is used to keep your stats safe. Treat it like a password and don't share it with anyone!");
-		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
-		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsArchived), "");
+		AddVariableString("PrivKeyNote", "priv_key_note", "", (CommandFlags)(eCommandFlagsWriteToKeys | eCommandFlagsHidden), "The PrivKey below is used to keep your stats safe. Treat it like a password and don't share it with anyone!");
+		VarPlayerPrivKey = AddVariableString("PrivKey", "player_privkey", "The players unique stats private key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsWriteToKeys), "");
+		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsWriteToKeys), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
+		AddCommand("EncryptGmtTimestamp", "encryptgmttimestamp", "encrypts a timestamp using the player's private key.", eCommandFlagsNone, GenerateTimestamp);
+
 
 		// patch Game_GetPlayerName to get the name from our field
 		Pointer::Base(0x42AA1).Write<uint32_t>((uint32_t)&this->UserName);
@@ -143,5 +204,15 @@ namespace Modules
 		std::string randomName = defaultNames[rand() % _countof(defaultNames)];
 		std::string previousValue;
 		Modules::CommandMap::Instance().SetVariable(VarPlayerName, randomName, previousValue);
+		Modules::CommandMap::Instance().SetVariable(VarPlayerServiceTag, GenerateRandomServiceTag(), previousValue);
+	}
+
+	bool ModulePlayer::ValidServiceTag(const std::string &tag)
+	{
+		static const std::unordered_set<std::string> filter = {"ANUS", "ARSE", "CLIT", "COCK", "COON", "CUNT", "DAGO", "DAMN","DICK", "DIKE", "DYKE", "FUCK", "GOOK", "HEEB", "HELL", "HOMO", "JIZZ", "KIKE", "KUNT", "KYKE", "MICK", "MUFF", "PAKI", "PISS", "POON", "PUTO", "SHIT", "SHIZ", "SLUT", "SMEG", "SPIC", "TARD", "TITS", "TWAT", "WANK", "NIGA"};
+
+		return tag.length() > 2 && tag.length() < 5
+			&& all_of(tag.begin(), tag.end(), [](auto c) { return c >= '0' && c <= 'Z'; })
+			&& filter.find(tag) == filter.end();
 	}
 }

@@ -143,7 +143,7 @@ namespace
 			RealVector3D *center, float radius, uint32_t* result, uint16_t maxObjects))(0x00B35B60);
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == DatumIndex::Null)
+		if (playerIndex == DatumHandle::Null)
 			return;
 
 		uint32_t heldObjectIndex;
@@ -163,7 +163,7 @@ namespace
 		if (selection.Contains(heldObjectIndex))
 		{
 			const auto& heldObject = Blam::Objects::Get(heldObjectIndex);
-			for (auto objectIndex = heldObject->FirstChild; objectIndex != DatumIndex::Null
+			for (auto objectIndex = heldObject->FirstChild; objectIndex != DatumHandle::Null
 				&& m_NumSourceMagnets < MAX_SOURCE_MAGNETS;)
 			{
 				auto object = Blam::Objects::Get(objectIndex);
@@ -175,7 +175,7 @@ namespace
 			}
 		}
 
-		if (Blam::Time::TicksToSeconds(static_cast<float>(Blam::Time::GetGameTicks() - m_LastCheck)) > 0.3f)
+		if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - m_LastCheck) > 0.3f)
 		{
 			m_LastCheck = Blam::Time::GetGameTicks();
 
@@ -287,12 +287,30 @@ namespace
 		sub_A232D0(v14);
 	}
 
+	static uint16_t GetPlasmaShaderTagIndex()
+	{
+		static bool tagLookup = true;
+		static uint16_t tagIndex = 0xFFFF;
+
+		if (tagLookup && (tagIndex == 0xFFFF))
+		{
+			// lookup the multiplayer_object_plasma tag instance
+			tagIndex = Blam::Tags::TagInstance::Find('rmsh', "objects\\multi\\shaders\\multiplayer_object_plasma").Index;
+
+			// tag instance was not found, don't attempt to look it up again
+			if (tagIndex == 0xFFFF)
+				tagLookup = false;
+		}
+
+		return tagIndex;
+	}
+
 	void MagnetManager::Render()
 	{
 		static const auto UseDefaultShader = (bool(*)(int defaultShaderIndex, int a2, int a3, int a4))(0x00A23300);
 		static const auto sub_A3CA60 = (void(*)(uint32_t shaderTagIndex, void* shaderDef, int a3, unsigned int a4, int a5, int a6))(0xA3CA60);
 
-		const auto SHADER_TAGINDEX = 0x303c;
+		const auto SHADER_TAGINDEX = GetPlasmaShaderTagIndex();
 		if (!UseDefaultShader(64, 0x14, 0, 0))
 			return;
 
@@ -338,8 +356,9 @@ namespace
 			if (m_NumSourceMagnets >= MAX_SOURCE_MAGNETS)
 				return;
 
-			m_SourceMagnets[m_NumSourceMagnets++].Position =
+			m_SourceMagnets[m_NumSourceMagnets].Position =
 				RealVector3D::Transform(markers[i], objectRotation) + objectTransform.Position;
+            ++m_NumSourceMagnets;
 		}
 	}
 
@@ -360,8 +379,9 @@ namespace
 			if (m_NumDestMagnets >= MAX_DEST_MAGNETS)
 				return;
 
-			m_DestMagnets[m_NumDestMagnets++].Position =
+			m_DestMagnets[m_NumDestMagnets].Position =
 				RealVector3D::Transform(markers[i], objectRotation) + objectTransform.Position;
+            ++m_NumDestMagnets;
 		}
 	}
 }

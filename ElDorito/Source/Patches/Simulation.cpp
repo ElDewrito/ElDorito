@@ -17,6 +17,12 @@ namespace
 	bool __cdecl c_simulation_generic_entity__deserialize2_hook(int a1, int a2, GenericEntitySimulationData *data, Blam::BitStream *stream, char a5);
 	uint32_t __fastcall c_simulation_generic_entity_definition__spawn_object_hook(int thisptr, void *unused, uint8_t *data, GenericEntitySimulationData *simulationData, int a4, uint8_t *newObject);
 	int ScenerySyncHook(uint32_t tagIndex, int a2, char a3);
+	void ProjectileAttachmentHook();
+	void SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data);
+	void ClientRagdollDamageHook(int objectIndex, char *damageData);
+
+	void simulation_control_decode(uint8_t *input, uint8_t *output);
+	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output);
 
 	void OnMapVariantRequestChange(Blam::MapVariant *mapVariant);
 
@@ -31,8 +37,25 @@ namespace Patches::Simulation
 		Hook(0xC928C, c_simulation_generic_entity__serialize2_hook, HookFlags::IsCall).Apply();
 		Hook(0xC913A, c_simulation_generic_entity__deserialize2_hook, HookFlags::IsCall).Apply();
 		Hook(0xC8E91, c_simulation_generic_entity_definition__spawn_object_hook, HookFlags::IsCall).Apply();
+
 		Patches::Network::OnMapVariantRequestChange(OnMapVariantRequestChange);
 		Hook(0x000B2E1B, ScenerySyncHook, HookFlags::IsCall).Apply();
+
+		Hook(0x0077862A, ProjectileAttachmentHook).Apply();
+
+		// sync flashlight
+		Hook(0xA7880, simulation_control_decode, HookFlags::IsCall).Apply();
+		Hook(0xA7A17, simulation_control_encode, HookFlags::IsCall).Apply();
+		Hook(0xA77BF, simulation_control_encode, HookFlags::IsCall).Apply();
+		Patch::NopFill(Pointer::Base(0x74C4E7), 6);
+
+		// fixes nade jumping, hammer boosting, etc..
+		Hook(0xB22C4, SendSimulationDamageAftermathEventHook, HookFlags::IsCall).Apply();
+		// prevent from sending duplicate damage aftermath events
+		Patch(0x00754226, 0x90, 12).Apply();
+
+		// restore h3 backflips
+		Hook(0x007543DF, ClientRagdollDamageHook, HookFlags::IsCall).Apply();
 	}
 }
 
@@ -137,10 +160,6 @@ namespace
 				*(RealVector3D*)(newObject + 0x34) = placement.UpVector;
 			}
 		}
-		else
-		{
-			s_SyncPlacements[placementIndex].PlacementFlags = 0;
-		}
 
 		auto objectIndex = c_simulation_generic_entity_definition__spawn_object(thisptr, data, simulationData, a4, newObject);
 		if (placementIndex != -1 && objectIndex != -1)
@@ -163,7 +182,7 @@ namespace
 	{
 		const auto sub_4AFA90 = (int(__cdecl *)(uint32_t tagIndex, int a2, char a3))(0x4AFA90);
 
-		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>('obje');
+		auto def = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 		if (def)
 
 		switch (Blam::Objects::ObjectType(def->ObjectType))
@@ -175,5 +194,75 @@ namespace
 		}
 	
 		return sub_4AFA90(tagIndex, a2, a3);
+	}
+
+	bool ShouldAttachProjectile(uint32_t parentObjectIndex, uint32_t projectileObjectIndex)
+	{
+		const auto object_is_phased = (bool(*)(uint32_t objectIndex))(0x0059A7B0);
+
+		auto parentObject = Blam::Objects::Get(parentObjectIndex);
+		if (!parentObject)
+			return false;
+
+		return !parentObject->GetMultiplayerProperties() || !object_is_phased(parentObjectIndex);
+	}
+
+	__declspec(naked) void ProjectileAttachmentHook()
+	{
+		__asm
+		{
+			pushad
+			push [ebp+0x8]
+			push [ebp+0xC]
+			call ShouldAttachProjectile
+			add esp, 0x8
+			test al, al
+			popad
+			jnz ATTACH
+			mov eax, 0xB786C8
+			jmp eax
+			ATTACH:
+			mov eax, 0xB78630
+			jmp eax
+		}
+	}
+
+
+	void simulation_control_decode(uint8_t *input, uint8_t *output)
+	{
+		const auto sub_4712D0 = (void(*)(uint8_t *input, uint8_t *ouput))(0x4712D0);
+		sub_4712D0(input, output);
+
+		if (*(input + 0x18) & (1 << 5))
+			*(uint32_t*)(output + 0x8) |= 4;
+		else
+			*(uint32_t*)(output + 0x8) &= ~4;
+	}
+
+	void simulation_control_encode(uint8_t *input, uint32_t unitObjectIndex, uint8_t *output)
+	{
+		const auto sub_4708F0 = (void(*)(uint8_t *data, int unitObjectIndex, uint8_t *a3))(0x4708F0);
+		sub_4708F0(input, unitObjectIndex, output);
+
+		if (*(uint32_t*)(input + 0x8) & 4)
+			*(output + 0x18) |= (1 << 5);
+		else
+			*(output + 0x18) &= ~(1 << 5);
+	}
+
+
+	void __cdecl SendSimulationDamageAftermathEventHook(int a1, int a2, int a3, int playerIndex, size_t size, void *data)
+	{
+		Pointer(data)(0xA).WriteFast<uint8_t>(1); // flag the direction vector to be serialized
+
+		auto simulation_broadcast_event = (void(__cdecl*)(int a1, int a2, int a3, int playerIndex, size_t size, void *data))(0x4E5A30);
+		simulation_broadcast_event(a1, a2, a3, playerIndex, size, data);
+	}
+
+	void ClientRagdollDamageHook(int objectIndex, char *damageData)
+	{
+		const auto object_deal_damage = (void(*)(int objectIndex, char *damageData))(0x00B52C50);
+		*(int*)(damageData + 0x54) = 1;
+		object_deal_damage(objectIndex, damageData);
 	}
 }
