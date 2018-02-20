@@ -499,6 +499,10 @@ namespace
 			atmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
 			atmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
 		}
+		else
+		{
+			atmosphereSettings.Enabled = false;
+		}
 
 		physics_set_gravity_scale(1.0f - (mapModifierProperties->PhysicsGravity / 255.0f));
 	}
