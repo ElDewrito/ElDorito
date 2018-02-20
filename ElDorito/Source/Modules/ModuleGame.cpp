@@ -251,8 +251,12 @@ namespace
 				ss << std::endl << "\t" << map;
 
 			ss << std::endl << std::endl << "Valid gametypes:";
-			for (size_t i = 0; i < Blam::GameTypeCount - 1; i++)
+			for (size_t i = 0; i < Blam::GameTypeCount; i++)
 				ss << std::endl << "\t" << "[" << i << "] " << Blam::GameTypeNames[i];
+
+			ss << std::endl << std::endl << "Valid gamemodes:";
+			for (size_t i = 0; i < Blam::GameModeCount; i++)
+				ss << std::endl << "\t" << "[" << i << "] " << Blam::GameModeNames[i];
 
 			returnInfo = ss.str();
 			return false;
