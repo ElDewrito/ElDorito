@@ -73,6 +73,7 @@ namespace
 	void* ObjectPropertiesUIAllocateHook(int size);
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
+	void RenderObjectTransparentHook();
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
@@ -111,6 +112,7 @@ namespace
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
+	
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -265,6 +267,8 @@ namespace Patches::Forge
 		// fix ragdolls falling through objects
 		Patch(0x00317269, { 0xD }).Apply();
 		Patch(0x7D8A59, { 0xEB }).Apply();
+
+		Hook(0x679F7F, RenderObjectTransparentHook).Apply();
 	}
 
 	void Tick()
@@ -1251,6 +1255,81 @@ namespace
 		*pMaterialIndex = materialIndex;
 
 		return true;
+	}
+
+	bool ReforgeMaterialIsTransparent(void *renderData)
+	{
+		// TODO: this can probably be a little better optimized, exit as fast possible
+
+		if (!renderData)
+			return false;
+
+		auto objectIndex = *(uint32_t*)((uint8_t*)renderData + 0x6C);
+
+		auto modeTagIndex = Pointer(renderData)(0x4).Read<uint32_t>();
+
+		const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
+		if (!modeDefinitionPtr)
+			return false;
+
+		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
+		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
+		if (!materialCount || firstMaterialShaderTagRef.TagIndex != REFORGE_DEFAULT_SHADER)
+			return false;
+
+		const auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto mpProps = object->GetMultiplayerProperties();
+		if (!mpProps)
+			return false;
+
+		auto sharedStorage = Pointer(mpProps)(0x5).Read<uint8_t>();
+
+		auto materialIndex = int16_t(sharedStorage);
+
+		if (int32_t(materialIndex) >= materialCount)
+			return false;
+
+		auto materialRenderMethodTagIndex = *(uint32_t*)(*(uint8_t**)((uint8_t*)modeDefinitionPtr + 0x4C) + 0x24 * materialIndex + 0xC);
+
+		if (materialRenderMethodTagIndex == -1)
+			return false;
+
+		auto renderMethod = Blam::Tags::TagInstance(materialRenderMethodTagIndex).GetDefinition<uint8_t>();
+		
+		return *(int32_t*)(*(uint8_t**)(renderMethod + 0x2C) + 0x68);
+	}
+
+	__declspec(naked) void RenderObjectTransparentHook()
+	{
+		__asm
+		{
+			add esp, 8
+			cmp[eax + 0x68], 0
+			jz loc_A79F8C
+			mov bl, 1
+			jmp loc_A79F8E
+
+			loc_A79F8C:
+			pushad
+			push[ebp + 0xC]
+			call ReforgeMaterialIsTransparent
+			add esp, 4
+			test al, al
+			popad
+			je still_not_transparent
+			mov bl, 1
+			jmp loc_A79F8E
+
+			still_not_transparent:
+			xor bl, bl
+			loc_A79F8E :
+			push 0x00A79F8E
+			retn
+
+		}
 	}
 
 	void RenderMeshPartHook(void* data, int a2)
