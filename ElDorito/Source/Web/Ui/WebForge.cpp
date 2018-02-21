@@ -44,6 +44,11 @@ namespace
 		General_Material_ColorR,
 		General_Material_ColorG,
 		General_Material_ColorB,
+		General_Material_TextureOverride,
+		General_Material_TextureScale,
+		General_Material_TextureOffsetX,
+		General_Material_TextureOffsetY,
+
 		General_Physics,
 		General_EngineFlags,
 
@@ -133,6 +138,7 @@ namespace
 			auto garbageVolumeProperties = reinterpret_cast<Forge::ForgeGarbageVolumeProperties*>(&m_Properties.SharedStorage);
 			auto killVolumeProperties = reinterpret_cast<Forge::ForgeKillVolumeProperties*>(&m_Properties.SharedStorage);
 			auto mapModifierProperties = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth);
+			auto reforgeProperties = reinterpret_cast<Forge::ReforgeObjectProperties*>(&m_Properties.ZoneRadiusWidth);
 
 			switch (target)
 			{
@@ -179,14 +185,29 @@ namespace
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
 			case PropertyTarget::General_Material_ColorR:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				reforgeProperties->ColorR = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::General_Material_ColorG:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
+				reforgeProperties->ColorG = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::General_Material_ColorB:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
+				reforgeProperties->ColorB = int(value.ValueFloat * 255);
 				break;
+			case PropertyTarget::General_Material_TextureOverride:
+				if (value.ValueInt)
+					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+				else
+					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+				break;
+			case PropertyTarget::General_Material_TextureScale:
+				reforgeProperties->TextureData.Scale = int(value.ValueFloat / Forge::kReforgeMaxTextureScale * 255);
+				break;
+			case PropertyTarget::General_Material_TextureOffsetX:
+				reforgeProperties->TextureData.OffsetX = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::General_Material_TextureOffsetY:
+				reforgeProperties->TextureData.OffsetY = int(value.ValueFloat * 255);
+				break;		
 			case PropertyTarget::General_Physics:
 				SetPhysics(value.ValueInt);
 				break;
@@ -799,6 +820,10 @@ namespace
 		SerializeProperty(writer, "appearance_material_color_r", reforgeProperties->ColorR / 255.0f);
 		SerializeProperty(writer, "appearance_material_color_g", reforgeProperties->ColorG / 255.0f);
 		SerializeProperty(writer, "appearance_material_color_b", reforgeProperties->ColorB / 255.0f);
+		SerializeProperty(writer, "appearance_material_tex_override", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates) != 0));
+		SerializeProperty(writer, "appearance_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
+		SerializeProperty(writer, "appearance_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
+		SerializeProperty(writer, "appearance_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
 		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
@@ -879,6 +904,11 @@ namespace
 			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
 			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
 			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
+			{ "appearance_material_tex_override",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOverride } },
+			{ "appearance_material_tex_scale",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureScale } },
+			{ "appearance_material_tex_offset_x",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetX } },
+			{ "appearance_material_tex_offset_y",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetY } },
+
 			{ "teleporter_channel",{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel } },
 			{ "shape_type",{ PropertyDataType::Int, PropertyTarget::General_ShapeType } },
 			{ "shape_radius",{ PropertyDataType::Float, PropertyTarget::General_ShapeRadius } },

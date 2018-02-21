@@ -75,6 +75,7 @@ namespace
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
 	void RenderObjectTransparentHook();
+	void RenderObjectCompressionInfoHook();
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
@@ -278,6 +279,7 @@ namespace Patches::Forge
 		Patch(0x7D8A59, { 0xEB }).Apply();
 
 		Hook(0x679F7F, RenderObjectTransparentHook).Apply();
+		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
 	}
 
 	void Tick()
@@ -1240,10 +1242,10 @@ namespace
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
 			return false;
-
-		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
-		if (!objectDef)
+		if (!object->GetMultiplayerProperties())
 			return false;
+		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
+
 		auto hlmtDef = Blam::Tags::TagInstance(*(uint32_t*)(objectDef + 0x40)).GetDefinition<uint8_t>();
 		if (!hlmtDef)
 			return false;
@@ -1367,6 +1369,79 @@ namespace
 			push 0x00A79F8E
 			retn
 
+		}
+	}
+
+	void RenderObjectCompressionInfo(uint8_t *data, float *compressionInfo)
+	{
+		const auto rasterizer_set_real_vertex_shader_constant = (void(*)(int start_register, int vec4_count, const float *data))(0x00A66410);
+
+		struct s_render_model_compression_info {
+			uint16_t field_0;
+			uint16_t field_2;
+			float position_bounds_x_min;
+			float position_bounds_x_max;
+			float position_bounds_y_min;
+			float position_bounds_y_max;
+			float position_bounds_z_min;
+			float position_bounds_z_max;
+			float texcoord_bounds_x_min;
+			float texcoord_bounds_x_max;
+			float texcoord_bounds_y_min;
+			float texcoord_bounds_y_max;
+		};
+
+		auto info = (s_render_model_compression_info*)compressionInfo;
+
+		float constantData[12];
+		constantData[0] = info->position_bounds_x_max - info->position_bounds_x_min;
+		constantData[1] = info->position_bounds_y_max - info->position_bounds_y_min;
+		constantData[2] = info->position_bounds_z_max - info->position_bounds_z_min;
+		constantData[3] = 0x3F800000;
+		constantData[4] = info->position_bounds_x_min;
+		constantData[5] = info->position_bounds_y_min;
+		constantData[6] = info->position_bounds_z_min;
+		constantData[7] = 0;
+	
+		auto objectIndex = *(uint32_t*)(*(uint8_t**)(data + 0x4) + 0x6c);
+		if (CanThemeObject(objectIndex))
+		{
+			auto object = Blam::Objects::Get(objectIndex);	
+			auto properties = object->GetMultiplayerProperties();
+			auto props = (ReforgeObjectProperties*)(&properties->RadiusWidth);
+			if (props->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
+			{
+				auto tscale = props->TextureData.Scale / 255.0f * 2.5f;
+				constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
+				constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
+				constantData[10] = props->TextureData.OffsetX / 255.0f;
+				constantData[11] = props->TextureData.OffsetY / 255.0f;
+				rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
+				return;
+			}	
+		}
+
+		constantData[8] = info->texcoord_bounds_x_max - info->texcoord_bounds_x_min;
+		constantData[9] = info->texcoord_bounds_y_max - info->texcoord_bounds_y_min;
+		constantData[10] = info->texcoord_bounds_x_min;
+		constantData[11] = info->texcoord_bounds_y_min;
+		rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
+	}
+
+
+	__declspec(naked) void RenderObjectCompressionInfoHook()
+	{
+		__asm
+		{
+
+			pushad
+			push[eax + 0x78]
+			push[ebp + 0x8]
+			call RenderObjectCompressionInfo
+			add esp, 8
+			popad
+			push 0x00A7928A
+			retn
 		}
 	}
 

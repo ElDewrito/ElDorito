@@ -42,11 +42,24 @@ namespace Forge
 	};
 	static_assert(sizeof(ForgeScreenFxProperties) <= 16, "ForgeScreenFxData must be 16 bytes or less in size");
 
+	const float kReforgeMaxTextureScale = 4.0f;
 	struct ReforgeObjectProperties
 	{
+		enum
+		{
+			eReforgeObjectFlags_OverrideTexCoordinates = (1 << 0)
+		};
+
 		uint8_t ColorR;
 		uint8_t ColorG;
 		uint8_t ColorB;
+		uint8_t Flags;
+		struct
+		{
+			uint8_t Scale;
+			uint8_t OffsetX;
+			uint8_t OffsetY;		
+		} TextureData;
 	};
 	static_assert(sizeof(ReforgeObjectProperties) <= 16, "ReforgeObjectProperties must be 16 bytes or less in size");
 	
