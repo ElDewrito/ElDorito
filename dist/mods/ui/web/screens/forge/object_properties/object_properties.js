@@ -422,6 +422,26 @@
                                 });
                             },
                         });
+                    } else {
+                        m.add({
+                            type: 'spinner',
+                            label: 'Texture Mode',
+                            description: 'Texture mode to use for this object',
+                            meta: [
+                                { label: 'Default', value: 0 },
+                                { label: 'Custom', value: 1 }
+                            ],
+                            getValue: () => properties.appearance_material_tex_override,
+                            setValue: (value) =>  {
+                                onPropertyChange({ ['appearance_material_tex_override']: value });
+                                _propertryGrid.setModel(buildModel(_data));
+                            }
+                        });
+                        if(properties.appearance_material_tex_override) {
+                            m.add(makeProperty('appearance_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
+                            m.add(makeProperty('appearance_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                            m.add(makeProperty('appearance_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                        }
                     }
                 })
 
