@@ -1411,7 +1411,7 @@ namespace
 			auto props = (ReforgeObjectProperties*)(&properties->RadiusWidth);
 			if (props->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
 			{
-				auto tscale = props->TextureData.Scale / 255.0f * 2.5f;
+				auto tscale = props->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
 				constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
 				constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
 				constantData[10] = props->TextureData.OffsetX / 255.0f;
