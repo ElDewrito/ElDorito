@@ -396,6 +396,13 @@ namespace
 						UI_PlaySound(0, -1); // error
 					}
 				}
+
+				auto uiRightAction = GetActionState(Blam::Input::eGameActionUiRight);
+				if (!(uiRightAction->Flags & Blam::Input::eActionStateFlagsHandled) && uiRightAction->Ticks == 50)
+				{
+					Forge::Selection::Clear();
+					PrintKillFeedText(0, L"Selection Cleared", 0);
+				}
 			}
 
 			if (Blam::Input::GetKeyTicks(Blam::Input::eKeyCodeM, Blam::Input::eInputTypeGame) == 1
