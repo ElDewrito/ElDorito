@@ -148,6 +148,7 @@ namespace
 			float Exposure;
 			float LightIntensity;
 			float BloomIntensity;
+			float LightBloomIntensity;
 		} CameraFx;
 		struct {
 			bool Enabled;
@@ -499,6 +500,8 @@ namespace
 		if (cameraFxSettings.LightIntensity > kMaxLightIntensity)
 			cameraFxSettings.LightIntensity = kMaxLightIntensity;
 		cameraFxSettings.BloomIntensity = ((float)mapModifierProperties->CameraFxBloom / expScale) * 0.07f;
+		cameraFxSettings.LightBloomIntensity = std::pow(mapModifierProperties->CameraFxLightBloom / 255.0f * 2.0f, 2.2f);
+
 		if (cameraFxSettings.BloomIntensity > kMaxBloomIntensity)
 			cameraFxSettings.BloomIntensity = kMaxBloomIntensity;
 
@@ -2454,6 +2457,9 @@ namespace
 				*(float*)((uint8_t*)thisptr + 0x1E48) = cameraFxSettings.LightIntensity;
 			if (std::abs(cameraFxSettings.BloomIntensity) > 0.0001f)
 				*(float*)((uint8_t*)thisptr + 0x2A0) = cameraFxSettings.BloomIntensity;
+			if (std::abs(cameraFxSettings.LightBloomIntensity) > 0.0001f)
+				*(float*)(*(uint8_t**)((uint8_t*)thisptr + 0x298) + 0x290) = cameraFxSettings.LightBloomIntensity;
+			
 		}
 	}
 

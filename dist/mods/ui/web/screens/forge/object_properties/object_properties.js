@@ -309,6 +309,7 @@
                     m.add(makeProperty('camera_fx_exposure', 'Exposure', 'range', cameraFxRange));
                     m.add(makeProperty('camera_fx_light_intensity', 'Light Intensity', 'range', cameraFxRange));
                     m.add(makeProperty('camera_fx_bloom', 'Bloom', 'range', cameraFxRange));
+                    m.add(makeProperty('camera_fx_light_bloom', 'Light Bloom', 'range', { min: 0, max: 2.0, step: 0.01 }));
                 });
 
                 model.group('Atmosphere', (m) => {

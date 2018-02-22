@@ -75,7 +75,7 @@ namespace Forge
 		uint8_t CameraFxExposure;
 		uint8_t CameraFxLightIntensity;
 		uint8_t CameraFxBloom;
-		uint8_t _PADDING;
+		uint8_t CameraFxLightBloom;
 		struct  {
 			uint8_t Flags : 4;
 			uint8_t Weather : 4;

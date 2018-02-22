@@ -95,6 +95,7 @@ namespace
 		CameraFx_Exposure,
 		CameraFx_LightIntensity,
 		CameraFx_Bloom,
+		CameraFx_LightBloom,
 
 		AtmosphereProperties_Enabled,
 		AtmosphereProperties_Weather,
@@ -362,6 +363,9 @@ namespace
 				break;
 			case PropertyTarget::CameraFx_Bloom:
 				mapModifierProperties->CameraFxBloom = int(value.ValueFloat * 255.0f);
+				break;
+			case PropertyTarget::CameraFx_LightBloom:
+				mapModifierProperties->CameraFxLightBloom = int(value.ValueFloat / 2.0f * 255.0f);
 				break;
 			case PropertyTarget::AtmosphereProperties_Enabled:
 				if (value.ValueInt)
@@ -850,6 +854,7 @@ namespace
 
 		SerializeProperty(writer, "camera_fx_exposure", mapModifierProperties->CameraFxExposure / 255.0f);
 		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
+		SerializeProperty(writer, "camera_fx_light_bloom", mapModifierProperties->CameraFxLightBloom / 255.0f * 2.0f);
 		SerializeProperty(writer, "camera_fx_light_intensity", mapModifierProperties->CameraFxLightIntensity / 255.0f);
 
 		SerializeProperty(writer, "atmosphere_properties_enabled", int((mapModifierProperties->AtmosphereProperties.Flags & 1) != 0));
@@ -956,6 +961,7 @@ namespace
 			{ "camera_fx_exposure",{ PropertyDataType::Float, PropertyTarget::CameraFx_Exposure } },
 			{ "camera_fx_light_intensity",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightIntensity } },
 			{ "camera_fx_bloom",{ PropertyDataType::Float, PropertyTarget::CameraFx_Bloom } },
+			{ "camera_fx_light_bloom",{ PropertyDataType::Float, PropertyTarget::CameraFx_LightBloom } },
 
 			{ "atmosphere_properties_enabled",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Enabled } },
 			{ "atmosphere_properties_weather",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Weather } },
