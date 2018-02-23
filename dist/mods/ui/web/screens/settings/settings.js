@@ -961,6 +961,7 @@ function initializeBindings(){
                         }else{
                            this_.val('RAlt'); 
                         }  
+                    break;
                     case 20: 
                         this_.val('CapsLock'); 
                     break;
