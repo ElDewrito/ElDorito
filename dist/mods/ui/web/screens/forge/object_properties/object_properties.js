@@ -485,8 +485,30 @@
 
             if (data.is_light) {
                 model.group('Light', (m) => {
-                    m.add(makeProperty('light_radius', 'Radius', 'range', { min: 0, max: 50, step: 0.05 }));
-                    m.add(makeProperty('light_intensity', 'Intensity', 'range', { min: 0, max: 1.0, step: 0.01 }));
+
+                    m.add({
+                        type: 'spinner',
+                        label: 'Type',
+                        description: '',
+                        meta: [
+                            { label: 'Point', value: 0 },
+                            { label: 'Directional', value: 1}
+                        ],
+                        getValue: () => properties.light_type,
+                        setValue: (value) =>  {
+                            onPropertyChange({ ['light_type']: value });
+                            _propertryGrid.setModel(buildModel(_data));
+                        }
+                    });
+
+                    if(properties.light_type) {
+                        m.add(makeProperty('light_field_of_view', 'Field of View', 'range', { min: 0, max: 180, step: 0.01 }));
+                        //m.add(makeProperty('light_near_width', 'Near Width', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                    }
+
+                    m.add(makeProperty('light_radius', 'Radius', 'range', { min: 0, max: 50, step: 0.01 }));
+                    m.add(makeProperty('light_intensity', 'Intensity', 'range', { min: 0, max: 2.0, step: 0.01 }));
+
                     m.add({
                         type: 'color',
                         label: 'Light Color',
@@ -513,8 +535,27 @@
                                 onColorSelected: item.setValue
                             });
                         },
-
                     });
+                    
+                    m.add({
+                        type: 'spinner',
+                        label: 'Function',
+                        description: 'Illumination function',
+                        meta: [
+                            { label: 'None', value: 0 },
+                            { label: 'Pulse', value: 1 },
+                            { label: 'Flicker', value: 2 }
+                        ],
+                        getValue: () => properties.light_illumination_function_type,
+                        setValue: (value) =>  {
+                            onPropertyChange({ ['light_illumination_function_type']: value });
+                            _propertryGrid.setModel(buildModel(_data));
+                        }
+                    });
+                    if(properties.light_illumination_function_type) {
+                        m.add(makeProperty('light_illumination_function_base', 'Base', 'range', { min: 0.0, max: 1.0, step: 0.01 }, 'The minumum percentage of intensity'));
+                        m.add(makeProperty('light_illumination_function_freq', 'Frequency', 'range',{ min: 0.0, max: 2.0, step: 0.01 }, 'The rate of change'));
+                    }
                 });
             }
 

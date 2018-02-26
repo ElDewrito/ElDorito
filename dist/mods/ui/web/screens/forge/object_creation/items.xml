@@ -146,57 +146,57 @@
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0.5" />
         <setter target="light_color_b" type="float" value="0" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="ORANGE" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0.25" />
         <setter target="light_color_b" type="float" value="0" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="PINK" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.25" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="RED" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="PURPLE" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0.5" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.5" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="50" />
         <setter target="light_radius" type="float" value="5" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="BLUE" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0" />
         <setter target="light_color_g" type="float" value="0" />
         <setter target="light_color_b" type="float" value="0.5" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+         <setter target="physics" type="int" value="1" />
       </item>
       <item type="light" name="GREEN" tagindex="0x00B0">
         <setter target="light_color_r" type="float" value="0" />
         <setter target="light_color_g" type="float" value="0.5" />
         <setter target="light_color_b" type="float" value="0" />
-        <setter target="light_intensity" type="float" value="0.1" />
-        <setter target="light_color_intensity" type="float" value="0.25" />
+        <setter target="light_intensity" type="float" value="0.5" />
         <setter target="light_radius" type="float" value="5" />
+         <setter target="physics" type="int" value="1" />
       </item>
     </category>
     <category name="TECH">

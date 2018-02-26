@@ -101,6 +101,8 @@ namespace
 	uint32_t __fastcall SpawnItemHook(MapVariant *thisptr, void *unused, uint32_t tagIndex, int a3, int placementIndex,
 		RealVector3D *position, RealVector3D *forward, RealVector3D *up,
 		int scenarioPlacementIndex, int objectType, uint8_t *placementProps, uint16_t placementFlags);
+	void LightIlluminationFunctionHook();
+	void LightColorFunctionHook();
 
 	void sandbox_zone_shape_render_hook(ZoneShape *zone, float *color, uint32_t objectIndex);
 
@@ -239,7 +241,11 @@ namespace Patches::Forge
 		Hook(0x19AEE6, SpawnItemHook, HookFlags::IsCall).Apply();
 		// also removes bounding radius check
 		Hook(0x19AEBA, Forge_SpawnItemCheckHook, HookFlags::IsCall).Apply();
+
 		Pointer(0xA669E4 + 1).Write(uint32_t(&UpdateLightHook));
+		Hook(0x79E1A9, LightIlluminationFunctionHook, HookFlags::IsCall).Apply();
+		Hook(0x79E186, LightColorFunctionHook, HookFlags::IsCall).Apply();
+		
 		// fix incorrect runtime when reloading
 		Hook(0x181CC0, c_map_variant_copy_budget_hook).Apply();
 
@@ -1915,45 +1921,178 @@ namespace
 		return CreateOrGetBudgetForItem(GetMapVariant(), tagIndex) != -1;
 	}
 
-	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4)
+	struct LightDatum : public Blam::DatumBase
 	{
-		struct LightDatum : public Blam::DatumBase
+		__int16 Flags;
+		int TagIndex;
+		int LightVolumeIndex;
+		int field_C;
+		int UnknownTicks;
+		BYTE field_14[48];
+		int ObjectIndex;
+		uint32_t field_48;
+		__int16 field_4C;
+		__int16 ColorPermutation;
+		int field_50;
+		BYTE field_54[39];
+		char field_7B;
+		RealVector3D Center;
+		BYTE field_88[28];
+		RealVector3D field_A4;
+		BYTE field_B0[28];
+		RealColorRGB Color;
+		int field_D8;
+		int field_DC;
+		int field_E0;
+	};
+	static_assert(sizeof(LightDatum) == 0xE4, "invalid light datum size");
+
+	float __fastcall LightIlluminationFunction(uint8_t *thisptr, uint32_t lightDatumIndex, float a1, float a2)
+	{
+		struct {
+			uint8_t type;
+			uint8_t flags;
+			uint8_t field_2;
+			uint8_t field_3;
+			float minimum;
+			float maximum;
+			uint32_t field_C;
+			uint32_t field_10;
+			uint32_t field_14;
+			uint32_t field_18;
+			uint32_t field_1C;
+			struct {
+				uint32_t function;
+				float frequency;
+				float field_8;
+				float field_C;
+				float field_10;
+			} params;
+		} static functionData;
+
+		struct {
+			uint32_t size;
+			uint32_t field_4;
+			uint32_t field_8;
+			void *data;
+			uint32_t field_10;
+		} static functionRef;
+
+		const auto sub_949CE0 = (float(__thiscall *)(void *thisptr, float a1, float a2))(0x00949CE0);
+		const auto LightIlluminationFunction = (float(__thiscall*)(void *thisptr, float value, float scale))(0x00949CE0);
+
+		auto& lightArray = ElDorito::GetMainTls(0x498)[0].Read<Blam::DataArray<LightDatum>>();
+		auto light = lightArray.Get(lightDatumIndex);
+
+		auto lightObject = Blam::Objects::Get(light->ObjectIndex);
+		if (lightObject)
 		{
-			__int16 Flags;
-			int TagIndex;
-			int field_8;
-			int field_C;
-			int UnknownTicks;
-			BYTE field_14[48];
-			int ObjectIndex;
-			uint32_t field_48;
-			__int16 field_4C;
-			__int16 ColorPermutation;
-			int field_50;
-			BYTE field_54[39];
-			char field_7B;
-			RealVector3D Center;
-			BYTE field_88[28];
-			RealVector3D field_A4;
-			BYTE field_B0[28];
-			RealColorRGB Color;
-			int field_D8;
-			int field_DC;
-			int field_E0;
-		};
+			auto lightDef = Blam::Tags::TagInstance(light->TagIndex).GetDefinition<uint8_t>();
+			auto lightFlags = *(uint32_t*)lightDef;
 
-		static_assert(sizeof(LightDatum) == 0xE4, "invalid light datum size");
+			auto mpProperties = lightObject->GetMultiplayerProperties();
+			if (lightFlags & (1 << 31) && mpProperties)
+			{
+				auto lightProperties = reinterpret_cast<const ForgeLightProperties*>((uint8_t*)mpProperties + 0x14);
+				if (lightProperties->IlluminationFunction.Type == ForgeLightProperties::eForgeLightIlluminationFunctionType_None)
+					return 1.0f;
 
+				functionData.type = 3;
+				functionData.flags = 48;
+				functionData.minimum = lightProperties->IlluminationFunction.Base / 255.0f;
+				functionData.maximum = 1.0f;
+				functionData.field_C = 0;
+				functionData.field_10 = 0;
+				functionData.field_14 = 0;
+				functionData.field_18 = 0;
+				functionData.field_1C = 14;
+
+				float frequency = lightProperties->IlluminationFunction.Freq / 255.0f * kMaxForgeLightIlluminationFrequency;
+
+				switch (lightProperties->IlluminationFunction.Type)
+				{
+				case ForgeLightProperties::eForgeLightIlluminationFunctionType_Pulse:
+					functionData.params.function = 2;
+					break;
+				case ForgeLightProperties::eForgeLightIlluminationFunctionType_Flicker:
+					frequency *= 0.2f;
+					functionData.params.function = 8;
+					break;
+
+				}
+				functionData.params.frequency = frequency;
+				functionData.params.field_8 = 0;
+				functionData.params.field_C = 0;
+				functionData.params.field_10 = 1;
+
+				functionRef.size = 52;
+				functionRef.data = &functionData;
+
+				return LightIlluminationFunction(&functionRef, a1, a2);
+			}
+		}
+
+		return sub_949CE0(thisptr, a1, a2);
+	}
+
+	void __fastcall LightColorFunction(void *thisptr, uint32_t lightDatumIndex, float t, float a3, RealColorRGB *color)
+	{
+		const auto sub_9498D0 = (void(__thiscall *)(void *thisptr, float t, float a3, RealColorRGB *rgb))(0x9498D0);
+
+		auto& lightArray = ElDorito::GetMainTls(0x498)[0].Read<Blam::DataArray<LightDatum>>();
+		auto light = lightArray.Get(lightDatumIndex);
+		auto lightObject = Blam::Objects::Get(light->ObjectIndex);
+		if (lightObject)
+		{
+			auto lightDef = Blam::Tags::TagInstance(light->TagIndex).GetDefinition<uint8_t>();
+			auto lightFlags = *(uint32_t*)lightDef;
+
+			auto mpProperties = lightObject->GetMultiplayerProperties();
+			if (lightFlags & (1 << 31) && mpProperties)
+			{
+				if (mpProperties)
+				{
+					auto lightProperties = reinterpret_cast<const ForgeLightProperties*>((uint8_t*)mpProperties + 0x14);
+					auto intensity = lightProperties->Intensity / 255.0f * kMaxForgeLightIntensity * 300.0f;
+					color->Red = lightProperties->ColorR / 255.0f * intensity;
+					color->Green = lightProperties->ColorG / 255.0f * intensity;
+					color->Blue = lightProperties->ColorB / 255.0f * intensity;
+					return;
+				}
+			}
+		}
+
+		sub_9498D0(thisptr, t, a3, color);
+	}
+
+	void __declspec(naked) LightIlluminationFunctionHook()
+	{
+		__asm
+		{
+			mov edx, [ebp + 0x8]
+			jmp LightIlluminationFunction
+		}
+	}
+
+	void __declspec(naked) LightColorFunctionHook()
+	{
+		__asm
+		{
+			mov edx, [ebp + 0x8]
+			jmp LightColorFunction
+		}
+	}
+
+	void UpdateLightHook(uint32_t lightDatumIndex, int a2, float intensity, int a4)
+	{		
 		const auto sub_A66900 = (void(__thiscall *)(int thisptr, RealVector3D center, RealColorRGB color, float arg_18, float range,
 			RealVector3D a6, float spread, float arg_30, float spreadb))(0xA66900);
 		const auto sub_A667F0 = (void(*)(uint32_t lightDatumIndex, int a2, float colorIntensity, int a4))(0xA667F0);
 
 		auto& lightArray = ElDorito::GetMainTls(0x498)[0].Read<Blam::DataArray<LightDatum>>();
-
 		auto light = lightArray.Get(lightDatumIndex);
 		if (!light)
 			return;
-
 		auto lightDef = Blam::Tags::TagInstance(light->TagIndex).GetDefinition<uint8_t>();
 		auto lightFlags = *(uint32_t*)lightDef;
 
@@ -1961,30 +2100,22 @@ namespace
 		if (lightFlags & (1 << 31) && parentObject)
 		{
 			auto props = parentObject->GetMultiplayerProperties();
-			auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>((uint8_t*)props + 0x14);
+			if (props)
+			{
+				auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>((uint8_t*)props + 0x14);
 
-			auto lightDefPtr = Pointer(lightDef);
+				auto v23 = *(float*)(lightDef + 0x74);
+				auto v24 = lightProperties->Type == Forge::ForgeLightProperties::eForgeLightType_Point ? 1.0f : 0.0f;
+				auto fieldOfView = lightProperties->FieldOfView / 255.0f * Forge::kMaxForgeLightFovDegrees * 0.0174533f;
+				auto range = lightProperties->Range / 65535.0f * Forge::kMaxForgeLightRange;
+				auto color = RealColorRGB {
+					intensity * light->Color.Red,
+					intensity * light->Color.Green,
+					intensity *light->Color.Blue
+				};
 
-			auto v2 = 0.0f;
-			auto lightType = lightDefPtr(0x4).Read<uint16_t>();
-			if (lightType == 0) // point light
-				v2 = 1.0f;
-			else // spot light
-				v2 = lightDefPtr(0x78).Read<float>();
-
-			auto v23 = lightDefPtr(0x74).Read<float>();
-			auto v22 = lightDefPtr(0x14).Read<float>();
-
-			intensity = ((lightProperties->Intensity / 255.0f)) * 250.0f * intensity;
-			RealColorRGB color(
-				intensity * (lightProperties->ColorR / 255.0f),
-				intensity * (lightProperties->ColorG / 255.0f),
-				intensity * (lightProperties->ColorB / 255.0f)
-			);
-
-			sub_A66900(a4, light->Center, color, 6.0f, lightProperties->Range, light->field_A4, v2, v23, v22);
-
-			return;
+				return sub_A66900(a4, light->Center, color, 6.0f, range, light->field_A4, fieldOfView, v23, v24);
+			}
 		}
 
 		sub_A667F0(lightDatumIndex, a2, intensity, a4);

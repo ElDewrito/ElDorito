@@ -6,16 +6,41 @@
 
 namespace Forge
 {
+	const auto kMaxForgeLightRange = 50.0f;
+	const auto kMaxForgeLightIntensity = 2.0f;
+	const auto kMaxForgeLightIlluminationFrequency = 2.0f;
+	const auto kMaxForgeLightFovDegrees = 180.0f;
+
 	struct ForgeLightProperties
 	{
+		enum
+		{
+			eForgeLightIlluminationFunctionType_None = 0,
+			eForgeLightIlluminationFunctionType_Pulse,
+			eForgeLightIlluminationFunctionType_Flicker
+		};
+
+		enum
+		{
+			eForgeLightType_Point = 0,
+			eForgeLightType_Directional
+		};
+
+		uint8_t Type : 2;
+		uint8_t Flags : 6;
 		uint8_t ColorR;
 		uint8_t ColorG;
 		uint8_t ColorB;
-		uint8_t Unused0;
 		uint8_t Intensity;
-		uint8_t Unused1;
-		uint8_t Unused2;
-		float Range;
+		uint16_t Range;
+		uint8_t FieldOfView;
+		uint8_t NearWidth; // for later
+		struct {
+			uint8_t Type : 3;
+			uint8_t Reserved : 5;
+			uint8_t Base;
+			uint8_t Freq;
+		} IlluminationFunction;
 	};
 	static_assert(sizeof(ForgeLightProperties) < 16, "ForgeLightProperties must be 16 bytes or less in size");
 

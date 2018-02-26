@@ -55,11 +55,17 @@ namespace
 		Budget_Minimum,
 		Budget_Maximum,
 
+		Light_Type,
 		Light_ColorR,
 		Light_ColorG,
 		Light_ColorB,
 		Light_Intensity,
 		Light_Radius,
+		Light_FieldOfView,
+		Light_NearWidth,
+		Light_IlluminationType,
+		Light_IlluminationBase,
+		Light_IlluminationFreq,
 
 		Fx_Range,
 		Fx_LightIntensity,
@@ -140,6 +146,7 @@ namespace
 			auto killVolumeProperties = reinterpret_cast<Forge::ForgeKillVolumeProperties*>(&m_Properties.SharedStorage);
 			auto mapModifierProperties = reinterpret_cast<Forge::ForgeMapModifierProperties*>(&m_Properties.ZoneRadiusWidth);
 			auto reforgeProperties = reinterpret_cast<Forge::ReforgeObjectProperties*>(&m_Properties.ZoneRadiusWidth);
+			auto lightProperties = reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth);
 
 			switch (target)
 			{
@@ -221,20 +228,38 @@ namespace
 			case PropertyTarget::Budget_Maximum:
 				SetBudgetMaximum(value.ValueInt);
 				break;
+			case PropertyTarget::Light_Type:
+				lightProperties->Type = value.ValueInt;
+				break;
 			case PropertyTarget::Light_ColorR:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorR = int(value.ValueFloat * 255);
+				lightProperties->ColorR = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Light_ColorG:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorG = int(value.ValueFloat * 255);
+				lightProperties->ColorG = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Light_ColorB:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->ColorB = int(value.ValueFloat * 255);
+				lightProperties->ColorB = int(value.ValueFloat * 255);
 				break;
 			case PropertyTarget::Light_Intensity:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Intensity = int(value.ValueFloat * 255);
+				lightProperties->Intensity = int(value.ValueFloat / Forge::kMaxForgeLightIntensity * 255);
 				break;
 			case PropertyTarget::Light_Radius:
-				reinterpret_cast<Forge::ForgeLightProperties*>(&m_Properties.ZoneRadiusWidth)->Range = value.ValueFloat;
+				lightProperties->Range = int(value.ValueFloat / Forge::kMaxForgeLightRange * 65535);
+				break;
+			case PropertyTarget::Light_FieldOfView:
+				lightProperties->FieldOfView = int(value.ValueFloat / Forge::kMaxForgeLightFovDegrees * 255);
+				break;
+			case PropertyTarget::Light_NearWidth:
+				lightProperties->NearWidth = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_IlluminationType:
+				lightProperties->IlluminationFunction.Type = value.ValueInt;
+				break;
+			case PropertyTarget::Light_IlluminationBase:
+				lightProperties->IlluminationFunction.Base = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::Light_IlluminationFreq:
+				lightProperties->IlluminationFunction.Freq = int(value.ValueFloat / Forge::kMaxForgeLightIlluminationFrequency * 255);
 				break;
 			case PropertyTarget::Fx_ColorFilterR:
 				reinterpret_cast<Forge::ForgeScreenFxProperties*>(&m_Properties.ZoneRadiusWidth)->ColorFilterR = int(value.ValueFloat * 255);
@@ -829,11 +854,18 @@ namespace
 		SerializeProperty(writer, "appearance_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
 		SerializeProperty(writer, "appearance_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
 		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
+		SerializeProperty(writer, "light_type", int(lightProperties->Type));
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
 		SerializeProperty(writer, "light_color_r", lightProperties->ColorR / 255.0f);
-		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f);
-		SerializeProperty(writer, "light_radius", lightProperties->Range);
+		SerializeProperty(writer, "light_intensity", lightProperties->Intensity / 255.0f * Forge::kMaxForgeLightIntensity);
+		SerializeProperty(writer, "light_radius", lightProperties->Range / 65535.0f * Forge::kMaxForgeLightRange);
+		SerializeProperty(writer, "light_field_of_view", lightProperties->FieldOfView / 255.0f * Forge::kMaxForgeLightFovDegrees);
+		SerializeProperty(writer, "light_near_width", lightProperties->FieldOfView / 255.0f);
+		SerializeProperty(writer, "light_illumination_function_type", int(lightProperties->IlluminationFunction.Type));
+		SerializeProperty(writer, "light_illumination_function_base", lightProperties->IlluminationFunction.Base / 255.0f);
+		SerializeProperty(writer, "light_illumination_function_freq", lightProperties->IlluminationFunction.Freq / 255.0f * Forge::kMaxForgeLightIlluminationFrequency);
+
 		SerializeProperty(writer, "fx_color_filter_r", screenFxProperties->ColorFilterR / 255.0f);
 		SerializeProperty(writer, "fx_color_filter_g", screenFxProperties->ColorFilterG / 255.0f);
 		SerializeProperty(writer, "fx_color_filter_b", screenFxProperties->ColorFilterB / 255.0f);
@@ -921,11 +953,17 @@ namespace
 			{ "shape_top",{ PropertyDataType::Float, PropertyTarget::General_ShapeTop } },
 			{ "shape_bottom",{ PropertyDataType::Float, PropertyTarget::General_ShapeBottom } },
 			{ "shape_depth",{ PropertyDataType::Float, PropertyTarget::General_ShapeDepth } },
+			{ "light_type",{ PropertyDataType::Int, PropertyTarget::Light_Type } },
+			{ "light_field_of_view",{ PropertyDataType::Float, PropertyTarget::Light_FieldOfView } },
+			{ "light_near_width",{ PropertyDataType::Float, PropertyTarget::Light_NearWidth } },
 			{ "light_color_r",{ PropertyDataType::Float, PropertyTarget::Light_ColorR } },
 			{ "light_color_g",{ PropertyDataType::Float, PropertyTarget::Light_ColorG } },
 			{ "light_color_b",{ PropertyDataType::Float, PropertyTarget::Light_ColorB } },
 			{ "light_intensity",{ PropertyDataType::Float, PropertyTarget::Light_Intensity } },
 			{ "light_radius",{ PropertyDataType::Float, PropertyTarget::Light_Radius } },
+			{ "light_illumination_function_type",{ PropertyDataType::Int, PropertyTarget::Light_IlluminationType } },
+			{ "light_illumination_function_base",{ PropertyDataType::Float, PropertyTarget::Light_IlluminationBase } },
+			{ "light_illumination_function_freq",{ PropertyDataType::Float, PropertyTarget::Light_IlluminationFreq } },
 
 			{ "fx_range",{ PropertyDataType::Int, PropertyTarget::Fx_Range } },
 			{ "fx_hue",{ PropertyDataType::Float, PropertyTarget::Fx_Hue } },
