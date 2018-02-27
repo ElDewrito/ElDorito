@@ -159,6 +159,8 @@ namespace
 			float FogDensity;
 			float FogVisibility;
 			float Brightness;
+			float LightSourceX;
+			float LightSourceY;
 		} Atmosphere;	
 	} 
 	mapModifierState;
@@ -544,9 +546,9 @@ namespace
 			atmosphereSettings.FogColor.Red = mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f;
 			atmosphereSettings.FogColor.Green = mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f;
 			atmosphereSettings.FogColor.Blue = mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f;
-			atmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 50.0f;
-			atmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 50.0f;
-			atmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 2.0f;
+			atmosphereSettings.FogDensity = mapModifierProperties->AtmosphereProperties.FogDensity / 255.0f * 200.0f;
+			atmosphereSettings.FogVisibility = mapModifierProperties->AtmosphereProperties.FogVisibility / 255.0f * 200.0f;
+			atmosphereSettings.Brightness = mapModifierProperties->AtmosphereProperties.Brightness / 255.0f * 4.0f;
 		}
 		else
 		{
@@ -2658,25 +2660,34 @@ namespace
 		const auto sub_671D90 = (void(*)(__int16 sbspIndex, sky_atm_parameters_properties_definition *atmosphereProperties,
 			void *state, float intensity))(0x671D90);
 
-		auto &atmosphereSettings = mapModifierState.Atmosphere;
-		// TODO: cleanup
+		const auto &atmosphereSettings = mapModifierState.Atmosphere;
 		if (atmosphereSettings.Enabled)
 		{
+			auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+			auto skya = Blam::Tags::TagInstance(scenario->SkyParameters.TagIndex).GetDefinition<uint8_t>();
+			if (!skya)
+				return;
+
+			auto atmospherePropertiesBlock = (Blam::Tags::TagBlock<sky_atm_parameters_properties_definition>*)(skya + 0x34);
+			if (!atmospherePropertiesBlock->Count)
+				return;
+
+			const auto properties = atmospherePropertiesBlock->Elements[0];
+
 			sky_atm_parameters_properties_definition props = { 0 };
 			props.Flags = 7;
-			props.Name = 26116;
-			props.LightSourceY = 56;
-			props.LightSourceX = 30;
+			props.LightSourceY = properties.LightSourceY;
+			props.LightSourceX = properties.LightSourceX;
 			props.FogColor = atmosphereSettings.FogColor;
 			props.Brightness = atmosphereSettings.Brightness;
-			props.FogGradientThreshold = -10.0f + atmosphereSettings.FogVisibility;
+			props.FogGradientThreshold = -100.0f + atmosphereSettings.FogVisibility;
 			props.LightIntensity = 100;
 			props.SkyinvisiblilityThroughFog = 25;
 			props.Unknown2C = 0.08f;
 			props.Unknown30 = 2.5f;
-			props.LightSourceSpread = 0.75f;
+			props.LightSourceSpread = properties.LightSourceSpread;
 			props.Unknown38 = 1.0f;
-			props.FogIntensity = -20.0f + atmosphereSettings.FogDensity;
+			props.FogIntensity = -100.0f + atmosphereSettings.FogDensity;
 			props.Unknown40 = 65535;
 			props.TintCyan = 0.0009897007f;
 			props.TintMagenta = 0.0009897007f;
@@ -2690,12 +2701,12 @@ namespace
 			props.TintRed = 0.04638588f;
 			props.TintGreen = 0.04638588f;
 			props.TintBlue = 0.04638588f;
-			props.FogIntensity2 = 500;
-			props.StartDistance = 18.5f;
-			props.EndDistance = 19.75f;
-			props.FogVelocityX = 0;
-			props.FogVelocityY = 0.2f;
-			props.FogVelocityZ = 0.1f;
+			props.FogIntensity2 = properties.FogIntensity2;
+			props.StartDistance = properties.StartDistance;
+			props.EndDistance = properties.EndDistance;
+			props.FogVelocityX = properties.FogVelocityX;
+			props.FogVelocityY = properties.FogVelocityY;
+			props.FogVelocityZ = properties.FogVelocityZ;
 			sub_671D90(bspIndex, &props, state, 1.0f);
 		}
 		else

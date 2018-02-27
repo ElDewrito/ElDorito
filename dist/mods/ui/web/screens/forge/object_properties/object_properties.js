@@ -313,39 +313,55 @@
                 });
 
                 model.group('Atmosphere', (m) => {
-                    console.log(properties);
-                    m.add(makeProperty('atmosphere_properties_enabled', 'Atmosphere', 'spinner', [ {label: 'Disabled', value: 0}, {label: 'Enabled', value: 1 }] ));
-                    m.add(makeProperty('atmosphere_properties_weather', 'Weather', 'spinner', [ {label: 'None', value: 0}, {label: 'Snow', value: 1 }] ));
-                    m.add(makeProperty('atmosphere_properties_brightness', 'Brightness', 'range', { min: 0, max: 1, step: 0.01 }));
-                    m.add(makeProperty('atmosphere_properties_fog_density', 'Fog Density', 'range', { min: 0, max: 1, step: 0.01 }));
-                    m.add(makeProperty('atmosphere_properties_fog_visibility', 'Fog Visibility', 'range', { min: 0, max: 1, step: 0.01 }));
+                    m.add(makeProperty('atmosphere_properties_weather', 'Weather', 'spinner', [ {label: 'Map Default', value: 0}, {label: 'Snow', value: 1 }] ));
+
                     m.add({
-                        type: 'color',
-                        label: 'Fog Color',
+                        type: 'spinner',
+                        label: 'Fog',
                         description: '',
-                        meta: {},
-                        getValue: () => {
-                            return {
-                                r: Math.floor(properties.atmosphere_properties_fog_color_r * 255),
-                                g: Math.floor(properties.atmosphere_properties_fog_color_g * 255),
-                                b: Math.floor(properties.atmosphere_properties_fog_color_b * 255)
-                            };
-                        },
-                        setValue: (color) => {
-                            onPropertyChange({
-                                atmosphere_properties_fog_color_r: color.r / 255,
-                                atmosphere_properties_fog_color_g: color.g / 255,
-                                atmosphere_properties_fog_color_b: color.b / 255
-                            })
-                        },
-                        action: (item) => {
-                            screenManager.push('color_picker', {
-                                title: 'Fog Color',
-                                initialColor: item.model.getValue(),
-                                onColorSelected: item.setValue
-                            });
-                        },
+                        meta: [
+                            { label: 'Map Default', value: 0 },
+                            { label: 'Custom', value: 1 }
+                        ],
+                        getValue: () => properties.atmosphere_properties_enabled,
+                        setValue: (value) =>  {
+                            onPropertyChange({ ['atmosphere_properties_enabled']: value });
+                            _propertryGrid.setModel(buildModel(_data));
+                        }
                     });
+
+                    if(properties.atmosphere_properties_enabled) {
+                        m.add(makeProperty('atmosphere_properties_brightness', 'Fog Brightness', 'range', { min: 0, max: 1, step: 0.01 }));
+                        m.add(makeProperty('atmosphere_properties_fog_density', 'Fog Density', 'range', { min: 0, max: 1, step: 0.01 }));
+                        m.add(makeProperty('atmosphere_properties_fog_visibility', 'Fog Visibility', 'range', { min: 0, max: 1, step: 0.01 }));
+                        m.add({
+                            type: 'color',
+                            label: 'Fog Color',
+                            description: '',
+                            meta: {},
+                            getValue: () => {
+                                return {
+                                    r: Math.floor(properties.atmosphere_properties_fog_color_r * 255),
+                                    g: Math.floor(properties.atmosphere_properties_fog_color_g * 255),
+                                    b: Math.floor(properties.atmosphere_properties_fog_color_b * 255)
+                                };
+                            },
+                            setValue: (color) => {
+                                onPropertyChange({
+                                    atmosphere_properties_fog_color_r: color.r / 255,
+                                    atmosphere_properties_fog_color_g: color.g / 255,
+                                    atmosphere_properties_fog_color_b: color.b / 255
+                                })
+                            },
+                            action: (item) => {
+                                screenManager.push('color_picker', {
+                                    title: 'Fog Color',
+                                    initialColor: item.model.getValue(),
+                                    onColorSelected: item.setValue
+                                });
+                            },
+                        });
+                    }
                 });  
             }
 
