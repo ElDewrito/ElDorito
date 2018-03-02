@@ -815,10 +815,10 @@ namespace
 		uint32_t newWeatherEffectTagIndex = -1;
 
 		auto forgeGlobals = GetForgeGlobals();
-		auto desiredWeatherIndex = mapModifierProperties->AtmosphereProperties.Weather;
-		if (desiredWeatherIndex > 0 && desiredWeatherIndex < forgeGlobals->WeatherEffects.Count)
+		auto desiredWeatherIndex = mapModifierProperties->AtmosphereProperties.Weather - 1;
+		if (desiredWeatherIndex >= 0 && desiredWeatherIndex < forgeGlobals->WeatherEffects.Count)
 		{
-			newWeatherEffectTagIndex = forgeGlobals->WeatherEffects[desiredWeatherIndex-1].Effect.TagIndex;
+			newWeatherEffectTagIndex = forgeGlobals->WeatherEffects[desiredWeatherIndex].Effect.TagIndex;
 		}
 
 		UpdateForgeSky(mapModifierProperties);
