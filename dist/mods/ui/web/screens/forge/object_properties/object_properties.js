@@ -398,7 +398,7 @@
             if (data.has_material) {
 
                 model.group('Material', m => {
-                    let supportsColor = properties.appearance_material == 119 || properties.appearance_material == 120;
+                    let supportsColor = materialSupportsChangeColor(properties.appearance_material);
 
                     let allMaterials = [];
                     let materialNodes = _materialsDOM.getElementsByTagName('item');
@@ -431,7 +431,7 @@
                         },
                         setValue: (value) => {
                             onPropertyChange({ ['appearance_material']: value });
-                            if (supportsColor != (properties.appearance_material == 120 || properties.appearance_material == 119)) {
+                            if (supportsColor != materialSupportsChangeColor(properties.appearance_material)) {
                                 _propertryGrid.setModel(buildModel(_data));
                             }
                         }
@@ -820,7 +820,7 @@
                     label: materialName,
                     value: _data.properties.appearance_material,
                 };
-                if (recentItem.value == 120 || recentItem.value == 119) {
+                if (materialSupportsChangeColor(recentItem.value)) {
                     recentItem.color = materialColor;
                 }
 
@@ -1241,6 +1241,10 @@
         setTimeout(function () {
             toastElement.classList.remove('toast-show');
         }, 3000);
+    }
+    
+    function materialSupportsChangeColor(materialIndex) {
+        return materialIndex == 120 || materialIndex == 119 || materialIndex == 162 || materialIndex == 163
     }
 
 })();
