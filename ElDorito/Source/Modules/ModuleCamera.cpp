@@ -370,7 +370,7 @@ namespace Modules
 		VarCameraCenteredCrosshairFirst->ValueIntMin = 0;
 		VarCameraCenteredCrosshairFirst->ValueIntMax = 1;
 
-		VarCameraCenteredCrosshairThird = AddVariableInt("CenteredCrosshairThird", "crosshair_third", "Controls whether the crosshair should be centered in first person", eCommandFlagsArchived, 1, VariableCameraCrosshairUpdate);
+		VarCameraCenteredCrosshairThird = AddVariableInt("CenteredCrosshairThird", "crosshair_third", "Controls whether the crosshair should be centered in third person", eCommandFlagsArchived, 1, VariableCameraCrosshairUpdate);
 		VarCameraCenteredCrosshairThird->ValueIntMin = 0;
 		VarCameraCenteredCrosshairThird->ValueIntMax = 1;
 
