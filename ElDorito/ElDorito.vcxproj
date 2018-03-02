@@ -226,6 +226,7 @@
     <ClInclude Include="Source\Blam\Tags\Game\TraitsProfile.hpp" />
     <ClInclude Include="Source\Blam\Tags\Game\VIPVariant.hpp" />
     <ClInclude Include="Source\Blam\Tags\Globals\CacheFileGlobalTags.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\ForgeGlobalsDefinition.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionEquipment.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\DefinitionWeapon.hpp" />
     <ClInclude Include="Source\Blam\Tags\Items\Item.hpp" />

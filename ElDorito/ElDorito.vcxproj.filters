@@ -1254,6 +1254,7 @@
     <ClInclude Include="Source\Patches\GameEngineSettings.hpp" />
     <ClInclude Include="Source\Patches\DamageSystem.hpp" />
     <ClInclude Include="Source\Blam\Memory\DatumHandle.hpp" />
+    <ClInclude Include="Source\Blam\Tags\Globals\ForgeGlobalsDefinition.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Source\ElDorito.rc" />

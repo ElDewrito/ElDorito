@@ -313,8 +313,34 @@
                 });
 
                 model.group('Atmosphere', (m) => {
-                    m.add(makeProperty('atmosphere_properties_weather', 'Weather', 'spinner', [ {label: 'Map Default', value: 0}, {label: 'Snow', value: 1 }] ));
 
+                    var skyOptions = [ { label: 'Map Default', value: 0 }];
+                    var weatherEffectOptions = [ { label: 'Map Default', value: 0 }];
+
+                    for(var i = 0; i < data.options.skies.length; i++)
+                        skyOptions.push({label: data.options.skies[i], value: i+1});
+
+                    m.add({
+                        type: 'spinner',
+                        label: 'Skybox',
+                        description: '',
+                        meta: skyOptions,
+                        getValue: () => properties.atmosphere_properties_skybox,
+                        setValue: (value) =>  {
+                            onPropertyChange({ ['atmosphere_properties_skybox']: value });
+                            _propertryGrid.setModel(buildModel(_data));
+                        }
+                    });
+                    
+                    if(properties.atmosphere_properties_skybox) {
+                        m.add(makeProperty('atmosphere_properties_skybox_offset_z', 'Skybox Z', 'range', 
+                        { min: -1.0, max: 1.0, step: 0.01, displayTextOverride: value => (value * 500).toFixed(2)  }));
+                    }
+                   
+                    for(var i = 0; i < data.options.weather_effects.length; i++)
+                        weatherEffectOptions.push({label: data.options.weather_effects[i], value: i+1})
+                    m.add(makeProperty('atmosphere_properties_weather', 'Weather', 'spinner', weatherEffectOptions));
+    
                     m.add({
                         type: 'spinner',
                         label: 'Fog',

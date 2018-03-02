@@ -34,6 +34,7 @@
 #include <queue>
 #include <stack>
 #include "../CommandMap.hpp"
+#include "../Blam/Tags/Globals/ForgeGlobalsDefinition.hpp"
 
 using namespace Forge;
 using namespace Blam;
@@ -42,6 +43,8 @@ using namespace Blam::Math;
 
 namespace
 {
+	using Blam::Tags::Globals::ForgeGlobalsDefinition;
+
 	const auto HELDOBJECT_DISTANCE_MIN = 0.1f;
 	const auto HELDOBJECT_DISTANCE_CHANGE_MULTIPLIER = 0.1f;
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
@@ -116,6 +119,7 @@ namespace
 	void __cdecl ShieldImpactBloomHook(int id, int count, float *data);
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
+	void BackgroundSoundEnvironmentHook(float a1);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -137,6 +141,55 @@ namespace
 		uint8_t Unknown1C[0x14];
 	};
 	static_assert(sizeof(SandboxPaletteItem) == 0x30, "Invalid SandboxPaletteItem size");
+
+	struct ScreenEffectDatum : Blam::DatumBase
+	{
+		uint8_t Unknown02;
+		uint8_t Unknown03;
+		uint32_t TagIndex;
+		float SecondsAlive;
+		RealVector3D Position;
+		uint32_t ObjectIndex;
+		uint32_t Unknown1C;
+		uint32_t Unknown20;
+		uint32_t Unknown24;
+		uint32_t Unknown28;
+		RealVector3D Unknown2C;
+		uint32_t Unknown38;
+	};
+
+	struct s_object_looping_sound : Blam::DatumBase
+	{
+		uint16_t field_2;
+		uint16_t Flags;
+		uint16_t AttachmentIndex;
+		float Scale;
+		uint32_t LoopingSound;
+		uint32_t field_10;
+		uint32_t field_14;
+		uint32_t field_18;
+		uint16_t PrimaryScale;
+		uint8_t field_1E;
+		uint8_t field_1F;
+	};
+	static_assert(sizeof(s_object_looping_sound) == 0x20, "invalid");
+
+
+	struct ScreenEffectData
+	{
+		float LightIntensity;
+		float PrimaryHue;
+		float SecondaryHue;
+		float Saturation;
+		float Desaturation;
+		float GammaIncrease;
+		float GammaDecrease;
+		float ShadowBrightness;
+		RealColorRGB ColorFilter;
+		RealColorRGB ColorFloor;
+		float Tracing;
+		float Turbulance;
+	};
 
 	struct {
 		bool IsValid = false;
@@ -161,9 +214,19 @@ namespace
 			float Brightness;
 			float LightSourceX;
 			float LightSourceY;
-		} Atmosphere;	
+			
+		} Atmosphere;
+
+		struct {
+			uint32_t Index;
+			uint32_t SceneryObjectIndex;
+			uint32_t BackgroundSoundDatumIndex;
+			uint32_t ScreenEffectDatumIndex;
+		} ForgeSky;
 	} 
 	mapModifierState;
+
+	ForgeGlobalsDefinition::Sky mapDefaultSky;
 
 	struct {
 		bool IsValid = false;
@@ -173,6 +236,8 @@ namespace
 
 	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
+
+	ForgeGlobalsDefinition *forgeGlobals_;
 }
 
 namespace Patches::Forge
@@ -287,8 +352,11 @@ namespace Patches::Forge
 		Patch(0x00317269, { 0xD }).Apply();
 		Patch(0x7D8A59, { 0xEB }).Apply();
 
+		// reforge materials
 		Hook(0x679F7F, RenderObjectTransparentHook).Apply();
 		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
+
+		Hook(0x1D9BBE, BackgroundSoundEnvironmentHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -298,17 +366,33 @@ namespace Patches::Forge
 		{
 			mapModifierState.IsValid = false;
 			monitorState.IsValid = false;
+			forgeGlobals_ = nullptr;
 		}
 		else
 		{
+			
 			if (!mapModifierState.IsValid)
 			{
 				memset(&mapModifierState, 0, sizeof(mapModifierState));
 				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
+				mapModifierState.ForgeSky.SceneryObjectIndex = -1;
+				mapModifierState.ForgeSky.BackgroundSoundDatumIndex = -1;
+				mapModifierState.ForgeSky.ScreenEffectDatumIndex = -1;
+				mapModifierState.ForgeSky.Index = -1;
 				mapModifierState.MapBarriers.KillBarriersEnabled = true;
 				mapModifierState.MapBarriers.PushBarriersEnabled = true;
 				mapModifierState.IsValid = true;
 				mapModifierState.IsActive = false;
+
+				auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+				mapDefaultSky.Object = scenario->SkyReferences[0].SkyObject;
+				mapDefaultSky.GlobalLighting = scenario->GlobalLighing;
+				mapDefaultSky.Parameters = scenario->SkyParameters;
+				mapDefaultSky.ScreenFX = scenario->DefaultScreenFx;
+				mapDefaultSky.CameraFX = scenario->DefaultCameraFx;
+				mapDefaultSky.Wind = scenario->StructureBsps[0].Wind;
+				if(scenario->BackgroundSoundEnvironmentPalette2.Count)
+					mapDefaultSky.BackgroundSound = scenario->BackgroundSoundEnvironmentPalette2[0].BackgroundSound;
 			}
 
 			if (!monitorState.IsValid)
@@ -329,6 +413,18 @@ namespace Patches::Forge
 
 namespace
 {
+	const auto object_dispose = (void(*)(int objectIndex))(0x00B2CD10);
+	const auto object_spawn = (uint32_t(*)(void *placementData))(0x00B30440);
+	const auto object_placement_data_new = (void(*)(void *placementData, uint32_t tagIndex, uint32_t ownerObjectIndex, void *a4))(0x00B31590);
+	const auto object_set_position = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *forward, RealVector3D *up, int scenarioLocation, int a8))(0x00B33550); // client only
+
+	ForgeGlobalsDefinition *GetForgeGlobals()
+	{
+		if (!forgeGlobals_)
+			forgeGlobals_ = Blam::Tags::TagInstance::Find('forg', "multiplayer\\forge_globals").GetDefinition<ForgeGlobalsDefinition>();
+		return forgeGlobals_;
+	}
+
 	void SandboxEngineInitHook()
 	{
 		static auto SandboxEngineInit = (void(*)())(0x0059C0D0);
@@ -452,6 +548,176 @@ namespace
 		return -1;
 	}
 
+	Blam::Tags::Globals::ForgeGlobalsDefinition::Sky *GetForgeSky()
+	{
+		auto forgeGlobals = GetForgeGlobals();
+		if (!forgeGlobals)
+			return nullptr;
+		if (mapModifierState.ForgeSky.Index == -1 || mapModifierState.ForgeSky.Index >= forgeGlobals->Skies.Count)
+			return nullptr;
+
+		return &forgeGlobals->Skies[mapModifierState.ForgeSky.Index];
+	}
+
+	void ReplaceForgeSkyScenery(uint32_t newSceneryTagIndex)
+	{
+		// delete the old sky scenery
+		if (mapModifierState.ForgeSky.SceneryObjectIndex != -1)
+		{
+			object_dispose(mapModifierState.ForgeSky.SceneryObjectIndex);
+			mapModifierState.ForgeSky.SceneryObjectIndex = -1;
+		}
+
+		if (newSceneryTagIndex == -1)
+			return;
+
+		// spawn the new scenery
+		uint8_t objectPlacementData[0x18c];
+		object_placement_data_new(objectPlacementData, newSceneryTagIndex, -1, nullptr);
+		*(uint32_t*)&objectPlacementData[0x18] = 0x40u; // havok flags
+		*(RealVector3D*)&objectPlacementData[0x1C] = RealVector3D(0, 0, 0.0f);
+		auto skySceneryIndex = object_spawn(objectPlacementData);
+		if (skySceneryIndex != -1)
+		{
+			auto skyObject = Blam::Objects::Get(skySceneryIndex);
+			if (skyObject)
+			{
+				mapModifierState.ForgeSky.SceneryObjectIndex = skySceneryIndex;
+			}
+		}
+	}
+
+	void UpdateForgeSky(Forge::ForgeMapModifierProperties *mapModifierProperties)
+	{
+		const auto screen_effect_free = (int(*)(uint32_t screenEffectDatumIndex))(0x0);
+		const auto GetLocalPlayerUnitObjectIndex = (uint32_t(*)(int playerIndex))(0x00589CC0);;
+		const auto SpawnScreenEffect = (void(*)(uint32_t tagIndex, uint32_t unitObjectIndex, int a3, void* a4, void* a5))(0x683060);
+		const auto object_looping_sound_new = (uint32_t(*)(uint32_t lsndTagIndex, uint32_t objectIndex, float a3))(0x005DB9A0);
+
+		auto forgeGlobals = GetForgeGlobals();
+		if (!forgeGlobals || !forgeGlobals->Skies.Count)
+			return;
+
+		auto desiredSkyIndex = mapModifierProperties->AtmosphereProperties.Skybox - 1;
+
+		auto &forgeSkyState = mapModifierState.ForgeSky;
+		if (desiredSkyIndex != forgeSkyState.Index)
+		{
+			auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+
+			ForgeGlobalsDefinition::Sky *desiredSky{ nullptr };
+
+			// if the desired index is out of range or map default, populate the desired sky structure with scenario defaults
+			if (desiredSkyIndex < 0 || desiredSkyIndex >= forgeGlobals->Skies.Count)
+			{
+				desiredSky = &mapDefaultSky;
+			}
+			else
+			{
+				desiredSky = &forgeGlobals->Skies[desiredSkyIndex];
+			}
+
+			auto screenEffects = ElDorito::GetMainTls(0x338).Read<Blam::DataArray<ScreenEffectDatum>*>();
+
+			// if the scenario has a screen effect, delete it
+			if (scenario->DefaultScreenFx.TagIndex != -1)
+			{
+				ScreenEffectDatum *datum{ nullptr };
+				for (auto it = screenEffects->begin(); it != screenEffects->end(); ++it)
+				{
+					if (datum->TagIndex == scenario->DefaultScreenFx.TagIndex)
+						screenEffects->Delete(it.CurrentDatumIndex);
+				}
+			}
+
+			// delete the selected forge sky screen effect
+			if (forgeSkyState.ScreenEffectDatumIndex != -1)
+			{
+				screenEffects->Delete(forgeSkyState.ScreenEffectDatumIndex);
+				forgeSkyState.ScreenEffectDatumIndex = -1;
+			}
+
+			// spawn the new screen effect
+			if (desiredSky->ScreenFX.TagIndex != -1)
+			{
+				auto screenEffects = ElDorito::GetMainTls(0x338).Read<Blam::DataArray<ScreenEffectDatum>*>();
+				auto unitObjectIndex = GetLocalPlayerUnitObjectIndex(*(uint32_t*)0x018BF52C);
+
+				uint8_t unk[0x3C] = { 0 };
+				SpawnScreenEffect(desiredSky->ScreenFX.TagIndex, unitObjectIndex, 0, &unk, &unk);
+
+				for (auto it = screenEffects->begin(); it != screenEffects->end(); ++it)
+				{
+					if (it->TagIndex == desiredSky->ScreenFX.TagIndex)
+						forgeSkyState.ScreenEffectDatumIndex = it.CurrentDatumIndex;
+				}
+			}
+
+			// if map default, try to find the existing sky scenery so that it can be replaced
+			if (forgeSkyState.SceneryObjectIndex == -1)
+			{
+				auto skyObjectTagIndex = scenario->SkyReferences[0].SkyObject.TagIndex;
+				auto objects = Blam::Objects::GetObjects();
+				for (auto it = objects.begin(); it != objects.end(); ++it)
+				{
+					if (it->Type == Blam::Objects::eObjectTypeScenery && skyObjectTagIndex == it->Data->TagIndex)
+						forgeSkyState.SceneryObjectIndex = it.CurrentDatumIndex;
+				}
+			}
+
+			auto loopingSounds = ElDorito::GetMainTls(0xCC).Read<Blam::DataArray<s_object_looping_sound>*>();
+			// delete any existing background sounds
+			for (auto it = loopingSounds->begin(); it != loopingSounds->end(); ++it)
+			{
+				if (it->Flags & 3)
+					loopingSounds->Delete(it.CurrentDatumIndex);
+			}
+			// delete the currently selected background sound
+			if (mapModifierState.ForgeSky.BackgroundSoundDatumIndex != -1)
+			{
+				loopingSounds->Delete(forgeSkyState.BackgroundSoundDatumIndex);
+				forgeSkyState.BackgroundSoundDatumIndex = -1;
+			}
+			// new up the background sound
+			auto newObjectLoopingSoundIndex = object_looping_sound_new(desiredSky->BackgroundSound.TagIndex, -1, 1.0f);
+			forgeSkyState.BackgroundSoundDatumIndex = newObjectLoopingSoundIndex;
+
+			// replace sky scenery
+			if (desiredSky)
+			{
+				forgeSkyState.Index = desiredSkyIndex;
+				ReplaceForgeSkyScenery(desiredSky->Object.TagIndex);
+			}
+
+			scenario->SkyParameters = desiredSky->Parameters;
+			scenario->GlobalLighing = desiredSky->GlobalLighting;
+			scenario->DefaultCameraFx = desiredSky->CameraFX;
+			scenario->StructureBsps[0].Wind = desiredSky->Wind;
+		}
+		else
+		{
+			if (forgeSkyState.Index != -1 && forgeSkyState.SceneryObjectIndex != -1)
+			{
+				auto forgeSky = GetForgeSky();
+	
+				RealVector3D position = forgeSky->Translation;
+				auto zOffset = ((mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1.0f) * 500.0f;
+				position.K += zOffset;
+
+				auto ci = std::cos(forgeSky->Orientation.I);
+				auto cj = std::cos(forgeSky->Orientation.J);
+				auto ck = std::cos(forgeSky->Orientation.K);
+				auto si = std::sin(forgeSky->Orientation.I);
+				auto sj = std::sin(forgeSky->Orientation.J);
+				auto sk = std::sin(forgeSky->Orientation.K);
+
+				RealVector3D forward { ci*cj, (si*ck) - (sj*sk)*ci, (sj*ck)*ci + (si*sk) };
+				RealVector3D up { sj, (ci*sk) - (sj*ck*si), cj*ck };
+				object_set_position(forgeSkyState.SceneryObjectIndex, &position, &forward, &up, 0, 0);
+			}
+		}
+	}
+
 	void UpdateMapModifier()
 	{
 		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
@@ -472,6 +738,35 @@ namespace
 					auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
 					FreeWeatherEffect(currentWeatherEffectDatumIndex);
 					currentWeatherEffectDatumIndex = -1;
+				}
+
+				
+				auto forgeSky = GetForgeSky();
+				if (forgeSky)
+				{
+					auto forgeSkyState = mapModifierState.ForgeSky;
+
+					auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+					ReplaceForgeSkyScenery(scenario->SkyReferences[0].SkyObject.TagIndex);
+
+					if (forgeSkyState.BackgroundSoundDatumIndex != -1)
+					{
+						auto loopingSounds = ElDorito::GetMainTls(0xCC).Read<Blam::DataArray<s_object_looping_sound>*>();
+						loopingSounds->Delete(forgeSkyState.BackgroundSoundDatumIndex);
+						forgeSkyState.BackgroundSoundDatumIndex = -1;
+					}
+
+					if (forgeSkyState.ScreenEffectDatumIndex != -1)
+					{
+						auto screenEffects = ElDorito::GetMainTls(0x338).Read<Blam::DataArray<ScreenEffectDatum>*>();
+						screenEffects->Delete(forgeSkyState.ScreenEffectDatumIndex);
+						forgeSkyState.ScreenEffectDatumIndex = -1;
+					}
+
+					scenario->SkyParameters = mapDefaultSky.Parameters;
+					scenario->GlobalLighing = mapDefaultSky.GlobalLighting;
+					scenario->DefaultCameraFx = mapDefaultSky.CameraFX;
+					scenario->StructureBsps[0].Wind = mapDefaultSky.Wind;
 				}
 
 				physics_set_gravity_scale(1.0f);
@@ -516,16 +811,17 @@ namespace
 		auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
 		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
 
+
 		uint32_t newWeatherEffectTagIndex = -1;
-		switch (mapModifierProperties->AtmosphereProperties.Weather)
+
+		auto forgeGlobals = GetForgeGlobals();
+		auto desiredWeatherIndex = mapModifierProperties->AtmosphereProperties.Weather;
+		if (desiredWeatherIndex > 0 && desiredWeatherIndex < forgeGlobals->WeatherEffects.Count)
 		{
-		case 0:
-			newWeatherEffectTagIndex = -1;
-			break;
-		case 1:
-			newWeatherEffectTagIndex = 0x443a; // snow
-			break;
+			newWeatherEffectTagIndex = forgeGlobals->WeatherEffects[desiredWeatherIndex-1].Effect.TagIndex;
 		}
+
+		UpdateForgeSky(mapModifierProperties);
 
 		if (atmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
 			&& currentWeatherEffectDatumIndex != -1)
@@ -2123,37 +2419,6 @@ namespace
 		sub_A667F0(lightDatumIndex, a2, intensity, a4);
 	}
 
-	struct ScreenEffectDatum : Blam::DatumBase
-	{
-		uint8_t Unknown02;
-		uint8_t Unknown03;
-		uint32_t TagIndex;
-		float SecondsAlive;
-		RealVector3D Position;
-		uint32_t ObjectIndex;
-		uint32_t Unknown1C;
-		uint32_t Unknown20;
-		uint32_t Unknown24;
-		uint32_t Unknown28;
-		RealVector3D Unknown2C;
-		uint32_t Unknown38;
-	};
-
-	struct ScreenEffectData
-	{
-		float LightIntensity;
-		float PrimaryHue;
-		float SecondaryHue;
-		float Saturation;
-		float Desaturation;
-		float GammaIncrease;
-		float GammaDecrease;
-		float ShadowBrightness;
-		RealColorRGB ColorFilter;
-		RealColorRGB ColorFloor;
-		float Tracing;
-		float Turbulance;
-	};
 
 	void FillScreenEffectRenderData(Blam::Tags::Camera::AreaScreenEffect::ScreenEffect& screenEffectDef, float t, ScreenEffectData *data)
 	{
@@ -2721,29 +2986,27 @@ namespace
 	{
 		auto &atmosphereSettings = mapModifierState.Atmosphere;
 
-		if (mapModifierState.IsValid && atmosphereSettings.WeatherEffectTagIndex != -1)
+		if (!mapModifierState.IsValid || atmosphereSettings.WeatherEffectTagIndex == -1)
+			return false;
+
+		const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
+		const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+
+		auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
+		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
+
+		if (currentWeatherEffectDatumIndex == -1)
 		{
-			const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
-			const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
+			currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
 
-			auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
-			auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
-
-			if (currentWeatherEffectDatumIndex == -1)
+			if (currentWeatherEffectDatumIndex != -1)
 			{
-				currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
-
-				if (currentWeatherEffectDatumIndex != -1)
-				{
-					uint16_t scenarioLocation = 0;
-					sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
-				}
+				uint16_t scenarioLocation = 0;
+				sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
 			}
-
-			return true;
 		}
 
-		return false;
+		return true;
 	}
 
 	__declspec(naked) void BspWeatherHook()
@@ -2794,5 +3057,13 @@ namespace
 			if (moduleForge.VarMonitorNoclip->ValueInt)
 				ActivateNoclip();
 		}
+	}
+
+	void BackgroundSoundEnvironmentHook(float a1)
+	{
+		const auto sub_5DAB20 = (void(*)(float a1))(0x5DAB20);
+		auto forgeSky = GetForgeSky();
+		if (!mapModifierState.IsValid || !forgeSky)
+			return sub_5DAB20(a1);	
 	}
 }

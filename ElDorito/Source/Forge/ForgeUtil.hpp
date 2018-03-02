@@ -110,8 +110,8 @@ namespace Forge
 			uint8_t FogDensity;
 			uint8_t FogVisibility;
 			uint8_t Brightness;
-			uint8_t Reserved1;
-			uint8_t Reserved2;
+			uint8_t Skybox : 8;
+			uint8_t SkyboxZOffset;
 		} AtmosphereProperties;
 		uint8_t PhysicsGravity;
 	};

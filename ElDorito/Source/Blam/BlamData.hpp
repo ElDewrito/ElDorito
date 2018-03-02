@@ -61,6 +61,8 @@ namespace Blam
 			auto address = static_cast<uint8_t*>(Data) + index.Index * DatumSize;
 			return reinterpret_cast<DatumBase*>(address);
 		}
+
+		void Delete(DatumHandle index);
 	};
 	static_assert(sizeof(DataArrayBase) == 0x54, "Invalid DataArrayBase size");
 

@@ -3,6 +3,7 @@
 #include "../../Blam/Tags/TagBlock.hpp"
 #include "../../Blam/Tags/Objects/Object.hpp"
 #include "../../Blam/Tags/TagReference.hpp"
+#include "../../Blam/Tags/Globals/ForgeGlobalsDefinition.hpp"
 #include "../../Blam/Math/RealVector3D.hpp"
 #include "../../Blam/BlamPlayers.hpp"
 #include "../../Blam/BlamObjects.hpp"
@@ -110,7 +111,9 @@ namespace
 		AtmosphereProperties_FogVisibility,
 		AtmosphereProperties_FogColorR,
 		AtmosphereProperties_FogColorG,
-		AtmosphereProperties_FogColorB
+		AtmosphereProperties_FogColorB,
+		AtmosphereProperties_Skybox,
+		AtmosphereProperties_SkyboxOffsetZ
 	};
 
 	enum class PropertyDataType
@@ -418,6 +421,12 @@ namespace
 				break;
 			case PropertyTarget::AtmosphereProperties_FogColorB:
 				mapModifierProperties->AtmosphereProperties.FogColorB = int(value.ValueFloat * 255);
+				break;
+			case PropertyTarget::AtmosphereProperties_Skybox:
+				mapModifierProperties->AtmosphereProperties.Skybox = value.ValueInt;
+				break;
+			case PropertyTarget::AtmosphereProperties_SkyboxOffsetZ:
+				mapModifierProperties->AtmosphereProperties.SkyboxZOffset = int((value.ValueFloat * 0.5f + 0.5f) * 255.0f);
 				break;
 			}
 		}
@@ -829,6 +838,28 @@ namespace
 		SerializeProperty(writer, "is_light", IsForgeLight(placement.ObjectIndex));
 		SerializeProperty(writer, "is_screenfx", IsForgeScreenEffectObject(placement.ObjectIndex));
 
+		auto forgeGlobals = Blam::Tags::TagInstance::Find('forg', "multiplayer\\forge_globals").GetDefinition<Blam::Tags::Globals::ForgeGlobalsDefinition>();
+
+		writer.Key("options");
+		writer.StartObject();
+		writer.Key("skies");
+		writer.StartArray();
+		if (forgeGlobals)
+		{
+			for (auto &sky : forgeGlobals->Skies)
+				writer.String(sky.Name);
+		}
+		writer.EndArray();
+		writer.Key("weather_effects");
+		writer.StartArray();
+		if (forgeGlobals)
+		{
+			for (auto &weatherEffect : forgeGlobals->WeatherEffects)
+				writer.String(weatherEffect.Name);
+		}
+		writer.EndArray();
+		writer.EndObject();
+
 		writer.Key("properties");
 		writer.StartObject();
 		SerializeProperty(writer, "on_map_at_start", ((properties.ObjectFlags >> 1) & 1) == 0 ? 1 : 0);
@@ -897,6 +928,8 @@ namespace
 		SerializeProperty(writer, "atmosphere_properties_fog_color_r", mapModifierProperties->AtmosphereProperties.FogColorR / 255.0f);
 		SerializeProperty(writer, "atmosphere_properties_fog_color_g", mapModifierProperties->AtmosphereProperties.FogColorG / 255.0f);
 		SerializeProperty(writer, "atmosphere_properties_fog_color_b", mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f);
+		SerializeProperty(writer, "atmosphere_properties_skybox", mapModifierProperties->AtmosphereProperties.Skybox);
+		SerializeProperty(writer, "atmosphere_properties_skybox_offset_z", (mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1);
 
 		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
@@ -1009,6 +1042,8 @@ namespace
 			{ "atmosphere_properties_fog_color_r",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorR } },
 			{ "atmosphere_properties_fog_color_g",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorG } },
 			{ "atmosphere_properties_fog_color_b",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorB } },
+			{ "atmosphere_properties_skybox",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Skybox } },
+			{ "atmosphere_properties_skybox_offset_z",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_SkyboxOffsetZ } },
 
 			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },
