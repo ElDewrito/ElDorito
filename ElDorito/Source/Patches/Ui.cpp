@@ -1775,9 +1775,21 @@ namespace
 		auto playerIndex = *(uint32_t*)data;
 		if (playerIndex != -1)
 		{
-			auto player = (uint8_t*)Blam::Players::GetPlayers().Get(playerIndex);
-			if (player && *(uint8_t*)(player + 0x2DC1) == 4) // waypoint
+			auto localPlayerDatumIndex = Blam::Players::GetLocalPlayer(0);
+			if (localPlayerDatumIndex == Blam::DatumHandle::Null)
 				return;
+
+			const auto &players = Blam::Players::GetPlayers();
+			auto localPlayer = players.Get(localPlayerDatumIndex);
+			if (!localPlayer)
+				return;
+
+			auto player = players.Get(playerIndex);
+			if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
+				&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
+			{
+				return;
+			}
 		}
 
 		chud_add_player_marker(thisptr, data);
