@@ -7,6 +7,7 @@
 		<item name="Cloudy #2" value="109" />
 		<item name="Plain, Light" value="017" />
 		<item name="Plain, Dark" value="106" />
+		<item name="Stacked" value="154" />
 		<item name="Subtle, Forerunner" value="083" />
 		<item name="Tiled" value="029" />
 		<item name="Wall, Light" value="018" />
@@ -17,6 +18,7 @@
 	</category>
 	<category name="Metal">
 		<category name="Forerunner">
+			<item name="Circled" value="123" />
 			<item name="Decorated" value="016" />
 			<item name="Diagonal #1" value="007" />
 			<item name="Diagonal #2" value="011" />
@@ -26,9 +28,12 @@
 			<item name="Lined #3" value="085" />
 			<item name="Lined #4" value="089" />
 			<item name="Lined #5" value="108" />
+			<item name="Lined #6" value="125" />
+			<item name="Lined #7" value="153" />
 			<item name="Panelled #1" value="005" />
 			<item name="Panelled #2" value="082" />
 			<item name="Plain, Dark" value="107" />
+			<item name="Plain, Reflective" value="124" />
 			<item name="Ribbed" value="086" />
 			<item name="Ribbed, Illuminated" value="117" />
 			<item name="Shrine" value="025" />
@@ -36,8 +41,9 @@
 			<item name="Stacked #2" value="077" />
 			<item name="Stacked #3" value="078" />
 			<item name="Stacked #4" value="084" />
-			<item name="Streaked #1" value="002" />
-			<item name="Streaked #2" value="003" />
+			<item name="Streaked, Light" value="002" />
+			<item name="Streaked, Dark" value="003" />
+			<item name="Streaked, Shiny" value="145" />
 			<item name="Stripe Lit" value="079" />
 			<item name="Tracks" value="080" />
 			<item name="Tracks, Animated" value="024" />
@@ -45,30 +51,54 @@
 		</category>
 		<category name="Human">
 			<item name="Arrow" value="092" />
-			<item name="Caution" value="088" />
+			<item name="Block Tile #1" value="127" />
+			<item name="Block Tile #2" value="128" />
+			<item name="Block Tile #3" value="131" />
+			<item name="Block Tile #4" value="135" />
+			<item name="Caution #1" value="088" />
+			<item name="Caution #2" value="159" />
 			<item name="Corrugated, Green" value="090" />
+			<item name="Corrugated, White" value="122" />
 			<item name="Diamond, Black" value="081" />
 			<item name="Diamond, Plate #1" value="087" />
 			<item name="Diamond, Plate #2" value="094" />
 			<item name="Diamond, Plate #3" value="104" />
 			<item name="Grating" value="021" />
+			<item name="Grating, Caution" value="156" />
+			<item name="Grating, Rusty" value="157" />
 			<item name="Grid, Animated" value="023" />
 			<item name="Lined, Horizontal #1" value="010" />
 			<item name="Lined, Horizontal #2" value="099" />
 			<item name="Lined, Vertical" value="009" />
 			<item name="Panelled, Brown" value="097" />
-			<item name="Panelled, Caution Tape" value="095" />
+			<item name="Panelled, Caution #1" value="095" />
+			<item name="Panelled, Caution #2" value="132" />
 			<item name="Panelled, Riveted #1" value="093" />
 			<item name="Panelled, Riveted #2" value="012" />
 			<item name="Panelled, Riveted #3" value="091" />
 			<item name="Panelled, Riveted #4" value="100" />
+			<item name="Panelled, Vent" value="126" />
 			<item name="Panelled, Yellow Strip" value="096" />
-			<item name="Plain" value="076" />
+			<item name="Plain, Light" value="149" />
+			<item name="Plain, Dark" value="076" />
+			<item name="Plain, Rough" value="146" />
+			<item name="Plain, Rusted" value="150" />
+			<item name="Plain, White" value="151" />
 			<item name="Rusted #1" value="101" />
 			<item name="Rusted #2" value="105" />
 			<item name="Stacked #1" value="102" />
 			<item name="Stacked #2" value="103" />
-			<item name="Streaked" value="098" />
+			<item name="Stacked #3" value="130" />
+			<item name="Stacked #4" value="133" />
+			<item name="Stacked #5" value="134" />
+			<item name="Stacked #6" value="147" />
+			<item name="Stacked #7" value="148" />
+			<item name="Stacked #8" value="155" />
+			<item name="Stacked #9" value="160" />
+			<item name="Stacked #10" value="161" />
+			<item name="Streaked, Light" value="098" />
+			<item name="Streaked, Dark" value="152" />
+			<item name="Vent" value="129" />
 		</category>
 	</category>
 	<category name="Natural">
@@ -132,51 +162,22 @@
 			<item name="Fine #2" value="057" />
 		</category>
 	</category>
+	<category name="Glass">
+		<item name="Crystal #1" value="139" />
+		<item name="Crystal #2" value="144" />
+		<item name="Forerunner" value="141" />
+		<item name="Frosted #1" value="142" />
+		<item name="Frosted #2" value="143" />
+		<item name="Windows, Broken" value="140" />
+	</category>
 	<category name="Miscellaneous">
 		<item name="Covenant, Destroyed" value="118" />
 		<item name="Plastic, Gray" value="001" />
 		<item name="Plastic, Grid" value="000" thumbnail="..." />
+		<item name="Shield, Glassy" value="138" />
+		<item name="Shield, Lines" value="136" />
+		<item name="Shield, Streaky" value="137" />
 		<item name="Wood, Planks" value="022" />
-		<item name="unknown_4241" value="122" />
-		<item name="unknown_3e35" value="123" />
-		<item name="unknown_3e26" value="124" />
-		<item name="unknown_3e2e" value="125" />
-		<item name="unknown_3b14" value="126" />
-		<item name="unknown_3b12" value="127" />
-		<item name="unknown_3b10" value="128" />
-		<item name="unknown_3b0f" value="129" />
-		<item name="unknown_3acb" value="130" />
-		<item name="unknown_3abf" value="131" />
-		<item name="unknown_3afe" value="132" />
-		<item name="unknown_3afa" value="133" />
-		<item name="unknown_3af9" value="134" />
-		<item name="unknown_3ab3" value="135" />
-		<item name="unknown_4259" value="136" />
-		<item name="unknown_3e4a" value="137" />
-		<item name="unknown_3e1c" value="138" />
-		<item name="unknown_3160" value="139" />
-		<item name="unknown_44d2" value="140" />
-		<item name="unknown_2f29" value="141" />
-		<item name="unknown_4c75" value="142" />
-		<item name="unknown_3ae2" value="143" />
-		<item name="unknown_3160" value="144" />
-		<item name="unknown_33f6" value="145" />
-		<item name="unknown_3ab1" value="146" />
-		<item name="unknown_3ab2" value="147" />
-		<item name="unknown_3ab6" value="148" />
-		<item name="unknown_3ac9" value="149" />
-		<item name="unknown_3b0b" value="150" />
-		<item name="unknown_3e17" value="151" />
-		<item name="unknown_3e18" value="152" />
-		<item name="unknown_3e28" value="153" />
-		<item name="unknown_4236" value="154" />
-		<item name="unknown_4240" value="155" />
-		<item name="unknown_455a" value="156" />
-		<item name="unknown_4583" value="157" />
-		<item name="unknown_4a72" value="158" />
-		<item name="unknown_4be9" value="159" />
-		<item name="unknown_4c3a" value="160" />
-		<item name="unknown_4c4e" value="161" />
 	</category>
 	<category name="Special">
 		<item name="Glossy" value="119" />
