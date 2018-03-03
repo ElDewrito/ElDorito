@@ -564,7 +564,8 @@ namespace
 		// delete the old sky scenery
 		if (mapModifierState.ForgeSky.SceneryObjectIndex != -1)
 		{
-			object_dispose(mapModifierState.ForgeSky.SceneryObjectIndex);
+			if (Blam::Objects::Get(mapModifierState.ForgeSky.SceneryObjectIndex))
+				object_dispose(mapModifierState.ForgeSky.SceneryObjectIndex);
 			mapModifierState.ForgeSky.SceneryObjectIndex = -1;
 		}
 
