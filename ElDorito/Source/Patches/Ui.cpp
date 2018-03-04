@@ -64,6 +64,7 @@ namespace
 
 	void chud_talking_player_name_hook();
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
+	void chud_update_player_marker_hook();
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -288,8 +289,12 @@ namespace Patches::Ui
 
 		//Show the talking player's name on the HUD
 		Hook(0x6CA978, chud_talking_player_name_hook, HookFlags::IsCall).Apply();
+
 		// allow hiding nametags
 		Hook(0x68AA21, chud_add_player_marker_hook, HookFlags::IsCall).Apply();
+
+		//Show speaking player markers
+		Hook(0x349450, chud_update_player_marker_hook).Apply();
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -393,6 +398,9 @@ namespace Patches::Ui
 		//Empty the HUD chud_talking_player_name string.
 		//If someone is talking it will be reassigned below.
 		memset(chud_talking_player_name, 0, sizeof(chud_talking_player_name));
+
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 0)
+			return;
 
 		//Setup HUD string.
 		if (speakingPlayers.size() < 1)
@@ -1437,7 +1445,7 @@ namespace
 	{
 		int flags = 0;
 
-		if (speakingPlayers.size() > 0)
+		if (speakingPlayers.size() > 0 && Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
 			flags |= 8; //SomeoneIsTalking
 
 		return flags;
@@ -1537,7 +1545,7 @@ namespace
 	{
 		_asm
 		{
-			ally_blue:
+			//ally_blue:
 				cmp enableAllyBlueWaypointsFix, 1
 				jne custom_colors
 				cmp[ebp + 0xC], 0xF
@@ -1590,7 +1598,7 @@ namespace
 	{
 		_asm
 		{
-			custom_colors:
+			//custom_colors:
 				cmp enableCustomHUDColors, 1
 				jne tag_color
 				cmp ecx, 0
@@ -1793,6 +1801,83 @@ namespace
 		}
 
 		chud_add_player_marker(thisptr, data);
+	}
+
+	unsigned int __stdcall isPlayerSpeaking(int handle)
+	{
+		Blam::Players::PlayerDatum* player = Blam::Players::GetPlayers().Get(Blam::DatumHandle(handle));
+		std::string playerName(Utils::String::ThinString(player->Properties.DisplayName));
+
+		if (std::find(speakingPlayers.begin(), speakingPlayers.end(), playerName) != speakingPlayers.end()) {
+			return 1;
+		}
+
+		return 0;
+	}
+
+	__declspec(naked) void chud_update_player_marker_hook()
+	{
+		int _ebx, _ecx, _edx, _ebp, _esi, _edi, _esp;
+		int markerSecondary;
+
+		__asm
+		{
+			mov markerSecondary, eax
+
+			//preserve registers
+			mov _ebx, ebx
+			mov _ecx, ecx
+			mov _edx, edx
+			mov _ebp, ebp
+			mov _edi, edi
+			mov _esp, esp
+
+			//check if player is speaking
+			mov eax, [ebp + 0xC]
+			push eax
+			call isPlayerSpeaking
+
+			//check result from is player speaking
+			cmp eax, 0
+			je check_marker_secondary
+			mov eax, 2
+			mov markerSecondary, eax //1 = shooting, 2 = speaking, 3 = taking damage
+
+		check_marker_secondary:
+
+			//restore registers
+			mov ebx, _ebx
+			mov edx, _edx
+			mov ebp, _ebp
+			mov edi, _edi
+			mov esp, _esp
+			mov eax, markerSecondary
+
+			dec eax
+			jz shooting
+
+			dec eax
+			jz speaking
+
+		//taking_damage:
+			dec eax
+			mov al, byte ptr[ebp + 0xB]
+			jnz loc_749469
+			or dword ptr [ebx+0x10], 8
+			jmp loc_749469
+
+		shooting:
+			mov esi, 0x74947F
+			jmp esi
+
+		speaking:
+			mov esi, 0x749462
+			jmp esi
+
+		loc_749469:
+			mov esi, 0x749469
+			jmp esi
+		}
 	}
 
 	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget)
