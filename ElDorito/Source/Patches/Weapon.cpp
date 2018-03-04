@@ -57,13 +57,10 @@ namespace Patches::Weapon
 
 	bool IsMainMenu;
 
-	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices);
-	std::map<std::string, std::string> weaponNames;
+	bool AddSupportedWeapons();
+	std::vector<WeaponInfo> weapon_infos;
 
 	std::string JSONName;
-	std::map<std::string, uint16_t> weaponIndices;
-	std::map<std::string, RealVector3D> weaponOffsetsDefault;
-	std::map<std::string, RealVector3D> weaponOffsetsModified;
 
 	//Callback for when the loading screen back to the main menu finishes. We use this to determine when to start a new vote.
 	void MapLoadedCallback(const char *mapPath)
@@ -80,16 +77,13 @@ namespace Patches::Weapon
 		{
 			IsMainMenu = false;
 
-			AddSupportedWeapons(weaponNames, weaponIndices);
-
-			SetDefaultOffsets();
-
-			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
-			{
-				Config::SaveJSON(JSONName);
-			}
+			AddSupportedWeapons();
+			SetOffsetDefaultAll();
 
 			Modules::CommandMap::Instance().ExecuteCommand("Weapon.JSON.Load");
+
+			//if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1)
+			//	Config::SaveJSON(JSONName);
 		}
 	}
 
@@ -121,6 +115,20 @@ namespace Patches::Weapon
 		Hook(0x13809E, SupportWeaponStartHook, HookFlags::IsCall).Apply();
 	}
 
+	std::string OffsetToString(RealVector3D offset)
+	{
+		return std::to_string(offset.I) + ", " + std::to_string(offset.J) + ", " + std::to_string(offset.K);
+	}
+	void PrintDebugText(WeaponInfo weapon)
+	{
+		Console::WriteLine(weapon.Name);
+		Console::WriteLine("{");
+		Console::WriteLine("\t" + std::to_string(weapon.Index) + ",");
+		Console::WriteLine("\t" + OffsetToString(weapon.Offset.Default) + ",");
+		Console::WriteLine("\t" + OffsetToString(weapon.Offset.Modified));
+		Console::WriteLine("}");
+	}
+
 	void ApplyAfterTagsLoaded()
 	{
 		//// Debug info
@@ -130,49 +138,82 @@ namespace Patches::Weapon
 
 	std::map<std::string, uint16_t> GetIndices()
 	{
+		std::map<std::string, uint16_t> weaponIndices;
+		for (auto &weapon : weapon_infos)
+			weaponIndices.emplace(weapon.Name, weapon.Index);
 		return weaponIndices;
 	}
 
-	uint16_t GetIndex(std::string &weaponName)
+	WeaponInfo GetWeaponByName(std::string &weaponName)
 	{
-		auto result = weaponIndices.find(weaponName);
-		if (result == weaponIndices.end())
-			return 0xFFFF;
-
-		return result->second;
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return weapon;
+		return WeaponInfo();
 	}
 
-	std::string GetName(uint16_t & weaponIndex)
+	WeaponInfo GetWeaponByIndex(uint16_t &weaponIndex)
 	{
-		std::string weaponName;
-
-		bool indexExists = false;
-
-		for (auto &element : weaponIndices)
-		{
-			auto name = element.first;
-			auto index = element.second;
-
-			if (weaponIndex == index) {
-				weaponName = name;
-				indexExists = true;
-			}
-		}
-		if (indexExists == false)
-			return "Weapon not supported.";
-
-		return weaponName;
+		for (auto &weapon : weapon_infos)
+			if (weapon.Index == weaponIndex)
+				return weapon;
+		return WeaponInfo();
 	}
 
-	uint16_t GetEquippedWeaponIndex()
+	WeaponInfo GetWeaponByTagName(std::string &weaponTagName)
 	{
-		uint16_t equippedIndex = 0xFFFF;
+		for (auto &weapon : weapon_infos)
+			if (weapon.TagName == weaponTagName)
+				return weapon;
+		return WeaponInfo();
+	}
+	
+	WeaponInfo GetWeapon(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon;
+		return WeaponInfo();
+	}
 
+	uint16_t GetIndex(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Index;
+		return 0xFFFF;
+	}
+	
+	std::string GetName(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Name;
+		return "Weapon not supported.";
+	}
+
+	std::string GetTagName(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.TagName;
+		return "Weapon\\not\\supported";
+	}
+
+	WeaponInfo::Offsets GetOffsets(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Offset;
+		return WeaponInfo().Offset;
+	}
+
+	WeaponInfo GetEquippedWeapon()
+	{
+		WeaponInfo weapon;
 		auto session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
-		{
-			return equippedIndex;
-		}
+			return weapon;
 
 		int playerIdx = session->MembershipInfo.FindFirstPlayer();
 		auto playerDatum = &Blam::Players::GetPlayers()[playerIdx];
@@ -185,120 +226,117 @@ namespace Patches::Weapon
 				auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
 				auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
 				if (equippedWeaponObjectPtr)
-					equippedIndex = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
+				{
+					weapon.Index = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
+					weapon.Name = GetName(weapon);
+					weapon.TagName = GetTagName(weapon);
+					weapon.Offset = GetOffsets(weapon);
+				}
 			}
 		}
-		return equippedIndex;
+		return weapon;
+	}
+
+	uint16_t GetEquippedWeaponIndex()
+	{
+		return GetIndex(GetEquippedWeapon());
 	}
 
 	std::string GetEquippedWeaponName()
 	{
-		auto Index = GetEquippedWeaponIndex();
-		return GetName(Index);
+		return GetName(GetEquippedWeapon());
 	}
 
-	RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex)
+	std::string GetEquippedWeaponTagName()
 	{
-		for each (auto element in weaponIndices)
-		{
-			std::string weaponName = element.first;
+		return GetTagName(GetEquippedWeapon());
+	}
 
-			if (weaponIndex == element.second)
-			{
-				if (isDefault)
-				{
-					auto result = weaponOffsetsDefault.find(weaponName);
-					if (result != weaponOffsetsDefault.end())
-						return result->second;
-				}
-				else
-				{
-					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if (weap)
-						return weap->FirstPersonWeaponOffset;
-				}
-			}
-		}
-
-		return { -0xFFF, -0xFFF, -0xFFF };
+	WeaponInfo::Offsets GetEquippedWeaponOffsets()
+	{
+		return GetOffsets(GetEquippedWeapon());
 	}
 
 	RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName)
 	{
-		auto index = Patches::Weapon::GetIndex(weaponName);
-		return GetOffsetByIndex(isDefault, index);
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
+	}
+
+	RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Index == weaponIndex)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
+	}
+
+	RealVector3D GetOffsetByTagName(bool isDefault, std::string &weaponName)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
 	}
 
 	void SetDefaultOffsets()
 	{
-		if (!weaponOffsetsDefault.empty()) {
-			for (auto &element : weaponIndices) {
-				std::string selected = element.first;
-				auto weapIndex = Patches::Weapon::GetIndex(selected);
-				if (weapIndex != 0xFFFF)
-				{
-					auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if (weaponDefinition)
-						weaponOffsetsDefault.emplace(selected, weaponDefinition->FirstPersonWeaponOffset);
-				}
+		for (auto &weapon : weapon_infos)
+		{
+			if (weapon.Index != 0xFFFF)
+			{
+				auto *weaponDefinition = TagInstance(weapon.Index).GetDefinition<Blam::Tags::Items::Weapon>();
+				if (weaponDefinition)
+					weapon.Offset.Default = weaponDefinition->FirstPersonWeaponOffset;
 			}
 		}
+	}
+
+	bool SetOffsetDefaultAll()
+	{
+		if (IsMainMenu) return false;
+
+		for (auto &weapon : weapon_infos)
+			SetOffsetModified(weapon.Name, weapon.Offset.Default);
+
+		return true;
+	}
+
+	bool SetOffsetDefault(std::string &weaponName)
+	{
+		if (IsMainMenu) return false;
+
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				SetOffsetModified(weapon.Name, weapon.Offset.Default);
+
+		return true;
 	}
 
 	bool SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
+
 		if (IsMainMenu) return false;
 
-		auto result = weaponOffsetsDefault.find(weaponName);
-
-		if (IsOffsetModified(weaponName))
+		for (auto &weapon : weapon_infos)
 		{
-			weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
-			ApplyOffsetByName(weaponName, weaponOffset);
-		}
-		else
-		{
-			weaponOffsetsModified.erase(weaponName);
-			ApplyOffsetByName(weaponName, weaponOffset);
-		}
-
-		return true;
-	}
-
-	void ApplyOffsetByIndex(uint16_t &weaponIndex, RealVector3D &weaponOffset)
-	{
-		if (!IsMainMenu)
-		{
-			auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if (weaponDefinition)
-				weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
-		}
-	}
-
-	void ApplyOffsetByName(std::string &weaponName, RealVector3D &weaponOffset)
-	{
-		if (!IsMainMenu)
-		{
-
-			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
-			if (weapIndex != 0xFFFF)
+			if (weapon.Name == weaponName)
 			{
-				auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				auto *weaponDefinition = TagInstance(weapon.Index).GetDefinition<Blam::Tags::Items::Weapon>();
 				if (weaponDefinition)
-					weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
+					weaponDefinition->FirstPersonWeaponOffset = weapon.Offset.Modified = weaponOffset;
 			}
 		}
-	}
 
-	bool IsOffsetModified(const std::string &weaponName)
-	{
-		auto result = weaponOffsetsDefault.find(weaponName);
-		if (result == weaponOffsetsDefault.end())
-			return false;
 		return true;
 	}
 
-	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices)
+	bool AddSupportedWeapons()
 	{
 		std::ifstream in("mods/weapons/supported_weapons.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
@@ -324,11 +362,15 @@ namespace Patches::Weapon
 					std::string weaponname = weaponsObject["name"].GetString();
 					std::string tagname = weaponsObject["tagname"].GetString();
 
+					WeaponInfo weapon;
+					weapon.Name = weaponname;
+					weapon.TagName = tagname;
+
 					try {
 						uint16_t tagindex = TagInstance::Find('weap', tagname.c_str()).Index;
 						if (tagindex != 0xFFFF) {
-							weapon_indices.emplace(weaponname.c_str(), tagindex);
-							weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+							weapon.Index = tagindex;
+							weapon_infos.push_back(weapon);
 						}
 					}
 					catch (const std::exception&) {
@@ -415,12 +457,8 @@ namespace Patches::Weapon
 		{
 			// Load offsets from json file
 			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
-			if (!in || !in.is_open()) {
-
-				SetDefaultOffsets();
-
+			if (!in || !in.is_open())
 				return false;
-			}
 
 			std::string contents;
 			in.seekg(0, std::ios::end);
@@ -429,7 +467,7 @@ namespace Patches::Weapon
 			in.read(&contents[0], contents.size());
 			in.close();
 
-			weaponOffsetsModified.clear();
+			SetOffsetDefaultAll();
 
 			rapidjson::Document document;
 			if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
@@ -461,7 +499,7 @@ namespace Patches::Weapon
 			Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString = Name;
 
 			bool IsCreated = false;
-			for each (std::string offsetName in Modules::ModuleWeapon::Instance().WeaponsJSONList)
+			for (std::string offsetName : Modules::ModuleWeapon::Instance().WeaponsJSONList)
 				if (Name == offsetName)
 					IsCreated = true;
 
@@ -525,7 +563,7 @@ namespace Patches::Weapon
 			}
 
 			std::ofstream out("mods/weapons/offsets/" + Name + ".json", std::ios::trunc);
-			if (!out.is_open())
+			if (!out.is_open() || Utils::String::ToLower(Name) == "default")
 				return false;
 
 			rapidjson::StringBuffer jsonBuffer;
@@ -536,22 +574,19 @@ namespace Patches::Weapon
 			jsonWriter.Key("Weapons");
 
 			jsonWriter.StartArray();
-			for (auto &weaponParams : (Utils::String::ToLower(Name) == "default" ? weaponOffsetsDefault : weaponOffsetsModified))
+			for (auto &weapon : weapon_infos)
 			{
-				std::string weaponName = weaponParams.first;
-				RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
-
 				jsonWriter.StartObject();
 
 				jsonWriter.Key("Name");
-				jsonWriter.String(weaponName.c_str());
+				jsonWriter.String(weapon.Name.c_str());
 
 				jsonWriter.Key("Offset");
 				jsonWriter.StartArray();
 				jsonWriter.SetMaxDecimalPlaces(6);
-				jsonWriter.Double(weaponOffset.I);
-				jsonWriter.Double(weaponOffset.J);
-				jsonWriter.Double(weaponOffset.K);
+				jsonWriter.Double(weapon.Offset.Modified.I);
+				jsonWriter.Double(weapon.Offset.Modified.J);
+				jsonWriter.Double(weapon.Offset.Modified.K);
 				jsonWriter.EndArray();
 
 				jsonWriter.EndObject();
