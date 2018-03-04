@@ -14,8 +14,8 @@ body{
     top:50%;
     left:50%;
     transform: translate(-50%,-50%);
-    margin-top:-2.5vw;
-	height:58vw;
+    -margin-top:-2.5vw;
+	height:100%;
 
 }
 .container {
@@ -23,6 +23,7 @@ body{
     margin-top:10vh;
     color: #afbed5;
 	width: 20vw;
+	max-width: 384px;
 	border: 2px solid rgba(112, 128, 144, 0.7);
 	border-left: 0;
 	border-right:0;
@@ -116,7 +117,7 @@ a.boxclose img.button{
 	border: 2px solid rgba(0, 255, 0, 1);
 }
 h5,p{
-	font-size: 1.25vw;
+	font-size: 2.25vh;
 	margin: 0;
 	padding: .3em;
 }
