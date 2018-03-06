@@ -266,6 +266,19 @@ namespace
 		moduleForge.CommandState.RuntimeReset = true;
 		return true;
 	}
+
+	bool CommandForgeBudget(const std::vector<std::string>& Arguments, std::string &returnInfo)
+	{
+		const auto &quota = Forge::CalculateObjectQuota();
+		char buff[4096];
+		sprintf(buff, "Total Objects Used: %d/%d (%.1f%%)\nRemaining Objects: %d",
+			quota.TotalObjectsUsed, 
+			quota.TotalObjectsAvailable,
+			quota.TotalObjectsUsed / float(quota.TotalObjectsAvailable) * 100, 
+			quota.TotalObjectsAvailable-quota.TotalObjectsUsed);
+		returnInfo = buff;
+		return true;
+	}
 }
 
 namespace Modules
@@ -309,7 +322,7 @@ namespace Modules
 		AddCommand("DeletePrefab", "forge_prefab_delete", "Delete a saved prefab", eCommandFlagsForge, CommandDeletePrefab);
 		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsForge, CommandDumpPalette);
 		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsForge, CommandSpawnItem);
-
+		AddCommand("Budget", "forge_budget", "Displays information about remaining objects", eCommandFlagsForge, CommandForgeBudget);
 		AddCommand("SetPrematchCamera", "forge_set_prematch_camera", "Set the position/orientation of the prematch camera", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandPrematchCamera);
 	}
 }

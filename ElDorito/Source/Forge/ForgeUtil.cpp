@@ -166,4 +166,27 @@ namespace Forge
 
 		return RealVector3D(0, 0, 0);
 	}
+
+	ForgeObjectQuota CalculateObjectQuota()
+	{
+		uint16_t totalAvailable = 0;
+		uint16_t totalUsed = 0;
+
+		auto mapv = GetMapVariant();
+		if (mapv)
+		{
+			for (auto i = mapv->ScnrPlacementsCount; i < 640; i++)
+			{
+				auto &placement = mapv->Placements[i];
+
+				totalAvailable++;
+				if (placement.PlacementFlags & 1)
+				{
+					totalUsed++;
+				}
+			}
+		}
+
+		return { totalAvailable, totalUsed };
+	}
 }

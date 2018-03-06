@@ -97,6 +97,8 @@ namespace Forge::Prefabs
 		if (!mapv)
 			return false;
 
+		auto quota = Forge::CalculateObjectQuota();
+
 		auto playerHandle = Blam::Players::GetLocalPlayer(0);
 		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
@@ -105,6 +107,16 @@ namespace Forge::Prefabs
 
 		PrefabHeader header;
 		fs.read((char*)&header, sizeof(header));
+
+		auto remainingObjects = quota.TotalObjectsAvailable - quota.TotalObjectsUsed;
+		if (int(header.ObjectCount) > remainingObjects)
+		{
+			wchar_t buff[1024];
+			swprintf_s(buff, L"Unable to load prefab: out of objects. (%d more objects needed)", 
+				(quota.TotalObjectsUsed + header.ObjectCount) - quota.TotalObjectsAvailable);
+			PrintKillFeedText(0, buff, 0);
+			return false;
+		}
 
 		for (auto i = 0; i < header.ObjectCount; i++)
 		{
