@@ -549,7 +549,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             } 
             $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
 			if(lobby[i].isHost)
-			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" src="'+hostPath+'">');
+			$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" style="float: right;" src="'+hostPath+'">');
             $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="serviceTag">').text(lobby[i].serviceTag))
             if(locked || (expandedScoreboard == 1)){
                 switch(gameType){
