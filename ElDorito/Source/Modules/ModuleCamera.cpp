@@ -18,6 +18,8 @@ namespace
 		LookVectors = 5
 	};
 
+	bool flying = false;
+
 	// determine which camera definitions are editable based on the current camera mode
 	bool __stdcall IsCameraDefinitionEditable(CameraDefinitionType definition)
 	{
@@ -238,6 +240,8 @@ namespace
 
 		Pointer disablePlayerMovement(ElDorito::GetMainTls(0x44)[0](5));
 
+		flying = false;
+
 		// get new camera perspective function offset
 		size_t offset = 0x166ACB0;
 		if (!mode.compare("first")) // c_first_person_camera
@@ -271,6 +275,7 @@ namespace
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 			disablePlayerMovement.Write(true);
+			flying = true;
 		}
 		else if (!mode.compare("static")) // c_static_camera
 		{
@@ -398,10 +403,7 @@ namespace Modules
 
 	void ModuleCamera::UpdatePosition()
 	{
-		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
-
-		// only allow camera input while flying
-		if (mode.compare("flying"))
+		if (!flying)
 			return;
 
 		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
