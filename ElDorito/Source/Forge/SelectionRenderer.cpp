@@ -126,10 +126,11 @@ namespace
 		static auto sub_A781F0 = (int(*)())(0xA781F0);
 		static auto sub_686DE0 = (int(*)())(0x686DE0);
 
-		sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
-
 		if (!s_Enabled || s_RendererType != eRendererSpecialHud)
+		{
+			sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
 			return;
+		}
 
 		auto mapv = Forge::GetMapVariant();
 		if (!mapv)
