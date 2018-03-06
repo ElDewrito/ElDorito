@@ -44,12 +44,12 @@ namespace Patches::GameEngineSettings
 		Patch(0x1CDEF6 + 2, { 4 }).Apply();
 		Patch(0x1CBA15 + 2, { 4 }).Apply();
 		Patch(0x1CC699 + 2, { 4 }).Apply();
+		Patch(0x1CCE53 + 2, { 4 }).Apply();
 		Hook(0x1CAF50, c_player_appearance_traits__serialize_hook).Apply();
 		Hook(0x1CAC10, c_player_appearance_traits__deserialize_hook).Apply();
 
 		// immune to assasinations
 		Patch(0x1CB8CE + 2, { 13 }).Apply();
-		Patch(0x1CBD6E + 2, { 13 }).Apply();
 		Patch(0x1CDB74 + 2, { 13 }).Apply();
 		Patch(0x1CD2C6 + 2, { 13 }).Apply();
 		Patch(0x1CC94D + 2, { 13 }).Apply();
@@ -59,14 +59,18 @@ namespace Patches::GameEngineSettings
 		// player size
 		auto numPlayerSizes = uint8_t(kPlayerScaleCount + 2);
 		Patch(0x1CB5B9 + 2, { numPlayerSizes }).Apply();
-		Patch(0x1CBA15 + 2, { numPlayerSizes }).Apply();
-		Patch(0x1CCEB6 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CBA25 + 2, { numPlayerSizes }).Apply();
+		Patch(0x1CCEB6 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CC6B7 + 2, { numPlayerSizes }).Apply();
-
+		Patch(0x1CCE66 + 2, { numPlayerSizes }).Apply();
+		
 		// TODO: move this somewhere else
 		Hook(0x14F3B6, PlayerAuraHook).Apply();
 		Hook(0x7D847A, RagdollHook, HookFlags::IsCall).Apply();
+
+		// disable appearance trait caching
+		Patch(0x349781, { 0x90, 0x90 }).Apply();
+		Patch(0x34978E, { 0xEB }).Apply();
 	}
 }
 

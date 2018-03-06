@@ -18,6 +18,7 @@
 #include "../Blam/Tags/UI/GfxTexturesList.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Blam/BlamObjects.hpp"
+#include "../Blam/BlamTime.hpp"
 #include "../Modules/ModuleGraphics.hpp"
 #include "../Modules/ModuleInput.hpp"
 #include "../Modules/ModuleGame.hpp"
@@ -1768,31 +1769,88 @@ namespace
 		}
 	}
 
-	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data)
+	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data_)
 	{
-		const auto chud_add_player_marker = (void(__thiscall*)(void *thisptr, uint8_t *data))(0xAAF9D0);
-
-		auto playerIndex = *(uint32_t*)data;
-		if (playerIndex != -1)
+		struct s_chud_player_marker_data
 		{
-			auto localPlayerDatumIndex = Blam::Players::GetLocalPlayer(0);
-			if (localPlayerDatumIndex == Blam::DatumHandle::Null)
-				return;
+			uint32_t player_index;
+			uint32_t field_4;
+			uint32_t field_8;
+			uint32_t color;
+			uint32_t flags;
+			uint32_t field_14;
+			wchar_t text[5];
+			uint16_t field_22;
+			Blam::Math::RealVector3D position;
+		};
+		static_assert(sizeof(s_chud_player_marker_data) == 0x30, "s_chud_player_marker_data invalid");
 
-			const auto &players = Blam::Players::GetPlayers();
-			auto localPlayer = players.Get(localPlayerDatumIndex);
-			if (!localPlayer)
-				return;
+		struct s_chud_player_marker_state
+		{
+			s_chud_player_marker_data data;
+			bool is_valid;
+			uint32_t time;
+			float scale;
+			uint8_t field_3C[0x2C];
+			uint32_t state;
+			uint32_t field_6C;
+			uint32_t field_70;
+		};
+		static_assert(sizeof(s_chud_player_marker_state) == 0x74, "s_chud_player_marker_state invalid");
 
-			auto player = players.Get(playerIndex);
-			if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
-				&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
+		const auto sub_AAF560 = (int(__thiscall *)(void *thisptr))(0xAAF560);
+
+		auto data = (s_chud_player_marker_data*)data_;
+		auto index = 0;
+		auto state = (s_chud_player_marker_state *)thisptr;
+		while (!state->is_valid || state->data.player_index != data->player_index)
+		{
+			++index;
+			++state;
+			if (index >= 0x14)
 			{
-				return;
+				index = -1;
+				break;
 			}
 		}
 
-		chud_add_player_marker(thisptr, data);
+		auto localPlayerDatumIndex = Blam::Players::GetLocalPlayer(0);
+		if (localPlayerDatumIndex != Blam::DatumHandle::Null)
+		{
+			const auto &players = Blam::Players::GetPlayers();
+			auto localPlayer = players.Get(localPlayerDatumIndex);
+			if (localPlayer)
+			{
+				auto player = players.Get(data->player_index);
+				if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4) // do not hide if they're on the same team as us
+				{
+					if (index != -1)
+					{
+						// existing state found, mark it as invalid
+						auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
+						newState->is_valid = false;
+						newState->data.player_index = -1;
+					}
+
+					return;
+				}
+			}
+		}
+
+		if (index == -1)
+		{
+			auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
+			memcpy(&newState->data, data, sizeof(s_chud_player_marker_data));
+			newState->is_valid = 1;
+			newState->state = -1;
+			newState->field_6C = 0;
+			newState->time = Blam::Time::GetGameTicks();
+			return;
+		}
+
+		auto existingState = &((s_chud_player_marker_state*)thisptr)[index];
+		memcpy(&existingState->data, data, sizeof(s_chud_player_marker_data));
+		existingState->time = Blam::Time::GetGameTicks();
 	}
 
 	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget)
