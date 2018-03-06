@@ -124,22 +124,22 @@ void ElDorito::Initialize()
 	// If instancing is enabled then load the instanced dewrito_prefs.cfg
 	if (instanceName != "")
 	{
-		std::stringstream ss;
-		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
-		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
-		
 		std::stringstream keystream;
 		keystream << "Execute dewrito_prefs_" << instanceName << ".cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
+
+		std::stringstream ss;
+		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
 	}
 	else
 	{
 		std::stringstream ss;
-		ss << "Execute " << ed_appdata << "\\keys.cfg";
+		ss << "Execute dewrito_prefs.cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
-		
+
 		std::stringstream keystream;
-		keystream << "Execute dewrito_prefs.cfg";
+		keystream << "Execute " << ed_appdata << "\\keys.cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
