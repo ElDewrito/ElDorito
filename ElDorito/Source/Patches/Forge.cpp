@@ -83,6 +83,7 @@ namespace
 	void RenderObjectCompressionInfoHook();
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
+	void ActivateNoclip(bool activate);
 
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 	bool __cdecl sub_980E40_hook(int a1, uint32_t objectIndex);
@@ -233,6 +234,7 @@ namespace
 	struct {
 		bool IsValid = false;
 		bool MonitorLastTick = false;
+		bool NoclipLastTick = false;
 		RealVector3D GrabOffset;
 	} monitorState;
 
@@ -401,6 +403,7 @@ namespace Patches::Forge
 			{
 				monitorState.GrabOffset = RealVector3D(0, 0, 0);
 				monitorState.MonitorLastTick = false;
+				monitorState.NoclipLastTick = false;
 				monitorState.IsValid = true;
 			}
 			
@@ -478,6 +481,13 @@ namespace
 		if (isMonitor)
 		{
 			const auto& moduleForge = Modules::ModuleForge::Instance();
+
+			auto noclipping = moduleForge.VarMonitorNoclip->ValueInt;
+			if (bool(noclipping) != monitorState.NoclipLastTick)
+			{
+				ActivateNoclip(noclipping);
+				monitorState.NoclipLastTick = noclipping;
+			}
 
 			// only show selection when we're in monitor mode
 			Forge::SelectionRenderer::SetEnabled(true);
@@ -3083,9 +3093,10 @@ namespace
 		}
 	}
 
-	void ActivateNoclip()
+	void ActivateNoclip(bool activate)
 	{
 		const auto c_havok_component__set_collision_filter = (void(__thiscall*)(void *thisptr, uint32_t filter))(0x005EE4E0);
+		const auto object_set_havok_flags = (int(*)(uint32_t objectIndex, uint32_t havokFlags))(0x005C7380);
 
 		auto playerIndex = Blam::Players::GetLocalPlayer(0);
 		if (playerIndex == Blam::DatumHandle::Null)
@@ -3101,7 +3112,13 @@ namespace
 		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
 		auto havokComponent = havokComponents->Get(unitObject->HavokComponent);
 		if (havokComponent)
-			c_havok_component__set_collision_filter(havokComponent, 19);
+		{
+			if (activate)
+				c_havok_component__set_collision_filter(havokComponent, 19);
+			else
+				object_set_havok_flags(player->SlaveUnit.Handle, 0);
+		}
+			
 	}
 
 	void OnMonitorModeChange(bool isMonitor)
@@ -3110,7 +3127,7 @@ namespace
 		if (isMonitor)
 		{
 			if (moduleForge.VarMonitorNoclip->ValueInt)
-				ActivateNoclip();
+				ActivateNoclip(true);
 		}
 	}
 
