@@ -20,12 +20,12 @@ dew.makeListWidget = function (_elem, settings) {
 
     return {
         navigate: navigate,
-        setSelected: function (index) {
+        setSelected: function (index, scrollto) {
             if (index == -1) {
                 clearSelection();
                 render();
             } else {
-                setSelectedIndex(index);
+                setSelectedIndex(index, false, scrollto);
             }
         },
         getSelected: function () {
@@ -83,7 +83,7 @@ dew.makeListWidget = function (_elem, settings) {
                         newIndex = 0;
                     }
                     dew.ui.playSound(dew.ui.Sounds.LeftTrigger + (direction > 0 ? 1 : 0));
-                    setSelectedIndex(newIndex, true);
+                    setSelectedIndex(newIndex, true, true);
                 }
 
             }
@@ -161,7 +161,7 @@ dew.makeListWidget = function (_elem, settings) {
             emit('selectionChange', { index: _itemNodes.indexOf(node), element: node });
     }
 
-    function setSelectedIndex(index, notify) {
+    function setSelectedIndex(index, notify, scrollto) {
         if (index >= _itemNodes.length)
             index = _settings.wrapAround ? 0 : (_itemNodes.length - 1);
         if (index < 0)
@@ -169,7 +169,7 @@ dew.makeListWidget = function (_elem, settings) {
 
         var item = _itemNodes[index];
         setCurrentNode(item, notify);
-        if (_currentNode)
+        if (_currentNode && scrollto)
             _currentNode.scrollIntoView(false);
 
         return index;
@@ -177,7 +177,7 @@ dew.makeListWidget = function (_elem, settings) {
 
     function navigate(count) {
         let oldIndex = _itemNodes.indexOf(_currentNode);
-        let newIndex = setSelectedIndex(_itemNodes.indexOf(_currentNode) + count, true);
+        let newIndex = setSelectedIndex(_itemNodes.indexOf(_currentNode) + count, true, true);
         if (oldIndex != -1 && newIndex != -1 && oldIndex != newIndex) {
             dew.ui.playSound(dew.ui.Sounds.VerticalNavigation);
         }
