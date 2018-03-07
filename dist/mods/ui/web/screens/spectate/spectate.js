@@ -55,7 +55,7 @@ function showSpectateOverlay(i, lobby, teamGame, playersInfo){
 		}                
         $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend('<img class="emblem" src="'+emblemPath+'">');
 		if(lobby[i].isHost)
-		$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" src="'+hostPath+'">');
+		$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="emblem" src="'+hostPath+'" style="float: right;">');
         $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").append('<img class="arrows" src="sort_both.png">');
     }  
 }
