@@ -194,9 +194,16 @@ namespace
 		float Turbulance;
 	};
 
+
+	enum ForgeSkyFlags
+	{
+		eForgeSkyFlags_UseMapModifierTransform = (1 << 0)
+	};
+
 	struct {
 		bool IsValid = false;
 		bool IsActive = false;
+		uint32_t ObjectIndex;
 		struct {
 			bool KillBarriersEnabled;
 			bool PushBarriersEnabled;
@@ -214,17 +221,16 @@ namespace
 			Blam::Math::RealColorRGB FogColor;
 			float FogDensity;
 			float FogVisibility;
-			float Brightness;
-			float LightSourceX;
-			float LightSourceY;
-			
+			float Brightness;	
 		} Atmosphere;
 
 		struct {
 			uint32_t Index;
+			uint32_t Flags;
 			uint32_t SceneryObjectIndex;
 			uint32_t BackgroundSoundDatumIndex;
 			uint32_t ScreenEffectDatumIndex;
+
 		} ForgeSky;
 	} 
 	mapModifierState;
@@ -370,6 +376,7 @@ namespace Patches::Forge
 		{
 			mapModifierState.IsValid = false;
 			monitorState.IsValid = false;
+			mapModifierState.ObjectIndex = -1;
 			forgeGlobals_ = nullptr;
 		}
 		else
@@ -378,6 +385,7 @@ namespace Patches::Forge
 			if (!mapModifierState.IsValid)
 			{
 				memset(&mapModifierState, 0, sizeof(mapModifierState));
+				mapModifierState.ObjectIndex = -1;
 				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
 				mapModifierState.ForgeSky.SceneryObjectIndex = -1;
 				mapModifierState.ForgeSky.BackgroundSoundDatumIndex = -1;
@@ -612,6 +620,13 @@ namespace
 			return;
 
 		auto desiredSkyIndex = mapModifierProperties->AtmosphereProperties.Skybox - 1;
+		if (desiredSkyIndex >= 0)
+		{
+			if (mapModifierProperties->AtmosphereProperties.Flags & (1 << 1))
+				mapModifierState.ForgeSky.Flags |= eForgeSkyFlags_UseMapModifierTransform;
+			else
+				mapModifierState.ForgeSky.Flags &= ~eForgeSkyFlags_UseMapModifierTransform;
+		}
 
 		auto &forgeSkyState = mapModifierState.ForgeSky;
 		if (desiredSkyIndex != forgeSkyState.Index)
@@ -711,22 +726,33 @@ namespace
 		{
 			if (forgeSkyState.Index != -1 && forgeSkyState.SceneryObjectIndex != -1)
 			{
-				auto forgeSky = GetForgeSky();
-	
-				RealVector3D position = forgeSky->Translation;
-				auto zOffset = ((mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1.0f) * 500.0f;
-				position.K += zOffset;
+				
+				if (mapModifierState.ForgeSky.Flags & eForgeSkyFlags_UseMapModifierTransform)
+				{
+					auto mapModifierObject = Blam::Objects::Get(mapModifierState.ObjectIndex);
+					if (mapModifierObject)
+					{
+						auto zOffset = ((mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1.0f) * 500.0f;
+						auto position = mapModifierObject->Position;
+						position.K += zOffset;
+						object_set_position(forgeSkyState.SceneryObjectIndex, &position, &mapModifierObject->Forward, &mapModifierObject->Up, 0, 0);
+					}
+				}
+				else
+				{
+					auto forgeSky = GetForgeSky();
 
-				auto ci = std::cos(forgeSky->Orientation.I);
-				auto cj = std::cos(forgeSky->Orientation.J);
-				auto ck = std::cos(forgeSky->Orientation.K);
-				auto si = std::sin(forgeSky->Orientation.I);
-				auto sj = std::sin(forgeSky->Orientation.J);
-				auto sk = std::sin(forgeSky->Orientation.K);
+					auto ci = std::cos(forgeSky->Orientation.I);
+					auto cj = std::cos(forgeSky->Orientation.J);
+					auto ck = std::cos(forgeSky->Orientation.K);
+					auto si = std::sin(forgeSky->Orientation.I);
+					auto sj = std::sin(forgeSky->Orientation.J);
+					auto sk = std::sin(forgeSky->Orientation.K);
 
-				RealVector3D forward { ci*cj, (si*ck) - (sj*sk)*ci, (sj*ck)*ci + (si*sk) };
-				RealVector3D up { sj, (ci*sk) - (sj*ck*si), cj*ck };
-				object_set_position(forgeSkyState.SceneryObjectIndex, &position, &forward, &up, 0, 0);
+					RealVector3D forward{ ci*cj, (si*ck) - (sj*sk)*ci, (sj*ck)*ci + (si*sk) };
+					RealVector3D up{ sj, (ci*sk) - (sj*ck*si), cj*ck };
+					object_set_position(forgeSkyState.SceneryObjectIndex, &forgeSky->Translation, &forward, &up, 0, 0);
+				}				
 			}
 		}
 	}
@@ -736,6 +762,7 @@ namespace
 		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
 
 		auto mapModifierObjectIndex = FindMapModifierObject();
+		mapModifierState.ObjectIndex = mapModifierObjectIndex;
 		if (mapModifierObjectIndex == -1)
 		{
 			// the map modifier was previously spawned, but has been deleted

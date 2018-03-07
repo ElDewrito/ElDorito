@@ -113,7 +113,8 @@ namespace
 		AtmosphereProperties_FogColorG,
 		AtmosphereProperties_FogColorB,
 		AtmosphereProperties_Skybox,
-		AtmosphereProperties_SkyboxOffsetZ
+		AtmosphereProperties_SkyboxOffsetZ,
+		AtmosphereProperties_SkyboxOverrideTransform
 	};
 
 	enum class PropertyDataType
@@ -427,6 +428,12 @@ namespace
 				break;
 			case PropertyTarget::AtmosphereProperties_SkyboxOffsetZ:
 				mapModifierProperties->AtmosphereProperties.SkyboxZOffset = int((value.ValueFloat * 0.5f + 0.5f) * 255.0f);
+				break;
+			case PropertyTarget::AtmosphereProperties_SkyboxOverrideTransform:
+				if (value.ValueInt)
+					mapModifierProperties->AtmosphereProperties.Flags |= (1 << 1);
+				else
+					mapModifierProperties->AtmosphereProperties.Flags &= ~(1 << 1);
 				break;
 			}
 		}
@@ -930,7 +937,7 @@ namespace
 		SerializeProperty(writer, "atmosphere_properties_fog_color_b", mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f);
 		SerializeProperty(writer, "atmosphere_properties_skybox", mapModifierProperties->AtmosphereProperties.Skybox);
 		SerializeProperty(writer, "atmosphere_properties_skybox_offset_z", (mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1);
-
+		SerializeProperty(writer, "atmosphere_properties_skybox_override_transform", int((mapModifierProperties->AtmosphereProperties.Flags & (1 << 1)) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_objectives", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives) != 0));
@@ -1044,6 +1051,7 @@ namespace
 			{ "atmosphere_properties_fog_color_b",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorB } },
 			{ "atmosphere_properties_skybox",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Skybox } },
 			{ "atmosphere_properties_skybox_offset_z",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_SkyboxOffsetZ } },
+			{ "atmosphere_properties_skybox_override_transform",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_SkyboxOverrideTransform } },
 
 			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },

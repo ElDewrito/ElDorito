@@ -333,8 +333,34 @@
                     });
                     
                     if(properties.atmosphere_properties_skybox) {
-                        m.add(makeProperty('atmosphere_properties_skybox_offset_z', 'Skybox Z', 'range', 
-                        { min: -1.0, max: 1.0, step: 0.01, displayTextOverride: value => (value * 500).toFixed(2)  }));
+                        m.add({
+                            type: 'spinner',
+                            label: 'Skybox Transform',
+                            description: '',
+                            meta: [
+                                { label: 'Default', value: 0 },
+                                { label: 'Custom', value: 1 }
+                            ],
+                            getValue: () => properties.atmosphere_properties_skybox_override_transform,
+                            setValue: (value) =>  {
+                                onPropertyChange({ ['atmosphere_properties_skybox_override_transform']: value });
+                                _propertryGrid.setModel(buildModel(_data));
+                            }
+                        });
+
+                        if(properties.atmosphere_properties_skybox_override_transform) {
+                            m.add({
+                                type: 'range',
+                                label: 'Skybox Z',
+                                description: '',
+                                meta: { min: -500.0, max: 500.0, step: 0.1,  },
+                                getValue: () => properties.atmosphere_properties_skybox_offset_z * 500,
+                                setValue: (value) => {
+                                    value /= 500;
+                                    onPropertyChange({ ['atmosphere_properties_skybox_offset_z']: value });
+                                }
+                            })
+                        }
                     }
                    
                     for(var i = 0; i < data.options.weather_effects.length; i++)
