@@ -79,8 +79,11 @@
             var id = path.getAttribute('id');
             if (id === 'prefabs') {
                 _screenManager.push('prefabs');
-            } else if (id == 'recent') {
+            } else if (id === 'recent') {
                 _screenManager.push('items', { path: ['RECENTLY USED ITEMS'], items: _itemHistory, shouldDisplayType: true });
+            } else if(id === 'map_options') {
+                dew.hide();
+                dew.command('Forge.MapOptions');
             }
             else {
                 var itemNodes = path.getElementsByTagName('item');

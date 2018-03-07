@@ -25,6 +25,7 @@ namespace Modules
 			bool MapCanvas;
 			bool RuntimeReset;
 			bool SetPrematchCamera;
+			bool OpenMapOptions;
 			uint32_t SpawnItem;
 			struct
 			{

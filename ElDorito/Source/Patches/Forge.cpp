@@ -30,6 +30,7 @@
 #include "../Modules/ModuleForge.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebForge.hpp"
+#include "../Web/Ui/WebConsole.hpp"
 #include <cassert>
 #include <queue>
 #include <stack>
@@ -50,6 +51,7 @@ namespace
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
 	const auto REFORGE_DEFAULT_SHADER = 0x3ab0;
 	const auto INVISIBLE_MATERIAL_INDEX = 121;
+	const auto MAP_MODIFIER_TAG_INDEX = 0x5728;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
 
@@ -541,7 +543,7 @@ namespace
 				continue;
 
 			auto tagIndex = it->GetTagHandle().Index;
-			if (tagIndex == 0x5728)
+			if (tagIndex == MAP_MODIFIER_TAG_INDEX)
 				return it.CurrentDatumIndex;
 		}
 
@@ -1065,6 +1067,57 @@ namespace
 			itemTagIndex = -1;
 		}
 	}
+
+	uint32_t SpawnMapmodifier()
+	{
+		auto mapv = Forge::GetMapVariant();
+		if (!mapv)
+			return -1;
+
+		const auto Forge_SetPlacementVariantProperties = (void(*)(uint32_t playerIndex,
+			int placementIndex, Blam::MapVariant::VariantProperties *properties))(0x0059B720);
+
+		RealVector3D forward(1, 0, 0), up(0, 0, 1);
+		auto mapModifierObjectIndex = Forge::SpawnObject(mapv, MAP_MODIFIER_TAG_INDEX, -1, -1,
+			&Forge::GetSandboxGlobals().CrosshairPoints[0], &forward, &up, -1, -1, nullptr, 0);
+
+		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
+
+		if (mapModifierObjectIndex == -1 || !mapModifierObject || mapModifierObject->PlacementIndex == -1)
+		{
+			PrintKillFeedText(0, L"Failed to spawn map modifier object. Out of objects?", 0);
+			return -1;
+		}
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+		auto &placement = mapv->Placements[mapModifierObject->PlacementIndex];
+		placement.Properties.ZoneShape = 4; // phased
+		Forge_SetPlacementVariantProperties(playerIndex, mapModifierObject->PlacementIndex, &placement.Properties);
+
+		ObjectGrabbedHook(playerIndex, mapModifierObject->PlacementIndex);
+
+		return mapModifierObjectIndex;
+	}
+
+	void HandleOpenMapOptions()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (!moduleForge.CommandState.OpenMapOptions)
+			return;
+
+		moduleForge.CommandState.OpenMapOptions = false;
+
+		auto mapModifierObjectIndex = FindMapModifierObject();
+		if (mapModifierObjectIndex == -1)
+			mapModifierObjectIndex = SpawnMapmodifier();
+
+		if (mapModifierObjectIndex == -1)
+			return;
+
+		Web::Ui::WebConsole::Hide();
+		Web::Ui::WebForge::ShowObjectProperties(mapModifierObjectIndex);
+	}
 	
 	void HandleCommands()
 	{
@@ -1073,6 +1126,7 @@ namespace
 		HandleSpawnItem();
 		HandleSetPrematchCamera();
 		HandlePrefabCommands();
+		HandleOpenMapOptions();
 	}
 
 	void HandleRotationReset()

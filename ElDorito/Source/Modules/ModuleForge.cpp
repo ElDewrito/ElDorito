@@ -279,6 +279,13 @@ namespace
 		returnInfo = buff;
 		return true;
 	}
+
+	bool CommandMapOptions(const std::vector<std::string> &Arguments, std::string &returnInfo)
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		moduleForge.CommandState.OpenMapOptions = true;
+		return true;
+	}
 }
 
 namespace Modules
@@ -323,6 +330,7 @@ namespace Modules
 		AddCommand("DumpPalette", "forge_dump_palette", "Dumps the forge palette in json", eCommandFlagsForge, CommandDumpPalette);
 		AddCommand("SpawnItem", "forge_spawn", "Spawn an item from the forge palette", eCommandFlagsForge, CommandSpawnItem);
 		AddCommand("Budget", "forge_budget", "Displays information about remaining objects", eCommandFlagsForge, CommandForgeBudget);
+		AddCommand("MapOptions", "forge_map_options", "Opens map modifier object properties", eCommandFlagsForge, CommandMapOptions);
 		AddCommand("SetPrematchCamera", "forge_set_prematch_camera", "Set the position/orientation of the prematch camera", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandPrematchCamera);
 	}
 }
