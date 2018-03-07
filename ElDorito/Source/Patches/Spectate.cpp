@@ -12,6 +12,7 @@
 #include "../Modules/ModuleInput.hpp"
 #include "../Modules/ModuleSettings.hpp"
 #include "../Blam/BlamTime.hpp"
+#include "../Blam/BlamObjects.hpp"
 #include <cstdint>
 
 namespace
@@ -105,10 +106,19 @@ namespace
 				s_SpectateState.DirectedPlayerIndex = -1;
 			}
 
-			auto directedPlayerIndex = Blam::DatumHandle(Pointer(thisptr)(0x144).Read<uint32_t>());
-			if (s_SpectateState.DirectedPlayerIndex != directedPlayerIndex)
-				NotifyPlayerChanged(directedPlayerIndex);
-			s_SpectateState.DirectedPlayerIndex = directedPlayerIndex;
+			uint32_t playerIndex = -1;
+			auto unitObjectIndex = *(uint32_t*)((uint8_t*)thisptr + 0x8);
+			auto unitObject = (uint8_t*)Blam::Objects::Get(unitObjectIndex);
+			if (unitObject)
+			{
+				playerIndex = *(uint32_t*)(unitObject + 0x198);
+				if(playerIndex == -1)
+					playerIndex = *(uint32_t*)(unitObject + 0x19C);
+			}
+
+			if (s_SpectateState.DirectedPlayerIndex.Handle != playerIndex)
+				NotifyPlayerChanged(playerIndex);
+			s_SpectateState.DirectedPlayerIndex = playerIndex;
 		}
 		else if (s_SpectateState.IsSpectating)
 		{
