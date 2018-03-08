@@ -10,6 +10,7 @@
 #include "../Patch.hpp"
 #include "Geoemetry.hpp"
 #include "Magnets.hpp"
+#include "../Modules/ModuleTweaks.hpp"
 
 using namespace Blam::Math;
 
@@ -128,7 +129,9 @@ namespace
 
 		if (!s_Enabled || s_RendererType != eRendererSpecialHud)
 		{
-			sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
+			if(!Modules::ModuleTweaks::Instance().VarDisableWeaponOutline->ValueInt)
+				sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
+
 			return;
 		}
 

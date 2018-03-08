@@ -1748,8 +1748,7 @@ namespace
 		Blam::Players::PlayerDatum *player;
 
 		if (playerIndex != Blam::DatumHandle::Null && (player = Blam::Players::GetPlayers().Get(playerIndex))
-			&& player->SlaveUnit != Blam::DatumHandle::Null && Blam::Objects::Get(player->SlaveUnit)
-			&& !moduleTweaks.VarDisableWeaponOutline->ValueInt)
+			&& player->SlaveUnit != Blam::DatumHandle::Null && Blam::Objects::Get(player->SlaveUnit))
 		{
 			// outlines are only rendered if we have a unit regardless
 			c_hud_camera_view__render_outlines_hook(thisptr, localProfileIndex, playerMappingIndex, a3);
