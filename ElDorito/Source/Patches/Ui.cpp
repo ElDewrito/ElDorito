@@ -64,7 +64,8 @@ namespace
 
 	void chud_talking_player_name_hook();
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
-	void chud_update_player_marker_hook();
+	void chud_update_player_marker_state_hook();
+	void chud_update_player_marker_sprite_hook();
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -294,7 +295,10 @@ namespace Patches::Ui
 		Hook(0x68AA21, chud_add_player_marker_hook, HookFlags::IsCall).Apply();
 
 		//Show speaking player markers
-		Hook(0x349450, chud_update_player_marker_hook).Apply();
+		Hook(0x349450, chud_update_player_marker_state_hook).Apply();
+		
+		//Show objective player markers
+		Hook(0x349469, chud_update_player_marker_sprite_hook).Apply();
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -1792,18 +1796,18 @@ namespace
 			if (!localPlayer)
 				return;
 
-			auto player = players.Get(playerIndex);
-			if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
-				&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
-			{
-				return;
-			}
+auto player = players.Get(playerIndex);
+if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
+	&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
+{
+	return;
+}
 		}
 
 		chud_add_player_marker(thisptr, data);
 	}
 
-	unsigned int __stdcall isPlayerSpeaking(int handle)
+	unsigned int __stdcall IsPlayerSpeaking(int handle)
 	{
 		Blam::Players::PlayerDatum* player = Blam::Players::GetPlayers().Get(Blam::DatumHandle(handle));
 		std::string playerName(Utils::String::ThinString(player->Properties.DisplayName));
@@ -1815,9 +1819,9 @@ namespace
 		return 0;
 	}
 
-	__declspec(naked) void chud_update_player_marker_hook()
+	__declspec(naked) void chud_update_player_marker_state_hook()
 	{
-		int _ebx, _ecx, _edx, _ebp, _esi, _edi, _esp;
+		int _ebx, _ecx, _edx, _ebp, _edi, _esp;
 		int markerSecondary;
 
 		__asm
@@ -1835,7 +1839,7 @@ namespace
 			//check if player is speaking
 			mov eax, [ebp + 0xC]
 			push eax
-			call isPlayerSpeaking
+			call IsPlayerSpeaking
 
 			//check result from is player speaking
 			cmp eax, 0
@@ -1843,7 +1847,126 @@ namespace
 			mov eax, 2
 			mov markerSecondary, eax //1 = shooting, 2 = speaking, 3 = taking damage
 
-		check_marker_secondary:
+			check_marker_secondary :
+
+			//restore registers
+			mov ebx, _ebx
+				mov edx, _edx
+				mov ebp, _ebp
+				mov edi, _edi
+				mov esp, _esp
+				mov eax, markerSecondary
+
+				dec eax
+				jz shooting
+
+				dec eax
+				jz speaking
+
+				//taking_damage:
+				dec eax
+				mov al, byte ptr[ebp + 0xB]
+				jnz loc_749469
+				or dword ptr[ebx + 0x10], 8
+				jmp loc_749469
+
+				shooting :
+			mov esi, 0x74947F
+				jmp esi
+
+				speaking :
+			mov esi, 0x749462
+				jmp esi
+
+				loc_749469 :
+			mov esi, 0x749469
+				jmp esi
+		}
+	}
+
+	static int spriteIndex = 0;
+	unsigned int __stdcall GetPlayerMarkerSpriteIndex(int handle)
+	{
+		auto session = Blam::Network::GetActiveSession();
+
+		if (!session || !session->IsEstablished())
+			return 0;
+
+		const auto markerPlayer = *Blam::Players::GetPlayers().Get(handle);
+
+		//if the player is on your team, they have the normal sprite.
+		if (session->HasTeams() && (session->MembershipInfo.LocalPeerIndex != markerPlayer.Properties.TeamIndex))
+			return 0;
+
+		auto gameVariant = session->Parameters.GameVariant.Get();
+		if (!gameVariant || gameVariant == 0)
+			return 0;
+
+		//Handle Oddball, Flag, Bomb
+		if (gameVariant->GameType == 1 || gameVariant->GameType == 3 || gameVariant->GameType == 9)
+		{
+			if (markerPlayer.GetSalt() && markerPlayer.SlaveUnit != Blam::DatumHandle::Null)
+			{
+				auto unitObjectPtr = Pointer(Blam::Objects::Get(markerPlayer.SlaveUnit));
+				if (unitObjectPtr)
+				{
+					auto rightWeaponIndex = unitObjectPtr(0x2Ca).Read<uint8_t>();
+					if (rightWeaponIndex != 0xFF)
+					{
+						auto rightWeaponObject = Blam::Objects::Get(unitObjectPtr(0x2D0 + 4 * rightWeaponIndex).Read<uint32_t>());
+						if (rightWeaponObject)
+						{
+							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+							if (weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None)
+							{
+								if (session->HasTeams())
+								{
+									if (session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != markerPlayer.Properties.TeamIndex)
+										return 1;
+								}
+								else
+									return 1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		//last man standing
+		if (gameVariant->GameType == 10)
+		{
+			for each (auto player in Blam::Players::GetPlayers())
+			{
+				if (player.Properties.TeamIndex == markerPlayer.Properties.TeamIndex)
+					return 0;
+			}
+		}
+
+		return 0;
+	}
+
+	__declspec(naked) void chud_update_player_marker_sprite_hook()
+	{
+		int _ebx, _ecx, _edx, _ebp, _edi, _esp;
+		__asm
+		{
+			//preserve registers
+			mov _ebx, ebx
+			mov _ecx, ecx
+			mov _edx, edx
+			mov _ebp, ebp
+			mov _edi, edi
+			mov _esp, esp
+
+			cmp dword ptr[ebx+8], 0xFFFFFFFF
+			jnz ed_return
+
+
+			mov _ebp, ebp
+			mov eax, [ebp+0xC]
+			push eax
+			call GetPlayerMarkerSpriteIndex
 
 			//restore registers
 			mov ebx, _ebx
@@ -1851,31 +1974,12 @@ namespace
 			mov ebp, _ebp
 			mov edi, _edi
 			mov esp, _esp
-			mov eax, markerSecondary
 
-			dec eax
-			jz shooting
+			mov dword ptr [ebx+4], eax
+			mov eax, 1 //Not sure why this is required, but if 0 waypoints hide.
 
-			dec eax
-			jz speaking
-
-		//taking_damage:
-			dec eax
-			mov al, byte ptr[ebp + 0xB]
-			jnz loc_749469
-			or dword ptr [ebx+0x10], 8
-			jmp loc_749469
-
-		shooting:
-			mov esi, 0x74947F
-			jmp esi
-
-		speaking:
-			mov esi, 0x749462
-			jmp esi
-
-		loc_749469:
-			mov esi, 0x749469
+		ed_return:
+			mov esi, 0x749476
 			jmp esi
 		}
 	}
