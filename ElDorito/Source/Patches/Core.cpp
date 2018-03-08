@@ -111,6 +111,8 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x25FA86), 5);
 		Hook(0x10CA02, FovHook).Apply();
 		Hook(0x663B36, ActiveCamoViewModelClipHook, HookFlags::IsCall).Apply();
+		// fix active camo issue with low shadow quality (local unit shadows will still be rendered)
+		Patch(0x66B0CE, 0x90, 6).Apply();
 
 		//Fix aspect ratio not matching resolution
 		Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
