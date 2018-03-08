@@ -640,6 +640,13 @@ namespace
 	}
 #endif
 
+	bool CommandResetBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		LoadDefaultBindings();
+		returnInfo = "Default bindings restored";
+		return true;
+	}
+
 	bool TryParseFloat(const char* str, float* value)
 	{
 		char* endp;
@@ -682,6 +689,8 @@ namespace Modules
 
 		AddCommand("DumpBindingsJson", "dumpbindingsjson", "Dumps the input bindings table in json", eCommandFlagsNone, CommandDumpBindingsJson);
 		AddCommand("FindBind", "findbind", "Finds the key bound to a command passed", eCommandFlagsNone, CommandFindKeybdBinding);
+		AddCommand("ResetBindings", "reset_bindings", "Restores default bindings", eCommandFlagsNone, CommandResetBindings);
+
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 
