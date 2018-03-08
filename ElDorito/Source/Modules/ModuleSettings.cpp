@@ -634,6 +634,8 @@ namespace
 		{
 			switch (cmd.Type)
 			{
+			case Modules::CommandType::eCommandTypeCommand:
+				continue;
 			case Modules::CommandType::eCommandTypeVariableFloat:
 				cmd.ValueFloat = cmd.DefaultValueFloat;
 				cmd.ValueString = std::to_string(cmd.DefaultValueFloat);
@@ -649,6 +651,12 @@ namespace
 			case Modules::CommandType::eCommandTypeVariableString:
 				cmd.ValueString = cmd.DefaultValueString;
 				break;
+			}
+
+			if (cmd.UpdateEvent)
+			{
+				std::string returnInfo;
+				cmd.UpdateEvent({ cmd.ValueString }, returnInfo);
 			}
 		}
 
