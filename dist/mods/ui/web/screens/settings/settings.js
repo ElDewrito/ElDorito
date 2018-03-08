@@ -279,6 +279,9 @@ $(document).ready(function(){
     $('#applyButton').on('click', function(e){
         applyButton();
     });
+    $('#resetButton').on('click', function(e){
+        resetButton();
+    });
     $('#cancelButton').on('click', function(e){
         cancelButton();
     });
@@ -297,11 +300,7 @@ $(document).ready(function(){
             $('#sEffectsQuality').val(e.target.value);
             $('#sDetailsLevel').val(e.target.value);
             $('#sPostprocessing').val(e.target.value);
-            if(e.target.value == 'low'){
-                $('#sShadowQuality').val('medium');
-            }else{
-                $('#sShadowQuality').val(e.target.value);
-            }
+            $('#sShadowQuality').val(e.target.value);
             if(e.target.value == 'high'){
                  $('#sMotionBlur').prop('checked', true);
             }else{
@@ -401,6 +400,9 @@ $(document).ready(function(){
                 if($('#'+selectedItem).prev()[0].computedRole == 'button'){
                     $('#'+selectedItem).prev().click();
                 }
+            }
+            if(e.data.Y == 1){
+                resetButton();
             }
             if(e.data.Up == 1){
                 upNav();
@@ -508,6 +510,7 @@ function setButtons(){
     dew.command('Game.IconSet', {}).then(function(response){
         $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_X.png');
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
+        $('#resetButton img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
@@ -602,8 +605,6 @@ function setControlValues(){
                         $('#'+result[0]).val(setValue);
                         if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
                             $('#sQualityPreset').val(setValue);
-                        }else if($('#sTextureResolution').val() == 'low' && $('#sTextureFiltering').val() == 'low' && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == 'low' && $('#sShadowQuality').val() == 'medium' && $('#sDetailsLevel').val() == 'low' && $('#sPostprocessing').val() == 'low'){
-                            $('#sQualityPreset').val('low');
                         }else{
                             $('#sQualityPreset').val('custom');
                         }
@@ -727,6 +728,16 @@ function applyButton(){
         }else{
             effectReset();
         }
+    }
+}
+
+function resetButton(){
+    if(window.location.hash == '#page5'){
+        dew.command('Input.ResetBindings');
+        initializeBindings(); 
+    }else{
+        dew.command('Settings.Reset');
+        applySettings(0);
     }
 }
 

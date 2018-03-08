@@ -218,13 +218,13 @@ div[id^='page']:target #buttonConatiner{
 	text-transform: uppercase;
 	text-align: center;
 }
-#applyButton,#cancelButton{
+#applyButton,#cancelButton,#resetButton{
 	top: calc(0vh + 1.1vh);
 }
 #randomArmor,#randomColors{
 	bottom: calc(-4.15vh - 1.1vh);
 }
-#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton{
+#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton,#resetButton{
 	position: absolute;
 	height: 4vh;
 	line-height: 4vh;
@@ -240,19 +240,24 @@ div[id^='page']:target #buttonConatiner{
 	padding: none;
 	float: left;
 }
-#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img{
+#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img,#resetButton img{
 	display:none;
 	position:relative;
 	height: 3.75vh;
 	float: left;
 }
-#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover{
+#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover,#resetButton:hover{
 	text-decoration: underline;
 }
 #applyButton{
     display:none;
 	right: 0vh;
 }
+
+#resetButton{
+	left: 15%;
+}
+
 #cancelButton{
 	left:0%;
 }
