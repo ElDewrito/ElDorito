@@ -718,6 +718,8 @@ namespace Modules
 		//CopyBinding(eGameActionMelee, eGameActionMeleeFire); // Ensure that the banshee bomb is bound to melee
 		CopyBinding(eGameActionUse, eGameActionVehicleExit); // Keep enter and exit vehicle to the same button
 		SetBindings(0, bindings);
+
+		Patches::Input::InvalidateBindings();
 	}
 
 	std::string ModuleInput::ExportBindings() const
