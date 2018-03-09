@@ -54,6 +54,7 @@ namespace
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
 	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
 	uint64_t local_user_get_identifier_hook();
+	bool network_build_local_game_status_hook(uint8_t *data);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -443,6 +444,8 @@ namespace Patches::Network
 		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x67E01F, local_user_get_identifier_hook, HookFlags::IsCall).Apply();
+		// fix network broadcast search sending back the wrong address due to the above patch (fixes local game browser)
+		Hook(0x9C389, network_build_local_game_status_hook, HookFlags::IsCall).Apply();
 	}
 
 
@@ -1211,5 +1214,18 @@ namespace
 	uint64_t local_user_get_identifier_hook()
 	{
 		return *(uint64_t*)0x199FAB2; // use the first 64 bits of the xnkaddr (128 bit guid in eldorado)
+	}
+
+	bool network_build_local_game_status_hook(uint8_t *data)
+	{
+		const auto network_build_local_game_status = (bool(*)(uint8_t *data))(0x437EA0);
+		if (network_build_local_game_status(data))
+		{
+			// hax
+			*(uint32_t*)(data+0x138) = *(uint32_t*)0x199FAC4;
+			*(uint32_t*)(data+0x13C) = *(uint32_t*)0x199FAD4;
+			return true;
+		}
+		return false;
 	}
 }
