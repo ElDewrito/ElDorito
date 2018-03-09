@@ -493,4 +493,9 @@ namespace Modules
 
 		directorGlobalsPtr(0x858).WriteFast<float>(fov);
 	}
+
+	bool ModuleCamera::IsFlying() const
+	{
+		return flying;
+	}
 }

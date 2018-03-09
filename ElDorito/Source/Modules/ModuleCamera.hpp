@@ -45,5 +45,6 @@ namespace Modules
 		ModuleCamera();
 
 		void UpdatePosition();
+		bool IsFlying() const;
 	};
 }
