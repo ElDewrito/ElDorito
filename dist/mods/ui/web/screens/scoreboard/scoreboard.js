@@ -442,6 +442,7 @@ dew.on("hide", function(e){
     isVisible = false;
     $('#playerBreakdown').hide();    
     dew.captureInput(false);
+    $('.context-menu-list').trigger("contextmenu:hide");
 });
 
 function displayScoreboard(){
