@@ -632,6 +632,9 @@ namespace
 
 		for (auto &cmd : commandMap.Commands)
 		{
+			if (!(cmd.Flags & CommandFlags::eCommandFlagsArchived))
+				continue;
+
 			switch (cmd.Type)
 			{
 			case Modules::CommandType::eCommandTypeCommand:
