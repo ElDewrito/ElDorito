@@ -35,6 +35,10 @@ function fadeOut(userElement, reply) {
 	}
 }
 
+$(window).resize(function(){
+	$('#discord-container').css("top", -$('#discord-container').height());
+});
+
 $(document).ready(function () {
 	$("#notification").hide();
 	$.contextMenu({
