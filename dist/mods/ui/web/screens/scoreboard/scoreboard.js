@@ -461,7 +461,7 @@ function displayScoreboard(){
                 scoreboardheader += '<th>Kills</th><th>Infections</th><th>Zombie Kills</th>';    
                 break;
             case "koth":
-                scoreboardheader += '<th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
+                scoreboardheader += '<th>Kills</th><th>King Kills</th><th>Time In Hill</th><th>Controlling</th>';    
                 break;
             case "vip":
             case "juggernaut":
@@ -571,10 +571,11 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                         $('.teamHeader .name').attr('colspan',5);
                         break;
                     case "koth":
+                       $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kills)) //kills
                         $("[data-playerIndex='" + lobby[i].playerIndex + "']").append($('<td class="stat">').text(lobby[i].kingsKilled)) //kings killed
                             .append($('<td class="stat">').text(lobby[i].timeInHill)) //time in hill
                             .append($('<td class="stat">').text(lobby[i].timeControllingHill)) //time controlling hill
-                        $('.teamHeader .name').attr('colspan',6);
+                        $('.teamHeader .name').attr('colspan',7);
                         break;                   
                     case "vip":
                     case "juggernaut":
