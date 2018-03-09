@@ -1175,7 +1175,12 @@ namespace
 			|| GetMouseButtonTicks(eMouseButtonMiddle, eInputTypeGame) == 1)
 		{
 			uiUpAction->Flags |= Blam::Input::eActionStateFlagsHandled;
-			Forge::RotationSnap::RotateToScripted(RealQuaternion());
+
+			uint32_t heldObjectIndex;
+			if (Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), &heldObjectIndex, nullptr))
+			{
+				Forge::RotationSnap::RotateToScripted(heldObjectIndex, RealQuaternion());
+			}
 		}
 	}
 

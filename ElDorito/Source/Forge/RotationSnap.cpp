@@ -109,11 +109,12 @@ namespace Forge::RotationSnap
 		s_RotationSnapState.Current = 0;
 	}
 
-	void RotateToScripted(const Blam::Math::RealQuaternion& rotation)
+	void RotateToScripted(uint32_t objectIndex, const Blam::Math::RealQuaternion& rotation)
 	{
 		RealMatrix4x3 objectTransform;
 		GetObjectTransformationMatrix(s_RotationSnapState.ObjectIndex, &objectTransform);
 
+		s_RotationSnapState.ObjectIndex = objectIndex;
 		s_RotationSnapState.IsScripted = true;
 		s_RotationSnapState.StartTime = Blam::Time::GetGameTicks();
 		s_RotationSnapState.StartRotation = RealQuaternion::Normalize(RealQuaternion::CreateFromRotationMatrix(objectTransform));
