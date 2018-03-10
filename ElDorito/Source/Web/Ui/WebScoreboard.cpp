@@ -180,6 +180,24 @@ namespace Web::Ui::WebScoreboard
 		}
 	}
 
+	bool UnitHasObjective(uint32_t unitObjectIndex)
+	{
+		auto unitObject = (uint8_t*)Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
+			return false;	
+		auto rightWeaponIndex = *(unitObject + 0x2Ca);
+		if (rightWeaponIndex == 0xFF)
+			return false;
+		
+		auto weaponObjectIndex = *(uint32_t*)(unitObject + 0x2D0 + 4 * rightWeaponIndex);
+		auto rightWeaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (!rightWeaponObject)
+			return false;
+
+		auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		return weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+	}
+
 	std::string getScoreboard()
 	{
 		rapidjson::StringBuffer buffer;
@@ -199,8 +217,9 @@ namespace Web::Ui::WebScoreboard
 		writer.Key("playersInfo");
 		writer.String(Modules::ModuleServer::Instance().VarPlayersInfoClient->ValueString.c_str());
 
+		auto hasTeams = session->HasTeams();
 		writer.Key("hasTeams");
-		writer.Bool(session->HasTeams());
+		writer.Bool(hasTeams);
 
 		auto get_number_of_rounds = (int(*)())(0x005504C0);
 		auto get_current_round = (int(*)())(0x00550AD0);
@@ -211,20 +230,12 @@ namespace Web::Ui::WebScoreboard
 		writer.Key("currentRound");
 		writer.Int(get_current_round());
 
-		
-		writer.Key("totalScores");
-		writer.StartArray();
-		for (int t = 0; t < 8; t++)
-		{
-			writer.Int(scoreboard->TeamScores[t].TotalScore);
-		}
-		writer.EndArray();
-
 		writer.Key("teamScores");
 		writer.StartArray();
 		for (int t = 0; t < 8; t++)
 		{
-			writer.Int(scoreboard->TeamScores[t].Score);
+			const auto &teamScore = scoreboard->TeamScores[t];
+			writer.Int((uint32_t(teamScore.TotalScore) << 16) | (teamScore.Score & 0xffff));
 		}
 		writer.EndArray();
 		
@@ -240,10 +251,12 @@ namespace Web::Ui::WebScoreboard
 		auto& playersGlobal = ElDorito::GetMainTls(0x40)[0];
 		uint32_t playerStatusBase = 0x2161808;
 
+		int playerIdx = session->MembershipInfo.FindFirstPlayer();
+		uint16_t teamObjectiveSet = 0;
+
 		writer.Key("players");
 		writer.StartArray();
-		int playerIdx = session->MembershipInfo.FindFirstPlayer();
-		bool teamObjective[10] = { 0 };
+
 		while (playerIdx != -1)
 		{
 			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
@@ -257,14 +270,15 @@ namespace Web::Ui::WebScoreboard
 			writer.String(Utils::String::ThinString(player.Properties.ServiceTag).c_str());
 			writer.Key("team");
 			writer.Int(player.Properties.TeamIndex);
-			std::stringstream color;
-			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
+
+			char buff[17];
+			sprintf_s(buff, "#%x", player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary]);
 			writer.Key("color");
-			writer.String(color.str().c_str());
-			char uid[17];
-			Blam::Players::FormatUid(uid, player.Properties.Uid);
+			writer.String(buff);	
+			Blam::Players::FormatUid(buff, player.Properties.Uid);
 			writer.Key("UID");
-			writer.String(uid);
+			writer.String(buff);
+
 			writer.Key("isHost");
 			if (Modules::ModuleServer::Instance().VarServerDedicatedClient->ValueInt == 1)
 				writer.Bool(false);
@@ -292,26 +306,14 @@ namespace Web::Ui::WebScoreboard
 
 			bool hasObjective = false;
 			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
-			if (playerDatum.GetSalt() && playerDatum.SlaveUnit != Blam::DatumHandle::Null)
+			if (playerDatum.GetSalt() && UnitHasObjective(playerDatum.SlaveUnit))
 			{
-				auto unitObjectPtr = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
-				if (unitObjectPtr)
+				hasObjective = true;
+				if (hasTeams) 
 				{
-					auto rightWeaponIndex = unitObjectPtr(0x2Ca).Read<uint8_t>();
-					if (rightWeaponIndex != 0xFF)
-					{
-						auto rightWeaponObject = Blam::Objects::Get(unitObjectPtr(0x2D0 + 4 * rightWeaponIndex).Read<uint32_t>());
-						if (rightWeaponObject)
-						{
-							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-							hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
-							if (hasObjective && session->HasTeams()) {
-								teamObjective[player.Properties.TeamIndex] = true;
-								if(session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
-									hasObjective = false;
-							}		
-						}
-					}
+					auto localPeerTeamIndex = session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex);
+					teamObjectiveSet |= (1 << player.Properties.TeamIndex);
+					hasObjective = localPeerTeamIndex != player.Properties.TeamIndex;
 				}
 			}
 
@@ -341,17 +343,11 @@ namespace Web::Ui::WebScoreboard
 		}
 		writer.EndArray();
 
-		if (session->HasTeams()) {
+		if (hasTeams) {
 			writer.Key("teamHasObjective");
-			writer.StartArray();
-			for (int i = 0; i < 10; i++)
-			{
-				writer.Bool(teamObjective[i]);
-			}
-			writer.EndArray();
+			writer.Int(teamObjectiveSet);
 		}
 		
-
 		writer.EndObject();
 
 		return buffer.GetString();

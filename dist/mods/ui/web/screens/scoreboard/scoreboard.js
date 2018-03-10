@@ -478,7 +478,7 @@ function displayScoreboard(){
         scoreboardheader += '<th>Round</th>';
     }
     $('#header').html(scoreboardheader);
-    buildScoreboard(scoreboardData.players, scoreboardData.hasTeams, scoreboardData.teamScores, scoreboardData.gameType, JSON.parse(scoreboardData.playersInfo),expandedScoreboard, scoreboardData.teamHasObjective,scoreboardData.totalScores);
+    buildScoreboard(scoreboardData.players, scoreboardData.hasTeams, scoreboardData.teamScores, scoreboardData.gameType, JSON.parse(scoreboardData.playersInfo),expandedScoreboard, scoreboardData.teamHasObjective);
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
@@ -487,7 +487,7 @@ function displayScoreboard(){
     }
 }
 
-function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, objectiveArray, totalArray){
+function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expandedScoreboard, teamHasObjective){
     var emblemPath;
 	var hostPath = 'dew://assets/emblems/crown.png';
 	var rankPath = "dew://assets/ranks/0.png"
@@ -501,13 +501,16 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    var teamScore = scoreArray[lobby[i].team];
+                    var score = teamScore & 0xffff;
+                    var totalScore = (teamScore >> 16) & 0xffff;
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+score+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
                     if(multiRound){
-                        teamHeader+='<td class="score">'+totalArray[lobby[i].team]+'</td>';
+                        teamHeader+='<td class="score">'+totalScore+'</td>';
                     }
-                    teamHeader+='<td class="score">'+scoreArray[lobby[i].team]+'</td></tr></tbody>';
-                    $('#window table').append(teamHeader);    
-                    if(objectiveArray[lobby[i].team]){
+                    teamHeader+='<td class="score">'+score+'</td></tr></tbody>';
+                    $('#window table').append(teamHeader);   
+                    if((teamHasObjective & (1 << lobby[i].team)) != 0) {
                         $('#'+teamArray[lobby[i].team].name+' .teamHeader').append('<img class="emblem objective" src="dew://assets/emblems/'+gameType+'.png">')                    
                     }
                 }    
