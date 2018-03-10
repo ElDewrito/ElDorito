@@ -126,6 +126,7 @@ namespace
 	void BackgroundSoundEnvironmentHook(float a1);
 
 	void EvaluateRigidBodyNodesHook();
+	uint32_t __cdecl HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -376,6 +377,8 @@ namespace Patches::Forge
 
 		// horrible hack to stop phased objects that have multiple, conflicting rigid bodies from shaking
 		Hook(0x31293C, EvaluateRigidBodyNodesHook).Apply();
+		// prevent havok from deleting reforge objects
+		Hook(0x1C469A, HavokCleanupHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -3264,5 +3267,20 @@ namespace
 			push 0x00712942
 			retn
 		}
+	}
+
+	uint32_t HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6)
+	{
+		const auto HavokCleanup = (uint32_t(*)(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6))(0x5C4E30);
+		auto objectIndex = HavokCleanup(a1, islandEntityIndex, a3, a4, a5, a6);
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return -1;
+
+		if (CanThemeObject(objectIndex))
+			return -1;
+
+		return objectIndex;
 	}
 }
