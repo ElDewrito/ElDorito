@@ -63,6 +63,7 @@ namespace
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot);
 	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes);
 	void ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex);
+	void ObjectGrabbedHook2(uint32_t playerIndex, uint32_t objectIndex);
 	void ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3);
 	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
 	void ObjectSpawnedHook(uint32_t tagIndex, uint32_t playerIndex, const RealVector3D* position);
@@ -123,6 +124,8 @@ namespace
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
 	void BackgroundSoundEnvironmentHook(float a1);
+
+	void EvaluateRigidBodyNodesHook();
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -241,6 +244,8 @@ namespace
 		bool IsValid = false;
 		bool MonitorLastTick = false;
 		bool NoclipLastTick = false;
+		uint32_t HeldObjectIndex = -1;
+		bool HeldObjectIsComplex = false;
 		RealVector3D GrabOffset;
 	} monitorState;
 
@@ -271,6 +276,7 @@ namespace Patches::Forge
 		Hook(0x275655, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
 		Hook(0x19FA69, RotateHeldObjectHook, HookFlags::IsCall).Apply();
 		Hook(0x7350A, ObjectGrabbedHook, HookFlags::IsCall).Apply();
+		Hook(0x19B14D, ObjectGrabbedHook2, HookFlags::IsCall).Apply();
 		Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
 		Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
 		Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
@@ -367,6 +373,9 @@ namespace Patches::Forge
 		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
 
 		Hook(0x1D9BBE, BackgroundSoundEnvironmentHook, HookFlags::IsCall).Apply();
+
+		// horrible hack to stop phased objects that have multiple, conflicting rigid bodies from shaking
+		Hook(0x31293C, EvaluateRigidBodyNodesHook).Apply();
 	}
 
 	void Tick()
@@ -377,6 +386,7 @@ namespace Patches::Forge
 			mapModifierState.IsValid = false;
 			monitorState.IsValid = false;
 			mapModifierState.ObjectIndex = -1;
+			monitorState.HeldObjectIndex = -1;
 			forgeGlobals_ = nullptr;
 		}
 		else
@@ -413,6 +423,7 @@ namespace Patches::Forge
 				monitorState.MonitorLastTick = false;
 				monitorState.NoclipLastTick = false;
 				monitorState.IsValid = true;
+				monitorState.HeldObjectIndex = -1;
 			}
 			
 		}
@@ -1325,11 +1336,39 @@ namespace
 		heldObjectDistance = (unitPos - crosshairPoint).Length();
 	}
 
+	bool ObjectIsComplex(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto objectDefinition = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
+		auto modelDefinition = objectDefinition->Model.GetDefinition<uint8_t>();
+		if (!modelDefinition)
+			return false;
+		auto physicsModelDefinition = Blam::Tags::TagInstance(*(uint32_t*)(modelDefinition + 0x3C)).GetDefinition<uint8_t>();
+		if (!physicsModelDefinition)
+			return false;
+
+		return *(long*)(physicsModelDefinition + 0x58) > 1; // more than one rigid body
+	}
+
+
+	void ObjectGrabbedHook2(uint32_t playerIndex, uint32_t objectIndex)
+	{
+		static auto ObjectGrabbed2 = (void(__cdecl*)(uint32_t, uint32_t))(0x0059CF50);
+
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = objectIndex;
+			monitorState.HeldObjectIsComplex = ObjectIsComplex(objectIndex);
+		}
+
+		ObjectGrabbed2(playerIndex, objectIndex);
+	}
+
 	void __cdecl ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex)
 	{
-		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
-		ObjectGrabbed(playerIndex, placementIndex);
-
 		static auto FreePlacement = (void(__thiscall *)(MapVariant* mapv, int16_t placementIndex, int a3))(0x585C00);
 		static auto ObjectAttach = (void(__cdecl*)(uint32_t parentobjectIndex, uint32_t objectIndex, int a3))(0x00B2A250);
 		static auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
@@ -1338,6 +1377,14 @@ namespace
 		auto mapv = GetMapVariant();
 
 		auto objectIndex = mapv->Placements[placementIndex].ObjectIndex;
+
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = objectIndex;
+		}
+
+		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
+		ObjectGrabbed(playerIndex, placementIndex);
 
 		const auto& selection = Forge::Selection::GetSelection();
 		if (selection.Contains(objectIndex))
@@ -1376,7 +1423,13 @@ namespace
 		if (droppedObjectIndex == -1)
 			return;
 
+
 		auto playerIndex = GetPlayerHoldingObject(droppedObjectIndex);
+
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = -1;
+		}
 
 		ObjectDropped(placementIndex, throwForce, a3);
 
@@ -3169,5 +3222,35 @@ namespace
 		auto forgeSky = GetForgeSky();
 		if (!mapModifierState.IsValid || !forgeSky)
 			return sub_5DAB20(a1);	
+	}
+
+	bool IgnoreRigidBodyNode(uint32_t objectIndex, int nodeIndex)
+	{
+		return monitorState.HeldObjectIndex != -1 
+			&& monitorState.HeldObjectIndex == objectIndex 
+			&& monitorState.HeldObjectIsComplex
+			&& nodeIndex != 0;
+	}
+
+	__declspec(naked) void EvaluateRigidBodyNodesHook()
+	{
+		__asm
+		{
+			movsx edx, word ptr[ecx]
+			pushad
+			push edx
+			push[ebp + 0x8]
+			call IgnoreRigidBodyNode
+			add esp, 8
+			test al, al
+			popad
+			jz skip
+			push 0x00712998
+			retn
+			skip :
+			cmp edx, -01
+			push 0x00712942
+			retn
+		}
 	}
 }
