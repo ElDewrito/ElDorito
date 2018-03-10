@@ -245,7 +245,7 @@ namespace
 		bool MonitorLastTick = false;
 		bool NoclipLastTick = false;
 		uint32_t HeldObjectIndex = -1;
-		bool HeldObjectIsComplex = false;
+		uint32_t HeldObjectComplexRootRigidBodyNodeIndex = -1;
 		RealVector3D GrabOffset;
 	} monitorState;
 
@@ -1336,21 +1336,33 @@ namespace
 		heldObjectDistance = (unitPos - crosshairPoint).Length();
 	}
 
-	bool ObjectIsComplex(uint32_t objectIndex)
+	uint32_t FindComplexObjectRigidBodyRootNode(uint32_t objectIndex)
 	{
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
-			return false;
-
+			return -1;
 		auto objectDefinition = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
 		auto modelDefinition = objectDefinition->Model.GetDefinition<uint8_t>();
 		if (!modelDefinition)
-			return false;
+			return -1;
 		auto physicsModelDefinition = Blam::Tags::TagInstance(*(uint32_t*)(modelDefinition + 0x3C)).GetDefinition<uint8_t>();
 		if (!physicsModelDefinition)
-			return false;
+			return -1;
+		auto rigidBodyCount = *(long*)(physicsModelDefinition + 0x58);
+		if (rigidBodyCount < 2)
+			return -1;
 
-		return *(long*)(physicsModelDefinition + 0x58) > 1; // more than one rigid body
+		for (auto i = 0; i < rigidBodyCount; i++)
+		{
+			auto rigidBody = *(uint8_t**)(physicsModelDefinition + 0x5C) + i * 0xB0;
+			auto motionType = *(uint16_t*)(rigidBody + 0x1A);
+			auto nodeIndex = *(uint16_t*)rigidBody;
+
+			if (motionType == 0x4) // keyframed
+				return nodeIndex;
+		}
+
+		return -1;
 	}
 
 
@@ -1361,7 +1373,7 @@ namespace
 		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
 		{
 			monitorState.HeldObjectIndex = objectIndex;
-			monitorState.HeldObjectIsComplex = ObjectIsComplex(objectIndex);
+			monitorState.HeldObjectComplexRootRigidBodyNodeIndex = FindComplexObjectRigidBodyRootNode(objectIndex);
 		}
 
 		ObjectGrabbed2(playerIndex, objectIndex);
@@ -3228,8 +3240,8 @@ namespace
 	{
 		return monitorState.HeldObjectIndex != -1 
 			&& monitorState.HeldObjectIndex == objectIndex 
-			&& monitorState.HeldObjectIsComplex
-			&& nodeIndex != 0;
+			&& monitorState.HeldObjectComplexRootRigidBodyNodeIndex != -1
+			&& nodeIndex != monitorState.HeldObjectComplexRootRigidBodyNodeIndex;
 	}
 
 	__declspec(naked) void EvaluateRigidBodyNodesHook()
