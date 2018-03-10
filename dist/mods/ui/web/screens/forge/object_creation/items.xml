@@ -532,14 +532,6 @@
         <item type="structure" name="HEMISPHERE [10 x 20 x 10]" tagindex="0xce" />
       </category>
     </category>
-    <category name="GLASS">
-      <item type="structure" name="GLASS [0.1 x 0.5 x 0.5]" tagindex="0xf8" />
-      <item type="structure" name="GLASS [0.1 x 1 x 1]" tagindex="0xd0" />
-      <item type="structure" name="GLASS [0.1 x 2 x 2]" tagindex="0xd3" />
-      <item type="structure" name="GLASS [0.1 x 10 x 0.5]" tagindex="0xd2" />
-      <item type="structure" name="GLASS [0.1 x 10 x 1]" tagindex="0xd1" />
-      <item type="structure" name="GLASS [0.1 x 10 x 2]" tagindex="0xd4" />
-    </category>
   </category>
   <category name="GAMEPLAY" id="gameplay">
 
