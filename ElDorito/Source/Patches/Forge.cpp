@@ -254,6 +254,8 @@ namespace
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
 
 	ForgeGlobalsDefinition *forgeGlobals_;
+
+	std::bitset<0xffff> cachedReforgeTagIndexSet;
 }
 
 namespace Patches::Forge
@@ -418,6 +420,8 @@ namespace Patches::Forge
 				mapDefaultSky.Wind = scenario->StructureBsps[0].Wind;
 				if(scenario->BackgroundSoundEnvironmentPalette2.Count)
 					mapDefaultSky.BackgroundSound = scenario->BackgroundSoundEnvironmentPalette2[0].BackgroundSound;
+
+				cachedReforgeTagIndexSet.reset();
 			}
 
 			if (!monitorState.IsValid)
@@ -1721,6 +1725,10 @@ namespace
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
 			return false;
+
+		if (cachedReforgeTagIndexSet.test(object->TagIndex))
+			return true;
+
 		if (!object->GetMultiplayerProperties())
 			return false;
 		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
@@ -1739,7 +1747,13 @@ namespace
 			return false;
 
 		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		return firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER;
+		if (firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER)
+		{
+			cachedReforgeTagIndexSet[object->TagIndex] = true;
+			return true;
+		}
+
+		return false;
 	}
 
 	bool GetObjectMaterial(void* renderData, int16_t* pMaterialIndex)
