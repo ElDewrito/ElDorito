@@ -47,13 +47,13 @@ dew.on("mpevent", function (event) {
                             var mstrVol = y/100;
                             playVol = sfxVol * mstrVol * 0.3;
                             var medal = event.data.name;
-                            if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball'))){
+                            if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball') || medal.startsWith('king_event_hill_c'))){
                                 juggleEvent++;
                                 setTimeout(function(){
                                     if(juggleEvent > 0){ juggleEvent--; }
                                 }, juggleDelay);
                             } 
-                            if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post'))){
+                            if(juggleEvent > 2 && ((medal.startsWith('oddball_event_ball') && (medal != 'oddball_event_ball_spawned' && medal != 'oddball_event_ball_reset')) || (medal.startsWith('ctf_event_flag_') && medal != 'ctf_event_flag_captured')||(medal.startsWith('assault_event_bomb_') && medal != 'assault_event_bomb_placed_on_enemy_post') || medal.startsWith('king_event_hill_c'))){
                                 return
                             }
                             doMedal(event.data.name, event.data.audience);
