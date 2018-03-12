@@ -65,12 +65,16 @@ namespace Patches::GameEngineSettings
 		Patch(0x1CCE66 + 2, { numPlayerSizes }).Apply();
 		
 		// TODO: move this somewhere else
-		Hook(0x14F3B6, PlayerAuraHook).Apply();
+		Hook(0x14F3C0, PlayerAuraHook).Apply();
+		Patch(0x14F3B6, 0x90, 6).Apply();
+		Patch(0x14F3BD, 0x90, 2).Apply();
 		Hook(0x7D847A, RagdollHook, HookFlags::IsCall).Apply();
 
 		// disable appearance trait caching
 		Patch(0x349781, { 0x90, 0x90 }).Apply();
 		Patch(0x34978E, { 0xEB }).Apply();
+
+	
 	}
 }
 
@@ -153,7 +157,13 @@ namespace
 			call UpdatePlayerSize
 			add esp, 4
 			popad
-			push 0x0054F50C
+			mov eax, [ebp + 0x18]
+			pop edi
+			pop esi
+			mov[eax], cl
+			pop ebx
+			mov esp, ebp
+			pop ebp
 			retn
 		}
 	}
