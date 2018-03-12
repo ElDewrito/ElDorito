@@ -95,8 +95,7 @@ namespace
 	void __fastcall GameDirectorUpdateHook(void* thisptr, void* unused, int a2)
 	{
 		static auto GameDirectorUpdate = (void(__thiscall*)(void* thisptr, int a2))(0x007219A0);
-		GameDirectorUpdate(thisptr, a2);
-
+		
 		auto localPlayerIndex = Pointer(thisptr)(0x140).Read<uint32_t>();
 		if (IsSpectating(localPlayerIndex))
 		{
@@ -104,6 +103,14 @@ namespace
 			{
 				s_SpectateState.IsSpectating = true;
 				s_SpectateState.DirectedPlayerIndex = -1;
+
+				// prevent switching players instantly
+				for (int i = Blam::Input::eGameActionNextPlayer; i <= Blam::Input::eGameActionPrevPlayer; i++)
+				{
+					auto action = Blam::Input::GetActionState(Blam::Input::GameAction(i));
+					action->Ticks = 0;
+					action->Flags |= Blam::Input::eActionStateFlagsHandled;
+				}
 			}
 
 			uint32_t playerIndex = -1;
@@ -126,6 +133,8 @@ namespace
 			s_SpectateState.DirectedPlayerIndex = -1;
 			NotifyEnded();
 		}
+
+		GameDirectorUpdate(thisptr, a2);
 	}
 
 	void __cdecl GetObserverCameraSensitivityHook(int localPlayerIndex, float* sensitivity)
