@@ -79,12 +79,6 @@
 			"captureInput": true,
 			"zIndex": 9
 		},
-        {
-			"id": "forge",
-			"url": "dew://screens/forge/",
-			"captureInput": true,
-			"zIndex": 8
-		},
 		{
 			"id": "forge_object_properties",
 			"url": "dew://screens/forge/object_properties/",
