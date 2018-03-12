@@ -124,6 +124,7 @@ namespace
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
 	void BackgroundSoundEnvironmentHook(float a1);
+	void scenario_place_sky_scenery_hook(uint32_t scenarioTagIndex, uint32_t activeBsp);
 
 	void EvaluateRigidBodyNodesHook();
 	uint32_t __cdecl HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6);
@@ -207,6 +208,7 @@ namespace
 	struct {
 		bool IsValid = false;
 		bool IsActive = false;
+		bool WaitingForNewRound;
 		uint32_t ObjectIndex;
 		struct {
 			bool KillBarriersEnabled;
@@ -376,7 +378,7 @@ namespace Patches::Forge
 		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
 
 		Hook(0x1D9BBE, BackgroundSoundEnvironmentHook, HookFlags::IsCall).Apply();
-
+		Hook(0x7591E4, scenario_place_sky_scenery_hook, HookFlags::IsCall).Apply();
 		// horrible hack to stop phased objects that have multiple, conflicting rigid bodies from shaking
 		Hook(0x31293C, EvaluateRigidBodyNodesHook).Apply();
 		// prevent havok from deleting reforge objects
@@ -778,17 +780,18 @@ namespace
 	void UpdateMapModifier()
 	{
 		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
 
 		auto mapModifierObjectIndex = FindMapModifierObject();
 		mapModifierState.ObjectIndex = mapModifierObjectIndex;
-		if (mapModifierObjectIndex == -1)
+
+		bool roundInProgress = game_engine_round_in_progress();
+		
+		if (mapModifierObjectIndex == -1 || (mapModifierState.WaitingForNewRound && roundInProgress))
 		{
-			// the map modifier was previously spawned, but has been deleted
+			// the map modifier was previously spawned, but has been deleted or new round has started
 			if (mapModifierState.IsActive)
 			{
-				// state will be reset next tick
-				mapModifierState.IsValid = false;
-
 				// delete any weather effects
 				if (mapModifierState.Atmosphere.WeatherEffectTagIndex != -1)
 				{
@@ -798,14 +801,13 @@ namespace
 					currentWeatherEffectDatumIndex = -1;
 				}
 
-				
 				auto forgeSky = GetForgeSky();
 				if (forgeSky)
 				{
 					auto forgeSkyState = mapModifierState.ForgeSky;
 
 					auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
-					ReplaceForgeSkyScenery(scenario->SkyReferences[0].SkyObject.TagIndex);
+					ReplaceForgeSkyScenery(mapDefaultSky.Object.TagIndex);
 
 					if (forgeSkyState.BackgroundSoundDatumIndex != -1)
 					{
@@ -828,11 +830,16 @@ namespace
 				}
 
 				physics_set_gravity_scale(1.0f);
+
+				// state will be reset next tick
+				mapModifierState.IsValid = false;
+
 			}
 
 			return;
 		}
 
+		mapModifierState.WaitingForNewRound = !roundInProgress;
 		mapModifierState.IsActive = true;
 
 		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
@@ -3251,6 +3258,16 @@ namespace
 		auto forgeSky = GetForgeSky();
 		if (!mapModifierState.IsValid || !forgeSky)
 			return sub_5DAB20(a1);	
+	}
+
+	void scenario_place_sky_scenery_hook(uint32_t scenarioTagIndex, uint32_t activeBsp)
+	{
+		const auto scenario_place_sky_scenery_hook = (void(*)(uint32_t scenarioTagIndex, uint32_t activeBsp))(0x00B594C0);
+
+		if (GetForgeSky())
+			return;
+
+		scenario_place_sky_scenery_hook(scenarioTagIndex, activeBsp);
 	}
 
 	bool IgnoreRigidBodyNode(uint32_t objectIndex, int nodeIndex)
