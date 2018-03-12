@@ -50,6 +50,7 @@ void WebRendererHandler::OnAfterCreated(CefRefPtr<CefBrowser> p_Browser)
 		m_QueryHandler->AddMethod("sendChat", Bridge::ClientFunctions::OnSendChat);
 		m_QueryHandler->AddMethod("sessionInfo", Bridge::ClientFunctions::OnSessionInfo);
 		m_QueryHandler->AddMethod("scoreboard", Bridge::ClientFunctions::OnScoreboard);
+		m_QueryHandler->AddMethod("scoreboardHide", Bridge::ClientFunctions::OnScoreboardHide);
 		m_QueryHandler->AddMethod("stats", Bridge::ClientFunctions::OnStats);
 		m_QueryHandler->AddMethod("submitVirtualKeyboard", Bridge::ClientFunctions::OnSubmitVirtualKeyboard);
 		m_QueryHandler->AddMethod("cancelVirtualKeyboard", Bridge::ClientFunctions::OnCancelVirtualKeyboard);
