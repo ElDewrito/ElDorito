@@ -84,7 +84,6 @@ namespace
 	void RenderObjectCompressionInfoHook();
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
-	void ActivateNoclip(bool activate);
 
 	int LightmapHook(RealVector3D *origin, RealVector3D *direction, int a3, int objectIndex, char a5, char a6, void *a7);
 	bool __cdecl sub_980E40_hook(int a1, uint32_t objectIndex);
@@ -132,6 +131,7 @@ namespace
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
+	void HandleMonitorNoclip();
 	void HandleCommands();
 	bool UpdateWeatherEffects();
 	void OnMonitorModeChange(bool isMonitor);
@@ -513,13 +513,6 @@ namespace
 		{
 			const auto& moduleForge = Modules::ModuleForge::Instance();
 
-			auto noclipping = moduleForge.VarMonitorNoclip->ValueInt;
-			if (bool(noclipping) != monitorState.NoclipLastTick)
-			{
-				ActivateNoclip(noclipping);
-				monitorState.NoclipLastTick = noclipping;
-			}
-
 			// only show selection when we're in monitor mode
 			Forge::SelectionRenderer::SetEnabled(true);
 			auto rendererType = Forge::SelectionRenderer::RendererImplementationType(moduleForge.VarSelectionRenderer->ValueInt);
@@ -528,6 +521,7 @@ namespace
 
 			Forge::RotationSnap::Update(playerIndex, heldObjectIndex);
 			HandleMovementSpeed();
+			HandleMonitorNoclip();
 
 			if (heldObjectIndex == -1)
 			{
@@ -1264,6 +1258,44 @@ namespace
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
 
 			PrintKillFeedText(0, buff, 0);
+		}
+	}
+
+	void HandleMonitorNoclip()
+	{
+		const auto object_set_havok_flags = (int(*)(uint32_t objectIndex, uint32_t havokFlags))(0x005C7380);
+
+		const auto& moduleForge = Modules::ModuleForge::Instance();
+
+		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+		if (!player)
+			return;
+		auto unitObject = Blam::Objects::Get(player->SlaveUnit.Handle);
+		if (!unitObject)
+			return;
+
+		auto noclipping = moduleForge.VarMonitorNoclip->ValueInt;
+		if (bool(noclipping) != monitorState.NoclipLastTick)
+		{
+			if (!noclipping)
+				object_set_havok_flags(player->SlaveUnit, 0);
+
+			monitorState.NoclipLastTick = noclipping;
+		}
+
+		if (noclipping)
+		{
+			auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+			auto havokComponent = (uint8_t*)havokComponents->Get(unitObject->HavokComponent);
+			if (!havokComponent)
+				return;
+			auto rigidBodyCount = *(uint32_t*)(havokComponent + 0x18);
+			if (!rigidBodyCount)
+				return;
+			auto rigidBody = *(uint8_t**)(*(uint8_t**)(havokComponent + 0x14) + 0x40);
+			auto &collisionFilter = *(uint8_t*)(rigidBody + 0x2c);
+
+			collisionFilter = 0x13;
 		}
 	}
 
@@ -3217,42 +3249,8 @@ namespace
 		}
 	}
 
-	void ActivateNoclip(bool activate)
-	{
-		const auto c_havok_component__set_collision_filter = (void(__thiscall*)(void *thisptr, uint32_t filter))(0x005EE4E0);
-		const auto object_set_havok_flags = (int(*)(uint32_t objectIndex, uint32_t havokFlags))(0x005C7380);
-
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumHandle::Null)
-			return;
-
-		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (!player)
-			return;
-
-		auto unitObject = Blam::Objects::Get(player->SlaveUnit.Handle);
-		if (!unitObject)
-			return;
-		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
-		auto havokComponent = havokComponents->Get(unitObject->HavokComponent);
-		if (havokComponent)
-		{
-			if (activate)
-				c_havok_component__set_collision_filter(havokComponent, 19);
-			else
-				object_set_havok_flags(player->SlaveUnit.Handle, 0);
-		}
-			
-	}
-
 	void OnMonitorModeChange(bool isMonitor)
 	{
-		const auto &moduleForge = Modules::ModuleForge::Instance();
-		if (isMonitor)
-		{
-			if (moduleForge.VarMonitorNoclip->ValueInt)
-				ActivateNoclip(true);
-		}
 	}
 
 	void BackgroundSoundEnvironmentHook(float a1)
