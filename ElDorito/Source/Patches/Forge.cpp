@@ -414,7 +414,10 @@ namespace Patches::Forge
 				mapModifierState.IsActive = false;
 
 				auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
-				mapDefaultSky.Object = scenario->SkyReferences[0].SkyObject;
+				if (scenario->SkyReferences.Count)
+					mapDefaultSky.Object = scenario->SkyReferences[0].SkyObject;
+				else
+					mapDefaultSky.Object = Blam::Tags::TagReference(0, -1);
 				mapDefaultSky.GlobalLighting = scenario->GlobalLighing;
 				mapDefaultSky.Parameters = scenario->SkyParameters;
 				mapDefaultSky.ScreenFX = scenario->DefaultScreenFx;
