@@ -40,11 +40,11 @@ namespace Patches::GameEngineSettings
 		Patch(0x1CAE69 + 2, { 3 }).Apply();
 
 		// waypoint
-		Patch(0x1CB59A + 2, { 4 }).Apply();
-		Patch(0x1CDEF6 + 2, { 4 }).Apply();
-		Patch(0x1CBA15 + 2, { 4 }).Apply();
-		Patch(0x1CC699 + 2, { 4 }).Apply();
-		Patch(0x1CCE53 + 2, { 4 }).Apply();
+		Patch(0x1CB59A + 2, { 5 }).Apply();
+		Patch(0x1CDEF6 + 2, { 5 }).Apply();
+		Patch(0x1CBA15 + 2, { 5 }).Apply();
+		Patch(0x1CC699 + 2, { 5 }).Apply();
+		Patch(0x1CCE53 + 2, { 5 }).Apply();
 		Hook(0x1CAF50, c_player_appearance_traits__serialize_hook).Apply();
 		Hook(0x1CAC10, c_player_appearance_traits__deserialize_hook).Apply();
 

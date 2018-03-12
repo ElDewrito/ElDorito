@@ -1821,17 +1821,21 @@ namespace
 			if (localPlayer)
 			{
 				auto player = players.Get(data->player_index);
-				if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4) // do not hide if they're on the same team as us
+				auto waypointTrait = *(uint8_t*)((uint8_t*)player + 0x2DC1);
+				if (player && waypointTrait >= 4)
 				{
-					if (index != -1)
+					if (waypointTrait == 5 || player->Properties.TeamIndex != localPlayer->Properties.TeamIndex) 
 					{
-						// existing state found, mark it as invalid
-						auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
-						newState->is_valid = false;
-						newState->data.player_index = -1;
-					}
+						if (index != -1)
+						{
+							// existing state found, mark it as invalid
+							auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
+							newState->is_valid = false;
+							newState->data.player_index = -1;
+						}
 
-					return;
+						return;
+					}
 				}
 			}
 		}
