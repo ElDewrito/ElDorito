@@ -736,34 +736,6 @@ namespace
 		return c_str != endp;
 	}
 
-	bool CanThemeObject()
-	{
-		const auto FIRST_THEMEABLE_SHADER_TAG_INDEX = 0x3ab0;
-
-		auto object = Blam::Objects::Get(s_CurrentObjectIndex);
-		if (!object)
-			return false;
-
-		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
-		if (!objectDef)
-			return false;
-		auto hlmtDef = Blam::Tags::TagInstance(*(uint32_t*)(objectDef + 0x40)).GetDefinition<uint8_t>();
-		if (!hlmtDef)
-			return false;
-		auto modeTagIndex = *(uint32_t*)(hlmtDef + 0xC);
-
-		const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
-		if (!modeDefinitionPtr)
-			return false;
-
-		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
-		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		if (!materialCount || firstMaterialShaderTagRef.TagIndex != FIRST_THEMEABLE_SHADER_TAG_INDEX)
-			return false;
-
-		return true;
-	}
-
 	bool IsForgeLight(uint32_t objectIndex)
 	{
 		auto object = Blam::Objects::Get(objectIndex);
@@ -839,7 +811,7 @@ namespace
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
 		SerializeProperty(writer, "object_index", int(s_CurrentObjectIndex));
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
-		SerializeProperty(writer, "has_material", CanThemeObject());
+		SerializeProperty(writer, "has_material", Forge::IsReforgeObject(s_CurrentObjectIndex));
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
 		SerializeProperty(writer, "is_selected", Forge::Selection::GetSelection().Contains(placement.ObjectIndex));
 		SerializeProperty(writer, "is_light", IsForgeLight(placement.ObjectIndex));

@@ -45,6 +45,37 @@ namespace
 		return true;
 	}
 
+	bool CommandSelectAllMaterial(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Forge::Selection::SelectAllMaterial();
+		return true;
+	}
+
+	bool CommandSelectEverything(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Forge::Selection::SelectEverything();
+		return true;
+	}
+
+	bool CommandExpandSelection(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		if (Arguments.size() < 1)
+			return false;
+		char *endp;
+		float radius = strtof(Arguments[0].c_str(), &endp);
+		if (endp == Arguments[0].c_str())
+			return false;
+
+		Forge::Selection::Expand(radius);
+		return true;
+	}
+
+	bool CommandInvertSelection(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Forge::Selection::Invert();
+		return true;
+	}
+
 	bool CommandSavePrefab(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		if (Arguments.empty())
@@ -321,6 +352,10 @@ namespace Modules
 		AddCommand("Canvas", "forge_canvas", "Delete all objects on the map", CommandFlags(eCommandFlagsHostOnly| eCommandFlagsForge), CommandCanvas);
 		AddCommand("ResetRuntime", "forge_reset_runtime", "Respawn any abandoned/despawned objects", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandResetRuntime);
 		AddCommand("SelectAll", "forge_select_all", "Select all objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSelectAll);
+		AddCommand("SelectAllMaterial", "forge_select_all_material", "Select all objects with the same material", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSelectAllMaterial);
+		AddCommand("SelectEverything", "forge_select_everything", "Select all objects on the map", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSelectEverything);
+		AddCommand("ExpandSelection", "forge_expand_selection", "Expand the selection by a given radius", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandExpandSelection);
+		AddCommand("InvertSelection", "forge_invert_selection", "Invert the current selection", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandInvertSelection);
 		AddCommand("DeselectAll", "forge_deselect_all", "Deselect all selected objects", eCommandFlagsForge, CommandDeselectAll);
 		AddCommand("DeselectAllOf", "forge_deselect_all_of", "Deselect all selected objects that are the same as the object under the crosshair", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandDeselectAllOf);
 		AddCommand("SavePrefab", "forge_prefab_save", "Save prefab to a file", CommandFlags(eCommandFlagsHostOnly | eCommandFlagsForge), CommandSavePrefab);

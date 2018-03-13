@@ -135,6 +135,7 @@ namespace
 	void HandleCommands();
 	bool UpdateWeatherEffects();
 	void OnMonitorModeChange(bool isMonitor);
+	bool CanThemeObject(uint32_t objectIndex);
 
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 
@@ -444,6 +445,14 @@ namespace Patches::Forge
 	void OnItemSpawned(ItemSpawnedCallback callback)
 	{
 		s_ItemSpawnedCallbacks.push_back(callback);
+	}
+}
+
+namespace Forge
+{
+	bool IsReforgeObject(uint32_t objectIndex)
+	{
+		return CanThemeObject(objectIndex);
 	}
 }
 
