@@ -6,7 +6,6 @@
         <!-- Common Include -->
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
-        <script src="dew://lib/jquery-ui.js"></script>
         
         <!-- Window Resize-->
         <script src="dew://lib/window-resize.js"></script>
@@ -19,13 +18,6 @@
         <!-- Context Menu-->
         <link rel="stylesheet" type="text/css" href="jquery.contextMenu.min.css"/>
         <script src="jquery.contextMenu.min.js"></script>
-        <script>
-            $(function() {
-                $( "#playerBreakdown" ).draggable({
-                  handle: ".statsHeader"
-                });
-            });
-        </script>
     </head>
     <body>
     <div id="container">
@@ -40,7 +32,7 @@
                 </table>
             </div>
             <div id="playerBreakdown">
-                <div class="statsHeader">Player Stats<button id="windowClose" onclick="$('#playerBreakdown').hide();">X</button></div>
+                <div class="statsHeader">PLAYER STATS</div>
                 <div id="playerName"></div>
                 <div id="playerKills"></div>
                 <div id="playerDeaths"></div>
@@ -56,9 +48,10 @@
                     <span class="medalDesc"></span>
                 </div>
                 <div id="medalBox"></div>
-                <div class="bottomButtons">
-                    <button id="previousPlayer">Previous Player</button>
-                    <button id="nextPlayer">Next Player</button>
+                <div class="bottomBar">
+                    <button id="previousPlayer"><img class='button'>Previous Player</button>
+                    <button id="nextPlayer"><img class='button'>Next Player</button>
+                    <button id="windowClose" onclick="$('#playerBreakdown').hide();"><img class='button'>Close</button>
                 </div>
             </div>
             <div id="serverName"></div>

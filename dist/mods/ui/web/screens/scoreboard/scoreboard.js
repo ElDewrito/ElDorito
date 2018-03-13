@@ -829,8 +829,14 @@ function rankMe(teamGame){
 }
 
 function playerBreakdown(name){
+    
     var playerIndex = lobbyJSON.findIndex(x => x.name == name);
     var color = hexToRgb(lobbyJSON[playerIndex].color, 0.9);
+    if(cachedPlayersInfo[playerIndex]){
+        emblemPath = cachedPlayersInfo[playerIndex].e;
+    }else{
+        emblemPath = 'dew://assets/emblems/generic.png'; 
+    }     
     
     if(playerIndex==0){
         $('#previousPlayer').prop("disabled",true);
@@ -855,6 +861,7 @@ function playerBreakdown(name){
         $('#playerBreakdown').show();
         $('#playerName').text(name);  
         $('#playerName').css({'background-color': color});  
+        $('#playerName').prepend('<img class="emblem player-emblem" src="'+emblemPath+'">');
         
         var weaponArray = $.map(stats.weapons, function(value, index){
             var tempArray = {'Weapon': index};
@@ -1008,7 +1015,10 @@ function onControllerConnect(){
     dew.command('Game.IconSet', {}).then(function(response){
         controllerType = response;
         $('#closeButton .button').attr('src','dew://assets/buttons/'+controllerType+'_Back.png');
-        $('#closeButton .button').show();
+        $('#previousPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_LB.png');
+        $('#nextPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_RB.png');
+        $('#windowClose .button').attr('src','dew://assets/buttons/'+controllerType+'_B.png');
+        $('.button').show();
     });  
 }
 

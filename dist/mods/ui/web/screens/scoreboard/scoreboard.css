@@ -125,7 +125,7 @@ html {
     display: none
 }
 
-#closeButton .button{
+#closeButton img{
     display:none;
     width: 35px;
     position:absolute;
@@ -157,10 +157,11 @@ html {
     top: 20%;
     width: 60%;
     height: 58%;
-    background: #14234a;
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
     border: 1px solid #000;
     display: none;
     padding-left: 19px;
+    	font-weight:300;
 }
 
 .statsHeader{
@@ -172,6 +173,8 @@ html {
     font-size: 18px;
     padding-left: 7px;
     margin-left: -19px;
+    margin-bottom: 10px;
+    font-weight: 500;
 }
 
 #playerBreakdown:first-child div{
@@ -181,8 +184,8 @@ html {
 #playerName{
     font-size: 36px;
     font-weight: 500;
-    height: 54px;
-    line-height: 54px;
+    height: 50px;
+    line-height: 50px;
     width: 50%;
     margin-top: 7px;
     margin-left: -19px;
@@ -197,6 +200,12 @@ html {
     border-left: 0;
 }
 
+#playerName .emblem{
+    height: 44px;
+    margin-bottom:-10px;
+    margin-right: 6px;
+}
+
 .medal{
     position: relative;
     text-align: right;
@@ -206,7 +215,7 @@ html {
     background-size: 45px 45px;
     background-repeat: no-repeat;
     background-position: center center;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.3);
     float: left;
 }
 
@@ -225,7 +234,7 @@ html {
     background-size: 68% 68%;
     background-repeat: no-repeat;
     background-position: top center;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 #bigMedal .medalName{
@@ -257,53 +266,43 @@ html {
     height: 132px;
 }
 
-#windowClose {
-    background-color: #000;
-    border: 1px solid #FFF;
-    border-radius: 4px;
-    color: #FFF;
-    padding: 0;
-    padding-left: 1px;
-    font-size: 11px;
-    font-weight: 700;
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    width: 20px;
-    height: 22px;
-    text-align: center;
-    z-index: 10;
-}
 #windowClose #closeButton{
     padding: 0;
 }
 #windowClose:hover,#expandCollapse:hover, #previousPlayer:hover, #nextPlayer:hover {
-    background-color: #B1572A;
-    color: white;
-    border: 1px solid white;
+	text-decoration: underline;
 }
 #windowClose:focus,#expandCollapse:focus {
     outline: 0;
 }
 
-#previousPlayer, #nextPlayer{
-    position: relative;
-    float: left;
-    bottom: 11px;
-    background-color: #14234a;
-    border: 1px solid white;
-    color: white;
-    font-family: "Conduit ITC", sans-serif;
-    font-size: 16px;
-    height: 23px;
-    border-radius: 4px;
-    margin-left: 4px;
+#previousPlayer, #nextPlayer, #windowClose{
+	position: relative;
+	height: 3.5vh;
+	line-height: 3.5vh;
+	font-size: 2vh;
+	font-weight: 100;
+	color: white;
+	background-color: rgba(0,0,0,0);
+	border: none;
+	z-index: 3;
+	text-align: left;
+	vertical-align: middle;
+	box-sizing: border-box;
+	padding: none;
+	float: left;
 }
 
 #previousPlayer:disabled, #nextPlayer:disabled{
     color: rgba(255, 255, 255, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    background-color: #14234a !important;
+}
+
+#playerBreakdown .button{
+	display:none;
+	position:relative;
+	height: 3.5vh;
+	float: left;
+    margin-right: 10px;
 }
 
 .bottomButtons{
