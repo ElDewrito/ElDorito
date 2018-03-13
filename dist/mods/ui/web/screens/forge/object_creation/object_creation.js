@@ -527,7 +527,7 @@
                         distance: 40,
                         maxPatternLength: 32,
                         minMatchCharLength: 1,
-                        keys: ["name"]
+                        keys: ["name", "type"]
                     });
                     if (callback)
                         callback(null, dom);
