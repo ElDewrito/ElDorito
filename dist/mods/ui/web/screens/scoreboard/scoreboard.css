@@ -305,9 +305,9 @@ html {
     margin-right: 10px;
 }
 
-.bottomButtons{
+.bottomBar{
     position: absolute;
-    bottom: 0;
+    bottom: 15px;
     left: 0;
     padding-left: 13px;
 }
