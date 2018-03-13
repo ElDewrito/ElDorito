@@ -13,6 +13,7 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var playSound = true;
 
 var settingsToLoad = [
     ['sControlsMethod','Settings.Gamepad', 'Control Method', 'Keyboard or Gamepad - Choose your preference.'],
@@ -237,7 +238,9 @@ $(document).ready(function(){
                 queueChange([result[1], newValue]);
             };
         });
-        dew.command('Game.PlaySound 0x0B00');
+        if(playSound){
+            dew.command('Game.PlaySound 0x0B00');
+        }
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
         var yVal = 30 + (e.target.value * 10);
@@ -306,7 +309,9 @@ $(document).ready(function(){
             }else{
                 $('#sMotionBlur').prop('checked', false);
             }
+            playSound = false;
             $('.video').trigger('change');
+            playSound = true;
         }
     });
     $('#sVotingStyle').on('change', function(){
