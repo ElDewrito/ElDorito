@@ -25,6 +25,7 @@ namespace Modules
 		Patch Debug1CameraPatch;
 		Patch Debug2CameraPatch;
 		Patch ThirdPersonPatch;
+		Patch ThirdPersonPatch2;
 		Patch FirstPersonPatch;
 		Patch DeadPersonPatch;
 
