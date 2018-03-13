@@ -8,15 +8,14 @@
 #include "../Modules/ModuleForge.hpp"
 #include "../Patches/Core.hpp"
 #include "ForgeUtil.hpp"
-#include <unordered_map>
 
 namespace
 {
 	using namespace Forge;
 	using namespace Blam::Math;
 
-	const auto MAX_VOLUMES = 64;
-	const auto SCAN_INTERVAL = 1;
+	const auto kMaxVolumes = 64;
+	const auto kScanInterval = 1.0f;
 
 	enum VolumeType : uint8_t
 	{
@@ -37,6 +36,11 @@ namespace
 		uint16_t Flags;
 		uint32_t ObjectIndex;
 		ZoneShape Zone;
+		union {
+			struct {
+				uint16_t TicksSinceLastCollection;
+			} GarbageVolume;
+		};
 	};
 
 	struct DamageData
@@ -78,14 +82,16 @@ namespace
 	};
 
 	void FindVolumes();
+	void UpdateVolumes();
+	void ResetVolume(uint32_t index);
 	void RenderVolumes();
-	void UpdateKillVolume(ForgeVolume &volume);
-	void UpdateGarbageCollectionVolume(ForgeVolume &volume);
 
-	int s_LastActiveVolumeScan = 0;
-	int s_ActiveVolumeCount = 0;
-	ForgeVolume s_Volumes[MAX_VOLUMES];
-	std::unordered_map<uint32_t, int32_t> s_GarbageCollectionTimes;
+	struct
+	{
+		bool IsValid;
+		uint32_t TicksSinceLastScan;
+		ForgeVolume Volumes[kMaxVolumes];
+	} state = { 0 };
 }
 
 namespace Forge::Volumes
@@ -96,33 +102,33 @@ namespace Forge::Volumes
 
 		if (game_engine_round_in_progress())
 		{
-			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - s_LastActiveVolumeScan) > SCAN_INTERVAL)
+			if (!state.IsValid)
 			{
-				s_LastActiveVolumeScan = Blam::Time::GetGameTicks();
-				FindVolumes();
-			}
-
-			for (auto i = 0; i < s_ActiveVolumeCount; i++)
-			{
-				auto &volume = s_Volumes[i];
-				switch (volume.Type)
+				memset(&state, 0, sizeof(state));
+				for (auto i = 0; i < kMaxVolumes; i++)
 				{
-				case eVolumeType_Kill:
-					UpdateKillVolume(volume);
-					break;
-				case eVolumeType_GarbageCollection:
-					UpdateGarbageCollectionVolume(volume);
-					break;
+					auto volume = &state.Volumes[i];
+					volume->Type = eVolumeType_Disabled;
+					volume->ObjectIndex = -1;
 				}
+				state.IsValid = true;
 			}
 
-			RenderVolumes();
+			if (state.IsValid)
+			{
+				if (Blam::Time::TicksToSeconds(state.TicksSinceLastScan++) > kScanInterval)
+				{
+					state.TicksSinceLastScan = 0;
+					FindVolumes();
+				}
+
+				UpdateVolumes();
+				RenderVolumes();
+			}
 		}
 		else
 		{
-			if (!s_GarbageCollectionTimes.empty())
-				s_GarbageCollectionTimes.clear();
-			s_LastActiveVolumeScan = 0;
+			state.IsValid = false;
 		}
 	}
 }
@@ -133,6 +139,8 @@ namespace
 		Blam::Math::RealVector3D *center, float radius, uint32_t *clusterObjects, int16_t maxObjects))(0x00B35B60);
 	const auto zone_intersect_point = (bool(*)(Blam::Math::RealVector3D *point, ZoneShape *zone))(0x00BA11F0);
 	const auto object_get_world_poisition = (void(*)(uint32_t objectIndex, RealVector3D *position))(0x00B2E5A0);
+	const auto multiplayer_globals_get_grenade_index = (int(*)(int tagIndex))(0x0052D1A0);
+	const auto weapons_get_multiplayer_weapon_type = (int16_t(*)(uint32_t objectIndex))(0x00B62DB0);
 
 	void ApplyUnitDamage(ForgeVolume &killVolume, uint32_t unitObjectIndex)
 	{
@@ -177,6 +185,16 @@ namespace
 		}
 	}
 
+	void ResetVolume(uint32_t index)
+	{
+		if (index == -1)
+			return;
+
+		auto &volume = state.Volumes[index];
+		memset(&volume, 0, sizeof(volume));
+		volume.Type = eVolumeType_Disabled;
+		volume.ObjectIndex = -1;
+	}
 
 	void UpdateKillVolume(ForgeVolume &volume)
 	{
@@ -245,9 +263,6 @@ namespace
 			}
 		}
 	}
-
-	const auto multiplayer_globals_get_grenade_index = (int(*)(int tagIndex))(0x0052D1A0);
-	const auto weapons_get_multiplayer_weapon_type = (int16_t(*)(uint32_t objectIndex))(0x00B62DB0);
 
 	bool ShouldGarbageCollectObject(uint32_t objectIndex, ForgeVolume &volume)
 	{
@@ -320,9 +335,7 @@ namespace
 
 	void UpdateGarbageCollectionVolume(ForgeVolume &volume)
 	{
-
 		const auto objects_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
-
 
 		auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
 		if (!volumeObject)
@@ -330,13 +343,17 @@ namespace
 
 		auto garbageVolumeProperties = (Forge::ForgeGarbageVolumeProperties*)(&volumeObject->GetMultiplayerProperties()->TeleporterChannel);
 
-		int collectionIntervals[] = { 0, 3, 15, 30 };
-		auto interval = collectionIntervals[garbageVolumeProperties->Interval];
-
-		if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - s_GarbageCollectionTimes[volume.ObjectIndex]) < float(interval))
+		const float kCollectionIntervals[] = { 0, 3, 15, 30 };
+		auto kCollectionIntervalCount = sizeof(kCollectionIntervals) / sizeof(kCollectionIntervals[0]);
+		int intervalIndex = garbageVolumeProperties->Interval;
+		if (intervalIndex < 0 || intervalIndex >= kCollectionIntervalCount)
 			return;
 
-		s_GarbageCollectionTimes[volume.ObjectIndex] = Blam::Time::GetGameTicks();
+		auto interval = kCollectionIntervals[intervalIndex];
+		if (Blam::Time::TicksToSeconds(volume.GarbageVolume.TicksSinceLastCollection++) < interval)
+			return;
+
+		volume.GarbageVolume.TicksSinceLastCollection = 0;
 
 		const auto collectionMask = (1 << Blam::Objects::eObjectTypeWeapon)
 			| (1 << Blam::Objects::eObjectTypeVehicle)
@@ -350,7 +367,6 @@ namespace
 
 		for (auto i = 0; i < clusterObjectCount; i++)
 		{
-
 			auto clusterObjectIndex = clusterObjects[i];
 			auto clusterObject = Blam::Objects::Get(clusterObjectIndex);
 
@@ -362,76 +378,102 @@ namespace
 		}
 	}
 
+	int GetNextVolumeIndex(uint32_t objectIndex)
+	{
+		for (auto i = 0; i < kMaxVolumes; i++)
+		{
+			auto &volume = state.Volumes[i];
+			if (volume.ObjectIndex == objectIndex)
+				return -1;
+
+			if (volume.Type == eVolumeType_Disabled)
+				return i;
+		}
+
+		return -1;
+	}
+
+
 	void FindVolumes()
 	{
-		s_ActiveVolumeCount = 0;
 		auto objects = Blam::Objects::GetObjects();
 		for (auto it = objects.begin(); it != objects.end(); ++it)
 		{
 			if (it->Type != Blam::Objects::eObjectTypeCrate || !it->Data)
 				continue;
-
 			auto mpProperties = it->Data->GetMultiplayerProperties();
 			if (!mpProperties)
 				continue;
 
-			auto volumeFlags = 0;
-
-			switch (it->Data->TagIndex)
-			{
-			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
-			{
-				auto killVolumeProperties = (Forge::ForgeKillVolumeProperties*)&mpProperties->TeleporterChannel;
-				if (killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible)
-					volumeFlags |= eVolumeFlags_AlwaysVisible;
-			}
-			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
-				break;
-			default:
+			if (it->Data->TagIndex != Forge::Volumes::KILL_VOLUME_TAG_INDEX &&
+				it->Data->TagIndex != Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX)
 				continue;
-			}
 
-			auto &volume = s_Volumes[s_ActiveVolumeCount++];
+			auto volumeIndex = GetNextVolumeIndex(it.CurrentDatumIndex);
+			if (volumeIndex == -1)
+				continue;
+
+			auto &volume = state.Volumes[volumeIndex];
+
 			GetObjectZoneShape(it.CurrentDatumIndex, &volume.Zone, 0);
 			volume.ObjectIndex = it.CurrentDatumIndex;
 			volume.TeamIndex = mpProperties->TeamIndex & 0xff;
-			volume.Flags = volumeFlags;
+			volume.Flags = 0;
 
 			switch (it->Data->TagIndex)
 			{
 			case Forge::Volumes::KILL_VOLUME_TAG_INDEX:
+			{
 				volume.Type = eVolumeType_Kill;
-				break;
+				auto killVolumeProperties = (Forge::ForgeKillVolumeProperties*)&mpProperties->TeleporterChannel;
+				if (killVolumeProperties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_AlwaysVisible)
+					volume.Flags |= eVolumeFlags_AlwaysVisible;
+			}
+			break;
 			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
 				volume.Type = eVolumeType_GarbageCollection;
-				if (s_GarbageCollectionTimes.find(volume.ObjectIndex) == s_GarbageCollectionTimes.end())
-					s_GarbageCollectionTimes[volume.ObjectIndex] = Blam::Time::GetGameTicks();
+				volume.GarbageVolume.TicksSinceLastCollection = 0;
 				break;
 			}
-
-			if (s_ActiveVolumeCount >= MAX_VOLUMES)
-				break;
 		}
 	}
 
-	inline bool SphereInFrustrum(RealVector3D &center, float radius)
+	void UpdateVolumes()
 	{
-		const auto frustrum_sphere_intersect = (int(*)(void *frustrum, RealVector3D *center, float radius))(0x0075A860);
-		const auto viewport = (uint8_t**)(0x24E0094);
-		if (!viewport)
-			return false;
+		for (auto i = 0; i < kMaxVolumes; i++)
+		{
+			auto &volume = state.Volumes[i];
+			if (volume.Type == eVolumeType_Disabled || volume.ObjectIndex == -1)
+				continue;
 
-		auto v = frustrum_sphere_intersect(*viewport + 0x94, &center, radius);
-		return v > 0;
+			auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
+			if (!volumeObject)
+			{
+				ResetVolume(i);
+				continue;
+			}
+
+			GetObjectZoneShape(volume.ObjectIndex, &volume.Zone, 0);
+
+			switch (volume.Type)
+			{
+			case eVolumeType_Kill:
+				UpdateKillVolume(volume);
+				break;
+			case eVolumeType_GarbageCollection:
+				UpdateGarbageCollectionVolume(volume);
+				break;
+			}
+		}
 	}
 
 	void RenderVolumes()
 	{
 		const auto zone_render = (void(*)(const ZoneShape *shape, float *color, uint32_t objectIndex))(0x00BA0FC0);
 
-		for (auto i = 0; i < s_ActiveVolumeCount; i++)
+		for (auto i = 0; i < kMaxVolumes; i++)
 		{
-			const auto &volume = s_Volumes[i];
+			const auto &volume = state.Volumes[i];
 			if (volume.Type == eVolumeType_Disabled)
 				continue;
 
@@ -444,24 +486,18 @@ namespace
 				&& !Modules::ModuleForge::Instance().VarShowInvisibles->ValueInt)
 				continue;
 
-			if (!SphereInFrustrum(volumeObject->Center, volume.Zone.BoundingRadius))
-				continue;
-
-			ZoneShape zone;
-			GetObjectZoneShape(volume.ObjectIndex, &zone, 0);
-
 			switch (volume.Type)
 			{
 			case eVolumeType_GarbageCollection:
 			{
 				float color[] = { 0.1f, 0, 0.5f, 0 };
-				zone_render(&zone, color, volume.ObjectIndex);
+				zone_render(&volume.Zone, color, volume.ObjectIndex);
 			}
 			break;
 			case eVolumeType_Kill:
 			{
 				float color[] = { 0.1f, 0.5f, 0, 0 };
-				zone_render(&zone, color, volume.ObjectIndex);
+				zone_render(&volume.Zone, color, volume.ObjectIndex);
 			}
 			break;
 			}
