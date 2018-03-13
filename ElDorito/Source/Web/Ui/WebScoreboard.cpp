@@ -31,10 +31,12 @@ namespace
 	bool scoreboardShown = false;
 	bool locked = false;
 	bool postgame = false;
+	bool pregame = false;
 	bool returningToLobby = false;
 	bool acceptsInput = true;
 	bool pressedLastTick = false;
 	bool spawningSoon = false;
+	bool roundInProgress = false;
 	int lastPressedTime = 0;
 	uint32_t postgameDisplayed;
 	const float postgameDelayTime = 2;
@@ -131,6 +133,7 @@ namespace Web::Ui::WebScoreboard
 				locked = false;
 				postgame = false;
 				acceptsInput = false;
+				pregame = true;
 				Web::Ui::WebScoreboard::Show(locked, postgame);
 			}
 		}
@@ -156,7 +159,8 @@ namespace Web::Ui::WebScoreboard
 		}
 		previousEngineState = currentEngineState;
 
-		if (game_engine_round_in_progress())
+		roundInProgress = game_engine_round_in_progress();
+		if (roundInProgress)
 		{
 			Blam::Players::PlayerDatum *player{ nullptr };
 			auto playerIndex = Blam::Players::GetLocalPlayer(0);
@@ -169,7 +173,7 @@ namespace Web::Ui::WebScoreboard
 			if (player->SlaveUnit != Blam::DatumHandle::Null)
 			{
 				spawningSoon = false;
-
+				pregame = false;
 				if (!previousHasUnit)
 				{
 					acceptsInput = true;
@@ -207,10 +211,10 @@ namespace
 	{
 		if (event->NameStringId == 0x4004D || event->NameStringId == 0x4005A) // "general_event_game_over" / "general_event_round_over"
 		{
-			Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
-
 			postgameDisplayed = Blam::Time::GetGameTicks();
 			postgame = true;
+
+			Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
 		}
 	}
 
@@ -333,12 +337,14 @@ namespace
 			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
 			auto playerStats = Blam::Players::GetStats(playerIdx);
 
-			bool isAlive = false;
+			bool isAlive = !roundInProgress;
 			bool hasObjective = false;
 			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
 			if (playerDatum.GetSalt())
 			{
-				isAlive = playerDatum.SlaveUnit != Blam::DatumHandle::Null;
+				if (roundInProgress)
+					isAlive = playerDatum.SlaveUnit != Blam::DatumHandle::Null || pregame || postgame;
+
 				if (UnitHasObjective(playerDatum.SlaveUnit))
 				{
 					hasObjective = true;
