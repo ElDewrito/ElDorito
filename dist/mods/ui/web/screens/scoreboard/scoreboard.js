@@ -25,6 +25,7 @@ var lastPlayerHasObjectiveSet = 0;
 var lastSortTime = 0;
 var lastAlivePlayerSet = 0;
 var cachedPlayersInfo = null;
+var medalSelection = 0;
 
 var teamArray = [
     {name: 'red', color: '#620B0B'},
@@ -280,8 +281,10 @@ dew.on('controllerinput', function(e){
             downNav();
         }
         if(e.data.Left == 1){
+            leftNav();
         }
         if(e.data.Right == 1){
+            rightNav();
         }
         if(e.data.LeftBumper == 1){
             if($('#playerBreakdown').is(":visible")){
@@ -295,6 +298,16 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.Select == 1){
             hideScoreboard();
+        }
+        if(e.data.AxisLeftX > axisThreshold){
+            stickTicks.right++;
+        }else{
+            stickTicks.right = 0;
+        }
+        if(e.data.AxisLeftX < -axisThreshold){
+            stickTicks.left++;
+        }else{
+            stickTicks.left = 0;
         }
         if(e.data.AxisLeftY > axisThreshold){
             stickTicks.up++;
@@ -829,7 +842,6 @@ function rankMe(teamGame){
 }
 
 function playerBreakdown(name){
-    
     var playerIndex = lobbyJSON.findIndex(x => x.name == name);
     var color = hexToRgb(lobbyJSON[playerIndex].color, 0.9);
     if(cachedPlayersInfo[playerIndex]){
@@ -859,6 +871,7 @@ function playerBreakdown(name){
 
     dew.getStats(name).then(function (stats){
         $('#playerBreakdown').show();
+        medalSelection = 0;
         $('#playerName').text(name);  
         $('#playerName').css({'background-color': color});  
         $('#playerName').prepend('<img class="emblem player-emblem" src="'+emblemPath+'">');
@@ -980,18 +993,20 @@ function playerBreakdown(name){
                         css: {
                             'background-image': "url("+ medalsPath + "images/" + medalArray[i].name +"."+ imageFormat +")"
                         },
-                        html: "<span class='medalCount'>x "+medalArray[i].count+"</span>"
+                        html: "<span class='medalCount'>x "+medalArray[i].count+"</span>",
+                        'data-medal-name': medalDetails[medalDetails.findIndex(x => x.string == medalArray[i].name)].name,
+                        'data-medal-desc': medalDetails[medalDetails.findIndex(x => x.string == medalArray[i].name)].desc
                     }).mouseover(function(){
                         $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + $(this).attr('id') +"."+ imageFormat +")");
-                        $('.medalName').text(medalDetails[medalDetails.findIndex(x => x.string == $(this).attr('id'))].name);
-                        $('.medalDesc').text(medalDetails[medalDetails.findIndex(x => x.string == $(this).attr('id'))].desc);
+                        $('.medalName').text($(this).attr('data-medal-name'));
+                        $('.medalDesc').text($(this).attr('data-medal-desc'));
                     })
                 );
             }
         }
         var fillerCount = 10 - $('#medalBox').children().length;
         for(i=0;i<fillerCount;i++){
-            $('#medalBox').append('<div class="medal">');
+            $('#medalBox').append('<div class="medal empty">');
         }
     })
 }
@@ -1033,28 +1048,70 @@ function onControllerDisconnect(){
 }
 
 function updateSelection(item){
-    if($('.clickable').length){
-        for(var i = 0; i < $('.clickable').length; i++) {
-            $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
+     if($('#playerBreakdown').is(":visible")){
+        $('.medal').css('background-color','rgba(0, 0, 0, 0.3)');
+        $('.medal').eq(item).css('background-color','rgba(255, 255, 255, 0.3)');
+        if(!$('.medal').eq(item).hasClass('empty')){
+            $('#bigMedal').css("background-image","url("+ medalsPath + "images/" + $('.medal').eq(item).attr('id') +"."+ imageFormat +")");
+            $('.medalName').text($('.medal').eq(item).attr('data-medal-name'));
+            $('.medalDesc').text($('.medal').eq(item).attr('data-medal-desc'));
         }
-        col = $('.clickable').eq(item).attr('data-color'),
-        bright = adjustColor(col, 30);
-        $('.clickable').eq(item).css("background-color", hexToRgb(bright, cardOpacity));
-    }
+     }else{
+        if($('.clickable').length){
+            for(var i = 0; i < $('.clickable').length; i++) {
+                $('.clickable').eq(i).css("background-color", hexToRgb($('.clickable').eq(i).attr('data-color'), cardOpacity));
+            }
+            col = $('.clickable').eq(item).attr('data-color'),
+            bright = adjustColor(col, 30);
+            $('.clickable').eq(item).css("background-color", hexToRgb(bright, cardOpacity));
+        }
+     }
 }
 
 function upNav(){
-    if(itemNumber > 0){
-        itemNumber--;
-        updateSelection(itemNumber);
+    if($('#playerBreakdown').is(":visible")){
+        if(medalSelection > 4){
+            medalSelection-=5;
+            updateSelection(medalSelection)
+        }
+    }else{
+        if(itemNumber > 0){
+            itemNumber--;
+            updateSelection(itemNumber);
+        }
     }
 }
 
 function downNav(){
-    if(itemNumber < $('.clickable').length-1){
-        itemNumber++;
-        updateSelection(itemNumber);
-    }           
+    if($('#playerBreakdown').is(":visible")){
+        if(medalSelection < 5){
+            medalSelection+=5;
+            updateSelection(medalSelection)
+        }
+    }else{
+        if(itemNumber < $('.clickable').length-1){
+            itemNumber++;
+            updateSelection(itemNumber);
+        }    
+    }    
+}
+
+function leftNav(){
+    if($('#playerBreakdown').is(":visible")){
+         if(medalSelection % 5 != 0){
+            medalSelection--;
+            updateSelection(medalSelection);
+        }
+    }
+}
+
+function rightNav(){
+    if($('#playerBreakdown').is(":visible")){
+        if(medalSelection % 5 != 4){
+            medalSelection++;
+            updateSelection(medalSelection);
+        }  
+    }    
 }
 
 function checkGamepad(){
@@ -1068,6 +1125,12 @@ function checkGamepad(){
     }
     if(stickTicks.down == 1 || (shouldUpdateHeld && stickTicks.down > 25)){
         downNav();
+    }
+    if(stickTicks.left == 1 || (shouldUpdateHeld && stickTicks.left > 25)){
+        leftNav();
+    }
+    if(stickTicks.right == 1 || (shouldUpdateHeld && stickTicks.right > 25)){
+        rightNav();
     }
 };
 
