@@ -80,6 +80,7 @@ namespace
 	void* ObjectPropertiesUIAllocateHook(int size);
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
+	int ObjectLightingQualityOverrideHook();
 	void RenderObjectTransparentHook();
 	void RenderObjectCompressionInfoHook();
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
@@ -259,6 +260,8 @@ namespace
 	ForgeGlobalsDefinition *forgeGlobals_;
 
 	std::bitset<0xffff> cachedReforgeTagIndexSet;
+
+	bool objectLightingQualityOverride = false;
 }
 
 namespace Patches::Forge
@@ -311,6 +314,8 @@ namespace Patches::Forge
 		Hook(0x679136, RenderMeshPartHook, HookFlags::IsCall).Apply(); // transparent
 		// disable the lightmap for reforge objects
 		Hook(0x7BEEEE, LightmapHook, HookFlags::IsCall).Apply();
+		// hack to fix lighting on scaled bipeds
+		Hook(0x647695, ObjectLightingQualityOverrideHook, HookFlags::IsCall).Apply();
 
 		// prevent the object from lurching forward when being rotated
 		Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
@@ -1989,6 +1994,39 @@ namespace
 		}
 	}
 
+	int ObjectLightingQualityOverrideHook()
+	{
+		const auto preferences_get_lighting_quality = (int(*)())(0x0050B890);
+		if (objectLightingQualityOverride)
+			return 0;
+		return preferences_get_lighting_quality();
+	}
+
+	bool ShouldOverrideLightingQuality(uint32_t objectIndex)
+	{
+		const auto kSpartanScaleThreshold = 1.5f;
+
+		auto object = Blam::Objects::Get(objectIndex);
+		auto objectType = *((uint8_t*)object + 0x9A);
+		
+		// biped object
+		if (objectType == Blam::Objects::eObjectTypeBiped && object->Scale > kSpartanScaleThreshold)
+			return true;
+		// armor parts
+		if (objectType == Blam::Objects::eObjectTypeScenery && object->Parent != Blam::DatumHandle::Null)
+		{
+			auto parentObject = Blam::Objects::Get(object->Parent);
+			auto parentObjectType = *((uint8_t*)parentObject + 0x9A);
+			if (parentObject && parentObjectType == Blam::Objects::eObjectTypeBiped
+				&& parentObject->Scale > kSpartanScaleThreshold)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	void RenderMeshPartHook(void* data, int a2)
 	{
 		const auto is_forge = (bool(*)())(0x0059A780);
@@ -2016,6 +2054,14 @@ namespace
 					return;
 			}
 
+			if (ShouldOverrideLightingQuality(objectIndex))
+			{
+				objectLightingQualityOverride = true;
+				RenderMeshPart(data, a2);
+				objectLightingQualityOverride = false;
+				return;
+			}
+			
 			int16_t materialIndex;
 			if (GetObjectMaterial(renderData, &materialIndex))
 			{
