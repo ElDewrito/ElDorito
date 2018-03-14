@@ -149,6 +149,8 @@ void ElDorito::Initialize()
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
 	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen discord"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind F4 Game.ShowScreen discord");
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen browser"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind F11 game.showscreen browser");
 
 	mapsFolder = "maps\\";
 
