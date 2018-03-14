@@ -2100,18 +2100,53 @@ namespace
 	{
 		__asm
 		{
-			movss xmm0, [ebp - 0xC]
-			mov cl, [ebp - 1]
-			test cl, cl
-			jz eldorado_return
+				movss xmm0, [ebp - 0xC]
 
-			mov ecx, 0xC25E0000
-			movd xmm0, ecx
+				pop ecx
 
-			eldorado_return :
-			mov ecx, 0xACF0A5
-			jmp ecx
+				push eax
+				push ebx
+				push ecx
+				push edx
+
+				lea     ebx, [esi - 0x18]
+
+				mov     ecx, 5
+				xor eax, eax
+				test    ecx, ecx
+				jz      short loc_4ECBEC
+				nop
+			loc_4ECBE0 :
+				cmp     word ptr[ebx + eax * 2], 0
+				jz      short loc_4ECBEC
+				inc     eax
+				cmp     eax, ecx
+				jb      short loc_4ECBE0
+				loc_4ECBEC :
+
+			test    eax, eax
+				mov     al, [ebp - 1]
+				jz		eldorado_return
+				test    al, al
+				jnz      eldorado_return
+
+				mov eax, 0xC2850000
+				movd xmm0, eax
+
+				eldorado_return :
+
+				pop edx
+				pop ecx
+				pop ebx
+				pop eax
+
+				lea ecx, [ebp - 0x1A64]
+				push ecx
+
+				mov edx, 0xACF0A5
+				jmp edx
 		}
+
 	}
 
 	__declspec(naked) void chud_update_player_marker_name_height_hook()
