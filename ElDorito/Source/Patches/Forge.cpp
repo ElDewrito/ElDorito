@@ -2007,6 +2007,9 @@ namespace
 		const auto kSpartanScaleThreshold = 1.5f;
 
 		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
 		auto objectType = *((uint8_t*)object + 0x9A);
 		
 		// biped object
@@ -2016,8 +2019,11 @@ namespace
 		if (objectType == Blam::Objects::eObjectTypeScenery && object->Parent != Blam::DatumHandle::Null)
 		{
 			auto parentObject = Blam::Objects::Get(object->Parent);
+			if (!parentObject)
+				return false;
+
 			auto parentObjectType = *((uint8_t*)parentObject + 0x9A);
-			if (parentObject && parentObjectType == Blam::Objects::eObjectTypeBiped
+			if (parentObjectType == Blam::Objects::eObjectTypeBiped
 				&& parentObject->Scale > kSpartanScaleThreshold)
 			{
 				return true;
