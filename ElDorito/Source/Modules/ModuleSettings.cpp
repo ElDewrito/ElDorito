@@ -632,8 +632,12 @@ namespace
 
 		for (auto &cmd : commandMap.Commands)
 		{
-			if (!(cmd.Flags & CommandFlags::eCommandFlagsArchived))
+			if (!(cmd.Flags & CommandFlags::eCommandFlagsArchived)
+				|| cmd.Flags & eCommandFlagsNoReset
+				|| cmd.Flags & eCommandFlagsWriteToKeys)
+			{
 				continue;
+			}
 
 			switch (cmd.Type)
 			{

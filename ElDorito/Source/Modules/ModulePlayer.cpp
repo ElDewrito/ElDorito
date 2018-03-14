@@ -166,7 +166,7 @@ namespace Modules
 
 		VarRepresentation = AddVariableString("Representation", "player_race", "(DEBUG BUILDS ONLY) The representation to display for the player's render mannequin", (CommandFlags)(eCommandFlagsArchived | eCommandFlagsHidden), "spartan", VariablePlayerRepresentationUpdate);
 
-		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", eCommandFlagsArchived, "Jasper", VariablePlayerNameUpdate);
+		VarPlayerName = AddVariableString("Name", "name", "The players ingame name", CommandFlags(eCommandFlagsArchived|eCommandFlagsNoReset), "Jasper", VariablePlayerNameUpdate);
 		VarPlayerServiceTag = AddVariableString("ServiceTag", "service_tag", "The players service tag", eCommandFlagsArchived, "117", VariablePlayerServiceTagUpdate);
 		VarPlayerGender = AddVariableString("Gender", "gender", "The players gender", eCommandFlagsArchived, "male", VariablePlayerGenderUpdate);
 

@@ -28,7 +28,8 @@ enum CommandFlags
 	eCommandFlagsInternal          = 1 << 8,  // disallow the user from using this command, only internal ExecuteCommand calls can use it
 	eCommandFlagsArgsNoParse       = 1 << 9,  // arguments are not parsed and full string after command reside in arguments[0]
 	eCommandFlagsWriteToKeys       = 1 << 10, // indicates the variable should be written to the keys file instead of preferences
-	eCommandFlagsForge             = 1 << 11
+	eCommandFlagsForge             = 1 << 11, // only allow this command/var in forge
+	eCommandFlagsNoReset           = 1 << 12  // execlude this variable from Settings.Reset
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
