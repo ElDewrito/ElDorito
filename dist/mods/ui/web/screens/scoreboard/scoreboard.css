@@ -244,7 +244,7 @@ html {
     width: 100%;
     height: 22px;
     font-size: 22px;
-    border-top: 3px solid #14234a;
+    border-top: 4px solid rgba(24,39,69,0.5);
 }
 
 #bigMedal .medalDesc{
@@ -278,9 +278,9 @@ html {
 
 #previousPlayer, #nextPlayer, #windowClose{
 	position: relative;
-	height: 3.5vh;
-	line-height: 3.5vh;
-	font-size: 2vh;
+    height: 35px;
+    line-height: 35px;
+    font-size: 15px;
 	font-weight: 100;
 	color: white;
 	background-color: rgba(0,0,0,0);
@@ -300,9 +300,10 @@ html {
 #playerBreakdown .button{
 	display:none;
 	position:relative;
-	height: 3.5vh;
+	height: 30px;
 	float: left;
-    margin-right: 10px;
+    margin-right: 8px;
+    top: 2px;
 }
 
 .bottomBar{
