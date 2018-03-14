@@ -4,7 +4,8 @@ var commandList = {};
 
 var eAutoCompleteMode = {
     Prefix : 1,
-    Substring : 2
+    Substring : 2,
+    Fuzzy : 3
 };
 
 var consoleSize = 2;
@@ -12,7 +13,7 @@ var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
-var consoleAutoCompleteMode = eAutoCompleteMode.Substring;
+var consoleAutoCompleteMode = eAutoCompleteMode.Fuzzy;
 
 function isset(val) {
      return !!val;
@@ -311,9 +312,28 @@ function getSuggestedCommands(partial) {
     $.extend(commands, commandList, getConsoleHelp());
     $(".suggestion").remove();
     if (isset(partial)) {
-        commandItem = $.grep(commands, function(item) {
+        
+        var results = [];
+
+        if(consoleAutoCompleteMode == eAutoCompleteMode.Fuzzy) {
+            var fuse = new Fuse(commands, {
+                shouldSort: true,
+                threshold: 0.6,
+                location: 0,
+                distance: 40,
+                maxPatternLength: 32,
+                minMatchCharLength: 1,
+                keys: ["name"]
+            });
+            results = fuse.search(partial);
+        }
+
+        results = $.grep(commands, function(item) {
             return ((consoleAutoCompleteMode == eAutoCompleteMode.Prefix) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
+
+        commandItem = results.filter(x => !x.hidden);
+
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
         });
