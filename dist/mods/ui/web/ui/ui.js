@@ -297,6 +297,27 @@
             notifyScreen(topmostScreen, "controllerinput", input);
     }
 
+    ui.showToast = function(toast) {
+        let testContainer = document.getElementById('toast_container');
+
+        let toastElement = document.createElement('div');
+        toastElement.classList.add('toast');
+        toastElement.innerHTML = `
+            <div class="toast-content">${toast.body}</div>
+        `
+        testContainer.prepend(toastElement);
+        requestAnimationFrame(function () {
+            toastElement.classList.add('toast-show');
+        });
+
+        setTimeout(function () {
+            toastElement.classList.remove('toast-show');
+            setTimeout(function () {
+                toastElement.remove();
+            }, 3000);        
+        }, 3000);
+    }
+
     // Register the message handler.
     window.addEventListener("message", function (event) {
         // Get the screen that sent the event
@@ -344,7 +365,10 @@
 				if (screen && "capture" in data) {
                     setPointerCapture(screen, !!data.capture);
                 }
-				break;
+                break;
+            case "toast":
+                ui.showToast(data);
+                break;
 			default:
 				var message = (typeof eventData.message === "string") ? eventData.message : (screen ? screen.id : null);
 				if(message){

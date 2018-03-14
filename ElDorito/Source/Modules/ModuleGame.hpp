@@ -21,6 +21,7 @@ namespace Modules
 		Command* VarIconSet;
 		Command* VarHideH3UI;
 		Command* VarScreenshotsFolder;
+		Command *VarScreenshotNoticeDisabled;
 		Command* VarCefMedals;
 		Command* VarFpsLimiter;
 		Command* VarDiscordEnable;

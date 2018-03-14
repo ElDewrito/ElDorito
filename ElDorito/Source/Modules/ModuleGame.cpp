@@ -928,13 +928,16 @@ namespace
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
 		std::string screenshot_path = wstring_to_string.to_bytes(path);
 
-		rapidjson::StringBuffer jsonBuffer;
-		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
-		jsonWriter.StartObject();
-		jsonWriter.Key("filepath");
-		jsonWriter.String(screenshot_path.c_str());
-		jsonWriter.EndObject();
-		Web::Ui::ScreenLayer::Show("screenshot_notice", jsonBuffer.GetString());
+		if (!Modules::ModuleGame::Instance().VarScreenshotNoticeDisabled->ValueInt)
+		{
+			rapidjson::StringBuffer jsonBuffer;
+			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+			jsonWriter.StartObject();
+			jsonWriter.Key("filepath");
+			jsonWriter.String(screenshot_path.c_str());
+			jsonWriter.EndObject();
+			Web::Ui::ScreenLayer::Notify("screenshot_taken", jsonBuffer.GetString(), true);
+		}
 
 		returnInfo = "Screenshot saved to: " + screenshot_path;
 		return true;
@@ -1216,6 +1219,7 @@ namespace Modules
 		VarHideH3UI->ValueIntMax = 1;
 
 		VarScreenshotsFolder = AddVariableString("ScreenshotsFolder", "screenshots_folder", "The location where the game will save screenshots", eCommandFlagsArchived, "%userprofile%\\Pictures\\Screenshots\\blam");
+		VarScreenshotNoticeDisabled = AddVariableInt("ScreenshotNoticeDisabled", "screenshot_notice_disabled", "Disables the screenshot notifications", eCommandFlagsArchived, 0);
 
 		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 1);
 

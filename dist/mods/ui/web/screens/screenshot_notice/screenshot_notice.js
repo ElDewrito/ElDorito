@@ -1,17 +1,15 @@
-function fadeOut() {
-	$(document.body).fadeOut( "fast", function() {
-		dew.hide();
-	});
-}
+lastTime = Date.now();
 
-var hide_timer
-
-dew.on("show", function (event) {
-	$(document.body).stop()
-	clearTimeout(hide_timer)
-
-    $(document.body).show();
-	$('#savedto').html(document.createTextNode(event.data.filepath));
-
-	hide_timer = setTimeout(fadeOut, 2000);
+dew.on('screenshot_taken', function(e) {
+	let currentTime = Date.now();
+	if(currentTime - lastTime > 2500)
+	{
+		lastTime = currentTime;
+		dew.toast({
+			body:`
+				<div style="margin-bottom:7px;">SCREENSHOT SAVED</div>
+				<div style="font-size:0.75em">&quot;${e.data.filepath}&quot;</div>
+				`
+		});
+	}
 });
