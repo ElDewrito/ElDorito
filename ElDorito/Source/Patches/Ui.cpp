@@ -297,8 +297,11 @@ namespace Patches::Ui
 		//Show speaking player markers
 		Hook(0x349450, chud_update_player_marker_state_hook).Apply();
 		
-		//Show objective player markers
+		//Restore player marker 1.
 		Hook(0x349469, chud_update_player_marker_sprite_hook).Apply();
+
+		//Jump over Waypoints2 code.
+		Patch(0x6C6A11, { 0xEB }).Apply();
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -1796,12 +1799,12 @@ namespace
 			if (!localPlayer)
 				return;
 
-auto player = players.Get(playerIndex);
-if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
-	&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
-{
-	return;
-}
+			auto player = players.Get(playerIndex);
+			if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint 
+				&& localPlayer->Properties.TeamIndex != player->Properties.TeamIndex) // do not hide if they're on the same team as us
+			{
+				return;
+			}
 		}
 
 		chud_add_player_marker(thisptr, data);
@@ -1851,99 +1854,202 @@ if (player && *(uint8_t*)((uint8_t*)player + 0x2DC1) == 4  // waypoint
 
 			//restore registers
 			mov ebx, _ebx
-				mov edx, _edx
-				mov ebp, _ebp
-				mov edi, _edi
-				mov esp, _esp
-				mov eax, markerSecondary
+			mov edx, _edx
+			mov ebp, _ebp
+			mov edi, _edi
+			mov esp, _esp
+			mov eax, markerSecondary
 
-				dec eax
-				jz shooting
+			dec eax
+			jz shooting
 
-				dec eax
-				jz speaking
+			dec eax
+			jz speaking
 
-				//taking_damage:
-				dec eax
-				mov al, byte ptr[ebp + 0xB]
-				jnz loc_749469
-				or dword ptr[ebx + 0x10], 8
-				jmp loc_749469
+			//taking_damage:
+			dec eax
+			mov al, byte ptr[ebp + 0xB]
+			jnz loc_749469
+			or dword ptr[ebx + 0x10], 8
+			jmp loc_749469
 
-				shooting :
+		shooting:
 			mov esi, 0x74947F
-				jmp esi
+			jmp esi
 
-				speaking :
+		speaking:
 			mov esi, 0x749462
-				jmp esi
+			jmp esi
 
-				loc_749469 :
+		loc_749469:
 			mov esi, 0x749469
-				jmp esi
+			jmp esi
 		}
 	}
 
-	static int spriteIndex = 0;
-	unsigned int __stdcall GetPlayerMarkerSpriteIndex(int handle)
+	//TODO: 
+	//Refactor
+	enum class PlayerMarkerIconIndex : int
 	{
+		None = -1,
+		Speaker,
+		DeathCross,
+		Tick,
+		Juggernaut,
+		Unknown,
+		Bomb,
+		Flag,
+		Skull,
+		King,
+		VIP,
+		Padlock,
+		One,
+		Two,
+		Three,
+		Four,
+		Five,
+		Six,
+		Seven,
+		Eight,
+		Nine
+	};
+
+	enum class PlayerMarkerColorIndex
+	{
+		Ally,
+		Neutral,
+		Enemy,
+		Dead,
+		AllyBlue,
+		ArmourColor
+	};
+
+	enum PlayerMarkerBitmapSpriteIndex : int
+	{
+		Ally,
+		Enemy,
+		Objective,
+		None
+	};
+
+	enum class WaypointTrait : int8_t
+	{
+		Unchanged,
+		NoMarker,
+		MarkerVisibleToAllies,
+		MarkerVisibleToEveryone,
+		NoName, //Added by Unk
+		MarkerVisibleToAlliesNameInvisibleToEnemies //Added by Unk
+	};
+
+	enum class Gamemode : int
+	{
+		None,
+		CTF,
+		Slayer,
+		Oddball,
+		KOTH,
+		Forge,
+		VIP,
+		Juggernaut,
+		Territories,
+		Assault,
+		Infection
+	};
+
+	unsigned int __stdcall GetPlayerMarkerSpriteIndex(int handle, PlayerMarkerIconIndex markerIconIndex, PlayerMarkerColorIndex markerColorIndex)
+	{
+		auto player = Blam::Players::GetPlayers().Get(handle);
+		if (!player)
+			return PlayerMarkerBitmapSpriteIndex::None;
+
 		auto session = Blam::Network::GetActiveSession();
-
 		if (!session || !session->IsEstablished())
-			return 0;
+			return PlayerMarkerBitmapSpriteIndex::None;
 
-		const auto markerPlayer = *Blam::Players::GetPlayers().Get(handle);
+		Gamemode gamemode = (Gamemode)session->Parameters.GameVariant.Get()->GameType;
 
-		//if the player is on your team, they have the normal sprite.
-		if (session->HasTeams() && (session->MembershipInfo.LocalPeerIndex != markerPlayer.Properties.TeamIndex))
-			return 0;
+		WaypointTrait playerWaypointTrait = *(WaypointTrait*)((uint8_t*)player + 0x2DC1);
 
-		auto gameVariant = session->Parameters.GameVariant.Get();
-		if (!gameVariant || gameVariant == 0)
-			return 0;
-
-		//Handle Oddball, Flag, Bomb
-		if (gameVariant->GameType == 1 || gameVariant->GameType == 3 || gameVariant->GameType == 9)
+		//TODO: add armour colors fix.
+		if (markerColorIndex == PlayerMarkerColorIndex::Ally || markerColorIndex == PlayerMarkerColorIndex::AllyBlue)
 		{
-			if (markerPlayer.GetSalt() && markerPlayer.SlaveUnit != Blam::DatumHandle::Null)
+			switch (playerWaypointTrait)
 			{
-				auto unitObjectPtr = Pointer(Blam::Objects::Get(markerPlayer.SlaveUnit));
-				if (unitObjectPtr)
+			case WaypointTrait::MarkerVisibleToAllies:
+			case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
+			case WaypointTrait::MarkerVisibleToEveryone:
+			case WaypointTrait::Unchanged:
+				return PlayerMarkerBitmapSpriteIndex::Ally;
+			default:
+				return PlayerMarkerBitmapSpriteIndex::None;
+			}
+		}
+		else
+		{
+			switch (playerWaypointTrait)
+			{
+			case WaypointTrait::MarkerVisibleToAllies:
+			case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
+			case WaypointTrait::NoMarker:
+			case WaypointTrait::NoName:
+				return PlayerMarkerBitmapSpriteIndex::None;
+			case WaypointTrait::MarkerVisibleToEveryone:
+				return PlayerMarkerBitmapSpriteIndex::Enemy;
+			case WaypointTrait::Unchanged:
+			{
+				switch (gamemode)
 				{
-					auto rightWeaponIndex = unitObjectPtr(0x2Ca).Read<uint8_t>();
-					if (rightWeaponIndex != 0xFF)
-					{
-						auto rightWeaponObject = Blam::Objects::Get(unitObjectPtr(0x2D0 + 4 * rightWeaponIndex).Read<uint32_t>());
-						if (rightWeaponObject)
-						{
-							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-							if (weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None)
-							{
-								if (session->HasTeams())
-								{
-									if (session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != markerPlayer.Properties.TeamIndex)
-										return 1;
-								}
-								else
-									return 1;
-							}
-						}
-					}
+				case Gamemode::None:
+				case Gamemode::Slayer:
+				case Gamemode::Forge:
+				case Gamemode::KOTH:
+				case Gamemode::Territories:
+				default:
+					return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::Assault:
+					if (markerIconIndex == PlayerMarkerIconIndex::Bomb)
+						return PlayerMarkerBitmapSpriteIndex::Enemy;
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::CTF:
+					if (markerIconIndex == PlayerMarkerIconIndex::Flag)
+						return PlayerMarkerBitmapSpriteIndex::Enemy;
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::Oddball:
+					if (markerIconIndex == PlayerMarkerIconIndex::Skull)
+						return PlayerMarkerBitmapSpriteIndex::Enemy;
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::Juggernaut:
+					if (markerIconIndex == PlayerMarkerIconIndex::Juggernaut)
+						return PlayerMarkerBitmapSpriteIndex::Enemy;
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::VIP:
+					if (markerIconIndex == PlayerMarkerIconIndex::VIP)
+						return PlayerMarkerBitmapSpriteIndex::Enemy;
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				case Gamemode::Infection:
+				{
+					bool thereIsALastManStanding = Pointer(ElDorito::GetMainTls(0x48 + 0xE6DC)).Read<uint16_t>() == 1;
+					bool iAmAlive = Pointer(0x2161808).Read<uint8_t>() == 1;
+					bool iAmAZombie = Pointer(ElDorito::GetMainTls(0x48 + 0xE190)).Read<uint16_t>() == 1;
+					if (thereIsALastManStanding && (iAmAlive || iAmAZombie))
+						return PlayerMarkerBitmapSpriteIndex::Enemy; //needs work
+					else
+						return PlayerMarkerBitmapSpriteIndex::None;
+				}
 				}
 			}
-		}
-
-		//last man standing
-		if (gameVariant->GameType == 10)
-		{
-			for each (auto player in Blam::Players::GetPlayers())
-			{
-				if (player.Properties.TeamIndex == markerPlayer.Properties.TeamIndex)
-					return 0;
+			default:
+				return PlayerMarkerBitmapSpriteIndex::None;
 			}
 		}
 
-		return 0;
+		return PlayerMarkerBitmapSpriteIndex::None;
 	}
 
 	__declspec(naked) void chud_update_player_marker_sprite_hook()
