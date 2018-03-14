@@ -102,8 +102,8 @@ namespace
 		bindings.ControllerButtons[eGameActionVehicleFire]    = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionVehicleAltFire] = eControllerButtonLeftTrigger;
 		bindings.ControllerButtons[eGameActionMeleeFire]      = eControllerButtonB;
-		bindings.ControllerButtons[eGameActionNextPlayer]     = eControllerButtonDpadDown;
-		bindings.ControllerButtons[eGameActionPrevPlayer]     = eControllerButtonDpadUp;
+		bindings.ControllerButtons[eGameActionNextPlayer]     = eControllerButtonDpadRight;
+		bindings.ControllerButtons[eGameActionPrevPlayer]     = eControllerButtonDpadLeft;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionUseConsumable1] = eControllerButtonLeftBumper;
 		bindings.ControllerButtons[eGameActionUiStart]        = eControllerButtonStart;
