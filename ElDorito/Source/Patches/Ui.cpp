@@ -66,6 +66,8 @@ namespace
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
 	void chud_update_player_marker_state_hook();
 	void chud_update_player_marker_sprite_hook();
+	void chud_update_player_marker_icon_height_hook();
+	void chud_update_player_marker_name_height_hook();
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -302,6 +304,10 @@ namespace Patches::Ui
 
 		//Jump over Waypoints2 code.
 		Patch(0x6C6A11, { 0xEB }).Apply();
+
+		//Moves the icon above the name on player markers.
+		Hook(0x6CF0CE, chud_update_player_marker_name_height_hook).Apply();
+		Hook(0x6CF0A0, chud_update_player_marker_icon_height_hook).Apply();
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -2087,6 +2093,35 @@ namespace
 		ed_return:
 			mov esi, 0x749476
 			jmp esi
+		}
+	}
+
+	__declspec(naked) void chud_update_player_marker_icon_height_hook()
+	{
+		__asm
+		{
+			movss xmm0, [ebp - 0xC]
+			mov cl, [ebp - 1]
+			test cl, cl
+			jz eldorado_return
+
+			mov ecx, 0xC25E0000
+			movd xmm0, ecx
+
+			eldorado_return :
+			mov ecx, 0xACF0A5
+			jmp ecx
+		}
+	}
+
+	__declspec(naked) void chud_update_player_marker_name_height_hook()
+	{
+		__asm
+		{
+			mov[ebp - 0xC], 0xC1C00000
+
+			mov ebx, 0xACF0D3
+			jmp ebx
 		}
 	}
 
