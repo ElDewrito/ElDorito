@@ -1403,12 +1403,12 @@ namespace Modules
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
-		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsHostOnly | eCommandFlagsArchived), 1);
+		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether or not the teams will be automatically shuffled before the game starts.", eCommandFlagsArchived, 1);
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
 
 		VarVotingJsonPath = AddVariableString("VotingJsonPath", "voting_json_path", "Voting Json Path", eCommandFlagsArchived, "mods/server/voting.json");
-		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "VetoJsonPath", eCommandFlagsArchived, "mods/server/veto.json");
+		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "Veto Json Path", eCommandFlagsArchived, "mods/server/veto.json");
 
 		AddCommand("ReloadVotingJson", "reload_voting_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVotingJson);
 		AddCommand("ReloadVetoJson", "reload_veto_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVetoJson);
