@@ -110,9 +110,8 @@ namespace ChatCommands
 		try {
 			indexToKick = std::stoi(s);
 		}
-		catch (const std::invalid_argument& e) {
-			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Error: %s", e.what());
-		}
+		catch (...) {}
+
 		if (indexToKick < 0 || indexToKick > 15)
 		{
 			returnInfo = "Invalid Index";
