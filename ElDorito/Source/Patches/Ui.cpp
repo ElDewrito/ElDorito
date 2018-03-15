@@ -66,6 +66,7 @@ namespace
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
 	void chud_update_player_marker_state_hook();
 	void chud_update_player_marker_sprite_hook();
+	void chud_update_marker_sprite_hook();
 	void chud_update_player_marker_icon_height_hook();
 	void chud_update_player_marker_name_height_hook();
 
@@ -299,11 +300,15 @@ namespace Patches::Ui
 		//Show speaking player markers
 		Hook(0x349450, chud_update_player_marker_state_hook).Apply();
 		
-		//Restore player marker 1.
+		//Restore player marker waypoints1 bitmap.
 		Hook(0x349469, chud_update_player_marker_sprite_hook).Apply();
+		Hook(0x6CED6A, chud_update_marker_sprite_hook).Apply();
 
-		//Jump over Waypoints2 code.
+		//Jump over player marker waypoints2 bitmap code.
 		Patch(0x6C6A11, { 0xEB }).Apply();
+
+		//Stop the assault bomb from overwriting the player marker bitmap sprite index.
+		Patch(0x2E805F, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
 
 		//Moves the icon above the name on player markers.
 		Hook(0x6CF0CE, chud_update_player_marker_name_height_hook).Apply();
@@ -1821,9 +1826,8 @@ namespace
 		Blam::Players::PlayerDatum* player = Blam::Players::GetPlayers().Get(Blam::DatumHandle(handle));
 		std::string playerName(Utils::String::ThinString(player->Properties.DisplayName));
 
-		if (std::find(speakingPlayers.begin(), speakingPlayers.end(), playerName) != speakingPlayers.end()) {
+		if (std::find(speakingPlayers.begin(), speakingPlayers.end(), playerName) != speakingPlayers.end())
 			return 1;
-		}
 
 		return 0;
 	}
@@ -1963,7 +1967,7 @@ namespace
 		Infection
 	};
 
-	unsigned int __stdcall GetPlayerMarkerSpriteIndex(int handle, PlayerMarkerIconIndex markerIconIndex, PlayerMarkerColorIndex markerColorIndex)
+	PlayerMarkerBitmapSpriteIndex __stdcall GetPlayerMarkerSpriteIndex(int handle, PlayerMarkerColorIndex markerColorIndex)
 	{
 		auto player = Blam::Players::GetPlayers().Get(handle);
 		if (!player)
@@ -1995,104 +1999,154 @@ namespace
 		{
 			switch (playerWaypointTrait)
 			{
-			case WaypointTrait::MarkerVisibleToAllies:
-			case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
-			case WaypointTrait::NoMarker:
-			case WaypointTrait::NoName:
-				return PlayerMarkerBitmapSpriteIndex::None;
-			case WaypointTrait::MarkerVisibleToEveryone:
-				return PlayerMarkerBitmapSpriteIndex::Enemy;
-			case WaypointTrait::Unchanged:
-			{
-				switch (gamemode)
-				{
-				case Gamemode::None:
-				case Gamemode::Slayer:
-				case Gamemode::Forge:
-				case Gamemode::KOTH:
-				case Gamemode::Territories:
-				default:
+				case WaypointTrait::MarkerVisibleToAllies:
+				case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
+				case WaypointTrait::NoMarker:
+				case WaypointTrait::NoName:
 					return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::Assault:
-					if (markerIconIndex == PlayerMarkerIconIndex::Bomb)
-						return PlayerMarkerBitmapSpriteIndex::Enemy;
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::CTF:
-					if (markerIconIndex == PlayerMarkerIconIndex::Flag)
-						return PlayerMarkerBitmapSpriteIndex::Enemy;
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::Oddball:
-					if (markerIconIndex == PlayerMarkerIconIndex::Skull)
-						return PlayerMarkerBitmapSpriteIndex::Enemy;
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::Juggernaut:
-					if (markerIconIndex == PlayerMarkerIconIndex::Juggernaut)
-						return PlayerMarkerBitmapSpriteIndex::Enemy;
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::VIP:
-					if (markerIconIndex == PlayerMarkerIconIndex::VIP)
-						return PlayerMarkerBitmapSpriteIndex::Enemy;
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
-				case Gamemode::Infection:
+				case WaypointTrait::MarkerVisibleToEveryone:
+					return PlayerMarkerBitmapSpriteIndex::Enemy;
+				case WaypointTrait::Unchanged:
 				{
-					bool thereIsALastManStanding = Pointer(ElDorito::GetMainTls(0x48 + 0xE6DC)).Read<uint16_t>() == 1;
-					bool iAmAlive = Pointer(0x2161808).Read<uint8_t>() == 1;
-					bool iAmAZombie = Pointer(ElDorito::GetMainTls(0x48 + 0xE190)).Read<uint16_t>() == 1;
-					if (thereIsALastManStanding && (iAmAlive || iAmAZombie))
-						return PlayerMarkerBitmapSpriteIndex::Enemy; //needs work
-					else
-						return PlayerMarkerBitmapSpriteIndex::None;
+					//Any unchanged players holding objectives have icons above their head, 
+					//so another hook can check the icon and give them a marker.
+					//The exception to this is infection, which gives the last man standing a marker.
+					//So that's handled here.
+					if (gamemode == Gamemode::Infection)
+					{
+						bool thereIsALastManStanding = Pointer(ElDorito::GetMainTls(0x48 + 0xE6DC)).Read<uint16_t>() == 1;
+						bool iAmAlive = Pointer(0x2161808).Read<uint8_t>() == 1;
+						bool iAmAZombie = Pointer(ElDorito::GetMainTls(0x48 + 0xE190)).Read<uint16_t>() == 1;
+						if (thereIsALastManStanding && (iAmAlive || iAmAZombie))
+							return PlayerMarkerBitmapSpriteIndex::Enemy;
+					}
+
+					return PlayerMarkerBitmapSpriteIndex::None;
 				}
-				}
-			}
-			default:
-				return PlayerMarkerBitmapSpriteIndex::None;
 			}
 		}
-
 		return PlayerMarkerBitmapSpriteIndex::None;
 	}
+
+	bool __stdcall DoesPlayerMarkerHaveObjective(PlayerMarkerIconIndex markerIconIndex)
+	{
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+			return false;
+
+		Gamemode gamemode = (Gamemode)session->Parameters.GameVariant.Get()->GameType;
+
+		switch (gamemode)
+		{
+			case Gamemode::None:
+			case Gamemode::Slayer:
+			case Gamemode::Forge:
+			case Gamemode::KOTH:
+			case Gamemode::Territories:
+			case Gamemode::Infection: //last man has no icon and is handled elsewhere
+			default:
+				break;
+			case Gamemode::Assault:
+				if (markerIconIndex == PlayerMarkerIconIndex::Bomb)
+					return true;
+				break;
+			case Gamemode::CTF:
+				if (markerIconIndex == PlayerMarkerIconIndex::Flag)
+					return true;
+				break;
+			case Gamemode::Oddball:
+				if (markerIconIndex == PlayerMarkerIconIndex::Skull)
+					return true;
+				break;
+			case Gamemode::Juggernaut:
+				if (markerIconIndex == PlayerMarkerIconIndex::Juggernaut)
+					return true;
+				break;
+			case Gamemode::VIP:
+				if (markerIconIndex == PlayerMarkerIconIndex::VIP)
+					return true;
+				break;
+		}
+
+		return false;
+	}
+
 
 	__declspec(naked) void chud_update_player_marker_sprite_hook()
 	{
 		int _ebx, _ecx, _edx, _ebp, _edi, _esp;
 		__asm
 		{
-			//preserve registers
-			mov _ebx, ebx
-			mov _ecx, ecx
-			mov _edx, edx
-			mov _ebp, ebp
-			mov _edi, edi
-			mov _esp, esp
+				//preserve registers
+				mov _ebx, ebx
+				mov _ecx, ecx
+				mov _edx, edx
+				mov _ebp, ebp
+				mov _edi, edi
+				mov _esp, esp
 
-			cmp dword ptr[ebx+8], 0xFFFFFFFF
-			jnz ed_return
+				cmp dword ptr[ebx + 8], 0xFFFFFFFF
+				jnz ed_return
 
 
-			mov _ebp, ebp
-			mov eax, [ebp+0xC]
-			push eax
-			call GetPlayerMarkerSpriteIndex
+				mov _ebp, ebp
+				mov ebx, _ebx
+				mov eax, [ebx + 0xC] //color
+				push eax
+				mov eax, [ebp + 0xC] //handle
+				push eax
+				call GetPlayerMarkerSpriteIndex
 
-			//restore registers
-			mov ebx, _ebx
-			mov edx, _edx
-			mov ebp, _ebp
-			mov edi, _edi
-			mov esp, _esp
+				//restore registers
+				mov edx, _edx
+				mov ebp, _ebp
+				mov edi, _edi
+				mov esp, _esp
 
-			mov dword ptr [ebx+4], eax
-			mov eax, 1 //Not sure why this is required, but if 0 waypoints hide.
+				mov dword ptr[ebx + 4], eax
+				mov eax, 1 //Not sure why this is required, but if 0 waypoints hide.
 
-		ed_return:
-			mov esi, 0x749476
-			jmp esi
+			ed_return:
+				mov esi, 0x749476
+				jmp esi
+		}
+	}
+
+	__declspec(naked) void chud_update_marker_sprite_hook()
+	{
+		__asm
+		{
+				push eax
+
+				cmp[esi - 0x2C], 3 //3 = no marker
+				jne eldorado_return
+
+				mov eax, [esi - 0x28]
+				push eax
+				call DoesPlayerMarkerHaveObjective
+
+				cmp eax, 0
+				je eldorado_return
+
+				cmp[esi - 0x24], 2 //enemy color
+				jne is_ally_with_objective
+				mov[esi - 0x2C], 1 //enemy marker
+				jmp eldorado_return
+
+			is_ally_with_objective:
+				cmp[esi - 0x24], 0 //ally color
+				jne eldorado_return
+				mov[esi - 0x2C], 0 //ally marker
+
+			eldorado_return:
+				pop eax
+				//perform original instruction
+				lea ecx, [esi + 0xC]
+				push ecx
+				mov byte ptr[ecx], 01
+
+				mov eax, 0xACED71
+				jmp eax
 		}
 	}
 
@@ -2116,24 +2170,25 @@ namespace
 				test    ecx, ecx
 				jz      short loc_4ECBEC
 				nop
-			loc_4ECBE0 :
+			loc_4ECBE0:
 				cmp     word ptr[ebx + eax * 2], 0
 				jz      short loc_4ECBEC
 				inc     eax
 				cmp     eax, ecx
 				jb      short loc_4ECBE0
-				loc_4ECBEC :
+			loc_4ECBEC:
 
-			test    eax, eax
+				test    eax, eax
 				mov     al, [ebp - 1]
-				jz		eldorado_return
+				jne		raise_icon
 				test    al, al
-				jnz      eldorado_return
+				je      eldorado_return
 
+			raise_icon:
 				mov eax, 0xC2850000
 				movd xmm0, eax
 
-				eldorado_return :
+			eldorado_return:
 
 				pop edx
 				pop ecx
