@@ -162,6 +162,7 @@ namespace Patches::Ui
 {
 	bool enableCustomHUDColors = false;
 	bool enableAllyBlueWaypointsFix = false;
+	bool enableArmorColorWaypoitsFix = false;
 	int customPrimaryHUDColor = -1;
 	int customSecondaryHUDColor = 0;
 
@@ -2119,24 +2120,37 @@ namespace
 				push eax
 
 				cmp[esi - 0x2C], 3 //3 = no marker
-				jne eldorado_return
+				jne fix_armour_colors
 
 				mov eax, [esi - 0x28]
 				push eax
 				call DoesPlayerMarkerHaveObjective
 
 				cmp eax, 0
-				je eldorado_return
+				je fix_armour_colors
 
 				cmp[esi - 0x24], 2 //enemy color
 				jne is_ally_with_objective
 				mov[esi - 0x2C], 1 //enemy marker
-				jmp eldorado_return
+				jmp fix_armour_colors
 
 			is_ally_with_objective:
 				cmp[esi - 0x24], 0 //ally color
-				jne eldorado_return
+				jne fix_armour_colors
 				mov[esi - 0x2C], 0 //ally marker
+
+			fix_armour_colors:
+				cmp Patches::Ui::enableArmorColorWaypointsFix, 1
+				jne eldorado_return
+				cmp[esi - 0x2C], 0
+				je is_player_marker
+				cmp[esi - 0x2C], 1
+				je is_player_marker
+				cmp[esi - 0x2C], 3
+				je is_player_marker
+				jmp eldorado_return
+			is_player_marker:
+				mov[esi - 0x24], 5 //armour colors
 
 			eldorado_return:
 				pop eax

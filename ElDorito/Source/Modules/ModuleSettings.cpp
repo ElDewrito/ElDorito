@@ -375,18 +375,15 @@ namespace
 		if (!(value == "default" || value == "blue" || value == "armor"))
 			return false;
 
-		auto intValue = value == "default" ? 0 : value == "blue" ? 1 : 2;
+		Patches::Ui::enableAllyBlueWaypointsFix = false;
+		Patches::Ui::enableArmorColorWaypointsFix = false;
 
-		if (intValue == 1)
-		{
+		if (value == "blue")
 			Patches::Ui::enableAllyBlueWaypointsFix = true;
-			SSL_SetTeamColor(0);
-		}
-		else
-		{ 
-			Patches::Ui::enableAllyBlueWaypointsFix = false;
-			SSL_SetTeamColor(intValue);
-		}
+		else if (value == "armor")
+			Patches::Ui::enableArmorColorWaypointsFix = true;
+
+		SSL_SetTeamColor(0);
 
 		std::stringstream ss;
 		ss << "Player Marker Colors set to " << value << ".";

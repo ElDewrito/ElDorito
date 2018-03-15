@@ -28,7 +28,6 @@ namespace Patches::Ui
 
 	void TogglePTTSound(bool enabled);
 	void ToggleSpeakingPlayerName(std::string name, bool speaking);
-	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
 	void UpdateHUDDistortion();
 
@@ -39,6 +38,7 @@ namespace Patches::Ui
 	//Probably needs refactoring.
 	extern bool enableCustomHUDColors;
 	extern bool enableAllyBlueWaypointsFix;
+	extern bool enableArmorColorWaypointsFix;
 	extern int customPrimaryHUDColor;
 	extern int customSecondaryHUDColor;
 }
