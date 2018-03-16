@@ -131,14 +131,15 @@ namespace ChatCommands
 		if (line.empty())
 			return true;
 		//TODO move the logic for !help and !listPlayers into a new non-voting chat command type
-		if (line == "help")
+		std::string lowercaseline = Utils::String::ToLower(line);
+		if (lowercaseline == "help")
 		{
 			for (auto i : getHelpText()) {
 				Server::Chat::SendServerMessage(i, peer);
 			}
 			return true;
 		}
-		else if (line == "listPlayers" || line == "list")
+		else if (lowercaseline == "listplayers" || lowercaseline == "list")
 		{
 			int peerIdx = session->MembershipInfo.FindFirstPeer();
 			while (peerIdx != -1)
