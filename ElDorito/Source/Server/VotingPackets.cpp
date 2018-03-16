@@ -104,12 +104,9 @@ namespace
 			auto session = Blam::Network::GetActiveSession();
 			if (!session)
 				return;
-			auto peer = session->GetChannelPeer(sender);
-			if (peer < 0)
-				return;
 
 			//at this level, it doesnt matter if we are the host or not. If we receive any sort of voting message, handle it
-			ReceivedVotingMessage(session, peer, packet->Data);
+			ReceivedVotingMessage(session, session->GetChannelPeer(sender), packet->Data);
 
 		}
 	};
@@ -120,7 +117,7 @@ namespace
 	void ReceivedVotingMessage(Blam::Network::Session *session, int peer, const VotingMessage &message)
 	{
 		//Vote messages will not be passed on to the message handler. 
-		if (message.Type == VotingMessageType::Vote)
+		if (message.Type == VotingMessageType::Vote && peer >= 0)
 		{
 			auto &membership = session->MembershipInfo;
 			auto &player = membership.PlayerSessions[membership.GetPeerPlayer(peer)];
