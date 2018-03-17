@@ -13,7 +13,7 @@ var transform = 'skew(0,-2.75deg)';
 var juggleEvent = 0;
 var juggleDelay = 3000;
 
-var medalSettings = { 'Game.CefMedals': 1, 'Game.MedalPack': 'default', 'Game.SuppressJuggling': 0, 'Settings.MasterVolume': 51, 'Settings.SfxVolume': 100 };
+var medalSettings = { 'Game.CefMedals': '1', 'Game.MedalPack': 'default', 'Game.SuppressJuggling': '0', 'Settings.MasterVolume': '50', 'Settings.SfxVolume': '100' };
 
 dew.on("mpevent", function (event) {
         if(medalSettings['Game.CefMedals'] == 1){
