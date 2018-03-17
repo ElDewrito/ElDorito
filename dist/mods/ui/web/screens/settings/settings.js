@@ -610,7 +610,11 @@ function setControlValues(){
                         }
                         $('#'+result[0]).val(setValue);
                         if($('#'+result[0]).hasClass('hasTiny')){
-                            $('#'+result[0]+'Text').val(setValue);
+                            if(setValue.isFloat){
+                                $('#'+result[0]+'Text').val(parseFloat(setValue.toFixed(2)));
+                            }else{                            
+                                $('#'+result[0]+'Text').val(setValue);
+                            }
                         }
                     }
                 };
@@ -1316,4 +1320,8 @@ function setInfoBox(ID){
             };
         }
     });    
+}
+
+Number.prototype.isFloat = function() {
+    return (this % 1 != 0);
 }
