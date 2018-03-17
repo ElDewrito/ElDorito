@@ -253,24 +253,6 @@ $(document).ready(function(){
             dew.command('Input.ControllerVibrationTest');
         });
     });
-    $('.wheelable').on('mousewheel', function(e) {
-        if(e.originalEvent.wheelDelta > 0) {
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            if(elementIndex > 0){
-                var newElement = elementIndex - 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }else{
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            var elementLength = $('#'+this.id).children('option').length;
-            if(elementIndex < elementLength){
-                var newElement = elementIndex + 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }
-    });
     dew.command('Graphics.SupportedResolutions', {}).then(function(response){
         var supportedArray = JSON.parse(response);
         var resolutionArray = [['Default','default']];
