@@ -1768,6 +1768,38 @@ namespace
 		}
 	}
 
+	bool PlayerMarkerIsDisabled(uint32_t playerIndex)
+	{
+		auto &players = Blam::Players::GetPlayers();
+
+		if (playerIndex == -1)
+			return false;
+
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (!player)
+			return false;
+
+		auto localPlayerDatumIndex = Blam::Players::GetLocalPlayer(0);
+		if (localPlayerDatumIndex == Blam::DatumHandle::Null)
+			return false;
+
+		auto localPlayer = players.Get(localPlayerDatumIndex);
+		if (!localPlayer)
+			return false;
+
+		auto waypointTrait = *(uint8_t*)((uint8_t*)player + 0x2DC1);
+
+		switch (waypointTrait)
+		{
+		case 4:
+			return player->Properties.TeamIndex != localPlayer->Properties.TeamIndex; // team only
+		case 5:
+			return true;
+		};
+
+		return false;
+	}
+
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data_)
 	{
 		struct s_chud_player_marker_data
@@ -1813,47 +1845,34 @@ namespace
 			}
 		}
 
-		auto localPlayerDatumIndex = Blam::Players::GetLocalPlayer(0);
-		if (localPlayerDatumIndex != Blam::DatumHandle::Null)
+		if (PlayerMarkerIsDisabled(data->player_index))
 		{
-			const auto &players = Blam::Players::GetPlayers();
-			auto localPlayer = players.Get(localPlayerDatumIndex);
-			if (localPlayer)
+			if (index != -1)
 			{
-				auto player = players.Get(data->player_index);
-				auto waypointTrait = *(uint8_t*)((uint8_t*)player + 0x2DC1);
-				if (player && waypointTrait >= 4)
-				{
-					if (waypointTrait == 5 || player->Properties.TeamIndex != localPlayer->Properties.TeamIndex) 
-					{
-						if (index != -1)
-						{
-							// existing state found, mark it as invalid
-							auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
-							newState->is_valid = false;
-							newState->data.player_index = -1;
-						}
-
-						return;
-					}
-				}
+				// existing state found, mark it as invalid
+				auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
+				newState->is_valid = false;
+				newState->data.player_index = -1;
 			}
 		}
-
-		if (index == -1)
+		else
 		{
-			auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
-			memcpy(&newState->data, data, sizeof(s_chud_player_marker_data));
-			newState->is_valid = 1;
-			newState->state = -1;
-			newState->field_6C = 0;
-			newState->time = Blam::Time::GetGameTicks();
-			return;
-		}
 
-		auto existingState = &((s_chud_player_marker_state*)thisptr)[index];
-		memcpy(&existingState->data, data, sizeof(s_chud_player_marker_data));
-		existingState->time = Blam::Time::GetGameTicks();
+			if (index == -1)
+			{
+				auto newState = &((s_chud_player_marker_state*)thisptr)[sub_AAF560(thisptr)];
+				memcpy(&newState->data, data, sizeof(s_chud_player_marker_data));
+				newState->is_valid = 1;
+				newState->state = -1;
+				newState->field_6C = 0;
+				newState->time = Blam::Time::GetGameTicks();
+				return;
+			}
+
+			auto existingState = &((s_chud_player_marker_state*)thisptr)[index];
+			memcpy(&existingState->data, data, sizeof(s_chud_player_marker_data));
+			existingState->time = Blam::Time::GetGameTicks();
+		}
 	}
 
 	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget)
