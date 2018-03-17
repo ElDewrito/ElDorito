@@ -657,6 +657,7 @@ function applySettings(i){
 			applySettings(i);  
         });
     }else{
+        dew.notify("settings-update", changeArray);
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
