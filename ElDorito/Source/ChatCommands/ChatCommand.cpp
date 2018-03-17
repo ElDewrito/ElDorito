@@ -45,7 +45,7 @@ namespace ChatCommands
 	}
 	void ShuffleTeamsCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a vote to shuffle the teams. " + std::to_string(votesNeeded) + " votes needed to pass. Type !yes to vote");
+		Server::Chat::SendServerMessage(starterName + " has started a vote to shuffle the teams. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to pass. Type !yes to vote");
 	}
 
 	bool ShuffleTeamsCommand::isValidArgument(std::string s, std::string& returnInfo)
@@ -75,7 +75,7 @@ namespace ChatCommands
 	}
 	void EndGameCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a vote to end the game. " + std::to_string(votesNeeded) + " votes needed to pass. Type !yes to vote.");
+		Server::Chat::SendServerMessage(starterName + " has started a vote to end the game. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to pass. Type !yes to vote.");
 	}
 
 	bool EndGameCommand::isValidArgument(std::string s, std::string& returnInfo){ return true; }
@@ -101,7 +101,7 @@ namespace ChatCommands
 	}
 	void KickIndexCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !Yes to vote. " + std::to_string(votesNeeded) + " votes needed to kick.");
+		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !yes to vote. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to kick.");
 	}
 
 	bool KickIndexCommand::isValidArgument(std::string s, std::string& returnInfo)
@@ -169,7 +169,7 @@ namespace ChatCommands
 
 	void KickPlayerCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !Yes to vote. " + std::to_string(votesNeeded) + " votes needed to kick.");
+		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !yes to vote. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to kick.");
 	}
 
 
