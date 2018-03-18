@@ -171,6 +171,12 @@ $(document).ready(function(){
         if(e.keyCode == 192 || e.keyCode == 223){
             dew.show('console');
         }
+        if(e.keyCode == 81){//Q
+            prevPage();
+        }
+        if(e.keyCode == 69){//E
+            nextPage();
+        }
     });
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
