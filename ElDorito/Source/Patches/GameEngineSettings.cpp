@@ -7,10 +7,6 @@
 
 namespace
 {
-	const float kPlayerScales[] = { 0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 3.0f };
-	const auto kPlayerScaleCount = sizeof(kPlayerScales) / sizeof(kPlayerScales[0]);
-	const float kPlayerScaleAcceleration = 0.85f;
-
 	struct c_player_appearance_traits
 	{
 		uint8_t ActiveCamo;
@@ -22,9 +18,6 @@ namespace
 	void __fastcall c_player_appearance_traits__serialize_hook(c_player_appearance_traits *traits, void *unused, Blam::BitStream *stream);
 	void __fastcall c_player_appearance_traits__deserialize_hook(c_player_appearance_traits *traits, void *unused, Blam::BitStream *stream);
 	float __fastcall c_player_health_traits__get_damage_resistance_hook(uint8_t* thisptr, void *unused);
-	void PlayerAuraHook();
-	bool UnitCanRagdoll(uint32_t unitObjectIndex);
-	bool RagdollHook();
 }
 
 namespace Patches::GameEngineSettings
@@ -57,24 +50,17 @@ namespace Patches::GameEngineSettings
 		Hook(0x1CC110, c_player_health_traits__get_damage_resistance_hook).Apply();
 
 		// player size
-		auto numPlayerSizes = uint8_t(kPlayerScaleCount + 2);
+		uint8_t numPlayerSizes = 10;
 		Patch(0x1CB5B9 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CBA25 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CCEB6 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CC6B7 + 2, { numPlayerSizes }).Apply();
 		Patch(0x1CCE66 + 2, { numPlayerSizes }).Apply();
-		
-		// TODO: move this somewhere else
-		Hook(0x14F3C0, PlayerAuraHook).Apply();
 		Patch(0x14F3B6, 0x90, 6).Apply();
 		Patch(0x14F3BD, 0x90, 2).Apply();
-		Hook(0x7D847A, RagdollHook, HookFlags::IsCall).Apply();
-
 		// disable appearance trait caching
 		Patch(0x349781, { 0x90, 0x90 }).Apply();
 		Patch(0x34978E, { 0xEB }).Apply();
-
-	
 	}
 }
 
@@ -116,73 +102,5 @@ namespace
 			return  1000.0;
 		}
 		return 1.0f;
-	}
-
-	float LinearAccelerate(float current, float target, float dt)
-	{
-		float t = target - current;
-		if (t > dt)
-			return current + dt;
-		if (t < -dt)
-			return current - dt;
-		return target;
-	}
-
-	void UpdatePlayerSize(uint32_t playerIndex)
-	{
-		const auto objects_scripting_set_scale = (void(*)(uint32_t objectIndex, float scale, float a3))(0x00B965C0);
-
-		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (!player || player->SlaveUnit == Blam::DatumHandle::Null)
-			return;
-		auto unitObject = Blam::Objects::Get(player->SlaveUnit);
-		if (!unitObject)
-			return;
-		int playerScaleIndex = *((uint8_t*)player + 0x2DC2) - 2;
-		if (playerScaleIndex < 0 || playerScaleIndex >= kPlayerScaleCount)
-			return;
-
-		auto currentScale = unitObject->Scale;
-		auto desiredScale = kPlayerScales[playerScaleIndex];
-		auto scale = LinearAccelerate(currentScale, desiredScale, Blam::Time::GetSecondsPerTick() * kPlayerScaleAcceleration);
-		objects_scripting_set_scale(player->SlaveUnit, scale, 1.0f);	
-	}
-
-	_declspec(naked) void PlayerAuraHook()
-	{
-		__asm
-		{
-			pushad
-			push[ebp + 8]
-			call UpdatePlayerSize
-			add esp, 4
-			popad
-			mov eax, [ebp + 0x18]
-			pop edi
-			pop esi
-			mov[eax], cl
-			pop ebx
-			mov esp, ebp
-			pop ebp
-			retn
-		}
-	}
-
-	bool UnitCanRagdoll(uint32_t unitObjectIndex)
-	{
-		auto unitObject = Blam::Objects::Get(unitObjectIndex);
-		if (!unitObject)
-			return false;
-
-		// disable ragdolling when scale < 1.0 to avoid stretching issues
-		return unitObject->Scale >= 1.0f;
-	}
-
-	bool RagdollHook()
-	{
-		const auto sub_765A30 = (bool(*)())(0x765A30);
-		uint32_t unitObjectIndex;
-		__asm { mov unitObjectIndex, edi }
-		return sub_765A30() && UnitCanRagdoll(unitObjectIndex);
 	}
 }

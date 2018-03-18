@@ -120,6 +120,7 @@
     <ClCompile Include="Source\Patches\GameEngineSettings.cpp" />
     <ClCompile Include="Source\Patches\PlayerPropertiesExtension.cpp" />
     <ClCompile Include="Source\Patches\PlayerRepresentation.cpp" />
+    <ClCompile Include="Source\Patches\PlayerScale.cpp" />
     <ClCompile Include="Source\Patches\PlayerUid.cpp" />
     <ClCompile Include="Source\Patches\RawInput.cpp" />
     <ClCompile Include="Source\Patches\Scoreboard.cpp" />
@@ -316,6 +317,7 @@
     <ClInclude Include="Source\Patches\GameEngineSettings.hpp" />
     <ClInclude Include="Source\Patches\PlayerPropertiesExtension.hpp" />
     <ClInclude Include="Source\Patches\PlayerRepresentation.hpp" />
+    <ClInclude Include="Source\Patches\PlayerScale.hpp" />
     <ClInclude Include="Source\Patches\PlayerUid.hpp" />
     <ClInclude Include="Source\Patches\RawInput.hpp" />
     <ClInclude Include="Source\Patches\Scoreboard.hpp" />

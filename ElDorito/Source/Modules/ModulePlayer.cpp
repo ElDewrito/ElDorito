@@ -176,6 +176,9 @@ namespace Modules
 		VarPlayerPubKey = AddVariableString("PubKey", "player_pubkey", "The players unique stats public key", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsWriteToKeys), "");
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
+		// can be removed for release
+		VarPlayerScale = AddVariableFloat("Scale", "player_scale", "Local player scale", CommandFlags(eCommandFlagsNone|eCommandFlagsHostOnly), 1.0f);
+
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
 		AddCommand("EncryptGmtTimestamp", "encryptgmttimestamp", "encrypts a timestamp using the player's private key.", eCommandFlagsNone, GenerateTimestamp);
 
