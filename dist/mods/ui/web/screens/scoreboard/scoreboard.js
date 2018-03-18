@@ -811,8 +811,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 }
 
 function hexToRgb(hex, opacity){
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return "rgba(" + parseInt(result[1], 16) + "," + parseInt(result[2], 16) + "," + parseInt(result[3], 16) + "," + opacity + ")";
+    var r = parseInt(hex.substr(1,2), 16);
+    var g = parseInt(hex.substr(3,2), 16);
+    var b = parseInt(hex.substr(5,2), 16);
+    return 'rgba('+ r + "," + g + "," + b + "," + opacity+")";
 }
 
 function sortMe(sortWhat, sortWhich){
