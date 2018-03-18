@@ -137,6 +137,12 @@ $(document).ready(function(){
             if(e.keyCode == 32 || e.keyCode == 13){ //Space and Enter
                 selectElement();
             }
+            if(e.keyCode == 81){//Q
+                prevPage();
+            }
+            if(e.keyCode == 69){//E
+                nextPage();
+            }
         }else{
             if(e.keyCode == 13){ //Enter to submit inputBox
                 $('#inputBox #okButton').click();
