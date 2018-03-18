@@ -298,6 +298,34 @@ dew.on('show', function(e){
         }
     });
     setControlValues();
+    dew.command('Server.VotingEnabled', {}).then(function(x){
+        dew.command('Server.VetoSystemEnabled', {}).then(function(y){
+            if(x == '0' && y == '1'){
+                $('#sVotingStyle').val('2');
+                $('#voting').hide();
+                $('#veto').show();
+            }else if(x == '1' && y == '0'){
+                $('#sVotingStyle').val('1');
+                $('#voting').show();
+                $('#veto').hide();
+            }else{
+                $('#sVotingStyle').val('0');
+                $('#voting, #veto').hide();
+            }
+        });       
+    });
+    dew.command('Server.SprintEnabled', {}).then(function(a){
+        dew.command('Server.UnlimitedSprint', {}).then(function(b){
+            if(a == '1' && b == '1'){
+                $('#sSprint').val('2');
+            }else if(a == '1' && b == '0'){
+                $('#sSprint').val('1');
+            }else{
+                $('#sSprint').val('0');
+            }
+        });       
+    });
+    
     dew.command('Server.Mode', {}).then(function(response){
         $('#sNetworkMode').val(response);
     });
