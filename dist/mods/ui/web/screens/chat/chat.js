@@ -125,12 +125,18 @@ $(document).ready(function(){
         }
     });
     
-    for(i = 0; i < Object.keys(settingsArray).length; i++){
-        dew.command(Object.keys(settingsArray)[i], {}).then(function(response) {
-            settingsArray[Object.keys(settingsArray)[i]] = response;
-        })
-    }
+    loadSettings(0);
 });
+
+function loadSettings(i){
+	if (i != Object.keys(settingsArray).length) {
+		dew.command(Object.keys(settingsArray)[i], {}).then(function(response) {
+			settingsArray[Object.keys(settingsArray)[i]] = response;
+			i++;
+			loadSettings(i);
+		});
+	}
+}
 
 dew.on("show", function(e){
     if(settingsArray['Game.HideChat'] == 0){

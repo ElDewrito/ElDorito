@@ -13,20 +13,20 @@ var transform = 'skew(0,-2.75deg)';
 var juggleEvent = 0;
 var juggleDelay = 3000;
 
-var medalSettings = { 'Game.CefMedals': '1', 'Game.MedalPack': 'default', 'Game.SuppressJuggling': '0', 'Settings.MasterVolume': '50', 'Settings.SfxVolume': '100' };
+var settingsArray = { 'Game.CefMedals': '1', 'Game.MedalPack': 'default', 'Game.SuppressJuggling': '0', 'Settings.MasterVolume': '50', 'Settings.SfxVolume': '100' };
 
 dew.on("mpevent", function (event) {
-        if(medalSettings['Game.CefMedals'] == 1){
-            medalsPath = "medals://" + medalSettings['Game.MedalPack'] + "/";
+        if(settingsArray['Game.CefMedals'] == 1){
+            medalsPath = "medals://" + settingsArray['Game.MedalPack'] + "/";
             $.getJSON(medalsPath+'events.json', function(json) {
                 eventJson = json;
-                if(medalSettings['Game.SuppressJuggling'] == 1){
+                if(settingsArray['Game.SuppressJuggling'] == 1){
                     suppressRepeat = true;
                 } else {
                     suppressRepeat = false;
                 }
-                var sfxVol = medalSettings['Settings.MasterVolume']/100;
-                var mstrVol = medalSettings['Settings.SfxVolume']/100;
+                var sfxVol = settingsArray['Settings.MasterVolume']/100;
+                var mstrVol = settingsArray['Settings.SfxVolume']/100;
                 playVol = sfxVol * mstrVol * 0.3;
                 var medal = event.data.name;
                 if(suppressRepeat && ( medal.startsWith('ctf_event_flag_') || medal.startsWith('assault_event_bomb_') || medal.startsWith('oddball_event_ball') || medal.startsWith('king_event_hill_c'))){
@@ -233,16 +233,22 @@ function doMedal(eventString, audience){
 
 dew.on("settings-update", function(e){
     for(i = 0; i < e.data.length; i++){
-        if(e.data[i][0] in medalSettings){
-            medalSettings[e.data[i][0]] = e.data[i][1];
+        if(e.data[i][0] in settingsArray){
+            settingsArray[e.data[i][0]] = e.data[i][1];
         }
     }
 })
 
 $(document).ready(function(){
-    for(i = 0; i < Object.keys(medalSettings).length; i++){
-        dew.command(Object.keys(medalSettings)[i], {}).then(function(response) {
-            medalSettings[Object.keys(medalSettings)[i]] = response;
-        })
-    }
+    loadSettings(0);
 })
+
+function loadSettings(i){
+	if (i != Object.keys(settingsArray).length) {
+		dew.command(Object.keys(settingsArray)[i], {}).then(function(response) {
+			settingsArray[Object.keys(settingsArray)[i]] = response;
+			i++;
+			loadSettings(i);
+		});
+	}
+}
