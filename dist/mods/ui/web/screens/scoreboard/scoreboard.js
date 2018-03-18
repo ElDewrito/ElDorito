@@ -170,8 +170,6 @@ var medalDetails = [
     {name:'Headshot!', 'string':'headshot', 'desc':'Kill an enemy with a headshot.'}
 ];
 
-var settingsArray = { 'Game.MedalPack': 'default', 'Settings.Gamepad': '0', 'Game.IconSet': '360'};
-
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
@@ -242,11 +240,6 @@ $(document).ready(function(){
     $('#closeButton').on('click', function(e){
         hideScoreboard();
     });
-    for(i = 0; i < Object.keys(settingsArray).length; i++){
-        dew.command(Object.keys(settingsArray)[i], {}).then(function(response) {
-            settingsArray[Object.keys(settingsArray)[i]] = response;
-        })
-    }
 });
 
 dew.on('controllerinput', function(e){     
@@ -542,32 +535,33 @@ dew.on("show", function(e){
     locked = e.data.locked;
     if(e.data.locked){
         $('#closeButton').show();
-
-        medalsPath = "medals://" + settingsArray['Game.MedalPack'] + "/";
-        $.getJSON(medalsPath+'events.json', function(json) {
-            eventJson = json;
-            if(eventJson['settings']){
-                if(eventJson['settings'].hasOwnProperty('imageFormat')){
-                    imageFormat = eventJson['settings'].imageFormat;
-                }
-            }            
+        dew.command('Game.MedalPack', {}).then(function(response){
+            medalsPath = "medals://" + response + "/";
+            $.getJSON(medalsPath+'events.json', function(json) {
+                eventJson = json;
+                if(eventJson['settings']){
+                    if(eventJson['settings'].hasOwnProperty('imageFormat')){
+                        imageFormat = eventJson['settings'].imageFormat;
+                    }
+                }            
+            });
         });
-
-        if(settingsArray['Settings.Gamepad'] == 1){
-            onControllerConnect();
-            hasGP = true;
-            if(!repGP){
-                repGP = window.setInterval(checkGamepad,1000/60);
+        dew.command('Settings.Gamepad', {}).then(function(result){
+            if(result == 1){
+                onControllerConnect();
+                hasGP = true;
+                if(!repGP){
+                    repGP = window.setInterval(checkGamepad,1000/60);
+                }
+            }else{
+                onControllerDisconnect();
+                hasGP = false;
+                if(repGP){
+                    window.clearInterval(repGP);
+                    repGP = null;
+                }
             }
-        }else{
-            onControllerDisconnect();
-            hasGP = false;
-            if(repGP){
-                window.clearInterval(repGP);
-                repGP = null;
-            }
-        }
-
+        });
         dew.command('Server.ListPlayersJSON').then(function(res){
             lobbyJSON = JSON.parse(res);
         });
@@ -803,11 +797,9 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
     }
 }
 
-function hexToRgba(hex,opacity){
-    var r = parseInt(hex.substr(1,2), 16);
-    var g = parseInt(hex.substr(3,2), 16);
-    var b = parseInt(hex.substr(5,2), 16);
-    return 'rgba('+ r + "," + g + "," + b + "," + opacity+")";
+function hexToRgb(hex, opacity){
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return "rgba(" + parseInt(result[1], 16) + "," + parseInt(result[2], 16) + "," + parseInt(result[3], 16) + "," + opacity + ")";
 }
 
 function sortMe(sortWhat, sortWhich){
@@ -1035,12 +1027,14 @@ function adjustColor(color, amount){
 
 function onControllerConnect(){
     $('#closeButton').css('padding-right', '1.75vw');
-    controllerType = settingsArray['Game.IconSet'];
-    $('#closeButton .button').attr('src','dew://assets/buttons/'+controllerType+'_Back.png');
-    $('#previousPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_LB.png');
-    $('#nextPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_RB.png');
-    $('#windowClose .button').attr('src','dew://assets/buttons/'+controllerType+'_B.png');
-    $('.button').show();
+    dew.command('Game.IconSet', {}).then(function(response){
+        controllerType = response;
+        $('#closeButton .button').attr('src','dew://assets/buttons/'+controllerType+'_Back.png');
+        $('#previousPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_LB.png');
+        $('#nextPlayer .button').attr('src','dew://assets/buttons/'+controllerType+'_RB.png');
+        $('#windowClose .button').attr('src','dew://assets/buttons/'+controllerType+'_B.png');
+        $('.button').show();
+    });  
 }
 
 function onControllerDisconnect(){
@@ -1166,12 +1160,3 @@ function isSpeaking(name,visible){
 function hideScoreboard() {
     dew.callMethod('scoreboardHide', {});
 }
-
-
-dew.on("settings-update", function(e){
-    for(i = 0; i < e.data.length; i++){
-        if(e.data[i][0] in settingsArray){
-            settingsArray[e.data[i][0]] = e.data[i][1];
-        }
-    }
-})
