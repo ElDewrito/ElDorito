@@ -330,21 +330,6 @@ $(document).ready(function(){
         updateBindLabels();
     });
     
-    dew.command('Server.VotingEnabled', {}).then(function(x){
-        dew.command('Server.VetoSystemEnabled', {}).then(function(y){
-            if(x == '1' && y == '1'){
-                $('#sVotingStyle').val('2');
-                $('#voting').hide();
-            }else if(x == '1' && y == '0'){
-                $('#sVotingStyle').val('1');
-                $('#voting').show();
-                $('#veto').hide();
-            }else{
-                $('#sVotingStyle').val('0');
-                $('#voting, #veto').hide();
-            }
-        });       
-    });
     dew.command('Server.SprintEnabled', {}).then(function(a){
         dew.command('Server.UnlimitedSprint', {}).then(function(b){
             if(a == '1' && b == '1'){
@@ -725,11 +710,14 @@ function applyButton(){
 
 function resetButton(){
     if(window.location.hash == '#page5'){
-        dew.command('Input.ResetBindings');
-        initializeBindings(); 
+        dew.command('Input.ResetBindings').then(function(){
+            initializeBindings(); 
+        });
     }else{
-        dew.command('Settings.Reset');
-        applySettings(0);
+        dew.command('Settings.Reset').then(function(){
+            setControlValues();
+            initGamepad();
+        });
     }
 }
 
