@@ -233,6 +233,7 @@ $(document).ready(function(){
             if(e.data.A == 1){
                 if(activePage.endsWith('inputBox')){
                     dew.command('Player.Name '+$('#inputBox input').val());
+                    dew.notify("settings-update", [['Player.Name',$('#inputBox input').val()]]);
                     dismissButton();
                 }else{
                     selectElement();
@@ -393,6 +394,7 @@ $(document).ready(function(){
     $('#inputBox #okButton').on('click', function(){
         if($('#inputBox #pName').is(':visible')){
             dew.command('Player.Name "'+$('#inputBox #pName').val()+'"');
+            dew.notify("settings-update", [['Player.Name',$('#inputBox #pName').val()]]);
 			if(hasValidConnection){
 				SetupEmblems(false, false, false, function(){
 					ApplyEmblem(false);
