@@ -304,18 +304,6 @@ $(document).ready(function(){
             playSound = true;
         }
     });
-    $('#sVotingStyle').on('change', function(){
-        updateVotingStyle(this.value);
-        if(hasGP){
-            if(itemNumber > $(activePage + ' label:visible').length-1){
-                itemNumber = $(activePage + ' label:visible').length-1;
-            }
-            updateSelection(itemNumber, true, true);
-        }
-    });
-    $('#sSprint').on('change', function(){
-        updateSprint(this.value);
-    });
     $('#presetMenu').on('change', function(){
         applyBindString(this.value);
     });
@@ -456,7 +444,7 @@ $(document).ready(function(){
         }
     });
     $('#sVsync').on('change', function(){
-        alertBox('VSync changes requires a restart to take effect', false);
+        alertBox('This change requires a restart to take effect', false);
     });
     $('#okButton').on('click', function(){
         hideAlert(true);
@@ -692,7 +680,6 @@ function applyBindChanges(i){
     }
 }
 
-
 function applyButton(){
     if(window.location.hash == '#page5'){
         applyBinds();
@@ -759,8 +746,7 @@ function cancelButton(){
 }
 
 function dismissButton(){
-    hideAlert(false);
-    resetInstants();    
+    hideAlert(false);  
     itemNumber = 0;
     effectReset();
     setControlValues();
@@ -818,37 +804,6 @@ function setOptionList(ElementID, ArrayVar){
         opt.innerHTML = ArrayVar[i][0];
         opt.value = ArrayVar[i][1];
         sel.appendChild(opt);
-    }
-}
-
-function updateVotingStyle(value){
-    if(value == "0"){
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
-        $('#voting, #veto').hide();
-    }else if(value == "1"){
-        queueChange(['Server.VotingEnabled', '1']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
-        $('#veto').hide();
-        $('#voting').show();
-    }else{
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '1']);
-        $('#voting').hide();
-        $('#veto').show();
-    }
-}
-
-function updateSprint(value){
-    if(value == "0"){
-        queueChange(['Server.SprintEnabled', '0']);
-        queueChange(['Server.UnlimitedSprint', '0']);
-    }else if(value == "1"){
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '0']);
-    }else{
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '1']);
     }
 }
 
@@ -1172,17 +1127,6 @@ function onControllerConnect(){
 function onControllerDisconnect(){
     $('.selectedItem').removeClass(); 
     $('button img, .tabs img').hide();
-}
-
-function resetInstants(){
-    for(var i = 0; i < $('.instant').length; i++) {
-        var elementID = $('.instant').eq(i).attr('id');
-        $.grep(commandValues, function(result){
-            if(result[0] == elementID){
-                dew.command(result[1] + ' ' + result[2]);
-            };
-        });
-    }
 }
 
 function leftToggle(){
