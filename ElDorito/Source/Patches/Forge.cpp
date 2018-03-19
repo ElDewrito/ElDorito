@@ -844,23 +844,24 @@ namespace
 				}
 
 				physics_set_gravity_scale(1.0f);
-
-				// state will be reset next tick
-				mapModifierState.IsValid = false;
-
 			}
 
-			return;
+			// state will be reset next tick
+			mapModifierState.IsValid = false;
 		}
 
 		mapModifierState.WaitingForNewRound = !roundInProgress;
-		mapModifierState.IsActive = true;
+
+		if (!mapModifierState.IsValid || !roundInProgress)
+			return;
 
 		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
 
 		auto mpProperties = mapModifierObject->GetMultiplayerProperties();
 		if (!mpProperties)
 			return;
+
+		mapModifierState.IsActive = true;
 
 		auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
 
