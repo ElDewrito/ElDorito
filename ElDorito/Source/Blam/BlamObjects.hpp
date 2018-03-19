@@ -34,7 +34,7 @@ namespace Blam::Objects
 		int8_t TeleporterFlags;
 		int8_t TeleporterChannel;
 		int8_t field_6;
-		int8_t field_7;
+		int8_t Symmetry;
 		uint16_t EngineFlags;
 		int16_t TeamIndex;
 		int8_t SpareClips;

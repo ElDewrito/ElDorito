@@ -95,6 +95,7 @@ namespace
 	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused);
 	void __fastcall MapVariant_SyncObjectProperties_Object_Properties_Hook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
+	void MapVariant_BuildVariantPropertiesFromObjectHook(Blam::MapVariant::VariantPlacement *placement);
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
@@ -299,6 +300,8 @@ namespace Patches::Forge
 		Hook(0x181326, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x1824EA, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x185BBD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
+		// function uses XMM registers to copy the zone properties which can destroy the data stored there, reimplement it
+		Hook(0x186680, MapVariant_BuildVariantPropertiesFromObjectHook).Apply();
 
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
@@ -2222,6 +2225,75 @@ namespace
 		}
 	}
 
+	void MapVariant_BuildVariantPropertiesFromObjectHook(Blam::MapVariant::VariantPlacement *placement)
+	{
+		const auto sub_B63150 = (uint16_t(*)(uint32_t objectIndex, uint16_t, bool))(0xB63150);
+
+		if (placement->ObjectIndex == -1)
+			return;
+		auto objectHeader = Blam::Objects::GetObjects().Get(placement->ObjectIndex);
+		if (!objectHeader)
+			return;
+		auto mpProperties = objectHeader->Data->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
+
+		placement->Properties.EngineFlags = mpProperties->EngineFlags;
+		placement->Properties.ObjectFlags = 0;
+		placement->Properties.TeamAffilation = mpProperties->TeamIndex & 0xff;
+		placement->Properties.SharedStorage = 0;
+		placement->Properties.ZoneShape = mpProperties->Shape;
+
+		if (((mpProperties->Flags & 0xff) >> 6) & 1)
+			placement->Properties.ObjectFlags |= 1u;
+		else
+			placement->Properties.ObjectFlags &= ~1u;
+
+		// placed at start
+		if (((mpProperties->Flags & 0xff) >> 7) & 1)
+			placement->Properties.ObjectFlags |= 2u;
+		else
+			placement->Properties.ObjectFlags &= ~2u;
+
+		// symmetry
+		placement->Properties.ObjectFlags |= 0xCu;
+		if (mpProperties->Symmetry == 1)
+			placement->Properties.ObjectFlags &= ~8u;
+		else
+		{
+			if (mpProperties->Symmetry == 2)
+				placement->Properties.ObjectFlags &= 0xFB;
+		}
+
+		if (mpProperties->SpawnTime < 0 || mpProperties->SpawnTime >= 255)
+			placement->Properties.RespawnTime = 0;
+		else
+			placement->Properties.RespawnTime = mpProperties->SpawnTime & 0xff;
+
+		// zone properties
+		memcpy((void*)&placement->Properties.ZoneRadiusWidth, (void*)&mpProperties->RadiusWidth, 16);
+
+		// spare clips
+		placement->Properties.ObjectType = mpProperties->ObjectType;
+		if (objectHeader->Type == Blam::Objects::eObjectTypeWeapon)
+		{
+			auto weaponDefinition = Blam::Tags::TagInstance(objectHeader->Data->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if (weaponDefinition->Magazines.Count > 0)
+			{
+				auto &magazine = weaponDefinition->Magazines[0];
+				auto rounds = sub_B63150(placement->ObjectIndex, 0, true);
+				if (magazine.RoundsTotalLoadedMaximum)
+					placement->Properties.SharedStorage = rounds / magazine.RoundsTotalLoadedMaximum;
+			}
+		}
+		else
+		{
+			if (mpProperties->ObjectType >= 9 && mpProperties->ObjectType <= 11)
+				placement->Properties.SharedStorage = mpProperties->TeleporterChannel;
+			else
+				placement->Properties.SharedStorage = mpProperties->SpareClips;
+		}
+	}
 
 	SandboxPaletteItem* FindSandboxPaletteItem(uint32_t tagIndex)
 	{
