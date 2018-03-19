@@ -984,6 +984,9 @@ namespace
 			if (budget.TagIndex == -1 || budget.Cost == -1)
 				continue;
 
+			if (budget.TagIndex == 0x00002EA6)
+				continue;
+
 			if (placement.ObjectIndex != -1)
 				DeleteObject(playerHandle.Index, i);
 			else
