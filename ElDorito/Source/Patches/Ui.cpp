@@ -162,7 +162,7 @@ namespace Patches::Ui
 {
 	bool enableCustomHUDColors = false;
 	bool enableAllyBlueWaypointsFix = false;
-	bool enableArmorColorWaypoitsFix = false;
+	bool enableArmorColorWaypointsFix = false;
 	int customPrimaryHUDColor = -1;
 	int customSecondaryHUDColor = 0;
 
@@ -2142,6 +2142,8 @@ namespace
 			fix_armour_colors:
 				cmp Patches::Ui::enableArmorColorWaypointsFix, 1
 				jne eldorado_return
+				cmp[esi - 0x24], 3
+				je eldorado_return
 				cmp[esi - 0x2C], 0
 				je is_player_marker
 				cmp[esi - 0x2C], 1
