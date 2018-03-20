@@ -333,6 +333,8 @@ namespace Modules
 			return eVariableSetReturnValueInvalidArgument;
 		}
 
+		NotifyVariableUpdated(command);
+
 		return eVariableSetReturnValueSuccess;
 	}
 
@@ -426,6 +428,17 @@ namespace Modules
 		}
 		queuedCommands.clear();
 		return ss.str();
+	}
+
+	void CommandMap::NotifyVariableUpdated(const Command *command)
+	{
+		for (auto &&callback : variableUpdateCallbacks)
+			callback(command);
+	}
+
+	void CommandMap::OnVariableUpdate(VariableUpdateCallback callback)
+	{
+		variableUpdateCallbacks.push_back(callback);
 	}
 }
 

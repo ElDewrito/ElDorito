@@ -665,6 +665,8 @@ namespace
 				std::string returnInfo;
 				cmd.UpdateEvent({ cmd.ValueString }, returnInfo);
 			}
+
+			commandMap.NotifyVariableUpdated(&cmd);
 		}
 
 		returnInfo = "Default settings restored";

@@ -3,6 +3,7 @@
 #include <vector>
 #include <deque>
 #include <Windows.h>
+#include <functional>
 
 #include "Utils/Singleton.hpp"
 
@@ -88,6 +89,8 @@ namespace Modules
 		std::string GenerateHelpText();
 	};
 
+	using VariableUpdateCallback = std::function<void(const Command*)>;
+
 	class CommandMap : public Utils::Singleton<CommandMap>
 	{
 	public:
@@ -103,6 +106,9 @@ namespace Modules
 		bool ExecuteCommandWithStatus(std::string command, bool isUserInput, std::string *output);
 		std::string ExecuteQueue();
 
+		void OnVariableUpdate(VariableUpdateCallback callback);
+		void NotifyVariableUpdated(const Command *command);
+
 		bool GetVariableInt(const std::string& name, unsigned long& value);
 		bool GetVariableInt64(const std::string& name, unsigned long long& value);
 		bool GetVariableFloat(const std::string& name, float& value);
@@ -117,5 +123,6 @@ namespace Modules
 		std::string SaveKeys();
 	private:
 		std::vector<std::string> queuedCommands;
+		std::vector<VariableUpdateCallback> variableUpdateCallbacks;
 	};
 }
