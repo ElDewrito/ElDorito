@@ -255,6 +255,14 @@ function loadSettings(i){
 	}
 }
 
+dew.on("variable_update", function(e){
+    for(i = 0; i < e.data.length; i++){
+        if(e.data[i].name in settingsArray){
+            settingsArray[e.data[i].name] = e.data[i].value;
+        }
+    }
+});
+
 dew.on('controllerinput', function(e){     
     if(hasGP){
         if(e.data.A == 1){

@@ -237,16 +237,13 @@ function doMedal(eventString, audience){
     }
 }
 
-dew.on("settings-update", function(e){
+dew.on("variable_update", function(e){
     for(i = 0; i < e.data.length; i++){
-        if(e.data[i][0] in settingsArray){
-            settingsArray[e.data[i][0]] = e.data[i][1];
-            if(e.data[i][0]] == "Game.MedalPack"){
-                eventJSONCache = null;
-            }
+        if(e.data[i].name in settingsArray){
+            settingsArray[e.data[i].name] = e.data[i].value;
         }
     }
-})
+});
 
 $(document).ready(function(){
     loadSettings(0);
