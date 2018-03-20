@@ -7,11 +7,13 @@
 #include "../Blam/BlamTime.hpp"
 #include "../Blam/Math/RealMatrix4x3.hpp"
 #include "../Blam/Tags/Items/DefinitionWeapon.hpp"
+#include "../Blam/Tags/Objects/Biped.hpp"
 #include "../Patch.hpp"
 
 namespace
 {
 	struct s_biped_physics;
+	struct s_biped_physics_data1;
 	struct ZoneShape;
 
 	const auto kTransitionRate = 5.0f;
@@ -23,6 +25,9 @@ namespace
 	const float kMaxPlayerScale = kPlayerScales[kPlayerScaleCount - 1];
 
 	const auto kMeleeRangeScale = 0.785f;
+	const auto kMassScale = 15.0f;
+	const auto kJumpScaleSmaller = 0.8f;
+	const auto kJumpScaleLarger = 0.15f;
 
 	void PlayerAuraHook();
 	bool RagdollHook();
@@ -36,6 +41,11 @@ namespace
 	void BipedShapeHook(uint32_t objectIndex, Blam::Math::RealVector3D *outPosition, float *outHeight, float *outRadius);
 	void MeleeRangeHook(uint32_t unitObjectIndex, uint32_t name, int a3, void *damageData);
 	bool SprintCameraShakeHook(uint32_t playerIndex, float *outValue);
+	void CollisionDamageHook();
+	void MassHook();
+	bool __fastcall WalkAnimationHook(void *thisptr, void *unused, uint32_t unitObjectIndex, Blam::Math::RealVector3D *a3, bool a4);
+	void JumpVelocityScaleHook(uint32_t bipedObjectIndex);
+	void BipedMovementPhysics(s_biped_physics_data1 *data, int a2, char a3, char a4, char a5, char a6, int a7, float sneak);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -72,6 +82,7 @@ namespace Patches::PlayerScale
 	{
 		Hook(0x14F3C0, PlayerAuraHook).Apply();
 		Hook(0x2842B0, SprintCameraShakeHook, HookFlags::IsCall).Apply();
+		Hook(0x790774, WalkAnimationHook, HookFlags::IsCall).Apply();
 		// physics/collision
 		Hook(0x7D847A, RagdollHook, HookFlags::IsCall).Apply();
 		Hook(0x0B10E0, BipedPhysicsHook_4B10E0, HookFlags::IsCall).Apply();
@@ -84,6 +95,10 @@ namespace Patches::PlayerScale
 		Hook(0x7A5053, MeleeRangeHook, HookFlags::IsCall).Apply();
 		Hook(0x78175B, MeleeRangeHook, HookFlags::IsCall).Apply();
 		Hook(0x742774, MeleeRangeHook, HookFlags::IsCall).Apply();
+		Hook(0x3636ED, CollisionDamageHook).Apply();
+		Hook(0x1E24AE, MassHook).Apply();
+		Hook(0x7AF707, BipedMovementPhysics, HookFlags::IsCall).Apply();
+		Hook(0x7E276C, JumpVelocityScaleHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -150,6 +165,19 @@ namespace
 		Blam::Tags::TagBlock<s_havok_capsule_shape> PillShapes;
 		Blam::Tags::TagBlock<uint8_t> SphereShapes;
 		//....
+	};
+
+	struct s_biped_physics_data1
+	{
+		uint8_t field_0[0x18];
+		uint32_t HavokComponentIndex;
+		uint8_t field_1C[0x134];
+		float Boost;
+		Blam::Math::RealVector3D Velocity;
+		float GroundAcceleration;
+		float AirborneAcceleration;
+		void *Shape;
+		// .. 
 	};
 
 	struct ZoneShape {
@@ -259,7 +287,10 @@ namespace
 		if (playerState.UnitObjectIndex != player->SlaveUnit.Handle)
 		{
 			playerState.UnitObjectIndex = player->SlaveUnit;
+			objects_scripting_set_scale(player->SlaveUnit, desiredScale, 0.0f);
 			object_set_havok_flags(player->SlaveUnit, 0);
+			playerState.IsTransitioning = true;
+			return;
 		}
 
 		if (std::abs(desiredScale - currentScale) < 0.001f)
@@ -269,6 +300,14 @@ namespace
 				playerState.IsTransitioning = false;
 				objects_scripting_set_scale(player->SlaveUnit, desiredScale, 0.0f);
 				object_set_havok_flags(player->SlaveUnit, 0);
+
+				if (std::abs(1.0f - desiredScale) > 0.001f)
+					ObjectDeleteEffectAttachmentsRecursive(player->SlaveUnit);
+			}
+			else
+			{
+				// for weapons
+				objects_scripting_set_scale(player->SlaveUnit, desiredScale, 0.0f);
 			}
 		}
 		else
@@ -626,5 +665,123 @@ namespace
 		}
 
 		sub_B3C360(unitObjectIndex, name, a3, damageData);
+	}
+
+	void ScaleCollisionDamage(uint32_t objectIndex, uint8_t *damageData)
+	{
+		auto bipedObject = Blam::Objects::Get(objectIndex);
+		if (bipedObject)
+			*(float*)damageData *= bipedObject->Scale;
+	}
+
+	__declspec(naked) void CollisionDamageHook()
+	{
+		__asm
+		{
+			pushad
+			push[ebp + 0xC]
+			push[ebp + 0x8]
+			call ScaleCollisionDamage
+			add esp, 8
+			popad
+			pop edi
+			pop esi
+			mov al, cl
+			pop ebx
+			mov esp, ebp
+			pop ebp
+			ret
+		}
+	}
+
+	__declspec(naked) void MassHook()
+	{
+		__asm
+		{
+			movss xmm0, [eax + 0x10]
+			push eax
+			push ecx
+			mov eax, dword ptr fs : [0x2C]
+			mov eax, dword ptr ds : [eax]
+			mov eax, [eax + 0x448]
+			mov eax, [eax + 0x44]
+			movzx ecx, word ptr[esi + 8]  // havok componet -> object index
+			add ecx, ecx
+			mov eax, [eax + ecx * 8 + 0xC]
+			movss xmm4, [eax + 0x90]
+			pop ecx
+			pop ecx
+			mulss xmm4, kMassScale
+			mulss xmm0, xmm4
+			push 0x005E24B3
+			retn
+		}
+	}
+
+	void BipedMovementPhysics(s_biped_physics_data1 *data, int a2, char a3, char a4, char a5, char a6, int a7, float sneak)
+	{
+		const auto sub_7209E0 = (void(*)(void *data, int a2, char a3, char a4, char a5, char a6, int a7, float sneak))(0x7209E0);
+
+		auto scale = 1.0f;
+
+		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+		uint8_t *havokComponent;
+		if (data->HavokComponentIndex != -1 && (havokComponent = (uint8_t*)havokComponents->Get(data->HavokComponentIndex)))
+		{
+			auto objectIndex = *(uint32_t*)((uint8_t*)havokComponent + 0x8);
+			if (objectIndex != -1)
+			{
+				auto object = Blam::Objects::Get(objectIndex);
+				if (object)
+					scale = object->Scale;
+			}
+		}
+
+		sub_7209E0(data, a2, a3, a4, a5, a6, a7, sneak);
+
+		auto s = scale;
+		if (s > 1.5f)
+			s = 1.5f;
+
+		data->GroundAcceleration *= s;
+		data->Velocity.I *= s;
+		data->Velocity.J *= s;
+		data->Velocity.K *= s;
+	}
+
+	bool __fastcall WalkAnimationHook(void *thisptr, void *unused, uint32_t unitObjectIndex, Blam::Math::RealVector3D *a3, bool a4)
+	{
+		const auto sub_6DEFF0 = (bool(__thiscall*)(void *thisptr, uint32_t unitObjectIndex, Blam::Math::RealVector3D *a3, bool a4))(0x6DEFF0);
+
+		auto object = Blam::Objects::Get(unitObjectIndex);
+		if (object)
+		{
+			auto scale = object->Scale;
+			a3->I /= scale;
+			a3->J /= scale;
+			a3->K /= scale;
+		}
+
+		return sub_6DEFF0(thisptr, unitObjectIndex, a3, a4);
+	}
+
+	void JumpVelocityScaleHook(uint32_t bipedObjectIndex)
+	{
+		using BipedDefinition = Blam::Tags::Objects::Biped;
+		const auto sub_BE1B30 = (char(*)(uint32_t bipedObjectIndex))(0x00BE1B30);
+
+		auto bipedObject = Blam::Objects::Get(bipedObjectIndex);
+		if (!bipedObject)
+			return;
+
+		auto bipedDefinition = Blam::Tags::TagInstance(bipedObject->TagIndex).GetDefinition<BipedDefinition>();
+
+		auto d = 1.0f - bipedObject->Scale;
+		auto s = d > 0 ? kJumpScaleSmaller : kJumpScaleLarger;
+
+		auto oldJumpVelocity = bipedDefinition->JumpVelocity;
+		bipedDefinition->JumpVelocity *= 1.0f - d * s;
+		sub_BE1B30(bipedObjectIndex);
+		bipedDefinition->JumpVelocity = oldJumpVelocity;
 	}
 }
