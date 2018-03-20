@@ -1,6 +1,8 @@
 var inputHistory = [];
 var selectedHistoryIndex = 0;
 var commandList = {};
+var suggestions = {};
+var suggestionIndex = 0;
 
 var eAutoCompleteMode = {
     Prefix : 1,
@@ -307,7 +309,7 @@ function showVariables() {
 }
 
 function getSuggestedCommands(partial) {
-    var suggestions = [];
+    suggestions = [];
     var commands = [];
     $.extend(commands, commandList, getConsoleHelp());
     $(".suggestion").remove();
@@ -337,26 +339,23 @@ function getSuggestedCommands(partial) {
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
         });
-        var match = findPartialsMatch(suggestions);
         if (suggestions.length > 0){
             var suggestionsString = "";
             $.each(suggestions, function (key, value) {
                 suggestionsString += htmlEncode(value) + "</span>       <span class=\"command\"><b>";
             })
             appendHTMLLine("debug-line suggestion", "<span class=\"command\"><b>" + suggestionsString + "</b></span>", []);
-            return match;
-        }
-        else {
-            return suggestions[0];
-        }
+        } 
     }
 }
 
 function setSuggestedCommands(partial) {
-    $(".suggestion").remove();
-    var suggestion = getSuggestedCommands(partial);
-    if (isset(suggestion)) {
-        setInput(suggestion);
+    if(suggestions.length) {
+        var suggestion = suggestions[suggestionIndex];
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        if (isset(suggestion)) {
+            setInput(suggestion);
+        }
     }
 }
 
