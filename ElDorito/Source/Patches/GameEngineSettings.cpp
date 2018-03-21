@@ -327,8 +327,8 @@ namespace
 		case 12:
 		case 15: // invincible
 			return  1000.0;
-		case 13: return 1500;
-		case 14: return 3000;
+		case 13: return 15;
+		case 14: return 30;
 		}
 		return 1.0f;
 	}
