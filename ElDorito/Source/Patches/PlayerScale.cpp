@@ -19,7 +19,26 @@ namespace
 	const auto kTransitionRate = 5.0f;
 	const auto kTransitionMaxDelta = 4.5f;
 	const auto kPhysicsModelUpdateRate = 0.5f;
-	const float kPlayerScales[] = { 0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 3.0f };
+	const float kPlayerScales[] =
+	{
+		0.1f,
+		0.15f,
+		0.25f,
+		0.35f,
+		0.5f,
+		0.75f,
+		1.0f,
+		1.25f,
+		1.5f,
+		2.0f,
+		3.0f,
+		5.0,
+		7.5,
+		10.0,
+		15.0,
+		20.0,
+		30.0
+	};
 
 	const auto kPlayerScaleCount = sizeof(kPlayerScales) / sizeof(kPlayerScales[0]);
 	const float kMaxPlayerScale = kPlayerScales[kPlayerScaleCount - 1];
