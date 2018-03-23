@@ -44,7 +44,7 @@ namespace
 	const float kMaxPlayerScale = kPlayerScales[kPlayerScaleCount - 1];
 
 	const auto kMeleeRangeScale = 0.785f;
-	const auto kMassScale = 15.0f;
+	const auto kMassScale = 1.5f;
 	const auto kJumpScaleSmaller = 0.8f;
 	const auto kJumpScaleLarger = 0.15f;
 
@@ -61,10 +61,13 @@ namespace
 	void MeleeRangeHook(uint32_t unitObjectIndex, uint32_t name, int a3, void *damageData);
 	bool SprintCameraShakeHook(uint32_t playerIndex, float *outValue);
 	void CollisionDamageHook();
-	void MassHook();
+	bool PlayerCollisionDamageHook(uint32_t bipedObjectIndex, uint32_t otherBipedObjectIndex);
 	bool __fastcall WalkAnimationHook(void *thisptr, void *unused, uint32_t unitObjectIndex, Blam::Math::RealVector3D *a3, bool a4);
 	void JumpVelocityScaleHook(uint32_t bipedObjectIndex);
 	void BipedMovementPhysics(s_biped_physics_data1 *data, int a2, char a3, char a4, char a5, char a6, int a7, float sneak);
+	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5,
+		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9);
+	
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -115,9 +118,10 @@ namespace Patches::PlayerScale
 		Hook(0x78175B, MeleeRangeHook, HookFlags::IsCall).Apply();
 		Hook(0x742774, MeleeRangeHook, HookFlags::IsCall).Apply();
 		Hook(0x3636ED, CollisionDamageHook).Apply();
-		Hook(0x1E24AE, MassHook).Apply();
+		Hook(0x1E227C, BipedCreateRigidBodyHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF707, BipedMovementPhysics, HookFlags::IsCall).Apply();
 		Hook(0x7E276C, JumpVelocityScaleHook, HookFlags::IsCall).Apply();
+		Hook(0x3629CC, PlayerCollisionDamageHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -692,7 +696,10 @@ namespace
 	{
 		auto bipedObject = Blam::Objects::Get(objectIndex);
 		if (bipedObject)
+		{
 			*(float*)damageData *= bipedObject->Scale;
+			*(float*)(damageData+4) *= bipedObject->Scale;
+		}	
 	}
 
 	__declspec(naked) void CollisionDamageHook()
@@ -712,30 +719,6 @@ namespace
 			mov esp, ebp
 			pop ebp
 			ret
-		}
-	}
-
-	__declspec(naked) void MassHook()
-	{
-		__asm
-		{
-			movss xmm0, [eax + 0x10]
-			push eax
-			push ecx
-			mov eax, dword ptr fs : [0x2C]
-			mov eax, dword ptr ds : [eax]
-			mov eax, [eax + 0x448]
-			mov eax, [eax + 0x44]
-			movzx ecx, word ptr[esi + 8]  // havok componet -> object index
-			add ecx, ecx
-			mov eax, [eax + ecx * 8 + 0xC]
-			movss xmm4, [eax + 0x90]
-			pop ecx
-			pop ecx
-			mulss xmm4, kMassScale
-			mulss xmm0, xmm4
-			push 0x005E24B3
-			retn
 		}
 	}
 
@@ -804,5 +787,54 @@ namespace
 		bipedDefinition->JumpVelocity *= 1.0f - d * s;
 		sub_BE1B30(bipedObjectIndex);
 		bipedDefinition->JumpVelocity = oldJumpVelocity;
+	}
+
+	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5, 
+		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9)
+	{
+		const auto BipedCreateRigidBody = (void *(__thiscall *)(void *thisptr, s_biped_physics *bipedPhysics, int a4, int a5,
+			uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9))(0x005E22C0);
+
+		auto object = Blam::Objects::Get(*(uint32_t*)((uint8_t*)thisptr + 0x8));
+		if (object)
+		{
+			auto s = 1.0f + (object->Scale - 1.0f) * std::pow(kMassScale, 2.7);
+
+			auto oldMass = bipedPhysics->Mass;
+			bipedPhysics->Mass *= s;
+			auto ret = BipedCreateRigidBody(thisptr, bipedPhysics, a4, a5, collisionFilter_, shapeIndex, hasFriction, a9);
+			bipedPhysics->Mass = oldMass;
+			return ret;
+		}
+
+		return BipedCreateRigidBody(thisptr, bipedPhysics, a4, a5, collisionFilter_, shapeIndex, hasFriction, a9);
+	}
+
+	bool PlayerCollisionDamageHook(uint32_t bipedObjectIndex, uint32_t otherBipedObjectIndex)
+	{
+		const auto game_is_multiplayer = (bool(*))(0x00531AF0);
+		const auto multiplayer_object_should_cause_collision_damage = (bool(*)(uint32_t objectIndex, uint32_t otherObjectIndex))(0x00763710);
+
+		if (game_is_multiplayer)
+		{
+			auto objectHeaderA = Blam::Objects::GetObjects().Get(bipedObjectIndex);
+			auto objectHeaderB = Blam::Objects::GetObjects().Get(otherBipedObjectIndex);
+			if (objectHeaderA && objectHeaderB 
+				&& objectHeaderA->Type == Blam::Objects::eObjectTypeBiped 
+				&& objectHeaderB->Type == Blam::Objects::eObjectTypeBiped)
+			{
+				auto minScale = objectHeaderA->Data->Scale < objectHeaderB->Data->Scale ? objectHeaderA->Data->Scale : objectHeaderB->Data->Scale;
+				auto maxScale = objectHeaderA->Data->Scale > objectHeaderB->Data->Scale ? objectHeaderA->Data->Scale : objectHeaderB->Data->Scale;
+				if (maxScale < 0.001f)
+					maxScale = 0.001f;
+
+				auto d = minScale / maxScale;
+
+				// allow larger players to damage smaller players by standing on them
+				if (d < 0.5)
+					return true;
+			}
+		}
+		return multiplayer_object_should_cause_collision_damage(bipedObjectIndex, otherBipedObjectIndex);
 	}
 }
