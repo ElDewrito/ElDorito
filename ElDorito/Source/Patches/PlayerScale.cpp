@@ -449,7 +449,9 @@ namespace
 				if (playerIndex != -1)
 				{
 					auto &playerState = state.Players[playerIndex & 0xf];
-					return GetScaledShape(bipedObjectIndex, bipedPhysics, shapeIndex);
+					auto shape = GetScaledShape(bipedObjectIndex, bipedPhysics, shapeIndex);
+					if (shape)
+						return shape;
 				}
 			}
 
