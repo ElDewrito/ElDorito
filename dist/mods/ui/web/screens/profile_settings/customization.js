@@ -164,10 +164,8 @@ $(document).ready(function(){
     $('.tabs li a').click(function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
-        window.location.href = e.target.href;
-        if(e.target.hash){
-            activePage = e.target.hash;
-        }
+        window.location.href = $(this).attr('href');
+        activePage = $(this).prop('hash');
         itemNumber = 0;
         $(e).ready(function(){
             updateSelection(itemNumber, false, true);
