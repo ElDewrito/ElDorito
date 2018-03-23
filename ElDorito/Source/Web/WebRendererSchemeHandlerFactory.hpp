@@ -1,16 +1,16 @@
 #pragma once
 #include <include/cef_scheme.h>
-#include <boost/filesystem.hpp>
 
 namespace Anvil::Client::Rendering
 {
+	// The methods of this class will always be called on the IO thread.
 	class WebRendererSchemeHandlerFactory : public CefSchemeHandlerFactory
 	{
-		std::string m_Scheme;
-		boost::filesystem::path m_Directory;
+		const std::string m_Directory;
+		const std::string m_Scheme;
 
 	public:
-		WebRendererSchemeHandlerFactory(const std::string &p_Scheme, const boost::filesystem::path &p_Directory);
+		WebRendererSchemeHandlerFactory(const std::string &p_Scheme, const std::string &p_Directory);
 
 	protected:
 		CefRefPtr<CefResourceHandler> Create(CefRefPtr<CefBrowser> p_Browser, CefRefPtr<CefFrame> p_Frame, const CefString& p_SchemeName, CefRefPtr<CefRequest> p_Request) override;
