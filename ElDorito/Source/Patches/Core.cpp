@@ -327,11 +327,25 @@ namespace
 		{
 			auto unitObject = Blam::Objects::Get(player->SlaveUnit);
 			float activeCamoPower = 0.0f;
-			if (unitObject && (activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+
+			if (unitObject)
 			{
-				*nearPlane = *(float*)0x0191068C * 3.25f;
-				*farPlane = *(float*)0x01910690;
-				return;
+				const auto globalNear = *(float*)0x0191068C;
+				const auto globalFar = *(float*)0x01910690;
+
+				if ((activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+				{
+					*nearPlane = globalNear * 3.25f;
+					*farPlane = globalFar;
+					return;
+				}
+
+				if (unitObject->Scale < 0.4)
+				{
+					*nearPlane = globalNear * std::max(2.0f, 10.0f * (unitObject->Scale / 0.4f));
+					*farPlane = globalFar;
+					return;
+				}
 			}
 		}
 

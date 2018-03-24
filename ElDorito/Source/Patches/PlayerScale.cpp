@@ -43,10 +43,13 @@ namespace
 	const auto kPlayerScaleCount = sizeof(kPlayerScales) / sizeof(kPlayerScales[0]);
 	const float kMaxPlayerScale = kPlayerScales[kPlayerScaleCount - 1];
 
-	const auto kMeleeRangeScale = 0.785f;
-	const auto kMassScale = 1.5f;
-	const auto kJumpScaleSmaller = 0.8f;
-	const auto kJumpScaleLarger = 0.15f;
+	auto kSpeedExp = 0.75f;
+	auto kMeleeRangeExp = 0.8f;
+	auto kMassExp = 1.5f;
+	auto kGravityExp = 0.375f;
+	auto kJumpVelocityExp = 0.56f;
+	auto kAirborneAccelerationScale = 0.4f;
+	auto kGroundAccelerationScale = 0.85f;
 
 	void PlayerAuraHook();
 	bool RagdollHook();
@@ -56,6 +59,7 @@ namespace
 	void *BipedPhysicsHook_B7156F(s_biped_physics *bipedPhysics, int shapeIndex);
 	void BipedPhysicsHook_BAF4CF();
 	void BipedCanStandUnobstructed_Teleporter_Hook();
+	void PlayerSpawnLocationHook(uint32_t playerIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *orientation, int *pStartingLocationIndex);
 	bool PlayerZoneTestHook(uint32_t playerIndex, ZoneShape *zone);
 	void BipedShapeHook(uint32_t objectIndex, Blam::Math::RealVector3D *outPosition, float *outHeight, float *outRadius);
 	void MeleeRangeHook(uint32_t unitObjectIndex, uint32_t name, int a3, void *damageData);
@@ -67,7 +71,8 @@ namespace
 	void BipedMovementPhysics(s_biped_physics_data1 *data, int a2, char a3, char a4, char a5, char a6, int a7, float sneak);
 	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5,
 		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9);
-	
+	void PlayerPersonalGravityHook();
+	void DamageResponseCameraShakeHook(int localPlayerIndex, int playerEffects, void *shakeData, float scale);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -87,6 +92,7 @@ namespace
 	struct PlayerState {
 		bool IsValid;
 		bool IsTransitioning;
+		float DesiredScale;
 		uint32_t UnitObjectIndex;
 		uint32_t PhysicsUpdateDeltaTime;
 		hkCapsuleShape PhysicsCapsules[2];
@@ -112,6 +118,7 @@ namespace Patches::PlayerScale
 		Hook(0x77156F, BipedPhysicsHook_B7156F, HookFlags::IsCall).Apply();
 		Hook(0x7AF4CF, BipedPhysicsHook_BAF4CF).Apply();
 		Hook(0x1C967F, BipedCanStandUnobstructed_Teleporter_Hook).Apply();
+		Hook(0x13CF37, PlayerSpawnLocationHook, HookFlags::IsCall).Apply();
 		Hook(0x76E850, BipedShapeHook).Apply();
 		Hook(0x7A10B0, PlayerZoneTestHook).Apply();
 		Hook(0x7A5053, MeleeRangeHook, HookFlags::IsCall).Apply();
@@ -122,6 +129,8 @@ namespace Patches::PlayerScale
 		Hook(0x7AF707, BipedMovementPhysics, HookFlags::IsCall).Apply();
 		Hook(0x7E276C, JumpVelocityScaleHook, HookFlags::IsCall).Apply();
 		Hook(0x3629CC, PlayerCollisionDamageHook, HookFlags::IsCall).Apply();
+		Hook(0x7AF500, PlayerPersonalGravityHook, HookFlags::IsCall).Apply();
+		Hook(0x2850A6, DamageResponseCameraShakeHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -294,18 +303,22 @@ namespace
 		auto player = Blam::Players::GetPlayers().Get(playerIndex);
 		if (!player)
 			return;
-		auto unitObject = Blam::Objects::Get(player->SlaveUnit);
-		if (!unitObject)
-			return;
 
 		auto globalScale = Modules::ModulePlayer::Instance().VarPlayerScale->ValueFloat;
-		auto currentScale = unitObject->Scale;
 
 		int playerScaleIndex = *((uint8_t*)player + 0x2DC2) - 2;
 
 		auto desiredScale = globalScale;
 		if (playerScaleIndex >= 0 && playerScaleIndex < kPlayerScaleCount)
 			desiredScale = kPlayerScales[playerScaleIndex] * globalScale;
+
+		playerState.DesiredScale = desiredScale;
+
+		auto unitObject = Blam::Objects::Get(player->SlaveUnit);
+		if (!unitObject)
+			return;
+
+		auto currentScale = unitObject->Scale;
 
 		if (playerState.UnitObjectIndex != player->SlaveUnit.Handle)
 		{
@@ -423,7 +436,7 @@ namespace
 
 		auto &pillShape = bipedPhysicsData->PillShapes[shapeIndex];
 
-		auto s = 1.0f + ((bipedObject->Scale - 1.0f));
+		auto s = bipedObject->Scale;
 
 		auto &playerState = state.Players[playerIndex & 0xF];
 		if (!playerState.IsValid)
@@ -526,7 +539,7 @@ namespace
 		}
 	}
 
-	bool PlayerCanStandUnobstructed(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *point, bool a3)
+	bool BipedCanStandUnobstructed(uint32_t bipedObjectIndex, Blam::Math::RealVector3D *point, bool a3)
 	{
 		const auto game_is_campaign = (bool(*)())(0x00531A60);
 		const auto game_is_survival = (bool(*)())(0x00531E20);
@@ -571,10 +584,51 @@ namespace
 		__asm
 		{
 			mov[esp], edi // don't need the tag index
-			call PlayerCanStandUnobstructed
+			call BipedCanStandUnobstructed
 			push 0x5C96A7
 			retn
 		}
+	}
+
+	void PlayerSpawnLocationHook(uint32_t playerIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *orientation, int *pStartingLocationIndex)
+	{
+		using BipedDefinition = Blam::Tags::Objects::Biped;
+
+		const auto player_get_spawn_location = (void(*)(uint32_t playerIndex, Blam::Math::RealVector3D *position, Blam::Math::RealVector3D *orientation, int *pStartingLocationIndex))(0x00539E30);
+		const auto player_get_third_person_representation = (uint32_t(*)(uint32_t playerIndex, uint32_t *unitTagIndex, uint32_t *variant))(0x00539F70);
+		
+		uint32_t thirdPersonUnitTagIndex;
+		player_get_third_person_representation(playerIndex, &thirdPersonUnitTagIndex, nullptr);
+		if (thirdPersonUnitTagIndex != -1)
+		{
+			auto bipedDefinition = Blam::Tags::TagInstance(thirdPersonUnitTagIndex).GetDefinition<Blam::Tags::Objects::Biped>();
+			if (bipedDefinition->PillShapes.Count == 2)
+			{
+				auto &playerState = state.Players[playerIndex & 0xf];
+				if (playerState.IsValid)
+				{
+					auto s = playerState.DesiredScale;
+					static BipedDefinition::PillShape shapes[2];
+					for (auto i = 0; i < 2; i++)
+					{
+						shapes[i] = bipedDefinition->PillShapes[i];
+						shapes[i].Radius *= s;
+						shapes[i].Top.K *= s;
+						shapes[i].TopRadius *= s;
+						shapes[i].Bottom.K *= s;
+						shapes[i].BottomRadius *= s;
+					}
+
+					auto oldPointer = bipedDefinition->PillShapes.Elements;
+					bipedDefinition->PillShapes.Elements = shapes;
+					player_get_spawn_location(playerIndex, position, orientation, pStartingLocationIndex);
+					bipedDefinition->PillShapes.Elements = oldPointer;
+					return;
+				}
+			}
+		}
+
+		player_get_spawn_location(playerIndex, position, orientation, pStartingLocationIndex);
 	}
 
 	bool PlayerZoneTestHook(uint32_t playerIndex, ZoneShape *zone)
@@ -679,7 +733,7 @@ namespace
 			{
 				auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<WeaponDefinition>();
 
-				auto scale = (1.0f + (((unitObject->Scale - 1.0f) * kMeleeRangeScale)));
+				auto scale = std::pow(unitObject->Scale, kMeleeRangeExp);
 
 				auto oldDepth = weaponDefinition->DamagePyramidDepth;
 				weaponDefinition->DamagePyramidDepth *= scale;
@@ -743,11 +797,10 @@ namespace
 
 		sub_7209E0(data, a2, a3, a4, a5, a6, a7, sneak);
 
-		auto s = scale;
-		if (s > 1.5f)
-			s = 1.5f;
+		data->GroundAcceleration *= std::pow(scale, kSpeedExp * kGroundAccelerationScale);
+		data->AirborneAcceleration *= std::pow(scale, kSpeedExp * kAirborneAccelerationScale);
 
-		data->GroundAcceleration *= s;
+		auto s = std::pow(scale, kSpeedExp);
 		data->Velocity.I *= s;
 		data->Velocity.J *= s;
 		data->Velocity.K *= s;
@@ -779,14 +832,32 @@ namespace
 			return;
 
 		auto bipedDefinition = Blam::Tags::TagInstance(bipedObject->TagIndex).GetDefinition<BipedDefinition>();
-
-		auto d = 1.0f - bipedObject->Scale;
-		auto s = d > 0 ? kJumpScaleSmaller : kJumpScaleLarger;
-
 		auto oldJumpVelocity = bipedDefinition->JumpVelocity;
-		bipedDefinition->JumpVelocity *= 1.0f - d * s;
+		bipedDefinition->JumpVelocity *= std::pow(bipedObject->Scale, kJumpVelocityExp);
 		sub_BE1B30(bipedObjectIndex);
 		bipedDefinition->JumpVelocity = oldJumpVelocity;
+	}
+
+	float __fastcall PlayerPersonalGravity(void *traits, uint32_t unitObjectIndex)
+	{
+		const auto c_player_movement_traits__get_personal_gravity = (float(__thiscall*)(void *traits))(0x005CC200);
+
+		auto s = 1.0f;
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+		if (unitObject)
+			s = std::pow(unitObject->Scale, kGravityExp);
+			
+		return c_player_movement_traits__get_personal_gravity(traits) * s;
+	}
+
+	__declspec(naked) void PlayerPersonalGravityHook()
+	{
+		__asm
+		{
+			mov edx, ebx
+			call PlayerPersonalGravity
+			retn
+		}
 	}
 
 	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5, 
@@ -798,10 +869,8 @@ namespace
 		auto object = Blam::Objects::Get(*(uint32_t*)((uint8_t*)thisptr + 0x8));
 		if (object)
 		{
-			auto s = 1.0f + (object->Scale - 1.0f) * std::pow(kMassScale, 2.7);
-
 			auto oldMass = bipedPhysics->Mass;
-			bipedPhysics->Mass *= s;
+			bipedPhysics->Mass *= std::pow(object->Scale, kMassExp);
 			auto ret = BipedCreateRigidBody(thisptr, bipedPhysics, a4, a5, collisionFilter_, shapeIndex, hasFriction, a9);
 			bipedPhysics->Mass = oldMass;
 			return ret;
@@ -836,5 +905,26 @@ namespace
 			}
 		}
 		return multiplayer_object_should_cause_collision_damage(bipedObjectIndex, otherBipedObjectIndex);
+	}
+
+	void DamageResponseCameraShakeHook(int localPlayerIndex, int playerEffects, void *shakeData, float scale)
+	{
+		const auto player_effects_shake = (void(*)(int localPlayerIndex, int playerEffects, void *shakeData, float scale))(0x00685790);
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
+		if (playerIndex != Blam::DatumHandle::Null)
+		{
+			auto player = Blam::Players::GetPlayers().Get(playerIndex);
+			if (player && player->SlaveUnit != Blam::DatumHandle::Null)
+			{
+				auto unitObject = Blam::Objects::Get(player->SlaveUnit);
+				if (unitObject)
+				{
+					scale *= unitObject->Scale;
+				}
+			}
+		}
+
+		player_effects_shake(localPlayerIndex, playerEffects, shakeData, scale);
 	}
 }
