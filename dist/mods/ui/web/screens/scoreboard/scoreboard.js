@@ -668,7 +668,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" data-teamIndex="'+lobby[i].team+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
                     if(multiRound){
                         teamHeader+='<td class="score" data-name="totalScore">'+totalArray[lobby[i].team]+'</td>';
                     }
@@ -830,7 +830,11 @@ function sortMe(sortWhat, sortWhich){
     $wrapper.find(sortWhich).sort(function(b, a) {
         var d = parseInt(a.dataset.score) - parseInt(b.dataset.score);
         if(d === 0) {
-            d = parseInt(a.dataset.index) - parseInt(a.dataset.index);
+            if(sortWhat == "singplePlayers"){
+                d = parseInt(a.dataset.playerIndex) - parseInt(a.dataset.playerIndex);
+            }else{
+                d = parseInt(a.dataset.teamIndex) - parseInt(a.dataset.teamIndex);                
+            }
         }
         return d;
     }).appendTo($wrapper);
