@@ -828,7 +828,11 @@ function hexToRgb(hex, opacity){
 function sortMe(sortWhat, sortWhich){
     var $wrapper = $('#'+sortWhat);
     $wrapper.find(sortWhich).sort(function(b, a) {
-        return parseInt(a.dataset.score) - parseInt(b.dataset.score);
+        var d = parseInt(a.dataset.score) - parseInt(b.dataset.score);
+        if(d === 0) {
+            d = parseInt(a.dataset.index) - parseInt(a.dataset.index);
+        }
+        return d;
     }).appendTo($wrapper);
 }
 
