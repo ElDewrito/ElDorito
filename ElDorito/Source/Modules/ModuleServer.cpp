@@ -1027,9 +1027,9 @@ namespace
 		std::shuffle(&players[0], &players[numPlayers], urng);
 
 		int teamIndex = 0;
-		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
+		for(auto i = 0; i < numPlayers; i++)
 		{
-			membership->PlayerSessions[players[player]].Properties.ClientProperties.TeamIndex = teamIndex;
+			membership->PlayerSessions[players[i]].Properties.ClientProperties.TeamIndex = teamIndex;
 
 			teamIndex++;
 			if (teamIndex == Modules::ModuleServer::Instance().VarNumTeams->ValueInt)
