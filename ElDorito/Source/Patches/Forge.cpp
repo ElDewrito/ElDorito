@@ -384,7 +384,7 @@ namespace Patches::Forge
 
 		// reforge materials
 		Hook(0x679F7F, RenderObjectTransparentHook).Apply();
-		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
+		Hook(0x679285, RenderObjectCompressionInfoHook, HookFlags::IsCall).Apply();
 
 		Hook(0x1D9BBE, BackgroundSoundEnvironmentHook, HookFlags::IsCall).Apply();
 		Hook(0x7591E4, scenario_place_sky_scenery_hook, HookFlags::IsCall).Apply();
@@ -1989,14 +1989,15 @@ namespace
 	{
 		__asm
 		{
-
-			pushad
-			push[eax + 0x78]
+			push ebp
+			mov eax, [ebp+0x8]
+			mov ebp, esp
 			push[ebp + 0x8]
+			push eax
 			call RenderObjectCompressionInfo
-			add esp, 8
-			popad
-			push 0x00A7928A
+			add esp, 4
+			mov esp, ebp
+			pop ebp
 			retn
 		}
 	}
