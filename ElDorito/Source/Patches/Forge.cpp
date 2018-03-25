@@ -375,7 +375,7 @@ namespace Patches::Forge
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
 		Hook(0x00639AC1, RenderAtmosphereHook, HookFlags::IsCall).Apply();
 		// prevent weather from being reset
-		Hook(0x272230, BspWeatherHook).Apply();
+		Hook(0x27223E, BspWeatherHook).Apply();
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 
 		// fix ragdolls falling through objects
@@ -3372,15 +3372,15 @@ namespace
 	{
 		__asm
 		{
-			push ebp
-			mov ebp, esp
+			cmp al, [ebp+0x10]
+			jne disabled
 			call UpdateWeatherEffects
 			test al, al
 			jne disabled
-			mov al, [0x18BE9E0]
-			push 0x00672238
+			push 0x00672244
 			retn
 			disabled:
+			add esp, 0x28
 			mov esp, ebp
 			pop ebp
 			ret
