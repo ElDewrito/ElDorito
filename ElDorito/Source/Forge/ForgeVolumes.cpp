@@ -214,7 +214,7 @@ namespace
 		if (properties->Flags & Forge::ForgeKillVolumeProperties::eKillVolumeFlags_DestroyVehicles)
 			objectTypeMask |= (1 << Blam::Objects::eObjectTypeVehicle);
 
-		uint32_t clusterObjects[64];
+		uint32_t clusterObjects[128];
 		auto clusterObjectCount = objects_get_in_cluster(0, objectTypeMask, &volumeObject->ClusterIndex,
 			&volumeObject->Center, std::abs(volume.Zone.BoundingRadius), clusterObjects, 128);
 
@@ -303,6 +303,9 @@ namespace
 		else if (objectType == Blam::Objects::eObjectTypeBiped)
 		{
 			if (!(garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds))
+				return false;
+
+			if (object->TagIndex == 0x00000C13)
 				return false;
 
 			for (auto player : Blam::Players::GetPlayers())
