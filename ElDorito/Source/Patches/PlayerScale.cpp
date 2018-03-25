@@ -52,7 +52,7 @@ namespace
 	auto kGroundAccelerationScale = 0.85f;
 
 	void PlayerAuraHook();
-	bool RagdollHook();
+	void RagdollHook();
 	void *BipedPhysicsHook_4B10E0(s_biped_physics *bipedPhysics, int shapeIndex);
 	void *BipedPhysicsHook_5A3467(s_biped_physics *bipedPhysics, int shapeIndex);
 	void *BipedPhysicsHook_5E23BC(s_biped_physics *bipedPhysics, int shapeIndex);
@@ -112,7 +112,7 @@ namespace Patches::PlayerScale
 		Hook(0x2842B0, SprintCameraShakeHook, HookFlags::IsCall).Apply();
 		Hook(0x790774, WalkAnimationHook, HookFlags::IsCall).Apply();
 		// physics/collision
-		Hook(0x7D847A, RagdollHook, HookFlags::IsCall).Apply();
+		Hook(0x7D80D0, RagdollHook).Apply();
 		Hook(0x0B10E0, BipedPhysicsHook_4B10E0, HookFlags::IsCall).Apply();
 		Hook(0x1E23BC, BipedPhysicsHook_5E23BC, HookFlags::IsCall).Apply();
 		Hook(0x77156F, BipedPhysicsHook_B7156F, HookFlags::IsCall).Apply();
@@ -375,12 +375,26 @@ namespace
 		return unitObject->Scale >= 1.0f && unitObject->Scale < 3.0f;
 	}
 
-	bool RagdollHook()
+	__declspec(naked) void RagdollHook()
 	{
-		const auto sub_765A30 = (bool(*)())(0x765A30);
-		uint32_t unitObjectIndex;
-		__asm { mov unitObjectIndex, edi }
-		return sub_765A30() && UnitCanRagdoll(unitObjectIndex);
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			push[ebp + 0x8]
+			call UnitCanRagdoll
+			add esp, 4
+			test al, al
+			jz disabled
+			sub esp, 0x34
+			push 0x00BD80D6
+			retn
+			disabled:
+			xor al, al
+			mov esp, ebp
+			pop ebp
+			retn
+		}
 	}
 
 	_declspec(naked) void PlayerAuraHook()
