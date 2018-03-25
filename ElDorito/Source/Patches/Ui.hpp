@@ -33,12 +33,22 @@ namespace Patches::Ui
 
 	void ShowLanBrowser();
 
+	//Could add more.
+	//TeamColors
+	//PlayerColors (Armour color unless team color unless trait color.)
+	enum PlayerMarkersOption
+	{
+		Default,
+		AllyBlue,
+		ArmourColors,
+	};
+
+	extern PlayerMarkersOption playerMarkers;
+
 	//These basically duplicate existing data from modules.
 	//However they make accessing in hooks a whole lot easier...
 	//Probably needs refactoring.
 	extern bool enableCustomHUDColors;
-	extern bool enableAllyBlueWaypointsFix;
-	extern bool enableArmorColorWaypointsFix;
 	extern int customPrimaryHUDColor;
 	extern int customSecondaryHUDColor;
 }

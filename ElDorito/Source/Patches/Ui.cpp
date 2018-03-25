@@ -160,9 +160,9 @@ namespace
 
 namespace Patches::Ui
 {
+	PlayerMarkersOption playerMarkers;
+
 	bool enableCustomHUDColors = false;
-	bool enableAllyBlueWaypointsFix = false;
-	bool enableArmorColorWaypointsFix = false;
 	int customPrimaryHUDColor = -1;
 	int customSecondaryHUDColor = 0;
 
@@ -1564,14 +1564,6 @@ namespace
 	{
 		_asm
 		{
-			//ally_blue:
-				cmp enableAllyBlueWaypointsFix, 1
-				jne custom_colors
-				cmp[ebp + 0xC], 0xF
-				jne custom_colors
-				mov eax, [eax + 19 * 4 + 4]
-				jmp eldorado_return
-
 			custom_colors:
 				cmp enableCustomHUDColors, 1
 				jne tag_color
@@ -1925,16 +1917,6 @@ namespace
 		Nine
 	};
 
-	enum class PlayerMarkerColorIndex
-	{
-		Ally,
-		Neutral,
-		Enemy,
-		Dead,
-		AllyBlue,
-		ArmourColor
-	};
-
 	enum PlayerMarkerBitmapSpriteIndex : int
 	{
 		Ally,
@@ -1953,23 +1935,10 @@ namespace
 		MarkerVisibleToAlliesNameInvisibleToEnemies //Added by Unk
 	};
 
-	enum class Gamemode : int
+	PlayerMarkerBitmapSpriteIndex __stdcall GetPlayerMarkerSpriteIndex(int handle, int markerColorIndex)
 	{
-		None,
-		CTF,
-		Slayer,
-		Oddball,
-		KOTH,
-		Forge,
-		VIP,
-		Juggernaut,
-		Territories,
-		Assault,
-		Infection
-	};
+		using Blam::GameType;
 
-	PlayerMarkerBitmapSpriteIndex __stdcall GetPlayerMarkerSpriteIndex(int handle, PlayerMarkerColorIndex markerColorIndex)
-	{
 		auto player = Blam::Players::GetPlayers().Get(handle);
 		if (!player)
 			return PlayerMarkerBitmapSpriteIndex::None;
@@ -1978,12 +1947,12 @@ namespace
 		if (!session || !session->IsEstablished())
 			return PlayerMarkerBitmapSpriteIndex::None;
 
-		Gamemode gamemode = (Gamemode)session->Parameters.GameVariant.Get()->GameType;
+		GameType gamemode = (GameType)session->Parameters.GameVariant.Get()->GameType;
 
 		WaypointTrait playerWaypointTrait = *(WaypointTrait*)((uint8_t*)player + 0x2DC1);
 
 		//TODO: add armour colors fix.
-		if (markerColorIndex == PlayerMarkerColorIndex::Ally || markerColorIndex == PlayerMarkerColorIndex::AllyBlue)
+		if (markerColorIndex == 0)
 		{
 			switch (playerWaypointTrait)
 			{
@@ -2013,7 +1982,7 @@ namespace
 					//so another hook can check the icon and give them a marker.
 					//The exception to this is infection, which gives the last man standing a marker.
 					//So that's handled here.
-					if (gamemode == Gamemode::Infection)
+					if (gamemode == GameType::Infection)
 					{
 						bool thereIsALastManStanding = Pointer(ElDorito::GetMainTls(0x48 + 0xE6DC)).Read<uint16_t>() == 1;
 						bool iAmAlive = Pointer(0x2161808).Read<uint8_t>() == 1;
@@ -2031,39 +2000,35 @@ namespace
 
 	bool __stdcall DoesPlayerMarkerHaveObjective(PlayerMarkerIconIndex markerIconIndex)
 	{
+		using Blam::GameType;
+
 		auto session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
 			return false;
 
-		Gamemode gamemode = (Gamemode)session->Parameters.GameVariant.Get()->GameType;
+		GameType gamemode = (GameType)session->Parameters.GameVariant.Get()->GameType;
 
 		switch (gamemode)
 		{
-			case Gamemode::None:
-			case Gamemode::Slayer:
-			case Gamemode::Forge:
-			case Gamemode::KOTH:
-			case Gamemode::Territories:
-			case Gamemode::Infection: //last man has no icon and is handled elsewhere
 			default:
 				break;
-			case Gamemode::Assault:
+			case GameType::Assault:
 				if (markerIconIndex == PlayerMarkerIconIndex::Bomb)
 					return true;
 				break;
-			case Gamemode::CTF:
+			case GameType::CTF:
 				if (markerIconIndex == PlayerMarkerIconIndex::Flag)
 					return true;
 				break;
-			case Gamemode::Oddball:
+			case GameType::Oddball:
 				if (markerIconIndex == PlayerMarkerIconIndex::Skull)
 					return true;
 				break;
-			case Gamemode::Juggernaut:
+			case GameType::Juggernaut:
 				if (markerIconIndex == PlayerMarkerIconIndex::Juggernaut)
 					return true;
 				break;
-			case Gamemode::VIP:
+			case GameType::VIP:
 				if (markerIconIndex == PlayerMarkerIconIndex::VIP)
 					return true;
 				break;
@@ -2140,8 +2105,8 @@ namespace
 				mov[esi - 0x2C], 0 //ally marker
 
 			fix_armour_colors:
-				cmp Patches::Ui::enableArmorColorWaypointsFix, 1
-				jne eldorado_return
+				cmp playerMarkers, 2
+				jne fix_alt_ally_color
 				cmp[esi - 0x24], 3
 				je eldorado_return
 				cmp[esi - 0x2C], 0
@@ -2153,6 +2118,14 @@ namespace
 				jmp eldorado_return
 			is_player_marker:
 				mov[esi - 0x24], 5 //armour colors
+
+			fix_alt_ally_color: //ally_blue
+				cmp playerMarkers, 1
+				jne eldorado_return
+				cmp[esi - 0x24], 0
+				jne eldorado_return
+				mov[esi - 0x24], 4
+
 
 			eldorado_return:
 				pop eax

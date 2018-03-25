@@ -375,13 +375,12 @@ namespace
 		if (!(value == "default" || value == "blue" || value == "armor"))
 			return false;
 
-		Patches::Ui::enableAllyBlueWaypointsFix = false;
-		Patches::Ui::enableArmorColorWaypointsFix = false;
-
 		if (value == "blue")
-			Patches::Ui::enableAllyBlueWaypointsFix = true;
+			Patches::Ui::playerMarkers = Patches::Ui::PlayerMarkersOption::AllyBlue;
 		else if (value == "armor")
-			Patches::Ui::enableArmorColorWaypointsFix = true;
+			Patches::Ui::playerMarkers = Patches::Ui::PlayerMarkersOption::ArmourColors;
+		else
+			Patches::Ui::playerMarkers = Patches::Ui::PlayerMarkersOption::Default;
 
 		SSL_SetTeamColor(0);
 
