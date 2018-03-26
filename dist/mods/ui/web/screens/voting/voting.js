@@ -11,31 +11,33 @@ var repGP;
 var lastHeldUpdated = 0;
 var itemNumber = 1;
 
-$("html").on("keydown", function(e) {
-    if (e.which == 113){
-        dew.hide();
-    }
-    if(e.which == 84 || e.which == 89){
-        var teamChat = false;
-        if(e.which == 89){ teamChat = true };
-        dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
-    }
-    if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
-        dew.show("console");
-    }
-    if(e.keyCode == 9){
-        dew.show('scoreboard',{'locked':true});
-    }
-     if(e.keyCode == 36){
-        dew.show('settings');
-    }
+$(document).ready(function(){
+    $(document).keydown(function(e) {
+        if (e.keyCode == 113){
+            dew.hide();
+        }
+        if(e.keyCode == 84 || e.keyCode == 89){
+            var teamChat = false;
+            if(e.keyCode == 89){ teamChat = true };
+            dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
+        }
+        if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
+            dew.show("console");
+        }
+        if(e.keyCode == 9){
+            dew.show('scoreboard',{'locked':true});
+        }
+         if(e.keyCode == 36){
+            dew.show('settings');
+        }
+    });
+    $(document).keyup(function(e) {
+        if (e.keyCode == 44) {
+            dew.command('Game.TakeScreenshot');  
+        }
+    });
 });
 
-$("html").on("keyup", function(e) {
-    if (e.which == 44) {
-        dew.command('Game.TakeScreenshot');  
-    }
-});
 
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
