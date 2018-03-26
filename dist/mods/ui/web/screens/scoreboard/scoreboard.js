@@ -830,10 +830,10 @@ function sortMe(sortWhat, sortWhich){
     $wrapper.find(sortWhich).sort(function(b, a) {
         var d = parseInt(a.dataset.score) - parseInt(b.dataset.score);
         if(d === 0) {
-            if(sortWhat == "singplePlayers"){
-                d = parseInt(a.dataset.playerIndex) - parseInt(a.dataset.playerIndex);
+            if(sortWhat == "singlePlayers"){
+                d = parseInt(a.dataset.playerindex) - parseInt(b.dataset.playerindex);
             }else{
-                d = parseInt(a.dataset.teamIndex) - parseInt(a.dataset.teamIndex);                
+                d = parseInt(a.dataset.team) - parseInt(b.dataset.team);              
             }
         }
         return d;
