@@ -83,7 +83,8 @@ var settingsToLoad = [
     ['sQualityPreset', '', 'Quality Preset', 'Adjusts the overall graphics quality.'],
     ['presetMenu', '', 'Button Layout', 'Changes the button layout.'],
     ['gdEnabled','Game.Discord.Enable', 'Discord Rich Presence Enabled', 'Toggles Rich Presense in Discord'],
-    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests']
+    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests'],
+    ['gCefMedals','Game.CefMedals', 'Use H3 Medal System', 'Uses Built-in medals instead of ED medal system']
 ];
 var binds = [
     ['Sprint','Sprint','Infantry'],
@@ -444,7 +445,10 @@ $(document).ready(function(){
         }
     });
     $('#sVsync').on('change', function(){
-        alertBox('This change requires a restart to take effect', false);
+        alertBox('This change requires a restart to take effect.', false);
+    });
+    $('.cefMedals').on('change', function(){
+        alertBox('This setting only effects ED medals (not H3 medals).', false);
     });
     $('#okButton').on('click', function(){
         hideAlert(true);
