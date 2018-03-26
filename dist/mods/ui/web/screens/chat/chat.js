@@ -204,7 +204,7 @@ dew.on("chat", function(e){
     }
     var messageClass = 'nameCard';
     var chatClass = e.data.chatType;
-    if((e.data.message).match(playerName)){
+    if((e.data.message).match(playerName) && playerName != undefined){
         chatClass += ' mention';                
     }
     
