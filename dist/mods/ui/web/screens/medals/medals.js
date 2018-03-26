@@ -85,6 +85,12 @@ function play(audio){
     audioElement.play();
     audioElement.volume = playVol;
     audioElement.onended = function(){
+        advanceQueue();
+    }
+    audioElement.onerror = function(){ 
+        advanceQueue();
+    }; 
+    function advanceQueue(){
         isPlaying = false;
         playQueue.splice(0, 1);
         if(playQueue.length > 0){
