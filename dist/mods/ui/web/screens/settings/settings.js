@@ -204,7 +204,7 @@ $(document).ready(function(){
         }
         setOptionList('wOffsetConfig', offsetArray);
     });
-    $('.tabs li a').click(function(e){
+    $('.tabs li a').off('click').on('click',function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
         window.location.href = e.target.href;
@@ -212,7 +212,7 @@ $(document).ready(function(){
         itemNumber = 0;
         $(e).ready(function(){
             if(hasGP){
-                updateSelection(0, false, true);
+                updateSelection(0, false, true, true);
             }
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
@@ -270,13 +270,13 @@ $(document).ready(function(){
         }
         setOptionList('sScreenResolution', resolutionArray);
     });
-    $('#applyButton').on('click', function(e){
+    $('#applyButton').off('click').on('click', function(e){
         applyButton();
     });
-    $('#resetButton').on('click', function(e){
+    $('#resetButton').off('click').on('click', function(e){
         resetButton();
     });
-    $('#cancelButton').on('click', function(e){
+    $('#cancelButton').off('click').on('click', function(e){
         cancelButton();
     });
     $('#sTextureResolution, #sTextureFiltering, #sLightningQuality, #sEffectsQuality, #sShadowQuality, #sDetailsLevel, #sPostprocessing').on('change', function(e){
@@ -398,13 +398,13 @@ $(document).ready(function(){
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
                     itemNumber = 0;
-                    updateSelection(itemNumber, true, true);
+                    updateSelection(itemNumber, true, true, true);
                 }
             }
             if(e.data.RightTrigger != 0){
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
-                    updateSelection(itemNumber, true, true);
+                    updateSelection(itemNumber, true, true, true);
                 }
             }
             if(e.data.AxisLeftX > axisThreshold){
@@ -437,23 +437,25 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $('span').has('.setting').mouseover(function(){
+    $('span').has('.setting').off('mouseover').on('mouseover', function(){
+        $('.selectedElement').removeClass('selectedElement');
+        $(this).addClass('selectedElement');
         itemNumber = $(activePage+' span').has('.setting').index($(this));
         if(itemNumber > -1){
-            updateSelection(itemNumber, false, false); 
+            updateSelection(itemNumber, false, false, false); 
             setInfoBox($(this).find('.setting').attr('id'));
         }
     });
-    $('#sVsync').on('change', function(){
+    $('#sVsync').off('click').on('change', function(){
         alertBox('This change requires a restart to take effect.', false);
     });
-    $('.cefMedals').on('change', function(){
+    $('.cefMedals').off('click').on('change', function(){
         alertBox('This setting only effects ED medals (not H3 medals).', false);
     });
-    $('#okButton').on('click', function(){
+    $('#okButton').off('click').on('click', function(){
         hideAlert(true);
     });
-    $('#dismissButton').on('click', function(){
+    $('#dismissButton').off('click').on('click', function(){
         dismissButton();
     });
 });
@@ -613,7 +615,7 @@ function switchPage(pageHash){
     location.href=pageHash;
     activePage=pageHash;    
     if(hasGP){
-        updateSelection(0, true, true);
+        updateSelection(0, true, true, true);
     }
     if(subPages.indexOf(pageHash) != -1){
         $('#cancelButton').html('<img class="button">Back');
@@ -708,7 +710,7 @@ function applyButton(){
 }
 
 function resetButton(){
-    if(window.location.hash == '#page5'){
+    if(window.location.hash == '#page5' || window.location.hash == '#page8' || window.location.hash == '#page9'){
         dew.command('Input.ResetBindings').then(function(){
             initializeBindings(); 
         });
@@ -1082,10 +1084,12 @@ function setButtonLists(){
     }
 }
 
-function updateSelection(item, sound, move){
+function updateSelection(item, sound, move, controller){
     colorIndex = 0;
-    $('.selectedElement').removeClass('selectedElement');
-    $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
+    if(controller){
+        $('.selectedElement').removeClass('selectedElement');
+        $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
+    }
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
     if(move){
         $('#'+selectedItem).parent()[0].scrollIntoView(false);
@@ -1112,19 +1116,19 @@ function nextPage(){
 function upNav(){
     if(itemNumber > 0){
         itemNumber--;
-        updateSelection(itemNumber, true, true);
+        updateSelection(itemNumber, true, true, true);
     }
 }
 
 function downNav(){
     if(itemNumber < $(activePage + ' label:visible').length-1){
         itemNumber++;
-        updateSelection(itemNumber, true, true);
+        updateSelection(itemNumber, true, true, true);
     }           
 }
 
 function onControllerConnect(){
-    updateSelection(itemNumber, false, true);
+    updateSelection(itemNumber, false, true, true);
     $('button img, .tabs img').show();
 }
 
