@@ -129,6 +129,7 @@ namespace
 
 	void EvaluateRigidBodyNodesHook();
 	uint32_t __cdecl HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6);
+	void __fastcall c_havok_component__activate_hook(uint8_t *thisptr, void *unused);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
@@ -263,6 +264,7 @@ namespace
 	std::bitset<0xffff> cachedReforgeTagIndexSet;
 
 	bool objectLightingQualityOverride = false;
+	bool inSandboxEngine = false;
 }
 
 namespace Patches::Forge
@@ -392,11 +394,15 @@ namespace Patches::Forge
 		Hook(0x31293C, EvaluateRigidBodyNodesHook).Apply();
 		// prevent havok from deleting reforge objects
 		Hook(0x1C469A, HavokCleanupHook, HookFlags::IsCall).Apply();
+		// force reforge rigid bodies into to a single fixed simulation island
+		Hook(0x731E5F, c_havok_component__activate_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
 	{
 		const auto game_options_is_valid = (bool(*)())(0x00532650);
+		const auto game_is_sandbox_engine = (bool(*)())(0x0059A780);
+
 		if (!game_options_is_valid())
 		{
 			mapModifierState.IsValid = false;
@@ -404,12 +410,13 @@ namespace Patches::Forge
 			mapModifierState.ObjectIndex = -1;
 			monitorState.HeldObjectIndex = -1;
 			forgeGlobals_ = nullptr;
+			inSandboxEngine = false;
 		}
 		else
 		{
-			
 			if (!mapModifierState.IsValid)
 			{
+				inSandboxEngine = game_is_sandbox_engine();
 				memset(&mapModifierState, 0, sizeof(mapModifierState));
 				mapModifierState.ObjectIndex = -1;
 				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
@@ -3457,5 +3464,23 @@ namespace
 			return -1;
 
 		return objectIndex;
+	}
+
+	void __fastcall c_havok_component__activate_hook(uint8_t *thisptr, void *unused)
+	{
+		const auto c_havok_component = (void(__thiscall*)(void *thisptr))(0x005E6A50);
+
+		auto objectIndex = *(uint32_t*)(thisptr + 0x8);
+		if (objectIndex != -1 && IsReforgeObject(objectIndex))
+		{
+			auto rigidBodyCount = *(uint32_t*)(thisptr + 0x18);
+			for (auto i = 0; i < rigidBodyCount; i++)
+			{
+				auto rigidBody = *(uint8_t**)(*(uint8_t**)(thisptr + 0x14) + 0x48 * i + 0x40);
+				*(rigidBody + 0xA8) = 7; // fixed
+			}
+		}
+
+		c_havok_component(thisptr);
 	}
 }
