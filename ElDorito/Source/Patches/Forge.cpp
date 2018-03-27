@@ -1789,6 +1789,9 @@ namespace
 		if (!object)
 			return false;
 
+		if (object->TagIndex >= 0xffff) // something is wrong here...
+			return false;
+	
 		if (cachedReforgeTagIndexSet.test(object->TagIndex))
 			return true;
 
@@ -2048,6 +2051,8 @@ namespace
 		static auto RenderMeshPart = (void(*)(void* data, int a2))(0xA78940);
 
 		auto renderData = Pointer(data)[4];
+		if (!renderData)
+			return;
 
 		auto objectIndex = Pointer(renderData)(0x6c).Read<uint32_t>();
 		auto object = Blam::Objects::Get(objectIndex);
