@@ -16,6 +16,7 @@ namespace
 
 	const auto kMaxVolumes = 64;
 	const auto kScanInterval = 1.0f;
+	const auto kGarbageCollectionDelaySeconds = 0.25f;
 
 	enum VolumeType : uint8_t
 	{
@@ -38,9 +39,9 @@ namespace
 		ZoneShape Zone;
 		union {
 			struct {
-				uint16_t TicksSinceLastCollection;
+				uint16_t CollectionTicks;
 			} GarbageVolume;
-		};
+		} Data;
 	};
 
 	struct DamageData
@@ -340,6 +341,11 @@ namespace
 	{
 		const auto objects_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
 
+		if (Blam::Time::TicksToSeconds(volume.Data.GarbageVolume.CollectionTicks++) < kGarbageCollectionDelaySeconds)
+			return;
+
+		volume.Data.GarbageVolume.CollectionTicks = 0;
+
 		auto volumeObject = Blam::Objects::Get(volume.ObjectIndex);
 		if (!volumeObject)
 			return;
@@ -353,10 +359,7 @@ namespace
 			return;
 
 		auto interval = kCollectionIntervals[intervalIndex];
-		if (Blam::Time::TicksToSeconds(volume.GarbageVolume.TicksSinceLastCollection++) < interval)
-			return;
 
-		volume.GarbageVolume.TicksSinceLastCollection = 0;
 
 		const auto collectionMask = (1 << Blam::Objects::eObjectTypeWeapon)
 			| (1 << Blam::Objects::eObjectTypeVehicle)
@@ -368,16 +371,39 @@ namespace
 		auto clusterObjectCount = objects_get_in_cluster(0, collectionMask, &volumeObject->ClusterIndex,
 			&volumeObject->Center, std::abs(volume.Zone.BoundingRadius), clusterObjects, 128);
 
+		auto currentTime = Blam::Time::GetGameTicks();
 		for (auto i = 0; i < clusterObjectCount; i++)
 		{
 			auto clusterObjectIndex = clusterObjects[i];
-			auto clusterObject = Blam::Objects::Get(clusterObjectIndex);
-
-			if (!zone_intersect_point(&clusterObject->Center, &volume.Zone))
+			auto clusterObjectHeader = Blam::Objects::GetObjects().Get(clusterObjectIndex);
+			if (!clusterObjectHeader)
 				continue;
+			
+			auto clusterObject = clusterObjectHeader->Data;
 
-			if (ShouldGarbageCollectObject(clusterObjectIndex, volume))
-				objects_dispose(clusterObjectIndex);
+			uint32_t lastActiveTicks = 0;
+			switch (clusterObjectHeader->Type)
+			{	
+			case Blam::Objects::eObjectTypeVehicle:
+			case  Blam::Objects::eObjectTypeBiped:
+				lastActiveTicks = *(uint32_t*)((uint8_t*)clusterObject + 0x4A8);
+				break;
+			case Blam::Objects::eObjectTypeEquipment:
+				lastActiveTicks = *(uint32_t*)((uint8_t*)clusterObject + 0x180);
+				break;
+			case Blam::Objects::eObjectTypeWeapon:
+				lastActiveTicks = *(uint32_t*)((uint8_t*)clusterObject + 0x12c);
+				break;
+			}
+
+			if (lastActiveTicks != -1 && Blam::Time::TicksToSeconds((currentTime - lastActiveTicks)) > interval)
+			{
+				if (!zone_intersect_point(&clusterObject->Center, &volume.Zone))
+					continue;
+
+				if (ShouldGarbageCollectObject(clusterObjectIndex, volume))
+					objects_dispose(clusterObjectIndex);
+			}
 		}
 	}
 
@@ -435,7 +461,7 @@ namespace
 			break;
 			case Forge::Volumes::GARBAGE_VOLUME_TAG_INDEX:
 				volume.Type = eVolumeType_GarbageCollection;
-				volume.GarbageVolume.TicksSinceLastCollection = 0;
+				volume.Data.GarbageVolume.CollectionTicks = 0;
 				break;
 			}
 		}
