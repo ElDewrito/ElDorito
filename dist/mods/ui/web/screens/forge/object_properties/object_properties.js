@@ -706,12 +706,12 @@
                 let collectionOptions = [{ label: 'Collect', value: 1 }, { label: 'Ignore', value: 0 }];
 
                 model.group('Garbage Collection', (m) => {
-                    m.add(makeProperty('garbage_volume_interval', 'Interval', 'spinner', [
+                    m.add(makeProperty('garbage_volume_interval', 'Delay', 'spinner', [
                         { label: 'Instant', value: 0 },
-                        { label: '5 Seconds', value: 1 },
-                        { label: '15 Seconds', value: 2 },
-                        { label: '30 Seconds', value: 3 },
-                    ], 'The time delay between collections'));
+                        { label: '3 Seconds', value: 1 },
+                        { label: '5 Seconds', value: 2 },
+                        { label: '10 Seconds', value: 3 },
+                    ], 'The time delay before collection'));
                     m.add(makeProperty('garbage_volume_collect_dead_biped', 'Dead Bodies', 'spinner', collectionOptions));
                     m.add(makeProperty('garbage_volume_collect_weapons', 'weapons', 'spinner', collectionOptions));
                     m.add(makeProperty('garbage_volume_collect_objectives', 'Objectives', 'spinner', collectionOptions));

@@ -17,6 +17,8 @@ namespace
 	const auto kMaxVolumes = 64;
 	const auto kScanInterval = 1.0f;
 	const auto kGarbageCollectionDelaySeconds = 0.25f;
+	const float kGarbageCollectionIntervals[] = { 0, 3, 5, 10 };
+	const auto kGarbageCollectionIntervalCount = sizeof(kGarbageCollectionIntervals) / sizeof(kGarbageCollectionIntervals[0]);
 
 	enum VolumeType : uint8_t
 	{
@@ -351,14 +353,12 @@ namespace
 			return;
 
 		auto garbageVolumeProperties = (Forge::ForgeGarbageVolumeProperties*)(&volumeObject->GetMultiplayerProperties()->TeleporterChannel);
-
-		const float kCollectionIntervals[] = { 0, 3, 15, 30 };
-		auto kCollectionIntervalCount = sizeof(kCollectionIntervals) / sizeof(kCollectionIntervals[0]);
+		
 		int intervalIndex = garbageVolumeProperties->Interval;
-		if (intervalIndex < 0 || intervalIndex >= kCollectionIntervalCount)
+		if (intervalIndex < 0 || intervalIndex >= kGarbageCollectionIntervalCount)
 			return;
 
-		auto interval = kCollectionIntervals[intervalIndex];
+		auto interval = kGarbageCollectionIntervals[intervalIndex];
 
 
 		const auto collectionMask = (1 << Blam::Objects::eObjectTypeWeapon)
