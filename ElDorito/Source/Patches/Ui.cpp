@@ -2177,7 +2177,7 @@ namespace
 				je      eldorado_return
 
 			raise_icon:
-				mov eax, 0x40300000 //2.75f, may need adjustment
+				mov eax, 0x40100000 //2.25f, may need adjustment
 				movd xmm1, eax
 				movss xmm0, [ebp - 0xC]
 				mulss xmm0, xmm1
