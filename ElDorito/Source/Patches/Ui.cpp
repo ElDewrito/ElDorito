@@ -69,6 +69,7 @@ namespace
 	void chud_update_marker_sprite_hook();
 	void chud_update_player_marker_icon_height_hook();
 	void chud_update_player_marker_name_height_hook();
+	void chud_marker_bitmap_hook();
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -301,12 +302,14 @@ namespace Patches::Ui
 		//Show speaking player markers
 		Hook(0x349450, chud_update_player_marker_state_hook).Apply();
 		
-		//Restore player marker waypoints1 bitmap.
+		//Restore some old/removed marker functionality.
 		Hook(0x349469, chud_update_player_marker_sprite_hook).Apply();
 		Hook(0x6CED6A, chud_update_marker_sprite_hook).Apply();
 
-		//Jump over player marker waypoints2 bitmap code.
-		Patch(0x6C6A11, { 0xEB }).Apply();
+		//Repurpose some of saber's hacky code to scale marker sprites
+		//Allows upscaled textures to be used replacing the pixelated leftover spritesheet
+		//Also switches to the old spritesheet.
+		Hook(0x6C6A0E, chud_marker_bitmap_hook).Apply();
 
 		//Stop the assault bomb from overwriting the player marker bitmap sprite index.
 		Patch(0x2E805F, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
@@ -2203,6 +2206,20 @@ namespace
 
 			mov ebx, 0xACF0D3
 			jmp ebx
+		}
+	}
+
+	__declspec(naked) void chud_marker_bitmap_hook()
+	{
+		__asm
+		{
+			movss xmm1, [eax + 0x2AC] //waypoint_scale
+			lea edi, [eax + 0x168] //waypoints (bitm)
+			movss xmm0, [ebp + 0x18]
+			mulss xmm0, xmm1
+
+			mov eax, 0xAC6A4D
+			jmp eax
 		}
 	}
 
