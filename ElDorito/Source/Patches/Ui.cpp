@@ -312,8 +312,8 @@ namespace Patches::Ui
 		Patch(0x2E805F, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
 
 		//Moves the icon above the name on player markers.
-		Hook(0x6CF0CE, chud_update_player_marker_name_height_hook).Apply();
-		Hook(0x6CF0A0, chud_update_player_marker_icon_height_hook).Apply();
+		Patch(0x6CF0B3, { 0x90, 0x90, 0x90 }).Apply(); //Keep name at bottom
+		Hook(0x6CF0A0, chud_update_player_marker_icon_height_hook).Apply(); //Move icon above name if necessary
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -2174,8 +2174,10 @@ namespace
 				je      eldorado_return
 
 			raise_icon:
-				mov eax, 0xC2850000
-				movd xmm0, eax
+				mov eax, 0x40300000 //2.75f, may need adjustment
+				movd xmm1, eax
+				movss xmm0, [ebp - 0xC]
+				mulss xmm0, xmm1
 
 			eldorado_return:
 
