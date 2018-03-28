@@ -5,36 +5,37 @@
         <link rel="stylesheet" type="text/css" href="weapons.css" />
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
-        <script src="dew://lib/jquery-ui.js"></script>
         <script src="weapons.js"></script>
-        <script>
-            $(function() {
-                $( "#weaponOffsets" ).draggable();
-            });
-        </script>
+        <script src="dew://lib/window-resize.js"></script>
+        <link rel="stylesheet" type="text/css" href="dew://lib/window-resize.css"/>
     </head>
     <body>
-        <div id="weaponOffsets">
-            <div class="header">Weapon Offset Settings<button class="close" onclick="closeBrowser();">X</button></div>
-            <label for="weapList">Weapon</label>
-            <select id="weapList"class="setting voip wheelable"></select>
-            <br>
-            <label for="weaponI">Forward / Back</label>
-            <input type="number" step="any" class="tinySetting" id="weaponIText">
-            <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponI">
-            <br>
-            <label for="weaponJ">Left / Right</label>
-            <input type="number" step="any" class="tinySetting" id="weaponJText">
-            <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponJ">
-            <br>
-            <label for="weaponK">Up / Down</label>
-            <input type="number" step="any" class="tinySetting" id="weaponKText">
-            <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponK">
-            <br>
-            <label for="wOffsetConfig">Config Filename</label>
-            <input class="setting" type="text" id="wOffsetConfig">
-            <br>
-			<div id="buttonBar"><button id="resetButton">Reset<img></button><button id="loadButton">Load<img></button> <button id="saveButton">Save<img></button></div>
+        <div id="container">
+        <div class="page_content">
+            <div id="weaponOffsets">
+                <div class="header">Weapon Offset Settings</div>
+                <span>
+                    <label for="weapList">Weapon</label>
+                    <select id="weapList"class="setting"></select>
+                </span><span>
+                    <label for="weaponI">Forward / Back</label>
+                    <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponI">
+                    <input type="number" step="0.001" class="tinySetting" id="weaponIText">
+                </span><span>
+                    <label for="weaponJ">Left / Right</label>
+                    <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponJ">
+                    <input type="number" step="0.001" class="tinySetting" id="weaponJText">
+                </span><span>
+                    <label for="weaponK">Up / Down</label>
+                    <input type="range" class="setting hasTiny" min="-0.1" max="0.1" step="0.001" id="weaponK">
+                    <input type="number" step="0.001" class="tinySetting" id="weaponKText">
+                </span><span>
+                    <label for="wOffsetConfig">Config Filename</label>
+                    <input class="setting" type="text" id="wOffsetConfig">
+                </span>
+                <div id="buttonBar"><button id="resetButton"><img>Reset</button><button id="loadButton"><img>Load</button> <button id="saveButton"><img>Save</button><button id="closeButton"><img>Close</button></div>
+            </div>
+        </div>
         </div>
     </body>
 </html>

@@ -494,10 +494,12 @@ function setButtons(){
     });
 }
 
+var mapName = "mainmenu";
 dew.on('show', function(e){
     $('#settingsWindow').hide();
     $('#blackLayer').hide();
     dew.getSessionInfo().then(function(i){
+        mapName = i.mapName;
         if(i.mapName == "mainmenu"){
             $('#blackLayer').fadeIn(200, function() {
                 dew.command('game.hideh3ui 1');
@@ -515,6 +517,15 @@ dew.on('show', function(e){
     setControlValues();
 
 });
+
+function showWeaponOffsets(){
+    if(mapName != "mainmenu"){
+        dew.hide();
+        dew.show('weapon_offset');
+    }else{
+        alertBox('Weapon offsets can only be edited in-game.', false);
+    }
+}
 
 function initGamepad(){
     dew.command('Settings.Gamepad', {}).then(function(result){
