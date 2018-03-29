@@ -1,4 +1,4 @@
-<root>
+﻿<root>
   <category name="PROPS" id="props">
     <category name="BARRELS">
       <item type="prop" name="BARREL" tagindex="0x2eb5" />
@@ -673,7 +673,6 @@
         <item type="weapon" name="DMR, AMMO" tagindex="0x15be" />
         <item type="weapon" name="DMR, DAMAGE" tagindex="0x158a" />
         <item type="weapon" name="DMR, POWER" tagindex="0x158b" />
-        <item type="weapon" name="DMR, RANGE" tagindex="0x15bf" />
         <item type="weapon" name="DMR, RATE OF FIRE" tagindex="0x1589" />
       </category>
       <category name="CARBINES">

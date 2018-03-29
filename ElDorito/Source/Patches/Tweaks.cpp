@@ -92,15 +92,15 @@ namespace
 		using Blam::Tags::Objects::Projectile;
 
 		auto fragProjectile = TagInstance::Find('proj', "objects\\weapons\\grenade\\frag_grenade\\frag_grenade");
-		auto bombrunProjectile = TagInstance::Find('proj', "objects\\equipment\\bombrun\\projectiles\\bombrun_grenade");
+		auto trailEffect = TagInstance::Find('effe', "objects\\equipment\\bombrun\\projectiles\\bombrun_grenade\\fx\\projectile");
 
-		if (fragProjectile.Index != 0xFFFF && bombrunProjectile.Index != 0xFFFF)
+		if (fragProjectile.Index != 0xFFFF && trailEffect.Index != 0xFFFF)
 		{
 			auto fragDefinition = fragProjectile.GetDefinition<Projectile>();
-			auto bombrunDefinition = bombrunProjectile.GetDefinition<Projectile>();
+			auto trailTagReference = Blam::Tags::TagReference('effe', trailEffect.Index);
 
-			if (fragDefinition->Attachments.Count > 0 && bombrunDefinition->Attachments.Count > 0)
-				fragDefinition->Attachments[0].Tag = bombrunDefinition->Attachments[0].Tag;
+			if (fragDefinition->Attachments.Count > 0)
+				fragDefinition->Attachments[0].Tag = trailTagReference;
 		}
 	}
 
