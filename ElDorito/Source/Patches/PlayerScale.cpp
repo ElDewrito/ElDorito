@@ -12,6 +12,8 @@
 
 namespace
 {
+	using Blam::Math::RealVector3D;
+
 	struct s_biped_physics;
 	struct s_biped_physics_data1;
 	struct ZoneShape;
@@ -72,7 +74,7 @@ namespace
 	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5,
 		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9);
 	void PlayerPersonalGravityHook();
-	void DamageResponseCameraShakeHook(int localPlayerIndex, int playerEffects, void *shakeData, float scale);
+	void LandingDamageResponseHook(uint32_t unitObjectIndex, uint32_t a2, uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -130,7 +132,7 @@ namespace Patches::PlayerScale
 		Hook(0x7E276C, JumpVelocityScaleHook, HookFlags::IsCall).Apply();
 		Hook(0x3629CC, PlayerCollisionDamageHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF500, PlayerPersonalGravityHook, HookFlags::IsCall).Apply();
-		Hook(0x2850A6, DamageResponseCameraShakeHook, HookFlags::IsCall).Apply();
+		Hook(0x7E2335, LandingDamageResponseHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -921,24 +923,17 @@ namespace
 		return multiplayer_object_should_cause_collision_damage(bipedObjectIndex, otherBipedObjectIndex);
 	}
 
-	void DamageResponseCameraShakeHook(int localPlayerIndex, int playerEffects, void *shakeData, float scale)
+	void LandingDamageResponseHook(uint32_t unitObjectIndex, uint32_t a2, uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8)
 	{
-		const auto player_effects_shake = (void(*)(int localPlayerIndex, int playerEffects, void *shakeData, float scale))(0x00685790);
-
-		auto playerIndex = Blam::Players::GetLocalPlayer(localPlayerIndex);
-		if (playerIndex != Blam::DatumHandle::Null)
+		const auto LandingDamageResponse = (void(*)(uint32_t bipedObjectIndex, uint32_t a2, 
+			uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8))(0x684DF0);
+		
+		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+		if (unitObject)
 		{
-			auto player = Blam::Players::GetPlayers().Get(playerIndex);
-			if (player && player->SlaveUnit != Blam::DatumHandle::Null)
-			{
-				auto unitObject = Blam::Objects::Get(player->SlaveUnit);
-				if (unitObject)
-				{
-					scale *= unitObject->Scale;
-				}
-			}
+			responseScale *= unitObject->Scale;
 		}
-
-		player_effects_shake(localPlayerIndex, playerEffects, shakeData, scale);
+	
+		LandingDamageResponse(unitObjectIndex, a2, damageEffectTagIndex, a4, a5, a6, responseScale, a8);
 	}
 }
