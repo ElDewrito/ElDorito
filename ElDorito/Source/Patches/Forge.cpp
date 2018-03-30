@@ -381,7 +381,7 @@ namespace Patches::Forge
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 
 		// fix ragdolls falling through objects
-		Patch(0x00317269, { 0xD }).Apply();
+		Patch(0x317265, { 0xBA,0x07,0x00,0x00,0x00 }).Apply();
 		Patch(0x7D8A59, { 0xEB }).Apply();
 
 		// reforge materials
