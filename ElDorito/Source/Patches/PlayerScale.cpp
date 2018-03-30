@@ -75,6 +75,8 @@ namespace
 		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9);
 	void PlayerPersonalGravityHook();
 	void LandingDamageResponseHook(uint32_t unitObjectIndex, uint32_t a2, uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8);
+	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK);
+	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -133,6 +135,9 @@ namespace Patches::PlayerScale
 		Hook(0x3629CC, PlayerCollisionDamageHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF500, PlayerPersonalGravityHook, HookFlags::IsCall).Apply();
 		Hook(0x7E2335, LandingDamageResponseHook, HookFlags::IsCall).Apply();
+		// TODO: fix properly
+		Hook(0x7B0E94, JumpCrouchFix1Hook, HookFlags::IsCall).Apply();
+		Hook(0x7B03AB, JumpCrouchFix2Hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -935,5 +940,33 @@ namespace
 		}
 	
 		LandingDamageResponse(unitObjectIndex, a2, damageEffectTagIndex, a4, a5, a6, responseScale, a8);
+	}
+
+	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK)
+	{
+		const auto sub_B746B0 = (bool(*)(uint32_t bipedObjectIndex, float *deltaK))(0xBAE130);
+
+		auto unitObject = Blam::Objects::Get(bipedObjectIndex);
+		if (unitObject)
+		{
+			if (std::abs(1.0f - unitObject->Scale) > 0.25f)
+				return false;
+		}
+
+		return sub_B746B0(bipedObjectIndex, deltaK);
+	}
+
+	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex)
+	{
+		const auto sub_B746B0 = (bool(*)(uint32_t bipedObjectIndex))(0xB746B0);
+
+		auto unitObject = Blam::Objects::Get(bipedObjectIndex);
+		if (unitObject)
+		{
+			if (std::abs(1.0f - unitObject->Scale) > 0.25f)
+				return false;
+		}
+
+		return sub_B746B0(bipedObjectIndex);
 	}
 }
