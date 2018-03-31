@@ -485,6 +485,9 @@ dew.on("scoreboard", function(e){
 });
 
 dew.on("voip-user-volume", function(e){
+    if(!isVisible)
+        return;
+
 	if(e.data.volume > -60){
 		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
@@ -517,6 +520,9 @@ dew.on("voip-user-volume", function(e){
 });
 
 dew.on("voip-self-volume", function (e) {
+    if(!isVisible)
+        return;
+        
     dew.getSessionInfo().then(function (info) {
         if (info.established == true) {
             var level = 100;
