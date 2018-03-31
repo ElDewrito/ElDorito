@@ -496,6 +496,25 @@ function setButtons(){
 
 var mapName = "mainmenu";
 dew.on('show', function(e){
+    if(!jQuery.isEmptyObject(e.data)){
+        switch(e.data){
+            case "game": 
+                tabIndex = 0;
+            break;
+            case "controls": 
+                tabIndex = 1;
+            break;
+            case "video": 
+                tabIndex = 2;
+            break;
+            case "sound": 
+                tabIndex = 3;
+            break;
+            default:
+        }
+    }else{
+        tabIndex = 0;
+    };
     $('#settingsWindow').hide();
     $('#blackLayer').hide();
     dew.getSessionInfo().then(function(i){
@@ -559,9 +578,8 @@ dew.on('hide', function(e){
 });
 
 function initActive(){
-    tabIndex = 0;
     $('.selected').removeClass('selected');
-    $('.tabs li:visible').eq(0).addClass('selected');
+    $('.tabs li:visible').eq(tabIndex).addClass('selected');
     location.hash = $('.selected a')[0].hash;
     activePage = window.location.hash;
 }
