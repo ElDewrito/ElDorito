@@ -35,7 +35,7 @@ before_build:
 
     RM -rf .\dist\mods\medals\default\.git
 
-- ps: (Get-Content "$env:_vInfo") -replace 'V\(\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*\)', 'V($1, $2, $3, $env:APPVEYOR_BUILD_NUMBER)' | Out-File "$env:_vInfo"
+- ps: (Get-Content "$env:_vInfo") -replace 'V\(\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*\)', "V(`$1, `$2, `$3, $env:APPVEYOR_BUILD_NUMBER)" | Out-File "$env:_vInfo"
 
 after_build:
 - cmd: >-
