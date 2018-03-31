@@ -620,7 +620,7 @@ function displayScoreboard(){
             default:
                 scoreboardheader += '<th>Kills</th><th>Assists</th><th>Deaths</th><th>Best Streak</th>';          
         }
-        $('#window').css({'width':'56%','left':'23%'});
+        $('#window').css({'width':'62%','left':'18%'});
     } else {
         $('#window').css({'width':'38%','left':'31%'});
     }
