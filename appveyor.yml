@@ -23,6 +23,7 @@ shallow_clone: true
 build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Release" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
+
     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Debug" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
 
 before_build:
