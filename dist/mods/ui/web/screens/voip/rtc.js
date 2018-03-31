@@ -182,7 +182,8 @@ function remotestream(event) {
     }
 
     this.speech = window.hark(event.stream, {
-            "threshold": "-60"
+            "threshold": "-60",
+			"interval": "250"
         });
     this.speech.on("speaking", function () {
         speak(username, peer);
@@ -435,7 +436,8 @@ function startConnection(info) {
                 localStream = stream;
 
                 var speechEvents = hark(localStream, {
-                        "threshold": "-60"
+                        "threshold": "-60",
+						"interval": "250"
                     });
                 speechEvents.on('speaking', function () {
                     if (serverCon != undefined) {
