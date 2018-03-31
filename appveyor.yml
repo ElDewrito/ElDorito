@@ -12,6 +12,7 @@ environment:
   _zipD: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%-debug.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.config -x!*.exp -x!*.lib -x!*.pdb
   _7zD: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zipD% -r -x!*.config -x!*.exp -x!*.lib -x!*.ilk
+  _vInfo: '%APPVEYOR_BUILD_FOLDER%\ElDorito\Source\Utils\VersionInfo.cpp'
 
 init:
   - git config --global core.autocrlf input
@@ -33,6 +34,8 @@ before_build:
     git clone https://github.com/scooterpsu/medalPack.git .\dist\mods\medals\default
 
     RM -rf .\dist\mods\medals\default\.git
+
+- ps: (Get-Content "$env:_vInfo") -replace 'V\(\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*\)', 'V($1, $2, $3, $env:APPVEYOR_BUILD_NUMBER)' | Out-File "$env:_vInfo"
 
 after_build:
 - cmd: >-
