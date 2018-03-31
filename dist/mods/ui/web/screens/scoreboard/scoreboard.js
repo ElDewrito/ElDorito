@@ -482,6 +482,8 @@ function escapeElementID(user) {
 }
 
 dew.on("voip-user-volume", function(e){
+    if(!isVisible)
+        return;
 	if(e.data.volume > -60){
         isSpeaking(e.data.user,true);
 	}
