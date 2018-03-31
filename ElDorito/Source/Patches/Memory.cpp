@@ -151,7 +151,7 @@ namespace Patches::Memory
 	{
 		auto oldUnknownGeometryCount = 8192;
 		auto oldMaxObjectGeometryCount = 1024;
-		auto newMaxObjectGeometryCount = oldMaxObjectGeometryCount * 2;
+		auto newMaxObjectGeometryCount = oldMaxObjectGeometryCount * 3;
 		auto objectGeometryIncrease = newMaxObjectGeometryCount - oldMaxObjectGeometryCount;
 		auto objectGeometrySizeIncrease = objectGeometryIncrease * 0x10;
 
