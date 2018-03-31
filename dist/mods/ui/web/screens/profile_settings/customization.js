@@ -963,7 +963,7 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						needApply = true;
 					});
 					
-					$('.emblemForm input, .emblemColorForm input').off('change click').on('change click', function(e){
+					$('.emblemForm input, .emblemColorForm input').on('change click', function(e){
 						$(this).parent().parent().parent().find('.selectedElement').removeClass('selectedElement');
 						$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
 						$(this).parent().parent().addClass('chosenElement');
