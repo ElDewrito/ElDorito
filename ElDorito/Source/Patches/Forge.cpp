@@ -82,7 +82,7 @@ namespace
 	void RenderMeshPartHook(void* data, int a2);
 	int ObjectLightingQualityOverrideHook();
 	void RenderObjectTransparentHook();
-	void RenderObjectCompressionInfoHook();
+	void RenderObjectCompressionInfoHook(uint8_t *compressionInfo);
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
@@ -256,6 +256,13 @@ namespace
 		RealVector3D GrabOffset;
 	} monitorState;
 
+	struct {
+		bool IsValid;
+		float Scale;
+		float OffsetX;
+		float OffsetY;
+	} customTextureModeState;
+
 	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
 
@@ -411,6 +418,7 @@ namespace Patches::Forge
 			monitorState.HeldObjectIndex = -1;
 			forgeGlobals_ = nullptr;
 			inSandboxEngine = false;
+			customTextureModeState.IsValid = false;
 		}
 		else
 		{
@@ -1938,7 +1946,7 @@ namespace
 		}
 	}
 
-	void RenderObjectCompressionInfo(uint8_t *data, float *compressionInfo)
+	void RenderObjectCompressionInfoHook(uint8_t *compressionInfo)
 	{
 		const auto rasterizer_set_real_vertex_shader_constant = (void(*)(int start_register, int vec4_count, const float *data))(0x00A66410);
 
@@ -1968,48 +1976,25 @@ namespace
 		constantData[5] = info->position_bounds_y_min;
 		constantData[6] = info->position_bounds_z_min;
 		constantData[7] = 0;
-	
-		auto objectIndex = *(uint32_t*)(*(uint8_t**)(data + 0x4) + 0x6c);
-		if (CanThemeObject(objectIndex))
-		{
-			auto object = Blam::Objects::Get(objectIndex);	
-			auto properties = object->GetMultiplayerProperties();
-			auto props = (ReforgeObjectProperties*)(&properties->RadiusWidth);
-			if (props->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
-			{
-				auto tscale = props->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
-				constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
-				constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
-				constantData[10] = props->TextureData.OffsetX / 255.0f;
-				constantData[11] = props->TextureData.OffsetY / 255.0f;
-				rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
-				return;
-			}	
-		}
 
-		constantData[8] = info->texcoord_bounds_x_max - info->texcoord_bounds_x_min;
-		constantData[9] = info->texcoord_bounds_y_max - info->texcoord_bounds_y_min;
-		constantData[10] = info->texcoord_bounds_x_min;
-		constantData[11] = info->texcoord_bounds_y_min;
+		if(customTextureModeState.IsValid)
+		{
+			auto tscale = customTextureModeState.Scale;
+			constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
+			constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
+			constantData[10] = customTextureModeState.OffsetX;
+			constantData[11] = customTextureModeState.OffsetY;
+			rasterizer_set_real_vertex_shader_constant(12, 3, constantData);		
+		}
+		else
+		{
+			constantData[8] = info->texcoord_bounds_x_max - info->texcoord_bounds_x_min;
+			constantData[9] = info->texcoord_bounds_y_max - info->texcoord_bounds_y_min;
+			constantData[10] = info->texcoord_bounds_x_min;
+			constantData[11] = info->texcoord_bounds_y_min;
+		}
+		
 		rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
-	}
-
-
-	__declspec(naked) void RenderObjectCompressionInfoHook()
-	{
-		__asm
-		{
-			push ebp
-			mov eax, [ebp+0x8]
-			mov ebp, esp
-			push[ebp + 0x8]
-			push eax
-			call RenderObjectCompressionInfo
-			add esp, 4
-			mov esp, ebp
-			pop ebp
-			retn
-		}
 	}
 
 	int ObjectLightingQualityOverrideHook()
@@ -2087,6 +2072,7 @@ namespace
 				objectLightingQualityOverride = false;
 				return;
 			}
+
 			
 			int16_t materialIndex;
 			if (GetObjectMaterial(renderData, &materialIndex))
@@ -2103,11 +2089,20 @@ namespace
 				const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
 				const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
 
+				auto properties = (ReforgeObjectProperties*)(&object->GetMultiplayerProperties()->RadiusWidth);
+				if (properties->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
+				{
+					customTextureModeState.Scale = properties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
+					customTextureModeState.OffsetX = properties->TextureData.OffsetX / 255.0f;
+					customTextureModeState.OffsetY = properties->TextureData.OffsetY / 255.0f;
+					customTextureModeState.IsValid = true;
+				}
+
 				auto oldMaterialIndex = *materialIndexPtr;
 				*materialIndexPtr = materialIndex;
 				RenderMeshPart(data, a2);
 				*materialIndexPtr = oldMaterialIndex;
-
+				customTextureModeState.IsValid = false;
 				return;
 			}
 		}
