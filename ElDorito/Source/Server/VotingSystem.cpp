@@ -575,7 +575,7 @@ namespace Server::Voting
 		}
 		if (gameTypes.size() < 2 || haloMaps.size() < 2)
 		{
-			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json must contain at least 2 gametypes and two maps. Using defaults instead.");
+			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Error, "Json must contain at least two gametypes and two maps. Using defaults instead.");
 			return false;
 		}
 
