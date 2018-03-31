@@ -124,6 +124,7 @@ function removePeer(uid) {
     peerIds.splice(index, 1);
 
     delete peerCons[uid];
+	dew.notify("voip-user-leave", {"user":uid});
     stopSpeak(uid.split("|")[0]);
 }
 

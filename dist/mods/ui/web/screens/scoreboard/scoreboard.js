@@ -15,7 +15,7 @@ var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
 var mapName;
-var volArray = [];
+var playerVolumes = {};
 var scoreboardData = null;
 var multiRound = false;
 var lastRound = true;
@@ -278,24 +278,17 @@ dew.on('controllerinput', function(e){
                 hideScoreboard(); 
             }
         }
-        if(e.data.X == 1){
-            if(!$('#playerBreakdown').is(":visible")){
-                $.grep(volArray, function (result, index) {
-                    if (result) {
-                        if (result[0] == $('.clickable').eq(itemNumber).attr('id')) {
-                            uid = result[1];
-                            level = result[2];
-                            if (level == 0) {
-                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),100);
-                            } else {
-                                setPlayerVolume($('.clickable').eq(itemNumber).attr('id'),$('.clickable').eq(itemNumber).attr('data-uid'),0);
-                            };
-                        };
-                    }
-                });
+        if (e.data.X == 1) {
+            if (!$('#playerBreakdown').is(":visible")) {
+                var volume = playerVolumes[$('.clickable').eq(itemNumber).attr('id')];
+                if (volume == 0) {
+                    setPlayerVolume($('.clickable').eq(itemNumber).attr('id'), $('.clickable').eq(itemNumber).attr('data-uid'), 100);
+                } else {
+                    setPlayerVolume($('.clickable').eq(itemNumber).attr('id'), $('.clickable').eq(itemNumber).attr('data-uid'), 0);
+                };
             }
         }
-        if(e.data.Up == 1){
+        if(e.data.Up == 1) {
             upNav();
         }
         if(e.data.Down == 1){
@@ -484,75 +477,60 @@ dew.on("scoreboard", function(e){
     }
 });
 
-dew.on("voip-user-volume", function(e){
-    if(!isVisible)
-        return;
+function escapeElementID(user) {
+    return user.split(' ').join('\\ ');
+}
 
+dew.on("voip-user-volume", function(e){
 	if(e.data.volume > -60){
-		talkingArray.push(e.data.user);
         isSpeaking(e.data.user,true);
-	}else{
-		talkingArray.splice($.inArray(e.data.user, talkingArray), 1);
-        isSpeaking(e.data.user,false);
+	}
+
+    var playerVoip = playerVolumes[e.data.user];
+    if (playerVoip) {
+        playerVoip.currentVoice = e.data.volume;
+		if(isVisible){
+			var escapedName = escapeElementID(e.data.user); //make names with spaces safe for selector
+			if (playerVoip.volume == 0) {
+				$('#' + escapedName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
+			} else if (e.data.volume < -75) {
+				$('#' + escapedName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
+			} else if (e.data.volume < -50) {
+				$('#' + escapedName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
+			} else {
+				$('#' + escapedName).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
+			}
+		}
     }
-	
-	var uid = "";
-	var level = 100;
-	$.grep(volArray, function (result, index) {
-	    if (result) {
-	        if (result[0] == e.data.user) {
-	            uid = result[1];
-	            level = result[2];
-	            if (level == 0) {
-	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
-	            } else if (e.data.volume < -75) {
-	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
-	            } else if (e.data.volume < -50) {
-	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
-	            } else {
-	                $('#' + e.data.user).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
-	            };
-	            volArray.splice(index, 1);
-	        };
-	    }
-	});
-	volArray.push([e.data.user, uid, level, e.data.volume]);
+    else {
+        playerVolumes[e.data.user] = {};
+        playerVolumes[e.data.user].volume = 100.0;
+        playerVolumes[e.data.user].currentVoice = e.data.volume;
+    }
 });
 
 dew.on("voip-self-volume", function (e) {
-    if(!isVisible)
-        return;
-        
     dew.getSessionInfo().then(function (info) {
         if (info.established == true) {
-            var level = 100;
-            $.grep(volArray, function (result, index) {
-                if (result) {
-                    if (result[0] == info.playerInfo.Name) {
-                        uid = result[1];
-                        level = result[2];
-                        if (level == 0) {
-                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-mute.png');
-                        } else if (e.data.volume < -75) {
-                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-off.png');
-                        } else if (e.data.volume < -50) {
-                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-low.png');
-                        } else {
-                            $('#' + info.playerInfo.Name).find('.speaker').attr('src', 'dew://assets/emblems/speaker-full.png');
-                        };
-                        volArray.splice(index, 1);
-                    };
-                }
-            });
-            volArray.push([info.playerInfo.Name, info.playerInfo.Uid, level, e.data.volume]);
+            var playerVoip = playerVolumes[e.data.user];
+            if (playerVoip) {
+                playerVoip.currentVoice = e.data.volume;
+            } else {
+                playerVolumes[e.data.user] = {};
+                playerVolumes[e.data.user].volume = 100.0;
+                playerVolumes[e.data.user].currentVoice = e.data.volume;
+            }
         }
     });
 });
-
 dew.on("voip-peers", function(e){
 });
 
 dew.on("voip-speaking", function(e){
+});
+
+dew.on("voip-user-leave", function(e){
+	delete playerVolumes[e.data.user];
 });
 
 dew.on("show", function(e){
@@ -777,19 +755,23 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
 			var thisSpeakerIcon = "";
 			var isInVoip = false;
 			var volumeLevel = 100;
-			$.grep(volArray, function (result, index) {
-			    if (result) {
-			        if (result[0] == lobby[i].name) {
-			            thisSpeakerIcon = "dew://assets/emblems/speaker-off.png";
-			            isInVoip = true;
-			            volumeLevel = result[2];
-			        }
-			    }
-			});
+			var playerVoip = playerVolumes[lobby[i].name];
+			if (playerVoip) {
+			    volumeLevel = playerVoip.volume;
+			    isInVoip = true;
+			    if (playerVoip.volume == 0)
+			        thisSpeakerIcon = 'dew://assets/emblems/speaker-mute.png';
+			    else if (playerVoip.currentVoice < -75)
+			        thisSpeakerIcon = 'dew://assets/emblems/speaker-off.png';
+			    else if (playerVoip.currentVoice < -50)
+			        thisSpeakerIcon = 'dew://assets/emblems/speaker-low.png';
+			    else
+			        thisSpeakerIcon = 'dew://assets/emblems/speaker-full.png'
+			}
 			if(isInVoip){
 			    $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker talking" src="' + thisSpeakerIcon + '"><input class="volSlider" type="range" min="0" max="200" step="1" value="' + volumeLevel + '"></input>')) //voip speaking indicator
             }else{
-			        $("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src=""><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator
+				$("[data-playerIndex='" + lobby[i].playerIndex + "'] .name").prepend($('<img class="emblem speaker" src=""><input class="volSlider" type="range" min="0" max="200" step="1" value="100"></input>')) //voip speaking indicator
             }
             if(lobby[i].hasObjective){
                 $('.objective').remove();
@@ -814,12 +796,10 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
             e.stopPropagation();
             $(this).parent().find('.volSlider').show();
 
-            $.grep(volArray, function (result, index) {
-                if (result) {
-                    if (result[0] == $(this).parent().parent().attr('id'))
-                        $(this).value(result[2]);
-                }
-            });
+            var playerVoip = playerVolumes[$(this).parent().parent().attr('id')];
+            if (playerVoip) {
+                $(this).value(playerVoip.volume);
+            }
         });
     }
 }
@@ -1177,11 +1157,10 @@ function setPlayerVolume(name,uid,level){
         }
     });
 	
-	$.grep(volArray, function (result, index) {
-	    if (result && result[0] == name)
-	        volArray.splice(index, 1);
-	});
-	volArray.push([name, uid, level, 0]);
+	var playerVoip = playerVolumes[name];
+    if(playerVoip){
+		playerVoip.volume = level;
+    }
 }
 
 function isSpeaking(name,visible){
