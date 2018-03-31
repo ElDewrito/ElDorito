@@ -403,11 +403,13 @@ namespace
 			return false;
 		}
 
+#if defined(ELDEWRITO_RELEASE)
 		if (ourEdVer.compare(edVer))
 		{
 			returnInfo = "Server is running a different ElDewrito version.";
 			return false;
 		}
+#endif
 
 		std::string xnkid = json["xnkid"].GetString();
 		std::string xnaddr = json["xnaddr"].GetString();
