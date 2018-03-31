@@ -75,6 +75,7 @@ namespace
 		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9);
 	void PlayerPersonalGravityHook();
 	void LandingDamageResponseHook(uint32_t unitObjectIndex, uint32_t a2, uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8);
+	void DamageResponsePlayerEffectsHook(uint32_t uintObjectIndex, int localPlayerIndex, uint32_t damageResponseTagIndex, int a4, RealVector3D *a5, float a6, float scale, bool a8);
 	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK);
 	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex);
 
@@ -104,6 +105,7 @@ namespace
 
 	struct {
 		bool IsValid;
+		bool IsLandingDamage;
 		PlayerState Players[16];
 	} state;
 }
@@ -135,6 +137,9 @@ namespace Patches::PlayerScale
 		Hook(0x3629CC, PlayerCollisionDamageHook, HookFlags::IsCall).Apply();
 		Hook(0x7AF500, PlayerPersonalGravityHook, HookFlags::IsCall).Apply();
 		Hook(0x7E2335, LandingDamageResponseHook, HookFlags::IsCall).Apply();
+		Hook(0x284EDF, DamageResponsePlayerEffectsHook, HookFlags::IsCall).Apply();
+		Hook(0x284F21, DamageResponsePlayerEffectsHook, HookFlags::IsCall).Apply();
+
 		// TODO: fix properly
 		Hook(0x7B0E94, JumpCrouchFix1Hook, HookFlags::IsCall).Apply();
 		Hook(0x7B03AB, JumpCrouchFix2Hook, HookFlags::IsCall).Apply();
@@ -881,7 +886,7 @@ namespace
 		}
 	}
 
-	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5, 
+	void *__fastcall BipedCreateRigidBodyHook(void *thisptr, void *unused, s_biped_physics *bipedPhysics, int a4, int a5,
 		uint32_t collisionFilter_, int shapeIndex, bool hasFriction, char a9)
 	{
 		const auto BipedCreateRigidBody = (void *(__thiscall *)(void *thisptr, s_biped_physics *bipedPhysics, int a4, int a5,
@@ -909,8 +914,8 @@ namespace
 		{
 			auto objectHeaderA = Blam::Objects::GetObjects().Get(bipedObjectIndex);
 			auto objectHeaderB = Blam::Objects::GetObjects().Get(otherBipedObjectIndex);
-			if (objectHeaderA && objectHeaderB 
-				&& objectHeaderA->Type == Blam::Objects::eObjectTypeBiped 
+			if (objectHeaderA && objectHeaderB
+				&& objectHeaderA->Type == Blam::Objects::eObjectTypeBiped
 				&& objectHeaderB->Type == Blam::Objects::eObjectTypeBiped)
 			{
 				auto minScale = objectHeaderA->Data->Scale < objectHeaderB->Data->Scale ? objectHeaderA->Data->Scale : objectHeaderB->Data->Scale;
@@ -932,14 +937,30 @@ namespace
 	{
 		const auto LandingDamageResponse = (void(*)(uint32_t bipedObjectIndex, uint32_t a2, 
 			uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8))(0x684DF0);
-		
-		auto unitObject = Blam::Objects::Get(unitObjectIndex);
+
+		state.IsLandingDamage = true;
+		LandingDamageResponse(unitObjectIndex, a2, damageEffectTagIndex, a4, a5, a6, responseScale, a8);
+		state.IsLandingDamage = false;
+	}
+
+	void DamageResponsePlayerEffectsHook(uint32_t uintObjectIndex, int localPlayerIndex, uint32_t damageResponseTagIndex, int a4, RealVector3D *a5, float a6, float scale, bool a8)
+	{
+		const auto sub_684F30 = (void(*)(uint32_t uintObjectIndex, int localPlayerIndex, uint32_t damageResponseTagIndex, int a4, RealVector3D *a5, float a6, float scale, bool a8))(0x684F30);
+
+		auto unitObject = Blam::Objects::Get(uintObjectIndex);
 		if (unitObject)
 		{
-			responseScale *= unitObject->Scale;
+			if(state.IsLandingDamage)
+			{
+				scale *= unitObject->Scale;
+			}
+			else if (unitObject->Scale < 1.0f)
+			{
+				scale *= std::pow(unitObject->Scale, 0.4f);
+			}
 		}
-	
-		LandingDamageResponse(unitObjectIndex, a2, damageEffectTagIndex, a4, a5, a6, responseScale, a8);
+
+		return sub_684F30(uintObjectIndex, localPlayerIndex, damageResponseTagIndex, a4, a5, a6, scale, a8);
 	}
 
 	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK)
