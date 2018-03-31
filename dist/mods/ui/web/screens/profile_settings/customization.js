@@ -185,7 +185,7 @@ $(document).ready(function(){
 		
         dew.command('Game.PlaySound 0x0B00');
     });
-    $('.colorForm input, .armorForm input').off('change click').on('change click', function(e){
+    $('.colorForm input, .armorForm input').off('click').on('change click', function(e){
         $(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
         $(this).parent().parent().addClass('chosenElement');
         $.grep(settingsToLoad, function(result){
@@ -958,12 +958,12 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 						setEmblemColorRadioList('colorsEmblemImage', h3ColorArray);
 					}
 					
-					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').off('change click').on('change click', function(e) {
+					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').off('click').on('change click', function(e) {
 						$('#applyEmblemButton').show();
 						needApply = true;
 					});
 					
-					$('.emblemForm input, .emblemColorForm input').off('change click').on('change click', function(e){
+					$('.emblemForm input, .emblemColorForm input').off('click').on('change click', function(e){
 						$(this).parent().parent().parent().find('.selectedElement').removeClass('selectedElement');
 						$(this).parent().parent().parent().find('.chosenElement').removeClass('chosenElement');
 						$(this).parent().parent().addClass('chosenElement');
