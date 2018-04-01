@@ -785,27 +785,26 @@ namespace
 
 		auto mapv = Forge::GetMapVariant();
 		auto placement = mapv->Placements[placementIndex];
-		const auto& properties = placement.Properties;
 		const auto& budget = mapv->Budget[placement.BudgetIndex];
 
+		auto object = Blam::Objects::Get(placement.ObjectIndex);
+		if (!object)
+			return "{}";
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (!mpProperties)
+			return "{}";
+
+		auto &properties = *mpProperties;
+	
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
-		auto symmetry = 0;
-		if (properties.ObjectFlags & 4)
-		{
-			if (!(properties.ObjectFlags & 8))
-				symmetry = 1;
-		}
-		else
-			symmetry = 2;
-
-		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
-		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
-		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
-		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.ZoneRadiusWidth);
-		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.SharedStorage);
-		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.SharedStorage);
+		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.RadiusWidth);
+		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.RadiusWidth);
+		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.RadiusWidth);
+		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.RadiusWidth);
+		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.RadiusWidth);
+		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.RadiusWidth);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
@@ -841,21 +840,21 @@ namespace
 
 		writer.Key("properties");
 		writer.StartObject();
-		SerializeProperty(writer, "on_map_at_start", ((properties.ObjectFlags >> 1) & 1) == 0 ? 1 : 0);
-		SerializeProperty(writer, "symmetry", symmetry);
-		SerializeProperty(writer, "respawn_rate", properties.RespawnTime);
-		SerializeProperty(writer, "spawn_order", properties.SharedStorage);
-		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
-		SerializeProperty(writer, "team_affiliation", properties.TeamAffilation);
+		SerializeProperty(writer, "on_map_at_start", ((properties.Flags >> 7) & 1) == 0 ? 1 : 0);
+		SerializeProperty(writer, "symmetry", properties.Symmetry);
+		SerializeProperty(writer, "respawn_rate", properties.SpawnTime);
+		SerializeProperty(writer, "spawn_order", properties.TeleporterChannel);
+		SerializeProperty(writer, "spare_clips", properties.SpareClips);
+		SerializeProperty(writer, "team_affiliation", properties.TeamIndex);
 		SerializeProperty(writer, "engine_flags", properties.EngineFlags);
-		SerializeProperty(writer, "teleporter_channel", properties.SharedStorage);
-		SerializeProperty(writer, "shape_type", properties.ZoneShape);
-		SerializeProperty(writer, "shape_radius", properties.ZoneRadiusWidth);
-		SerializeProperty(writer, "shape_top", properties.ZoneTop);
-		SerializeProperty(writer, "shape_bottom", properties.ZoneBottom);
-		SerializeProperty(writer, "shape_width", properties.ZoneRadiusWidth);
-		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
-		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
+		SerializeProperty(writer, "teleporter_channel", properties.TeleporterChannel);
+		SerializeProperty(writer, "shape_type", properties.Shape);
+		SerializeProperty(writer, "shape_radius", properties.RadiusWidth);
+		SerializeProperty(writer, "shape_top", properties.Top);
+		SerializeProperty(writer, "shape_bottom", properties.Bottom);
+		SerializeProperty(writer, "shape_width", properties.RadiusWidth);
+		SerializeProperty(writer, "shape_depth", properties.Length);
+		SerializeProperty(writer, "appearance_material", properties.TeleporterChannel);
 		SerializeProperty(writer, "appearance_material_color_r", reforgeProperties->ColorR / 255.0f);
 		SerializeProperty(writer, "appearance_material_color_g", reforgeProperties->ColorG / 255.0f);
 		SerializeProperty(writer, "appearance_material_color_b", reforgeProperties->ColorB / 255.0f);
@@ -863,7 +862,7 @@ namespace
 		SerializeProperty(writer, "appearance_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
 		SerializeProperty(writer, "appearance_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
 		SerializeProperty(writer, "appearance_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
-		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
+		SerializeProperty(writer, "physics", properties.Shape == 4 ? 1 : 0);
 		SerializeProperty(writer, "light_type", int(lightProperties->Type));
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);

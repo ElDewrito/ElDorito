@@ -536,16 +536,16 @@
 
                     switch (properties.shape_type) {
                         case 3:
-                            m.add(makeProperty('shape_width', 'Width', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how wide the zone is for this item.'));
-                            m.add(makeProperty('shape_depth', 'Depth', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how deep the zone is for this item.'));
-                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
-                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of zone is for this item.'));
+                            m.add(makeProperty('shape_width', 'Width', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines how wide the zone is for this item.'));
+                            m.add(makeProperty('shape_depth', 'Depth', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines how deep the zone is for this item.'));
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the bottom of zone is for this item.'));
                             break;
                         case 2:
-                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
-                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of the zone is for this item.'));
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the bottom of the zone is for this item.'));
                         case 1:
-                            m.add(makeProperty('shape_radius', 'Radius', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines the radius of the zone for this item.'));
+                            m.add(makeProperty('shape_radius', 'Radius', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines the radius of the zone for this item.'));
                             break;
                     }
                 });
