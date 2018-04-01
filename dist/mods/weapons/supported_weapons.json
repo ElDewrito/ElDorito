@@ -1,4 +1,5 @@
 {"supported_weapons":[
+  {"name":"unarmed","tagname":"objects\\weapons\\melee\\energy_blade\\unarmed"},
   {"name":"energy_sword","tagname":"objects\\weapons\\melee\\energy_blade\\energy_blade"},
   {"name":"energy_sword_hilt","tagname":"objects\\weapons\\melee\\energy_blade\\energy_blade_useless"},
   {"name":"gravity_hammer","tagname":"objects\\weapons\\melee\\gravity_hammer\\gravity_hammer"},
