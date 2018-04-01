@@ -88,10 +88,12 @@ a.boxclose img.button{
 .voteTally
 {	   
 	position: absolute;
-	right: 8.5vw;
-	font-size: 4vw;
+	right: 8vw;
+	font-size: 6vw;
 	margin-top: 1%;
 	color: rgba(255, 255, 255, 0.7);
+	-webkit-text-stroke-width: 3px;
+    -webkit-text-stroke-color: black;
 }
 .revoteOption .voteTally
 {
@@ -100,6 +102,7 @@ a.boxclose img.button{
 	font-size: 2.5vw;
 	bottom: 0vh;
 	margin-top:0%;
+	-webkit-text-stroke-width: 2px;
 }
 .revoteOption
 {
