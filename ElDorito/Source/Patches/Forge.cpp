@@ -1506,6 +1506,33 @@ namespace
 			ApplyGrabOffset(playerIndex, objectIndex);
 	}
 
+	void RecalculateMapVariantBudget()
+	{
+		auto mapv = GetMapVariant();
+
+		// reset count on map
+		for (auto i = 0; i < 256; i++)
+			mapv->Budget[i].CountOnMap = 0;
+		
+		// count placements
+		for (auto i = 0; i < 640; i++)
+		{
+			auto &placement = mapv->Placements[i];
+			if(placement.PlacementFlags & 1)
+				mapv->Budget[placement.BudgetIndex].CountOnMap++;
+		}
+
+		// fixup runtime
+		for (auto i = 0; i < 256; i++)
+		{
+			auto &budgetItem = mapv->Budget[i];
+			if (budgetItem.RuntimeMin > budgetItem.CountOnMap)
+				budgetItem.RuntimeMin = budgetItem.CountOnMap;
+			if (budgetItem.RuntimeMax < budgetItem.CountOnMap)
+				budgetItem.RuntimeMax = budgetItem.CountOnMap;
+		}
+	}
+
 	void __cdecl ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3)
 	{
 		static auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
@@ -1589,6 +1616,8 @@ namespace
 
 			ThrowObject(playerIndex, objectIndex, throwForce);
 		}
+
+		RecalculateMapVariantBudget();
 	}
 
 	void __cdecl ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex)
