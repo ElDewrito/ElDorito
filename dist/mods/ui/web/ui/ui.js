@@ -93,6 +93,9 @@
 
     // Sends an event notification to a screen.
     function notifyScreen(screen, event, data) {
+        if(screen.constructor === String)
+            screen = findScreen(screen);
+
         if (screen === null || screen.selector === null || !screen.loaded) {
             return;
         }
@@ -198,6 +201,8 @@
             }
         });
     }
+
+    ui.notifyScreen = notifyScreen;
 
     // Creates a screen from a screen data object.
     ui.createScreen = function (data) {

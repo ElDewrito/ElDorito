@@ -156,6 +156,15 @@ namespace Web::Ui::ScreenLayer
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
 	}
 
+	void NotifyScreen(const std::string &screenId, const std::string &event, const std::string &data)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		// ui.notifyScreen(screen, event, data)
+		auto js = "if (window.ui) ui.notifyScreen('"+screenId+"', '" + event + "'," + data + ");";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
+	}
+
 	void CaptureInput(bool capture, bool pointerCapture)
 	{
 		if ((InputCaptured == capture && PointerCaptured == pointerCapture) || (capture && !WebRenderer::GetInstance()->IsRendering()))

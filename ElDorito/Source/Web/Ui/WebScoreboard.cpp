@@ -114,7 +114,7 @@ namespace Web::Ui::WebScoreboard
 			if (scoreboardShown && Blam::Time::TicksToSeconds(scoreboardSentTime++) > kScoreboardUpdateRateSeconds)
 			{
 				scoreboardSentTime = 0;
-				Web::Ui::ScreenLayer::Notify("scoreboard", getScoreboard(), true);
+				Web::Ui::ScreenLayer::NotifyScreen("scoreboard", "scoreboard", getScoreboard());
 				
 			}
 		}
@@ -214,7 +214,7 @@ namespace
 			postgameDisplayed = Blam::Time::GetGameTicks();
 			postgame = true;
 
-			Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
+			Web::Ui::ScreenLayer::NotifyScreen("scoreboard", "scoreboard", Web::Ui::WebScoreboard::getScoreboard());
 		}
 	}
 
