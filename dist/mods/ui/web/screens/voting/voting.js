@@ -231,7 +231,7 @@ function onControllerConnect(){
 }
 
 function onControllerDisconnect(){
-    $('.selected').removeClass(); 
+    $('.selected').removeClass('selected'); 
     $("#boxclose").text("x"); 
 }
 
