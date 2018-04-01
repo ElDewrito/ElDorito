@@ -16,6 +16,7 @@ var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
 var consoleAutoCompleteMode = eAutoCompleteMode.Fuzzy;
+var memoryUsageInterval = null;
 
 function isset(val) {
      return !!val;
@@ -770,11 +771,20 @@ $(window).load(function () {
 
     dew.on("show", function (e) {
         focusInput();
+    
+        if(!memoryUsageInterval)
+            memoryUsageInterval = setInterval(showMemoryUsage, 1000);
     });
 
     dew.on("hide", function (e) {
         clearInput();
         scrollToBottom();
+
+        if(memoryUsageInterval) {
+            clearInterval(memoryUsageInterval);
+            memoryUsageInterval = null;
+        }
+            
     });
 
     dew.on("console", function (e) {
@@ -838,8 +848,7 @@ function formatBytes(bytes,decimals) {
 }
 
 function showMemoryUsage() {
-	$("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize))
-	setTimeout(showMemoryUsage, 1000);
+    $("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize));
 }
 
 showMemoryUsage();
