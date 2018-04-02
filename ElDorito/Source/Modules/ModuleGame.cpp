@@ -320,6 +320,7 @@ namespace
 
 		ss << "Loading " << mapName << " gametype: " << Blam::GameTypeNames[gameType] << " gamemode: " << Blam::GameModeNames[gameMode];
 
+		// Game Type
 		Pointer(0x2391B2C).Write<uint32_t>(gameType);
 
 		// Infinite play time
