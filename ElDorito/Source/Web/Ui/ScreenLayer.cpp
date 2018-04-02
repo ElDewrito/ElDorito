@@ -431,7 +431,15 @@ namespace
 		case WM_SYSKEYUP:
 			key.type = KEYEVENT_KEYUP;
 			if (msg->lParam & (1 << 29) && msg->wParam == VK_F4) // alt-f4
+			{
 				Modules::CommandMap::Instance().ExecuteCommand("Game.Exit");
+				return;
+			}
+			if (msg->wParam == VK_SNAPSHOT) // print-scr
+			{
+				Modules::CommandMap::Instance().ExecuteCommand("Game.TakeScreenshot");
+				return;
+			}
 			break;
 		case WM_CHAR:
 		case WM_SYSCHAR:

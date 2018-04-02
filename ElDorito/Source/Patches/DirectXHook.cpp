@@ -23,6 +23,7 @@ namespace
 	HRESULT __stdcall EndSceneHook(LPDIRECT3DDEVICE9 device);
 	void Video_CallsEndSceneHook();
 	HRESULT __stdcall ResetHook(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params);
+	void HandleTakeScreenshotHook();
 
 	LARGE_INTEGER start, end, elapsed, freq;
 }
@@ -32,6 +33,7 @@ namespace DirectXHook
 	void ApplyAll()
 	{
 		Hook(0x620386, CreateDeviceHook, HookFlags::IsCall).Apply();
+		Hook(0x62152B, HandleTakeScreenshotHook, HookFlags::IsCall).Apply();
 	}
 }
 
@@ -128,5 +130,38 @@ namespace
 		auto result = origResetPtr(device, params);
 		webRenderer->PostReset();
 		return result;
+	}
+
+	void HandleTakeScreenshotHook()
+	{
+		const auto write_jpeg = (bool(*)(BYTE *pBits, int width, int height, wchar_t *path))(0x0060F5D0);
+
+		auto &takeScreenshot = *(uint8_t*)0x0244DEE8;
+		if (!takeScreenshot)
+			return;
+		takeScreenshot = 0;
+
+		IDirect3DSurface9 *backBuffer, *tmpBuffer;
+		D3DSURFACE_DESC desc;
+		D3DLOCKED_RECT lockedRect;
+
+		auto device = *(IDirect3DDevice9**)0x050DADDC;
+
+		if (SUCCEEDED(device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer)))
+		{
+			if (SUCCEEDED(backBuffer->GetDesc(&desc)) && (desc.Format == D3DFMT_A8R8G8B8 || desc.Format == D3DFMT_X8R8G8B8) &&
+				SUCCEEDED(device->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format, D3DPOOL_SYSTEMMEM, &tmpBuffer, nullptr)))
+			{
+				if (SUCCEEDED(device->GetRenderTargetData(backBuffer, tmpBuffer)) &&
+					SUCCEEDED(tmpBuffer->LockRect(&lockedRect, nullptr, D3DLOCK_READONLY)))
+				{
+					write_jpeg((BYTE*)lockedRect.pBits, desc.Width, desc.Height, (wchar_t*)0x0244DFC0);
+					tmpBuffer->UnlockRect();
+				}
+				tmpBuffer->Release();
+			}
+
+			backBuffer->Release();
+		}
 	}
 }
