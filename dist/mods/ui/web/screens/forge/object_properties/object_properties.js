@@ -424,7 +424,8 @@
             if (data.has_material) {
 
                 model.group('Material', m => {
-                    let supportsColor = materialSupportsChangeColor(properties.appearance_material);
+                    let supportsColor = materialSupportsChangeColor(properties.reforge_material);
+                    let oldMaterialIndex = properties.reforge_material;
 
                     let allMaterials = [];
                     let materialNodes = _materialsDOM.getElementsByTagName('item');
@@ -436,18 +437,18 @@
                         });
                     }
 
-                    m.add(Object.assign(makeProperty('appearance_material', 'Material', 'spinner', allMaterials, 'Material for this object'), {
+                    m.add(Object.assign(makeProperty('reforge_material', 'Material', 'spinner', allMaterials, 'Material for this object'), {
                         action: (item) => {
                             addRecentMaterial();
                             screenManager.push('material_picker', {
                                 materials: _materialsDOM,
                                 onMaterialSelected: (material) => {
-                                    let props = { ['appearance_material']: material.value };
+                                    let props = { ['reforge_material']: material.value };
                                     if (material.color) {
                                         Object.assign(props, {
-                                            appearance_material_color_r: material.color.r / 255,
-                                            appearance_material_color_g: material.color.g / 255,
-                                            appearance_material_color_b: material.color.b / 255
+                                            reforge_material_color_r: material.color.r / 255,
+                                            reforge_material_color_g: material.color.g / 255,
+                                            reforge_material_color_b: material.color.b / 255
                                         });
                                     }
                                     onPropertyChange(props);
@@ -456,8 +457,9 @@
                             });
                         },
                         setValue: (value) => {
-                            onPropertyChange({ ['appearance_material']: value });
-                            if (supportsColor != materialSupportsChangeColor(properties.appearance_material)) {
+                            onPropertyChange({ ['reforge_material']: value });
+                            const specialMaterials = new Set([119,120,121,162,163]);
+                            if (specialMaterials.has(properties.reforge_material) || specialMaterials.has(oldMaterialIndex)) {
                                 _propertryGrid.setModel(buildModel(_data));
                             }
                         }
@@ -471,16 +473,16 @@
                             meta: {},
                             getValue: () => {
                                 return {
-                                    r: Math.floor(properties.appearance_material_color_r * 255),
-                                    g: Math.floor(properties.appearance_material_color_g * 255),
-                                    b: Math.floor(properties.appearance_material_color_b * 255)
+                                    r: Math.floor(properties.reforge_material_color_r * 255),
+                                    g: Math.floor(properties.reforge_material_color_g * 255),
+                                    b: Math.floor(properties.reforge_material_color_b * 255)
                                 };
                             },
                             setValue: (color) => {
                                 onPropertyChange({
-                                    appearance_material_color_r: color.r / 255,
-                                    appearance_material_color_g: color.g / 255,
-                                    appearance_material_color_b: color.b / 255
+                                    reforge_material_color_r: color.r / 255,
+                                    reforge_material_color_g: color.g / 255,
+                                    reforge_material_color_b: color.b / 255
                                 })
                             },
                             action: (item) => {
@@ -492,24 +494,32 @@
                             },
                         });
                     } else {
-                        m.add({
-                            type: 'spinner',
-                            label: 'Texture Mode',
-                            description: 'Texture mode to use for this object',
-                            meta: [
-                                { label: 'Default', value: 0 },
-                                { label: 'Custom', value: 1 }
-                            ],
-                            getValue: () => properties.appearance_material_tex_override,
-                            setValue: (value) =>  {
-                                onPropertyChange({ ['appearance_material_tex_override']: value });
-                                _propertryGrid.setModel(buildModel(_data));
+
+                        if(properties.reforge_material == 121)  { // invisible
+                            m.add(makeProperty('reforge_material_allows_projectiles', 'Projectile Passthough', 'spinner', [
+                                { label: 'Disabled', value: 0 },
+                                { label: 'Enabled', value: 1 },
+                            ]));
+                        } else {
+                            m.add({
+                                type: 'spinner',
+                                label: 'Texture Mode',
+                                description: 'Texture mode to use for this object',
+                                meta: [
+                                    { label: 'Default', value: 0 },
+                                    { label: 'Custom', value: 1 }
+                                ],
+                                getValue: () => properties.reforge_material_tex_override,
+                                setValue: (value) =>  {
+                                    onPropertyChange({ ['reforge_material_tex_override']: value });
+                                    _propertryGrid.setModel(buildModel(_data));
+                                }
+                            });
+                            if(properties.reforge_material_tex_override) {
+                                m.add(makeProperty('reforge_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
+                                m.add(makeProperty('reforge_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                                m.add(makeProperty('reforge_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
                             }
-                        });
-                        if(properties.appearance_material_tex_override) {
-                            m.add(makeProperty('appearance_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
-                            m.add(makeProperty('appearance_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
-                            m.add(makeProperty('appearance_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
                         }
                     }
                 })
@@ -833,18 +843,18 @@
         function addRecentMaterial() {
 
             let materialColor = {
-                r: (_data.properties.appearance_material_color_r * 255) | 0,
-                g: (_data.properties.appearance_material_color_g * 255) | 0,
-                b: (_data.properties.appearance_material_color_b * 255) | 0
+                r: (_data.properties.reforge_material_color_r * 255) | 0,
+                g: (_data.properties.reforge_material_color_g * 255) | 0,
+                b: (_data.properties.reforge_material_color_b * 255) | 0
             };
 
-            if (!_recentMaterials.find(x => x.value === _data.properties.appearance_material
+            if (!_recentMaterials.find(x => x.value === _data.properties.reforge_material
                 && (!x.color || (x.color.r === materialColor.r && x.color.g === materialColor.g && x.color.b === materialColor.b)))) {
 
-                let materialName = getMaterialName(_data.properties.appearance_material);
+                let materialName = getMaterialName(_data.properties.reforge_material);
                 let recentItem = {
                     label: materialName,
-                    value: _data.properties.appearance_material,
+                    value: _data.properties.reforge_material,
                 };
                 if (materialSupportsChangeColor(recentItem.value)) {
                     recentItem.color = materialColor;

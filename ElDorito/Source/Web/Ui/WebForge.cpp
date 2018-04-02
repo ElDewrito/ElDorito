@@ -41,20 +41,18 @@ namespace
 		General_ShapeTop,
 		General_ShapeBottom,
 		General_ShapeDepth,
-		General_Material,
-		General_Material_ColorR,
-		General_Material_ColorG,
-		General_Material_ColorB,
-		General_Material_TextureOverride,
-		General_Material_TextureScale,
-		General_Material_TextureOffsetX,
-		General_Material_TextureOffsetY,
-
 		General_Physics,
 		General_EngineFlags,
 
-		Budget_Minimum,
-		Budget_Maximum,
+		Reforge_Material,
+		Reforge_Material_ColorR,
+		Reforge_Material_ColorG,
+		Reforge_Material_ColorB,
+		Reforge_Material_TextureOverride,
+		Reforge_Material_TextureScale,
+		Reforge_Material_TextureOffsetX,
+		Reforge_Material_TextureOffsetY,
+		Reforge_MaterialAllowsProjectiles,
 
 		Light_Type,
 		Light_ColorR,
@@ -114,7 +112,10 @@ namespace
 		AtmosphereProperties_FogColorB,
 		AtmosphereProperties_Skybox,
 		AtmosphereProperties_SkyboxOffsetZ,
-		AtmosphereProperties_SkyboxOverrideTransform
+		AtmosphereProperties_SkyboxOverrideTransform,
+
+		Budget_Minimum,
+		Budget_Maximum,
 	};
 
 	enum class PropertyDataType
@@ -193,31 +194,37 @@ namespace
 			case PropertyTarget::General_ShapeDepth:
 				m_Properties.ZoneDepth = value.ValueFloat;
 				break;
-			case PropertyTarget::General_Material:
+			case PropertyTarget::Reforge_Material:
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
-			case PropertyTarget::General_Material_ColorR:
+			case PropertyTarget::Reforge_Material_ColorR:
 				reforgeProperties->ColorR = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_ColorG:
+			case PropertyTarget::Reforge_Material_ColorG:
 				reforgeProperties->ColorG = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_ColorB:
+			case PropertyTarget::Reforge_Material_ColorB:
 				reforgeProperties->ColorB = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOverride:
+			case PropertyTarget::Reforge_Material_TextureOverride:
 				if (value.ValueInt)
-					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords;
 				else
-					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords;
 				break;
-			case PropertyTarget::General_Material_TextureScale:
+			case PropertyTarget::Reforge_MaterialAllowsProjectiles:
+				if (value.ValueInt)
+					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles;
+				else
+					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles;
+				break;
+			case PropertyTarget::Reforge_Material_TextureScale:
 				reforgeProperties->TextureData.Scale = int(value.ValueFloat / Forge::kReforgeMaxTextureScale * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOffsetX:
+			case PropertyTarget::Reforge_Material_TextureOffsetX:
 				reforgeProperties->TextureData.OffsetX = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOffsetY:
+			case PropertyTarget::Reforge_Material_TextureOffsetY:
 				reforgeProperties->TextureData.OffsetY = int(value.ValueFloat * 255);
 				break;		
 			case PropertyTarget::General_Physics:
@@ -854,14 +861,16 @@ namespace
 		SerializeProperty(writer, "shape_bottom", properties.Bottom);
 		SerializeProperty(writer, "shape_width", properties.RadiusWidth);
 		SerializeProperty(writer, "shape_depth", properties.Length);
-		SerializeProperty(writer, "appearance_material", properties.TeleporterChannel);
-		SerializeProperty(writer, "appearance_material_color_r", reforgeProperties->ColorR / 255.0f);
-		SerializeProperty(writer, "appearance_material_color_g", reforgeProperties->ColorG / 255.0f);
-		SerializeProperty(writer, "appearance_material_color_b", reforgeProperties->ColorB / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_override", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates) != 0));
-		SerializeProperty(writer, "appearance_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
+		SerializeProperty(writer, "reforge_material", int(properties.TeleporterChannel));
+		SerializeProperty(writer, "reforge_material_color_r", reforgeProperties->ColorR / 255.0f);
+		SerializeProperty(writer, "reforge_material_color_g", reforgeProperties->ColorG / 255.0f);
+		SerializeProperty(writer, "reforge_material_color_b", reforgeProperties->ColorB / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
+		SerializeProperty(writer, "reforge_material_tex_override", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords) != 0));
+		SerializeProperty(writer, "reforge_material_allows_projectiles", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles) != 0));
+
 		SerializeProperty(writer, "physics", properties.Shape == 4 ? 1 : 0);
 		SerializeProperty(writer, "light_type", int(lightProperties->Type));
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
@@ -948,14 +957,15 @@ namespace
 			{ "team_affiliation",{ PropertyDataType::Int, PropertyTarget::General_Team } },
 			{ "engine_flags", {PropertyDataType::Int, PropertyTarget::General_EngineFlags } },
 			{ "physics",{ PropertyDataType::Int, PropertyTarget::General_Physics } },
-			{ "appearance_material",{ PropertyDataType::Int, PropertyTarget::General_Material } },
-			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
-			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
-			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
-			{ "appearance_material_tex_override",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOverride } },
-			{ "appearance_material_tex_scale",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureScale } },
-			{ "appearance_material_tex_offset_x",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetX } },
-			{ "appearance_material_tex_offset_y",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetY } },
+			{ "reforge_material",{ PropertyDataType::Int, PropertyTarget::Reforge_Material } },
+			{ "reforge_material_color_r",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorR } },
+			{ "reforge_material_color_g",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorG } },
+			{ "reforge_material_color_b",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorB } },
+			{ "reforge_material_tex_scale",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureScale } },
+			{ "reforge_material_tex_offset_x",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureOffsetX } },
+			{ "reforge_material_tex_offset_y",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureOffsetY } },
+			{ "reforge_material_tex_override",{ PropertyDataType::Int, PropertyTarget::Reforge_Material_TextureOverride } },
+			{ "reforge_material_allows_projectiles",{ PropertyDataType::Int, PropertyTarget::Reforge_MaterialAllowsProjectiles} },
 
 			{ "teleporter_channel",{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel } },
 			{ "shape_type",{ PropertyDataType::Int, PropertyTarget::General_ShapeType } },

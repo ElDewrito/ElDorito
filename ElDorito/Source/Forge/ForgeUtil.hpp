@@ -70,9 +70,10 @@ namespace Forge
 	const float kReforgeMaxTextureScale = 4.0f;
 	struct ReforgeObjectProperties
 	{
-		enum
+		enum Flags
 		{
-			eReforgeObjectFlags_OverrideTexCoordinates = (1 << 0)
+			MaterialOverrideTextureCoords = (1 << 0),
+			MaterialAllowsProjectiles = (1 << 1)
 		};
 
 		uint8_t ColorR;

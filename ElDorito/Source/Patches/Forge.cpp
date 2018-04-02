@@ -2119,7 +2119,7 @@ namespace
 				const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
 
 				auto properties = (ReforgeObjectProperties*)(&object->GetMultiplayerProperties()->RadiusWidth);
-				if (properties->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
+				if (properties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords)
 				{
 					customTextureModeState.Scale = properties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
 					customTextureModeState.OffsetX = properties->TextureData.OffsetX / 255.0f;
@@ -3178,8 +3178,9 @@ namespace
 		auto mpProperties = object->GetMultiplayerProperties();
 		if (mpProperties && CanThemeObject(objectIndex))
 		{
-			if (mpProperties->TeleporterChannel == int8_t(INVISIBLE_MATERIAL_INDEX)
-				&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)) // not in monitor mode or you can't grab it
+			auto reforgeProperties = (Forge::ReforgeObjectProperties*)&mpProperties->RadiusWidth;
+			if (reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles
+				&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
 			{
 				return false;
 			}
