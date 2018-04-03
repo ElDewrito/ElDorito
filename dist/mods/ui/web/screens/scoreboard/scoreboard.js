@@ -585,8 +585,14 @@ dew.on("show", function(e){
 
     scoreboardData = e.data.scoreboardData;
     expandedScoreboard = e.data.expanded;
-    cachedPlayersInfo = JSON.parse(scoreboardData.playersInfo);
-    displayScoreboard();
+    if(scoreboardData.playersInfo || cachedPlayersInfo){
+        if(scoreboardData.playersInfo){
+            cachedPlayersInfo = JSON.parse(scoreboardData.playersInfo);
+        }
+        displayScoreboard();
+    }else{
+        hideScoreboard();
+    }
 });
 
 dew.on("hide", function(e){
