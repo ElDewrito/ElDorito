@@ -630,7 +630,7 @@ namespace
 
 	Blam::DatumHandle FindObjectByName(Blam::Objects::ObjectType type, uint16_t name)
 	{
-		if (name == -1)
+		if (name == 0xffff)
 			return Blam::DatumHandle::Null;
 
 		auto objects = Blam::Objects::GetObjects();
@@ -650,7 +650,7 @@ namespace
 		{
 			for (auto &scenery : scenario->Scenery2)
 			{
-				if (scenery.ParentNameIndex == skyRef.NameIndex)
+				if (scenery.ParentNameIndex != 0xffff && scenery.ParentNameIndex == skyRef.NameIndex)
 				{
 					auto objectIndex = FindObjectByName(Blam::Objects::ObjectType(scenery.Type), scenery.NameIndex);
 					if (objectIndex != Blam::DatumHandle::Null && Blam::Objects::Get(objectIndex))
