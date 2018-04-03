@@ -772,7 +772,7 @@ function inputBox(type){
        $('#pName').show();
        $('#inputBox .header').text('Player Name');
         dew.command('Player.Name', {}).then(function(response) {
-            $('#inputBox #pName').val(response);
+            $('#inputBox #pName').val(response.substring(0, 15));
             $('#inputBox').fadeIn(100);
             activePage = activePage+'inputBox';
             $('#dismissButton').show();
