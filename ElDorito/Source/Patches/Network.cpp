@@ -152,7 +152,7 @@ namespace Patches::Network
 			if (msg == WM_INFOSERVER)
 			{
 				std::string replyData;
-				if (curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
+				if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty() || curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
 				{
 					timeSinceLastPoll = curTime;
 
