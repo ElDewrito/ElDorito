@@ -46,6 +46,35 @@ namespace
 	void weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error);
+	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	bool weapon_bloom_decay_hook(uint32_t weaponObjectIndex, int barrelIndex);
+
+	enum : uint8_t {
+		_weapon_barrel_state_idle,
+		_weapon_barrel_state_firing
+	};
+	struct s_weapon_barrel {
+		uint8_t flags;
+		uint8_t state;
+		uint16_t field_2;
+		uint16_t firing_flags;
+		uint16_t firing_time;
+		uint32_t field_8;
+		uint32_t field_c;
+		uint32_t firing_rate;
+		uint32_t field_14;
+		float firing_effect;
+		float error;
+		float recoil;
+		uint32_t field_24;
+		uint32_t field_28;
+		uint32_t field_2C;
+		uint32_t field_30;
+	};
+
+	static_assert(sizeof(s_weapon_barrel) == 0x34, "invalid weapon barrel size");
+
 
 	bool SupportWeaponStartHook(int weaponObjectIndex);
 }
@@ -103,9 +132,6 @@ namespace Patches::Weapon
 		Hook(0x1D50CB, DualWieldScopeLevelHook).Apply();
 		Hook(0x7A21D4, DualWieldEquipmentCountHook, HookFlags::IsCall).Apply();
 
-		// fix recoil - use fire rate acceleration instead. TODO: find correct decay for h3
-		Pointer(0x0B603E7 + 5).Write<int>(0x214);
-
 		// disable bloom for non-p2w weapons
 		Hook(0x75F0F1, weapon_apply_firing_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x761197, weapon_apply_movement_penalty_hook, HookFlags::IsCall).Apply();
@@ -113,6 +139,10 @@ namespace Patches::Weapon
 
 		// allow spawning with primary support weapon and keep secondary weapon
 		Hook(0x13809E, SupportWeaponStartHook, HookFlags::IsCall).Apply();
+
+		Hook(0x7696E9, weapon_barrel_update_hook, HookFlags::IsCall).Apply();
+		Hook(0x7605D0, weapon_calculate_error_angle_hook).Apply();
+		Hook(0x7611A1, weapon_bloom_decay_hook, HookFlags::IsCall).Apply();
 	}
 
 	std::string OffsetToString(RealVector3D offset)
@@ -768,31 +798,14 @@ namespace
 	{
 		const auto weapon_apply_firing_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C2E0);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
-		{
 			weapon_apply_firing_penalty(weaponObjectIndex, barrelIndex);
-		}
-		else
-		{
-			auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
-			if (weaponObject)
-			{
-				auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if (barrelIndex < weaponDefinition->Barrels.Count)
-				{
-					auto &error = *(float*)((uint8_t*)weaponObject + 0x220 + 0x34 * barrelIndex);
-					error += weaponDefinition->Barrels[barrelIndex].Unknown2 * Blam::Time::GetSecondsPerTick();
-					if (error > 1.0f) error = 1.0f;
-					if (error < 0.0f) error = 0.0f;
-				}
-			}
-		}
 	}
 
 	void __cdecl weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
 	{
 		const auto weapon_apply_movement_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C450);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Moving))
-			return weapon_apply_movement_penalty(weaponObjectIndex, barrelIndex);
+			weapon_apply_movement_penalty(weaponObjectIndex, barrelIndex);
 	}
 
 	void __cdecl weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
@@ -806,4 +819,92 @@ namespace
 	{
 		return false;
 	}
+
+	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error)
+	{
+		const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
+		auto weapon_caclulate_magnification = (float(*)(uint32_t weaponObjectIndex, uint16_t magnificationLevel))(0x00B636E0);
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (!weaponObject)
+			return 0.0f;
+
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+
+		if (barrelIndex >= weaponDefinition->Barrels.Count)
+			return 0.0f;
+
+		auto &barrelDefinition = weaponDefinition->Barrels[barrelIndex];
+
+		auto magnificationFactor = 1.0f;
+
+		auto unitObjectIndex = *(uint32_t*)((uint8_t*)weaponObject + 0x184);
+		if (*((uint8_t*)weaponObject + 0x179) && unitObjectIndex != -1 && !(uint16_t(barrelDefinition.Flags) & 1))
+		{
+			auto unitObject = Blam::Objects::Get(unitObjectIndex);
+			auto magnificationLevel = *((uint8_t*)unitObject + 0x324);
+			if (forcedScope)
+				magnificationLevel = scopeLevel;
+			auto magnification = weapon_caclulate_magnification(weaponObjectIndex, magnificationLevel);
+			if (magnification > 0.000099999997f)
+				magnificationFactor = 1.0f / magnification;
+		}
+
+		Blam::Math::Bounds<Blam::Math::Angle> *angleBounds;
+		if (weapon_is_being_dual_wielded(weaponObjectIndex))
+			angleBounds = &weaponDefinition->Barrels[barrelIndex].ErrorAngleBounds;
+		else
+			angleBounds = &weaponDefinition->Barrels[barrelIndex].ProjectileErrorAngleBounds;
+
+		return magnificationFactor * (angleBounds->Upper.Value - angleBounds->Lower.Value)
+			* error + angleBounds->Lower.Value * magnificationFactor;
+	}
+
+	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		using WeaponDefinition = Blam::Tags::Items::Weapon;
+
+		const auto weapon_update_barrel = (bool(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B60BD0);
+
+		auto result = weapon_update_barrel(weaponObjectIndex, barrelIndex);
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<WeaponDefinition>();
+		if (weaponObject && barrelIndex < weaponDefinition->Barrels.Count)
+		{
+			auto barrels = (s_weapon_barrel*)((uint8_t*)weaponObject + 0x204);
+			auto &barrel = barrels[barrelIndex];
+			auto &barrelDefinition = weaponDefinition->Barrels[barrelIndex];
+
+			auto secondsPerTick = Blam::Time::GetSecondsPerTick();
+
+			if (barrel.state == _weapon_barrel_state_firing)
+			{
+				// TODO: zero Unknown9 in tag to avoid this unnecessary overhead
+				if (!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
+					barrel.error += barrelDefinition.Unknown9 * secondsPerTick;
+				barrel.recoil += barrelDefinition.Unknown6 * secondsPerTick;
+			}
+			else
+			{
+				barrel.error -= barrelDefinition.BloomRateOfDecay * secondsPerTick;
+				barrel.recoil -= barrelDefinition.Unknown7 * secondsPerTick;
+			}
+
+			if (barrel.error > 1) barrel.error = 1;
+			if (barrel.error < 0) barrel.error = 0;
+			if (barrel.recoil > 1) barrel.recoil = 1;
+			if (barrel.recoil < 0) barrel.recoil = 0;
+
+			return  result | ((barrel.error != 0.0f) ? 1 : 0);
+		}
+
+		return result;
+	}
+
+	bool weapon_bloom_decay_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		return false;
+	}
+
 }
