@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
+#include "../Blam/Math/RealColorARGB.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
@@ -37,6 +38,7 @@ namespace
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
 	void __cdecl HsPrintHook(const char *message);
 	void ContrailFixHook();
+	void HillColorHook();
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -153,6 +155,8 @@ namespace Patches::Core
 
 		// fixes the amd freeze
 		Hook(0x658061, ContrailFixHook).Apply();
+		// prevent hill zone luminosity from dropping below the visible threshold
+		Hook(0x5D6B1C, HillColorHook).Apply();
 		
 
 #ifndef _DEBUG
@@ -490,6 +494,36 @@ namespace
 			retn
 			render:
 			push 0xA58067
+			retn
+		}
+	}
+
+	void HillColor(Blam::Math::RealColorARGB &color)
+	{
+		// if the color luminosity is less than the visible threshold, bump it up
+		auto l = 0.2126f*color.Red + 0.7152*color.Green + 0.0722*color.Blue;
+		if (l < 0.1f)
+		{
+			color.Red += 0.1f;
+			color.Green += 0.1f;
+			color.Blue += 0.1f;
+		}
+	}
+
+	__declspec(naked) void HillColorHook()
+	{
+		__asm
+		{
+			lea edi, [ebp - 0x1C]
+			push ebx
+			push ecx
+			push edi	
+			call HillColor
+			pop edi
+			pop ecx
+			pop ebx
+			movq xmm0, qword ptr[edi]
+			push 0x009D6B21
 			retn
 		}
 	}
