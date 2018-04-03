@@ -481,10 +481,10 @@ namespace Forge
 
 namespace
 {
-	const auto object_dispose = (void(*)(int objectIndex))(0x00B2CD10);
+	const auto object_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
 	const auto object_spawn = (uint32_t(*)(void *placementData))(0x00B30440);
 	const auto object_placement_data_new = (void(*)(void *placementData, uint32_t tagIndex, uint32_t ownerObjectIndex, void *a4))(0x00B31590);
-	const auto object_set_position = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *forward, RealVector3D *up, int scenarioLocation, int a8))(0x00B33550); // client only
+	const auto object_set_position = (void(*)(uint32_t objectIndex, RealVector3D *position, RealVector3D *forward, RealVector3D *up, int scenarioLocation, int a8))(0x00B33550); // client only
 
 	ForgeGlobalsDefinition *GetForgeGlobals()
 	{
@@ -628,8 +628,37 @@ namespace
 		return &forgeGlobals->Skies[mapModifierState.ForgeSky.Index];
 	}
 
+	Blam::DatumHandle FindObjectByName(Blam::Objects::ObjectType type, uint16_t name)
+	{
+		if (name == -1)
+			return Blam::DatumHandle::Null;
+
+		auto objects = Blam::Objects::GetObjects();
+		for (auto it = objects.begin(); it != objects.end(); ++it)
+		{
+			if (it->Type == type && *(uint16_t*)((uint8_t*)it->Data + 0x9c) == name)
+				return it.CurrentDatumIndex;
+		}
+		return Blam::DatumHandle::Null;
+	}
+
 	void ReplaceForgeSkyScenery(uint32_t newSceneryTagIndex)
 	{
+		// delete map default sky scenery children
+		auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+		for (auto &skyRef : scenario->SkyReferences)
+		{
+			for (auto &scenery : scenario->Scenery2)
+			{
+				if (scenery.ParentNameIndex == skyRef.NameIndex)
+				{
+					auto objectIndex = FindObjectByName(Blam::Objects::ObjectType(scenery.Type), scenery.NameIndex);
+					if (objectIndex != Blam::DatumHandle::Null && Blam::Objects::Get(objectIndex))
+						object_dispose(objectIndex);
+				}
+			}
+		}
+
 		// delete the old sky scenery
 		if (mapModifierState.ForgeSky.SceneryObjectIndex != -1)
 		{
