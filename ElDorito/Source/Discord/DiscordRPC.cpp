@@ -166,7 +166,7 @@ namespace
 			return true;
 		}
 
-		std::string extIp = std::string(req.responseBody.begin(), req.responseBody.end()).substr(0, req.responseBody.size() - 1); //remove trailing \n
+		std::string extIp = std::string(req.responseBody.begin(), req.responseBody.end() - 1); //remove trailing \n
 		Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
 		return true;
 	}
