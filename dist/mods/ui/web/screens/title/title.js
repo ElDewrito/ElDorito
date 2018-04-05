@@ -78,6 +78,10 @@ function onControllerDisconnect(){
     $("#enter").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
 }
 
+dew.on('serverconnect', function(e){
+    hideScreen();
+});
+
 dew.on('controllerinput', function(e){       
     if(hasGP){
         if(e.data.Start == 1){
