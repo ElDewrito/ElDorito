@@ -470,15 +470,16 @@ function startConnection(info) {
                     clearConnection();
                 }
                 serverCon.onopen = function () {
-                    //must send the password before the server will accept anything from us
-                    serverCon.send(info.password);
-                    console.log("sent password");
-                    serverCon.send(JSON.stringify({
-                            "broadcast": "garbage"
-                        }));
-                    dew.callMethod("voipConnected", {
-                        "value": true
-                    });
+                    setTimeout(function () {
+                        serverCon.send(info.password);
+                        console.log("sent password");
+                        serverCon.send(JSON.stringify({
+                                "broadcast": "garbage"
+                            }));
+                        dew.callMethod("voipConnected", {
+                            "value": true
+                        });
+                    }, 500);
                 }
 
                 dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables
@@ -492,15 +493,16 @@ function startConnection(info) {
                     clearConnection();
                 }
                 serverCon.onopen = function () {
-                    //must send the password before the server will accept anything from us
-                    serverCon.send(info.password);
-                    console.log("sent password");
-                    serverCon.send(JSON.stringify({
-                            "broadcast": "garbage"
-                        }));
-                    dew.callMethod("voipConnected", {
-                        "value": true
-                    });
+                    setTimeout(function () {
+                        serverCon.send(info.password);
+                        console.log("sent password");
+                        serverCon.send(JSON.stringify({
+                                "broadcast": "garbage"
+                            }));
+                        dew.callMethod("voipConnected", {
+                            "value": true
+                        });
+                    }, 500);
                 }
 
                 dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables
