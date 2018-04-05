@@ -49,6 +49,7 @@ namespace
 	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error);
 	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	bool weapon_bloom_decay_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	bool SupportWeaponStartHook(int weaponObjectIndex);
 
 	enum : uint8_t {
 		_weapon_barrel_state_idle,
@@ -72,11 +73,7 @@ namespace
 		uint32_t field_2C;
 		uint32_t field_30;
 	};
-
-	static_assert(sizeof(s_weapon_barrel) == 0x34, "invalid weapon barrel size");
-
-
-	bool SupportWeaponStartHook(int weaponObjectIndex);
+	static_assert(sizeof(s_weapon_barrel) == 0x34, "invalid weapon barrel size");	
 }
 
 namespace Patches::Weapon
@@ -638,6 +635,9 @@ namespace Patches::Weapon
 
 namespace
 {
+	const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
+	const auto unit_calculate_fire_time_penalty = (float(*)(uint32_t unitObjectIndex, uint32_t weaponObjectIndex))(0x00B44680);
+
 	bool UnitIsDualWielding(Blam::DatumHandle unitHandle)
 	{
 		if (!unitHandle)
@@ -822,7 +822,6 @@ namespace
 
 	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error)
 	{
-		const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
 		auto weapon_caclulate_magnification = (float(*)(uint32_t weaponObjectIndex, uint16_t magnificationLevel))(0x00B636E0);
 
 		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
@@ -850,14 +849,29 @@ namespace
 				magnificationFactor = 1.0f / magnification;
 		}
 
-		Blam::Math::Bounds<Blam::Math::Angle> *angleBounds;
-		if (weapon_is_being_dual_wielded(weaponObjectIndex))
-			angleBounds = &weaponDefinition->Barrels[barrelIndex].ErrorAngleBounds;
-		else
-			angleBounds = &weaponDefinition->Barrels[barrelIndex].ProjectileErrorAngleBounds;
+		// from h3, h2v
+		auto fireTimePenalty = unit_calculate_fire_time_penalty(unitObjectIndex, weaponObjectIndex);
+		if ((uint32_t(weaponDefinition->WeaponFlags1) >> 27) & 1) // old error code
+		{
+			if (weapon_is_being_dual_wielded(weaponObjectIndex))
+				fireTimePenalty = 1.0f;
+			else
+				fireTimePenalty = 0.0f;
+		}
 
-		return magnificationFactor * (angleBounds->Upper.Value - angleBounds->Lower.Value)
-			* error + angleBounds->Lower.Value * magnificationFactor;
+		auto errorAngleMin = barrelDefinition.ErrorAngleBounds.Lower.Value;
+		if (errorAngleMin == 0.0f)
+			errorAngleMin = barrelDefinition.ProjectileErrorAngleBounds.Lower.Value;
+
+		auto errorAngleMax = barrelDefinition.ErrorAngleBounds.Upper.Value;
+		if (errorAngleMax == 0.0f)
+			errorAngleMax = barrelDefinition.ProjectileErrorAngleBounds.Upper.Value;
+
+		auto min = barrelDefinition.ProjectileErrorAngleBounds.Lower.Value * (1.0f - fireTimePenalty) + (errorAngleMin * fireTimePenalty);
+		auto max = barrelDefinition.ProjectileErrorAngleBounds.Upper.Value * (1.0f - fireTimePenalty) + (errorAngleMax * fireTimePenalty);
+		auto errorAngle = (max - min)  * magnificationFactor * error + min * magnificationFactor;
+
+		return errorAngle;
 	}
 
 	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex)
@@ -870,6 +884,7 @@ namespace
 
 		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
 		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<WeaponDefinition>();
+
 		if (weaponObject && barrelIndex < weaponDefinition->Barrels.Count)
 		{
 			auto barrels = (s_weapon_barrel*)((uint8_t*)weaponObject + 0x204);
@@ -880,10 +895,35 @@ namespace
 
 			if (barrel.state == _weapon_barrel_state_firing)
 			{
-				// TODO: zero Unknown9 in tag to avoid this unnecessary overhead
-				if (!weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
-					barrel.error += barrelDefinition.Unknown9 * secondsPerTick;
-				barrel.recoil += barrelDefinition.Unknown6 * secondsPerTick;
+				auto weaponObjectFlags = *((uint8_t*)weaponObject + 0x179);
+
+				uint32_t unitObjectIndex = -1;
+				if (weaponObjectFlags & 1)
+					unitObjectIndex = *(uint32_t*)((uint8_t*)weaponObject + 0x184);
+
+				// TODO: zero values in tag
+				auto unitObject = Blam::Objects::Get(unitObjectIndex);
+				auto isCrouching = unitObject && *(float*)((uint8_t*)unitObject + 0x418) > 0;
+				auto hasBloomFunction = (&barrelDefinition.FiringPenaltyFunction)[unitObject && isCrouching ? 0 : 1].Count > 0;
+
+				auto t = Blam::Time::GetSecondsPerTick();
+
+				if (!hasBloomFunction)
+				{
+					auto fireTimePenalty = unit_calculate_fire_time_penalty(unitObjectIndex, weaponObjectIndex);
+					if ((uint32_t(weaponDefinition->WeaponFlags1) >> 27) & 1) // old error code
+					{
+						if (weapon_is_being_dual_wielded(weaponObjectIndex))
+							fireTimePenalty = 1.0f;
+						else
+							fireTimePenalty = 0.0f;
+					}
+
+					auto errorAccelerationTime = fireTimePenalty * barrelDefinition.Unknown1 + (1.0f - fireTimePenalty) * barrelDefinition.Unknown9;
+					barrel.error += t * errorAccelerationTime;
+				}
+
+				barrel.recoil += t * barrelDefinition.Unknown6;
 			}
 			else
 			{
@@ -906,5 +946,4 @@ namespace
 	{
 		return false;
 	}
-
 }
