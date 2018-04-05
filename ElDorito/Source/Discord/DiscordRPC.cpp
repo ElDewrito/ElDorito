@@ -23,6 +23,16 @@
 
 static const char* APPLICATION_ID = "378984448022020112";
 
+#define SITE_NUMBER 4
+//address paired with a bool defining if a trailing /n must be removed
+static const std::pair<std::wstring, bool> ipGetter[SITE_NUMBER] =
+{
+	std::make_pair(L"http://checkip.amazonaws.com/", true),
+	std::make_pair(L"http://ipecho.net/plain", false),
+	std::make_pair(L"http://myexternalip.com/raw", true),
+	std::make_pair(L"http://diagnostic.opendns.com/myip", false)
+};
+
 namespace
 {
 	void handleDiscordDisconnected(int errorCode, const char *message)
@@ -145,29 +155,38 @@ namespace
 	DWORD WINAPI DiscordRetrieveExternalIP_Thread(LPVOID lpParam)
 	{
 		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-
-		if (!req.SendRequest(L"http://myexternalip.com/raw", L"GET", L"", L"", L"", NULL, 0))
+		
+		for (int i = 0; i < SITE_NUMBER; i++)
 		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
+			if (!req.SendRequest(ipGetter[i].first, L"GET", L"", L"", L"", NULL, 0))
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+			std::string extIp;
+			if (ipGetter[i].second) //remove trailing \n
+				extIp = std::string(req.responseBody.begin(), req.responseBody.end() - 1);
+			else
+				extIp = std::string(req.responseBody.begin(), req.responseBody.end());
+			Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
 			return true;
 		}
 
-		std::wstring expected = L"HTTP/1.1 200 OK";
-		if (req.responseHeader.length() < expected.length())
-		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
-			return true;
-		}
-
-		auto respHdr = req.responseHeader.substr(0, expected.length());
-		if (respHdr.compare(expected))
-		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
-			return true;
-		}
-
-		std::string extIp = std::string(req.responseBody.begin(), req.responseBody.end() - 1); //remove trailing \n
-		Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
+		Discord::DiscordRPC::Instance().SetJoinString("");
 		return true;
 	}
 
