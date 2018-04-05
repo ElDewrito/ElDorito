@@ -1092,7 +1092,7 @@ namespace
 		return true;
 	}
 
-	bool TickrateUI()
+	bool ShowTickrate()
 	{
 		auto Tickrate = Pointer(0x22B47FC);
 		Tickrate.Write(!Tickrate.Read<bool>());
@@ -1102,7 +1102,7 @@ namespace
 	bool CommandShowTickrate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
-		ss << "Tickrate ui: " << (TickrateUI() ? "enabled." : "disabled.");
+		ss << "Tickrate: " << (ShowTickrate() ? "shown." : "hidden.");
 		returnInfo = ss.str();
 		return true;
 	}
@@ -1177,7 +1177,7 @@ namespace Modules
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
-		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate UI", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowTickrate);
+		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 

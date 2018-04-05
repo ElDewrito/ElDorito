@@ -157,7 +157,7 @@ namespace Modules
 		AddCommand("Armor.SetUiModelPosition", "armor_ui_player_model_position", "Set the position of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelPosition);
 		AddCommand("Armor.SetUiModelRotation", "armor_ui_player_model_rotation", "Set the rotation of the ui player model", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetUiPlayerModelRotation);
 
-		AddCommand("AlertCarry", "alert_carry", "Toggle the alert carry pose", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandSetCarryType);
+		AddCommand("AlertCarry", "alert_carry", "Toggle the alert carry pose", eCommandFlagsNone, CommandSetCarryType);
 
 		VarColorsPrimary = AddVariableString("Colors.Primary", "colors_primary", "The primary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
 		VarColorsSecondary = AddVariableString("Colors.Secondary", "colors_secondary", "The secondary colors hex value", eCommandFlagsArchived, "#171F0E", VariablePlayerArmorUpdate);
