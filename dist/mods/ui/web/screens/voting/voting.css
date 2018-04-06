@@ -115,9 +115,17 @@ a.boxclose img.button{
 	border: 2px solid rgba(255, 255, 255, 0.9);
 	background-color:rgba(210, 132, 74, 0.79);
 }
+.userselected
+{
+	color:white;
+	border: 2px solid rgba(255, 255, 255, 0.9);
+	background-color:rgba(210, 132, 74, 1);
+}
 .winner
 {
+	color: white;	
 	border: 2px solid rgba(0, 255, 0, 1);
+	background-color: rgba(60, 200, 60, 0.59);
 }
 h5,p{
 	font-size: 2.25vh;

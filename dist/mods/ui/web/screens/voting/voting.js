@@ -198,6 +198,8 @@ dew.on("VotingOptionsUpdated", function(event) {
     $(".votingOption").click(function() {
         $(".votingOption").removeClass("selected");
         $(this).addClass("selected");
+		$('.userselected').removeClass('userselected');
+		$(this).addClass("userselected");
         vote($(this).attr('id'));
     });    
     $(".votingOption").hover(
