@@ -41,6 +41,8 @@ $(document).ready(function(){
 
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
+    $('.userselected').removeClass('userselected');
+    $('.votingOption').eq(number-1).addClass("userselected");
     if(hasGP){
         $(".votingOption").removeClass("selected");
         $('.votingOption').eq(number-1).addClass("selected");
@@ -198,8 +200,6 @@ dew.on("VotingOptionsUpdated", function(event) {
     $(".votingOption").click(function() {
         $(".votingOption").removeClass("selected");
         $(this).addClass("selected");
-		$('.userselected').removeClass('userselected');
-		$(this).addClass("userselected");
         vote($(this).attr('id'));
     });    
     $(".votingOption").hover(
