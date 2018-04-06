@@ -103,8 +103,10 @@ namespace
 			}
 			else
 			{
+				Discord::DiscordRPC::Instance().mapString = std::string((char*)Pointer(0x22AB018)(0x1A4));
+				Discord::DiscordRPC::Instance().mapString[0] = toupper(Discord::DiscordRPC::Instance().mapString[0]);
+				Discord::DiscordRPC::Instance().discordPresence.largeImageText = Discord::DiscordRPC::Instance().mapString.c_str();
 				Discord::DiscordRPC::Instance().discordPresence.largeImageKey = (char*)Pointer(0x22AB018)(0x1A4);
-				Discord::DiscordRPC::Instance().discordPresence.largeImageText = (char*)Pointer(0x22AB018)(0x1A4);
 				
 				if (game && map)
 				{
@@ -112,8 +114,11 @@ namespace
 					ss << "On " << Utils::String::ThinString(map->ContentHeader.Name);
 					Discord::DiscordRPC::Instance().detailString = ss.str(); //Need a variable that will stay active
 					Discord::DiscordRPC::Instance().discordPresence.details = Discord::DiscordRPC::Instance().detailString.c_str();
+
+					Discord::DiscordRPC::Instance().gameTypeString = Blam::GameTypeNames[game->GameType];
+					Discord::DiscordRPC::Instance().gameTypeString[0] = toupper(Discord::DiscordRPC::Instance().gameTypeString[0]);
+					Discord::DiscordRPC::Instance().discordPresence.smallImageText = Discord::DiscordRPC::Instance().gameTypeString.c_str();
 					Discord::DiscordRPC::Instance().discordPresence.smallImageKey = Blam::GameTypeNames[game->GameType].c_str();
-					Discord::DiscordRPC::Instance().discordPresence.smallImageText = Blam::GameTypeNames[game->GameType].c_str();
 				}
 			}
 			int players = 0;
@@ -129,7 +134,11 @@ namespace
 			Discord::DiscordRPC::Instance().discordPresence.partySize = players;
 			Discord::DiscordRPC::Instance().discordPresence.partyMax = session->MembershipInfo.SessionMaxPlayers;
 			if (game)
-				Discord::DiscordRPC::Instance().discordPresence.state = Blam::GameTypeNames[game->GameType].c_str();
+			{
+				Discord::DiscordRPC::Instance().gameTypeString = Blam::GameTypeNames[game->GameType];
+				Discord::DiscordRPC::Instance().gameTypeString[0] = toupper(Discord::DiscordRPC::Instance().gameTypeString[0]);
+				Discord::DiscordRPC::Instance().discordPresence.state = Discord::DiscordRPC::Instance().gameTypeString.c_str();
+			}
 		}
 		else
 		{
