@@ -41,8 +41,13 @@ $(document).ready(function(){
 
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
-    $('.userselected').removeClass('userselected');
-    $('.votingOption').eq(number-1).addClass("userselected");
+    var WinnerChosen = document.getElementsByClassName('winner');
+    if (WinnerChosen.length > 0) {
+        console.log("Winner Exists Not changing submit");
+    }else{
+        $('.userselected').removeClass('userselected');
+        $('.votingOption').eq(number-1).addClass("userselected");
+    }
     if(hasGP){
         $(".votingOption").removeClass("selected");
         $('.votingOption').eq(number-1).addClass("selected");
