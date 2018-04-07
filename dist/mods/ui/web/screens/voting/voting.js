@@ -42,9 +42,7 @@ $(document).ready(function(){
 function vote(number) {
     dew.command("server.SubmitVote " + number).then(function(output) {}).catch(function(error) {});
     var WinnerChosen = document.getElementsByClassName('winner');
-    if (WinnerChosen.length > 0) {
-        console.log("Winner Exists Not changing submit");
-    }else{
+    if (WinnerChosen.length <= 0) {
         $('.userselected').removeClass('userselected');
         $('.votingOption').eq(number-1).addClass("userselected");
     }
@@ -81,6 +79,7 @@ dew.on("hide", function(event) {
 dew.on("Winner", function(event) {
     clearInterval(interval);
     $("#" + event.data.Winner).addClass('winner');
+	$(".votingOption").removeClass("selected");
 });
 dew.on("VetoOptionsUpdated", function(event) {
     clearInterval(interval);
@@ -118,7 +117,7 @@ dew.on("VetoOptionsUpdated", function(event) {
 
         }
     
-    seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
+    seconds_left = event.data.timeRemaining -1; //event.data[0].voteTime;
     interval = setInterval(function() {
         document.getElementById('timer_span').innerHTML = " - " + --seconds_left;
 
@@ -137,12 +136,18 @@ dew.on("VetoOptionsUpdated", function(event) {
     if(votingType == "veto"){
         $(".votingOption").click(function() {
             $(".votingOption").removeClass("selected");
-            $(this).addClass("selected");
+			var WinnerChosen = document.getElementsByClassName('winner');
+			if (WinnerChosen.length <= 0) {
+				$( this ).addClass( "selected" );
+			}
             vote($(this).attr('id'));
         });  
         $(".votingOption").hover(
             function() {
-                $( this ).addClass( "selected" );
+				var WinnerChosen = document.getElementsByClassName('winner');
+				if (WinnerChosen.length <= 0) {
+					$( this ).addClass( "selected" );
+				}
             }, function() {
                 $( this ).removeClass("selected");
             }
@@ -186,7 +191,7 @@ dew.on("VotingOptionsUpdated", function(event) {
         }
     });
 
-    seconds_left = event.data.timeRemaining; //event.data[0].voteTime;
+    seconds_left = event.data.timeRemaining-1; //event.data[0].voteTime;
     interval = setInterval(function() {
         document.getElementById('timer_span').innerHTML = " - " + --seconds_left;
 
@@ -204,12 +209,18 @@ dew.on("VotingOptionsUpdated", function(event) {
    });
     $(".votingOption").click(function() {
         $(".votingOption").removeClass("selected");
-        $(this).addClass("selected");
+		var WinnerChosen = document.getElementsByClassName('winner');
+		if (WinnerChosen.length <= 0) {
+			$( this ).addClass( "selected" );
+		}
         vote($(this).attr('id'));
     });    
     $(".votingOption").hover(
         function() {
-            $( this ).addClass( "selected" );
+				var WinnerChosen = document.getElementsByClassName('winner');
+				if (WinnerChosen.length <= 0) {
+					$( this ).addClass( "selected" );
+				}
         }, function() {
             $( this ).removeClass("selected");
         }
@@ -316,8 +327,11 @@ function checkGamepad(){
 
 function updateSelection(item){
     $('.selected').removeClass('selected');
-    $('#'+item).addClass('selected');
-    dew.command('Game.PlaySound 0xAFE');
+    var WinnerChosen = document.getElementsByClassName('winner');
+    if (WinnerChosen.length <= 0) {
+        $('#'+item).addClass('selected');
+        dew.command('Game.PlaySound 0xAFE');
+    }
 }
 
 function upNav(){
