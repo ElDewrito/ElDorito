@@ -117,6 +117,7 @@ namespace
 	struct ScreenEffectData;
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
+	bool GameObjectResetHook(uint32_t objectIndex);
 
 	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
@@ -370,6 +371,10 @@ namespace Patches::Forge
 		Patch::NopFill(Pointer::Base(0x185655), 6);
 
 		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
+
+		// prevent objectives getting reset when below the scenario game object reset point when map barriers are disabled
+		Hook(0x58028E, GameObjectResetHook, HookFlags::IsCall).Apply();
+		Hook(0x5D4CD5, GameObjectResetHook, HookFlags::IsCall).Apply();
 
 		// disble projectile collisions on invisible material
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
@@ -3056,6 +3061,19 @@ namespace
 
 		if (!is_client())
 			::Forge::Volumes::Update();
+	}
+
+	bool GameObjectResetHook(uint32_t objectIndex)
+	{
+		const auto sub_54E9B0 = (bool(*)(uint32_t))(0x54E9B0);
+
+		if (mapModifierState.IsValid)
+		{
+			if (!mapModifierState.MapBarriers.KillBarriersEnabled || !mapModifierState.MapBarriers.PushBarriersEnabled)
+				return false;
+		}
+
+		return sub_54E9B0(objectIndex);
 	}
 
 	bool ShouldOverrideColorPermutation(uint32_t objectIndex)
