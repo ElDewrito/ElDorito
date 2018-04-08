@@ -339,10 +339,82 @@ namespace
 		return false;
 	}
 
-	void UpdateGarbageCollectionVolume(ForgeVolume &volume)
+	struct s_game_engine_object
+	{
+		uint32_t object_index;
+		uint16_t team;
+		uint16_t field_6;
+		uint32_t carrier_object_index;
+		uint32_t carrier_player_index;
+	};
+	s_game_engine_object *FindEngineObject(uint32_t objectIndex)
+	{
+		auto engineGlobals = (uint8_t*)ElDorito::GetMainTls(0x48)[0];
+		auto engineObjectCount = *(uint32_t*)(engineGlobals + 0x13DB4);
+		auto engineObjects = (s_game_engine_object*)(engineGlobals + 0x13DB8);
+
+		for (auto i = 0; i < engineObjectCount; i++)
+		{
+			auto engineObject = &engineObjects[i];
+			if (engineObject->object_index == objectIndex)
+				return engineObject;
+		}
+		return nullptr;
+	}
+
+	void ResetCtfObject(uint32_t objectIndex)
+	{
+		const auto game_engine_get = (void*(*)())(0x005CE150);
+		const auto ctf_engine_reset_object = (void(*)(uint32_t objectIndex))(0x0097DD00);
+
+		auto engine = game_engine_get();
+		if (!engine)
+			return;
+		auto engineObject = FindEngineObject(objectIndex);
+		if (!engineObject)
+			return;
+
+		auto engineGlobals = (uint8_t*)ElDorito::GetMainTls(0x48)[0];
+		if (*(engineGlobals + 0xF7C8))
+		{
+			*(engineGlobals + 0xF7C8) = 0;
+		}
+		else
+		{
+			(*(void(__thiscall **)(void*, uint16_t, uint8_t))(*(uint32_t *)engine + 0x158))(
+				engine, engineObject->team, *(uint8_t *)(engineGlobals + 0xF7C9));
+			*(engineGlobals + 0xF7C9) = 0;
+		}
+
+		ctf_engine_reset_object(engineObject->object_index);
+		(*(void(__thiscall **)(void*, uint16_t))(*(uint32_t *)engine + 0x150))(engine, engineObject->team);
+	}
+
+	void CollectObject(uint32_t objectIndex)
 	{
 		const auto objects_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
 
+		auto objectHeader = Blam::Objects::GetObjects().Get(objectIndex);
+		if (!objectHeader)
+			return;
+
+		if (objectHeader->Type == Blam::Objects::eObjectTypeWeapon)
+		{
+			auto mpWeaponType = weapons_get_multiplayer_weapon_type(objectIndex);
+
+			// oddball doesn't have any specific reset behavior, it just deletes the object
+			switch (mpWeaponType)
+			{
+			case 1: // ctf object
+				return ResetCtfObject(objectIndex);
+			}
+		}
+
+		objects_dispose(objectIndex);
+	}
+
+	void UpdateGarbageCollectionVolume(ForgeVolume &volume)
+	{
 		if (Blam::Time::TicksToSeconds(volume.Data.GarbageVolume.CollectionTicks++) < kGarbageCollectionDelaySeconds)
 			return;
 
@@ -402,7 +474,9 @@ namespace
 					continue;
 
 				if (ShouldGarbageCollectObject(clusterObjectIndex, volume))
-					objects_dispose(clusterObjectIndex);
+				{
+					CollectObject(clusterObjectIndex);
+				}
 			}
 		}
 	}
