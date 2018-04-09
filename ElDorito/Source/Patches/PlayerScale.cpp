@@ -80,6 +80,7 @@ namespace
 	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex);
 	bool ModelTargetTestHook(int a1, uint32_t objectIndex, int a3, char a4, char a5, char a6, int a7, uint8_t *target,
 		int a9, int a10, Blam::Math::RealVector3D *a11, int a12, void *data);
+	void ShieldDownParticleEffectHook(uint32_t effectDatumIndex, uint16_t eventIndex);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -119,6 +120,9 @@ namespace Patches::PlayerScale
 		Hook(0x14F3C0, PlayerAuraHook).Apply();
 		Hook(0x2842B0, SprintCameraShakeHook, HookFlags::IsCall).Apply();
 		Hook(0x790774, WalkAnimationHook, HookFlags::IsCall).Apply();
+		// disable shield down particle effects when tiny
+		Hook(0x1BA3D2, ShieldDownParticleEffectHook, HookFlags::IsCall).Apply();
+
 		// physics/collision
 		Hook(0x7D80D0, RagdollHook).Apply();
 		Hook(0x0B10E0, BipedPhysicsHook_4B10E0, HookFlags::IsCall).Apply();
@@ -1013,5 +1017,37 @@ namespace
 		targetRadius = oldRadius;
 
 		return result;
+	}
+
+	void ShieldDownParticleEffectHook(uint32_t effectDatumIndex, uint16_t eventIndex)
+	{
+		const auto ShieldDownParticleEffect = (void(*)(uint32_t effectDatumIndex, uint16_t eventIndex))(0x005BDF40);
+
+		struct s_effect_datum : Blam::DatumBase
+		{
+			uint16_t field_2;
+			uint32_t field_4;
+			uint32_t tag_index;
+			uint32_t field_C;
+			uint32_t node;
+			uint32_t field_14;
+			uint32_t primary_scale;
+			uint32_t field_1C;
+			uint32_t field_20;
+			Blam::Math::RealVector3D field_24;
+			uint32_t ObjectIndex;
+			//...
+		};
+
+		auto effects = *(Blam::DataArray<s_effect_datum>**)ElDorito::GetMainTls(0xA0);
+		auto effect = effects->Get(effectDatumIndex);
+		if (effect && effect->primary_scale == 0x1CDC) // shield_down
+		{
+			auto object = Blam::Objects::Get(effect->ObjectIndex);
+			if (object->Scale < 0.75f)
+				return;
+		}
+
+		ShieldDownParticleEffect(effectDatumIndex, eventIndex);
 	}
 }
