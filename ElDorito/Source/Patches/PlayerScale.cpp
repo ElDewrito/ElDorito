@@ -78,6 +78,8 @@ namespace
 	void DamageResponsePlayerEffectsHook(uint32_t uintObjectIndex, int localPlayerIndex, uint32_t damageResponseTagIndex, int a4, RealVector3D *a5, float a6, float scale, bool a8);
 	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK);
 	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex);
+	bool ModelTargetTestHook(int a1, uint32_t objectIndex, int a3, char a4, char a5, char a6, int a7, uint8_t *target,
+		int a9, int a10, Blam::Math::RealVector3D *a11, int a12, void *data);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -143,6 +145,9 @@ namespace Patches::PlayerScale
 		// TODO: fix properly
 		Hook(0x7B0E94, JumpCrouchFix1Hook, HookFlags::IsCall).Apply();
 		Hook(0x7B03AB, JumpCrouchFix2Hook, HookFlags::IsCall).Apply();
+
+		Hook(0x18BAAE, ModelTargetTestHook, HookFlags::IsCall).Apply();
+		Hook(0x18C184, ModelTargetTestHook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
@@ -989,5 +994,24 @@ namespace
 		}
 
 		return sub_B746B0(bipedObjectIndex);
+	}
+
+	bool ModelTargetTestHook(int a1, uint32_t objectIndex, int a3, char a4, char a5, char a6, int a7, uint8_t *target,
+		int a9, int a10, Blam::Math::RealVector3D *a11, int a12, void *data)
+	{
+		const auto model_target_test = (bool(*)(int a1, uint32_t objectIndex, int a3, char a4, char a5, char a6, int a7, uint8_t *target,
+			int a9, int a10, Blam::Math::RealVector3D *a11, int a12, void *data))(0x0058AF40);
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto &targetRadius = *(float*)(target + 0x8);
+		auto oldRadius = targetRadius;
+		targetRadius *= object->Scale;
+		auto result = model_target_test(a1, objectIndex, a3, a4, a5, a6, a7, target, a9, a10, a11, a12, data);
+		targetRadius = oldRadius;
+
+		return result;
 	}
 }
