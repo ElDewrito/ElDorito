@@ -1869,6 +1869,18 @@ namespace
 				return;
 			}
 
+			// player scaling
+			if (data->player_index != -1)
+			{
+				auto player = Blam::Players::GetPlayers().Get(data->player_index);
+				if (player && player->SlaveUnit != Blam::DatumHandle::Null)
+				{
+					auto unitObject = Blam::Objects::Get(player->SlaveUnit);
+					if (unitObject)
+						data->position.K = data->position.K - 0.05f +  std::pow(unitObject->Scale, 1.0f) * 0.05f;
+				}
+			}
+
 			auto existingState = &((s_chud_player_marker_state*)thisptr)[index];
 			memcpy(&existingState->data, data, sizeof(s_chud_player_marker_data));
 			existingState->time = Blam::Time::GetGameTicks();
