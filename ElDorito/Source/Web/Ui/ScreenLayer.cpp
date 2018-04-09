@@ -14,6 +14,7 @@
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../CommandMap.hpp"
 #include "../../Modules/ModuleSettings.hpp"
+#include "../../Modules/ModuleInput.hpp"
 
 using namespace Blam::Input;
 using namespace Anvil::Client::Rendering;
@@ -527,6 +528,7 @@ namespace
 	void OnUIInputUpdated()
 	{
 		auto &moduleSettings = Modules::ModuleSettings::Instance();
+		auto &moduleInput = Modules::ModuleInput::Instance();
 
 		struct ControllerAxes { int16_t LeftX, LeftY, RightX, RightY; };
 		auto& controllerAxes = *(ControllerAxes*)(0x0244D1F0 + 0x2F4);
@@ -546,7 +548,7 @@ namespace
 		writer.Key("AxisRightX");
 		writer.Double(controllerAxes.RightX / 32768.0f);
 		writer.Key("AxisRightY");
-		writer.Double((controllerAxes.RightY / 32768.0f) * (moduleSettings.VarInvertLook->ValueInt ? -1.0f : 1.0f));
+		writer.Double((controllerAxes.RightY / 32768.0f) * (moduleInput.VarControllerInvertY->ValueInt ? -1.0f : 1.0f));
 		writer.Key("LeftTrigger");
 		writer.Int(GetActionState(eGameActionUiLeftTrigger)->Ticks);
 		writer.Key("RightTrigger");
