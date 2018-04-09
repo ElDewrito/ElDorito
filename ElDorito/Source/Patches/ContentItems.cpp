@@ -52,7 +52,7 @@ namespace
 	bool __fastcall c_content_item__init_hook(c_content_item *thisptr, void *unused, int contentType, c_content_catalog *catalog,
 		wchar_t *name, wchar_t *dashMetadata, int a5, int a6, int a7);
 	char __stdcall PackageMountHook(int a1, int a2, int a3, int a4);
-	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk);
+	uint32_t PackageMountHook2(int localProfileIndex, wchar_t *name, int contentType, volatile LONG *pStatus, volatile LONG *pState, volatile LONG *pContentItemDatumIndex);
 	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5);
 	bool __fastcall SaveFileGetNameHook(uint8_t *blfStart, void* unused, int a2, wchar_t *Src, size_t MaxCount);
 
@@ -88,13 +88,12 @@ namespace Patches::ContentItems
 		// Hook this AllocateGameGlobalMemory to use a different one (this one is outdated mb? crashes when object is added to "content items" global without this hook)
 		Hook(0x15B010, AllocateGameGlobalMemory2Hook).Apply();
 
-		// Hook GetContentMountPath to actually return a dest folder
-		Hook(0x34CC00, GetContentMountPathHook).Apply();
-
 		Hook(0x34CBE0, c_content_item__init_hook).Apply();
 
 		// Hook (not patch, like above) content package mount stub to return true
 		Hook(0x34D010, PackageMountHook).Apply();
+		// Disable temp file creation
+		Hook(0x1256D0, PackageMountHook2).Apply();
 
 		// Hook the func that gets the save file dest. name, 
 		Patch(0x12708E, { 0x8B, 0x4D, 0x14 }).Apply(); // pass blf data to our func
@@ -326,17 +325,33 @@ namespace
 		return 1;
 	}
 
-	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk)
+	uint32_t PackageMountHook2(int localProfileIndex, wchar_t *name, int contentType, volatile LONG *pStatus, volatile LONG *pState, volatile LONG *pContentItemDatumIndex)
 	{
-		// TODO: move this to temp folder, or find a way to disable it (game uses path returned by this func to create a 0 byte sandbox.map)
-		wchar_t currentDir[256];
-		memset(currentDir, 0, 256 * sizeof(wchar_t));
-		GetCurrentDirectoryW(256, currentDir);
+		const auto sub_525330 = (int(*)(int a1))(0x525330);
+		const auto content_catalog_get = (c_content_catalog *(*)(int localProfileIndex))(0x005A5600);
+		const auto c_content_catalog__get_or_create_content_item = (int(__thiscall *)(c_content_catalog *thisptr,
+			wchar_t *name, wchar_t *dashMetadata, int contentType, char a5, int a6, int a7))(0x005A5E70);
 
-		swprintf_s(destPtr, size, L"%ls\\mods\\temp\\", currentDir);
+		auto status = 0;
+		uint32_t contentItemIndex = -1;
 
-		SHCreateDirectoryExW(NULL, destPtr, NULL);
-		return destPtr;
+		contentType = sub_525330(contentType);
+		if (contentType != -1)
+		{
+			auto catalog = content_catalog_get(localProfileIndex);
+			if (catalog)
+			{
+				contentItemIndex = c_content_catalog__get_or_create_content_item(catalog, name, L"", contentType, 0, 0, 0);
+				if (contentItemIndex != -1)
+					status = 1;
+			}
+		}
+
+	RETURN:
+		InterlockedExchange(pState, 1);
+		InterlockedExchange(pStatus, status);
+		InterlockedExchange(pContentItemDatumIndex, contentItemIndex);
+		return 0;
 	}
 
 	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5)

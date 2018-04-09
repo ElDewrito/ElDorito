@@ -55,6 +55,8 @@ namespace
 	void __cdecl UI_UpdateH3HUDHook(int playerMappingIndex);
 	void GetActionButtonNameHook();
 	void UI_GetHUDGlobalsIndexHook();
+	void __fastcall UI_GameVariantSavePromptFix(void *thisptr, void *unused, int a2);
+
 	void __fastcall c_main_menu_screen_widget_item_select_hook(void* thisptr, void* unused, int a2, int a3, void* a4, void* a5);
 	void __fastcall c_start_menu_pane_screen_widget__handle_spinner_chosen_hook(void *thisptr, void *unused, uint8_t *widget);
 	void __fastcall c_ui_view_draw_hook(void* thisptr, void* unused);
@@ -307,6 +309,9 @@ namespace Patches::Ui
 		Pointer(0x0169E510).Write(uint32_t(&c_gui_game_variant_category_datasource_init));
 
 		Hook(0x721F03, c_gui_screen_pregame_lobby_switch_network_hook).Apply();
+
+		// prevent transition_out immediately after saving
+		Hook(0x6A8706, UI_GameVariantSavePromptFix, HookFlags::IsCall).Apply();
 
 		Hook(0x691FD0, c_gui_alert_manager__show).Apply();
 
@@ -1942,5 +1947,14 @@ namespace
 			c_gui_list_widget__set_selected(widget, 0x111, selectedGametype, 0);
 			break;
 		}
+	}
+
+	void __fastcall UI_GameVariantSavePromptFix(void *thisptr, void *unused, int a2)
+	{
+		const auto c_gui_screen_widget__transition_out = (void(__thiscall*)(void *thisptr, int a2))(0x00AB2830);
+
+		auto name = *(uint32_t*)((uint8_t*)thisptr + 0x40);
+		if (name != 0x103A9) // game_options
+			c_gui_screen_widget__transition_out(thisptr, a2);
 	}
 }
