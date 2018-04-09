@@ -494,34 +494,32 @@
                             },
                         });
                     } else {
-
-                        if(properties.reforge_material == 121)  { // invisible
-                            m.add(makeProperty('reforge_material_allows_projectiles', 'Projectile Passthough', 'spinner', [
-                                { label: 'Disabled', value: 0 },
-                                { label: 'Enabled', value: 1 },
-                            ]));
-                        } else {
-                            m.add({
-                                type: 'spinner',
-                                label: 'Texture Mode',
-                                description: 'Texture mode to use for this object',
-                                meta: [
-                                    { label: 'Default', value: 0 },
-                                    { label: 'Custom', value: 1 }
-                                ],
-                                getValue: () => properties.reforge_material_tex_override,
-                                setValue: (value) =>  {
-                                    onPropertyChange({ ['reforge_material_tex_override']: value });
-                                    _propertryGrid.setModel(buildModel(_data));
-                                }
-                            });
-                            if(properties.reforge_material_tex_override) {
-                                m.add(makeProperty('reforge_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
-                                m.add(makeProperty('reforge_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
-                                m.add(makeProperty('reforge_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                        m.add({
+                            type: 'spinner',
+                            label: 'Texture Mode',
+                            description: 'Texture mode to use for this object',
+                            meta: [
+                                { label: 'Default', value: 0 },
+                                { label: 'Custom', value: 1 }
+                            ],
+                            getValue: () => properties.reforge_material_tex_override,
+                            setValue: (value) =>  {
+                                onPropertyChange({ ['reforge_material_tex_override']: value });
+                                _propertryGrid.setModel(buildModel(_data));
                             }
+                        });
+                        if(properties.reforge_material_tex_override) {
+                            m.add(makeProperty('reforge_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
+                            m.add(makeProperty('reforge_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                            m.add(makeProperty('reforge_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
                         }
                     }
+
+                    m.add(makeProperty('reforge_material_allows_projectiles', 'Projectile Passthough', 'spinner', [
+                        { label: 'Disabled', value: 0 },
+                        { label: 'Enabled', value: 1 },
+                    ], 'This determines whether projectiles (bullets, grenades) will pass through this item.'));
+
                 })
 
             }
