@@ -76,11 +76,11 @@ namespace
 	void PlayerPersonalGravityHook();
 	void LandingDamageResponseHook(uint32_t unitObjectIndex, uint32_t a2, uint32_t damageEffectTagIndex, RealVector3D *a4, RealVector3D *a5, float a6, float responseScale, int a8);
 	void DamageResponsePlayerEffectsHook(uint32_t uintObjectIndex, int localPlayerIndex, uint32_t damageResponseTagIndex, int a4, RealVector3D *a5, float a6, float scale, bool a8);
-	bool JumpCrouchFix1Hook(uint32_t bipedObjectIndex, float *deltaK);
-	bool JumpCrouchFix2Hook(uint32_t bipedObjectIndex);
 	bool ModelTargetTestHook(int a1, uint32_t objectIndex, int a3, char a4, char a5, char a6, int a7, uint8_t *target,
 		int a9, int a10, Blam::Math::RealVector3D *a11, int a12, void *data);
 	void ShieldDownParticleEffectHook(uint32_t effectDatumIndex, uint16_t eventIndex);
+	void BipedPhysicsHook2(uint32_t objectIndex, int a2, void *a3);
+	void BipedPhysicsHook1(int objectIndex);
 
 	struct hkVector4 { float x, y, z, w; };
 	struct hkCapsuleShape {
@@ -145,10 +145,9 @@ namespace Patches::PlayerScale
 		Hook(0x7E2335, LandingDamageResponseHook, HookFlags::IsCall).Apply();
 		Hook(0x284EDF, DamageResponsePlayerEffectsHook, HookFlags::IsCall).Apply();
 		Hook(0x284F21, DamageResponsePlayerEffectsHook, HookFlags::IsCall).Apply();
-
-		// TODO: fix properly
-		Hook(0x7B0E94, JumpCrouchFix1Hook, HookFlags::IsCall).Apply();
-		Hook(0x7B03AB, JumpCrouchFix2Hook, HookFlags::IsCall).Apply();
+		// fix jump crouch/lunge issues
+		Hook(0x72FF33, BipedPhysicsHook1, HookFlags::IsCall).Apply();
+		Hook(0x7B18ED, BipedPhysicsHook2, HookFlags::IsCall).Apply();
 
 		Hook(0x18BAAE, ModelTargetTestHook, HookFlags::IsCall).Apply();
 		Hook(0x18C184, ModelTargetTestHook, HookFlags::IsCall).Apply();
@@ -1049,5 +1048,54 @@ namespace
 		}
 
 		ShieldDownParticleEffect(effectDatumIndex, eventIndex);
+	}
+
+	template <typename TCallback>
+	void ScaledBipedPhysicsForCall(uint32_t tagIndex, float scale, TCallback callback)
+	{
+		auto bipedDefinition = Blam::Tags::TagInstance(tagIndex).GetDefinition<Blam::Tags::Objects::Biped>();
+		if (!bipedDefinition)
+			return;
+
+		auto oldHeightStanding = bipedDefinition->HeightStanding;
+		auto oldHeightCrouching = bipedDefinition->HeightCrouching;
+
+		bipedDefinition->HeightStanding *= scale;
+		bipedDefinition->HeightCrouching *= scale;
+
+		callback();
+
+		bipedDefinition->HeightStanding = oldHeightStanding;
+		bipedDefinition->HeightCrouching = oldHeightCrouching;
+	}
+
+	void BipedPhysicsHook2(uint32_t objectIndex, int a2, void *a3)
+	{
+		static const auto sub_BB01B0 = (void(*)(uint32_t objectIndex, int a2, void *a3))(0xBB01B0);
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (object)
+		{
+			return ScaledBipedPhysicsForCall(object->TagIndex, object->Scale, [=]() {
+				sub_BB01B0(objectIndex, a2, a3);
+			});
+		}
+
+		sub_BB01B0(objectIndex, a2, a3);
+	}
+
+	void BipedPhysicsHook1(int objectIndex)
+	{
+		const auto sub_B73C00 = (void(*)(uint32_t bipedObjectIndex))(0xB73C00);
+
+		auto objectHeader = Blam::Objects::GetObjects().Get(objectIndex);
+		if (objectHeader && objectHeader->Type == 0)
+		{
+			return ScaledBipedPhysicsForCall(objectHeader->Data->TagIndex, objectHeader->Data->Scale, [=]() {
+				sub_B73C00(objectIndex);
+			});
+		}
+
+		sub_B73C00(objectIndex);
 	}
 }
