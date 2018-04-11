@@ -4,6 +4,7 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../Forge/Selection.hpp"
 #include "../Forge/ForgeUtil.hpp"
+#include "../Forge/Prefab.hpp"
 #include "../Blam/Tags/TagReference.hpp"
 #include "../Blam/Tags/TagBlock.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
@@ -144,12 +145,25 @@ namespace
 		{	
 			for (boost::filesystem::directory_iterator itr(p); itr != end_itr; ++itr)
 			{
-				const auto& path = itr->path();
-				const auto& ext = path.extension().string();
-				const auto& name = path.stem().string();
+				const auto path = canonical(itr->path());
+				const auto &ext = path.extension().string();
+				const auto &name = path.stem().string();
 
 				if (boost::filesystem::is_regular_file(path) && ext == ".prefab")
-					writer.String(name.c_str());
+				{
+					Forge::Prefabs::PrefabHeader header;
+					if (!Forge::Prefabs::ReadHeader(path.string(), header))
+						continue;
+
+					writer.StartObject();
+					writer.Key("name");
+					writer.String(header.Name);
+					writer.Key("author");
+					writer.String(header.Author);
+					writer.Key("object_count");
+					writer.Int(header.ObjectCount);
+					writer.EndObject();
+				}			
 			}
 		}
 
@@ -301,13 +315,20 @@ namespace
 	bool CommandForgeBudget(const std::vector<std::string>& Arguments, std::string &returnInfo)
 	{
 		const auto &quota = Forge::CalculateObjectQuota();
-		char buff[4096];
-		sprintf(buff, "Total Objects Used: %d/%d (%.1f%%)\nRemaining Objects: %d",
-			quota.TotalObjectsUsed, 
-			quota.TotalObjectsAvailable,
-			quota.TotalObjectsUsed / float(quota.TotalObjectsAvailable) * 100, 
-			quota.TotalObjectsAvailable-quota.TotalObjectsUsed);
-		returnInfo = buff;
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartObject();
+		writer.Key("total_used");
+		writer.Int(quota.TotalObjectsUsed);
+		writer.Key("total_available");
+		writer.Int(quota.TotalObjectsAvailable);
+		writer.Key("total_remaining");
+		writer.Int(quota.TotalObjectsAvailable - quota.TotalObjectsUsed);	
+		writer.EndObject();
+
+		returnInfo = buffer.GetString();
 		return true;
 	}
 

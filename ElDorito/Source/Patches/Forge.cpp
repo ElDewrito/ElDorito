@@ -28,6 +28,7 @@
 #include "../Forge/ForgeVolumes.hpp"
 #include "../Forge/PrematchCamera.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include "../Modules/ModulePlayer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebForge.hpp"
 #include "../Web/Ui/WebConsole.hpp"
@@ -1096,6 +1097,8 @@ namespace
 	void HandlePrefabCommands()
 	{
 		auto &moduleForge = Modules::ModuleForge::Instance();
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+
 		if (moduleForge.CommandState.Prefabs.LoadPrefab)
 		{
 			if (Prefabs::Load(moduleForge.CommandState.Prefabs.Path))
@@ -1112,7 +1115,7 @@ namespace
 
 		if (moduleForge.CommandState.Prefabs.SavePrefab)
 		{
-			if (!Prefabs::Save(moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
+			if (!Prefabs::Save(modulePlayer.VarPlayerName->ValueString, moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
 			{
 				PrintKillFeedText(0, L"ERROR: Failed to save prefab.", 0);
 			}
