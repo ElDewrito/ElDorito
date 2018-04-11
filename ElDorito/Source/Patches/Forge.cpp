@@ -1628,27 +1628,26 @@ namespace
 
 			static auto ObjectDetach = (void(__cdecl*)(uint32_t objectIndex))(0x00B2D180);
 			static auto AssignPlacement = (int(__thiscall *)(void *thisptr, uint32_t objectIndex, int16_t placementIndex))(0x5855E0);
-			static auto Object_Transform = (void(__cdecl *)(bool a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
-			static auto Update_ObjectTransform = (void(__cdecl *)(float a1, uint32_t objectIndex))(0x0059E9C0);
 			static auto sub_B313E0 = (void(__cdecl *)(int objectIndex, bool arg_4))(0xB313E0);
 
 			auto object = Blam::Objects::Get(objectIndex);
 			if (!object)
 				continue;
+
 			if (CreateOrGetBudgetForItem(mapv, object->TagIndex) == -1)
-				continue;
+			{
+				PrintKillFeedText(0, L"ERROR: Budget limit reached", 0);
+				break;
+			}
 
 			ObjectDetach(objectIndex);
 			AssignPlacement(mapv, objectIndex, -1);
 
-			RealMatrix4x3 objectTransform;
-			GetObjectTransformationMatrix(objectIndex, &objectTransform);
-			Object_Transform(0, objectIndex, &objectTransform.Position, &objectTransform.Forward, &objectTransform.Up);
-			Update_ObjectTransform(0, objectIndex);
-
-			sub_B313E0(objectIndex, true);
-
-			ThrowObject(playerIndex, objectIndex, throwForce);
+			if (!IsReforgeObject(objectIndex))
+			{
+				sub_B313E0(objectIndex, true);
+				ThrowObject(playerIndex, objectIndex, throwForce);
+			}
 		}
 
 		RecalculateMapVariantBudget();
