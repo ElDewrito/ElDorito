@@ -189,4 +189,19 @@ namespace Forge
 
 		return { totalAvailable, totalUsed };
 	}
+
+	bool PointInWorldBounds(Blam::Math::RealVector3D &point)
+	{
+		auto mapv = GetMapVariant();
+		return point.I >= mapv->WorldBoundsXMin && point.I <= mapv->WorldBoundsXMax
+			&& point.J >= mapv->WorldBoundsYMin && point.J <= mapv->WorldBoundsYMax
+			&& point.K >= mapv->WorldBoundsZMin && point.K <= mapv->WorldBoundsZMax;
+	}
+
+	bool ObjectInWorldBounds(uint32_t objectIndex)
+	{
+		Blam::Math::RealVector3D worldPos;
+		Forge::GetObjectPosition(objectIndex, &worldPos);
+		return PointInWorldBounds(worldPos);
+	}
 }

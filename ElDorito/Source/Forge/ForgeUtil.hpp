@@ -240,7 +240,9 @@ namespace Forge
 	void DeleteObject(uint16_t playerIndex, int16_t placementIndex);
 	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth, const Blam::Math::RealVector3D &normal);
 	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float throwForce);
-	
+	bool PointInWorldBounds(Blam::Math::RealVector3D &point);
+	bool ObjectInWorldBounds(uint32_t objectIndex);
+
 	extern bool IsReforgeObject(uint32_t objectIndex);
 
 	struct ForgeObjectQuota

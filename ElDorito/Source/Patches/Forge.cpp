@@ -1567,6 +1567,12 @@ namespace
 		}
 	}
 
+	void ObjectOutOfWorldBoundsError()
+	{
+		PrintKillFeedText(0, L"ERROR: One or more objects outside of the world bounds", 0);
+		UI_PlaySound(0, -1);
+	}
+
 	void __cdecl ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3)
 	{
 		static auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
@@ -1581,19 +1587,47 @@ namespace
 		if (droppedObjectIndex == -1)
 			return;
 
+		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
+		if (!droppedObject)
+			return;
+
+
+		if (!ObjectInWorldBounds(droppedObjectIndex))
+		{
+			ObjectOutOfWorldBoundsError();
+			return;
+		}
+
+		std::stack<uint32_t> detachStack;
+		auto& selection = Forge::Selection::GetSelection();
+		if (selection.Contains(droppedObjectIndex))
+		{
+			for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
+			{
+				auto object = Blam::Objects::Get(objectIndex);
+				if (!object)
+					continue;
+
+				if (!ObjectInWorldBounds(objectIndex))
+				{
+					ObjectOutOfWorldBoundsError();
+					return;
+				}
+
+				if (selection.Contains(objectIndex))
+					detachStack.push(objectIndex);
+
+				objectIndex = object->NextSibling;
+			}
+		}
 
 		auto playerIndex = GetPlayerHoldingObject(droppedObjectIndex);
-
 		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
 		{
 			monitorState.HeldObjectIndex = -1;
 		}
 
 		ObjectDropped(placementIndex, throwForce, a3);
-
-		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
-		if (!droppedObject)
-			return;
 
 		auto& magnetPair = Magnets::GetMagnetPair();
 		if (magnetPair.IsValid)
@@ -1602,23 +1636,6 @@ namespace
 			Object_GetPosition(droppedObjectIndex, &heldObjectPosition);
 			heldObjectPosition = magnetPair.Dest->Position - (magnetPair.Source->Position - heldObjectPosition);
 			Object_Transform(0, droppedObjectIndex, &heldObjectPosition, nullptr, nullptr);
-		}
-
-		auto& selection = Forge::Selection::GetSelection();
-		if (!selection.Contains(droppedObjectIndex))
-			return;
-
-		std::stack<uint32_t> detachStack;
-		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
-		{
-			auto object = Blam::Objects::Get(objectIndex);
-			if (!object)
-				continue;
-
-			if (selection.Contains(objectIndex))
-				detachStack.push(objectIndex);
-
-			objectIndex = object->NextSibling;
 		}
 
 		while (!detachStack.empty())
