@@ -2,10 +2,7 @@
 
 #include <time.h>
 
-#include "../Blam/BlamEvents.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Blam/BlamPlayers.hpp"
-#include "../Blam/BlamTypes.hpp"
 #include "../Patches/Network.hpp"
 #include "../Patches/Core.hpp"
 #include "../Modules/ModuleServer.hpp"
@@ -15,8 +12,9 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../Pointer.hpp"
-#include "../CommandMap.hpp"
 #include "../Utils/String.hpp"
+#include "../Utils/Cryptography.hpp"
+#include "../Utils/VersionInfo.hpp"
 #include <discord_register.h>
 
 #include "../Utils/Logger.hpp"
