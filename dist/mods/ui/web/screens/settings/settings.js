@@ -93,9 +93,9 @@ var binds = [
     ['Use','Use','Infantry'],
     ['DualWield','Dual Wield','Infantry'],
     ['Fire','Fire','Infantry'],
-    ['FireLeft','Fire Left','Infantry'],
+    ['FireLeft','Fire Dual','Infantry'],
     ['Reload','Reload','Infantry'],
-    ['ReloadLeft','Reload Left','Infantry'],
+    ['ReloadLeft','Reload Dual','Infantry'],
     ['Zoom','Zoom','Infantry'],
     ['SwitchWeapons','Switch Weapons','Infantry'],
     ['Melee','Melee','Infantry'],
@@ -1077,7 +1077,7 @@ function updateBindLabels(){
     $('#controllerGraphic').children('div').empty();
     for (i = 0; i < binds.length-8; i++) { 
         var bind = document.getElementById(binds[i][0]).value;
-        var action = binds[i][0];
+        var action = binds[i][1];
         if(document.getElementById(bind)){
             var actionString = action;
             if(document.getElementById(bind).innerHTML.length > 0){
