@@ -808,16 +808,27 @@ namespace
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
 		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{
-			if (packetProperties->TeamIndex > Modules::ModuleServer::Instance().VarNumTeams->ValueInt - 1)
+			uint8_t teamSizes[8];
+			auto numPlayers = 0;
+			int playerIdx = session->MembershipInfo.FindFirstPlayer();
+			while (playerIdx > -1)
 			{
-				packetProperties->TeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
+				teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+				numPlayers++;
+				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 			}
-		}
 
-		// Apply the base properties
-		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
-		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
-		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
+			auto currentTeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
+
+			auto &moduleServer = Modules::ModuleServer::Instance();
+			auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+			auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+			auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+			auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
+			if (packetProperties->TeamIndex >= 8)
+				packetProperties->TeamIndex = currentTeamIndex;
+		}
 
 		if (isNewMember)
 		{
@@ -827,17 +838,25 @@ namespace
 			{
 				int teamSizes[8] = { 0 };
 				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				auto numPlayers = 0;
 				while (playerIdx > -1)
 				{
 					teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+					numPlayers++;
 					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 				}
 				teamSizes[prop->TeamIndex]--; //ignore one place for the default team they were placed on
 
+				auto &moduleServer = Modules::ModuleServer::Instance();
+				auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+				auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+				auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+				auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
 				//check joining teams size
 				int smallest = Blam::Network::MaxPlayers + 1;
 				int smallIndex = 0;
-				for (int i = 0; i < Modules::ModuleServer::Instance().VarNumTeams->ValueInt; i++)
+				for (int i = 0; i < numTeams; i++)
 				{
 					if (teamSizes[i] < smallest)
 					{
@@ -845,14 +864,17 @@ namespace
 						smallIndex = i;
 					}
 				}
-				prop->ClientProperties.TeamIndex = smallIndex;
-				session->MembershipInfo.Update();
+				packetProperties->TeamIndex = smallIndex;
 			}
 		}
 
+		// Apply the base properties
+		typedef void(__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
+		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
+		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
+
 		// Apply the extended properties
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
-
 	}
 
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason)

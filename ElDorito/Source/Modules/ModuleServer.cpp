@@ -1023,6 +1023,12 @@ namespace
 			return false;
 		}
 
+		auto &moduleServer = Modules::ModuleServer::Instance();
+		auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+		auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+		auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+		auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
 		// Shuffle it
 		static std::random_device rng;
 		static std::mt19937 urng(rng());
@@ -1034,7 +1040,7 @@ namespace
 			membership->PlayerSessions[players[i]].Properties.ClientProperties.TeamIndex = teamIndex;
 
 			teamIndex++;
-			if (teamIndex == Modules::ModuleServer::Instance().VarNumTeams->ValueInt)
+			if (teamIndex == numTeams)
 				teamIndex = 0;
 		}
 		membership->Update();
@@ -1299,6 +1305,9 @@ namespace Modules
 		VarNumTeams = AddVariableInt("NumberOfTeams", "num_teams", "Set the desired number of teams", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 2);
 		VarNumTeams->ValueIntMin = 1;
 		VarNumTeams->ValueIntMax = 8;
+		VarMinTeamSize = AddVariableInt("TeamSize", "min_team_size", "Set the minimum number of players each team must have before a new team is assigned", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1);
+		VarMinTeamSize->ValueIntMin = 1;
+		VarMinTeamSize->ValueIntMax = 8;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
 		AddCommand("PM", "pm", "Sends a pm to a player as the server. First argument is the player name, second is the message in quotes", eCommandFlagsHostOnly, CommandServerPM);

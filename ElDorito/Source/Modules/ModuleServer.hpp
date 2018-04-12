@@ -59,6 +59,7 @@ namespace Modules
 		Command* VarPlayersInfo;
 		Command* VarPlayersInfoClient;
 		Command* VarNumTeams;
+		Command* VarMinTeamSize;
 		Command* VarSignalServerPort;
 		Command* VarSendChatToRconClients;
 		Command* VarHttpServerCacheTime;
