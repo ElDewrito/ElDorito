@@ -752,16 +752,19 @@ namespace
 		auto space = false;
 		for (i = 0; i < 15 && dest < 15 && name[i]; i++)
 		{
-			auto allowed = false;
-			if ((name[i] > 39 && name[i] < 42) || (name[i] > 47 && name[i] < 58) || (name[i] > 64 && name[i] < 92) || (name[i] == 93) || (name[i] > 96 && name[i] < 123))
-				allowed = true;
-			else if (name[i] == ' ' && dest > 0)
+			auto allowed = name[i] == '_' ||
+				(name[i] >= '0' && name[i] <= '9') ||
+				(name[i] >= 'A' && name[i] <= 'Z') ||
+				(name[i] >= 'a' && name[i] <= 'z');
+
+			if (!allowed)
 			{
 				// If this isn't at the beginning of the string, indicate that
 				// a space should be inserted before the next allowed character
-				space = true;
+				if (name[i] == ' ' && dest > 0)
+					space = true;
 			}
-			if (allowed)
+			else
 			{
 				if (space && dest < 14)
 				{
@@ -780,8 +783,6 @@ namespace
 			if (IsNameNotAllowed(lowercasename))
 				wcscpy_s(name, 16, L"Filtered");
 		}
-			
-		
 	}
 
 	// Applies player properties data including extended properties
