@@ -1,4 +1,3 @@
-
 var settingsArray = { 'Settings.Gamepad': '0' , 'Game.IconSet': '360'};
 
 dew.on("variable_update", function(e){
@@ -8,7 +7,6 @@ dew.on("variable_update", function(e){
         }
     }
 });
-
 
 function loadSettings(i){
 	if (i != Object.keys(settingsArray).length) {
@@ -42,7 +40,9 @@ dew.on("show", function (event) {
     );
     
 	var okText = 'Ok';
-	if(event.data.type == "url") okText = 'Yes';
+	if(event.data.type == "url"){ 
+        okText = 'Yes'; 
+    }
 	
     form.append( 
         $("<button>", {
@@ -54,18 +54,29 @@ dew.on("show", function (event) {
                 if(!$('.dialog').length){
 					if(event.data.type == "url"){
 						window.open(event.data.url, '_blank');
-					}
+					}else if(event.data.type == "update"){
+                        dew.command('Game.Update', function() {
+                            //Update go!
+                        }).catch(function (error) {
+                             dew.show('alert',{"title":"Error", "body":error.message});
+                        });
+                    }
                     dew.hide();
                 };
             }
         })
     );
+    
+    var noText = 'No';
+	if(event.data.type == "update"){ 
+        noText = 'Cancel'; 
+    }
 	
-	if(event.data.type == "url"){
+	if(event.data.type == "url"|event.data.type == "update"){
 		form.append( 
 			$("<button>", {
 				id: 'cancel',
-				html: '<img class="button">No',
+				html: '<img class="button">'+noText,
 				click: function(e){ 
 					e.preventDefault();
 					$(this).parent().parent().remove();
