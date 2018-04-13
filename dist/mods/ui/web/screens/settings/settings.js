@@ -446,11 +446,14 @@ $(document).ready(function(){
             setInfoBox($(this).find('.setting').attr('id'));
         }
     });
-    $('#sVsync').off('click').on('change', function(){
+    $('#sVsync').on('change', function(){
         alertBox('This change requires a restart to take effect.', false);
     });
-    $('.cefMedals').off('click').on('change', function(){
-        alertBox('This setting only effects ED medals (not H3 medals).', false);
+    $('.cefMedals').on('change', function(){
+        if(!$('#gCefMedals').is(":checked")){
+            alertBox('This setting only effects Custom medal packs. Turning them on now.', false);
+            $('#gCefMedals').prop('checked', true);
+        }
     });
     $('#okButton').off('click').on('click', function(){
         hideAlert(true);
