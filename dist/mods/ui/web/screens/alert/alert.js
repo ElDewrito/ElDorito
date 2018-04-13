@@ -41,13 +41,13 @@ dew.on("show", function (event) {
         })
     );
     
-	var ok = 'OK';
-	if(event.data.type == "url") ok = 'YES';
+	var okText = 'Ok';
+	if(event.data.type == "url") okText = 'Yes';
 	
     form.append( 
         $("<button>", {
             id: 'ok',
-            html: '<img class="button">OK',
+            html: '<img class="button">'+okText,
             click: function(e){ 
                 e.preventDefault();
                 $(this).parent().parent().remove();
@@ -65,7 +65,7 @@ dew.on("show", function (event) {
 		form.append( 
 			$("<button>", {
 				id: 'cancel',
-				html: '<img class="button">CANCEL',
+				html: '<img class="button">No',
 				click: function(e){ 
 					e.preventDefault();
 					$(this).parent().parent().remove();
