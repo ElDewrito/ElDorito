@@ -29,6 +29,23 @@ namespace
 	void OvershieldDecayHook();
 	void VisionEndHook();
 	void VisionEndHook2();
+	void SimulationUnitThrowInitializeHook();
+
+	struct s_unit_throw_state
+	{
+		uint32_t field_0;
+		uint16_t field_2;
+		uint8_t state;
+		uint8_t field_7;
+		uint8_t ticks;
+		uint8_t field_9;
+		uint8_t field_A;
+		uint8_t field_B;
+		uint32_t TagIndex;
+		uint32_t object_index;
+		uint32_t field_14;
+		uint32_t unknown_object_index;
+	};
 }
 
 namespace Patches::Equipment
@@ -80,6 +97,9 @@ namespace Patches::Equipment
 		// reimplmented so that unrelated screen effects aren't deleted
 		Hook(0x789462, VisionEndHook, HookFlags::IsCall).Apply();
 		Hook(0x788703, VisionEndHook2, HookFlags::IsCall).Apply();
+
+		// fix bomb run client sync issues
+		Hook(0x7A221D, SimulationUnitThrowInitializeHook).Apply();
 	}
 }
 
@@ -194,8 +214,19 @@ namespace
 			if (equipmentObjectIndex == -1)
 				return ret;
 
-			if (equipment_get_remaining_uses(equipmentObjectIndex) == 0 && sub_B87DA0(equipmentObjectIndex) == 0.0f)
+			auto throwFinished = true;
+			auto throwDataOffset = *(uint16_t*)((uint8_t*)unitObject + 0x182);
+			if (throwDataOffset != 0xff)
+			{
+				auto throwState = (s_unit_throw_state*)((uint8_t*)unitObject + throwDataOffset);
+				throwFinished = throwState->state == 0 || throwState->state > 2;
+			}
+		
+			if (equipment_get_remaining_uses(equipmentObjectIndex) <= 0  && 
+				sub_B87DA0(equipmentObjectIndex) == 0.0f && throwFinished)
+			{
 				CleanupEquipment(unitObjectIndex, i);
+			}	
 		}
 
 		return ret;
@@ -588,6 +619,24 @@ namespace
 			add esp, 8
 			mov esp, ebp
 			pop ebp
+			retn
+		}
+	}
+
+	__declspec(naked) void SimulationUnitThrowInitializeHook()
+	{
+		__asm
+		{
+			cmp byte ptr[esi + 6], 2
+			jg skip
+			push 0x31
+			push edi
+			mov eax, 0x00B69CF0
+			call eax
+			push 0x00BA2225
+			retn
+			skip :
+			push 0xBA2286
 			retn
 		}
 	}
