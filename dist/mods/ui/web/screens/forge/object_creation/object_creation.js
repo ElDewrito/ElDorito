@@ -590,7 +590,7 @@
         let _lastSelectedIndex = -1;
 
         _prefabList.on('select', ({ index, element }) => {
-            dew.command(`Forge.LoadPrefab "${_prefabs[index].name}"`).then(hide);
+            dew.command(`Forge.LoadPrefab "${_prefabs[index].filename}"`).then(hide);
         });
 
         return {
@@ -674,7 +674,7 @@
             let prefab = _prefabs[index];
             _prefabs = null;
             _lastSelectedIndex = index;
-            dew.command(`Forge.DeletePrefab "${prefab.name}"`).then(response => {
+            dew.command(`Forge.DeletePrefab "${prefab.filename}"`).then(response => {
                 showToast(`Prefab \"${prefab.name}\" deleted`);
             })
             .catch(response => showToast(response.message));

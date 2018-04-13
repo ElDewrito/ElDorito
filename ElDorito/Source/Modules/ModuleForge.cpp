@@ -156,6 +156,8 @@ namespace
 						continue;
 
 					writer.StartObject();
+					writer.Key("filename");
+					writer.String(name.c_str());
 					writer.Key("name");
 					writer.String(header.Name);
 					writer.Key("author");
