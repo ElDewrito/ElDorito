@@ -1244,7 +1244,7 @@ namespace Modules
 		VarScreenshotsFolder = AddVariableString("ScreenshotsFolder", "screenshots_folder", "The location where the game will save screenshots", eCommandFlagsArchived, "%userprofile%\\Pictures\\Screenshots\\blam");
 		VarScreenshotNoticeDisabled = AddVariableInt("ScreenshotNoticeDisabled", "screenshot_notice_disabled", "Disables the screenshot notifications", eCommandFlagsArchived, 0);
 
-		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 1);
+		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 0);
 
 		VarFpsLimiter = AddVariableInt("FPSLimiter", "fps_limiter", "Enable/disable framerate limiter (improves frame timing at the cost of cpu usage)", eCommandFlagsArchived, 1);
 
