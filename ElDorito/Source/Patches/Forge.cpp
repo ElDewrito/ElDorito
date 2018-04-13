@@ -229,7 +229,7 @@ namespace
 		} CameraFx;
 		struct {
 			bool Enabled;
-			uint32_t WeatherEffectTagIndex = -1;
+			uint8_t WeatherIndex = 0xff;
 			Blam::Math::RealColorRGB FogColor;
 			float FogDensity;
 			float FogVisibility;
@@ -433,7 +433,7 @@ namespace Patches::Forge
 				inSandboxEngine = game_is_sandbox_engine();
 				memset(&mapModifierState, 0, sizeof(mapModifierState));
 				mapModifierState.ObjectIndex = -1;
-				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
+				mapModifierState.Atmosphere.WeatherIndex = 0xff;
 				mapModifierState.ForgeSky.SceneryObjectIndex = -1;
 				mapModifierState.ForgeSky.BackgroundSoundDatumIndex = -1;
 				mapModifierState.ForgeSky.ScreenEffectDatumIndex = -1;
@@ -857,7 +857,7 @@ namespace
 			if (mapModifierState.IsActive)
 			{
 				// delete any weather effects
-				if (mapModifierState.Atmosphere.WeatherEffectTagIndex != -1)
+				if (mapModifierState.Atmosphere.WeatherIndex != 0xff)
 				{
 					auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
 					auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
@@ -942,27 +942,27 @@ namespace
 		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
 
 
-		uint32_t newWeatherEffectTagIndex = -1;
+		uint32_t newWeatherIndex = 0xff;
 
 		auto forgeGlobals = GetForgeGlobals();
 		auto desiredWeatherIndex = mapModifierProperties->AtmosphereProperties.Weather - 1;
 		if (desiredWeatherIndex >= 0 && desiredWeatherIndex < forgeGlobals->WeatherEffects.Count)
 		{
-			newWeatherEffectTagIndex = forgeGlobals->WeatherEffects[desiredWeatherIndex].Effect.TagIndex;
+			newWeatherIndex = desiredWeatherIndex;
 		}
 
 		UpdateForgeSky(mapModifierProperties);
 
-		if (atmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
+		if (atmosphereSettings.WeatherIndex != newWeatherIndex
 			&& currentWeatherEffectDatumIndex != -1)
 		{
-			atmosphereSettings.WeatherEffectTagIndex = -1;
+			atmosphereSettings.WeatherIndex = 0xff;
 			FreeWeatherEffect(currentWeatherEffectDatumIndex);
 			currentWeatherEffectDatumIndex = -1;
 		}
 		else
 		{
-			atmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
+			atmosphereSettings.WeatherIndex = newWeatherIndex;
 			UpdateWeatherEffects();
 		}
 
@@ -3448,7 +3448,7 @@ namespace
 	{
 		auto &atmosphereSettings = mapModifierState.Atmosphere;
 
-		if (!mapModifierState.IsValid || atmosphereSettings.WeatherEffectTagIndex == -1)
+		if (!mapModifierState.IsValid || atmosphereSettings.WeatherIndex == 0xff)
 			return false;
 
 		const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
@@ -3459,12 +3459,18 @@ namespace
 
 		if (currentWeatherEffectDatumIndex == -1)
 		{
-			currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
-
-			if (currentWeatherEffectDatumIndex != -1)
+			auto forgeGlobals = GetForgeGlobals();
+			if (forgeGlobals)
 			{
-				uint16_t scenarioLocation = 0;
-				sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				auto effectTagIndex = forgeGlobals->WeatherEffects[atmosphereSettings.WeatherIndex].Effect.TagIndex;
+				if (effectTagIndex != -1)
+					currentWeatherEffectDatumIndex = SpawnWeatherEffect(effectTagIndex);
+
+				if (currentWeatherEffectDatumIndex != -1)
+				{
+					uint16_t scenarioLocation = 0;
+					sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				}
 			}
 		}
 
