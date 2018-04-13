@@ -43,7 +43,7 @@ dew.on("show", function(e){
         $.getJSON( "https://raw.githubusercontent.com/ElDewrito/ElDorito/master/currentRelease.json", function(data) {
             dew.getVersion().then(function (version) {
                 if(data.release[0].version != version){
-                    dew.show('alert',{"title":"Update Available!", "body":"There is a newer version of ElDewrito available.|r|n|r|nClick Ok to launch the updater!", "type":"update"});
+                    dew.show('alert',{"title":"Update Available!", "body":"There is a newer version of ElDewrito available.|r|n|r|nWould you like to launch the updater?", "type":"update"});
                 }
             });
         }); 

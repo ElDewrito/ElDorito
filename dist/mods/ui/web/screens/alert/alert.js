@@ -40,7 +40,7 @@ dew.on("show", function (event) {
     );
     
 	var okText = 'Ok';
-	if(event.data.type == "url"){ 
+	if(event.data.type == "url"|event.data.type == "update"){ 
         okText = 'Yes'; 
     }
 	
@@ -66,17 +66,12 @@ dew.on("show", function (event) {
             }
         })
     );
-    
-    var noText = 'No';
-	if(event.data.type == "update"){ 
-        noText = 'Cancel'; 
-    }
 	
 	if(event.data.type == "url"|event.data.type == "update"){
 		form.append( 
 			$("<button>", {
 				id: 'cancel',
-				html: '<img class="button">'+noText,
+				html: '<img class="button">No',
 				click: function(e){ 
 					e.preventDefault();
 					$(this).parent().parent().remove();
@@ -112,20 +107,23 @@ dew.on("hide", function (event) {
 $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
-            $('.dialog:eq(0) button').click(); 
+            $('.dialog:eq(0) #cancel').click(); 
         }
     });
    $(document).keydown(function (e) {
         if (e.keyCode === 13 || e.keyCode === 32) {
-            $('.dialog:eq(0) button').click(); 
+            $('.dialog:eq(0) #ok').click(); 
         }
     });
 });
 
 dew.on('controllerinput', function(e){       
     if(settingsArray['Settings.Gamepad'] == 1){
-        if(e.data.A == 1 || e.data.B == 1){
-            $('.dialog:eq(0) button').click(); 
+        if(e.data.A == 1){
+            $('.dialog:eq(0) #ok').click(); 
+        }
+        if(e.data.B == 1){
+            $('.dialog:eq(0) #cancel').click(); 
         }
     }
 });
