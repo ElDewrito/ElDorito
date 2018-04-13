@@ -1107,6 +1107,26 @@ namespace
 		return true;
 	}
 
+	bool CommandGameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto ret = int(ShellExecuteA(nullptr, nullptr, "updater.exe", "", nullptr, SW_SHOWNORMAL));
+		if (ret <= 32)
+		{
+			if (ret == ERROR_FILE_NOT_FOUND || ret == ERROR_PATH_NOT_FOUND)
+			{
+				returnInfo = "\"updater.exe\" not found in current directory";
+			}
+			else
+			{
+				char error[256];
+				sprintf_s(error, "failed to execute updater. error: %d %d", ret, GetLastError());
+				returnInfo = error;
+			}
+			return false;
+		}
+		return CommandGameExit(Arguments, returnInfo);
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -1178,6 +1198,8 @@ namespace Modules
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
 		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
+
+		AddCommand("Update", "update", "Update the game to the latest version", eCommandFlagsNone, CommandGameUpdate);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
