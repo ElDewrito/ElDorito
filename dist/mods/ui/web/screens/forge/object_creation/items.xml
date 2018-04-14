@@ -621,7 +621,6 @@
         <item type="equipment" name="TRIP MINE" tagindex="0x1567" />
       </category>
       <category name="ARMOR ABILITIES">
-        <item type="equipment" name="BOMB RUN" tagindex="0x1570" />
         <item type="equipment" name="CONCUSSIVE BLAST" tagindex="0x156b" />
         <item type="equipment" name="HOLOGRAM" tagindex="0x156e" />
         <item type="equipment" name="LIGHTNING STRIKE" tagindex="0x1573" />
