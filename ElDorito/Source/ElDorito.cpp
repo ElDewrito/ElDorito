@@ -265,9 +265,10 @@ void ElDorito::Initialize()
 	Server::Rcon::Initialize();
 	Server::Signaling::Initialize();
 
-	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
+	if (!Blam::Cache::StringIDCache::Instance.Load(mapsFolder + "string_ids.dat"))
 	{
-		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
+		std::string msg("Failed to load '" + mapsFolder + "string_ids.dat'!");
+		MessageBox(NULL, msg.c_str(), "", MB_OK);
 	}
 }
 
