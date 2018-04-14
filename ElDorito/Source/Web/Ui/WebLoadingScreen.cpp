@@ -41,7 +41,7 @@ namespace
 	void WebLoadingScreenUi::Show(const std::string &mapPath)
 	{
 		// The map path is in the form "maps\\<name>", so strip the folder from the beginning to get just the name
-		auto separatorIndex = mapPath.find_first_of("\\/");
+		auto separatorIndex = mapPath.find_last_of("\\/");
 		auto mapName = mapPath.substr(separatorIndex + 1);
 
 		// Build a JSON object with the map name
