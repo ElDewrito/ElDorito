@@ -47,6 +47,11 @@ dew.on("show", function(e){
                 }
             });
         }); 
+        dew.command('Game.FirstRun', {}).then(function(result){
+            if(result == 1){
+                $('#announcementBox').show();
+            }
+        });
        if(settingsArray['Settings.Gamepad'] == 1){
             $('#dpad').attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Dpad.png');
             $("#dpad").show();
@@ -79,5 +84,12 @@ dew.on('controllerinput', function(e){
 function hideScreen(){
     $( "body" ).fadeOut( 500, function() {
         dew.hide();
+    });
+}
+
+function closeAnnounce(){
+    $('#announcementBox').hide();
+    dew.command('Game.FirstRun 0', {}).then(function(){
+        dew.command('writeconfig');
     });
 }
