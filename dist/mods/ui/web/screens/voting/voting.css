@@ -5,161 +5,168 @@ html {
     font-family: "Conduit ITC", sans-serif;
     font-weight: 500;
 }
-body{
-    padding: 0;
-    margin: 0;
-    overflow:hidden;
+
+#window{
+    position: relative;
+    width: 528px;
+    height: 590px;
+    margin-top: 92px;
+    margin-left: 68px;
+    border-bottom: 1px solid grey;
+}
+
+.top{
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    top:50%;
-    left:50%;
-    transform: translate(-50%,-50%);
-    -margin-top:-2.5vw;
-	height:100%;
+    height: 512px;
+    background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,1) 0%, rgba(24,39,69,1) 20%, rgba(24,39,69,1) 20%, rgba(6,16,37,1) 100%);
+}
 
+.top div{
+    margin: 15px;
+    margin-left: 0;
+    width: 498px;
+    font-size: 20px;
+    font-weight: 500;
+    padding-left: 15px;
+    padding-right: 15px;
 }
-.container {
-    position:relative;
-    margin-top:10vh;
-    color: #afbed5;
-	width: 20vw;
-	max-width: 40vh;
-	border: 2px solid rgba(112, 128, 144, 0.7);
-	border-left: 0;
-	border-right:0;
-	left: 48vw;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-    z-index: 10;
+
+#timer, #voteCount {
+    float: right;
+    font-weight: 600;
 }
+
+#description {
+    color: #98b3d3;
+    border-top: 1px solid #98b3d3;
+    padding-top: 5px;
+}
+
+.vetoBox{
+    background-color: #000;
+    padding: 8px 0px;
+    margin-left: -15px !important;
+    width: 586px;
+}
+
+.vetoBox .button{
+    margin-top: -4px;
+    margin-left: -4px;
+}
+
 .votingOption{
-	background-color: rgba(64, 88, 128, 0.75);
+    position: relative;
+    height: 70px;
+    width: 488px !important;
+    padding: 5px;
+    margin: 3px 0px !important;
+    margin-left: -15px !important;
+    padding-left: 25px !important;
 }
-#title{
-	background-color: rgba(0, 0, 0, 0.53);
+
+.selected{
+	background-image: url(dew://assets/ux/buttonhover.svg);
+	background-position: center;
+	background-repeat: no-repeat;
 }
-a.boxclose{
-    float:right;
-    margin-top:-15px;
-    margin-right:-15px;
-    cursor:pointer;
-    color: #fff;
-	border: 3px solid rgba(112, 128, 144, 0.9);
-    border-radius: 15px;
-	background-color: rgba(19,35,61,0.6);
+
+.votingOption .mapImage{
+    height: 70px;
+    float: left;
+    margin-left: -10px;
+}
+
+.votingOption .gameType, .votingOption .mapName{
+    position: absolute;
+    left: 180px;
+    font-size: 20px;
+}
+
+.votingOption .gameType{
+    top: 15px;
+}
+
+.votingOption .mapName{
+    bottom: 15px;
+}
+
+.votingOption .selector{
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    font-weight: 600 !important;
     font-size: 30px;
-    display: inline-block;
-    line-height: 19px;
-    text-align: center;    
-    height:26px;   
-    width: 25px;
-    padding-left:1px;
+    width: 37px;
+    text-align: center;
+    border: 2px solid rgba(0,0,0,0);
 }
-a.boxclose:hover
-{
-	background-color:rgba(199, 109, 41, 0.95);
+
+.myVote .selector, .winner .selector{
+    border: 2px solid white;
+    width: 35px;
 }
+
+.winner .selector{
+    border: 2px solid rgba(0, 255, 0, 1);
+    color: rgba(0, 255, 0, 1);
+}
+
+.none{
+    padding-left: 15px !important;
+    width: 498px !important;
+    height: 35px !important;
+    line-height: 35px;
+    font-size: 35px !important;
+}
+
+.none .selector{
+    top: 3px;
+}
+
+.bottomBar {
+    position: absolute;
+    bottom: 0;
+    float: left;
+    height: 70px;
+    width: 100%;
+    background: #000;
+    border-top: 1px solid grey;
+}
+
+button{
+    color: white;
+    background-color: rgba(0,0,0,0);
+    border: none;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: left;
+    line-height: 35px;
+    margin-top: 15px;
+    min-width: 50px;
+    margin-right: 5px;
+    float:left;
+}
+
 .button{
-	position:absolute;
-	right:-1.65vw;
-	top: 0;
-    width: 3vw;
-}
-
-a.boxclose img.button{
-	top:-1.55vw;
-	right:-1.55vw;
-	width:3.25vw
-}
-
-.votingOption
-{
+	display:none;
 	position:relative;
-	border: 2px solid rgba(112, 128, 144, 0.0);
-	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
-
-}
-#title
-{
-	color:white;
-	border-bottom: 2px solid rgba(112, 128, 144, 0.7);
-}
-.voteTally
-{	   
-	position: absolute;
-	right: 8vw;
-	font-size: 6vw;
-	margin-top: 1%;
-	color: rgba(255, 255, 255, 0.7);
-	-webkit-text-stroke-width: 3px;
-    -webkit-text-stroke-color: black;
-}
-.revoteOption .voteTally
-{
-	right: 2vw;
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 2.5vw;
-	bottom: 0vh;
-	margin-top:0%;
-	-webkit-text-stroke-width: 2px;
-}
-.revoteOption
-{
-	padding:2%;	
-	
-}
-.selected
-{
-	color:white;
-	border: 2px solid rgba(255, 255, 255, 0.9);
-	background-color:rgba(210, 132, 74, 0.79);
-}
-.userselected
-{
-	color:white;
-	border: 2px solid rgba(255, 255, 255, 0.9);
-	background-color:rgba(210, 132, 74, 1);
-}
-.winner
-{
-	color: white;	
-	border: 2px solid rgba(0, 255, 0, 1);
-	background-color: rgba(60, 200, 60, 0.59);
-}
-h5,p{
-	font-size: 2.25vh;
-	margin: 0;
-	padding: .3em;
-}
-img
-{
-	width: 85%;
-	margin-bottom:1em;
-}
-h1 {
-	margin: 0;
-	padding: 0;
-}
-.playerStats{
-	position:absolute;
-	bottom:0vh;
-	right:2vh;
-	color:white;
-	font-size:2.5vh;
-	width:25vh;
-    text-align:center;
+	height: 30px;
+	float: left;
+    margin-right: 2px;
+    top: 1px;
 }
 
-.playerStats .button{
-	position:absolute;
-	top:-0.6vw;
+button:hover{
+	text-decoration: underline;
 }
 
-.playerStats .button:first-of-type{
-	left:0;
+button:focus {
+    outline: 0;
 }
 
-.playerStats .button:last-of-type{
-	right:0;
+#vetoButton{
+    display: none;
 }

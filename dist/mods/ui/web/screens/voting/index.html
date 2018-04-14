@@ -6,11 +6,29 @@
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
         <script src="voting.js"></script>
+            <!-- Window Resize-->
+    <script src="dew://lib/window-resize.js"></script>
+    <link rel="stylesheet" type="text/css" href="dew://lib/window-resize.css"/>
     </head>
     <body>
-        <div class="container">
-           
+        <div id="container">
+        <div class="page_content">
+            <div id="window">
+                <div class="top">
+                    <div id="votingDesc">Voting round ends in: <span id="timer"></span></div>
+                    <div id="votingOptions">
+                    </div>
+                    <div id="vetoCount">Vetoes: <span id="voteCount"></span></div>
+                    <div id="description"></div>
+                </div>
+                <div class="bottomBar">
+                    <button id="scoreboardButton"><img class="button">Prior Game Stats</button>
+                    <button id="settingsButton"><img class="button">Settings</button>
+                    <button id="vetoButton"><img class="button">Veto</button>
+                    <button id="closeButton"><img class="button">Close</button>
+                </div>
+            </div>
         </div>
-        <!--<div class="playerStats"><img class="button"><a onclick="console.log('woo')">Player Stats</a><img class="button"></div>-->
+        </div>
     </body>
 </html>
