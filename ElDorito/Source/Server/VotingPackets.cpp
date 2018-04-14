@@ -96,9 +96,10 @@ namespace
 			if (data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
 				data->votesNeededToPass = stream->ReadUnsigned<uint8_t>(0, 16);
 
-			if (data->Type == VotingMessageType::Winner)
+			if (data->Type == VotingMessageType::Winner) {
 				data->voteTime = stream->ReadUnsigned<uint8_t>(0, 120);
 				data->winner = stream->ReadUnsigned<uint8_t>(0, 5);
+			}
 
 			return true;
 		}
