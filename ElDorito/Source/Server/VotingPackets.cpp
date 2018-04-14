@@ -52,8 +52,11 @@ namespace
 			if(data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
 				stream->WriteUnsigned<uint8_t>(data->votesNeededToPass, 0, 16);
 
-			if (data->Type == VotingMessageType::Winner)
+			if (data->Type == VotingMessageType::Winner) {
+				stream->WriteUnsigned<uint8_t>(data->voteTime, 0, 120);
 				stream->WriteUnsigned<uint8_t>(data->winner, 0, 5);
+			}
+				
 		}
 
 		bool Deserialize(Blam::BitStream *stream, VotingMessage *data) override
@@ -94,6 +97,7 @@ namespace
 				data->votesNeededToPass = stream->ReadUnsigned<uint8_t>(0, 16);
 
 			if (data->Type == VotingMessageType::Winner)
+				data->voteTime = stream->ReadUnsigned<uint8_t>(0, 120);
 				data->winner = stream->ReadUnsigned<uint8_t>(0, 5);
 
 			return true;

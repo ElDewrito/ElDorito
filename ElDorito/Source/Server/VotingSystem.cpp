@@ -373,6 +373,7 @@ namespace Server::Voting
 
 		VotingMessage newmessage(VotingMessageType::Winner);
 		newmessage.winner = winningOption.index;
+		newmessage.voteTime = Modules::ModuleServer::Instance().VarServerTimeBetweenVoteEndAndGameStart->ValueInt;
 		BroadcastVotingMessage(newmessage);
 
 		Modules::CommandMap::Instance().ExecuteCommand("Game.GameType \"" + winningOption.haloType.typeName + "\"");

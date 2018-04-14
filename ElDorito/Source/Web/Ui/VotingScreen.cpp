@@ -114,6 +114,8 @@ public:
 			jsonWriter.StartObject();
 			jsonWriter.Key("Winner");
 			jsonWriter.Int(message.winner);
+			jsonWriter.Key("timeUntilGameStart");
+			jsonWriter.Int(message.voteTime);
 			jsonWriter.EndObject();
 			Web::Ui::ScreenLayer::Notify("Winner", jsonBuffer.GetString(), true);
 
