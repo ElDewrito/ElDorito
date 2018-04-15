@@ -201,14 +201,14 @@ dew.on("VotingOptionsUpdated", function(event) {
                     "class": "votingOption none",
                     "id": entry.index
                 })
-                .html('NONE OF THE ABOVE<span class="selector">0</span>')
+                .html('NONE OF THE ABOVE<span class="selector">0</span><span class="votebox" style="top: 11px;"></span><span class="vote" style="top: 23px;"></span>')
                 .appendTo($("#votingOptions"));
         } else if (entry.mapname != '') {
             $("<div>", {
                     "class": "votingOption",
                     "id": entry.index
                 })
-                .html('<img class="mapImage" src="dew://assets/maps/small/'+entry.image+'.png"><span class="gameType">'+entry.typename+'</span><span class="mapName">'+entry.mapname+'</span><span class="selector">0</span>')
+                .html('<img class="mapImage" src="dew://assets/maps/small/'+entry.image+'.png"><span class="gameType">'+entry.typename+'</span><span class="mapName">'+entry.mapname+'</span><span class="selector">0</span><span class="votebox"></span><span class="vote"></span>')
                 .appendTo($("#votingOptions"));
         }
     });

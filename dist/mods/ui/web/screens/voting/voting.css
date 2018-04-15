@@ -96,7 +96,7 @@ html {
 .votingOption .selector{
     position: absolute;
     top: 20px;
-    right: 18px;
+    right: 50px;
     font-weight: 600 !important;
     font-size: 30px;
     width: 37px;
@@ -104,13 +104,30 @@ html {
     border: 2px solid rgba(0,0,0,0);
 }
 
+.winner{
+	background-image: url(dew://assets/ux/buttonhoverwin.svg);
+}
+
 .myVote .selector, .winner .selector{
-    border: 2px solid white;
     width: 35px;
 }
 
+.votebox{
+	outline: 2px solid;
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 27px;
+    right: 20px;
+}
+.myVote .vote{
+	outline: 8px solid;
+    position: absolute;
+    top: 38.5px;
+    right: 32px;
+}
+
 .winner .selector{
-    border: 2px solid rgba(0, 255, 0, 1);
     color: rgba(0, 255, 0, 1);
 }
 
