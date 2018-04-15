@@ -140,15 +140,19 @@ html {
     color: rgba(122,175,209, 0.9);
 }
 
-#serverName{
+#serverName, #mapName{
     position: absolute;
     width: 100%;
-    bottom: 2%;
+    bottom: 3.5%;
     text-align: center;
     font-size: 18px;
     color: rgba(122,175,209, 0.8);
     margin-left: -0.5%;
     padding: 0;
+}
+
+#mapName{
+    bottom: 1%;
 }
 
 #playerBreakdown{

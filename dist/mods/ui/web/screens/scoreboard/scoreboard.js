@@ -639,6 +639,9 @@ function displayScoreboard(){
     dew.command("Server.NameClient", { internal: true }).then(function (name){
         $("#serverName").text(name);
     });    
+    dew.getMapVariantInfo().then(function (info) {
+        $("#mapName").text(info.name);
+    });
     if(hasGP && locked){
         updateSelection(itemNumber);
     }
