@@ -1,0 +1,51 @@
+<svg id="button_hover" data-name="button hover" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="mask-gradient" y1="32" x2="64" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset=".4" stop-color="#e5e5e5"/>
+      <stop offset="1" stop-color="#676767"/>
+    </linearGradient>
+    <mask id="mask" x="0" y="0" width="64" height="64" maskUnits="userSpaceOnUse">
+      <path class="cls-1" d="M0 0h64v64H0z"/>
+    </mask>
+    <linearGradient id="button-gradient-light" y1="32" x2="64" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0.4" stop-color="#3EA111"/>
+      <stop offset="1" stop-color="#30810A"/>
+    </linearGradient>
+    <linearGradient id="glow-gradient-light" x1="32" y1="64" x2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#85E426" stop-opacity="0.3"/>
+      <stop offset=".1" stop-color="#85E426" stop-opacity="0"/>
+      <stop offset=".9" stop-color="#85E426" stop-opacity="0"/>
+      <stop offset="1" stop-color="#85E426" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+	<style>
+		.cls-1{
+			fill:url(#mask-gradient);
+		}
+		.button-container-mask{
+			mask:url(#mask);
+		}
+		.ButtonFill{
+			fill:url(#button-gradient-light);
+		}
+		.ButtonGlow{
+			fill:url(#glow-gradient-light);
+		}
+		.button-container{
+			-webkit-animation:	button-pulse 2.2s linear infinite; /*ease*/
+		}
+		@-webkit-keyframes button-pulse {
+			0%   { opacity: .8; }
+			50%   { opacity: 1; }
+			100% { opacity: .8; }
+		}
+	</style>
+	<g class="button-container">	
+		<g class="button-container-mask">
+			<path class="ButtonFill" d="M0 0h64v64H0z"/>
+		</g>
+		<g class="button-container-mask">
+			<path class="ButtonGlow" d="M0 0h64v64H0z"/>
+		</g>
+	</g>
+</svg>
