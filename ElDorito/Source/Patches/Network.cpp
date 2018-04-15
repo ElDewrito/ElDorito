@@ -176,7 +176,7 @@ namespace Patches::Network
 							status = "InLobby";
 							// on mainmenu so we'll have to read other data
 							mapName = std::string((char*)Pointer(0x19A5E49));
-							variantName = std::wstring((wchar_t*)Pointer(0x179254));
+							variantName = L"none";
 							variantType = Pointer(0x179250).Read<uint32_t>();
 						}
 						else // TODO: find how to get the variant name/type while it's on the loading screen
