@@ -1,6 +1,5 @@
 var votingType = "voting";
 var interval = 0;
-var seconds_left;
 var isHost;
 var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
@@ -86,6 +85,17 @@ function hideScreen(){
     dew.hide(); 
 }
 
+function setTimer(amount){
+    clearInterval(interval);
+    interval = setInterval(function() {
+        document.getElementById('timer').innerHTML = --amount + " seconds";
+        if (amount <= 0) {
+            document.getElementById('timer').innerHTML = "";
+            clearInterval(interval);
+        }
+    }, 1000);
+}
+
 function vote(number) {
     dew.command("server.SubmitVote " + number);
     if(votingType != "veto"){
@@ -134,17 +144,9 @@ dew.on("hide", function(event) {
 
 dew.on("Winner", function(event) {
     $('#votingDesc').html('Game starts in: <span id="timer"></span>');
-    clearInterval(interval);
-    seconds_left = event.data.timeUntilGameStart + 1;
-    interval = setInterval(function() {
-        document.getElementById('timer').innerHTML = --seconds_left + " seconds";
-        if (seconds_left <= 0) {
-            document.getElementById('timer').innerHTML = "";
-            clearInterval(interval);
-        }
-    }, 1000);
     $("#" + event.data.Winner).addClass('winner');
 	$(".votingOption").removeClass("selected");
+    setTimer(event.data.timeUntilGameStart);  
 });
 
 dew.on("VetoOptionsUpdated", function(event) {
@@ -165,29 +167,17 @@ dew.on("VetoOptionsUpdated", function(event) {
         $('#votingDesc').html('Game starts in: <span id="timer"></span>');
         $('#description').text('Your game will be starting shortly.');
     }
-    clearInterval(interval);
 
     $('.top').css('height', '294px');
-     
-    seconds_left = event.data.timeRemaining -1;
-    interval = setInterval(function() {
-        document.getElementById('timer').innerHTML = --seconds_left + " seconds";
-        if (seconds_left <= 0) {
-            document.getElementById('timer').innerHTML = "";
-            clearInterval(interval);
-        }
-    }, 1000);
-    
-    
     
     dew.command('Server.ListPlayersJSON').then(function(res){
         $('#voteCount').html('<span id="1"><span class="selector">0</span> of '+JSON.parse(res).length+'</span> ('+event.data.votesNeededToPass + ' needed)');  
     });
+    setTimer(event.data.timeRemaining - 1);     
 });
 
 dew.on("VotingOptionsUpdated", function(event) {
     votingType = "voting";
-    clearInterval(interval);
 
     $('.top').css('height', '530px');
     $('#description').text('Vote for game and map...');
@@ -216,15 +206,6 @@ dew.on("VotingOptionsUpdated", function(event) {
     itemNumber = 1;
     updateSelection(itemNumber, false);
     
-    seconds_left = event.data.timeRemaining-1;
-    interval = setInterval(function() {
-        document.getElementById('timer').innerHTML = --seconds_left + " seconds";
-        if (seconds_left <= 0) {
-            document.getElementById('timer').innerHTML = "";
-            clearInterval(interval);
-        }
-    }, 1000);
-
     $(".votingOption").off('click').on('click', function() {
         $(".votingOption").removeClass("selected");
 		var WinnerChosen = document.getElementsByClassName('winner');
@@ -240,6 +221,7 @@ dew.on("VotingOptionsUpdated", function(event) {
             updateSelection(itemNumber, false);
         }
     });
+    setTimer(event.data.timeRemaining - 1); 
 });
 
 dew.on("VoteCountsUpdated", function(event) {
