@@ -2,7 +2,6 @@ var activePage;
 var selectedItem;
 var itemNumber = 0;
 var tabIndex = 0;
-var previousBind;
 var colorIndex = 0;
 var changeArray = [];
 var commandValues = [];
@@ -877,7 +876,7 @@ function initializeBindings(){
                     if(bindDump[i].secondaryMouseButton != 'none'){
                         secondaryBind = bindDump[i].secondaryMouseButton;
                     }
-                    $('#bindBox .'+result[2]).append($('<tr data-action="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+'></td></tr>'));
+                    $('#bindBox .'+result[2]).append($('<tr data-action="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+' data-initialvalue='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+' data-initialvalue='+secondaryBind+'></td></tr>'));
                 }
                 }
             })
@@ -900,11 +899,11 @@ function initializeBindings(){
 
                 // not escape
                 if(e.keyCode == 27){
-                    if(previousBind){
-                        if(previousBind == this_.val()){
+                    if(this_.data('initialvalue') ){
+                        if(this_.data('initialvalue')  == this_.val()){
                             this_.val('none');
                         }else{
-                            this_.val(previousBind);
+                            this_.val(this_.data('initialvalue') );
                         }
                     }
                     this_.blur();
@@ -1059,7 +1058,6 @@ function initializeBindings(){
                 $doc.on('mousewheel.rebind', mouseHandler);
                 $doc.on('keydown.rebind', keyHandler);
             }else{
-                previousBind = e.target.defaultValue;
                 $doc.off('keydown.rebind');
                 $doc.off('mousedown.rebind');
                 $doc.off('mousewheel.rebind');
