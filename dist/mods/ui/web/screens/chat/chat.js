@@ -274,7 +274,7 @@ function hexToRgba(hex,opacity){
 }
 
 function aWrap(link) {
-    return '<a href="' + link + '" target="_blank">' + link + '<\/a>';
+    return '<a href="' + link + '" target="_blank" style="color: dodgerblue">' + link + '<\/a>';
 };
 
 function adjustColor(color, amount){
