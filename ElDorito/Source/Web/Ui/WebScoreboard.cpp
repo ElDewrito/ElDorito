@@ -396,7 +396,7 @@ namespace
 			writer.Key("playerIndex");
 			writer.Int(playerIdx);
 			writer.Key("bestStreak");
-			writer.Int(scoreboard->PlayerScores[playerIdx].HighestSpree);
+			writer.Int(playerStats.BestStreak);
 
 			
 
