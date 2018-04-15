@@ -446,6 +446,10 @@ namespace Patches::Network
 		Hook(0x67E01F, local_user_get_identifier_hook, HookFlags::IsCall).Apply();
 		// fix network broadcast search sending back the wrong address due to the above patch (fixes local game browser)
 		Hook(0x9C389, network_build_local_game_status_hook, HookFlags::IsCall).Apply();
+
+		// skip over end_game_write_stats. stops host from getting booted due to people with bad connections
+		Patch(0x92F7B, { 0xB8, 0x01, 0x00, 0x00, 0x00 }).Apply();
+		Patch(0x92E3B, { 0x90, 0x90 }).Apply();
 	}
 
 
