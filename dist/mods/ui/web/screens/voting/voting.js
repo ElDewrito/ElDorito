@@ -79,8 +79,6 @@ $(document).ready(function(){
 function hideScreen(){
     if(isHost){
         dew.command("server.CancelVote");
-    }else{
-        dew.gameaction(11);	
     }
     dew.hide(); 
 }
@@ -121,15 +119,6 @@ function vote(number) {
 dew.on("show", function(event) {
     dew.getSessionInfo().then(function(i){
         isHost = i.isHost;
-        if(isHost){
-            $('#closeButton').html('<img class="button">Close');
-        }else{
-            $('#closeButton').html('<img class="button">Leave');
-        }
-        if(settingsArray['Settings.Gamepad'] == 1){
-            $("#closeButton img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_B.png');
-            $('.button').show();
-        }
     });
     itemNumber = 1;
     initGamepad();
