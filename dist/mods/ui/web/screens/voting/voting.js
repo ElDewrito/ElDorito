@@ -115,6 +115,7 @@ function vote(number) {
             $('.button').show();
         }
     }
+    dew.command('Game.PlaySound 0x0B00');
 }
 
 dew.on("show", function(event) {
