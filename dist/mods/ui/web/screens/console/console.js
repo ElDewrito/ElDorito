@@ -335,7 +335,7 @@ function getSuggestedCommands(partial) {
             return ((consoleAutoCompleteMode == eAutoCompleteMode.Prefix) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
 
-        commandItem = results.filter(x => !x.hidden);
+        commandItem = results.filter(x => !x.hidden && !x.internal);
 
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);

@@ -324,13 +324,12 @@ namespace
 		if (!player)
 			return;
 
-		auto globalScale = Modules::ModulePlayer::Instance().VarPlayerScale->ValueFloat;
 
 		int playerScaleIndex = *((uint8_t*)player + 0x2DC2) - 2;
 
-		auto desiredScale = globalScale;
+		auto desiredScale = 1.0f;
 		if (playerScaleIndex >= 0 && playerScaleIndex < kPlayerScaleCount)
-			desiredScale = kPlayerScales[playerScaleIndex] * globalScale;
+			desiredScale = kPlayerScales[playerScaleIndex];
 
 		playerState.DesiredScale = desiredScale;
 
