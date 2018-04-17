@@ -531,7 +531,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_ENABLE_ATOMIC_ALIGNMENT_FIX;NDEBUG;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_ENABLE_ATOMIC_ALIGNMENT_FIX;NDEBUG;NOMINMAX;PSAPI_VERSION=1;MINIUPNP_STATICLIB;ElDorito_EXPORTS;ELDEWRITO_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>

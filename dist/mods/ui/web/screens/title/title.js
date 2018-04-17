@@ -42,7 +42,7 @@ dew.on("show", function(e){
         $("#blackLayer").hide();
         $.getJSON( "https://raw.githubusercontent.com/ElDewrito/ElDorito/master/currentRelease.json", function(data) {
             dew.getVersion().then(function (version) {
-                if(data.release[0].version != version){
+                if(parseVersion(data.release[0].version) != parseVersion(version)) {
                     dew.show('alert',{"title":"Update Available!", "body":"There is a newer version of ElDewrito available.|r|n|r|nWould you like to launch the updater?", "type":"update"});
                 }
             });
@@ -92,4 +92,17 @@ function closeAnnounce(){
     dew.command('Game.FirstRun 0', {}).then(function(){
         dew.command('writeconfig');
     });
+}
+
+function parseVersion(str) { 
+    var result = 0;
+    var suffixPos = str.indexOf('-');
+    if(suffixPos != -1)
+        str = str.substr(0, suffixPos);
+    
+    var parts = str.split('.');
+    for(var i = 0; i < parts.length && i < 4; i++) {
+        result |= (parseInt(parts[i]) << (24-(i*8)));
+    }  
+    return result;
 }

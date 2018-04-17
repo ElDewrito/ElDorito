@@ -177,7 +177,7 @@ namespace Modules
 		memset(this->UserName, 0, sizeof(wchar_t)* 17);
 
 		AddCommand("PrintUID", "uid", "Prints the players UID", eCommandFlagsNone, CommandPlayerPrintUID);
-		AddCommand("EncryptGmtTimestamp", "encryptgmttimestamp", "encrypts a timestamp using the player's private key.", eCommandFlagsInternal, GenerateTimestamp);
+		AddCommand("EncryptGmtTimestamp", "encryptgmttimestamp", "encrypts a timestamp using the player's private key.", eCommandFlagsHidden, GenerateTimestamp);
 
 
 		// patch Game_GetPlayerName to get the name from our field
