@@ -160,7 +160,15 @@ $(document).ready(function(){
     $(document).keyup(function (e) {
         if (e.keyCode === 27) {
             if(window.location.hash != '#page5'){
-                cancelButton();
+                if(!activePage.endsWith('alertBox')){
+                    cancelButton();
+                }else{
+                    if($('#dismissButton:visible').length){
+                        dismissButton();
+                    }else{
+                        hideAlert(true);
+                    }
+                }
             }
         }
         if (e.keyCode == 44) {
@@ -358,10 +366,14 @@ $(document).ready(function(){
                 }
             }
             if(e.data.B == 1){
-                if(activePage.endsWith('alertBox')){
-                    dismissButton();
-                }else{
+                if(!activePage.endsWith('alertBox')){
                     cancelButton();
+                }else{
+                    if($('#dismissButton:visible').length){
+                        dismissButton();
+                    }else{
+                        hideAlert(true);
+                    }
                 }
             }
             if(e.data.X == 1){
