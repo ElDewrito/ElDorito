@@ -244,3 +244,7 @@ img#closeAnnounceButton {
     background-color: black;
     z-index: 10;
 }
+
+a:hover {
+    text-decoration: underline;
+}
