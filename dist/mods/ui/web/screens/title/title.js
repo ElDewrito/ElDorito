@@ -28,6 +28,8 @@ $("html").on("keydown", function(e) {
     if (e.which == 13){
         if(!announcementShown)
             hideScreen();
+		else
+			closeAnnounce();
     } 
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
@@ -66,7 +68,7 @@ dew.on("show", function(e){
             $("#enter").attr("src","dew://assets/buttons/"+settingsArray['Game.IconSet']+"_A.png");
         }else{
             $("#dpad").hide();
-$("#closeAnnounceButton").attr("src","dew://assets/buttons/"+settingsArray['Game.IconSet']+"_A.png");
+			$("#closeAnnounceButton").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
             $( "#up, #down, #left, #right" ).show();
             $(".instructionText img").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
             $("#esc").attr("src","dew://assets/buttons/Keyboard_White_Esc.png");
@@ -98,6 +100,7 @@ function hideScreen(){
     $( "body" ).fadeOut( 500, function() {
         dew.hide();
     });
+	dew.command('Game.PlaySound 0x0B00');
 }
 
 function closeAnnounce(){
@@ -107,6 +110,7 @@ function closeAnnounce(){
     dew.command('Game.FirstRun 0', {}).then(function(){
         dew.command('writeconfig');
     });
+	dew.command('Game.PlaySound 0x0B00');
 }
 
 function parseVersion(str) { 
