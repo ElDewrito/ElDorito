@@ -381,7 +381,9 @@ function updateScoreboardPlayer(rowElement, player, playersInfo, gameType) {
 }
     
 dew.on("scoreboard", function(e){
-    scoreboardData = e.data;
+    if(e.data.scoreboardData && e.data.scoreboardData.players){
+        scoreboardData = e.data;
+    }
     mapName = e.data.mapName
     if(e.data.numberOfRounds){
         multiRound = e.data.numberOfRounds == 1 ? false : true;
@@ -582,8 +584,10 @@ dew.on("show", function(e){
     dew.getSessionInfo().then(function(i){          
         isHost = i.isHost;
     });
-
-    scoreboardData = e.data.scoreboardData;
+    
+    if(e.data.scoreboardData && e.data.scoreboardData.players){
+        scoreboardData = e.data.scoreboardData;
+    }
     expandedScoreboard = e.data.expanded;
     if(scoreboardData.playersInfo || cachedPlayersInfo){
         if(scoreboardData.playersInfo){
