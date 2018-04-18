@@ -856,8 +856,9 @@ function applyBindString(bindString){
 function initializeBindings(){
     dew.command("Input.DumpBindingsJson", {}).then(function(response){
         $('#bindBox tbody').empty();
-        $('#bindBox tbody').each(function(){
-            $(this).append('<tr><th colspan="3">'+$(this).attr('class')+'</th></tr>');
+        $('#bindBox tbody').each(function(i, e){
+            if(i > 0)
+                $(this).append('<tr style="height: 2.5vh"><th colspan="3"></th></tr>');
         });
         var bindDump = JSON.parse(response);
         for (i = 0; i < bindDump.length; i++){
@@ -876,23 +877,30 @@ function initializeBindings(){
                     if(bindDump[i].secondaryMouseButton != 'none'){
                         secondaryBind = bindDump[i].secondaryMouseButton;
                     }
-                    $('#bindBox .'+result[2]).append($('<tr data-action="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+' data-initialvalue='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+' data-initialvalue='+secondaryBind+'></td></tr>'));
+                    $('#bindBox .'+result[2]).append($('<tr data-action="'+result[0]+'"><td>'+result[1]+'</td><td><input class="keybind" value='+primaryBind+' data-initialvalue='+primaryBind+'></td><td><input class="keybind" value='+secondaryBind+' data-initialvalue='+secondaryBind+'></td></tr>'))
                 }
                 }
             })
         }
+        
         updateBindLabels();
         getCurrentBindString();
+
+        dew.on('mouse-xbutton-event', function(m){
+            if(!document.activeElement.classList.contains('keybind'))
+                return;
+
+            if(m.data.xbutton == 1){
+                document.activeElement.value = 'Mouse4';
+            }else{
+                document.activeElement.value = 'Mouse5';
+            }; 
+            document.activeElement.blur();
+        });
+
         $('.keybind').on('focus blur', function(e){
             var this_ = $(this);
-            dew.on('mouse-xbutton-event', function(m){
-                if(m.data.xbutton == 1){
-                    document.activeElement.value = 'Mouse4';
-                }else{
-                    document.activeElement.value = 'Mouse5';
-                }; 
-                document.activeElement.blur();
-            });
+
             function keyHandler(e){
                 e.preventDefault();
                 e.stopPropagation();
@@ -1028,11 +1036,12 @@ function initializeBindings(){
                 e.preventDefault();
                 e.stopPropagation();
                 if(e.type == 'mousewheel'){
+                    
                     if(e.originalEvent.wheelDelta > 0){
                         this_.val('MouseWheelUp');
                     }else{
                         this_.val('MouseWheelDown');
-                    }   
+                    }
                 }
                 else if(e.type == 'mousedown'){
                     switch(e.which){
@@ -1050,6 +1059,8 @@ function initializeBindings(){
                     }
                 }
                 this_.blur();
+
+                return false;
             };
 
             var $doc = $(document);

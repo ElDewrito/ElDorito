@@ -86,7 +86,7 @@ function hideScreen(){
 function setTimer(amount){
     clearInterval(interval);
     interval = setInterval(function() {
-        document.getElementById('timer').innerHTML = --amount + " seconds";
+        document.getElementById('timer').innerHTML = " Voting ends in..." + --amount ;
         if (amount <= 0) {
             document.getElementById('timer').innerHTML = "";
             clearInterval(interval);
@@ -144,7 +144,7 @@ dew.on("VetoOptionsUpdated", function(event) {
     if(event.data.vetoOption.canveto){
         votingType = "veto";
         $('#vetoButton, #vetoCount').show();
-        $('#votingDesc').html('Voting round ends in: <span id="timer"></span>');
+        $('#votingDesc').html('VETO COUNTDOWN: <span id="timer"></span>');
         $('#description').text('A new game and map will be chosen with a majority veto.');
         $("<div class='vetoBox'><img class='button'>Veto Map and Game</div>").appendTo($("#votingOptions"));
         if(settingsArray['Settings.Gamepad'] == 1){
@@ -161,7 +161,7 @@ dew.on("VetoOptionsUpdated", function(event) {
     $('.top').css('height', '294px');
     
     dew.command('Server.ListPlayersJSON').then(function(res){
-        $('#voteCount').html('<span id="1"><span class="selector">0</span> of '+JSON.parse(res).length+'</span> ('+event.data.votesNeededToPass + ' needed)');  
+        $('#voteCount').html('<span id="1"><span class="selector">0</span> of '+JSON.parse(res).length+'</span> ('+event.data.votesNeededToPass + ' needed)');
     });
     setTimer(event.data.timeRemaining - 1);     
 });
@@ -170,9 +170,8 @@ dew.on("VotingOptionsUpdated", function(event) {
     votingType = "voting";
 
     $('.top').css('height', '530px');
-    $('#description').text('Vote for game and map...');
     $('#vetoButton, #vetoCount').hide();
-    $('#votingDesc').html('Voting round ends in: <span id="timer"></span>');
+    $('#votingDesc').html('Vote for game and map... <span id="timer"></span>');
 
     $('#votingOptions').empty();
     event.data.votingOptions.forEach(function(entry, i) {
@@ -181,14 +180,14 @@ dew.on("VotingOptionsUpdated", function(event) {
                     "class": "votingOption none",
                     "id": entry.index
                 })
-                .html('NONE OF THE ABOVE<span class="selector">0</span><span class="votebox" style="top: 11px;"></span><span class="vote" style="top: 23px;"></span>')
+                .html('<span class="votebox"></span>None of the above<span class="selector">0</span>')
                 .appendTo($("#votingOptions"));
         } else if (entry.mapname != '') {
             $("<div>", {
                     "class": "votingOption",
                     "id": entry.index
                 })
-                .html('<img class="mapImage" src="dew://assets/maps/small/'+entry.image+'.png"><span class="gameType">'+entry.typename+'</span><span class="mapName">'+entry.mapname+'</span><span class="selector">0</span><span class="votebox"></span><span class="vote"></span>')
+                .html('<span class="votebox"></span><img class="mapImage" src="dew://assets/maps/small/'+entry.image+'.png"><span class="gameType">'+entry.typename+'</span><span class="mapName">'+entry.mapname+'</span><span class="selector">0</span>')
                 .appendTo($("#votingOptions"));
         }
     });

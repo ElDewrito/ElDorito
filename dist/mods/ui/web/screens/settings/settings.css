@@ -472,16 +472,28 @@ textarea.setting{
 
 /*Fix for lists with an edit button*/
 .setting.hasTiny.wheelable {
-    position: absolute;
-    width: calc(50% - 14.4vh);
-    height: 100%;
-    right: 10.4vh;
-    z-index: 2;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    padding-left: 2vh;
-    padding-right: 2vh;
+	position: absolute;
+	width: calc(50% - 14.4vh);
+	height: 100%;
+	right: 10.4vh;
+	z-index: 2;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	padding-left: 2vh;
+	padding-right: 2vh;
+}
+.looksensitivity .colorBox {
+    width: 43.5vh;
+    right: 4vh;
+}
+/*Controller UI Wheelable Edit Fix*/
+.controllerwheelfix #presetMenu {
+	width: 44vh;
+	right: 12vh;
+}
+input#lookSensitivity {
+	width: calc(100% - 14.5vh);
 }
 button.tinySetting {
     padding: 0;
@@ -740,4 +752,38 @@ input[type=range]:focus {
 	color: white;
 	z-index:10;
     border: 1px solid white;
+}
+
+
+
+table#bindBox{
+	margin-left:0;
+    font-size: 2.5vh;
+}
+
+table#bindBox tr td:first-child {
+    text-align: left;
+    padding-right: 20px;
+}
+
+table#bindBox input.keybind {
+    padding: 4px;
+    font-size: 1em;
+    border: none;
+    background: rgba(0, 0, 0, 0.15);
+		color: #d8d8d8;
+    text-transform: capitalize;
+}
+
+table#bindBox tr td:nth-child(2) {
+    padding-right: 20px;
+}
+
+#bindBox thead th {
+	text-align:left;
+}
+
+table#bindBox input.keybind:focus {
+	background:white;
+	color:black;
 }

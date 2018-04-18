@@ -15,7 +15,7 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    background-image: url(dew://assets/ed/background.png);
+    background-image: url(dew://assets/haloonline/title_bg.jpg);
     background-size: cover;
     background-position: 50% 0%;
     background-repeat: no-repeat;
@@ -26,51 +26,68 @@ body {
     margin: 0;
     bottom: 42%;
     width: 100%;
-    height: 15%;
-    background-image: url(dew://assets/ed/EldoritoLogoFinalSmall.png);
+    height: 20%;
+    background-image: url(dew://assets/haloonline/ho_logo.png);
     background-size: auto 100%;
     background-position: 50%;
     background-repeat: no-repeat;
 }
-
-.instructionText {
+.teamlogo {
     position: absolute;
-    bottom: 12vh;
-    width: 100%;
-    text-align: center;
-    color: white;
-    font-size: 4.5vh;
-    z-index: 2;
+    margin: 0;
+    bottom: 8%;
+    right: 10%;
+    height: 7vh;
+    width: 25vh;
+    background-image: url(dew://assets/haloonline/ed-logo.png);
+    background-size: auto 100%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    opacity: 0.9;
+}
+.instructionText {
+	position: absolute;
+	bottom: 24%;
+	width: 100%;
+	text-align: center;
+	color: white;
+	font-size: 3vh;
+	z-index: 2;
+	line-height: 3vh;
 }
 
 .instructionText img{
     position: relative;
-    top: 1vh;
+    top: 1.4vh;
     height: 5vh;
 }
 
 .title {
     position: absolute;
-    bottom: 32%;
+    bottom: 10%;
     width: 100%;
     text-align: center;
     color: white;
-    font-size: 10vh;
+    font-size: 2vh;
     z-index: 2;
+    opacity: 0.3;
+    text-align: inherit;
+    padding-left: 10%;
 }
 
 .legend {
     position: absolute;
     width: 32vmin;
     height: 14vmin;
-    top: 1vw;
+    top: 3vw;
     left: 1vw;
-    border: 2px solid white;
-    background:rgba(0, 0, 0, 0.5);
+    /* border: 2px solid white; */
+    /* background: rgba(0, 0, 0, 0.5); */
+    opacity: 0.75;
 }
 
 .legend img{
-    height: 5vmin;
+    height: 4vh;
 }
 
 #navigate{
@@ -106,39 +123,45 @@ body {
     top: 55%;  
 }
 
-#enter{
+#enter {
     position: absolute;
-    left: 55%;
-    top: 40%;  
+    left: 45%;
+    top: 40%;
+}
+#esc {
+    position: absolute;
+    left: 65%;
+    top: 40%;
 }
 
-#esc{
+#dpad {
+    display: none;
     position: absolute;
-    left: 75%;
-    top: 40%;  
+    left: 20%;
+    top: 35%;
+    height: 5vh;
 }
-
-#dpad{
-    display:none;
-    position: absolute;
-    left: 15%;
-    top: 30%;
-    height: 5vw;
+#container{
+		z-index: 10;
 }
-
+#announcementBG{
+	display: none;
+	position: absolute;
+	top:0;left:0;right: 0;bottom: 0;
+	width: 100%;
+	height: 100%;
+	background:rgba(0, 0, 0, 0.7);
+	z-index: 9;
+}
 #announcementBox{
-    display:none;
-    position: absolute;
-    top:20%;
-    left:23.5%;
-    width: 50%;
-    height: 55%;
-    color: white;
-    background:rgba(0, 0, 0, 0.5);
-    z-index: 10;
-    padding:2vw;
-    padding-top:0;
-    border: 2px solid white;
+	display: none; 
+	position: absolute;
+	top: 20%;
+	left:0%;
+	right: 0%;
+	width: 100%;
+	height:calc(396px + 0px);
+	background:rgba(0, 0, 0, 0);
 }
 
 #announcementBox a{
@@ -146,13 +169,53 @@ body {
 }
 
 .announcement{
+		border-top:1px solid rgba(98, 111, 121, 0.25);
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 90%;
+    height: 396px;
     background-color: #14234a;
+		background-image: url(dew://assets/announcements/welcome_01.jpg);
+		background-size: 100% auto;
+		background-repeat: no-repeat;
+    padding-left: 120px;
+    box-sizing: border-box;
+    padding-right: 55%;
 }
+.announcement p{
+    text-shadow: 0px 2px 1px rgba(0, 0, 0, 0.16);
+	 color: #94A4B7;
+    font-size: 14px;
+		opacity: 0.75;
+}
+.announcement p.announceTitle {
+    color: #F0F0F0;
+    font-size: 54px;
+		opacity: 1;
+}
+.announcement p.announcesubTitle {
+    color: #F0F0F0;
+    font-size: 32px;
+		
+}
+img#closeAnnounceButton {
+    width: 24px;
+    margin-top: 3px;
+}
+#announcementBox #buttonNav{
+		position: absolute;
+		top: 396px;
+		bottom: initial;
+		left: 0;
+		height: 32px;
+		width: 100%;
+		background-color: black;
+		color: white;
+		box-sizing: border-box;
+		padding-left: 120px;
+}
+
 
 #buttonNav{
     position: absolute;
@@ -160,15 +223,19 @@ body {
     left: 0;
     height: 10%;
     width: 100%;
-    background-color: black;
+    background-color: rgba(6, 9, 12, 0.75);
     color: white;
+		border-top:1px solid rgba(98, 111, 121, 0.25);
+		border-bottom:1px solid rgba(98, 111, 121, 0.25);
 }
-
-#buttonNav a{
+#buttonNav a {
     margin-right: 4vh;
-}
-
-#blackLayer {
+    /* height: 32px; */
+    line-height: 28px;
+    font-size: 18px;
+    vertical-align: super;
+    color: #F0F0F0;
+}#blackLayer {
     position: absolute;
     top: 0;
     left: 0;

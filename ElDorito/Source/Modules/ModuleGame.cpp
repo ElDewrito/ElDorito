@@ -1197,7 +1197,7 @@ namespace Modules
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
-		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
+		AddCommand("ShowTickrate", "show_tickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
 
 		AddCommand("Update", "update", "Update the game to the latest version", eCommandFlagsNone, CommandGameUpdate);
 

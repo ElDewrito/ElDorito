@@ -1,4 +1,5 @@
 var settingsArray = { 'Settings.Gamepad': '0' , 'Game.IconSet': '360', 'Game.SkipTitleSplash':'0'};
+var announcementShown = false;
 
 dew.on("variable_update", function(e){
     for(i = 0; i < e.data.length; i++){
@@ -7,6 +8,7 @@ dew.on("variable_update", function(e){
         }
     }
 });
+
 
 function loadSettings(i){
 	if (i != Object.keys(settingsArray).length) {
@@ -24,7 +26,8 @@ $(document).ready(function(){
 
 $("html").on("keydown", function(e) {
     if (e.which == 13){
-        hideScreen();
+        if(!announcementShown)
+            hideScreen();
     } 
     if(e.keyCode == 192 || e.keyCode == 112 || e.keyCode == 223){
         dew.show("console");
@@ -42,14 +45,16 @@ dew.on("show", function(e){
         $("#blackLayer").hide();
         $.getJSON( "https://raw.githubusercontent.com/ElDewrito/ElDorito/master/currentRelease.json", function(data) {
             dew.getVersion().then(function (version) {
-                if(data.release[0].version != version){
+                if(parseVersion(data.release[0].version) != parseVersion(version)) {
                     dew.show('alert',{"title":"Update Available!", "body":"There is a newer version of ElDewrito available.|r|n|r|nWould you like to launch the updater?", "type":"update"});
                 }
             });
         }); 
         dew.command('Game.FirstRun', {}).then(function(result){
             if(result == 1){
+                announcementShown = true;
                 $('#announcementBox').show();
+                $('#announcementBG').show();
             }
         });
        if(settingsArray['Settings.Gamepad'] == 1){
@@ -61,6 +66,7 @@ dew.on("show", function(e){
             $("#enter").attr("src","dew://assets/buttons/"+settingsArray['Game.IconSet']+"_A.png");
         }else{
             $("#dpad").hide();
+$("#closeAnnounceButton").attr("src","dew://assets/buttons/"+settingsArray['Game.IconSet']+"_A.png");
             $( "#up, #down, #left, #right" ).show();
             $(".instructionText img").attr("src","dew://assets/buttons/Keyboard_White_Enter.png");
             $("#esc").attr("src","dew://assets/buttons/Keyboard_White_Esc.png");
@@ -73,10 +79,17 @@ dew.on('serverconnect', function(e){
     hideScreen();
 });
 
-dew.on('controllerinput', function(e){       
-    if(settingsArray['Settings.Gamepad'] == 1){
-        if(e.data.Start == 1){
-            hideScreen();   
+dew.on('controllerinput', function (e) {
+    if (!settingsArray['Settings.Gamepad'])
+        return;
+
+    if (announcementShown) {
+        if (e.data.A == 1) {
+            closeAnnounce();
+        }
+    } else {
+        if (e.data.Start == 1) {
+            hideScreen();
         }
     }
 });
@@ -89,7 +102,22 @@ function hideScreen(){
 
 function closeAnnounce(){
     $('#announcementBox').hide();
+    $('#announcementBG').hide();
+    announcementShown = false;
     dew.command('Game.FirstRun 0', {}).then(function(){
         dew.command('writeconfig');
     });
+}
+
+function parseVersion(str) { 
+    var result = 0;
+    var suffixPos = str.indexOf('-');
+    if(suffixPos != -1)
+        str = str.substr(0, suffixPos);
+    
+    var parts = str.split('.');
+    for(var i = 0; i < parts.length && i < 4; i++) {
+        result |= (parseInt(parts[i]) << (24-(i*8)));
+    }  
+    return result;
 }
