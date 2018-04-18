@@ -96,8 +96,8 @@ function setTimer(amount){
 
 function vote(number) {
     dew.command("server.SubmitVote " + number);
+    var WinnerChosen = document.getElementsByClassName('winner');
     if(votingType != "veto"){
-        var WinnerChosen = document.getElementsByClassName('winner');
         if (WinnerChosen.length <= 0) {
             $('.myVote').removeClass('myVote');
             $('.votingOption').eq(number-1).addClass("myVote");
@@ -113,7 +113,9 @@ function vote(number) {
             $('.button').show();
         }
     }
-    dew.command('Game.PlaySound 0x0B00');
+    if (WinnerChosen.length <= 0) {
+		dew.command('Game.PlaySound 0x0B00');
+    }
 }
 
 dew.on("show", function(event) {
