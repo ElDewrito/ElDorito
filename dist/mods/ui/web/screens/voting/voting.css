@@ -169,10 +169,10 @@ html {
 		transition: all 0.2s ease-in-out;
 
 }
-.selected .votebox, .votingOption:hover .votebox, .myVote .votebox{
+.selected .votebox,.selected .votingOption:hover .votebox, .myVote .votebox{
     box-shadow: 0px 0px 0px 2px rgba(255,255,255,1);
-		opacity: 1;
-		margin-left: 10px;
+	opacity: 1;
+	margin-left: 10px;
     margin-right: 10px;
 }
 .myVote .votebox:after{
