@@ -251,11 +251,6 @@ $(document).ready(function(){
 					toggleIcon();
 				}
             }
-			if(e.data.Start == 1){
-				if(activePage.startsWith('#page3') && needApply){
-					ApplyEmblem(true);
-				}
-			}
 			if(e.data.Y == 1){
 				if(activePage.startsWith('#page1')){
                     randomArmor();
@@ -435,7 +430,6 @@ function setButtons(){
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
-		$('#applyEmblemButton img').attr('src','dew://assets/buttons/'+ response + '_Start.png');
 		$('#toggleIconButton img').attr('src','dew://assets/buttons/'+ response + '_X.png');
 		$('#randomEmblem img').attr('src','dew://assets/buttons/'+ response + '_Y.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
@@ -563,6 +557,9 @@ function cancelButton(){
     dew.command('writeconfig');
     effectReset();
 	page1();
+	if(needApply){
+		ApplyEmblem(false);
+	}
 }
 
 function dismissButton(){
@@ -917,7 +914,6 @@ function adjustBiped(){
 }
 
 function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runFinish){
-	$("#applyEmblemButton").hide();
 	$("#toggleIconButton").hide();
 	$("#randomEmblem").hide();
 	
@@ -959,7 +955,6 @@ function SetupEmblems(resetEmblemList, setRadiosLists, setEmblem, onFinish, runF
 					}
 					
 					$('#emblemIcon input, #emblemBackgroundImage input, #colorsEmblemPrimary input, #colorsEmblemSecondary input, #colorsEmblemImage input, #colorsEmblemBackground input').off('click').on('change click', function(e) {
-						$('#applyEmblemButton').show();
 						needApply = true;
 					});
 					
@@ -1154,7 +1149,6 @@ function setUrl(isLastEmblem){
 	}
 	if(lastEmblem == emblemurl){
 		needApply = false;
-		$("#applyEmblemButton").hide();
 	}
 	
 	document.getElementById("emblemBox").src = 'http://' + apiServer + emblemGeneratorAPI + emblemurl;
@@ -1194,7 +1188,6 @@ function ApplyEmblem(ShowAlert) {
 		contentType: 'application/json',
 		data: JSON.stringify(jsonObj),
 		success: function(data){
-			$('#applyEmblemButton').hide();
 			if(ShowAlert){
 				dew.show('alert', {
 							icon: 0,
@@ -1221,7 +1214,6 @@ function ApplyEmblem(ShowAlert) {
 
 function toggleIcon(){
 	emblemToggle = 1 - emblemToggle;
-	$('#applyEmblemButton').show();
 	needApply = true;
 	setUrl(false);
 }
@@ -1234,18 +1226,22 @@ function page3(){
 	$("#randomEmblem").show();
 }
 function page2(){
-	$("#applyEmblemButton").hide();
 	$("#toggleIconButton").hide();
 	$("#randomArmor").hide();
 	$("#randomColors").show();
 	$("#randomEmblem").hide();
+	if(needApply){
+		ApplyEmblem(false);
+	}
 }
 function page1(){
-	$("#applyEmblemButton").hide();
 	$("#toggleIconButton").hide();
 	$("#randomArmor").show();
 	$("#randomColors").hide();
 	$("#randomEmblem").hide();
+	if(needApply){
+		ApplyEmblem(false);
+	}
 }
 
 function ping(ip, callback) {
