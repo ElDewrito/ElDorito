@@ -1,0 +1,218 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: default;
+}
+
+body {
+    font: 24px "Conduit ITC", sans-serif;
+    margin: 0;
+}
+
+
+/* Map Loading Screen */
+
+.mapLoader {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+progress {
+    -webkit-appearance: none;
+    position: absolute;
+    height: 10px;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+progress::-webkit-progress-bar {
+    background: black;
+    opacity: 0.75;
+}
+
+progress::-webkit-progress-value {
+    background: white;
+}
+
+.header{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 15vh;
+    background-color: black;
+    opacity: 0.9;
+    border-bottom: 1px solid #7fa4c5;
+}
+
+.header img{
+    position: absolute;
+    top: 3.5vh;
+    height: 8vh;
+    padding: 0;
+}
+
+#logo {
+    left: 2vw;
+}
+
+#gametypeicon {
+    height: 9vh;
+    top: 3vh;
+    right: 2vw;
+}
+
+#gametype, .gamerounds, .gamescore, .timelimit {
+    position: absolute;
+    right: 9vw;
+    color: rgba(255,255,255,0.75);
+    font-size: 2vh;
+    text-align: right;
+    font-weight: 400;
+}
+
+#gametype span, .gamerounds span, .gamescore span, .timelimit span {
+    display: inline-block;
+    padding-left: 0.75vh;
+    font-weight: 700;
+}
+
+#gametype {
+    top: 2.25vh;
+    color: white;
+    font-size: 3.25vh;
+    font-weight: 700;
+}
+
+.gamerounds {
+    top: 6.05vh;
+}
+
+.gamescore {
+    top: 8.1vh;
+}
+
+.timelimit {
+    top: 10vh;
+}
+
+.container {
+    position: absolute;
+    top: 15vh;
+    left: 0;
+    width: 100%;
+    height: 70vh;
+}
+
+.serverName {
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    top: 50%; 
+    transform: translateY(-50%);
+    font-size: 3.5vh;
+    line-height: 4vh;
+    width: 45vw;
+    text-align: center;
+    max-height:14vh;
+    word-wrap:break-word;
+    overflow:hidden;
+}
+
+.serverMessage {
+    position: relative;
+    top: 0;
+    max-height: 80%;
+    max-width: 45%;
+    left: 0;
+    margin: 5.1vh;
+    margin-left: 0;
+    font-size: 3.5vh;
+    padding: 1.5vw;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+}
+
+.serverMessage a {
+    color: white;
+    text-decoration: none;
+}
+
+.serverMessage a:hover {
+    text-decoration: underline;
+}
+
+.footer{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 15vh;
+    background-color: black;
+    opacity: 0.9;
+    border-top: 1px solid #7fa4c5;
+}
+
+#title {
+    position: absolute;
+    font-size: 7vh;
+    top: 2.4vh;
+    left: 2vw;
+}
+
+#desc {
+    position: absolute;
+    top: 3.5vh;
+    right: 2vw;
+    font-size: 2.5vh;
+    text-align: left;
+    color: #7fa4c5;
+    max-width: 40%;
+}
+
+
+/* Generic Loading Screen */
+
+.genericLoader  {
+    display: none;
+}
+
+.genericLoader .background {
+    position: absolute;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(dew://assets/haloonline/title_bg.jpg);
+    background-size: cover;
+    background-position: 50% 0%;
+    background-repeat: no-repeat;
+}
+
+.genericLoader .eldorito {
+    position: absolute;
+    margin: 0;
+    bottom: 42%;
+    width: 100%;
+    height: 15%;
+    background-image: url(dew://assets/ed//EldoritoLogoFinalSmall.png);
+    background-size: auto 100%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.genericLoader .eldorito.loading {
+    background-image: url(dew://assets/ed//EldoritoLogoFinalBlueSmall.png);
+    -webkit-clip-path: inset(100% 0 0 0);
+}
