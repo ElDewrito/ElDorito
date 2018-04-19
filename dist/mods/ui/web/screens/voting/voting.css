@@ -22,7 +22,7 @@ html {
     left: 0;
     width: 100%;
     height: 512px;
-    background: linear-gradient(to bottom, rgba(39,57,94,1) 0%,rgba(10,18,38,1) 91%,rgba(9,18,42,0.95) 100%);
+    background: linear-gradient(to bottom, rgba(39,57,94,1) 0%,rgba(10,18,38,0.95) 91%,rgba(9,18,42,0.95) 100%);
 }
 
 .top div{
