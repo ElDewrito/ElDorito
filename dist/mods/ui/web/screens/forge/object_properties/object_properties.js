@@ -121,6 +121,7 @@
 
             let isGarbageVolume = data.tag_index == 0x00005A8F;
             let isKillVolume = data.tag_index == 0x00005A8E;
+            let isMapModifier = data.tag_index == 0x5728;
             let hasSpawn = false, hasSymmetry = false,
                 hasZone = false, hasTeam = false,
                 hasSpawnOrder = false,
@@ -182,6 +183,9 @@
 
             if(data.is_screenfx)
                 hasTeam = true;
+
+            if(data.has_material || isMapModifier)
+                hasSpawn = false;
 
             let model = _propertryGrid.createModel();
 
@@ -287,12 +291,12 @@
             });
 
 
-            if (!hasZone && !data.has_material) {
+            if (!hasZone && !data.has_material ) {
                 model.add(makeProperty('physics', 'Physics', 'spinner',
                     [{ label: 'Default', value: 0 }, { label: 'Phased', value: 1 }], 'Overrides this items physical properties'));
             }
 
-            let isMapModifier = data.tag_index == 0x5728;
+            
             if (isMapModifier) {
                 let barrierOptions = [
                     { label: 'Disabled', value: 1 },
@@ -301,7 +305,13 @@
                 model.group('Map options', (m) => {
                     m.add(makeProperty('map_disable_push_barrier', 'Push Barrier', 'spinner', barrierOptions));
                     m.add(makeProperty('map_disable_death_barrier', 'Death Barrier', 'spinner', barrierOptions));
-                    m.add(makeProperty('map_physics_gravity', 'Gravity', 'range', { min: 0, max: 1, step: 0.01, displayTextOverride: value => (1.0-value).toFixed(2) } ));
+                    m.add({
+                        type: 'range',
+                        label: 'Gravity',
+                        meta: { min: 0, max: 1, step: 0.01 },
+                        getValue: () => properties.map_physics_gravity,
+                        setValue: (value) => onPropertyChange({ ['map_physics_gravity']: 1.0-value })
+                    });
                 });
 
                 let cameraFxRange = { min: 0, max: 1.0, step: 0.01 };
