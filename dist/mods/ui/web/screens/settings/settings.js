@@ -464,6 +464,7 @@ $(document).ready(function(){
         if(!$('#gCefMedals').is(":checked")){
             alertBox('This setting only effects Custom medal packs. Turning them on now.', false);
             $('#gCefMedals').prop('checked', true);
+            $('#gCefMedals').trigger('change');
         }
     });
     $('#okButton').off('click').on('click', function(){
