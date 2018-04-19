@@ -1,3 +1,54 @@
+.popup-window{
+	color: rgba(148, 164, 183, 0.75);
+	background: 	linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.4) 100%),
+								linear-gradient(to right, rgba(11,25,51,1) 0%,rgba(14,25,45,1) 70%,rgba(9,22,46,1) 100%);
+
+	border-top: 1px solid rgba(98, 111, 121, 0.38);
+	border-bottom: 1px solid rgba(98, 111, 121, 0.05);
+	width: 100%;
+	font-size: 20px;
+	position: absolute;
+	text-align: left;
+	padding-top: 20px;
+	padding-left: 25%;
+	padding-right: 25%;
+	padding-bottom: 50px;
+	box-sizing: border-box;
+}
+.popup-window .header {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    height: 40px;
+    width: 100%;
+    text-align: left;
+    font-weight: 100;
+    text-transform: uppercase;
+    line-height: 0px;
+    color: var(--subheader-color);
+    font-size: 32px;
+    background: none;
+    margin-top: 20px;
+}
+.popup-window-area {
+    position: relative;
+    box-sizing: content-box;
+    display: inline-block;
+    width: 100%;
+    background-image: none;
+    padding-top: 0;
+    padding-bottom: 16px;
+}
+.popup-window .window-side-padding{
+	padding-left: 0;
+	padding-right: 0;
+}
+.popup-window .bottomBar {
+    position: absolute;
+    left: 0;
+    padding-left: 25%!important;
+}
+
 body{
   background-image: url("dew://assets/blur/customization-blur.png");
   background-repeat: no-repeat;
