@@ -92,11 +92,15 @@ function hideScreen(){
     onShow();
 }
 
-function setTimer(amount){
+function setTimer(amount, voting){
     clearInterval(interval);
     interval = setInterval(function() {
         var timerElement =   document.getElementById(compactMode ? 'timerCompact' : 'timer');
-        timerElement.innerHTML = " Voting ends in..." + --amount ;
+        if(voting){
+            timerElement.innerHTML = " Voting ends in..." + --amount ;
+        }else{
+            timerElement.innerHTML = " Game starts in..." + --amount ;    
+        }
         if (amount <= 0) {
             timerElement.innerHTML = "";
             clearInterval(interval);
@@ -151,19 +155,20 @@ dew.on("hide", function(event) {
 });
 
 dew.on("Winner", function(event) {
-    $('#votingDesc').html('Game starts in: <span id="timer"></span>');
+    $('#votingDesc').html('Your game will be starting shortly. <span id="timer"></span>');
     $("#" + event.data.Winner).addClass('winner');
 	$(".votingOption").removeClass("selected");
-    setTimer(event.data.timeUntilGameStart);  
+    setTimer(event.data.timeUntilGameStart, false);  
 });
 
 dew.on("VetoOptionsUpdated", function(event) {
     $("#votingOptions").empty();
+    var voting;
     if(event.data.vetoOption.canveto){
         votingType = "veto";
+        voting = true;
         $('#vetoButton, #vetoCount').show();
-        $('#votingDesc').html('VETO COUNTDOWN: <span id="timer"></span>');
-        $('#description').text('A new game and map will be chosen with a majority veto.');
+        $('#votingDesc').html('Vote to veto game and map... <span id="timer"></span>');
         $("<div class='vetoBox'><img class='button'>Veto Map and Game</div>").appendTo($("#votingOptions"));
         if(settingsArray['Settings.Gamepad'] == 1){
             $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
@@ -171,9 +176,9 @@ dew.on("VetoOptionsUpdated", function(event) {
         }
     }else{
         votingType = "ended";
+        voting = false;
         $('#vetoButton, #vetoCount').hide();
-        $('#votingDesc').html('Game starts in: <span id="timer"></span>');
-        $('#description').text('Your game will be starting shortly.');
+        $('#votingDesc').html('Your game will be starting shortly. <span id="timer"></span>');
     }
 
     $('.top').css('height', '294px');
@@ -181,7 +186,7 @@ dew.on("VetoOptionsUpdated", function(event) {
     dew.command('Server.ListPlayersJSON').then(function(res){
         $('#voteCount').html('<span id="1"><span class="selector">0</span> of '+JSON.parse(res).length+'</span> ('+event.data.votesNeededToPass + ' needed)');
     });
-    setTimer(event.data.timeRemaining - 1);     
+    setTimer(event.data.timeRemaining - 1, voting);     
 });
 
 dew.on("VotingOptionsUpdated", function(event) {
@@ -228,7 +233,7 @@ dew.on("VotingOptionsUpdated", function(event) {
             updateSelection(itemNumber, false);
         }
     });
-    setTimer(event.data.timeRemaining - 1); 
+    setTimer(event.data.timeRemaining - 1, true); 
 });
 
 dew.on("VoteCountsUpdated", function(event) {
