@@ -345,12 +345,12 @@ function downNav(){
 function onShow() {
     if(compactMode) {
         $('#window').fadeOut('fast');
-        $('#window-compact').fadeIn('fast');
+        $('.window-compact').fadeIn('fast');
         dew.captureInput(false);
         dew.capturePointer(true);
     } else {
         $('#window').fadeIn('fast');
-        $('#window-compact').fadeOut('fast');
+        $('.window-compact').fadeOut('fast');
         dew.captureInput(true);
         dew.capturePointer(true);
     }
