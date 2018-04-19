@@ -54,10 +54,32 @@ dew.on("show", function(e){
         }); 
         dew.command('Game.FirstRun', {}).then(function(result){
             if(result == 1){
-                announcementShown = true;
-                $('#announcementBox').show();
-                $('#announcementBG').show();
-            }
+                $.getJSON("http://scooterpsu.github.io/announcements.json", function(data) {
+                    if(data.announcements.length){
+                        for(var i = 0; i < data.announcements.length; i++){
+                            $('#announcementBox').append(
+                                $('<div>',{
+                                    class: 'announcement',
+                                    "css" : {
+                                        "background-image" : "url('"+data.announcements[i].background+"')"
+                                    },
+                                }).append($('<p>',{
+                                    class: 'announceTitle',
+                                    text: data.announcements[i].title
+                                }).append($('<p>',{
+                                    class: 'announcesubTitle',
+                                    text: data.announcements[i].subtitle
+                                })).append($('<p>',{
+                                    class: 'announceContent',
+                                    html: data.announcements[i].content
+                                }))));
+                        }
+                        announcementShown = true;
+                        $('#announcementBox').show();
+                        $('#announcementBG').show();
+                    }
+                });
+             }
         });
        if(settingsArray['Settings.Gamepad'] == 1){
             $('#dpad').attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Dpad.png');
@@ -104,12 +126,14 @@ function hideScreen(){
 }
 
 function closeAnnounce(){
-    $('#announcementBox').hide();
-    $('#announcementBG').hide();
-    announcementShown = false;
-    dew.command('Game.FirstRun 0', {}).then(function(){
-        dew.command('writeconfig');
-    });
+    $('#announcementBox:eq(0)').hide();
+    $('#announcementBG:eq(0)').hide();
+    if(!$('#announcementBox:visible').length){
+        announcementShown = false;
+        dew.command('Game.FirstRun 0', {}).then(function(){
+            dew.command('writeconfig');
+        });
+    }
 	dew.command('Game.PlaySound 0x0B00');
 }
 
