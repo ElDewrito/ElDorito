@@ -682,34 +682,79 @@ input[type=range]:focus {
   background-image: -webkit-linear-gradient( -90deg, rgb(15,29,56) 0%, rgb(15,29,56) 30%, rgba(23,33,53,0) 100%);
 }
 
-#alertBox {
-    display:none;
-    position:absolute;
-    top:45%;
-    width: 100%;
-    height: 14vh;
-    background-color: black;
+#alertBox:after{
+	bottom: 100%;
+}
+#alertBox:before{
+	top: 100%;
+}
+#alertBox:before, #alertBox:after{
+	position: absolute;
+	content: " ";
+	width: 100%;
+	left: 0; right: 0;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.83);
 }
 
+#alertBox {
+    display: none;
+    position: absolute;
+    top: calc(50% - 10vh);
+    width: 100%;
+    height: 20vh;
+    /* background-color: black; */
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.4) 100%), linear-gradient(to right, rgba(11,25,51,1) 0%,rgba(14,25,45,1) 70%,rgba(9,22,46,1) 100%);
+}
 .wHeader {
-	font-size: 4vh;
-	text-align:center;
+    font-size: 4vh;
     text-transform: uppercase;
-    font-weight:700;
+    margin-bottom: 0;
+    color: rgba(240, 240, 240, 0.75);
+    text-transform: uppercase;
+    margin-bottom: 1vh;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 2vh;
 }
 
 #wDescription {
-	text-align:center;
-	font-size:3vh;
+    text-align: left;
+    font-size: 3vh;
+    color: rgba(148, 164, 183, 0.75);
+    margin-left: 25%;
+    margin-right: 25%;
 }
-
+#alertButtonContainer {
+	width: 100%;
+	bottom: 0;
+	position: absolute;
+	height: 5vh;
+	background-color: rgba(0, 0, 0, 0.3);
+	padding-left: 25%;
+}
+#alertButtonContainer #okButton, #alertButtonContainer #dismissButton {
+    position: relative;
+    height: 4vh;
+    line-height: 4vh;
+    font-size: 3vh;
+    font-weight: 100;
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(0,0,0,0);
+    border: none;
+    z-index: 3;
+    text-align: left;
+    vertical-align: middle;
+    box-sizing: border-box;
+    float: left;
+    padding: 0;
+    margin-right: 3vh;
+}
 #okButton{
-    left: 60%;
 }
 
 #dismissButton{
-    display:none;
-    left: 35%;
+	display:none;
 }
 
 

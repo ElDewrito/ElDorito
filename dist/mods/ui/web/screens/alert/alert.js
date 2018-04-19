@@ -43,14 +43,17 @@ dew.on("show", function (event) {
 	if(event.data.type == "url"|event.data.type == "update"){ 
         okText = 'Yes'; 
     }
+
+    var buttonContainer = $('<div>', {
+        'class': 'alertButtonContainerBottom'
+    });
 	
-    form.append( 
-        $("<button>", {
+    buttonContainer.append($("<button>", {
             id: 'ok',
             html: '<img class="button">'+okText,
             click: function(e){ 
                 e.preventDefault();
-                $(this).parent().parent().remove();
+                $(this).parent().parent().parent().remove();
                 if(!$('.dialog').length){
 					if(event.data.type == "url"){
 						window.open(event.data.url, '_blank');
@@ -64,24 +67,26 @@ dew.on("show", function (event) {
                     dew.hide();
                 };
             }
-        })
-    );
+        }));
+    
 	
 	if(event.data.type == "url"|event.data.type == "update"){
-		form.append( 
+		buttonContainer.append( 
 			$("<button>", {
 				id: 'cancel',
 				html: '<img class="button">No',
 				click: function(e){ 
 					e.preventDefault();
-					$(this).parent().parent().remove();
+					$(this).parent().parent().parent().remove();
 					if(!$('.dialog').length){
 						dew.hide();
 					};
 				}
 			})
 		);
-	}
+    }
+    
+    form.append(buttonContainer);
 
     form.wrap( 
         $("<div>", {
