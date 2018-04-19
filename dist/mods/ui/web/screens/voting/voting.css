@@ -49,14 +49,26 @@ html {
     background: linear-gradient(to right, rgba(98,111,121,0) 0%,rgba(98,111,121,0.51) 50%,rgba(98,111,121,0) 100%);
     left: 0;
     right: 0;
+}
+#votingDesc:after, #description:before, .bottomBar:after{
     bottom: 0;
 }
+.bottomBar:before{
+	top: 0;
+}
 #timer, #voteCount {
-	font-size: 16px;
+	font-size: 20px;
 	float: right;
 	color: #94A4B7;
 	line-height: 24px;
-	
+}
+#vetoCount{
+    width: 100%;
+		padding-left: var(--votingbox-horizontal-margin);
+		padding-right: var(--votingbox-horizontal-margin);
+		box-sizing: border-box;
+		font-size: 20px;
+		padding-top: 12px;
 }
 #description {
     color: #98b3d3;
@@ -81,12 +93,6 @@ html {
 }
 .vetoBox .button {
     margin-top: -6px;
-}
-#vetoCount{
-    width: 100%;
-		padding-left: var(--votingbox-horizontal-margin);
-		padding-right: var(--votingbox-horizontal-margin);
-		box-sizing: border-box;
 }
 .voteCount{
     float: right;
