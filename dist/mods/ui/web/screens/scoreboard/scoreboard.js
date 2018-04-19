@@ -19,6 +19,7 @@ var playerVolumes = {};
 var scoreboardData = null;
 var multiRound = false;
 var lastRound = true;
+var postgame = false;
 
 var lastActivePlayerSet = 0;
 var lastPlayerHasObjectiveSet = 0;
@@ -467,14 +468,14 @@ dew.on("scoreboard", function(e){
             lastSortTime = now;
 
             if(scoreboardData.hasTeams){
-                sortMe('scoreboard','tbody');
+                sortMe('scoreboard','tbody',multiRound);
                 for(var i = 0; i < 8; i++)
-                    sortMe(teamArray[i].name, 'tr');
+                    sortMe(teamArray[i].name, 'tr',multiRound);
             } else {
-                sortMe('singlePlayers','tr');
+                sortMe('singlePlayers','tr',multiRound);
             }
 
-            rankMe(scoreboardData.hasTeams);
+            rankMe(scoreboardData.hasTeams,multiRound);
         }
     }
 });
@@ -536,7 +537,7 @@ dew.on("voip-user-leave", function(e){
 });
 
 dew.on("show", function(e){
-	
+	postgame = e.data.postgame;
     isVisible = true;
     dew.captureInput(e.data.locked);
     locked = e.data.locked;
@@ -665,7 +666,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 bgColor = teamArray[lobby[i].team].color;
                 where = '#'+teamArray[lobby[i].team].name;
                 if($(where).length == 0){
-                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" data-teamIndex="'+lobby[i].team+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
+                    var teamHeader = '<tbody id="'+teamArray[lobby[i].team].name+'" data-score="'+scoreArray[lobby[i].team]+'" data-totalscore="'+totalArray[lobby[i].team]+'" data-teamIndex="'+lobby[i].team+'" class="team"><tr class="player teamHeader" style="background-color:'+hexToRgb(teamArray[lobby[i].team].color, cardOpacity)+';"><td class="rank"></td><td class="name">'+teamArray[lobby[i].team].name.toUpperCase()+' TEAM</td>';
                     if(multiRound){
                         teamHeader+='<td class="score" data-name="totalScore">'+totalArray[lobby[i].team]+'</td>';
                     }
@@ -686,6 +687,7 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                     'data-uid': lobby[i].UID,
                     'data-color': bgColor,
                     'data-score':lobby[i].score,
+                    'data-totalScore':lobby[i].totalScore,
                     'data-playerIndex':lobby[i].playerIndex,
                     'data-team':lobby[i].team,
                 }).mouseover(function(){
@@ -793,12 +795,12 @@ function buildScoreboard(lobby, teamGame, scoreArray, gameType, playersInfo,expa
                 }
             }
             if(teamGame){
-                sortMe('scoreboard','tbody');
-                sortMe(teamArray[lobby[i].team].name,'tr');
+                sortMe('scoreboard','tbody',multiRound);
+                sortMe(teamArray[lobby[i].team].name,'tr',multiRound);
             } else {
-                sortMe('singlePlayers','tr');
+                sortMe('singlePlayers','tr',multiRound);
             }
-            rankMe(teamGame);
+            rankMe(teamGame,multiRound);
         }      
         $('.volSlider').on('change click', function(e){
             e.stopPropagation();
@@ -824,10 +826,14 @@ function hexToRgb(hex, opacity){
     return 'rgba('+ r + "," + g + "," + b + "," + opacity+")";
 }
 
-function sortMe(sortWhat, sortWhich){
+function sortMe(sortWhat, sortWhich, multiRound){
     var $wrapper = $('#'+sortWhat);
     $wrapper.find(sortWhich).sort(function(b, a) {
-        var d = parseInt(a.dataset.score) - parseInt(b.dataset.score);
+        if(multiRound && postgame && lastRound){
+            var d = parseInt(a.dataset.totalScore) - parseInt(b.dataset.totalScore);
+        }else{
+            var d = parseInt(a.dataset.score) - parseInt(b.dataset.score);
+        }
         if(d === 0) {
             if(sortWhat == "singlePlayers"){
                 d = parseInt(a.dataset.playerindex) - parseInt(b.dataset.playerindex);
@@ -839,7 +845,7 @@ function sortMe(sortWhat, sortWhich){
     }).appendTo($wrapper);
 }
 
-function rankMe(teamGame){
+function rankMe(teamGame,multiRound){
     var outer = '.player';
     if(teamGame){
         outer = '.team';
@@ -852,8 +858,14 @@ function rankMe(teamGame){
     } else {
         winnerText = $(outer+':eq(0)').attr('id')+' wins!';
     }
-    if($(outer).length > 1 && ($(outer+':eq(0)').attr('data-score') == $(outer+':eq(1)').attr('data-score'))){
-        winnerText = 'Tie!';
+    if(multiRound && postgame && lastRound){
+        if($(outer).length > 1 && ($(outer+':eq(0)').attr('data-totalscore') == $(outer+':eq(1)').attr('data-totalscore'))){
+            winnerText = 'Tie!';
+        }
+    }else{
+        if($(outer).length > 1 && ($(outer+':eq(0)').attr('data-score') == $(outer+':eq(1)').attr('data-score'))){
+            winnerText = 'Tie!';
+        } 
     }
     $('#winnerText').text(winnerText);
 
@@ -861,7 +873,11 @@ function rankMe(teamGame){
     for (i = 0; i < $(outer).length; i++){ 
         if($(outer+':eq('+i+')').attr('data-score') != lastScore){
             x=i+1;
-            lastScore = $(outer+':eq('+i+')').attr('data-score');
+            if(multiRound && postgame && lastRound){
+                lastScore = $(outer+':eq('+i+')').attr('data-score');
+            }else{
+                lastScore = $(outer+':eq('+i+')').attr('data-totalscore');
+            }
         }
         if(teamGame){
             $(outer).eq(i).find(inner).find('.rank').text(x);
