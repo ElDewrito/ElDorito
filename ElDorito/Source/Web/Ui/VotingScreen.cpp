@@ -30,6 +30,9 @@ namespace
 	};
 
 	bool currentlyVoting = false;
+	bool temporarilyHidden = false;
+
+	void OnVotingEnded();
 }
 
 class VotingOutputHandler : public VotingMessageHandler
@@ -161,16 +164,9 @@ namespace
 		switch (newState)
 		{
 		case Blam::Network::eLifeCycleStateStartGame:
-			currentlyVoting = false;
-			Web::Ui::Voting::Hide();
-			break;
 		case Blam::Network::eLifeCycleStateNone:
-			currentlyVoting = false;
-			Web::Ui::Voting::Hide();
-			break;
 		case Blam::Network::eLifeCycleStateLeaving:
-			currentlyVoting = false;
-			Web::Ui::Voting::Hide();
+			OnVotingEnded();
 			break;
 		}
 	}
@@ -202,14 +198,43 @@ namespace
 	{
 		using namespace Blam::Input;
 
+		const auto c_gui_screen_manager__get_first = (uint8_t*(__thiscall *)(void *thisptr, uint32_t, int))(0x00AAB320);
+
 		if (currentlyVoting)
 		{
 			auto action = GetActionState(Blam::Input::eGameActionUiY);
 			if (!(action->Flags & eActionStateFlagsHandled) && action->Ticks == 1)
 			{
 				action->Ticks |= eActionStateFlagsHandled;
-				Web::Ui::ScreenLayer::Show("voting", "{}");
+				Web::Ui::ScreenLayer::Show("voting", "{ userInvoked: true }");
+			}
+
+			auto screenManager = (uint8_t*)0x05260F34;
+			auto widget = c_gui_screen_manager__get_first(screenManager, 0, 0);
+			if (widget)
+			{
+				auto name = *(uint32_t*)(widget + 0x40);
+				if (name == 0x100b3) // pregame_lobby_multiplayer
+				{
+					if (temporarilyHidden)
+					{
+						temporarilyHidden = false;
+						Web::Ui::ScreenLayer::Show("voting", "{ compact: true }");
+					}
+				}
+				else
+				{
+					Web::Ui::Voting::Hide();
+					temporarilyHidden = true;
+				}
 			}
 		}
+	}
+
+	void OnVotingEnded()
+	{
+		currentlyVoting = false;
+		Web::Ui::ScreenLayer::Notify("VoteEnded", "{}", true);
+		Web::Ui::Voting::Hide();
 	}
 }

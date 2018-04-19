@@ -8,6 +8,7 @@ var lastHeldUpdated = 0;
 var itemNumber = 1;
 
 var settingsArray = { 'Settings.Gamepad': '0' , 'Game.IconSet': '360'};
+var compactMode = false;
 
 dew.on("variable_update", function(e){
     for(i = 0; i < e.data.length; i++){
@@ -73,22 +74,31 @@ $(document).ready(function(){
     $('#vetoButton').off('click').on('click', function(){
         vote(1);
     });
+
+    $('#showButton').off('click').on('click', function() {
+        dew.command('Game.PlaySound 0xb02');
+        compactMode = false;
+        onShow();
+        
+    });
     loadSettings(0);
 });
 
 function hideScreen(){
-    if(isHost){
-        dew.command("server.CancelVote");
+    if(!compactMode) {
+        dew.command('Game.PlaySound 0xb01');
     }
-    dew.hide(); 
+    compactMode = true;
+    onShow();
 }
 
 function setTimer(amount){
     clearInterval(interval);
     interval = setInterval(function() {
-        document.getElementById('timer').innerHTML = " Voting ends in..." + --amount ;
+        var timerElement =   document.getElementById(compactMode ? 'timerCompact' : 'timer');
+        timerElement.innerHTML = " Voting ends in..." + --amount ;
         if (amount <= 0) {
-            document.getElementById('timer').innerHTML = "";
+            timerElement.innerHTML = "";
             clearInterval(interval);
         }
     }, 1000);
@@ -124,10 +134,16 @@ dew.on("show", function(event) {
     });
     itemNumber = 1;
     initGamepad();
+
+
+    if(event.data.userInvoked && compactMode && !event.data.compact) {
+        dew.command('Game.PlaySound 0xb02');
+    }
+    compactMode = event.data.compact;
+    onShow();
 });
 
 dew.on("hide", function(event) {
-    clearInterval(interval);
     if(repGP){
         window.clearInterval(repGP);
         repGP = null;
@@ -225,6 +241,11 @@ dew.on("VoteCountsUpdated", function(event) {
     });
 });
 
+dew.on('VoteEnded', function(event) {
+    clearInterval(interval);
+    compactMode = false;
+});
+
 dew.on('controllerinput', function(e){       
     if(settingsArray['Settings.Gamepad'] == 1){
         if(e.data.A == 1){
@@ -232,9 +253,6 @@ dew.on('controllerinput', function(e){
         }
         if(e.data.Select == 1){
             dew.show('scoreboard',{'locked':true});
-        }
-        if(e.data.Start == 1){
-            dew.show('settings');
         }
         if(e.data.Up == 1){
             upNav();
@@ -317,4 +335,24 @@ function downNav(){
         itemNumber++;
         updateSelection(itemNumber, true);
     }           
+}
+
+function onShow() {
+    if(compactMode) {
+        $('#window').fadeOut('fast');
+        $('#window-compact').fadeIn('fast');
+        dew.captureInput(false);
+        dew.capturePointer(true);
+    } else {
+        $('#window').fadeIn('fast');
+        $('#window-compact').fadeOut('fast');
+        dew.captureInput(true);
+        dew.capturePointer(true);
+    }
+}
+
+function cancelVote() {
+    if(isHost) {
+        dew.command("server.CancelVote");
+    }
 }

@@ -13,7 +13,13 @@
     <body>
         <div id="container">
         <div class="page_content">
-            <div id="window">
+            <div class="window-compact">
+                <div class="left">
+                    <button id="showButton"><img class="button" src="dew://assets/buttons/360_Y.png">Show</button>
+                </div>
+                <div class="compact-timer" id="timerCompact"></div>
+            </div>
+            <div id="window" style="display:none">
                 <div class="top">
                     <div id="votingDesc">Voting round ends in: <span id="timer"></span></div>
                     <div id="votingOptions">
@@ -22,7 +28,6 @@
                 </div>
                 <div class="bottomBar">
                     <button id="scoreboardButton"><img class="button">Prior Game Stats</button>
-                    <button id="settingsButton"><img class="button">Settings</button>
                     <button id="vetoButton"><img class="button">Veto</button>
                     <button id="closeButton"><img class="button">Close</button>
                 </div>

@@ -8,10 +8,12 @@ html {
 
 #window{
     position: relative;
-    width: 528px;
+    width: 517px;
     height: 590px;
     margin-top: 92px;
-    margin-left: 68px;
+	margin-left: 80px;
+	box-sizing: border-box;
+	overflow: hidden
 }
 
 .top{
@@ -206,6 +208,7 @@ html {
 	height: 70px;
 	width: 100%;
 	background: #06090C;
+	padding-left: 20px;
 }
 
 button {
@@ -240,4 +243,61 @@ button:focus {
 
 #vetoButton{
     display: none;
+}
+
+.window-compact {
+    background:rgba(16, 28, 55, 0.39);
+    width:520px;
+    display:flex;
+    flex-direction: row;
+    align-items:center;
+    padding: 1vh;
+    position:absolute;
+    left: 80px;
+    top: 340px;
+    font-size: 1.75vh;
+    padding: 10px 10px;
+	box-sizing:border-box;
+	overflow:hidden;
+	height:40px;
+	height: 50px;
+}
+
+.window-compact .left{
+	display:flex;
+	box-sizing: border-box;
+    flex:1;
+    flex-direction:row;
+    align-items:center;
+	height:100%;
+	overflow:hidden;
+}
+
+.window-compact button {
+	all: unset;
+	box-sizing: border-box;
+	padding:0;
+	margin:0;
+	display:flex;
+	flex-direction:row;
+	align-items:center;
+	justify-content:center;
+	color:white;
+	
+}
+.window-compact button:hover {
+	text-decoration: underline;
+}
+
+.window-compact .compact-timer {
+    color:#94A4B7;
+}
+
+.window-compact a:hover {
+    text-decoration:underline;
+}
+
+.window-compact .button2 {
+	height:25px;
+    margin-right:2px;
 }
