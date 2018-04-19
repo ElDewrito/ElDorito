@@ -232,7 +232,6 @@ button {
 }
 
 .button{
-	display:none;
 	position:relative;
 	height: 30px;
 	float: left;
