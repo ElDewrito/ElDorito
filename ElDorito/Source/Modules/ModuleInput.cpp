@@ -673,7 +673,7 @@ namespace Modules
 
 		VarInputControllerPort = AddVariableInt("ControllerPort", "controllerport", "The port number of the player's controller.", eCommandFlagsArchived, 0);
 		VarInputControllerPort->ValueIntMin = 0;
-		VarInputControllerPort->ValueIntMax = 3;
+		VarInputControllerPort->ValueIntMax = 7;
 
 		AddCommand("Bind", "bind", "Binds a command to a key", eCommandFlagsArgsNoParse, CommandBind, { "key", "[+]command", "arguments" });
 		Patches::Input::RegisterDefaultInputHandler(KeyboardUpdated);
