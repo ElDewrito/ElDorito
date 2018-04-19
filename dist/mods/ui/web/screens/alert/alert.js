@@ -58,12 +58,14 @@ dew.on("show", function (event) {
 					if(event.data.type == "url"){
 						window.open(event.data.url, '_blank');
 					}else if(event.data.type == "update"){
+						
                         dew.command('Game.Update', function() {
                             //Update go!
                         }).catch(function (error) {
                              dew.show('alert',{"title":"Error", "body":error.message});
                         });
                     }
+					dew.command('Game.PlaySound 0xb00');
                     dew.hide();
                 };
             }
@@ -79,6 +81,7 @@ dew.on("show", function (event) {
 					e.preventDefault();
 					$(this).parent().parent().parent().remove();
 					if(!$('.dialog').length){
+						dew.command('Game.PlaySound 0xb01');
 						dew.hide();
 					};
 				}
