@@ -90,13 +90,14 @@ body {
     height: 4vh;
 }
 
-#navigate{
+#navigate {
     position: absolute;
-    top: 0.25vw;
+    top: 0;
     width: 100%;
-    text-align: center;
+    text-align: left;
     font-size: 3vmin;
     color: white;
+    padding-left: 8%;
 }
 
 #up{
@@ -125,12 +126,12 @@ body {
 
 #enter {
     position: absolute;
-    left: 45%;
+    left: 50%;
     top: 40%;
 }
 #esc {
     position: absolute;
-    left: 65%;
+    left: 70%;
     top: 40%;
 }
 
@@ -235,7 +236,9 @@ img#closeAnnounceButton {
     font-size: 18px;
     vertical-align: super;
     color: #F0F0F0;
-}#blackLayer {
+		padding-left: 6px;
+}
+#blackLayer {
     position: absolute;
     top: 0;
     left: 0;
