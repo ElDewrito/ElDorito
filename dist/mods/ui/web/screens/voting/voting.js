@@ -122,10 +122,7 @@ function vote(number) {
         }else{
             $('.vetoBox').html('<img class="button">Veto Map and Game'); 
         }
-        if(settingsArray['Settings.Gamepad'] == 1){
-            $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
-            $('.button').show();
-        }
+        $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
     }
     if (WinnerChosen.length <= 0) {
         dew.command('Game.PlaySound 0x0B00');
@@ -170,10 +167,7 @@ dew.on("VetoOptionsUpdated", function(event) {
         $('#vetoButton, #vetoCount').show();
         $('#votingDesc').html('Vote to veto game and map... <span id="timer"></span>');
         $("<div class='vetoBox'><img class='button'>Veto Map and Game</div>").appendTo($("#votingOptions"));
-        if(settingsArray['Settings.Gamepad'] == 1){
-            $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
-            $('.button').show();
-        }
+        $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
     }else{
         votingType = "ended";
         voting = false;
@@ -285,13 +279,12 @@ dew.on('controllerinput', function(e){
 });
 
 function initGamepad(){
+    $("#scoreboardButton img").attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Back.png');  
+    $("#settingsButton img").attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Start.png');  
+    $("#vetoButton img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
+    $("#closeButton img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_B.png');
+    $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
     if(settingsArray['Settings.Gamepad'] == 1){
-        $("#scoreboardButton img").attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Back.png');  
-        $("#settingsButton img").attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Start.png');  
-        $("#vetoButton img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
-        $("#closeButton img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_B.png');
-        $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
-        $(".button").show();
         if(!repGP){
             repGP = window.setInterval(checkGamepad,1000/60);
         }
