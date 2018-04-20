@@ -126,9 +126,10 @@ function hideScreen(){
 }
 
 function closeAnnounce(){
-    $('#announcementBox:eq(0)').hide();
-    $('#announcementBG:eq(0)').hide();
-    if(!$('#announcementBox:visible').length){
+    $('.announcement').last().remove();
+    if(!$('.announcement:visible').length){
+        $('#announcementBox').hide();
+        $('#announcementBG').hide();
         announcementShown = false;
         dew.command('Game.FirstRun 0', {}).then(function(){
             dew.command('writeconfig');
