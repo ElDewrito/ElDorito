@@ -1267,7 +1267,7 @@ function toggleSetting(){
 }
 
 function queueChange(changeBlock){
-    $('#cancelButton').html('<img class="button">Cancel');
+    $('#cancelButton').html('<img class="button" src="dew://assets/buttons/360_B.png">Cancel');
     $('#applyButton').show();
     if(hasGP){
         setButtons();
