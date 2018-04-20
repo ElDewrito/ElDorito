@@ -72,7 +72,7 @@ dew.on("show", function (event) {
         }));
     
 	
-	if(event.data.type == "url"|event.data.type == "update"){
+	if(event.data.type == "url" || event.data.type == "update"){
 		buttonContainer.append( 
 			$("<button>", {
 				id: 'cancel',
