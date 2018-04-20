@@ -164,8 +164,6 @@ $(document).ready(function(){
                     cancelButton();
                 }else{
                     if($('#dismissButton:visible').length){
-                        dismissButton();
-                    }else{
                         hideAlert(true);
                     }
                 }
@@ -236,6 +234,7 @@ $(document).ready(function(){
         var newID = $(this).attr('id') + 'Text';
         $('#'+newID).val($(this).val());
     });
+    var lastSoundPlayedTime = Date.now();
     $('#settingsWindow input:not(#lookSensitivity,#lookSensitivityText), #settingsWindow select,#settingsWindow textarea').on('change', function(e){
         var elementID = e.target.id;
         if($('#'+elementID).hasClass('tinySetting') && e.target.id.endsWith('Text')){
@@ -255,7 +254,11 @@ $(document).ready(function(){
             };
         });
         if(playSound){
-            dew.command('Game.PlaySound 0x0B00');
+            var currentTime = Date.now();
+            if((currentTime - lastSoundPlayedTime) > 100) {
+                lastSoundPlayedTime = currentTime;
+                dew.command('Game.PlaySound 0x0B00');
+            }
         }
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
@@ -358,7 +361,11 @@ $(document).ready(function(){
         if(hasGP){    
             if(e.data.A == 1){
                 if(activePage.endsWith('alertBox')){
-                    hideAlert(true);
+                    if($('#dismissButton:visible').length){
+                        dismissButton();
+                    }else{
+                        hideAlert(true);
+                    }
                 }else if($('#'+selectedItem).prev()[0].computedRole == 'button'){
                     $('#'+selectedItem).prev().click();
                 }else{    
@@ -369,11 +376,7 @@ $(document).ready(function(){
                 if(!activePage.endsWith('alertBox')){
                     cancelButton();
                 }else{
-                    if($('#dismissButton:visible').length){
-                        dismissButton();
-                    }else{
-                        hideAlert(true);
-                    }
+                    hideAlert(true);
                 }
             }
             if(e.data.X == 1){
@@ -468,10 +471,14 @@ $(document).ready(function(){
         }
     });
     $('#okButton').off('click').on('click', function(){
-        hideAlert(true);
+        if($('#dismissButton:visible').length){
+            dismissButton();
+        }else{
+            hideAlert(true);
+        }
     });
     $('#dismissButton').off('click').on('click', function(){
-        dismissButton();
+        hideAlert(true);
     });
 });
 
