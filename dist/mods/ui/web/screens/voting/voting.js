@@ -53,7 +53,7 @@ $(document).ready(function(){
             dew.show("chat", {'captureInput': true, 'teamChat': teamChat});
         }
         if(e.keyCode == 88 && votingType == "veto"){ //X to veto
-            vote(1);
+            veto();
         }
         if(e.keyCode == 36){ //Home
             dew.show('settings');
@@ -72,7 +72,7 @@ $(document).ready(function(){
         hideScreen();
     });
     $('#vetoButton').off('click').on('click', function(){
-        vote(1);
+        veto();
     });
 
     $('#showButton').off('click').on('click', function() {
@@ -83,6 +83,15 @@ $(document).ready(function(){
     });
     loadSettings(0);
 });
+
+var isThrottled = false;
+var throttleDuration = 1000;
+function veto(){
+    if (isThrottled) { return; }
+    isThrottled = true;
+    setTimeout(function () { isThrottled = false; }, throttleDuration);
+    vote(1);
+}
 
 function hideScreen(){
     if(!compactMode) {
@@ -270,7 +279,7 @@ dew.on('controllerinput', function(e){
             stickTicks.down = 0;
         }
         if(e.data.X == 1 && votingType == "veto"){
-            vote(1);
+            veto();
         }            
         if(e.data.B == 1){
             hideScreen();
