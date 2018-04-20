@@ -127,9 +127,9 @@ function vote(number) {
         }
     }else{
         if($('.vetoBox:contains("Map")').length){
-            $('.vetoBox').html('<img class="button">Voted to veto');
+            $('.vetoBox').html('<a onclick="veto();"><img class="button">Voted to veto</a>');
         }else{
-            $('.vetoBox').html('<img class="button">Veto Map and Game'); 
+            $('.vetoBox').html('<a onclick="veto();"><img class="button">Veto Map and Game</a>'); 
         }
         $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
     }
@@ -175,7 +175,7 @@ dew.on("VetoOptionsUpdated", function(event) {
         voting = true;
         $('#vetoButton, #vetoCount').show();
         $('#votingDesc').html('Vote to veto game and map... <span id="timer"></span>');
-        $("<div class='vetoBox'><img class='button'>Veto Map and Game</div>").appendTo($("#votingOptions"));
+        $("<div class='vetoBox'><a onclick='veto()'><img class='button'>Veto Map and Game</a></div>").appendTo($("#votingOptions"));
         $(".vetoBox img").attr('src','dew://assets/buttons/' + settingsArray['Game.IconSet'] + '_X.png');
     }else{
         votingType = "ended";
