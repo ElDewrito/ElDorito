@@ -306,3 +306,7 @@ button:focus {
 	height:25px;
     margin-right:2px;
 }
+
+a:hover{
+    text-decoration: underline;
+}
