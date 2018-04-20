@@ -58,18 +58,22 @@ $(document).ready(function(){
 
     $("html").on("keydown", function (event) {
         if (event.keyCode === 13 /* Enter */) {
+			dew.command('Game.PlaySound 0xb00');
             event.preventDefault();
             $("form").submit();
         } else if (event.keyCode === 27 /* Escape */) {
+			dew.command('Game.PlaySound 0xb01');
             dew.cancelVirtualKeyboard().then(() => dew.hide());
         }
     });
     
     $("#ok").off("click").on("click", function (){
+		dew.command('Game.PlaySound 0xb00');
         $("form").submit();
     });
     
     $("#cancel").off("click").on("click", function (){
+		dew.command('Game.PlaySound 0xb01');
         dew.cancelVirtualKeyboard().then(() => dew.hide());
     });
     
@@ -78,12 +82,15 @@ $(document).ready(function(){
 
 dew.on('controllerinput', function(e){    
     if(e.data.A == 1){
+		dew.command('Game.PlaySound 0xb00');
         $("form").submit();
     }
     if(e.data.B == 1){
+		dew.command('Game.PlaySound 0xb01');
         dew.cancelVirtualKeyboard().then(() => dew.hide());
     }
     if(e.data.Start == 1){
+		dew.command('Game.PlaySound 0xb00');
         $("form").submit();
     }
 });
