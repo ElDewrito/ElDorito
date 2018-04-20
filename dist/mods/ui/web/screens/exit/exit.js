@@ -24,6 +24,7 @@ $(document).ready(function() {
     });
     
     $('#cancel').off('click').on('click', function(e){
+        dew.command('Game.PlaySound 0xb01');
         dew.hide();
     });
     
@@ -32,8 +33,10 @@ $(document).ready(function() {
             dew.command("game.exit");
     });
     $(document).keyup(function(e) {
-        if (e.keyCode === 27 || e.keyCode === 66 || e.keyCode === 78) //Escape, B, N
+        if (e.keyCode === 27 || e.keyCode === 66 || e.keyCode === 78){ //Escape, B, N
+            dew.command('Game.PlaySound 0xb01');
             dew.hide();
+		}
     });
     loadSettings(0);
 });
