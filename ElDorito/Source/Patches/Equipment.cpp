@@ -27,6 +27,8 @@ namespace
 	void __cdecl UnitDeathHook(int unitObjectIndex, int a2, int a3);
 	void DespawnEquipmentHook();
 	void OvershieldDecayHook();
+	void VisionEndHook();
+	void VisionEndHook2();
 }
 
 namespace Patches::Equipment
@@ -74,6 +76,10 @@ namespace Patches::Equipment
 		Patch(0x74A0FB, { 0xEB }).Apply();
 		// fix overshield decay
 		Pointer(0x00B5620F).Write(uint32_t(OvershieldDecayHook) - 0x00B5620F - 4);
+
+		// reimplmented so that unrelated screen effects aren't deleted
+		Hook(0x789462, VisionEndHook, HookFlags::IsCall).Apply();
+		Hook(0x788703, VisionEndHook2, HookFlags::IsCall).Apply();
 	}
 }
 
@@ -524,6 +530,64 @@ namespace
 			call OvershieldDecay
 			add esp, 4
 			push 0x00B56462
+			retn
+		}
+	}
+
+	void VisionEnd(uint32_t unitObjectIndex, uint32_t visionScreenEffectTagIndex)
+	{
+		struct s_rasterizer_screen_effect : Blam::DatumBase
+		{
+			uint16_t field_2;
+			uint32_t tag_index;
+			float seconds_active;
+			RealVector3D position;
+			uint32_t object_index;
+			uint32_t field_1c;
+			RealVector3D field_20;
+			RealVector3D field_2c;
+			uint32_t field_38;
+		};
+		static_assert(sizeof(s_rasterizer_screen_effect) == 0x3C, "s_rasterizer_screen_effect invalid");
+
+		auto screenEffects = ElDorito::GetMainTls(0x338).Read<Blam::DataArray<s_rasterizer_screen_effect>*>();
+		for (auto it = screenEffects->begin(); it != screenEffects->end(); ++it)
+		{
+			if (it->object_index == unitObjectIndex && it->tag_index == visionScreenEffectTagIndex)
+				screenEffects->Delete(it.CurrentDatumIndex);
+		}
+	}
+
+	__declspec(naked) void VisionEndHook()
+	{
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			pushad
+			push [ecx + 0xC]
+			push esi
+			call VisionEnd
+			add esp, 8
+			mov esp, ebp
+			pop ebp
+			retn
+		}
+	}
+
+	__declspec(naked) void VisionEndHook2()
+	{
+		__asm
+		{
+			push ebp
+			mov ebp, esp
+			pushad
+			push [esi + 0xC]
+			push edi
+			call VisionEnd
+			add esp, 8
+			mov esp, ebp
+			pop ebp
 			retn
 		}
 	}

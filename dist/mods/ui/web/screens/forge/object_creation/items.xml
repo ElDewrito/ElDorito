@@ -1,4 +1,4 @@
-<root>
+﻿<root>
   <category name="PROPS" id="props">
     <category name="BARRELS">
       <item type="prop" name="BARREL" tagindex="0x2eb5" />
@@ -91,6 +91,7 @@
         <setter target="fx_gamma_dec" type="float" value="0.5" />
         <setter target="fx_gamma_inc" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="fx" name="NOVA" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0.3" />
@@ -103,6 +104,7 @@
         <setter target="fx_gamma_dec" type="float" value="0.5" />
         <setter target="fx_gamma_inc" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="fx" name="SEPIATONE" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0.3" />
@@ -115,6 +117,7 @@
         <setter target="fx_gamma_dec" type="float" value="0.25" />
         <setter target="fx_gamma_inc" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="fx" name="FILM" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0" />
@@ -127,6 +130,7 @@
         <setter target="fx_gamma_dec" type="float" value="0" />
         <setter target="fx_gamma_inc" type="float" value="0" />
         <setter target="fx_range" type="float" value="3" />
+        <setter target="physics" type="int" value="1" />
       </item>
       <item type="fx" name="GLOOMY" tagindex="0x00B4">
         <setter target="fx_saturation" type="float" value="0" />
@@ -139,6 +143,7 @@
         <setter target="fx_gamma_dec" type="float" value="1" />
         <setter target="fx_gamma_inc" type="float" value="0.07" />
         <setter target="fx_range" type="float" value="3" />
+        <setter target="physics" type="int" value="1" />
       </item>
     </category>
     <category name="LIGHTS">
@@ -217,6 +222,7 @@
       <item type="prop" name="SOCCER BALL" tagindex="0x4e58" />
       <item type="prop" name="WEAPON HOLDER" tagindex="0x2ebe" />
       <item type="prop" name="GRAV LIFT" tagindex="0x2ebf" />
+      <item type="prop" name="LIFT, GOLD" tagindex="0x5AD5" />
       <item type="prop" name="MAN CANNON" tagindex="0x4e46" />
       <item type="prop" name="SHIELD DOOR" tagindex="0x4e41" />
       <item type="prop" name="SHIELD DOOR 2" tagindex="0x3a94" />
@@ -532,14 +538,6 @@
         <item type="structure" name="HEMISPHERE [10 x 20 x 10]" tagindex="0xce" />
       </category>
     </category>
-    <category name="GLASS">
-      <item type="structure" name="GLASS [0.1 x 0.5 x 0.5]" tagindex="0xf8" />
-      <item type="structure" name="GLASS [0.1 x 1 x 1]" tagindex="0xd0" />
-      <item type="structure" name="GLASS [0.1 x 2 x 2]" tagindex="0xd3" />
-      <item type="structure" name="GLASS [0.1 x 10 x 0.5]" tagindex="0xd2" />
-      <item type="structure" name="GLASS [0.1 x 10 x 1]" tagindex="0xd1" />
-      <item type="structure" name="GLASS [0.1 x 10 x 2]" tagindex="0xd4" />
-    </category>
   </category>
   <category name="GAMEPLAY" id="gameplay">
 
@@ -623,7 +621,6 @@
         <item type="equipment" name="TRIP MINE" tagindex="0x1567" />
       </category>
       <category name="ARMOR ABILITIES">
-        <item type="equipment" name="BOMB RUN" tagindex="0x1570" />
         <item type="equipment" name="CONCUSSIVE BLAST" tagindex="0x156b" />
         <item type="equipment" name="HOLOGRAM" tagindex="0x156e" />
         <item type="equipment" name="LIGHTNING STRIKE" tagindex="0x1573" />
@@ -675,7 +672,6 @@
         <item type="weapon" name="DMR, AMMO" tagindex="0x15be" />
         <item type="weapon" name="DMR, DAMAGE" tagindex="0x158a" />
         <item type="weapon" name="DMR, POWER" tagindex="0x158b" />
-        <item type="weapon" name="DMR, RANGE" tagindex="0x15bf" />
         <item type="weapon" name="DMR, RATE OF FIRE" tagindex="0x1589" />
       </category>
       <category name="CARBINES">
@@ -760,4 +756,5 @@
   </category>
   <category name="PREFABS" id="prefabs" />
   <category name="RECENTLY USED" id="recent" />
+  <category name="MAP OPTIONS" id="map_options" />
 </root>

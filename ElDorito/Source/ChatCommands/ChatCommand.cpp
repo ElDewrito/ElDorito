@@ -32,7 +32,7 @@ namespace ChatCommands
 
 	void ShuffleTeamsCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote Has Passed.");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote has passed.");
 		Modules::CommandMap::Instance().ExecuteCommand("server.shuffleteams");
 	}
 	bool ShuffleTeamsCommand::isEnabled()
@@ -41,11 +41,11 @@ namespace ChatCommands
 	}
 	void ShuffleTeamsCommand::doOnVoteFail()
 	{
-		Server::Chat::SendServerMessage("Vote Has Not Passed.");
+		Server::Chat::SendServerMessage("Vote has not passed.");
 	}
 	void ShuffleTeamsCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a vote to shuffle the teams. " + std::to_string(votesNeeded) + " votes needed to pass. Type !yes to vote");
+		Server::Chat::SendServerMessage(starterName + " has started a vote to shuffle the teams. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to pass. Type !yes to vote");
 	}
 
 	bool ShuffleTeamsCommand::isValidArgument(std::string s, std::string& returnInfo)
@@ -62,7 +62,7 @@ namespace ChatCommands
 
 	void EndGameCommand::doOnVotePass(std::string name)
 	{
-		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote Has Passed");
+		Server::Chat::SendServerMessage("Final vote cast by " + name + ". Vote has passed.");
 		Modules::CommandMap::Instance().ExecuteCommand("game.end");
 	}
 	bool EndGameCommand::isEnabled()
@@ -71,11 +71,11 @@ namespace ChatCommands
 	}
 	void EndGameCommand::doOnVoteFail()
 	{
-		Server::Chat::SendServerMessage("Vote Has Not Passed.");
+		Server::Chat::SendServerMessage("Vote has not passed.");
 	}
 	void EndGameCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a vote to end the game. " + std::to_string(votesNeeded) + " votes needed to pass. Type !yes to vote");
+		Server::Chat::SendServerMessage(starterName + " has started a vote to end the game. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to pass. Type !yes to vote.");
 	}
 
 	bool EndGameCommand::isValidArgument(std::string s, std::string& returnInfo){ return true; }
@@ -92,7 +92,7 @@ namespace ChatCommands
 	void KickIndexCommand::doOnVoteFail()
 	{
 		playerName = "";
-		Server::Chat::SendServerMessage("Vote Has Not Passed.");
+		Server::Chat::SendServerMessage("Vote has not passed.");
 
 	}
 	bool KickIndexCommand::isEnabled()
@@ -101,28 +101,36 @@ namespace ChatCommands
 	}
 	void KickIndexCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !Yes to vote. " + std::to_string(votesNeeded) + " votes needed to kick.");
+		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !yes to vote. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to kick.");
 	}
 
 	bool KickIndexCommand::isValidArgument(std::string s, std::string& returnInfo)
 	{
+		if (s.empty()) {
+			returnInfo = "You must enter a valid player index to use this command.";
+			return false;
+		}
 		int indexToKick = -1;
 		try {
 			indexToKick = std::stoi(s);
 		}
-		catch (const std::invalid_argument& e) {
-			Utils::Logger::Instance().Log(Utils::LogTypes::Game, Utils::LogLevel::Info, "Error: %s", e.what());
-		}
+		catch (...) {}
+
 		if (indexToKick < 0 || indexToKick > 15)
 		{
-			returnInfo = "Invalid Index";
+			returnInfo = "Invalid index";
 			return false;
 		}
 
 		auto* session = Blam::Network::GetActiveSession();
-		if (indexToKick == session->MembershipInfo.HostPeerIndex && !ElDorito::Instance().IsDedicated())
+		if(indexToKick == starterIndex)
 		{
-			returnInfo = "You cannot kick the host";
+			returnInfo = "You cannot kick yourself.";
+			return false;
+		}
+		else if (indexToKick == session->MembershipInfo.HostPeerIndex && !ElDorito::Instance().IsDedicated())
+		{
+			returnInfo = "You cannot kick the host.";
 			return false;
 		}
 
@@ -131,7 +139,7 @@ namespace ChatCommands
 
 		if (kickPlayerName.empty())
 		{
-			returnInfo = "Could Not find player";
+			returnInfo = "Could not find player.";
 			return false;
 		}
 
@@ -152,7 +160,7 @@ namespace ChatCommands
 	void KickPlayerCommand::doOnVoteFail()
 	{
 		playerName = "";
-		Server::Chat::SendServerMessage("Vote Has Not Passed.");
+		Server::Chat::SendServerMessage("Vote has not passed.");
 	}
 	bool KickPlayerCommand::isEnabled()
 	{
@@ -161,12 +169,20 @@ namespace ChatCommands
 
 	void KickPlayerCommand::doOnVoteStart(std::string starterName)
 	{
-		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !Yes to vote. " + std::to_string(votesNeeded) + " votes needed to kick.");
+		Server::Chat::SendServerMessage(starterName + " has started a kick vote for: \"" + playerName + "\"; Type !yes to vote. " + std::to_string(votesNeeded) + " vote" + ((votesNeeded > 1) ? "s" : "") + " needed to kick.");
 	}
 
 
 	bool KickPlayerCommand::isValidArgument(std::string s, std::string& returnInfo)
 	{
+		if (s.empty()) {
+			returnInfo = "You must enter a name to use this command.";
+			return false;
+		}
+		else if (s.length() > 16) {
+			returnInfo = "Player not found.";
+			return false;
+		}
 		int playerToKickIdx = -1;
 
 		auto membership = &Blam::Network::GetActiveSession()->MembershipInfo;
@@ -187,12 +203,16 @@ namespace ChatCommands
 			returnInfo = "Player \"" + s + "\" not found.";
 			return false;
 		}
-		if (playerToKickIdx == 0 && !ElDorito::Instance().IsDedicated())
+		else if (playerToKickIdx == starterIndex)
 		{
-			returnInfo = "You cannot kick the host";
+			returnInfo = "You cannot kick yourself.";
 			return false;
 		}
-
+		else if (playerToKickIdx == 0 && !ElDorito::Instance().IsDedicated())
+		{
+			returnInfo = "You cannot kick the host.";
+			return false;
+		}
 
 		playerName = s;
 		return true;
@@ -240,6 +260,8 @@ namespace ChatCommands
 			return;
 
 		std::string returnInfo;
+		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
+		starterIndex = membership.GetPeerPlayer(sender);
 		if (!isValidArgument(argument, returnInfo))
 		{
 			Server::Chat::SendServerMessage(returnInfo, sender);
@@ -247,9 +269,8 @@ namespace ChatCommands
 		}
 		
 		//GET UID
-		auto &membership = Blam::Network::GetActiveSession()->MembershipInfo;
-		uint64_t uid = membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.Uid;
-		std::string name = Utils::String::ThinString(membership.PlayerSessions[membership.GetPeerPlayer(sender)].Properties.DisplayName);
+		uint64_t uid = membership.PlayerSessions[starterIndex].Properties.Uid;
+		std::string name = Utils::String::ThinString(membership.PlayerSessions[starterIndex].Properties.DisplayName);
 
 		//check if this player has recently started a vote
 		if (ChatCommands::addToVoteTimes(uid))
@@ -301,7 +322,7 @@ namespace ChatCommands
 			else
 			{
 				size_t votesRemaining = (votesNeeded - yesVoters.size());
-				Server::Chat::SendServerMessage("Vote Cast by \"" + name + "\". Remaining Votes Needed: " + std::to_string(votesRemaining));
+				Server::Chat::SendServerMessage("Vote cast by \"" + name + "\". Remaining votes needed: " + std::to_string(votesRemaining));
 			}
 		}
 	}

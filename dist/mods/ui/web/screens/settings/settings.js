@@ -13,6 +13,7 @@ var axisThreshold = .5;
 var stickTicks = { left: 0, right: 0, up: 0, down: 0 };
 var repGP;
 var lastHeldUpdated = 0;
+var playSound = true;
 
 var settingsToLoad = [
     ['sControlsMethod','Settings.Gamepad', 'Control Method', 'Keyboard or Gamepad - Choose your preference.'],
@@ -82,7 +83,8 @@ var settingsToLoad = [
     ['sQualityPreset', '', 'Quality Preset', 'Adjusts the overall graphics quality.'],
     ['presetMenu', '', 'Button Layout', 'Changes the button layout.'],
     ['gdEnabled','Game.Discord.Enable', 'Discord Rich Presence Enabled', 'Toggles Rich Presense in Discord'],
-    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests']
+    ['gdAutoAccept','Game.Discord.AutoAccept', 'Discord Auto Accept', 'Always accept join requests'],
+    ['gCefMedals','Game.CefMedals', 'Use H3 Medal System', 'Uses Built-in medals instead of ED medal system']
 ];
 var binds = [
     ['Sprint','Sprint','Infantry'],
@@ -91,9 +93,9 @@ var binds = [
     ['Use','Use','Infantry'],
     ['DualWield','Dual Wield','Infantry'],
     ['Fire','Fire','Infantry'],
-    ['FireLeft','Fire Left','Infantry'],
+    ['FireLeft','Fire Dual','Infantry'],
     ['Reload','Reload','Infantry'],
-    ['ReloadLeft','Reload Left','Infantry'],
+    ['ReloadLeft','Reload Dual','Infantry'],
     ['Zoom','Zoom','Infantry'],
     ['SwitchWeapons','Switch Weapons','Infantry'],
     ['Melee','Melee','Infantry'],
@@ -170,6 +172,14 @@ $(document).ready(function(){
         if(e.keyCode == 192 || e.keyCode == 223){
             dew.show('console');
         }
+        if(window.location.hash != '#page5'){
+            if(e.keyCode == 81){//Q
+                prevPage();
+            }
+            if(e.keyCode == 69){//E
+                nextPage();
+            }
+        }
     });
     setButtonLists();
     setOptionList('presetMenu', controllerPresets);
@@ -194,7 +204,7 @@ $(document).ready(function(){
         }
         setOptionList('wOffsetConfig', offsetArray);
     });
-    $('.tabs li a').click(function(e){
+    $('.tabs li a').off('click').on('click',function(e){
         $('.tabs li').removeClass('selected');
         $(this).parent().addClass('selected');
         window.location.href = e.target.href;
@@ -202,7 +212,7 @@ $(document).ready(function(){
         itemNumber = 0;
         $(e).ready(function(){
             if(hasGP){
-                updateSelection(0, false, true);
+                updateSelection(0, false, true, true);
             }
             tabIndex = $('.tabs li:visible a').index($("a[href='"+activePage+"']"));
         });
@@ -237,7 +247,9 @@ $(document).ready(function(){
                 queueChange([result[1], newValue]);
             };
         });
-        dew.command('Game.PlaySound 0x0B00');
+        if(playSound){
+            dew.command('Game.PlaySound 0x0B00');
+        }
     });
     $('#lookSensitivity, #lookSensitivityText').on('change', function(e){
         var yVal = 30 + (e.target.value * 10);
@@ -250,24 +262,6 @@ $(document).ready(function(){
             dew.command('Input.ControllerVibrationTest');
         });
     });
-    $('.wheelable').on('mousewheel', function(e) {
-        if(e.originalEvent.wheelDelta > 0) {
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            if(elementIndex > 0){
-                var newElement = elementIndex - 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }else{
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            var elementLength = $('#'+this.id).children('option').length;
-            if(elementIndex < elementLength){
-                var newElement = elementIndex + 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }
-    });
     dew.command('Graphics.SupportedResolutions', {}).then(function(response){
         var supportedArray = JSON.parse(response);
         var resolutionArray = [['Default','default']];
@@ -276,10 +270,13 @@ $(document).ready(function(){
         }
         setOptionList('sScreenResolution', resolutionArray);
     });
-    $('#applyButton').on('click', function(e){
+    $('#applyButton').off('click').on('click', function(e){
         applyButton();
     });
-    $('#cancelButton').on('click', function(e){
+    $('#resetButton').off('click').on('click', function(e){
+        resetButton();
+    });
+    $('#cancelButton').off('click').on('click', function(e){
         cancelButton();
     });
     $('#sTextureResolution, #sTextureFiltering, #sLightningQuality, #sEffectsQuality, #sShadowQuality, #sDetailsLevel, #sPostprocessing').on('change', function(e){
@@ -297,30 +294,16 @@ $(document).ready(function(){
             $('#sEffectsQuality').val(e.target.value);
             $('#sDetailsLevel').val(e.target.value);
             $('#sPostprocessing').val(e.target.value);
-            if(e.target.value == 'low'){
-                $('#sShadowQuality').val('medium');
-            }else{
-                $('#sShadowQuality').val(e.target.value);
-            }
+            $('#sShadowQuality').val(e.target.value);
             if(e.target.value == 'high'){
                  $('#sMotionBlur').prop('checked', true);
             }else{
                 $('#sMotionBlur').prop('checked', false);
             }
+            playSound = false;
             $('.video').trigger('change');
+            playSound = true;
         }
-    });
-    $('#sVotingStyle').on('change', function(){
-        updateVotingStyle(this.value);
-        if(hasGP){
-            if(itemNumber > $(activePage + ' label:visible').length-1){
-                itemNumber = $(activePage + ' label:visible').length-1;
-            }
-            updateSelection(itemNumber, true, true);
-        }
-    });
-    $('#sSprint').on('change', function(){
-        updateSprint(this.value);
     });
     $('#presetMenu').on('change', function(){
         applyBindString(this.value);
@@ -344,21 +327,6 @@ $(document).ready(function(){
         updateBindLabels();
     });
     
-    dew.command('Server.VotingEnabled', {}).then(function(x){
-        dew.command('Server.VetoSystemEnabled', {}).then(function(y){
-            if(x == '1' && y == '1'){
-                $('#sVotingStyle').val('2');
-                $('#voting').hide();
-            }else if(x == '1' && y == '0'){
-                $('#sVotingStyle').val('1');
-                $('#voting').show();
-                $('#veto').hide();
-            }else{
-                $('#sVotingStyle').val('0');
-                $('#voting, #veto').hide();
-            }
-        });       
-    });
     dew.command('Server.SprintEnabled', {}).then(function(a){
         dew.command('Server.UnlimitedSprint', {}).then(function(b){
             if(a == '1' && b == '1'){
@@ -402,6 +370,9 @@ $(document).ready(function(){
                     $('#'+selectedItem).prev().click();
                 }
             }
+            if(e.data.Y == 1){
+                resetButton();
+            }
             if(e.data.Up == 1){
                 upNav();
             }
@@ -427,13 +398,13 @@ $(document).ready(function(){
             if(e.data.LeftTrigger != 0){
                 if(itemNumber > 0){
                     itemNumber = 0;
-                    updateSelection(itemNumber, true, true);
+                    updateSelection(itemNumber, true, true, true);
                 }
             }
             if(e.data.RightTrigger != 0){
                 if(itemNumber < $(activePage + ' label:visible').length-1){
                     itemNumber = $(activePage + ' label:visible').length-1;
-                    updateSelection(itemNumber, true, true);
+                    updateSelection(itemNumber, true, true, true);
                 }
             }
             if(e.data.AxisLeftX > axisThreshold){
@@ -466,20 +437,28 @@ $(document).ready(function(){
     $(document).mouseup(function(){
         clicking = false;
     })
-    $('span').has('.setting').mouseover(function(){
+    $('span').has('.setting').off('mouseover').on('mouseover', function(){
+        $('.selectedElement').removeClass('selectedElement');
+        $(this).addClass('selectedElement');
         itemNumber = $(activePage+' span').has('.setting').index($(this));
         if(itemNumber > -1){
-            updateSelection(itemNumber, false, false); 
+            updateSelection(itemNumber, false, false, false); 
             setInfoBox($(this).find('.setting').attr('id'));
         }
     });
     $('#sVsync').on('change', function(){
-        alertBox('VSync changes requires a restart to take effect', false);
+        alertBox('This change requires a restart to take effect.', false);
     });
-    $('#okButton').on('click', function(){
+    $('.cefMedals').on('change', function(){
+        if(!$('#gCefMedals').is(":checked")){
+            alertBox('This setting only effects Custom medal packs. Turning them on now.', false);
+            $('#gCefMedals').prop('checked', true);
+        }
+    });
+    $('#okButton').off('click').on('click', function(){
         hideAlert(true);
     });
-    $('#dismissButton').on('click', function(){
+    $('#dismissButton').off('click').on('click', function(){
         dismissButton();
     });
 });
@@ -508,6 +487,7 @@ function setButtons(){
     dew.command('Game.IconSet', {}).then(function(response){
         $('#randomArmor img').attr('src','dew://assets/buttons/' + response + '_X.png');
         $('#randomColors img').attr('src','dew://assets/buttons/' + response + '_Y.png');
+        $('#resetButton img').attr('src','dew://assets/buttons/' + response + '_Y.png');
         $('#applyButton img').attr('src','dew://assets/buttons/' + response + '_Start.png');
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
@@ -517,10 +497,31 @@ function setButtons(){
     });
 }
 
+var mapName = "mainmenu";
 dew.on('show', function(e){
+    if(!jQuery.isEmptyObject(e.data)){
+        switch(e.data){
+            case "game": 
+                tabIndex = 0;
+            break;
+            case "controls": 
+                tabIndex = 1;
+            break;
+            case "video": 
+                tabIndex = 2;
+            break;
+            case "sound": 
+                tabIndex = 3;
+            break;
+            default:
+        }
+    }else{
+        tabIndex = 0;
+    };
     $('#settingsWindow').hide();
     $('#blackLayer').hide();
     dew.getSessionInfo().then(function(i){
+        mapName = i.mapName;
         if(i.mapName == "mainmenu"){
             $('#blackLayer').fadeIn(200, function() {
                 dew.command('game.hideh3ui 1');
@@ -538,6 +539,15 @@ dew.on('show', function(e){
     setControlValues();
 
 });
+
+function showWeaponOffsets(){
+    if(mapName != "mainmenu"){
+        dew.hide();
+        dew.show('weapon_offset');
+    }else{
+        alertBox('Weapon offsets can only be edited in-game.', false);
+    }
+}
 
 function initGamepad(){
     dew.command('Settings.Gamepad', {}).then(function(result){
@@ -571,9 +581,8 @@ dew.on('hide', function(e){
 });
 
 function initActive(){
-    tabIndex = 0;
     $('.selected').removeClass('selected');
-    $('.tabs li:visible').eq(0).addClass('selected');
+    $('.tabs li:visible').eq(tabIndex).addClass('selected');
     location.hash = $('.selected a')[0].hash;
     activePage = window.location.hash;
 }
@@ -602,8 +611,6 @@ function setControlValues(){
                         $('#'+result[0]).val(setValue);
                         if($('#sTextureResolution').val() == setValue && $('#sTextureFiltering').val() == setValue && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == setValue && $('#sShadowQuality').val() == setValue && $('#sDetailsLevel').val() == setValue && $('#sPostprocessing').val() == setValue){
                             $('#sQualityPreset').val(setValue);
-                        }else if($('#sTextureResolution').val() == 'low' && $('#sTextureFiltering').val() == 'low' && $('#sLightningQuality').val() == setValue && $('#sEffectsQuality').val() == 'low' && $('#sShadowQuality').val() == 'medium' && $('#sDetailsLevel').val() == 'low' && $('#sPostprocessing').val() == 'low'){
-                            $('#sQualityPreset').val('low');
                         }else{
                             $('#sQualityPreset').val('custom');
                         }
@@ -622,7 +629,11 @@ function setControlValues(){
                         }
                         $('#'+result[0]).val(setValue);
                         if($('#'+result[0]).hasClass('hasTiny')){
-                            $('#'+result[0]+'Text').val(setValue);
+                            if(setValue.isFloat){
+                                $('#'+result[0]+'Text').val(parseFloat(setValue.toFixed(2)));
+                            }else{                            
+                                $('#'+result[0]+'Text').val(setValue);
+                            }
                         }
                     }
                 };
@@ -636,7 +647,7 @@ function switchPage(pageHash){
     location.href=pageHash;
     activePage=pageHash;    
     if(hasGP){
-        updateSelection(0, true, true);
+        updateSelection(0, true, true, true);
     }
     if(subPages.indexOf(pageHash) != -1){
         $('#cancelButton').html('<img class="button">Back');
@@ -669,6 +680,7 @@ function applySettings(i){
 			applySettings(i);  
         });
     }else{
+        dew.notify("settings-update", changeArray);
         changeArray = [];
         dew.command('writeconfig');
         dew.command('VoIP.Update');
@@ -706,7 +718,6 @@ function applyBindChanges(i){
     }
 }
 
-
 function applyButton(){
     if(window.location.hash == '#page5'){
         applyBinds();
@@ -727,6 +738,19 @@ function applyButton(){
         }else{
             effectReset();
         }
+    }
+}
+
+function resetButton(){
+    if(window.location.hash == '#page5' || window.location.hash == '#page8' || window.location.hash == '#page9'){
+        dew.command('Input.ResetBindings').then(function(){
+            initializeBindings(); 
+        });
+    }else{
+        dew.command('Settings.Reset').then(function(){
+            setControlValues();
+            initGamepad();
+        });
     }
 }
 
@@ -760,8 +784,7 @@ function cancelButton(){
 }
 
 function dismissButton(){
-    hideAlert(false);
-    resetInstants();    
+    hideAlert(false);  
     itemNumber = 0;
     effectReset();
     setControlValues();
@@ -819,37 +842,6 @@ function setOptionList(ElementID, ArrayVar){
         opt.innerHTML = ArrayVar[i][0];
         opt.value = ArrayVar[i][1];
         sel.appendChild(opt);
-    }
-}
-
-function updateVotingStyle(value){
-    if(value == "0"){
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
-        $('#voting, #veto').hide();
-    }else if(value == "1"){
-        queueChange(['Server.VotingEnabled', '1']);
-        queueChange(['Server.VetoSystemEnabled', '0']);
-        $('#veto').hide();
-        $('#voting').show();
-    }else{
-        queueChange(['Server.VotingEnabled', '0']);
-        queueChange(['Server.VetoSystemEnabled', '1']);
-        $('#voting').hide();
-        $('#veto').show();
-    }
-}
-
-function updateSprint(value){
-    if(value == "0"){
-        queueChange(['Server.SprintEnabled', '0']);
-        queueChange(['Server.UnlimitedSprint', '0']);
-    }else if(value == "1"){
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '0']);
-    }else{
-        queueChange(['Server.SprintEnabled', '1']);
-        queueChange(['Server.UnlimitedSprint', '1']);
     }
 }
 
@@ -1088,7 +1080,7 @@ function updateBindLabels(){
     $('#controllerGraphic').children('div').empty();
     for (i = 0; i < binds.length-8; i++) { 
         var bind = document.getElementById(binds[i][0]).value;
-        var action = binds[i][0];
+        var action = binds[i][1];
         if(document.getElementById(bind)){
             var actionString = action;
             if(document.getElementById(bind).innerHTML.length > 0){
@@ -1124,10 +1116,12 @@ function setButtonLists(){
     }
 }
 
-function updateSelection(item, sound, move){
+function updateSelection(item, sound, move, controller){
     colorIndex = 0;
-    $('.selectedElement').removeClass('selectedElement');
-    $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
+    if(controller){
+        $('.selectedElement').removeClass('selectedElement');
+        $(activePage + ' label:visible').eq(item).parent().addClass('selectedElement');
+    }
     selectedItem = $(activePage + ' .setting:visible').not('span').eq(itemNumber).attr('id');
     if(move){
         $('#'+selectedItem).parent()[0].scrollIntoView(false);
@@ -1154,36 +1148,25 @@ function nextPage(){
 function upNav(){
     if(itemNumber > 0){
         itemNumber--;
-        updateSelection(itemNumber, true, true);
+        updateSelection(itemNumber, true, true, true);
     }
 }
 
 function downNav(){
     if(itemNumber < $(activePage + ' label:visible').length-1){
         itemNumber++;
-        updateSelection(itemNumber, true, true);
+        updateSelection(itemNumber, true, true, true);
     }           
 }
 
 function onControllerConnect(){
-    updateSelection(itemNumber, false, true);
+    updateSelection(itemNumber, false, true, true);
     $('button img, .tabs img').show();
 }
 
 function onControllerDisconnect(){
     $('.selectedItem').removeClass(); 
     $('button img, .tabs img').hide();
-}
-
-function resetInstants(){
-    for(var i = 0; i < $('.instant').length; i++) {
-        var elementID = $('.instant').eq(i).attr('id');
-        $.grep(commandValues, function(result){
-            if(result[0] == elementID){
-                dew.command(result[1] + ' ' + result[2]);
-            };
-        });
-    }
 }
 
 function leftToggle(){
@@ -1317,4 +1300,8 @@ function setInfoBox(ID){
             };
         }
     });    
+}
+
+Number.prototype.isFloat = function() {
+    return (this % 1 != 0);
 }

@@ -1,11 +1,29 @@
-var hasGP = false;
+var settingsArray = { 'Settings.Gamepad': '0' , 'Game.IconSet': '360'};
+
+dew.on("variable_update", function(e){
+    for(i = 0; i < e.data.length; i++){
+        if(e.data[i].name in settingsArray){
+            settingsArray[e.data[i].name] = e.data[i].value;
+        }
+    }
+});
+
+function loadSettings(i){
+	if (i != Object.keys(settingsArray).length) {
+		dew.command(Object.keys(settingsArray)[i], {}).then(function(response) {
+			settingsArray[Object.keys(settingsArray)[i]] = response;
+			i++;
+			loadSettings(i);
+		});
+	}
+}
 
 $(document).ready(function() {
-    $('#exit').on('click', function(e){
+    $('#exit').off('click').on('click', function(e){
         dew.command("game.exit");
     });
     
-    $('#cancel').on('click', function(e){
+    $('#cancel').off('click').on('click', function(e){
         dew.hide();
     });
     
@@ -17,30 +35,21 @@ $(document).ready(function() {
         if (e.keyCode === 27 || e.keyCode === 66 || e.keyCode === 78) //Escape, B, N
             dew.hide();
     });
+    loadSettings(0);
 });
 
-function onControllerConnect() {
-    dew.command('Game.IconSet', {}).then(function(response) {
-        $("#exit .button").attr('src','dew://assets/buttons/'+response+'_Y.png');
-        $("#cancel .button").attr('src','dew://assets/buttons/'+response+'_B.png');
-    });
-};
-
 dew.on("show", function(event) {
-    dew.command('Settings.Gamepad', {}).then(function(result) {
-        if (result == 1) {
-            onControllerConnect();
-            hasGP = true;
-            $("button img").show();
-        } else { 
-            hasGP = false; 
-            $("button img").hide();
-        }
-    });
+    if(settingsArray['Settings.Gamepad'] == 1){
+        $('#exit .button').attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_Y.png');
+        $('#cancel .button').attr('src','dew://assets/buttons/'+settingsArray['Game.IconSet']+'_B.png');
+        $('.button').show();   
+    }else{
+        $('.button').hide();   
+    }
 });
 
 dew.on('controllerinput', function(e) {
-    if (hasGP) {
+    if(settingsArray['Settings.Gamepad'] == 1){
         if (e.data.Y == 1) { dew.command('game.exit')};
 		if (e.data.B == 1) { dew.hide(); };
     }

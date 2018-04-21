@@ -9,7 +9,10 @@ skip_branch_with_pr: false
 environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
   _zip: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%.7z'
+  _zipD: '%APPVEYOR_BUILD_FOLDER%\ElDewrito-%APPVEYOR_BUILD_VERSION%-debug.7z'
   _7z: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zip% -r -x!*.config -x!*.exp -x!*.lib -x!*.pdb
+  _7zD: 7z -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on a %_zipD% -r -x!*.config -x!*.exp -x!*.lib -x!*.ilk
+  _vInfo: '%APPVEYOR_BUILD_FOLDER%\ElDorito\Source\Utils\VersionInfo.cpp'
 
 init:
   - git config --global core.autocrlf input
@@ -22,6 +25,8 @@ build_script:
 - cmd: >-
     "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Release" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
 
+    "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe" /nologo /m:2 /p:Configuration="Debug" /p:Platform="Win32" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "%APPVEYOR_BUILD_FOLDER%\ElDorito.sln"
+
 before_build:
 - cmd: >-
     CD %APPVEYOR_BUILD_FOLDER%
@@ -29,6 +34,8 @@ before_build:
     git clone https://github.com/scooterpsu/medalPack.git .\dist\mods\medals\default
 
     RM -rf .\dist\mods\medals\default\.git
+
+- ps: (Get-Content "$env:_vInfo") -replace 'V\(\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\s*\)', "V(`$1, `$2, `$3, $env:APPVEYOR_BUILD_NUMBER)" | Out-File "$env:_vInfo"
 
 after_build:
 - cmd: >-
@@ -43,3 +50,17 @@ after_build:
     appveyor PushArtifact %_zip%
     
     del %_zip%
+    
+    echo D|xcopy /e /y ..\Debug\* .\
+
+    %_7zD% *
+
+    appveyor PushArtifact %_zipD%
+
+    move mtndew.dll mtndew-debug.dll
+
+    appveyor PushArtifact mtndew-debug.dll
+
+    move mtndew.pdb mtndew-debug.pdb
+
+    appveyor PushArtifact mtndew-debug.pdb

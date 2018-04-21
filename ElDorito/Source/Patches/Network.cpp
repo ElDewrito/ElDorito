@@ -54,6 +54,7 @@ namespace
 	bool __fastcall c_network_session_parameter_map_variant__request_change_hook(void *thisptr, void *unused, Blam::MapVariant *mapVariant);
 	char __fastcall c_network_session__handle_session_boot_hook(void *thisPtr, void *unused, int a2, int a3);
 	uint64_t local_user_get_identifier_hook();
+	bool network_build_local_game_status_hook(uint8_t *data);
 
 	std::vector<Patches::Network::PongCallback> pongCallbacks;
 	std::vector<Patches::Network::MapVariantRequestChangeCallback> mapVariantRequestChangeCallbacks;
@@ -151,7 +152,7 @@ namespace Patches::Network
 			if (msg == WM_INFOSERVER)
 			{
 				std::string replyData;
-				if (curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
+				if (!Modules::ModuleServer::Instance().VarServerPassword->ValueString.empty() || curTime - timeSinceLastPoll > Modules::ModuleServer::Instance().VarHttpServerCacheTime->ValueInt)
 				{
 					timeSinceLastPoll = curTime;
 
@@ -443,6 +444,12 @@ namespace Patches::Network
 		Hook(0x9DA1A, c_network_session__handle_session_boot_hook, HookFlags::IsCall).Apply();
 
 		Hook(0x67E01F, local_user_get_identifier_hook, HookFlags::IsCall).Apply();
+		// fix network broadcast search sending back the wrong address due to the above patch (fixes local game browser)
+		Hook(0x9C389, network_build_local_game_status_hook, HookFlags::IsCall).Apply();
+
+		// skip over end_game_write_stats. stops host from getting booted due to people with bad connections
+		Patch(0x92F7B, { 0xB8, 0x01, 0x00, 0x00, 0x00 }).Apply();
+		Patch(0x92E3B, { 0x90, 0x90 }).Apply();
 	}
 
 
@@ -749,16 +756,19 @@ namespace
 		auto space = false;
 		for (i = 0; i < 15 && dest < 15 && name[i]; i++)
 		{
-			auto allowed = false;
-			if ((name[i] > 39 && name[i] < 42) || (name[i] > 47 && name[i] < 58) || (name[i] > 64 && name[i] < 92) || (name[i] == 93) || (name[i] > 96 && name[i] < 123))
-				allowed = true;
-			else if (name[i] == ' ' && dest > 0)
+			auto allowed = name[i] == '_' ||
+				(name[i] >= '0' && name[i] <= '9') ||
+				(name[i] >= 'A' && name[i] <= 'Z') ||
+				(name[i] >= 'a' && name[i] <= 'z');
+
+			if (!allowed)
 			{
 				// If this isn't at the beginning of the string, indicate that
 				// a space should be inserted before the next allowed character
-				space = true;
+				if (name[i] == ' ' && dest > 0)
+					space = true;
 			}
-			if (allowed)
+			else
 			{
 				if (space && dest < 14)
 				{
@@ -777,8 +787,6 @@ namespace
 			if (IsNameNotAllowed(lowercasename))
 				wcscpy_s(name, 16, L"Filtered");
 		}
-			
-		
 	}
 
 	// Applies player properties data including extended properties
@@ -805,16 +813,27 @@ namespace
 		auto packetProperties = reinterpret_cast<Blam::Players::ClientPlayerProperties*>(data);
 		if (session->HasTeams() && session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex != packetProperties->TeamIndex)
 		{
-			if (packetProperties->TeamIndex > Modules::ModuleServer::Instance().VarNumTeams->ValueInt - 1)
+			uint8_t teamSizes[8];
+			auto numPlayers = 0;
+			int playerIdx = session->MembershipInfo.FindFirstPlayer();
+			while (playerIdx > -1)
 			{
-				packetProperties->TeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
+				teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+				numPlayers++;
+				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 			}
-		}
 
-		// Apply the base properties
-		typedef void (__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
-		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
-		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
+			auto currentTeamIndex = session->MembershipInfo.PlayerSessions[playerIndex].Properties.TeamIndex;
+
+			auto &moduleServer = Modules::ModuleServer::Instance();
+			auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+			auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+			auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+			auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
+			if (packetProperties->TeamIndex >= 8)
+				packetProperties->TeamIndex = currentTeamIndex;
+		}
 
 		if (isNewMember)
 		{
@@ -824,17 +843,25 @@ namespace
 			{
 				int teamSizes[8] = { 0 };
 				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				auto numPlayers = 0;
 				while (playerIdx > -1)
 				{
 					teamSizes[session->MembershipInfo.PlayerSessions[playerIdx].Properties.TeamIndex]++;
+					numPlayers++;
 					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
 				}
 				teamSizes[prop->TeamIndex]--; //ignore one place for the default team they were placed on
 
+				auto &moduleServer = Modules::ModuleServer::Instance();
+				auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+				auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+				auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+				auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
 				//check joining teams size
 				int smallest = Blam::Network::MaxPlayers + 1;
 				int smallIndex = 0;
-				for (int i = 0; i < Modules::ModuleServer::Instance().VarNumTeams->ValueInt; i++)
+				for (int i = 0; i < numTeams; i++)
 				{
 					if (teamSizes[i] < smallest)
 					{
@@ -842,14 +869,17 @@ namespace
 						smallIndex = i;
 					}
 				}
-				prop->ClientProperties.TeamIndex = smallIndex;
-				session->MembershipInfo.Update();
+				packetProperties->TeamIndex = smallIndex;
 			}
 		}
 
+		// Apply the base properties
+		typedef void(__thiscall *ApplyPlayerPropertiesPtr)(void *thisPtr, int playerIndex, uint32_t arg4, uint32_t arg8, void *data, uint32_t arg10);
+		const ApplyPlayerPropertiesPtr ApplyPlayerProperties = reinterpret_cast<ApplyPlayerPropertiesPtr>(0x450890);
+		ApplyPlayerProperties(thisPtr, playerIndex, arg4, arg8, data, arg10);
+
 		// Apply the extended properties
 		Patches::Network::PlayerPropertiesExtender::Instance().ApplyData(playerIndex, properties, data + PlayerPropertiesSize);
-
 	}
 
 	bool __fastcall Network_leader_request_boot_machineHook(void* thisPtr, void* unused, Blam::Network::PeerInfo* peer, int reason)
@@ -1211,5 +1241,18 @@ namespace
 	uint64_t local_user_get_identifier_hook()
 	{
 		return *(uint64_t*)0x199FAB2; // use the first 64 bits of the xnkaddr (128 bit guid in eldorado)
+	}
+
+	bool network_build_local_game_status_hook(uint8_t *data)
+	{
+		const auto network_build_local_game_status = (bool(*)(uint8_t *data))(0x437EA0);
+		if (network_build_local_game_status(data))
+		{
+			// hax
+			*(uint32_t*)(data+0x138) = *(uint32_t*)0x199FAC4;
+			*(uint32_t*)(data+0x13C) = *(uint32_t*)0x199FAD4;
+			return true;
+		}
+		return false;
 	}
 }

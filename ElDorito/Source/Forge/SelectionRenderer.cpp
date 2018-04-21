@@ -10,6 +10,7 @@
 #include "../Patch.hpp"
 #include "Geoemetry.hpp"
 #include "Magnets.hpp"
+#include "../Modules/ModuleTweaks.hpp"
 
 using namespace Blam::Math;
 
@@ -126,10 +127,13 @@ namespace
 		static auto sub_A781F0 = (int(*)())(0xA781F0);
 		static auto sub_686DE0 = (int(*)())(0x686DE0);
 
-		sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
-
 		if (!s_Enabled || s_RendererType != eRendererSpecialHud)
+		{
+			if(!Modules::ModuleTweaks::Instance().VarDisableWeaponOutline->ValueInt)
+				sub_A2CAA0(a1, unitObjectIndex, a3, objectsInCluster, objectcount, activeSpecialChudTypes);
+
 			return;
+		}
 
 		auto mapv = Forge::GetMapVariant();
 		if (!mapv)

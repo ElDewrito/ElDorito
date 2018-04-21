@@ -4,6 +4,7 @@
     let _containerElement = document.getElementById('container');
     let _footerElement = _containerElement.querySelector('.window-footer');
     let _titleElement = _containerElement.querySelector('.window-title');
+    let _objectQuotaElement = _containerElement.querySelector('.object-quota');
     let _budget = {};
     let _recent = [];
     let _hidden = false;
@@ -32,6 +33,7 @@
     });
 
     dew.on('show', function (e) {
+        updateObjectQuotaText();
         _hidden = false;
         _budget = {};
         for (let item of e.data.budget) {
@@ -79,8 +81,11 @@
             var id = path.getAttribute('id');
             if (id === 'prefabs') {
                 _screenManager.push('prefabs');
-            } else if (id == 'recent') {
+            } else if (id === 'recent') {
                 _screenManager.push('items', { path: ['RECENTLY USED ITEMS'], items: _itemHistory, shouldDisplayType: true });
+            } else if(id === 'map_options') {
+                dew.hide();
+                dew.command('Forge.MapOptions');
             }
             else {
                 var itemNodes = path.getElementsByTagName('item');
@@ -524,7 +529,7 @@
                         distance: 40,
                         maxPatternLength: 32,
                         minMatchCharLength: 1,
-                        keys: ["name"]
+                        keys: ["name", "type"]
                     });
                     if (callback)
                         callback(null, dom);
@@ -585,7 +590,7 @@
         let _lastSelectedIndex = -1;
 
         _prefabList.on('select', ({ index, element }) => {
-            dew.command(`Forge.LoadPrefab "${_prefabs[index]}"`);
+            dew.command(`Forge.LoadPrefab "${_prefabs[index].filename}"`).then(hide);
         });
 
         return {
@@ -646,7 +651,7 @@
                 noHide: true,
                 type: 0,
                 title: 'Confirm Delete',
-                body: `You are about to delete prefab &quot${prefab}&quot;`,
+                body: `You are about to delete prefab &quot${prefab.name}&quot;`,
                 onAction: ({ action }) => {
                     switch (action) {
                         case dew.ui.Actions.A:
@@ -669,16 +674,25 @@
             let prefab = _prefabs[index];
             _prefabs = null;
             _lastSelectedIndex = index;
-            dew.command(`Forge.DeletePrefab "${prefab}"`).then(response => {
-                showToast(`Prefab \"${prefab}\" deleted`);
+            dew.command(`Forge.DeletePrefab "${prefab.filename}"`).then(response => {
+                showToast(`Prefab \"${prefab.name}\" deleted`);
             })
-                .catch(response => showToast(response.message));
+            .catch(response => showToast(response.message));
         }
 
         function renderPrefabList() {
             let html = '';
             for (let prefab of _prefabs) {
-                html += `<li class="item">${prefab}</li>`;
+                html += `
+                <li class="item">
+                    <div class="left-side">
+                        <span class="item-name">${prefab.name}</span>
+                        <span class="item-author">${prefab.author}</span>
+                    </div>
+                    <div class="right-side">
+                        <span class="item-object-count">${prefab.object_count}</span>
+                    </div>
+                </li>`;
             }
             _prefabListElement.innerHTML = html;
         }
@@ -971,18 +985,20 @@
 
     }
 
+    function updateObjectQuotaText() {
+        dew.command('Forge.Budget', {}).then(response => {
+            var quota = JSON.parse(response);
+            _objectQuotaElement.innerHTML = `${quota.total_used} / ${quota.total_available}`;
+        });
+    }
+
 
     function setTitle(text) {
         _titleElement.innerHTML = text || '';
     }
 
     function showToast(message) {
-        let toastElement = document.querySelector('.toast');
-        toastElement.querySelector('div').innerHTML = message;
-        toastElement.classList.add('toast-show');
-        setTimeout(function () {
-            toastElement.classList.remove('toast-show');
-        }, 3000);
+        dew.toast({body: `<div style="font-size: 1.2em; padding: 4px">${message}</div>`});
     }
 
 })();

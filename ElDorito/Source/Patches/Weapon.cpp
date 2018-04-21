@@ -46,8 +46,34 @@ namespace
 	void weapon_apply_firing_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	void weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex);
-
+	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error);
+	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex);
+	bool weapon_bloom_decay_hook(uint32_t weaponObjectIndex, int barrelIndex);
 	bool SupportWeaponStartHook(int weaponObjectIndex);
+
+	enum : uint8_t {
+		_weapon_barrel_state_idle,
+		_weapon_barrel_state_firing
+	};
+	struct s_weapon_barrel {
+		uint8_t flags;
+		uint8_t state;
+		uint16_t field_2;
+		uint16_t firing_flags;
+		uint16_t firing_time;
+		uint32_t field_8;
+		uint32_t field_c;
+		uint32_t firing_rate;
+		uint32_t field_14;
+		float firing_effect;
+		float error;
+		float recoil;
+		uint32_t field_24;
+		uint32_t field_28;
+		uint32_t field_2C;
+		uint32_t field_30;
+	};
+	static_assert(sizeof(s_weapon_barrel) == 0x34, "invalid weapon barrel size");	
 }
 
 namespace Patches::Weapon
@@ -57,13 +83,10 @@ namespace Patches::Weapon
 
 	bool IsMainMenu;
 
-	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices);
-	std::map<std::string, std::string> weaponNames;
+	bool AddSupportedWeapons();
+	std::vector<WeaponInfo> weapon_infos;
 
 	std::string JSONName;
-	std::map<std::string, uint16_t> weaponIndices;
-	std::map<std::string, RealVector3D> weaponOffsetsDefault;
-	std::map<std::string, RealVector3D> weaponOffsetsModified;
 
 	//Callback for when the loading screen back to the main menu finishes. We use this to determine when to start a new vote.
 	void MapLoadedCallback(const char *mapPath)
@@ -80,16 +103,13 @@ namespace Patches::Weapon
 		{
 			IsMainMenu = false;
 
-			AddSupportedWeapons(weaponNames, weaponIndices);
-
-			SetDefaultOffsets();
-
-			if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1 && !weaponOffsetsModified.empty())
-			{
-				Config::SaveJSON(JSONName);
-			}
+			AddSupportedWeapons();
+			SetOffsetDefaultAll();
 
 			Modules::CommandMap::Instance().ExecuteCommand("Weapon.JSON.Load");
+
+			//if (Modules::ModuleWeapon::Instance().VarAutoSaveOnMapLoad->ValueInt == 1)
+			//	Config::SaveJSON(JSONName);
 		}
 	}
 
@@ -109,9 +129,6 @@ namespace Patches::Weapon
 		Hook(0x1D50CB, DualWieldScopeLevelHook).Apply();
 		Hook(0x7A21D4, DualWieldEquipmentCountHook, HookFlags::IsCall).Apply();
 
-		// fix recoil - use fire rate acceleration instead. TODO: find correct decay for h3
-		Pointer(0x0B603E7 + 5).Write<int>(0x214);
-
 		// disable bloom for non-p2w weapons
 		Hook(0x75F0F1, weapon_apply_firing_penalty_hook, HookFlags::IsCall).Apply();
 		Hook(0x761197, weapon_apply_movement_penalty_hook, HookFlags::IsCall).Apply();
@@ -119,6 +136,24 @@ namespace Patches::Weapon
 
 		// allow spawning with primary support weapon and keep secondary weapon
 		Hook(0x13809E, SupportWeaponStartHook, HookFlags::IsCall).Apply();
+
+		Hook(0x7696E9, weapon_barrel_update_hook, HookFlags::IsCall).Apply();
+		Hook(0x7605D0, weapon_calculate_error_angle_hook).Apply();
+		Hook(0x7611A1, weapon_bloom_decay_hook, HookFlags::IsCall).Apply();
+	}
+
+	std::string OffsetToString(RealVector3D offset)
+	{
+		return std::to_string(offset.I) + ", " + std::to_string(offset.J) + ", " + std::to_string(offset.K);
+	}
+	void PrintDebugText(WeaponInfo weapon)
+	{
+		Console::WriteLine(weapon.Name);
+		Console::WriteLine("{");
+		Console::WriteLine("\t" + std::to_string(weapon.Index) + ",");
+		Console::WriteLine("\t" + OffsetToString(weapon.Offset.Default) + ",");
+		Console::WriteLine("\t" + OffsetToString(weapon.Offset.Modified));
+		Console::WriteLine("}");
 	}
 
 	void ApplyAfterTagsLoaded()
@@ -130,49 +165,82 @@ namespace Patches::Weapon
 
 	std::map<std::string, uint16_t> GetIndices()
 	{
+		std::map<std::string, uint16_t> weaponIndices;
+		for (auto &weapon : weapon_infos)
+			weaponIndices.emplace(weapon.Name, weapon.Index);
 		return weaponIndices;
 	}
 
-	uint16_t GetIndex(std::string &weaponName)
+	WeaponInfo GetWeaponByName(std::string &weaponName)
 	{
-		auto result = weaponIndices.find(weaponName);
-		if (result == weaponIndices.end())
-			return 0xFFFF;
-
-		return result->second;
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return weapon;
+		return WeaponInfo();
 	}
 
-	std::string GetName(uint16_t & weaponIndex)
+	WeaponInfo GetWeaponByIndex(uint16_t &weaponIndex)
 	{
-		std::string weaponName;
-
-		bool indexExists = false;
-
-		for (auto &element : weaponIndices)
-		{
-			auto name = element.first;
-			auto index = element.second;
-
-			if (weaponIndex == index) {
-				weaponName = name;
-				indexExists = true;
-			}
-		}
-		if (indexExists == false)
-			return "Weapon not supported.";
-
-		return weaponName;
+		for (auto &weapon : weapon_infos)
+			if (weapon.Index == weaponIndex)
+				return weapon;
+		return WeaponInfo();
 	}
 
-	uint16_t GetEquippedWeaponIndex()
+	WeaponInfo GetWeaponByTagName(std::string &weaponTagName)
 	{
-		uint16_t equippedIndex = 0xFFFF;
+		for (auto &weapon : weapon_infos)
+			if (weapon.TagName == weaponTagName)
+				return weapon;
+		return WeaponInfo();
+	}
+	
+	WeaponInfo GetWeapon(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon;
+		return WeaponInfo();
+	}
 
+	uint16_t GetIndex(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Index;
+		return 0xFFFF;
+	}
+	
+	std::string GetName(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Name;
+		return "Weapon not supported.";
+	}
+
+	std::string GetTagName(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.TagName;
+		return "Weapon\\not\\supported";
+	}
+
+	WeaponInfo::Offsets GetOffsets(WeaponInfo &weapon_)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weapon_.Name || weapon.Index == weapon_.Index || weapon.TagName == weapon_.TagName)
+				return weapon.Offset;
+		return WeaponInfo().Offset;
+	}
+
+	WeaponInfo GetEquippedWeapon()
+	{
+		WeaponInfo weapon;
 		auto session = Blam::Network::GetActiveSession();
 		if (!session || !session->IsEstablished())
-		{
-			return equippedIndex;
-		}
+			return weapon;
 
 		int playerIdx = session->MembershipInfo.FindFirstPlayer();
 		auto playerDatum = &Blam::Players::GetPlayers()[playerIdx];
@@ -185,120 +253,117 @@ namespace Patches::Weapon
 				auto equippedWeaponObjectIndex = playerObject(0x2D0 + 4 * equippedWeaponIndex).Read<uint32_t>();
 				auto equippedWeaponObjectPtr = Pointer(Blam::Objects::GetObjects()[equippedWeaponObjectIndex].Data);
 				if (equippedWeaponObjectPtr)
-					equippedIndex = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
+				{
+					weapon.Index = Pointer(equippedWeaponObjectPtr).Read<uint32_t>();
+					weapon.Name = GetName(weapon);
+					weapon.TagName = GetTagName(weapon);
+					weapon.Offset = GetOffsets(weapon);
+				}
 			}
 		}
-		return equippedIndex;
+		return weapon;
+	}
+
+	uint16_t GetEquippedWeaponIndex()
+	{
+		return GetIndex(GetEquippedWeapon());
 	}
 
 	std::string GetEquippedWeaponName()
 	{
-		auto Index = GetEquippedWeaponIndex();
-		return GetName(Index);
+		return GetName(GetEquippedWeapon());
 	}
 
-	RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex)
+	std::string GetEquippedWeaponTagName()
 	{
-		for each (auto element in weaponIndices)
-		{
-			std::string weaponName = element.first;
+		return GetTagName(GetEquippedWeapon());
+	}
 
-			if (weaponIndex == element.second)
-			{
-				if (isDefault)
-				{
-					auto result = weaponOffsetsDefault.find(weaponName);
-					if (result != weaponOffsetsDefault.end())
-						return result->second;
-				}
-				else
-				{
-					auto weap = Blam::Tags::TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if (weap)
-						return weap->FirstPersonWeaponOffset;
-				}
-			}
-		}
-
-		return { -0xFFF, -0xFFF, -0xFFF };
+	WeaponInfo::Offsets GetEquippedWeaponOffsets()
+	{
+		return GetOffsets(GetEquippedWeapon());
 	}
 
 	RealVector3D GetOffsetByName(bool isDefault, std::string &weaponName)
 	{
-		auto index = Patches::Weapon::GetIndex(weaponName);
-		return GetOffsetByIndex(isDefault, index);
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
+	}
+
+	RealVector3D GetOffsetByIndex(bool isDefault, uint16_t &weaponIndex)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Index == weaponIndex)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
+	}
+
+	RealVector3D GetOffsetByTagName(bool isDefault, std::string &weaponName)
+	{
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				return (isDefault ? weapon.Offset.Default : weapon.Offset.Modified);
+
+		return { -0xFFF, -0xFFF, -0xFFF };
 	}
 
 	void SetDefaultOffsets()
 	{
-		if (!weaponOffsetsDefault.empty()) {
-			for (auto &element : weaponIndices) {
-				std::string selected = element.first;
-				auto weapIndex = Patches::Weapon::GetIndex(selected);
-				if (weapIndex != 0xFFFF)
-				{
-					auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-					if (weaponDefinition)
-						weaponOffsetsDefault.emplace(selected, weaponDefinition->FirstPersonWeaponOffset);
-				}
+		for (auto &weapon : weapon_infos)
+		{
+			if (weapon.Index != 0xFFFF)
+			{
+				auto *weaponDefinition = TagInstance(weapon.Index).GetDefinition<Blam::Tags::Items::Weapon>();
+				if (weaponDefinition)
+					weapon.Offset.Default = weaponDefinition->FirstPersonWeaponOffset;
 			}
 		}
+	}
+
+	bool SetOffsetDefaultAll()
+	{
+		if (IsMainMenu) return false;
+
+		for (auto &weapon : weapon_infos)
+			SetOffsetModified(weapon.Name, weapon.Offset.Default);
+
+		return true;
+	}
+
+	bool SetOffsetDefault(std::string &weaponName)
+	{
+		if (IsMainMenu) return false;
+
+		for (auto &weapon : weapon_infos)
+			if (weapon.Name == weaponName)
+				SetOffsetModified(weapon.Name, weapon.Offset.Default);
+
+		return true;
 	}
 
 	bool SetOffsetModified(std::string &weaponName, RealVector3D &weaponOffset)
 	{
+
 		if (IsMainMenu) return false;
 
-		auto result = weaponOffsetsDefault.find(weaponName);
-
-		if (IsOffsetModified(weaponName))
+		for (auto &weapon : weapon_infos)
 		{
-			weaponOffsetsModified.try_emplace(weaponName, weaponOffset);
-			ApplyOffsetByName(weaponName, weaponOffset);
-		}
-		else
-		{
-			weaponOffsetsModified.erase(weaponName);
-			ApplyOffsetByName(weaponName, weaponOffset);
-		}
-
-		return true;
-	}
-
-	void ApplyOffsetByIndex(uint16_t &weaponIndex, RealVector3D &weaponOffset)
-	{
-		if (!IsMainMenu)
-		{
-			auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-			if (weaponDefinition)
-				weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
-		}
-	}
-
-	void ApplyOffsetByName(std::string &weaponName, RealVector3D &weaponOffset)
-	{
-		if (!IsMainMenu)
-		{
-
-			auto weapIndex = Patches::Weapon::GetIndex(weaponName);
-			if (weapIndex != 0xFFFF)
+			if (weapon.Name == weaponName)
 			{
-				auto *weaponDefinition = TagInstance(weapIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+				auto *weaponDefinition = TagInstance(weapon.Index).GetDefinition<Blam::Tags::Items::Weapon>();
 				if (weaponDefinition)
-					weaponDefinition->FirstPersonWeaponOffset = weaponOffset;
+					weaponDefinition->FirstPersonWeaponOffset = weapon.Offset.Modified = weaponOffset;
 			}
 		}
-	}
 
-	bool IsOffsetModified(const std::string &weaponName)
-	{
-		auto result = weaponOffsetsDefault.find(weaponName);
-		if (result == weaponOffsetsDefault.end())
-			return false;
 		return true;
 	}
 
-	bool AddSupportedWeapons(std::map<std::string, std::string> &weapon_names, std::map<std::string, uint16_t> &weapon_indices)
+	bool AddSupportedWeapons()
 	{
 		std::ifstream in("mods/weapons/supported_weapons.json", std::ios::in | std::ios::binary);
 		if (in && in.is_open())
@@ -324,11 +389,15 @@ namespace Patches::Weapon
 					std::string weaponname = weaponsObject["name"].GetString();
 					std::string tagname = weaponsObject["tagname"].GetString();
 
+					WeaponInfo weapon;
+					weapon.Name = weaponname;
+					weapon.TagName = tagname;
+
 					try {
 						uint16_t tagindex = TagInstance::Find('weap', tagname.c_str()).Index;
 						if (tagindex != 0xFFFF) {
-							weapon_indices.emplace(weaponname.c_str(), tagindex);
-							weapon_names.emplace(weaponname.c_str(), tagname.c_str());
+							weapon.Index = tagindex;
+							weapon_infos.push_back(weapon);
 						}
 					}
 					catch (const std::exception&) {
@@ -415,12 +484,8 @@ namespace Patches::Weapon
 		{
 			// Load offsets from json file
 			std::ifstream in("mods/weapons/offsets/" + Name + ".json", std::ios::in | std::ios::binary);
-			if (!in || !in.is_open()) {
-
-				SetDefaultOffsets();
-
+			if (!in || !in.is_open())
 				return false;
-			}
 
 			std::string contents;
 			in.seekg(0, std::ios::end);
@@ -429,7 +494,7 @@ namespace Patches::Weapon
 			in.read(&contents[0], contents.size());
 			in.close();
 
-			weaponOffsetsModified.clear();
+			SetOffsetDefaultAll();
 
 			rapidjson::Document document;
 			if (!document.Parse<0>(contents.c_str()).HasParseError() && document.IsObject())
@@ -461,7 +526,7 @@ namespace Patches::Weapon
 			Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString = Name;
 
 			bool IsCreated = false;
-			for each (std::string offsetName in Modules::ModuleWeapon::Instance().WeaponsJSONList)
+			for (std::string offsetName : Modules::ModuleWeapon::Instance().WeaponsJSONList)
 				if (Name == offsetName)
 					IsCreated = true;
 
@@ -525,7 +590,7 @@ namespace Patches::Weapon
 			}
 
 			std::ofstream out("mods/weapons/offsets/" + Name + ".json", std::ios::trunc);
-			if (!out.is_open())
+			if (!out.is_open() || Utils::String::ToLower(Name) == "default")
 				return false;
 
 			rapidjson::StringBuffer jsonBuffer;
@@ -536,22 +601,19 @@ namespace Patches::Weapon
 			jsonWriter.Key("Weapons");
 
 			jsonWriter.StartArray();
-			for (auto &weaponParams : (Utils::String::ToLower(Name) == "default" ? weaponOffsetsDefault : weaponOffsetsModified))
+			for (auto &weapon : weapon_infos)
 			{
-				std::string weaponName = weaponParams.first;
-				RealVector3D weaponOffset = GetOffsetByName(false, weaponName);
-
 				jsonWriter.StartObject();
 
 				jsonWriter.Key("Name");
-				jsonWriter.String(weaponName.c_str());
+				jsonWriter.String(weapon.Name.c_str());
 
 				jsonWriter.Key("Offset");
 				jsonWriter.StartArray();
 				jsonWriter.SetMaxDecimalPlaces(6);
-				jsonWriter.Double(weaponOffset.I);
-				jsonWriter.Double(weaponOffset.J);
-				jsonWriter.Double(weaponOffset.K);
+				jsonWriter.Double(weapon.Offset.Modified.I);
+				jsonWriter.Double(weapon.Offset.Modified.J);
+				jsonWriter.Double(weapon.Offset.Modified.K);
 				jsonWriter.EndArray();
 
 				jsonWriter.EndObject();
@@ -573,6 +635,9 @@ namespace Patches::Weapon
 
 namespace
 {
+	const auto weapon_is_being_dual_wielded = (bool(*)(uint32_t weaponObjectIndex))(0xB64050);
+	const auto unit_calculate_fire_time_penalty = (float(*)(uint32_t unitObjectIndex, uint32_t weaponObjectIndex))(0x00B44680);
+
 	bool UnitIsDualWielding(Blam::DatumHandle unitHandle)
 	{
 		if (!unitHandle)
@@ -733,31 +798,14 @@ namespace
 	{
 		const auto weapon_apply_firing_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C2E0);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Firing))
-		{
 			weapon_apply_firing_penalty(weaponObjectIndex, barrelIndex);
-		}
-		else
-		{
-			auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
-			if (weaponObject)
-			{
-				auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-				if (barrelIndex < weaponDefinition->Barrels.Count)
-				{
-					auto &error = *(float*)((uint8_t*)weaponObject + 0x220 + 0x34 * barrelIndex);
-					error += weaponDefinition->Barrels[barrelIndex].Unknown2 * Blam::Time::GetSecondsPerTick();
-					if (error > 1.0f) error = 1.0f;
-					if (error < 0.0f) error = 0.0f;
-				}
-			}
-		}
 	}
 
 	void __cdecl weapon_apply_movement_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
 	{
 		const auto weapon_apply_movement_penalty = (void(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B5C450);
 		if (weapon_should_apply_bloom(weaponObjectIndex, barrelIndex, eProjectilePenalty_Moving))
-			return weapon_apply_movement_penalty(weaponObjectIndex, barrelIndex);
+			weapon_apply_movement_penalty(weaponObjectIndex, barrelIndex);
 	}
 
 	void __cdecl weapon_apply_turning_penalty_hook(uint32_t weaponObjectIndex, int barrelIndex)
@@ -768,6 +816,133 @@ namespace
 	}
 
 	bool SupportWeaponStartHook(int weaponObjectIndex)
+	{
+		return false;
+	}
+
+	float weapon_calculate_error_angle_hook(uint32_t weaponObjectIndex, int barrelIndex, bool forcedScope, uint8_t scopeLevel, float error)
+	{
+		auto weapon_caclulate_magnification = (float(*)(uint32_t weaponObjectIndex, uint16_t magnificationLevel))(0x00B636E0);
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (!weaponObject)
+			return 0.0f;
+
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+
+		if (barrelIndex >= weaponDefinition->Barrels.Count)
+			return 0.0f;
+
+		auto &barrelDefinition = weaponDefinition->Barrels[barrelIndex];
+
+		auto magnificationFactor = 1.0f;
+
+		auto unitObjectIndex = *(uint32_t*)((uint8_t*)weaponObject + 0x184);
+		if (*((uint8_t*)weaponObject + 0x179) && unitObjectIndex != -1 && !(uint16_t(barrelDefinition.Flags) & 1))
+		{
+			auto unitObject = Blam::Objects::Get(unitObjectIndex);
+			auto magnificationLevel = *((uint8_t*)unitObject + 0x324);
+			if (forcedScope)
+				magnificationLevel = scopeLevel;
+			auto magnification = weapon_caclulate_magnification(weaponObjectIndex, magnificationLevel);
+			if (magnification > 0.000099999997f)
+				magnificationFactor = 1.0f / magnification;
+		}
+
+		// from h3, h2v
+		auto fireTimePenalty = unit_calculate_fire_time_penalty(unitObjectIndex, weaponObjectIndex);
+		if ((uint32_t(weaponDefinition->WeaponFlags1) >> 27) & 1) // old error code
+		{
+			if (weapon_is_being_dual_wielded(weaponObjectIndex))
+				fireTimePenalty = 1.0f;
+			else
+				fireTimePenalty = 0.0f;
+		}
+
+		auto errorAngleMin = barrelDefinition.ErrorAngleBounds.Lower.Value;
+		if (errorAngleMin == 0.0f)
+			errorAngleMin = barrelDefinition.ProjectileErrorAngleBounds.Lower.Value;
+
+		auto errorAngleMax = barrelDefinition.ErrorAngleBounds.Upper.Value;
+		if (errorAngleMax == 0.0f)
+			errorAngleMax = barrelDefinition.ProjectileErrorAngleBounds.Upper.Value;
+
+		auto min = barrelDefinition.ProjectileErrorAngleBounds.Lower.Value * (1.0f - fireTimePenalty) + (errorAngleMin * fireTimePenalty);
+		auto max = barrelDefinition.ProjectileErrorAngleBounds.Upper.Value * (1.0f - fireTimePenalty) + (errorAngleMax * fireTimePenalty);
+		auto errorAngle = (max - min)  * magnificationFactor * error + min * magnificationFactor;
+
+		return errorAngle;
+	}
+
+	uint32_t weapon_barrel_update_hook(uint32_t weaponObjectIndex, int barrelIndex)
+	{
+		using WeaponDefinition = Blam::Tags::Items::Weapon;
+
+		const auto weapon_update_barrel = (bool(*)(uint32_t weaponObjectIndex, int barrelIndex))(0x00B60BD0);
+
+		auto result = weapon_update_barrel(weaponObjectIndex, barrelIndex);
+
+		auto weaponObject = Blam::Objects::Get(weaponObjectIndex);
+		auto weaponDefinition = Blam::Tags::TagInstance(weaponObject->TagIndex).GetDefinition<WeaponDefinition>();
+
+		if (weaponObject && barrelIndex < weaponDefinition->Barrels.Count)
+		{
+			auto barrels = (s_weapon_barrel*)((uint8_t*)weaponObject + 0x204);
+			auto &barrel = barrels[barrelIndex];
+			auto &barrelDefinition = weaponDefinition->Barrels[barrelIndex];
+
+			auto secondsPerTick = Blam::Time::GetSecondsPerTick();
+
+			if (barrel.state == _weapon_barrel_state_firing)
+			{
+				auto weaponObjectFlags = *((uint8_t*)weaponObject + 0x179);
+
+				uint32_t unitObjectIndex = -1;
+				if (weaponObjectFlags & 1)
+					unitObjectIndex = *(uint32_t*)((uint8_t*)weaponObject + 0x184);
+
+				// TODO: zero values in tag
+				auto unitObject = Blam::Objects::Get(unitObjectIndex);
+				auto isCrouching = unitObject && *(float*)((uint8_t*)unitObject + 0x418) > 0;
+				auto hasBloomFunction = (&barrelDefinition.FiringPenaltyFunction)[unitObject && isCrouching ? 0 : 1].Count > 0;
+
+				auto t = Blam::Time::GetSecondsPerTick();
+
+				if (!hasBloomFunction)
+				{
+					auto fireTimePenalty = unit_calculate_fire_time_penalty(unitObjectIndex, weaponObjectIndex);
+					if ((uint32_t(weaponDefinition->WeaponFlags1) >> 27) & 1) // old error code
+					{
+						if (weapon_is_being_dual_wielded(weaponObjectIndex))
+							fireTimePenalty = 1.0f;
+						else
+							fireTimePenalty = 0.0f;
+					}
+
+					auto errorAccelerationTime = fireTimePenalty * barrelDefinition.Unknown1 + (1.0f - fireTimePenalty) * barrelDefinition.Unknown9;
+					barrel.error += t * errorAccelerationTime;
+				}
+
+				barrel.recoil += t * barrelDefinition.Unknown6;
+			}
+			else
+			{
+				barrel.error -= barrelDefinition.BloomRateOfDecay * secondsPerTick;
+				barrel.recoil -= barrelDefinition.Unknown7 * secondsPerTick;
+			}
+
+			if (barrel.error > 1) barrel.error = 1;
+			if (barrel.error < 0) barrel.error = 0;
+			if (barrel.recoil > 1) barrel.recoil = 1;
+			if (barrel.recoil < 0) barrel.recoil = 0;
+
+			return  result | ((barrel.error != 0.0f) ? 1 : 0);
+		}
+
+		return result;
+	}
+
+	bool weapon_bloom_decay_hook(uint32_t weaponObjectIndex, int barrelIndex)
 	{
 		return false;
 	}

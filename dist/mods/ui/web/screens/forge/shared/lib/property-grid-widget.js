@@ -52,7 +52,7 @@
 
             render();
             _listWidget.refresh();
-            _listWidget.setSelected(selectedIndex);
+            _listWidget.setSelected(selectedIndex, false);
 
             if (selectedIndex < 0 || selectedIndex >= _items.length)
                 return;

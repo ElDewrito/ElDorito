@@ -178,7 +178,11 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 		return QueryError_Ok;
 	}
 
-
+	QueryError OnScoreboardHide(const rapidjson::Value &p_Args, std::string *p_Result)
+	{
+		Web::Ui::WebScoreboard::Hide();
+		return QueryError_Ok;
+	}
 
 	QueryError OnGameVariantInfo(const rapidjson::Value &p_Args, std::string *p_Result)
 	{

@@ -19,26 +19,32 @@
 #include "../../Blam/BlamObjects.hpp"
 #include "../../Blam/Tags/Items/DefinitionWeapon.hpp"
 #include "../../Blam/BlamTime.hpp"
+#include "../../Modules/ModuleGame.hpp"
 
 using namespace Blam::Input;
 using namespace Blam::Events;
 
 namespace
 {
+	const float kScoreboardUpdateRateSeconds = 0.25f;
+
+	bool scoreboardShown = false;
 	bool locked = false;
 	bool postgame = false;
+	bool pregame = false;
 	bool returningToLobby = false;
 	bool acceptsInput = true;
 	bool pressedLastTick = false;
 	bool spawningSoon = false;
+	bool roundInProgress = false;
 	int lastPressedTime = 0;
 	uint32_t postgameDisplayed;
 	const float postgameDelayTime = 2;
-	time_t scoreboardSentTime = 0;
-
+	uint32_t scoreboardSentTime = 0;
 
 	void OnEvent(Blam::DatumHandle player, const Event *event, const EventDefinition *definition);
 	void OnGameInputUpdated();
+	void getScoreboardInternal(rapidjson::Writer<rapidjson::StringBuffer>& writer);
 }
 
 namespace Web::Ui::WebScoreboard
@@ -47,7 +53,7 @@ namespace Web::Ui::WebScoreboard
 	{
 		Patches::Events::OnEvent(OnEvent);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
-		time(&scoreboardSentTime);
+		scoreboardSentTime = 0;
 	}
 
 	void Show(bool locked, bool postgame)
@@ -56,17 +62,23 @@ namespace Web::Ui::WebScoreboard
 		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
 
 		jsonWriter.StartObject();
+		jsonWriter.Key("expanded");
+		jsonWriter.Bool(Modules::ModuleGame::Instance().VarExpandedScoreboard->ValueInt != 0);
 		jsonWriter.Key("locked");
 		jsonWriter.Bool(locked);
 		jsonWriter.Key("postgame");
 		jsonWriter.Bool(postgame);
+		jsonWriter.Key("scoreboardData");
+		getScoreboardInternal(jsonWriter);
 		jsonWriter.EndObject();
 
+		scoreboardShown = true;
 		ScreenLayer::Show("scoreboard", jsonBuffer.GetString());
 	}
 
 	void Hide()
 	{
+		scoreboardShown = false;
 		ScreenLayer::Hide("scoreboard");
 	}
 
@@ -98,10 +110,12 @@ namespace Web::Ui::WebScoreboard
 		if (!postgame && !isMainMenu) {
 			time_t curTime1;
 			time(&curTime1);
-			if (scoreboardSentTime != 0 && curTime1 - scoreboardSentTime > 1)
+
+			if (scoreboardShown && Blam::Time::TicksToSeconds(scoreboardSentTime++) > kScoreboardUpdateRateSeconds)
 			{
-				Web::Ui::ScreenLayer::Notify("scoreboard", getScoreboard(), true);
-				time(&scoreboardSentTime);
+				scoreboardSentTime = 0;
+				Web::Ui::ScreenLayer::NotifyScreen("scoreboard", "scoreboard", getScoreboard());
+				
 			}
 		}
 
@@ -119,6 +133,7 @@ namespace Web::Ui::WebScoreboard
 				locked = false;
 				postgame = false;
 				acceptsInput = false;
+				pregame = true;
 				Web::Ui::WebScoreboard::Show(locked, postgame);
 			}
 		}
@@ -144,7 +159,8 @@ namespace Web::Ui::WebScoreboard
 		}
 		previousEngineState = currentEngineState;
 
-		if (game_engine_round_in_progress())
+		roundInProgress = game_engine_round_in_progress();
+		if (roundInProgress)
 		{
 			Blam::Players::PlayerDatum *player{ nullptr };
 			auto playerIndex = Blam::Players::GetLocalPlayer(0);
@@ -157,7 +173,7 @@ namespace Web::Ui::WebScoreboard
 			if (player->SlaveUnit != Blam::DatumHandle::Null)
 			{
 				spawningSoon = false;
-
+				pregame = false;
 				if (!previousHasUnit)
 				{
 					acceptsInput = true;
@@ -182,179 +198,10 @@ namespace Web::Ui::WebScoreboard
 
 	std::string getScoreboard()
 	{
-		rapidjson::StringBuffer buffer;
-		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-
-		writer.StartObject();
-
-		auto session = Blam::Network::GetActiveSession();
-		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
-		auto* scoreboard = get_multiplayer_scoreboard();
-		if (!session || !session->IsEstablished() || !scoreboard)
-		{
-			writer.EndObject();
-			return buffer.GetString();
-		}
-		
-		writer.Key("playersInfo");
-		writer.String(Modules::ModuleServer::Instance().VarPlayersInfoClient->ValueString.c_str());
-
-		writer.Key("hasTeams");
-		writer.Bool(session->HasTeams());
-
-		auto get_number_of_rounds = (int(*)())(0x005504C0);
-		auto get_current_round = (int(*)())(0x00550AD0);
-
-		writer.Key("numberOfRounds");
-		writer.Int(get_number_of_rounds());
-
-		writer.Key("currentRound");
-		writer.Int(get_current_round());
-
-		
-		writer.Key("totalScores");
-		writer.StartArray();
-		for (int t = 0; t < 8; t++)
-		{
-			writer.Int(scoreboard->TeamScores[t].TotalScore);
-		}
-		writer.EndArray();
-
-		writer.Key("teamScores");
-		writer.StartArray();
-		for (int t = 0; t < 8; t++)
-		{
-			writer.Int(scoreboard->TeamScores[t].Score);
-		}
-		writer.EndArray();
-		
-		
-		int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
-
-		if (variantType >= 0 && variantType < Blam::GameTypeCount)
-		{
-			writer.Key("gameType");
-			writer.String(Blam::GameTypeNames[variantType].c_str());
-		}
-
-		auto& playersGlobal = ElDorito::GetMainTls(0x40)[0];
-		uint32_t playerStatusBase = 0x2161808;
-
-		writer.Key("players");
-		writer.StartArray();
-		int playerIdx = session->MembershipInfo.FindFirstPlayer();
-		bool teamObjective[10] = { 0 };
-		while (playerIdx != -1)
-		{
-			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
-			auto playerStats = Blam::Players::GetStats(playerIdx);
-
-			writer.StartObject();
-			// Player information
-			writer.Key("name");
-			writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
-			writer.Key("serviceTag");
-			writer.String(Utils::String::ThinString(player.Properties.ServiceTag).c_str());
-			writer.Key("team");
-			writer.Int(player.Properties.TeamIndex);
-			std::stringstream color;
-			color << "#" << std::setw(6) << std::setfill('0') << std::hex << player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary];
-			writer.Key("color");
-			writer.String(color.str().c_str());
-			char uid[17];
-			Blam::Players::FormatUid(uid, player.Properties.Uid);
-			writer.Key("UID");
-			writer.String(uid);
-			writer.Key("isHost");
-			if (Modules::ModuleServer::Instance().VarServerDedicatedClient->ValueInt == 1)
-				writer.Bool(false);
-			else {
-				writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
-			}
-			uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
-			writer.Key("isAlive");
-			writer.Bool(alive == 1);
-			// Generic score information
-			writer.Key("kills");
-			writer.Int(scoreboard->PlayerScores[playerIdx].Kills);
-			writer.Key("assists");
-			writer.Int(scoreboard->PlayerScores[playerIdx].Assists);
-			writer.Key("deaths");
-			writer.Int(scoreboard->PlayerScores[playerIdx].Deaths);
-			writer.Key("score");
-			writer.Int(scoreboard->PlayerScores[playerIdx].Score);
-			writer.Key("totalScore");
-			writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
-			writer.Key("playerIndex");
-			writer.Int(playerIdx);
-			writer.Key("bestStreak");
-			writer.Int(scoreboard->PlayerScores[playerIdx].HighestSpree);
-
-			bool hasObjective = false;
-			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
-			if (playerDatum.GetSalt() && playerDatum.SlaveUnit != Blam::DatumHandle::Null)
-			{
-				auto unitObjectPtr = Pointer(Blam::Objects::Get(playerDatum.SlaveUnit));
-				if (unitObjectPtr)
-				{
-					auto rightWeaponIndex = unitObjectPtr(0x2Ca).Read<uint8_t>();
-					if (rightWeaponIndex != 0xFF)
-					{
-						auto rightWeaponObject = Blam::Objects::Get(unitObjectPtr(0x2D0 + 4 * rightWeaponIndex).Read<uint32_t>());
-						if (rightWeaponObject)
-						{
-							auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-							hasObjective = weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
-							if (hasObjective && session->HasTeams()) {
-								teamObjective[player.Properties.TeamIndex] = true;
-								if(session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
-									hasObjective = false;
-							}		
-						}
-					}
-				}
-			}
-
-			writer.Key("hasObjective");
-			writer.Bool(hasObjective);
-
-			//gametype specific stats
-			writer.Key("flagKills");
-			writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Flag].Kills);
-			writer.Key("ballKills");
-			writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Ball].Kills);
-
-			writer.Key("kingsKilled");
-			writer.Int(playerStats.KingsKilled);
-			writer.Key("timeInHill");
-			writer.Int(playerStats.TimeInHill);
-			writer.Key("timeControllingHill");
-			writer.Int(playerStats.TimeControllingHill);
-
-			writer.Key("humansInfected");
-			writer.Int(playerStats.HumansInfected);
-			writer.Key("zombiesKilled");
-			writer.Int(playerStats.ZombiesKilled);
-
-			writer.EndObject();
-			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
-		}
-		writer.EndArray();
-
-		if (session->HasTeams()) {
-			writer.Key("teamHasObjective");
-			writer.StartArray();
-			for (int i = 0; i < 10; i++)
-			{
-				writer.Bool(teamObjective[i]);
-			}
-			writer.EndArray();
-		}
-		
-
-		writer.EndObject();
-
-		return buffer.GetString();
+		rapidjson::StringBuffer jsonBuffer;
+		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+		getScoreboardInternal(jsonWriter);
+		return jsonBuffer.GetString();
 	}
 }
 
@@ -364,10 +211,10 @@ namespace
 	{
 		if (event->NameStringId == 0x4004D || event->NameStringId == 0x4005A) // "general_event_game_over" / "general_event_round_over"
 		{
-			Web::Ui::ScreenLayer::Notify("scoreboard", Web::Ui::WebScoreboard::getScoreboard(), true);
-
 			postgameDisplayed = Blam::Time::GetGameTicks();
 			postgame = true;
+
+			Web::Ui::ScreenLayer::NotifyScreen("scoreboard", "scoreboard", Web::Ui::WebScoreboard::getScoreboard());
 		}
 	}
 
@@ -405,5 +252,192 @@ namespace
 			Web::Ui::WebScoreboard::Hide();
 			pressedLastTick = false;		
 		}
+	}
+
+	bool UnitHasObjective(uint32_t unitObjectIndex)
+	{
+		auto unitObject = (uint8_t*)Blam::Objects::Get(unitObjectIndex);
+		if (!unitObject)
+			return false;
+		auto rightWeaponIndex = *(unitObject + 0x2Ca);
+		if (rightWeaponIndex == 0xFF)
+			return false;
+
+		auto weaponObjectIndex = *(uint32_t*)(unitObject + 0x2D0 + 4 * rightWeaponIndex);
+		auto rightWeaponObject = Blam::Objects::Get(weaponObjectIndex);
+		if (!rightWeaponObject)
+			return false;
+
+		auto weap = Blam::Tags::TagInstance(rightWeaponObject->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		return weap->MultiplayerWeaponType != Blam::Tags::Items::Weapon::MultiplayerType::None;
+	}
+
+	void getScoreboardInternal(rapidjson::Writer<rapidjson::StringBuffer> &writer)
+	{
+		writer.StartObject();
+
+		auto session = Blam::Network::GetActiveSession();
+		auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+		auto* scoreboard = get_multiplayer_scoreboard();
+		if (!session || !session->IsEstablished() || !scoreboard)
+		{
+			writer.EndObject();
+			return;
+		}
+
+		writer.Key("playersInfo");
+		writer.String(Modules::ModuleServer::Instance().VarPlayersInfoClient->ValueString.c_str());
+
+		writer.Key("hasTeams");
+		writer.Bool(session->HasTeams());
+
+		auto get_number_of_rounds = (int(*)())(0x005504C0);
+		auto get_current_round = (int(*)())(0x00550AD0);
+
+		writer.Key("numberOfRounds");
+		writer.Int(get_number_of_rounds());
+
+		writer.Key("currentRound");
+		writer.Int(get_current_round());
+
+
+		writer.Key("totalScores");
+		writer.StartArray();
+		for (int t = 0; t < 8; t++)
+		{
+			writer.Int(scoreboard->TeamScores[t].TotalScore);
+		}
+		writer.EndArray();
+
+		writer.Key("teamScores");
+		writer.StartArray();
+		for (int t = 0; t < 8; t++)
+		{
+			writer.Int(scoreboard->TeamScores[t].Score);
+		}
+		writer.EndArray();
+
+		int32_t variantType = Pointer(0x023DAF18).Read<int32_t>();
+
+		if (variantType >= 0 && variantType < Blam::GameTypeCount)
+		{
+			writer.Key("gameType");
+			writer.String(Blam::GameTypeNames[variantType].c_str());
+		}
+
+		auto& playersGlobal = ElDorito::GetMainTls(0x40)[0];
+		uint32_t playerStatusBase = 0x2161808;
+
+		writer.Key("players");
+		writer.StartArray();
+		int playerIdx = session->MembershipInfo.FindFirstPlayer();
+		uint16_t teamHasObjectiveSet = 0;
+		while (playerIdx != -1)
+		{
+			auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+			auto playerStats = Blam::Players::GetStats(playerIdx);
+
+			bool isAlive = !roundInProgress;
+			bool hasObjective = false;
+			const auto& playerDatum = Blam::Players::GetPlayers()[playerIdx];
+			if (playerDatum.GetSalt())
+			{
+				if (roundInProgress)
+					isAlive = playerDatum.SlaveUnit != Blam::DatumHandle::Null || pregame || postgame;
+
+				if (UnitHasObjective(playerDatum.SlaveUnit))
+				{
+					hasObjective = true;
+					if (hasObjective && session->HasTeams()) {
+						teamHasObjectiveSet |= (1 << player.Properties.TeamIndex);
+						if (session->MembershipInfo.GetPeerTeam(session->MembershipInfo.LocalPeerIndex) != player.Properties.TeamIndex)
+							hasObjective = false;
+					}
+				}
+			}
+
+			writer.StartObject();
+			// Player information
+			writer.Key("name");
+			writer.String(Utils::String::ThinString(player.Properties.DisplayName).c_str());
+			writer.Key("serviceTag");
+			writer.String(Utils::String::ThinString(player.Properties.ServiceTag).c_str());
+			writer.Key("team");
+			writer.Int(player.Properties.TeamIndex);
+			char buff[17];
+			sprintf_s(buff, "#%06X", player.Properties.Customization.Colors[Blam::Players::ColorIndices::Primary]);
+			writer.Key("color");
+			writer.String(buff);
+			Blam::Players::FormatUid(buff, player.Properties.Uid);
+			writer.Key("UID");
+			writer.String(buff);
+			writer.Key("isHost");
+			if (Modules::ModuleServer::Instance().VarServerDedicatedClient->ValueInt == 1)
+				writer.Bool(false);
+			else {
+				writer.Bool(playerIdx == session->MembershipInfo.HostPeerIndex);
+			}
+
+			//uint8_t alive = Pointer(playerStatusBase + (176 * playerIdx)).Read<uint8_t>();
+			writer.Key("isAlive");
+			//writer.Bool(alive == 1);
+			writer.Bool(isAlive);
+			// Generic score information
+			writer.Key("kills");
+			writer.Int(scoreboard->PlayerScores[playerIdx].Kills);
+			writer.Key("assists");
+			writer.Int(scoreboard->PlayerScores[playerIdx].Assists);
+			writer.Key("deaths");
+			writer.Int(scoreboard->PlayerScores[playerIdx].Deaths);
+			writer.Key("score");
+			writer.Int(scoreboard->PlayerScores[playerIdx].Score);
+			writer.Key("totalScore");
+			writer.Int(scoreboard->PlayerScores[playerIdx].TotalScore);
+			writer.Key("playerIndex");
+			writer.Int(playerIdx);
+			writer.Key("bestStreak");
+			writer.Int(scoreboard->PlayerScores[playerIdx].HighestSpree);
+
+			
+
+			writer.Key("hasObjective");
+			writer.Bool(hasObjective);
+
+			//gametype specific stats
+			if (variantType == Blam::GameType::CTF || variantType == Blam::GameType::Assault || variantType == Blam::GameType::Oddball)
+			{
+				writer.Key("flagKills");
+				writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Flag].Kills);
+				writer.Key("ballKills");
+				writer.Int(playerStats.WeaponStats[Blam::Tags::Objects::DamageReportingType::Ball].Kills);
+			}
+			else if (variantType == Blam::GameType::KOTH)
+			{
+				writer.Key("kingsKilled");
+				writer.Int(playerStats.KingsKilled);
+				writer.Key("timeInHill");
+				writer.Int(playerStats.TimeInHill);
+				writer.Key("timeControllingHill");
+				writer.Int(playerStats.TimeControllingHill);
+			}
+			else if (variantType == Blam::GameType::Infection)
+			{
+				writer.Key("humansInfected");
+				writer.Int(playerStats.HumansInfected);
+				writer.Key("zombiesKilled");
+				writer.Int(playerStats.ZombiesKilled);
+			}
+
+			writer.EndObject();
+			playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+		}
+		writer.EndArray();
+
+		if (session->HasTeams()) {
+			writer.Key("teamHasObjective");
+			writer.Int(teamHasObjectiveSet);
+		}
+
+		writer.EndObject();
 	}
 }

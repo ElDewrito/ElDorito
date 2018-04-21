@@ -6,6 +6,8 @@ var playersJoinRequests = 0;
 var isFirstShow = true;
 var selectedIndex = -1;
 
+var lastRequestUsername = "";
+
 function fadeOut(userElement, reply) {
 	playersJoinRequests--;
 	dew.callMethod("discord-reply", {
@@ -27,13 +29,22 @@ function fadeOut(userElement, reply) {
 	}, 600);
 	
 	if(playersJoinRequests > 0) {
-		$("#notification").text(playersJoinRequests + " player(s) asking to join");
+		if(playersJoinRequests == 1){
+			$("#notification").text(lastRequestUsername + " wants to join your game");
+		}
+		else{
+			$("#notification").text(playersJoinRequests + " player(s) want to join your game");
+		}
 		$("#notification").show();
 	}
 	else{
 		$("#notification").hide();
 	}
 }
+
+$(window).resize(function(){
+	$('#discord-container').css("top", -$('#discord-container').height());
+});
 
 $(document).ready(function () {
 	$("#notification").hide();
@@ -92,6 +103,7 @@ $(document).ready(function () {
 	});
 	
     dew.on("discord-joinrequest", function (e) {
+		lastRequestUsername = e.data.username + '#' + e.data.discriminator;
 		var user = $('<div />', {
 			class: 'discord-user'
 		}).text(e.data.username + '#' + e.data.discriminator);
@@ -116,7 +128,12 @@ $(document).ready(function () {
 		
 		playersJoinRequests++;
 		$("#notification").show();
-		$("#notification").text(playersJoinRequests + " player(s) asking to join");
+		if(playersJoinRequests == 1){
+			$("#notification").text(lastRequestUsername + " wants to join your game");
+		}
+		else{
+			$("#notification").text(playersJoinRequests + " player(s) want to join your game");
+		}
 		
 		setTimeout(function(){
 			fadeOut(img, DISCORD_IGNORE);
@@ -130,7 +147,12 @@ $(document).ready(function () {
 		dew.captureInput(false);
 		
 		if(playersJoinRequests > 0) {
-			$("#notification").text(playersJoinRequests + " player(s) asking to join");
+			if(playersJoinRequests == 1){
+				$("#notification").text(lastRequestUsername + " wants to join your game");
+			}
+			else{
+				$("#notification").text(playersJoinRequests + " player(s) want to join your game");
+			}
 			$("#notification").show();
 		}
 		else{
@@ -189,7 +211,12 @@ $(document).ready(function () {
 			dew.captureInput(false);
 			
 			if(playersJoinRequests > 0) {
-				$("#notification").text(playersJoinRequests + " player(s) asking to join");
+				if(playersJoinRequests == 1){
+					$("#notification").text(lastRequestUsername + " wants to join your game");
+				}
+				else{
+					$("#notification").text(playersJoinRequests + " player(s) want to join your game");
+				}
 				$("#notification").show();
 			}
 			else{

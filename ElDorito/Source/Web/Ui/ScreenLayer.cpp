@@ -14,15 +14,20 @@
 #include "../../ThirdParty/rapidjson/writer.h"
 #include "../../CommandMap.hpp"
 #include "../../Modules/ModuleSettings.hpp"
+#include "../../Modules/ModuleInput.hpp"
 
 using namespace Blam::Input;
 using namespace Anvil::Client::Rendering;
 
 namespace
 {
+	const auto kVariableUpdateNotifyDebounceSeconds = 0.25f;
+
 	HHOOK MessageHook;
 	bool InputCaptured = false;
 	bool PointerCaptured = false;
+	uint32_t lastVariableUpdateTicks = 0;
+	std::vector<const Modules::Command*> lastVariableUpdates;
 
 	void WindowCreated(HWND window);
 	LRESULT CALLBACK GetMsgHook(int code, WPARAM wParam, LPARAM lParam);
@@ -30,6 +35,8 @@ namespace
 	void ShutdownRenderer();
 	void OnGameInputUpdated();
 	void OnUIInputUpdated();
+	void NotifyVariablesUpdated();
+	void OnVariableUpdate(const Modules::Command *comamnd);
 
 	void QuickBlockInput();
 	void QuickUnblockInput();
@@ -98,11 +105,13 @@ namespace Web::Ui::ScreenLayer
 		Patches::Ui::OnCreateWindow(WindowCreated);
 		Patches::Core::OnShutdown(ShutdownRenderer);
 		Patches::Input::RegisterDefaultInputHandler(OnGameInputUpdated);
+		Modules::CommandMap::Instance().OnVariableUpdate(OnVariableUpdate);
 	}
 
 	void Tick()
 	{
 		WebRenderer::GetInstance()->Update();
+		NotifyVariablesUpdated();
 	}
 
 	void Resize()
@@ -145,6 +154,15 @@ namespace Web::Ui::ScreenLayer
 			return;
 		// ui.notify(event, data, broadcast, fromDew)
 		auto js = "if (window.ui) ui.notify('" + event + "'," + data + "," + (broadcast ? "true" : "false") + ",true);";
+		WebRenderer::GetInstance()->ExecuteJavascript(js);
+	}
+
+	void NotifyScreen(const std::string &screenId, const std::string &event, const std::string &data)
+	{
+		if (ElDorito::Instance().IsDedicated())
+			return;
+		// ui.notifyScreen(screen, event, data)
+		auto js = "if (window.ui) ui.notifyScreen('"+screenId+"', '" + event + "'," + data + ");";
 		WebRenderer::GetInstance()->ExecuteJavascript(js);
 	}
 
@@ -414,7 +432,15 @@ namespace
 		case WM_SYSKEYUP:
 			key.type = KEYEVENT_KEYUP;
 			if (msg->lParam & (1 << 29) && msg->wParam == VK_F4) // alt-f4
+			{
 				Modules::CommandMap::Instance().ExecuteCommand("Game.Exit");
+				return;
+			}
+			if (msg->wParam == VK_SNAPSHOT) // print-scr
+			{
+				Modules::CommandMap::Instance().ExecuteCommand("Game.TakeScreenshot");
+				return;
+			}
 			break;
 		case WM_CHAR:
 		case WM_SYSCHAR:
@@ -502,6 +528,7 @@ namespace
 	void OnUIInputUpdated()
 	{
 		auto &moduleSettings = Modules::ModuleSettings::Instance();
+		auto &moduleInput = Modules::ModuleInput::Instance();
 
 		struct ControllerAxes { int16_t LeftX, LeftY, RightX, RightY; };
 		auto& controllerAxes = *(ControllerAxes*)(0x0244D1F0 + 0x2F4);
@@ -521,7 +548,7 @@ namespace
 		writer.Key("AxisRightX");
 		writer.Double(controllerAxes.RightX / 32768.0f);
 		writer.Key("AxisRightY");
-		writer.Double((controllerAxes.RightY / 32768.0f) * (moduleSettings.VarInvertLook->ValueInt ? -1.0f : 1.0f));
+		writer.Double((controllerAxes.RightY / 32768.0f) * (moduleInput.VarControllerInvertY->ValueInt ? -1.0f : 1.0f));
 		writer.Key("LeftTrigger");
 		writer.Int(GetActionState(eGameActionUiLeftTrigger)->Ticks);
 		writer.Key("RightTrigger");
@@ -568,5 +595,63 @@ namespace
 			auto action = GetActionState(static_cast<GameAction>(i));
 			action->Flags |= eActionStateFlagsHandled;
 		}
+	}
+
+	void OnVariableUpdate(const Modules::Command *command)
+	{
+		lastVariableUpdates.push_back(command);
+	}
+
+	void NotifyVariablesUpdated()
+	{
+		if (lastVariableUpdates.size() < 1)
+			return;
+		if (Blam::Time::TicksToSeconds(lastVariableUpdateTicks++) < kVariableUpdateNotifyDebounceSeconds)
+			return;
+
+		lastVariableUpdateTicks = 0;
+
+		rapidjson::StringBuffer buffer;
+		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+
+		writer.StartArray();
+		while (lastVariableUpdates.size() > 0)
+		{
+			auto &command = *lastVariableUpdates.back();
+			lastVariableUpdates.pop_back();
+
+			writer.StartObject();
+			writer.Key("type");
+			writer.Int(command.Type);
+			writer.Key("module");
+			writer.String(command.ModuleName.c_str());
+			writer.Key("name");
+			writer.String(command.Name.c_str());
+			writer.Key("shortName");
+			writer.String(command.ShortName.c_str());
+			writer.Key("value");
+			switch (command.Type)
+			{
+			case Modules::eCommandTypeVariableInt:
+				writer.Int(command.ValueInt);
+				break;
+			case Modules::eCommandTypeVariableInt64:
+				writer.Int64(command.ValueInt64);
+				break;
+			case Modules::eCommandTypeVariableFloat:
+				writer.Double(command.ValueFloat);
+				break;
+			case Modules::eCommandTypeVariableString:
+				writer.String(command.ValueString.c_str());
+				break;
+			default:
+				writer.Null();
+				break;
+			}
+			writer.EndObject();
+		}
+		writer.EndArray();
+
+		Web::Ui::ScreenLayer::Notify("variable_update", buffer.GetString(), true);
 	}
 }

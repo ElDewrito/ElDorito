@@ -1,0 +1,96 @@
+@font-face{font-family:"Conduit ITC";src:url(dew://lib/Conduit-ITC.woff);}
+
+.toast-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 40px;
+    pointer-events: none;
+    z-index:9999;
+    font-family: "Conduit ITC", sans-serif;
+}
+
+.toast {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    min-width: 200px;
+    border-radius: 4px;
+    box-shadow: 10px 11px 48px 0 rgba(0, 0, 0, 0.19);
+    background: rgba(6, 19, 36, 0.9);
+    padding: 15px;
+    margin-bottom: 10px;
+    padding-right:40px;
+    transition: 300ms ease-in-out;
+    transform: translate(-200%);
+}
+
+.toast-show {
+    transform: translate(0);
+}
+
+.toast-show:after {
+    animation-name: toastIn;
+    animation-fill-mode: forwards;
+    animation-delay: 150ms;
+    animation-duration: 420ms;
+    width: 100%;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.07, 0.95);
+}
+
+.toast-hide:after {
+    animation-name: toastIn;
+    animation-fill-mode: forwards;
+    animation-direction: reverse;
+    animation-delay: 150ms;
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.07, 0.95);
+}
+
+.toast:after {
+    position: absolute;
+    right: 0px;
+    top: 0;
+    content: " ";
+    height: 100%;
+    background: rgba(68, 158, 209, 0.2);
+}
+
+.toast-content {
+    opacity: 0;
+    color: #cfcfcf;
+}
+
+.toast-show .toast-content {
+    animation-name: toastContentIn;
+    animation-fill-mode: forwards;
+    animation-delay: 500ms;
+    animation-duration: 320ms;
+    animation-timing-function: ease-in;
+}
+
+@keyframes toastIn {
+    0%,
+    50% {
+        width: 100%;
+    }
+    100% {
+        width: 10px;
+    }
+}
+
+@keyframes toastContentIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

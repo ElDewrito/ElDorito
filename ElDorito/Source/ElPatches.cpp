@@ -34,6 +34,7 @@
 #include "Patches\Maps.hpp"
 #include "Patches\GameEngineSettings.hpp"
 #include "Patches\DamageSystem.hpp"
+#include "Patches\PlayerScale.hpp"
 #include "Game\Armor.hpp"
 
 #include <fstream>
@@ -60,6 +61,7 @@ namespace Patches
 		RawInput::ApplyAll();
 		ContentItems::ApplyAll();
 		PlayerUid::ApplyAll();
+		PlayerScale::ApplyAll();
 		Input::ApplyAll();
 		Forge::ApplyAll();
 		CustomPackets::ApplyAll();
@@ -115,7 +117,7 @@ namespace Patches
 	{
 		Sprint::Tick();
 		Forge::Tick();
-
+		PlayerScale::Tick();
 		static bool appliedFirstTickPatches = false;
 		if (appliedFirstTickPatches)
 			return;

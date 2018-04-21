@@ -27,33 +27,20 @@ namespace
 			return false;
 		}
 
-		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		std::string weaponName;
-		uint16_t weaponIndex;
+		Patches::Weapon::WeaponInfo weapon;
 
 		if (Utils::String::ToLower(Arguments[0]) == "equipped") {
-			weaponName = Patches::Weapon::GetEquippedWeaponName();
-			weaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
+			weapon = Patches::Weapon::GetEquippedWeapon();
 		}
 		else
 		{
-			weaponName = Arguments[0];
-			if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
-				weaponIndex = Patches::Weapon::GetIndex(weaponName);
-			}
-			else {
-				returnInfo = "Invalid weapon name.";
-				return false;
-			}
+			auto name = Arguments[0];
+			weapon = Patches::Weapon::GetWeaponByName(name);
 		}
-
-		auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
-
-		auto weaponOffset = weaponDefinition->FirstPersonWeaponOffset;
 
 		if (Arguments.size() != 4) {
 			std::stringstream ss;
-			ss << "Weapon: " << weaponName << ", I: " << weaponOffset.I << ", J: " << weaponOffset.J << ", K: " << weaponOffset.K;
+			ss << "Weapon: " << weapon.Name << ", I: " << weapon.Offset.Modified.I << ", J: " << weapon.Offset.Modified.J << ", K: " << weapon.Offset.Modified.K;
 			returnInfo = ss.str();
 			return true;
 		}
@@ -61,11 +48,10 @@ namespace
 		auto offset = ToOffset(Arguments[1], Arguments[2], Arguments[3]);
 
 		// update offset
-		weaponOffset = offset;
-		Patches::Weapon::SetOffsetModified(weaponName, offset);
+		Patches::Weapon::SetOffsetModified(weapon.Name, offset);
 
 		std::stringstream ss;
-		ss << "Weapon: " << weaponName << ", I: " << weaponOffset.I << ", J: " << weaponOffset.J << ", K: " << weaponOffset.K;
+		ss << "Weapon: " << weapon.Name << ", I: " << weapon.Offset.Modified.I << ", J: " << weapon.Offset.Modified.J << ", K: " << weapon.Offset.Modified.K;
 		returnInfo = ss.str();
 
 		return true;
@@ -73,38 +59,35 @@ namespace
 
 	bool CommandWeaponOffsetReset(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		if (IsMainMenu())
+		{
+			returnInfo = "This command is unavailable at the moment, please try again when not on the mainmenu.";
+			return false;
+		}
+
 		if (Arguments.size() < 1) {
 			returnInfo = "Invalid argument, for a list of weapon name use the 'Weapon.List' command.";
 			return false;
 		}
 
-		auto &weaponVars = Modules::ModuleWeapon::Instance();
-		std::string weaponName;
-		uint16_t weaponIndex;
+		Patches::Weapon::WeaponInfo weapon;
 
 		if (Utils::String::ToLower(Arguments[0]) == "equipped") {
-			weaponName = Patches::Weapon::GetEquippedWeaponName();
-			weaponIndex = Patches::Weapon::GetEquippedWeaponIndex();
+			weapon = Patches::Weapon::GetEquippedWeapon();
 		}
 		else
 		{
-			weaponName = Arguments[0];
-			if (Patches::Weapon::GetIndex(weaponName) != 0xFFFF) {
-				weaponIndex = Patches::Weapon::GetIndex(weaponName);
-			}
-			else {
-				returnInfo = "Invalid weapon name.";
-				return false;
-			}
+			auto name = Arguments[0];
+			weapon = Patches::Weapon::GetWeaponByName(name);
 		}
 
-		auto *weaponDefinition = TagInstance(weaponIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+		auto *weaponDefinition = TagInstance(weapon.Index).GetDefinition<Blam::Tags::Items::Weapon>();
 
-		weaponDefinition->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(true, weaponName);
-		Patches::Weapon::SetOffsetModified(weaponName, Patches::Weapon::GetOffsetByName(true, weaponName));
+		weaponDefinition->FirstPersonWeaponOffset = Patches::Weapon::GetOffsetByName(true, weapon.Name);
+		Patches::Weapon::SetOffsetModified(weapon.Name, Patches::Weapon::GetOffsetByName(true, weapon.Name));
 
 		std::stringstream ss;
-		ss << "Weapon: " << weaponName << " offset reset to default.";
+		ss << "Weapon: " << weapon.Name << " offset reset to default.";
 		returnInfo = ss.str();
 
 		return true;
@@ -112,7 +95,20 @@ namespace
 
 	bool CommandLoadWeaponsJSON(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		Patches::Weapon::Config::LoadJSON(Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString);
+		bool changeJson = false;
+		if (Arguments.size() > 0)
+			for (auto&& name : Modules::ModuleWeapon::Instance().WeaponsJSONList)
+				if (Arguments[0] == name)
+					changeJson = true;
+
+		if (changeJson)
+			Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString = Arguments[0];
+
+		auto file = Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString;
+		if (Utils::String::ToLower(file) == "default")
+			Patches::Weapon::SetOffsetDefaultAll();
+		else
+			Patches::Weapon::Config::LoadJSON(file);
 
 		returnInfo = "Weapons json loaded successfully.";
 		return true;
@@ -120,6 +116,12 @@ namespace
 
 	bool CommandSaveWeaponsJSON(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
+		if (IsMainMenu())
+		{
+			returnInfo = "This command is unavailable at the moment, please try again when not on the mainmenu.";
+			return false;
+		}
+
 		Patches::Weapon::Config::SaveJSON(Modules::ModuleWeapon::Instance().VarWeaponJSON->ValueString);
 
 		returnInfo = "Weapons json saved successfully.";
@@ -423,7 +425,7 @@ namespace Modules
 	{
 		AddCommand("Offset", "weap_off", "This changes weapon offset.", eCommandFlagsNone, CommandWeaponOffset, { "Weapon Name", "I Offset", "J Offset", "K Offset" });
 		AddCommand("Offset.Reset", "weap_off_res", "This resets weapon offset to default.", eCommandFlagsNone, CommandWeaponOffsetReset, { "Weapon Name" });
-		VarAutoSaveOnMapLoad = AddVariableInt("AutoSaveOnMapLoad", "weap_auto_save", "This determines if the offsets get saved on map load.", eCommandFlagsArchived, 0);
+		//VarAutoSaveOnMapLoad = AddVariableInt("AutoSaveOnMapLoad", "weap_auto_save", "This determines if the offsets get saved on map load.", eCommandFlagsArchived, 0);
 		VarWeaponJSON = AddVariableString("JSON.File", "weap_json_file", "The file weapon changes are saved to.", eCommandFlagsArchived, "default");
 		AddCommand("JSON.Load", "weap_json_load", "This loads weapon offset.", eCommandFlagsNone, CommandLoadWeaponsJSON);
 		AddCommand("JSON.Save", "weap_json_save", "This saves weapon offset.", eCommandFlagsNone, CommandSaveWeaponsJSON);

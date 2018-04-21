@@ -506,8 +506,8 @@ namespace Blam::Tags::Items
 			float AngleChangeDecelerationTime;
 			int16_t AngleChangeFunction;
 			int16_t Unknown5;
-			uint32_t Unknown6;
-			uint32_t Unknown7;
+			float Unknown6;
+			float Unknown7;
 			float FiringEffectDecelerationTime;
 			float Unknown8;
 			float RateOfFireAccelerationTime;

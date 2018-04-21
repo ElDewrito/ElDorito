@@ -15,6 +15,23 @@
 .window-header {
     height: 65px;
     min-height: 65px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width:100%;
+}
+
+.window-header .window-title {
+    display:flex;
+    flex:1;
+}
+
+
+.window-header  .object-quota {
+    color:var(--color-ice-blue);
+    transform: scale(0.8);
+    font-size: 1.2em;
 }
 
 .screen {
@@ -217,9 +234,33 @@
     flex-direction: row;
     align-items: center;
     padding: 10px 10px;
-    height: 40px;
-    min-height: 40px;
+    height: 60px;
+    min-height: 60px;
     font-size: var(--list-item-font-size);
+    border-bottom: 1px solid rgba(100,100,100,0.2);
+}
+
+.prefab-list .item .left-side {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.prefab-list  .item .item-name {
+    display:block;
+
+}
+
+.prefab-list  .item .item-author {
+    display:block;
+    color: #8a8a8a;
+    text-transform:initial;
+    color: var(--color-ice-blue);
+    margin-top: 2px;
+}
+
+.prefab-list  .item .item-object-count {
+     color: var(--color-ice-blue)
 }
 
 .prefabs-screen .prefab-list .item.selected {
@@ -332,3 +373,6 @@
 .kbm-only {
     display: none;
 }
+
+
+

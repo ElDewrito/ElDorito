@@ -28,8 +28,10 @@
 #include "../Forge/ForgeVolumes.hpp"
 #include "../Forge/PrematchCamera.hpp"
 #include "../Modules/ModuleForge.hpp"
+#include "../Modules/ModulePlayer.hpp"
 #include "../Web/Ui/ScreenLayer.hpp"
 #include "../Web/Ui/WebForge.hpp"
+#include "../Web/Ui/WebConsole.hpp"
 #include <cassert>
 #include <queue>
 #include <stack>
@@ -50,6 +52,7 @@ namespace
 	const auto HELDOBJECT_ROTATION_SENSITIVTY_BASE = 0.5f;
 	const auto REFORGE_DEFAULT_SHADER = 0x3ab0;
 	const auto INVISIBLE_MATERIAL_INDEX = 121;
+	const auto MAP_MODIFIER_TAG_INDEX = 0x5728;
 
 	const auto UI_PlaySound = (void(*)(int index, uint32_t uiSoundTagIndex))(0x00AA5CD0);
 
@@ -61,6 +64,7 @@ namespace
 	void __stdcall RotateHeldObjectHook(uint32_t playerIndex, uint32_t objectIndex, float xRot, float yRot, float zRot);
 	void SpecialWeaponHUDHook(int a1, uint32_t unitObjectIndex, int a3, uint32_t* objectsInCluster, int16_t objectcount, BYTE* activeSpecialChudTypes);
 	void ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex);
+	void ObjectGrabbedHook2(uint32_t playerIndex, uint32_t objectIndex);
 	void ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3);
 	void ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex);
 	void ObjectSpawnedHook(uint32_t tagIndex, uint32_t playerIndex, const RealVector3D* position);
@@ -77,8 +81,9 @@ namespace
 	void* ObjectPropertiesUIAllocateHook(int size);
 	void* ObjectCreationUIAllocateHook(int size);
 	void RenderMeshPartHook(void* data, int a2);
+	int ObjectLightingQualityOverrideHook();
 	void RenderObjectTransparentHook();
-	void RenderObjectCompressionInfoHook();
+	void RenderObjectCompressionInfoHook(uint8_t *compressionInfo);
 	void UpdateObjectCachedColorPermutationRenderStateHook(uint32_t objectIndex, bool invalidated);
 	int CreateOrGetBudgetForItem(Blam::MapVariant *thisptr, int tagIndex);
 
@@ -91,6 +96,7 @@ namespace
 	void __fastcall sub_584CF0_hook(MapVariant *thisptr, void *unused);
 	void __fastcall MapVariant_SyncObjectProperties_Object_Properties_Hook(Blam::MapVariant* thisptr, void* unused,
 		Blam::MapVariant::VariantProperties *placementProps, uint32_t objectIndex);
+	void MapVariant_BuildVariantPropertiesFromObjectHook(Blam::MapVariant::VariantPlacement *placement);
 
 	void __fastcall c_map_variant_initialize_from_scenario_hook(Blam::MapVariant *thisptr, void* unused);
 	void __fastcall c_map_variant_update_item_budget_hook(Blam::MapVariant *thisptr, void* unused, int budgetIndex, char arg_4);
@@ -112,6 +118,7 @@ namespace
 	struct ScreenEffectData;
 	void ScreenEffectsHook(RealVector3D *a1, RealVector3D *a2, ScreenEffectData *renderData, void *a4, int localPlayerIndex);
 	void GameEngineTickHook();
+	bool GameObjectResetHook(uint32_t objectIndex);
 
 	bool __fastcall sub_724890_hook(void *thisptr, void *unused, int a2, int a3, float *matrix);
 
@@ -120,13 +127,20 @@ namespace
 	void RenderAtmosphereHook(short bspIndex, void *state);
 	void BspWeatherHook();
 	void BackgroundSoundEnvironmentHook(float a1);
+	void scenario_place_sky_scenery_hook(uint32_t scenarioTagIndex, uint32_t activeBsp);
+
+	void EvaluateRigidBodyNodesHook();
+	uint32_t __cdecl HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6);
+	void __fastcall c_havok_component__activate_hook(uint8_t *thisptr, void *unused);
 
 	void GrabSelection(uint32_t playerIndex);
 	void DoClone(uint32_t playerIndex, uint32_t objectIndexUnderCrosshair);
 	void HandleMovementSpeed();
+	void HandleMonitorNoclip();
 	void HandleCommands();
 	bool UpdateWeatherEffects();
 	void OnMonitorModeChange(bool isMonitor);
+	bool CanThemeObject(uint32_t objectIndex);
 
 	std::vector<Patches::Forge::ItemSpawnedCallback> s_ItemSpawnedCallbacks;
 
@@ -191,9 +205,17 @@ namespace
 		float Turbulance;
 	};
 
+
+	enum ForgeSkyFlags
+	{
+		eForgeSkyFlags_UseMapModifierTransform = (1 << 0)
+	};
+
 	struct {
 		bool IsValid = false;
 		bool IsActive = false;
+		bool WaitingForNewRound;
+		uint32_t ObjectIndex;
 		struct {
 			bool KillBarriersEnabled;
 			bool PushBarriersEnabled;
@@ -207,21 +229,20 @@ namespace
 		} CameraFx;
 		struct {
 			bool Enabled;
-			uint32_t WeatherEffectTagIndex = -1;
+			uint8_t WeatherIndex = 0xff;
 			Blam::Math::RealColorRGB FogColor;
 			float FogDensity;
 			float FogVisibility;
-			float Brightness;
-			float LightSourceX;
-			float LightSourceY;
-			
+			float Brightness;	
 		} Atmosphere;
 
 		struct {
 			uint32_t Index;
+			uint32_t Flags;
 			uint32_t SceneryObjectIndex;
 			uint32_t BackgroundSoundDatumIndex;
 			uint32_t ScreenEffectDatumIndex;
+
 		} ForgeSky;
 	} 
 	mapModifierState;
@@ -231,13 +252,28 @@ namespace
 	struct {
 		bool IsValid = false;
 		bool MonitorLastTick = false;
+		bool NoclipLastTick = false;
+		uint32_t HeldObjectIndex = -1;
+		uint32_t HeldObjectComplexRootRigidBodyNodeIndex = -1;
 		RealVector3D GrabOffset;
 	} monitorState;
+
+	struct {
+		bool IsValid;
+		float Scale;
+		float OffsetX;
+		float OffsetY;
+	} customTextureModeState;
 
 	const auto SpawnWeatherEffect = (unsigned int(*)(int effectTagIndex))(0x005B8BD0);
 	const auto FreeWeatherEffect = (void(*)(signed int effectDatumIndex))(0x005B6FC0);
 
 	ForgeGlobalsDefinition *forgeGlobals_;
+
+	std::bitset<0xffff> cachedReforgeTagIndexSet;
+
+	bool objectLightingQualityOverride = false;
+	bool inSandboxEngine = false;
 }
 
 namespace Patches::Forge
@@ -261,6 +297,7 @@ namespace Patches::Forge
 		Hook(0x275655, PushBarriersGetStructureDesignHook, HookFlags::IsCall).Apply();
 		Hook(0x19FA69, RotateHeldObjectHook, HookFlags::IsCall).Apply();
 		Hook(0x7350A, ObjectGrabbedHook, HookFlags::IsCall).Apply();
+		Hook(0x19B14D, ObjectGrabbedHook2, HookFlags::IsCall).Apply();
 		Hook(0x7356F, ObjectDroppedHook, HookFlags::IsCall).Apply();
 		Hook(0x734FC, ObjectDeleteHook, HookFlags::IsCall).Apply();
 		Hook(0x73527, ObjectPropertiesChangeHook, HookFlags::IsCall).Apply();
@@ -274,6 +311,8 @@ namespace Patches::Forge
 		Hook(0x181326, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x1824EA, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
 		Hook(0x185BBD, MapVariant_SyncObjectPropertiesHook, HookFlags::IsCall).Apply();
+		// function uses XMM registers to copy the zone properties which can destroy the data stored there, reimplement it
+		Hook(0x186680, MapVariant_BuildVariantPropertiesFromObjectHook).Apply();
 
 		// hook the object properties menu to show the cef one
 		Hook(0x6E25A0, ObjectPropertiesUIAllocateHook, HookFlags::IsCall).Apply();
@@ -289,6 +328,8 @@ namespace Patches::Forge
 		Hook(0x679136, RenderMeshPartHook, HookFlags::IsCall).Apply(); // transparent
 		// disable the lightmap for reforge objects
 		Hook(0x7BEEEE, LightmapHook, HookFlags::IsCall).Apply();
+		// hack to fix lighting on scaled bipeds
+		Hook(0x647695, ObjectLightingQualityOverrideHook, HookFlags::IsCall).Apply();
 
 		// prevent the object from lurching forward when being rotated
 		Pointer(0x0059FA95 + 4).Write((float*)&HELDOBJECT_DISTANCE_MIN);
@@ -332,6 +373,10 @@ namespace Patches::Forge
 
 		Hook(0x1337F1, GameEngineTickHook, HookFlags::IsCall).Apply();
 
+		// prevent objectives getting reset when below the scenario game object reset point when map barriers are disabled
+		Hook(0x58028E, GameObjectResetHook, HookFlags::IsCall).Apply();
+		Hook(0x5D4CD5, GameObjectResetHook, HookFlags::IsCall).Apply();
+
 		// disble projectile collisions on invisible material
 		Hook(0x2D8F82, sub_980E40_hook, HookFlags::IsCall).Apply();
 
@@ -345,36 +390,50 @@ namespace Patches::Forge
 		Hook(0x00639A68, CameraFxHook, HookFlags::IsCall).Apply();
 		Hook(0x00639AC1, RenderAtmosphereHook, HookFlags::IsCall).Apply();
 		// prevent weather from being reset
-		Hook(0x272230, BspWeatherHook).Apply();
+		Hook(0x27223E, BspWeatherHook).Apply();
 		Hook(0x00653D77, ShieldImpactBloomHook, HookFlags::IsCall).Apply();
 
 		// fix ragdolls falling through objects
-		Patch(0x00317269, { 0xD }).Apply();
+		Patch(0x317265, { 0xBA,0x07,0x00,0x00,0x00 }).Apply();
 		Patch(0x7D8A59, { 0xEB }).Apply();
 
 		// reforge materials
 		Hook(0x679F7F, RenderObjectTransparentHook).Apply();
-		Hook(0x679285, RenderObjectCompressionInfoHook).Apply();
+		Hook(0x679285, RenderObjectCompressionInfoHook, HookFlags::IsCall).Apply();
 
 		Hook(0x1D9BBE, BackgroundSoundEnvironmentHook, HookFlags::IsCall).Apply();
+		Hook(0x7591E4, scenario_place_sky_scenery_hook, HookFlags::IsCall).Apply();
+		// horrible hack to stop phased objects that have multiple, conflicting rigid bodies from shaking
+		Hook(0x31293C, EvaluateRigidBodyNodesHook).Apply();
+		// prevent havok from deleting reforge objects
+		Hook(0x1C469A, HavokCleanupHook, HookFlags::IsCall).Apply();
+		// force reforge rigid bodies into to a single fixed simulation island
+		Hook(0x731E5F, c_havok_component__activate_hook, HookFlags::IsCall).Apply();
 	}
 
 	void Tick()
 	{
 		const auto game_options_is_valid = (bool(*)())(0x00532650);
+		const auto game_is_sandbox_engine = (bool(*)())(0x0059A780);
+
 		if (!game_options_is_valid())
 		{
 			mapModifierState.IsValid = false;
 			monitorState.IsValid = false;
+			mapModifierState.ObjectIndex = -1;
+			monitorState.HeldObjectIndex = -1;
 			forgeGlobals_ = nullptr;
+			inSandboxEngine = false;
+			customTextureModeState.IsValid = false;
 		}
 		else
 		{
-			
 			if (!mapModifierState.IsValid)
 			{
+				inSandboxEngine = game_is_sandbox_engine();
 				memset(&mapModifierState, 0, sizeof(mapModifierState));
-				mapModifierState.Atmosphere.WeatherEffectTagIndex = -1;
+				mapModifierState.ObjectIndex = -1;
+				mapModifierState.Atmosphere.WeatherIndex = 0xff;
 				mapModifierState.ForgeSky.SceneryObjectIndex = -1;
 				mapModifierState.ForgeSky.BackgroundSoundDatumIndex = -1;
 				mapModifierState.ForgeSky.ScreenEffectDatumIndex = -1;
@@ -385,7 +444,10 @@ namespace Patches::Forge
 				mapModifierState.IsActive = false;
 
 				auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
-				mapDefaultSky.Object = scenario->SkyReferences[0].SkyObject;
+				if (scenario->SkyReferences.Count)
+					mapDefaultSky.Object = scenario->SkyReferences[0].SkyObject;
+				else
+					mapDefaultSky.Object = Blam::Tags::TagReference(0, -1);
 				mapDefaultSky.GlobalLighting = scenario->GlobalLighing;
 				mapDefaultSky.Parameters = scenario->SkyParameters;
 				mapDefaultSky.ScreenFX = scenario->DefaultScreenFx;
@@ -393,13 +455,17 @@ namespace Patches::Forge
 				mapDefaultSky.Wind = scenario->StructureBsps[0].Wind;
 				if(scenario->BackgroundSoundEnvironmentPalette2.Count)
 					mapDefaultSky.BackgroundSound = scenario->BackgroundSoundEnvironmentPalette2[0].BackgroundSound;
+
+				cachedReforgeTagIndexSet.reset();
 			}
 
 			if (!monitorState.IsValid)
 			{
 				monitorState.GrabOffset = RealVector3D(0, 0, 0);
 				monitorState.MonitorLastTick = false;
+				monitorState.NoclipLastTick = false;
 				monitorState.IsValid = true;
+				monitorState.HeldObjectIndex = -1;
 			}
 			
 		}
@@ -411,12 +477,20 @@ namespace Patches::Forge
 	}
 }
 
+namespace Forge
+{
+	bool IsReforgeObject(uint32_t objectIndex)
+	{
+		return CanThemeObject(objectIndex);
+	}
+}
+
 namespace
 {
-	const auto object_dispose = (void(*)(int objectIndex))(0x00B2CD10);
+	const auto object_dispose = (void(*)(uint32_t objectIndex))(0x00B2CD10);
 	const auto object_spawn = (uint32_t(*)(void *placementData))(0x00B30440);
 	const auto object_placement_data_new = (void(*)(void *placementData, uint32_t tagIndex, uint32_t ownerObjectIndex, void *a4))(0x00B31590);
-	const auto object_set_position = (void(*)(int objectIndex, RealVector3D *position, RealVector3D *forward, RealVector3D *up, int scenarioLocation, int a8))(0x00B33550); // client only
+	const auto object_set_position = (void(*)(uint32_t objectIndex, RealVector3D *position, RealVector3D *forward, RealVector3D *up, int scenarioLocation, int a8))(0x00B33550); // client only
 
 	ForgeGlobalsDefinition *GetForgeGlobals()
 	{
@@ -485,6 +559,7 @@ namespace
 
 			Forge::RotationSnap::Update(playerIndex, heldObjectIndex);
 			HandleMovementSpeed();
+			HandleMonitorNoclip();
 
 			if (heldObjectIndex == -1)
 			{
@@ -541,7 +616,7 @@ namespace
 				continue;
 
 			auto tagIndex = it->GetTagHandle().Index;
-			if (tagIndex == 0x5728)
+			if (tagIndex == MAP_MODIFIER_TAG_INDEX)
 				return it.CurrentDatumIndex;
 		}
 
@@ -559,8 +634,37 @@ namespace
 		return &forgeGlobals->Skies[mapModifierState.ForgeSky.Index];
 	}
 
+	Blam::DatumHandle FindObjectByName(Blam::Objects::ObjectType type, uint16_t name)
+	{
+		if (name == 0xffff)
+			return Blam::DatumHandle::Null;
+
+		auto objects = Blam::Objects::GetObjects();
+		for (auto it = objects.begin(); it != objects.end(); ++it)
+		{
+			if (it->Type == type && *(uint16_t*)((uint8_t*)it->Data + 0x9c) == name)
+				return it.CurrentDatumIndex;
+		}
+		return Blam::DatumHandle::Null;
+	}
+
 	void ReplaceForgeSkyScenery(uint32_t newSceneryTagIndex)
 	{
+		// delete map default sky scenery children
+		auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
+		for (auto &skyRef : scenario->SkyReferences)
+		{
+			for (auto &scenery : scenario->Scenery2)
+			{
+				if (scenery.ParentNameIndex != 0xffff && scenery.ParentNameIndex == skyRef.NameIndex)
+				{
+					auto objectIndex = FindObjectByName(Blam::Objects::ObjectType(scenery.Type), scenery.NameIndex);
+					if (objectIndex != Blam::DatumHandle::Null && Blam::Objects::Get(objectIndex))
+						object_dispose(objectIndex);
+				}
+			}
+		}
+
 		// delete the old sky scenery
 		if (mapModifierState.ForgeSky.SceneryObjectIndex != -1)
 		{
@@ -600,6 +704,13 @@ namespace
 			return;
 
 		auto desiredSkyIndex = mapModifierProperties->AtmosphereProperties.Skybox - 1;
+		if (desiredSkyIndex >= 0)
+		{
+			if (mapModifierProperties->AtmosphereProperties.Flags & (1 << 1))
+				mapModifierState.ForgeSky.Flags |= eForgeSkyFlags_UseMapModifierTransform;
+			else
+				mapModifierState.ForgeSky.Flags &= ~eForgeSkyFlags_UseMapModifierTransform;
+		}
 
 		auto &forgeSkyState = mapModifierState.ForgeSky;
 		if (desiredSkyIndex != forgeSkyState.Index)
@@ -699,22 +810,33 @@ namespace
 		{
 			if (forgeSkyState.Index != -1 && forgeSkyState.SceneryObjectIndex != -1)
 			{
-				auto forgeSky = GetForgeSky();
-	
-				RealVector3D position = forgeSky->Translation;
-				auto zOffset = ((mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1.0f) * 500.0f;
-				position.K += zOffset;
+				
+				if (mapModifierState.ForgeSky.Flags & eForgeSkyFlags_UseMapModifierTransform)
+				{
+					auto mapModifierObject = Blam::Objects::Get(mapModifierState.ObjectIndex);
+					if (mapModifierObject)
+					{
+						auto zOffset = ((mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1.0f) * 500.0f;
+						auto position = mapModifierObject->Position;
+						position.K += zOffset;
+						object_set_position(forgeSkyState.SceneryObjectIndex, &position, &mapModifierObject->Forward, &mapModifierObject->Up, 0, 0);
+					}
+				}
+				else
+				{
+					auto forgeSky = GetForgeSky();
 
-				auto ci = std::cos(forgeSky->Orientation.I);
-				auto cj = std::cos(forgeSky->Orientation.J);
-				auto ck = std::cos(forgeSky->Orientation.K);
-				auto si = std::sin(forgeSky->Orientation.I);
-				auto sj = std::sin(forgeSky->Orientation.J);
-				auto sk = std::sin(forgeSky->Orientation.K);
+					auto ci = std::cos(forgeSky->Orientation.I);
+					auto cj = std::cos(forgeSky->Orientation.J);
+					auto ck = std::cos(forgeSky->Orientation.K);
+					auto si = std::sin(forgeSky->Orientation.I);
+					auto sj = std::sin(forgeSky->Orientation.J);
+					auto sk = std::sin(forgeSky->Orientation.K);
 
-				RealVector3D forward { ci*cj, (si*ck) - (sj*sk)*ci, (sj*ck)*ci + (si*sk) };
-				RealVector3D up { sj, (ci*sk) - (sj*ck*si), cj*ck };
-				object_set_position(forgeSkyState.SceneryObjectIndex, &position, &forward, &up, 0, 0);
+					RealVector3D forward{ ci*cj, (si*ck) - (sj*sk)*ci, (sj*ck)*ci + (si*sk) };
+					RealVector3D up{ sj, (ci*sk) - (sj*ck*si), cj*ck };
+					object_set_position(forgeSkyState.SceneryObjectIndex, &forgeSky->Translation, &forward, &up, 0, 0);
+				}				
 			}
 		}
 	}
@@ -722,18 +844,20 @@ namespace
 	void UpdateMapModifier()
 	{
 		const auto physics_set_gravity_scale = (float(*)(float scale))(0x006818A0);
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
 
 		auto mapModifierObjectIndex = FindMapModifierObject();
-		if (mapModifierObjectIndex == -1)
+		mapModifierState.ObjectIndex = mapModifierObjectIndex;
+
+		bool roundInProgress = game_engine_round_in_progress();
+		
+		if (mapModifierObjectIndex == -1 || (mapModifierState.WaitingForNewRound && roundInProgress))
 		{
-			// the map modifier was previously spawned, but has been deleted
+			// the map modifier was previously spawned, but has been deleted or new round has started
 			if (mapModifierState.IsActive)
 			{
-				// state will be reset next tick
-				mapModifierState.IsValid = false;
-
 				// delete any weather effects
-				if (mapModifierState.Atmosphere.WeatherEffectTagIndex != -1)
+				if (mapModifierState.Atmosphere.WeatherIndex != 0xff)
 				{
 					auto rasterizerGameStates = (uint8_t*)ElDorito::GetMainTls(0x3bc)[0];
 					auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
@@ -741,14 +865,13 @@ namespace
 					currentWeatherEffectDatumIndex = -1;
 				}
 
-				
 				auto forgeSky = GetForgeSky();
 				if (forgeSky)
 				{
 					auto forgeSkyState = mapModifierState.ForgeSky;
 
 					auto scenario = Blam::Tags::Scenario::GetCurrentScenario();
-					ReplaceForgeSkyScenery(scenario->SkyReferences[0].SkyObject.TagIndex);
+					ReplaceForgeSkyScenery(mapDefaultSky.Object.TagIndex);
 
 					if (forgeSkyState.BackgroundSoundDatumIndex != -1)
 					{
@@ -773,16 +896,22 @@ namespace
 				physics_set_gravity_scale(1.0f);
 			}
 
-			return;
+			// state will be reset next tick
+			mapModifierState.IsValid = false;
 		}
 
-		mapModifierState.IsActive = true;
+		mapModifierState.WaitingForNewRound = !roundInProgress;
+
+		if (!mapModifierState.IsValid || !roundInProgress)
+			return;
 
 		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
 
 		auto mpProperties = mapModifierObject->GetMultiplayerProperties();
 		if (!mpProperties)
 			return;
+
+		mapModifierState.IsActive = true;
 
 		auto mapModifierProperties = (Forge::ForgeMapModifierProperties*)&mpProperties->RadiusWidth;
 
@@ -813,27 +942,27 @@ namespace
 		auto &currentWeatherEffectDatumIndex = *(uint32_t*)(rasterizerGameStates + 0x8);
 
 
-		uint32_t newWeatherEffectTagIndex = -1;
+		uint32_t newWeatherIndex = 0xff;
 
 		auto forgeGlobals = GetForgeGlobals();
 		auto desiredWeatherIndex = mapModifierProperties->AtmosphereProperties.Weather - 1;
 		if (desiredWeatherIndex >= 0 && desiredWeatherIndex < forgeGlobals->WeatherEffects.Count)
 		{
-			newWeatherEffectTagIndex = forgeGlobals->WeatherEffects[desiredWeatherIndex].Effect.TagIndex;
+			newWeatherIndex = desiredWeatherIndex;
 		}
 
 		UpdateForgeSky(mapModifierProperties);
 
-		if (atmosphereSettings.WeatherEffectTagIndex != newWeatherEffectTagIndex
+		if (atmosphereSettings.WeatherIndex != newWeatherIndex
 			&& currentWeatherEffectDatumIndex != -1)
 		{
-			atmosphereSettings.WeatherEffectTagIndex = -1;
+			atmosphereSettings.WeatherIndex = 0xff;
 			FreeWeatherEffect(currentWeatherEffectDatumIndex);
 			currentWeatherEffectDatumIndex = -1;
 		}
 		else
 		{
-			atmosphereSettings.WeatherEffectTagIndex = newWeatherEffectTagIndex;
+			atmosphereSettings.WeatherIndex = newWeatherIndex;
 			UpdateWeatherEffects();
 		}
 
@@ -905,6 +1034,9 @@ namespace
 			if (budget.TagIndex == -1 || budget.Cost == -1)
 				continue;
 
+			if (budget.TagIndex == 0x00002EA6)
+				continue;
+
 			if (placement.ObjectIndex != -1)
 				DeleteObject(playerHandle.Index, i);
 			else
@@ -965,6 +1097,8 @@ namespace
 	void HandlePrefabCommands()
 	{
 		auto &moduleForge = Modules::ModuleForge::Instance();
+		auto &modulePlayer = Modules::ModulePlayer::Instance();
+
 		if (moduleForge.CommandState.Prefabs.LoadPrefab)
 		{
 			if (Prefabs::Load(moduleForge.CommandState.Prefabs.Path))
@@ -981,7 +1115,7 @@ namespace
 
 		if (moduleForge.CommandState.Prefabs.SavePrefab)
 		{
-			if (!Prefabs::Save(moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
+			if (!Prefabs::Save(modulePlayer.VarPlayerName->ValueString, moduleForge.CommandState.Prefabs.Name, moduleForge.CommandState.Prefabs.Path))
 			{
 				PrintKillFeedText(0, L"ERROR: Failed to save prefab.", 0);
 			}
@@ -1065,6 +1199,57 @@ namespace
 			itemTagIndex = -1;
 		}
 	}
+
+	uint32_t SpawnMapmodifier()
+	{
+		auto mapv = Forge::GetMapVariant();
+		if (!mapv)
+			return -1;
+
+		const auto Forge_SetPlacementVariantProperties = (void(*)(uint32_t playerIndex,
+			int placementIndex, Blam::MapVariant::VariantProperties *properties))(0x0059B720);
+
+		RealVector3D forward(1, 0, 0), up(0, 0, 1);
+		auto mapModifierObjectIndex = Forge::SpawnObject(mapv, MAP_MODIFIER_TAG_INDEX, -1, -1,
+			&Forge::GetSandboxGlobals().CrosshairPoints[0], &forward, &up, -1, -1, nullptr, 0);
+
+		auto mapModifierObject = Blam::Objects::Get(mapModifierObjectIndex);
+
+		if (mapModifierObjectIndex == -1 || !mapModifierObject || mapModifierObject->PlacementIndex == -1)
+		{
+			PrintKillFeedText(0, L"Failed to spawn map modifier object. Out of objects?", 0);
+			return -1;
+		}
+
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+
+		auto &placement = mapv->Placements[mapModifierObject->PlacementIndex];
+		placement.Properties.ZoneShape = 4; // phased
+		Forge_SetPlacementVariantProperties(playerIndex, mapModifierObject->PlacementIndex, &placement.Properties);
+
+		ObjectGrabbedHook(playerIndex, mapModifierObject->PlacementIndex);
+
+		return mapModifierObjectIndex;
+	}
+
+	void HandleOpenMapOptions()
+	{
+		auto &moduleForge = Modules::ModuleForge::Instance();
+		if (!moduleForge.CommandState.OpenMapOptions)
+			return;
+
+		moduleForge.CommandState.OpenMapOptions = false;
+
+		auto mapModifierObjectIndex = FindMapModifierObject();
+		if (mapModifierObjectIndex == -1)
+			mapModifierObjectIndex = SpawnMapmodifier();
+
+		if (mapModifierObjectIndex == -1)
+			return;
+
+		Web::Ui::WebConsole::Hide();
+		Web::Ui::WebForge::ShowObjectProperties(mapModifierObjectIndex);
+	}
 	
 	void HandleCommands()
 	{
@@ -1073,6 +1258,7 @@ namespace
 		HandleSpawnItem();
 		HandleSetPrematchCamera();
 		HandlePrefabCommands();
+		HandleOpenMapOptions();
 	}
 
 	void HandleRotationReset()
@@ -1084,7 +1270,12 @@ namespace
 			|| GetMouseButtonTicks(eMouseButtonMiddle, eInputTypeGame) == 1)
 		{
 			uiUpAction->Flags |= Blam::Input::eActionStateFlagsHandled;
-			Forge::RotationSnap::RotateToScripted(RealQuaternion());
+
+			uint32_t heldObjectIndex;
+			if (Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), &heldObjectIndex, nullptr))
+			{
+				Forge::RotationSnap::RotateToScripted(heldObjectIndex, RealQuaternion());
+			}
 		}
 	}
 
@@ -1140,6 +1331,44 @@ namespace
 			Object_SetVelocity(player->SlaveUnit, &v1, &v2);
 
 			PrintKillFeedText(0, buff, 0);
+		}
+	}
+
+	void HandleMonitorNoclip()
+	{
+		const auto object_set_havok_flags = (int(*)(uint32_t objectIndex, uint32_t havokFlags))(0x005C7380);
+
+		const auto& moduleForge = Modules::ModuleForge::Instance();
+
+		auto player = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
+		if (!player)
+			return;
+		auto unitObject = Blam::Objects::Get(player->SlaveUnit.Handle);
+		if (!unitObject)
+			return;
+
+		auto noclipping = moduleForge.VarMonitorNoclip->ValueInt;
+		if (bool(noclipping) != monitorState.NoclipLastTick)
+		{
+			if (!noclipping)
+				object_set_havok_flags(player->SlaveUnit, 0);
+
+			monitorState.NoclipLastTick = noclipping;
+		}
+
+		if (noclipping)
+		{
+			auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
+			auto havokComponent = (uint8_t*)havokComponents->Get(unitObject->HavokComponent);
+			if (!havokComponent)
+				return;
+			auto rigidBodyCount = *(uint32_t*)(havokComponent + 0x18);
+			if (!rigidBodyCount)
+				return;
+			auto rigidBody = *(uint8_t**)(*(uint8_t**)(havokComponent + 0x14) + 0x40);
+			auto &collisionFilter = *(uint8_t*)(rigidBody + 0x2c);
+
+			collisionFilter = 0x13;
 		}
 	}
 
@@ -1229,11 +1458,51 @@ namespace
 		heldObjectDistance = (unitPos - crosshairPoint).Length();
 	}
 
+	uint32_t FindComplexObjectRigidBodyRootNode(uint32_t objectIndex)
+	{
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return -1;
+		auto objectDefinition = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<Blam::Tags::Objects::Object>();
+		auto modelDefinition = objectDefinition->Model.GetDefinition<uint8_t>();
+		if (!modelDefinition)
+			return -1;
+		auto physicsModelDefinition = Blam::Tags::TagInstance(*(uint32_t*)(modelDefinition + 0x3C)).GetDefinition<uint8_t>();
+		if (!physicsModelDefinition)
+			return -1;
+		auto rigidBodyCount = *(long*)(physicsModelDefinition + 0x58);
+		if (rigidBodyCount < 2)
+			return -1;
+
+		for (auto i = 0; i < rigidBodyCount; i++)
+		{
+			auto rigidBody = *(uint8_t**)(physicsModelDefinition + 0x5C) + i * 0xB0;
+			auto motionType = *(uint16_t*)(rigidBody + 0x1A);
+			auto nodeIndex = *(uint16_t*)rigidBody;
+
+			if (motionType == 0x4) // keyframed
+				return nodeIndex;
+		}
+
+		return -1;
+	}
+
+
+	void ObjectGrabbedHook2(uint32_t playerIndex, uint32_t objectIndex)
+	{
+		static auto ObjectGrabbed2 = (void(__cdecl*)(uint32_t, uint32_t))(0x0059CF50);
+
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = objectIndex;
+			monitorState.HeldObjectComplexRootRigidBodyNodeIndex = FindComplexObjectRigidBodyRootNode(objectIndex);
+		}
+
+		ObjectGrabbed2(playerIndex, objectIndex);
+	}
+
 	void __cdecl ObjectGrabbedHook(uint32_t playerIndex, uint16_t placementIndex)
 	{
-		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
-		ObjectGrabbed(playerIndex, placementIndex);
-
 		static auto FreePlacement = (void(__thiscall *)(MapVariant* mapv, int16_t placementIndex, int a3))(0x585C00);
 		static auto ObjectAttach = (void(__cdecl*)(uint32_t parentobjectIndex, uint32_t objectIndex, int a3))(0x00B2A250);
 		static auto sub_59A620 = (void(__cdecl *)(int objectIndex, char a2))(0x59A620);
@@ -1242,6 +1511,14 @@ namespace
 		auto mapv = GetMapVariant();
 
 		auto objectIndex = mapv->Placements[placementIndex].ObjectIndex;
+
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = objectIndex;
+		}
+
+		static auto ObjectGrabbed = (void(__cdecl*)(uint32_t, uint32_t))(0x0059B080);
+		ObjectGrabbed(playerIndex, placementIndex);
 
 		const auto& selection = Forge::Selection::GetSelection();
 		if (selection.Contains(objectIndex))
@@ -1266,6 +1543,39 @@ namespace
 			ApplyGrabOffset(playerIndex, objectIndex);
 	}
 
+	void RecalculateMapVariantBudget()
+	{
+		auto mapv = GetMapVariant();
+
+		// reset count on map
+		for (auto i = 0; i < 256; i++)
+			mapv->Budget[i].CountOnMap = 0;
+		
+		// count placements
+		for (auto i = 0; i < 640; i++)
+		{
+			auto &placement = mapv->Placements[i];
+			if(placement.PlacementFlags & 1)
+				mapv->Budget[placement.BudgetIndex].CountOnMap++;
+		}
+
+		// fixup runtime
+		for (auto i = 0; i < 256; i++)
+		{
+			auto &budgetItem = mapv->Budget[i];
+			if (budgetItem.RuntimeMin > budgetItem.CountOnMap)
+				budgetItem.RuntimeMin = budgetItem.CountOnMap;
+			if (budgetItem.RuntimeMax < budgetItem.CountOnMap)
+				budgetItem.RuntimeMax = budgetItem.CountOnMap;
+		}
+	}
+
+	void ObjectOutOfWorldBoundsError()
+	{
+		PrintKillFeedText(0, L"ERROR: One or more objects outside of the world bounds", 0);
+		UI_PlaySound(0, -1);
+	}
+
 	void __cdecl ObjectDroppedHook(uint16_t placementIndex, float throwForce, int a3)
 	{
 		static auto GetPlayerHoldingObject = (uint32_t(__cdecl*)(int objectIndex))(0x0059BB90);
@@ -1280,13 +1590,47 @@ namespace
 		if (droppedObjectIndex == -1)
 			return;
 
-		auto playerIndex = GetPlayerHoldingObject(droppedObjectIndex);
-
-		ObjectDropped(placementIndex, throwForce, a3);
-
 		auto droppedObject = Blam::Objects::Get(droppedObjectIndex);
 		if (!droppedObject)
 			return;
+
+
+		if (!ObjectInWorldBounds(droppedObjectIndex))
+		{
+			ObjectOutOfWorldBoundsError();
+			return;
+		}
+
+		std::stack<uint32_t> detachStack;
+		auto& selection = Forge::Selection::GetSelection();
+		if (selection.Contains(droppedObjectIndex))
+		{
+			for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
+			{
+				auto object = Blam::Objects::Get(objectIndex);
+				if (!object)
+					continue;
+
+				if (!ObjectInWorldBounds(objectIndex))
+				{
+					ObjectOutOfWorldBoundsError();
+					return;
+				}
+
+				if (selection.Contains(objectIndex))
+					detachStack.push(objectIndex);
+
+				objectIndex = object->NextSibling;
+			}
+		}
+
+		auto playerIndex = GetPlayerHoldingObject(droppedObjectIndex);
+		if (playerIndex == Blam::Players::GetLocalPlayer(0).Handle)
+		{
+			monitorState.HeldObjectIndex = -1;
+		}
+
+		ObjectDropped(placementIndex, throwForce, a3);
 
 		auto& magnetPair = Magnets::GetMagnetPair();
 		if (magnetPair.IsValid)
@@ -1297,23 +1641,6 @@ namespace
 			Object_Transform(0, droppedObjectIndex, &heldObjectPosition, nullptr, nullptr);
 		}
 
-		auto& selection = Forge::Selection::GetSelection();
-		if (!selection.Contains(droppedObjectIndex))
-			return;
-
-		std::stack<uint32_t> detachStack;
-		for (auto objectIndex = droppedObject->FirstChild; objectIndex != DatumHandle::Null;)
-		{
-			auto object = Blam::Objects::Get(objectIndex);
-			if (!object)
-				continue;
-
-			if (selection.Contains(objectIndex))
-				detachStack.push(objectIndex);
-
-			objectIndex = object->NextSibling;
-		}
-
 		while (!detachStack.empty())
 		{
 			auto objectIndex = detachStack.top();
@@ -1321,28 +1648,29 @@ namespace
 
 			static auto ObjectDetach = (void(__cdecl*)(uint32_t objectIndex))(0x00B2D180);
 			static auto AssignPlacement = (int(__thiscall *)(void *thisptr, uint32_t objectIndex, int16_t placementIndex))(0x5855E0);
-			static auto Object_Transform = (void(__cdecl *)(bool a1, uint32_t objectIndex, RealVector3D *position, RealVector3D *right, RealVector3D *up))(0x0059E340);
-			static auto Update_ObjectTransform = (void(__cdecl *)(float a1, uint32_t objectIndex))(0x0059E9C0);
 			static auto sub_B313E0 = (void(__cdecl *)(int objectIndex, bool arg_4))(0xB313E0);
 
 			auto object = Blam::Objects::Get(objectIndex);
 			if (!object)
 				continue;
+
 			if (CreateOrGetBudgetForItem(mapv, object->TagIndex) == -1)
-				continue;
+			{
+				PrintKillFeedText(0, L"ERROR: Budget limit reached", 0);
+				break;
+			}
 
 			ObjectDetach(objectIndex);
 			AssignPlacement(mapv, objectIndex, -1);
 
-			RealMatrix4x3 objectTransform;
-			GetObjectTransformationMatrix(objectIndex, &objectTransform);
-			Object_Transform(0, objectIndex, &objectTransform.Position, &objectTransform.Forward, &objectTransform.Up);
-			Update_ObjectTransform(0, objectIndex);
-
-			sub_B313E0(objectIndex, true);
-
-			ThrowObject(playerIndex, objectIndex, throwForce);
+			if (!IsReforgeObject(objectIndex))
+			{
+				sub_B313E0(objectIndex, true);
+				ThrowObject(playerIndex, objectIndex, throwForce);
+			}
 		}
+
+		RecalculateMapVariantBudget();
 	}
 
 	void __cdecl ObjectDeleteHook(uint16_t placementIndex, uint32_t playerIndex)
@@ -1557,6 +1885,13 @@ namespace
 		auto object = Blam::Objects::Get(objectIndex);
 		if (!object)
 			return false;
+
+		if (object->TagIndex >= 0xffff) // something is wrong here...
+			return false;
+	
+		if (cachedReforgeTagIndexSet.test(object->TagIndex))
+			return true;
+
 		if (!object->GetMultiplayerProperties())
 			return false;
 		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
@@ -1575,7 +1910,13 @@ namespace
 			return false;
 
 		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		return firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER;
+		if (firstMaterialShaderTagRef.TagIndex == REFORGE_DEFAULT_SHADER)
+		{
+			cachedReforgeTagIndexSet[object->TagIndex] = true;
+			return true;
+		}
+
+		return false;
 	}
 
 	bool GetObjectMaterial(void* renderData, int16_t* pMaterialIndex)
@@ -1687,7 +2028,7 @@ namespace
 		}
 	}
 
-	void RenderObjectCompressionInfo(uint8_t *data, float *compressionInfo)
+	void RenderObjectCompressionInfoHook(uint8_t *compressionInfo)
 	{
 		const auto rasterizer_set_real_vertex_shader_constant = (void(*)(int start_register, int vec4_count, const float *data))(0x00A66410);
 
@@ -1717,47 +2058,64 @@ namespace
 		constantData[5] = info->position_bounds_y_min;
 		constantData[6] = info->position_bounds_z_min;
 		constantData[7] = 0;
-	
-		auto objectIndex = *(uint32_t*)(*(uint8_t**)(data + 0x4) + 0x6c);
-		if (CanThemeObject(objectIndex))
-		{
-			auto object = Blam::Objects::Get(objectIndex);	
-			auto properties = object->GetMultiplayerProperties();
-			auto props = (ReforgeObjectProperties*)(&properties->RadiusWidth);
-			if (props->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates)
-			{
-				auto tscale = props->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
-				constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
-				constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
-				constantData[10] = props->TextureData.OffsetX / 255.0f;
-				constantData[11] = props->TextureData.OffsetY / 255.0f;
-				rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
-				return;
-			}	
-		}
 
-		constantData[8] = info->texcoord_bounds_x_max - info->texcoord_bounds_x_min;
-		constantData[9] = info->texcoord_bounds_y_max - info->texcoord_bounds_y_min;
-		constantData[10] = info->texcoord_bounds_x_min;
-		constantData[11] = info->texcoord_bounds_y_min;
+		if(customTextureModeState.IsValid)
+		{
+			auto tscale = customTextureModeState.Scale;
+			constantData[8] = (info->texcoord_bounds_x_max - info->texcoord_bounds_x_min) / tscale;
+			constantData[9] = (info->texcoord_bounds_y_max - info->texcoord_bounds_y_min) / tscale;
+			constantData[10] = customTextureModeState.OffsetX;
+			constantData[11] = customTextureModeState.OffsetY;
+			rasterizer_set_real_vertex_shader_constant(12, 3, constantData);		
+		}
+		else
+		{
+			constantData[8] = info->texcoord_bounds_x_max - info->texcoord_bounds_x_min;
+			constantData[9] = info->texcoord_bounds_y_max - info->texcoord_bounds_y_min;
+			constantData[10] = info->texcoord_bounds_x_min;
+			constantData[11] = info->texcoord_bounds_y_min;
+		}
+		
 		rasterizer_set_real_vertex_shader_constant(12, 3, constantData);
 	}
 
-
-	__declspec(naked) void RenderObjectCompressionInfoHook()
+	int ObjectLightingQualityOverrideHook()
 	{
-		__asm
-		{
+		const auto preferences_get_lighting_quality = (int(*)())(0x0050B890);
+		if (objectLightingQualityOverride)
+			return 0;
+		return preferences_get_lighting_quality();
+	}
 
-			pushad
-			push[eax + 0x78]
-			push[ebp + 0x8]
-			call RenderObjectCompressionInfo
-			add esp, 8
-			popad
-			push 0x00A7928A
-			retn
+	bool ShouldOverrideLightingQuality(uint32_t objectIndex)
+	{
+		const auto kSpartanScaleThreshold = 1.5f;
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return false;
+
+		auto objectType = *((uint8_t*)object + 0x9A);
+		
+		// biped object
+		if (objectType == Blam::Objects::eObjectTypeBiped && object->Scale > kSpartanScaleThreshold)
+			return true;
+		// armor parts
+		if (objectType == Blam::Objects::eObjectTypeScenery && object->Parent != Blam::DatumHandle::Null)
+		{
+			auto parentObject = Blam::Objects::Get(object->Parent);
+			if (!parentObject)
+				return false;
+
+			auto parentObjectType = *((uint8_t*)parentObject + 0x9A);
+			if (parentObjectType == Blam::Objects::eObjectTypeBiped
+				&& parentObject->Scale > kSpartanScaleThreshold)
+			{
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 	void RenderMeshPartHook(void* data, int a2)
@@ -1767,6 +2125,8 @@ namespace
 		static auto RenderMeshPart = (void(*)(void* data, int a2))(0xA78940);
 
 		auto renderData = Pointer(data)[4];
+		if (!renderData)
+			return;
 
 		auto objectIndex = Pointer(renderData)(0x6c).Read<uint32_t>();
 		auto object = Blam::Objects::Get(objectIndex);
@@ -1787,6 +2147,15 @@ namespace
 					return;
 			}
 
+			if (ShouldOverrideLightingQuality(objectIndex))
+			{
+				objectLightingQualityOverride = true;
+				RenderMeshPart(data, a2);
+				objectLightingQualityOverride = false;
+				return;
+			}
+
+			
 			int16_t materialIndex;
 			if (GetObjectMaterial(renderData, &materialIndex))
 			{
@@ -1802,11 +2171,20 @@ namespace
 				const auto meshPart = modeDefinitionPtr(0x6C)[0](0x4)[0];
 				const auto materialIndexPtr = (uint16_t*)modeDefinitionPtr(0x6C)[0](4)[0];
 
+				auto properties = (ReforgeObjectProperties*)(&object->GetMultiplayerProperties()->RadiusWidth);
+				if (properties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords)
+				{
+					customTextureModeState.Scale = properties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale;
+					customTextureModeState.OffsetX = properties->TextureData.OffsetX / 255.0f;
+					customTextureModeState.OffsetY = properties->TextureData.OffsetY / 255.0f;
+					customTextureModeState.IsValid = true;
+				}
+
 				auto oldMaterialIndex = *materialIndexPtr;
 				*materialIndexPtr = materialIndex;
 				RenderMeshPart(data, a2);
 				*materialIndexPtr = oldMaterialIndex;
-
+				customTextureModeState.IsValid = false;
 				return;
 			}
 		}
@@ -1941,6 +2319,75 @@ namespace
 		}
 	}
 
+	void MapVariant_BuildVariantPropertiesFromObjectHook(Blam::MapVariant::VariantPlacement *placement)
+	{
+		const auto sub_B63150 = (uint16_t(*)(uint32_t objectIndex, uint16_t, bool))(0xB63150);
+
+		if (placement->ObjectIndex == -1)
+			return;
+		auto objectHeader = Blam::Objects::GetObjects().Get(placement->ObjectIndex);
+		if (!objectHeader)
+			return;
+		auto mpProperties = objectHeader->Data->GetMultiplayerProperties();
+		if (!mpProperties)
+			return;
+
+		placement->Properties.EngineFlags = mpProperties->EngineFlags;
+		placement->Properties.ObjectFlags = 0;
+		placement->Properties.TeamAffilation = mpProperties->TeamIndex & 0xff;
+		placement->Properties.SharedStorage = 0;
+		placement->Properties.ZoneShape = mpProperties->Shape;
+
+		if (((mpProperties->Flags & 0xff) >> 6) & 1)
+			placement->Properties.ObjectFlags |= 1u;
+		else
+			placement->Properties.ObjectFlags &= ~1u;
+
+		// placed at start
+		if (((mpProperties->Flags & 0xff) >> 7) & 1)
+			placement->Properties.ObjectFlags |= 2u;
+		else
+			placement->Properties.ObjectFlags &= ~2u;
+
+		// symmetry
+		placement->Properties.ObjectFlags |= 0xCu;
+		if (mpProperties->Symmetry == 1)
+			placement->Properties.ObjectFlags &= ~8u;
+		else
+		{
+			if (mpProperties->Symmetry == 2)
+				placement->Properties.ObjectFlags &= 0xFB;
+		}
+
+		if (mpProperties->SpawnTime < 0 || mpProperties->SpawnTime >= 255)
+			placement->Properties.RespawnTime = 0;
+		else
+			placement->Properties.RespawnTime = mpProperties->SpawnTime & 0xff;
+
+		// zone properties
+		memcpy((void*)&placement->Properties.ZoneRadiusWidth, (void*)&mpProperties->RadiusWidth, 16);
+
+		// spare clips
+		placement->Properties.ObjectType = mpProperties->ObjectType;
+		if (objectHeader->Type == Blam::Objects::eObjectTypeWeapon)
+		{
+			auto weaponDefinition = Blam::Tags::TagInstance(objectHeader->Data->TagIndex).GetDefinition<Blam::Tags::Items::Weapon>();
+			if (weaponDefinition->Magazines.Count > 0)
+			{
+				auto &magazine = weaponDefinition->Magazines[0];
+				auto rounds = sub_B63150(placement->ObjectIndex, 0, true);
+				if (magazine.RoundsTotalLoadedMaximum)
+					placement->Properties.SharedStorage = rounds / magazine.RoundsTotalLoadedMaximum;
+			}
+		}
+		else
+		{
+			if (mpProperties->ObjectType >= 9 && mpProperties->ObjectType <= 11)
+				placement->Properties.SharedStorage = mpProperties->TeleporterChannel;
+			else
+				placement->Properties.SharedStorage = mpProperties->SpareClips;
+		}
+	}
 
 	SandboxPaletteItem* FindSandboxPaletteItem(uint32_t tagIndex)
 	{
@@ -2635,6 +3082,19 @@ namespace
 			::Forge::Volumes::Update();
 	}
 
+	bool GameObjectResetHook(uint32_t objectIndex)
+	{
+		const auto sub_54E9B0 = (bool(*)(uint32_t))(0x54E9B0);
+
+		if (mapModifierState.IsValid)
+		{
+			if (!mapModifierState.MapBarriers.KillBarriersEnabled || !mapModifierState.MapBarriers.PushBarriersEnabled)
+				return false;
+		}
+
+		return sub_54E9B0(objectIndex);
+	}
+
 	bool ShouldOverrideColorPermutation(uint32_t objectIndex)
 	{
 		auto object = Blam::Objects::Get(objectIndex);
@@ -2784,8 +3244,9 @@ namespace
 		auto mpProperties = object->GetMultiplayerProperties();
 		if (mpProperties && CanThemeObject(objectIndex))
 		{
-			if (mpProperties->TeleporterChannel == int8_t(INVISIBLE_MATERIAL_INDEX)
-				&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr)) // not in monitor mode or you can't grab it
+			auto reforgeProperties = (Forge::ReforgeObjectProperties*)&mpProperties->RadiusWidth;
+			if (reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles
+				&& !Forge::GetEditorModeState(Blam::Players::GetLocalPlayer(0), nullptr, nullptr))
 			{
 				return false;
 			}
@@ -2987,7 +3448,7 @@ namespace
 	{
 		auto &atmosphereSettings = mapModifierState.Atmosphere;
 
-		if (!mapModifierState.IsValid || atmosphereSettings.WeatherEffectTagIndex == -1)
+		if (!mapModifierState.IsValid || atmosphereSettings.WeatherIndex == 0xff)
 			return false;
 
 		const auto sub_5B9720 = (char(*)(uint32_t effectDatumIndex, uint16_t *a2))(0x5B9720);
@@ -2998,12 +3459,18 @@ namespace
 
 		if (currentWeatherEffectDatumIndex == -1)
 		{
-			currentWeatherEffectDatumIndex = SpawnWeatherEffect(atmosphereSettings.WeatherEffectTagIndex);
-
-			if (currentWeatherEffectDatumIndex != -1)
+			auto forgeGlobals = GetForgeGlobals();
+			if (forgeGlobals)
 			{
-				uint16_t scenarioLocation = 0;
-				sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				auto effectTagIndex = forgeGlobals->WeatherEffects[atmosphereSettings.WeatherIndex].Effect.TagIndex;
+				if (effectTagIndex != -1)
+					currentWeatherEffectDatumIndex = SpawnWeatherEffect(effectTagIndex);
+
+				if (currentWeatherEffectDatumIndex != -1)
+				{
+					uint16_t scenarioLocation = 0;
+					sub_5B9720(currentWeatherEffectDatumIndex, &scenarioLocation);
+				}
 			}
 		}
 
@@ -3014,50 +3481,23 @@ namespace
 	{
 		__asm
 		{
-			push ebp
-			mov ebp, esp
+			cmp al, [ebp+0x10]
+			jne disabled
 			call UpdateWeatherEffects
 			test al, al
 			jne disabled
-			mov al, [0x18BE9E0]
-			push 0x00672238
+			push 0x00672244
 			retn
 			disabled:
+			add esp, 0x28
 			mov esp, ebp
 			pop ebp
 			ret
 		}
 	}
 
-	void ActivateNoclip()
-	{
-		const auto c_havok_component__set_collision_filter = (void(__thiscall*)(void *thisptr, uint32_t filter))(0x005EE4E0);
-
-		auto playerIndex = Blam::Players::GetLocalPlayer(0);
-		if (playerIndex == Blam::DatumHandle::Null)
-			return;
-
-		auto player = Blam::Players::GetPlayers().Get(playerIndex);
-		if (!player)
-			return;
-
-		auto unitObject = Blam::Objects::Get(player->SlaveUnit.Handle);
-		if (!unitObject)
-			return;
-		auto havokComponents = *(Blam::DataArray<Blam::DatumBase>**)0x02446080;
-		auto havokComponent = havokComponents->Get(unitObject->HavokComponent);
-		if (havokComponent)
-			c_havok_component__set_collision_filter(havokComponent, 19);
-	}
-
 	void OnMonitorModeChange(bool isMonitor)
 	{
-		const auto &moduleForge = Modules::ModuleForge::Instance();
-		if (isMonitor)
-		{
-			if (moduleForge.VarMonitorNoclip->ValueInt)
-				ActivateNoclip();
-		}
 	}
 
 	void BackgroundSoundEnvironmentHook(float a1)
@@ -3066,5 +3506,78 @@ namespace
 		auto forgeSky = GetForgeSky();
 		if (!mapModifierState.IsValid || !forgeSky)
 			return sub_5DAB20(a1);	
+	}
+
+	void scenario_place_sky_scenery_hook(uint32_t scenarioTagIndex, uint32_t activeBsp)
+	{
+		const auto scenario_place_sky_scenery_hook = (void(*)(uint32_t scenarioTagIndex, uint32_t activeBsp))(0x00B594C0);
+
+		if (GetForgeSky())
+			return;
+
+		scenario_place_sky_scenery_hook(scenarioTagIndex, activeBsp);
+	}
+
+	bool IgnoreRigidBodyNode(uint32_t objectIndex, int nodeIndex)
+	{
+		return monitorState.HeldObjectIndex != -1 
+			&& monitorState.HeldObjectIndex == objectIndex 
+			&& monitorState.HeldObjectComplexRootRigidBodyNodeIndex != -1
+			&& nodeIndex != monitorState.HeldObjectComplexRootRigidBodyNodeIndex;
+	}
+
+	__declspec(naked) void EvaluateRigidBodyNodesHook()
+	{
+		__asm
+		{
+			movsx edx, word ptr[ecx]
+			pushad
+			push edx
+			push[ebp + 0x8]
+			call IgnoreRigidBodyNode
+			add esp, 8
+			test al, al
+			popad
+			jz skip
+			push 0x00712998
+			retn
+			skip :
+			cmp edx, -01
+			push 0x00712942
+			retn
+		}
+	}
+
+	uint32_t HavokCleanupHook(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6)
+	{
+		const auto HavokCleanup = (uint32_t(*)(signed int a1, int islandEntityIndex, char a3, char a4, char a5, int a6))(0x5C4E30);
+		auto objectIndex = HavokCleanup(a1, islandEntityIndex, a3, a4, a5, a6);
+
+		auto object = Blam::Objects::Get(objectIndex);
+		if (!object)
+			return -1;
+
+		if (CanThemeObject(objectIndex))
+			return -1;
+
+		return objectIndex;
+	}
+
+	void __fastcall c_havok_component__activate_hook(uint8_t *thisptr, void *unused)
+	{
+		const auto c_havok_component = (void(__thiscall*)(void *thisptr))(0x005E6A50);
+
+		auto objectIndex = *(uint32_t*)(thisptr + 0x8);
+		if (objectIndex != -1 && IsReforgeObject(objectIndex))
+		{
+			auto rigidBodyCount = *(uint32_t*)(thisptr + 0x18);
+			for (auto i = 0; i < rigidBodyCount; i++)
+			{
+				auto rigidBody = *(uint8_t**)(*(uint8_t**)(thisptr + 0x14) + 0x48 * i + 0x40);
+				*(rigidBody + 0xA8) = 7; // fixed
+			}
+		}
+
+		c_havok_component(thisptr);
 	}
 }

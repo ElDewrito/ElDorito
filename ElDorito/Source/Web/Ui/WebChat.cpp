@@ -112,6 +112,8 @@ namespace
 				jsonWriter.Key("color");
 				jsonWriter.String(color.str().c_str());
 			}
+			jsonWriter.Key("hasTeams");
+			jsonWriter.Bool(session->HasTeams());
 		}
 		jsonWriter.EndObject();
 

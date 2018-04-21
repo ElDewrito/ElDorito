@@ -43,7 +43,7 @@ namespace
 			return false;
 
 		auto damageResistance = *((uint8_t*)player + 0x2DAC);
-		return damageResistance == 13;
+		return damageResistance == 15;
 	}
 
 	__declspec(naked) void UnsuspectingLethalDamageHook()

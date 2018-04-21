@@ -29,6 +29,7 @@ namespace ChatCommands
 		void processVote(uint8_t sender, std::string message);
 
 	protected:
+		int starterIndex = -1;
 		size_t votesNeeded = 0;
 
 	private:

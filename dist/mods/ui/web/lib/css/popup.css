@@ -13,20 +13,34 @@ body {
 
 button {
     color: white;
-    font-size: 10pt;
+    background-color: rgba(0,0,0,0);
+    border: none;
+    font-size: 15px;
     font-weight: bold;
-    background-color: black;
-    border: 1px solid white;
-    border-radius: 5px;
-    text-align: center;
-    line-height: 24px;
+    text-align: left;
+    line-height: 35px;
     margin-top: 10px;
-    margin-right: 5px;
     min-width: 50px;
+    margin-right: 8px;
+    float:left;
 }
 
+button:focus {
+    outline: 0;
+}
+
+
 button:hover{
-    background-color: #B1572A;    
+    text-decoration: underline;
+}
+
+button img{
+	display:none;
+	position:relative;
+	height: 30px;
+	float: left;
+    margin-right: 2px;
+    top: 2px;
 }
 
 .container {
@@ -40,20 +54,28 @@ button:hover{
 
 .dialog {
     color: #FFF;
-    background: #14234a;
-    border: 3px solid #404f70;
+    background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
+    border: 1px solid #000;
+    border-top: solid 1px rgba(91, 106, 133, 0.3); 
     padding: 12px;
     width: 25%;
     font-size: 14pt;
-    opacity: 0.8;
+    position: absolute;
 }
 
 #text {
     padding: 4px;
     width: 100%;
-    margin-left: -6px;
+    margin-left: -4px;
     font-weight: 700;
     resize: none;
+    color: #98b3d3;
+    background-color: rgba(0,0,0,0.2);
+    border: none;
+}
+
+#text:focus{
+    outline: 0;
 }
 
 #title {
@@ -63,28 +85,10 @@ button:hover{
     margin: -12px;
     margin-bottom: 0;
     padding: 4px;
-    border-bottom: 3px solid #404f70;
+    border-bottom: solid 1px rgba(91, 106, 133, 0.3); 
 }
 
 #description {
     padding: 16px 0;
-}
-
-#container{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width: 100%;
-    height: 100%;
-}
-
-.page_content{
-    position: relative;
-    width:1280px;
-    height:720px;
-    margin-left: calc(-1280px / 2);
-    margin-top: calc(-720px / 2);
-    box-sizing: border-box;
-    transform: scale(1);
-    transform-origin: center center;
+    color: #98b3d3;
 }

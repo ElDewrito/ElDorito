@@ -424,7 +424,7 @@ namespace
 	{
 		std::unordered_map<std::string, uint32_t> stringIdLookup;
 		Blam::Cache::StringIDCache stringIdCache;
-		if (!stringIdCache.Load("maps\\string_ids.dat"))
+		if (!stringIdCache.Load(ElDorito::Instance().GetMapsFolder() + "string_ids.dat"))
 			return;
 
 		for (auto i = 0; i < stringIdCache.Header.StringCount; i++)

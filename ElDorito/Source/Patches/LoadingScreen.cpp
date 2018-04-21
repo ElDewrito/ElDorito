@@ -49,20 +49,12 @@ namespace
 
 	void BeginLoadingHook(uint32_t totalBytes)
 	{
-		typedef void(*BeginLoadingPtr)(uint32_t totalBytes);
-		auto BeginLoading = reinterpret_cast<BeginLoadingPtr>(0x711C00);
-		BeginLoading(totalBytes);
-
 		if (ActiveUi)
 			ActiveUi->Begin(totalBytes);
 	}
 
 	void UpdateLoadingProgressHook(uint32_t bytes)
 	{
-		typedef void(*UpdateLoadingProgressPtr)(uint32_t bytes);
-		auto UpdateLoadingProgress = reinterpret_cast<UpdateLoadingProgressPtr>(0x711C30);
-		UpdateLoadingProgress(bytes);
-
 		if (ActiveUi)
 			ActiveUi->UpdateProgress(bytes);
 	}

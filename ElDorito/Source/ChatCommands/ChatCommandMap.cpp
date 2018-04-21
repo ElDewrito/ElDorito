@@ -5,8 +5,6 @@
 #include "ChatCommand.hpp"
 #include "../Server/BanList.hpp"
 #include "../Utils/Utils.hpp"
-#include "../Patches/Events.hpp"
-#include "../Blam/BlamEvents.hpp"
 #include "../Utils/Logger.hpp"
 #include "../CommandMap.hpp"
 #include "../Patches/Network.hpp"
@@ -24,43 +22,46 @@ namespace ChatCommands
 	EndGameCommand endGameCommand;
 	ShuffleTeamsCommand shuffleTeamsCommand;
 
-
-	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
-	{
-
-		if (event->NameStringId == 262221) //Game Ended event
-		{
-			Server::TempBanList::Instance().decrementDuration();
-			voteTimes.clear();
-			chatCommandsActive = false;
-
-			for (auto elem : Commands)
-			{
-				if (elem->isCurrentlyVoting())
-				{
-					elem->doOnVoteFail();
-					elem->endVoting();
-				}
-
-			}
-		}
-	}
-
 	void LifeCycleStateChanged(Blam::Network::LifeCycleState newState)
 	{
+
 		auto* session = Blam::Network::GetActiveSession();
+		if (!(session && session->IsEstablished() && session->IsHost()))
+			return;
+
 		switch (newState)
 		{
-		case Blam::Network::eLifeCycleStateStartGame:
-			chatCommandsActive = true;
-			break;
-				
+
+			case Blam::Network::eLifeCycleStateStartGame:
+			{
+				chatCommandsActive = true;
+				break;
+			}
+
+			case Blam::Network::eLifeCycleStateEndGameWriteStats: //This is fired if you also hit game.stop
+			{
+
+				Server::TempBanList::Instance().decrementDuration();
+				voteTimes.clear();
+				chatCommandsActive = false;
+
+				for (auto elem : Commands)
+				{
+					if (elem->isCurrentlyVoting())
+					{
+						elem->doOnVoteFail();
+						elem->endVoting();
+					}
+
+				}
+				break;
+			}
+			
 		}
 	}
 
 	void Init()
 	{
-		Patches::Events::OnEvent(OnEvent);
 		Patches::Network::OnLifeCycleStateChanged(LifeCycleStateChanged);
 
 		Commands.push_back((AbstractChatCommand*) &kickPlayerCommand);
@@ -130,14 +131,15 @@ namespace ChatCommands
 		if (line.empty())
 			return true;
 		//TODO move the logic for !help and !listPlayers into a new non-voting chat command type
-		if (line == "help")
+		std::string lowercaseline = Utils::String::ToLower(line);
+		if (lowercaseline == "help")
 		{
 			for (auto i : getHelpText()) {
 				Server::Chat::SendServerMessage(i, peer);
 			}
 			return true;
 		}
-		else if (line == "listPlayers" || line == "list")
+		else if (lowercaseline == "listplayers" || lowercaseline == "list")
 		{
 			int peerIdx = session->MembershipInfo.FindFirstPeer();
 			while (peerIdx != -1)

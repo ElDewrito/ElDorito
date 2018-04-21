@@ -333,8 +333,34 @@
                     });
                     
                     if(properties.atmosphere_properties_skybox) {
-                        m.add(makeProperty('atmosphere_properties_skybox_offset_z', 'Skybox Z', 'range', 
-                        { min: -1.0, max: 1.0, step: 0.01, displayTextOverride: value => (value * 500).toFixed(2)  }));
+                        m.add({
+                            type: 'spinner',
+                            label: 'Skybox Transform',
+                            description: '',
+                            meta: [
+                                { label: 'Default', value: 0 },
+                                { label: 'Custom', value: 1 }
+                            ],
+                            getValue: () => properties.atmosphere_properties_skybox_override_transform,
+                            setValue: (value) =>  {
+                                onPropertyChange({ ['atmosphere_properties_skybox_override_transform']: value });
+                                _propertryGrid.setModel(buildModel(_data));
+                            }
+                        });
+
+                        if(properties.atmosphere_properties_skybox_override_transform) {
+                            m.add({
+                                type: 'range',
+                                label: 'Skybox Z',
+                                description: '',
+                                meta: { min: -500.0, max: 500.0, step: 0.1,  },
+                                getValue: () => properties.atmosphere_properties_skybox_offset_z * 500,
+                                setValue: (value) => {
+                                    value /= 500;
+                                    onPropertyChange({ ['atmosphere_properties_skybox_offset_z']: value });
+                                }
+                            })
+                        }
                     }
                    
                     for(var i = 0; i < data.options.weather_effects.length; i++)
@@ -398,7 +424,8 @@
             if (data.has_material) {
 
                 model.group('Material', m => {
-                    let supportsColor = materialSupportsChangeColor(properties.appearance_material);
+                    let supportsColor = materialSupportsChangeColor(properties.reforge_material);
+                    let oldMaterialIndex = properties.reforge_material;
 
                     let allMaterials = [];
                     let materialNodes = _materialsDOM.getElementsByTagName('item');
@@ -410,18 +437,18 @@
                         });
                     }
 
-                    m.add(Object.assign(makeProperty('appearance_material', 'Material', 'spinner', allMaterials, 'Material for this object'), {
+                    m.add(Object.assign(makeProperty('reforge_material', 'Material', 'spinner', allMaterials, 'Material for this object'), {
                         action: (item) => {
                             addRecentMaterial();
                             screenManager.push('material_picker', {
                                 materials: _materialsDOM,
                                 onMaterialSelected: (material) => {
-                                    let props = { ['appearance_material']: material.value };
+                                    let props = { ['reforge_material']: material.value };
                                     if (material.color) {
                                         Object.assign(props, {
-                                            appearance_material_color_r: material.color.r / 255,
-                                            appearance_material_color_g: material.color.g / 255,
-                                            appearance_material_color_b: material.color.b / 255
+                                            reforge_material_color_r: material.color.r / 255,
+                                            reforge_material_color_g: material.color.g / 255,
+                                            reforge_material_color_b: material.color.b / 255
                                         });
                                     }
                                     onPropertyChange(props);
@@ -430,8 +457,9 @@
                             });
                         },
                         setValue: (value) => {
-                            onPropertyChange({ ['appearance_material']: value });
-                            if (supportsColor != materialSupportsChangeColor(properties.appearance_material)) {
+                            onPropertyChange({ ['reforge_material']: value });
+                            const specialMaterials = new Set([119,120,121,162,163]);
+                            if (specialMaterials.has(properties.reforge_material) || specialMaterials.has(oldMaterialIndex)) {
                                 _propertryGrid.setModel(buildModel(_data));
                             }
                         }
@@ -445,16 +473,16 @@
                             meta: {},
                             getValue: () => {
                                 return {
-                                    r: Math.floor(properties.appearance_material_color_r * 255),
-                                    g: Math.floor(properties.appearance_material_color_g * 255),
-                                    b: Math.floor(properties.appearance_material_color_b * 255)
+                                    r: Math.floor(properties.reforge_material_color_r * 255),
+                                    g: Math.floor(properties.reforge_material_color_g * 255),
+                                    b: Math.floor(properties.reforge_material_color_b * 255)
                                 };
                             },
                             setValue: (color) => {
                                 onPropertyChange({
-                                    appearance_material_color_r: color.r / 255,
-                                    appearance_material_color_g: color.g / 255,
-                                    appearance_material_color_b: color.b / 255
+                                    reforge_material_color_r: color.r / 255,
+                                    reforge_material_color_g: color.g / 255,
+                                    reforge_material_color_b: color.b / 255
                                 })
                             },
                             action: (item) => {
@@ -474,18 +502,24 @@
                                 { label: 'Default', value: 0 },
                                 { label: 'Custom', value: 1 }
                             ],
-                            getValue: () => properties.appearance_material_tex_override,
+                            getValue: () => properties.reforge_material_tex_override,
                             setValue: (value) =>  {
-                                onPropertyChange({ ['appearance_material_tex_override']: value });
+                                onPropertyChange({ ['reforge_material_tex_override']: value });
                                 _propertryGrid.setModel(buildModel(_data));
                             }
                         });
-                        if(properties.appearance_material_tex_override) {
-                            m.add(makeProperty('appearance_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
-                            m.add(makeProperty('appearance_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
-                            m.add(makeProperty('appearance_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                        if(properties.reforge_material_tex_override) {
+                            m.add(makeProperty('reforge_material_tex_scale', 'Texture Scale', 'range', { min: 0, max: 4.0, step: 0.01 }));
+                            m.add(makeProperty('reforge_material_tex_offset_x', 'Texture Offset X', 'range', { min: 0, max: 1.0, step: 0.01 }));
+                            m.add(makeProperty('reforge_material_tex_offset_y', 'Texture Offset Y', 'range', { min: 0, max: 1.0, step: 0.01 }));
                         }
                     }
+
+                    m.add(makeProperty('reforge_material_allows_projectiles', 'Projectile Passthough', 'spinner', [
+                        { label: 'Disabled', value: 0 },
+                        { label: 'Enabled', value: 1 },
+                    ], 'This determines whether projectiles (bullets, grenades) will pass through this item.'));
+
                 })
 
             }
@@ -510,16 +544,16 @@
 
                     switch (properties.shape_type) {
                         case 3:
-                            m.add(makeProperty('shape_width', 'Width', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how wide the zone is for this item.'));
-                            m.add(makeProperty('shape_depth', 'Depth', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines how deep the zone is for this item.'));
-                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
-                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of zone is for this item.'));
+                            m.add(makeProperty('shape_width', 'Width', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines how wide the zone is for this item.'));
+                            m.add(makeProperty('shape_depth', 'Depth', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines how deep the zone is for this item.'));
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the bottom of zone is for this item.'));
                             break;
                         case 2:
-                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the top of zone is for this item.'));
-                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 60, step: 0.1 }, 'This determines where the bottom of the zone is for this item.'));
+                            m.add(makeProperty('shape_top', 'Top', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the top of zone is for this item.'));
+                            m.add(makeProperty('shape_bottom', 'Bottom', 'range', { min: 0.0, max: 100, step: 0.1 }, 'This determines where the bottom of the zone is for this item.'));
                         case 1:
-                            m.add(makeProperty('shape_radius', 'Radius', 'range', { min: 0.5, max: 60, step: 0.1 }, 'This determines the radius of the zone for this item.'));
+                            m.add(makeProperty('shape_radius', 'Radius', 'range', { min: 0.1, max: 100, step: 0.1 }, 'This determines the radius of the zone for this item.'));
                             break;
                     }
                 });
@@ -680,12 +714,12 @@
                 let collectionOptions = [{ label: 'Collect', value: 1 }, { label: 'Ignore', value: 0 }];
 
                 model.group('Garbage Collection', (m) => {
-                    m.add(makeProperty('garbage_volume_interval', 'Interval', 'spinner', [
+                    m.add(makeProperty('garbage_volume_interval', 'Delay', 'spinner', [
                         { label: 'Instant', value: 0 },
-                        { label: '5 Seconds', value: 1 },
-                        { label: '15 Seconds', value: 2 },
-                        { label: '30 Seconds', value: 3 },
-                    ], 'The time delay between collections'));
+                        { label: '3 Seconds', value: 1 },
+                        { label: '5 Seconds', value: 2 },
+                        { label: '10 Seconds', value: 3 },
+                    ], 'The time delay before collection'));
                     m.add(makeProperty('garbage_volume_collect_dead_biped', 'Dead Bodies', 'spinner', collectionOptions));
                     m.add(makeProperty('garbage_volume_collect_weapons', 'weapons', 'spinner', collectionOptions));
                     m.add(makeProperty('garbage_volume_collect_objectives', 'Objectives', 'spinner', collectionOptions));
@@ -807,18 +841,18 @@
         function addRecentMaterial() {
 
             let materialColor = {
-                r: (_data.properties.appearance_material_color_r * 255) | 0,
-                g: (_data.properties.appearance_material_color_g * 255) | 0,
-                b: (_data.properties.appearance_material_color_b * 255) | 0
+                r: (_data.properties.reforge_material_color_r * 255) | 0,
+                g: (_data.properties.reforge_material_color_g * 255) | 0,
+                b: (_data.properties.reforge_material_color_b * 255) | 0
             };
 
-            if (!_recentMaterials.find(x => x.value === _data.properties.appearance_material
+            if (!_recentMaterials.find(x => x.value === _data.properties.reforge_material
                 && (!x.color || (x.color.r === materialColor.r && x.color.g === materialColor.g && x.color.b === materialColor.b)))) {
 
-                let materialName = getMaterialName(_data.properties.appearance_material);
+                let materialName = getMaterialName(_data.properties.reforge_material);
                 let recentItem = {
                     label: materialName,
-                    value: _data.properties.appearance_material,
+                    value: _data.properties.reforge_material,
                 };
                 if (materialSupportsChangeColor(recentItem.value)) {
                     recentItem.color = materialColor;

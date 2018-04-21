@@ -90,24 +90,6 @@ $(document).ready(function(){
         });
         dew.command('Game.PlaySound 0x0B00');
     });
-    $('.wheelable').on('mousewheel', function(e) {
-        if(e.originalEvent.wheelDelta > 0) {
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            if(elementIndex > 0){
-                var newElement = elementIndex - 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }else{
-            var elementIndex = $('#'+this.id+' option:selected').index();
-            var elementLength = $('#'+this.id).children('option').length;
-            if(elementIndex < elementLength){
-                var newElement = elementIndex + 1;
-                $('#'+this.id+' option').eq(newElement).prop('selected', true);
-                $('#'+this.id).trigger('change');
-            }
-        }
-    });
     $('#applyButton').on('click', function(e){
         applyButton();
     });
@@ -316,6 +298,34 @@ dew.on('show', function(e){
         }
     });
     setControlValues();
+    dew.command('Server.VotingEnabled', {}).then(function(x){
+        dew.command('Server.VetoSystemEnabled', {}).then(function(y){
+            if(x == '0' && y == '1'){
+                $('#sVotingStyle').val('2');
+                $('#voting').hide();
+                $('#veto').show();
+            }else if(x == '1' && y == '0'){
+                $('#sVotingStyle').val('1');
+                $('#voting').show();
+                $('#veto').hide();
+            }else{
+                $('#sVotingStyle').val('0');
+                $('#voting, #veto').hide();
+            }
+        });       
+    });
+    dew.command('Server.SprintEnabled', {}).then(function(a){
+        dew.command('Server.UnlimitedSprint', {}).then(function(b){
+            if(a == '1' && b == '1'){
+                $('#sSprint').val('2');
+            }else if(a == '1' && b == '0'){
+                $('#sSprint').val('1');
+            }else{
+                $('#sSprint').val('0');
+            }
+        });       
+    });
+    
     dew.command('Server.Mode', {}).then(function(response){
         $('#sNetworkMode').val(response);
     });

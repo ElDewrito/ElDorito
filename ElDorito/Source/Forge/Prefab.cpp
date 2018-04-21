@@ -3,8 +3,6 @@
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamObjects.hpp"
 #include "../Blam/BlamPlayers.hpp"
-#include "../ElDorito.hpp"
-#include "../Modules/ModulePlayer.hpp"
 #include "ForgeUtil.hpp"
 #include "ObjectSet.hpp"
 #include "Selection.hpp"
@@ -16,18 +14,6 @@ using namespace Blam::Math;
 
 namespace
 {
-	struct PrefabHeader
-	{
-		uint32_t Magic;
-		uint16_t Flags;
-		uint16_t Version;
-		uint64_t DateCreated;
-		char Name[16];
-		char Author[16];
-		uint16_t ObjectCount;
-		uint16_t _Padding;
-	};
-
 	struct PrefabPlacement
 	{
 		uint32_t Flags;
@@ -37,11 +23,13 @@ namespace
 		RealVector3D UpVector;
 		Blam::MapVariant::VariantProperties Properties;
 	};
+	
+	bool ReadHeader(std::ifstream &stream, Forge::Prefabs::PrefabHeader &header);
 }
 
 namespace Forge::Prefabs
 {
-	bool Save(const std::string& name, const std::string& path)
+	bool Save(const std::string &author, std::string& name, const std::string& path)
 	{
 		std::ofstream fs(path, std::ios::binary);
 		if (!fs.is_open())
@@ -49,14 +37,11 @@ namespace Forge::Prefabs
 
 		auto& objectSet = Forge::Selection::GetSelection();
 
-		auto& modulePlayer = Modules::ModulePlayer::Instance();
-		auto& playerName = modulePlayer.VarPlayerName->ValueString;
-
 		PrefabHeader header = { 0 };
 		header.Magic = 'prfb';
 		header.DateCreated = std::chrono::system_clock::now().time_since_epoch() / std::chrono::seconds(1);
-		strncpy(header.Name, name.c_str(), sizeof(header.Name));
-		strncpy(header.Author, playerName.c_str(), sizeof(header.Author));
+		strncpy_s(header.Name, name.c_str(), sizeof(header.Name));
+		strncpy_s(header.Author, author.c_str(), sizeof(header.Author));
 		header.ObjectCount = objectSet.Count();
 
 		fs.write((char*)&header, sizeof(header));
@@ -97,14 +82,31 @@ namespace Forge::Prefabs
 		if (!mapv)
 			return false;
 
+		PrefabHeader header;
+		if (!::ReadHeader(fs, header))
+		{
+			PrintKillFeedText(0, L"Not a valid prefab file", 0);
+			return false;
+		}
+
+		auto quota = Forge::CalculateObjectQuota();
+
 		auto playerHandle = Blam::Players::GetLocalPlayer(0);
 		const auto& crosshairPoint = GetSandboxGlobals().CrosshairPoints[playerHandle.Index];
 
+
+		auto remainingObjects = quota.TotalObjectsAvailable - quota.TotalObjectsUsed;
+		if (int(header.ObjectCount) > remainingObjects)
+		{
+			wchar_t buff[1024];
+			swprintf_s(buff, L"Unable to load prefab: out of objects. (%d more objects needed)",
+				(quota.TotalObjectsUsed + header.ObjectCount) - quota.TotalObjectsAvailable);
+			PrintKillFeedText(0, buff, 0);
+			return false;
+		}
+
 		auto& objectSet = Forge::Selection::GetSelection();
 		objectSet.Clear();
-
-		PrefabHeader header;
-		fs.read((char*)&header, sizeof(header));
 
 		for (auto i = 0; i < header.ObjectCount; i++)
 		{
@@ -128,5 +130,20 @@ namespace Forge::Prefabs
 		}
 
 		return true;
+	}
+
+	bool ReadHeader(const std::string &path, PrefabHeader &header)
+	{
+		std::ifstream fs(path, std::ios::binary);
+		return fs.is_open() && ::ReadHeader(fs, header);
+	}
+}
+
+namespace
+{
+	bool ReadHeader(std::ifstream &stream, Forge::Prefabs::PrefabHeader &header)
+	{
+		stream.read((char*)&header, sizeof(header));
+		return !stream.fail() && header.Magic == 'prfb';
 	}
 }

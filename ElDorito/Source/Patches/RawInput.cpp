@@ -55,12 +55,12 @@ namespace
 
 	bool RawInputHookImpl(RAWINPUT *rwInput)
 	{
-		auto camMode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
+		auto isFlying = Modules::ModuleCamera::Instance().IsFlying();
 
 		// Disable mouse input if a controller is plugged in (this needs to be done
 		// even if raw input is off). Leave it enabled while superman.
 		bool controllerEnabled = Pointer::Base(0x204DE98).Read<bool>();
-		if (controllerEnabled && camMode != "flying")
+		if (controllerEnabled && !isFlying)
 			return true;
 
 		if (!Modules::ModuleInput::Instance().VarInputRawInput->ValueInt)

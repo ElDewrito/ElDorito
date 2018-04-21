@@ -3,6 +3,7 @@
 #include <vector>
 #include <deque>
 #include <Windows.h>
+#include <functional>
 
 #include "Utils/Singleton.hpp"
 
@@ -28,7 +29,8 @@ enum CommandFlags
 	eCommandFlagsInternal          = 1 << 8,  // disallow the user from using this command, only internal ExecuteCommand calls can use it
 	eCommandFlagsArgsNoParse       = 1 << 9,  // arguments are not parsed and full string after command reside in arguments[0]
 	eCommandFlagsWriteToKeys       = 1 << 10, // indicates the variable should be written to the keys file instead of preferences
-	eCommandFlagsForge             = 1 << 11
+	eCommandFlagsForge             = 1 << 11, // only allow this command/var in forge
+	eCommandFlagsNoReset           = 1 << 12  // execlude this variable from Settings.Reset
 };
 
 typedef bool (*CommandUpdateFunc)(const std::vector<std::string>& Arguments, std::string& returnInfo);
@@ -87,6 +89,8 @@ namespace Modules
 		std::string GenerateHelpText();
 	};
 
+	using VariableUpdateCallback = std::function<void(const Command*)>;
+
 	class CommandMap : public Utils::Singleton<CommandMap>
 	{
 	public:
@@ -102,6 +106,9 @@ namespace Modules
 		bool ExecuteCommandWithStatus(std::string command, bool isUserInput, std::string *output);
 		std::string ExecuteQueue();
 
+		void OnVariableUpdate(VariableUpdateCallback callback);
+		void NotifyVariableUpdated(const Command *command);
+
 		bool GetVariableInt(const std::string& name, unsigned long& value);
 		bool GetVariableInt64(const std::string& name, unsigned long long& value);
 		bool GetVariableFloat(const std::string& name, float& value);
@@ -116,5 +123,6 @@ namespace Modules
 		std::string SaveKeys();
 	private:
 		std::vector<std::string> queuedCommands;
+		std::vector<VariableUpdateCallback> variableUpdateCallbacks;
 	};
 }

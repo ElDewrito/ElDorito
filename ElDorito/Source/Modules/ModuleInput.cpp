@@ -102,8 +102,8 @@ namespace
 		bindings.ControllerButtons[eGameActionVehicleFire]    = eControllerButtonRightTrigger;
 		bindings.ControllerButtons[eGameActionVehicleAltFire] = eControllerButtonLeftTrigger;
 		bindings.ControllerButtons[eGameActionMeleeFire]      = eControllerButtonB;
-		bindings.ControllerButtons[eGameActionNextPlayer]     = eControllerButtonDpadDown;
-		bindings.ControllerButtons[eGameActionPrevPlayer]     = eControllerButtonDpadUp;
+		bindings.ControllerButtons[eGameActionNextPlayer]     = eControllerButtonDpadRight;
+		bindings.ControllerButtons[eGameActionPrevPlayer]     = eControllerButtonDpadLeft;
 		bindings.ControllerButtons[eGameActionUnk58]          = eControllerButtonA;
 		bindings.ControllerButtons[eGameActionUseConsumable1] = eControllerButtonLeftBumper;
 		bindings.ControllerButtons[eGameActionUiStart]        = eControllerButtonStart;
@@ -640,6 +640,13 @@ namespace
 	}
 #endif
 
+	bool CommandResetBindings(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		LoadDefaultBindings();
+		returnInfo = "Default bindings restored";
+		return true;
+	}
+
 	bool TryParseFloat(const char* str, float* value)
 	{
 		char* endp;
@@ -682,6 +689,8 @@ namespace Modules
 
 		AddCommand("DumpBindingsJson", "dumpbindingsjson", "Dumps the input bindings table in json", eCommandFlagsNone, CommandDumpBindingsJson);
 		AddCommand("FindBind", "findbind", "Finds the key bound to a command passed", eCommandFlagsNone, CommandFindKeybdBinding);
+		AddCommand("ResetBindings", "reset_bindings", "Restores default bindings", eCommandFlagsNone, CommandResetBindings);
+
 		VarControllerSensitivityX = AddVariableFloat("ControllerSensitivityX", "xsens", "Horizontal controller look sensitivity", eCommandFlagsArchived, 120, VariableControllerSensitivityXUpdated);
 		VarControllerSensitivityY = AddVariableFloat("ControllerSensitivityY", "ysens", "Vertical controller look sensitivity", eCommandFlagsArchived, 60, VariableControllerSensitivityYUpdated);
 
@@ -718,6 +727,8 @@ namespace Modules
 		//CopyBinding(eGameActionMelee, eGameActionMeleeFire); // Ensure that the banshee bomb is bound to melee
 		CopyBinding(eGameActionUse, eGameActionVehicleExit); // Keep enter and exit vehicle to the same button
 		SetBindings(0, bindings);
+
+		Patches::Input::InvalidateBindings();
 	}
 
 	std::string ModuleInput::ExportBindings() const

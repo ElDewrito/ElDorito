@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../ElPatches.hpp"
 #include "../Patch.hpp"
+#include "../Blam/Math/RealColorARGB.hpp"
 #include "../Blam/BlamTypes.hpp"
 #include "../Blam/BlamPlayers.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
@@ -36,7 +37,8 @@ namespace
 	void DirtyDiskErrorHook();
 	int __cdecl GetScreenshotFolderHook(wchar_t *path);
 	void __cdecl HsPrintHook(const char *message);
-	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset);
+	void ContrailFixHook();
+	void HillColorHook();
 
 	std::vector<Patches::Core::ShutdownCallback> shutdownCallbacks;
 	std::string MapsFolder;
@@ -111,6 +113,8 @@ namespace Patches::Core
 		Patch::NopFill(Pointer::Base(0x25FA86), 5);
 		Hook(0x10CA02, FovHook).Apply();
 		Hook(0x663B36, ActiveCamoViewModelClipHook, HookFlags::IsCall).Apply();
+		// fix active camo issue with low shadow quality (local unit shadows will still be rendered)
+		Patch(0x66B0CE, 0x90, 6).Apply();
 
 		//Fix aspect ratio not matching resolution
 		Hook(0x6648C9, AspectRatioHook, HookFlags::IsCall).Apply();
@@ -150,7 +154,9 @@ namespace Patches::Core
 		Pointer(0x530FAA).Write<float>(7); // podium duration in seconds
 
 		// fixes the amd freeze
-		Hook(0x65806D, ContrailSystemRenderSetStreamSourceHook, HookFlags::IsCall).Apply();
+		Hook(0x658061, ContrailFixHook).Apply();
+		// prevent hill zone luminosity from dropping below the visible threshold
+		Hook(0x5D6B1C, HillColorHook).Apply();
 		
 
 #ifndef _DEBUG
@@ -325,11 +331,25 @@ namespace
 		{
 			auto unitObject = Blam::Objects::Get(player->SlaveUnit);
 			float activeCamoPower = 0.0f;
-			if (unitObject && (activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+
+			if (unitObject)
 			{
-				*nearPlane = *(float*)0x0191068C * 3.25f;
-				*farPlane = *(float*)0x01910690;
-				return;
+				const auto globalNear = *(float*)0x0191068C;
+				const auto globalFar = *(float*)0x01910690;
+
+				if ((activeCamoPower = *(float*)((uint8_t*)unitObject + 0x3F4)) > 0)
+				{
+					*nearPlane = globalNear * 3.25f;
+					*farPlane = globalFar;
+					return;
+				}
+
+				if (unitObject->Scale < 0.4)
+				{
+					*nearPlane = globalNear * std::max(2.0f, 10.0f * (unitObject->Scale / 0.4f));
+					*farPlane = globalFar;
+					return;
+				}
 			}
 		}
 
@@ -463,13 +483,48 @@ namespace
 		Console::WriteLine(message);
 	}
 
-	void ContrailSystemRenderSetStreamSourceHook(void *vb, int offset)
+	__declspec(naked) void ContrailFixHook()
 	{
-		const auto rasterizer_set_stream_source = (void(*)(void *vb, int offset))(0x00A5DB90);
+		__asm
+		{
+			add ecx, [0x00A58061]
+			cmp ecx, -1
+			jg render
+			push 0xA580BE
+			retn
+			render:
+			push 0xA58067
+			retn
+		}
+	}
 
-		if (offset < 0)
-			offset = 0;
+	void HillColor(Blam::Math::RealColorARGB &color)
+	{
+		// if the color luminosity is less than the visible threshold, bump it up
+		auto l = 0.2126f*color.Red + 0.7152*color.Green + 0.0722*color.Blue;
+		if (l < 0.1f)
+		{
+			color.Red += 0.1f;
+			color.Green += 0.1f;
+			color.Blue += 0.1f;
+		}
+	}
 
-		rasterizer_set_stream_source(vb, offset);
+	__declspec(naked) void HillColorHook()
+	{
+		__asm
+		{
+			lea edi, [ebp - 0x1C]
+			push ebx
+			push ecx
+			push edi	
+			call HillColor
+			pop edi
+			pop ecx
+			pop ebx
+			movq xmm0, qword ptr[edi]
+			push 0x009D6B21
+			retn
+		}
 	}
 }

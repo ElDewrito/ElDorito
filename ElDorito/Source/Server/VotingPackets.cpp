@@ -52,8 +52,11 @@ namespace
 			if(data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
 				stream->WriteUnsigned<uint8_t>(data->votesNeededToPass, 0, 16);
 
-			if (data->Type == VotingMessageType::Winner)
+			if (data->Type == VotingMessageType::Winner) {
+				stream->WriteUnsigned<uint8_t>(data->voteTime, 0, 120);
 				stream->WriteUnsigned<uint8_t>(data->winner, 0, 5);
+			}
+				
 		}
 
 		bool Deserialize(Blam::BitStream *stream, VotingMessage *data) override
@@ -93,8 +96,10 @@ namespace
 			if (data->Type == VotingMessageType::VoteTally || data->Type == VotingMessageType::VetoOption)
 				data->votesNeededToPass = stream->ReadUnsigned<uint8_t>(0, 16);
 
-			if (data->Type == VotingMessageType::Winner)
+			if (data->Type == VotingMessageType::Winner) {
+				data->voteTime = stream->ReadUnsigned<uint8_t>(0, 120);
 				data->winner = stream->ReadUnsigned<uint8_t>(0, 5);
+			}
 
 			return true;
 		}
@@ -104,12 +109,9 @@ namespace
 			auto session = Blam::Network::GetActiveSession();
 			if (!session)
 				return;
-			auto peer = session->GetChannelPeer(sender);
-			if (peer < 0)
-				return;
 
 			//at this level, it doesnt matter if we are the host or not. If we receive any sort of voting message, handle it
-			ReceivedVotingMessage(session, peer, packet->Data);
+			ReceivedVotingMessage(session, session->GetChannelPeer(sender), packet->Data);
 
 		}
 	};
@@ -120,7 +122,7 @@ namespace
 	void ReceivedVotingMessage(Blam::Network::Session *session, int peer, const VotingMessage &message)
 	{
 		//Vote messages will not be passed on to the message handler. 
-		if (message.Type == VotingMessageType::Vote)
+		if (message.Type == VotingMessageType::Vote && peer >= 0)
 		{
 			auto &membership = session->MembershipInfo;
 			auto &player = membership.PlayerSessions[membership.GetPeerPlayer(peer)];

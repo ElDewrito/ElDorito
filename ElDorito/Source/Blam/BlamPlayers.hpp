@@ -109,7 +109,7 @@ namespace Blam::Players
 		PlayerProperties Properties;
 		uint8_t Unknown1690[0x165a];
 		int16_t DepletedStamina;
-		uint8_t Unknown2CEA[0xc6];
+		uint8_t Unknown2CEA[0xc8];
 		int16_t SpawnGrenadeSetting; //2db4
 		uint8_t Unknown2DB6[0x152];
 	};

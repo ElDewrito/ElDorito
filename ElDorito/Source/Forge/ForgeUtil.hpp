@@ -70,9 +70,10 @@ namespace Forge
 	const float kReforgeMaxTextureScale = 4.0f;
 	struct ReforgeObjectProperties
 	{
-		enum
+		enum Flags
 		{
-			eReforgeObjectFlags_OverrideTexCoordinates = (1 << 0)
+			MaterialOverrideTextureCoords = (1 << 0),
+			MaterialAllowsProjectiles = (1 << 1)
 		};
 
 		uint8_t ColorR;
@@ -239,4 +240,15 @@ namespace Forge
 	void DeleteObject(uint16_t playerIndex, int16_t placementIndex);
 	uint32_t CloneObject(uint32_t playerIndex, uint32_t objectIndex, float depth, const Blam::Math::RealVector3D &normal);
 	void ThrowObject(uint32_t playerIndex, uint32_t objectIndex, float throwForce);
+	bool PointInWorldBounds(Blam::Math::RealVector3D &point);
+	bool ObjectInWorldBounds(uint32_t objectIndex);
+
+	extern bool IsReforgeObject(uint32_t objectIndex);
+
+	struct ForgeObjectQuota
+	{
+		uint16_t TotalObjectsAvailable;
+		uint16_t TotalObjectsUsed;
+	};
+	ForgeObjectQuota CalculateObjectQuota();
 }

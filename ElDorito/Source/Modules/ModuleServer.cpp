@@ -403,11 +403,13 @@ namespace
 			return false;
 		}
 
+#if defined(ELDEWRITO_RELEASE)
 		if (ourEdVer.compare(edVer))
 		{
 			returnInfo = "Server is running a different ElDewrito version.";
 			return false;
 		}
+#endif
 
 		std::string xnkid = json["xnkid"].GetString();
 		std::string xnaddr = json["xnaddr"].GetString();
@@ -1021,18 +1023,24 @@ namespace
 			return false;
 		}
 
+		auto &moduleServer = Modules::ModuleServer::Instance();
+		auto maxPlayers = moduleServer.VarServerMaxPlayers->ValueInt;
+		auto minTeamSize = moduleServer.VarMinTeamSize->ValueInt;
+		auto minTeams = int(std::ceil(numPlayers / float(minTeamSize)));
+		auto numTeams = std::min<int>(minTeams, moduleServer.VarNumTeams->ValueInt);
+
 		// Shuffle it
 		static std::random_device rng;
 		static std::mt19937 urng(rng());
 		std::shuffle(&players[0], &players[numPlayers], urng);
 
 		int teamIndex = 0;
-		for (auto player = membership->FindFirstPlayer(); player >= 0; player = membership->FindNextPlayer(player))
+		for(auto i = 0; i < numPlayers; i++)
 		{
-			membership->PlayerSessions[players[player]].Properties.ClientProperties.TeamIndex = teamIndex;
+			membership->PlayerSessions[players[i]].Properties.ClientProperties.TeamIndex = teamIndex;
 
 			teamIndex++;
-			if (teamIndex == Modules::ModuleServer::Instance().VarNumTeams->ValueInt)
+			if (teamIndex == numTeams)
 				teamIndex = 0;
 		}
 		membership->Update();
@@ -1297,6 +1305,9 @@ namespace Modules
 		VarNumTeams = AddVariableInt("NumberOfTeams", "num_teams", "Set the desired number of teams", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 2);
 		VarNumTeams->ValueIntMin = 1;
 		VarNumTeams->ValueIntMax = 8;
+		VarMinTeamSize = AddVariableInt("TeamSize", "min_team_size", "Set the minimum number of players each team must have before a new team is assigned", static_cast<CommandFlags>(eCommandFlagsArchived | eCommandFlagsHostOnly), 1);
+		VarMinTeamSize->ValueIntMin = 1;
+		VarMinTeamSize->ValueIntMax = 8;
 
 		AddCommand("Say", "say", "Sends a chat message as the server", eCommandFlagsHostOnly, CommandServerSay);
 		AddCommand("PM", "pm", "Sends a pm to a player as the server. First argument is the player name, second is the message in quotes", eCommandFlagsHostOnly, CommandServerPM);
@@ -1403,12 +1414,12 @@ namespace Modules
 		VarServerVotingDuplicationLevel->ValueIntMin = 0;
 		VarServerVotingDuplicationLevel->ValueIntMax = 2;
 
-		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether the rematch feature is enabled on this server. ", static_cast<CommandFlags>(eCommandFlagsHostOnly | eCommandFlagsArchived), 1);
+		VarServerTeamShuffleEnabled = AddVariableInt("TeamShuffleEnabled", "team_shuffle_enabled", "Controls whether or not the teams will be automatically shuffled before the game starts.", eCommandFlagsArchived, 1);
 		VarServerTeamShuffleEnabled->ValueIntMin = 0;
 		VarServerTeamShuffleEnabled->ValueIntMax = 1;
 
 		VarVotingJsonPath = AddVariableString("VotingJsonPath", "voting_json_path", "Voting Json Path", eCommandFlagsArchived, "mods/server/voting.json");
-		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "VetoJsonPath", eCommandFlagsArchived, "mods/server/veto.json");
+		VarVetoJsonPath = AddVariableString("VetoJsonPath", "veto_json_path", "Veto Json Path", eCommandFlagsArchived, "mods/server/veto.json");
 
 		AddCommand("ReloadVotingJson", "reload_voting_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVotingJson);
 		AddCommand("ReloadVetoJson", "reload_veto_json", "Manually Reloads Json", eCommandFlagsNone, ReloadVetoJson);

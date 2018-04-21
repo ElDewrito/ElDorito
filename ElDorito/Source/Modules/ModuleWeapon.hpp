@@ -7,7 +7,7 @@ namespace Modules
 	class ModuleWeapon : public Utils::Singleton<ModuleWeapon>, public ModuleBase
 	{
 	public:
-		Command* VarAutoSaveOnMapLoad;
+		//Command* VarAutoSaveOnMapLoad;
 		Command* VarWeaponJSON;
 
 		std::vector<std::string> WeaponsJSONList;

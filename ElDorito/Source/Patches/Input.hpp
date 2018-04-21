@@ -65,4 +65,5 @@ namespace Patches::Input
 		const std::vector<Blam::Input::ConfigurableAction> &vehicleSettings);
 
 	void TestControllerVibration(float duration);
+	void InvalidateBindings();
 }

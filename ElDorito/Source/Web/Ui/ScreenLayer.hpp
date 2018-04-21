@@ -12,6 +12,7 @@ namespace Web::Ui::ScreenLayer
 	void Hide(const std::string &screenId);
 	void CaptureInput(bool capture, bool pointerOnly);
 	void Notify(const std::string &event, const std::string &data, bool broadcast);
+	void NotifyScreen(const std::string &screenId, const std::string &event, const std::string &data);
 
 	enum class AlertIcon
 	{

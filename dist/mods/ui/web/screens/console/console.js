@@ -1,10 +1,13 @@
 var inputHistory = [];
 var selectedHistoryIndex = 0;
 var commandList = {};
+var suggestions = {};
+var suggestionIndex = 0;
 
 var eAutoCompleteMode = {
     Prefix : 1,
-    Substring : 2
+    Substring : 2,
+    Fuzzy : 3
 };
 
 var consoleSize = 2;
@@ -12,7 +15,8 @@ var consoleDock = 1;
 var consoleInvert = 1;
 var consoleTransparency = 75;
 var consoleOpacity = 100;
-var consoleAutoCompleteMode = eAutoCompleteMode.Substring;
+var consoleAutoCompleteMode = eAutoCompleteMode.Fuzzy;
+var memoryUsageInterval = null;
 
 function isset(val) {
      return !!val;
@@ -306,37 +310,53 @@ function showVariables() {
 }
 
 function getSuggestedCommands(partial) {
-    var suggestions = [];
+    suggestions = [];
     var commands = [];
     $.extend(commands, commandList, getConsoleHelp());
     $(".suggestion").remove();
     if (isset(partial)) {
-        commandItem = $.grep(commands, function(item) {
+        
+        var results = [];
+
+        if(consoleAutoCompleteMode == eAutoCompleteMode.Fuzzy) {
+            var fuse = new Fuse(commands, {
+                shouldSort: true,
+                threshold: 0.6,
+                location: 0,
+                distance: 40,
+                maxPatternLength: 32,
+                minMatchCharLength: 1,
+                keys: ["name"]
+            });
+            results = fuse.search(partial);
+        }
+
+        results = $.grep(commands, function(item) {
             return ((consoleAutoCompleteMode == eAutoCompleteMode.Prefix) ? item.name.toLowerCase().indexOf(partial.toLowerCase()) == 0 : item.name.toLowerCase().indexOf(partial.toLowerCase()) >= 0);
         });
+
+        commandItem = results.filter(x => !x.hidden);
+
         $.each(commandItem, function (key, value) {
             suggestions.push(value.name);
         });
-        var match = findPartialsMatch(suggestions);
         if (suggestions.length > 0){
             var suggestionsString = "";
             $.each(suggestions, function (key, value) {
                 suggestionsString += htmlEncode(value) + "</span>       <span class=\"command\"><b>";
             })
             appendHTMLLine("debug-line suggestion", "<span class=\"command\"><b>" + suggestionsString + "</b></span>", []);
-            return match;
-        }
-        else {
-            return suggestions[0];
-        }
+        } 
     }
 }
 
 function setSuggestedCommands(partial) {
-    $(".suggestion").remove();
-    var suggestion = getSuggestedCommands(partial);
-    if (isset(suggestion)) {
-        setInput(suggestion);
+    if(suggestions.length) {
+        var suggestion = suggestions[suggestionIndex];
+        suggestionIndex = (suggestionIndex + 1) % suggestions.length;
+        if (isset(suggestion)) {
+            setInput(suggestion);
+        }
     }
 }
 
@@ -751,11 +771,20 @@ $(window).load(function () {
 
     dew.on("show", function (e) {
         focusInput();
+    
+        if(!memoryUsageInterval)
+            memoryUsageInterval = setInterval(showMemoryUsage, 1000);
     });
 
     dew.on("hide", function (e) {
         clearInput();
         scrollToBottom();
+
+        if(memoryUsageInterval) {
+            clearInterval(memoryUsageInterval);
+            memoryUsageInterval = null;
+        }
+            
     });
 
     dew.on("console", function (e) {
@@ -819,8 +848,7 @@ function formatBytes(bytes,decimals) {
 }
 
 function showMemoryUsage() {
-	$("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize))
-	setTimeout(showMemoryUsage, 1000);
+    $("#memory-usage").text(formatBytes(performance.memory.usedJSHeapSize));
 }
 
 showMemoryUsage();

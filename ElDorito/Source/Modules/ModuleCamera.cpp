@@ -18,6 +18,8 @@ namespace
 		LookVectors = 5
 	};
 
+	bool flying = false;
+
 	// determine which camera definitions are editable based on the current camera mode
 	bool __stdcall IsCameraDefinitionEditable(CameraDefinitionType definition)
 	{
@@ -210,37 +212,16 @@ namespace
 	{
 		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
 
-		// prevent the game from updating certain camera values depending on the current camera mode
-		Modules::ModuleCamera::Instance().CameraPermissionHook.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().CameraPermissionHookAlt1.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().CameraPermissionHookAlt2.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().CameraPermissionHookAlt3.Apply(mode == "default");
-
-		// prevent the game from automatically switching camera modes depending on the current mode
-		Modules::ModuleCamera::Instance().Debug1CameraPatch.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().Debug2CameraPatch.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().ThirdPersonPatch.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().FirstPersonPatch.Apply(mode == "default");
-		Modules::ModuleCamera::Instance().DeadPersonPatch.Apply(mode == "default");
-
-		// hides the hud when flying or in static camera mode
-		Modules::ModuleCamera::Instance().HideHudPatch.Apply(mode != "flying" && mode != "static");
-
-		// prevents death from resetting look angles when in static camera mode
-		Modules::ModuleCamera::Instance().StaticILookVectorPatch.Apply(mode != "static");
-		Modules::ModuleCamera::Instance().StaticKLookVectorPatch.Apply(mode != "static");
-
-		// disable player movement while in flycam
-		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
-		playerControlGlobalsPtr(GameGlobals::Input::DisablePlayerInputIndex).Write(mode == "flying");
-
+		flying = false;
+			
 		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 
-		Pointer disablePlayerMovement(ElDorito::GetMainTls(0x44)[0](5));
-
 		// get new camera perspective function offset
-		size_t offset = 0x166ACB0;
-		if (!mode.compare("first")) // c_first_person_camera
+		size_t offset = -1;
+		if (!mode.compare("default"))
+		{
+		}
+		else if (!mode.compare("first")) // c_first_person_camera
 		{
 			offset = 0x166ACB0;
 			directorGlobalsPtr(0x840).Write(0.0f);			// x camera shift
@@ -270,7 +251,7 @@ namespace
 			directorGlobalsPtr(0x84C).Write(0.0f);			// horizontal look shift
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
-			disablePlayerMovement.Write(true);
+			flying = true;
 		}
 		else if (!mode.compare("static")) // c_static_camera
 		{
@@ -282,8 +263,11 @@ namespace
 			directorGlobalsPtr(0x850).Write(0.0f);			// vertical look shift
 			directorGlobalsPtr(0x854).Write(0.0f);			// depth
 		}
-		else if (mode.compare("flying"))
-			disablePlayerMovement.Write(false);
+		else
+		{
+			returnInfo = "valid modes: default, first, third, flying, static";
+			return false;
+		}
 
 		/*
 		else if (!mode.compare("dead")) // c_dead_camera
@@ -306,15 +290,38 @@ namespace
 			offset = 0x1672920;
 		*/
 
-		// update camera perspective function
-		Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
-		size_t oldOffset = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
-		directorPtr(GameGlobals::Director::CameraFunctionIndex).Write(offset);
+		// prevent the game from updating certain camera values depending on the current camera mode
+		Modules::ModuleCamera::Instance().CameraPermissionHook.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt1.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt2.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().CameraPermissionHookAlt3.Apply(mode == "default");
 
-		// output old -> new perspective function information to console
-		std::stringstream ss;
-		ss << "0x" << std::hex << oldOffset << " -> 0x" << offset;
-		returnInfo = ss.str();
+		// prevent the game from automatically switching camera modes depending on the current mode
+		Modules::ModuleCamera::Instance().Debug1CameraPatch.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().Debug2CameraPatch.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().ThirdPersonPatch.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().ThirdPersonPatch2.Apply(mode != "third");
+		Modules::ModuleCamera::Instance().FirstPersonPatch.Apply(mode == "default");
+		Modules::ModuleCamera::Instance().DeadPersonPatch.Apply(mode == "default");
+
+		// hides the hud when flying or in static camera mode
+		Modules::ModuleCamera::Instance().HideHudPatch.Apply(mode != "flying" && mode != "static");
+
+		// prevents death from resetting look angles when in static camera mode
+		Modules::ModuleCamera::Instance().StaticILookVectorPatch.Apply(mode != "static");
+		Modules::ModuleCamera::Instance().StaticKLookVectorPatch.Apply(mode != "static");
+
+		// disable player movement while in flycam
+		Pointer playerControlGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Input::TLSOffset)[0]);
+		playerControlGlobalsPtr(GameGlobals::Input::DisablePlayerInputIndex).Write(mode == "flying");	
+
+		if (offset != -1)
+		{
+			// update camera perspective function
+			Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
+			size_t oldOffset = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
+			directorPtr(GameGlobals::Director::CameraFunctionIndex).Write(offset);
+		}
 
 		return true;
 	}
@@ -355,6 +362,7 @@ namespace Modules
 		Debug1CameraPatch(0x325A80, 0x90, 6),
 		Debug2CameraPatch(0x191525, 0x90, 6),
 		ThirdPersonPatch(0x328640, 0x90, 6),
+		ThirdPersonPatch2(0x321BA5, 0x90, 2), // hack to fix third person camera glitching
 		FirstPersonPatch(0x25F420, 0x90, 6),
 		DeadPersonPatch(0x329E6F, 0x90, 6),
 		StaticILookVectorPatch(0x211433, 0x90, 8),
@@ -398,10 +406,7 @@ namespace Modules
 
 	void ModuleCamera::UpdatePosition()
 	{
-		auto mode = Utils::String::ToLower(Modules::ModuleCamera::Instance().VarCameraMode->ValueString);
-
-		// only allow camera input while flying
-		if (mode.compare("flying"))
+		if (!flying)
 			return;
 
 		Pointer directorGlobalsPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
@@ -490,5 +495,10 @@ namespace Modules
 		directorGlobalsPtr(0x870).WriteFast<float>(cos(vLookAngle));
 
 		directorGlobalsPtr(0x858).WriteFast<float>(fov);
+	}
+
+	bool ModuleCamera::IsFlying() const
+	{
+		return flying;
 	}
 }

@@ -41,20 +41,18 @@ namespace
 		General_ShapeTop,
 		General_ShapeBottom,
 		General_ShapeDepth,
-		General_Material,
-		General_Material_ColorR,
-		General_Material_ColorG,
-		General_Material_ColorB,
-		General_Material_TextureOverride,
-		General_Material_TextureScale,
-		General_Material_TextureOffsetX,
-		General_Material_TextureOffsetY,
-
 		General_Physics,
 		General_EngineFlags,
 
-		Budget_Minimum,
-		Budget_Maximum,
+		Reforge_Material,
+		Reforge_Material_ColorR,
+		Reforge_Material_ColorG,
+		Reforge_Material_ColorB,
+		Reforge_Material_TextureOverride,
+		Reforge_Material_TextureScale,
+		Reforge_Material_TextureOffsetX,
+		Reforge_Material_TextureOffsetY,
+		Reforge_MaterialAllowsProjectiles,
 
 		Light_Type,
 		Light_ColorR,
@@ -113,7 +111,11 @@ namespace
 		AtmosphereProperties_FogColorG,
 		AtmosphereProperties_FogColorB,
 		AtmosphereProperties_Skybox,
-		AtmosphereProperties_SkyboxOffsetZ
+		AtmosphereProperties_SkyboxOffsetZ,
+		AtmosphereProperties_SkyboxOverrideTransform,
+
+		Budget_Minimum,
+		Budget_Maximum,
 	};
 
 	enum class PropertyDataType
@@ -192,31 +194,37 @@ namespace
 			case PropertyTarget::General_ShapeDepth:
 				m_Properties.ZoneDepth = value.ValueFloat;
 				break;
-			case PropertyTarget::General_Material:
+			case PropertyTarget::Reforge_Material:
 				m_Properties.SharedStorage = value.ValueInt;
 				break;
-			case PropertyTarget::General_Material_ColorR:
+			case PropertyTarget::Reforge_Material_ColorR:
 				reforgeProperties->ColorR = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_ColorG:
+			case PropertyTarget::Reforge_Material_ColorG:
 				reforgeProperties->ColorG = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_ColorB:
+			case PropertyTarget::Reforge_Material_ColorB:
 				reforgeProperties->ColorB = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOverride:
+			case PropertyTarget::Reforge_Material_TextureOverride:
 				if (value.ValueInt)
-					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords;
 				else
-					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates;
+					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords;
 				break;
-			case PropertyTarget::General_Material_TextureScale:
+			case PropertyTarget::Reforge_MaterialAllowsProjectiles:
+				if (value.ValueInt)
+					reforgeProperties->Flags |= Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles;
+				else
+					reforgeProperties->Flags &= ~Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles;
+				break;
+			case PropertyTarget::Reforge_Material_TextureScale:
 				reforgeProperties->TextureData.Scale = int(value.ValueFloat / Forge::kReforgeMaxTextureScale * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOffsetX:
+			case PropertyTarget::Reforge_Material_TextureOffsetX:
 				reforgeProperties->TextureData.OffsetX = int(value.ValueFloat * 255);
 				break;
-			case PropertyTarget::General_Material_TextureOffsetY:
+			case PropertyTarget::Reforge_Material_TextureOffsetY:
 				reforgeProperties->TextureData.OffsetY = int(value.ValueFloat * 255);
 				break;		
 			case PropertyTarget::General_Physics:
@@ -427,6 +435,12 @@ namespace
 				break;
 			case PropertyTarget::AtmosphereProperties_SkyboxOffsetZ:
 				mapModifierProperties->AtmosphereProperties.SkyboxZOffset = int((value.ValueFloat * 0.5f + 0.5f) * 255.0f);
+				break;
+			case PropertyTarget::AtmosphereProperties_SkyboxOverrideTransform:
+				if (value.ValueInt)
+					mapModifierProperties->AtmosphereProperties.Flags |= (1 << 1);
+				else
+					mapModifierProperties->AtmosphereProperties.Flags &= ~(1 << 1);
 				break;
 			}
 		}
@@ -729,34 +743,6 @@ namespace
 		return c_str != endp;
 	}
 
-	bool CanThemeObject()
-	{
-		const auto FIRST_THEMEABLE_SHADER_TAG_INDEX = 0x3ab0;
-
-		auto object = Blam::Objects::Get(s_CurrentObjectIndex);
-		if (!object)
-			return false;
-
-		auto objectDef = Blam::Tags::TagInstance(object->TagIndex).GetDefinition<uint8_t>();
-		if (!objectDef)
-			return false;
-		auto hlmtDef = Blam::Tags::TagInstance(*(uint32_t*)(objectDef + 0x40)).GetDefinition<uint8_t>();
-		if (!hlmtDef)
-			return false;
-		auto modeTagIndex = *(uint32_t*)(hlmtDef + 0xC);
-
-		const auto modeDefinitionPtr = Pointer(Blam::Tags::TagInstance(modeTagIndex).GetDefinition<uint8_t>());
-		if (!modeDefinitionPtr)
-			return false;
-
-		const auto materialCount = modeDefinitionPtr(0x48).Read<int32_t>();
-		const auto& firstMaterialShaderTagRef = modeDefinitionPtr(0x4c)[0].Read<Blam::Tags::TagReference>();
-		if (!materialCount || firstMaterialShaderTagRef.TagIndex != FIRST_THEMEABLE_SHADER_TAG_INDEX)
-			return false;
-
-		return true;
-	}
-
 	bool IsForgeLight(uint32_t objectIndex)
 	{
 		auto object = Blam::Objects::Get(objectIndex);
@@ -806,33 +792,32 @@ namespace
 
 		auto mapv = Forge::GetMapVariant();
 		auto placement = mapv->Placements[placementIndex];
-		const auto& properties = placement.Properties;
 		const auto& budget = mapv->Budget[placement.BudgetIndex];
 
+		auto object = Blam::Objects::Get(placement.ObjectIndex);
+		if (!object)
+			return "{}";
+		auto mpProperties = object->GetMultiplayerProperties();
+		if (!mpProperties)
+			return "{}";
+
+		auto &properties = *mpProperties;
+	
 		rapidjson::StringBuffer buffer;
 		rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 
-		auto symmetry = 0;
-		if (properties.ObjectFlags & 4)
-		{
-			if (!(properties.ObjectFlags & 8))
-				symmetry = 1;
-		}
-		else
-			symmetry = 2;
-
-		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.ZoneRadiusWidth);
-		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.ZoneRadiusWidth);
-		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.ZoneRadiusWidth);
-		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.ZoneRadiusWidth);
-		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.SharedStorage);
-		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.SharedStorage);
+		auto lightProperties = reinterpret_cast<const Forge::ForgeLightProperties*>(&properties.RadiusWidth);
+		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.RadiusWidth);
+		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.RadiusWidth);
+		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.RadiusWidth);
+		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.RadiusWidth);
+		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.RadiusWidth);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
 		SerializeProperty(writer, "object_index", int(s_CurrentObjectIndex));
 		SerializeProperty(writer, "object_type_mp", properties.ObjectType);
-		SerializeProperty(writer, "has_material", CanThemeObject());
+		SerializeProperty(writer, "has_material", Forge::IsReforgeObject(s_CurrentObjectIndex));
 		SerializeProperty(writer, "has_spare_clips", properties.ObjectType == 1 && !Weapon_HasSpareClips(budget.TagIndex));
 		SerializeProperty(writer, "is_selected", Forge::Selection::GetSelection().Contains(placement.ObjectIndex));
 		SerializeProperty(writer, "is_light", IsForgeLight(placement.ObjectIndex));
@@ -862,29 +847,31 @@ namespace
 
 		writer.Key("properties");
 		writer.StartObject();
-		SerializeProperty(writer, "on_map_at_start", ((properties.ObjectFlags >> 1) & 1) == 0 ? 1 : 0);
-		SerializeProperty(writer, "symmetry", symmetry);
-		SerializeProperty(writer, "respawn_rate", properties.RespawnTime);
-		SerializeProperty(writer, "spawn_order", properties.SharedStorage);
-		SerializeProperty(writer, "spare_clips", properties.SharedStorage);
-		SerializeProperty(writer, "team_affiliation", properties.TeamAffilation);
+		SerializeProperty(writer, "on_map_at_start", ((properties.Flags >> 7) & 1) == 0 ? 1 : 0);
+		SerializeProperty(writer, "symmetry", properties.Symmetry);
+		SerializeProperty(writer, "respawn_rate", properties.SpawnTime);
+		SerializeProperty(writer, "spawn_order", properties.TeleporterChannel);
+		SerializeProperty(writer, "spare_clips", properties.SpareClips);
+		SerializeProperty(writer, "team_affiliation", properties.TeamIndex);
 		SerializeProperty(writer, "engine_flags", properties.EngineFlags);
-		SerializeProperty(writer, "teleporter_channel", properties.SharedStorage);
-		SerializeProperty(writer, "shape_type", properties.ZoneShape);
-		SerializeProperty(writer, "shape_radius", properties.ZoneRadiusWidth);
-		SerializeProperty(writer, "shape_top", properties.ZoneTop);
-		SerializeProperty(writer, "shape_bottom", properties.ZoneBottom);
-		SerializeProperty(writer, "shape_width", properties.ZoneRadiusWidth);
-		SerializeProperty(writer, "shape_depth", properties.ZoneDepth);
-		SerializeProperty(writer, "appearance_material", properties.SharedStorage);
-		SerializeProperty(writer, "appearance_material_color_r", reforgeProperties->ColorR / 255.0f);
-		SerializeProperty(writer, "appearance_material_color_g", reforgeProperties->ColorG / 255.0f);
-		SerializeProperty(writer, "appearance_material_color_b", reforgeProperties->ColorB / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_override", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::eReforgeObjectFlags_OverrideTexCoordinates) != 0));
-		SerializeProperty(writer, "appearance_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
-		SerializeProperty(writer, "appearance_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
-		SerializeProperty(writer, "physics", properties.ZoneShape == 4 ? 1 : 0);
+		SerializeProperty(writer, "teleporter_channel", properties.TeleporterChannel);
+		SerializeProperty(writer, "shape_type", properties.Shape);
+		SerializeProperty(writer, "shape_radius", properties.RadiusWidth);
+		SerializeProperty(writer, "shape_top", properties.Top);
+		SerializeProperty(writer, "shape_bottom", properties.Bottom);
+		SerializeProperty(writer, "shape_width", properties.RadiusWidth);
+		SerializeProperty(writer, "shape_depth", properties.Length);
+		SerializeProperty(writer, "reforge_material", int(properties.TeleporterChannel));
+		SerializeProperty(writer, "reforge_material_color_r", reforgeProperties->ColorR / 255.0f);
+		SerializeProperty(writer, "reforge_material_color_g", reforgeProperties->ColorG / 255.0f);
+		SerializeProperty(writer, "reforge_material_color_b", reforgeProperties->ColorB / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_offset_x", reforgeProperties->TextureData.OffsetX / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_offset_y", reforgeProperties->TextureData.OffsetY / 255.0f);
+		SerializeProperty(writer, "reforge_material_tex_scale", reforgeProperties->TextureData.Scale / 255.0f * Forge::kReforgeMaxTextureScale);
+		SerializeProperty(writer, "reforge_material_tex_override", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialOverrideTextureCoords) != 0));
+		SerializeProperty(writer, "reforge_material_allows_projectiles", int((reforgeProperties->Flags & Forge::ReforgeObjectProperties::Flags::MaterialAllowsProjectiles) != 0));
+
+		SerializeProperty(writer, "physics", properties.Shape == 4 ? 1 : 0);
 		SerializeProperty(writer, "light_type", int(lightProperties->Type));
 		SerializeProperty(writer, "light_color_b", lightProperties->ColorB / 255.0f);
 		SerializeProperty(writer, "light_color_g", lightProperties->ColorG / 255.0f);
@@ -930,7 +917,7 @@ namespace
 		SerializeProperty(writer, "atmosphere_properties_fog_color_b", mapModifierProperties->AtmosphereProperties.FogColorB / 255.0f);
 		SerializeProperty(writer, "atmosphere_properties_skybox", mapModifierProperties->AtmosphereProperties.Skybox);
 		SerializeProperty(writer, "atmosphere_properties_skybox_offset_z", (mapModifierProperties->AtmosphereProperties.SkyboxZOffset / 255.0f * 2.0f) - 1);
-
+		SerializeProperty(writer, "atmosphere_properties_skybox_override_transform", int((mapModifierProperties->AtmosphereProperties.Flags & (1 << 1)) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_dead_biped", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectDeadBipeds) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_weapons", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectWeapons) != 0));
 		SerializeProperty(writer, "garbage_volume_collect_objectives", (int)((garbageVolumeProperties->Flags & Forge::ForgeGarbageVolumeProperties::eGarbageVolumeFlags_CollectObjectives) != 0));
@@ -970,14 +957,15 @@ namespace
 			{ "team_affiliation",{ PropertyDataType::Int, PropertyTarget::General_Team } },
 			{ "engine_flags", {PropertyDataType::Int, PropertyTarget::General_EngineFlags } },
 			{ "physics",{ PropertyDataType::Int, PropertyTarget::General_Physics } },
-			{ "appearance_material",{ PropertyDataType::Int, PropertyTarget::General_Material } },
-			{ "appearance_material_color_r",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorR } },
-			{ "appearance_material_color_g",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorG } },
-			{ "appearance_material_color_b",{ PropertyDataType::Float, PropertyTarget::General_Material_ColorB } },
-			{ "appearance_material_tex_override",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOverride } },
-			{ "appearance_material_tex_scale",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureScale } },
-			{ "appearance_material_tex_offset_x",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetX } },
-			{ "appearance_material_tex_offset_y",{ PropertyDataType::Float, PropertyTarget::General_Material_TextureOffsetY } },
+			{ "reforge_material",{ PropertyDataType::Int, PropertyTarget::Reforge_Material } },
+			{ "reforge_material_color_r",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorR } },
+			{ "reforge_material_color_g",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorG } },
+			{ "reforge_material_color_b",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_ColorB } },
+			{ "reforge_material_tex_scale",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureScale } },
+			{ "reforge_material_tex_offset_x",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureOffsetX } },
+			{ "reforge_material_tex_offset_y",{ PropertyDataType::Float, PropertyTarget::Reforge_Material_TextureOffsetY } },
+			{ "reforge_material_tex_override",{ PropertyDataType::Int, PropertyTarget::Reforge_Material_TextureOverride } },
+			{ "reforge_material_allows_projectiles",{ PropertyDataType::Int, PropertyTarget::Reforge_MaterialAllowsProjectiles} },
 
 			{ "teleporter_channel",{ PropertyDataType::Int, PropertyTarget::General_TeleporterChannel } },
 			{ "shape_type",{ PropertyDataType::Int, PropertyTarget::General_ShapeType } },
@@ -1044,6 +1032,7 @@ namespace
 			{ "atmosphere_properties_fog_color_b",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_FogColorB } },
 			{ "atmosphere_properties_skybox",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_Skybox } },
 			{ "atmosphere_properties_skybox_offset_z",{ PropertyDataType::Float, PropertyTarget::AtmosphereProperties_SkyboxOffsetZ } },
+			{ "atmosphere_properties_skybox_override_transform",{ PropertyDataType::Int, PropertyTarget::AtmosphereProperties_SkyboxOverrideTransform } },
 
 			{ "summary_runtime_minimum",{ PropertyDataType::Int, PropertyTarget::Budget_Minimum } },
 			{ "summary_runtime_maximum",{ PropertyDataType::Int, PropertyTarget::Budget_Maximum } },

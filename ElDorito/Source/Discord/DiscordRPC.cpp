@@ -2,10 +2,7 @@
 
 #include <time.h>
 
-#include "../Blam/BlamEvents.hpp"
 #include "../Blam/BlamNetwork.hpp"
-#include "../Blam/BlamPlayers.hpp"
-#include "../Blam/BlamTypes.hpp"
 #include "../Patches/Network.hpp"
 #include "../Patches/Core.hpp"
 #include "../Modules/ModuleServer.hpp"
@@ -15,13 +12,24 @@
 #include "../ThirdParty/rapidjson/writer.h"
 #include "../ThirdParty/HttpRequest.hpp"
 #include "../Pointer.hpp"
-#include "../CommandMap.hpp"
 #include "../Utils/String.hpp"
+#include "../Utils/Cryptography.hpp"
+#include "../Utils/VersionInfo.hpp"
 #include <discord_register.h>
 
 #include "../Utils/Logger.hpp"
 
 static const char* APPLICATION_ID = "378984448022020112";
+
+#define SITE_NUMBER 4
+//address paired with a bool defining if a trailing /n must be removed
+static const std::pair<std::wstring, bool> ipGetter[SITE_NUMBER] =
+{
+	std::make_pair(L"http://checkip.amazonaws.com/", true),
+	std::make_pair(L"http://ipecho.net/plain", false),
+	std::make_pair(L"http://myexternalip.com/raw", true),
+	std::make_pair(L"http://diagnostic.opendns.com/myip", false)
+};
 
 namespace
 {
@@ -93,8 +101,10 @@ namespace
 			}
 			else
 			{
+				Discord::DiscordRPC::Instance().mapString = std::string((char*)Pointer(0x22AB018)(0x1A4));
+				Discord::DiscordRPC::Instance().mapString[0] = toupper(Discord::DiscordRPC::Instance().mapString[0]);
+				Discord::DiscordRPC::Instance().discordPresence.largeImageText = Discord::DiscordRPC::Instance().mapString.c_str();
 				Discord::DiscordRPC::Instance().discordPresence.largeImageKey = (char*)Pointer(0x22AB018)(0x1A4);
-				Discord::DiscordRPC::Instance().discordPresence.largeImageText = (char*)Pointer(0x22AB018)(0x1A4);
 				
 				if (game && map)
 				{
@@ -102,8 +112,11 @@ namespace
 					ss << "On " << Utils::String::ThinString(map->ContentHeader.Name);
 					Discord::DiscordRPC::Instance().detailString = ss.str(); //Need a variable that will stay active
 					Discord::DiscordRPC::Instance().discordPresence.details = Discord::DiscordRPC::Instance().detailString.c_str();
+
+					Discord::DiscordRPC::Instance().gameTypeString = Blam::GameTypeNames[game->GameType];
+					Discord::DiscordRPC::Instance().gameTypeString[0] = toupper(Discord::DiscordRPC::Instance().gameTypeString[0]);
+					Discord::DiscordRPC::Instance().discordPresence.smallImageText = Discord::DiscordRPC::Instance().gameTypeString.c_str();
 					Discord::DiscordRPC::Instance().discordPresence.smallImageKey = Blam::GameTypeNames[game->GameType].c_str();
-					Discord::DiscordRPC::Instance().discordPresence.smallImageText = Blam::GameTypeNames[game->GameType].c_str();
 				}
 			}
 			int players = 0;
@@ -119,7 +132,11 @@ namespace
 			Discord::DiscordRPC::Instance().discordPresence.partySize = players;
 			Discord::DiscordRPC::Instance().discordPresence.partyMax = session->MembershipInfo.SessionMaxPlayers;
 			if (game)
-				Discord::DiscordRPC::Instance().discordPresence.state = Blam::GameTypeNames[game->GameType].c_str();
+			{
+				Discord::DiscordRPC::Instance().gameTypeString = Blam::GameTypeNames[game->GameType];
+				Discord::DiscordRPC::Instance().gameTypeString[0] = toupper(Discord::DiscordRPC::Instance().gameTypeString[0]);
+				Discord::DiscordRPC::Instance().discordPresence.state = Discord::DiscordRPC::Instance().gameTypeString.c_str();
+			}
 		}
 		else
 		{
@@ -145,29 +162,38 @@ namespace
 	DWORD WINAPI DiscordRetrieveExternalIP_Thread(LPVOID lpParam)
 	{
 		HttpRequest req(L"ElDewrito/" + Utils::String::WidenString(Utils::Version::GetVersionString()), L"", L"");
-
-		if (!req.SendRequest(L"http://myexternalip.com/raw", L"GET", L"", L"", L"", NULL, 0))
+		
+		for (int i = 0; i < SITE_NUMBER; i++)
 		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
+			if (!req.SendRequest(ipGetter[i].first, L"GET", L"", L"", L"", NULL, 0))
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+
+			std::wstring expected = L"HTTP/1.1 200 OK";
+			if (req.responseHeader.length() < expected.length())
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+
+			auto respHdr = req.responseHeader.substr(0, expected.length());
+			if (respHdr.compare(expected))
+			{
+				Discord::DiscordRPC::Instance().SetJoinString("");
+				continue;
+			}
+			std::string extIp;
+			if (ipGetter[i].second) //remove trailing \n
+				extIp = std::string(req.responseBody.begin(), req.responseBody.end() - 1);
+			else
+				extIp = std::string(req.responseBody.begin(), req.responseBody.end());
+			Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
 			return true;
 		}
 
-		std::wstring expected = L"HTTP/1.1 200 OK";
-		if (req.responseHeader.length() < expected.length())
-		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
-			return true;
-		}
-
-		auto respHdr = req.responseHeader.substr(0, expected.length());
-		if (respHdr.compare(expected))
-		{
-			Discord::DiscordRPC::Instance().SetJoinString("");
-			return true;
-		}
-
-		std::string extIp = std::string(req.responseBody.begin(), req.responseBody.end()).substr(0, req.responseBody.size() - 1); //remove trailing \n
-		Discord::DiscordRPC::Instance().SetJoinString(extIp + ":" + Modules::ModuleServer::Instance().VarServerPort->ValueString + " " + Modules::ModuleServer::Instance().VarServerPassword->ValueString);
+		Discord::DiscordRPC::Instance().SetJoinString("");
 		return true;
 	}
 

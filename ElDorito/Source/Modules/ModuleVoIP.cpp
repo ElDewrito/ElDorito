@@ -137,7 +137,7 @@ namespace Modules
 		VarNoiseSupress->ValueIntMin = 0;
 		VarNoiseSupress->ValueIntMax = 1;
 
-		AddCommand("Update", "update", "Updates the voip screen layer with variable states", eCommandFlagsNone, UpdateVoip);
+		AddCommand("Update", "voip_update", "Updates the voip screen layer with variable states", eCommandFlagsNone, UpdateVoip);
 
 		VarPTTSoundEnabled = AddVariableInt("PTTSoundEnabled", "ptt_sound_enabled", "Toggles the sound played when using Push-To-Talk.", eCommandFlagsArchived, 1);
 		VarPTTSoundEnabled->ValueIntMin = 0;

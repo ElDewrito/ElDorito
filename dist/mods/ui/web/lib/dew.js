@@ -277,6 +277,11 @@ CommandType = {
         }
     }
 
+    // displays a toast. example: dew.toast({body:'<b>Hello World</b>'})
+    dew.toast = function(toast) {
+        postUiMessage('toast', toast);
+    }
+
     // Disable text selection by default since most screens won't want it
     window.addEventListener("load", function (event) {
         document.body.style["-webkit-user-select"] = "none";

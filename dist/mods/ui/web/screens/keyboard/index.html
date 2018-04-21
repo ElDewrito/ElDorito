@@ -2,10 +2,14 @@
 <html>
     <head>
         <title>Virtual Keyboard</title>
-        <link rel="stylesheet" type="text/css" href="keyboard.css" />
+        <link rel="stylesheet" type="text/css" href="dew://lib/css/popup.css" />
         <script src="dew://lib/dew.js"></script>
         <script src="dew://lib/jquery-2.2.1.min.js"></script>
         <script src="keyboard.js"></script>
+        
+        <!-- Window Resize-->
+        <script src="dew://lib/window-resize.js"></script>
+        <link rel="stylesheet" type="text/css" href="dew://lib/window-resize.css"/>
     </head>
     <body>
         <div id="container">
@@ -15,8 +19,8 @@
                         <form>
                             <div id="title"></div>
                             <div id="description"></div>
-                            <textarea id="text" /><br />
-                            <button id="ok">SAVE</button><button id="cancel">CANCEL</button>
+                            <textarea id="text"></textarea><br />
+                            <button id="ok"><img class="button">Save</button><button id="cancel"><img class="button">Cancel</button>
                         </form>
                     </div>
                 </div>

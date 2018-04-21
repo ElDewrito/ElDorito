@@ -501,7 +501,7 @@ bool WebRenderer::Reload(bool p_IgnoreCache)
 	return true;
 }
 
-bool WebRenderer::RegisterScheme(const std::string &p_Name, const boost::filesystem::path &p_Directory)
+bool WebRenderer::RegisterScheme(const std::string &p_Name, const std::string &p_Directory)
 {
 	if (!boost::filesystem::exists(p_Directory))
 		return false;

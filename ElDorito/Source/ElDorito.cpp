@@ -124,22 +124,22 @@ void ElDorito::Initialize()
 	// If instancing is enabled then load the instanced dewrito_prefs.cfg
 	if (instanceName != "")
 	{
-		std::stringstream ss;
-		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
-		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
-		
 		std::stringstream keystream;
 		keystream << "Execute dewrito_prefs_" << instanceName << ".cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
+
+		std::stringstream ss;
+		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
+		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
 	}
 	else
 	{
 		std::stringstream ss;
-		ss << "Execute " << ed_appdata << "\\keys.cfg";
+		ss << "Execute dewrito_prefs.cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
-		
+
 		std::stringstream keystream;
-		keystream << "Execute dewrito_prefs.cfg";
+		keystream << "Execute " << ed_appdata << "\\keys.cfg";
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
@@ -149,6 +149,8 @@ void ElDorito::Initialize()
 		Modules::CommandMap::Instance().ExecuteCommand("Bind PrintScreen Game.TakeScreenshot");
 	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen discord"))
 		Modules::CommandMap::Instance().ExecuteCommand("Bind F4 Game.ShowScreen discord");
+	if (!Modules::ModuleInput::Instance().IsCommandBound("game.showscreen browser"))
+		Modules::CommandMap::Instance().ExecuteCommand("Bind F11 game.showscreen browser");
 
 	mapsFolder = "maps\\";
 
@@ -263,9 +265,10 @@ void ElDorito::Initialize()
 	Server::Rcon::Initialize();
 	Server::Signaling::Initialize();
 
-	if (!Blam::Cache::StringIDCache::Instance.Load("maps\\string_ids.dat"))
+	if (!Blam::Cache::StringIDCache::Instance.Load(mapsFolder + "string_ids.dat"))
 	{
-		MessageBox(NULL, "Failed to load 'maps\\string_ids.dat'!", "", MB_OK);
+		std::string msg("Failed to load '" + mapsFolder + "string_ids.dat'!");
+		MessageBox(NULL, msg.c_str(), "", MB_OK);
 	}
 }
 

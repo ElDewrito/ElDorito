@@ -320,6 +320,7 @@ namespace
 
 		ss << "Loading " << mapName << " gametype: " << Blam::GameTypeNames[gameType] << " gamemode: " << Blam::GameModeNames[gameMode];
 
+		// Game Type
 		Pointer(0x2391B2C).Write<uint32_t>(gameType);
 
 		// Infinite play time
@@ -928,13 +929,16 @@ namespace
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> wstring_to_string;
 		std::string screenshot_path = wstring_to_string.to_bytes(path);
 
-		rapidjson::StringBuffer jsonBuffer;
-		rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
-		jsonWriter.StartObject();
-		jsonWriter.Key("filepath");
-		jsonWriter.String(screenshot_path.c_str());
-		jsonWriter.EndObject();
-		Web::Ui::ScreenLayer::Show("screenshot_notice", jsonBuffer.GetString());
+		if (!Modules::ModuleGame::Instance().VarScreenshotNoticeDisabled->ValueInt)
+		{
+			rapidjson::StringBuffer jsonBuffer;
+			rapidjson::Writer<rapidjson::StringBuffer> jsonWriter(jsonBuffer);
+			jsonWriter.StartObject();
+			jsonWriter.Key("filepath");
+			jsonWriter.String(screenshot_path.c_str());
+			jsonWriter.EndObject();
+			Web::Ui::ScreenLayer::Notify("screenshot_taken", jsonBuffer.GetString(), true);
+		}
 
 		returnInfo = "Screenshot saved to: " + screenshot_path;
 		return true;
@@ -1088,7 +1092,7 @@ namespace
 		return true;
 	}
 
-	bool TickrateUI()
+	bool ShowTickrate()
 	{
 		auto Tickrate = Pointer(0x22B47FC);
 		Tickrate.Write(!Tickrate.Read<bool>());
@@ -1098,9 +1102,29 @@ namespace
 	bool CommandShowTickrate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		std::stringstream ss;
-		ss << "Tickrate ui: " << (TickrateUI() ? "enabled." : "disabled.");
+		ss << "Tickrate: " << (ShowTickrate() ? "shown." : "hidden.");
 		returnInfo = ss.str();
 		return true;
+	}
+
+	bool CommandGameUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		auto ret = int(ShellExecuteA(nullptr, nullptr, "updater.exe", "", nullptr, SW_SHOWNORMAL));
+		if (ret <= 32)
+		{
+			if (ret == ERROR_FILE_NOT_FOUND || ret == ERROR_PATH_NOT_FOUND)
+			{
+				returnInfo = "\"updater.exe\" not found in current directory";
+			}
+			else
+			{
+				char error[256];
+				sprintf_s(error, "failed to execute updater. error: %d %d", ret, GetLastError());
+				returnInfo = error;
+			}
+			return false;
+		}
+		return CommandGameExit(Arguments, returnInfo);
 	}
 
 	//EXAMPLE:
@@ -1173,7 +1197,9 @@ namespace Modules
 
 		AddCommand("ScreenEffectRange", "sefc_range", "Set the range of the default screen FX in the current scnr", eCommandFlagsNone, CommandScreenEffectRange, { "Index(int) sefc effect index", "Range(float) effect range" });
 
-		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate UI", (CommandFlags)(eCommandFlagsOmitValueInList | eCommandFlagsHidden), CommandShowTickrate);
+		AddCommand("ShowTickrate", "show_rickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
+
+		AddCommand("Update", "update", "Update the game to the latest version", eCommandFlagsNone, CommandGameUpdate);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 
@@ -1216,8 +1242,9 @@ namespace Modules
 		VarHideH3UI->ValueIntMax = 1;
 
 		VarScreenshotsFolder = AddVariableString("ScreenshotsFolder", "screenshots_folder", "The location where the game will save screenshots", eCommandFlagsArchived, "%userprofile%\\Pictures\\Screenshots\\blam");
+		VarScreenshotNoticeDisabled = AddVariableInt("ScreenshotNoticeDisabled", "screenshot_notice_disabled", "Disables the screenshot notifications", eCommandFlagsArchived, 0);
 
-		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 1);
+		VarCefMedals = AddVariableInt("CefMedals", "cef_medals", "Enable/disable cef medals. When disabled fallback to the H3 medal system.", eCommandFlagsArchived, 0);
 
 		VarFpsLimiter = AddVariableInt("FPSLimiter", "fps_limiter", "Enable/disable framerate limiter (improves frame timing at the cost of cpu usage)", eCommandFlagsArchived, 1);
 

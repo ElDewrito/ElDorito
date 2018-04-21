@@ -621,6 +621,53 @@ namespace
 		returnInfo = buffer.GetString();
 		return true;
 	}
+
+	bool CommandResetSettings(const std::vector<std::string> &args, std::string &returnInfo)
+	{
+		auto &commandMap = Modules::CommandMap::Instance();
+
+		for (auto &cmd : commandMap.Commands)
+		{
+			if (!(cmd.Flags & CommandFlags::eCommandFlagsArchived)
+				|| cmd.Flags & eCommandFlagsNoReset
+				|| cmd.Flags & eCommandFlagsWriteToKeys)
+			{
+				continue;
+			}
+
+			switch (cmd.Type)
+			{
+			case Modules::CommandType::eCommandTypeCommand:
+				continue;
+			case Modules::CommandType::eCommandTypeVariableFloat:
+				cmd.ValueFloat = cmd.DefaultValueFloat;
+				cmd.ValueString = std::to_string(cmd.DefaultValueFloat);
+				break;
+			case Modules::CommandType::eCommandTypeVariableInt:
+				cmd.ValueInt = cmd.DefaultValueInt;
+				cmd.ValueString = std::to_string(cmd.ValueInt);
+				break;
+			case Modules::CommandType::eCommandTypeVariableInt64:
+				cmd.ValueInt64 = cmd.DefaultValueInt64;
+				cmd.ValueString = std::to_string(cmd.DefaultValueInt64);
+				break;
+			case Modules::CommandType::eCommandTypeVariableString:
+				cmd.ValueString = cmd.DefaultValueString;
+				break;
+			}
+
+			if (cmd.UpdateEvent)
+			{
+				std::string returnInfo;
+				cmd.UpdateEvent({ cmd.ValueString }, returnInfo);
+			}
+
+			commandMap.NotifyVariableUpdated(&cmd);
+		}
+
+		returnInfo = "Default settings restored";
+		return true;
+	}
 }
 
 namespace Modules
@@ -662,6 +709,7 @@ namespace Modules
 		VarAudioOutputDevice = AddVariableInt("AudioOutputDevice", "audio_out", "Sets the audio output device to use (0) being system default", eCommandFlagsArchived, 0, VariableAudioOutputDeviceUpdated);
 
 		AddCommand("AudioOutputDeviceList", "audio_out_devs", "List available audio output devices", eCommandFlagsNone, CommandAudioOutputDeviceList);
+		AddCommand("Reset", "settings_reset", "Restores default settings", eCommandFlagsNone, CommandResetSettings);
 	}
 
 	void ModuleSettings::GetScreenResolution(int* width, int* height) const

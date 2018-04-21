@@ -24,6 +24,7 @@ namespace Modules
 		Command* VarPlayerServiceTag;
 		Command* VarPlayerPrivKey;
 		Command* VarPlayerPubKey;
+		Command* VarPlayerScale;
 
 		wchar_t UserName[17];
 

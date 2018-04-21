@@ -4,7 +4,6 @@
 #include <include/internal/cef_ptr.h>
 #include <include/cef_app.h>
 #include <memory>
-#include <boost/filesystem.hpp>
 
 #include "WebRendererApp.hpp"
 
@@ -64,7 +63,7 @@ namespace Anvil::Client::Rendering
 		bool OpenUrl(const std::string &p_Url);
 		bool Reload(bool p_IgnoreCache);
 
-		bool RegisterScheme(const std::string &p_Name, const boost::filesystem::path &p_Directory);
+		bool RegisterScheme(const std::string &p_Name, const std::string &p_Directory);
 
 		bool ExecuteJavascript(std::string p_Code);
 

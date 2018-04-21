@@ -39,6 +39,8 @@ namespace
 	void QuickBlockInput();
 	void QuickUnblockInput();
 
+	void UpdateForgeMonitorBindings();
+
 	std::stack<std::shared_ptr<InputContext>> contextStack;
 	std::vector<DefaultInputHandler> defaultHandlers;
 	std::vector<MenuUIInputHandler> uiHandlers;
@@ -52,6 +54,7 @@ namespace
 
 	BindingsTable s_ForgeMonitorModeBindings;
 	uint32_t s_ControllerVibrationTestTicks = 0;
+	uint32_t bindingsNextUpdateTicks = -1;
 }
 
 namespace Patches::Input
@@ -166,6 +169,12 @@ namespace Patches::Input
 	{
 		s_ControllerVibrationTestTicks = Blam::Time::SecondsToTicks(durationSeconds);
 	}
+
+	void InvalidateBindings()
+	{
+		// bindings are applied individually one per-tick, so we need to debounce updates
+		bindingsNextUpdateTicks = 100;
+	}
 }
 
 namespace
@@ -223,6 +232,12 @@ namespace
 
 		if (s_ControllerVibrationTestTicks > 0)
 			s_ControllerVibrationTestTicks--;
+
+		if (bindingsNextUpdateTicks != -1 && --bindingsNextUpdateTicks == 0)
+		{
+			bindingsNextUpdateTicks = -1;
+			UpdateForgeMonitorBindings();
+		}
 	}
 
 	void UiInputTick()
@@ -266,13 +281,10 @@ namespace
 		blockStates[type] = blocked;
 	}
 
-	// Hook to initialize bindings with ModuleInput's values
-	void InitBindingsHook(BindingsTable *bindings)
+	void UpdateForgeMonitorBindings()
 	{
-		*bindings = *Modules::ModuleInput::GetBindings();
-
 		// TODO: move these into ModuleInput and possibly add them to the config
-		s_ForgeMonitorModeBindings = *bindings;
+		s_ForgeMonitorModeBindings = *Modules::ModuleInput::GetBindings();
 
 		// prevent moving while using rotation snap
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveLeft] = eKeyCode_None;
@@ -280,6 +292,13 @@ namespace
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveForward] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.SecondaryKeys[eGameActionMoveBack] = eKeyCode_None;
 		s_ForgeMonitorModeBindings.PrimaryKeys[eGameActionUiB] = eKeyCodeC; // Clone
+	}
+
+	// Hook to initialize bindings with ModuleInput's values
+	void InitBindingsHook(BindingsTable *bindings)
+	{
+		*bindings = *Modules::ModuleInput::GetBindings();
+		bindingsNextUpdateTicks = 100;
 	}
 
 	// Hook to redirect keybind preference reads to ModuleInput

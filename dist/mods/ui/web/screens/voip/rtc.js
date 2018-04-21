@@ -124,6 +124,7 @@ function removePeer(uid) {
     peerIds.splice(index, 1);
 
     delete peerCons[uid];
+	dew.notify("voip-user-leave", {"user":uid});
     stopSpeak(uid.split("|")[0]);
 }
 
@@ -182,7 +183,8 @@ function remotestream(event) {
     }
 
     this.speech = window.hark(event.stream, {
-            "threshold": "-60"
+            "threshold": "-60",
+			"interval": "250"
         });
     this.speech.on("speaking", function () {
         speak(username, peer);
@@ -435,7 +437,8 @@ function startConnection(info) {
                 localStream = stream;
 
                 var speechEvents = hark(localStream, {
-                        "threshold": "-60"
+                        "threshold": "-60",
+						"interval": "250"
                     });
                 speechEvents.on('speaking', function () {
                     if (serverCon != undefined) {
@@ -467,15 +470,16 @@ function startConnection(info) {
                     clearConnection();
                 }
                 serverCon.onopen = function () {
-                    //must send the password before the server will accept anything from us
-                    serverCon.send(info.password);
-                    console.log("sent password");
-                    serverCon.send(JSON.stringify({
-                            "broadcast": "garbage"
-                        }));
-                    dew.callMethod("voipConnected", {
-                        "value": true
-                    });
+                    setTimeout(function () {
+                        serverCon.send(info.password);
+                        console.log("sent password");
+                        serverCon.send(JSON.stringify({
+                                "broadcast": "garbage"
+                            }));
+                        dew.callMethod("voipConnected", {
+                            "value": true
+                        });
+                    }, 500);
                 }
 
                 dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables
@@ -489,15 +493,16 @@ function startConnection(info) {
                     clearConnection();
                 }
                 serverCon.onopen = function () {
-                    //must send the password before the server will accept anything from us
-                    serverCon.send(info.password);
-                    console.log("sent password");
-                    serverCon.send(JSON.stringify({
-                            "broadcast": "garbage"
-                        }));
-                    dew.callMethod("voipConnected", {
-                        "value": true
-                    });
+                    setTimeout(function () {
+                        serverCon.send(info.password);
+                        console.log("sent password");
+                        serverCon.send(JSON.stringify({
+                                "broadcast": "garbage"
+                            }));
+                        dew.callMethod("voipConnected", {
+                            "value": true
+                        });
+                    }, 500);
                 }
 
                 dew.command("voip.update", {}).then(function () {}); //trigger initial voip variables

@@ -147,6 +147,38 @@ namespace Patches::Memory
 		*reinterpret_cast<uint32_t*>(0x51D699 + 1) = newDataSize + newCacheSize;
 	}
 
+	void ExpandGlobalRenderGeometry()
+	{
+		auto oldUnknownGeometryCount = 8192;
+		auto oldMaxObjectGeometryCount = 1024;
+		auto newMaxObjectGeometryCount = oldMaxObjectGeometryCount * 3;
+		auto objectGeometryIncrease = newMaxObjectGeometryCount - oldMaxObjectGeometryCount;
+		auto objectGeometrySizeIncrease = objectGeometryIncrease * 0x10;
+
+		// reserve one extra for the new render object geometry count
+		*(uint32_t*)(0x00A7923F + 6) = objectGeometryIncrease + 1;
+		*(uint32_t*)(0x00A77ADF + 2) = oldUnknownGeometryCount - objectGeometryIncrease - 1; 
+
+		*(uint32_t*)(0x00A79790 + 2) = newMaxObjectGeometryCount;
+		*(uint32_t*)(0x00A77CD2 + 2) = newMaxObjectGeometryCount;
+		
+		*(uint32_t*)(0x00A7977D + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A797BF + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A797C8 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A79235 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A78251 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A78A82 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A78218 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A79326 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A793BD + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A78C13 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		// camo
+		*(uint32_t*)(0x00A77CC5 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A77CFD + 2) = 0x4000 + objectGeometrySizeIncrease;
+		*(uint32_t*)(0x00A77D06 + 2) = 0x4000 + objectGeometrySizeIncrease;
+		
+	}
+
 	void SetGlobalCacheIncrease(size_t size)
 	{
 		// TODO: more mapping and testing is required before this is ready for prime time
@@ -157,5 +189,6 @@ namespace Patches::Memory
 	void ApplyAll()
 	{
 		ExpandMainGlobalMemoryMap();
+		ExpandGlobalRenderGeometry();
 	}
 }

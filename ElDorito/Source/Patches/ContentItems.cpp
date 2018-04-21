@@ -10,6 +10,7 @@
 
 namespace
 {
+	const auto kMaxPath = 256;
 	struct c_content_catalog;
 	struct c_content_item : Blam::DatumBase
 	{
@@ -21,14 +22,9 @@ namespace
 		int Unknown108;
 		int Unknown10C;
 		// unimplemented
-		wchar_t DashName[128];
-		char FileName[32];
-		int Unknown230;
-		int Unknown234;
-		int Unknown238;
-		int Unknown23C;
+		char FilePath[kMaxPath];
 	};
-	static_assert(sizeof(c_content_item) == 0x240, "invalid c_content_item size");
+	static_assert(sizeof(c_content_item) == 0x210, "invalid c_content_item size");
 
 	struct c_content_catalog
 	{
@@ -52,7 +48,7 @@ namespace
 	bool __fastcall c_content_item__init_hook(c_content_item *thisptr, void *unused, int contentType, c_content_catalog *catalog,
 		wchar_t *name, wchar_t *dashMetadata, int a5, int a6, int a7);
 	char __stdcall PackageMountHook(int a1, int a2, int a3, int a4);
-	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk);
+	uint32_t PackageMountHook2(int localProfileIndex, wchar_t *name, int contentType, volatile LONG *pStatus, volatile LONG *pState, volatile LONG *pContentItemDatumIndex);
 	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5);
 	bool __fastcall SaveFileGetNameHook(uint8_t *blfStart, void* unused, int a2, wchar_t *Src, size_t MaxCount);
 
@@ -65,12 +61,12 @@ namespace
 	void __fastcall c_gui_screen_pregame_selection__overlapped_task_update_hook(uint8_t *thisptr, void *unused);
 	bool __fastcall c_gui_map_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen);
 	bool __fastcall c_gui_game_variant_selected_item__get_file_path_hook(void *thisptr, void *unused, char *buff, int bufflen);
-	void __fastcall c_content_item_delete_hook(void *thisptr, void *unused, int a1);
+	void __fastcall c_content_item_delete_hook(c_content_item *thisptr, void *unused, int a1);
 
 	struct
 	{
 		bool IsValid;
-		char NewPath[MAX_PATH];
+		char NewPath[kMaxPath];
 	} s_ContentItemRenameState;
 }
 
@@ -88,13 +84,12 @@ namespace Patches::ContentItems
 		// Hook this AllocateGameGlobalMemory to use a different one (this one is outdated mb? crashes when object is added to "content items" global without this hook)
 		Hook(0x15B010, AllocateGameGlobalMemory2Hook).Apply();
 
-		// Hook GetContentMountPath to actually return a dest folder
-		Hook(0x34CC00, GetContentMountPathHook).Apply();
-
 		Hook(0x34CBE0, c_content_item__init_hook).Apply();
 
 		// Hook (not patch, like above) content package mount stub to return true
 		Hook(0x34D010, PackageMountHook).Apply();
+		// Disable temp file creation
+		Hook(0x1256D0, PackageMountHook2).Apply();
 
 		// Hook the func that gets the save file dest. name, 
 		Patch(0x12708E, { 0x8B, 0x4D, 0x14 }).Apply(); // pass blf data to our func
@@ -192,6 +187,10 @@ namespace
 		contentItem->ContentType = contentType;
 		contentItem->Catalog = contentCatalog;
 		memcpy(contentItem->ContentHeader, fileData, 0xF8);
+
+		auto path = Utils::String::ThinString(itemPath);
+		strcpy_s(contentItem->FilePath, path.c_str());
+
 		return true;
 	}
 
@@ -204,9 +203,9 @@ namespace
 
 	void GetFilePathForItem(wchar_t* dest, size_t MaxCount, wchar_t* variantName, int variantType)
 	{
-		wchar_t currentDir[256];
-		memset(currentDir, 0, 256 * sizeof(wchar_t));
-		GetCurrentDirectoryW(256, currentDir);
+		wchar_t currentDir[kMaxPath];
+		memset(currentDir, 0, kMaxPath * sizeof(wchar_t));
+		GetCurrentDirectoryW(kMaxPath, currentDir);
 
 		if (variantType == 10)
 			swprintf_s(dest, MaxCount, L"%ls\\mods\\maps\\%ls\\", currentDir, variantName);
@@ -258,9 +257,9 @@ namespace
 
 		// TODO: change this to use unicode instead of ASCII
 
-		char currentDir[256];
-		memset(currentDir, 0, 256);
-		GetCurrentDirectoryA(256, currentDir);
+		char currentDir[kMaxPath];
+		memset(currentDir, 0, kMaxPath);
+		GetCurrentDirectoryA(kMaxPath, currentDir);
 
 		std::string variantPath = std::string(currentDir) + std::string("\\mods\\variants");
 		std::string mapsPath = std::string(currentDir) + std::string("\\mods\\maps");
@@ -272,31 +271,26 @@ namespace
 		return 1;
 	}
 
-	void GetFilePathForContentItem(wchar_t* dest, size_t MaxCount, uint8_t* contentItem)
+	void GetFilePathForContentItem(wchar_t* dest, size_t MaxCount, c_content_item* contentItem)
 	{
-		wchar_t* variantName = (wchar_t*)(contentItem + 0x18);
-		uint32_t variantType = *(uint32_t*)(contentItem + 0xC8);
-
-		GetFilePathForItem(dest, MaxCount, variantName, variantType);
+		auto path = Utils::String::WidenString(contentItem->FilePath);
+		wcscpy_s(dest, MaxCount, path.c_str());
 	}
 
 	char __fastcall FS_GetFiloForContentItemHook(c_content_item *contentItem, void* unused, void* filo)
 	{
-		typedef void*(__cdecl *FSCallsSetupFiloStruct2Func)(void *destFilo, wchar_t *Src, char unk);
+		typedef void*(__cdecl *FSCallsSetupFiloStruct2Func)(void *destFilo, const wchar_t *Src, char unk);
 		FSCallsSetupFiloStruct2Func fsCallsSetupFiloStruct2 = (FSCallsSetupFiloStruct2Func)0x5285B0;
 
-		wchar_t filePath[256];
-		GetFilePathForContentItem(filePath, 256, (uint8_t*)contentItem);
-		fsCallsSetupFiloStruct2(filo, filePath, 0);
-
+		auto path = Utils::String::WidenString(contentItem->FilePath);
+		fsCallsSetupFiloStruct2(filo, path.c_str(), 0);
 		return 1;
 	}
 
 	wchar_t* __fastcall FS_GetFilePathForContentItemHook(c_content_item *contentItem, void* unused, wchar_t* dest, size_t MaxCount)
 	{
-		wchar_t filePath[256];
-		GetFilePathForContentItem(filePath, 256, (uint8_t*)contentItem);
-		wcscpy_s(dest, MaxCount, filePath);
+		auto path = Utils::String::WidenString(contentItem->FilePath);
+		wcscpy_s(dest, MaxCount, path.c_str());
 		return dest;
 	}
 
@@ -315,9 +309,17 @@ namespace
 	bool __fastcall c_content_item__init_hook(c_content_item *thisptr, void *unused, int contentType, c_content_catalog *catalog,
 		wchar_t *name, wchar_t *dashMetadata, int a5, int a6, int a7)
 	{
+		const auto sub_5244C0 = (signed int(*)(int a1))(0x005244C0);
+
 		thisptr->Unknown04 = 0x11;
 		thisptr->ContentType = contentType;
 		thisptr->Catalog = catalog;
+
+		wchar_t buff[kMaxPath];
+		GetFilePathForItem(buff, kMaxPath, name, sub_5244C0(contentType));
+		auto path = Utils::String::ThinString(buff);
+		strcpy_s(thisptr->FilePath, path.c_str());
+
 		return true;
 	}
 
@@ -326,17 +328,31 @@ namespace
 		return 1;
 	}
 
-	wchar_t* __stdcall GetContentMountPathHook(wchar_t* destPtr, int size, int unk)
+	uint32_t PackageMountHook2(int localProfileIndex, wchar_t *name, int contentType, volatile LONG *pStatus, volatile LONG *pState, volatile LONG *pContentItemDatumIndex)
 	{
-		// TODO: move this to temp folder, or find a way to disable it (game uses path returned by this func to create a 0 byte sandbox.map)
-		wchar_t currentDir[256];
-		memset(currentDir, 0, 256 * sizeof(wchar_t));
-		GetCurrentDirectoryW(256, currentDir);
+		const auto sub_525330 = (int(*)(int a1))(0x525330);
+		const auto content_catalog_get = (c_content_catalog *(*)(int localProfileIndex))(0x005A5600);
+		const auto c_content_catalog__get_or_create_content_item = (int(__thiscall *)(c_content_catalog *thisptr,
+			wchar_t *name, wchar_t *dashMetadata, int contentType, char a5, int a6, int a7))(0x005A5E70);
 
-		swprintf_s(destPtr, size, L"%ls\\mods\\temp\\", currentDir);
+		auto status = 0;
+		uint32_t contentItemIndex = -1;
 
-		SHCreateDirectoryExW(NULL, destPtr, NULL);
-		return destPtr;
+		contentType = sub_525330(contentType);
+		if (contentType != -1)
+		{
+			auto catalog = content_catalog_get(localProfileIndex);
+			if (catalog)
+			{
+				contentItemIndex = c_content_catalog__get_or_create_content_item(catalog, name, L"", contentType, 0, 0, 0);
+				if (contentItemIndex != -1)
+					status = 1;
+			}
+		}
+		InterlockedExchange(pState, 1);
+		InterlockedExchange(pStatus, status);
+		InterlockedExchange(pContentItemDatumIndex, contentItemIndex);
+		return 0;
 	}
 
 	char* __cdecl AllocateGameGlobalMemory2Hook(char *Src, int a2, int a3, char a4, void* a5)
@@ -363,7 +379,7 @@ namespace
 		return true;
 	}
 
-	char *GetDirectoryPath(char *path, char* buff, int bufflen)
+	char *GetDirectoryPath(const char *path, char* buff, int bufflen)
 	{
 		strcpy_s(buff, bufflen, path);
 		auto *filePart = strrchr(buff, '\\');
@@ -411,24 +427,27 @@ namespace
 					c_content_catalog__get_item_filo(catalog, task->ContentItemDatumIndex, filo);
 					auto filePath = (char*)(filo + 0x8);
 
-					char oldDirectory[MAX_PATH];
-					wchar_t newDirectoryPath[MAX_PATH];
-					wchar_t newFilePath[MAX_PATH];
+					char oldDirectory[kMaxPath];
+					char newDirectoryPath[kMaxPath];
+					wchar_t newFilePath[kMaxPath];
 
-					GetDirectoryPath(filePath, oldDirectory, MAX_PATH);
-					GetFilePathForItem(newFilePath, MAX_PATH, task->NewContentName, *(int*)(item->ContentHeader + 0xB8));
-					GetDirectoryPathW(newFilePath, newDirectoryPath, MAX_PATH);
+					GetFilePathForItem(newFilePath, kMaxPath, task->NewContentName, *(int*)(item->ContentHeader + 0xB8));
+					auto newFilePathThin = Utils::String::ThinString(newFilePath);
 
-					string_unicode_to_ascii(newFilePath, s_ContentItemRenameState.NewPath, MAX_PATH, nullptr);
-
-					SHCreateDirectoryExW(nullptr, newDirectoryPath, nullptr);
+					GetDirectoryPath(filePath, oldDirectory, kMaxPath);
+					GetDirectoryPath(newFilePathThin.c_str(), newDirectoryPath, kMaxPath);
+					SHCreateDirectoryEx(nullptr, newDirectoryPath, nullptr);
 
 					auto v2 = EditContentHeaderOverlappedTaskFunc(task);
 					if (*task->CompletionStatus == 1)
 					{
+						strcpy_s(item->FilePath, newFilePathThin.c_str());
+						strcpy_s(s_ContentItemRenameState.NewPath, item->FilePath);
+						s_ContentItemRenameState.IsValid = true;
+
 						MoveFileA(filePath, s_ContentItemRenameState.NewPath);
 						RemoveDirectoryA(oldDirectory);
-						s_ContentItemRenameState.IsValid = true;
+						
 					}
 
 					return v2;
@@ -439,16 +458,13 @@ namespace
 		return EditContentHeaderOverlappedTaskFunc(task);
 	}
 
-	void __fastcall c_content_item_delete_hook(void *thisptr, void *unused, int a1)
+	void __fastcall c_content_item_delete_hook(c_content_item *thisptr, void *unused, int a1)
 	{
-		wchar_t filePath[256];
-		GetFilePathForContentItem(filePath, 256, (uint8_t*)thisptr);
-
-		wchar_t tmp[MAX_PATH];
-		if (GetDirectoryPathW(filePath, tmp, MAX_PATH))
+		char tmp[kMaxPath];
+		if (GetDirectoryPath(thisptr->FilePath, tmp, kMaxPath))
 		{
-			DeleteFileW(filePath);
-			RemoveDirectoryW(tmp);
+			DeleteFile(thisptr->FilePath);
+			RemoveDirectory(tmp);
 		}
 	}
 
@@ -504,8 +520,8 @@ namespace
 	{
 		const auto file_write_overlapped_task_execute = (int(*)(uint8_t *data))(0x5AF410);
 
-		wchar_t directoryPath[MAX_PATH];
-		if (GetDirectoryPathW((wchar_t*)task, directoryPath, MAX_PATH))
+		wchar_t directoryPath[kMaxPath];
+		if (GetDirectoryPathW((wchar_t*)task, directoryPath, kMaxPath))
 			SHCreateDirectoryExW(nullptr, directoryPath, nullptr);
 
 		return file_write_overlapped_task_execute(task);

@@ -8,114 +8,124 @@ html {
 }
 
 #weaponOffsets {
-    width: 50vh;
-    opacity: 0.85;
+    width: 350px;
     position: absolute;
-    font-size: 2.655vh;
-    background: rgba(20, 35, 74, 0.69);
-    padding: 1.5vh;
-    max-height:25vh;
+    top: 2vh;
+    left: 2vw;
+    font-size: 17px;
+    font-weight: 500;
+    line-height:29px;
+    text-transform: uppercase;
+	background-image: -webkit-linear-gradient( -90deg, rgba(27,41,70,0.94902) 0%, rgba(24,39,69,0.9) 20%, rgba(24,39,69,0.90196) 20%, rgba(6,16,37,0.85098) 100%);
+    padding: 11px;
+    padding-bottom: 0px;
 }
 
 .header {
-    font-size: 18pt;
-    font-weight: bold;
+    font-size: 24px;
+    font-weight: 500;
     background-color: rgba(0, 0, 0, 0.56);
-    margin: -12px;
-    margin-bottom: 0.75vw;
+    margin: -10px;
+    margin-bottom: 5px;
     padding: 4px;
-    padding-left: 1vw;
-    border-bottom: 2px solid #404f70;
-    font-size: 2.5vh;
+    padding-left: 13px;
+    font-size: 19px;
+}
+
+span{
+    width: 342px;
+    display: table;
+    height:30px;
+    margin-left: -10px;
+    padding: 0px 14px;
+    margin-bottom: 1px;
 }
 
 .setting{
-    width: 30vh;
-    margin-top:0.5vh;
-    height:2.5vh;
-    margin-bottom:0vh;
+    width: 223px;
+    margin-top:5px;
+    height:20px;
     float:right;
-    max-height:2.5vh;
+    color: #98b3d3;
+    background-color: rgba(0,0,0,0);
+    border: none;
 }
 
 input[type=range].setting {
-    margin-top:0.5vh;
+    margin-top:4px;
 }
 
 input[type=text].setting{
-    height: 1.7vh;
-    margin-bottom:0;
-    width: 29.5vh;
-}
-
-
-.subHeader{
-    font-size: 2.5vh;
-    margin:1vh 0;
-    text-transform: uppercase;
-    text-align: center;
+    height: 16px;
+    width: 216px;
+    padding-left: 4px;
 }
 
 .hasTiny{
-    width:21.75vh;
+    width:153px;
     float:right;
+    margin-right: 0px;
+    margin-left: 3px;
 }
 
 .tinySetting{
     float:right;
-    width: 7.5vh;
-    height:1.9vh;
+    width: 60px;
+    height:14px;
     z-index:-2;
-    margin-top:0.5vh;
-    margin-bottom: -0.25vh;
+    margin-top:4px;
+    margin-bottom: -2px;
+    background-color: rgba(0,0,0,0);
+	height:18px;
+	text-align:left;
+	font-weight:300;
+	color: #98b3d3;
+    border: none;
+    padding-left: 4px;
 }
 
 button {
-    color: white;
-    font-size: 10pt;
-    font-weight: bold;
-    background-color: black;
-    border: 1px solid white;
-    text-align: center;
-    line-height: 24px;
-    height: 4vh;
-    line-height: 1.5vh;
-    float:left;
-    margin-right:0.75vh;
+	position: relative;
+    height: 35px;
+    line-height: 35px;
+    font-size: 15px;
+	font-weight: 100;
+	color: white;
+	background-color: rgba(0,0,0,0);
+	border: none;
+	z-index: 3;
+	text-align: left;
+	vertical-align: middle;
+	box-sizing: border-box;
+	padding: none;
 }
 
-button.close {
-    color: white;
-    font-size: 1.75vh;
-    font-weight: bold;
-    background-color: black;
-    border: 1px solid white;
-    border-radius: 5px;
-    text-align: center;
-    line-height: 24px;
-    width: 3vh;
-    height: 3vh;
-    line-height: 1.25vh;
-    position: absolute;
-    right: 0.5vh;
-    top: 0.5vh;
-    margin-right:0;
-}
 button:hover{
-    background-color: #B1572A;    
+	text-decoration: underline;
 }
 
-.selected{
-    color:#B1572A;
-    font-weight:700;
+.selectedElement{
+	background-image: url(dew://assets/ux/buttonhover.svg);
+	background-position: center;
+	background-repeat: no-repeat;
+	color: white;
+}
+
+.selectedElement .setting, .selectedElement .tinySetting{
+	color: white;
+}
+
+select option{
+	color:black;
 }
 
 button img{
-    display:none;
-    width: 3vh;
-    margin-top:-1.75vh;
-    position:relative;
-    top:1vh;
+	display:none;
+	position:relative;
+	height: 30px;
+	float: left;
+    margin-right: 4px;
+    top: 2px;
 }
 
 input[type=range] {
@@ -127,21 +137,31 @@ input[type=range]:focus {
     outline: none;
 }
 
-input[type=range]::-webkit-slider-runnable-track {
-    height: 1vh;
-    background: grey;
-    border: 1px solid #010101;
+.selectedElement input[type=range]::-webkit-slider-thumb{
+	background-color: white;
+}
+
+input[type=range]::-webkit-slider-runnable-track , input[type=range]:focus::-webkit-slider-runnable-track{
+    height: .4vh;
+    border: none;
+    width: 100%;
+    vertical-align: middle;
+    background-color: rgba(152, 179, 211, .35);
 }
 
 input[type=range]::-webkit-slider-thumb {
-    border: 1px solid #000000;
-    height: 2.5vh;
-    width: 1vh;
-    background: #ffffff;
+    width: .6vh;
+    height: 1.2vh;
+    margin-top: -.4vh;
     -webkit-appearance: none;
-    margin-top:-0.8vh;
+    border: none;
+    background-color: rgba(152, 179, 211, 1);
 }
 
 #buttonBar{
-    margin-top: 1vh;
+    margin-top: 5px;
+    background-color:black;
+    padding:2px 15px;
+    margin-left:-11px;
+    width: 342px;
 }
