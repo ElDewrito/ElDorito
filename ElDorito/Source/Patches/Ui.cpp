@@ -27,6 +27,7 @@
 #include "../Blam/Tags/UI/MultilingualUnicodeStringList.hpp"
 #include "../Modules/ModuleTweaks.hpp"
 #include "../Modules/ModuleCamera.hpp"
+#include "../Patches/Camera.hpp"
 #include <iostream>
 #include <string>
 #include <iomanip>
@@ -92,7 +93,6 @@ namespace
 	bool __fastcall c_gui_map_category_datasource_init(c_gui_map_category_datasource *thisptr, void* unused, int datasource);
 	bool __fastcall c_gui_game_variant_category_datasource_init(c_gui_game_variant_category_datasource *thisptr, void* unused, int datasource);
 
-	void CameraModeChangedHook();
 	void StateDataFlags2Hook();
 	void StateDataFlags3Hook();
 	void StateDataFlags5Hook();
@@ -174,6 +174,7 @@ namespace Patches::Ui
 
 		//reset HUD distortion value when tags are reloaded
 		lastDistortionEnabledValue = true;
+
 		UpdateHUDDistortion();
 	}
 
@@ -272,9 +273,6 @@ namespace Patches::Ui
 		Hook(0x721D38, UI_SetPlayerDesiredTeamHook, HookFlags::IsCall).Apply();
 		Patches::Input::RegisterDefaultInputHandler(OnUiInputUpdated);
 
-		//Fix HUD Distortion in third person.
-		Hook(0x193370, CameraModeChangedHook, HookFlags::IsCall).Apply();
-
 		//Fix Chud Widget State Data
 		Hook(0x686FA4, StateDataFlags2Hook).Apply();
 		Hook(0x686E7B, StateDataFlags3Hook).Apply();
@@ -319,6 +317,8 @@ namespace Patches::Ui
 
 		// fix 'none' game variant weapon option
 		Patch(0x1CE52D, { 0xEB }).Apply();
+
+		Patches::Camera::OnCameraChange(Patches::Ui::OnCameraChange);
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -483,6 +483,13 @@ namespace Patches::Ui
 
 		Pointer directorPtr(ElDorito::GetMainTls(GameGlobals::Director::TLSOffset)[0]);
 		auto cameraFunc = directorPtr(GameGlobals::Director::CameraFunctionIndex).Read<size_t>();
+		OnCameraChange(cameraFunc);
+	}
+
+	void OnCameraChange(int cameraFunc)
+	{
+		if (!validHUDDistortionTags)
+			return;
 
 		if (Modules::ModuleCamera::Instance().VarCameraHideHud->ValueInt != 0)
 		{
@@ -1299,21 +1306,6 @@ namespace
 	{
 		if (!Modules::ModuleGame::Instance().VarHideH3UI->ValueInt)
 			((void(__thiscall*)(void* thisptr))(0xA290A0))(thisptr);
-	}
-
-	__declspec(naked) void CameraModeChangedHook()
-	{
-		__asm
-		{
-			//execute custom code
-			call UpdateHUDDistortion
-
-			//perform original instruction
-			movss xmm0, [ebp + 0xC]
-
-			//return to eldorado code
-			ret
-		}
 	}
 
 	//Flags probably hooks need to be updated to support split screen/theater at some point.

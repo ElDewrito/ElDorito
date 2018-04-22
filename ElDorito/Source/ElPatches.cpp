@@ -3,6 +3,7 @@
 #include "ElDorito.hpp"
 #include "Blam\Tags\TagInstance.hpp"
 #include "Patches\Core.hpp"
+#include "Patches\Camera.hpp"
 #include "Patches\Audio.hpp"
 #include "Patches\Mouse.hpp"
 #include "Patches\Network.hpp"
@@ -111,6 +112,7 @@ namespace Patches
 		Ui::ApplyUIResolution();
 		Weapon::ApplyAfterTagsLoaded();
 		Tweaks::ApplyAfterTagsLoaded();
+		Camera::ApplyAfterTagsLoaded();
 	}
 
 	void Tick()

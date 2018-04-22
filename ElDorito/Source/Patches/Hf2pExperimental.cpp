@@ -378,7 +378,7 @@ namespace
 		preferences->ToggleCrouch = uint8_t(moduleSettings.VarToggleCrouch->ValueInt);
 		preferences->HUDShake = uint8_t(moduleSettings.VarHUDShake->ValueInt);
 		preferences->TeamColor = moduleSettings.VarPlayerMarkerColors->ValueInt;
-		preferences->CameraFov = moduleCamera.VarCameraFov->ValueFloat;
+		preferences->CameraFov = moduleCamera.VarCameraFirstFov->ValueFloat;
 		preferences->ControlsMethod = moduleSettings.VarGamepadEnabled->ValueInt;
 		preferences->MouseSensitivityHorizontal = moduleSettings.VarMouseSensitivityHorizontal->ValueInt;
 		preferences->MouseSensitivityVertical = moduleSettings.VarMouseSensitivityVertical->ValueInt;
