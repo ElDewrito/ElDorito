@@ -2019,9 +2019,9 @@ namespace
 				std::string teamName = teamNames[prevHighTeam];
 
 				if (tied)
-					ss << Utils::String::WidenString(teamName) << L" Team wins!";
-				else
 					ss << L"Tie game!";
+				else
+					ss << Utils::String::WidenString(teamName) << L" Team wins!";
 			}
 			else
 			{
