@@ -361,6 +361,13 @@ $(document).ready(function(){
         if(hasGP){    
             if(e.data.A == 1){
                 if(activePage.endsWith('alertBox')){
+					if($('#acceptButton:visible').length){
+						dew.command('Settings.Reset').then(function(){
+							setControlValues();
+							initGamepad();
+						});
+						hideAlert(true);
+					}else
                     if($('#dismissButton:visible').length){
                         dismissButton();
                     }else{
@@ -511,6 +518,8 @@ function setButtons(){
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
+        $('#denyButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#acceptButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
         $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
         $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
     });
