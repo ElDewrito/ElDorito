@@ -4,6 +4,8 @@
 #include "../Patch.hpp"
 #include "../Patches/Core.hpp"
 #include "../Patches/Input.hpp"
+#include "../Patches/Events.hpp"
+#include "../Blam//BlamEvents.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "../Blam/Tags/TagInstance.hpp"
 #include "../Blam/Tags/UI/ChudGlobalsDefinition.hpp"
@@ -40,6 +42,8 @@ using namespace Patches::Ui;
 namespace
 {
 	void __fastcall UI_MenuUpdateHook(void* a1, int unused, int menuIdToLoad);
+
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition);
 
 	int UI_ShowHalo3PauseMenu(uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5);
 	void UI_EndGame();
@@ -107,6 +111,8 @@ namespace
 	void MenuSelectedMapIDChangedHook();
 	void GetGlobalDynamicColorHook();
 	void GetWeaponOutlineColorHook();
+
+	bool HUDStateDisplayHook(int hudIndex, wchar_t* buff, int len, int a4);
 
 	void FindUiTagIndices();
 	void FindHUDDistortionTagData();
@@ -319,6 +325,11 @@ namespace Patches::Ui
 
 		// fix 'none' game variant weapon option
 		Patch(0x1CE52D, { 0xEB }).Apply();
+
+		// Fixes some broken hud state strings, including the respawn timer.
+		Hook(0x6963C6, HUDStateDisplayHook, HookFlags::IsCall).Apply();
+
+		Patches::Events::OnEvent(OnEvent);
 	}
 
 	const auto UI_Alloc = reinterpret_cast<void *(__cdecl *)(int32_t)>(0xAB4ED0);
@@ -371,7 +382,7 @@ namespace Patches::Ui
 		//Make sure the sound exists before playing
 		if (Blam::Tags::TagInstance::IsLoaded('lsnd', pttLsndIndex))
 		{
-			if(enabled)
+			if (enabled)
 				Sound_LoopingSound_Start(pttLsndIndex, -1, 1065353216, 0, 0);
 			else
 				Sound_LoopingSound_Stop(pttLsndIndex, -1);
@@ -409,7 +420,7 @@ namespace Patches::Ui
 			for (size_t i = 0; i < hud_name.length(); i++)
 				chud_talking_player_name[i] = hud_name[i];
 		}
-		else 
+		else
 			return;
 	}
 
@@ -876,11 +887,11 @@ namespace
 			pop ebp
 			ret
 
-		fallback:
+			fallback :
 			// Execute replaced code and jump back to original function
 			sub esp, 0x800
-			mov edx, 0x51E049
-			jmp edx
+				mov edx, 0x51E049
+				jmp edx
 		}
 	}
 
@@ -890,7 +901,7 @@ namespace
 		{
 			// call sub that handles showing game options
 			mov ecx, esi
-			push [edi+0x10]
+			push[edi + 0x10]
 			mov eax, 0xB225B0
 			call eax
 			// jump back to original function
@@ -1258,9 +1269,9 @@ namespace
 			mov esp, ebp
 			pop ebp
 			retn
-			DEFAULT:
+			DEFAULT :
 			mov eax, 0xABCA79
-			jmp eax
+				jmp eax
 		}
 	}
 
@@ -1543,16 +1554,16 @@ namespace
 	{
 		_asm
 		{
-			ally_blue:
-				cmp enableAllyBlueWaypointsFix, 1
+		ally_blue:
+			cmp enableAllyBlueWaypointsFix, 1
 				jne custom_colors
 				cmp[ebp + 0xC], 0xF
 				jne custom_colors
 				mov eax, [eax + 19 * 4 + 4]
 				jmp eldorado_return
 
-			custom_colors:
-				cmp enableCustomHUDColors, 1
+				custom_colors :
+			cmp enableCustomHUDColors, 1
 				jne tag_color
 				cmp[ebp + 0xC], 0x0
 				je secondary_color
@@ -1571,20 +1582,20 @@ namespace
 				cmp[ebp + 0xC], 0xF
 				je primary_color
 
-			tag_color:
-				mov eax, [eax + edi * 4 + 4]
+				tag_color :
+			mov eax, [eax + edi * 4 + 4]
 				jmp eldorado_return
 
-			primary_color :
-				mov eax, Patches::Ui::customPrimaryHUDColor
+				primary_color :
+			mov eax, Patches::Ui::customPrimaryHUDColor
 				jmp eldorado_return
 
-			secondary_color :
-				mov eax, Patches::Ui::customSecondaryHUDColor
+				secondary_color :
+			mov eax, Patches::Ui::customSecondaryHUDColor
 				jmp eldorado_return
 
-			eldorado_return :
-				pop edi
+				eldorado_return :
+			pop edi
 				pop esi
 				pop ebx
 				pop ebp
@@ -1596,21 +1607,21 @@ namespace
 	{
 		_asm
 		{
-			custom_colors:
-				cmp enableCustomHUDColors, 1
+		custom_colors:
+			cmp enableCustomHUDColors, 1
 				jne tag_color
 				cmp ecx, 0
 				je secondary_color
 
-			tag_color:
-				push [eax+ecx*4+0x7C]
+				tag_color :
+			push[eax + ecx * 4 + 0x7C]
 				jmp eldorado_return
 
-			secondary_color:
-				push customSecondaryHUDColor
+				secondary_color :
+			push customSecondaryHUDColor
 
-			eldorado_return:
-				mov ebx, 0xAC9AA0
+				eldorado_return :
+			mov ebx, 0xAC9AA0
 				call ebx
 				add esp, 0xC
 				pop ebp
@@ -1882,7 +1893,7 @@ namespace
 				{
 					auto unitObject = Blam::Objects::Get(player->SlaveUnit);
 					if (unitObject)
-						data->position.K = data->position.K - 0.05f +  std::pow(unitObject->Scale, 1.0f) * 0.05f;
+						data->position.K = data->position.K - 0.05f + std::pow(unitObject->Scale, 1.0f) * 0.05f;
 				}
 			}
 
@@ -1956,5 +1967,173 @@ namespace
 		auto name = *(uint32_t*)((uint8_t*)thisptr + 0x40);
 		if (name != 0x103A9) // game_options
 			c_gui_screen_widget__transition_out(thisptr, a2);
+	}
+
+	std::string teamNames[8] = { "Red", "Blue", "Green", "Orange", "Purple", "Gold", "Brown", "Pink" };
+
+	const float winnereDisplayTime = 5;
+	uint32_t winnerDisplayed;
+	std::wstring winnerString;
+
+	const float welcomeDisplayTime = 5;
+	uint32_t welcomeDisplayed;
+	bool welcome;
+	bool welcomeHasDisplayed;
+
+	bool respawning;
+
+	void OnEvent(Blam::DatumHandle player, const Blam::Events::Event *event, const Blam::Events::EventDefinition *definition)
+	{
+		if (event->NameStringId == 0x4004D) // "general_event_game_over"
+		{
+			winnerDisplayed = Blam::Time::GetGameTicks();
+			auto session = Blam::Network::GetActiveSession();
+			auto get_multiplayer_scoreboard = (Blam::MutiplayerScoreboard*(*)())(0x00550B80);
+			auto* scoreboard = get_multiplayer_scoreboard();
+
+			if (!session || !session->IsEstablished() || !scoreboard)
+				return;
+
+			std::wstringstream ss;
+
+			if (session->HasTeams())
+			{
+				bool tied = false;
+				int prevHighTeam = 0;
+				int16_t prevHighScore = scoreboard->TeamScores[0].TotalScore;
+				for (int t = 1; t < 8; t++)
+				{
+					uint16_t currentScore = scoreboard->TeamScores[t].TotalScore;
+					if (prevHighScore == currentScore)
+					{
+						tied = true;
+					}
+					else if (currentScore > prevHighScore)
+					{
+						prevHighTeam = t;
+						prevHighScore = currentScore;
+						tied = false;
+					}
+				}
+
+				std::string teamName = teamNames[prevHighTeam];
+
+				if (tied)
+					ss << Utils::String::WidenString(teamName) << L" Team wins!";
+				else
+					ss << L"Tie game!";
+			}
+			else
+			{
+				int playerIdx = session->MembershipInfo.FindFirstPlayer();
+				std::wstring prevHighPlayer;
+				std::uint16_t prevHighScore;
+				bool tied = false;
+
+				if (playerIdx == -1)
+					return;
+
+				auto player = session->MembershipInfo.PlayerSessions[playerIdx];
+				prevHighPlayer = player.Properties.DisplayName;
+				prevHighScore = scoreboard->PlayerScores[playerIdx].TotalScore;
+
+				playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+
+				while (playerIdx != -1)
+				{
+					uint16_t currentScore = scoreboard->PlayerScores[playerIdx].TotalScore;
+					if (currentScore == prevHighScore)
+					{
+						tied = true;
+					}
+					else if (currentScore > prevHighScore)
+					{
+						player = session->MembershipInfo.PlayerSessions[playerIdx];
+						prevHighScore = currentScore;
+						prevHighPlayer = player.Properties.DisplayName;
+					}
+					playerIdx = session->MembershipInfo.FindNextPlayer(playerIdx);
+				}
+
+				if (tied)
+					ss << L"Tie game!";
+				else
+					ss << prevHighPlayer << L" wins!";
+			}
+
+			winnerString = ss.str();
+		}
+	}
+
+	bool HUDStateDisplayHook(int hudIndex, wchar_t* buff, int len, int a4)
+	{
+		const auto game_engine_round_in_progress = (bool(*)())(0x00550F90);
+		const auto sub_6E4AA0 = (bool(__cdecl *)(int a1, wchar_t *DstBuf, int bufflen, char a4))(0x6E4AA0);
+		if (sub_6E4AA0(hudIndex, buff, len, a4))
+			return true;
+		auto playerIndex = Blam::Players::GetLocalPlayer(0);
+		if (playerIndex == Blam::DatumHandle::Null)
+			return false;
+		auto player = Blam::Players::GetPlayers().Get(playerIndex);
+		if (!player)
+			return false;
+
+		//TODO:
+		//Use strings from tags as templates, rather than hardcoding.
+
+		//mp_respawn_timer
+		auto secondsUntilSpawn = Pointer(player)(0x2CBC).Read<int>();
+		auto firstTimeSpawning = Pointer(player)(0x4).Read<uint32_t>() & 8;
+		if (player->SlaveUnit == Blam::DatumHandle::Null && secondsUntilSpawn > 0)
+		{
+			if (!game_engine_round_in_progress())
+			{
+				return false;
+			}
+
+			respawning = true;
+
+			if (firstTimeSpawning)
+			{
+				swprintf(buff, L"Spawn in %d", secondsUntilSpawn);
+				welcomeHasDisplayed = false; //Make sure it's reset after games.
+			}
+			else
+				swprintf(buff, L"Respawn in %d", secondsUntilSpawn);
+
+			return true;
+		}
+
+		//state_recently_started
+		if (!firstTimeSpawning && !welcomeHasDisplayed)
+		{
+			welcome = true;
+			welcomeDisplayed = Blam::Time::GetGameTicks();
+			welcomeHasDisplayed = true;
+			swprintf(buff, L"Welcome!");
+			return true;
+		}
+		if (welcome)
+		{
+			swprintf(buff, L"Welcome!");
+
+			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - welcomeDisplayed) > welcomeDisplayTime)
+				welcome = false;
+
+			return true;
+		}
+
+		//state_game_over_lost_*
+		if (winnerString != L"")
+		{
+			swprintf(buff, winnerString.c_str());
+
+			if (Blam::Time::TicksToSeconds(Blam::Time::GetGameTicks() - winnerDisplayed) > winnereDisplayTime)
+				winnerString = L"";
+
+			return true;
+		}
+
+		return false;
 	}
 }
