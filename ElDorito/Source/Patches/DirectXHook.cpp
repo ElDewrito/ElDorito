@@ -24,8 +24,6 @@ namespace
 	void Video_CallsEndSceneHook();
 	HRESULT __stdcall ResetHook(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *params);
 	void HandleTakeScreenshotHook();
-
-	LARGE_INTEGER start, end, elapsed, freq;
 }
 
 namespace DirectXHook
@@ -53,8 +51,6 @@ namespace
 		//DetourAttach((PVOID*)&Video_CallsD3DEndSceneOrginal, &Video_CallsEndSceneHook); // redirect Video_CallsD3DEndSceneOrginal to Video_CallsEndSceneHook
 		DetourAttach((PVOID*)&origResetPtr, &ResetHook); // redirect DrawIndexedPrimitive to newDrawIndexedPrimitive
 		DetourAttach((PVOID*)&origEndScenePtr, &EndSceneHook);
-		QueryPerformanceFrequency(&freq);
-		QueryPerformanceCounter(&start);
 
 		if (DetourTransactionCommit() != NO_ERROR)
 		{
@@ -84,26 +80,6 @@ namespace
 		auto webRenderer = WebRenderer::GetInstance();
 		if (webRenderer->Initialized() && webRenderer->IsRendering())
 			webRenderer->Render(device);
-
-		if(Modules::ModuleGame::Instance().VarFpsLimiter->ValueInt == 0)
-			return (*origEndScenePtr)(device);
-
-		QueryPerformanceCounter(&end);
-
-		elapsed.QuadPart = end.QuadPart - start.QuadPart;
-		elapsed.QuadPart *= 100000000.0;
-		elapsed.QuadPart /= freq.QuadPart;
-
-		while (elapsed.QuadPart < 1666666.66)
-		{
-			QueryPerformanceCounter(&end);
-			elapsed.QuadPart = end.QuadPart - start.QuadPart;
-			elapsed.QuadPart *= 100000000.0;
-			elapsed.QuadPart /= freq.QuadPart;
-		}
-
-		QueryPerformanceCounter(&start);
-
 		return (*origEndScenePtr)(device);
 	}
 

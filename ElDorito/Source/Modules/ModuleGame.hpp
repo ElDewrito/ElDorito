@@ -23,7 +23,6 @@ namespace Modules
 		Command* VarScreenshotsFolder;
 		Command *VarScreenshotNoticeDisabled;
 		Command* VarCefMedals;
-		Command* VarFpsLimiter;
 		Command* VarDiscordEnable;
 		Command* VarDiscordAutoAccept;
 
