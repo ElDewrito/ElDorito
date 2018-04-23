@@ -22,6 +22,8 @@ namespace Modules
 		Command* VarCustomHUDColorsPrimary;
 		Command* VarCustomHUDColorsSecondary;
 
+		Command* VarHUDOutlineEnabled;
+
 		Command* VarUIScaling;
 
 		ModuleGraphics();

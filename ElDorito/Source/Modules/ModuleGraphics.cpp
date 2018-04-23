@@ -231,6 +231,10 @@ namespace Modules
 		VarCustomHUDColorsEnabled->ValueIntMin = 0;
 		VarCustomHUDColorsEnabled->ValueIntMax = 1;
 
+		VarHUDOutlineEnabled = AddVariableInt("HUDOutlineEnabled", "hud_outline", "Toggles the visor outline on the HUD.", eCommandFlagsArchived, 1, VariableCustomHUDColorsEnabledUpdate);
+		VarHUDOutlineEnabled->ValueIntMin = 0;
+		VarHUDOutlineEnabled->ValueIntMax = 1;
+
 		VarCustomHUDColorsPrimary = AddVariableString("CustomHUDColorsPrimary", "hud_colors_1", "Change the primary custom HUD color.", eCommandFlagsArchived, "#0E6249", VariableCustomHUDColorsUpdate);
 		VarCustomHUDColorsSecondary = AddVariableString("CustomHUDColorsSecondary", "hud_colors_2", "Change the primary custom HUD color.", eCommandFlagsArchived, "#27CB9B", VariableCustomHUDColorsUpdate);
 
