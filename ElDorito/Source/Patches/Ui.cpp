@@ -1479,7 +1479,7 @@ namespace
 	int lastEqipIndex;
 	int GetBrokenChudStateFlags31Values()
 	{
-		int flags;
+		int flags = 0;
 
 		using ObjectArray = Blam::DataArray<Blam::Objects::ObjectHeader>;
 		using Blam::Players::PlayerDatum;
@@ -1487,7 +1487,7 @@ namespace
 		auto objectsPtr = (ObjectArray**)ElDorito::GetMainTls(0x448);
 
 		if (!objectsPtr)
-			return 0;
+			return flags;
 
 		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
 
@@ -1495,35 +1495,65 @@ namespace
 		auto unitObject = unitObjectDatum->Data;
 
 		if (!unitObjectDatum || !unitObject)
-			return 0;
+			return flags;
 
 		auto primaryEquipmentObjectIndex = Pointer(unitObject)(0x2F0).Read<uint32_t>();
 
 		if (primaryEquipmentObjectIndex == -1)
-			return 0;
+			return flags;
 
 		auto itemObjectDatum = (*objectsPtr)->Get(primaryEquipmentObjectIndex);
 		if (!itemObjectDatum)
-			return 0;
+			return flags;
 
 		auto itemTagIndex = Pointer(itemObjectDatum->Data).Read<uint32_t>();
 
-		if (itemTagIndex != lastEqipIndex)
-			flags = 0;
-		else
-			flags = 0x100;
+		if (itemTagIndex == lastEqipIndex)
+			flags = flags | 0x100;
 
 		lastEqipIndex = itemTagIndex;
 
 		return flags;
 	}
 
+	bool isFlashlightOn;
 	int GetBrokenChudStateFlags33Values()
 	{
 		using Blam::Players::PlayerDatum;
 		PlayerDatum *playerDatum = Blam::Players::GetPlayers().Get(Blam::Players::GetLocalPlayer(0));
 
+		bool flashlightOnAndFade = Pointer(0x50E0984).Read<uint8_t>() == 1;
+
 		int flags = 0;
+
+		//Bit15, was inactive, now Flashlight On
+		if (flashlightOnAndFade)
+		{
+			if (Blam::Input::GetActionState(Blam::Input::eGameActionFlashlight)->Ticks == 1)
+			{
+				if (isFlashlightOn)
+				{
+					flags = flags | 0x8000;
+					isFlashlightOn = false;
+				}
+				else
+				{
+					isFlashlightOn = true;
+				}
+			}
+			else if (isFlashlightOn)
+				flags = flags | 0x8000;
+		}
+		else
+		{
+			if (Blam::Input::GetActionState(Blam::Input::eGameActionFlashlight)->Ticks == 1)
+			{
+				isFlashlightOn = true;
+				flags = flags | 0x8000;
+			}
+			else
+				isFlashlightOn = false;
+		}
 
 		//Team and FFA flags that were in Flags 1 in halo 3 are now here.
 		auto session = Blam::Network::GetActiveSession();
