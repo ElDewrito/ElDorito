@@ -129,7 +129,7 @@ void ElDorito::Initialize()
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 
 		std::stringstream ss;
-		ss << "Execute " << ed_appdata << "\\keys_" << instanceName << ".cfg";
+		ss << "Execute \"" << ed_appdata << "\\keys_" << instanceName << ".cfg\"";
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
 	}
 	else
@@ -139,7 +139,7 @@ void ElDorito::Initialize()
 		Modules::CommandMap::Instance().ExecuteCommand(ss.str());
 
 		std::stringstream keystream;
-		keystream << "Execute " << ed_appdata << "\\keys.cfg";
+		keystream << "Execute \"" << ed_appdata << "\\keys.cfg\"";
 		Modules::CommandMap::Instance().ExecuteCommand(keystream.str());
 	}
 	Modules::CommandMap::Instance().ExecuteCommand("Execute autoexec.cfg"); // also execute autoexec, which is a user-made cfg guaranteed not to be overwritten by ElDew
