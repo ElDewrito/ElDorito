@@ -464,7 +464,7 @@ $(document).ready(function(){
         alertBox('This change requires a restart to take effect.', false);
     });
     $('#tIntelBloomPatch').on('change', function(){
-        alertBox('This change requires a restart to take effect.', false);
+        alertBox('This change takes effect next time you load a map.', false);
     });
     $('.cefMedals').on('change', function(){
         if(!$('#gCefMedals').is(":checked")){
