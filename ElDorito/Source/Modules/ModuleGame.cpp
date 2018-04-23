@@ -12,6 +12,7 @@
 #include "../Blam/Tags/Game/GameEngineSettings.hpp"
 #include "../Blam/Tags/Scenario/Scenario.hpp"
 #include "../Patches/Core.hpp"
+#include "../Patches/ContentItems.hpp"
 #include "../Patches/Forge.hpp"
 #include "../Patches/Maps.hpp"
 #include "../Web/WebRenderer.hpp"
@@ -1127,6 +1128,13 @@ namespace
 		return CommandGameExit(Arguments, returnInfo);
 	}
 
+	bool CommandGameReloadVariants(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		Patches::ContentItems::ReloadAllVariants();
+
+		return true;
+	}
+
 	//EXAMPLE:
 	/*std::string VariableGameNameUpdate(const std::vector<std::string>& Arguments)
 	{
@@ -1200,6 +1208,8 @@ namespace Modules
 		AddCommand("ShowTickrate", "show_tickrate", "Toggle the on-screen Tickrate", eCommandFlagsNone, CommandShowTickrate);
 
 		AddCommand("Update", "update", "Update the game to the latest version", eCommandFlagsNone, CommandGameUpdate);
+		
+		AddCommand("ReloadVariants", "reload_variants", "Reloads all map and gametype variants from the file system", eCommandFlagsNone, CommandGameReloadVariants);
 
 		VarMenuURL = AddVariableString("MenuURL", "menu_url", "url(string) The URL of the page you want to load inside the menu", eCommandFlagsArchived, "http://scooterpsu.github.io/");
 

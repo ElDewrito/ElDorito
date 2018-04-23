@@ -44,6 +44,8 @@ namespace
 		long *CompletionStatus;
 	};
 
+	void DelAllBLFContentItems();
+	void AddAllBLFContentItems(std::string path);
 	bool IsProfileAvailable();
 	bool __fastcall c_content_item__init_hook(c_content_item *thisptr, void *unused, int contentType, c_content_catalog *catalog,
 		wchar_t *name, wchar_t *dashMetadata, int a5, int a6, int a7);
@@ -131,6 +133,22 @@ namespace Patches::ContentItems
 		Hook(0x1276C5, free, HookFlags::IsCall).Apply();
 		Hook(0x127500, malloc, HookFlags::IsCall).Apply();
 		Hook(0x1275E0, free, HookFlags::IsCall).Apply();
+	}
+
+	void ReloadAllVariants()
+	{
+		DelAllBLFContentItems();
+
+		// TODO: change this to use unicode instead of ASCII
+		char currentDir[kMaxPath];
+		memset(currentDir, 0, kMaxPath);
+		GetCurrentDirectoryA(kMaxPath, currentDir);
+
+		std::string variantPath = std::string(currentDir) + std::string("\\mods\\variants");
+		std::string mapsPath = std::string(currentDir) + std::string("\\mods\\maps");
+
+		AddAllBLFContentItems(variantPath);
+		AddAllBLFContentItems(mapsPath);
 	}
 }
 
@@ -248,6 +266,13 @@ namespace
 		closedir(dp);
 	}
 
+	void DelAllBLFContentItems()
+	{
+		//Use DataArray since we have that now
+		Blam::DataArray<c_content_item>* contentItems = reinterpret_cast<Blam::DataArray<c_content_item>*>(contentItemsGlobal);
+		contentItems->Clear();
+	}
+
 	char CallsXEnumerateHook()
 	{
 		if (!contentItemsGlobal)
@@ -255,17 +280,7 @@ namespace
 		if (enumerated)
 			return 1;
 
-		// TODO: change this to use unicode instead of ASCII
-
-		char currentDir[kMaxPath];
-		memset(currentDir, 0, kMaxPath);
-		GetCurrentDirectoryA(kMaxPath, currentDir);
-
-		std::string variantPath = std::string(currentDir) + std::string("\\mods\\variants");
-		std::string mapsPath = std::string(currentDir) + std::string("\\mods\\maps");
-
-		AddAllBLFContentItems(variantPath);
-		AddAllBLFContentItems(mapsPath);
+		Patches::ContentItems::ReloadAllVariants();
 
 		enumerated = true;
 		return 1;

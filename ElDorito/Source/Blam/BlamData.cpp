@@ -22,7 +22,7 @@ namespace Blam
 		if (((this->Flags & 0xff) >> 3) & 1)
 			memset(datum, 0xBA, this->DatumSize);
 		this->ActiveIndices[index.Index >> 5] &= ~(1 << (index.Index & 0x1F));
-		*datum = 0;
+		*(uint16_t *)datum = 0;
 		if (index.Index < this->NextIndex)
 			this->NextIndex = index;
 		if ((index.Index + 1) == this->FirstUnallocated)
@@ -34,6 +34,29 @@ namespace Blam
 			} while (this->FirstUnallocated > 0 && !*datum);
 		}
 		--this->ActualCount;
+	}
+
+	void DataArrayBase::Clear()
+	{
+		if (this->ActualCount == 0)
+			return;
+
+		this->ActualCount = 0;
+		this->NextIndex = 0;
+		this->FirstUnallocated = 0;
+
+		bool fillOnDelete = ((this->Flags & 0xff) >> 3) & 1;
+		
+		for (auto i = 0; i < this->MaxCount; i++)
+		{
+			uint8_t *datum = ((uint8_t*)this->Data + i * this->DatumSize);
+
+			if (fillOnDelete)
+				memset(datum, 0xBA, this->DatumSize);
+			*(uint16_t *)datum = 0;
+		}
+
+		memset(this->ActiveIndices, 0, (this->MaxCount + 31) / 32 * 4);
 	}
 
 	uint32_t DataArray_GetNextIndex(const DataArrayBase *data, int index)
