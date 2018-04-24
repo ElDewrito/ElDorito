@@ -309,7 +309,7 @@
                         type: 'range',
                         label: 'Gravity',
                         meta: { min: 0, max: 1, step: 0.01 },
-                        getValue: () => properties.map_physics_gravity,
+                        getValue: () => 1.0-properties.map_physics_gravity,
                         setValue: (value) => onPropertyChange({ ['map_physics_gravity']: 1.0-value })
                     });
                 });
