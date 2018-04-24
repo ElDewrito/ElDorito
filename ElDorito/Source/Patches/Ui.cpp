@@ -1978,7 +1978,10 @@ namespace
 	const float welcomeDisplayTime = 5;
 	uint32_t welcomeDisplayed;
 	bool welcome;
-	bool welcomeHasDisplayed;
+	//TODO: Find a better way to determine this.
+	//It defaults to true because it's set to false in game if the game hasn't started,
+	//but remains true if the player joins a game that has already started.
+	bool gameHasStarted = true;
 
 	bool respawning;
 
@@ -2096,7 +2099,7 @@ namespace
 			if (firstTimeSpawning)
 			{
 				swprintf(buff, L"Spawn in %d", secondsUntilSpawn);
-				welcomeHasDisplayed = false; //Make sure it's reset after games.
+				gameHasStarted = false; //Make sure it's reset after games.
 			}
 			else
 				swprintf(buff, L"Respawn in %d", secondsUntilSpawn);
@@ -2105,11 +2108,11 @@ namespace
 		}
 
 		//state_recently_started
-		if (!firstTimeSpawning && !welcomeHasDisplayed)
+		if (!firstTimeSpawning && !gameHasStarted)
 		{
 			welcome = true;
 			welcomeDisplayed = Blam::Time::GetGameTicks();
-			welcomeHasDisplayed = true;
+			gameHasStarted = true;
 			swprintf(buff, L"Welcome!");
 			return true;
 		}
