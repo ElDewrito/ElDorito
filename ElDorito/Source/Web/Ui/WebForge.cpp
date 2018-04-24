@@ -900,7 +900,7 @@ namespace
 		SerializeProperty(writer, "fx_tracing", screenFxProperties->Tracing / 255.0f);
 		SerializeProperty(writer, "map_disable_push_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisablePushBarrier) != 0));
 		SerializeProperty(writer, "map_disable_death_barrier", (int)((mapModifierProperties->Flags & Forge::ForgeMapModifierProperties::eMapModifierFlags_DisableDeathBarrier) != 0));
-		SerializeProperty(writer, "map_physics_gravity", mapModifierProperties->PhysicsGravity / 255.0f);
+		SerializeProperty(writer, "map_physics_gravity", 1.f - (mapModifierProperties->PhysicsGravity / 255.0f));
 
 		SerializeProperty(writer, "camera_fx_exposure", mapModifierProperties->CameraFxExposure / 255.0f);
 		SerializeProperty(writer, "camera_fx_bloom", mapModifierProperties->CameraFxBloom / 255.0f);
