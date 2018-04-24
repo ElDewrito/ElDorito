@@ -810,8 +810,8 @@ namespace
 		auto screenFxProperties = reinterpret_cast<const Forge::ForgeScreenFxProperties*>(&properties.RadiusWidth);
 		auto reforgeProperties = reinterpret_cast<const Forge::ReforgeObjectProperties*>(&properties.RadiusWidth);
 		auto mapModifierProperties = reinterpret_cast<const Forge::ForgeMapModifierProperties*>(&properties.RadiusWidth);
-		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.RadiusWidth);
-		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.RadiusWidth);
+		auto garbageVolumeProperties = reinterpret_cast<const Forge::ForgeGarbageVolumeProperties*>(&properties.TeleporterChannel);
+		auto killVolumeProperties = reinterpret_cast<const Forge::ForgeKillVolumeProperties*>(&properties.TeleporterChannel);
 
 		writer.StartObject();
 		SerializeProperty(writer, "tag_index", int(budget.TagIndex));
