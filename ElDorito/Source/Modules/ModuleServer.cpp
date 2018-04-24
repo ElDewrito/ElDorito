@@ -43,6 +43,14 @@ namespace
 		return true;
 	}
 
+	bool VariableServerPasswordUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
+	{
+		//inform Discord our password was updated
+		Discord::DiscordRPC::Instance().UpdatePresence(Blam::Network::GetNetworkMode());
+
+		return true;
+	}
+
 	bool VariableServerCountdownUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
 		unsigned long seconds = Modules::ModuleServer::Instance().VarServerCountdown->ValueInt;
@@ -1251,7 +1259,7 @@ namespace Modules
 		VarServerMessageClient = AddVariableString("MessageClient", "server_msg_client", "", eCommandFlagsInternal);
 		Server::VariableSynchronization::Synchronize(VarServerMessage, VarServerMessageClient);
 
-		VarServerPassword = AddVariableString("Password", "password", "The server password", eCommandFlagsArchived, "");
+		VarServerPassword = AddVariableString("Password", "password", "The server password", eCommandFlagsArchived, "", VariableServerPasswordUpdate);
 
 		VarServerCountdown = AddVariableInt("Countdown", "countdown", "The number of seconds to wait at the start of the game", eCommandFlagsArchived, 5, VariableServerCountdownUpdate);
 		VarServerCountdown->ValueIntMin = 0;
