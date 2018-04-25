@@ -1525,6 +1525,9 @@ namespace
 
 		int flags = 0;
 
+		if(Modules::ModuleGraphics::Instance().VarHUDOutlineEnabled->ValueInt == 1)
+			flags |= 0x100;
+
 		//Team and FFA flags that were in Flags 1 in halo 3 are now here.
 		auto session = Blam::Network::GetActiveSession();
 		if (session && session->IsEstablished())
