@@ -1,4 +1,4 @@
-**ElDewrito development is on hold right now. We are not accepting issue reports or pull requests. For more information, please read our [blog post](http://blog.eldewrito.com/post/173283650083/microsofts-legal-action-and-the-future-of).**
+**ElDewrito development is on hold right now. We are not accepting issue reports or pull requests. For more information, please see our [blog](https://blog.eldewrito.com/).**
 
 <img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" align="right"/>
 
