@@ -3,6 +3,7 @@
 #include "../ElDorito.hpp"
 #include "../Blam/BlamNetwork.hpp"
 #include "../Patches/Ui.hpp"
+#include "../Patches/Camera.hpp"
 #include "../Blam/BlamInput.hpp"
 #include "ModuleInput.hpp"
 
@@ -128,10 +129,8 @@ namespace
 
 	bool VariableCameraFovUpdate(const std::vector<std::string>& Arguments, std::string& returnInfo)
 	{
-		auto &moduleCamera = Modules::ModuleCamera::Instance();
-		float value = moduleCamera.VarCameraFov->ValueFloat;
-		Pointer::Base(0x1F01D98).Write(value);
-		Pointer::Base(0x149D42C).Write(value);
+		Patches::Camera::UpdateActiveFOV();
+
 		return true;
 	}
 
@@ -382,9 +381,13 @@ namespace Modules
 		VarCameraCenteredCrosshairThird->ValueIntMin = 0;
 		VarCameraCenteredCrosshairThird->ValueIntMax = 1;
 
-		VarCameraFov = AddVariableFloat("FOV", "fov", "The cameras field of view", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
-		VarCameraFov->ValueFloatMin = 55.f;
-		VarCameraFov->ValueFloatMax = 120.f;
+		VarCameraFirstFov = AddVariableFloat("FirstPersonFOV", "fov_first", "The cameras field of view in first person", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
+		VarCameraFirstFov->ValueFloatMin = 55.f;
+		VarCameraFirstFov->ValueFloatMax = 120.f;
+
+		VarCameraThirdFov = AddVariableFloat("ThirdPersonFOV", "fov_third", "The cameras field of view in third person", eCommandFlagsArchived, 90.f, VariableCameraFovUpdate);
+		VarCameraThirdFov->ValueFloatMin = 55.f;
+		VarCameraThirdFov->ValueFloatMax = 120.f;
 
 		VarCameraHideHud = AddVariableInt("HideHUD", "hud", "Toggles the HUD", eCommandFlagsArchived, 0, VariableCameraHideHudUpdate);
 		VarCameraHideHud->ValueIntMin = 0;
@@ -399,7 +402,7 @@ namespace Modules
 		this->VarCameraMode = AddVariableString("Mode", "camera_mode", "Camera mode, valid modes: default, first, third, flying, static",
 			(CommandFlags)(eCommandFlagsDontUpdateInitial | eCommandFlagsCheat), "default", VariableCameraModeUpdate);
 
-		VarCameraShowCoordinates = AddVariableInt("ShowCoordinates", "coords", "The cameras field of view", eCommandFlagsArchived, 0, VariableCameraShowCoordinatesUpdate);
+		VarCameraShowCoordinates = AddVariableInt("ShowCoordinates", "coords", "Show camera coordinates.", eCommandFlagsArchived, 0, VariableCameraShowCoordinatesUpdate);
 		VarCameraShowCoordinates->ValueIntMin = 0;
 		VarCameraShowCoordinates->ValueIntMax = 1;
 	}

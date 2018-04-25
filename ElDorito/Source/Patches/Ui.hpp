@@ -31,6 +31,7 @@ namespace Patches::Ui
 	void UpdateSpeakingPlayerWidget(bool mapLoaded);
 
 	void UpdateHUDDistortion();
+	void OnCameraChange(int cameraFunc);
 
 	void ShowLanBrowser();
 

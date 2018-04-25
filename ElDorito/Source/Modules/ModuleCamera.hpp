@@ -12,7 +12,8 @@ namespace Modules
 	public:
 		Command* VarCameraCenteredCrosshairFirst;
 		Command* VarCameraCenteredCrosshairThird;
-		Command* VarCameraFov;
+		Command* VarCameraFirstFov;
+		Command* VarCameraThirdFov;
 		Command* VarCameraHideHud;
 		Command* VarCameraMode;
 		Command* VarCameraSpeed;
