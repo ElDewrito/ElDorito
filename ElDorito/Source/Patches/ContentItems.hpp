@@ -3,4 +3,5 @@
 namespace Patches::ContentItems
 {
 	void ApplyAll();
+	void ReloadAllVariants();
 }

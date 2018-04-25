@@ -63,6 +63,7 @@ namespace Blam
 		}
 
 		void Delete(DatumHandle index);
+		void Clear();
 	};
 	static_assert(sizeof(DataArrayBase) == 0x54, "Invalid DataArrayBase size");
 
