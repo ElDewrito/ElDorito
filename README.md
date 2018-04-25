@@ -1,4 +1,4 @@
-**ElDewrito development is on hold right now. We are not accepting issue reports or pull requests. For more information, please see our [blog](https://blog.eldewrito.com/).**
+**ElDewrito development is on hold right now. We are not accepting issue reports or pull requests. For more information, please see our [blog](http://blog.eldewrito.com/).**
 
 <img src="http://i.imgur.com/IkTrjna.png" width="190" height="164" align="right"/>
 
