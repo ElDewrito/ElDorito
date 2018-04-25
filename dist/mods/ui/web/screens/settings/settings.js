@@ -361,6 +361,13 @@ $(document).ready(function(){
         if(hasGP){    
             if(e.data.A == 1){
                 if(activePage.endsWith('alertBox')){
+					if($('#acceptButton:visible').length){
+						dew.command('Settings.Reset').then(function(){
+							setControlValues();
+							initGamepad();
+						});
+						hideAlert(true);
+					}else
                     if($('#dismissButton:visible').length){
                         dismissButton();
                     }else{
@@ -511,6 +518,8 @@ function setButtons(){
         $('#cancelButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#dismissButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
         $('#okButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
+        $('#denyButton img').attr('src','dew://assets/buttons/' + response + '_B.png');
+        $('#acceptButton img').attr('src','dew://assets/buttons/' + response + '_A.png');
         $('.tabs img').eq(0).attr('src','dew://assets/buttons/' + response + '_LB.png');
         $('.tabs img').eq(1).attr('src','dew://assets/buttons/' + response + '_RB.png');
     });
@@ -766,10 +775,12 @@ function resetButton(){
             initializeBindings(); 
         });
     }else{
+		alertBoxReset("Are you sure you want to reset the settings?", function() {
         dew.command('Settings.Reset').then(function(){
             setControlValues();
             initGamepad();
         });
+		});
     }
 }
 
@@ -1284,11 +1295,33 @@ function queueChange(changeBlock){
 }
 
 function alertBox(alertText, dismissButton){
+	$('#okButton').show();
+	$('#acceptButton').hide();
+	$('#denyButton').hide();
     if(dismissButton){
         $('#dismissButton').show();
     }else{
         $('#dismissButton').hide();
     }
+    $('#wDescription').text(alertText);
+    $('#alertBox').fadeIn(100);
+    activePage = activePage+'alertBox';
+    dew.command('Game.PlaySound 0x0B02');
+}
+
+function alertBoxReset(alertText, callback){
+	$('#okButton').hide();
+	$('#dismissButton').hide();
+	$('#acceptButton').show();
+	$('#denyButton').show();
+	$("#acceptButton").off('click').on('click', function(e){
+		console.log("reset settings");
+		callback();	
+		hideAlert(true);
+	});
+	$("#denyButton").off('click').on('click', function(e){
+		hideAlert(true);
+	});
     $('#wDescription').text(alertText);
     $('#alertBox').fadeIn(100);
     activePage = activePage+'alertBox';

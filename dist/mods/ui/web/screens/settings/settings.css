@@ -224,7 +224,7 @@ div[id^='page']:target #buttonConatiner{
 #randomArmor,#randomColors{
 	bottom: calc(-4.15vh - 1.1vh);
 }
-#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton,#resetButton{
+#applyButton,#cancelButton,#randomArmor,#randomColors, #okButton, #dismissButton,#resetButton ,#denyButton,#acceptButton{
 	position: absolute;
 	height: 4vh;
 	line-height: 4vh;
@@ -240,13 +240,13 @@ div[id^='page']:target #buttonConatiner{
 	padding: none;
 	float: left;
 }
-#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img,#resetButton img{
+#applyButton img,#cancelButton img,#randomArmor img,#randomColors img, #okButton img, #dismissButton img,#resetButton img,#denyButton img,#acceptButton img{
 	display:none;
 	position:relative;
 	height: 3.75vh;
 	float: left;
 }
-#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover,#resetButton:hover{
+#applyButton:hover,#cancelButton:hover, #randomArmor:hover, #randomColors:hover, #okButton:hover, #dismissButton:hover,#resetButton:hover,#denyButton:hover,#acceptButton:hover{
 	text-decoration: underline;
 }
 #applyButton{
@@ -733,7 +733,7 @@ input[type=range]:focus {
 	background-color: rgba(0, 0, 0, 0.3);
 	padding-left: 25%;
 }
-#alertButtonContainer #okButton, #alertButtonContainer #dismissButton {
+#alertButtonContainer #okButton, #alertButtonContainer #dismissButton,#denyButton,#acceptButton{
     position: relative;
     height: 4vh;
     line-height: 4vh;
@@ -757,6 +757,13 @@ input[type=range]:focus {
 	display:none;
 }
 
+#denyButton{
+	display:none;
+}
+
+#acceptButton{
+	display:none;
+}
 
 #blueHeader,#blueFooter{
     display:none;
