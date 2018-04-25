@@ -67,6 +67,12 @@ namespace
 
 	void chud_talking_player_name_hook();
 	void __fastcall chud_add_player_marker_hook(void *thisptr, void *unused, uint8_t *data);
+	void chud_update_player_marker_state_hook();
+	void chud_update_player_marker_sprite_hook();
+	void chud_update_marker_sprite_hook();
+	void chud_update_player_marker_icon_height_hook();
+	void chud_update_player_marker_name_height_hook();
+	void chud_marker_bitmap_hook();
 
 	template <int MaxItems>
 	struct c_gui_generic_category_datasource
@@ -158,8 +164,9 @@ namespace
 
 namespace Patches::Ui
 {
+	PlayerMarkersOption playerMarkers;
+
 	bool enableCustomHUDColors = false;
-	bool enableAllyBlueWaypointsFix = false;
 	int customPrimaryHUDColor = -1;
 	int customSecondaryHUDColor = 0;
 
@@ -291,8 +298,28 @@ namespace Patches::Ui
 
 		//Show the talking player's name on the HUD
 		Hook(0x6CA978, chud_talking_player_name_hook, HookFlags::IsCall).Apply();
+
 		// allow hiding nametags
 		Hook(0x68AA21, chud_add_player_marker_hook, HookFlags::IsCall).Apply();
+
+		//Show speaking player markers
+		Hook(0x349450, chud_update_player_marker_state_hook).Apply();
+		
+		//Restore some old/removed marker functionality.
+		Hook(0x349469, chud_update_player_marker_sprite_hook).Apply();
+		Hook(0x6CED6A, chud_update_marker_sprite_hook).Apply();
+
+		//Repurpose some of saber's hacky code to scale marker sprites
+		//Allows upscaled textures to be used replacing the pixelated leftover spritesheet
+		//Also switches to the old spritesheet.
+		Hook(0x6C6A0E, chud_marker_bitmap_hook).Apply();
+
+		//Stop the assault bomb from overwriting the player marker bitmap sprite index.
+		Patch(0x2E805F, { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 }).Apply();
+
+		//Moves the icon above the name on player markers.
+		Patch(0x6CF0B3, { 0x90, 0x90, 0x90 }).Apply(); //Keep name at bottom
+		Hook(0x6CF0A0, chud_update_player_marker_icon_height_hook).Apply(); //Move icon above name if necessary
 
 		//Fixes monitor crosshair position.
 		Patch(0x25F9D5, { 0x4c }).Apply();
@@ -399,6 +426,9 @@ namespace Patches::Ui
 		//Empty the HUD chud_talking_player_name string.
 		//If someone is talking it will be reassigned below.
 		memset(chud_talking_player_name, 0, sizeof(chud_talking_player_name));
+
+		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 0)
+			return;
 
 		//Setup HUD string.
 		if (speakingPlayers.size() < 1)
@@ -1443,7 +1473,7 @@ namespace
 	{
 		int flags = 0;
 
-		if (speakingPlayers.size() > 0)
+		if (speakingPlayers.size() > 0 && Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
 			flags |= 8; //SomeoneIsTalking
 
 		return flags;
@@ -1543,14 +1573,6 @@ namespace
 	{
 		_asm
 		{
-			ally_blue:
-				cmp enableAllyBlueWaypointsFix, 1
-				jne custom_colors
-				cmp[ebp + 0xC], 0xF
-				jne custom_colors
-				mov eax, [eax + 19 * 4 + 4]
-				jmp eldorado_return
-
 			custom_colors:
 				cmp enableCustomHUDColors, 1
 				jne tag_color
@@ -1596,7 +1618,7 @@ namespace
 	{
 		_asm
 		{
-			custom_colors:
+			//custom_colors:
 				cmp enableCustomHUDColors, 1
 				jne tag_color
 				cmp ecx, 0
@@ -1889,6 +1911,412 @@ namespace
 			auto existingState = &((s_chud_player_marker_state*)thisptr)[index];
 			memcpy(&existingState->data, data, sizeof(s_chud_player_marker_data));
 			existingState->time = Blam::Time::GetGameTicks();
+		}
+	}
+
+	unsigned int __stdcall IsPlayerSpeaking(int handle)
+	{
+		Blam::Players::PlayerDatum* player = Blam::Players::GetPlayers().Get(Blam::DatumHandle(handle));
+		std::string playerName(Utils::String::ThinString(player->Properties.DisplayName));
+
+		if (std::find(speakingPlayers.begin(), speakingPlayers.end(), playerName) != speakingPlayers.end())
+			return 1;
+
+		return 0;
+	}
+
+	__declspec(naked) void chud_update_player_marker_state_hook()
+	{
+		int _ebx, _ecx, _edx, _ebp, _edi, _esp;
+		int markerSecondary;
+
+		__asm
+		{
+			mov markerSecondary, eax
+
+			//preserve registers
+			mov _ebx, ebx
+			mov _ecx, ecx
+			mov _edx, edx
+			mov _ebp, ebp
+			mov _edi, edi
+			mov _esp, esp
+
+			//check if player is speaking
+			mov eax, [ebp + 0xC]
+			push eax
+			call IsPlayerSpeaking
+
+			//check result from is player speaking
+			cmp eax, 0
+			je check_marker_secondary
+			mov eax, 2
+			mov markerSecondary, eax //1 = shooting, 2 = speaking, 3 = taking damage
+
+			check_marker_secondary :
+
+			//restore registers
+			mov ebx, _ebx
+			mov edx, _edx
+			mov ebp, _ebp
+			mov edi, _edi
+			mov esp, _esp
+			mov eax, markerSecondary
+
+			dec eax
+			jz shooting
+
+			dec eax
+			jz speaking
+
+			//taking_damage:
+			dec eax
+			mov al, byte ptr[ebp + 0xB]
+			jnz loc_749469
+			or dword ptr[ebx + 0x10], 8
+			jmp loc_749469
+
+		shooting:
+			mov esi, 0x74947F
+			jmp esi
+
+		speaking:
+			mov esi, 0x749462
+			jmp esi
+
+		loc_749469:
+			mov esi, 0x749469
+			jmp esi
+		}
+	}
+
+	//TODO: 
+	//Refactor
+	enum class PlayerMarkerIconIndex : int
+	{
+		None = -1,
+		Speaker,
+		DeathCross,
+		Tick,
+		Juggernaut,
+		Unknown,
+		Bomb,
+		Flag,
+		Skull,
+		King,
+		VIP,
+		Padlock,
+		One,
+		Two,
+		Three,
+		Four,
+		Five,
+		Six,
+		Seven,
+		Eight,
+		Nine
+	};
+
+	enum PlayerMarkerBitmapSpriteIndex : int
+	{
+		Ally,
+		Enemy,
+		Objective,
+		None
+	};
+
+	enum class WaypointTrait : int8_t
+	{
+		Unchanged,
+		NoMarker,
+		MarkerVisibleToAllies,
+		MarkerVisibleToEveryone,
+		NoName, //Added by Unk
+		MarkerVisibleToAlliesNameInvisibleToEnemies //Added by Unk
+	};
+
+	PlayerMarkerBitmapSpriteIndex __stdcall GetPlayerMarkerSpriteIndex(int handle, int markerColorIndex)
+	{
+		using Blam::GameType;
+
+		auto player = Blam::Players::GetPlayers().Get(handle);
+		if (!player)
+			return PlayerMarkerBitmapSpriteIndex::None;
+
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+			return PlayerMarkerBitmapSpriteIndex::None;
+
+		GameType gamemode = (GameType)session->Parameters.GameVariant.Get()->GameType;
+
+		WaypointTrait playerWaypointTrait = *(WaypointTrait*)((uint8_t*)player + 0x2DC1);
+
+		//TODO: add armour colors fix.
+		if (markerColorIndex == 0)
+		{
+			switch (playerWaypointTrait)
+			{
+			case WaypointTrait::MarkerVisibleToAllies:
+			case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
+			case WaypointTrait::MarkerVisibleToEveryone:
+			case WaypointTrait::Unchanged:
+				return PlayerMarkerBitmapSpriteIndex::Ally;
+			default:
+				return PlayerMarkerBitmapSpriteIndex::None;
+			}
+		}
+		else
+		{
+			switch (playerWaypointTrait)
+			{
+				case WaypointTrait::MarkerVisibleToAllies:
+				case WaypointTrait::MarkerVisibleToAlliesNameInvisibleToEnemies:
+				case WaypointTrait::NoMarker:
+				case WaypointTrait::NoName:
+					return PlayerMarkerBitmapSpriteIndex::None;
+				case WaypointTrait::MarkerVisibleToEveryone:
+					return PlayerMarkerBitmapSpriteIndex::Enemy;
+				case WaypointTrait::Unchanged:
+				{
+					//Any unchanged players holding objectives have icons above their head, 
+					//so another hook can check the icon and give them a marker.
+					//The exception to this is infection, which gives the last man standing a marker.
+					//So that's handled here.
+					if (gamemode == GameType::Infection)
+					{
+						bool thereIsALastManStanding = Pointer(ElDorito::GetMainTls(0x48 + 0xE6DC)).Read<uint16_t>() == 1;
+						bool iAmAlive = Pointer(0x2161808).Read<uint8_t>() == 1;
+						bool iAmAZombie = Pointer(ElDorito::GetMainTls(0x48 + 0xE190)).Read<uint16_t>() == 1;
+						if (thereIsALastManStanding && (iAmAlive || iAmAZombie))
+							return PlayerMarkerBitmapSpriteIndex::Enemy;
+					}
+
+					return PlayerMarkerBitmapSpriteIndex::None;
+				}
+			}
+		}
+		return PlayerMarkerBitmapSpriteIndex::None;
+	}
+
+	bool __stdcall DoesPlayerMarkerHaveObjective(PlayerMarkerIconIndex markerIconIndex)
+	{
+		using Blam::GameType;
+
+		auto session = Blam::Network::GetActiveSession();
+		if (!session || !session->IsEstablished())
+			return false;
+
+		GameType gamemode = (GameType)session->Parameters.GameVariant.Get()->GameType;
+
+		switch (gamemode)
+		{
+			default:
+				break;
+			case GameType::Assault:
+				if (markerIconIndex == PlayerMarkerIconIndex::Bomb)
+					return true;
+				break;
+			case GameType::CTF:
+				if (markerIconIndex == PlayerMarkerIconIndex::Flag)
+					return true;
+				break;
+			case GameType::Oddball:
+				if (markerIconIndex == PlayerMarkerIconIndex::Skull)
+					return true;
+				break;
+			case GameType::Juggernaut:
+				if (markerIconIndex == PlayerMarkerIconIndex::Juggernaut)
+					return true;
+				break;
+			case GameType::VIP:
+				if (markerIconIndex == PlayerMarkerIconIndex::VIP)
+					return true;
+				break;
+		}
+
+		return false;
+	}
+
+
+	__declspec(naked) void chud_update_player_marker_sprite_hook()
+	{
+		int _ebx, _ecx, _edx, _ebp, _edi, _esp;
+		__asm
+		{
+				//preserve registers
+				mov _ebx, ebx
+				mov _ecx, ecx
+				mov _edx, edx
+				mov _ebp, ebp
+				mov _edi, edi
+				mov _esp, esp
+
+				cmp dword ptr[ebx + 8], 0xFFFFFFFF
+				jnz ed_return
+
+
+				mov _ebp, ebp
+				mov ebx, _ebx
+				mov eax, [ebx + 0xC] //color
+				push eax
+				mov eax, [ebp + 0xC] //handle
+				push eax
+				call GetPlayerMarkerSpriteIndex
+
+				//restore registers
+				mov edx, _edx
+				mov ebp, _ebp
+				mov edi, _edi
+				mov esp, _esp
+
+				mov dword ptr[ebx + 4], eax
+				mov eax, 1 //Not sure why this is required, but if 0 waypoints hide.
+
+			ed_return:
+				mov esi, 0x749476
+				jmp esi
+		}
+	}
+
+	__declspec(naked) void chud_update_marker_sprite_hook()
+	{
+		__asm
+		{
+				push eax
+
+				cmp[esi - 0x2C], 3 //3 = no marker
+				jne fix_armour_colors
+
+				mov eax, [esi - 0x28]
+				push eax
+				call DoesPlayerMarkerHaveObjective
+
+				cmp eax, 0
+				je fix_armour_colors
+
+				cmp[esi - 0x24], 2 //enemy color
+				jne is_ally_with_objective
+				mov[esi - 0x2C], 1 //enemy marker
+				jmp fix_armour_colors
+
+			is_ally_with_objective:
+				cmp[esi - 0x24], 0 //ally color
+				jne fix_armour_colors
+				mov[esi - 0x2C], 0 //ally marker
+
+			fix_armour_colors:
+				cmp playerMarkers, 2
+				jne fix_alt_ally_color
+				cmp[esi - 0x24], 3
+				je eldorado_return
+				cmp[esi - 0x2C], 0
+				je is_player_marker
+				cmp[esi - 0x2C], 1
+				je is_player_marker
+				cmp[esi - 0x2C], 3
+				je is_player_marker
+				jmp eldorado_return
+			is_player_marker:
+				mov[esi - 0x24], 5 //armour colors
+
+			fix_alt_ally_color: //ally_blue
+				cmp playerMarkers, 1
+				jne eldorado_return
+				cmp[esi - 0x24], 0
+				jne eldorado_return
+				mov[esi - 0x24], 4
+
+
+			eldorado_return:
+				pop eax
+				//perform original instruction
+				lea ecx, [esi + 0xC]
+				push ecx
+				mov byte ptr[ecx], 01
+
+				mov eax, 0xACED71
+				jmp eax
+		}
+	}
+
+	__declspec(naked) void chud_update_player_marker_icon_height_hook()
+	{
+		__asm
+		{
+				movss xmm0, [ebp - 0xC]
+
+				pop ecx
+
+				push eax
+				push ebx
+				push ecx
+				push edx
+
+				lea     ebx, [esi - 0x18]
+
+				mov     ecx, 5
+				xor eax, eax
+				test    ecx, ecx
+				jz      short loc_4ECBEC
+				nop
+			loc_4ECBE0:
+				cmp     word ptr[ebx + eax * 2], 0
+				jz      short loc_4ECBEC
+				inc     eax
+				cmp     eax, ecx
+				jb      short loc_4ECBE0
+			loc_4ECBEC:
+
+				test    eax, eax
+				mov     al, [ebp - 1]
+				jne		raise_icon
+				test    al, al
+				je      eldorado_return
+
+			raise_icon:
+				mov eax, 0x40000000 //2f, may need adjustment
+				movd xmm1, eax
+				movss xmm0, [ebp - 0xC]
+				mulss xmm0, xmm1
+
+			eldorado_return:
+
+				pop edx
+				pop ecx
+				pop ebx
+				pop eax
+
+				lea ecx, [ebp - 0x1A64]
+				push ecx
+
+				mov edx, 0xACF0A5
+				jmp edx
+		}
+
+	}
+
+	__declspec(naked) void chud_update_player_marker_name_height_hook()
+	{
+		__asm
+		{
+			mov[ebp - 0xC], 0xC1C00000
+
+			mov ebx, 0xACF0D3
+			jmp ebx
+		}
+	}
+
+	__declspec(naked) void chud_marker_bitmap_hook()
+	{
+		__asm
+		{
+			movss xmm1, [eax + 0x2AC] //waypoint_scale
+			lea edi, [eax + 0x168] //waypoints (bitm)
+			movss xmm0, [ebp + 0x18]
+			mulss xmm0, xmm1
+
+			mov eax, 0xAC6A4D
+			jmp eax
 		}
 	}
 

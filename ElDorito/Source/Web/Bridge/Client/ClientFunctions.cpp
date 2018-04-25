@@ -580,10 +580,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 
 		Modules::ModuleVoIP::Instance().voiceDetected = value->value.GetBool();
 
-		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
-		{
-			Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
-		}
+		Patches::Ui::ToggleSpeakingPlayerName(Modules::ModulePlayer::Instance().VarPlayerName->ValueString , value->value.GetBool());
 
 		return QueryError_Ok;
 	}
@@ -617,13 +614,7 @@ namespace Anvil::Client::Rendering::Bridge::ClientFunctions
 			return QueryError_BadQuery;
 		}
 
-		if (Modules::ModuleVoIP::Instance().VarSpeakingPlayerOnHUD->ValueInt == 1)
-			Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
-		else
-		{
-			if(!value->value.GetBool()) //If we only want to render web, allow us to remove names still
-				Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
-		}
+		Patches::Ui::ToggleSpeakingPlayerName(name->value.GetString(), value->value.GetBool());
 
 		return QueryError_Ok;
 	}
