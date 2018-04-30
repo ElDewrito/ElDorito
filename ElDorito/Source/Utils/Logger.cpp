@@ -145,15 +145,13 @@ namespace Utils
 
 			for (auto filter : gameModule.FiltersExclude)
 			{
-				// TODO: case-insensitive comparison
-				if (strstr(message.c_str(), filter.c_str()) != nullptr)
+				if (strstr(message.c_str().tolower(), filter.c_str().tolower()) != nullptr)
 					goto closefile; // string contains an excluded string
 			}
 
 			for (auto filter : gameModule.FiltersInclude)
 			{
-				// TODO: case-insensitive comparison
-				if (strstr(message.c_str(), filter.c_str()) != nullptr)
+				if (strstr(message.c_str().tolower(), filter.c_str().tolower()) != nullptr)
 					continue;
 
 				goto closefile;  // string doesn't contain an included string
