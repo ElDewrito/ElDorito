@@ -145,15 +145,17 @@ namespace Utils
 
 			for (auto filter : gameModule.FiltersExclude)
 			{
-				// TODO: case-insensitive comparison
-				if (strstr(message.c_str(), filter.c_str()) != nullptr)
+				std::string lowercaseMessage = Utils::String::ToLower(message);
+				std::string lowercaseFilter = Utils::String::ToLower(filter);
+				if (strstr(lowercaseMessage.c_str(), lowercaseFilter.c_str()) != nullptr)
 					goto closefile; // string contains an excluded string
 			}
 
 			for (auto filter : gameModule.FiltersInclude)
 			{
-				// TODO: case-insensitive comparison
-				if (strstr(message.c_str(), filter.c_str()) != nullptr)
+				std::string lowercaseMessage = Utils::String::ToLower(message);
+				std::string lowercaseFilter = Utils::String::ToLower(filter);
+				if (strstr(lowercaseMessage.c_str(), lowercaseFilter.c_str()) != nullptr)
 					continue;
 
 				goto closefile;  // string doesn't contain an included string
