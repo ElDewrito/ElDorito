@@ -25,7 +25,7 @@ We don't accept donations, donate money to your favorite charity instead.
 Although if you have a spare server running [ElDewrito-MasterServer](https://github.com/ElDewrito/ElDewrito-MasterServer) on it would be welcomed, get in touch with us on IRC and we can help you set this up.
 
 ## Help/Support/Contact
-We have a [Discord server](https://discord.gg/halo) that stays pretty active with helpful users.
+We have a [Discord server](https://discord.gg/0TKY0SDEUHAWL4sG) that stays pretty active with helpful users.
 
 You can also try checking the support question on the [subreddit](https://www.reddit.com/r/HaloOnline/).
 
