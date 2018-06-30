@@ -224,7 +224,7 @@ namespace Patches::Network
 					writer.Key("numPlayers");
 					writer.Int(GetNumPlayers());
 
-					std::ifstream file("fmmRequired.dat");
+					std::ifstream file("fmm.dat");
 					std::string temp;
 
 					writer.Key("mods");
